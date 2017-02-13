@@ -21,7 +21,7 @@ shell.exec("npm run compile", (code, stdout) => {
   shell.echo("code compiled");
 
   shell.exec("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD", (code, stdout) => {
-    const body = stdout;
+    const body = stdout.length ? stdout : `v${version}`;
 
     shell.exec("npm publish ./", (code, stdout) => {
       if (code) kill(code, stdout);
