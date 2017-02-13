@@ -1,0 +1,42 @@
+@import "./variables";
+
+section {
+
+  & h3 {
+    color: var(--font-section-color);
+    font-family: var(--font-section-family);
+    font-size: var(--font-section-size);
+  }
+
+  & .columns {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+
+    & article {
+      flex: none;
+      margin-right: var(--gutter);
+      width: var(--p-small);
+    }
+
+  }
+
+  & .rows {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    & article {
+      flex: none;
+      margin-bottom: var(--gutter);
+      width: var(--p-large);
+    }
+
+  }
+
+  & .viz {
+    flex: 1;
+    min-height: var(--viz-height);
+  }
+
+}

@@ -1,0 +1,34 @@
+:root {
+
+  /* colors */
+  --black: var(--black, #222);
+  --dark: var(--dark, rgb(61, 71, 55));
+  --light: var(--light, color(var(--dark) l(50%)));
+
+  /* spacing and sizing */
+  --gutter: var(--gutter, 25px);
+  --p-small: var(--p-small, 250px);
+  --p-large: var(--p-large, 500px);
+  --viz-height: var(--viz-height, 400px);
+
+  /* font styling */
+  --font-family: var(--font-family, sans-serif);
+
+  --font-topic-color: var(--font-topic-color, var(--dark));
+  --font-topic-family: var(--font-section-family, var(--font-family));
+  --font-topic-size: var(--font-topic-size, 48px);
+
+  --font-section-color: var(--font-section-color, var(--black));
+  --font-section-family: var(--font-section-family, var(--font-family));
+  --font-section-size: var(--font-section-size, 32px);
+
+  --font-article-color: var(--font-article-color, var(--black));
+  --font-article-family: var(--font-section-family, var(--font-family));
+  --font-article-size: var(--font-article-size, 16px);
+
+  /* z-index layers */
+  --background: var(--background, -10);
+  --foreground: var(--foreground, 10);
+  --cover: var(--cover, 20);
+
+}
