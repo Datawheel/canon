@@ -18,18 +18,21 @@ function kill(code, stdout) {
 
 shell.exec("npm run compile", (code, stdout) => {
   if (code) kill(code, stdout);
+  shell.echo("code compiled");
 
   shell.exec("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD", (code, stdout) => {
     const body = stdout;
 
     shell.exec("npm publish ./", (code, stdout) => {
       if (code) kill(code, stdout);
+      shell.echo("published to npm");
 
       shell.exec("git add --all", (code, stdout) => {
         if (code) kill(code, stdout);
 
         shell.exec(`git commit -m \"compiles v${version}\"`, (code, stdout) => {
           if (code) kill(code, stdout);
+          shell.echo("git commit");
 
           shell.exec(`git tag v${version}`, (code, stdout) => {
             if (code) kill(code, stdout);
@@ -53,7 +56,7 @@ shell.exec("npm run compile", (code, stdout) => {
                   shell.exit(1);
                 }
                 else {
-
+                  shell.echo("release pushed");
                   shell.exit(0);
 
                 }
