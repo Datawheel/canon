@@ -5,7 +5,7 @@ const release = require("grizzly"),
       token = shell.env.GITHUB_TOKEN,
       {name, version} = JSON.parse(shell.cat("package.json"));
 
-shell.config.silent = true;
+// shell.config.silent = true;
 
 let minor = version.split(".");
 const prerelease = parseFloat(minor[0]) === 0;
