@@ -42,7 +42,7 @@ shell.exec("npm run compile", (code, stdout) => {
 
               release(token, {
                 repo: name,
-                user: "d3plus",
+                user: "datawheel",
                 tag: `v${version}`,
                 name: `v${version}`,
                 body, prerelease
