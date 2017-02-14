@@ -7,9 +7,28 @@ process.env.DIR = __dirname;
 
 nodemon({
   watch: [
-    "app/*",
-    "app/**/*"
+    "app/actions",
+    "app/reducers",
+    "app/.env.js",
+    "app/helmet.js",
+    "app/routes.js",
+    "app/store.js",
+    "app/style.js"
   ],
   verbose: true,
-  exec: "webpack --colors --config $DIR/../webpack/webpack.config.dev-server.js && babel-node --presets es2015,stage-0 --ignore node_modules,static -- $DIR/server.js"
+  exec: "webpack --colors --config $DIR/../webpack/webpack.config.dev-server.js && node $DIR/server.js"
+})
+.on("start", () => {
+  // console.log("nodemon has started app");
+})
+.on("quit", () => {
+  // console.log("nodedmon has quit");
+  process.exit();
+})
+.on("restart", files => {
+  if (files) {
+    const filePath = files[0].split("/");
+    console.log("\n👁️  App restarted due to:", filePath[filePath.length - 1]);
+    console.log("\n");
+  }
 });
