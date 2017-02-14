@@ -16,7 +16,7 @@ const commonLoaders = [
       plugins: ["transform-decorators-legacy"]
     },
     include: [appPath, path.join(__dirname, "../src")],
-    exclude: path.join(appDir, "node_modules")
+    exclude: [path.join(appDir, "node_modules"), path.join(__dirname, "../node_modules")]
   },
   {
     test: /\.json$/, loader: "json"
