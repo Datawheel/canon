@@ -21,4 +21,4 @@ SectionColumns.defaultProps = {type: "columns"};
 class SectionRows extends Section {}
 SectionRows.defaultProps = {type: "rows"};
 
-export {Section, SectionColumns};
+export {Section, SectionColumns, SectionRows};
