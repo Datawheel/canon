@@ -24,8 +24,7 @@ const commonLoaders = [
         "transform-react-inline-elements"
       ]
     },
-    include: [appPath, path.join(__dirname, "../src")],
-    exclude: [path.join(appDir, "node_modules"), path.join(__dirname, "../node_modules")]
+    include: [appPath, path.join(__dirname, "../src")]
   },
   {
     test: /\.json$/, loader: "json"
