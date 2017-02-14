@@ -1,6 +1,6 @@
 {
   "name": "datawheel-canon",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "lib/datawheel-canon.js",
   "bin": {
