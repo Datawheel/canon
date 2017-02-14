@@ -32,3 +32,4 @@ class Topics extends Component {
 
 Topics.defaultProps = {data: [], profile: {}};
 export default Topics;
+export {Topics};

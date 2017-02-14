@@ -1,3 +1,3 @@
 export {Section, SectionColumns, SectionRows} from "./components/Section.jsx";
-export {default as Stat} from "./components/Stat.jsx";
-export {default as Topics} from "./components/Topics.jsx";
+export {Stat} from "./components/Stat.jsx";
+export {Topics} from "./components/Topics.jsx";

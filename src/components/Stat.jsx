@@ -20,3 +20,4 @@ Stat.defaultProps = {
 };
 
 export default Stat;
+export {Stat};
