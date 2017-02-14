@@ -1,10 +1,10 @@
-import axios from "axios";
-import gzip from "compression";
-import express from "express";
-import flash from "express-flash";
-import helmet from "helmet";
-import path from "path";
-import webpack from "webpack";
+const axios = require("axios");
+const gzip = require("compression");
+const express = require("express");
+const flash = require("express-flash");
+const helmet = require("helmet");
+const path = require("path");
+const webpack = require("webpack");
 
 const appDir = process.cwd();
 const env = require(path.join(appDir, "app/.env"));
