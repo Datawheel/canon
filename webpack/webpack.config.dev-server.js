@@ -6,9 +6,6 @@ const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
 
-console.log("appDir:", appDir);
-console.log("myPath:", __dirname);
-
 const commonLoaders = [
   {
     test: /\.js$|\.jsx$/,
@@ -45,7 +42,7 @@ module.exports = {
     loaders: commonLoaders
   },
   resolve: {
-    root: [appDir, appPath],
+    root: [appDir, appPath, path.join(__dirname, "..")],
     extensions: ["", ".js", ".jsx", ".css"]
   },
   plugins: [

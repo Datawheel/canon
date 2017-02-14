@@ -59,7 +59,7 @@ module.exports = {
     loaders: commonLoaders
   },
   resolve: {
-    root: [appDir, appPath],
+    root: [appDir, appPath, path.join(__dirname, "..")],
     extensions: ["", ".js", ".jsx", ".css"]
   },
   plugins: [
