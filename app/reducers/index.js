@@ -3,6 +3,8 @@ import {routerReducer as routing} from "react-router-redux";
 import {titleCase} from "d3plus-text";
 import {dataFold} from "d3plus-viz";
 
+import {default as home} from "./home";
+
 const searchActive = (state = false, action) => {
   switch (action.type) {
     case "ACTIVATE_SEARCH":
@@ -26,6 +28,7 @@ export default combineReducers({
     return lookup;
   },
   focus: (state = {}) => state,
+  home,
   routing,
   search: combineReducers({searchActive})
 });
