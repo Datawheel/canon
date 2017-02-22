@@ -1,4 +1,5 @@
 import React from "react";
+import {Treemap} from "d3plus-react";
 
 import {fetchData} from "actions/home";
 
@@ -7,11 +8,17 @@ import {SectionColumns} from "../../src/components/Section";
 class Child extends SectionColumns {
 
   render() {
-    console.log("Child", this.context.data);
+    const data = this.context.data.harvested_area;
     return (
       <SectionColumns title="My Cool Title">
         <article>Some Text</article>
-        <div>Other Div</div>
+        <Treemap config={{
+          data,
+          groupBy: "crop",
+          label: d => d.crop_name || d.crop,
+          legend: false,
+          sum: d => d.harvested_area
+        }} />
       </SectionColumns>
     );
   }
