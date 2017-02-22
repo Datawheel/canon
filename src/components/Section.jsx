@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import "./Section.css";
 
 class Section extends Component {
+
   render() {
     const {children, title, type} = this.props;
     return (
@@ -11,14 +12,26 @@ class Section extends Component {
       </section>
     );
   }
+
 }
-Section.defaultProps = {type: "columns"};
-export default Section;
+
+Section.contextTypes = {
+  data: React.PropTypes.object
+};
+
+Section.defaultProps = {
+  type: "columns"
+};
 
 class SectionColumns extends Section {}
-SectionColumns.defaultProps = {type: "columns"};
+SectionColumns.defaultProps = {
+  type: "columns"
+};
 
 class SectionRows extends Section {}
-SectionRows.defaultProps = {type: "rows"};
+SectionRows.defaultProps = {
+  type: "rows"
+};
 
+export default Section;
 export {Section, SectionColumns, SectionRows};
