@@ -7,7 +7,7 @@ class Section extends Component {
     const {children, title, type} = this.props;
     return (
       <section>
-        { title ? <h3>{ title }</h3> : null }
+        { title ? <h4 className="sectionTitle">{ title }</h4> : null }
         <div className={ type }>{ children }</div>
       </section>
     );

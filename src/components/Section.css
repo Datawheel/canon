@@ -1,11 +1,23 @@
 @import "./variables";
 
 section {
+  padding: calc(var(--gutter) / 2);
 
-  & h3 {
-    color: var(--font-section-color);
-    font-family: var(--font-section-family);
-    font-size: var(--font-section-size);
+  & .sectionTitle {
+    color: var(--section-title-color);
+    display: inline-block;
+    font-family: var(--section-title-family);
+    font-size: var(--section-title-size);
+    font-weight: var(--section-title-weight);
+    margin: calc(var(--gutter) / 2);
+  }
+
+  & article {
+    color: var(--section-article-color);
+    font-family: var(--section-article-family);
+    font-size: var(--section-article-size);
+    font-weight: var(--section-article-weight);
+    margin: calc(var(--gutter) / 2);
   }
 
   & .columns {
@@ -15,8 +27,7 @@ section {
 
     & article {
       flex: none;
-      margin-right: var(--gutter);
-      width: var(--p-small);
+      width: var(--section-article-small);
     }
 
   }
@@ -28,14 +39,14 @@ section {
 
     & article {
       flex: none;
-      margin-bottom: var(--gutter);
-      width: var(--p-large);
+      width: var(--section-article-large);
     }
 
   }
 
   & .viz {
     flex: 1;
+    margin: calc(var(--gutter) / 2);
     min-height: var(--viz-height);
   }
 

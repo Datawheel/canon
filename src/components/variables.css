@@ -1,30 +1,33 @@
 :root {
 
   /* colors */
-  --black: var(--black, #222);
+  --black: var(--black, #4A4A4A);
   --dark: var(--dark, rgb(61, 71, 55));
   --light: var(--light, color(var(--dark) l(50%)));
 
   /* spacing and sizing */
-  --gutter: var(--gutter, 25px);
-  --p-small: var(--p-small, 250px);
-  --p-large: var(--p-large, 500px);
+  --column: var(--column, 64px);
+  --gutter: var(--gutter, 32px);
+  --section-article-small: var(--section-article-small, calc(var(--column) * 3 + var(--gutter) * 2));
+  --section-article-large: var(--section-article-large, calc(var(--column) * 5 + var(--gutter) * 4));
   --viz-height: var(--viz-height, 400px);
 
   /* font styling */
   --font-family: var(--font-family, sans-serif);
 
-  --font-topic-color: var(--font-topic-color, var(--dark));
-  --font-topic-family: var(--font-section-family, var(--font-family));
-  --font-topic-size: var(--font-topic-size, 48px);
+  --topic-title-color: var(--topic-title-color, var(--black));
+  --topic-title-family: var(--topic-title-family, var(--font-family));
+  --topic-title-size: var(--topic-title-size, 48px);
+  --topic-title-weight: var(--topic-title-weight, 200);
 
-  --font-section-color: var(--font-section-color, var(--black));
-  --font-section-family: var(--font-section-family, var(--font-family));
-  --font-section-size: var(--font-section-size, 32px);
-
-  --font-article-color: var(--font-article-color, var(--black));
-  --font-article-family: var(--font-section-family, var(--font-family));
-  --font-article-size: var(--font-article-size, 16px);
+  --section-title-color: var(--section-title-color, var(--dark));
+  --section-title-family: var(--section-title-family, var(--font-family));
+  --section-title-size: var(--section-title-size, 24px);
+  --section-title-weight: var(--section-title-weight, 600);
+  --section-article-color: var(--section-article-color, var(--dark));
+  --section-article-family: var(--section-article-family, var(--font-family));
+  --section-article-size: var(--section-article-size, 16px);
+  --section-article-weight: var(--section-article-weight, 400);
 
   /* z-index layers */
   --background: var(--background, -10);
