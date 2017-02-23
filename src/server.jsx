@@ -67,7 +67,9 @@ export default function(defaultStore = {}) {
             </html>
           `);
         })
-        .catch(err => res.status(500).json(err));
+        .catch(err => {
+          res.status(500).send({error: err.toString(), stackTrace: err.stack.toString()});
+        });
       }
       else res.sendStatus(404);
 
