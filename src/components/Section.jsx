@@ -3,20 +3,33 @@ import "./Section.css";
 
 class Section extends Component {
 
+  getChildContext() {
+    return {
+      slug: this.props.slug || this.context.slug || this._reactInternalInstance._currentElement.type.name
+    };
+  }
+
   render() {
-    const {children, title, type} = this.props;
+    const {children, type} = this.props;
+    const title = children.filter(c => c.type.displayName === "SectionTitle");
+    const content = children.filter(c => c.type.displayName !== "SectionTitle");
     return (
       <section>
-        { title ? <h4 className="sectionTitle">{ title }</h4> : null }
-        <div className={ type }>{ children }</div>
+        { title.length ? title : null }
+        <div className={ type }>{ content }</div>
       </section>
     );
   }
 
 }
 
+Section.childContextTypes = {
+  slug: React.PropTypes.string
+};
+
 Section.contextTypes = {
-  data: React.PropTypes.object
+  data: React.PropTypes.object,
+  slug: React.PropTypes.string
 };
 
 Section.defaultProps = {

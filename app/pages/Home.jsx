@@ -7,14 +7,14 @@ import {fetchData} from "actions/home";
 import Child from "./Child";
 
 import Profile from "../../src/components/Profile";
-import Topic from "../../src/components/Topic";
+import TopicTitle from "../../src/components/TopicTitle";
 
 class Home extends Profile {
 
   render() {
     return (
       <div className="home">
-        <Topic slug="agriculture">Agriculture</Topic>
+        <TopicTitle slug="agriculture">Agriculture</TopicTitle>
         <Child />
       </div>
     );

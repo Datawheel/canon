@@ -1,0 +1,16 @@
+@import "./variables";
+
+.sectionTitle {
+  color: var(--section-title-color);
+  display: inline-block;
+  font-family: var(--section-title-family);
+  font-size: var(--section-title-size);
+  font-weight: var(--section-title-weight);
+  margin: calc(var(--gutter) / 2);
+
+  & a {
+    color: var(--section-title-color);
+    text-decoration: none;
+  }
+
+}
