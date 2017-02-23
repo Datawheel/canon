@@ -12,7 +12,7 @@ if (process.env.NODE_DEV === "development") {
 const Meta = () =>
   <Helmet
     htmlAttributes={{lang: "en", amp: undefined}}
-    defaultTitle="Data Africa" meta={config.meta}
+    defaultTitle={config.title} meta={config.meta}
     link={config.link} />;
 
 
