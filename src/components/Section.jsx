@@ -10,7 +10,9 @@ class Section extends Component {
   }
 
   render() {
-    const {children, type} = this.props;
+    const {type} = this.props;
+    let {children} = this.props;
+    if (!(children instanceof Array)) children = [children];
     const title = children.filter(c => c.type.displayName === "SectionTitle");
     const content = children.filter(c => c.type.displayName !== "SectionTitle");
     return (

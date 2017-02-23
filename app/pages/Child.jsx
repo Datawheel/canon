@@ -17,7 +17,7 @@ class Child extends SectionColumns {
         <Treemap config={{
           data,
           groupBy: "crop",
-          label: d => d.crop_name || d.crop,
+          label: d => d.crop_name,
           legend: false,
           sum: d => d.harvested_area
         }} />
