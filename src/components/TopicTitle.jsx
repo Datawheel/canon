@@ -1,7 +1,7 @@
 import React, {Component} from "react";
-import "./Topic.css";
+import "./TopicTitle.css";
 
-class Topic extends Component {
+class TopicTitle extends Component {
 
   render() {
     const {children, slug} = this.props;
@@ -10,6 +10,6 @@ class Topic extends Component {
 
 }
 
-Topic.defaultProps = {slug: ""};
-export default Topic;
-export {Topic};
+TopicTitle.defaultProps = {slug: ""};
+export default TopicTitle;
+export {TopicTitle};
