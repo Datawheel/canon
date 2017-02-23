@@ -17,3 +17,4 @@ Profile.childContextTypes = {
 };
 
 export default Profile;
+export {Profile};
