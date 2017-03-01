@@ -66,7 +66,7 @@ module.exports = [
     },
     plugins: [
       new ExtractTextPlugin("styles.css", {allChunks: true}),
-      new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}}),
+      new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: false}),
       new webpack.DefinePlugin({__DEVCLIENT__: false, __DEVSERVER__: false}),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"})
     ],
@@ -94,7 +94,7 @@ module.exports = [
     plugins: [
       new webpack.optimize.OccurenceOrderPlugin(),
       new ExtractTextPlugin("styles.css", {allChunks: true}),
-      new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}}),
+      new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: false}),
       new webpack.DefinePlugin({__DEVCLIENT__: false, __DEVSERVER__: false}),
       new webpack.IgnorePlugin(/vertx/),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"})
