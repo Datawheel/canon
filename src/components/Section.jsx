@@ -10,17 +10,20 @@ class Section extends Component {
   }
 
   render() {
+
     const {type} = this.props;
     let {children} = this.props;
     if (!(children instanceof Array)) children = [children];
-    const title = children.filter(c => c.type.displayName === "SectionTitle");
-    const content = children.filter(c => c.type.displayName !== "SectionTitle");
+    const title = children.filter(c => c.type.name === "SectionTitle");
+    const content = children.filter(c => c.type.name !== "SectionTitle");
+
     return (
       <section>
         { title.length ? title : null }
         <div className={ type }>{ content }</div>
       </section>
     );
+
   }
 
 }
