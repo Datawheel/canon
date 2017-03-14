@@ -62,7 +62,7 @@ else {
 
       const promises = res.data.data.map(attr => axios.get(`${env.API}attrs/${attr}`)
         .then(res => {
-          console.log(`   ✔️️  Cached ${attr} attributes`);
+          console.log(`   ✅️  Cached ${attr} attributes`);
           store.attrs[attr] = res.data;
           return res;
         })
