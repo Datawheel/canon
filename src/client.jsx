@@ -3,9 +3,9 @@ import {render} from "react-dom";
 import {Provider} from "react-redux";
 import {Router, browserHistory} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
+import {animateScroll} from "react-scroll";
 import createRoutes from "routes";
 import configureStore from "./store/storeConfig";
-import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
 const initialState = window.__INITIAL_STATE__;
 const store = configureStore(initialState, browserHistory);
@@ -19,10 +19,14 @@ function onUpdate() {
     return;
   }
 
-  const {components, params} = this.state;
-
-  preRenderMiddleware(store.dispatch, components, params);
 }
+
+history.listen(location => {
+  if (location.hash) {
+    const offset = document.getElementById(location.hash.slice(1)).getBoundingClientRect().top;
+    if (offset) animateScroll.scrollMore(offset);
+  }
+});
 
 render(
   <Provider store={store}>
