@@ -1,6 +1,6 @@
 @import "./variables";
 
-.sectionTitle {
+.section-title {
   color: var(--section-title-color);
   display: inline-block;
   font-family: var(--section-title-family);
@@ -8,9 +8,10 @@
   font-weight: var(--section-title-weight);
   margin: calc(var(--gutter) / 2);
 
-  & a {
+  & .anchor {
     color: var(--section-title-color);
     text-decoration: none;
+    z-index: calc(var(--foreground) - 1);
   }
 
 }

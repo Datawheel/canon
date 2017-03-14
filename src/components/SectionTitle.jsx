@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {Link} from "react-router";
 import "./SectionTitle.css";
 
 class SectionTitle extends Component {
@@ -9,8 +10,10 @@ class SectionTitle extends Component {
     const {slug} = this.context;
 
     return (
-      <h4 className="sectionTitle">
-        <a name={ slug } href={ `#${ slug }`}>{ children }</a>
+      <h4 className="section-title">
+        <Link id={ slug } to={ `#${ slug }`} className="anchor">
+          { children }
+        </Link>
       </h4>
     );
 

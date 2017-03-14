@@ -1,14 +1,15 @@
 @import "./variables";
 
-.topicTitle {
+.topic-title {
   color: var(--topic-title-color);
   font-family: var(--topic-title-family);
   font-size: var(--topic-title-size);
   font-weight: var(--topic-title-weight);
   margin: calc(var(--gutter) / 2) var(--gutter);
 
-  & a {
+  & .anchor {
     color: var(--topic-title-color);
     text-decoration: none;
+    z-index: var(--foreground);
   }
 }
