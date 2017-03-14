@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {Link} from "react-router";
 import "./SectionTitle.css";
 
 class SectionTitle extends Component {
@@ -11,9 +10,9 @@ class SectionTitle extends Component {
 
     return (
       <h4 className="section-title">
-        <Link id={ slug } to={ `#${ slug }`} className="anchor">
+        <a id={ slug } to={ `#${ slug }`} className="anchor">
           { children }
-        </Link>
+        </a>
       </h4>
     );
 

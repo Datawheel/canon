@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {Link} from "react-router";
 import "./TopicTitle.css";
 
 class TopicTitle extends Component {
@@ -8,9 +7,9 @@ class TopicTitle extends Component {
     const {children, slug} = this.props;
     return (
       <h2 className="topic-title">
-        <Link to={ `#${ slug }`} id={ slug } className="anchor">
+        <a href={ `#${ slug }`} id={ slug } className="anchor">
           { children }
-        </Link>
+        </a>
       </h2>
     );
   }
