@@ -1,7 +1,7 @@
 import React from "react";
 import {render} from "react-dom";
 import {Provider} from "react-redux";
-import {Router, browserHistory} from "react-router";
+import {browserHistory, Router, RouterContext} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
 import {animateScroll} from "react-scroll";
 import createRoutes from "routes";
@@ -28,9 +28,17 @@ history.listen(location => {
   }
 });
 
+function firstRender(props) {
+  if (props.location.hash) {
+    const offset = document.getElementById(props.location.hash.slice(1)).getBoundingClientRect().top;
+    if (offset) animateScroll.scrollMore(offset);
+  }
+  return <RouterContext {...props}/>;
+}
+
 render(
   <Provider store={store}>
-    <Router history={history} onUpdate={onUpdate}>
+    <Router history={history} onUpdate={onUpdate} render={firstRender}>
       {routes}
     </Router>
   </Provider>, document.getElementById("app"));

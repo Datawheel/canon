@@ -9,25 +9,6 @@ const variables = require(path.join(appPath, "style.js"));
 
 const hotMiddlewareScript = "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true";
 
-const commonLoaders = [
-  {
-    test: /\.js$|\.jsx$/,
-    loader: "babel-loader",
-    query: {
-      compact: false,
-      presets: ["react-hmre", "es2015", "react", "stage-0"],
-      plugins: ["transform-decorators-legacy"]
-    },
-    include: [appPath, path.join(__dirname, "../src")]
-  },
-  {
-    test: /\.json$/, loader: "json"
-  },
-  {
-    test: /\.css$/, loader: "style!css!postcss"
-  }
-];
-
 function postCSSConfig() {
   return [
     require("postcss-import")({
@@ -42,6 +23,29 @@ function postCSSConfig() {
   ];
 }
 
+const commonLoaders = [
+  {
+    test: /\.js$|\.jsx$/,
+    loader: "babel-loader",
+    options: {
+      compact: false,
+      presets: ["react-hmre", ["es2015", {modules: false}], "react", "stage-0"],
+      plugins: ["transform-decorators-legacy"]
+    },
+    include: [appPath, path.join(__dirname, "../src")]
+  },
+  {
+    test: /\.css$/, use: [
+      "style-loader",
+      "css-loader",
+      {
+        loader: "postcss-loader",
+        options: {plugins: postCSSConfig}
+      }
+    ]
+  }
+];
+
 module.exports = {
   devtool: "eval",
   name: "browser",
@@ -55,16 +59,15 @@ module.exports = {
     publicPath
   },
   module: {
-    loaders: commonLoaders
+    rules: commonLoaders
   },
   resolve: {
-    root: [appDir, appPath, path.join(__dirname, "../src")],
-    extensions: ["", ".js", ".jsx", ".css"]
+    modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],
+    extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin(),
+    new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin({__DEVCLIENT__: true, __DEVSERVER__: false})
-  ],
-  postcss: postCSSConfig
+  ]
 };

@@ -5,23 +5,25 @@ const webpack = require("webpack");
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
-
+process.traceDeprecation = true;
 const commonLoaders = [
   {
     test: /\.js$|\.jsx$/,
     loader: "babel-loader",
-    query: {
+    options: {
       compact: false,
-      presets: ["es2015", "react", "stage-0"],
+      presets: [["es2015", {modules: false}], "react", "stage-0"],
       plugins: ["transform-decorators-legacy"]
     },
     include: [appPath, path.join(__dirname, "../src")]
   },
   {
-    test: /\.json$/, loader: "json"
-  },
-  {
-    test: /\.css$/, loader: "css?modules&importLoaders=1"
+    test: /\.css$/,
+    loader: "css-loader",
+    options: {
+      modules: true,
+      importLoaders: true
+    }
   }
 ];
 
@@ -38,11 +40,11 @@ module.exports = {
     libraryTarget: "commonjs2"
   },
   module: {
-    loaders: commonLoaders
+    rules: commonLoaders
   },
   resolve: {
-    root: [appDir, appPath, path.join(__dirname, "../src")],
-    extensions: ["", ".js", ".jsx", ".css"]
+    modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],
+    extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
     new webpack.DefinePlugin({__DEVCLIENT__: false, __DEVSERVER__: true}),

@@ -10,31 +10,6 @@ const variables = require(path.join(appPath, "style.js"));
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const InlineEnviromentVariablesPlugin = require("inline-environment-variables-webpack-plugin");
 
-const commonLoaders = [
-  {
-    test: /\.js$|\.jsx$/,
-    loader: "babel-loader",
-    query: {
-      compact: true,
-      presets: ["es2015", "react", "stage-0"],
-      plugins: [
-        "transform-decorators-legacy",
-        "transform-react-remove-prop-types",
-        "transform-react-constant-elements",
-        "transform-react-inline-elements"
-      ]
-    },
-    include: [appPath, path.join(__dirname, "../src")]
-  },
-  {
-    test: /\.json$/, loader: "json"
-  },
-  {
-    test: /\.css$/,
-    loader: ExtractTextPlugin.extract("style", "css!postcss")
-  }
-];
-
 function postCSSConfig() {
   return [
     require("postcss-import")({path: appPath}),
@@ -45,6 +20,37 @@ function postCSSConfig() {
     require("postcss-reporter")({clearMessages: true, filter: msg => msg.type === "warning" || msg.type !== "dependency"})
   ];
 }
+
+const commonLoaders = [
+  {
+    test: /\.js$|\.jsx$/,
+    loader: "babel-loader",
+    options: {
+      compact: true,
+      presets: [["es2015", {modules: false}], "react", "stage-0"],
+      plugins: [
+        "transform-decorators-legacy",
+        "transform-react-remove-prop-types",
+        "transform-react-constant-elements",
+        "transform-react-inline-elements"
+      ]
+    },
+    include: [appPath, path.join(__dirname, "../src")]
+  },
+  {
+    test: /\.css$/,
+    use: ExtractTextPlugin.extract({
+      fallback: "style-loader",
+      use: [
+        "css-loader",
+        {
+          loader: "postcss-loader",
+          options: {plugins: postCSSConfig}
+        }
+      ]
+    })
+  }
+];
 
 module.exports = [
   {
@@ -58,19 +64,21 @@ module.exports = [
       publicPath
     },
     module: {
-      loaders: commonLoaders
+      rules: commonLoaders
     },
     resolve: {
-      root: [appDir, appPath, path.join(__dirname, "..")],
-      extensions: ["", ".js", ".jsx", ".css"]
+      modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "..")],
+      extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
-      new ExtractTextPlugin("styles.css", {allChunks: true}),
+      new ExtractTextPlugin({
+        filename: "styles.css",
+        allChunks: true
+      }),
       new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: false}),
       new webpack.DefinePlugin({__DEVCLIENT__: false, __DEVSERVER__: false}),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"})
-    ],
-    postcss: postCSSConfig
+    ]
   },
   {
     // The configuration for the server-side rendering
@@ -85,20 +93,22 @@ module.exports = [
       libraryTarget: "commonjs2"
     },
     module: {
-      loaders: commonLoaders
+      rules: commonLoaders
     },
     resolve: {
-      root: [appDir, appPath, path.join(__dirname, "../src")],
-      extensions: ["", ".js", ".jsx", ".css"]
+      modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],
+      extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
-      new webpack.optimize.OccurenceOrderPlugin(),
-      new ExtractTextPlugin("styles.css", {allChunks: true}),
+      new webpack.optimize.OccurrenceOrderPlugin(),
+      new ExtractTextPlugin({
+        filename: "styles.css",
+        allChunks: true
+      }),
       new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: false}),
       new webpack.DefinePlugin({__DEVCLIENT__: false, __DEVSERVER__: false}),
       new webpack.IgnorePlugin(/vertx/),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"})
-    ],
-    postcss: postCSSConfig
+    ]
   }
 ];
