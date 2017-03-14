@@ -5,6 +5,7 @@ import "./Home.css";
 import {fetchData} from "actions/home";
 
 import Child from "./Child";
+import Child2 from "./Child2";
 
 import Profile from "../../src/components/Profile";
 import TopicTitle from "../../src/components/TopicTitle";
@@ -16,6 +17,8 @@ class Home extends Profile {
       <div className="home">
         <TopicTitle slug="agriculture">Agriculture</TopicTitle>
         <Child />
+        <TopicTitle slug="climate">Climate</TopicTitle>
+        <Child2 />
       </div>
     );
   }
@@ -30,7 +33,7 @@ Home.defaultProps = {
 };
 
 Home.need = [
-  Child,
+  Child, Child2,
   fetchData("value_of_production", "api/join/?geo=040AF00182&show=crop&required=harvested_area,value_of_production&order=value_of_production&sort=desc&display_names=true&limit=5")
 ];
 

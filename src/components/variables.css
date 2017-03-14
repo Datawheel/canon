@@ -6,6 +6,7 @@
   --light: var(--light, color(var(--dark) l(50%)));
 
   /* spacing and sizing */
+  --nav-height: var(--nav-height, 80px);
   --column: var(--column, 64px);
   --gutter: var(--gutter, 32px);
   --section-article-small: var(--section-article-small, calc(var(--column) * 3 + var(--gutter) * 2));
@@ -34,4 +35,10 @@
   --foreground: var(--foreground, 10);
   --cover: var(--cover, 20);
 
+}
+
+.anchor {
+  margin-top: calc(var(--nav-height) * -1);
+  padding-top: var(--nav-height);
+  position: relative;
 }
