@@ -10,7 +10,7 @@ class SectionTitle extends Component {
 
     return (
       <h4 className="section-title">
-        <a id={ slug } to={ `#${ slug }`} className="anchor">
+        <a href={ `#${ slug }`} id={ slug } className="anchor">
           { children }
         </a>
       </h4>
