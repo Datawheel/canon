@@ -15,6 +15,7 @@ class Home extends Profile {
   render() {
     return (
       <div className="home">
+        <a href="#climate">Jump to Climate</a>
         <TopicTitle slug="agriculture">Agriculture</TopicTitle>
         <Child />
         <TopicTitle slug="climate">Climate</TopicTitle>

@@ -39,6 +39,7 @@
 
 .anchor {
   margin-top: calc(var(--nav-height) * -1);
+  outline: 0;
   padding-top: var(--nav-height);
   position: relative;
 }
