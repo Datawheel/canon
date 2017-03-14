@@ -1,6 +1,4 @@
 import React, {Component} from "react";
-import {connect} from "react-redux";
-import {Link} from "react-router";
 import "./Nav.css";
 
 class Nav extends Component {
@@ -8,10 +6,11 @@ class Nav extends Component {
   render() {
     return (
       <nav className="nav">
-        <Link className="logo" to="/">Canonical Design</Link>
+        <a className="logo" href="/">Canonical Design</a>
+        <a href="/profile">Profile</a>
       </nav>
     );
   }
 }
 
-export default connect(() => ({}))(Nav);
+export default Nav;

@@ -15,6 +15,7 @@ class Child2 extends SectionColumns {
         <SectionTitle>My Cool Title</SectionTitle>
         <article>Some Text</article>
         <Treemap config={{
+          colorScale: "harvested_area",
           data,
           groupBy: "crop",
           label: d => d.crop_name,
