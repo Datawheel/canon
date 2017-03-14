@@ -18,7 +18,7 @@ class Section extends Component {
     const content = children.filter(c => c.type.name !== "SectionTitle");
 
     return (
-      <section>
+      <section className="section">
         { title.length ? title : null }
         <div className={ type }>{ content }</div>
       </section>

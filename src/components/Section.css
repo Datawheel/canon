@@ -1,6 +1,6 @@
 @import "./variables";
 
-section {
+.section {
   padding: calc(var(--gutter) / 2);
 
   & article {
