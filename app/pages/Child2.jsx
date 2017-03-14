@@ -3,15 +3,15 @@ import {Treemap} from "d3plus-react";
 
 import {fetchData} from "actions/home";
 
-import {SectionColumns} from "../../src/components/Section";
+import {SectionRows} from "../../src/components/Section";
 import {SectionTitle} from "../../src/components/SectionTitle";
 
-class Child2 extends SectionColumns {
+class Child2 extends SectionRows {
 
   render() {
     const data = this.context.data.harvested_area;
     return (
-      <SectionColumns>
+      <SectionRows>
         <SectionTitle>My Cool Title</SectionTitle>
         <article>Some Text</article>
         <Treemap config={{
@@ -22,7 +22,7 @@ class Child2 extends SectionColumns {
           legend: false,
           sum: d => d.harvested_area
         }} />
-      </SectionColumns>
+    </SectionRows>
     );
   }
 }
