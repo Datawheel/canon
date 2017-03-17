@@ -21,18 +21,20 @@ function onUpdate() {
 
 }
 
-history.listen(location => {
-  if (location.hash) {
-    const offset = document.getElementById(location.hash.slice(1)).getBoundingClientRect().top;
+function scrollToHash(hash) {
+  const elem = hash ? document.getElementById(hash.slice(1)) : false;
+  if (elem) {
+    const offset = elem.getBoundingClientRect().top;
     if (offset) animateScroll.scrollMore(offset);
   }
+}
+
+history.listen(location => {
+  scrollToHash(location.hash);
 });
 
 function firstRender(props) {
-  if (props.location.hash) {
-    const offset = document.getElementById(props.location.hash.slice(1)).getBoundingClientRect().top;
-    if (offset) animateScroll.scrollMore(offset);
-  }
+  scrollToHash(props.location.hash);
   return <RouterContext {...props}/>;
 }
 
