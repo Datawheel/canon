@@ -22,7 +22,7 @@ function onUpdate() {
 }
 
 function scrollToHash(hash) {
-  const elem = hash ? document.getElementById(hash.slice(1)) : false;
+  const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
   if (elem) {
     const offset = elem.getBoundingClientRect().top;
     if (offset) animateScroll.scrollMore(offset);
