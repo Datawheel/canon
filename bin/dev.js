@@ -9,7 +9,6 @@ nodemon({
   watch: [
     "app/actions",
     "app/reducers",
-    "app/.env.js",
     "app/helmet.js",
     "app/routes.js",
     "app/store.js",

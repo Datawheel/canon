@@ -10,19 +10,18 @@ import {I18nextProvider} from "react-i18next";
 import serialize from "serialize-javascript";
 
 import header from "./components/Meta";
-import {GOOGLE_ANALYTICS, NODE_ENV} from ".env";
 
-const analtyicsScript = GOOGLE_ANALYTICS === void 0 ? ""
+const analtyicsScript = process.env.GOOGLE_ANALYTICS === undefined ? ""
   : `<script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-      ga('create', '${GOOGLE_ANALYTICS}', 'auto');
+      ga('create', '${process.env.GOOGLE_ANALYTICS}', 'auto');
       ga('send', 'pageview');
     </script>`;
 
-const cssLink = NODE_ENV === "production" ? "<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "";
+const cssLink = process.env.NODE_ENV === "production" ? "<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "";
 
 export default function(defaultStore = {}, i18n) {
 

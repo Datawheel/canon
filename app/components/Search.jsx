@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {activateSearch} from "actions/users";
 import "./Search.css";
 
-import {API} from ".env";
+const API = process.env.API || "https://api.dataafrica.io/";
 import axios from "axios";
 
 import {strip} from "d3plus-text";
