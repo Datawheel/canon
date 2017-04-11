@@ -1,0 +1,8 @@
+{
+  "This is a full sentence used as the translation key": "Esta es una frase completa usada como la clave de traducción.",
+  "home": {
+    "body": "Bienvenido a {{name}}!",
+    "sub": "Aquí hay un subtítulo.",
+    "title": "Canon Título"
+  }
+}

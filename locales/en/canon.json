@@ -1,0 +1,8 @@
+{
+  "This is a full sentence used as the translation key": "",
+  "home": {
+    "body": "Welcome to {{name}}!",
+    "sub": "Here is a sub-title.",
+    "title": "Canon Title"
+  }
+}

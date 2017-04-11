@@ -10,6 +10,37 @@ const appDir = process.cwd();
 const env = require(path.join(appDir, "app/.env"));
 const store = require(path.join(appDir, "app/store"));
 
+
+
+const i18n = require("i18next");
+const Backend = require("i18next-node-fs-backend");
+const i18nMiddleware = require("i18next-express-middleware");
+
+i18n
+  .use(Backend)
+  .use(i18nMiddleware.LanguageDetector)
+  .init({
+
+    fallbackLng: "en",
+    lng: "en",
+
+    // have a common namespace used around the full app
+    ns: ["canon"],
+    defaultNS: "canon",
+
+    debug: false,
+
+    interpolation: {
+      escapeValue: false // not needed for react!!
+    },
+
+    backend: {
+      loadPath: path.join(appDir, "locales/{{lng}}/{{ns}}.json"),
+      jsonIndent: 2
+    }
+
+  });
+
 function start() {
 
   const App = require(path.join(appDir, "static/assets/server"));
@@ -37,12 +68,13 @@ function start() {
   }
 
   app.use(express.static(path.join(appDir, "static")));
+  app.use(i18nMiddleware.handle(i18n));
 
   app.set("trust proxy", "loopback");
 
   app.use(flash());
 
-  app.get("*", App.default(store));
+  app.get("*", App.default(store, i18n));
   app.listen(env.PORT);
 
   console.log(`   ⚙️  Port: ${env.PORT}`);

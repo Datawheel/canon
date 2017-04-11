@@ -12,6 +12,25 @@ const store = configureStore(initialState, browserHistory);
 const history = syncHistoryWithStore(browserHistory, store);
 const routes = createRoutes(store);
 
+
+import {I18nextProvider} from "react-i18next";
+import i18n from "i18next";
+
+i18n
+  .init({
+    fallbackLng: "en",
+    lng: "en",
+    debug: true,
+    ns: ["canon"],
+    defaultNS: "canon",
+    interpolation: {
+      escapeValue: false // not needed for react!!
+    }
+  });
+
+i18n.changeLanguage(window.__i18ncanon.locale);
+i18n.addResourceBundle(window.__i18ncanon.locale, "canon", window.__i18ncanon.resources, true);
+
 function onUpdate() {
 
   if (window.__INITIAL_STATE__ !== null) {
@@ -39,8 +58,10 @@ function firstRender(props) {
 }
 
 render(
-  <Provider store={store}>
-    <Router history={history} onUpdate={onUpdate} render={firstRender}>
-      {routes}
-    </Router>
-  </Provider>, document.getElementById("app"));
+  <I18nextProvider i18n={i18n}>
+    <Provider store={store}>
+      <Router history={history} onUpdate={onUpdate} render={firstRender}>
+        {routes}
+      </Router>
+    </Provider>
+  </I18nextProvider>, document.getElementById("app"));
