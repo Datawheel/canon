@@ -13,6 +13,7 @@ const InlineEnviromentVariablesPlugin = require("inline-environment-variables-we
 function postCSSConfig() {
   return [
     require("postcss-import")({path: appPath}),
+    require("postcss-mixins")(),
     require("postcss-custom-properties")({variables}),
     require("postcss-nesting")(),
     require("postcss-conditionals")(),

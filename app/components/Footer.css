@@ -1,8 +1,12 @@
+@define-mixin padding $amount {
+  padding: $amount;
+}
+
 footer {
 
   background-color: white;
   box-sizing: border-box;
-  padding: 25px;
+  @mixin padding 25px;
   text-align: center;
   width: 100%;
 
