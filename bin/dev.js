@@ -15,7 +15,7 @@ nodemon({
     "app/style.js"
   ],
   verbose: true,
-  exec: "webpack --colors --config $DIR/../webpack/webpack.config.dev-server.js && node $DIR/server.js"
+  exec: "clear && webpack --colors --config $DIR/../webpack/webpack.config.dev-server.js && node $DIR/server.js"
 })
 .on("start", () => {
   // console.log("nodemon has started app");
