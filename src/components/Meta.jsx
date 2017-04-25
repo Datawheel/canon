@@ -11,7 +11,7 @@ if (process.env.NODE_DEV === "development") {
 
 const Meta = () =>
   <Helmet
-    htmlAttributes={{lang: "en", amp: undefined}}
+    htmlAttributes={{lang: process.env.LANGUAGE_DEFAULT || "en", amp: undefined}}
     defaultTitle={config.title} meta={config.meta}
     link={config.link} />;
 

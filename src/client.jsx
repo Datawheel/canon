@@ -18,8 +18,8 @@ import i18n from "i18next";
 
 i18n
   .init({
-    fallbackLng: "en",
-    lng: "en",
+    fallbackLng: process.env.LANGUAGE_DEFAULT || "en",
+    lng: process.env.LANGUAGE_DEFAULT || "en",
     debug: true,
     ns: ["canon"],
     defaultNS: "canon",

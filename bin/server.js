@@ -22,8 +22,8 @@ i18n
   .use(i18nMiddleware.LanguageDetector)
   .init({
 
-    fallbackLng: "en",
-    lng: "en",
+    fallbackLng: process.env.LANGUAGE_DEFAULT || "en",
+    lng: process.env.LANGUAGE_DEFAULT || "en",
 
     // have a common namespace used around the full app
     ns: ["canon"],

@@ -49,7 +49,7 @@ export default function(defaultStore = {}, i18n) {
     }
 
     if (resources === undefined) {
-      locale = "en";
+      locale = process.env.LANGUAGE_DEFAULT || "en";
       resources = fetchResource(locale);
     }
 
