@@ -6,8 +6,11 @@ const helmet = require("helmet");
 const path = require("path");
 const webpack = require("webpack");
 
+console.log("\n\n📂  Gathering resources\n");
 const appDir = process.cwd();
-const store = require(path.join(appDir, "app/store"));
+const resolve = require("../webpack/resolve");
+const store = resolve("store.js") || {};
+const headerConfig = resolve("helmet.js") || {};
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || 3300;
 const ATTRS = process.env.ATTRS;
@@ -46,9 +49,6 @@ function start() {
 
   const App = require(path.join(appDir, "static/assets/server"));
 
-  console.log("\n🌐  Starting Express Server\n");
-  console.log(`   ⚙️  Environment: ${NODE_ENV}`);
-
   const app = express();
 
   if (NODE_ENV === "development") {
@@ -75,9 +75,11 @@ function start() {
 
   app.use(flash());
 
-  app.get("*", App.default(store, i18n));
+  app.get("*", App.default(store, i18n, headerConfig));
   app.listen(PORT);
 
+  console.log("\n\n🌐  Initialized Express Server\n");
+  console.log(`   ⚙️  Environment: ${NODE_ENV}`);
   console.log(`   ⚙️  Port: ${PORT}`);
   console.log("\n");
 

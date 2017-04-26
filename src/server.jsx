@@ -1,4 +1,6 @@
 import React from "react";
+import ReactDOMServer from "react-dom/server";
+import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
 import {Provider} from "react-redux";
@@ -8,8 +10,6 @@ import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 import {I18nextProvider} from "react-i18next";
 
 import serialize from "serialize-javascript";
-
-import header from "./components/Meta";
 
 const analtyicsScript = process.env.GOOGLE_ANALYTICS === undefined ? ""
   : `<script>
@@ -23,7 +23,21 @@ const analtyicsScript = process.env.GOOGLE_ANALYTICS === undefined ? ""
 
 const cssLink = process.env.NODE_ENV === "production" ? "<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "";
 
-export default function(defaultStore = {}, i18n) {
+export default function(defaultStore = {}, i18n, headerConfig) {
+
+  // Remove stylesheets because we do not extract them into a css file in development mode
+  if (process.env.NODE_DEV === "development") {
+    headerConfig.link = headerConfig.link.filter(l => l.rel !== "stylesheet");
+  }
+
+  const Meta = () =>
+    <Helmet
+      htmlAttributes={{lang: process.env.LANGUAGE_DEFAULT || "en", amp: undefined}}
+      defaultTitle={headerConfig.title} meta={headerConfig.meta}
+      link={headerConfig.link} />;
+
+  ReactDOMServer.renderToString(<Meta />);
+  const header = Helmet.rewind();
 
   return function(req, res) {
 

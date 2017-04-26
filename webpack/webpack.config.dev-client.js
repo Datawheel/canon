@@ -5,7 +5,7 @@ const webpack = require("webpack");
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
-const variables = require(path.join(appPath, "style.js"));
+const variables = require("./resolve")("style.js") || {};
 
 const hotMiddlewareScript = "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true";
 

@@ -10,8 +10,7 @@ import createRoutes from "routes";
 import configureStore from "./storeConfig";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
-const initialState = window.__INITIAL_STATE__;
-const store = configureStore(initialState, browserHistory);
+const store = configureStore(window.__INITIAL_STATE__, browserHistory);
 const history = syncHistoryWithStore(browserHistory, store);
 const routes = createRoutes(store);
 

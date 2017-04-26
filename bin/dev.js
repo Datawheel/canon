@@ -8,10 +8,12 @@ process.env.DIR = __dirname;
 nodemon({
   watch: [
     "app/**/*.js",
-    "src/**/*.js"
+    "bin/**/*.js",
+    "src/**/*.js",
+    "webpack/**/*.js"
   ],
   verbose: true,
-  exec: "clear && webpack --colors --config $DIR/../webpack/webpack.config.dev-server.js && node $DIR/server.js"
+  exec: "clear && echo '\n🔷  Building new Webpack bundle\n' && webpack --colors --config $DIR/../webpack/webpack.config.dev-server.js && node $DIR/server.js"
 })
 .on("start", () => {
   // console.log("nodemon has started app");
