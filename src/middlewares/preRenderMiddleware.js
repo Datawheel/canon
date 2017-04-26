@@ -9,5 +9,5 @@ export default ({data = {}, dispatch}, {components, params}) => Promise.all(
       });
       return arr;
     }, [])
-    .filter(need => need.key in data ? false : (data[need.key] = "loading", true))
+    .filter(need => need.key && need.key in data ? false : (data[need.key] = "loading", true))
     .map(need => dispatch(need(params, data))));
