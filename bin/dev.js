@@ -7,7 +7,8 @@ process.env.DIR = __dirname;
 
 nodemon({
   watch: [
-    "app/**/*.js"
+    "app/**/*.js",
+    "src/**/*.js"
   ],
   verbose: true,
   exec: "clear && webpack --colors --config $DIR/../webpack/webpack.config.dev-server.js && node $DIR/server.js"
