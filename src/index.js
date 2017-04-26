@@ -1,4 +1,8 @@
-export {Profile} from "./components/Profile.jsx";
+// Actions
+export {fetchData} from "./actions/fetchData";
+
+// Components
+export {CanonComponent} from "./components/CanonComponent.jsx";
 export {Section, SectionColumns, SectionRows} from "./components/Section.jsx";
 export {SectionTitle} from "./components/SectionTitle.jsx";
 export {Stat} from "./components/Stat.jsx";

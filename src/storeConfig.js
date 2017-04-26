@@ -1,28 +1,39 @@
-import {createStore, applyMiddleware, compose} from "redux";
-import {routerMiddleware} from "react-router-redux";
+import {combineReducers, createStore, applyMiddleware, compose} from "redux";
+import {routerMiddleware, routerReducer} from "react-router-redux";
 import thunk from "redux-thunk";
-import rootReducer from "reducers";
-import promiseMiddleware from "../middlewares/promiseMiddleware";
+import appReducers from "reducers";
 import createLogger from "redux-logger";
+
+import promiseMiddleware from "./middlewares/promiseMiddleware";
+
+import fetchData from "./reducers/fetchData";
+import loading from "./reducers/loading";
 
 /**
     @param {Object} initialState initial state to bootstrap our stores with for server-side rendering
     @param {Object} history a history object. We use `createMemoryHistory` for server-side rendering, while using browserHistory for client-side rendering.
 */
 export default function storeConfig(initialState, history) {
+
   // Installs hooks that always keep react-router and redux store in sync
   const middleware = [thunk, promiseMiddleware, routerMiddleware(history)];
   let store;
 
+  const canonReducer = combineReducers(Object.assign({
+    data: fetchData,
+    loading,
+    routing: routerReducer
+  }, appReducers));
+
   if (__DEVCLIENT__) {
     middleware.push(createLogger());
-    store = createStore(rootReducer, initialState, compose(
+    store = createStore(canonReducer, initialState, compose(
       applyMiddleware(...middleware),
       typeof window === "object" && typeof window.devToolsExtension !== "undefined" ? window.devToolsExtension() : f => f
     ));
   }
   else {
-    store = createStore(rootReducer, initialState, compose(applyMiddleware(...middleware), f => f));
+    store = createStore(canonReducer, initialState, compose(applyMiddleware(...middleware), f => f));
   }
 
   if (module.hot) {

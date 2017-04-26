@@ -3,7 +3,7 @@ import {renderToString} from "react-dom/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
 import {Provider} from "react-redux";
 import createRoutes from "routes";
-import configureStore from "./store/storeConfig";
+import configureStore from "./storeConfig";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 import {I18nextProvider} from "react-i18next";
 
@@ -86,6 +86,7 @@ export default function(defaultStore = {}, i18n) {
                 </head>
                 <body>
                   <div id="app">${componentHTML}</div>
+                  <script>window.__SSR__ = true;</script>
                   <script>window.__i18ncanon = ${ serialize(i18nClient) };</script>
                   <script>window.__INITIAL_STATE__ = ${ serialize(initialState) };</script>
                   ${analtyicsScript}

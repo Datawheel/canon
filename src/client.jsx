@@ -1,17 +1,19 @@
+/* eslint react/display-name:0 */
+
 import React from "react";
 import {render} from "react-dom";
 import {Provider} from "react-redux";
-import {browserHistory, Router, RouterContext} from "react-router";
+import {applyRouterMiddleware, browserHistory, Router, RouterContext} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
 import {animateScroll} from "react-scroll";
 import createRoutes from "routes";
-import configureStore from "./store/storeConfig";
+import configureStore from "./storeConfig";
+import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
 const initialState = window.__INITIAL_STATE__;
 const store = configureStore(initialState, browserHistory);
 const history = syncHistoryWithStore(browserHistory, store);
 const routes = createRoutes(store);
-
 
 import {I18nextProvider} from "react-i18next";
 import i18n from "i18next";
@@ -31,15 +33,6 @@ i18n
 i18n.changeLanguage(window.__i18ncanon.locale);
 i18n.addResourceBundle(window.__i18ncanon.locale, "canon", window.__i18ncanon.resources, true);
 
-function onUpdate() {
-
-  if (window.__INITIAL_STATE__ !== null) {
-    window.__INITIAL_STATE__ = null;
-    return;
-  }
-
-}
-
 function scrollToHash(hash) {
   const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
   if (elem) {
@@ -48,19 +41,40 @@ function scrollToHash(hash) {
   }
 }
 
-history.listen(location => {
-  scrollToHash(location.hash);
-});
+function renderMiddleware() {
 
-function firstRender(props) {
-  scrollToHash(props.location.hash);
-  return <RouterContext {...props}/>;
+  return {
+    renderRouterContext: (child, props) => {
+
+      if (window.__SSR__) {
+        window.__SSR__ = false;
+        scrollToHash(props.location.hash);
+      }
+      else if (!props.location.key && props.location.hash) {
+        scrollToHash(props.location.hash);
+      }
+      else {
+        store.dispatch({type: "LOADING_START"});
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+        preRenderMiddleware(store.dispatch, props.components, props.params)
+          .then(() => {
+            store.dispatch({type: "LOADING_END"});
+            scrollToHash(props.location.hash);
+          });
+      }
+
+      return <RouterContext {...props}/>;
+
+    }
+
+  };
+
 }
 
 render(
   <I18nextProvider i18n={i18n}>
     <Provider store={store}>
-      <Router history={history} onUpdate={onUpdate} render={firstRender}>
+      <Router history={history} render={applyRouterMiddleware(renderMiddleware())}>
         {routes}
       </Router>
     </Provider>
