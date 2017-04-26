@@ -5,8 +5,6 @@ function fetchData(key, url) {
 
   const returnFunction = params => {
 
-    console.log(key);
-
     const u = `https://api.dataafrica.io/${url.replace("<id>", params.id)}`;
     return {
       type: "GET_DATA",
