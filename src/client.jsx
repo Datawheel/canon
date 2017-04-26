@@ -29,8 +29,8 @@ i18n
     }
   });
 
-i18n.changeLanguage(window.__i18ncanon.locale);
-i18n.addResourceBundle(window.__i18ncanon.locale, "canon", window.__i18ncanon.resources, true);
+i18n.changeLanguage(window.__INITIAL_LOCALE__.locale);
+i18n.addResourceBundle(window.__INITIAL_LOCALE__.locale, "canon", window.__INITIAL_LOCALE__.resources, true);
 
 function scrollToHash(hash) {
   const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
