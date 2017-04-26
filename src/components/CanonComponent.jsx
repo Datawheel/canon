@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
+import {LoadingComponent} from "./LoadingComponent";
 
 class CanonComponent extends Component {
 
@@ -23,7 +24,7 @@ CanonComponent.childContextTypes = {
 };
 
 CanonComponent.defaultProps = {
-  loadingComponent: <div>Loading...</div>
+  loadingComponent: <LoadingComponent />
 };
 
 CanonComponent = connect(state => ({
