@@ -17,5 +17,4 @@ class TopicTitle extends Component {
 }
 
 TopicTitle.defaultProps = {slug: ""};
-export default TopicTitle;
 export {TopicTitle};

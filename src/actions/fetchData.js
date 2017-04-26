@@ -18,5 +18,4 @@ function fetchData(key, url) {
 
 }
 
-export default fetchData;
 export {fetchData};

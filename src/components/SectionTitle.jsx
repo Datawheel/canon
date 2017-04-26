@@ -24,5 +24,4 @@ SectionTitle.contextTypes = {
   slug: React.PropTypes.string
 };
 
-export default SectionTitle;
 export {SectionTitle};

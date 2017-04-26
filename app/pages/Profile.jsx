@@ -8,9 +8,7 @@ import {fetchData} from "../../src/actions/fetchData";
 import Child from "./Child";
 import Child2 from "./Child2";
 
-import AnchorLink from "../../src/components/AnchorLink";
-import CanonComponent from "../../src/components/CanonComponent";
-import TopicTitle from "../../src/components/TopicTitle";
+import {AnchorLink, CanonComponent, TopicTitle} from "../../src";
 
 const d3plus = {
   shapeConfig: {

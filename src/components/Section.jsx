@@ -51,5 +51,4 @@ SectionRows.defaultProps = {
   type: "rows"
 };
 
-export default Section;
 export {Section, SectionColumns, SectionRows};

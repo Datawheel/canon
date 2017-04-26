@@ -30,5 +30,4 @@ CanonComponent = connect(state => ({
   loading: state.loading
 }))(CanonComponent);
 
-export default CanonComponent;
 export {CanonComponent};

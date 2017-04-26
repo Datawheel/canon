@@ -3,8 +3,7 @@ import {Treemap} from "d3plus-react";
 
 import {fetchData} from "../../src/actions/fetchData";
 
-import {SectionColumns} from "../../src/components/Section";
-import {SectionTitle} from "../../src/components/SectionTitle";
+import {SectionColumns, SectionTitle} from "../../src";
 
 class Child extends SectionColumns {
 
