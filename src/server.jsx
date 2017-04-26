@@ -64,7 +64,7 @@ export default function(defaultStore = {}, i18n) {
       else if (props) {
         // This method waits for all render component
         // promises to resolve before returning to browser
-        preRenderMiddleware(store.dispatch, props.components, props.params)
+        preRenderMiddleware(store, props)
           .then(() => {
             const initialState = store.getState();
             const componentHTML = renderToString(

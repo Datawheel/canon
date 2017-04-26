@@ -56,7 +56,7 @@ function renderMiddleware() {
       else {
         store.dispatch({type: "LOADING_START"});
         document.body.scrollTop = document.documentElement.scrollTop = 0;
-        preRenderMiddleware(store.dispatch, props.components, props.params)
+        preRenderMiddleware(store, props)
           .then(() => {
             store.dispatch({type: "LOADING_END"});
             scrollToHash(props.location.hash);

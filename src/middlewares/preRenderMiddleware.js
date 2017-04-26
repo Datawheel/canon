@@ -1,6 +1,6 @@
 import React from "react";
 
-export default (dispatch, components, params) => Promise.all(
+export default ({data = {}, dispatch}, {components, params}) => Promise.all(
   components
     .reduce((arr, component) => {
       (component.need || []).forEach(n => {
@@ -9,4 +9,5 @@ export default (dispatch, components, params) => Promise.all(
       });
       return arr;
     }, [])
-    .map(need => dispatch(need(params))));
+    .filter(need => need.key in data ? false : (data[need.key] = "loading", true))
+    .map(need => dispatch(need(params, data))));
