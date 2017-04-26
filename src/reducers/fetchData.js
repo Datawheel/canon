@@ -1,6 +1,4 @@
-import {combineReducers} from "redux";
-
-const data = (state = {}, action) => {
+export default (state = {}, action) => {
   switch (action.type) {
     case "GET_DATA_SUCCESS":
       return Object.assign({}, state, {[action.res.key]: action.res.data});
@@ -8,9 +6,3 @@ const data = (state = {}, action) => {
       return state;
   }
 };
-
-const homeReducer = combineReducers({
-  data
-});
-
-export default homeReducer;

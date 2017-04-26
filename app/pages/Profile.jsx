@@ -1,43 +1,47 @@
-import React from "react";
+import React, {Component} from "react";
 import {connect} from "react-redux";
+import {Link} from "react-router";
 import "./Home.css";
 
-import {fetchData} from "actions/home";
+import {fetchData} from "../../src/actions/fetchData";
 
 import Child from "./Child";
 import Child2 from "./Child2";
 
-import Profile from "../../src/components/Profile";
+import CanonComponent from "../../src/components/CanonComponent";
 import TopicTitle from "../../src/components/TopicTitle";
 
-class Home extends Profile {
+const d3plus = {
+  shapeConfig: {
+    fontFamily: "Comic Sans MS"
+  }
+};
+
+class Profile extends Component {
 
   render() {
     return (
-      <div className="home">
-        <a href="#climate">Jump to Climate</a>
-        <TopicTitle slug="agriculture">Agriculture</TopicTitle>
-        <Child />
-        <TopicTitle slug="climate">Climate</TopicTitle>
-        <Child2 />
-      </div>
+      <CanonComponent data={this.props.data} d3plus={d3plus}>
+        <div className="home">
+          <h1>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</h1>
+          <TopicTitle slug="agriculture">Agriculture</TopicTitle>
+          <Child />
+          <TopicTitle slug="climate">Climate</TopicTitle>
+          <Child2 />
+          <Link to="/profile/040AF00182">Jump to Nigeria</Link>
+          <Link to="/profile/040AF00079">Jump to Ethopia</Link>
+          <a href="#agriculture">Jump to Agriculture</a>
+        </div>
+      </CanonComponent>
     );
   }
 }
 
-Home.defaultProps = {
-  d3plus: {
-    shapeConfig: {
-      fontFamily: "Comic Sans MS"
-    }
-  }
-};
-
-Home.need = [
+Profile.need = [
   Child, Child2,
-  fetchData("value_of_production", "api/join/?geo=040AF00182&show=crop&required=harvested_area,value_of_production&order=value_of_production&sort=desc&display_names=true&limit=5")
+  fetchData("value_of_production", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=value_of_production&sort=desc&display_names=true&limit=5")
 ];
 
 export default connect(state => ({
-  data: state.home.data
-}), {})(Home);
+  data: state.data
+}), {})(Profile);

@@ -1,9 +1,6 @@
 import React, {Component} from "react";
-import {connect} from "react-redux";
-import {activateSearch} from "actions/users";
 import Nav from "components/Nav";
 import Footer from "components/Footer";
-import Search from "components/Search";
 import "normalize.css/normalize.css";
 
 class App extends Component {
@@ -13,10 +10,9 @@ class App extends Component {
   }
 
   render() {
-    const {children, searchActive} = this.props;
+    const {children} = this.props;
     return (
       <div className="container">
-        { searchActive ? <Search /> : null }
         <Nav />
         { children }
         <Footer />
@@ -45,6 +41,4 @@ class App extends Component {
   }
 }
 
-export default connect(state => ({
-  searchActive: state.search.searchActive
-}), {activateSearch})(App);
+export default App;

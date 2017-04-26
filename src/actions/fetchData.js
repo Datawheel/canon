@@ -1,7 +1,7 @@
 import axios from "axios";
 import {dataFold as fold} from "d3plus-viz";
 
-export function fetchData(key, url) {
+function fetchData(key, url) {
 
   function retFunc(store) {
     const u = `https://api.dataafrica.io/${url.replace("<id>", store.id)}`;
@@ -16,3 +16,6 @@ export function fetchData(key, url) {
   return retFunc;
 
 }
+
+export default fetchData;
+export {fetchData};
