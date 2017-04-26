@@ -8,6 +8,7 @@ import {fetchData} from "../../src/actions/fetchData";
 import Child from "./Child";
 import Child2 from "./Child2";
 
+import AnchorLink from "../../src/components/AnchorLink";
 import CanonComponent from "../../src/components/CanonComponent";
 import TopicTitle from "../../src/components/TopicTitle";
 
@@ -30,7 +31,7 @@ class Profile extends Component {
           <Child2 />
           <Link to="/profile/040AF00182">Jump to Nigeria</Link>
           <Link to="/profile/040AF00079">Jump to Ethopia</Link>
-          <a href="#agriculture">Jump to Agriculture</a>
+          <AnchorLink to="agriculture">Jump to Agriculture</AnchorLink>
         </div>
       </CanonComponent>
     );
