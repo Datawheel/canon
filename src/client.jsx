@@ -17,10 +17,12 @@ const routes = createRoutes(store);
 import {I18nextProvider} from "react-i18next";
 import i18n from "i18next";
 
+const {locale, resources} = window.__INITIAL_LOCALE__;
+
 i18n
   .init({
     fallbackLng: process.env.LANGUAGE_DEFAULT || "en",
-    lng: process.env.LANGUAGE_DEFAULT || "en",
+    lng: locale,
     debug: process.env.NODE_ENV !== "production",
     ns: ["canon"],
     defaultNS: "canon",
@@ -29,8 +31,7 @@ i18n
     }
   });
 
-i18n.changeLanguage(window.__INITIAL_LOCALE__.locale);
-i18n.addResourceBundle(window.__INITIAL_LOCALE__.locale, "canon", window.__INITIAL_LOCALE__.resources, true);
+i18n.addResourceBundle(locale, "canon", resources, true, true);
 
 function scrollToHash(hash) {
   const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
