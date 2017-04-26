@@ -6,15 +6,17 @@ const helmet = require("helmet");
 const path = require("path");
 const webpack = require("webpack");
 
-console.log("\n\n📂  Gathering resources\n");
-const appDir = process.cwd();
-const resolve = require("../webpack/resolve");
-const store = resolve("store.js") || {};
-const headerConfig = resolve("helmet.js") || {};
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || 3300;
 const ATTRS = process.env.ATTRS;
 const API = process.env.API;
+
+console.log("\n\n📂  Gathering resources\n");
+const appDir = process.cwd();
+const joiner = NODE_ENV === "development" ? "../" : "";
+const resolve = require(path.join(__dirname, joiner, "webpack/require-fallback"));
+const store = resolve("store.js") || {};
+const headerConfig = resolve("helmet.js") || {};
 
 const i18n = require("i18next");
 const Backend = require("i18next-node-fs-backend");
