@@ -1,20 +1,37 @@
-const axios = require("axios");
-const gzip = require("compression");
-const express = require("express");
-const flash = require("express-flash");
-const helmet = require("helmet");
-const path = require("path");
-const webpack = require("webpack");
+const axios = require("axios"),
+      express = require("express"),
+      flash = require("express-flash"),
+      gzip = require("compression"),
+      helmet = require("helmet"),
+      path = require("path"),
+      shell = require("shelljs"),
+      webpack = require("webpack");
 
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || 3300;
 const ATTRS = process.env.ATTRS;
 const API = process.env.API;
 
-console.log("\n\n📂  Gathering resources\n");
 const appDir = process.cwd();
-const joiner = NODE_ENV === "development" ? "../" : "";
-const resolve = require(path.join(__dirname, joiner, "webpack/require-fallback"));
+const appPath = path.join(appDir, "app");
+
+const resolve = file => {
+
+  const fullPath = path.join(appPath, file);
+
+  try {
+    require.resolve(fullPath);
+    shell.echo(`   ✅️  ${file} loaded from .app/ directory`);
+    return require(fullPath);
+  }
+  catch (e) {
+    shell.echo(`   ⚠️  ${file} does not exist in .app/ directory, using default`);
+    return false;
+  }
+
+};
+
+shell.echo("\n\n📂  Gathering resources\n");
 const store = resolve("store.js") || {};
 const headerConfig = resolve("helmet.js") || {};
 
@@ -80,10 +97,10 @@ function start() {
   app.get("*", App.default(store, i18n, headerConfig));
   app.listen(PORT);
 
-  console.log("\n\n🌐  Initialized Express Server\n");
-  console.log(`   ⚙️  Environment: ${NODE_ENV}`);
-  console.log(`   ⚙️  Port: ${PORT}`);
-  console.log("\n");
+  shell.echo("\n\n🌐  Initialized Express Server\n");
+  shell.echo(`   ⚙️  Environment: ${NODE_ENV}`);
+  shell.echo(`   ⚙️  Port: ${PORT}`);
+  shell.echo("\n");
 
 }
 
@@ -95,16 +112,16 @@ else {
 
       store.attrs = {};
 
-      console.log("\n📚  Caching Attributes\n");
+      shell.echo("\n📚  Caching Attributes\n");
 
       const promises = res.data.data.map(attr => axios.get(`${API}attrs/${attr}`)
         .then(res => {
-          console.log(`   ✅️  Cached ${attr} attributes`);
+          shell.echo(`   ✅️  Cached ${attr} attributes`);
           store.attrs[attr] = res.data;
           return res;
         })
         .catch(err => {
-          console.log(`   ❌  ${API}attrs/${attr} errored with code ${err.response.status}`);
+          shell.echo(`   ❌  ${API}attrs/${attr} errored with code ${err.response.status}`);
           return Promise.reject(err);
         }));
 
