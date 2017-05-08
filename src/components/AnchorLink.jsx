@@ -1,2 +1,2 @@
 import React from "react";
-export const AnchorLink = ({children, to}) => <a href={ `#${to}` }>{ children }</a>;
+export const AnchorLink = ({children, className, key, to}) => <a key={key} className={className} href={ `#${to}` }>{ children }</a>;

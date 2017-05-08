@@ -29,7 +29,7 @@ class Profile extends Component {
           <Child2 />
           <Link to="/profile/040AF00182">Jump to Nigeria</Link>
           <Link to="/profile/040AF00079">Jump to Ethopia</Link>
-          <AnchorLink to="agriculture">Jump to Agriculture</AnchorLink>
+          <AnchorLink className="custom-class" to="agriculture">Jump to Agriculture</AnchorLink>
         </div>
       </CanonComponent>
     );
