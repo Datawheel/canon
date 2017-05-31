@@ -1,5 +1,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
+import PropTypes from "prop-types";
+
 import {LoadingComponent} from "./LoadingComponent";
 
 class CanonComponent extends Component {
@@ -19,8 +21,8 @@ class CanonComponent extends Component {
 }
 
 CanonComponent.childContextTypes = {
-  data: React.PropTypes.object,
-  d3plus: React.PropTypes.object
+  data: PropTypes.object,
+  d3plus: PropTypes.object
 };
 
 CanonComponent.defaultProps = {

@@ -12,7 +12,9 @@ import {AnchorLink, CanonComponent, TopicTitle} from "../../src";
 
 const d3plus = {
   shapeConfig: {
-    fontFamily: "Comic Sans MS"
+    labelConfig: {
+      fontFamily: "Comic Sans MS"
+    }
   }
 };
 

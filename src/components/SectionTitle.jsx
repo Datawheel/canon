@@ -1,4 +1,6 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
+
 import "./SectionTitle.css";
 
 class SectionTitle extends Component {
@@ -21,7 +23,7 @@ class SectionTitle extends Component {
 }
 
 SectionTitle.contextTypes = {
-  slug: React.PropTypes.string
+  slug: PropTypes.string
 };
 
 export {SectionTitle};

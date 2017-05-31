@@ -1,4 +1,6 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
+
 import "./Section.css";
 
 class Section extends Component {
@@ -29,12 +31,12 @@ class Section extends Component {
 }
 
 Section.childContextTypes = {
-  slug: React.PropTypes.string
+  slug: PropTypes.string
 };
 
 Section.contextTypes = {
-  data: React.PropTypes.object,
-  slug: React.PropTypes.string
+  data: PropTypes.object,
+  slug: PropTypes.string
 };
 
 Section.defaultProps = {
