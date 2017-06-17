@@ -37,7 +37,7 @@ const resolve = file => {
 
 };
 
-shell.echo(chalk.bold("\n\n 📂  Gathering resources\n"));
+shell.echo(chalk.bold("\n\n 📂  Gathering Resources\n"));
 const store = resolve("store.js") || {};
 store.API = API;
 const headerConfig = resolve("helmet.js") || {};
