@@ -61,7 +61,6 @@ module.exports = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.DefinePlugin({__DEVCLIENT__: true, __DEVSERVER__: false})
+    new webpack.NoEmitOnErrorsPlugin()
   ]
 };
