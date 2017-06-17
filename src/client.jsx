@@ -10,14 +10,15 @@ import createRoutes from "routes";
 import configureStore from "./storeConfig";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
-const store = configureStore(window.__INITIAL_STATE__, browserHistory);
+const STATE = window.__INITIAL_STATE__;
+const store = configureStore(STATE, browserHistory);
 const history = syncHistoryWithStore(browserHistory, store);
 const routes = createRoutes(store);
 
 import {I18nextProvider} from "react-i18next";
 import i18n from "i18next";
 
-const {locale, resources} = window.__INITIAL_LOCALE__;
+const {locale, resources} = STATE.i18n;
 
 i18n
   .init({

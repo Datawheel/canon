@@ -24,6 +24,7 @@ export default function storeConfig(initialState, history) {
     API: (state = "") => state,
     attrs: fetchAttrs,
     data: fetchData,
+    i18n: (state = {}) => state,
     loading,
     routing: routerReducer
   }, appReducers));

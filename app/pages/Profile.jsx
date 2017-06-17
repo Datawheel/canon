@@ -28,7 +28,7 @@ class Profile extends Component {
         <div className="home">
           <h1>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</h1>
           <p>Top Crop ID (from "preneed"): { topCrop }</p>
-          <p>{ topCrop } Competitors ("need" using "preneed" in URL): { competitors.map(c => c.geo_name).join(", ") }</p>
+          <p>{ topCrop } Competitors ("need" using "preneed" in URL): { competitors ? competitors.map(c => c.geo_name).join(", ") : "Loading" }</p>
           <TopicTitle slug="agriculture">Agriculture</TopicTitle>
           <Child />
           <TopicTitle slug="climate">Climate</TopicTitle>

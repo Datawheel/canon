@@ -41,10 +41,6 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 
   return function(req, res) {
 
-    const history = createMemoryHistory();
-    const store = configureStore(defaultStore, history);
-    const routes = createRoutes(store);
-
     function fetchResource(lng) {
       let bundle = i18n.getResourceBundle(lng, "canon");
       if (!bundle && lng.indexOf("-") === 2 || lng.indexOf("_") === 2) bundle = i18n.getResourceBundle(lng.slice(0, 2), "canon");
@@ -69,6 +65,11 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 
     const i18nClient = {locale, resources};
     const i18nServer = i18n.cloneInstance();
+
+    const history = createMemoryHistory();
+    const store = configureStore({i18n: {locale, resources}, ...defaultStore}, history);
+    const routes = createRoutes(store);
+
     i18nServer.changeLanguage(locale);
 
     match({routes, location: req.url}, (err, redirect, props) => {
@@ -101,7 +102,6 @@ export default function(defaultStore = {}, i18n, headerConfig) {
                 <body>
                   <div id="app">${componentHTML}</div>
                   <script>window.__SSR__ = true;</script>
-                  <script>window.__INITIAL_LOCALE__ = ${ serialize(i18nClient) };</script>
                   <script>window.__INITIAL_STATE__ = ${ serialize(initialState) };</script>
                   ${analtyicsScript}
                   <script type="text/javascript" charset="utf-8" src="/assets/app.js"></script>
