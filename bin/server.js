@@ -1,7 +1,6 @@
 const axios = require("axios"),
       chalk = require("chalk"),
       express = require("express"),
-      flash = require("express-flash"),
       gzip = require("compression"),
       helmet = require("helmet"),
       path = require("path"),
@@ -130,8 +129,6 @@ function start() {
   app.use(i18nMiddleware.handle(i18n));
 
   app.set("trust proxy", "loopback");
-
-  app.use(flash());
 
   app.get("*", App.default(store, i18n, headerConfig));
   app.listen(PORT);
