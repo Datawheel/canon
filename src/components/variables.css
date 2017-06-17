@@ -11,7 +11,6 @@
   --gutter: var(--gutter, 32px);
   --section-article-small: var(--section-article-small, calc(var(--column) * 3 + var(--gutter) * 2));
   --section-article-large: var(--section-article-large, calc(var(--column) * 5 + var(--gutter) * 4));
-  --viz-height: var(--viz-height, 400px);
 
   /* font styling */
   --font-family: var(--font-family, sans-serif);

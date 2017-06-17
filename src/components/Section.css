@@ -38,7 +38,6 @@
   & .viz {
     flex: 1;
     margin: calc(var(--gutter) / 2);
-    min-height: var(--viz-height);
   }
 
 }
