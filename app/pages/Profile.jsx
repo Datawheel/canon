@@ -4,6 +4,7 @@ import {Link} from "react-router";
 import "./Home.css";
 
 import {fetchData} from "../../src/actions/fetchData";
+import {dataFold} from "d3plus-viz";
 
 import Child from "./Child";
 import Child2 from "./Child2";
@@ -21,10 +22,13 @@ const d3plus = {
 class Profile extends Component {
 
   render() {
+    const {competitors, topCrop} = this.props.data;
     return (
       <CanonComponent data={this.props.data} d3plus={d3plus}>
         <div className="home">
           <h1>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</h1>
+          <p>Top Crop ID (from "preneed"): { topCrop }</p>
+          <p>{ topCrop } Competitors ("need" using "preneed" in URL): { competitors.map(c => c.geo_name).join(", ") }</p>
           <TopicTitle slug="agriculture">Agriculture</TopicTitle>
           <Child />
           <TopicTitle slug="climate">Climate</TopicTitle>
@@ -38,8 +42,14 @@ class Profile extends Component {
   }
 }
 
+const topCropUrl = "api/join/?show=year,crop&sumlevel=latest_by_geo,lowest&required=harvested_area&order=harvested_area&sort=desc&display_names=true&geo=<id>&limit-1";
+Profile.preneed = [
+  fetchData("topCrop", topCropUrl, res => dataFold(res)[0].crop)
+];
+
 Profile.need = [
   Child, Child2,
+  fetchData("competitors", "api/join/?show=geo&sumlevel=adm0&crop=<topCrop>&required=harvested_area&order=harvested_area&sort=desc&display_names=true"),
   fetchData("value_of_production", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=value_of_production&sort=desc&display_names=true&limit=5")
 ];
 

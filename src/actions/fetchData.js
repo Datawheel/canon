@@ -1,14 +1,24 @@
 import axios from "axios";
-import {dataFold as fold} from "d3plus-viz";
+import {dataFold} from "d3plus-viz";
 
-function fetchData(key, url) {
+function fetchData(key, url, format = dataFold) {
 
-  const returnFunction = params => {
+  const returnFunction = (params, store) => {
 
-    const u = `https://api.dataafrica.io/${url.replace("<id>", params.id)}`;
+    let u = `${store.API}${url}`;
+
+    (url.match(/<[^\&\=\/>]+>/g) || []).forEach(variable => {
+      let x = variable.slice(1, -1);
+      if (params[x]) x = params[x];
+      else if (store.data && store.data[x]) x = store.data[x];
+      else if (store[x]) x = store[x];
+      else x = false;
+      if (x) u = u.replace(variable, x);
+    });
+
     return {
       type: "GET_DATA",
-      promise: axios.get(u).then(res => ({key, data: fold(res.data)}))
+      promise: axios.get(u).then(res => ({key, data: format(res.data)}))
     };
 
   };

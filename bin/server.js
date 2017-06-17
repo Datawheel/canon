@@ -33,6 +33,7 @@ const resolve = file => {
 
 shell.echo("\n\n📂  Gathering resources\n");
 const store = resolve("store.js") || {};
+store.API = API;
 const headerConfig = resolve("helmet.js") || {};
 
 const i18n = require("i18next");
