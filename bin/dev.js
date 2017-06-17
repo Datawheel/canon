@@ -10,6 +10,7 @@ nodemon({
     "app/**/*.js",
     "bin/**/*.js",
     "src/**/*.js",
+    "src/*.jsx",
     "webpack/**/*.js"
   ],
   verbose: true,

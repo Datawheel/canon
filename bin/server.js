@@ -11,7 +11,7 @@ const axios = require("axios"),
 const notifier = require("node-notifier");
 const {name} = JSON.parse(shell.cat("package.json"));
 
-const ProgressPlugin = require('webpack/lib/ProgressPlugin');
+const ProgressPlugin = require("webpack/lib/ProgressPlugin");
 
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || 3300;
@@ -73,9 +73,51 @@ i18n
 
 function start() {
 
-  const App = require(path.join(appDir, "static/assets/server"));
+  shell.echo(chalk.bold("\n\n 🌐  Running Express Server\n"));
+  shell.echo(`Environment: ${NODE_ENV}`);
+  shell.echo(`Port: ${PORT}`);
 
+  const App = require(path.join(appDir, "static/assets/server"));
   const app = express();
+
+  if (NODE_ENV === "development") {
+
+    shell.echo(chalk.bold("\n\n 🔷  Bundling Client Webpack\n"));
+
+    const webpackDevConfig = require(path.join(__dirname, "../webpack/webpack.config.dev-client"));
+    const compiler = webpack(webpackDevConfig);
+
+    shell.echo("");
+    let msgLength = 0;
+    compiler.apply(new ProgressPlugin(function(percentage, msg) {
+      const details = Array.prototype.slice.call(arguments, 2);
+      if (percentage < 1) {
+        percentage = Math.floor(percentage * 100);
+        msg = `${percentage}% ${msg}`;
+        if (percentage < 100) msg = ` ${msg}`;
+        if (percentage < 10) msg = ` ${msg}`;
+        details.forEach(detail => {
+          if (!detail) return;
+          if (detail.length > 40) detail = `...${detail.substr(detail.length - 37)}`;
+          msg += ` ${detail}`;
+        });
+        if (msg.length > msgLength) msgLength = msg.length + 1;
+        process.stdout.write(`\r${ new Array(msgLength).join(" ") }`);
+        process.stdout.write(`\r${ msg }`);
+      }
+      else {
+        process.stdout.write(`\r${ new Array(msgLength).join(" ") }\r`);
+        notifier.notify({
+          title: name,
+          message: "Site Rebuilt - Ready for Development"
+        });
+      }
+    }));
+
+    app.use(require("webpack-dev-middleware")(compiler, {noInfo: true, publicPath: webpackDevConfig.output.publicPath}));
+    app.use(require("webpack-hot-middleware")(compiler));
+
+  }
 
   app.set("port", PORT);
 
@@ -93,68 +135,6 @@ function start() {
 
   app.get("*", App.default(store, i18n, headerConfig));
   app.listen(PORT);
-
-  shell.echo(chalk.bold("\n\n 🌐  Initialized Express Server\n"));
-  shell.echo(`Environment: ${NODE_ENV}`);
-  shell.echo(`Port: ${PORT}`);
-
-  if (NODE_ENV === "development") {
-
-    shell.echo(chalk.bold("\n\n 🔷  Bundling Client Webpack\n"));
-    const webpackDevConfig = require(path.join(__dirname, "../webpack/webpack.config.dev-client"));
-    const compiler = webpack(webpackDevConfig, (err, stats) => {
-      if (err) {
-        console.error(err.stack || err);
-        if (err.details) {
-          console.error(err.details);
-        }
-        return;
-      }
-
-      const info = stats.toJson();
-
-      if (stats.hasErrors()) {
-        console.error(info.errors);
-      }
-
-      if (stats.hasWarnings()) {
-        console.warn(info.warnings);
-      }
-
-      shell.echo(stats.toString({chunks: false, colors: true}));
-    });
-    shell.echo("");
-    let msgLength = 0;
-    compiler.apply(new ProgressPlugin(function(percentage, msg) {
-      const details = Array.prototype.slice.call(arguments, 2);
-      if (percentage < 1) {
-        percentage = Math.floor(percentage * 100);
-        msg = `${percentage}% ${msg}`;
-        if (percentage < 100) msg = ` ${msg}`;
-        if (percentage < 10) msg = ` ${msg}`;
-        details.forEach(detail => {
-          if (!detail) return;
-          if (detail.length > 40) detail = `...${detail.substr(detail.length - 37)}`;
-          msg += ` ${detail}`;
-        });
-        if (msg.length > msgLength) msgLength = msg.length;
-        process.stdout.write(`\r${ new Array(msgLength).join(" ") }`);
-        process.stdout.write(`\r${ msg }`);
-      }
-      else {
-        process.stdout.write(`\r${ new Array(msgLength).join(" ") }\r`);
-        notifier.notify({
-          title: name,
-          message: "Site Rebuilt - Ready for Development"
-        });
-      }
-    }));
-    app.use(require("webpack-dev-middleware")(compiler, {
-      noInfo: true,
-      publicPath: webpackDevConfig.output.publicPath
-    }));
-    app.use(require("webpack-hot-middleware")(compiler));
-  }
 
 }
 

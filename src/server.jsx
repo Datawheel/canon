@@ -63,9 +63,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
       resources = fetchResource(locale);
     }
 
-    const i18nClient = {locale, resources};
     const i18nServer = i18n.cloneInstance();
-
     const history = createMemoryHistory();
     const store = configureStore({i18n: {locale, resources}, ...defaultStore}, history);
     const routes = createRoutes(store);
