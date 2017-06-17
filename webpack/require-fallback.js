@@ -9,11 +9,11 @@ module.exports = file => {
 
   try {
     require.resolve(fullPath);
-    shell.echo(`   ✅️  ${file} loaded from .app/ directory`);
+    shell.echo(`${file} loaded from .app/ directory`);
     return require(fullPath);
   }
   catch (e) {
-    shell.echo(`   ⚠️  ${file} does not exist in .app/ directory, using default`);
+    shell.echo(`${file} does not exist in .app/ directory, using default`);
     return false;
   }
 
