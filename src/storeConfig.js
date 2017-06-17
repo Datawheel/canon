@@ -30,7 +30,7 @@ export default function storeConfig(initialState, history) {
   }, appReducers));
 
   if (__DEVCLIENT__) {
-    middleware.push(createLogger());
+    if (__LOGREDUX__) middleware.push(createLogger());
     store = createStore(canonReducer, initialState, compose(
       applyMiddleware(...middleware),
       typeof window === "object" && typeof window.devToolsExtension !== "undefined" ? window.devToolsExtension() : f => f

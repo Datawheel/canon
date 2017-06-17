@@ -1,6 +1,7 @@
 const path = require("path");
 const appDir = process.cwd();
 const webpack = require("webpack");
+const yn = require("yn");
 
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
@@ -69,6 +70,6 @@ module.exports = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.DefinePlugin({__DEVCLIENT__: true, __DEVSERVER__: false})
+    new webpack.DefinePlugin({__DEVCLIENT__: true, __DEVSERVER__: false, __LOGREDUX__: yn(process.env.LOGREDUX || true)})
   ]
 };

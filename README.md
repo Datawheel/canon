@@ -14,10 +14,11 @@ Reusable React environment and components for creating visualization engines.
 
 |variable|description|default|
 |---|---|---|
-|`API`|Currently only used in conjunction with the `ATTRS` variable, but can be helpful for front-end components and actions. |`undefined`|
+|`API`|Used as a prefix with the fetchData action and the attribute types returned from the `ATTRS` url.|`undefined`|
 |`ATTRS`|A URL that should return a list of attribute classification strings to be pre-cached and passed to the default redux store.|`undefined`|
 |`GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`).|`undefined`|
 |`LANGUAGES`|A comma-separated list of languages to be used in generating localization bundles.|`"en"`|
 |`LANGUAGE_DEFAULT`|The default/fallback language for the site.|`"en"`|
+|`LOGREDUX`|Whether or not to display the (rather verbose) Redux store events in the browser console.|`true`|
 |`NODE_ENV`|The current environment. Setting to `production` will result in the removal of browser development tools and return smaller package sizes.|`development`|
 |`PORT`|The port to use for the server.|`3300`|
