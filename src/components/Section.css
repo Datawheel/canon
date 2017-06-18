@@ -21,6 +21,15 @@
       width: var(--section-article-small);
     }
 
+    @media only screen and (max-width : 768px) {
+      flex-direction: column;
+
+      & article {
+        width: auto;
+      }
+
+    }
+
   }
 
   & .rows {
@@ -31,6 +40,14 @@
     & article {
       flex: none;
       width: var(--section-article-large);
+    }
+
+    @media only screen and (max-width : 768px) {
+
+      & article {
+        width: auto;
+      }
+
     }
 
   }
