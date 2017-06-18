@@ -9,6 +9,7 @@ const srcPath = path.join(appDir, "src");
 function postCSSConfig() {
   return [
     require("postcss-import")(),
+    require("lost")(),
     require("postcss-mixins")(),
     require("postcss-custom-properties")(),
     require("postcss-nesting")(),

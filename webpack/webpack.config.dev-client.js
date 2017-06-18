@@ -16,6 +16,7 @@ function postCSSConfig() {
       path: appPath,
       addDependencyTo: webpack // for hot-reloading
     }),
+    require("lost")(),
     require("postcss-mixins")(),
     require("postcss-custom-properties")({variables}),
     require("postcss-nesting")(),

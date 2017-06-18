@@ -8,8 +8,8 @@ class Nav extends Component {
     return (
       <nav className="nav">
         <Link className="logo" to="/">Canonical Design</Link>
-        <Link to="/profile/040AF00182">Nigeria</Link>
-        <Link to="/profile/040AF00079">Ethopia</Link>
+        <Link className="link" to="/profile/040AF00182">Nigeria</Link>
+        <Link className="link" to="/profile/040AF00079">Ethopia</Link>
       </nav>
     );
   }
