@@ -42,7 +42,7 @@ class Profile extends Component {
   }
 }
 
-const topCropUrl = "api/join/?show=year,crop&sumlevel=latest_by_geo,lowest&required=harvested_area&order=harvested_area&sort=desc&display_names=true&geo=<id>&limit-1";
+const topCropUrl = "https://api.dataafrica.io/api/join/?show=year,crop&sumlevel=latest_by_geo,lowest&required=harvested_area&order=harvested_area&sort=desc&display_names=true&geo=<id>&limit-1";
 Profile.preneed = [
   fetchData("topCrop", topCropUrl, res => dataFold(res)[0].crop)
 ];

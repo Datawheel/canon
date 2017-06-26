@@ -5,7 +5,7 @@ function fetchData(key, url, format = dataFold) {
 
   const returnFunction = (params, store) => {
 
-    let u = `${store.API}${url}`;
+    let u = url.indexOf("http") === 0 ? url : `${store.API}${url}`;
 
     (url.match(/<[^\&\=\/>]+>/g) || []).forEach(variable => {
       let x = variable.slice(1, -1);
