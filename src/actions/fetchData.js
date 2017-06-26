@@ -8,12 +8,12 @@ function fetchData(key, url, format = dataFold, config = {}) {
     let u = url.indexOf("http") === 0 ? url : `${store.API}${url}`;
 
     (url.match(/<[^\&\=\/>]+>/g) || []).forEach(variable => {
-      let x = variable.slice(1, -1);
-      if (params[x]) x = params[x];
-      else if (store.data && store.data[x]) x = store.data[x];
-      else if (store[x]) x = store[x];
+      let x = variable.slice(1, -1).split(".");
+      if (params[x[0]]) x = params[x[0]];
+      else if (store.data && store.data[x[0]]) x = x.reduce((o, i) => o[i], store.data);
+      else if (store[x[0]]) x = x.reduce((o, i) => o[i], store);
       else x = false;
-      if (x) u = u.replace(variable, x);
+      if (x && typeof x !== "object") u = u.replace(variable, x);
     });
 
     return {
