@@ -22,9 +22,9 @@ const {locale, resources} = window.__INITIAL_STATE__.i18n;
 
 i18n
   .init({
-    fallbackLng: process.env.LANGUAGE_DEFAULT || "en",
+    fallbackLng: process.env.CANON_LANGUAGE_DEFAULT || "en",
     lng: locale,
-    debug: process.env.NODE_ENV !== "production",
+    debug: process.env.CANON_ENV !== "production",
     ns: ["canon"],
     defaultNS: "canon",
     interpolation: {

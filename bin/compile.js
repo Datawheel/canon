@@ -2,7 +2,7 @@
 
 const shell = require("shelljs");
 
-process.env.NODE_ENV = "production";
+process.env.CANON_ENV = "production";
 
 shell.mkdir("-p", `${process.cwd()}/lib`);
 shell.exec(`webpack --colors --config ${__dirname}/webpack.config.js`);

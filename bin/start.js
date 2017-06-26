@@ -2,7 +2,7 @@
 
 const shell = require("shelljs");
 
-process.env.NODE_ENV = "production";
+process.env.CANON_ENV = "production";
 
 shell.exec("clear");
 if (!shell.test("-f", `${process.cwd()}/index.js`)) shell.exec("canon-build");

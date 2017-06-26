@@ -13,28 +13,28 @@ import {I18nextProvider} from "react-i18next";
 
 import serialize from "serialize-javascript";
 
-const analtyicsScript = process.env.GOOGLE_ANALYTICS === undefined ? ""
+const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
   : `<script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-      ga('create', '${process.env.GOOGLE_ANALYTICS}', 'auto');
+      ga('create', '${process.env.CANON_GOOGLE_ANALYTICS}', 'auto');
       ga('send', 'pageview');
     </script>`;
 
-const cssLink = process.env.NODE_ENV === "production" ? "<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "";
+const cssLink = process.env.CANON_ENV === "production" ? "<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "";
 
 export default function(defaultStore = {}, i18n, headerConfig) {
 
   // Remove stylesheets because we do not extract them into a css file in development mode
-  if (process.env.NODE_DEV === "development") {
+  if (process.env.CANON_DEV === "development") {
     headerConfig.link = headerConfig.link.filter(l => l.rel !== "stylesheet");
   }
 
   const Meta = () =>
     <Helmet
-      htmlAttributes={{lang: process.env.LANGUAGE_DEFAULT || "en", amp: undefined}}
+      htmlAttributes={{lang: process.env.CANON_LANGUAGE_DEFAULT || "en", amp: undefined}}
       defaultTitle={headerConfig.title} meta={headerConfig.meta}
       link={headerConfig.link} />;
 
@@ -61,7 +61,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     }
 
     if (resources === undefined) {
-      locale = process.env.LANGUAGE_DEFAULT || "en";
+      locale = process.env.CANON_LANGUAGE_DEFAULT || "en";
       resources = fetchResource(locale);
     }
 

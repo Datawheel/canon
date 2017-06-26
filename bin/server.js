@@ -12,10 +12,10 @@ const {name} = JSON.parse(shell.cat("package.json"));
 
 const ProgressPlugin = require("webpack/lib/ProgressPlugin");
 
-const NODE_ENV = process.env.NODE_ENV || "development";
-const PORT = process.env.PORT || 3300;
-const ATTRS = process.env.ATTRS;
-const API = process.env.API;
+const NODE_ENV = process.env.CANON_ENV || "development";
+const PORT = process.env.CANON_PORT || 3300;
+const ATTRS = process.env.CANON_ATTRS;
+const API = process.env.CANON_API;
 
 const appDir = process.cwd();
 const appPath = path.join(appDir, "app");
@@ -50,8 +50,8 @@ i18n
   .use(i18nMiddleware.LanguageDetector)
   .init({
 
-    fallbackLng: process.env.LANGUAGE_DEFAULT || "en",
-    lng: process.env.LANGUAGE_DEFAULT || "en",
+    fallbackLng: process.env.CANON_LANGUAGE_DEFAULT || "en",
+    lng: process.env.CANON_LANGUAGE_DEFAULT || "en",
 
     // have a common namespace used around the full app
     ns: ["canon"],
@@ -122,7 +122,7 @@ function start() {
 
   if (NODE_ENV === "production") {
     app.use(gzip());
-    app.use(helmet());
+    app.use(helmet({frameguard: false}));
   }
 
   app.use(express.static(path.join(appDir, "static")));
