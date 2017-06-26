@@ -5,7 +5,8 @@ const axios = require("axios"),
       helmet = require("helmet"),
       path = require("path"),
       shell = require("shelljs"),
-      webpack = require("webpack");
+      webpack = require("webpack"),
+      yn = require("yn");
 
 const notifier = require("node-notifier");
 const {name} = JSON.parse(shell.cat("package.json"));
@@ -122,7 +123,8 @@ function start() {
 
   if (NODE_ENV === "production") {
     app.use(gzip());
-    app.use(helmet({frameguard: false}));
+    const FRAMEGUARD = yn(process.env.CANON_HELMET_FRAMEGUARD);
+    app.use(helmet({frameguard: FRAMEGUARD === void 0 ? false : FRAMEGUARD}));
   }
 
   app.use(express.static(path.join(appDir, "static")));
