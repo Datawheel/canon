@@ -1,6 +1,7 @@
 const axios = require("axios"),
       chalk = require("chalk"),
       express = require("express"),
+      fs = require("fs"),
       gzip = require("compression"),
       helmet = require("helmet"),
       path = require("path"),
@@ -77,9 +78,27 @@ function start() {
   shell.echo(`Environment: ${NODE_ENV}`);
   shell.echo(`Port: ${PORT}`);
 
-  const App = require(path.join(appDir, "static/assets/server"));
   const app = express();
 
+  app.set("port", PORT);
+  app.set("trust proxy", "loopback");
+
+  const apiFolder = path.join(appDir, "api/");
+  if (shell.test("-d", apiFolder)) {
+    let routes = 0;
+    fs.readdirSync(apiFolder)
+      .filter(file => file.indexOf(".") !== 0)
+      .forEach(file => {
+        routes++;
+        return require(path.join(apiFolder, file))(app);
+      });
+    shell.echo(`${routes} custom routes loaded from ./api directory`);
+  }
+  else {
+    shell.echo("No custom routes defined in ./api directory.");
+  }
+
+  const App = require(path.join(appDir, "static/assets/server"));
   if (NODE_ENV === "development") {
 
     shell.echo(chalk.bold("\n\n 🔷  Bundling Client Webpack\n"));
@@ -119,8 +138,6 @@ function start() {
 
   }
 
-  app.set("port", PORT);
-
   if (NODE_ENV === "production") {
     app.use(gzip());
     const FRAMEGUARD = yn(process.env.CANON_HELMET_FRAMEGUARD);
@@ -130,9 +147,8 @@ function start() {
   app.use(express.static(path.join(appDir, "static")));
   app.use(i18nMiddleware.handle(i18n));
 
-  app.set("trust proxy", "loopback");
-
   app.get("*", App.default(store, i18n, headerConfig));
+
   app.listen(PORT);
 
 }
