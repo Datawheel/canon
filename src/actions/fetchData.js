@@ -1,7 +1,7 @@
 import axios from "axios";
 import {dataFold} from "d3plus-viz";
 
-function fetchData(key, url, format = dataFold) {
+function fetchData(key, url, format = dataFold, config = {}) {
 
   const returnFunction = (params, store) => {
 
@@ -18,7 +18,7 @@ function fetchData(key, url, format = dataFold) {
 
     return {
       type: "GET_DATA",
-      promise: axios.get(u).then(res => ({key, data: format(res.data)}))
+      promise: axios.get(u, config).then(res => ({key, data: format(res.data)}))
     };
 
   };
