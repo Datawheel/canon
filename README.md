@@ -16,6 +16,10 @@ Reusable React environment and components for creating visualization engines.
 |---|---|---|
 |`CANON_API`|Used as a prefix with the fetchData action and the attribute types returned from the `ATTRS` url.|`undefined`|
 |`CANON_ATTRS`|A URL that should return a list of attribute classification strings to be pre-cached and passed to the default redux store.|`undefined`|
+|`CANON_DB_NAME`|Postgres database name.|`undefined`|
+|`CANON_DB_USER`|Postgres database user.|`undefined`|
+|`CANON_DB_HOST`|Postgres database host.|`"127.0.0.1"`|
+|`CANON_DB_PW`|Postgres database password.|`null`|
 |`CANON_GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`).|`undefined`|
 |`CANON_HELMET_FRAMEGUARD`|Pass-through option for the "frameguard" property of the [helmet](https://github.com/helmetjs/helmet#how-it-works) initialization.|`false`|
 |`CANON_LANGUAGES`|A comma-separated list of languages to be used in generating localization bundles.|`"en"`|

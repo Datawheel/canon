@@ -9,6 +9,7 @@ nodemon({
   watch: [
     "api/**/*.js",
     "app/**/*.js",
+    "bin/**/*.js",
     "src/**/*.js",
     "src/*.jsx",
     "webpack/**/*.js"

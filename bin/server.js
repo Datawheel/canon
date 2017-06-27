@@ -9,6 +9,8 @@ const axios = require("axios"),
       webpack = require("webpack"),
       yn = require("yn");
 
+const Sequelize = require("Sequelize");
+
 const notifier = require("node-notifier");
 const {name} = JSON.parse(shell.cat("package.json"));
 
@@ -18,6 +20,11 @@ const NODE_ENV = process.env.CANON_ENV || "development";
 const PORT = process.env.CANON_PORT || 3300;
 const ATTRS = process.env.CANON_ATTRS;
 const API = process.env.CANON_API;
+
+const dbName = process.env.CANON_DB_NAME;
+const dbUser = process.env.CANON_DB_USER;
+const dbHost = process.env.CANON_DB_HOST || "127.0.0.1";
+const dbPw = process.env.CANON_DB_PW || null;
 
 const appDir = process.cwd();
 const appPath = path.join(appDir, "app");
@@ -83,6 +90,38 @@ function start() {
   app.set("port", PORT);
   app.set("trust proxy", "loopback");
 
+  const dbFolder = path.join(appDir, "db/");
+  if (shell.test("-d", dbFolder) && dbName && dbUser) {
+
+    const db = new Sequelize(dbName, dbUser, dbPw,
+      {
+        host: dbHost,
+        dialect: "postgres",
+        define: {timestamps: true}
+      }
+    );
+
+    let modelCount = 0;
+    fs.readdirSync(dbFolder)
+      .filter(file => file.indexOf(".") !== 0)
+      .forEach(file => {
+        const model = db.import(path.join(dbFolder, file));
+        db[model.name] = model;
+        modelCount++;
+      });
+
+    Object.keys(db).forEach(modelName => {
+      if ("associate" in db[modelName]) db[modelName].associate(db);
+    });
+
+    app.set("db", db);
+
+    shell.echo(`${modelCount} database model${ modelCount > 1 ? "s" : "" } loaded from ./db directory`);
+  }
+  else {
+    shell.echo("No database models defined in ./db directory.");
+  }
+
   const apiFolder = path.join(appDir, "api/");
   if (shell.test("-d", apiFolder)) {
     let routes = 0;
@@ -92,7 +131,7 @@ function start() {
         routes++;
         return require(path.join(apiFolder, file))(app);
       });
-    shell.echo(`${routes} custom routes loaded from ./api directory`);
+    shell.echo(`${routes} custom route${ routes > 1 ? "s" : "" } loaded from ./api directory`);
   }
   else {
     shell.echo("No custom routes defined in ./api directory.");
