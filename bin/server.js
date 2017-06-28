@@ -1,5 +1,8 @@
 const axios = require("axios"),
+      bodyParser = require("body-parser"),
       chalk = require("chalk"),
+      cookieParser = require("cookie-parser"),
+      cookieSession = require("cookie-session"),
       express = require("express"),
       fs = require("fs"),
       gzip = require("compression"),
@@ -25,6 +28,8 @@ const dbName = process.env.CANON_DB_NAME;
 const dbUser = process.env.CANON_DB_USER;
 const dbHost = process.env.CANON_DB_HOST || "127.0.0.1";
 const dbPw = process.env.CANON_DB_PW || null;
+
+const logins = process.env.CANON_LOGINS || false;
 
 const appDir = process.cwd();
 const appPath = path.join(appDir, "app");
@@ -89,19 +94,43 @@ function start() {
 
   app.set("port", PORT);
   app.set("trust proxy", "loopback");
+  app.use(cookieParser());
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({extended: true, limit: "50mb"}));
 
-  const dbFolder = path.join(appDir, "db/");
-  if (shell.test("-d", dbFolder) && dbName && dbUser) {
+  const secret = process.env.CANON_SESSION_SECRET || name;
+  const maxAge = process.env.CANON_SESSION_TIMEOUT || 60 * 60 * 1000; // one hour
+  app.use(cookieSession({
+    name: "canon",
+    secret,
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      maxAge
+    }
+  }));
+
+  if (dbName && dbUser) {
 
     const db = new Sequelize(dbName, dbUser, dbPw,
       {
         host: dbHost,
         dialect: "postgres",
-        define: {timestamps: true}
+        define: {timestamps: true},
+        logging: () => {}
       }
     );
 
-    let modelCount = 0;
+    app.set("db", db);
+
+  }
+  shell.echo(`Database: ${ dbHost && dbUser ? `${dbUser}@${dbHost}` : "NONE" }`);
+
+  const dbFolder = path.join(appDir, "db/");
+  let modelCount = 0;
+  if (shell.test("-d", dbFolder)) {
+    const {db} = app.settings;
+
     fs.readdirSync(dbFolder)
       .filter(file => file.indexOf(".") !== 0)
       .forEach(file => {
@@ -110,33 +139,86 @@ function start() {
         modelCount++;
       });
 
+  }
+  shell.echo(`DB Models: ${modelCount}`);
+
+  if (logins) {
+
+    const passport = require("passport");
+    app.use(passport.initialize());
+    app.use(passport.session());
+    app.set("passport", passport);
+    const authViews = path.join(__dirname, "../src/auth/");
+    fs.readdirSync(authViews)
+      .filter(file => file.indexOf(".") !== 0)
+      .forEach(file => require(path.join(authViews, file))(app));
+
+    const {db} = app.settings;
+    if (!db.models.users) {
+
+      db.getQueryInterface().createTable("users", {
+        id: {
+          allowNull: false,
+          primaryKey: true,
+          type: Sequelize.STRING
+        },
+        username: {
+          type: Sequelize.STRING,
+          allowNull: false,
+          unique: true,
+          validate: {is: /^[a-z0-9\_\-]+$/i}
+        },
+        email: {
+          type: Sequelize.STRING,
+          validate: {
+            isEmail: true
+          }
+        },
+        name: {type: Sequelize.STRING},
+        password: {type: Sequelize.STRING},
+        salt: {type: Sequelize.STRING},
+        twitter: {type: Sequelize.STRING},
+        facebook: {type: Sequelize.STRING},
+        instagram: {type: Sequelize.STRING},
+        createdAt: {
+          allowNull: false,
+          type: Sequelize.DATE
+        },
+        updatedAt: {
+          allowNull: false,
+          type: Sequelize.DATE
+        }
+      });
+
+      db.users = db.import(path.join(__dirname, "../src/db/users.js"));
+
+    }
+  }
+  shell.echo(`User Authentication: ${ logins ? "ON" : "OFF" }`);
+
+  if (shell.test("-d", dbFolder)) {
+
+    const {db} = app.settings;
+
     Object.keys(db).forEach(modelName => {
       if ("associate" in db[modelName]) db[modelName].associate(db);
     });
 
-    app.set("db", db);
-
-    shell.echo(`${modelCount} database model${ modelCount > 1 ? "s" : "" } loaded from ./db directory`);
-  }
-  else {
-    shell.echo("No database models defined in ./db directory.");
   }
 
   const apiFolder = path.join(appDir, "api/");
+  let routes = 0;
   if (shell.test("-d", apiFolder)) {
-    let routes = 0;
     fs.readdirSync(apiFolder)
       .filter(file => file.indexOf(".") !== 0)
       .forEach(file => {
         routes++;
         return require(path.join(apiFolder, file))(app);
       });
-    shell.echo(`${routes} custom route${ routes > 1 ? "s" : "" } loaded from ./api directory`);
   }
-  else {
-    shell.echo("No custom routes defined in ./api directory.");
-  }
+  shell.echo(`API Routes: ${routes}`);
 
+  shell.echo(""); // newline to separate PropType warning
   const App = require(path.join(appDir, "static/assets/server"));
   if (NODE_ENV === "development") {
 

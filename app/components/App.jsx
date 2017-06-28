@@ -1,12 +1,19 @@
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import Nav from "components/Nav";
 import Footer from "components/Footer";
 import "normalize.css/normalize.css";
 
-export default class App extends Component {
+import {isAuthenticated} from "../../src";
+
+class App extends Component {
 
   constructor(props) {
     super(props);
+  }
+
+  componentWillMount() {
+    this.props.isAuthenticated();
   }
 
   render() {
@@ -21,3 +28,11 @@ export default class App extends Component {
   }
 
 }
+
+const mapDispatchToProps = dispatch => ({
+  isAuthenticated: () => {
+    dispatch(isAuthenticated());
+  }
+});
+
+export default connect(() => ({}), mapDispatchToProps)(App);

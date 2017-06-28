@@ -1,6 +1,6 @@
 module.exports = function(sequelize, db) {
 
-  return sequelize.define("User",
+  return sequelize.define("users",
     {
       id: {
         type: db.STRING,

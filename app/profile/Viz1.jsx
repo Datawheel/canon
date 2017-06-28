@@ -5,7 +5,7 @@ import {fetchData} from "../../src/actions/fetchData";
 
 import {SectionColumns, SectionTitle} from "../../src";
 
-class Child extends SectionColumns {
+class Viz1 extends SectionColumns {
 
   render() {
     const data = this.context.data.harvested_area;
@@ -25,8 +25,8 @@ class Child extends SectionColumns {
   }
 }
 
-Child.need = [
+Viz1.need = [
   fetchData("harvested_area", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=harvested_area&sort=desc&display_names=true")
 ];
 
-export default Child;
+export default Viz1;

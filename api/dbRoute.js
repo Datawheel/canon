@@ -4,7 +4,7 @@ module.exports = function(app) {
 
   app.get("/api/user", (req, res) => {
 
-    db.User.findAll({where: req.query}).then(u => res.json(u).end());
+    db.testTable.findAll({where: req.query}).then(u => res.json(u).end());
 
   });
 

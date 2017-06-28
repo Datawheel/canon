@@ -6,6 +6,7 @@ import createLogger from "redux-logger";
 
 import promiseMiddleware from "./middlewares/promiseMiddleware";
 
+import auth from "./reducers/auth";
 import fetchAttrs from "./reducers/fetchAttrs";
 import fetchData from "./reducers/fetchData";
 import loading from "./reducers/loading";
@@ -23,6 +24,7 @@ export default function storeConfig(initialState, history) {
   const canonReducer = combineReducers(Object.assign({
     API: (state = "") => state,
     attrs: fetchAttrs,
+    auth,
     data: fetchData,
     i18n: (state = {}) => state,
     loading,

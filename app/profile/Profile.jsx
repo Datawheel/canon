@@ -1,13 +1,13 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Link} from "react-router";
-import "./Home.css";
+import "pages/Home.css";
 
 import {fetchData} from "../../src/actions/fetchData";
 import {dataFold} from "d3plus-viz";
 
-import Child from "./Child";
-import Child2 from "./Child2";
+import Viz1 from "./Viz1";
+import Viz2 from "./Viz2";
 
 import {AnchorLink, CanonComponent, TopicTitle} from "../../src";
 
@@ -30,9 +30,9 @@ class Profile extends Component {
           <p>Top Crop ID (from "preneed"): { topCrop.crop }</p>
           <p>{ topCrop.crop } Competitors ("need" using "preneed" in URL): { competitors ? competitors.map(c => c.geo_name).join(", ") : "Loading" }</p>
           <TopicTitle slug="agriculture">Agriculture</TopicTitle>
-          <Child />
+          <Viz1 />
           <TopicTitle slug="climate">Climate</TopicTitle>
-          <Child2 />
+          <Viz2 />
           <Link to="/profile/040AF00182">Jump to Nigeria</Link>
           <Link to="/profile/040AF00079">Jump to Ethopia</Link>
           <AnchorLink className="custom-class" to="agriculture">Jump to Agriculture</AnchorLink>
@@ -48,7 +48,7 @@ Profile.preneed = [
 ];
 
 Profile.need = [
-  Child, Child2,
+  Viz1, Viz2,
   fetchData("competitors", "api/join/?show=geo&sumlevel=adm0&crop=<topCrop.crop>&required=harvested_area&order=harvested_area&sort=desc&display_names=true"),
   fetchData("value_of_production", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=value_of_production&sort=desc&display_names=true&limit=5")
 ];
