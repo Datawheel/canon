@@ -8,6 +8,7 @@ import {dataFold} from "d3plus-viz";
 
 import Viz1 from "./Viz1";
 import Viz2 from "./Viz2";
+import Viz3 from "./Viz3";
 
 import {AnchorLink, CanonComponent, TopicTitle} from "../../src";
 
@@ -23,6 +24,7 @@ class Profile extends Component {
 
   render() {
     const {competitors, topCrop} = this.props.data;
+    if (!topCrop) return null;
     return (
       <CanonComponent data={this.props.data} d3plus={d3plus}>
         <div className="home">
@@ -33,6 +35,7 @@ class Profile extends Component {
           <Viz1 />
           <TopicTitle slug="climate">Climate</TopicTitle>
           <Viz2 />
+          <Viz3 />
           <Link to="/profile/040AF00182">Jump to Nigeria</Link>
           <Link to="/profile/040AF00079">Jump to Ethopia</Link>
           <AnchorLink className="custom-class" to="agriculture">Jump to Agriculture</AnchorLink>
@@ -48,7 +51,7 @@ Profile.preneed = [
 ];
 
 Profile.need = [
-  Viz1, Viz2,
+  Viz1, Viz2, Viz3,
   fetchData("competitors", "api/join/?show=geo&sumlevel=adm0&crop=<topCrop.crop>&required=harvested_area&order=harvested_area&sort=desc&display_names=true"),
   fetchData("value_of_production", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=value_of_production&sort=desc&display_names=true&limit=5")
 ];

@@ -33,9 +33,14 @@ const commonLoaders = [
     options: {
       compact: false,
       presets: ["react-hmre", ["es2015", {modules: false}], "react", "stage-0"],
-      plugins: ["transform-decorators-legacy"]
+      plugins: [
+        "transform-decorators-legacy",
+        "transform-react-remove-prop-types",
+        "transform-react-constant-elements",
+        "transform-react-inline-elements"
+      ]
     },
-    include: [appPath, path.join(__dirname, "../src")]
+    include: [appPath, path.join(appDir, "node_modules"), path.join(__dirname, "../src")]
   },
   {
     test: /\.css$/, use: [
