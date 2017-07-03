@@ -23,7 +23,7 @@ const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
       ga('send', 'pageview');
     </script>`;
 
-const cssLink = process.env.CANON_ENV === "production" ? "<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "";
+const cssLink = process.env.NODE_ENV === "production" ? "<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "";
 
 export default function(defaultStore = {}, i18n, headerConfig) {
 

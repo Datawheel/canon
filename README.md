@@ -20,7 +20,6 @@ Reusable React environment and components for creating visualization engines.
 |`CANON_DB_USER`|Postgres database user.|`undefined`|
 |`CANON_DB_HOST`|Postgres database host.|`"127.0.0.1"`|
 |`CANON_DB_PW`|Postgres database password.|`null`|
-|`CANON_ENV`|The current environment. Setting to `production` will result in the removal of browser development tools and return smaller package sizes.|`development`|
 |`CANON_GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`).|`undefined`|
 |`CANON_HELMET_FRAMEGUARD`|Pass-through option for the "frameguard" property of the [helmet](https://github.com/helmetjs/helmet#how-it-works) initialization.|`false`|
 |`CANON_LANGUAGES`|A comma-separated list of languages to be used in generating localization bundles.|`"en"`|
@@ -30,3 +29,4 @@ Reusable React environment and components for creating visualization engines.
 |`CANON_PORT`|The port to use for the server.|`3300`|
 |`CANON_SESSION_SECRET`|A unique secret key to use for cookies.|The "name" field from package.json|
 |`CANON_SESSION_TIMEOUT`|The timeout, in milliseconds, for user authentication cookies.|`3600000` (one hour)|
+|`NODE_ENV`|The current environment. Setting to `production` will result in the removal of browser development tools and return smaller package sizes.|`development`|

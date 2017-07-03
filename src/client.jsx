@@ -24,7 +24,7 @@ i18n
   .init({
     fallbackLng: process.env.CANON_LANGUAGE_DEFAULT || "en",
     lng: locale,
-    debug: process.env.CANON_ENV !== "production",
+    debug: process.env.NODE_ENV !== "production",
     ns: ["canon"],
     defaultNS: "canon",
     interpolation: {

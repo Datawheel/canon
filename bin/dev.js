@@ -2,7 +2,7 @@
 
 const nodemon = require("nodemon");
 
-process.env.CANON_ENV = "development";
+process.env.NODE_ENV = "development";
 process.env.CANON_DIR = __dirname;
 
 nodemon({

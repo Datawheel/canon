@@ -19,7 +19,7 @@ const {name} = JSON.parse(shell.cat("package.json"));
 
 const ProgressPlugin = require("webpack/lib/ProgressPlugin");
 
-const NODE_ENV = process.env.CANON_ENV || "development";
+const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.CANON_PORT || 3300;
 const ATTRS = process.env.CANON_ATTRS;
 const API = process.env.CANON_API;
