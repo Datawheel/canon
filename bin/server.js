@@ -1,4 +1,5 @@
-const Sequelize = require("sequelize"),
+const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
+      Sequelize = require("sequelize"),
       axios = require("axios"),
       bodyParser = require("body-parser"),
       chalk = require("chalk"),
@@ -8,15 +9,13 @@ const Sequelize = require("sequelize"),
       fs = require("fs"),
       gzip = require("compression"),
       helmet = require("helmet"),
+      notifier = require("node-notifier"),
       path = require("path"),
       shell = require("shelljs"),
       webpack = require("webpack"),
       yn = require("yn");
 
-const notifier = require("node-notifier");
 const {name} = JSON.parse(shell.cat("package.json"));
-
-const ProgressPlugin = require("webpack/lib/ProgressPlugin");
 
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.CANON_PORT || 3300;
@@ -32,6 +31,8 @@ const logins = process.env.CANON_LOGINS || false;
 
 const appDir = process.cwd();
 const appPath = path.join(appDir, "app");
+
+const canonPath = name === "datawheel-canon" ? appDir : path.join(appDir, "node_modules/datawheel-canon/");
 
 const resolve = file => {
 
@@ -147,7 +148,7 @@ function start() {
     app.use(passport.initialize());
     app.use(passport.session());
     app.set("passport", passport);
-    const authViews = path.join(__dirname, "../src/auth/");
+    const authViews = path.join(canonPath, "src/auth/");
     fs.readdirSync(authViews)
       .filter(file => file.indexOf(".") !== 0)
       .forEach(file => require(path.join(authViews, file))(app));
@@ -189,7 +190,7 @@ function start() {
         }
       });
 
-      db.users = db.import(path.join(__dirname, "../src/db/users.js"));
+      db.users = db.import(path.join(canonPath, "src/db/users.js"));
 
     }
   }
@@ -223,7 +224,7 @@ function start() {
 
     shell.echo(chalk.bold("\n\n 🔷  Bundling Client Webpack\n"));
 
-    const webpackDevConfig = require(path.join(__dirname, "../webpack/webpack.config.dev-client"));
+    const webpackDevConfig = require(path.join(canonPath, "webpack/webpack.config.dev-client"));
     const compiler = webpack(webpackDevConfig);
 
     shell.echo("");
