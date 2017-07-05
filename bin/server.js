@@ -1,4 +1,5 @@
-const axios = require("axios"),
+const Sequelize = require("sequelize"),
+      axios = require("axios"),
       bodyParser = require("body-parser"),
       chalk = require("chalk"),
       cookieParser = require("cookie-parser"),
@@ -11,8 +12,6 @@ const axios = require("axios"),
       shell = require("shelljs"),
       webpack = require("webpack"),
       yn = require("yn");
-
-const Sequelize = require("Sequelize");
 
 const notifier = require("node-notifier");
 const {name} = JSON.parse(shell.cat("package.json"));
