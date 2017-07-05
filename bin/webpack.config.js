@@ -32,8 +32,7 @@ const commonLoaders = [
         "transform-react-constant-elements",
         "transform-react-inline-elements"
       ]
-    },
-    include: path.join(appDir, "node_modules/yn")
+    }
   },
   {
     test: /\.css$/, use: [
