@@ -97,6 +97,8 @@ export default function(defaultStore = {}, i18n, headerConfig) {
                   ${header.title.toString()}
                   ${header.meta.toString()}
                   ${header.link.toString()}
+                  <link rel='stylesheet' type='text/css' href='/assets/normalize.css'>
+                  <link rel='stylesheet' type='text/css' href='/assets/blueprint/dist/blueprint.css'>
                   ${cssLink}
                 </head>
                 <body>

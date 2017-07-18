@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/datawheel/datawheel-canon#readme",
   "dependencies": {
+    "@blueprintjs/core": "^1.23.0",
     "axios": "^0.15.3",
     "babel-cli": "^6.24.0",
     "babel-loader": "^7.0.0-alpha.3",
@@ -80,6 +81,7 @@
     "postcss-reporter": "^3.0.0",
     "prop-types": "^15.5.10",
     "react": "^15.3.1",
+    "react-addons-css-transition-group": "^15.6.0",
     "react-dom": "^15.3.1",
     "react-helmet": "^4.0.0",
     "react-i18next": "^3.1.0",
@@ -95,6 +97,7 @@
     "serialize-javascript": "^1.3.0",
     "shelljs": "^0.7.6",
     "style-loader": "^0.13.2",
+    "url-loader": "^0.5.9",
     "webpack": "^2.2.1",
     "webpack-dev-middleware": "^1.10.1",
     "webpack-hot-middleware": "^2.17.1",
