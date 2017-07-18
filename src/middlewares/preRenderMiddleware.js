@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function name(store, {components, params}) {
+export default function preRenderMiddleware(store, {components, params}) {
 
   const data = store.data || {},
         dispatch = store.dispatch;
