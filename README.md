@@ -12,6 +12,21 @@ Reusable React environment and components for creating visualization engines.
 
 ## Environment Variables
 
+Interacting with the internals of canon is done by specifying environment variables. The most common way to set environment variables is to use `autoenv` (installed with `brew install autoenv`), which will detect any file named `.env` located in a project folder. This file should not be pushed to the repository, as it usually contains variables specific to the current environment (testing locally, running on a server etc).
+
+Here is an example `.env` file which turns off the default redux messages seen in the browser console and changes the default localization language:
+
+```sh
+export CANON_LOGREDUX=false
+export CANON_LANGUAGE_DEFAULT="es"
+```
+
+*Z shell users*: when installing `autoenv`, the following line needs to be placed in your shell config (usually `~/.zshrc`):
+
+```sh
+source /usr/local/opt/autoenv/activate.sh
+```
+
 |variable|description|default|
 |---|---|---|
 |`CANON_API`|Used as a prefix with the fetchData action and the attribute types returned from the `ATTRS` url.|`undefined`|
