@@ -39,20 +39,21 @@ const commonLoaders = [
     },
     include: [
       appPath,
-      path.join(appDir, "node_modules/yn"), 
+      path.join(appDir, "node_modules/yn"),
       path.join(__dirname, "../src")
     ]
   },
   {
-    test: /\.css$/,
+    test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+    loader: "url-loader?limit=100000"
+  },
+  {
+    test: /\.(scss|sass|css)$/i,
     use: ExtractTextPlugin.extract({
       fallback: "style-loader",
       use: [
-        "css-loader",
-        {
-          loader: "postcss-loader",
-          options: {plugins: postCSSConfig}
-        }
+        {loader: "css-loader", options: {minimize: process.env.NODE_ENV === "production"}},
+        {loader: "postcss-loader", options: {plugins: postCSSConfig}}
       ]
     })
   }

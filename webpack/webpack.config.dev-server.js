@@ -6,6 +6,7 @@ const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
 process.traceDeprecation = true;
+
 const commonLoaders = [
   {
     test: /\.js$|\.jsx$/,
@@ -25,6 +26,10 @@ const commonLoaders = [
       path.join(appDir, "node_modules/yn"),
       path.join(__dirname, "../src")
     ]
+  },
+  {
+    test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+    loader: "url-loader?limit=100000"
   },
   {
     test: /\.css$/,

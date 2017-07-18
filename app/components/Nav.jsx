@@ -3,6 +3,8 @@ import {connect} from "react-redux";
 import {Link} from "react-router";
 import "./Nav.css";
 
+import Icon from "./icon-save.svg";
+
 class Nav extends Component {
 
   render() {
@@ -10,7 +12,7 @@ class Nav extends Component {
 
     return (
       <nav className="nav">
-        <Link className="logo" to="/">Canonical Design</Link>
+        <Link className="logo" to="/"><img src={Icon} /> Canonical Design</Link>
         <Link className="link" to="/profile/040AF00182">Profile</Link>
         { user
         ? <a className="user-link" href="/auth/logout">Logout</a>

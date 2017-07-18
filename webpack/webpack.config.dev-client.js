@@ -47,13 +47,15 @@ const commonLoaders = [
     ]
   },
   {
-    test: /\.css$/, use: [
+    test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+    loader: "url-loader?limit=100000"
+  },
+  {
+    test: /\.css$/,
+    use: [
       "style-loader",
-      "css-loader",
-      {
-        loader: "postcss-loader",
-        options: {plugins: postCSSConfig}
-      }
+      {loader: "css-loader", options: {minimize: process.env.NODE_ENV === "production"}},
+      {loader: "postcss-loader", options: {plugins: postCSSConfig, sourceMap: true}}
     ]
   }
 ];
