@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {login} from "../actions/auth";
 
+import "./Forms.css";
+
 class Login extends Component {
 
   constructor(props) {
@@ -33,17 +35,20 @@ class Login extends Component {
     const {error} = this.state;
     const email = this.state.email === null ? auth.error && auth.error.email ? auth.error.email : "" : this.state.email;
 
+    const displayError = auth.error ? auth.error.msg : error;
+
     return (
       <form id="em-login" ref="emailForm" onSubmit={this.onSubmit.bind(this)} className="login-container">
-        <div className="field textfield">
-          <input placeholder="E-mail" value={email} type="email" name="email" ref="email" className="textfield__field" onChange={this.onChange} tabIndex="1" />
+        <div className="pt-input-group">
+          <span className="pt-icon pt-icon-envelope"></span>
+          <input className="pt-input" placeholder="E-mail" value={email} type="email" name="email" ref="email" onChange={this.onChange} tabIndex="1" />
         </div>
-        <div className="field textfield">
-          <input placeholder="Password" value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} className="textfield__field" autoComplete="Off" tabIndex="3" />
+        <div className="pt-input-group">
+          <span className="pt-icon pt-icon-lock"></span>
+          <input className="pt-input" placeholder="Password" value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
         </div>
-        <button type="submit" className="field btn pri-btn" tabIndex="5">Login</button>
-        { auth.error ? <div className="error">{ auth.error.msg }</div> : null }
-        { error ? <div className="error">{ error }</div> : null }
+        <button className="pt-button pt-fill" type="submit" tabIndex="5">Login</button>
+        { displayError ? <div className="pt-callout pt-intent-danger">{ displayError }</div> : null }
       </form>
     );
 

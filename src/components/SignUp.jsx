@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {signup} from "../actions/auth";
 
+import "./Forms.css";
+
 class SignUp extends Component {
 
   constructor(props) {
@@ -48,27 +50,33 @@ class SignUp extends Component {
     const {agreedToTerms, error} = this.state;
     const email = this.state.email === null ? auth.error && auth.error.email ? auth.error.email : "" : this.state.email;
 
+    const displayError = auth.error ? auth.error.msg : error;
+
     return (
       <form id="em-login" ref="emailForm" onSubmit={this.onSubmit.bind(this)} className="login-container">
-        <div className="field textfield">
-          <input placeholder="E-mail" value={email} type="email" name="email" ref="email" className="textfield__field" onChange={this.onChange} tabIndex="1" />
+        <div className="pt-input-group">
+          <span className="pt-icon pt-icon-envelope"></span>
+          <input className="pt-input" placeholder="E-mail" value={email} type="email" name="email" ref="email" onChange={this.onChange} tabIndex="1" />
         </div>
-        <div className="field textfield">
-          <input placeholder="Username" value={this.state.username} type="text" name="username" onFocus={this.onChange} onChange={this.onChange} className="textfield__field" tabIndex="2" />
+        <div className="pt-input-group">
+          <span className="pt-icon pt-icon-user"></span>
+          <input className="pt-input" placeholder="Username" value={this.state.username} type="text" name="username" onFocus={this.onChange} onChange={this.onChange} tabIndex="2" />
         </div>
-        <div className="field textfield">
-          <input placeholder="Password" value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} className="textfield__field" autoComplete="Off" tabIndex="3" />
+        <div className="pt-input-group">
+          <span className="pt-icon pt-icon-lock"></span>
+          <input className="pt-input" placeholder="Password" value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
         </div>
-        <div className="field textfield">
-          <input placeholder="Confirm Password" value={this.state.passwordAgain} type="password" name="passwordAgain" onFocus={this.onChange} onChange={this.onChange} className="textfield__field" autoComplete="Off" tabIndex="4" />
+        <div className="pt-input-group">
+          <span className="pt-icon pt-icon-lock"></span>
+          <input className="pt-input" placeholder="Confirm Password" value={this.state.passwordAgain} type="password" name="passwordAgain" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="4" />
         </div>
-        <div className="field row checkfield">
+        <label className="pt-control pt-checkbox" htmlFor="ppcbox" ref="agreedToTerms">
           <input type="checkbox" id="ppcbox" name="agreedToTerms" checked={agreedToTerms} onChange={this.onChange} />
-          <label htmlFor="ppcbox" ref="agreedToTerms">By checking this box, you agree to our Privacy Policy</label>
-        </div>
-        <button type="submit" className="field btn pri-btn" tabIndex="5">Sign up</button>
-        { auth.error ? <div className="error">{ auth.error.msg }</div> : null }
-        { error ? <div className="error">{ error }</div> : null }
+          <span className="pt-control-indicator"></span>
+          By checking this box, you agree to our Privacy Policy
+        </label>
+        <button type="submit" className="pt-button pt-fill" tabIndex="5">Sign up</button>
+        { displayError ? <div className="pt-callout pt-intent-danger">{ displayError }</div> : null }
       </form>
     );
 
