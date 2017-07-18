@@ -9,20 +9,22 @@ class CanonComponent extends Component {
   getChildContext() {
     return {
       d3plus: this.props.d3plus || {},
-      data: this.props.data || {}
+      data: this.props.data || {},
+      topics: this.props.topics || []
     };
   }
 
   render() {
     const {children, loading, loadingComponent} = this.props;
-    return loading ? loadingComponent : children;
+    return loading ? loadingComponent : <div>{ children }</div>;
   }
 
 }
 
 CanonComponent.childContextTypes = {
   data: PropTypes.object,
-  d3plus: PropTypes.object
+  d3plus: PropTypes.object,
+  topics: PropTypes.array
 };
 
 CanonComponent.defaultProps = {

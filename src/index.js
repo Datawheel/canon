@@ -9,4 +9,5 @@ export {Login} from "./components/Login.jsx";
 export {Section, SectionColumns, SectionRows} from "./components/Section.jsx";
 export {SectionTitle} from "./components/SectionTitle.jsx";
 export {SignUp} from "./components/SignUp.jsx";
+export {SubNav} from "./components/SubNav.jsx";
 export {TopicTitle} from "./components/TopicTitle.jsx";

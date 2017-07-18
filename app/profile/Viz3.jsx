@@ -5,7 +5,7 @@ import {fetchData} from "../../src/actions/fetchData";
 
 import {SectionColumns} from "../../src";
 
-class Viz1 extends SectionColumns {
+class Viz3 extends SectionColumns {
 
   render() {
     const data = this.context.data.harvested_area;
@@ -14,6 +14,7 @@ class Viz1 extends SectionColumns {
         <Treemap config={{
           data,
           groupBy: "crop",
+          height: 400,
           label: d => d.crop_name,
           legend: false,
           sum: d => d.harvested_area
@@ -21,6 +22,7 @@ class Viz1 extends SectionColumns {
         <Treemap config={{
           data,
           groupBy: "crop",
+          height: 400,
           label: d => d.crop_name,
           legend: false,
           sum: d => d.harvested_area
@@ -30,8 +32,8 @@ class Viz1 extends SectionColumns {
   }
 }
 
-Viz1.need = [
+Viz3.need = [
   fetchData("harvested_area", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=harvested_area&sort=desc&display_names=true")
 ];
 
-export default Viz1;
+export default Viz3;

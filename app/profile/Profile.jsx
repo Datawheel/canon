@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Link} from "react-router";
-import "pages/Home.css";
+import "./Profile.css";
 
 import {fetchData} from "../../src/actions/fetchData";
 import {dataFold} from "d3plus-viz";
@@ -10,7 +10,7 @@ import Viz1 from "./Viz1";
 import Viz2 from "./Viz2";
 import Viz3 from "./Viz3";
 
-import {AnchorLink, CanonComponent, TopicTitle} from "../../src";
+import {AnchorLink, CanonComponent, SubNav, TopicTitle} from "../../src";
 
 const d3plus = {
   shapeConfig: {
@@ -20,26 +20,57 @@ const d3plus = {
   }
 };
 
+const topics = [
+  {
+    slug: "agriculture",
+    title: "Agriculture",
+    sections: [
+      Viz1
+    ]
+  },
+  {
+    slug: "climate",
+    title: "Climate",
+    sections: [
+      Viz2, Viz3
+    ]
+  }
+];
+
 class Profile extends Component {
 
   render() {
     const {competitors, topCrop} = this.props.data;
     if (!topCrop) return null;
+
     return (
-      <CanonComponent data={this.props.data} d3plus={d3plus}>
-        <div className="home">
-          <h1>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</h1>
-          <p>Top Crop ID (from "preneed"): { topCrop.crop }</p>
-          <p>{ topCrop.crop } Competitors ("need" using "preneed" in URL): { competitors ? competitors.map(c => c.geo_name).join(", ") : "Loading" }</p>
-          <TopicTitle slug="agriculture">Agriculture</TopicTitle>
-          <Viz1 />
-          <TopicTitle slug="climate">Climate</TopicTitle>
-          <Viz2 />
-          <Viz3 />
-          <Link to="/profile/040AF00182">Jump to Nigeria</Link>
-          <Link to="/profile/040AF00079">Jump to Ethopia</Link>
-          <AnchorLink className="custom-class" to="agriculture">Jump to Agriculture</AnchorLink>
+      <CanonComponent data={this.props.data} d3plus={d3plus} topics={topics}>
+
+        <h1>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</h1>
+        <p>Top Crop ID (from "preneed"): { topCrop.crop }</p>
+        <p>{ topCrop.crop } Competitors ("need" using "preneed" in URL): { competitors ? competitors.map(c => c.geo_name).join(", ") : "Loading" }</p>
+
+        <SubNav type="scroll" anchor="right">Scroll SubNav</SubNav>
+
+        <div className="profile-body">
+
+          <SubNav type="sticky" anchor="left">Sticky SubNav</SubNav>
+
+          <div className="offset-content">
+            <TopicTitle slug="agriculture">Agriculture</TopicTitle>
+            <Viz1 />
+            <TopicTitle slug="climate">Climate</TopicTitle>
+            <Viz2 />
+            <Viz3 />
+
+            <Link to="/profile/040AF00182">Jump to Nigeria</Link>
+            <Link to="/profile/040AF00079">Jump to Ethopia</Link>
+          </div>
+
         </div>
+
+        <AnchorLink className="custom-class" to="agriculture">Jump to Agriculture</AnchorLink>
+
       </CanonComponent>
     );
   }

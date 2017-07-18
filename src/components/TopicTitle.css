@@ -10,6 +10,6 @@
   & .anchor {
     color: var(--topic-title-color);
     text-decoration: none;
-    z-index: var(--foreground);
+    z-index: 2;
   }
 }

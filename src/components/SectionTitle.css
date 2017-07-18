@@ -11,7 +11,7 @@
   & .anchor {
     color: var(--section-title-color);
     text-decoration: none;
-    z-index: calc(var(--foreground) - 1);
+    z-index: 1;
   }
 
 }

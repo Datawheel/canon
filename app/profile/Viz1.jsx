@@ -16,6 +16,7 @@ class Viz1 extends SectionColumns {
         <Treemap config={{
           data,
           groupBy: "crop",
+          height: 400,
           label: d => d.crop_name,
           legend: false,
           sum: d => d.harvested_area
@@ -24,6 +25,8 @@ class Viz1 extends SectionColumns {
     );
   }
 }
+
+Viz1.title = "My Cool Title";
 
 Viz1.need = [
   fetchData("harvested_area", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=harvested_area&sort=desc&display_names=true")

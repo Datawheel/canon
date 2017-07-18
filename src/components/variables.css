@@ -34,6 +34,9 @@
   --foreground: var(--foreground, 10);
   --cover: var(--cover, 20);
 
+  /* subnav */
+  --subnav-size: var(--subnav-size, var(--nav-height));
+
 }
 
 .anchor {

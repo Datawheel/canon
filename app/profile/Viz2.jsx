@@ -17,6 +17,7 @@ class Viz2 extends SectionRows {
           colorScale: "harvested_area",
           data,
           groupBy: "crop",
+          height: 400,
           label: d => d.crop_name,
           legend: false,
           sum: d => d.harvested_area
