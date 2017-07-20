@@ -135,21 +135,24 @@ function start() {
   }
   shell.echo(`Database: ${ dbHost && dbUser ? `${dbUser}@${dbHost}` : "NONE" }`);
 
-  const dbFolder = path.join(appDir, "db/");
-  let modelCount = 0;
-  if (shell.test("-d", dbFolder)) {
-    const {db} = app.settings;
+  let dbFolder = false;
+  if (dbName && dbUser) {
+    dbFolder = path.join(appDir, "db/");
+    let modelCount = 0;
+    if (shell.test("-d", dbFolder)) {
+      const {db} = app.settings;
 
-    fs.readdirSync(dbFolder)
-      .filter(file => file.indexOf(".") !== 0)
-      .forEach(file => {
-        const model = db.import(path.join(dbFolder, file));
-        db[model.name] = model;
-        modelCount++;
-      });
+      fs.readdirSync(dbFolder)
+        .filter(file => file.indexOf(".") !== 0)
+        .forEach(file => {
+          const model = db.import(path.join(dbFolder, file));
+          db[model.name] = model;
+          modelCount++;
+        });
 
+    }
+    shell.echo(`Custom DB Models: ${modelCount}`);
   }
-  shell.echo(`DB Models: ${modelCount}`);
 
   if (logins) {
 
@@ -205,7 +208,7 @@ function start() {
   }
   shell.echo(`User Authentication: ${ logins ? "ON" : "OFF" }`);
 
-  if (shell.test("-d", dbFolder)) {
+  if (dbFolder && shell.test("-d", dbFolder)) {
 
     const {db} = app.settings;
 
