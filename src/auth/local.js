@@ -20,15 +20,6 @@ module.exports = function(app) {
       })
   ));
 
-  passport.serializeUser((user, done) => done(null, user.id));
-
-  passport.deserializeUser((id, done) => {
-    db.users.findOne({where: {id}, raw: true}).then(user => {
-      if (user === null) done(new Error("Wrong user id."));
-      done(null, user);
-    });
-  });
-
   app.post("/auth/local/login", passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/auth/local/fail",

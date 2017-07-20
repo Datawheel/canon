@@ -28,7 +28,8 @@ export default function storeConfig(initialState, history) {
     data: fetchData,
     i18n: (state = {}) => state,
     loading,
-    routing: routerReducer
+    routing: routerReducer,
+    social: (state = []) => state
   }, appReducers));
 
   if (__DEVCLIENT__) {

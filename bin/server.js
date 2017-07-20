@@ -156,11 +156,11 @@ function start() {
     const passport = require("passport");
     app.use(passport.initialize());
     app.use(passport.session());
+
     app.set("passport", passport);
-    const authViews = path.join(canonPath, "src/auth/");
-    fs.readdirSync(authViews)
-      .filter(file => file.indexOf(".") !== 0)
-      .forEach(file => require(path.join(authViews, file))(app));
+    app.set("social", []);
+    require(path.join(canonPath, "src/auth/auth"))(app);
+    store.social = app.settings.social;
 
     const {db} = app.settings;
     if (!db.models.users) {
