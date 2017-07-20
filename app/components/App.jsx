@@ -8,6 +8,10 @@ import {isAuthenticated} from "../../src";
 
 class App extends Component {
 
+  static contextTypes = {
+    mondrianClient: React.PropTypes.object.isRequired,
+  }
+
   constructor(props) {
     super(props);
   }

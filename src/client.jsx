@@ -11,6 +11,8 @@ import createRoutes from "routes";
 import configureStore from "./storeConfig";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
+import MondrianClientProvider from "./MondrianClientProvider";
+
 const store = configureStore(window.__INITIAL_STATE__, browserHistory);
 const history = syncHistoryWithStore(browserHistory, store);
 const routes = createRoutes(store);
@@ -73,10 +75,13 @@ function renderMiddleware() {
 }
 
 render(
+  <MondrianClientProvider endpoint="http://chilecube.datawheel.us">
   <I18nextProvider i18n={i18n}>
     <Provider store={store}>
       <Router history={history} render={applyRouterMiddleware(renderMiddleware())}>
         {routes}
       </Router>
     </Provider>
-  </I18nextProvider>, document.getElementById("app"));
+  </I18nextProvider>
+  </MondrianClientProvider>
+  , document.getElementById("app"));

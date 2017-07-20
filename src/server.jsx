@@ -13,8 +13,10 @@ import {I18nextProvider} from "react-i18next";
 
 import serialize from "serialize-javascript";
 
+import MondrianClientProvider from "./MondrianClientProvider";
+
 const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
-  : `<script>
+                      : `<script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -83,11 +85,13 @@ export default function(defaultStore = {}, i18n, headerConfig) {
           .then(() => {
             const initialState = store.getState();
             const componentHTML = renderToString(
-              <I18nextProvider i18n={i18nServer}>
-                <Provider store={store}>
-                  <RouterContext {...props} />
-                </Provider>
-              </I18nextProvider>
+              <MondrianClientProvider endpoint="http://chilecube.datawheel.us">
+                <I18nextProvider i18n={i18nServer}>
+                  <Provider store={store}>
+                    <RouterContext {...props} />
+                  </Provider>
+                </I18nextProvider>
+              </MondrianClientProvider>
             );
 
             res.status(200).send(`
