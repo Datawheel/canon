@@ -4,6 +4,7 @@
   --black: var(--black, #4A4A4A);
   --dark: var(--dark, rgb(61, 71, 55));
   --light: var(--light, color(var(--dark) l(50%)));
+  --accent: var(--accent, #74E19A));
 
   /* spacing and sizing */
   --nav-height: var(--nav-height, 80px);
