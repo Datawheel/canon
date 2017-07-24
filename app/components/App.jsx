@@ -4,6 +4,8 @@ import Nav from "components/Nav";
 import Footer from "components/Footer";
 import "normalize.css/normalize.css";
 
+import "./App.css";
+
 import {isAuthenticated} from "../../src";
 
 class App extends Component {
@@ -21,6 +23,8 @@ class App extends Component {
     return (
       <div className="container">
         <Nav />
+        <div className="test-1"></div>
+        <div className="test-2"></div>
         { children }
         <Footer />
       </div>

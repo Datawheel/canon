@@ -6,7 +6,7 @@ const yn = require("yn");
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
-const variables = require("./require-fallback")("style.js") || {};
+const variables = require("./require-fallback")("style.yml") || {};
 
 const hotMiddlewareScript = "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true";
 
@@ -18,7 +18,9 @@ function postCSSConfig() {
     }),
     require("lost")(),
     require("postcss-mixins")(),
+    require("postcss-for")(),
     require("postcss-custom-properties")({variables}),
+    require("postcss-map")({maps: [variables]}),
     require("postcss-nesting")(),
     require("postcss-conditionals")(),
     require("postcss-cssnext")({browsers: ["> 1%", "last 2 versions"]}),

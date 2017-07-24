@@ -1,0 +1,11 @@
+dark: "rgb(61, 71, 55)"
+background: "-10"
+foreground: "10"
+cover: "20"
+subnav-size: "200px"
+
+islands:
+  island-1:
+    color: "#FF0000"
+  island-2:
+    color: "#00FF00"

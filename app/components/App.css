@@ -1,0 +1,8 @@
+@for $i from 1 to 3 {
+  .test-$i {
+    background: map(islands, island-2, color);
+    height: $(i)px;
+    margin: 10px 0;
+    width: 200px;
+  }
+}
