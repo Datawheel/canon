@@ -84,9 +84,13 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     const location = {
       host: req.headers.host,
       hostname: req.headers.host.split(":")[0],
-      pathname: req.url,
+      href: `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }${ req.url }`,
+      origin: `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`,
+      pathname: req.url.split("?")[0],
       port: req.headers.host.includes(":") ? req.headers.host.split(":")[1] : "80",
-      query: req.query
+      protocol: `http${ req.connection.encrypted ? "s" : "" }:`,
+      query: req.query,
+      search: req.url.includes("?") ? `?${req.url.split("?")[1]}` : ""
     };
 
     const i18nServer = i18n.cloneInstance();
