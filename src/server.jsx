@@ -44,6 +44,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
   return function(req, res) {
 
     function fetchResource(lng) {
+      if (!lng) return undefined;
       let bundle = i18n.getResourceBundle(lng, "canon");
       if (!bundle && lng.indexOf("-") === 2 || lng.indexOf("_") === 2) bundle = i18n.getResourceBundle(lng.slice(0, 2), "canon");
       return bundle;
@@ -52,6 +53,16 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     let locale, resources;
     if (req.headers.host.indexOf(".") > 0) {
       locale = req.headers.host.split(".")[0];
+      resources = fetchResource(locale);
+    }
+
+    if (resources === undefined) {
+      locale = req.query.lang;
+      resources = fetchResource(locale);
+    }
+
+    if (resources === undefined) {
+      locale = req.query.language;
       resources = fetchResource(locale);
     }
 
