@@ -5,7 +5,7 @@ const webpack = require("webpack");
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
-const variables = require("./require-fallback")("style.js") || {};
+const variables = require("./require-fallback")("style.yml") || {};
 
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const InlineEnviromentVariablesPlugin = require("inline-environment-variables-webpack-plugin");
