@@ -52,7 +52,7 @@ source /usr/local/opt/autoenv/activate.sh
 
 ### Setting up Facebook Logins
 1. [https://developers.facebook.com](https://developers.facebook.com)
-2. Hover over "My Apps" in the top right of the page and click "Add a New App"
+2. Once logged in, hover over "My Apps" in the top right of the page and click "Add a New App"
 3. Set up "Facebook Login" as the product.
 4. Choose "Web" as the Platform.
 5. Skip the Quickstart guide and go directly to "Settings" in the sidebar. Your settings should look like the following image, with at the very least `http://localhost:3300/auth/facebook/callback` in the Valid OAuth redirect URIs. Once there is a production URL, you will need to add that callback URL here along with localhost. ![](https://github.com/datawheel/datawheel-canon/raw/master/docs/facebook-oauth.png)
@@ -67,8 +67,19 @@ export CANON_FACEBOOK_SECRET="##############################"
 1. [https://apps.twitter.com](https://apps.twitter.com)
 2. Once logged in, click the "Create New App" button on the top right of the page.
 3. Fill out the meta information about your project, but specifically set the "Callback URL" to `http://localhost:3300/auth/twitter/callback`.
-7. Go to the "Key and Access Tokens" tab and copy the Consumer Key (API Key) and Consumer Secret (API Secret) to your environment as the following variables:
+4. Go to the "Key and Access Tokens" tab and copy the Consumer Key (API Key) and Consumer Secret (API Secret) to your environment as the following variables:
 ```sh
 export CANON_TWITTER_API="###############"
 export CANON_TWITTER_SECRET="##############################"
+```
+
+### Setting up Instagram Logins
+1. [https://www.instagram.com/developer/](https://www.instagram.com/developer/)
+2. Once logged in, click the "Manage Clients" button in the top navigation, then click the green "Register a New Client" button.
+3. Fill out the meta information about your project, but specifically set the "Valid redirect URIs" to `http://localhost:3300/auth/instagram/callback`. Once there is a production URL, you will need to add that callback URL here along with localhost.
+4. Click the green "Register" button when done.
+5. You should be returned to the page listing all of your projects. Click "Manage" on the current project and copy the Client ID and Client Secret to your environment as the following variables:
+```sh
+export CANON_INSTAGRAM_API="###############"
+export CANON_INSTAGRAM_SECRET="##############################"
 ```
