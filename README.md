@@ -35,10 +35,12 @@ source /usr/local/opt/autoenv/activate.sh
 |`CANON_DB_USER`|Postgres database user.|`undefined`|
 |`CANON_DB_HOST`|Postgres database host.|`"127.0.0.1"`|
 |`CANON_DB_PW`|Postgres database password.|`null`|
-|`CANON_FACEBOOK_API`|The Facebook App ID used for social logins. See the [Social Logins](#Social-Logins) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
-|`CANON_FACEBOOK_SECRET`|The Facebook App Secret used for social logins. See the [Social Logins](#Social-Logins) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
+|`CANON_FACEBOOK_API`|The Facebook App ID used for social logins. See the [Social Logins](#setting-up-facebook-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
+|`CANON_FACEBOOK_SECRET`|The Facebook App Secret used for social logins. See the [Social Logins](#setting-up-facebook-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
 |`CANON_GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`).|`undefined`|
 |`CANON_HELMET_FRAMEGUARD`|Pass-through option for the "frameguard" property of the [helmet](https://github.com/helmetjs/helmet#how-it-works) initialization.|`false`|
+|`CANON_INSTAGRAM_API`|The Instagram Client ID used for social logins. See the [Social Logins](#setting-up-instagram-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
+|`CANON_INSTAGRAM_SECRET`|The Instagram Client Secret used for social logins. See the [Social Logins](#setting-up-instagram-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
 |`CANON_LANGUAGES`|A comma-separated list of languages to be used in generating localization bundles.|`"en"`|
 |`CANON_LANGUAGE_DEFAULT`|The default/fallback language for the site.|`"en"`|
 |`CANON_LOGINS`|Whether or not to attach views and connect database table for user login and management.|`false`|
@@ -46,6 +48,8 @@ source /usr/local/opt/autoenv/activate.sh
 |`CANON_PORT`|The port to use for the server.|`3300`|
 |`CANON_SESSION_SECRET`|A unique secret key to use for cookies.|The "name" field from package.json|
 |`CANON_SESSION_TIMEOUT`|The timeout, in milliseconds, for user authentication cookies.|`3600000` (one hour)|
+|`CANON_TWITTER_API`|The Twitter Consumer Key (API Key) used for social logins. See the [Social Logins](#setting-up-twitter-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
+|`CANON_TWITTER_SECRET`|The Twitter Consumer Secret (API Secret) used for social logins. See the [Social Logins](#setting-up-twitter-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
 |`NODE_ENV`|The current environment. Setting to `production` will result in the removal of browser development tools and return smaller package sizes.|`development`|
 
 ## Social Logins
