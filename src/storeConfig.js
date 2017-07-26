@@ -22,10 +22,10 @@ export default function storeConfig(initialState, history) {
   let store;
 
   const canonReducer = combineReducers(Object.assign({
-    API: (state = "") => state,
     attrs: fetchAttrs,
     auth,
     data: fetchData,
+    env: (state = {}) => state,
     i18n: (state = {}) => state,
     loading,
     location: (state = {}) => state,

@@ -41,8 +41,8 @@ class Profile extends Component {
 
   render() {
     const {competitors, topCrop} = this.props.data;
-    const {location} = this.props;
-    // console.log(location);
+    const {env, location} = this.props;
+    // console.log(env);
     if (!topCrop) return null;
 
     return (
@@ -91,5 +91,6 @@ Profile.need = [
 
 export default connect(state => ({
   data: state.data,
+  env: state.env,
   location: state.location
 }), {})(Profile);

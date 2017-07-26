@@ -50,9 +50,21 @@ const resolve = file => {
 
 };
 
+const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
+
 shell.echo(chalk.bold("\n\n 📂  Gathering Resources\n"));
 const store = resolve("store.js") || {};
-store.API = API;
+store.env = {
+  CANON_API: API,
+  CANON_ATTRS: ATTRS,
+  CANON_LANGUAGES: process.env.CANON_LANGUAGES,
+  CANON_LANGUAGE_DEFAULT: LANGUAGE_DEFAULT,
+  CANON_LOGINS: logins,
+  CANON_LOGREDUX: process.env.CANON_LOGREDUX,
+  CANON_PORT: PORT,
+  NODE_ENV
+};
+
 const headerConfig = resolve("helmet.js") || {};
 
 const i18n = require("i18next");
@@ -73,8 +85,8 @@ i18n
   .use(i18nMiddleware.LanguageDetector)
   .init({
 
-    fallbackLng: process.env.CANON_LANGUAGE_DEFAULT || "en",
-    lng: process.env.CANON_LANGUAGE_DEFAULT || "en",
+    fallbackLng: LANGUAGE_DEFAULT,
+    lng: LANGUAGE_DEFAULT,
 
     // have a common namespace used around the full app
     ns: ["canon"],
