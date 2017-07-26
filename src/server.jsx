@@ -65,11 +65,18 @@ export default function(defaultStore = {}, i18n, headerConfig) {
       resources = fetchResource(locale);
     }
 
+    const location = {
+      host: req.headers.host,
+      hostname: req.headers.host.split(":")[0],
+      pathname: req.url,
+      port: req.headers.host.includes(":") ? req.headers.host.split(":")[1] : "80",
+      query: req.query
+    };
+
     const i18nServer = i18n.cloneInstance();
     const history = createMemoryHistory();
-    const store = configureStore({i18n: {locale, resources}, ...defaultStore}, history);
+    const store = configureStore({i18n: {locale, resources}, location, ...defaultStore}, history);
     const routes = createRoutes(store);
-
     i18nServer.changeLanguage(locale);
 
     match({routes, location: req.url}, (err, redirect, props) => {
