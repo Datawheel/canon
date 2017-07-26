@@ -67,6 +67,11 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     }
 
     if (resources === undefined) {
+      locale = req.query.locale;
+      resources = fetchResource(locale);
+    }
+
+    if (resources === undefined) {
       locale = req.language;
       resources = fetchResource(locale);
     }
