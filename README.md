@@ -50,8 +50,8 @@ source /usr/local/opt/autoenv/activate.sh
 
 ## Social Logins
 
-### Setting up Facebook Login
-1. https://developers.facebook.com
+### Setting up Facebook Logins
+1. [https://developers.facebook.com](https://developers.facebook.com)
 2. Hover over "My Apps" in the top right of the page and click "Add a New App"
 3. Set up "Facebook Login" as the product.
 4. Choose "Web" as the Platform.
@@ -61,4 +61,14 @@ source /usr/local/opt/autoenv/activate.sh
 ```sh
 export CANON_FACEBOOK_API="###############"
 export CANON_FACEBOOK_SECRET="##############################"
+```
+
+### Setting up Twitter Logins
+1. [https://apps.twitter.com](https://apps.twitter.com)
+2. Once logged in, click the "Create New App" button on the top right of the page.
+3. Fill out the meta information about your project, but specifically set the "Callback URL" to `http://localhost:3300/auth/twitter/callback`.
+7. Go to the "Key and Access Tokens" tab and copy the Consumer Key (API Key) and Consumer Secret (API Secret) to your environment as the following variables:
+```sh
+export CANON_TWITTER_API="###############"
+export CANON_TWITTER_SECRET="##############################"
 ```
