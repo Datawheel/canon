@@ -35,6 +35,8 @@ source /usr/local/opt/autoenv/activate.sh
 |`CANON_DB_USER`|Postgres database user.|`undefined`|
 |`CANON_DB_HOST`|Postgres database host.|`"127.0.0.1"`|
 |`CANON_DB_PW`|Postgres database password.|`null`|
+|`CANON_FACEBOOK_API`|The Facebook App ID used for social logins. See the [Social Logins](#Social-Logins) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
+|`CANON_FACEBOOK_SECRET`|The Facebook App Secret used for social logins. See the [Social Logins](#Social-Logins) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
 |`CANON_GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`).|`undefined`|
 |`CANON_HELMET_FRAMEGUARD`|Pass-through option for the "frameguard" property of the [helmet](https://github.com/helmetjs/helmet#how-it-works) initialization.|`false`|
 |`CANON_LANGUAGES`|A comma-separated list of languages to be used in generating localization bundles.|`"en"`|
@@ -45,3 +47,18 @@ source /usr/local/opt/autoenv/activate.sh
 |`CANON_SESSION_SECRET`|A unique secret key to use for cookies.|The "name" field from package.json|
 |`CANON_SESSION_TIMEOUT`|The timeout, in milliseconds, for user authentication cookies.|`3600000` (one hour)|
 |`NODE_ENV`|The current environment. Setting to `production` will result in the removal of browser development tools and return smaller package sizes.|`development`|
+
+## Social Logins
+
+### Setting up Facebook Login
+1. https://developers.facebook.com
+2. Hover over "My Apps" in the top right of the page and click "Add a New App"
+3. Set up "Facebook Login" as the product.
+4. Choose "Web" as the Platform.
+5. Skip the Quickstart guide and go directly to "Settings" in the sidebar. Your settings should look like the following image, with at the very least `http://localhost:3300/auth/facebook/callback` in the Valid OAuth redirect URIs. Once there is a production URL, you will need to add that callback URL here along with localhost. ![](https://github.com/datawheel/datawheel-canon/raw/master/docs/facebook-oauth.png)
+6. Go to "Settings" > "Advanced" and turn on "Allow API Access to App Settings" (at the time of writing, it was the last toggle in the "Security" panel)
+7. Go to "Settings" > "Basic" and copy the App ID and App Secret to your environment as the following variables:
+```sh
+export CANON_FACEBOOK_API="###############"
+export CANON_FACEBOOK_SECRET="##############################"
+```
