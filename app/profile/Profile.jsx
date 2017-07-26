@@ -42,7 +42,7 @@ class Profile extends Component {
   render() {
     const {competitors, topCrop} = this.props.data;
     const {location} = this.props;
-    console.log(location);
+    // console.log(location);
     if (!topCrop) return null;
 
     return (

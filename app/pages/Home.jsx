@@ -8,7 +8,7 @@ class Home extends Component {
 
   render() {
     const {t} = this.props;
-    console.log("yn test", yn("true"));
+    // console.log("yn test", yn("true"));
 
     // use the 't' function for simple keys and strings, and
     // the Interpolate component for strings with variable replace.
