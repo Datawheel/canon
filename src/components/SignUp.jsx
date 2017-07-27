@@ -79,9 +79,9 @@ class SignUp extends Component {
           <button type="submit" className="pt-button pt-fill" tabIndex="5">Sign up</button>
           { displayError ? <div className="pt-callout pt-intent-danger">{ displayError }</div> : null }
         </form>
-        { social.includes("facebook") ? <a href="/auth/facebook" className="pt-button pt-fill">Login with Facebook</a> : null }
-        { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button pt-fill">Login with Twitter</a> : null }
-        { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button pt-fill">Login with Instagram</a> : null }
+        { social.includes("facebook") ? <a href="/auth/facebook" className="pt-button pt-fill">Sign up with Facebook</a> : null }
+        { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button pt-fill">Sign up with Twitter</a> : null }
+        { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button pt-fill">Sign up with Instagram</a> : null }
       </div>
     );
 
