@@ -23,10 +23,7 @@ const d3plus = {
 const topics = [
   {
     slug: "agriculture",
-    title: "Agriculture",
-    sections: [
-      Viz1
-    ]
+    title: "Agriculture"
   },
   {
     slug: "climate",
