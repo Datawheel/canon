@@ -55,6 +55,10 @@ source /usr/local/opt/autoenv/activate.sh
 
 ## Social Logins
 
+Once the respective social network application has been set up in their developer interface, datawheel-canon looks for a corresponding API and SECRET environment variable to enable that login.
+
+*NOTE*: If deploying using Supervisor, the environment variables cannot be wrapped in quotation marks.
+
 ### Setting up Facebook Logins
 1. [https://developers.facebook.com](https://developers.facebook.com)
 2. Once logged in, hover over "My Apps" in the top right of the page and click "Add a New App"
