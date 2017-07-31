@@ -2,6 +2,10 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {login} from "../actions/auth";
 
+import facebookIcon from "images/facebook-logo.svg";
+import twitterIcon from "images/twitter-logo.svg";
+import instagramIcon from "images/instagram-logo.svg";
+
 import "./Forms.css";
 
 class Login extends Component {
@@ -39,7 +43,7 @@ class Login extends Component {
 
     return (
       <div>
-        <form id="em-login" ref="emailForm" onSubmit={this.onSubmit.bind(this)} className="login-container">
+        <form id="login" ref="emailForm" onSubmit={this.onSubmit.bind(this)} className="login-container">
           <div className="pt-input-group">
             <span className="pt-icon pt-icon-envelope"></span>
             <input className="pt-input" placeholder="E-mail" value={email} type="email" name="email" ref="email" onChange={this.onChange} tabIndex="1" />
@@ -51,9 +55,13 @@ class Login extends Component {
           <button className="pt-button pt-fill" type="submit" tabIndex="5">Login</button>
           { displayError ? <div className="pt-callout pt-intent-danger">{ displayError }</div> : null }
         </form>
-        { social.includes("facebook") ? <a href="/auth/facebook" className="pt-button pt-fill">Login with Facebook</a> : null }
-        { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button pt-fill">Login with Twitter</a> : null }
-        { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button pt-fill">Login with Instagram</a> : null }
+        { social.length
+        ? <div id="socials">
+          { social.includes("facebook") ? <a href="/auth/facebook" className="pt-button facebook"><img className="icon" src={facebookIcon} /><span>Facebook</span></a> : null }
+          { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button twitter"><img className="icon" src={twitterIcon} /><span>Twitter</span></a> : null }
+          { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button instagram"><img className="icon" src={instagramIcon} /><span>Instagram</span></a> : null }
+          </div>
+        : null }
       </div>
     );
 

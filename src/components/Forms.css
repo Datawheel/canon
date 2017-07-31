@@ -1,3 +1,66 @@
-.pt-input-group, .pt-button {
-  margin-bottom: 10px;
+#login, #signup {
+
+  & .pt-input-group,
+  & .pt-button {
+    margin-bottom: 10px;
+  }
+
+}
+
+#socials {
+  display: flex;
+
+  & .pt-button {
+    align-items: center;
+    color: white;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    margin-right: 10px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    & .icon {
+      height: 15px;
+      margin-right: 10px;
+    }
+
+    &.facebook {
+      background: #3b5998;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #3b5998;
+
+      & .icon {
+        margin-bottom: 2px;
+      }
+
+      &:hover {
+        background-color: color(#3b5998 blackness(50%));
+      }
+
+    }
+
+    &.twitter {
+      background: #0084b4;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #0084b4;
+
+      &:hover {
+        background-color: color(#0084b4 blackness(50%));
+      }
+
+    }
+
+    &.instagram {
+      background: #8a3ab9;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #8a3ab9;
+
+      &:hover {
+        background-color: color(#8a3ab9 blackness(50%));
+      }
+
+    }
+
+  }
+
 }
