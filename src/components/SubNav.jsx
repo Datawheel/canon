@@ -77,7 +77,7 @@ class SubNav extends Component {
         ? <ul>
             { topics.map(topic => <li className={ `topic ${ activeTopic === topic.slug ? "active" : "" }` }><AnchorLink to={ topic.slug }>{ topic.title }</AnchorLink>
             { sections && topic.sections && topic.sections.length
-              ? <ul>{ topic.sections.map(section => <li className={ `section ${ activeSection === section.name ? "active" : "" }` }><AnchorLink to={ section.name }>{ section.title || section.name }</AnchorLink></li>) }</ul>
+              ? <ul>{ topic.sections.map(section => <li className={ `section ${ activeSection === section.name ? "active" : "" }` }><AnchorLink to={ section.name }>{ section.shortTitle || section.title || section.name }</AnchorLink></li>) }</ul>
               : null }
             </li>) }
           </ul>
