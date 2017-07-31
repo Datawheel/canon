@@ -90,8 +90,8 @@ i18n
     lng: LANGUAGE_DEFAULT,
 
     // have a common namespace used around the full app
-    ns: ["canon"],
-    defaultNS: "canon",
+    ns: [name],
+    defaultNS: name,
 
     debug: process.env.NODE_ENV !== "production" ? yn(process.env.CANON_LOGLOCALE) : false,
 
@@ -123,7 +123,7 @@ function start() {
   const secret = process.env.CANON_SESSION_SECRET || name;
   const maxAge = process.env.CANON_SESSION_TIMEOUT || 60 * 60 * 1000; // one hour
   app.use(cookieSession({
-    name: "canon",
+    name,
     secret,
     cookie: {
       secure: true,
