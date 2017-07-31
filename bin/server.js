@@ -60,6 +60,7 @@ store.env = {
   CANON_LANGUAGES: process.env.CANON_LANGUAGES,
   CANON_LANGUAGE_DEFAULT: LANGUAGE_DEFAULT,
   CANON_LOGINS: logins,
+  CANON_LOGLOCALE: process.env.CANON_LOGLOCALE,
   CANON_LOGREDUX: process.env.CANON_LOGREDUX,
   CANON_PORT: PORT,
   NODE_ENV
@@ -92,7 +93,7 @@ i18n
     ns: ["canon"],
     defaultNS: "canon",
 
-    debug: false,
+    debug: process.env.NODE_ENV !== "production" ? yn(process.env.CANON_LOGLOCALE) : false,
 
     interpolation: {
       escapeValue: false // not needed for react!!

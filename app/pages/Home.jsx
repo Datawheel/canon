@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {translate, Interpolate} from "react-i18next";
 import "./Home.css";
 
-import yn from "yn";
+// import yn from "yn";
 
 class Home extends Component {
 

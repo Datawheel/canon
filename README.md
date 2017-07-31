@@ -45,6 +45,7 @@ source /usr/local/opt/autoenv/activate.sh
 |`CANON_LANGUAGE_DEFAULT`|The default/fallback language for the site.|`"en"`|
 |`CANON_LOGINS`|Whether or not to attach views and connect database table for user login and management.|`false`|
 |`CANON_LOGREDUX`|Whether or not to display the (rather verbose) Redux store events in the browser console.|`true`|
+|`CANON_LOGLOCALE`|Whether or not to display the (rather verbose) i18n locale events in the browser console.|`false`|
 |`CANON_PORT`|The port to use for the server.|`3300`|
 |`CANON_SESSION_SECRET`|A unique secret key to use for cookies.|The "name" field from package.json|
 |`CANON_SESSION_TIMEOUT`|The timeout, in milliseconds, for user authentication cookies.|`3600000` (one hour)|

@@ -17,14 +17,16 @@ const routes = createRoutes(store);
 
 import {I18nextProvider} from "react-i18next";
 import i18n from "i18next";
+import yn from "yn";
 
 const {locale, resources} = window.__INITIAL_STATE__.i18n;
+const {CANON_LANGUAGE_DEFAULT, CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
 
 i18n
   .init({
-    fallbackLng: process.env.CANON_LANGUAGE_DEFAULT || "en",
+    fallbackLng: CANON_LANGUAGE_DEFAULT || "en",
     lng: locale,
-    debug: process.env.NODE_ENV !== "production",
+    debug: NODE_ENV !== "production" ? yn(CANON_LOGLOCALE) : false,
     ns: ["canon"],
     defaultNS: "canon",
     interpolation: {
