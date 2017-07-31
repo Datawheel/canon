@@ -2,9 +2,9 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {signup} from "../actions/auth";
 
-import facebookIcon from "images/facebook-logo.svg";
-import twitterIcon from "images/twitter-logo.svg";
-import instagramIcon from "images/instagram-logo.svg";
+import facebookIcon from "../images/facebook-logo.svg";
+import twitterIcon from "../images/twitter-logo.svg";
+import instagramIcon from "../images/instagram-logo.svg";
 
 import "./Forms.css";
 
