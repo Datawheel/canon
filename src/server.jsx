@@ -45,8 +45,8 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 
     function fetchResource(lng) {
       if (!lng) return undefined;
-      let bundle = i18n.getResourceBundle(lng, "canon");
-      if (!bundle && lng.indexOf("-") === 2 || lng.indexOf("_") === 2) bundle = i18n.getResourceBundle(lng.slice(0, 2), "canon");
+      let bundle = i18n.getResourceBundle(lng, i18n.options.defaultNS);
+      if (!bundle && lng.indexOf("-") === 2 || lng.indexOf("_") === 2) bundle = i18n.getResourceBundle(lng.slice(0, 2), i18n.options.defaultNS);
       return bundle;
     }
 
@@ -130,8 +130,11 @@ export default function(defaultStore = {}, i18n, headerConfig) {
                 </head>
                 <body>
                   <div id="app">${componentHTML}</div>
-                  <script>window.__SSR__ = true;</script>
-                  <script>window.__INITIAL_STATE__ = ${ serialize(initialState) };</script>
+                  <script>
+                    window.__SSR__ = true;
+                    window.__INITIAL_STATE__ = ${ serialize(initialState) };
+                    window.__APP_NAME__ = "${ i18n.options.defaultNS }";
+                  </script>
                   ${analtyicsScript}
                   <script type="text/javascript" charset="utf-8" src="/assets/app.js"></script>
                 </body>

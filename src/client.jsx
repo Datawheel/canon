@@ -24,17 +24,17 @@ const {CANON_LANGUAGE_DEFAULT, CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STA
 
 i18n
   .init({
-    fallbackLng: CANON_LANGUAGE_DEFAULT || "en",
+    fallbackLng: CANON_LANGUAGE_DEFAULT,
     lng: locale,
     debug: NODE_ENV !== "production" ? yn(CANON_LOGLOCALE) : false,
-    ns: ["canon"],
-    defaultNS: "canon",
+    ns: [window.__APP_NAME__],
+    defaultNS: window.__APP_NAME__,
     interpolation: {
       escapeValue: false // not needed for react!!
     }
   });
 
-i18n.addResourceBundle(locale, "canon", resources, true, true);
+i18n.addResourceBundle(locale, window.__APP_NAME__, resources, true, true);
 
 function scrollToHash(hash) {
   const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
