@@ -1,7 +1,30 @@
 {
+  "Login": {
+    "E-mail": "Translated E-mail",
+    "Facebook": "Facebook",
+    "Instagram": "Instagram",
+    "Other": "Other",
+    "Password": "Password",
+    "Twitter": "Twitter"
+  },
+  "SignUp": {
+    "Confirm Password": "",
+    "E-mail": "",
+    "Facebook": "",
+    "Instagram": "",
+    "Password": "",
+    "PolicyText": "By checking this box, you agree to our Privacy Policy",
+    "Sign Up": "",
+    "Twitter": "",
+    "Username": "",
+    "error": {
+      "IncompleteFields": "Please set all fields.",
+      "PasswordMatch": "Passwords don't match.",
+      "TermsAgree": "Must agree to terms to continue."
+    }
+  },
   "This is a full sentence used as the translation key": "This is a full sentence used as the translation key",
   "home": {
-    "body": "Welcome to {{name}}!",
     "sub": "Here is a sub-title.",
     "title": "Canon Title"
   }

@@ -1,1 +1,24 @@
-{}
+{
+  "home": {},
+  "This is a full sentence used as the translation key": "Esta es una frase completa usada como la clave de traducción.",
+  "": "",
+  "?": "",
+  "package": {
+    "json": ""
+  },
+  "reducers": "",
+  "*": "",
+  "-d": "",
+  "db": "",
+  "passport": "",
+  "port": "",
+  "social": "",
+  "trust proxy": "",
+  "Login": {},
+  "SignUp": {
+    "error": {}
+  },
+  "Facebook": "",
+  "Instagram": "",
+  "Twitter": ""
+}

@@ -1,8 +1,31 @@
 {
-  "This is a full sentence used as the translation key": "Esta es una frase completa usada como la clave de traducción.",
+  "Login": {
+    "E-mail": "ES E-mail",
+    "Facebook": "ES Facebook",
+    "Instagram": "ES Instagram",
+    "Other": "ES Other",
+    "Password": "ES Password",
+    "Twitter": "ES Twitter"
+  },
+  "SignUp": {
+    "Confirm Password": "",
+    "E-mail": "",
+    "Facebook": "",
+    "Instagram": "",
+    "Password": "",
+    "PolicyText": "",
+    "Sign Up": "",
+    "Twitter": "",
+    "Username": "",
+    "error": {
+      "IncompleteFields": "Please set all fields.",
+      "PasswordMatch": "Passwords don't match.",
+      "TermsAgree": "Must agree to terms to continue."
+    }
+  },
+  "This is a full sentence used as the translation key": "Esta es una frase completa usada como la clave de traducción",
   "home": {
-    "body": "Bienvenido a {{name}}!",
-    "sub": "Aquí hay un subtítulo.",
-    "title": "Canon Título"
+    "sub": "Here is a sub-title.",
+    "title": "Titulo Canon"
   }
 }

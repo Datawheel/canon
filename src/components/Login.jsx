@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import {login} from "../actions/auth";
+import {translate} from "react-i18next";
 
 import facebookIcon from "../images/facebook-logo.svg";
 import twitterIcon from "../images/twitter-logo.svg";
@@ -35,7 +36,7 @@ class Login extends Component {
   }
 
   render() {
-    const {auth, social} = this.props;
+    const {auth, social, t} = this.props;
     const {error} = this.state;
     const email = this.state.email === null ? auth.error && auth.error.email ? auth.error.email : "" : this.state.email;
 
@@ -46,20 +47,20 @@ class Login extends Component {
         <form id="login" ref="emailForm" onSubmit={this.onSubmit.bind(this)} className="login-container">
           <div className="pt-input-group">
             <span className="pt-icon pt-icon-envelope"></span>
-            <input className="pt-input" placeholder="E-mail" value={email} type="email" name="email" ref="email" onChange={this.onChange} tabIndex="1" />
+            <input className="pt-input" placeholder={ t("Login.E-mail") } value={email} type="email" name="email" ref="email" onChange={this.onChange} tabIndex="1" />
           </div>
           <div className="pt-input-group">
             <span className="pt-icon pt-icon-lock"></span>
-            <input className="pt-input" placeholder="Password" value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
+            <input className="pt-input" placeholder={ t("Login.Password") } value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
           </div>
-          <button className="pt-button pt-fill" type="submit" tabIndex="5">Login</button>
+          <button className="pt-button pt-fill" type="submit" tabIndex="5">{ t("Login.Other") }</button>
           { displayError ? <div className="pt-callout pt-intent-danger">{ displayError }</div> : null }
         </form>
         { social.length
         ? <div id="socials">
-          { social.includes("facebook") ? <a href="/auth/facebook" className="pt-button facebook"><img className="icon" src={facebookIcon} /><span>Facebook</span></a> : null }
-          { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button twitter"><img className="icon" src={twitterIcon} /><span>Twitter</span></a> : null }
-          { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button instagram"><img className="icon" src={instagramIcon} /><span>Instagram</span></a> : null }
+          { social.includes("facebook") ? <a href="/auth/facebook" className="pt-button facebook"><img className="icon" src={facebookIcon} /><span>{ t("Login.Facebook") }</span></a> : null }
+          { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button twitter"><img className="icon" src={twitterIcon} /><span>{ t("Login.Twitter") }</span></a> : null }
+          { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button instagram"><img className="icon" src={instagramIcon} /><span>{ t("Login.Instagram") }</span></a> : null }
           </div>
         : null }
       </div>
@@ -79,6 +80,6 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-// export default (Login);
+Login = translate()(Login);
 Login = connect(mapStateToProps, mapDispatchToProps)(Login);
 export {Login};
