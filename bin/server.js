@@ -51,13 +51,14 @@ const resolve = file => {
 };
 
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
+const LANGUAGES = process.env.CANON_LANGUAGES;
 
 shell.echo(chalk.bold("\n\n 📂  Gathering Resources\n"));
 const store = resolve("store.js") || {};
 store.env = {
   CANON_API: API,
   CANON_ATTRS: ATTRS,
-  CANON_LANGUAGES: process.env.CANON_LANGUAGES,
+  CANON_LANGUAGES: LANGUAGES,
   CANON_LANGUAGE_DEFAULT: LANGUAGE_DEFAULT,
   CANON_LOGINS: logins,
   CANON_LOGLOCALE: process.env.CANON_LOGLOCALE,
@@ -88,6 +89,7 @@ i18n
 
     fallbackLng: LANGUAGE_DEFAULT,
     lng: LANGUAGE_DEFAULT,
+    preload: LANGUAGES ? LANGUAGES.split(",") : LANGUAGE_DEFAULT,
 
     // have a common namespace used around the full app
     ns: [name],
