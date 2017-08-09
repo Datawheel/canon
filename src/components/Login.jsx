@@ -53,7 +53,7 @@ class Login extends Component {
             <span className="pt-icon pt-icon-lock"></span>
             <input className="pt-input" placeholder={ t("Login.Password") } value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
           </div>
-          <button className="pt-button pt-fill" type="submit" tabIndex="5">{ t("Login.Other") }</button>
+          <button className="pt-button pt-fill" type="submit" tabIndex="5">{ t("Login.Login") }</button>
           { displayError ? <div className="pt-callout pt-intent-danger">{ displayError }</div> : null }
         </form>
         { social.length
