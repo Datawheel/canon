@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {translate, Interpolate} from "react-i18next";
+import {translate} from "react-i18next";
 import "./Home.css";
 
 // import yn from "yn";
@@ -16,7 +16,7 @@ class Home extends Component {
       <div className="home">
         { t("home.title") }<br />
         { t("This is a full sentence used as the translation key.") }<br />
-        <Interpolate i18nKey="home.body" name="Datawheel Canon" /><br />
+        { t("home.body", {name: "Datawheel Canon"}) }<br />
         { t("home.sub") }
       </div>
     );

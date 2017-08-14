@@ -6,6 +6,12 @@ import "./Section.css";
 class Section extends Component {
 
   getChildContext() {
+    if ((this.props.slug || this.context.slug || this._reactInternalInstance._currentElement.type.name) === "Translate") {
+      console.log(this.props.slug);
+      console.log(this.context.slug);
+      console.log(this);
+      console.log(this.props.slug || this.context.slug || this._reactInternalInstance._currentElement.type.name);
+    }
     return {
       slug: this.props.slug || this.context.slug || this._reactInternalInstance._currentElement.type.name
     };

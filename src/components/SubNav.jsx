@@ -47,9 +47,9 @@ class SubNav extends Component {
 
     if (newActiveTopic) {
       (newActiveTopic.sections || []).forEach(section => {
-        const elem = document.getElementById(section.name);
+        const elem = document.getElementById(this.getSlug(section));
         const top = elem ? elem.getBoundingClientRect().top : 1;
-        if (top <= 0) newActiveSection = section.name;
+        if (top <= 0) newActiveSection = this.getSlug(section);
       });
       newActiveTopic = newActiveTopic.slug;
     }
@@ -62,6 +62,10 @@ class SubNav extends Component {
       });
     }
 
+  }
+
+  getSlug(comp) {
+    return comp.WrappedComponent ? comp.WrappedComponent.name : comp.name;
   }
 
   render() {
@@ -77,7 +81,7 @@ class SubNav extends Component {
         ? <ul>
             { topics.map(topic => <li className={ `topic ${ activeTopic === topic.slug ? "active" : "" }` }><AnchorLink to={ topic.slug }>{ topic.title }</AnchorLink>
             { sections && topic.sections && topic.sections.length
-              ? <ul>{ topic.sections.map(section => <li className={ `section ${ activeSection === section.name ? "active" : "" }` }><AnchorLink to={ section.name }>{ section.shortTitle || section.title || section.name }</AnchorLink></li>) }</ul>
+              ? <ul>{ topic.sections.map(section => <li className={ `section ${ activeSection === this.getSlug(section) ? "active" : "" }` }><AnchorLink to={ this.getSlug(section) }>{ section.shortTitle || section.title || this.getSlug(section) }</AnchorLink></li>) }</ul>
               : null }
             </li>) }
           </ul>
