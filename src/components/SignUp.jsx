@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {signup} from "../actions/auth";
 import {translate} from "react-i18next";
+import {Intent, Toaster} from "@blueprintjs/core";
 
 import facebookIcon from "../images/facebook-logo.svg";
 import twitterIcon from "../images/twitter-logo.svg";
@@ -18,7 +19,9 @@ class SignUp extends Component {
       error: null,
       password: "",
       passwordAgain: "",
-      email: null
+      email: null,
+      submitted: false,
+      toast: typeof window !== "undefined" ? Toaster.create() : null
     };
     this.onChange = this.onChange.bind(this);
   }
@@ -31,32 +34,53 @@ class SignUp extends Component {
   onSubmit(e) {
     e.preventDefault();
     const {t} = this.props;
-    const {username, password, passwordAgain, agreedToTerms} = this.state;
-    const email = this.state.email === this.refs.email.value ? this.state.email : this.refs.email.value;
+    const {agreedToTerms, email, password, passwordAgain, username} = this.state;
 
     if (password !== passwordAgain) {
-      this.setState({error: t("SignUp.error.PasswordMatch")});
-      return;
+      this.setState({error: {iconName: "lock", message: t("SignUp.error.PasswordMatch")}});
     }
-    if (!username || !email || !password) {
-      this.setState({error: t("SignUp.error.IncompleteFields")});
-      return;
+    else if (!username || !email || !password) {
+      this.setState({error: {iconName: "id-number", message: t("SignUp.error.IncompleteFields")}});
     }
-    if (!agreedToTerms) {
-      this.setState({error: t("SignUp.error.TermsAgree")});
-      return;
+    else if (!agreedToTerms) {
+      this.setState({error: {iconName: "saved", message: t("SignUp.error.TermsAgree")}});
     }
-    this.setState({error: null});
-    this.props.signup({username, email, password});
+    else {
+      this.props.signup({username, email, password});
+      this.setState({submitted: true});
+    }
 
+  }
+
+  componentDidUpdate() {
+    const {auth, t} = this.props;
+    const {error, submitted} = this.state;
+
+    if (submitted && !auth.loading) {
+      if (auth.error === "EXISTS") {
+        this.showToast(t("SignUp.error.Exists"), "blocked-person", Intent.WARNING);
+        this.setState({submitted: false});
+      }
+      else if (!auth.error) {
+        this.showToast(t("SignUp.success"), "endorsed", Intent.SUCCESS);
+      }
+    }
+    else if (error) {
+      this.showToast(error.message, error.iconName, error.intent);
+      this.setState({error: false});
+    }
+
+  }
+
+  showToast(message, iconName = "lock", intent = Intent.DANGER) {
+    const {toast} = this.state;
+    toast.show({iconName, intent, message});
   }
 
   render() {
     const {auth, social, t} = this.props;
-    const {agreedToTerms, error} = this.state;
+    const {agreedToTerms} = this.state;
     const email = this.state.email === null ? auth.error && auth.error.email ? auth.error.email : "" : this.state.email;
-
-    const displayError = auth.error ? auth.error.msg : error;
 
     return (
       <div>
@@ -83,7 +107,6 @@ class SignUp extends Component {
             { t("SignUp.PolicyText") }
           </label>
           <button type="submit" className="pt-button pt-fill" tabIndex="5">{ t("SignUp.Sign Up") }</button>
-          { displayError ? <div className="pt-callout pt-intent-danger">{ displayError }</div> : null }
         </form>
         { social.length
         ? <div id="socials">
@@ -109,6 +132,6 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-SignUp = translate()(SignUp);
 SignUp = connect(mapStateToProps, mapDispatchToProps)(SignUp);
+SignUp = translate()(SignUp);
 export {SignUp};

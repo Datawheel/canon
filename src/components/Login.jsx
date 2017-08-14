@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {login} from "../actions/auth";
 import {translate} from "react-i18next";
+import {Intent, Toaster} from "@blueprintjs/core";
 
 import facebookIcon from "../images/facebook-logo.svg";
 import twitterIcon from "../images/twitter-logo.svg";
@@ -14,9 +15,10 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      error: null,
       password: "",
-      email: null
+      email: "",
+      submitted: false,
+      toast: typeof window !== "undefined" ? Toaster.create() : null
     };
     this.onChange = this.onChange.bind(this);
   }
@@ -26,35 +28,45 @@ class Login extends Component {
   }
 
   onSubmit(e) {
-
     e.preventDefault();
-    const {password} = this.state;
-    const email = this.state.email === this.refs.email.value ? this.state.email : this.refs.email.value;
-
+    const {email, password} = this.state;
     this.props.login({email, password});
+    this.setState({submitted: true});
+  }
 
+  componentDidUpdate() {
+
+    const {auth, t} = this.props;
+    const {submitted, toast} = this.state;
+
+    if (submitted && !auth.loading) {
+      if (auth.error === "WRONG_PW") {
+        toast.show({iconName: "error", intent: Intent.DANGER, message: t("Login.error")});
+        this.setState({submitted: false});
+      }
+      else if (!auth.error) {
+        toast.show({iconName: "endorsed", intent: Intent.SUCCESS, message: t("Login.success")});
+      }
+    }
   }
 
   render() {
-    const {auth, social, t} = this.props;
-    const {error} = this.state;
-    const email = this.state.email === null ? auth.error && auth.error.email ? auth.error.email : "" : this.state.email;
 
-    const displayError = auth.error ? auth.error.msg : error;
+    const {social, t} = this.props;
+    const {email, password} = this.state;
 
     return (
       <div>
-        <form id="login" ref="emailForm" onSubmit={this.onSubmit.bind(this)} className="login-container">
+        <form id="login" onSubmit={this.onSubmit.bind(this)} className="login-container">
           <div className="pt-input-group">
             <span className="pt-icon pt-icon-envelope"></span>
-            <input className="pt-input" placeholder={ t("Login.E-mail") } value={email} type="email" name="email" ref="email" onChange={this.onChange} tabIndex="1" />
+            <input className="pt-input" placeholder={ t("Login.E-mail") } value={email} type="email" name="email" onChange={this.onChange} tabIndex="1" />
           </div>
           <div className="pt-input-group">
             <span className="pt-icon pt-icon-lock"></span>
-            <input className="pt-input" placeholder={ t("Login.Password") } value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
+            <input className="pt-input" placeholder={ t("Login.Password") } value={password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
           </div>
           <button className="pt-button pt-fill" type="submit" tabIndex="5">{ t("Login.Login") }</button>
-          { displayError ? <div className="pt-callout pt-intent-danger">{ displayError }</div> : null }
         </form>
         { social.length
         ? <div id="socials">

@@ -5,7 +5,9 @@
     "Instagram": "Instagram",
     "Login": "Login",
     "Password": "Password",
-    "Twitter": "Twitter"
+    "Twitter": "Twitter",
+    "error": "Wrong Username or Password",
+    "success": "Successfully Logged In"
   },
   "SignUp": {
     "Confirm Password": "",
@@ -18,10 +20,12 @@
     "Twitter": "",
     "Username": "",
     "error": {
-      "IncompleteFields": "Please set all fields.",
-      "PasswordMatch": "Passwords don't match.",
-      "TermsAgree": "Must agree to terms to continue."
-    }
+      "Exists": "E-mail or Username already in use",
+      "IncompleteFields": "Please set all fields",
+      "PasswordMatch": "Passwords don't match",
+      "TermsAgree": "Must agree to terms to continue"
+    },
+    "success": ""
   },
   "This is a full sentence used as the translation key": "This is a full sentence used as the translation key",
   "home": {

@@ -12,6 +12,13 @@ const loginFailure = err => ({
   payload: err
 });
 
+const signupRequest = () => ({type: "SIGNUP_REQUEST"});
+
+const signupSuccess = auth => ({
+  type: "SIGNUP_SUCCESS",
+  payload: auth
+});
+
 const signupFailure = err => ({
   type: "SIGNUP_FAILURE",
   payload: err
@@ -27,19 +34,19 @@ const logoutFailure = err => ({
   payload: err
 });
 
-export const login = loginUserData => dispatch => {
+export const login = userData => dispatch => {
 
   dispatch(loginRequest());
 
-  axios.post("/auth/local/login", loginUserData)
+  axios.post("/auth/local/login", userData)
     .then(resp => {
       dispatch(loginSuccess(resp.data));
       window.location = "/";
     })
     .catch(() => dispatch(loginFailure({
-      msg: "Wrong username or password.",
+      msg: "Wrong Username or Password",
       type: "WRONG_PW",
-      email: loginUserData.email
+      email: userData.email
     })));
 
 };
@@ -64,11 +71,17 @@ export const logout = () => dispatch => {
 
 export const signup = userData => dispatch => {
 
+  dispatch(signupRequest());
+
   axios.post("/auth/local/signup", userData)
     .then(resp => {
-      dispatch({type: "SIGNUP_SUCCESS", payload: resp.data});
+      dispatch(signupSuccess(resp.data));
       window.location = "/";
     })
-    .catch(err => dispatch(signupFailure(err)));
+    .catch(() => dispatch(signupFailure({
+      msg: "E-mail or Username already exists",
+      type: "EXISTS",
+      email: userData.email
+    })));
 
 };

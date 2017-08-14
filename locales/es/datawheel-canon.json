@@ -5,7 +5,9 @@
     "Instagram": "ES Instagram",
     "Login": "ES Login",
     "Password": "ES Password",
-    "Twitter": "ES Twitter"
+    "Twitter": "ES Twitter",
+    "error": "",
+    "success": ""
   },
   "SignUp": {
     "Confirm Password": "",
@@ -18,10 +20,12 @@
     "Twitter": "",
     "Username": "",
     "error": {
+      "Exists": "",
       "IncompleteFields": "Please set all fields.",
       "PasswordMatch": "Passwords don't match.",
       "TermsAgree": "Must agree to terms to continue."
-    }
+    },
+    "success": ""
   },
   "This is a full sentence used as the translation key": "Esta es una frase completa usada como la clave de traducción",
   "home": {

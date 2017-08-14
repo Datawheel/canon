@@ -14,9 +14,7 @@
   "port": "",
   "social": "",
   "trust proxy": "",
-  "Login": {
-    "Other": "Other"
-  },
+  "Login": {},
   "SignUp": {
     "error": {}
   },

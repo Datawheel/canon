@@ -6,7 +6,7 @@ module.exports = function(app) {
 
   const {db, passport} = app.settings;
 
-  passport.use(new Strategy({usernameField: "email"},
+  passport.use("local-login", new Strategy({usernameField: "email"},
     (email, password, done) => db.users.findOne({where: {email}, raw: true})
       .then(user => {
 
@@ -20,48 +20,47 @@ module.exports = function(app) {
       })
   ));
 
-  app.post("/auth/local/login", passport.authenticate("local", {
+  app.post("/auth/local/login", passport.authenticate("local-login", {
     successRedirect: "/",
-    failureRedirect: "/auth/local/fail",
     failureFlash: false
   }));
 
-  app.post("/auth/local/signup", (req, res) => {
+  passport.use("local-signup", new Strategy({usernameField: "email", passReqToCallback: true},
+    (req, email, password, done) => {
 
-    const email = req.body.email;
-    db.users.findOne({where: {email}})
-      .then(err => {
+      db.users.findOne({where: {email}, raw: true})
+        .then(user => {
 
-        if (err) res.status(409).json({message: "A user with that email already exits!"});
+          if (user) return done(null, false, {message: "E-mail already exists."});
 
-        const username = req.body.username;
-        db.users.findOne({where: {username}})
-          .then(err => {
+          const username = req.body.username;
+          return db.users.findOne({where: {username}, raw: true})
+            .then(user => {
 
-            if (err) res.status(409).json({message: "A user with that email already exits!"});
+              if (user) return done(null, false, {message: "Username already exists."});
 
-            const password = req.body.password;
-            const salt = bcrypt.genSaltSync(10);
-            const hashedPassword = bcrypt.hashSync(password, salt);
+              const salt = bcrypt.genSaltSync(10);
+              const hashedPassword = bcrypt.hashSync(password, salt);
 
-            const newUser = {
-              id: uuid(),
-              email,
-              username,
-              salt,
-              password: hashedPassword
-            };
+              const newUser = {
+                id: uuid(),
+                email,
+                username,
+                salt,
+                password: hashedPassword
+              };
 
-            db.users.create(newUser)
-              .then(() => passport.authenticate("local")(req, res, () => res.redirect("/")))
-              .catch(() => res.status(500).json({message: "Passwords did not match."}));
+              return db.users.create(newUser).then(user => done(null, user));
 
-          });
+            });
 
-      });
+        });
 
-  });
+    }));
 
-  app.get("/auth/local/fail", (req, res) => res.status(401).send("error logging in"));
+  app.post("/auth/local/signup", passport.authenticate("local-signup", {
+    successRedirect: "/",
+    failureFlash: false
+  }));
 
 };
