@@ -69,7 +69,7 @@
     "lost": "^8.0.0",
     "node-notifier": "^5.1.2",
     "nodemon": "^1.10.2",
-    "normalize.css": "^5.0.0",
+    "normalize.css": "^7.0.0",
     "passport": "^0.3.2",
     "passport-facebook": "^2.1.1",
     "passport-instagram": "^1.0.0",
