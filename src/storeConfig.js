@@ -2,7 +2,7 @@ import {combineReducers, createStore, applyMiddleware, compose} from "redux";
 import {routerMiddleware, routerReducer} from "react-router-redux";
 import thunk from "redux-thunk";
 import appReducers from "reducers";
-import createLogger from "redux-logger";
+import {createLogger} from "redux-logger";
 
 import promiseMiddleware from "./middlewares/promiseMiddleware";
 
