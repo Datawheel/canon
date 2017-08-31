@@ -8,8 +8,11 @@ process.env.CANON_DIR = __dirname;
 nodemon({
   watch: [
     "api/**/*.js",
-    "app/**/*.js",
-    "app/**/*.yml",
+    "app/helmet.js",
+    "app/routes.jsx",
+    "app/store.js",
+    "app/style.yml",
+    "app/reducers/index.js",
     "bin/**/*.js",
     "src/**/*.js",
     "src/*.jsx",
