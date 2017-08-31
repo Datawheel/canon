@@ -51,7 +51,7 @@ const resolve = file => {
 };
 
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
-const LANGUAGES = process.env.CANON_LANGUAGES;
+const LANGUAGES = process.env.CANON_LANGUAGES || "en";
 
 shell.echo(chalk.bold("\n\n 📂  Gathering Resources\n"));
 const store = resolve("store.js") || {};
