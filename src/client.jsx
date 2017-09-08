@@ -19,12 +19,14 @@ import {I18nextProvider} from "react-i18next";
 import i18n from "i18next";
 import yn from "yn";
 
+import defaultTranslations from "./locale.js";
+
 const {locale, resources} = window.__INITIAL_STATE__.i18n;
-const {CANON_LANGUAGE_DEFAULT, CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
+const {CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
 
 i18n
   .init({
-    fallbackLng: CANON_LANGUAGE_DEFAULT,
+    fallbackLng: "canon",
     lng: locale,
     debug: NODE_ENV !== "production" ? yn(CANON_LOGLOCALE) : false,
     ns: [window.__APP_NAME__],
@@ -34,6 +36,7 @@ i18n
     }
   });
 
+i18n.addResourceBundle("canon", window.__APP_NAME__, defaultTranslations, true, true);
 i18n.addResourceBundle(locale, window.__APP_NAME__, resources, true, true);
 
 function scrollToHash(hash) {

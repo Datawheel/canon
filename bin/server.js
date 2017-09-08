@@ -87,7 +87,7 @@ i18n
   .use(i18nMiddleware.LanguageDetector)
   .init({
 
-    fallbackLng: LANGUAGE_DEFAULT,
+    fallbackLng: "canon",
     lng: LANGUAGE_DEFAULT,
     preload: LANGUAGES ? LANGUAGES.split(",") : LANGUAGE_DEFAULT,
 
@@ -268,7 +268,7 @@ function start() {
           if (detail.length > 40) detail = `...${detail.substr(detail.length - 37)}`;
           msg += ` ${detail}`;
         });
-        if (msg.length > msgLength) msgLength = msg.length + 1;
+        if (msg.length > msgLength) msgLength = msg.length + 2;
         process.stdout.write(`\r${ new Array(msgLength).join(" ") }`);
         process.stdout.write(`\r${ msg }`);
       }

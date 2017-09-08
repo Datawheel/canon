@@ -1,32 +1,4 @@
 {
-  "Login": {
-    "E-mail": "Translated E-mail",
-    "Facebook": "Facebook",
-    "Instagram": "Instagram",
-    "Login": "Login",
-    "Password": "Password",
-    "Twitter": "Twitter",
-    "error": "Wrong Username or Password",
-    "success": "Successfully Logged In"
-  },
-  "SignUp": {
-    "Confirm Password": "",
-    "E-mail": "",
-    "Facebook": "",
-    "Instagram": "",
-    "Password": "",
-    "PolicyText": "By checking this box, you agree to our Privacy Policy",
-    "Sign Up": "",
-    "Twitter": "",
-    "Username": "",
-    "error": {
-      "Exists": "E-mail or Username already in use",
-      "IncompleteFields": "Please set all fields",
-      "PasswordMatch": "Passwords don't match",
-      "TermsAgree": "Must agree to terms to continue"
-    },
-    "success": ""
-  },
   "This is a full sentence used as the translation key": "This is a full sentence used as the translation key",
   "home": {
     "sub": "Here is a sub-title.",
