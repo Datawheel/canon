@@ -1,6 +1,36 @@
 {
+  "Login": {
+    "E-mail": "",
+    "Facebook": "",
+    "Instagram": "",
+    "Login": "",
+    "Password": "",
+    "Twitter": "",
+    "error": "",
+    "success": ""
+  },
+  "SignUp": {
+    "Confirm Password": "",
+    "E-mail": "",
+    "Facebook": "",
+    "Instagram": "",
+    "Password": "",
+    "PolicyText": "",
+    "Sign Up": "",
+    "Twitter": "",
+    "Username": "",
+    "error": {
+      "Exists": "",
+      "IncompleteFields": "",
+      "PasswordMatch": "",
+      "TermsAgree": ""
+    },
+    "success": ""
+  },
+  "Some Text": "",
   "This is a full sentence used as the translation key": "This is a full sentence used as the translation key",
   "home": {
+    "body": "",
     "sub": "Here is a sub-title.",
     "title": "Canon Title"
   }

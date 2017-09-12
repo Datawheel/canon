@@ -98,6 +98,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     const store = configureStore({i18n: {locale, resources}, location, ...defaultStore}, history);
     const routes = createRoutes(store);
     i18nServer.changeLanguage(locale);
+    const rtl = ["ar", "he"].includes(locale);
 
     match({routes, location: req.url}, (err, redirect, props) => {
 
@@ -119,7 +120,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 
             res.status(200).send(`
               <!doctype html>
-              <html ${header.htmlAttributes.toString()}>
+              <html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
                 <head>
                   ${header.title.toString()}
                   ${header.meta.toString()}
