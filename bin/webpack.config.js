@@ -41,6 +41,10 @@ const commonLoaders = [
     loader: "url-loader?limit=100000"
   },
   {
+    test: /\.(yaml|yml)$/,
+    loader: "yml-loader"
+  },
+  {
     test: /\.css$/, use: [
       "style-loader",
       "css-loader",

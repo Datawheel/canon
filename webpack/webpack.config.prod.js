@@ -50,6 +50,10 @@ const commonLoaders = [
     loader: "url-loader?limit=100000"
   },
   {
+    test: /\.(yaml|yml)$/,
+    loader: "yml-loader"
+  },
+  {
     test: /\.(scss|sass|css)$/i,
     use: ExtractTextPlugin.extract({
       fallback: "style-loader",
