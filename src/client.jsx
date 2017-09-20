@@ -9,6 +9,7 @@ import {syncHistoryWithStore} from "react-router-redux";
 import {animateScroll} from "react-scroll";
 import createRoutes from "routes";
 import configureStore from "./storeConfig";
+import {LOADING_END, LOADING_START} from "./consts";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
 const store = configureStore(window.__INITIAL_STATE__, browserHistory);
@@ -19,7 +20,7 @@ import {I18nextProvider} from "react-i18next";
 import i18n from "i18next";
 import yn from "yn";
 
-import defaultTranslations from "./locale.js";
+import defaultTranslations from "./locale";
 
 const {locale, resources} = window.__INITIAL_STATE__.i18n;
 const {CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
@@ -60,11 +61,11 @@ function renderMiddleware() {
         scrollToHash(props.location.hash);
       }
       else {
-        store.dispatch({type: "LOADING_START"});
+        store.dispatch({type: LOADING_START});
         document.body.scrollTop = document.documentElement.scrollTop = 0;
         preRenderMiddleware(store, props)
           .then(() => {
-            store.dispatch({type: "LOADING_END"});
+            store.dispatch({type: LOADING_END});
             scrollToHash(props.location.hash);
           });
       }

@@ -1,87 +1,46 @@
 import axios from "axios";
-
-const loginRequest = () => ({type: "LOGIN_REQUEST"});
-
-const loginSuccess = auth => ({
-  type: "LOGIN_SUCCESS",
-  payload: auth
-});
-
-const loginFailure = err => ({
-  type: "LOGIN_FAILURE",
-  payload: err
-});
-
-const signupRequest = () => ({type: "SIGNUP_REQUEST"});
-
-const signupSuccess = auth => ({
-  type: "SIGNUP_SUCCESS",
-  payload: auth
-});
-
-const signupFailure = err => ({
-  type: "SIGNUP_FAILURE",
-  payload: err
-});
-
-const logoutSuccess = msg => ({
-  type: "LOGOUT_SUCCESS",
-  payload: msg
-});
-
-const logoutFailure = err => ({
-  type: "SIGNUP_FAILURE",
-  payload: err
-});
+import {LOGIN_FAILURE, LOGIN_REQUEST, LOGIN_SUCCESS, LOGOUT_FAILURE, LOGOUT_SUCCESS, SIGNUP_EXISTS, SIGNUP_FAILURE, SIGNUP_REQUEST, SIGNUP_SUCCESS, WRONG_PW} from "../consts";
 
 export const login = userData => dispatch => {
 
-  dispatch(loginRequest());
+  dispatch({type: LOGIN_REQUEST});
 
   axios.post("/auth/local/login", userData)
     .then(resp => {
-      dispatch(loginSuccess(resp.data));
+      dispatch({type: LOGIN_SUCCESS, payload: resp.data});
       window.location = "/";
     })
-    .catch(() => dispatch(loginFailure({
-      msg: "Wrong Username or Password",
-      type: "WRONG_PW",
-      email: userData.email
-    })));
+    .catch(() => dispatch({type: LOGIN_FAILURE, payload: {type: WRONG_PW, email: userData.email}}));
+
+};
+
+export const signup = userData => dispatch => {
+
+  dispatch({type: SIGNUP_REQUEST});
+
+  axios.post("/auth/local/signup", userData)
+    .then(resp => {
+      dispatch({type: SIGNUP_SUCCESS, payload: resp.data});
+      window.location = "/";
+    })
+    .catch(() => dispatch({type: SIGNUP_FAILURE, payload: {type: SIGNUP_EXISTS, payload: userData}}));
 
 };
 
 export const isAuthenticated = () => dispatch => {
 
-  dispatch(loginRequest());
+  dispatch({type: LOGIN_REQUEST});
 
   axios.get("/auth/isAuthenticated")
-    .then(resp => dispatch(loginSuccess(resp.data)))
-    .catch(err => dispatch(loginFailure(err)));
+    .then(resp => dispatch({type: LOGIN_SUCCESS, payload: resp.data}))
+    .catch(payload => dispatch({type: LOGIN_FAILURE, payload}));
 
 };
 
 export const logout = () => dispatch => {
 
   axios.get("/auth/logout")
-    .then(resp => dispatch(logoutSuccess(resp.data)))
-    .catch(err => dispatch(logoutFailure(err)));
-
-};
-
-export const signup = userData => dispatch => {
-
-  dispatch(signupRequest());
-
-  axios.post("/auth/local/signup", userData)
-    .then(resp => {
-      dispatch(signupSuccess(resp.data));
-      window.location = "/";
-    })
-    .catch(() => dispatch(signupFailure({
-      msg: "E-mail or Username already exists",
-      type: "EXISTS",
-      email: userData.email
-    })));
+    .then(resp => dispatch({type: LOGOUT_SUCCESS, payload: resp.data}))
+    .catch(payload => dispatch({type: LOGOUT_FAILURE, payload}));
 
 };

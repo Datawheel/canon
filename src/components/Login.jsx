@@ -7,6 +7,7 @@ import {Intent, Toaster} from "@blueprintjs/core";
 import facebookIcon from "../images/facebook-logo.svg";
 import twitterIcon from "../images/twitter-logo.svg";
 import instagramIcon from "../images/instagram-logo.svg";
+import {WRONG_PW} from "../consts";
 
 import "./Forms.css";
 
@@ -40,7 +41,7 @@ class Login extends Component {
     const {submitted, toast} = this.state;
 
     if (submitted && !auth.loading) {
-      if (auth.error === "WRONG_PW") {
+      if (auth.error === WRONG_PW) {
         toast.show({iconName: "error", intent: Intent.DANGER, message: t("Login.error")});
         this.setState({submitted: false});
       }

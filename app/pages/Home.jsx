@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {translate} from "react-i18next";
 import "./Home.css";
 
-import styles from "style.yml";
+// import styles from "style.yml";
 
 // import yn from "yn";
 
@@ -11,7 +11,7 @@ class Home extends Component {
   render() {
     const {t} = this.props;
     // console.log("yn test", yn("true"));
-    console.log(styles);
+    // console.log(styles);
     // use the 't' function for simple keys and strings, and
     // the Interpolate component for strings with variable replace.
     return (
