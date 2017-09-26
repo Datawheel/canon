@@ -85,10 +85,10 @@ class SignUp extends Component {
 
     return (
       <div>
-        <form id="signup" ref="emailForm" onSubmit={this.onSubmit.bind(this)} className="login-container">
+        <form id="signup" onSubmit={this.onSubmit.bind(this)} className="login-container">
           <div className="pt-input-group">
             <span className="pt-icon pt-icon-envelope"></span>
-            <input className="pt-input" placeholder={ t("SignUp.E-mail") } value={email} type="email" name="email" ref="email" onChange={this.onChange} tabIndex="1" />
+            <input className="pt-input" placeholder={ t("SignUp.E-mail") } value={email} type="email" name="email" onChange={this.onChange} tabIndex="1" />
           </div>
           <div className="pt-input-group">
             <span className="pt-icon pt-icon-user"></span>
@@ -102,7 +102,7 @@ class SignUp extends Component {
             <span className="pt-icon pt-icon-lock"></span>
             <input className="pt-input" placeholder={ t("SignUp.Confirm Password") } value={this.state.passwordAgain} type="password" name="passwordAgain" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="4" />
           </div>
-          <label className="pt-control pt-checkbox" htmlFor="ppcbox" ref="agreedToTerms">
+          <label className="pt-control pt-checkbox" htmlFor="ppcbox">
             <input type="checkbox" id="ppcbox" name="agreedToTerms" checked={agreedToTerms} onChange={this.onChange} />
             <span className="pt-control-indicator"></span>
             { t("SignUp.PolicyText") }

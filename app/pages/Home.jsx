@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import {translate} from "react-i18next";
 import "./Home.css";
 
+import {Activate} from "../../src/";
+
 // import styles from "style.yml";
 
 // import yn from "yn";
@@ -20,6 +22,7 @@ class Home extends Component {
         { t("This is a full sentence used as the translation key.") }<br />
         { t("home.body", {name: "Datawheel Canon"}) }<br />
         { t("home.sub") }
+        <Activate location={this.props.location} />
       </div>
     );
 

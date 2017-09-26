@@ -179,47 +179,13 @@ function start() {
     app.set("social", []);
     require(path.join(canonPath, "src/auth/auth"))(app);
     store.social = app.settings.social;
+    store.mailgun = app.settings.mailgun || false;
 
     const {db} = app.settings;
     if (!db.models.users) {
-
-      db.getQueryInterface().createTable("users", {
-        id: {
-          allowNull: false,
-          primaryKey: true,
-          type: Sequelize.STRING
-        },
-        username: {
-          type: Sequelize.STRING,
-          allowNull: false,
-          unique: true,
-          validate: {is: /^[a-z0-9\_\-]+$/i}
-        },
-        email: {
-          type: Sequelize.STRING,
-          validate: {
-            isEmail: true
-          }
-        },
-        name: {type: Sequelize.STRING},
-        password: {type: Sequelize.STRING},
-        salt: {type: Sequelize.STRING},
-        twitter: {type: Sequelize.STRING},
-        facebook: {type: Sequelize.STRING},
-        instagram: {type: Sequelize.STRING},
-        createdAt: {
-          allowNull: false,
-          type: Sequelize.DATE
-        },
-        updatedAt: {
-          allowNull: false,
-          type: Sequelize.DATE
-        }
-      });
-
       db.users = db.import(path.join(canonPath, "src/db/users.js"));
-
     }
+
   }
   shell.echo(`User Authentication: ${ logins ? "ON" : "OFF" }`);
 

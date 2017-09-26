@@ -15,9 +15,12 @@ class Nav extends Component {
         <Link className="logo" to="/"><img src={Icon} /> Canonical Design</Link>
         <Link className="link" to="/profile/040AF00182">Profile</Link>
         { user
-        ? <a className="user-link" href="/auth/logout">Logout</a>
-        : <div className="user-info">
+          ? <div className="user-info">
+            <a className="user-link" href="/auth/logout">Logout</a>
+          </div>
+          : <div className="user-info">
             <Link className="user-link" to="/login">Login</Link>
+            <Link className="user-link" to="/reset">Reset</Link>
             <Link className="user-link" to="/signup">Sign Up</Link>
           </div>
         }

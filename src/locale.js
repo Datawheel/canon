@@ -1,4 +1,12 @@
 export default {
+  Activate: {
+    button: "Send Verification",
+    actions: {
+      ACTIVATE_SEND_FAILURE: "Error sending activation to {{email}}.",
+      ACTIVATE_SEND_SUCCESS: "{{email}} has been sent an activation link. Please check your inbox.",
+      ACTIVATE_TOKEN_FAILURE: "Activation token is invalid or has expired."
+    }
+  },
   Login: {
     "E-mail": "E-mail",
     "Facebook": "Facebook",
@@ -8,6 +16,18 @@ export default {
     "Twitter": "Twitter",
     "error": "Wrong Username or Password",
     "success": "Successfully Logged In"
+  },
+  Reset: {
+    "Confirm Password": "Confirm New Password",
+    "E-mail": "E-mail",
+    "Password": "New Password",
+    "Reset": "Reset",
+    "button": "Reset Password",
+    "actions": {
+      RESET_SEND_FAILURE: "No account associated with {{email}}.",
+      RESET_SEND_SUCCESS: "{{email}} has been sent a password reset. Please check your inbox.",
+      RESET_TOKEN_FAILURE: "Password reset token is invalid or has expired."
+    }
   },
   SignUp: {
     "Confirm Password": "Confirm Password",

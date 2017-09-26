@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>E-mail Verification</title>
+    <style type="text/css">
+
+      @media only screen and (max-width: 620px) {
+        table[class=body] h1 {
+          font-size: 28px !important;
+          margin-bottom: 10px !important; }
+        table[class=body] p,
+        table[class=body] ul,
+        table[class=body] ol,
+        table[class=body] td,
+        table[class=body] span,
+        table[class=body] a {
+          font-size: 16px !important; }
+        table[class=body] .wrapper,
+        table[class=body] .article {
+          padding: 10px !important; }
+        table[class=body] .content {
+          padding: 0 !important; }
+        table[class=body] .container {
+          padding: 0 !important;
+          width: 100% !important; }
+        table[class=body] .main {
+          border-left-width: 0 !important;
+          border-radius: 0 !important;
+          border-right-width: 0 !important; }
+        table[class=body] .btn table {
+          width: 100% !important; }
+        table[class=body] .btn a {
+          width: 100% !important; }
+        table[class=body] .img-responsive {
+          height: auto !important;
+          max-width: 100% !important;
+          width: auto !important; }
+      }
+      /* -------------------------------------
+          PRESERVE THESE STYLES IN THE HEAD
+      ------------------------------------- */
+      @media all {
+        .ExternalClass {
+          width: 100%;
+        }
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+          line-height: 100%;
+        }
+        .apple-link a {
+          color: inherit !important;
+          font-family: inherit !important;
+          font-size: inherit !important;
+          font-weight: inherit !important;
+          line-height: inherit !important;
+          text-decoration: none !important;
+        }
+        .btn-primary a:hover {
+          background-color: #0d8050 !important;
+        }
+      }
+
+    </style>
+  </head>
+  <body class="" style="background-color:#fff;font-family:-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue', 'Icons16', sans-serif;-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.4;margin:0;padding:0;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+    <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#fff;width:100%;">
+      <tr>
+        <td class="container" style="font-size:14px;vertical-align:top;display:block;max-width:580px;padding:10px;width:580px;Margin:0 auto !important;">
+          <div class="content" style="box-sizing:border-box;display:block;Margin:0 auto;max-width:580px;padding:10px;">
+            <!-- START CENTERED WHITE CONTAINER -->
+            <span class="preheader" style="color:transparent;display:none;height:0;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;visibility:hidden;width:0;">Welcome to {{site_name}}!</span>
+            <table class="main" style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;background:#fff;border-radius:3px;width:100%;">
+              <!-- START MAIN CONTENT AREA -->
+              <tr>
+                <td class="wrapper" style="font-size:14px;vertical-align:top;box-sizing:border-box;padding:20px;">
+                  <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;">
+                    <tr>
+                      <td style="font-size:14px;vertical-align:top;">
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">Hi {{username}},</p>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">Thanks for signing up for {{site_name}}! Please confirm your email address by clicking on the link below.</p>
+                        <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;box-sizing:border-box;width:100%;">
+                          <tbody>
+                            <tr>
+                              <td align="left" style="font-size:14px;vertical-align:top;padding-bottom:15px;">
+                                <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;width:auto;">
+                                  <tbody>
+                                    <tr>
+                                      <td style="vertical-align:top;text-align:center;">
+                                        <a href="{{confirm_link}}" target="_blank" style="box-shadow:inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 0 rgba(16, 22, 26, 0.2);border:none;border-radius:3px;box-sizing:border-box;color:#ffffff;cursor:pointer;display:inline-block;font-size:16px;line-height:30px;min-width:30px;min-height:30px;font-weight:600;margin:0;padding:0 15px;text-decoration:none;background-color:#0f9960;background-image:linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))">Click To Confirm</a>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">Or copy and paste the following into your browser: {{confirm_link}}</p>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">You're receiving this email because you recently created a new {{site_name}} account or added a new email address. If this wasn't you, please ignore this email.</p>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">Yours sincerely,</p>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">The {{site_name}} Team</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <!-- END MAIN CONTENT AREA -->
+            </table>
+            <!-- START FOOTER -->
+            <div class="footer" style="clear:both;padding-top:10px;text-align:center;width:100%;">
+              <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;">
+                <tr>
+                  <td class="content-block" style="font-size:14px;vertical-align:top;color:#999999;font-size:12px;text-align:center;">
+                    <a href="{{site_url}}" style="color:#3498db;text-decoration:underline;color:#999999;font-size:12px;text-align:center;">{{site_name}}</a>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <!-- END FOOTER -->
+            <!-- END CENTERED WHITE CONTAINER -->
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -29,6 +29,7 @@ export default function storeConfig(initialState, history) {
     i18n: (state = {}) => state,
     loading,
     location: (state = {}) => state,
+    mailgun: (state = false) => state,
     routing: routerReducer,
     social: (state = []) => state
   }, appReducers));

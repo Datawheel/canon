@@ -1,13 +1,17 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {login} from "../actions/auth";
+import {login, resetPassword} from "../actions/auth";
 import {translate} from "react-i18next";
 import {Intent, Toaster} from "@blueprintjs/core";
 
 import facebookIcon from "../images/facebook-logo.svg";
 import twitterIcon from "../images/twitter-logo.svg";
 import instagramIcon from "../images/instagram-logo.svg";
-import {WRONG_PW} from "../consts";
+import {
+  RESET_SEND_FAILURE,
+  RESET_SEND_SUCCESS,
+  WRONG_PW
+} from "../consts";
 
 import "./Forms.css";
 
@@ -37,18 +41,39 @@ class Login extends Component {
 
   componentDidUpdate() {
 
-    const {auth, t} = this.props;
-    const {submitted, toast} = this.state;
+    const {auth, mailgun, t} = this.props;
+    const {email, submitted, toast} = this.state;
 
     if (submitted && !auth.loading) {
+
       if (auth.error === WRONG_PW) {
-        toast.show({iconName: "error", intent: Intent.DANGER, message: t("Login.error")});
+        toast.show({
+          action: mailgun ? {
+            onClick: () => {
+              this.setState({submitted: true});
+              this.props.resetPassword(email);
+            },
+            text: t("Reset.button")
+          } : null,
+          iconName: "error",
+          intent: Intent.DANGER,
+          message: t("Login.error")
+        });
+        this.setState({submitted: false});
+      }
+      else if (auth.msg === RESET_SEND_SUCCESS) {
+        toast.show({iconName: "inbox", intent: Intent.SUCCESS, message: t("Reset.send", {email})});
+        this.setState({submitted: false});
+      }
+      else if (auth.error === RESET_SEND_FAILURE) {
+        toast.show({iconName: "error", intent: Intent.DANGER, message: t("Reset.fail")});
         this.setState({submitted: false});
       }
       else if (!auth.error) {
         toast.show({iconName: "endorsed", intent: Intent.SUCCESS, message: t("Login.success")});
       }
     }
+
   }
 
   render() {
@@ -70,12 +95,12 @@ class Login extends Component {
           <button className="pt-button pt-fill" type="submit" tabIndex="5">{ t("Login.Login") }</button>
         </form>
         { social.length
-        ? <div id="socials">
-          { social.includes("facebook") ? <a href="/auth/facebook" className="pt-button facebook"><img className="icon" src={facebookIcon} /><span>{ t("Login.Facebook") }</span></a> : null }
-          { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button twitter"><img className="icon" src={twitterIcon} /><span>{ t("Login.Twitter") }</span></a> : null }
-          { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button instagram"><img className="icon" src={instagramIcon} /><span>{ t("Login.Instagram") }</span></a> : null }
+          ? <div id="socials">
+            { social.includes("facebook") ? <a href="/auth/facebook" className="pt-button facebook"><img className="icon" src={facebookIcon} /><span>{ t("Login.Facebook") }</span></a> : null }
+            { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button twitter"><img className="icon" src={twitterIcon} /><span>{ t("Login.Twitter") }</span></a> : null }
+            { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button instagram"><img className="icon" src={instagramIcon} /><span>{ t("Login.Instagram") }</span></a> : null }
           </div>
-        : null }
+          : null }
       </div>
     );
 
@@ -84,12 +109,16 @@ class Login extends Component {
 
 const mapStateToProps = state => ({
   auth: state.auth,
+  mailgun: state.mailgun,
   social: state.social
 });
 
 const mapDispatchToProps = dispatch => ({
   login: userData => {
     dispatch(login(userData));
+  },
+  resetPassword: email => {
+    dispatch(resetPassword(email));
   }
 });
 
