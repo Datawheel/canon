@@ -32,6 +32,10 @@ class Viz3 extends SectionColumns {
   }
 }
 
+Viz3.defaultProps = {
+  slug: "Viz3"
+};
+
 Viz3.need = [
   fetchData("harvested_area", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=harvested_area&sort=desc&display_names=true")
 ];
