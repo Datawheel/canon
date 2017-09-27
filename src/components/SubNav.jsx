@@ -47,9 +47,9 @@ class SubNav extends Component {
 
     if (newActiveTopic) {
       (newActiveTopic.sections || []).forEach(section => {
-        const elem = document.getElementById(this.getSlug(section));
+        const elem = document.getElementById(this.getProps(section).slug);
         const top = elem ? elem.getBoundingClientRect().top : 1;
-        if (top <= 0) newActiveSection = this.getSlug(section);
+        if (top <= 0) newActiveSection = this.getProps(section).slug;
       });
       newActiveTopic = newActiveTopic.slug;
     }
@@ -64,8 +64,11 @@ class SubNav extends Component {
 
   }
 
-  getSlug(comp) {
-    return comp.WrappedComponent ? comp.WrappedComponent.name : comp.name;
+  getProps(section) {
+    let comp = section;
+    if (comp.component) comp = comp.component;
+    if (comp.WrappedComponent) comp = comp.WrappedComponent;
+    return Object.assign({}, comp.defaultProps || {}, comp.props || {}, section.props || {});
   }
 
   render() {
@@ -78,14 +81,14 @@ class SubNav extends Component {
       <div ref={ comp => this.container = comp } className={ `subnav ${ anchor } ${ type } ${ visible ? "visible" : "hidden" }` }>
         { children }
         { topics.length
-        ? <ul>
-            { topics.map(topic => <li className={ `topic ${ activeTopic === topic.slug ? "active" : "" }` }><AnchorLink to={ topic.slug }>{ topic.title }</AnchorLink>
-            { sections && topic.sections && topic.sections.length
-              ? <ul>{ topic.sections.map(section => <li className={ `section ${ activeSection === this.getSlug(section) ? "active" : "" }` }><AnchorLink to={ this.getSlug(section) }>{ section.shortTitle || section.title || this.getSlug(section) }</AnchorLink></li>) }</ul>
-              : null }
+          ? <ul>
+            { topics.map(topic => <li key={topic.slug} className={ `topic ${ activeTopic === topic.slug ? "active" : "" }` }><AnchorLink to={ topic.slug }>{ topic.title }</AnchorLink>
+              { sections && topic.sections && topic.sections.length
+                ? <ul>{ topic.sections.map((section, i) => <li key={i} className={ `section ${ activeSection === this.getProps(section).slug ? "active" : "" }` }><AnchorLink to={ this.getProps(section).slug }>{ this.getProps(section).shortTitle || this.getProps(section).title || this.getProps(section).slug }</AnchorLink></li>) }</ul>
+                : null }
             </li>) }
           </ul>
-        : null}
+          : null}
       </div>
     );
   }
