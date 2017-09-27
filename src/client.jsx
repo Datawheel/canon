@@ -2,7 +2,7 @@
 import "babel-polyfill";
 
 import React from "react";
-import {hydrate} from "react-dom";
+import {render} from "react-dom";
 import {Provider} from "react-redux";
 import {applyRouterMiddleware, browserHistory, Router, RouterContext} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
@@ -78,7 +78,7 @@ function renderMiddleware() {
 
 }
 
-hydrate(
+render(
   <I18nextProvider i18n={i18n}>
     <Provider store={store}>
       <Router history={history} render={applyRouterMiddleware(renderMiddleware())}>
