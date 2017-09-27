@@ -5,7 +5,7 @@ import App from "components/App";
 import Home from "pages/Home";
 import Profile from "profile/Profile";
 
-import {Login, Reset, SignUp} from "../src";
+import {Login, Reset, SignUp, UserAdmin} from "../src";
 
 export default function RouteCreate() {
 
@@ -16,6 +16,7 @@ export default function RouteCreate() {
       <Route path="login" component={Login} />
       <Route path="reset" component={Reset} />
       <Route path="profile/:id" component={Profile} />
+      <Route path="admin" component={UserAdmin} />
     </Route>
   );
 

@@ -36,6 +36,10 @@ module.exports = function(sequelize, db) {
     updatedAt: {
       allowNull: false,
       type: db.DATE
+    },
+    role: {
+      allowNull: false,
+      type: db.INTEGER
     }
   };
 

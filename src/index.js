@@ -13,6 +13,7 @@ export {SectionTitle} from "./components/SectionTitle.jsx";
 export {SignUp} from "./components/SignUp.jsx";
 export {SubNav} from "./components/SubNav.jsx";
 export {TopicTitle} from "./components/TopicTitle.jsx";
+export {UserAdmin} from "./components/UserAdmin.jsx";
 
 // Consts
 import * as consts from "./consts";

@@ -12,8 +12,6 @@ import {
   LOGIN_SUCCESS
 } from "../consts";
 
-import "./Forms.css";
-
 class Activate extends Component {
 
   constructor(props) {

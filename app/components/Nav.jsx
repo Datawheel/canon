@@ -16,6 +16,7 @@ class Nav extends Component {
         <Link className="link" to="/profile/040AF00182">Profile</Link>
         { user
           ? <div className="user-info">
+            { user.role >= 2 ? <Link className="user-link" to="/admin">Admin</Link> : null }
             <a className="user-link" href="/auth/logout">Logout</a>
           </div>
           : <div className="user-info">
