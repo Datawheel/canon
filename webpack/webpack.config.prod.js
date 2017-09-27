@@ -89,7 +89,7 @@ module.exports = [
         allChunks: true
       }),
       new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: false}),
-      new webpack.DefinePlugin({__DEVCLIENT__: false, __DEVSERVER__: false}),
+      new webpack.DefinePlugin({__DEV__: false, __SERVER__: false}),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"})
     ]
   },
@@ -119,7 +119,7 @@ module.exports = [
         allChunks: true
       }),
       new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: {keep_fnames: true}}),
-      new webpack.DefinePlugin({__DEVCLIENT__: false, __DEVSERVER__: false}),
+      new webpack.DefinePlugin({__DEV__: false, __SERVER__: true}),
       new webpack.IgnorePlugin(/vertx/),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"})
     ]

@@ -88,6 +88,6 @@ module.exports = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.DefinePlugin({__DEVCLIENT__: true, __DEVSERVER__: false, __LOGREDUX__: yn(process.env.CANON_LOGREDUX || true)})
+    new webpack.DefinePlugin({__DEV__: true, __SERVER__: false, __LOGREDUX__: yn(process.env.CANON_LOGREDUX || true)})
   ]
 };

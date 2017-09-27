@@ -65,7 +65,7 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.DefinePlugin({__DEVCLIENT__: false, __DEVSERVER__: true}),
+    new webpack.DefinePlugin({__DEV__: true, __SERVER__: true}),
     new webpack.IgnorePlugin(/vertx/)
   ]
 };

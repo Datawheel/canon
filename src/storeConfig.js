@@ -1,3 +1,7 @@
+/* global __DEV__ */
+/* global __SERVER__ */
+/* global __LOGREDUX__ */
+
 import {combineReducers, createStore, applyMiddleware, compose} from "redux";
 import {routerMiddleware, routerReducer} from "react-router-redux";
 import thunk from "redux-thunk";
@@ -34,7 +38,7 @@ export default function storeConfig(initialState, history) {
     social: (state = []) => state
   }, appReducers));
 
-  if (__DEVCLIENT__) {
+  if (__DEV__ && !__SERVER__) {
     if (__LOGREDUX__) middleware.push(createLogger());
     store = createStore(canonReducer, initialState, compose(
       applyMiddleware(...middleware),
