@@ -1,18 +1,445 @@
 # datawheel-canon
 Reusable React environment and components for creating visualization engines.
 
-## Scripts
+![](https://github.com/datawheel/datawheel-canon/raw/master/docs/bang.png)
 
-|script name|description|
-|---|---|
-|`canon-build`|Create all of the necessary bundles for a production deployment.|
-|`canon-dev`|Starts up a development server with hot-reloading.|
-|`canon-locales`|Parses all files in the `./app` directory for strings either wrapped in a `t()` function or part of an `<Interpolate>` component. These strings will then be matched with any existing translation files that exist, resulting in JSON lookup files for every language specified in the environment variable. These files can be found in `./locales/<lang>/canon.json`.|
-|`canon-start`|Starts up a web server for a production environment.|
+#### Contents
+* [Setup and Installation](setup-and-installation)
+* [Deployment](deployment)
+* [Localization](localization)
+* [User Management](user-management)
+  * [Password Reset](password-reset)
+  * [E-mail Verification](e-mail-verification)
+  * [Roles](roles)
+  * [Social Logins](social-logins)
+    * [Facebook](facebook)
+    * [Twitter](twitter)
+    * [Instagram](instagram)
+* [Custom API Routes](custom-api-routes)
+* [Custom Database Models](custom-database-models)
+* [Additional Environment Variables](additional-environment-variables)
 
-## Environment Variables
+---
 
-Interacting with the internals of canon is done by specifying environment variables. The most common way to set environment variables is to use `autoenv` (installed with `brew install autoenv`), which will detect any file named `.env` located in a project folder. This file should not be pushed to the repository, as it usually contains variables specific to the current environment (testing locally, running on a server etc).
+## Setup and Installation
+
+datawheel-canon is published on NPM, and should be installed just like any other node package:
+
+```bash
+npm i datawheel-canon
+```
+
+Once installed, the following file structure is required:
+
+```
+.
+├── app/
+│   ├── reducers/
+│   │   └── index.js
+│   └── routes.jsx
+├── static/
+└── package.json
+```
+
+The **app/routes.jsx** file must export a function that returns a react-router <Route> component. Here is an example starter boilerplate:
+
+```jsx
+import React from "react";
+import {Route} from "react-router";
+
+const App = () => "Hello World";
+
+export default () => <Route path="/" component={App}></Route>;
+```
+
+Additionally, in order to support custom Redux action/reducer cycles, an **app/reducers/index.js** file must be present, even if only exporting an empty object:
+
+```js
+export default {};
+```
+
+Once those files are in place, simply run `canon-dev` to spin up the development server. The most common use-case would be to add a "scripts" object to your **package.json** like this:
+
+```json
+"scripts": {
+  "dev": "canon-dev"
+}
+```
+
+Now, you can simply execute `npm run dev` from your shell.
+
+---
+
+## Deployment
+
+Separate from the `canon-dev` script, datawheel-canon makes 2 scripts available for deploying production ready builds:
+
+```json
+"scripts": {
+  "build": "canon-build",
+  "start": "canon-start"
+}
+```
+
+`canon-build` will compile the necessary server and client bundles, and `canon-start` will start an Express server on the default port.
+
+---
+
+## Localization
+
+In order to enable localization for a datawheel-canon site, you must first define the available languages as an environment variable:
+
+```sh
+export CANON_LANGUAGES="en,es"
+```
+
+Next, any component that needs access to localized text needs to be wrapped in the react-i18next translate function:
+
+```jsx
+import React, {Component} from "react";
+import {Link} from "react-router";
+import {translate} from "react-i18next";
+
+class Nav extends Component {
+
+  render() {
+
+    const {t} = this.props;
+
+    return (
+      <nav>
+        <Link href="/about">{ t("nav.about") }</Link>
+        { t("nav.welcome", {name: "Dave"}) }
+      </nav>
+    );
+
+  }
+}
+
+export default translate()(Nav);
+```
+
+When a component is wrapped with `translate`, it will have access to a function named `t` inside it's props. This function is what handles fetching the appropriate translation, and also allows us to scrape an entire project to locate every string that needs translation. When you are ready to start populating translations, simply run the `canon-locales` script:
+
+```json
+"scripts": {
+  "locales": "canon-locales"
+}
+```
+
+Now, by running `npm run locales`, datawheel-canon will search your entire codebase for any component using the `t( )` function. Translations are stored in JSON files in a `locales/` folder in the root directory. In this example, running the script would produce the following file structure:
+
+```
+locales/
+├── en/
+│   ├── [project-name]_old.json
+│   └── [project-name].json
+└── es/
+    ├── [project-name]_old.json
+    └── [project-name].json
+```
+
+Translations that are in use are stored in a JSON file, while translations that were previously in use (from the last time the script was run) but are no longer in use are stored in the file suffixed `_old`. While running the script, any existing translations will be kept as is, so there is no need to worry about overwriting previous translations.
+
+Since this is our first time running the scraper, both language's translation files will look like this:
+
+```json
+{
+  "nav": {
+    "about": "",
+    "welcome": ""
+  }
+}
+```
+
+If you look at your site in this state, now strings will be displayed in the components because their translation values are empty! A filled in translation file would look like this:
+
+```json
+{
+  "nav": {
+    "about": "About",
+    "welcome": "Welcome back {{name}}!"
+  }
+}
+```
+
+Notice the second string contains a variable surrounded by two sets of curly brackets. This is the notation for passing variable to translated strings, and is crucial in creating mad-libs style text.
+
+Additionally, to set the default language used in the site on first visit, set the following environment variable (default is `"en"`):
+
+```sh
+export CANON_LANGUAGE_DEFAULT="es"
+```
+
+---
+
+## User Management
+
+By setting the following environment variables:
+
+```sh
+export CANON_DB_NAME="XXX"
+export CANON_DB_USER="XXX"
+export CANON_DB_HOST="XXX"
+export CANON_DB_PW="XXX"
+export CANON_LOGINS=true
+```
+
+datawheel-canon will automatically instantiate a "users" table in the specified database to enable full user management. At this point, all that is needed in your application is to use the Login and Signup components exported by datawheel-canon:
+
+```jsx
+import {Login, Signup} from "datawheel-canon";
+```
+
+These two components can either be used direclty with a Route, or as children of other components. They are simple forms that handle all of the authentication and errors. If you would like to change the page the user is redirected to after logging in, you can override the default "redirect" prop:
+
+```jsx
+<Login redirect="/profile" />
+```
+
+*NOTE*: If also using [social logins](social-logins), the `CANON_SOCIAL_REDIRECT` environment variable needs to be set in order to change those redirects.
+
+### Password Reset
+
+If a user forgets their password, it is common practice to allow sending their e-mail on file a link to reset it. datawheel-canon has built-in [Mailgun](https://www.mailgun.com) support, so once you have set up an account for your project through their website, you can enable this ability with the following environment variables (taken from the [Mailgun](https://www.mailgun.com) developer interface):
+
+```sh
+export CANON_MAILGUN_API="key-################################"
+export CANON_MAILGUN_DOMAIN="###.###.###"
+export CANON_MAILGUN_EMAIL="###@###.###"
+```
+
+With those variables set, if a user is trying to log in and types an incorrect password, the alert message will contain a link to reset their password. They will receive an e-mail containing a link that directs them to a page at the route `/reset`. This route needs to be hooked up as part of the **app/routes.jsx** file, and needs to contain the `<Reset />` component exported by datawheel-canon. For example:
+
+```jsx
+import React from "react";
+import {Route} from "react-router";
+import {Reset} from "datawheel-canon";
+
+const App = () => "Hello World";
+
+export default () => <Route path="/" component={App}>
+  <Route path="reset" component={Reset} />
+</Route>;
+```
+
+If you would like to change the default path of the reset link, use the following environment variable:
+
+```sh
+export CANON_RESET_LINK="/my-reset-route"
+```
+
+The `<Reset />` component relies on detecting a unique token in the URL (which is sent in the e-mail to the user). If you would like to embed the component into an existing page, you must pass the Router location to the component on render:
+
+```jsx
+<Reset location={ this.props.location } />
+```
+
+When sending e-mails, datahweel-canon will use the "name" field of your **package.json** file as the site name in e-mail correspondence (ex. "Sincerely, the [name] team"). If you'd like to use a more human-readable site name, it can be set with the following environment variable:
+
+```sh
+export CANON_MAILGUN_NAME="Datawheel Canon"
+```
+
+### E-mail Verification
+
+If you would like your site to require e-mail verification, you can utilize [Mailgun](https://www.mailgun.com) in a way very similar to the [Password Reset](password-reset) workflow. Set the appropriate [Mailgun](https://www.mailgun.com) environment variables:
+
+```sh
+export CANON_MAILGUN_API="key-################################"
+export CANON_MAILGUN_DOMAIN="###.###.###"
+export CANON_MAILGUN_EMAIL="###@###.###"
+```
+
+And then hook up an `/activate` route with the `<Activate />` component:
+
+```jsx
+import React from "react";
+import {Route} from "react-router";
+import {Activate} from "datawheel-canon";
+
+const App = () => "Hello World";
+
+export default () => <Route path="/" component={App}>
+  <Route path="activate" component={Activate} />
+</Route>;
+```
+
+If you would like to change the default path of the activation link, use the following environment variable:
+
+```sh
+export CANON_ACTIVATION_LINK="/my-activation-route"
+```
+
+This component needs to be viewed while logged in, and contains a button to resend a verification e-mail with a new token. Similar to the `<Reset />` component, if you would like to use the `<Activate />` component inside of a pre-existing route (such as an account profile page), you must pass the Router location to the component:
+
+```jsx
+<Activate location={ this.props.location } />
+```
+
+Additionally, the component has an optional property to allow it to be hidden on a page. The verification will still register, but the component itself will render `null`:
+
+```jsx
+<Activate hidden={ true } location={ this.props.location } />
+```
+
+By default, activation e-mails are only sent when clicking the button in the `<Activate />` component. If you would like to send a verification e-mail when a user first signs up, enable the following environment variable:
+
+```sh
+export CANON_SIGNUP_ACTIVATION=true
+```
+
+When sending e-mails, datahweel-canon will use the "name" field of your **package.json** file as the site name in e-mail correspondence (ex. "Sincerely, the [name] team"). If you'd like to use a more human-readable site name, it can be set with the following environment variable:
+
+```sh
+export CANON_MAILGUN_NAME="Datawheel Canon"
+```
+
+### Roles
+
+Every new user of a datawheel-canon site has a default "role" value of `0`. This value is accessible via the user object in the "auth" redux store object. The default roles are as follows:
+
+* `0` User
+* `1` Contributor
+* `2` Admin
+
+datawheel-canon exports a `<UserAdmin />` component that allows for changing these roles. It is a simple table that displays all users and their current role assignments.
+
+### Social Logins
+
+Once the respective social network application has been set up in their developer interface, datawheel-canon looks for a corresponding API and SECRET environment variables to enable that login.
+
+*NOTE*: If deploying using Supervisor, environment variables cannot be wrapped in quotation marks.
+
+If you would like to change the page the user is redirected to after logging in using a social network, an environment variable is needed:
+
+```sh
+export CANON_SOCIAL_REDIRECT="/profile"
+```
+
+#### Facebook
+1. [https://developers.facebook.com](https://developers.facebook.com)
+2. Once logged in, hover over "My Apps" in the top right of the page and click "Add a New App"
+3. Set up "Facebook Login" as the product.
+4. Choose "Web" as the Platform.
+5. Skip the Quickstart guide and go directly to "Settings" in the sidebar. Your settings should look like the following image, with at the very least `http://localhost:3300/auth/facebook/callback` in the Valid OAuth redirect URIs. Once there is a production URL, you will need to add that callback URL here along with localhost. ![](https://github.com/datawheel/datawheel-canon/raw/master/docs/facebook-oauth.png)
+6. Go to "Settings" > "Advanced" and turn on "Allow API Access to App Settings" (at the time of writing, it was the last toggle in the "Security" panel)
+7. Go to "Settings" > "Basic" and copy the App ID and App Secret to your environment as the following variables:
+```sh
+export CANON_FACEBOOK_API="###############"
+export CANON_FACEBOOK_SECRET="##############################"
+```
+
+#### Twitter
+1. [https://apps.twitter.com](https://apps.twitter.com)
+2. Once logged in, click the "Create New App" button on the top right of the page.
+3. Fill out the meta information about your project, but specifically set the "Callback URL" to `http://localhost:3300/auth/twitter/callback`.
+4. Go to the "Key and Access Tokens" tab and copy the Consumer Key (API Key) and Consumer Secret (API Secret) to your environment as the following variables:
+```sh
+export CANON_TWITTER_API="###############"
+export CANON_TWITTER_SECRET="##############################"
+```
+
+#### Instagram
+1. [https://www.instagram.com/developer/](https://www.instagram.com/developer/)
+2. Once logged in, click the "Manage Clients" button in the top navigation, then click the green "Register a New Client" button.
+3. Fill out the meta information about your project, but specifically set the "Valid redirect URIs" to `http://localhost:3300/auth/instagram/callback`. Once there is a production URL, you will need to add that callback URL here along with localhost.
+4. Click the green "Register" button when done.
+5. You should be returned to the page listing all of your projects. Click "Manage" on the current project and copy the Client ID and Client Secret to your environment as the following variables:
+```sh
+export CANON_INSTAGRAM_API="###############"
+export CANON_INSTAGRAM_SECRET="##############################"
+```
+
+---
+
+## Custom API Routes
+
+If you app requires custom API routes, datawheel-canon will import any files located in a `api/` directory and attach them to the current Express instance. For example, a file located at `api/simpleRoute.js`:
+
+```js
+module.exports = function(app) {
+
+  app.get("/api/simple", (req, res) => {
+
+    res.json({simple: true}).end();
+
+  });
+
+};
+```
+
+*NOTE*: Custom API routes are written using Node module syntax, not ES6/JSX.
+
+If you'd like to interact with the database in a route, the Express app contains the Sequelize instance as part of it's settings:
+
+```js
+module.exports = function(app) {
+
+  const {db} = app.settings;
+
+  app.get("/api/user", (req, res) => {
+
+    db.users.findAll({where: req.query}).then(u => res.json(u).end());
+
+  });
+
+};
+```
+
+Additionally, if you would like certain routes to only be reachable if a user is logged in, you can use this simple middleware to reject users that are not logged in:
+
+```js
+const authRoute = (req, res, next) => {
+  if (req.isAuthenticated()) return next();
+  return res.status(401).send("you are not logged in...");
+};
+
+module.exports = function(app) {
+
+  app.get("/api/authenticated", authRoute, (req, res) => {
+
+    res.status(202).send("you are logged in!").end();
+
+  });
+
+};
+```
+
+---
+
+## Custom Database Models
+
+If you have custom database models that you would like to interact with in API routes, datawheel-canon will import any file in a `db/` folder and set up all the associations Sequelize requires. For example, a `db/testTable.js` would look like this:
+
+```js
+module.exports = function(sequelize, db) {
+
+  return sequelize.define("testTable",
+    {
+      id: {
+        type: db.INTEGER,
+        primaryKey: true
+      },
+      title: db.STRING,
+      favorite: {
+        type: db.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      }
+    }
+  );
+
+};
+```
+
+*NOTE*: Custom database models are written using Node module syntax, not ES6/JSX.
+
+---
+
+## Additional Environment Variables
+
+Interacting with the internals of canon is done by specifying environment variables. The recommended way to set environment variables is to use `autoenv` (installed with `brew install autoenv`), which will detect any file named `.env` located in a project folder. This file should not be pushed to the repository, as it usually contains variables specific to the current environment (testing locally, running on a server etc).
 
 Here is an example `.env` file which turns off the default redux messages seen in the browser console and changes the default localization language:
 
@@ -31,64 +458,11 @@ source /usr/local/opt/autoenv/activate.sh
 |---|---|---|
 |`CANON_API`|Used as a prefix with the fetchData action and the attribute types returned from the `ATTRS` url.|`undefined`|
 |`CANON_ATTRS`|A URL that should return a list of attribute classification strings to be pre-cached and passed to the default redux store.|`undefined`|
-|`CANON_DB_NAME`|Postgres database name.|`undefined`|
-|`CANON_DB_USER`|Postgres database user.|`undefined`|
-|`CANON_DB_HOST`|Postgres database host.|`"127.0.0.1"`|
-|`CANON_DB_PW`|Postgres database password.|`null`|
-|`CANON_FACEBOOK_API`|The Facebook App ID used for social logins. See the [Social Logins](#setting-up-facebook-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
-|`CANON_FACEBOOK_SECRET`|The Facebook App Secret used for social logins. See the [Social Logins](#setting-up-facebook-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
 |`CANON_GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`).|`undefined`|
 |`CANON_HELMET_FRAMEGUARD`|Pass-through option for the "frameguard" property of the [helmet](https://github.com/helmetjs/helmet#how-it-works) initialization.|`false`|
-|`CANON_INSTAGRAM_API`|The Instagram Client ID used for social logins. See the [Social Logins](#setting-up-instagram-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
-|`CANON_INSTAGRAM_SECRET`|The Instagram Client Secret used for social logins. See the [Social Logins](#setting-up-instagram-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
-|`CANON_LANGUAGES`|A comma-separated list of languages to be used in generating localization bundles.|`"en"`|
-|`CANON_LANGUAGE_DEFAULT`|The default/fallback language for the site.|`"en"`|
-|`CANON_LOGINS`|Whether or not to attach views and connect database table for user login and management.|`false`|
 |`CANON_LOGREDUX`|Whether or not to display the (rather verbose) Redux store events in the browser console.|`true`|
 |`CANON_LOGLOCALE`|Whether or not to display the (rather verbose) i18n locale events in the browser console.|`false`|
 |`CANON_PORT`|The port to use for the server.|`3300`|
 |`CANON_SESSION_SECRET`|A unique secret key to use for cookies.|The "name" field from package.json|
 |`CANON_SESSION_TIMEOUT`|The timeout, in milliseconds, for user authentication cookies.|`3600000` (one hour)|
-|`CANON_TWITTER_API`|The Twitter Consumer Key (API Key) used for social logins. See the [Social Logins](#setting-up-twitter-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
-|`CANON_TWITTER_SECRET`|The Twitter Consumer Secret (API Secret) used for social logins. See the [Social Logins](#setting-up-twitter-login) section of this documentation for a step-by-step guide on setting up each social service.|`undefined`|
 |`NODE_ENV`|The current environment. Setting to `production` will result in the removal of browser development tools and return smaller package sizes.|`development`|
-
-## Social Logins
-
-Once the respective social network application has been set up in their developer interface, datawheel-canon looks for a corresponding API and SECRET environment variable to enable that login.
-
-*NOTE*: If deploying using Supervisor, the environment variables cannot be wrapped in quotation marks.
-
-### Setting up Facebook Logins
-1. [https://developers.facebook.com](https://developers.facebook.com)
-2. Once logged in, hover over "My Apps" in the top right of the page and click "Add a New App"
-3. Set up "Facebook Login" as the product.
-4. Choose "Web" as the Platform.
-5. Skip the Quickstart guide and go directly to "Settings" in the sidebar. Your settings should look like the following image, with at the very least `http://localhost:3300/auth/facebook/callback` in the Valid OAuth redirect URIs. Once there is a production URL, you will need to add that callback URL here along with localhost. ![](https://github.com/datawheel/datawheel-canon/raw/master/docs/facebook-oauth.png)
-6. Go to "Settings" > "Advanced" and turn on "Allow API Access to App Settings" (at the time of writing, it was the last toggle in the "Security" panel)
-7. Go to "Settings" > "Basic" and copy the App ID and App Secret to your environment as the following variables:
-```sh
-export CANON_FACEBOOK_API="###############"
-export CANON_FACEBOOK_SECRET="##############################"
-```
-
-### Setting up Twitter Logins
-1. [https://apps.twitter.com](https://apps.twitter.com)
-2. Once logged in, click the "Create New App" button on the top right of the page.
-3. Fill out the meta information about your project, but specifically set the "Callback URL" to `http://localhost:3300/auth/twitter/callback`.
-4. Go to the "Key and Access Tokens" tab and copy the Consumer Key (API Key) and Consumer Secret (API Secret) to your environment as the following variables:
-```sh
-export CANON_TWITTER_API="###############"
-export CANON_TWITTER_SECRET="##############################"
-```
-
-### Setting up Instagram Logins
-1. [https://www.instagram.com/developer/](https://www.instagram.com/developer/)
-2. Once logged in, click the "Manage Clients" button in the top navigation, then click the green "Register a New Client" button.
-3. Fill out the meta information about your project, but specifically set the "Valid redirect URIs" to `http://localhost:3300/auth/instagram/callback`. Once there is a production URL, you will need to add that callback URL here along with localhost.
-4. Click the green "Register" button when done.
-5. You should be returned to the page listing all of your projects. Click "Manage" on the current project and copy the Client ID and Client Secret to your environment as the following variables:
-```sh
-export CANON_INSTAGRAM_API="###############"
-export CANON_INSTAGRAM_SECRET="##############################"
-```
