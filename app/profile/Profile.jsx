@@ -41,7 +41,7 @@ class Profile extends Component {
 
   render() {
     const {competitors, topCrop} = this.props.data;
-    const {env, location} = this.props;
+    // const {env, location} = this.props;
     // console.log(env);
     if (!topCrop) return null;
 
@@ -49,8 +49,8 @@ class Profile extends Component {
       <CanonComponent data={this.props.data} d3plus={d3plus} topics={topics}>
 
         <h1>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</h1>
-        <p>Top Crop ID (from "preneed"): { topCrop.crop }</p>
-        <p>{ topCrop.crop } Competitors ("need" using "preneed" in URL): { competitors ? competitors.map(c => c.geo_name).join(", ") : "Loading" }</p>
+        <p>Top Crop ID (from &quot;preneed&quot;): { topCrop.crop }</p>
+        <p>{ topCrop.crop } Competitors (&quot;need&quot; using &quot;preneed&quot; in URL): { competitors ? competitors.map(c => c.geo_name).join(", ") : "Loading" }</p>
 
         <SubNav type="scroll" anchor="right">Scroll SubNav</SubNav>
 

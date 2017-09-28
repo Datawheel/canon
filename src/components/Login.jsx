@@ -34,8 +34,9 @@ class Login extends Component {
 
   onSubmit(e) {
     e.preventDefault();
+    const {redirect} = this.props;
     const {email, password} = this.state;
-    this.props.login({email, password});
+    this.props.login({email, password, redirect});
     this.setState({submitted: true});
   }
 
@@ -106,6 +107,10 @@ class Login extends Component {
 
   }
 }
+
+Login.defaultProps = {
+  redirect: "/"
+};
 
 const mapStateToProps = state => ({
   auth: state.auth,

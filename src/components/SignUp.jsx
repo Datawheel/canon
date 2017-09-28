@@ -34,7 +34,7 @@ class SignUp extends Component {
 
   onSubmit(e) {
     e.preventDefault();
-    const {t} = this.props;
+    const {redirect, t} = this.props;
     const {agreedToTerms, email, password, passwordAgain, username} = this.state;
 
     if (password !== passwordAgain) {
@@ -47,7 +47,7 @@ class SignUp extends Component {
       this.setState({error: {iconName: "saved", message: t("SignUp.error.TermsAgree")}});
     }
     else {
-      this.props.signup({username, email, password});
+      this.props.signup({username, email, password, redirect});
       this.setState({submitted: true});
     }
 
@@ -121,6 +121,10 @@ class SignUp extends Component {
 
   }
 }
+
+SignUp.defaultProps = {
+  redirect: "/"
+};
 
 const mapStateToProps = state => ({
   auth: state.auth,

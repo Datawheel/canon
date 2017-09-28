@@ -56,13 +56,13 @@ module.exports = function(app, service) {
 
     // update the user if s/he exists or add a new user
     return db.users.upsert(searchQuery).then(() => db.users.findOne({where: {id: searchQuery.id}, raw: true})
-        .then((user, err) => done(err, user)));
+      .then((user, err) => done(err, user)));
 
   }));
 
   app.get(`/auth/${service}/`, passport.authenticate(service));
 
   app.get(`/auth/${service}/callback`, passport.authenticate(service, {failureRedirect: "/"}),
-    (req, res) => res.redirect("/"), err => console.log(`Error with ${service} login:`, err));
+    (req, res) => res.redirect(process.env.CANON_SOCIAL_REDIRECT || "/"), err => console.log(`Error with ${service} login:`, err));
 
 };
