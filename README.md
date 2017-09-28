@@ -4,20 +4,20 @@ Reusable React environment and components for creating visualization engines.
 ![](https://github.com/datawheel/datawheel-canon/raw/master/docs/bang.png)
 
 #### Contents
-* [Setup and Installation](setup-and-installation)
-* [Deployment](deployment)
-* [Localization](localization)
-* [User Management](user-management)
-  * [Password Reset](password-reset)
-  * [E-mail Verification](e-mail-verification)
-  * [Roles](roles)
-  * [Social Logins](social-logins)
-    * [Facebook](facebook)
-    * [Twitter](twitter)
-    * [Instagram](instagram)
-* [Custom API Routes](custom-api-routes)
-* [Custom Database Models](custom-database-models)
-* [Additional Environment Variables](additional-environment-variables)
+* [Setup and Installation](#setup-and-installation)
+* [Deployment](#deployment)
+* [Localization](#localization)
+* [User Management](#user-management)
+  * [Password Reset](#password-reset)
+  * [E-mail Verification](#e-mail-verification)
+  * [Roles](#roles)
+  * [Social Logins](#social-logins)
+    * [Facebook](#facebook)
+    * [Twitter](#twitter)
+    * [Instagram](#instagram)
+* [Custom API Routes](#custom-api-routes)
+* [Custom Database Models](#custom-database-models)
+* [Additional Environment Variables](#additional-environment-variables)
 
 ---
 
@@ -197,7 +197,7 @@ These two components can either be used direclty with a Route, or as children of
 <Login redirect="/profile" />
 ```
 
-*NOTE*: If also using [social logins](social-logins), the `CANON_SOCIAL_REDIRECT` environment variable needs to be set in order to change those redirects.
+*NOTE*: If also using [social logins](#social-logins), the `CANON_SOCIAL_REDIRECT` environment variable needs to be set in order to change those redirects.
 
 ### Password Reset
 
@@ -243,7 +243,7 @@ export CANON_MAILGUN_NAME="Datawheel Canon"
 
 ### E-mail Verification
 
-If you would like your site to require e-mail verification, you can utilize [Mailgun](https://www.mailgun.com) in a way very similar to the [Password Reset](password-reset) workflow. Set the appropriate [Mailgun](https://www.mailgun.com) environment variables:
+If you would like your site to require e-mail verification, you can utilize [Mailgun](https://www.mailgun.com) in a way very similar to the [Password Reset](#password-reset) workflow. Set the appropriate [Mailgun](https://www.mailgun.com) environment variables:
 
 ```sh
 export CANON_MAILGUN_API="key-################################"
