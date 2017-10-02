@@ -39,6 +39,7 @@ module.exports = function(sequelize, db) {
     },
     role: {
       allowNull: false,
+      defaultValue: 0,
       type: db.INTEGER
     }
   };
