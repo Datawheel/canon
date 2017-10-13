@@ -8,6 +8,7 @@ Reusable React environment and components for creating visualization engines.
 * [Deployment](#deployment)
 * [Localization](#localization)
 * [User Management](#user-management)
+  * [Privacy Policy and Terms of Service](#privacy-policy-and-terms-of-service)
   * [Password Reset](#password-reset)
   * [E-mail Verification](#e-mail-verification)
   * [Roles](#roles)
@@ -198,6 +199,15 @@ These two components can either be used direclty with a Route, or as children of
 ```
 
 *NOTE*: If also using [social logins](#social-logins), the `CANON_SOCIAL_REDIRECT` environment variable needs to be set in order to change those redirects.
+
+### Privacy Policy and Terms of Service
+
+In order to force new users to agree to a Privacy Policy and/or Terms of Service when signing up for a new account, you must specify the valid routes as environment variables. If one or both of these routes are set, then a check box will appear in the `<SignUp>` component with the corresponding page links.
+
+```sh
+export CANON_LEGAL_PRIVACY="/privacy"
+export CANON_LEGAL_TERMS="/terms"
+```
 
 ### Password Reset
 

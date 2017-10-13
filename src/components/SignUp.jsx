@@ -34,7 +34,7 @@ class SignUp extends Component {
 
   onSubmit(e) {
     e.preventDefault();
-    const {redirect, t} = this.props;
+    const {legal, redirect, t} = this.props;
     const {agreedToTerms, email, password, passwordAgain, username} = this.state;
 
     if (password !== passwordAgain) {
@@ -43,7 +43,7 @@ class SignUp extends Component {
     else if (!username || !email || !password) {
       this.setState({error: {iconName: "id-number", message: t("SignUp.error.IncompleteFields")}});
     }
-    else if (!agreedToTerms) {
+    else if ((legal.privacy || legal.terms) && !agreedToTerms) {
       this.setState({error: {iconName: "saved", message: t("SignUp.error.TermsAgree")}});
     }
     else {
@@ -79,7 +79,7 @@ class SignUp extends Component {
   }
 
   render() {
-    const {auth, social, t} = this.props;
+    const {auth, legal, social, t} = this.props;
     const {agreedToTerms} = this.state;
     const email = this.state.email === null ? auth.error && auth.error.email ? auth.error.email : "" : this.state.email;
 
@@ -102,11 +102,13 @@ class SignUp extends Component {
             <span className="pt-icon pt-icon-lock"></span>
             <input className="pt-input" placeholder={ t("SignUp.Confirm Password") } value={this.state.passwordAgain} type="password" name="passwordAgain" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="4" />
           </div>
-          <label className="pt-control pt-checkbox" htmlFor="ppcbox">
-            <input type="checkbox" id="ppcbox" name="agreedToTerms" checked={agreedToTerms} onChange={this.onChange} />
-            <span className="pt-control-indicator"></span>
-            { t("SignUp.PolicyText") }
-          </label>
+          { legal.privacy || legal.terms
+            ? <label className="pt-control pt-checkbox" htmlFor="ppcbox">
+              <input type="checkbox" id="ppcbox" name="agreedToTerms" checked={agreedToTerms} onChange={this.onChange} />
+              <span className="pt-control-indicator"></span>
+              <span dangerouslySetInnerHTML={{__html: t(legal.privacy && legal.terms ? "SignUp.PrivacyTermsText" : legal.privacy ? "SignUp.PrivacyText" : "SignUp.TermsText", legal)}}></span>
+            </label>
+            : null }
           <button type="submit" className="pt-button pt-fill" tabIndex="5">{ t("SignUp.Sign Up") }</button>
         </form>
         { social.length
@@ -128,6 +130,7 @@ SignUp.defaultProps = {
 
 const mapStateToProps = state => ({
   auth: state.auth,
+  legal: state.legal,
   social: state.social
 });
 

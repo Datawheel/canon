@@ -180,6 +180,10 @@ function start() {
     require(path.join(canonPath, "src/auth/auth"))(app);
     store.social = app.settings.social;
     store.mailgun = app.settings.mailgun || false;
+    store.legal = {
+      privacy: process.env.CANON_LEGAL_PRIVACY || false,
+      terms: process.env.CANON_LEGAL_TERMS || false
+    };
 
     const {db} = app.settings;
     if (!db.models.users) {

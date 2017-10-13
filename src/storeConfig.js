@@ -31,6 +31,7 @@ export default function storeConfig(initialState, history) {
     data: fetchData,
     env: (state = {}) => state,
     i18n: (state = {}) => state,
+    legal: (state = {}) => state,
     loading,
     location: (state = {}) => state,
     mailgun: (state = false) => state,

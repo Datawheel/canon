@@ -35,8 +35,10 @@ export default {
     "Facebook": "Facebook",
     "Instagram": "Instagram",
     "Password": "Password",
-    "PolicyText": "By checking this box, you agree to our Privacy Policy",
+    "PrivacyTermsText": "By checking this box, you agree to our <a href='{{terms}}'>Terms of Service</a> and <a href='{{privacy}}'>Privacy Policy</a>",
+    "PrivacyText": "By checking this box, you agree to our <a href='{{privacy}}'>Privacy Policy</a>",
     "Sign Up": "Sign Up",
+    "TermsText": "By checking this box, you agree to our <a href='{{terms}}'>Terms of Service</a>",
     "Twitter": "Twitter",
     "Username": "Username",
     "error": {
