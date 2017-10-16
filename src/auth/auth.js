@@ -54,7 +54,9 @@ module.exports = function(app) {
     if (offset !== undefined) query.offset = offset;
     if (role !== undefined) query.where.role = role;
 
-    db.users.findAll(query).then(users => res.json(users.sort((a, b) => b.role - a.role)));
+    db.users.findAll(query)
+      .then(users => res.json(users.sort((a, b) => b.role - a.role)))
+      .catch(err => console.log(err));
 
   });
 
@@ -66,7 +68,8 @@ module.exports = function(app) {
       .then(user => {
         user.role = role;
         user.save().then(user => res.json(user));
-      });
+      })
+      .catch(err => console.log(err));
 
   });
 

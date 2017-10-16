@@ -55,8 +55,10 @@ module.exports = function(app, service) {
     const searchQuery = query(profile);
 
     // update the user if s/he exists or add a new user
-    return db.users.upsert(searchQuery).then(() => db.users.findOne({where: {id: searchQuery.id}, raw: true})
-      .then((user, err) => done(err, user)));
+    return db.users.upsert(searchQuery)
+      .then(() => db.users.findOne({where: {id: searchQuery.id}, raw: true})
+        .catch(err => console.log(err))
+        .then((user, err) => done(err, user)));
 
   }));
 

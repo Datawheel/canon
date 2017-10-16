@@ -38,6 +38,7 @@ module.exports = function(app) {
         return done(null, false, {message: "Incorrect credentials."});
 
       })
+      .catch(err => console.log(err))
   ));
 
   app.post("/auth/local/login", passport.authenticate("local-login", {
@@ -77,9 +78,11 @@ module.exports = function(app) {
                 else done(null, user);
               });
 
-            });
+            })
+            .catch(err => console.log(err));
 
-        });
+        })
+        .catch(err => console.log(err));
 
     }));
 
@@ -97,32 +100,34 @@ module.exports = function(app) {
     const expiryHours = 48;
     user.activateTokenExpiry = new Date(Date.now() + expiryHours * 60 * 60 * 1000);
 
-    return user.save().then(() => {
+    return user.save()
+      .then(() => {
 
 
-      const {activateToken, email} = user;
+        const {activateToken, email} = user;
 
-      fs.readFile(confirmEmailFilepath, "utf8", (error, template) => {
+        fs.readFile(confirmEmailFilepath, "utf8", (error, template) => {
 
-        if (error) return err(error);
+          if (error) return err(error);
 
-        const url = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
-        const render = template
-          .replace(/{{username}}/g, user.username)
-          .replace(/{{site_url}}/g, url)
-          .replace(/{{site_name}}/g, mgName)
-          .replace(/{{confirm_link}}/g, `${url}${activationRoute}?email=${email}&token=${activateToken}`);
+          const url = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+          const render = template
+            .replace(/{{username}}/g, user.username)
+            .replace(/{{site_url}}/g, url)
+            .replace(/{{site_name}}/g, mgName)
+            .replace(/{{confirm_link}}/g, `${url}${activationRoute}?email=${email}&token=${activateToken}`);
 
-        return new BuildMail("text/html")
-          .addHeader({from: mgEmail, subject: "Please verify your email address", to: email})
-          .setContent(render).build((error, mail) => {
-            if (error) return err(error);
-            return mailgun.messages().sendMime({to: email, message: mail.toString("ascii")}, done);
-          });
+          return new BuildMail("text/html")
+            .addHeader({from: mgEmail, subject: "Please verify your email address", to: email})
+            .setContent(render).build((error, mail) => {
+              if (error) return err(error);
+              return mailgun.messages().sendMime({to: email, message: mail.toString("ascii")}, done);
+            });
 
-      });
+        });
 
-    });
+      })
+      .catch(err => console.log(err));
 
   }
 
@@ -134,14 +139,16 @@ module.exports = function(app) {
 
       const {email} = req.query;
 
-      db.users.findOne({where: {email}}).then(user => {
-        if (user) {
-          return sendActivation(user, req, error => res.json({error}), () => res.json({success: true}));
-        }
-        else {
-          return res.json({error: true});
-        }
-      });
+      db.users.findOne({where: {email}})
+        .then(user => {
+          if (user) {
+            return sendActivation(user, req, error => res.json({error}), () => res.json({success: true}));
+          }
+          else {
+            return res.json({error: true});
+          }
+        })
+        .catch(err => console.log(err));
 
     });
 
@@ -155,60 +162,69 @@ module.exports = function(app) {
             if (user.activateTokenExpiry < new Date(Date.now())) {
               user.activateTokenExpiry = null;
               user.activateToken = null;
-              return user.save().then(() => res.json({success: false}));
+              return user.save()
+                .then(() => res.json({success: false}))
+                .catch(err => console.log(err));
             }
             else {
               user.activateTokenExpiry = null;
               user.activateToken = null;
               user.activated = true;
-              return user.save().then(() => res.json({success: true}));
+              return user.save()
+                .then(() => res.json({success: true}))
+                .catch(err => console.log(err));
             }
           }
           else {
             return res.json({success: false});
           }
 
-        });
+        })
+        .catch(err => console.log(err));
     });
 
     app.get("/auth/resetPassword", (req, res) => {
 
       const {email} = req.query;
 
-      db.users.findOne({where: {email}}).then(user => {
-        if (user) {
+      db.users.findOne({where: {email}})
+        .then(user => {
+          if (user) {
 
-          const mailgun = new Mailgun({apiKey: mgApiKey, domain: mgDomain});
-          const resetEmailFilepath = path.join(__dirname, "emails/resetPassword.html");
+            const mailgun = new Mailgun({apiKey: mgApiKey, domain: mgDomain});
+            const resetEmailFilepath = path.join(__dirname, "emails/resetPassword.html");
 
-          user.resetToken = bcrypt.genSaltSync();
-          const expiryHours = 2;
-          user.resetTokenExpiry = new Date(Date.now() + expiryHours * 60 * 60 * 1000);
-          return user.save().then(() => {
+            user.resetToken = bcrypt.genSaltSync();
+            const expiryHours = 2;
+            user.resetTokenExpiry = new Date(Date.now() + expiryHours * 60 * 60 * 1000);
+            return user.save()
+              .then(() => {
 
-            fs.readFile(resetEmailFilepath, "utf8", (error, template) => {
+                fs.readFile(resetEmailFilepath, "utf8", (error, template) => {
 
-              if (error) return res.json({error});
-              const url = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
-              const render = template
-                .replace(/{{site_url}}/g, url)
-                .replace(/{{site_name}}/g, mgName)
-                .replace(/{{reset_link}}/g, `${url}${resetRoute}?token=${user.resetToken}`);
-
-              return new BuildMail("text/html")
-                .addHeader({from: mgEmail, subject: "Password Reset", to: email})
-                .setContent(render).build((error, mail) => {
                   if (error) return res.json({error});
-                  return mailgun.messages().sendMime({to: email, message: mail.toString("ascii")}, () => res.json({success: true}));
-                });
+                  const url = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+                  const render = template
+                    .replace(/{{site_url}}/g, url)
+                    .replace(/{{site_name}}/g, mgName)
+                    .replace(/{{reset_link}}/g, `${url}${resetRoute}?token=${user.resetToken}`);
 
-            });
-          });
-        }
-        else {
-          return res.json({error: true});
-        }
-      });
+                  return new BuildMail("text/html")
+                    .addHeader({from: mgEmail, subject: "Password Reset", to: email})
+                    .setContent(render).build((error, mail) => {
+                      if (error) return res.json({error});
+                      return mailgun.messages().sendMime({to: email, message: mail.toString("ascii")}, () => res.json({success: true}));
+                    });
+
+                });
+              })
+              .catch(err => console.log(err));
+          }
+          else {
+            return res.json({error: true});
+          }
+        })
+        .catch(err => console.log(err));
 
     });
 
@@ -220,7 +236,9 @@ module.exports = function(app) {
             if (user.resetTokenExpiry < new Date(Date.now())) {
               user.resetTokenExpiry = null;
               user.resetToken = null;
-              return user.save().then(() => res.json({success: false}));
+              return user.save()
+                .then(() => res.json({success: false}))
+                .catch(err => console.log(err));
             }
             else {
               return res.json({success: true});
@@ -229,7 +247,8 @@ module.exports = function(app) {
           else {
             return res.json({success: false});
           }
-        });
+        })
+        .catch(err => console.log(err));
     });
 
     app.post("/auth/changePassword", (req, res) => {
@@ -245,12 +264,15 @@ module.exports = function(app) {
             user.resetTokenExpiry = null;
             user.salt = newSalt;
             user.password = newHashedPassword;
-            return user.save().then(() => res.json({success: true}));
+            return user.save()
+              .then(() => res.json({success: true}))
+              .catch(err => console.log(err));
           }
           else {
             return res.json({success: false});
           }
-        });
+        })
+        .catch(err => console.log(err));
 
     });
 

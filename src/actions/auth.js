@@ -73,16 +73,16 @@ export const sendActivation = email => dispatch => {
   dispatch({type: ACTIVATE_SEND_REQUEST});
 
   axios.get(`/auth/sendActivation?email=${email}`)
-    .then(resp => dispatch({type: resp.data.success ? ACTIVATE_SEND_SUCCESS : ACTIVATE_SEND_FAILURE}));
+    .then(resp => dispatch({type: resp.data.success ? ACTIVATE_SEND_SUCCESS : ACTIVATE_SEND_FAILURE}))
+    .catch(() => dispatch({type: ACTIVATE_SEND_FAILURE}));
 
 };
 
 export const validateActivation = (email, token) => dispatch => {
 
   axios.get(`/auth/activate?email=${email}&token=${token}`)
-    .then(resp => {
-      dispatch({type: resp.data.success ? ACTIVATE_TOKEN_SUCCESS : ACTIVATE_TOKEN_FAILURE});
-    });
+    .then(resp => dispatch({type: resp.data.success ? ACTIVATE_TOKEN_SUCCESS : ACTIVATE_TOKEN_FAILURE}))
+    .catch(() => dispatch({type: ACTIVATE_TOKEN_FAILURE}));
 
 };
 
@@ -91,24 +91,23 @@ export const resetPassword = email => dispatch => {
   dispatch({type: RESET_SEND_REQUEST});
 
   axios.get(`/auth/resetPassword?email=${email}`)
-    .then(resp => dispatch({type: resp.data.success ? RESET_SEND_SUCCESS : RESET_SEND_FAILURE}));
+    .then(resp => dispatch({type: resp.data.success ? RESET_SEND_SUCCESS : RESET_SEND_FAILURE}))
+    .catch(() => dispatch({type: RESET_SEND_FAILURE}));
 
 };
 
 export const validateReset = token => dispatch => {
 
   axios.get(`/auth/validateReset?token=${token}`)
-    .then(resp => {
-      dispatch({type: resp.data.success ? RESET_TOKEN_SUCCESS : RESET_TOKEN_FAILURE});
-    });
+    .then(resp => dispatch({type: resp.data.success ? RESET_TOKEN_SUCCESS : RESET_TOKEN_FAILURE}))
+    .catch(() => dispatch({type: RESET_TOKEN_FAILURE}));
 
 };
 
 export const changePassword = (token, password) => dispatch => {
 
   axios.post("/auth/changePassword", {token, password})
-    .then(resp => {
-      dispatch({type: resp.data.success ? RESET_PW_SUCCESS : RESET_PW_FAILURE});
-    });
+    .then(resp => dispatch({type: resp.data.success ? RESET_PW_SUCCESS : RESET_PW_FAILURE}))
+    .catch(() => dispatch({type: RESET_PW_FAILURE}));
 
 };
