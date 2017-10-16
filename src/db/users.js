@@ -9,14 +9,10 @@ module.exports = function(sequelize, db) {
     username: {
       type: db.STRING,
       allowNull: false,
-      unique: true,
-      validate: {is: /^[a-z0-9\_\-]+$/i}
+      unique: true
     },
     email: {
-      type: db.STRING,
-      validate: {
-        isEmail: true
-      }
+      type: db.STRING
     },
     name: {type: db.STRING},
     password: {type: db.STRING},
