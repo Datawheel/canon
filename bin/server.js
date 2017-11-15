@@ -124,15 +124,7 @@ function start() {
 
   const secret = process.env.CANON_SESSION_SECRET || name;
   const maxAge = process.env.CANON_SESSION_TIMEOUT || 60 * 60 * 1000; // one hour
-  app.use(cookieSession({
-    name,
-    secret,
-    cookie: {
-      secure: true,
-      httpOnly: true,
-      maxAge
-    }
-  }));
+  app.use(cookieSession({maxAge, name, secret}));
 
   if (dbName && dbUser) {
 

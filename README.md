@@ -474,5 +474,5 @@ source /usr/local/opt/autoenv/activate.sh
 |`CANON_LOGLOCALE`|Whether or not to display the (rather verbose) i18n locale events in the browser console.|`false`|
 |`CANON_PORT`|The port to use for the server.|`3300`|
 |`CANON_SESSION_SECRET`|A unique secret key to use for cookies.|The "name" field from package.json|
-|`CANON_SESSION_TIMEOUT`|The timeout, in milliseconds, for user authentication cookies.|`3600000` (one hour)|
+|`CANON_SESSION_TIMEOUT`|The timeout, in milliseconds, for user authentication cookies.|`60 * 60 * 1000` (one hour)|
 |`NODE_ENV`|The current environment. Setting to `production` will result in the removal of browser development tools and return smaller package sizes.|`development`|
