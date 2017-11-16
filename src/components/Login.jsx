@@ -63,11 +63,11 @@ class Login extends Component {
         this.setState({submitted: false});
       }
       else if (auth.msg === RESET_SEND_SUCCESS) {
-        toast.show({iconName: "inbox", intent: Intent.SUCCESS, message: t("Reset.send", {email})});
+        toast.show({iconName: "inbox", intent: Intent.SUCCESS, message: t("Reset.actions.RESET_SEND_SUCCESS", {email})});
         this.setState({submitted: false});
       }
       else if (auth.error === RESET_SEND_FAILURE) {
-        toast.show({iconName: "error", intent: Intent.DANGER, message: t("Reset.fail")});
+        toast.show({iconName: "error", intent: Intent.DANGER, message: t("Reset.actions.RESET_SEND_FAILURE")});
         this.setState({submitted: false});
       }
       else if (!auth.error) {
