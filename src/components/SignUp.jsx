@@ -106,7 +106,7 @@ class SignUp extends Component {
             ? <label className="pt-control pt-checkbox" htmlFor="ppcbox">
               <input type="checkbox" id="ppcbox" name="agreedToTerms" checked={agreedToTerms} onChange={this.onChange} />
               <span className="pt-control-indicator"></span>
-              <span dangerouslySetInnerHTML={{__html: t(legal.privacy && legal.terms ? "SignUp.PrivacyTermsText" : legal.privacy ? "SignUp.PrivacyText" : "SignUp.TermsText", legal)}}></span>
+              <span dangerouslySetInnerHTML={{__html: legal.privacy && legal.terms ? t("SignUp.PrivacyTermsText") : legal.privacy ? t("SignUp.PrivacyText") : t("SignUp.TermsText"), legal}}></span>
             </label>
             : null }
           <button type="submit" className="pt-button pt-fill" tabIndex="5">{ t("SignUp.Sign Up") }</button>
