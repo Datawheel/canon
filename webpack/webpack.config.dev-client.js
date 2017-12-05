@@ -88,6 +88,12 @@ module.exports = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.DefinePlugin({__DEV__: true, __SERVER__: false, __LOGREDUX__: yn(process.env.CANON_LOGREDUX || true)})
+    new webpack.DefinePlugin({__DEV__: true, __SERVER__: false, __LOGREDUX__: yn(process.env.CANON_LOGREDUX || true)}),
+    new webpack.DefinePlugin(Object.keys(process.env)
+                             .filter(e => e.startsWith('CANON_CONST_'))
+                             .reduce((d, k) => {
+                               d[`__${k.replace('CANON_CONST_', '')}__`] = process.env[k];
+                               return d;
+                             }, {}))
   ]
 };
