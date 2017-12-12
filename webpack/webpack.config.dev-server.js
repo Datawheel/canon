@@ -65,13 +65,12 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.DefinePlugin({__DEV__: true, __SERVER__: true}),
     new webpack.DefinePlugin(Object.keys(process.env)
-                             .filter(e => e.startsWith('CANON_CONST_'))
-                             .reduce((d, k) => {
-                               d[`__${k.replace('CANON_CONST_', '')}__`] = process.env[k];
-                               return d;
-                             }, {})),
+      .filter(e => e.startsWith("CANON_CONST_"))
+      .reduce((d, k) => {
+        d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
+        return d;
+      }, {__DEV__: true, __SERVER__: true})),
     new webpack.IgnorePlugin(/vertx/)
   ]
 };
