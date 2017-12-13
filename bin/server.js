@@ -30,10 +30,39 @@ const dbPw = process.env.CANON_DB_PW || null;
 const logins = process.env.CANON_LOGINS || false;
 
 const appDir = process.cwd();
+const appPath = path.join(appDir, "app");
 
 const canonPath = name === "datawheel-canon" ? appDir : path.join(appDir, "node_modules/datawheel-canon/");
 
-const resolve = require("./resolve.js");
+function resolve(file) {
+
+  const fullPath = path.join(appPath, file);
+
+  try {
+    require.resolve(fullPath);
+    const contents = shell.cat(fullPath);
+    if (contents.includes("module.exports")) {
+      shell.echo(`${file} imported from app directory (Node)`);
+      return require(fullPath);
+    }
+    else if (contents.includes("export default")) {
+      const tempPath = `${shell.tempdir()}canon.js`;
+      new shell.ShellString(contents.replace("export default", "module.exports ="))
+        .to(tempPath);
+      shell.echo(`${file} imported from app directory (ES6)`);
+      return require(tempPath);
+    }
+    else {
+      shell.echo(`${file} exists, but does not have a default export`);
+      return false;
+    }
+  }
+  catch (e) {
+    shell.echo(`${file} does not exist in .app/ directory, using defaults`);
+    return false;
+  }
+
+}
 
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const LANGUAGES = process.env.CANON_LANGUAGES || "en";
