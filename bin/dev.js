@@ -21,6 +21,6 @@ nodemon({
   verbose: true,
   exec: "clear && node $CANON_DIR/build.dev.js && node $CANON_DIR/server.js"
 })
-.on("quit", () => {
-  process.exit();
-});
+  .on("quit", () => {
+    process.exit();
+  });

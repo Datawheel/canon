@@ -1,5 +1,6 @@
 import React, {Component} from "react";
-import {translate} from "react-i18next";
+import {Link} from "react-router";
+import {translate, Trans} from "react-i18next";
 import "./Home.css";
 
 import {Activate} from "../../src/";
@@ -12,6 +13,7 @@ class Home extends Component {
 
   render() {
     const {t} = this.props;
+    const count = 5, name = "Dave";
     // console.log("yn test", yn("true"));
     // console.log(styles);
     // use the 't' function for simple keys and strings, and
@@ -19,9 +21,12 @@ class Home extends Component {
     return (
       <div className="home">
         { t("home.title") }<br />
-        { t("This is a full sentence used as the translation key.") }<br />
+        { t("This is a full sentence used as the translation key") }<br />
         { t("home.body", {name: "Datawheel Canon"}) }<br />
         { t("home.sub") }
+        <Trans i18nKey="complexTrans" count={count}>
+            Hello <strong>{{name}}</strong>, you have {{count}} unread message. <Link to="/profile/040AF00182">Click here</Link>.
+        </Trans>
         <Activate location={this.props.location} />
       </div>
     );

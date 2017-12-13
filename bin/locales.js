@@ -1,9 +1,12 @@
 #! /usr/bin/env node
 
 const shell = require("shelljs");
-const locales = process.env.CANON_LANGUAGES || "en";
-const {name} = JSON.parse(shell.cat("package.json"));
 
-shell.exec(`i18next ./ --fileFilter '*.jsx' -r -l ${locales} -n ${name} -o ./locales`, code => {
+const path = require("path");
+const appDir = process.cwd();
+const binPath = path.join(appDir, "bin/i18next-scanner.config.js");
+
+shell.exec(`i18next-scanner --config ${binPath} '{app,src,node_modules/datawheel-canon/src}/**/*.{js,jsx}'`, code => {
+  shell.echo("");
   shell.exit(code);
 });
