@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   link: [
     {rel: "icon", href: "/images/favicon.ico?v=2"},
     {rel: "stylesheet", href: "https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700,900"}

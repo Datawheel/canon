@@ -30,25 +30,10 @@ const dbPw = process.env.CANON_DB_PW || null;
 const logins = process.env.CANON_LOGINS || false;
 
 const appDir = process.cwd();
-const appPath = path.join(appDir, "app");
 
 const canonPath = name === "datawheel-canon" ? appDir : path.join(appDir, "node_modules/datawheel-canon/");
 
-const resolve = file => {
-
-  const fullPath = path.join(appPath, file);
-
-  try {
-    require.resolve(fullPath);
-    shell.echo(`${file} loaded from .app/ directory`);
-    return require(fullPath);
-  }
-  catch (e) {
-    shell.echo(`${file} does not exist in .app/ directory, using default`);
-    return false;
-  }
-
-};
+const resolve = require("./resolve.js");
 
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const LANGUAGES = process.env.CANON_LANGUAGES || "en";

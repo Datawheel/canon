@@ -7,6 +7,8 @@ Reusable React environment and components for creating visualization engines.
 * [Setup and Installation](#setup-and-installation)
 * [Deployment](#deployment)
 * [Localization](#localization)
+* [Header/Meta Information](#header-meta-information)
+* [Redux Store](#redux-store)
 * [User Management](#user-management)
   * [Privacy Policy and Terms of Service](#privacy-policy-and-terms-of-service)
   * [Password Reset](#password-reset)
@@ -173,6 +175,49 @@ export CANON_LANGUAGE_DEFAULT="es"
 ```
 
 ---
+
+## Header/Meta Information
+
+All tags inside of the `<head>` of the rendered page are configured using [Helmet](https://github.com/helmetjs/helmet). If a file is present at `app/helmet.js`, the Object it exports will be used as the configuration. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
+
+Here is an example configuration, as seen in this repo's sample app:
+
+```js
+export default {
+  link: [
+    {rel: "icon", href: "/images/favicon.ico?v=2"},
+    {rel: "stylesheet", href: "https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700,900"}
+  ],
+  meta: [
+    {charset: "utf-8"},
+    {"http-equiv": "X-UA-Compatible", "content": "IE=edge"},
+    {name: "description", content: "Reusable React environment and components for creating visualization engines."},
+    {name: "viewport", content: "width=device-width, initial-scale=1"},
+    {name: "mobile-web-app-capable", content: "yes"},
+    {name: "apple-mobile-web-app-capable", content: "yes"},
+    {name: "apple-mobile-web-app-status-bar-style", content: "black"},
+    {name: "apple-mobile-web-app-title", content: "Datawheel Canon"}
+  ],
+  title: "Datawheel Canonical Design"
+};
+```
+
+---
+
+## Redux Store
+
+Default values can be added to the Redux Store by creating a file located at `app/store.js`. This file should export an Object, whose values will be merged with the defaul store. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
+
+Here is an example:
+
+```js
+export default {
+  countries: ["nausa", "sabra", "aschn"]
+};
+```
+
+---
+
 
 ## User Management
 
@@ -449,19 +494,13 @@ module.exports = function(sequelize, db) {
 
 ## Additional Environment Variables
 
-Interacting with the internals of canon is done by specifying environment variables. The recommended way to set environment variables is to use `autoenv` (installed with `brew install autoenv`), which will detect any file named `.env` located in a project folder. This file should not be pushed to the repository, as it usually contains variables specific to the current environment (testing locally, running on a server etc).
+Interacting with the internals of canon is done by specifying environment variables. The recommended way to set environment variables is to use `direnv` (installed with `brew install direnv`), which will detect any file named `.envrc` located in a project folder. This file should not be pushed to the repository, as it usually contains variables specific to the current environment (testing locally, running on a server etc).
 
-Here is an example `.env` file which turns off the default redux messages seen in the browser console and changes the default localization language:
+Here is an example `.envrc` file which turns off the default redux messages seen in the browser console and changes the default localization language:
 
 ```sh
 export CANON_LOGREDUX=false
 export CANON_LANGUAGE_DEFAULT="es"
-```
-
-*Z shell users*: when installing `autoenv`, the following line needs to be placed in your shell config (usually `~/.zshrc`):
-
-```sh
-source /usr/local/opt/autoenv/activate.sh
 ```
 
 |variable|description|default|
