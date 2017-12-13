@@ -18,7 +18,9 @@ function fetchData(key, url, format = dataFold, config = {}) {
 
     return {
       type: "GET_DATA",
-      promise: axios.get(u, config).then(res => ({key, data: format(res.data)}))
+      promise: axios.get(u, config)
+        .then(res => ({key, data: format(res.data)}))
+        .catch(err => console.error(err))
     };
 
   };
