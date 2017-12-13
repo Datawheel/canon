@@ -32,53 +32,56 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     headerConfig.link = headerConfig.link.filter(l => l.rel !== "stylesheet");
   }
 
-  const Meta = () =>
-    <Helmet
-      htmlAttributes={{lang: process.env.CANON_LANGUAGE_DEFAULT || "en", amp: undefined}}
-      defaultTitle={headerConfig.title} meta={headerConfig.meta}
-      link={headerConfig.link} />;
-
-  ReactDOMServer.renderToString(<Meta />);
-  const header = Helmet.rewind();
-
   return function(req, res) {
 
     function fetchResource(lng) {
       if (!lng) return undefined;
-      let bundle = i18n.getResourceBundle(lng, i18n.options.defaultNS);
-      if (!bundle && lng.indexOf("-") === 2 || lng.indexOf("_") === 2) bundle = i18n.getResourceBundle(lng.slice(0, 2), i18n.options.defaultNS);
-      return bundle;
+      if (lng.indexOf("-") === 2 || lng.indexOf("_") === 2) lng = lng.slice(0, 2);
+      return [lng, i18n.getResourceBundle(lng, i18n.options.defaultNS)];
     }
 
     let locale, resources;
     if (req.headers.host.indexOf(".") > 0) {
-      locale = req.headers.host.split(".")[0];
-      resources = fetchResource(locale);
+      const ret = fetchResource(req.headers.host.split(".")[0]);
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
-
     if (resources === undefined) {
-      locale = req.query.lang;
-      resources = fetchResource(locale);
+      const ret = fetchResource(req.query.lang);
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
-
     if (resources === undefined) {
-      locale = req.query.language;
-      resources = fetchResource(locale);
+      const ret = fetchResource(req.query.language);
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
-
     if (resources === undefined) {
-      locale = req.query.locale;
-      resources = fetchResource(locale);
+      const ret = fetchResource(req.query.locale);
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
-
     if (resources === undefined) {
-      locale = req.language;
-      resources = fetchResource(locale);
+      const ret = fetchResource(req.language);
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
-
     if (resources === undefined) {
-      locale = process.env.CANON_LANGUAGE_DEFAULT || "en";
-      resources = fetchResource(locale);
+      const ret = fetchResource(process.env.CANON_LANGUAGE_DEFAULT || "en");
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
 
     const location = {
@@ -99,6 +102,15 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     const routes = createRoutes(store);
     i18nServer.changeLanguage(locale);
     const rtl = ["ar", "he"].includes(locale);
+
+    const Meta = () =>
+      <Helmet
+        htmlAttributes={{lang: locale, amp: undefined}}
+        defaultTitle={headerConfig.title} meta={headerConfig.meta}
+        link={headerConfig.link} />;
+
+    ReactDOMServer.renderToString(<Meta />);
+    const header = Helmet.rewind();
 
     match({routes, location: req.url}, (err, redirect, props) => {
 
