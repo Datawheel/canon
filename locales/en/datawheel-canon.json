@@ -9,6 +9,10 @@
   },
   "Admin": "Admin",
   "Contributor": "Contributor",
+  "LoadingComponent": {
+    "description": "Loading {{progress}} of {{total}} datasets",
+    "title": "Please Wait"
+  },
   "Login": {
     "E-mail": "E-mail",
     "Facebook": "Facebook",
