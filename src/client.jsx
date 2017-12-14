@@ -34,6 +34,9 @@ i18n
     defaultNS: window.__APP_NAME__,
     interpolation: {
       escapeValue: false // not needed for react!!
+    },
+    react: {
+      wait: true
     }
   });
 

@@ -96,11 +96,10 @@ export default function(defaultStore = {}, i18n, headerConfig) {
       search: req.url.includes("?") ? `?${req.url.split("?")[1]}` : ""
     };
 
-    const i18nServer = i18n.cloneInstance();
     const history = createMemoryHistory();
     const store = configureStore({i18n: {locale, resources}, location, ...defaultStore}, history);
     const routes = createRoutes(store);
-    i18nServer.changeLanguage(locale);
+    i18n.changeLanguage(locale);
     const rtl = ["ar", "he"].includes(locale);
 
     const Meta = () =>
@@ -123,7 +122,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
           .then(() => {
             const initialState = store.getState();
             const componentHTML = renderToString(
-              <I18nextProvider i18n={i18nServer}>
+              <I18nextProvider i18n={i18n}>
                 <Provider store={store}>
                   <RouterContext {...props} />
                 </Provider>
