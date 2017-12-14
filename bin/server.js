@@ -231,33 +231,35 @@ function start() {
     const compiler = webpack(webpackDevConfig);
 
     shell.echo("");
-    let msgLength = 0;
-    compiler.apply(new ProgressPlugin(function(percentage, msg) {
-      const details = Array.prototype.slice.call(arguments, 2);
-      if (percentage < 1) {
-        percentage = Math.floor(percentage * 100);
-        msg = `${percentage}% ${msg}`;
-        if (percentage < 100) msg = ` ${msg}`;
-        if (percentage < 10) msg = ` ${msg}`;
-        details.forEach(detail => {
-          if (!detail) return;
-          if (detail.length > 40) detail = `...${detail.substr(detail.length - 37)}`;
-          msg += ` ${detail}`;
-        });
-        if (msg.length > msgLength) msgLength = msg.length + 2;
-        process.stdout.write(`\r${ new Array(msgLength).join(" ") }`);
-        process.stdout.write(`\r${ msg }`);
+    compiler.apply(new ProgressPlugin(function (percentage, msg, current, active, modulepath) {
+      if (process.stdout.isTTY && percentage < 1) {
+        process.stdout.cursorTo(0);
+        modulepath = modulepath ? ' …' + modulepath.substr(modulepath.length - 30) : ''
+        current = current ? ' ' + current : ''
+        active = active ? ' ' + active : ''
+        process.stdout.write((percentage * 100).toFixed(0) + '% ' + msg + current + active + modulepath + ' ')
+        process.stdout.clearLine(1);
+      } else if (percentage === 1) {
+        process.stdout.clearLine(1);
+        process.stdout.cursorTo(0);
       }
-      else {
-        process.stdout.write(`\r${ new Array(msgLength).join(" ") }\r`);
-        notifier.notify({
-          title: name,
-          message: "Site Rebuilt - Ready for Development"
-        });
-      }
-    }));
+    }))
 
-    app.use(require("webpack-dev-middleware")(compiler, {noInfo: true, publicPath: webpackDevConfig.output.publicPath}));
+    compiler.run(function (err, stats) {
+      if (err) throw err
+      process.stdout.write(stats.toString({
+        colors: true,
+        modules: false,
+        children: false,
+        chunks: false,
+        chunkModules: false
+      }) + '\n\n')
+    })
+
+    app.use(require("webpack-dev-middleware")(compiler, {
+      logLevel: "silent",
+      publicPath: webpackDevConfig.output.publicPath
+    }));
     app.use(require("webpack-hot-middleware")(compiler));
 
   }
