@@ -14,7 +14,7 @@ class Viz2 extends SectionRows {
         <SectionTitle>My Cool Title</SectionTitle>
         <article>Some Text</article>
         <Treemap config={{
-          colorScale: "harvested_area",
+          // colorScale: "harvested_area",
           data,
           groupBy: "crop",
           height: 400,
