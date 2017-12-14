@@ -1,7 +1,6 @@
 import "babel-polyfill";
 
 import React from "react";
-import ReactDOMServer from "react-dom/server";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
@@ -10,6 +9,7 @@ import createRoutes from "routes";
 import configureStore from "./storeConfig";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 import {I18nextProvider} from "react-i18next";
+import pretty from "pretty";
 
 import serialize from "serialize-javascript";
 
@@ -22,8 +22,6 @@ const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
       ga('create', '${process.env.CANON_GOOGLE_ANALYTICS}', 'auto');
       ga('send', 'pageview');
     </script>`;
-
-const cssLink = process.env.NODE_ENV === "production" ? "<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "";
 
 export default function(defaultStore = {}, i18n, headerConfig) {
 
@@ -108,7 +106,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
         defaultTitle={headerConfig.title} meta={headerConfig.meta}
         link={headerConfig.link} />;
 
-    ReactDOMServer.renderToString(<Meta />);
+    renderToString(<Meta />);
     const header = Helmet.rewind();
 
     match({routes, location: req.url}, (err, redirect, props) => {
@@ -129,29 +127,32 @@ export default function(defaultStore = {}, i18n, headerConfig) {
               </I18nextProvider>
             );
 
-            res.status(200).send(`
-              <!doctype html>
-              <html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
-                <head>
-                  ${header.title.toString()}
-                  ${header.meta.toString()}
-                  ${header.link.toString()}
-                  <link rel='stylesheet' type='text/css' href='/assets/normalize.css'>
-                  <link rel='stylesheet' type='text/css' href='/assets/blueprint/dist/blueprint.css'>
-                  ${cssLink}
-                </head>
-                <body>
-                  <div id="app">${componentHTML}</div>
-                  <script>
-                    window.__SSR__ = true;
-                    window.__INITIAL_STATE__ = ${ serialize(initialState) };
-                    window.__APP_NAME__ = "${ i18n.options.defaultNS }";
-                  </script>
-                  ${analtyicsScript}
-                  <script type="text/javascript" charset="utf-8" src="/assets/app.js"></script>
-                </body>
-              </html>
-            `);
+            res.status(200).send(`<!doctype html>
+<html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
+  <head>
+    ${ pretty(header.title.toString()).replace(/\n/g, "\n    ") }
+
+    ${ pretty(header.meta.toString()).replace(/\n/g, "\n    ") }
+
+    ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
+
+    <link rel='stylesheet' type='text/css' href='/assets/normalize.css'>
+    <link rel='stylesheet' type='text/css' href='/assets/blueprint/dist/blueprint.css'>${ process.env.NODE_ENV === "production" ? "\n<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "" }
+  </head>
+  <body>
+    <div id="app">${ componentHTML }</div>
+
+    <script>
+      window.__SSR__ = true;
+      window.__APP_NAME__ = "${ i18n.options.defaultNS }";
+      window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
+    </script>
+
+    ${analtyicsScript}
+
+    <script type="text/javascript" charset="utf-8" src="/assets/app.js"></script>
+  </body>
+</html>`);
           })
           .catch(err => {
             res.status(500).send({error: err.toString(), stackTrace: err.stack.toString()});
