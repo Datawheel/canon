@@ -13,7 +13,7 @@ const commonLoaders = [
     loader: "babel-loader",
     options: {
       compact: false,
-      presets: [["es2015", {modules: false}], "react", "stage-0"],
+      presets: [["env", {modules: false}], "react", "stage-0"],
       plugins: [
         "transform-decorators-legacy",
         "transform-react-remove-prop-types",

@@ -27,7 +27,7 @@ const commonLoaders = [
     loader: "babel-loader",
     options: {
       compact: false,
-      presets: ["react-hmre", ["es2015", {modules: false}], "react", "stage-0"],
+      presets: ["react-hmre", ["env", {modules: false}], "react", "stage-0"],
       plugins: [
         "transform-decorators-legacy",
         "transform-react-remove-prop-types",
