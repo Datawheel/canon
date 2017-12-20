@@ -50,7 +50,7 @@ The **app/routes.jsx** file must export a function that returns a react-router <
 import React from "react";
 import {Route} from "react-router";
 
-const App = () => "Hello World";
+const App = () => <div>Hello World</div>;
 
 export default () => <Route path="/" component={App}></Route>;
 ```
