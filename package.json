@@ -109,6 +109,7 @@
     "style-loader": "^0.19.1",
     "url-loader": "^0.6.2",
     "webpack": "^3.10.0",
+    "webpack-bundle-analyzer": "^2.9.1",
     "webpack-dev-middleware": "^2.0.1",
     "webpack-hot-middleware": "^2.21.0",
     "yml-loader": "^2.1.0",

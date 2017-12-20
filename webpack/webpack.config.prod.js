@@ -9,6 +9,7 @@ const variables = require("./require-fallback")("style.yml") || {};
 
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const InlineEnviromentVariablesPlugin = require("inline-environment-variables-webpack-plugin");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 function postCSSConfig() {
   return [
@@ -67,7 +68,7 @@ const commonLoaders = [
 
 module.exports = [
   {
-    name: "browser",
+    name: "client",
     devtool: "cheap-module-source-map",
     context: path.join(__dirname, "../src"),
     entry: {app: "./client"},
@@ -95,12 +96,16 @@ module.exports = [
           d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
           return d;
         }, {__DEV__: false, __SERVER__: false})),
-      new InlineEnviromentVariablesPlugin({NODE_ENV: "production"})
+      new InlineEnviromentVariablesPlugin({NODE_ENV: "production"}),
+      new BundleAnalyzerPlugin({
+        analyzerMode: "static",
+        openAnalyzer: false,
+        reportFilename: "../reports/webpack-prod-client.html"
+      })
     ]
   },
   {
-    // The configuration for the server-side rendering
-    name: "server-side rendering",
+    name: "server",
     context: path.join(__dirname, "../src"),
     entry: {server: "./server"},
     target: "node",
@@ -131,7 +136,12 @@ module.exports = [
           return d;
         }, {__DEV__: false, __SERVER__: true})),
       new webpack.IgnorePlugin(/vertx/),
-      new InlineEnviromentVariablesPlugin({NODE_ENV: "production"})
+      new InlineEnviromentVariablesPlugin({NODE_ENV: "production"}),
+      new BundleAnalyzerPlugin({
+        analyzerMode: "static",
+        openAnalyzer: false,
+        reportFilename: "../reports/webpack-prod-server.html"
+      })
     ]
   }
 ];
