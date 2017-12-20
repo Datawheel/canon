@@ -85,6 +85,11 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
+      new webpack.DllReferencePlugin({
+        context: path.join(appDir, "node_modules"),
+        manifest: require(path.resolve(assetsPath, "vendors-manifest.json")),
+        name: "vendors"
+      }),
       new ExtractTextPlugin({
         filename: "styles.css",
         allChunks: true

@@ -37,6 +37,7 @@ const commonLoaders = [
       compact: false,
       presets: ["react-hmre", ["env", {modules: false}], "react", "stage-0"],
       plugins: [
+        "lodash",
         "transform-decorators-legacy",
         "transform-react-remove-prop-types",
         "transform-react-constant-elements",
@@ -87,6 +88,11 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
+    new webpack.DllReferencePlugin({
+      context: path.join(appDir, "node_modules"),
+      manifest: require(path.resolve(assetsPath, "vendors-manifest.json")),
+      name: "vendors"
+    }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
