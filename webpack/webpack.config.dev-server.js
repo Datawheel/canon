@@ -1,7 +1,8 @@
 const path = require("path");
 const appDir = process.cwd();
 const webpack = require("webpack");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+
+const modules = require("./es-modules");
 
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
@@ -16,6 +17,8 @@ const commonLoaders = [
       compact: false,
       presets: [["env", {modules: false}], "react", "stage-0"],
       plugins: [
+        ["direct-import", modules],
+        "lodash",
         "transform-decorators-legacy",
         "transform-react-remove-prop-types",
         "transform-react-constant-elements",
@@ -47,8 +50,7 @@ const commonLoaders = [
 ];
 
 module.exports = {
-  // The configuration for the server-side rendering
-  name: "server-side rendering",
+  name: "server",
   context: path.join(__dirname, "../src"),
   entry: {server: "./server"},
   target: "node",
@@ -72,11 +74,6 @@ module.exports = {
         d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
         return d;
       }, {__DEV__: true, __SERVER__: true})),
-    new webpack.IgnorePlugin(/vertx/),
-    new BundleAnalyzerPlugin({
-      analyzerMode: "static",
-      openAnalyzer: false,
-      reportFilename: "../reports/webpack-dev-server.html"
-    })
+    new webpack.IgnorePlugin(/vertx/)
   ]
 };

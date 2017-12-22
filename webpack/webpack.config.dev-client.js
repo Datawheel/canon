@@ -2,7 +2,8 @@ const path = require("path");
 const appDir = process.cwd();
 const webpack = require("webpack");
 const yn = require("yn");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+
+const modules = require("./es-modules");
 
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
@@ -37,6 +38,8 @@ const commonLoaders = [
       compact: false,
       presets: ["react-hmre", ["env", {modules: false}], "react", "stage-0"],
       plugins: [
+        ["direct-import", modules],
+        "lodash",
         "transform-decorators-legacy",
         "transform-react-remove-prop-types",
         "transform-react-constant-elements",
@@ -94,11 +97,6 @@ module.exports = {
       .reduce((d, k) => {
         d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
         return d;
-      }, {__DEV__: true, __SERVER__: false, __LOGREDUX__: yn(process.env.CANON_LOGREDUX || true)})),
-    new BundleAnalyzerPlugin({
-      analyzerMode: "static",
-      openAnalyzer: false,
-      reportFilename: "../reports/webpack-dev-client.html"
-    })
+      }, {__DEV__: true, __SERVER__: false, __LOGREDUX__: yn(process.env.CANON_LOGREDUX || true)}))
   ]
 };

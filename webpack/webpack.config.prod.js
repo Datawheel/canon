@@ -2,6 +2,8 @@ const path = require("path");
 const appDir = process.cwd();
 const webpack = require("webpack");
 
+const modules = require("./es-modules");
+
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
@@ -34,6 +36,7 @@ const commonLoaders = [
       compact: true,
       presets: [["env", {modules: false}], "react", "stage-0"],
       plugins: [
+        ["direct-import", modules],
         "transform-decorators-legacy",
         "transform-react-remove-prop-types",
         "transform-react-constant-elements",
