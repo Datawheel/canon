@@ -9,8 +9,8 @@ const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
       fs = require("fs"),
       gzip = require("compression"),
       helmet = require("helmet"),
-      notifier = require("node-notifier"),
       path = require("path"),
+      readline = require("readline"),
       shell = require("shelljs"),
       webpack = require("webpack"),
       yn = require("yn");
@@ -230,24 +230,18 @@ function start() {
     const webpackDevConfig = require(path.join(canonPath, "webpack/webpack.config.dev-client"));
     const compiler = webpack(webpackDevConfig);
 
-    shell.echo("");
-
     compiler.apply(new ProgressPlugin((percentage, msg, current, active, modulepath) => {
       if (process.stdout.isTTY && percentage < 1) {
-        process.stdout.cursorTo(0);
+        readline.clearLine(process.stdout, 0);
+        readline.cursorTo(process.stdout, 0);
         modulepath = modulepath ? ` …${modulepath.substr(modulepath.length - 30)}` : "";
         current = current ? ` ${current}` : "";
         active = active ? ` ${active}` : "";
         process.stdout.write(`${(percentage * 100).toFixed(0)}% ${msg}${current}${active}${modulepath} `);
-        process.stdout.clearLine(1);
       }
       else if (percentage === 1) {
-        process.stdout.clearLine(1);
-        process.stdout.cursorTo(0);
-        notifier.notify({
-          title: name,
-          message: "Site Rebuilt - Ready for Development"
-        });
+        readline.clearLine(process.stdout, 0);
+        readline.cursorTo(process.stdout, 0);
       }
     }));
 
