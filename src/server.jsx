@@ -150,7 +150,6 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 
     ${analtyicsScript}
 
-    <script type="text/javascript" charset="utf-8" src="/assets/vendors.js"></script>
     <script type="text/javascript" charset="utf-8" src="/assets/app.js"></script>
   </body>
 </html>`);

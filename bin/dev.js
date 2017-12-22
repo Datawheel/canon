@@ -7,9 +7,6 @@ const chalk = require("chalk"),
 process.env.NODE_ENV = "development";
 process.env.CANON_DIR = __dirname;
 
-shell.echo(chalk.bold("\n\n 🔷  Bundling Vendor Webpack\n"));
-shell.exec(`webpack --progress --colors --hide-modules --config ${__dirname}/../webpack/webpack.config.vendors.js`);
-
 nodemon({
   watch: [
     "api/**/*.js",
