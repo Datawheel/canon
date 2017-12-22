@@ -71,7 +71,6 @@
     "js-yaml": "^3.10.0",
     "lost": "^8.2.0",
     "mailgun-js": "^0.13.1",
-    "node-notifier": "^5.1.2",
     "nodemon": "^1.12.7",
     "normalize.css": "^7.0.0",
     "passport": "^0.4.0",
