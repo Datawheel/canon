@@ -221,8 +221,8 @@ function start() {
   }
   shell.echo(`API Routes: ${routes}`);
 
+  shell.echo(""); // newline to separate PropType warning
   const App = require(path.join(appDir, "static/assets/server"));
-
   if (NODE_ENV === "development") {
 
     shell.echo(chalk.bold("\n\n 🔷  Bundling Client Webpack\n"));

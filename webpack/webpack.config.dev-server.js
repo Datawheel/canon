@@ -16,7 +16,6 @@ const commonLoaders = [
       compact: false,
       presets: [["env", {modules: false}], "react", "stage-0"],
       plugins: [
-        "lodash",
         "transform-decorators-legacy",
         "transform-react-remove-prop-types",
         "transform-react-constant-elements",
@@ -48,7 +47,8 @@ const commonLoaders = [
 ];
 
 module.exports = {
-  name: "server",
+  // The configuration for the server-side rendering
+  name: "server-side rendering",
   context: path.join(__dirname, "../src"),
   entry: {server: "./server"},
   target: "node",
