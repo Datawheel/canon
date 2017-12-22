@@ -1,7 +1,6 @@
 const path = require("path");
 const appDir = process.cwd();
 const webpack = require("webpack");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 const modules = require("./es-modules");
 
@@ -75,11 +74,6 @@ module.exports = {
         d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
         return d;
       }, {__DEV__: true, __SERVER__: true})),
-    new webpack.IgnorePlugin(/vertx/),
-    new BundleAnalyzerPlugin({
-      analyzerMode: "static",
-      openAnalyzer: false,
-      reportFilename: "../reports/webpack-dev-server.html"
-    })
+    new webpack.IgnorePlugin(/vertx/)
   ]
 };
