@@ -3,6 +3,8 @@ const appDir = process.cwd();
 const webpack = require("webpack");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
+const modules = require("./es-modules");
+
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
@@ -16,6 +18,7 @@ const commonLoaders = [
       compact: false,
       presets: [["env", {modules: false}], "react", "stage-0"],
       plugins: [
+        ["direct-import", modules],
         "lodash",
         "transform-decorators-legacy",
         "transform-react-remove-prop-types",

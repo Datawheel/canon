@@ -4,6 +4,8 @@ const webpack = require("webpack");
 const yn = require("yn");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
+const modules = require("./es-modules");
+
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
@@ -37,6 +39,7 @@ const commonLoaders = [
       compact: false,
       presets: ["react-hmre", ["env", {modules: false}], "react", "stage-0"],
       plugins: [
+        ["direct-import", modules],
         "lodash",
         "transform-decorators-legacy",
         "transform-react-remove-prop-types",
@@ -88,11 +91,6 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.DllReferencePlugin({
-      context: path.join(appDir, "node_modules"),
-      manifest: require(path.resolve(assetsPath, "vendors-manifest.json")),
-      name: "vendors"
-    }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
