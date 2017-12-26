@@ -1,73 +1,15 @@
-const path = require("path");
-const appDir = process.cwd();
-const webpack = require("webpack");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin,
+      ExtractTextPlugin = require("extract-text-webpack-plugin"),
+      InlineEnviromentVariablesPlugin = require("inline-environment-variables-webpack-plugin"),
+      appDir = process.cwd(),
+      commonLoaders = require("./config/loaders"),
+      path = require("path"),
+      webpack = require("webpack");
 
-const modules = require("./es-modules");
 
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
-const variables = require("./require-fallback")("style.yml") || {};
-
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const InlineEnviromentVariablesPlugin = require("inline-environment-variables-webpack-plugin");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-
-function postCSSConfig() {
-  return [
-    require("postcss-import")({path: appPath}),
-    require("lost")(),
-    require("postcss-mixins")(),
-    require("postcss-for")(),
-    require("postcss-custom-properties")({variables}),
-    require("postcss-map")({maps: [variables]}),
-    require("postcss-nesting")(),
-    require("postcss-conditionals")(),
-    require("postcss-cssnext")({browsers: ["> 1%", "last 2 versions"]}),
-    require("postcss-reporter")({clearMessages: true, filter: msg => msg.type === "warning" || msg.type !== "dependency"})
-  ];
-}
-
-const commonLoaders = [
-  {
-    test: /\.js$|\.jsx$/,
-    loader: "babel-loader",
-    options: {
-      compact: true,
-      presets: [["env", {modules: false}], "react", "stage-0"],
-      plugins: [
-        ["direct-import", modules],
-        "transform-decorators-legacy",
-        "transform-react-remove-prop-types",
-        "transform-react-constant-elements",
-        "transform-react-inline-elements"
-      ]
-    },
-    include: [
-      appPath,
-      path.join(appDir, "node_modules/yn"),
-      path.join(__dirname, "../src")
-    ]
-  },
-  {
-    test: /\.(png|jpeg|jpg|gif|bmp|tif|tiff|svg|woff|woff2|eot|ttf)$/,
-    loader: "url-loader?limit=100000"
-  },
-  {
-    test: /\.(yaml|yml)$/,
-    loader: "yml-loader"
-  },
-  {
-    test: /\.(scss|sass|css)$/i,
-    use: ExtractTextPlugin.extract({
-      fallback: "style-loader",
-      use: [
-        {loader: "css-loader", options: {minimize: process.env.NODE_ENV === "production"}},
-        {loader: "postcss-loader", options: {plugins: postCSSConfig}}
-      ]
-    })
-  }
-];
 
 module.exports = [
   {
@@ -126,7 +68,6 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
-      new webpack.optimize.OccurrenceOrderPlugin(),
       new ExtractTextPlugin({
         filename: "styles.css",
         allChunks: true

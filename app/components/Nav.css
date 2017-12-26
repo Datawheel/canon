@@ -3,7 +3,6 @@
   height: 100px;
   width: 100%;
   z-index: var(--foreground);
-
   & .logo {
     font-weight: 600;
     lost-column: 1/4;
@@ -11,17 +10,13 @@
     text-decoration: none;
     text-transform: uppercase;
   }
-
   & .link {
     lost-column: 1/4;
   }
-
   & .user-info {
     lost-column: 1/4;
-
     & .user-link {
       lost-column: 1/2;
     }
   }
-
 }

@@ -1,53 +1,13 @@
-const path = require("path");
-const appDir = process.cwd();
-const webpack = require("webpack");
-
-const modules = require("./es-modules");
+const appDir = process.cwd(),
+      commonLoaders = require("./config/loaders"),
+      path = require("path"),
+      webpack = require("webpack");
 
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
-process.traceDeprecation = true;
 
-const commonLoaders = [
-  {
-    test: /\.js$|\.jsx$/,
-    loader: "babel-loader",
-    options: {
-      compact: false,
-      presets: [["env", {modules: false}], "react", "stage-0"],
-      plugins: [
-        ["direct-import", modules],
-        "lodash",
-        "transform-decorators-legacy",
-        "transform-react-remove-prop-types",
-        "transform-react-constant-elements",
-        "transform-react-inline-elements"
-      ]
-    },
-    include: [
-      appPath,
-      path.join(appDir, "node_modules/yn"),
-      path.join(__dirname, "../src")
-    ]
-  },
-  {
-    test: /\.(png|jpeg|jpg|gif|bmp|tif|tiff|svg|woff|woff2|eot|ttf)$/,
-    loader: "url-loader?limit=100000"
-  },
-  {
-    test: /\.(yaml|yml)$/,
-    loader: "yml-loader"
-  },
-  {
-    test: /\.css$/,
-    loader: "css-loader",
-    options: {
-      modules: true,
-      importLoaders: true
-    }
-  }
-];
+process.traceDeprecation = true;
 
 module.exports = {
   name: "server",
@@ -68,12 +28,13 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))
       .reduce((d, k) => {
         d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
         return d;
-      }, {__DEV__: true, __SERVER__: true})),
-    new webpack.IgnorePlugin(/vertx/)
+      }, {__DEV__: true, __SERVER__: true}))
   ]
 };
