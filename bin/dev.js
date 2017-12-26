@@ -42,7 +42,7 @@ compiler.apply(new ProgressPlugin((percentage, msg, current, active, modulepath)
           "db/**/*.js"
         ],
         verbose: true,
-        exec: `node ${path.join(canonPath), "bin/server.js"}`
+        exec: `node ${path.join(canonPath, "bin/server.js")}`
       })
         .on("quit", () => {
           process.exit();
