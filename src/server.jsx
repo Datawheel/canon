@@ -25,11 +25,6 @@ const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
 
 export default function(defaultStore = {}, i18n, headerConfig) {
 
-  // Remove stylesheets because we do not extract them into a css file in development mode
-  if (process.env.CANON_DEV === "development") {
-    headerConfig.link = headerConfig.link.filter(l => l.rel !== "stylesheet");
-  }
-
   return function(req, res) {
 
     function fetchResource(lng) {
