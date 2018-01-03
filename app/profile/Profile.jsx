@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import Helmet from "react-helmet";
 import {connect} from "react-redux";
 import {Link} from "react-router";
 import "./Profile.css";
@@ -47,7 +48,9 @@ class Profile extends Component {
 
     return (
       <CanonComponent data={this.props.data} d3plus={d3plus} topics={topics}>
-
+        <Helmet>
+          <title>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</title>
+        </Helmet>
         <h1>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</h1>
         <p>Top Crop ID (from &quot;preneed&quot;): { topCrop.crop }</p>
         <p>{ topCrop.crop } Competitors (&quot;need&quot; using &quot;preneed&quot; in URL): { competitors ? competitors.map(c => c.geo_name).join(", ") : "Loading" }</p>

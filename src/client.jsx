@@ -4,7 +4,7 @@ import "babel-polyfill";
 import React from "react";
 import {render} from "react-dom";
 import {Provider} from "react-redux";
-import {applyRouterMiddleware, browserHistory, Router, RouterContext} from "react-router";
+import {applyRouterMiddleware, browserHistory, Route, Router, RouterContext} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
 import {animateScroll} from "react-scroll";
 import createRoutes from "routes";
@@ -21,6 +21,7 @@ import i18n from "i18next";
 import yn from "yn";
 
 import defaultTranslations from "./locale";
+import Canon from "./Canon";
 
 const {locale, resources} = window.__INITIAL_STATE__.i18n;
 const {CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
@@ -84,8 +85,10 @@ function renderMiddleware() {
 render(
   <I18nextProvider i18n={i18n}>
     <Provider store={store}>
-      <Router history={history} render={applyRouterMiddleware(renderMiddleware())}>
-        {routes}
-      </Router>
+      <Canon locale={window.__INITIAL_STATE__.i18n.locale} config={window.__HELMET_DEFAULT__}>
+        <Router history={history} render={applyRouterMiddleware(renderMiddleware())}>
+          {routes}
+        </Router>
+      </Canon>
     </Provider>
   </I18nextProvider>, document.getElementById("app"));

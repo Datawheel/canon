@@ -11,6 +11,8 @@ import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 import {I18nextProvider} from "react-i18next";
 import pretty from "pretty";
 
+import Canon from "./Canon";
+
 import serialize from "serialize-javascript";
 
 const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
@@ -95,15 +97,6 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     i18n.changeLanguage(locale);
     const rtl = ["ar", "he"].includes(locale);
 
-    const Meta = () =>
-      <Helmet
-        htmlAttributes={{lang: locale, amp: undefined}}
-        defaultTitle={headerConfig.title} meta={headerConfig.meta}
-        link={headerConfig.link} />;
-
-    renderToString(<Meta />);
-    const header = Helmet.rewind();
-
     match({routes, location: req.url}, (err, redirect, props) => {
 
       if (err) res.status(500).json(err);
@@ -117,10 +110,14 @@ export default function(defaultStore = {}, i18n, headerConfig) {
             const componentHTML = renderToString(
               <I18nextProvider i18n={i18n}>
                 <Provider store={store}>
-                  <RouterContext {...props} />
+                  <Canon config={headerConfig} locale={locale}>
+                    <RouterContext {...props} />
+                  </Canon>
                 </Provider>
               </I18nextProvider>
             );
+
+            const header = Helmet.rewind();
 
             res.status(200).send(`<!doctype html>
 <html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
@@ -140,6 +137,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     <script>
       window.__SSR__ = true;
       window.__APP_NAME__ = "${ i18n.options.defaultNS }";
+      window.__HELMET_DEFAULT__ = ${ serialize(headerConfig, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
       window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
     </script>
 
