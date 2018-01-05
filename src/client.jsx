@@ -31,10 +31,11 @@ const {CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
 // do rewrite this monstrosity. I hate JS anyway.
 const res = {};
 res[locale] = {};
-res[locale][window.__APP_NAME__] = {
-  ...defaultTranslations,
-  ...resources
-};
+res[locale][window.__APP_NAME__] = resources;
+
+res['canon'] = {};
+res['canon'][window.__APP_NAME__] = defaultTranslations;
+
 
 i18n
   .init({
