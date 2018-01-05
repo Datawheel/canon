@@ -25,32 +25,25 @@ import Canon from "./Canon";
 
 const {locale, resources} = window.__INITIAL_STATE__.i18n;
 const {CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
-
-
-// XXX If there's a better way to build an object with variable keys, please
-// do rewrite this monstrosity. I hate JS anyway.
-const res = {};
-res[locale] = {};
-res[locale][window.__APP_NAME__] = resources;
-
-res['canon'] = {};
-res['canon'][window.__APP_NAME__] = defaultTranslations;
-
+const name = window.__APP_NAME__;
 
 i18n
   .init({
     fallbackLng: "canon",
     lng: locale,
     debug: NODE_ENV !== "production" ? yn(CANON_LOGLOCALE) : false,
-    ns: [window.__APP_NAME__],
-    defaultNS: window.__APP_NAME__,
+    ns: [name],
+    defaultNS: name,
     interpolation: {
       escapeValue: false // not needed for react!!
     },
     react: {
       wait: true
     },
-    resources: res
+    resources: {
+      [locale]: {[name]: resources},
+      canon: {[name]: defaultTranslations}
+    }
   });
 
 
