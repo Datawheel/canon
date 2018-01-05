@@ -26,6 +26,16 @@ import Canon from "./Canon";
 const {locale, resources} = window.__INITIAL_STATE__.i18n;
 const {CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
 
+
+// XXX If there's a better way to build an object with variable keys, please
+// do rewrite this monstrosity. I hate JS anyway.
+const res = {};
+res[locale] = {};
+res[locale][window.__APP_NAME__] = {
+  ...defaultTranslations,
+  ...resources
+};
+
 i18n
   .init({
     fallbackLng: "canon",
@@ -38,11 +48,10 @@ i18n
     },
     react: {
       wait: true
-    }
+    },
+    resources: res
   });
 
-i18n.addResourceBundle("canon", window.__APP_NAME__, defaultTranslations, true, true);
-i18n.addResourceBundle(locale, window.__APP_NAME__, resources, true, true);
 
 function scrollToHash(hash) {
   const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
