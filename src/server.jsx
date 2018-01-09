@@ -129,7 +129,8 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
 
     <link rel='stylesheet' type='text/css' href='/assets/normalize.css'>
-    <link rel='stylesheet' type='text/css' href='/assets/blueprint/dist/blueprint.css'>${ process.env.NODE_ENV === "production" ? "\n<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "" }
+    <link rel='stylesheet' type='text/css' href='/assets/blueprint/dist/blueprint.css'>
+    <link rel='stylesheet' type='text/css' href='/assets/styles.css'>
   </head>
   <body>
     <div id="app">${ componentHTML }</div>

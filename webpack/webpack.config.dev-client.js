@@ -9,6 +9,8 @@ const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
 
+process.traceDeprecation = true;
+
 module.exports = {
   devtool: "eval",
   name: "browser",
@@ -22,7 +24,7 @@ module.exports = {
     publicPath
   },
   module: {
-    rules: commonLoaders
+    rules: commonLoaders()
   },
   resolve: {
     modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],

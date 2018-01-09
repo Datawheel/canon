@@ -23,7 +23,7 @@ module.exports = [
       publicPath
     },
     module: {
-      rules: commonLoaders
+      rules: commonLoaders({extract: true})
     },
     resolve: {
       modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "..")],
@@ -61,7 +61,7 @@ module.exports = [
       libraryTarget: "commonjs2"
     },
     module: {
-      rules: commonLoaders
+      rules: commonLoaders({extract: true})
     },
     resolve: {
       modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],

@@ -1,7 +1,9 @@
-const appDir = process.cwd(),
+const ExtractTextPlugin = require("extract-text-webpack-plugin"),
+      appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
-      webpack = require("webpack");
+      webpack = require("webpack"),
+      yn = require("yn");
 
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
@@ -12,7 +14,9 @@ process.traceDeprecation = true;
 module.exports = {
   name: "server",
   context: path.join(__dirname, "../src"),
-  entry: {server: "./server"},
+  entry: {
+    server: "./server"
+  },
   target: "node",
   output: {
     path: assetsPath,
@@ -21,13 +25,17 @@ module.exports = {
     libraryTarget: "commonjs2"
   },
   module: {
-    rules: commonLoaders
+    rules: commonLoaders({extract: true})
   },
   resolve: {
     modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
+    new ExtractTextPlugin({
+      filename: "styles.css",
+      allChunks: true
+    }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
@@ -35,6 +43,6 @@ module.exports = {
       .reduce((d, k) => {
         d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
         return d;
-      }, {__DEV__: true, __SERVER__: true}))
+      }, {__DEV__: true, __SERVER__: false, __LOGREDUX__: yn(process.env.CANON_LOGREDUX || true)}))
   ]
 };
