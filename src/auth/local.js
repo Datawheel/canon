@@ -27,24 +27,26 @@ module.exports = function(app) {
   const {db, passport} = app.settings;
 
   passport.use("local-login", new Strategy({usernameField: "email"},
-    (email, password, done) => db.users.findOne({where: {email}, raw: true})
-      .then(user => {
+    (email, password, done) => {
+      db.users.findOne({where: {email}, raw: true})
+        .then(user => {
 
-        if (user === null) return done(null, false, {message: "Incorrect credentials."});
+          if (user === null) done(null, false, {message: "Incorrect credentials."});
 
-        const hashedPassword = bcrypt.hashSync(password, user.salt);
+          const hashedPassword = bcrypt.hashSync(password, user.salt);
 
-        if (user.password === hashedPassword) return done(null, user);
-        return done(null, false, {message: "Incorrect credentials."});
+          if (user.password === hashedPassword) done(null, user);
+          done(null, false, {message: "Incorrect credentials."});
 
-      })
-      .catch(err => console.log(err))
-  ));
+          return user;
+
+        })
+        .catch(err => console.log(err));
+    }));
 
   app.post("/auth/local/login", passport.authenticate("local-login", {
-    successRedirect: "/",
     failureFlash: false
-  }));
+  }), (req, res) => res.json({user: req.user}));
 
   passport.use("local-signup", new Strategy({usernameField: "email", passReqToCallback: true},
     (req, email, password, done) => {
@@ -87,9 +89,8 @@ module.exports = function(app) {
     }));
 
   app.post("/auth/local/signup", passport.authenticate("local-signup", {
-    successRedirect: "/",
     failureFlash: false
-  }));
+  }), (req, res) => res.json({user: req.user}));
 
   function sendActivation(user, req, err, done) {
 
