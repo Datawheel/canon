@@ -2,6 +2,7 @@ import React from "react";
 import {Treemap} from "d3plus-react";
 
 import {fetchData} from "../../src/actions/fetchData";
+import {dataFold} from "d3plus-viz";
 
 import {SectionRows, SectionTitle} from "../../src";
 
@@ -34,7 +35,7 @@ Viz2.defaultProps = {
 };
 
 Viz2.need = [
-  fetchData("harvested_area", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=harvested_area&sort=desc&display_names=true")
+  fetchData("harvested_area", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=harvested_area&sort=desc&display_names=true", dataFold)
 ];
 
 export default Viz2;

@@ -88,8 +88,8 @@ Profile.preneed = [
 
 Profile.need = [
   Viz1, Viz2, Viz3,
-  fetchData("competitors", "api/join/?show=geo&sumlevel=adm0&crop=<topCrop.crop>&required=harvested_area&order=harvested_area&sort=desc&display_names=true"),
-  fetchData("value_of_production", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=value_of_production&sort=desc&display_names=true&limit=5")
+  fetchData("competitors", "api/join/?show=geo&sumlevel=adm0&crop=<topCrop.crop>&required=harvested_area&order=harvested_area&sort=desc&display_names=true", dataFold),
+  fetchData("value_of_production", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=value_of_production&sort=desc&display_names=true&limit=5", dataFold)
 ];
 
 export default connect(state => ({
