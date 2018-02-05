@@ -1,7 +1,6 @@
 import axios from "axios";
-import {dataFold} from "d3plus-viz";
 
-function fetchData(key, url, format = dataFold, config = {}) {
+function fetchData(key, url, format = d => d, config = {}) {
 
   const returnFunction = (params, store) => {
 
