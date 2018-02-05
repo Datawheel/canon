@@ -237,11 +237,13 @@ datawheel-canon will automatically instantiate a "users" table in the specified 
 import {Login, Signup} from "datawheel-canon";
 ```
 
-These two components can either be used direclty with a Route, or as children of other components. They are simple forms that handle all of the authentication and errors. If you would like to change the page the user is redirected to after logging in, you can override the default "redirect" prop:
+These two components can either be used directly with a Route, or as children of other components. They are simple forms that handle all of the authentication and errors. If you would like to change the page the user is redirected to after logging in, you can override the default "redirect" prop:
 
 ```jsx
 <Login redirect="/profile" />
 ```
+
+If a `false` value is provided as a redirect, the redirect will be disabled and you must provide you own detection of the `state.auth.user` object in the redux store.
 
 *NOTE*: If also using [social logins](#social-logins), the `CANON_SOCIAL_REDIRECT` environment variable needs to be set in order to change those redirects.
 
