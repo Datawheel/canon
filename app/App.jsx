@@ -2,11 +2,10 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import Nav from "components/Nav";
 import Footer from "components/Footer";
-import "normalize.css/normalize.css";
 
 import "./App.css";
 
-import {isAuthenticated} from "../../src";
+import {isAuthenticated} from "../src";
 
 class App extends Component {
 
@@ -21,7 +20,7 @@ class App extends Component {
   render() {
     const {children} = this.props;
     return (
-      <div className="container">
+      <div id="App">
         <Nav />
         <div className="test-1"></div>
         <div className="test-2"></div>
