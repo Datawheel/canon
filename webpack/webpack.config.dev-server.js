@@ -2,8 +2,7 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
-      webpack = require("webpack"),
-      yn = require("yn");
+      webpack = require("webpack");
 
 const assetsPath = path.join(appDir, "static", "assets");
 const publicPath = "/assets/";
@@ -36,7 +35,6 @@ module.exports = {
       filename: "styles.css",
       allChunks: true
     }),
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))

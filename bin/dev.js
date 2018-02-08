@@ -14,8 +14,10 @@ const appDir = process.cwd();
 const canonPath = name === "datawheel-canon" ? appDir : path.join(appDir, "node_modules/datawheel-canon/");
 let started = false;
 
+shell.rm("-rf", path.join(appDir, "static/assets/"));
+shell.mkdir("-p", path.join(appDir, "static/assets/"));
+
 shell.echo(chalk.bold("\n 🔷  Bundling Server Webpack\n"));
-// shell.exec(`webpack --progress --colors --hide-modules -w --hot --config ${__dirname}/../webpack/webpack.config.dev-server.js`);
 
 const webpackDevConfig = require(path.join(__dirname, "../webpack/webpack.config.dev-server"));
 const compiler = webpack(webpackDevConfig);
@@ -34,8 +36,8 @@ compiler.apply(new ProgressPlugin((percentage, msg, current, active, modulepath)
     readline.cursorTo(process.stdout, 0);
 
     if (!started) {
-      process.stdout.write("server webpack built");
       started = true;
+      process.stdout.write("server webpack built");
       nodemon({
         watch: [
           "api/**/*.js",

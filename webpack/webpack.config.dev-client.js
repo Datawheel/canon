@@ -13,7 +13,7 @@ process.traceDeprecation = true;
 
 module.exports = {
   devtool: "eval",
-  name: "browser",
+  name: "client",
   context: path.join(__dirname, "../src"),
   entry: {
     app: ["./client", hotMiddlewareScript]
@@ -24,7 +24,7 @@ module.exports = {
     publicPath
   },
   module: {
-    rules: commonLoaders()
+    rules: commonLoaders({build: "client"})
   },
   resolve: {
     modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],

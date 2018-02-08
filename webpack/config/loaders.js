@@ -6,9 +6,6 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin"),
 
 const appPath = path.join(appDir, "app");
 
-const babelPresets = [["env", {modules: false}], "react", "stage-0"];
-if (process.env.NODE_ENV === "development") babelPresets.unshift("react-hmre");
-
 
 const cssLoaders = [
   "iso-morphic-style-loader",
@@ -31,8 +28,12 @@ const cssLoaders = [
 module.exports = props => {
 
   props = Object.assign({
+    build: "server",
     extract: false
   }, props);
+
+  const babelPresets = [["env", {modules: false}], "react", "stage-0"];
+  if (process.env.NODE_ENV === "development" && props.build === "client") babelPresets.unshift("react-hmre");
 
   return [
     {

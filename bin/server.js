@@ -88,11 +88,10 @@ const Backend = require("i18next-node-fs-backend");
 const i18nMiddleware = require("i18next-express-middleware");
 
 shell.cp(path.join(appDir, "node_modules/normalize.css/normalize.css"), path.join(appDir, "static/assets/normalize.css"));
+
 const blueprintInput = path.join(appDir, "node_modules/@blueprintjs/core/");
 const blueprintOutput = path.join(appDir, "static/assets/blueprint/");
-shell.rm("-r", blueprintOutput);
-shell.mkdir(blueprintOutput);
-shell.mkdir(path.join(blueprintOutput, "dist"));
+shell.mkdir("-p", path.join(blueprintOutput, "dist"));
 shell.cp(path.join(blueprintInput, "dist/blueprint.css"), path.join(blueprintOutput, "dist/blueprint.css"));
 shell.cp("-r", path.join(blueprintInput, "resources"), path.join(blueprintOutput, "resources"));
 
