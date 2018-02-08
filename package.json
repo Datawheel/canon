@@ -11,7 +11,6 @@
     "canon-start": "bin/start.js"
   },
   "scripts": {
-    "compile": "node bin/compile",
     "release": "node bin/release",
     "build": "canon-build",
     "dev": "canon-dev",

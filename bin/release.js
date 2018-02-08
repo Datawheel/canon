@@ -16,52 +16,46 @@ function kill(code, stdout) {
   shell.exit(code);
 }
 
-shell.exec("npm run compile", (code, stdout) => {
-  if (code) kill(code, stdout);
-  shell.echo("code compiled");
+shell.exec("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD", (code, stdout) => {
+  const body = stdout.length ? stdout : `v${version}`;
 
-  shell.exec("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD", (code, stdout) => {
-    const body = stdout.length ? stdout : `v${version}`;
+  shell.exec("npm publish ./", (code, stdout) => {
+    if (code) kill(code, stdout);
+    shell.echo("published to npm");
 
-    shell.exec("npm publish ./", (code, stdout) => {
+    shell.exec("git add --all", (code, stdout) => {
       if (code) kill(code, stdout);
-      shell.echo("published to npm");
 
-      shell.exec("git add --all", (code, stdout) => {
+      shell.exec(`git commit -m \"compiles v${version}\"`, (code, stdout) => {
         if (code) kill(code, stdout);
+        shell.echo("git commit");
 
-        shell.exec(`git commit -m \"compiles v${version}\"`, (code, stdout) => {
+        shell.exec(`git tag v${version}`, (code, stdout) => {
           if (code) kill(code, stdout);
-          shell.echo("git commit");
 
-          shell.exec(`git tag v${version}`, (code, stdout) => {
+          shell.exec("git push origin --follow-tags", (code, stdout) => {
             if (code) kill(code, stdout);
 
-            shell.exec("git push origin --follow-tags", (code, stdout) => {
-              if (code) kill(code, stdout);
+            release(token, {
+              repo: name,
+              user: "datawheel",
+              tag: `v${version}`,
+              name: `v${version}`,
+              body, prerelease
+            }, error => {
+              if (error) {
+                shell.echo(`repo: ${name}`);
+                shell.echo(`tag/name: v${version}`);
+                shell.echo(`body: ${body}`);
+                shell.echo(`prerelease: ${prerelease}`);
+                shell.echo(error.message);
+                shell.exit(1);
+              }
+              else {
+                shell.echo("release pushed");
+                shell.exit(0);
 
-              release(token, {
-                repo: name,
-                user: "datawheel",
-                tag: `v${version}`,
-                name: `v${version}`,
-                body, prerelease
-              }, error => {
-                if (error) {
-                  shell.echo(`repo: ${name}`);
-                  shell.echo(`tag/name: v${version}`);
-                  shell.echo(`body: ${body}`);
-                  shell.echo(`prerelease: ${prerelease}`);
-                  shell.echo(error.message);
-                  shell.exit(1);
-                }
-                else {
-                  shell.echo("release pushed");
-                  shell.exit(0);
-
-                }
-              });
-
+              }
             });
 
           });
