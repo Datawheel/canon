@@ -7,7 +7,7 @@ export default {
       "ACTIVATE_TOKEN_FAILURE": "Activation token is invalid or has expired."
     }
   },
-  "LoadingComponent": {
+  "Loading": {
     "description": "Loading {{progress}} of {{total}} datasets",
     "title": "Please Wait"
   },

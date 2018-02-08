@@ -25,7 +25,7 @@ class Home extends Component {
         { t("home.body", {name: "Datawheel Canon"}) }<br />
         { t("home.sub") }
         <Trans i18nKey="complexTrans" count={count}>
-            Hello <strong>{{name}}</strong>, you have {{count}} unread message. <Link to="/profile/040AF00182">Click here</Link>.
+          Hello <strong>{{name}}</strong>, you have {{count}} unread message. <Link to="/profile/040AF00182">Click here</Link>.
         </Trans>
         <Button></Button>
         <Activate location={this.props.location} />

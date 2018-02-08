@@ -1,4 +1,6 @@
 dark: "rgb(61, 71, 55)"
+light: "rgb(101, 111, 95)"
+white: "#fafafa"
 background: "-10"
 foreground: "10"
 cover: "20"

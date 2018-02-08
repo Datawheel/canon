@@ -4,14 +4,12 @@ import React from "react";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
-import {Provider} from "react-redux";
 import createRoutes from "routes";
 import configureStore from "./storeConfig";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
-import {I18nextProvider} from "react-i18next";
 import pretty from "pretty";
 
-import Canon from "./Canon";
+import CanonProvider from "./CanonProvider";
 
 import serialize from "serialize-javascript";
 
@@ -108,13 +106,9 @@ export default function(defaultStore = {}, i18n, headerConfig) {
           .then(() => {
             const initialState = store.getState();
             const componentHTML = renderToString(
-              <I18nextProvider i18n={i18n}>
-                <Provider store={store}>
-                  <Canon config={headerConfig} locale={locale}>
-                    <RouterContext {...props} />
-                  </Canon>
-                </Provider>
-              </I18nextProvider>
+              <CanonProvider helmet={headerConfig} i18n={i18n} locale={locale} store={store}>
+                <RouterContext {...props} />
+              </CanonProvider>
             );
 
             const header = Helmet.rewind();
@@ -133,7 +127,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     <link rel='stylesheet' type='text/css' href='/assets/styles.css'>
   </head>
   <body>
-    <div id="app">${ componentHTML }</div>
+    <div id="React-Container">${ componentHTML }</div>
 
     <script>
       window.__SSR__ = true;

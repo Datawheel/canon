@@ -11,15 +11,7 @@ import Viz1 from "./Viz1";
 import Viz2 from "./Viz2";
 import Viz3 from "./Viz3";
 
-import {AnchorLink, CanonComponent, SubNav, TopicTitle} from "../../src";
-
-const d3plus = {
-  shapeConfig: {
-    labelConfig: {
-      fontFamily: "Comic Sans MS"
-    }
-  }
-};
+import {AnchorLink, CanonProfile, SubNav, TopicTitle} from "../../src";
 
 const topics = [
   {
@@ -47,7 +39,7 @@ class Profile extends Component {
     if (!topCrop) return null;
 
     return (
-      <CanonComponent data={this.props.data} d3plus={d3plus} topics={topics}>
+      <CanonProfile topics={topics}>
         <Helmet>
           <title>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</title>
         </Helmet>
@@ -76,7 +68,7 @@ class Profile extends Component {
 
         <AnchorLink className="custom-class" to="agriculture">Jump to Agriculture</AnchorLink>
 
-      </CanonComponent>
+      </CanonProfile>
     );
   }
 }
