@@ -7,14 +7,16 @@
     "canon-build": "bin/build.js",
     "canon-dev": "bin/dev.js",
     "canon-locales": "bin/locales.js",
+    "canon-setup": "bin/setup.js",
     "canon-start": "bin/start.js"
   },
   "scripts": {
     "compile": "node bin/compile",
-    "dev": "canon-dev",
-    "build": "canon-build",
-    "locales": "canon-locales",
     "release": "node bin/release",
+    "build": "canon-build",
+    "dev": "canon-dev",
+    "locales": "canon-locales",
+    "setup": "canon-setup",
     "start": "canon-start"
   },
   "repository": {

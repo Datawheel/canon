@@ -26,65 +26,28 @@ Reusable React environment and components for creating visualization engines.
 
 ## Setup and Installation
 
-datawheel-canon is published on NPM, and should be installed just like any other node package:
+datawheel-canon is published on NPM, and should be installed just like any other node package. After creating a package.json file (try `npm init`), install datawheel-canon like this:
 
 ```bash
 npm i datawheel-canon
 ```
 
-Once installed, the following file structure is required:
+Once installed, run the following command to create some initial scaffolding:
 
-```
-.
-├── app/
-│   ├── reducers/
-│   │   └── index.js
-│   └── routes.jsx
-├── static/
-└── package.json
+```bash
+node node_modules/datawheel-canon/bin/setup.js
 ```
 
-The **app/routes.jsx** file must export a function that returns a react-router <Route> component. Here is an example starter boilerplate:
-
-```jsx
-import React from "react";
-import {Route} from "react-router";
-
-const App = () => <div>Hello World</div>;
-
-export default () => <Route path="/" component={App}></Route>;
-```
-
-Additionally, in order to support custom Redux action/reducer cycles, an **app/reducers/index.js** file must be present, even if only exporting an empty object:
-
-```js
-export default {};
-```
-
-Once those files are in place, simply run `canon-dev` to spin up the development server. The most common use-case would be to add a "scripts" object to your **package.json** like this:
-
-```json
-"scripts": {
-  "dev": "canon-dev"
-}
-```
-
-Now, you can simply execute `npm run dev` from your shell.
+Now that the necessary files are in place, simply run `npm run dev` to spin up the development server.
 
 ---
 
 ## Deployment
 
-Separate from the `canon-dev` script, datawheel-canon makes 2 scripts available for deploying production ready builds:
+Deploying a site with canon is as easy as these 2 steps:
 
-```json
-"scripts": {
-  "build": "canon-build",
-  "start": "canon-start"
-}
-```
-
-`canon-build` will compile the necessary server and client bundles, and `canon-start` will start an Express server on the default port.
+* `npm run build` to compile the necessary production server and client bundles
+* `npm run start` to start an Express server on the default port
 
 ---
 
@@ -122,15 +85,9 @@ class Nav extends Component {
 export default translate()(Nav);
 ```
 
-When a component is wrapped with `translate`, it will have access to a function named `t` inside it's props. This function is what handles fetching the appropriate translation, and also allows us to scrape an entire project to locate every string that needs translation. When you are ready to start populating translations, simply run the `canon-locales` script:
+When a component is wrapped with `translate`, it will have access to a function named `t` inside it's props. This function is what handles fetching the appropriate translation, and also allows us to scrape an entire project to locate every string that needs translation. When you are ready to start populating translations, simply run `npm run locales`.
 
-```json
-"scripts": {
-  "locales": "canon-locales"
-}
-```
-
-Now, by running `npm run locales`, datawheel-canon will search your entire codebase for any component using the `t( )` function. Translations are stored in JSON files in a `locales/` folder in the root directory. In this example, running the script would produce the following file structure:
+datawheel-canon will search your entire codebase for any component using the `t( )` function. Translations are stored in JSON files in a `locales/` folder in the root directory. In this example, running the script would produce the following file structure:
 
 ```
 locales/
