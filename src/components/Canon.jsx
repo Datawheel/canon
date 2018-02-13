@@ -14,9 +14,9 @@ class Canon extends Component {
 
   render() {
     const {helmet, locale} = this.context;
-    const {children, loading} = this.props;
+    const {children, className, id, loading} = this.props;
     return loading ? <Loading />
-      : <div id="Canon">
+      : <div id={id} className={className}>
         <Helmet
           htmlAttributes={{lang: locale, amp: undefined}}
           defaultTitle={helmet.title}
@@ -40,7 +40,9 @@ Canon.childContextTypes = {
 };
 
 Canon.defaultProps = {
-  data: {}
+  className: "",
+  data: {},
+  id: "Canon"
 };
 
 Canon = connect(state => ({
