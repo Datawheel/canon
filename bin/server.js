@@ -27,6 +27,10 @@ const dbUser = process.env.CANON_DB_USER;
 const dbHost = process.env.CANON_DB_HOST || "127.0.0.1";
 const dbPw = process.env.CANON_DB_PW || null;
 
+const opbeatApp = process.env.CANON_OPBEAT_APP;
+const opbeatOrg = process.env.CANON_OPBEAT_ORG;
+const opbeatToken = process.env.CANON_OPBEAT_TOKEN;
+
 const logins = process.env.CANON_LOGINS || false;
 
 const appDir = process.cwd();
@@ -219,6 +223,16 @@ function start() {
       });
   }
   shell.echo(`API Routes: ${routes}`);
+
+  if (NODE_ENV === "production" && opbeatApp && opbeatOrg && opbeatToken) {
+    const opbeat = require("opbeat").start({
+      appId: opbeatApp,
+      organizationId: opbeatOrg,
+      secretToken: opbeatToken
+    });
+    app.use(opbeat.middleware.express());
+    shell.echo("Opbeat Initialized");
+  }
 
   const App = require(path.join(appDir, "static/assets/server"));
 

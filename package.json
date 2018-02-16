@@ -76,6 +76,7 @@
     "mailgun-js": "^0.13.1",
     "nodemon": "^1.12.7",
     "normalize.css": "^7.0.0",
+    "opbeat": "^4.17.0",
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
     "passport-instagram": "^1.0.0",
