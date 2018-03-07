@@ -33,7 +33,11 @@ export default function(defaultStore = {}, i18n, headerConfig) {
       return [lng, i18n.getResourceBundle(lng, i18n.options.defaultNS)];
     }
 
+    // Set the current language of the app using 7 different strategies
     let locale, resources;
+
+    // 1st strategy: check the subdomain:
+    // i.e. de.myapp.com would set the language to German
     if (req.headers.host.indexOf(".") > 0) {
       const ret = fetchResource(req.headers.host.split(".")[0]);
       if (ret) {
@@ -41,6 +45,9 @@ export default function(defaultStore = {}, i18n, headerConfig) {
         resources = ret[1];
       }
     }
+
+    // 2nd strategy: check the URL query str for a 'lang' key:
+    // i.e. myapp.com?lang=de would set the language to German
     if (resources === undefined) {
       const ret = fetchResource(req.query.lang);
       if (ret) {
@@ -48,6 +55,9 @@ export default function(defaultStore = {}, i18n, headerConfig) {
         resources = ret[1];
       }
     }
+
+    // 3rd strategy: check the URL query str for a 'language' key:
+    // i.e. myapp.com?language=de would set the language to German
     if (resources === undefined) {
       const ret = fetchResource(req.query.language);
       if (ret) {
@@ -55,6 +65,9 @@ export default function(defaultStore = {}, i18n, headerConfig) {
         resources = ret[1];
       }
     }
+
+    // 4th strategy: check the URL query str for a 'locale' key:
+    // i.e. myapp.com?locale=de would set the language to German
     if (resources === undefined) {
       const ret = fetchResource(req.query.locale);
       if (ret) {
@@ -62,6 +75,25 @@ export default function(defaultStore = {}, i18n, headerConfig) {
         resources = ret[1];
       }
     }
+
+    // 5th strategy: check the first element of the URL path and see if it matches
+    // anything in the CANON_LANGUAGES env var
+    if (resources === undefined) {
+      const splitPath = req.path.split("/");
+      if (splitPath.length > 1) {
+        const firstPathElem = splitPath[1];
+        if (process.env.CANON_LANGUAGES.includes(firstPathElem)) {
+          const ret = fetchResource(firstPathElem);
+          if (ret) {
+            locale = ret[0];
+            resources = ret[1];
+          }
+        }
+      }
+    }
+
+    // 6th strategy: check the request headers for a language:
+    // many browsers by default will send a language
     if (resources === undefined) {
       const ret = fetchResource(req.language);
       if (ret) {
@@ -69,6 +101,9 @@ export default function(defaultStore = {}, i18n, headerConfig) {
         resources = ret[1];
       }
     }
+
+    // 7th strategy: fallback to whatever the CANON_LANGUAGE_DEFAULT environment
+    // var is set to, if it's not set use english
     if (resources === undefined) {
       const ret = fetchResource(process.env.CANON_LANGUAGE_DEFAULT || "en");
       if (ret) {
