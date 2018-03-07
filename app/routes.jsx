@@ -17,6 +17,7 @@ export default function RouteCreate() {
       <Route path="signup" component={SignUp} />
       <Route path="login" component={Login} />
       <Route path="reset" component={Reset} />
+      <Route path=":lang/profile/:id" component={Profile} />
       <Route path="profile/:id" component={Profile} />
       <Route path="admin" component={UserAdmin} />
     </Route>
