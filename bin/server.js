@@ -15,8 +15,6 @@ const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
       webpack = require("webpack"),
       yn = require("yn");
 
-const {name} = JSON.parse(shell.cat("package.json"));
-
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.CANON_PORT || 3300;
 const ATTRS = process.env.CANON_ATTRS;
@@ -35,6 +33,7 @@ const logins = process.env.CANON_LOGINS || false;
 
 const appDir = process.cwd();
 const appPath = path.join(appDir, "app");
+const {name} = JSON.parse(shell.cat(path.join(appDir, "package.json")));
 
 const canonPath = name === "datawheel-canon" ? appDir : path.join(appDir, "node_modules/datawheel-canon/");
 

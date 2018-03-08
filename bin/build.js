@@ -16,3 +16,4 @@ shell.exec(`webpack --progress --colors --hide-modules --config ${__dirname}/../
 
 shell.echo(chalk.bold("\n\n 📒  Babelifying Server Code\n"));
 shell.exec(`babel --presets env,stage-0 --ignore static ${__dirname}/server.js -o ${process.cwd()}/index.js`);
+shell.sed("-i", /process\.cwd\(\)/g, "__dirname", `${process.cwd()}/index.js`);
