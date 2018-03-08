@@ -12,6 +12,7 @@ module.exports = [
   }),
   require("lost")(),
   require("postcss-mixins")(),
+  require("postcss-each")(),
   require("postcss-for")(),
   require("postcss-custom-properties")({
     variables
