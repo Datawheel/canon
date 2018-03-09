@@ -80,9 +80,10 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     // anything in the CANON_LANGUAGES env var
     if (resources === undefined) {
       const splitPath = req.path.split("/");
-      if (splitPath.length > 1) {
+      const CANON_LANGUAGES = process.env.CANON_LANGUAGES || false;
+      if (CANON_LANGUAGES && splitPath.length > 1) {
         const firstPathElem = splitPath[1];
-        if (process.env.CANON_LANGUAGES.includes(firstPathElem)) {
+        if (CANON_LANGUAGES.split(",").includes(firstPathElem)) {
           const ret = fetchResource(firstPathElem);
           if (ret) {
             locale = ret[0];
