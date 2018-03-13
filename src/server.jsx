@@ -13,6 +13,8 @@ import CanonProvider from "./CanonProvider";
 
 import serialize from "serialize-javascript";
 
+const BASE_URL = process.env.CANON_BASE_URL || false;
+
 const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
   : `<script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -152,6 +154,8 @@ export default function(defaultStore = {}, i18n, headerConfig) {
             res.status(200).send(`<!doctype html>
 <html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
   <head>
+    ${ BASE_URL ? `<base href='${ BASE_URL }'>` : "" }
+
     ${ pretty(header.title.toString()).replace(/\n/g, "\n    ") }
 
     ${ pretty(header.meta.toString()).replace(/\n/g, "\n    ") }
