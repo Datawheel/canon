@@ -483,6 +483,7 @@ export CANON_LANGUAGE_DEFAULT="es"
 |`CANON_ATTRS`|A URL that should return a list of attribute classification strings to be pre-cached and passed to the default redux store.|`undefined`|
 |`CANON_BASE_URL`|If hosting assets or running the server from a different location that the project folder, this variable can be used to define the base URL for all static assets. A `<base>` tag will be added to the start of the `<head>` tag.|`undefined`|
 |`CANON_GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`).|`undefined`|
+|`CANON_GOOGLE_TAG_MANAGER`|The unique Google Tag Manager ID for the project (ex. `"GTM-#######"`).|`undefined`|
 |`CANON_HELMET_FRAMEGUARD`|Pass-through option for the "frameguard" property of the [helmet](https://github.com/helmetjs/helmet#how-it-works) initialization.|`false`|
 |`CANON_LOGREDUX`|Whether or not to display the (rather verbose) Redux store events in the browser console.|`true`|
 |`CANON_LOGLOCALE`|Whether or not to display the (rather verbose) i18n locale events in the browser console.|`false`|

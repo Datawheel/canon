@@ -15,15 +15,39 @@ import serialize from "serialize-javascript";
 
 const BASE_URL = process.env.CANON_BASE_URL || false;
 
+const tagManagerHead = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
+  : `
+    <!-- Google Tag Manager -->
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','${process.env.CANON_GOOGLE_TAG_MANAGER}');
+    </script>
+    <!-- End Google Tag Manager -->
+    `;
+
+const tagManagerBody = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
+  : `
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+      <iframe src="https://www.googletagmanager.com/ns.html?id=${process.env.CANON_GOOGLE_TAG_MANAGER}" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    `;
+
 const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
-  : `<script>
+  : `<!-- Google Analytics -->
+    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
       ga('create', '${process.env.CANON_GOOGLE_ANALYTICS}', 'auto');
       ga('send', 'pageview');
-    </script>`;
+    </script>
+    <!-- End Google Analytics -->`;
 
 export default function(defaultStore = {}, i18n, headerConfig) {
 
@@ -154,6 +178,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
             res.status(200).send(`<!doctype html>
 <html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
   <head>
+    ${tagManagerHead}
     ${ BASE_URL ? `<base href='${ BASE_URL }'>` : "" }
 
     ${ pretty(header.title.toString()).replace(/\n/g, "\n    ") }
@@ -167,6 +192,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     <link rel='stylesheet' type='text/css' href='/assets/styles.css'>
   </head>
   <body>
+    ${tagManagerBody}
     <div id="React-Container">${ componentHTML }</div>
 
     <script>
