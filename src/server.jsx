@@ -13,7 +13,7 @@ import CanonProvider from "./CanonProvider";
 
 import serialize from "serialize-javascript";
 
-const BASE_URL = process.env.CANON_BASE_URL || false;
+const BASE_URL = process.env.CANON_BASE_URL || "/";
 
 const tagManagerHead = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
   : `
@@ -179,7 +179,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 <html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
   <head>
     ${tagManagerHead}
-    ${ BASE_URL ? `<base href='${ BASE_URL }'>` : "" }
+    <base href='${ BASE_URL }'>
 
     ${ pretty(header.title.toString()).replace(/\n/g, "\n    ") }
 
@@ -187,9 +187,9 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 
     ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
 
-    <link rel='stylesheet' type='text/css' href='/assets/normalize.css'>
-    <link rel='stylesheet' type='text/css' href='/assets/blueprint/dist/blueprint.css'>
-    <link rel='stylesheet' type='text/css' href='/assets/styles.css'>
+    <link rel='stylesheet' type='text/css' href='assets/normalize.css'>
+    <link rel='stylesheet' type='text/css' href='assets/blueprint/dist/blueprint.css'>
+    <link rel='stylesheet' type='text/css' href='assets/styles.css'>
   </head>
   <body>
     ${tagManagerBody}
@@ -204,7 +204,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 
     ${analtyicsScript}
 
-    <script type="text/javascript" charset="utf-8" src="/assets/app.js"></script>
+    <script type="text/javascript" charset="utf-8" src="assets/app.js"></script>
   </body>
 </html>`);
           })
