@@ -1,1 +1,3 @@
-module.exports = {loading: false};
+export default {
+  loading: false
+};

@@ -3,7 +3,6 @@ import "babel-polyfill";
 
 import React from "react";
 import {render} from "react-dom";
-import {Provider} from "react-redux";
 import {applyRouterMiddleware, browserHistory, Router, RouterContext} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
 import {animateScroll} from "react-scroll";
@@ -16,29 +15,35 @@ const store = configureStore(window.__INITIAL_STATE__, browserHistory);
 const history = syncHistoryWithStore(browserHistory, store);
 const routes = createRoutes(store);
 
-import {I18nextProvider} from "react-i18next";
 import i18n from "i18next";
 import yn from "yn";
 
 import defaultTranslations from "./locale";
+import CanonProvider from "./CanonProvider";
 
 const {locale, resources} = window.__INITIAL_STATE__.i18n;
 const {CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
+const name = window.__APP_NAME__;
 
 i18n
   .init({
     fallbackLng: "canon",
     lng: locale,
     debug: NODE_ENV !== "production" ? yn(CANON_LOGLOCALE) : false,
-    ns: [window.__APP_NAME__],
-    defaultNS: window.__APP_NAME__,
+    ns: [name],
+    defaultNS: name,
     interpolation: {
       escapeValue: false // not needed for react!!
+    },
+    react: {
+      wait: true
+    },
+    resources: {
+      [locale]: {[name]: resources},
+      canon: {[name]: defaultTranslations}
     }
   });
 
-i18n.addResourceBundle("canon", window.__APP_NAME__, defaultTranslations, true, true);
-i18n.addResourceBundle(locale, window.__APP_NAME__, resources, true, true);
 
 function scrollToHash(hash) {
   const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
@@ -78,11 +83,11 @@ function renderMiddleware() {
 
 }
 
+const helmet = window.__HELMET_DEFAULT__;
+
 render(
-  <I18nextProvider i18n={i18n}>
-    <Provider store={store}>
-      <Router history={history} render={applyRouterMiddleware(renderMiddleware())}>
-        {routes}
-      </Router>
-    </Provider>
-  </I18nextProvider>, document.getElementById("app"));
+  <CanonProvider helmet={helmet} i18n={i18n} locale={locale} store={store}>
+    <Router history={history} render={applyRouterMiddleware(renderMiddleware())}>
+      {routes}
+    </Router>
+  </CanonProvider>, document.getElementById("React-Container"));

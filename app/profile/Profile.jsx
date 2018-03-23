@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import Helmet from "react-helmet";
 import {connect} from "react-redux";
 import {Link} from "react-router";
 import "./Profile.css";
@@ -10,15 +11,7 @@ import Viz1 from "./Viz1";
 import Viz2 from "./Viz2";
 import Viz3 from "./Viz3";
 
-import {AnchorLink, CanonComponent, SubNav, TopicTitle} from "../../src";
-
-const d3plus = {
-  shapeConfig: {
-    labelConfig: {
-      fontFamily: "Comic Sans MS"
-    }
-  }
-};
+import {AnchorLink, CanonProfile, SubNav, TopicTitle} from "../../src";
 
 const topics = [
   {
@@ -46,8 +39,10 @@ class Profile extends Component {
     if (!topCrop) return null;
 
     return (
-      <CanonComponent data={this.props.data} d3plus={d3plus} topics={topics}>
-
+      <CanonProfile topics={topics}>
+        <Helmet>
+          <title>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</title>
+        </Helmet>
         <h1>{ this.props.params.id === "040AF00182" ? "Nigeria" : "Ethopia" }</h1>
         <p>Top Crop ID (from &quot;preneed&quot;): { topCrop.crop }</p>
         <p>{ topCrop.crop } Competitors (&quot;need&quot; using &quot;preneed&quot; in URL): { competitors ? competitors.map(c => c.geo_name).join(", ") : "Loading" }</p>
@@ -73,7 +68,7 @@ class Profile extends Component {
 
         <AnchorLink className="custom-class" to="agriculture">Jump to Agriculture</AnchorLink>
 
-      </CanonComponent>
+      </CanonProfile>
     );
   }
 }
@@ -85,8 +80,8 @@ Profile.preneed = [
 
 Profile.need = [
   Viz1, Viz2, Viz3,
-  fetchData("competitors", "api/join/?show=geo&sumlevel=adm0&crop=<topCrop.crop>&required=harvested_area&order=harvested_area&sort=desc&display_names=true"),
-  fetchData("value_of_production", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=value_of_production&sort=desc&display_names=true&limit=5")
+  fetchData("competitors", "api/join/?show=geo&sumlevel=adm0&crop=<topCrop.crop>&required=harvested_area&order=harvested_area&sort=desc&display_names=true", dataFold),
+  fetchData("value_of_production", "api/join/?geo=<id>&show=crop&required=harvested_area,value_of_production&order=value_of_production&sort=desc&display_names=true&limit=5", dataFold)
 ];
 
 export default connect(state => ({

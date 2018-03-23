@@ -1,11 +1,13 @@
 import React from "react";
 import {Route, IndexRoute} from "react-router";
 
-import App from "components/App";
+import App from "App";
 import Home from "pages/Home";
+import Login from "pages/Login";
+import SignUp from "pages/SignUp";
 import Profile from "profile/Profile";
 
-import {Login, Reset, SignUp, UserAdmin} from "../src";
+import {Reset, UserAdmin} from "../src";
 
 export default function RouteCreate() {
 
@@ -15,6 +17,7 @@ export default function RouteCreate() {
       <Route path="signup" component={SignUp} />
       <Route path="login" component={Login} />
       <Route path="reset" component={Reset} />
+      <Route path=":lang/profile/:id" component={Profile} />
       <Route path="profile/:id" component={Profile} />
       <Route path="admin" component={UserAdmin} />
     </Route>

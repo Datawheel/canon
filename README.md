@@ -7,6 +7,8 @@ Reusable React environment and components for creating visualization engines.
 * [Setup and Installation](#setup-and-installation)
 * [Deployment](#deployment)
 * [Localization](#localization)
+* [Header/Meta Information](#header-meta-information)
+* [Redux Store](#redux-store)
 * [User Management](#user-management)
   * [Privacy Policy and Terms of Service](#privacy-policy-and-terms-of-service)
   * [Password Reset](#password-reset)
@@ -18,71 +20,35 @@ Reusable React environment and components for creating visualization engines.
     * [Instagram](#instagram)
 * [Custom API Routes](#custom-api-routes)
 * [Custom Database Models](#custom-database-models)
+* [Opbeat Error Tracking](#opbeat-error-tracking)
 * [Additional Environment Variables](#additional-environment-variables)
 
 ---
 
 ## Setup and Installation
 
-datawheel-canon is published on NPM, and should be installed just like any other node package:
+datawheel-canon is published on NPM, and should be installed just like any other node package. After creating a package.json file (try `npm init`), install datawheel-canon like this:
 
 ```bash
 npm i datawheel-canon
 ```
 
-Once installed, the following file structure is required:
+Once installed, run the following command to create some initial scaffolding:
 
-```
-.
-├── app/
-│   ├── reducers/
-│   │   └── index.js
-│   └── routes.jsx
-├── static/
-└── package.json
+```bash
+node node_modules/datawheel-canon/bin/setup.js
 ```
 
-The **app/routes.jsx** file must export a function that returns a react-router <Route> component. Here is an example starter boilerplate:
-
-```jsx
-import React from "react";
-import {Route} from "react-router";
-
-const App = () => "Hello World";
-
-export default () => <Route path="/" component={App}></Route>;
-```
-
-Additionally, in order to support custom Redux action/reducer cycles, an **app/reducers/index.js** file must be present, even if only exporting an empty object:
-
-```js
-export default {};
-```
-
-Once those files are in place, simply run `canon-dev` to spin up the development server. The most common use-case would be to add a "scripts" object to your **package.json** like this:
-
-```json
-"scripts": {
-  "dev": "canon-dev"
-}
-```
-
-Now, you can simply execute `npm run dev` from your shell.
+Now that the necessary files are in place, simply run `npm run dev` to spin up the development server.
 
 ---
 
 ## Deployment
 
-Separate from the `canon-dev` script, datawheel-canon makes 2 scripts available for deploying production ready builds:
+Deploying a site with canon is as easy as these 2 steps:
 
-```json
-"scripts": {
-  "build": "canon-build",
-  "start": "canon-start"
-}
-```
-
-`canon-build` will compile the necessary server and client bundles, and `canon-start` will start an Express server on the default port.
+* `npm run build` to compile the necessary production server and client bundles
+* `npm run start` to start an Express server on the default port
 
 ---
 
@@ -120,15 +86,9 @@ class Nav extends Component {
 export default translate()(Nav);
 ```
 
-When a component is wrapped with `translate`, it will have access to a function named `t` inside it's props. This function is what handles fetching the appropriate translation, and also allows us to scrape an entire project to locate every string that needs translation. When you are ready to start populating translations, simply run the `canon-locales` script:
+When a component is wrapped with `translate`, it will have access to a function named `t` inside it's props. This function is what handles fetching the appropriate translation, and also allows us to scrape an entire project to locate every string that needs translation. When you are ready to start populating translations, simply run `npm run locales`.
 
-```json
-"scripts": {
-  "locales": "canon-locales"
-}
-```
-
-Now, by running `npm run locales`, datawheel-canon will search your entire codebase for any component using the `t( )` function. Translations are stored in JSON files in a `locales/` folder in the root directory. In this example, running the script would produce the following file structure:
+datawheel-canon will search your entire codebase for any component using the `t( )` function. Translations are stored in JSON files in a `locales/` folder in the root directory. In this example, running the script would produce the following file structure:
 
 ```
 locales/
@@ -174,6 +134,49 @@ export CANON_LANGUAGE_DEFAULT="es"
 
 ---
 
+## Header/Meta Information
+
+All tags inside of the `<head>` of the rendered page are configured using [Helmet](https://github.com/helmetjs/helmet). If a file is present at `app/helmet.js`, the Object it exports will be used as the configuration. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
+
+Here is an example configuration, as seen in this repo's sample app:
+
+```js
+export default {
+  link: [
+    {rel: "icon", href: "/images/favicon.ico?v=2"},
+    {rel: "stylesheet", href: "https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700,900"}
+  ],
+  meta: [
+    {charset: "utf-8"},
+    {"http-equiv": "X-UA-Compatible", "content": "IE=edge"},
+    {name: "description", content: "Reusable React environment and components for creating visualization engines."},
+    {name: "viewport", content: "width=device-width, initial-scale=1"},
+    {name: "mobile-web-app-capable", content: "yes"},
+    {name: "apple-mobile-web-app-capable", content: "yes"},
+    {name: "apple-mobile-web-app-status-bar-style", content: "black"},
+    {name: "apple-mobile-web-app-title", content: "Datawheel Canon"}
+  ],
+  title: "Datawheel Canonical Design"
+};
+```
+
+---
+
+## Redux Store
+
+Default values can be added to the Redux Store by creating a file located at `app/store.js`. This file should export an Object, whose values will be merged with the defaul store. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
+
+Here is an example:
+
+```js
+export default {
+  countries: ["nausa", "sabra", "aschn"]
+};
+```
+
+---
+
+
 ## User Management
 
 By setting the following environment variables:
@@ -192,11 +195,13 @@ datawheel-canon will automatically instantiate a "users" table in the specified 
 import {Login, Signup} from "datawheel-canon";
 ```
 
-These two components can either be used direclty with a Route, or as children of other components. They are simple forms that handle all of the authentication and errors. If you would like to change the page the user is redirected to after logging in, you can override the default "redirect" prop:
+These two components can either be used directly with a Route, or as children of other components. They are simple forms that handle all of the authentication and errors. If you would like to change the page the user is redirected to after logging in, you can override the default "redirect" prop:
 
 ```jsx
 <Login redirect="/profile" />
 ```
+
+If a `false` value is provided as a redirect, the redirect will be disabled and you must provide you own detection of the `state.auth.user` object in the redux store.
 
 *NOTE*: If also using [social logins](#social-logins), the `CANON_SOCIAL_REDIRECT` environment variable needs to be set in order to change those redirects.
 
@@ -447,28 +452,38 @@ module.exports = function(sequelize, db) {
 
 ---
 
+## Opbeat Error Tracking
+
+If you would like to enable error tracking using Opbeat, add these 3 environment variables after initializing the app in the Opbeat online interface:
+
+```sh
+export CANON_OPBEAT_APP=your-opbeat-app-id
+export CANON_OPBEAT_ORG=your-opbeat-organization-id
+export CANON_OPBEAT_TOKEN=your-opbeat-secret-token
+```
+
+*NOTE*: Opbeat runs as express middleware, and will only track in production environments.
+
+---
+
 ## Additional Environment Variables
 
-Interacting with the internals of canon is done by specifying environment variables. The recommended way to set environment variables is to use `autoenv` (installed with `brew install autoenv`), which will detect any file named `.env` located in a project folder. This file should not be pushed to the repository, as it usually contains variables specific to the current environment (testing locally, running on a server etc).
+Interacting with the internals of canon is done by specifying environment variables. The recommended way to set environment variables is to use `direnv` (installed with `brew install direnv`), which will detect any file named `.envrc` located in a project folder. This file should not be pushed to the repository, as it usually contains variables specific to the current environment (testing locally, running on a server etc).
 
-Here is an example `.env` file which turns off the default redux messages seen in the browser console and changes the default localization language:
+Here is an example `.envrc` file which turns off the default redux messages seen in the browser console and changes the default localization language:
 
 ```sh
 export CANON_LOGREDUX=false
 export CANON_LANGUAGE_DEFAULT="es"
 ```
 
-*Z shell users*: when installing `autoenv`, the following line needs to be placed in your shell config (usually `~/.zshrc`):
-
-```sh
-source /usr/local/opt/autoenv/activate.sh
-```
-
 |variable|description|default|
 |---|---|---|
 |`CANON_API`|Used as a prefix with the fetchData action and the attribute types returned from the `ATTRS` url.|`undefined`|
 |`CANON_ATTRS`|A URL that should return a list of attribute classification strings to be pre-cached and passed to the default redux store.|`undefined`|
+|`CANON_BASE_URL`|If hosting assets or running the server from a different location that the project folder, this variable can be used to define the base URL for all static assets. A `<base>` tag will be added to the start of the `<head>` tag.|`undefined`|
 |`CANON_GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`).|`undefined`|
+|`CANON_GOOGLE_TAG_MANAGER`|The unique Google Tag Manager ID for the project (ex. `"GTM-#######"`).|`undefined`|
 |`CANON_HELMET_FRAMEGUARD`|Pass-through option for the "frameguard" property of the [helmet](https://github.com/helmetjs/helmet#how-it-works) initialization.|`false`|
 |`CANON_LOGREDUX`|Whether or not to display the (rather verbose) Redux store events in the browser console.|`true`|
 |`CANON_LOGLOCALE`|Whether or not to display the (rather verbose) i18n locale events in the browser console.|`false`|

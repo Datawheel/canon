@@ -60,11 +60,11 @@ class SignUp extends Component {
     if (submitted && !auth.loading) {
       if (auth.error === SIGNUP_EXISTS) {
         this.showToast(t("SignUp.error.Exists"), "blocked-person", Intent.WARNING);
-        this.setState({submitted: false});
       }
       else if (!auth.error) {
         this.showToast(t("SignUp.success"), "endorsed", Intent.SUCCESS);
       }
+      this.setState({submitted: false});
     }
     else if (error) {
       this.showToast(error.message, error.iconName, error.intent);

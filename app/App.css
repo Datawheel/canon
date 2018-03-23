@@ -1,0 +1,20 @@
+@for $i from 1 to 3 {
+  .test-$i {
+    background: map(nested, nested-2, color);
+    height: $(i)px;
+    margin: 10px 0;
+    width: 200px;
+  }
+}
+
+.box {
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+}
+
+@each $color in red, green {
+  .box.$(color) {
+    background: $(color);
+  }
+}

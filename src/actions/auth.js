@@ -30,8 +30,8 @@ export const login = userData => dispatch => {
 
   axios.post("/auth/local/login", userData)
     .then(resp => {
-      dispatch({type: LOGIN_SUCCESS, payload: resp.data});
-      window.location = userData.redirect;
+      dispatch({type: LOGIN_SUCCESS, payload: resp.data.user});
+      if (userData.redirect) window.location = userData.redirect;
     })
     .catch(() => dispatch({type: LOGIN_FAILURE, payload: {type: WRONG_PW, email: userData.email}}));
 
@@ -43,8 +43,8 @@ export const signup = userData => dispatch => {
 
   axios.post("/auth/local/signup", userData)
     .then(resp => {
-      dispatch({type: SIGNUP_SUCCESS, payload: resp.data});
-      window.location = userData.redirect;
+      dispatch({type: SIGNUP_SUCCESS, payload: resp.data.user});
+      if (userData.redirect) window.location = userData.redirect;
     })
     .catch(() => dispatch({type: SIGNUP_FAILURE, payload: {type: SIGNUP_EXISTS, payload: userData}}));
 

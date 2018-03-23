@@ -14,6 +14,7 @@ import auth from "./reducers/auth";
 import fetchAttrs from "./reducers/fetchAttrs";
 import fetchData from "./reducers/fetchData";
 import loading from "./reducers/loading";
+import loadingProgress from "./reducers/loadingProgress";
 
 /**
     @param {Object} initialState initial state to bootstrap our stores with for server-side rendering
@@ -33,6 +34,7 @@ export default function storeConfig(initialState, history) {
     i18n: (state = {}) => state,
     legal: (state = {}) => state,
     loading,
+    loadingProgress,
     location: (state = {}) => state,
     mailgun: (state = false) => state,
     routing: routerReducer,

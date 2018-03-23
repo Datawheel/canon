@@ -1,11 +1,13 @@
 dark: "rgb(61, 71, 55)"
+light: "rgb(101, 111, 95)"
+white: "#fafafa"
 background: "-10"
 foreground: "10"
 cover: "20"
 subnav-size: "200px"
 
-islands:
-  island-1:
+nested:
+  nested-1:
     color: "#FF0000"
-  island-2:
+  nested-2:
     color: "#00FF00"

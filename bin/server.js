@@ -9,13 +9,11 @@ const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
       fs = require("fs"),
       gzip = require("compression"),
       helmet = require("helmet"),
-      notifier = require("node-notifier"),
       path = require("path"),
+      readline = require("readline"),
       shell = require("shelljs"),
       webpack = require("webpack"),
       yn = require("yn");
-
-const {name} = JSON.parse(shell.cat("package.json"));
 
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.CANON_PORT || 3300;
@@ -27,28 +25,47 @@ const dbUser = process.env.CANON_DB_USER;
 const dbHost = process.env.CANON_DB_HOST || "127.0.0.1";
 const dbPw = process.env.CANON_DB_PW || null;
 
+const opbeatApp = process.env.CANON_OPBEAT_APP;
+const opbeatOrg = process.env.CANON_OPBEAT_ORG;
+const opbeatToken = process.env.CANON_OPBEAT_TOKEN;
+
 const logins = process.env.CANON_LOGINS || false;
 
 const appDir = process.cwd();
 const appPath = path.join(appDir, "app");
+const {name} = JSON.parse(shell.cat(path.join(appDir, "package.json")));
 
 const canonPath = name === "datawheel-canon" ? appDir : path.join(appDir, "node_modules/datawheel-canon/");
 
-const resolve = file => {
+function resolve(file) {
 
   const fullPath = path.join(appPath, file);
 
   try {
     require.resolve(fullPath);
-    shell.echo(`${file} loaded from .app/ directory`);
-    return require(fullPath);
+    const contents = shell.cat(fullPath);
+    if (contents.includes("module.exports")) {
+      shell.echo(`${file} imported from app directory (Node)`);
+      return require(fullPath);
+    }
+    else if (contents.includes("export default")) {
+      const tempPath = `${shell.tempdir()}${file.replace(/\//g, "-")}.js`;
+      new shell.ShellString(contents.replace("export default", "module.exports ="))
+        .to(tempPath);
+      shell.echo(`${file} imported from app directory (ES6)`);
+      return require(tempPath);
+    }
+    else {
+      shell.echo(`${file} exists, but does not have a default export`);
+      return false;
+    }
   }
   catch (e) {
-    shell.echo(`${file} does not exist in .app/ directory, using default`);
+    shell.echo(`${file} does not exist in .app/ directory, using defaults`);
     return false;
   }
 
-};
+}
 
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const LANGUAGES = process.env.CANON_LANGUAGES || "en";
@@ -74,11 +91,10 @@ const Backend = require("i18next-node-fs-backend");
 const i18nMiddleware = require("i18next-express-middleware");
 
 shell.cp(path.join(appDir, "node_modules/normalize.css/normalize.css"), path.join(appDir, "static/assets/normalize.css"));
+
 const blueprintInput = path.join(appDir, "node_modules/@blueprintjs/core/");
 const blueprintOutput = path.join(appDir, "static/assets/blueprint/");
-shell.rm("-r", blueprintOutput);
-shell.mkdir(blueprintOutput);
-shell.mkdir(path.join(blueprintOutput, "dist"));
+shell.mkdir("-p", path.join(blueprintOutput, "dist"));
 shell.cp(path.join(blueprintInput, "dist/blueprint.css"), path.join(blueprintOutput, "dist/blueprint.css"));
 shell.cp("-r", path.join(blueprintInput, "resources"), path.join(blueprintOutput, "resources"));
 
@@ -207,8 +223,18 @@ function start() {
   }
   shell.echo(`API Routes: ${routes}`);
 
-  shell.echo(""); // newline to separate PropType warning
+  if (NODE_ENV === "production" && opbeatApp && opbeatOrg && opbeatToken) {
+    const opbeat = require("opbeat").start({
+      appId: opbeatApp,
+      organizationId: opbeatOrg,
+      secretToken: opbeatToken
+    });
+    app.use(opbeat.middleware.express());
+    shell.echo("Opbeat Initialized");
+  }
+
   const App = require(path.join(appDir, "static/assets/server"));
+
   if (NODE_ENV === "development") {
 
     shell.echo(chalk.bold("\n\n 🔷  Bundling Client Webpack\n"));
@@ -216,34 +242,25 @@ function start() {
     const webpackDevConfig = require(path.join(canonPath, "webpack/webpack.config.dev-client"));
     const compiler = webpack(webpackDevConfig);
 
-    shell.echo("");
-    let msgLength = 0;
-    compiler.apply(new ProgressPlugin(function(percentage, msg) {
-      const details = Array.prototype.slice.call(arguments, 2);
-      if (percentage < 1) {
-        percentage = Math.floor(percentage * 100);
-        msg = `${percentage}% ${msg}`;
-        if (percentage < 100) msg = ` ${msg}`;
-        if (percentage < 10) msg = ` ${msg}`;
-        details.forEach(detail => {
-          if (!detail) return;
-          if (detail.length > 40) detail = `...${detail.substr(detail.length - 37)}`;
-          msg += ` ${detail}`;
-        });
-        if (msg.length > msgLength) msgLength = msg.length + 2;
-        process.stdout.write(`\r${ new Array(msgLength).join(" ") }`);
-        process.stdout.write(`\r${ msg }`);
+    compiler.apply(new ProgressPlugin((percentage, msg, current, active, modulepath) => {
+      if (process.stdout.isTTY && percentage < 1) {
+        readline.clearLine(process.stdout, 0);
+        readline.cursorTo(process.stdout, 0);
+        modulepath = modulepath ? ` …${modulepath.substr(modulepath.length - 30)}` : "";
+        current = current ? ` ${current}` : "";
+        active = active ? ` ${active}` : "";
+        process.stdout.write(`${(percentage * 100).toFixed(0)}% ${msg}${current}${active}${modulepath} `);
       }
-      else {
-        process.stdout.write(`\r${ new Array(msgLength).join(" ") }\r`);
-        notifier.notify({
-          title: name,
-          message: "Site Rebuilt - Ready for Development"
-        });
+      else if (percentage === 1) {
+        readline.clearLine(process.stdout, 0);
+        readline.cursorTo(process.stdout, 0);
       }
     }));
 
-    app.use(require("webpack-dev-middleware")(compiler, {noInfo: true, publicPath: webpackDevConfig.output.publicPath}));
+    app.use(require("webpack-dev-middleware")(compiler, {
+      logLevel: "silent",
+      publicPath: webpackDevConfig.output.publicPath
+    }));
     app.use(require("webpack-hot-middleware")(compiler));
 
   }

@@ -2,11 +2,10 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import Nav from "components/Nav";
 import Footer from "components/Footer";
-import "normalize.css/normalize.css";
 
 import "./App.css";
 
-import {isAuthenticated} from "../../src";
+import {Canon, isAuthenticated} from "../src";
 
 class App extends Component {
 
@@ -21,13 +20,15 @@ class App extends Component {
   render() {
     const {children} = this.props;
     return (
-      <div className="container">
+      <Canon>
         <Nav />
         <div className="test-1"></div>
         <div className="test-2"></div>
+        <div className="box red"></div>
+        <div className="box green"></div>
         { children }
         <Footer />
-      </div>
+      </Canon>
     );
   }
 

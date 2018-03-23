@@ -1,84 +1,142 @@
 import "babel-polyfill";
 
 import React from "react";
-import ReactDOMServer from "react-dom/server";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
-import {Provider} from "react-redux";
 import createRoutes from "routes";
 import configureStore from "./storeConfig";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
-import {I18nextProvider} from "react-i18next";
+import pretty from "pretty";
+
+import CanonProvider from "./CanonProvider";
 
 import serialize from "serialize-javascript";
 
+const BASE_URL = process.env.CANON_BASE_URL || "/";
+
+const tagManagerHead = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
+  : `
+    <!-- Google Tag Manager -->
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','${process.env.CANON_GOOGLE_TAG_MANAGER}');
+    </script>
+    <!-- End Google Tag Manager -->
+    `;
+
+const tagManagerBody = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
+  : `
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+      <iframe src="https://www.googletagmanager.com/ns.html?id=${process.env.CANON_GOOGLE_TAG_MANAGER}" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    `;
+
 const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
-  : `<script>
+  : `<!-- Google Analytics -->
+    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
       ga('create', '${process.env.CANON_GOOGLE_ANALYTICS}', 'auto');
       ga('send', 'pageview');
-    </script>`;
-
-const cssLink = process.env.NODE_ENV === "production" ? "<link rel='stylesheet' type='text/css' href='/assets/styles.css'>" : "";
+    </script>
+    <!-- End Google Analytics -->`;
 
 export default function(defaultStore = {}, i18n, headerConfig) {
-
-  // Remove stylesheets because we do not extract them into a css file in development mode
-  if (process.env.CANON_DEV === "development") {
-    headerConfig.link = headerConfig.link.filter(l => l.rel !== "stylesheet");
-  }
-
-  const Meta = () =>
-    <Helmet
-      htmlAttributes={{lang: process.env.CANON_LANGUAGE_DEFAULT || "en", amp: undefined}}
-      defaultTitle={headerConfig.title} meta={headerConfig.meta}
-      link={headerConfig.link} />;
-
-  ReactDOMServer.renderToString(<Meta />);
-  const header = Helmet.rewind();
 
   return function(req, res) {
 
     function fetchResource(lng) {
       if (!lng) return undefined;
-      let bundle = i18n.getResourceBundle(lng, i18n.options.defaultNS);
-      if (!bundle && lng.indexOf("-") === 2 || lng.indexOf("_") === 2) bundle = i18n.getResourceBundle(lng.slice(0, 2), i18n.options.defaultNS);
-      return bundle;
+      if (lng.indexOf("-") === 2 || lng.indexOf("_") === 2) lng = lng.slice(0, 2);
+      return [lng, i18n.getResourceBundle(lng, i18n.options.defaultNS)];
     }
 
+    // Set the current language of the app using 7 different strategies
     let locale, resources;
+
+    // 1st strategy: check the subdomain:
+    // i.e. de.myapp.com would set the language to German
     if (req.headers.host.indexOf(".") > 0) {
-      locale = req.headers.host.split(".")[0];
-      resources = fetchResource(locale);
+      const ret = fetchResource(req.headers.host.split(".")[0]);
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
 
+    // 2nd strategy: check the URL query str for a 'lang' key:
+    // i.e. myapp.com?lang=de would set the language to German
     if (resources === undefined) {
-      locale = req.query.lang;
-      resources = fetchResource(locale);
+      const ret = fetchResource(req.query.lang);
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
 
+    // 3rd strategy: check the URL query str for a 'language' key:
+    // i.e. myapp.com?language=de would set the language to German
     if (resources === undefined) {
-      locale = req.query.language;
-      resources = fetchResource(locale);
+      const ret = fetchResource(req.query.language);
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
 
+    // 4th strategy: check the URL query str for a 'locale' key:
+    // i.e. myapp.com?locale=de would set the language to German
     if (resources === undefined) {
-      locale = req.query.locale;
-      resources = fetchResource(locale);
+      const ret = fetchResource(req.query.locale);
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
 
+    // 5th strategy: check the first element of the URL path and see if it matches
+    // anything in the CANON_LANGUAGES env var
     if (resources === undefined) {
-      locale = req.language;
-      resources = fetchResource(locale);
+      const splitPath = req.path.split("/");
+      const CANON_LANGUAGES = process.env.CANON_LANGUAGES || false;
+      if (CANON_LANGUAGES && splitPath.length > 1) {
+        const firstPathElem = splitPath[1];
+        if (CANON_LANGUAGES.split(",").includes(firstPathElem)) {
+          const ret = fetchResource(firstPathElem);
+          if (ret) {
+            locale = ret[0];
+            resources = ret[1];
+          }
+        }
+      }
     }
 
+    // 6th strategy: check the request headers for a language:
+    // many browsers by default will send a language
     if (resources === undefined) {
-      locale = process.env.CANON_LANGUAGE_DEFAULT || "en";
-      resources = fetchResource(locale);
+      const ret = fetchResource(req.language);
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
+    }
+
+    // 7th strategy: fallback to whatever the CANON_LANGUAGE_DEFAULT environment
+    // var is set to, if it's not set use english
+    if (resources === undefined) {
+      const ret = fetchResource(process.env.CANON_LANGUAGE_DEFAULT || "en");
+      if (ret) {
+        locale = ret[0];
+        resources = ret[1];
+      }
     }
 
     const location = {
@@ -93,11 +151,10 @@ export default function(defaultStore = {}, i18n, headerConfig) {
       search: req.url.includes("?") ? `?${req.url.split("?")[1]}` : ""
     };
 
-    const i18nServer = i18n.cloneInstance();
     const history = createMemoryHistory();
     const store = configureStore({i18n: {locale, resources}, location, ...defaultStore}, history);
     const routes = createRoutes(store);
-    i18nServer.changeLanguage(locale);
+    i18n.changeLanguage(locale);
     const rtl = ["ar", "he"].includes(locale);
 
     match({routes, location: req.url}, (err, redirect, props) => {
@@ -111,36 +168,45 @@ export default function(defaultStore = {}, i18n, headerConfig) {
           .then(() => {
             const initialState = store.getState();
             const componentHTML = renderToString(
-              <I18nextProvider i18n={i18nServer}>
-                <Provider store={store}>
-                  <RouterContext {...props} />
-                </Provider>
-              </I18nextProvider>
+              <CanonProvider helmet={headerConfig} i18n={i18n} locale={locale} store={store}>
+                <RouterContext {...props} />
+              </CanonProvider>
             );
 
-            res.status(200).send(`
-              <!doctype html>
-              <html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
-                <head>
-                  ${header.title.toString()}
-                  ${header.meta.toString()}
-                  ${header.link.toString()}
-                  <link rel='stylesheet' type='text/css' href='/assets/normalize.css'>
-                  <link rel='stylesheet' type='text/css' href='/assets/blueprint/dist/blueprint.css'>
-                  ${cssLink}
-                </head>
-                <body>
-                  <div id="app">${componentHTML}</div>
-                  <script>
-                    window.__SSR__ = true;
-                    window.__INITIAL_STATE__ = ${ serialize(initialState) };
-                    window.__APP_NAME__ = "${ i18n.options.defaultNS }";
-                  </script>
-                  ${analtyicsScript}
-                  <script type="text/javascript" charset="utf-8" src="/assets/app.js"></script>
-                </body>
-              </html>
-            `);
+            const header = Helmet.rewind();
+
+            res.status(200).send(`<!doctype html>
+<html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
+  <head>
+    ${tagManagerHead}
+    <base href='${ BASE_URL }'>
+
+    ${ pretty(header.title.toString()).replace(/\n/g, "\n    ") }
+
+    ${ pretty(header.meta.toString()).replace(/\n/g, "\n    ") }
+
+    ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
+
+    <link rel='stylesheet' type='text/css' href='assets/normalize.css'>
+    <link rel='stylesheet' type='text/css' href='assets/blueprint/dist/blueprint.css'>
+    <link rel='stylesheet' type='text/css' href='assets/styles.css'>
+  </head>
+  <body>
+    ${tagManagerBody}
+    <div id="React-Container">${ componentHTML }</div>
+
+    <script>
+      window.__SSR__ = true;
+      window.__APP_NAME__ = "${ i18n.options.defaultNS }";
+      window.__HELMET_DEFAULT__ = ${ serialize(headerConfig, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
+      window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
+    </script>
+
+    ${analtyicsScript}
+
+    <script type="text/javascript" charset="utf-8" src="assets/app.js"></script>
+  </body>
+</html>`);
           })
           .catch(err => {
             res.status(500).send({error: err.toString(), stackTrace: err.stack.toString()});
