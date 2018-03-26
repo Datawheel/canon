@@ -13,6 +13,7 @@ const cssLoaders = [
     loader: "css-loader",
     options: {
       minimize: process.env.NODE_ENV === "production",
+      root: process.env.CANON_BASE_URL || false,
       sourceMap: process.env.NODE_ENV === "development"
     }
   },

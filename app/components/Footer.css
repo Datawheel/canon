@@ -5,14 +5,16 @@ footer {
   @mixin padding 25px;
   text-align: center;
   width: 100%;
-  & img {
-    margin: 0 25px;
-    vertical-align: middle;
-  }
-  & .ifpri {
-    width: 100px;
-  }
   & .datawheel {
+    width: 150px;
+    vertical-align: top;
+  }
+  & .datawheel-css {
+    background-image: url("/images/logos/datawheel.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: inline-block;
+    height: 46px;
     width: 150px;
   }
 }
