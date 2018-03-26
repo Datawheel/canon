@@ -11,11 +11,13 @@ const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
 process.env.NODE_ENV = "development";
 const {name} = JSON.parse(shell.cat("package.json"));
 const appDir = process.cwd();
+const staticFolder = process.env.CANON_STATIC_FOLDER || "static";
+const staticPath = path.join(appDir, staticFolder);
 const canonPath = name === "datawheel-canon" ? appDir : path.join(appDir, "node_modules/datawheel-canon/");
 let started = false;
 
-shell.rm("-rf", path.join(appDir, "static/assets/"));
-shell.mkdir("-p", path.join(appDir, "static/assets/"));
+shell.rm("-rf", path.join(staticPath, "assets/"));
+shell.mkdir("-p", path.join(staticPath, "assets/"));
 
 shell.echo(chalk.bold("\n 🔷  Bundling Server Webpack\n"));
 
@@ -63,7 +65,7 @@ compiler.watch({}, (err, stats) => {
     console.warn("\n\n ⚠️  SERVER WEBPACK ERROR\n");
     console.warn(e);
   });
-  if (!shell.test("-f", "./static/assets/server.js")) {
+  if (!shell.test("-f", path.join(staticPath, "assets/server.js"))) {
     console.error("\n\n 🛑  SERVER WEBPACK ERROR\n");
     console.error("Unable to build server.js");
     shell.exit(1);

@@ -7,7 +7,7 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
       webpack = require("webpack");
 
 
-const assetsPath = path.join(appDir, "static", "assets");
+const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
 

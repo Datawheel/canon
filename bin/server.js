@@ -34,6 +34,7 @@ const logins = process.env.CANON_LOGINS || false;
 const appDir = process.cwd();
 const appPath = path.join(appDir, "app");
 const {name} = JSON.parse(shell.cat(path.join(appDir, "package.json")));
+const staticPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static");
 
 const canonPath = name === "datawheel-canon" ? appDir : path.join(appDir, "node_modules/datawheel-canon/");
 
@@ -90,10 +91,10 @@ const i18n = require("i18next");
 const Backend = require("i18next-node-fs-backend");
 const i18nMiddleware = require("i18next-express-middleware");
 
-shell.cp(path.join(appDir, "node_modules/normalize.css/normalize.css"), path.join(appDir, "static/assets/normalize.css"));
+shell.cp(path.join(appDir, "node_modules/normalize.css/normalize.css"), path.join(staticPath, "assets/normalize.css"));
 
 const blueprintInput = path.join(appDir, "node_modules/@blueprintjs/core/");
-const blueprintOutput = path.join(appDir, "static/assets/blueprint/");
+const blueprintOutput = path.join(staticPath, "assets/blueprint/");
 shell.mkdir("-p", path.join(blueprintOutput, "dist"));
 shell.cp(path.join(blueprintInput, "dist/blueprint.css"), path.join(blueprintOutput, "dist/blueprint.css"));
 shell.cp("-r", path.join(blueprintInput, "resources"), path.join(blueprintOutput, "resources"));
@@ -233,7 +234,7 @@ function start() {
     shell.echo("Opbeat Initialized");
   }
 
-  const App = require(path.join(appDir, "static/assets/server"));
+  const App = require(path.join(staticPath, "assets/server"));
 
   if (NODE_ENV === "development") {
 
@@ -271,7 +272,7 @@ function start() {
     app.use(helmet({frameguard: FRAMEGUARD === void 0 ? false : FRAMEGUARD}));
   }
 
-  app.use(express.static(path.join(appDir, "static")));
+  app.use(express.static(staticPath));
   app.use(i18nMiddleware.handle(i18n));
 
   app.get("*", App.default(store, i18n, headerConfig));
