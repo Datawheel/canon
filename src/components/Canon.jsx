@@ -13,19 +13,18 @@ class Canon extends Component {
   }
 
   render() {
-    const { helmet, locale } = this.context;
-    const { children, className, id, loading } = this.props;
+    const {helmet, locale} = this.context;
+    const {children, className, id, loading} = this.props;
     return (
       <div id={id} className={className}>
         <Helmet
-          htmlAttributes={{ lang: locale, amp: undefined }}
+          htmlAttributes={{lang: locale, amp: undefined}}
           defaultTitle={helmet.title}
           titleTemplate={`%s | ${helmet.title}`}
           meta={helmet.meta}
           link={helmet.link}
         />
-        {loading && <Loading />}
-        <div hidden={loading}>{children}</div>
+        {loading ? <Loading /> : <div>{children}</div>}
       </div>
     );
   }
