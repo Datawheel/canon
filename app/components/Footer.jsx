@@ -7,7 +7,7 @@ class Footer extends Component {
 
     return (
       <footer>
-        <img className="datawheel" src="/images/logos/datawheel.png" />
+        <img className="datawheel" src="images/logos/datawheel.png" />
       </footer>
     );
 
