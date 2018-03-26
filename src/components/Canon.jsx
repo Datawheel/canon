@@ -24,7 +24,7 @@ class Canon extends Component {
           meta={helmet.meta}
           link={helmet.link}
         />
-        {loading ? <Loading /> : <div>{children}</div>}
+        { loading ? <Loading /> : children }
       </div>
     );
   }
