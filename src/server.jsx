@@ -14,6 +14,7 @@ import CanonProvider from "./CanonProvider";
 import serialize from "serialize-javascript";
 
 const BASE_URL = process.env.CANON_BASE_URL || "/";
+const basename = BASE_URL.replace(/^[A-z]{4,5}\:\/{2}[A-z0-9\.\-]{1,}\:{0,}[0-9]{0,4}/g, "");
 
 const tagManagerHead = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
   : `
@@ -139,7 +140,8 @@ export default function(defaultStore = {}, i18n, headerConfig) {
       }
     }
 
-    const location = {
+    const windowLocation = {
+      basename,
       host: req.headers.host,
       hostname: req.headers.host.split(":")[0],
       href: `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }${ req.url }`,
@@ -151,13 +153,14 @@ export default function(defaultStore = {}, i18n, headerConfig) {
       search: req.url.includes("?") ? `?${req.url.split("?")[1]}` : ""
     };
 
-    const history = createMemoryHistory();
-    const store = configureStore({i18n: {locale, resources}, location, ...defaultStore}, history);
+    const location = req.url.replace(BASE_URL, "");
+    const history = createMemoryHistory({basename, entries: [location]});
+    const store = configureStore({i18n: {locale, resources}, location: windowLocation, ...defaultStore}, history);
     const routes = createRoutes(store);
     i18n.changeLanguage(locale);
     const rtl = ["ar", "he"].includes(locale);
 
-    match({routes, location: req.url}, (err, redirect, props) => {
+    match({history, routes}, (err, redirect, props) => {
 
       if (err) res.status(500).json(err);
       else if (redirect) res.redirect(302, redirect.pathname + redirect.search);

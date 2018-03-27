@@ -3,7 +3,8 @@ import "babel-polyfill";
 
 import React from "react";
 import {render} from "react-dom";
-import {applyRouterMiddleware, browserHistory, Router, RouterContext} from "react-router";
+import {createHistory} from "history";
+import {applyRouterMiddleware, Router, RouterContext, useRouterHistory} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
 import {animateScroll} from "react-scroll";
 import createRoutes from "routes";
@@ -11,6 +12,8 @@ import configureStore from "./storeConfig";
 import {LOADING_END, LOADING_START} from "./consts";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
+const {basename} = window.__INITIAL_STATE__.location;
+const browserHistory = useRouterHistory(createHistory)({basename});
 const store = configureStore(window.__INITIAL_STATE__, browserHistory);
 const history = syncHistoryWithStore(browserHistory, store);
 const routes = createRoutes(store);
