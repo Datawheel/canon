@@ -182,7 +182,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 <html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
   <head>
     ${tagManagerHead}
-    <base href='${ BASE_URL }'>
+    ${ process.env.CANON_BASE_URL ? `<base href='${ BASE_URL }'>` : "" }
 
     ${ pretty(header.title.toString()).replace(/\n/g, "\n    ") }
 
