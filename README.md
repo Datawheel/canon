@@ -41,6 +41,12 @@ node node_modules/datawheel-canon/bin/setup.js
 
 Now that the necessary files are in place, simply run `npm run dev` to spin up the development server.
 
+If you encounter an error that causes the node server to keep running in the background, the following command should kill the process:
+
+```bash
+kill -9 $(ps aux | grep datawheel-canon/bin/server.js | grep -v grep | awk '{print $2}')
+```
+
 ---
 
 ## Deployment
