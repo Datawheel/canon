@@ -3,11 +3,11 @@ const lookup = {
   // common
   classes: "common/index",
   intent: "common/intent",
-  interactionMode: "common/interactionMode",
+  interactionmode: "common/interactionMode",
   keys: "common/keys",
   position: "common/position",
   props: "common/props",
-  tetherUtils: "common/tetherUtils",
+  tetherutils: "common/tetherUtils",
   utils: "common/utils",
 
   // compatibility
@@ -32,6 +32,7 @@ const lookup = {
   editabletext: "components/editable-text/editableText",
   controlgroup: "components/forms/controlGroup",
   control: "components/forms/controls",
+  elevation: "components/card/card",
   fileupload: "components/forms/fileUpload",
   formgroup: "components/forms/formGroup",
   hotkeys: "components/hotkeys/hotkeys",
