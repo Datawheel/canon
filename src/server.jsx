@@ -190,9 +190,9 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 
     ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
 
-    <link rel='stylesheet' type='text/css' href='assets/normalize.css'>
-    <link rel='stylesheet' type='text/css' href='assets/blueprint/dist/blueprint.css'>
-    <link rel='stylesheet' type='text/css' href='assets/styles.css'>
+    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/normalize.css'>
+    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/blueprint/dist/blueprint.css'>
+    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css'>
   </head>
   <body>
     ${tagManagerBody}
@@ -207,7 +207,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 
     ${analtyicsScript}
 
-    <script type="text/javascript" charset="utf-8" src="assets/app.js"></script>
+    <script type="text/javascript" charset="utf-8" src="${ process.env.CANON_BASE_URL ? "" : "/" }assets/app.js"></script>
   </body>
 </html>`);
           })
