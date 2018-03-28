@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/datawheel/datawheel-canon#readme",
   "dependencies": {
-    "@blueprintjs/core": "^1.35.0",
+    "@blueprintjs/core": "1.35.5",
     "axios": "^0.17.1",
     "babel-cli": "^6.26.0",
     "babel-loader": "^7.1.2",
