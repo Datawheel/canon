@@ -198,7 +198,7 @@ export CANON_LOGINS=true
 datawheel-canon will automatically instantiate a "users" table in the specified database to enable full user management. At this point, all that is needed in your application is to use the Login and Signup components exported by datawheel-canon:
 
 ```jsx
-import {Login, Signup} from "datawheel-canon";
+import {Login, SignUp} from "datawheel-canon";
 ```
 
 These two components can either be used directly with a Route, or as children of other components. They are simple forms that handle all of the authentication and errors. If you would like to change the page the user is redirected to after logging in, you can override the default "redirect" prop:
