@@ -26,8 +26,9 @@ module.exports = function(app) {
   // mount the various authentication routes
   local(app);
   checkService(app, "facebook");
-  checkService(app, "twitter");
+  checkService(app, "google");
   checkService(app, "instagram");
+  checkService(app, "twitter");
 
   passport.serializeUser((user, done) => done(null, user.id));
 
