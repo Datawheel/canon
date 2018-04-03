@@ -1,9 +1,12 @@
+let socialRedirectUrl = process.env.CANON_SOCIAL_REDIRECT || "/";
+socialRedirectUrl = !socialRedirectUrl.endsWith("/") ? `${socialRedirectUrl}/` : socialRedirectUrl;
+
 const config = {
   facebook: [
     {
       clientID: process.env.CANON_FACEBOOK_API,
       clientSecret: process.env.CANON_FACEBOOK_SECRET,
-      callbackURL: "/auth/facebook/callback",
+      callbackURL: `${socialRedirectUrl}auth/facebook/callback`,
       profileFields: ["id", "displayName", "photos", "email", "birthday", "cover"]
     },
     p => ({
@@ -13,11 +16,26 @@ const config = {
       username: p.displayName.toLowerCase().replace(" ", "-")
     })
   ],
+  google: [
+    {
+      clientID: process.env.CANON_GOOGLE_API,
+      clientSecret: process.env.CANON_GOOGLE_SECRET,
+      callbackURL: `${socialRedirectUrl}auth/google/callback`,
+      scope: ["profile"],
+      module: "google-oauth20"
+    },
+    p => ({
+      id: `goog${p.id}`,
+      name: p.displayName,
+      google: p.id,
+      username: p.displayName.toLowerCase().replace(" ", "-")
+    })
+  ],
   instagram: [
     {
       clientID: process.env.CANON_INSTAGRAM_API,
       clientSecret: process.env.CANON_INSTAGRAM_SECRET,
-      callbackURL: "/auth/instagram/callback"
+      callbackURL: `${socialRedirectUrl}auth/instagram/callback`
     },
     p => ({
       id: `ig${p.id}`,
@@ -30,7 +48,7 @@ const config = {
     {
       consumerKey: process.env.CANON_TWITTER_API,
       consumerSecret: process.env.CANON_TWITTER_SECRET,
-      callbackURL: "/auth/twitter/callback"
+      callbackURL: `${socialRedirectUrl}auth/twitter/callback`
     },
     p => ({
       id: `t${p.id}`,
@@ -48,7 +66,8 @@ module.exports = function(app, service) {
   const [strat, query] = config[service];
   social.push(service);
 
-  const Strategy = require(`passport-${service}`).Strategy;
+  const servicePackage = strat.module || service;
+  const Strategy = require(`passport-${servicePackage}`).Strategy;
 
   passport.use(new Strategy(strat, (accessToken, refreshToken, profile, done) => {
 
@@ -62,9 +81,10 @@ module.exports = function(app, service) {
 
   }));
 
-  app.get(`/auth/${service}/`, passport.authenticate(service));
+  const authOptions = strat.scope ? {scope: strat.scope} : null;
+  app.get(`/auth/${service}/`, passport.authenticate(service, authOptions));
 
   app.get(`/auth/${service}/callback`, passport.authenticate(service, {failureRedirect: "/"}),
-    (req, res) => res.redirect(process.env.CANON_SOCIAL_REDIRECT || "/"), err => console.log(`Error with ${service} login:`, err));
+    (req, res) => res.redirect(socialRedirectUrl), err => console.log(`Error with ${service} login:`, err));
 
 };
