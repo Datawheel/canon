@@ -20,6 +20,7 @@
     "Login": "ES Login",
     "Password": "ES Password",
     "Twitter": "ES Twitter",
+    "Google": "ES Google",
     "error": "Wrong Username or Password",
     "success": "Successfully Logged In"
   },
