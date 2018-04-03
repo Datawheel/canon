@@ -12,6 +12,7 @@ module.exports = function(sequelize, db) {
       password: db.STRING,
       salt: db.STRING,
       facebook: db.STRING,
+      github: db.STRING,
       google: db.STRING,
       instagram: db.STRING,
       twitter: db.STRING
