@@ -31,6 +31,19 @@ const config = {
       username: p.displayName.toLowerCase().replace(" ", "-")
     })
   ],
+  github: [
+    {
+      clientID: process.env.CANON_GITHUB_API,
+      clientSecret: process.env.CANON_GITHUB_SECRET,
+      callbackURL: `${socialRedirectUrl}auth/github/callback`
+    },
+    p => ({
+      id: `gh${p.id}`,
+      name: p.displayName,
+      github: p.id,
+      username: p.displayName.toLowerCase().replace(" ", "-")
+    })
+  ],
   instagram: [
     {
       clientID: process.env.CANON_INSTAGRAM_API,
