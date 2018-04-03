@@ -9,6 +9,10 @@
   },
   "Admin": "Admin",
   "Contributor": "Contributor",
+  "Loading": {
+    "description": "Loading {{progress}} of {{total}} datasets",
+    "title": "Please Wait"
+  },
   "LoadingComponent": {
     "description": "Loading {{progress}} of {{total}} datasets",
     "title": "Please Wait"
@@ -16,6 +20,7 @@
   "Login": {
     "E-mail": "E-mail",
     "Facebook": "Facebook",
+    "Google": "Google",
     "Instagram": "Instagram",
     "Login": "Login",
     "Password": "Password",
@@ -61,6 +66,7 @@
   "User": "User",
   "Username": "Username",
   "complexTrans": "Hello <1><0>{{name}}</0></1>, you have <3>{{count}}</3> unread message. <5>Click here</5>.",
+  "complexTrans_plural": "Hello <1><0>{{name}}</0></1>, you have <3>{{count}}</3> unread messages. <5>Click here</5>.",
   "home": {
     "body": "home.body",
     "sub": "Here is a sub-title.",
