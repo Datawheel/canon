@@ -356,7 +356,7 @@ export CANON_FACEBOOK_SECRET="##############################"
 1. [https://console.developers.google.com/](https://console.developers.google.com/)
 2. Once logged in, enable the "Google+ API"
 3. Go to the "Credentials" tab inside the "Google+ API" settings view and click "Create Credentials" and create OAuth client credentials
-4. Click the name of the credentials you created in the preview step
+4. Click the name of the credentials you created in the previous step
 5. For "Authorized JavaScript origins" add "https://localhost"
 6. For "Authorized Redirect URIs" add "https://localhost/auth/google/callback"
 7. Set the Client ID (CANON_GOOGLE_API) and Client Secret (CANON_GOOGLE_SECRET) values in your environment:
