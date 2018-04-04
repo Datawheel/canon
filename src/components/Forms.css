@@ -41,6 +41,24 @@
 
     }
 
+    &.github {
+      background-color: #ececec;
+      background-image: linear-gradient(#f4f4f4, #ececec);
+
+      color: #333;
+
+      & .icon {
+        margin-bottom: 2px;
+      }
+
+      &:hover {
+        color: #fff;
+        background-color: #3c8dde;
+        background-image: linear-gradient(#599bdc, #3072b3);
+      }
+
+    }
+
     &.google {
       background: #ffffff;
       color: #444;
