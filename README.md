@@ -16,6 +16,7 @@ Reusable React environment and components for creating visualization engines.
   * [Roles](#roles)
   * [Social Logins](#social-logins)
     * [Facebook](#facebook)
+    * [Github](#github)
     * [Google](#google)
     * [Instagram](#instagram)
     * [Twitter](#twitter)
@@ -352,13 +353,23 @@ export CANON_FACEBOOK_API="###############"
 export CANON_FACEBOOK_SECRET="##############################"
 ```
 
+#### Github
+1. [https://github.com/settings/applications/new](https://github.com/settings/applications/new)
+2. Fill out the form and set "Authorization callback URL" to `https://localhost/auth/github/callback`
+3. Click register application
+4. From the next screen copy the Client ID and Client Secret values to:
+```
+export CANON_GITHUB_API="###############"
+export CANON_GITHUB_SECRET="##############################"
+```
+
 #### Google
 1. [https://console.developers.google.com/](https://console.developers.google.com/)
 2. Once logged in, enable the "Google+ API"
 3. Go to the "Credentials" tab inside the "Google+ API" settings view and click "Create Credentials" and create OAuth client credentials
 4. Click the name of the credentials you created in the previous step
-5. For "Authorized JavaScript origins" add "https://localhost"
-6. For "Authorized Redirect URIs" add "https://localhost/auth/google/callback"
+5. For "Authorized JavaScript origins" add `https://localhost`
+6. For "Authorized Redirect URIs" add `https://localhost/auth/google/callback`
 7. Set the Client ID (CANON_GOOGLE_API) and Client Secret (CANON_GOOGLE_SECRET) values in your environment:
 ```sh
 export CANON_GOOGLE_API="###############"
