@@ -29,6 +29,7 @@ module.exports = function(app) {
   checkService(app, "github");
   checkService(app, "google");
   checkService(app, "instagram");
+  checkService(app, "linkedin");
   checkService(app, "twitter");
 
   passport.serializeUser((user, done) => done(null, user.id));
