@@ -22,6 +22,7 @@
     "Twitter": "ES Twitter",
     "Github": "ES Github",
     "Google": "ES Google",
+    "LinkedIn": "ES LinkedIn",
     "error": "Wrong Username or Password",
     "success": "Successfully Logged In"
   },
