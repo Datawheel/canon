@@ -15,6 +15,7 @@ module.exports = function(sequelize, db) {
       github: db.STRING,
       google: db.STRING,
       instagram: db.STRING,
+      linkedin: db.STRING,
       twitter: db.STRING
     }
   );
