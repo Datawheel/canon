@@ -57,6 +57,20 @@ const config = {
       username: `${p.displayName.toLowerCase().replace(" ", "-")}-${p.id}`
     })
   ],
+  linkedin: [
+    {
+      clientID: process.env.CANON_LINKEDIN_API,
+      clientSecret: process.env.CANON_LINKEDIN_SECRET,
+      callbackURL: `${socialRedirectUrl}auth/linkedin/callback`,
+      module: "linkedin-oauth2"
+    },
+    p => ({
+      id: `li${p.id}`,
+      name: p.displayName,
+      linkedin: p.id,
+      username: p.displayName.toLowerCase().replace(" ", "-")
+    })
+  ],
   twitter: [
     {
       consumerKey: process.env.CANON_TWITTER_API,
