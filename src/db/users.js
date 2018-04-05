@@ -20,6 +20,7 @@ module.exports = function(sequelize, db) {
     twitter: {type: db.STRING},
     facebook: {type: db.STRING},
     instagram: {type: db.STRING},
+    linkedin: {type: db.STRING},
     github: {type: db.STRING},
     google: {type: db.STRING},
     activated: {type: db.BOOLEAN, allowNull: false, defaultValue: false},
