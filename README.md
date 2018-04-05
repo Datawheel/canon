@@ -19,6 +19,7 @@ Reusable React environment and components for creating visualization engines.
     * [Github](#github)
     * [Google](#google)
     * [Instagram](#instagram)
+    * [LinkedIn](#linkedin)
     * [Twitter](#twitter)
 * [Custom API Routes](#custom-api-routes)
 * [Custom Database Models](#custom-database-models)
@@ -376,16 +377,6 @@ export CANON_GOOGLE_API="###############"
 export CANON_GOOGLE_SECRET="##############################"
 ```
 
-#### Twitter
-1. [https://apps.twitter.com](https://apps.twitter.com)
-2. Once logged in, click the "Create New App" button on the top right of the page.
-3. Fill out the meta information about your project, but specifically set the "Callback URL" to `http://localhost:3300/auth/twitter/callback`.
-4. Go to the "Key and Access Tokens" tab and copy the Consumer Key (API Key) and Consumer Secret (API Secret) to your environment as the following variables:
-```sh
-export CANON_TWITTER_API="###############"
-export CANON_TWITTER_SECRET="##############################"
-```
-
 #### Instagram
 1. [https://www.instagram.com/developer/](https://www.instagram.com/developer/)
 2. Once logged in, click the "Manage Clients" button in the top navigation, then click the green "Register a New Client" button.
@@ -395,6 +386,28 @@ export CANON_TWITTER_SECRET="##############################"
 ```sh
 export CANON_INSTAGRAM_API="###############"
 export CANON_INSTAGRAM_SECRET="##############################"
+```
+
+#### LinkedIn
+1. [https://www.linkedin.com/developer/apps/new](https://www.linkedin.com/developer/apps/new)
+2. Fill out the form (LinkedIn requires that you add a square image of at least 80x80 px)
+3. Click "Submit"
+4. Under the OAuth 2.0 section for "Authorized Redirect URLs" enter `https://localhost/auth/linkedin/callback`
+5. Click "Add" then click "Update"
+6. From the same application settings screen, copy the Client ID and Client Secret values to:
+```
+export CANON_LINKEDIN_API="###############"
+export CANON_LINKEDIN_SECRET="##############################"
+```
+
+#### Twitter
+1. [https://apps.twitter.com](https://apps.twitter.com)
+2. Once logged in, click the "Create New App" button on the top right of the page.
+3. Fill out the meta information about your project, but specifically set the "Callback URL" to `http://localhost:3300/auth/twitter/callback`.
+4. Go to the "Key and Access Tokens" tab and copy the Consumer Key (API Key) and Consumer Secret (API Secret) to your environment as the following variables:
+```sh
+export CANON_TWITTER_API="###############"
+export CANON_TWITTER_SECRET="##############################"
 ```
 
 ---
