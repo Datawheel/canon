@@ -9,6 +9,7 @@ import twitterIcon from "../images/twitter-logo.svg";
 import instagramIcon from "../images/instagram-logo.svg";
 import googleIcon from "../images/google-logo.svg";
 import githubIcon from "../images/github-logo.svg";
+import linkedinIcon from "../images/linkedin-logo.svg";
 
 import {
   RESET_SEND_FAILURE,
@@ -103,6 +104,7 @@ class Login extends Component {
             { social.includes("google") ? <a href="/auth/google" className="pt-button google"><img className="icon" src={googleIcon} /><span>{ t("Login.Google") }</span></a> : null }
             { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button twitter"><img className="icon" src={twitterIcon} /><span>{ t("Login.Twitter") }</span></a> : null }
             { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button instagram"><img className="icon" src={instagramIcon} /><span>{ t("Login.Instagram") }</span></a> : null }
+            { social.includes("linkedin") ? <a href="/auth/linkedin" className="pt-button linkedin"><img className="icon" src={linkedinIcon} /><span>{ t("Login.LinkedIn") }</span></a> : null }
           </div>
           : null }
       </div>

@@ -73,6 +73,32 @@
 
     }
 
+    &.instagram {
+      background: #8a3ab9;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #8a3ab9;
+
+      &:hover {
+        background-color: color(#8a3ab9 blackness(50%));
+      }
+
+    }
+
+    &.linkedin {
+      background: #fdfdfd;
+      background: linear-gradient(#fdfdfd, #eee);
+
+      color: #000;
+
+      & .icon {
+        margin-bottom: 2px;
+      }
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+    }
+
     &.twitter {
       background: #0084b4;
       background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #0084b4;
@@ -83,15 +109,6 @@
 
     }
 
-    &.instagram {
-      background: #8a3ab9;
-      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #8a3ab9;
-
-      &:hover {
-        background-color: color(#8a3ab9 blackness(50%));
-      }
-
-    }
 
   }
 
