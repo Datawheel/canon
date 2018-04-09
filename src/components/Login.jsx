@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {login, resetPassword} from "../actions/auth";
 import {translate} from "react-i18next";
 import {Intent, Toaster} from "@blueprintjs/core";
-import {SocialButtons} from "src/components/SocialButtons";
+import {SocialButtons} from "../components/SocialButtons";
 
 import {
   RESET_SEND_FAILURE,
