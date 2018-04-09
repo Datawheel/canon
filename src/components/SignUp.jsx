@@ -3,10 +3,8 @@ import {connect} from "react-redux";
 import {signup} from "../actions/auth";
 import {translate} from "react-i18next";
 import {Intent, Toaster} from "@blueprintjs/core";
+import {SocialButtons} from "src/components/SocialButtons";
 
-import facebookIcon from "../images/facebook-logo.svg";
-import twitterIcon from "../images/twitter-logo.svg";
-import instagramIcon from "../images/instagram-logo.svg";
 import {SIGNUP_EXISTS} from "../consts";
 
 import "./Forms.css";
@@ -111,13 +109,7 @@ class SignUp extends Component {
             : null }
           <button type="submit" className="pt-button pt-fill" tabIndex="5">{ t("SignUp.Sign Up") }</button>
         </form>
-        { social.length
-          ? <div id="socials">
-            { social.includes("facebook") ? <a href="/auth/facebook" className="pt-button facebook"><img className="icon" src={facebookIcon} /><span>{ t("SignUp.Facebook") }</span></a> : null }
-            { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button twitter"><img className="icon" src={twitterIcon} /><span>{ t("SignUp.Twitter") }</span></a> : null }
-            { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button instagram"><img className="icon" src={instagramIcon} /><span>{ t("SignUp.Instagram") }</span></a> : null }
-          </div>
-          : null }
+        <SocialButtons social={social} />
       </div>
     );
 
