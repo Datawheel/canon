@@ -3,13 +3,7 @@ import {connect} from "react-redux";
 import {login, resetPassword} from "../actions/auth";
 import {translate} from "react-i18next";
 import {Intent, Toaster} from "@blueprintjs/core";
-
-import facebookIcon from "../images/facebook-logo.svg";
-import twitterIcon from "../images/twitter-logo.svg";
-import instagramIcon from "../images/instagram-logo.svg";
-import googleIcon from "../images/google-logo.svg";
-import githubIcon from "../images/github-logo.svg";
-import linkedinIcon from "../images/linkedin-logo.svg";
+import {SocialButtons} from "src/components/SocialButtons";
 
 import {
   RESET_SEND_FAILURE,
@@ -97,16 +91,7 @@ class Login extends Component {
           </div>
           <button className="pt-button pt-fill" type="submit" tabIndex="5">{ t("Login.Login") }</button>
         </form>
-        { social.length
-          ? <div id="socials">
-            { social.includes("facebook") ? <a href="/auth/facebook" className="pt-button facebook"><img className="icon" src={facebookIcon} /><span>{ t("Login.Facebook") }</span></a> : null }
-            { social.includes("github") ? <a href="/auth/github" className="pt-button github"><img className="icon" src={githubIcon} /><span>{ t("Login.Github") }</span></a> : null }
-            { social.includes("google") ? <a href="/auth/google" className="pt-button google"><img className="icon" src={googleIcon} /><span>{ t("Login.Google") }</span></a> : null }
-            { social.includes("twitter") ? <a href="/auth/twitter" className="pt-button twitter"><img className="icon" src={twitterIcon} /><span>{ t("Login.Twitter") }</span></a> : null }
-            { social.includes("instagram") ? <a href="/auth/instagram" className="pt-button instagram"><img className="icon" src={instagramIcon} /><span>{ t("Login.Instagram") }</span></a> : null }
-            { social.includes("linkedin") ? <a href="/auth/linkedin" className="pt-button linkedin"><img className="icon" src={linkedinIcon} /><span>{ t("Login.LinkedIn") }</span></a> : null }
-          </div>
-          : null }
+        <SocialButtons social={social} />
       </div>
     );
 
