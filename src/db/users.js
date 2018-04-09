@@ -1,3 +1,5 @@
+const register = require("./_helpers.js").register;
+
 module.exports = function(sequelize, db) {
 
   const userModel = {
@@ -43,8 +45,6 @@ module.exports = function(sequelize, db) {
     }
   };
 
-  sequelize.getQueryInterface().createTable("users", userModel);
-
-  return sequelize.define("users", userModel);
+  return register(sequelize, "users", userModel);
 
 };
