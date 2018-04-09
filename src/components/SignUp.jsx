@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {signup} from "../actions/auth";
 import {translate} from "react-i18next";
 import {Intent, Toaster} from "@blueprintjs/core";
-import {SocialButtons} from "../components/SocialButtons";
+import {SocialButtons} from "./SocialButtons";
 
 import {SIGNUP_EXISTS} from "../consts";
 
