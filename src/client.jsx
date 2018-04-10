@@ -61,12 +61,11 @@ function renderMiddleware() {
   return {
     renderRouterContext: (child, props) => {
 
-      if (window.__SSR__) {
+      const needs = props.components.filter(comp => comp.need || comp.preneed || comp.postneed);
+
+      if (window.__SSR__ || !props.location.key || !needs.length) {
         window.__SSR__ = false;
-        scrollToHash(props.location.hash);
-      }
-      else if (!props.location.key && props.location.hash) {
-        scrollToHash(props.location.hash);
+        if (props.location.hash) scrollToHash(props.location.hash);
       }
       else {
         store.dispatch({type: LOADING_START});
@@ -74,7 +73,7 @@ function renderMiddleware() {
         preRenderMiddleware(store, props)
           .then(() => {
             store.dispatch({type: LOADING_END});
-            scrollToHash(props.location.hash);
+            if (props.location.hash) scrollToHash(props.location.hash);
           });
       }
 
