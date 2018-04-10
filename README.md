@@ -10,6 +10,7 @@ Reusable React environment and components for creating visualization engines.
 * [Header/Meta Information](#header-meta-information)
 * [Redux Store](#redux-store)
 * [User Management](#user-management)
+  * [Loading User Information](#loading-user-information)
   * [Privacy Policy and Terms of Service](#privacy-policy-and-terms-of-service)
   * [Password Reset](#password-reset)
   * [E-mail Verification](#e-mail-verification)
@@ -213,6 +214,52 @@ These two components can either be used directly with a Route, or as children of
 If a `false` value is provided as a redirect, the redirect will be disabled and you must provide you own detection of the `state.auth.user` object in the redux store.
 
 *NOTE*: If also using [social logins](#social-logins), the `CANON_SOCIAL_REDIRECT` environment variable needs to be set in order to change those redirects.
+
+### Loading User Information
+
+Once login/signup forms have been set up, any component that needs access to the currently logged in user needs to dispatch an action to request the information. Ideally, this logic happens in `app/App.jsx` so that anyone can access the user from the redux store:
+
+```jsx
+import React, {Component} from "react";
+import {connect} from "react-redux";
+import {Canon, isAuthenticated} from "datawheel-canon";
+
+class App extends Component {
+
+  componentWillMount() {
+    this.props.isAuthenticated();
+  }
+
+  render() {
+
+    // use this auth object (auth.user) to selectively show/hide components
+    // based on whether user is logged in or not
+    const auth = this.props.auth;
+    console.log(auth);
+
+    return (
+      <Canon>
+        { auth.user ? `Welcome back ${auth.uesr.username}!` : "Who are you!?" }
+        { auth.loading ? "Loading..." : this.props.children }
+      </Canon>
+    );
+
+  }
+
+}
+
+const mapStateToProps = state => ({
+  auth: state.auth
+});
+
+const mapDispatchToProps = dispatch => ({
+  isAuthenticated: () => {
+    dispatch(isAuthenticated());
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
+```
 
 ### Privacy Policy and Terms of Service
 
