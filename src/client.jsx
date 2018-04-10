@@ -62,19 +62,20 @@ function renderMiddleware() {
     renderRouterContext: (child, props) => {
 
       const needs = props.components.filter(comp => comp.need || comp.preneed || comp.postneed);
-
-      if (window.__SSR__ || !props.location.key || !needs.length) {
-        window.__SSR__ = false;
-        if (props.location.hash) scrollToHash(props.location.hash);
-      }
-      else {
-        store.dispatch({type: LOADING_START});
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
-        preRenderMiddleware(store, props)
-          .then(() => {
-            store.dispatch({type: LOADING_END});
-            if (props.location.hash) scrollToHash(props.location.hash);
-          });
+      if (props.location.action !== "REPLACE") {
+        if (window.__SSR__ || !props.location.key || !needs.length) {
+          window.__SSR__ = false;
+          if (props.location.hash) scrollToHash(props.location.hash);
+        }
+        else {
+          store.dispatch({type: LOADING_START});
+          document.body.scrollTop = document.documentElement.scrollTop = 0;
+          preRenderMiddleware(store, props)
+            .then(() => {
+              store.dispatch({type: LOADING_END});
+              if (props.location.hash) scrollToHash(props.location.hash);
+            });
+        }
       }
 
       return <RouterContext {...props}/>;
