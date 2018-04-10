@@ -60,7 +60,6 @@ compiler.watch({}, (err, stats) => {
     console.error("\n\n 🛑  SERVER WEBPACK ERROR\n");
     console.error(e);
   });
-  if (stats.compilation.errors.length) shell.exit(1);
   stats.compilation.warnings.forEach(e => {
     console.warn("\n\n ⚠️  SERVER WEBPACK ERROR\n");
     console.warn(e);
