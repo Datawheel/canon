@@ -1,48 +1,66 @@
 let socialRedirectUrl = process.env.CANON_SOCIAL_REDIRECT || "/";
 socialRedirectUrl = !socialRedirectUrl.endsWith("/") ? `${socialRedirectUrl}/` : socialRedirectUrl;
 
+const parseEmail = p => p.emails && p.emails.length ? p.emails[0].value : null;
+const addEmail = (userData, p) => {
+  const email = parseEmail(p);
+  return email ? {...userData, email} : userData;
+};
+
 const config = {
   facebook: [
     {
       clientID: process.env.CANON_FACEBOOK_API,
       clientSecret: process.env.CANON_FACEBOOK_SECRET,
       callbackURL: `${socialRedirectUrl}auth/facebook/callback`,
-      profileFields: ["id", "displayName", "photos", "email", "birthday", "cover"]
+      profileFields: ["id", "displayName", "photos", "email", "birthday", "cover"],
+      scope: ["public_profile", "email"]
     },
-    p => ({
-      id: `fb${p.id}`,
-      name: p.displayName,
-      facebook: p.id,
-      username: p.displayName.toLowerCase().replace(" ", "-")
-    })
+    p => {
+      const userData = {
+        id: `fb${p.id}`,
+        name: p.displayName,
+        facebook: p.id,
+        username: p.displayName.toLowerCase().replace(" ", "-")
+      };
+
+      return addEmail(userData, p);
+    }
   ],
   google: [
     {
       clientID: process.env.CANON_GOOGLE_API,
       clientSecret: process.env.CANON_GOOGLE_SECRET,
       callbackURL: `${socialRedirectUrl}auth/google/callback`,
-      scope: ["profile"],
+      scope: ["profile", "email"],
       module: "google-oauth20"
     },
-    p => ({
-      id: `goog${p.id}`,
-      name: p.displayName,
-      google: p.id,
-      username: p.displayName.toLowerCase().replace(" ", "-")
-    })
+    p => {
+      const userData = {
+        id: `goog${p.id}`,
+        name: p.displayName,
+        google: p.id,
+        username: p.displayName.toLowerCase().replace(" ", "-")
+      };
+      return addEmail(userData, p);
+    }
   ],
   github: [
     {
       clientID: process.env.CANON_GITHUB_API,
       clientSecret: process.env.CANON_GITHUB_SECRET,
-      callbackURL: `${socialRedirectUrl}auth/github/callback`
+      callbackURL: `${socialRedirectUrl}auth/github/callback`,
+      scope: ["user", "user:email"]
     },
-    p => ({
-      id: `gh${p.id}`,
-      name: p.displayName,
-      github: p.id,
-      username: p.displayName.toLowerCase().replace(" ", "-")
-    })
+    p => {
+      const userData = {
+        id: `gh${p.id}`,
+        name: p.displayName,
+        github: p.id,
+        username: p.displayName.toLowerCase().replace(" ", "-")
+      };
+      return addEmail(userData, p);
+    }
   ],
   instagram: [
     {
@@ -62,14 +80,18 @@ const config = {
       clientID: process.env.CANON_LINKEDIN_API,
       clientSecret: process.env.CANON_LINKEDIN_SECRET,
       callbackURL: `${socialRedirectUrl}auth/linkedin/callback`,
-      module: "linkedin-oauth2"
+      module: "linkedin-oauth2",
+      scope: ["r_basicprofile", "r_emailaddress"]
     },
-    p => ({
-      id: `li${p.id}`,
-      name: p.displayName,
-      linkedin: p.id,
-      username: p.displayName.toLowerCase().replace(" ", "-")
-    })
+    p => {
+      const userData = {
+        id: `li${p.id}`,
+        name: p.displayName,
+        linkedin: p.id,
+        username: p.displayName.toLowerCase().replace(" ", "-")
+      };
+      return addEmail(userData, p);
+    }
   ],
   twitter: [
     {
