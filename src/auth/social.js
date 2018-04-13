@@ -97,14 +97,18 @@ const config = {
     {
       consumerKey: process.env.CANON_TWITTER_API,
       consumerSecret: process.env.CANON_TWITTER_SECRET,
-      callbackURL: `${socialRedirectUrl}auth/twitter/callback`
+      callbackURL: `${socialRedirectUrl}auth/twitter/callback`,
+      includeEmail: true
     },
-    p => ({
-      id: `t${p.id}`,
-      name: p.displayName,
-      twitter: p.username,
-      username: p.username
-    })
+    p => {
+      const userData = {
+        id: `t${p.id}`,
+        name: p.displayName,
+        twitter: p.username,
+        username: p.username
+      };
+      return addEmail(userData, p);
+    }
   ]
 };
 
