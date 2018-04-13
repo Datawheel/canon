@@ -500,7 +500,7 @@ export CANON_LINKEDIN_SECRET="##############################"
 export CANON_TWITTER_API="###############"
 export CANON_TWITTER_SECRET="##############################"
 ```
-
+5. Click the "Permissions" tab then at the bottom under "Additional Permissions" check the box that reads "Request email addresses from users" (if you would like to request e-mail addresses from users).
 ---
 
 ## Custom API Routes
