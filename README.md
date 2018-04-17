@@ -344,10 +344,10 @@ If you would like to change the default path of the reset link, use the followin
 export CANON_RESET_LINK="/my-reset-route"
 ```
 
-The `<Reset />` component relies on detecting a unique token in the URL (which is sent in the e-mail to the user). If you would like to embed the component into an existing page, you must pass the Router location to the component on render:
+The `<Reset />` component relies on detecting a unique token in the URL (which is sent in the e-mail to the user). If you would like to embed the component into an existing page, you must pass the Router object to the component on render:
 
 ```jsx
-<Reset location={ this.props.location } />
+<Reset router={ this.props.router }/>
 ```
 
 When sending e-mails, datahweel-canon will use the "name" field of your **package.json** file as the site name in e-mail correspondence (ex. "Sincerely, the [name] team"). If you'd like to use a more human-readable site name, it can be set with the following environment variable:
