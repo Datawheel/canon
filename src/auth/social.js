@@ -3,8 +3,8 @@ socialRedirectUrl = !socialRedirectUrl.endsWith("/") ? `${socialRedirectUrl}/` :
 
 const parseEmail = p => p.emails && p.emails.length ? p.emails[0].value : null;
 const addEmail = (userData, p) => {
-  const email = parseEmail(p);
-  return email ? {...userData, email} : userData;
+  const socialEmail = parseEmail(p);
+  return socialEmail ? {...userData, socialEmail} : userData;
 };
 
 const config = {
