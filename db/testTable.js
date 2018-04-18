@@ -8,6 +8,7 @@ module.exports = function(sequelize, db) {
       },
       username: db.STRING,
       email: db.STRING,
+      socialEmail: db.STRING,
       name: db.STRING,
       password: db.STRING,
       salt: db.STRING,
