@@ -16,6 +16,7 @@ module.exports = function(sequelize, db) {
     email: {
       type: db.STRING
     },
+    socialEmail: {type: db.STRING},
     name: {type: db.STRING},
     password: {type: db.STRING},
     salt: {type: db.STRING},
