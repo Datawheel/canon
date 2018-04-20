@@ -64,6 +64,7 @@
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",
     "grizzly": "^2.1.5",
+    "hard-source-webpack-plugin": "^0.6.4",
     "helmet": "^3.9.0",
     "i18next": "^10.0.7",
     "i18next-express-middleware": "^1.0.7",

@@ -1,5 +1,6 @@
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin,
       ExtractTextPlugin = require("extract-text-webpack-plugin"),
+      HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
       InlineEnviromentVariablesPlugin = require("inline-environment-variables-webpack-plugin"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
@@ -30,6 +31,7 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
+      new HardSourceWebpackPlugin(),
       new ExtractTextPlugin({
         filename: "styles.css",
         allChunks: true

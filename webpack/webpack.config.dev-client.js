@@ -1,4 +1,5 @@
-const appDir = process.cwd(),
+const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
+      appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       hotMiddlewareScript = "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true",
       path = require("path"),
@@ -31,6 +32,7 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
+    new HardSourceWebpackPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)

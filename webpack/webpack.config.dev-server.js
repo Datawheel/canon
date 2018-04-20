@@ -1,4 +1,5 @@
 const ExtractTextPlugin = require("extract-text-webpack-plugin"),
+      HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
@@ -31,6 +32,7 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
+    new HardSourceWebpackPlugin(),
     new ExtractTextPlugin({
       filename: "styles.css",
       allChunks: true
