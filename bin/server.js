@@ -167,7 +167,7 @@ function start() {
       const {db} = app.settings;
 
       fs.readdirSync(dbFolder)
-        .filter(file => file.indexOf(".") !== 0)
+        .filter(file => file && file.indexOf(".") !== 0)
         .forEach(file => {
           const model = db.import(path.join(dbFolder, file));
           db[model.name] = model;
@@ -216,7 +216,7 @@ function start() {
   let routes = 0;
   if (shell.test("-d", apiFolder)) {
     fs.readdirSync(apiFolder)
-      .filter(file => file.indexOf(".") !== 0)
+      .filter(file => file && file.indexOf(".") !== 0)
       .forEach(file => {
         routes++;
         return require(path.join(apiFolder, file))(app);
