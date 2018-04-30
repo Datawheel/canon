@@ -32,11 +32,11 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new HardSourceWebpackPlugin(),
     new ExtractTextPlugin({
       filename: "styles.css",
       allChunks: true
     }),
+    new HardSourceWebpackPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))

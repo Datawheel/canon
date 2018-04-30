@@ -31,11 +31,11 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
-      new HardSourceWebpackPlugin(),
       new ExtractTextPlugin({
         filename: "styles.css",
         allChunks: true
       }),
+      new HardSourceWebpackPlugin(),
       new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: false}),
       new webpack.DefinePlugin(Object.keys(process.env)
         .filter(e => e.startsWith("CANON_CONST_"))
@@ -70,11 +70,11 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
-      new HardSourceWebpackPlugin(),
       new ExtractTextPlugin({
         filename: "styles.css",
         allChunks: true
       }),
+      new HardSourceWebpackPlugin(),
       new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: {keep_fnames: true}}),
       new webpack.DefinePlugin(Object.keys(process.env)
         .filter(e => e.startsWith("CANON_CONST_"))
