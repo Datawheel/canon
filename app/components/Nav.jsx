@@ -14,6 +14,7 @@ class Nav extends Component {
       <nav className="nav">
         <Link className="logo" to="/"><img src={Icon} /> Canonical Design</Link>
         <Link className="link" to="/profile/040AF00182">Profile</Link>
+        <Link className="link" to="/profile">Random Profile</Link>
         { user
           ? <div className="user-info">
             { user.role >= 2 ? <Link className="user-link" to="/admin">Admin</Link> : null }
