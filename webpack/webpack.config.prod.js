@@ -70,6 +70,7 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
+      new HardSourceWebpackPlugin(),
       new ExtractTextPlugin({
         filename: "styles.css",
         allChunks: true
