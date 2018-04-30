@@ -88,7 +88,7 @@
     "passport-twitter": "^1.0.4",
     "pg": "^6.4.2",
     "postcss-conditionals": "^2.1.0",
-    "postcss-cssnext": "^3.0.2",
+    "postcss-cssnext": "^3.1.0",
     "postcss-custom-properties": "^6.2.0",
     "postcss-each": "^0.10.0",
     "postcss-for": "^2.1.1",
