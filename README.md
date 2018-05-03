@@ -25,6 +25,7 @@ Reusable React environment and components for creating visualization engines.
     * [Twitter](#twitter)
 * [Custom API Routes](#custom-api-routes)
 * [Custom Database Models](#custom-database-models)
+* [Server-Side Caching](#server-side-caching)
 * [Opbeat Error Tracking](#opbeat-error-tracking)
 * [Additional Environment Variables](#additional-environment-variables)
 
@@ -584,6 +585,39 @@ module.exports = function(sequelize, db) {
 ```
 
 *NOTE*: Custom database models are written using Node module syntax, not ES6/JSX.
+
+---
+
+## Server-Side Caching
+
+Some projects benefit by creating a server-side data cache to be used in API routes (for example, metadata about cube dimensions). datawheel-canon imports all files present in the top level `cache/` directory, and stores their return contents in `app.settings.cache` based on their filename. For example, to store the results of an API request in the cache, you could create the following file at `cache/majors.js`:
+
+```js
+const axios = require("axios");
+
+module.exports = function() {
+
+  return axios.get("https://api.datausa.io/attrs/cip/")
+    .then(d => d.data);
+
+};
+```
+
+The results of this promise can then be used in an API route:
+
+```js
+module.exports = function(app) {
+
+  const {cache} = app.settings;
+
+  app.get("/api/cache/majors", (req, res) => {
+
+    res.json(cache.majors).end();
+
+  });
+
+};
+```
 
 ---
 

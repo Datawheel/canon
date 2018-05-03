@@ -39,6 +39,7 @@ compiler.apply(new ProgressPlugin((percentage, msg, current, active, modulepath)
     nodemon({
       watch: [
         "api/**/*.js",
+        "cache/**/*.js",
         "db/**/*.js"
       ],
       verbose: true,

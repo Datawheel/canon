@@ -125,7 +125,7 @@ i18n
 
   });
 
-function start() {
+async function start() {
 
   shell.echo(chalk.bold("\n\n 🌐  Running Express Server\n"));
   shell.echo(`Environment: ${NODE_ENV}`);
@@ -211,6 +211,25 @@ function start() {
     });
 
   }
+
+  const cacheFolder = path.join(appDir, "cache/");
+  const cache = {};
+  let caches = 0;
+  if (shell.test("-d", cacheFolder)) {
+    const promises = [];
+    fs.readdirSync(cacheFolder)
+      .filter(file => file && file.indexOf(".") !== 0)
+      .forEach(file => {
+        caches++;
+        const cacheName = file.split(".")[0];
+        const promise = require(path.join(cacheFolder, file))(app);
+        promises.push(Promise.all([cacheName, promise]));
+      });
+    const res = await Promise.all(promises);
+    res.forEach(([title, data]) => cache[title] = data);
+  }
+  shell.echo(`Caches: ${caches}`);
+  app.set("cache", cache);
 
   const apiFolder = path.join(appDir, "api/");
   let routes = 0;
