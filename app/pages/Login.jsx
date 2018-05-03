@@ -6,7 +6,10 @@ class LoginWrapper extends Component {
 
   render() {
     console.log("\nUSER\n", this.props.auth);
-    return <Login redirect={false} />;
+    return <div>
+      <Login redirect={false} />
+      <button onClick={() => this.props.router.push("/#anchorTest")}>jump to other place</button>
+    </div>;
 
   }
 }

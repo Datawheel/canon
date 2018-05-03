@@ -29,6 +29,27 @@ class Home extends Component {
         </Trans>
         <Button></Button>
         <Activate location={this.props.location} />
+        <div className="spacer">
+          testing
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+          <br/><br/><br/><br/><br/>
+        </div>
+        <div id="anchorTest" className="anchorTest">
+          jump here!!!!
+        </div>
       </div>
     );
 
