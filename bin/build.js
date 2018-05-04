@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 
-const chalk = require("chalk"),
+const babel = require("babel-core"),
+      chalk = require("chalk"),
       path = require("path"),
       shell = require("shelljs");
 
@@ -15,6 +16,14 @@ shell.mkdir("-p", path.join(staticPath, "assets/"));
 shell.echo(chalk.bold("\n\n 🔷  Bundling Production Webpack\n"));
 shell.exec(`webpack --progress --colors --hide-modules --config ${__dirname}/../webpack/webpack.config.prod.js`);
 
-shell.echo(chalk.bold("\n\n 📒  Babelifying Server Code\n"));
-shell.exec(`babel --presets env,stage-0 --ignore ${staticFolder} ${__dirname}/server.js -o ${process.cwd()}/index.js`);
-shell.sed("-i", /process\.cwd\(\)/g, "__dirname", `${process.cwd()}/index.js`);
+shell.echo(chalk.bold("\n\n 📒  Generating index.js\n"));
+let {code} = babel.transformFileSync(`${__dirname}/server.js`, {
+  ignore: [staticFolder],
+  presets: [
+    ["env", {targets: {node: "current"}}],
+    "stage-0"
+  ]
+});
+code = code.replace(/process\.cwd\(\)/g, "__dirname");
+new shell.ShellString(code).to(`${process.cwd()}/index.js`);
+shell.echo(`File created: ${chalk.bold(`${process.cwd()}/index.js\n`)}`);
