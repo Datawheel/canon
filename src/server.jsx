@@ -217,6 +217,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     </script>
 
     ${analtyicsScript}
+    ${pixelScript}
 
     <script type="text/javascript" charset="utf-8" src="${ process.env.CANON_BASE_URL ? "" : "/" }assets/app.js"></script>
   </body>
