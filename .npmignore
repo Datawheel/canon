@@ -3,4 +3,5 @@ app/
 cache/
 db/
 locales/
+node_modules/
 static/
