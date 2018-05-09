@@ -3,5 +3,5 @@ app/
 cache/
 db/
 locales/
-node_modules/.cache/
+src/node_modules/
 static/
