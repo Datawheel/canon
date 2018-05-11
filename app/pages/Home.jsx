@@ -50,6 +50,7 @@ class Home extends Component {
         <div id="anchorTest" className="anchorTest">
           jump here!!!!
         </div>
+        <Link to="/login">Click Here to Login</Link>
       </div>
     );
 

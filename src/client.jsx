@@ -73,6 +73,7 @@ function renderMiddleware() {
         if (window.__SSR__ || !key || !needs.length) {
           window.__SSR__ = false;
           if (hash) scrollToHash(hash);
+          else window.scrollTo(0, 0);
         }
         else {
           store.dispatch({type: LOADING_START});
@@ -81,6 +82,7 @@ function renderMiddleware() {
             .then(() => {
               store.dispatch({type: LOADING_END});
               if (hash) scrollToHash(hash);
+              else window.scrollTo(0, 0);
             });
         }
       }
