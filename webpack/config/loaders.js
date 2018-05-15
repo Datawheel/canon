@@ -4,8 +4,6 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin"),
       path = require("path"),
       postCSS = require("./postcss");
 
-const appPath = path.join(appDir, "app");
-
 
 const cssLoaders = [
   "iso-morphic-style-loader",
@@ -59,7 +57,8 @@ module.exports = props => {
         ]
       },
       include: [
-        appPath,
+        path.join(appDir, "app"),
+        path.join(appDir, "src"),
         path.join(appDir, "node_modules/yn"),
         path.join(__dirname, "../../src")
       ]
