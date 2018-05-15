@@ -1,4 +1,6 @@
+api/
 app/
+cache/
+db/
+locales/
 static/
-
-package-lock.json
