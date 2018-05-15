@@ -1,5 +1,9 @@
 import React from "react";
 
+import AreaLoading from "./components/AreaLoading";
+import AreaSidebar from "./components/AreaSidebar";
+import AreaChart from "./components/AreaChart";
+
 import LOADINGSTATE from "./helpers/loading";
 
 class Vizbuilder extends React.PureComponent {
@@ -7,10 +11,6 @@ class Vizbuilder extends React.PureComponent {
 		loadingState: LOADINGSTATE.EMPTY,
 		query: {},
 		dataset: []
-	};
-
-	stateCallback = state => {
-		this.setState({ loadingState: state });
 	};
 
 	queryCallback = query => {
@@ -22,7 +22,13 @@ class Vizbuilder extends React.PureComponent {
 	};
 
 	render() {
-		return <div>Test</div>;
+		return (
+			<div className="vizbuilder">
+				<AreaLoading src={this.props.src} onChange={this.dataCallback} />
+				<AreaSidebar onChange={this.queryCallback} />
+				<AreaChart />
+			</div>
+		);
 	}
 }
 
