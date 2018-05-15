@@ -1,0 +1,34 @@
+.preview {
+  width: 800px;
+  
+  & .pt-dialog-body {
+    padding: 0px;
+    margin: 0px;
+  }
+
+  & .preview-body {
+    display: flex;
+  }
+
+  & .preview-panel {
+    width: 240px;
+    flex: 0 0 auto;
+    height: 60vh;
+    overflow-y: scroll;
+    // background-color: #FAFAFA;
+    & .viz {
+      padding: 5px 0px;
+      margin-bottom: 16px;
+    }
+  }
+
+  & .preview-main {
+    flex: 1 1;
+    & .hide {
+      display: none;
+    }
+    & .selected {
+      display: block;
+    }
+  }
+}

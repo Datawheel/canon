@@ -18,11 +18,11 @@ import {
   Tooltip
 } from "@blueprintjs/core";
 
-import RenderOnce from "components/RenderOnce";
+import RenderOnce from "./RenderOnce";
 
 import "@blueprintjs/core/dist/blueprint.css";
-import "styles/Chart.css";
-import "styles/PreviewViz.css";
+import "./AreaChart.css";
+import "./PreviewDialog.css";
 
 const components = {
   Treemap,
@@ -60,8 +60,8 @@ export default class AreaChart extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return nextState.isOpen !== this.state.isOpen;
-    //return true;
+    //return nextState.isOpen !== this.state.isOpen;
+    return true;
   }
 
   createConfig(groupBy, measure, type, data, cuts = []) {
