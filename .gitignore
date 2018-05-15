@@ -5,8 +5,8 @@ npm-debug.log*
 node_modules
 
 # these static files will be generated on build
-static/assets
-static/reports
+**/static/assets
+**/static/reports
 /index.js
 
 # environment variable files for autoenv and direnv
