@@ -1,0 +1,16 @@
+.vizbuilder {
+  display: flex;
+  flex-direction: row;
+
+  & > .area-sidebar {
+    flex: 0 0 300px;
+
+    & .wrapper {
+      margin: 10px 15px;
+    }
+  }
+
+  & > .area-chart {
+    flex: 1 0;
+  }
+}

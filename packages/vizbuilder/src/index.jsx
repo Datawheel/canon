@@ -5,6 +5,8 @@ import AreaChart from "./components/AreaChart";
 
 import LOADINGSTATE from "./helpers/loading";
 
+import "./index.css";
+
 class Vizbuilder extends React.PureComponent {
   state = {
     loadingState: LOADINGSTATE.EMPTY,
