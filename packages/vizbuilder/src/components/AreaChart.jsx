@@ -1,5 +1,5 @@
 import React from "react";
-import {uuid} from "d3plus-common";
+import { uuid } from "d3plus-common";
 import {
   Treemap,
   Donut,
@@ -67,9 +67,9 @@ export default class AreaChart extends React.Component {
   createConfig(groupBy, measure, type, data, cuts = []) {
     const x = groupBy;
     const cutString =
-			cuts.length > 0
-			  ? `Filtered By ${cuts.map(cut => cut.name).join(", ")}`
-			  : "";
+      cuts.length > 0
+        ? `Filtered By ${cuts.map(cut => cut.name).join(", ")}`
+        : "";
 
     // Confs of Viz
     const vizConfig = {
@@ -99,26 +99,26 @@ export default class AreaChart extends React.Component {
       }
     };
 
-    if (["BarChart"].includes(type)) config = {...config, ...barConfig};
+    if (["BarChart"].includes(type)) config = { ...config, ...barConfig };
     /*if (["Treemap", "Donut", "Pie"].includes(type)) {
-      config = {...config, ...vizConfig}; 
+      config = {...config, ...vizConfig};
     }*/
 
     if (type === "Geomap") config.colorScale = measure;
     if (groupBy) config.groupBy = groupBy;
     if (x) config.x = x;
-    
+
     return config;
   }
 
   toggleDialog(type = false) {
-    if (!this.state.isOpen) this.setState({preview: {type: "Treemap"}});
-    this.setState({isOpen: !this.state.isOpen});
-    if (type) this.setState({chart: {type}});
+    if (!this.state.isOpen) this.setState({ preview: { type: "Treemap" } });
+    this.setState({ isOpen: !this.state.isOpen });
+    if (type) this.setState({ chart: { type } });
   }
 
   closeDialog() {
-    this.setState({isOpen: false});
+    this.setState({ isOpen: false });
   }
 
   render() {
@@ -126,11 +126,11 @@ export default class AreaChart extends React.Component {
       chart: {
         type: this.state.chart.type,
         data: [
-          {parent: "Group 1", id: "alpha", value: 29},
-          {parent: "Group 1", id: "beta", value: 10},
-          {parent: "Group 1", id: "gamma", value: 2},
-          {parent: "Group 2", id: "delta", value: 29},
-          {parent: "Group 2", id: "eta", value: 25}
+          { parent: "Group 1", id: "alpha", value: 29 },
+          { parent: "Group 1", id: "beta", value: 10 },
+          { parent: "Group 1", id: "gamma", value: 2 },
+          { parent: "Group 2", id: "delta", value: 29 },
+          { parent: "Group 2", id: "eta", value: 25 }
         ]
       }
     };
@@ -145,7 +145,7 @@ export default class AreaChart extends React.Component {
     const CustomViz = components[this.state.chart.type];
     const PreviewZoomViz = components[this.state.preview.type];
     return (
-      <div>
+      <div className="area-chart">
         <Dialog
           icon="inbox"
           isOpen={this.state.isOpen}
@@ -156,7 +156,7 @@ export default class AreaChart extends React.Component {
           <div className="pt-dialog-body">
             <div className="preview-body">
               <div className="preview-panel">
-                {Object.keys(components).map(comp => 
+                {Object.keys(components).map(comp => (
                   <div key={comp} onClick={evt => this.changePreview(comp)}>
                     <RenderOnce
                       components={components}
@@ -164,11 +164,11 @@ export default class AreaChart extends React.Component {
                       config={config}
                     />
                   </div>
-                )}
+                ))}
               </div>
               <div className="preview-main">
-                <PreviewZoomViz config={{...config, height: 300}} />
-								This chart allow compare .....
+                <PreviewZoomViz config={{ ...config, height: 300 }} />
+                This chart allow compare .....
               </div>
             </div>
           </div>
@@ -190,7 +190,7 @@ export default class AreaChart extends React.Component {
             text="Change chart"
           />
         </div>
-        <CustomViz config={{...config, height: 500}} />
+        <CustomViz config={{ ...config, height: 500 }} />
       </div>
     );
   }

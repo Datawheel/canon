@@ -5,8 +5,10 @@ import BaseSelect from "./BaseSelect";
 class AreaSidebar extends React.PureComponent {
   render() {
     return (
-      <div className="viz-areasidebar">
-        <BaseSelect items={[]} />
+      <div className="area-sidebar">
+        <div className="wrapper">
+          <BaseSelect items={[]} />
+        </div>
       </div>
     );
   }
