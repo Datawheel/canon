@@ -1,17 +1,15 @@
 import React from "react";
 
-import {Select} from '@blueprintjs/core';
-
-/**
- * @typedef IProps
- * @param {()} onChange
- */
+import BaseSelect from "./BaseSelect";
 
 class AreaSidebar extends React.PureComponent {
-	render() {
-		return <div className="viz-areasidebar">
-		</div>;
-	}
+  render() {
+    return (
+      <div className="viz-areasidebar">
+        <BaseSelect items={[]} />
+      </div>
+    );
+  }
 }
 
 export default AreaSidebar;
