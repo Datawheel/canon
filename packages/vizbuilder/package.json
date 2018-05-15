@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "canon-dev"
   },
-  "devDependencies": {
-    "datawheel-canon": "^0.15.15"
+  "dependencies": {
+    "datawheel-canon": "^0.15.16"
   }
 }
