@@ -35,13 +35,14 @@ export default class AreaChart extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOpen: true,
-      hasMounted: false,
-      data: [],
-      chart: {
-        type: "Treemap"
+      isOpen: false,
+      chartConfig: {
+        type: "Treemap",
+        colorScale: "value",
+        measure: "value",
+        dimension: "parent"
       },
-      preview: {
+      previewConfig: {
         type: "Treemap"
       }
     };
@@ -53,7 +54,7 @@ export default class AreaChart extends React.Component {
 
   changePreview(type) {
     this.setState({
-      preview: {
+      previewConfig: {
         type
       }
     });
@@ -64,16 +65,17 @@ export default class AreaChart extends React.Component {
     return true;
   }
 
-  createConfig(groupBy, measure, type, data, cuts = []) {
-    const x = groupBy;
-    const cutString =
-      cuts.length > 0
-        ? `Filtered By ${cuts.map(cut => cut.name).join(", ")}`
-        : "";
+  createConfig(data) {
+    const { chartConfig } = this.state;
+    const x = chartConfig.groupBy;
 
     // Confs of Viz
     const vizConfig = {
-      sum: d => d[measure]
+      total: d => d[chartConfig.measure],
+      totalConfig: {
+        fontSize: 14
+      },
+      sum: d => d[chartConfig.measure]
     };
 
     const barConfig = {
@@ -81,9 +83,17 @@ export default class AreaChart extends React.Component {
       xConfig: {
         title: x
       },
-      y: measure,
+      y: chartConfig.measure,
       yConfig: {
-        title: measure
+        title: chartConfig.measure
+      }
+    };
+
+    const legendConfig = {
+      label: false,
+      shapeConfig: {
+        width: 0,
+        height: 0
       }
     };
 
@@ -91,21 +101,23 @@ export default class AreaChart extends React.Component {
 
     let config = {
       ...vizConfig,
+      ...barConfig,
+      legendConfig,
       data,
       height: 125,
       uuid: uuid(),
       tooltipConfig: {
-        title: `<h5 class="title xs-small">${measure}</h5>`
+        title: `<h5 class="title xs-small">${chartConfig.measure}</h5>`
       }
     };
 
-    if (["BarChart"].includes(type)) config = { ...config, ...barConfig };
-    /*if (["Treemap", "Donut", "Pie"].includes(type)) {
+    /*if (["BarChart"].includes(type)) config = { ...config, ...barConfig };
+    if (["Treemap", "Donut", "Pie"].includes(type)) {
       config = {...config, ...vizConfig};
     }*/
 
-    if (type === "Geomap") config.colorScale = measure;
-    if (groupBy) config.groupBy = groupBy;
+    if (chartConfig.type === "Geomap") config.colorScale = chartConfig.measure;
+    if (chartConfig.groupBy) config.groupBy = chartConfig.groupBy;
     if (x) config.x = x;
 
     return config;
@@ -122,28 +134,11 @@ export default class AreaChart extends React.Component {
   }
 
   render() {
-    const props = {
-      chart: {
-        type: this.state.chart.type,
-        data: [
-          { parent: "Group 1", id: "alpha", value: 29 },
-          { parent: "Group 1", id: "beta", value: 10 },
-          { parent: "Group 1", id: "gamma", value: 2 },
-          { parent: "Group 2", id: "delta", value: 29 },
-          { parent: "Group 2", id: "eta", value: 25 }
-        ]
-      }
-    };
+    const config = this.createConfig(this.props.dataset);
 
-    const config = this.createConfig(
-      "parent",
-      "value",
-      props.chart.type,
-      props.chart.data
-    );
+    const CustomViz = components[this.state.chartConfig.type];
+    const PreviewZoomViz = components[this.state.previewConfig.type];
 
-    const CustomViz = components[this.state.chart.type];
-    const PreviewZoomViz = components[this.state.preview.type];
     return (
       <div className="area-chart">
         <Dialog
@@ -168,7 +163,10 @@ export default class AreaChart extends React.Component {
               </div>
               <div className="preview-main">
                 <PreviewZoomViz config={{ ...config, height: 300 }} />
-                This chart allow compare .....
+                This chart allow compare Lorem ipsum dolor sit amet, consectetur
+                adipiscing elit. Nulla consectetur ipsum quis elit aliquet, ut
+                viverra lorem finibus. Suspendisse vestibulum orci at felis
+                hendrerit, eu viverra arcu rhoncus. 
               </div>
             </div>
           </div>
@@ -177,7 +175,9 @@ export default class AreaChart extends React.Component {
               <Button text="Cancel" onClick={evt => this.toggleDialog()} />
               <Button
                 intent={Intent.PRIMARY}
-                onClick={evt => this.toggleDialog(this.state.preview.type)}
+                onClick={evt =>
+                  this.toggleDialog(this.state.previewConfig.type)
+                }
                 text="Confirm"
               />
             </div>
