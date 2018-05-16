@@ -1,3 +1,10 @@
+import { Query } from "mondrian-rest-client";
+
+/**
+ * @typedef VizQuery
+ * @prop {string} cube
+ */
+
 function setCaptionForLevelAndLang(query, level, lang) {
   const ann = level.annotations[`${lang}_caption`];
   if (ann) {
@@ -22,6 +29,11 @@ function setLangCaptions(query, lang) {
   return query;
 }
 
+/**
+ * @param {Query} query
+ * @param {VizQuery} params
+ * @returns {Query}
+ */
 export function queryBuilder(query, params) {
   let i, item;
 
