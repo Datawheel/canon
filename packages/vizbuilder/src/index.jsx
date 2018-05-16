@@ -1,9 +1,9 @@
 import React from "react";
 
+import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
 import AreaChart from "./components/AreaChart";
-
-import LOADINGSTATE from "./helpers/loading";
+import * as api from './helpers/api';
 
 import "./index.css";
 
@@ -19,14 +19,15 @@ class Vizbuilder extends React.PureComponent {
 
   constructor(props) {
     super(props);
+    api.cubes().then(this.itemsCallback)
   }
 
-  membersCallback = options => {
-    this.setState({ options });
+  itemsCallback = items => {
+    this.setState(state => ({ items: { ...state.items, ...items } }));
   };
 
   queryCallback = query => {
-    this.setState({ query });
+    this.setState(state => ({ query: { ...state.query, ...query } }));
   };
 
   dataCallback = dataset => {
@@ -36,8 +37,13 @@ class Vizbuilder extends React.PureComponent {
   render() {
     return (
       <div className="vizbuilder">
-        <AreaSidebar onChange={this.queryCallback} />
-        <AreaChart dataset={this.state.dataset} />
+        <AreaLoading progress={} total={} />
+        <AreaSidebar
+          items={this.state.items}
+          onQuery={this.queryCallback}
+          onItems={this.itemsCallback}
+        />
+        <AreaChart query={this.state.query} dataset={this.state.dataset} />
       </div>
     );
   }
