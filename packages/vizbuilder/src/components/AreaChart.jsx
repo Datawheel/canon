@@ -78,6 +78,14 @@ export default class AreaChart extends React.Component {
       sum: d => d[chartConfig.measure]
     };
 
+    const colorScaleConfig = {
+      colorScale: false,
+      colorScaleConfig: {
+        color: "#0D47A1",
+        scale: "jenks"
+      }
+    };
+
     const barConfig = {
       x,
       xConfig: {
@@ -102,6 +110,7 @@ export default class AreaChart extends React.Component {
     let config = {
       ...vizConfig,
       ...barConfig,
+      ...colorScaleConfig,
       legendConfig,
       data,
       height: 125,
@@ -166,7 +175,7 @@ export default class AreaChart extends React.Component {
                 This chart allow compare Lorem ipsum dolor sit amet, consectetur
                 adipiscing elit. Nulla consectetur ipsum quis elit aliquet, ut
                 viverra lorem finibus. Suspendisse vestibulum orci at felis
-                hendrerit, eu viverra arcu rhoncus. 
+                hendrerit, eu viverra arcu rhoncus.
               </div>
             </div>
           </div>
