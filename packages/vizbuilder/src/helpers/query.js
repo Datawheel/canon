@@ -31,7 +31,7 @@ function setLangCaptions(query, lang) {
 
 /**
  * @param {Query} query
- * @param {VizQuery} params
+ * @param {any} params
  * @returns {Query}
  */
 export function queryBuilder(query, params) {
@@ -70,29 +70,4 @@ export function queryBuilder(query, params) {
   }
 
   return query; // setLangCaptions(query, params.locale);
-}
-
-export function quickQuery(params) {
-  if (!params.cube)
-    throw new Error("Invalid query: No 'cube' property defined.");
-
-  params = Object.assign(
-    {
-      measures: [],
-      drillDowns: [],
-      cuts: [],
-      options: {},
-      locale: "en",
-      limit: undefined,
-      offset: undefined,
-      order: undefined,
-      orderDesc: undefined
-    },
-    params
-  );
-
-  return client.cube(params.cube).then(cube => {
-    const query = queryBuilder(cube.query, params);
-    return client.query(query, params.format || "json");
-  });
 }

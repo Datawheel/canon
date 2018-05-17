@@ -1,9 +1,11 @@
+import { IconName } from "@blueprintjs/core";
+import { ISelectProps, IMultiSelectProps } from "@blueprintjs/labs";
 import Measure from 'mondrian-rest-client/lib/types/measure';
 import { Cube } from 'mondrian-rest-client';
 import Dimension, { Level } from 'mondrian-rest-client/lib/types/dimension';
 
-interface VCentralState {
-  loading: LoadState;
+interface VizbuilderState {
+  load: LoadState;
   items: ItemsState;
   query: QueryState;
   dataset: Array<any>;
