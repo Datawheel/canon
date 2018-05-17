@@ -7,7 +7,15 @@
     flex: 0 0 300px;
 
     & .wrapper {
-      margin: 10px 15px;
+      margin: 15px;
+    }
+
+    & .group {
+      margin-bottom: 1em;
+    }
+
+    & h3 {
+      font-size: 1rem;
     }
   }
 
