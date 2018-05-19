@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { uuid } from "d3plus-common";
 import {
   Treemap,
@@ -19,8 +20,6 @@ import {
 } from "@blueprintjs/core";
 
 import RenderOnce from "./RenderOnce";
-
-import "@blueprintjs/core/dist/blueprint.css";
 import "./AreaChart.css";
 import "./PreviewDialog.css";
 
@@ -32,7 +31,7 @@ const components = {
   StackedArea
 };
 
-export default class AreaChart extends React.Component {
+class AreaChart extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -170,7 +169,7 @@ export default class AreaChart extends React.Component {
   }
 
   render() {
-    const config = this.createConfig(this.props.dataset);
+    const config = this.createConfig(this.context.dataset);
 
     const annotations = this.props.query.cube
       ? this.props.query.cube.annotations
@@ -185,7 +184,7 @@ export default class AreaChart extends React.Component {
     return (
       <div className="area-chart">
         <Dialog
-          icon="inbox"
+          iconName="inbox"
           isOpen={this.state.isOpen}
           title="Dialog header"
           className="preview"
@@ -253,3 +252,9 @@ export default class AreaChart extends React.Component {
     );
   }
 }
+
+AreaChart.contextTypes = {
+  dataset: PropTypes.array
+};
+
+export default AreaChart;

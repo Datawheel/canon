@@ -10,7 +10,6 @@
 
   & .select-option {
     display: block;
-    padding: 0 0.5em;
     line-height: 2em;
     white-space: nowrap;
     cursor: default;
@@ -23,10 +22,13 @@
       display: flex;
       flex-direction: row;
       align-items: center;
+      padding-right: 3px;
+      line-height: 30px;
 
       & .value {
         flex: 1 1;
         width: 0;
+        padding: 0 10px;
         overflow: hidden;
         text-overflow: ellipsis;
       }
@@ -34,6 +36,10 @@
         flex: 0 0;
         min-width: 1em;
       }
+    }
+
+    & .select-option-label {
+      padding: 0 0.5em;
     }
 
     & .icon {

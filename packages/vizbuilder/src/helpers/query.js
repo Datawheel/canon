@@ -1,60 +1,28 @@
-import { Query } from "mondrian-rest-client";
-
-/**
- * @typedef VizQuery
- * @prop {string} cube
- */
-
-function setCaptionForLevelAndLang(query, level, lang) {
-  const ann = level.annotations[`${lang}_caption`];
-  if (ann) {
-    query.caption(level.hierarchy.dimension.name, level.name, ann);
-  }
-  return query;
-}
-
-function setLangCaptions(query, lang) {
-  const drilldowns = query.getDrilldowns() || [];
-  drilldowns.forEach(level => {
-    query = setCaptionForLevelAndLang(query, level, lang);
-
-    // when parents requested, also get their i18n'd captions
-    if (query.options["parents"]) {
-      rangeRight(1, level.depth).forEach(d => {
-        const ancestor = level.hierarchy.levels.find(l => l.depth === d);
-        query = setCaptionForLevelAndLang(query, ancestor, lang);
-      });
-    }
-  });
-  return query;
-}
-
-/**
- * @param {Query} query
- * @param {any} params
- * @returns {Query}
- */
 export function queryBuilder(query, params) {
   let i, item;
 
-  for (i = 0; (item = params.measures[i]); i++) {
-    query = query.measure(item);
+  item = params.measures.length;
+  for (i = 0; i < item; i++) {
+    query = query.measure(params.measures[i]);
   }
 
-  for (i = 0; (item = params.drillDowns[i]); i++) {
-    query = query.drilldown.apply(query, item);
+  item = params.drillDowns.length;
+  for (i = 0; i < item; i++) {
+    query = query.drilldown(...params.drillDowns[i]);
   }
 
-  for (i = 0; (item = params.cuts[i]); i++) {
-    if ("string" != typeof item) {
+  for (i = 0; i < params.cuts.length; i++) {
+    item = params.cuts[i];
+    if (typeof item !== "string") {
       item = item.values.map(v => `${item.key}.&[${v}]`).join(",");
-      if (item.indexOf("],[") > -1) item = "{" + item + "}";
+      if (item.indexOf("],[") > -1) item = `{${item}}`;
     }
     query = query.cut(item);
   }
 
-  for (i = 0; (item = params.filters[i]); i++) {
-    query = query.filter.apply(query, item);
+  item = params.filters.length;
+  for (i = 0; i < item; i++) {
+    query = query.filter(...params.filters[i]);
   }
 
   if (params.limit) {
@@ -66,7 +34,9 @@ export function queryBuilder(query, params) {
   }
 
   for (item in params.options) {
-    query = query.option(item, params.options[item]);
+    if (params.options.hasOwnProperty(item)) {
+      query = query.option(item, params.options[item]);
+    }
   }
 
   return query; // setLangCaptions(query, params.locale);

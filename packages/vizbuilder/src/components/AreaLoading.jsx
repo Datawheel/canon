@@ -1,22 +1,29 @@
 import React from "react";
-import { NonIdealState, ProgressBar } from "@blueprintjs/core";
+import PropTypes from "prop-types";
+import {NonIdealState, ProgressBar} from "@blueprintjs/core";
 
 import "./AreaLoading.css";
-import connect from "../store/connect";
 
 class AreaLoading extends React.Component {
   render() {
-    const { fetching, total, current } = this.props;
-
-    return fetching ? (
-      <NonIdealState
+    return this.context.loading
+      ? <NonIdealState
         className="area-loading"
         title={"loading.title"}
         description={"loading.description"}
-        visual={<ProgressBar value={current / total} />}
+        visual={
+          <ProgressBar value={this.context.loadDone / this.context.loadTotal} />
+        }
       />
-    ) : null;
+      : null;
   }
 }
 
-export default connect(AreaLoading);
+AreaLoading.contextTypes = {
+  loading: PropTypes.bool,
+  loadTotal: PropTypes.number,
+  loadDone: PropTypes.number,
+  loadError: PropTypes.any
+};
+
+export default AreaLoading;

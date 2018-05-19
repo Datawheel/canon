@@ -1,13 +1,6 @@
 .area-loading {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  width: 100%;
-  max-width: none;
-  height: 100vh;
   color: var(--white);
-  background-color: var(--dark);
+  background-color: rgba(0,0,0,0.75);
 
   & .pt-non-ideal-state-visual {
     width: 100%;

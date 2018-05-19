@@ -3,20 +3,18 @@
   display: flex;
   flex-direction: row;
 
+  & > .area-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 100%;
+    max-width: none;
+    height: 100vh;
+  }
+
   & > .area-sidebar {
     flex: 0 0 300px;
-
-    & .wrapper {
-      margin: 15px;
-    }
-
-    & .group {
-      margin-bottom: 1em;
-    }
-
-    & h3 {
-      font-size: 1rem;
-    }
   }
 
   & > .area-chart {

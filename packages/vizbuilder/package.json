@@ -2,9 +2,10 @@
   "name": "@datawheel/vizbuilder",
   "description": "Visualization explorer for data retrieved from mondrian-rest.",
   "version": "0.1.0",
-  "main": "src/index.js",
+  "main": "index.js",
   "author": "Francisco Abarzúa & Carlos Navarrete",
   "license": "MIT",
+  "typings": "index.d.ts",
   "scripts": {
     "dev": "canon-dev"
   },
@@ -15,6 +16,6 @@
     "mondrian-rest-client": "^1.0.3"
   },
   "devDependencies": {
-    "@types/react": "^16.3.14"
+    "@types/react": "^15.6.2"
   }
 }
