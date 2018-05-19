@@ -205,10 +205,6 @@ class AreaChart extends React.Component {
               </div>
               <div className="preview-main">
                 <PreviewZoomViz config={{ ...config, height: 300 }} />
-                This chart allow compare Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Nulla consectetur ipsum quis elit aliquet, ut
-                viverra lorem finibus. Suspendisse vestibulum orci at felis
-                hendrerit, eu viverra arcu rhoncus.
               </div>
             </div>
           </div>
