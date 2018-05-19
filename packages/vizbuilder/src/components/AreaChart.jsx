@@ -28,7 +28,8 @@ const components = {
   Treemap,
   Donut,
   Pie,
-  BarChart
+  BarChart,
+  StackedArea
 };
 
 export default class AreaChart extends React.Component {
@@ -40,10 +41,13 @@ export default class AreaChart extends React.Component {
         type: "Treemap",
         colorScale: "value",
         measure: "value",
-        dimension: "parent"
+        dimension: "id"
       },
       previewConfig: {
-        type: "Treemap"
+        type: "Treemap",
+        colorScale: "value",
+        measure: "value",
+        dimension: "id"
       }
     };
 
@@ -66,7 +70,7 @@ export default class AreaChart extends React.Component {
   }
 
   createConfig(data) {
-    const { chartConfig } = this.state;
+    const { chartConfig, isOpen } = this.state;
     const x = chartConfig.groupBy;
 
     // Confs of Viz
@@ -87,10 +91,11 @@ export default class AreaChart extends React.Component {
     };
 
     const barConfig = {
-      x,
+      x: "ID Year",
       xConfig: {
         title: x
       },
+      discrete: "x",
       y: chartConfig.measure,
       yConfig: {
         title: chartConfig.measure
@@ -105,12 +110,15 @@ export default class AreaChart extends React.Component {
       }
     };
 
-    const axisConfig = {};
+    const timelineConfig = {
+      //time: !isOpen ? "ID Year" : ""
+    };
 
     let config = {
       ...vizConfig,
       ...barConfig,
       ...colorScaleConfig,
+      ...timelineConfig,
       legendConfig,
       data,
       height: 125,
@@ -133,9 +141,28 @@ export default class AreaChart extends React.Component {
   }
 
   toggleDialog(type = false) {
-    if (!this.state.isOpen) this.setState({ preview: { type: "Treemap" } });
+    if (!this.state.isOpen) {
+      this.setState({
+        previewConfig: {
+          type: "Treemap",
+          colorScale: "value",
+          measure: "value",
+          dimension: "parent"
+        }
+      });
+    }
+
     this.setState({ isOpen: !this.state.isOpen });
-    if (type) this.setState({ chart: { type } });
+    if (type) {
+      this.setState({
+        chartConfig: {
+          type,
+          colorScale: "value",
+          measure: "value",
+          dimension: "parent"
+        }
+      });
+    }
   }
 
   closeDialog() {
@@ -144,6 +171,13 @@ export default class AreaChart extends React.Component {
 
   render() {
     const config = this.createConfig(this.props.dataset);
+
+    const annotations = this.props.query.cube
+      ? this.props.query.cube.annotations
+      : {
+          source_link: "",
+          source_name: ""
+        };
 
     const CustomViz = components[this.state.chartConfig.type];
     const PreviewZoomViz = components[this.state.previewConfig.type];
@@ -192,6 +226,11 @@ export default class AreaChart extends React.Component {
             </div>
           </div>
         </Dialog>
+        <h4>
+          {`${this.state.chartConfig.type} of ${
+            this.state.chartConfig.measure
+          } by ${this.state.chartConfig.dimension}`}
+        </h4>
         <div>
           <Button
             intent={Intent.PRIMARY}
@@ -200,6 +239,16 @@ export default class AreaChart extends React.Component {
           />
         </div>
         <CustomViz config={{ ...config, height: 500 }} />
+        <div className="source-note">
+          <span className="source-note-txt">{"Source"}:</span>
+          <a
+            target="_blank"
+            className="source-note-link"
+            href={annotations.source_link}
+          >
+            {annotations.source_name}
+          </a>
+        </div>
       </div>
     );
   }
