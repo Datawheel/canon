@@ -1,30 +1,43 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
 import AreaChart from "./components/AreaChart";
-import { initClient } from "./helpers/api";
-import store from "./store";
-import connect from "./store/connect";
+import {initClient} from "./helpers/api";
+import initialState from "./state";
+import {
+  loadCycle,
+  queryUpdate,
+  optionsUpdate,
+  datasetUpdate
+} from "./actions/mutations";
 
+import "@blueprintjs/core/dist/blueprint.css";
+import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
 
 class Vizbuilder extends React.PureComponent {
   constructor(props) {
     super(props);
+
     initClient(props.src);
+    this.state = initialState;
+
+    this.loadCycle = loadCycle.bind(this);
+    this.queryUpdate = queryUpdate.bind(this);
+    this.optionsUpdate = optionsUpdate.bind(this);
+    this.datasetUpdate = datasetUpdate.bind(this);
   }
 
-  componentDidMount() {
-    store.setState({
-      dataset: [
-        { parent: "Group 1", id: "alpha", value: 29 },
-        { parent: "Group 1", id: "beta", value: 10 },
-        { parent: "Group 1", id: "gamma", value: 2 },
-        { parent: "Group 2", id: "delta", value: 29 },
-        { parent: "Group 2", id: "eta", value: 25 }
-      ]
-    });
+  getChildContext() {
+    return {
+      ...this.state,
+      loadCycle: this.loadCycle,
+      queryUpdate: this.queryUpdate,
+      optionsUpdate: this.optionsUpdate,
+      datasetUpdate: this.datasetUpdate
+    };
   }
 
   render() {
@@ -32,10 +45,24 @@ class Vizbuilder extends React.PureComponent {
       <div className="vizbuilder">
         <AreaLoading />
         <AreaSidebar />
-        <AreaChart query={this.props.query} dataset={this.props.dataset} />
+        <AreaChart />
       </div>
     );
   }
 }
 
-export default connect(Vizbuilder);
+Vizbuilder.childContextTypes = {
+  loading: PropTypes.bool,
+  loadTotal: PropTypes.number,
+  loadDone: PropTypes.number,
+  loadError: PropTypes.any,
+  query: PropTypes.any,
+  options: PropTypes.any,
+  dataset: PropTypes.array,
+  loadCycle: PropTypes.func,
+  queryUpdate: PropTypes.func,
+  optionsUpdate: PropTypes.func,
+  datasetUpdate: PropTypes.func
+};
+
+export default Vizbuilder;

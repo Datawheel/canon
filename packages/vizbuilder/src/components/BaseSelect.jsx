@@ -2,28 +2,26 @@ import React from "react";
 import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 
-import { Icon } from "@blueprintjs/core";
-import { Select, MultiSelect } from "@blueprintjs/labs";
+import {Icon} from "@blueprintjs/core";
+import {Select, MultiSelect} from "@blueprintjs/labs";
 
-import "@blueprintjs/core/dist/blueprint.css";
-import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./BaseSelect.css";
 
 /**
  * @template T
- * @typedef IProps<T>
+ * @typedef IProps
  * @prop {IconName} caret
  * @prop {T} defaultOption
- * @prop {Array<T>} items
+ * @prop {Array} items
  * @prop {boolean} multiple
  * @prop {T} value
-*/
+ */
 
 /**
- * @class BaseSelect<T>
+ * @class BaseSelect
  * @template T
- * @param {ISelectProps<T> & IProps<T> | IMultiSelectProps<T> & IProps<T>} props
- * @prop {ISelectProps<T> & IProps<T> | IMultiSelectProps<T> & IProps<T>} defaultProps
+ * @param {ISelectProps & IProps | IMultiSelectProps & IProps} props
+ * @prop {ISelectProps & IProps | IMultiSelectProps & IProps} defaultProps
  */
 function BaseSelect(props) {
   props = {
@@ -40,22 +38,24 @@ function BaseSelect(props) {
     props.tagInputProps.placeholder = props.placeholder;
 
     return React.createElement(MultiSelect, props, props.children);
-  } else {
-    if ("object" != typeof props.value) {
+  }
+  else {
+    if (typeof props.value !== "object") {
       props.value = props.defaultOption;
-    } else {
+    }
+    else {
       props.value =
-        props.items.find(item => item.name == props.value.name) ||
+        props.items.find(item => item.name === props.value.name) ||
         props.defaultOption;
     }
 
-    props.children = props.children || (
+    props.children = props.children ||
       <div className="select-option current" title={props.value.name}>
         {props.value.icon && <Icon iconName={props.value.icon} />}
         <span className="value">{props.value.name}</span>
         <Icon iconName={props.caret} />
       </div>
-    );
+    ;
 
     return React.createElement(Select, props, props.children);
   }
@@ -64,14 +64,14 @@ function BaseSelect(props) {
 /** @type {ISelectProps & IProps | IMultiSelectProps & IProps} */
 BaseSelect.defaultProps = {
   caret: "double-caret-vertical",
-  defaultOption: { value: null, name: "Select...", disabled: true },
+  defaultOption: {value: null, name: "Select...", disabled: true},
   items: [],
   itemListPredicate(query, items) {
     query = query.trim();
-    let tester = RegExp(escapeRegExp(query) || ".", "i");
+    const tester = RegExp(escapeRegExp(query) || ".", "i");
     return items.filter(item => tester.test(item.name));
   },
-  itemRenderer({ handleClick, item, isActive }) {
+  itemRenderer({handleClick, item, isActive}) {
     return (
       <span
         className={classnames("select-option", {
@@ -81,7 +81,7 @@ BaseSelect.defaultProps = {
         onClick={item.disabled || handleClick}
         title={item.name}
       >
-      {item.icon && <Icon iconName={item.icon} />}
+        {item.icon && <Icon iconName={item.icon} />}
         <span className="select-option-label">{item.name}</span>
       </span>
     );
@@ -98,7 +98,7 @@ BaseSelect.defaultProps = {
     inputProps: {
       className: "input-box"
     },
-    rightElement: <Icon iconName="chevron-down" />
+    rightElement: <Icon iconName="double-caret-vertical" />
   }
 };
 
