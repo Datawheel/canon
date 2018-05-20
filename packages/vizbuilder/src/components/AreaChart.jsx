@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { uuid } from "d3plus-common";
+import {uuid} from "d3plus-common";
 import {
   Treemap,
   Donut,
@@ -64,12 +64,12 @@ class AreaChart extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    //return nextState.isOpen !== this.state.isOpen;
+    // return nextState.isOpen !== this.state.isOpen;
     return true;
   }
 
   createConfig(data) {
-    const { chartConfig, isOpen } = this.state;
+    const {chartConfig, isOpen} = this.state;
     const x = chartConfig.groupBy;
 
     // Confs of Viz
@@ -110,10 +110,10 @@ class AreaChart extends React.Component {
     };
 
     const timelineConfig = {
-      //time: !isOpen ? "ID Year" : ""
+      // time: !isOpen ? "ID Year" : ""
     };
 
-    let config = {
+    const config = {
       ...vizConfig,
       ...barConfig,
       ...colorScaleConfig,
@@ -127,7 +127,7 @@ class AreaChart extends React.Component {
       }
     };
 
-    /*if (["BarChart"].includes(type)) config = { ...config, ...barConfig };
+    /* if (["BarChart"].includes(type)) config = { ...config, ...barConfig };
     if (["Treemap", "Donut", "Pie"].includes(type)) {
       config = {...config, ...vizConfig};
     }*/
@@ -151,7 +151,7 @@ class AreaChart extends React.Component {
       });
     }
 
-    this.setState({ isOpen: !this.state.isOpen });
+    this.setState({isOpen: !this.state.isOpen});
     if (type) {
       this.setState({
         chartConfig: {
@@ -165,18 +165,16 @@ class AreaChart extends React.Component {
   }
 
   closeDialog() {
-    this.setState({ isOpen: false });
+    this.setState({isOpen: false});
   }
 
   render() {
     const config = this.createConfig(this.context.dataset);
 
-    const annotations = this.props.query.cube
-      ? this.props.query.cube.annotations
-      : {
-          source_link: "",
-          source_name: ""
-        };
+    const annotations = {
+      source_link: "",
+      source_name: ""
+    };
 
     const CustomViz = components[this.state.chartConfig.type];
     const PreviewZoomViz = components[this.state.previewConfig.type];
@@ -193,7 +191,7 @@ class AreaChart extends React.Component {
           <div className="pt-dialog-body">
             <div className="preview-body">
               <div className="preview-panel">
-                {Object.keys(components).map(comp => (
+                {Object.keys(components).map(comp => 
                   <div key={comp} onClick={evt => this.changePreview(comp)}>
                     <RenderOnce
                       components={components}
@@ -201,10 +199,10 @@ class AreaChart extends React.Component {
                       config={config}
                     />
                   </div>
-                ))}
+                )}
               </div>
               <div className="preview-main">
-                <PreviewZoomViz config={{ ...config, height: 300 }} />
+                <PreviewZoomViz config={{...config, height: 300}} />
               </div>
             </div>
           </div>
@@ -233,7 +231,7 @@ class AreaChart extends React.Component {
             text="Change chart"
           />
         </div>
-        <CustomViz config={{ ...config, height: 500 }} />
+        <CustomViz config={{...config, height: 500}} />
         <div className="source-note">
           <span className="source-note-txt">{"Source"}:</span>
           <a
