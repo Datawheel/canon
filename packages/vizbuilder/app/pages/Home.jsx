@@ -5,7 +5,7 @@ import Vizbuilder from "../../src/index.jsx";
 import "./Home.css";
 
 export default class Home extends React.Component {
-	render() {
-		return <Vizbuilder src="https://chilecube.staging.datachile.io" />;
-	}
+  render() {
+    return <Vizbuilder src="https://canon-api.datausa.io" />;
+  }
 }
