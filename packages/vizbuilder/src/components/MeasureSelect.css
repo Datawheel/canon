@@ -1,0 +1,9 @@
+.select-measure {
+  & .select-option-label {
+    display: block;
+  }
+
+  & .lead {
+    font-size: 0.8em;
+  }
+}

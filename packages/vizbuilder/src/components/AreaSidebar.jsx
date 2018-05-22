@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import BaseSelect from "./BaseSelect";
+import MeasureSelect from "./MeasureSelect";
 import {
   setMeasure,
   setDrilldown,
@@ -38,7 +39,7 @@ class AreaSidebar extends React.PureComponent {
         <div className="wrapper">
           <div className="group">
             <h3>Measure</h3>
-            <BaseSelect
+            <MeasureSelect
               items={options.measures}
               value={query.measure}
               onItemSelect={this.setMeasure}
