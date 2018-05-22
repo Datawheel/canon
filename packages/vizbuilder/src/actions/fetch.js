@@ -1,69 +1,46 @@
 import * as api from "../helpers/api";
+import {getValidDrilldowns} from "../helpers/sorting";
+
+/**
+ * These functions should be handled/called with this as the component where they are used.
+ */
 
 export function fetchCubes() {
-  const {loadCycle, queryUpdate, optionsUpdate} = this.context;
-  const load = loadCycle();
+  const {queryUpdate, optionsUpdate} = this.context;
 
-  return load
-    .start()
-    .then(api.cubes)
-    .then(cubes => {
-      const cube = cubes[0];
+  return api.cubes().then(cubes => {
+    const firstCube = cubes[0];
+    const measures = cubes.reduce((sum, cube) => sum.concat(cube.measures), []);
+    const levels = getValidDrilldowns(firstCube);
 
-      return Promise.all([
-        optionsUpdate({
-          cubes,
-          measures: cube.measures,
-          levels: cube.dimensions.reduce(
-            (jall, dim) =>
-              jall.concat(
-                dim.hierarchies.reduce(
-                  (kall, hie) => kall.concat(hie.levels),
-                  []
-                )
-              ),
-            []
-          )
-        }),
-        queryUpdate({
-          cube,
-          measures: cube.defaultMeasure
-        })
-      ]);
-    })
-    .then(load.resolved, load.rejected)
-    .then(this.setState.bind(this, {lastUpdate: Date.now()}));
+    return Promise.all([
+      optionsUpdate({cubes, measures, levels}),
+      queryUpdate({
+        cube: firstCube,
+        measure: firstCube.measures[0],
+        drilldowns: levels.slice(0, 1)
+      })
+    ]);
+  });
 }
 
 export function fetchMembers(level) {
-  const {loadCycle, optionsUpdate} = this.context;
-  const load = loadCycle();
+  const {optionsUpdate} = this.context;
 
-  return load
-    .start()
-    .then(() => api.members(level))
-    .then(members =>
-      optionsUpdate({
-        members: {
-          [level.fullName]: members
-        }
-      })
-    )
-    .then(load.resolved, load.rejected)
-    .then(this.setState.bind(this, {lastUpdate: Date.now()}));
+  return api.members(level).then(members =>
+    optionsUpdate({
+      members: {
+        [level.fullName]: members
+      }
+    })
+  );
 }
 
 export function fetchQuery() {
-  const {query, loadCycle, datasetUpdate} = this.context;
-  const load = loadCycle();
+  const {query, datasetUpdate} = this.context;
 
-  return load
-    .start()
-    .then(() => api.query(query))
-    .then(result => {
-      const data = result.data || {};
-      return datasetUpdate(data.data);
-    })
-    .then(load.resolved, load.rejected)
-    .then(this.setState.bind(this, {lastUpdate: Date.now()}));
+  return api.query(query).then(result => {
+    const data = result.data || {};
+    return datasetUpdate(data.data);
+  });
 }

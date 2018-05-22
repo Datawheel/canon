@@ -1,5 +1,5 @@
 import {Client} from "mondrian-rest-client";
-import {queryBuilder} from "./query";
+import {queryBuilder, queryConverter} from "./query";
 
 /** @type {Client} */
 let client;
@@ -22,7 +22,7 @@ export function query(params) {
   }
 
   return client.cube(params.cube.name).then(cube => {
-    const query = queryBuilder(cube.query, params);
+    const query = queryBuilder(cube.query, queryConverter(params));
     return client.query(query, params.format || "jsonrecords");
   });
 }

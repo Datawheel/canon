@@ -1,12 +1,16 @@
+import PropTypes from "prop-types";
+
 export default {
-  loading: true,
-  loadTotal: 0,
-  loadDone: 0,
-  loadError: undefined,
+  load: {
+    inProgress: false,
+    total: 0,
+    done: 0,
+    error: undefined
+  },
   query: {
     cube: null,
-    measures: [],
-    drillDowns: [],
+    measure: null,
+    drilldowns: [],
     filters: [],
     cuts: [],
     options: {},
@@ -16,6 +20,37 @@ export default {
     order: undefined,
     orderDesc: undefined
   },
-  options: {},
+  options: {
+    cubes: [],
+    levels: [],
+    measures: []
+  },
   dataset: []
 };
+
+export const loadTypes = PropTypes.shape({
+  inProgress: PropTypes.bool,
+  total: PropTypes.number,
+  done: PropTypes.number,
+  error: PropTypes.instanceOf(Error)
+});
+
+export const queryTypes = PropTypes.shape({
+  cube: PropTypes.any,
+  measure: PropTypes.any,
+  drilldowns: PropTypes.any,
+  filters: PropTypes.any,
+  cuts: PropTypes.any,
+  options: PropTypes.any,
+  locale: PropTypes.string,
+  limit: PropTypes.number,
+  offset: PropTypes.number,
+  order: PropTypes.any,
+  orderDesc: PropTypes.bool
+});
+
+export const optionsTypes = PropTypes.shape({
+  cubes: PropTypes.array,
+  levels: PropTypes.array,
+  measures: PropTypes.array
+});

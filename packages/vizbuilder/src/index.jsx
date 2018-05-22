@@ -5,9 +5,9 @@ import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
 import AreaChart from "./components/AreaChart";
 import {initClient} from "./helpers/api";
-import initialState from "./state";
+import initialState, {loadTypes, queryTypes, optionsTypes} from "./state";
 import {
-  loadCycle,
+  loadWrapper,
   queryUpdate,
   optionsUpdate,
   datasetUpdate
@@ -24,7 +24,7 @@ class Vizbuilder extends React.PureComponent {
     initClient(props.src);
     this.state = initialState;
 
-    this.loadCycle = loadCycle.bind(this);
+    this.loadWrapper = loadWrapper.bind(this);
     this.queryUpdate = queryUpdate.bind(this);
     this.optionsUpdate = optionsUpdate.bind(this);
     this.datasetUpdate = datasetUpdate.bind(this);
@@ -33,7 +33,7 @@ class Vizbuilder extends React.PureComponent {
   getChildContext() {
     return {
       ...this.state,
-      loadCycle: this.loadCycle,
+      loadWrapper: this.loadWrapper,
       queryUpdate: this.queryUpdate,
       optionsUpdate: this.optionsUpdate,
       datasetUpdate: this.datasetUpdate
@@ -52,14 +52,11 @@ class Vizbuilder extends React.PureComponent {
 }
 
 Vizbuilder.childContextTypes = {
-  loading: PropTypes.bool,
-  loadTotal: PropTypes.number,
-  loadDone: PropTypes.number,
-  loadError: PropTypes.any,
-  query: PropTypes.any,
-  options: PropTypes.any,
+  load: loadTypes,
+  query: queryTypes,
+  options: optionsTypes,
   dataset: PropTypes.array,
-  loadCycle: PropTypes.func,
+  loadWrapper: PropTypes.func,
   queryUpdate: PropTypes.func,
   optionsUpdate: PropTypes.func,
   datasetUpdate: PropTypes.func

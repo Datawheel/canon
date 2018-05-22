@@ -6,9 +6,9 @@ export function queryBuilder(query, params) {
     query = query.measure(params.measures[i]);
   }
 
-  item = params.drillDowns.length;
+  item = params.drilldowns.length;
   for (i = 0; i < item; i++) {
-    query = query.drilldown(...params.drillDowns[i]);
+    query = query.drilldown(...params.drilldowns[i]);
   }
 
   for (i = 0; i < params.cuts.length; i++) {
@@ -41,3 +41,46 @@ export function queryBuilder(query, params) {
 
   return query; // setLangCaptions(query, params.locale);
 }
+
+export function queryConverter(params) {
+  const getName = item => item.name;
+
+  return {
+    measures: params.cube.measures.map(getName),
+    drilldowns: params.drilldowns.map(lvl =>
+      lvl.fullName.slice(1, -1).split("].[")
+    ),
+    cuts: params.cuts,
+    filters: params.filters,
+    limit: undefined,
+    offset: undefined,
+    order: undefined,
+    orderDesc: undefined,
+    options: Object.create(null),
+    locale: "en"
+  };
+}
+
+// function setCaptionForLevelAndLang(query, level, lang) {
+//   const ann = level.annotations[`${lang}_caption`];
+//   if (ann) {
+//     query.caption(level.hierarchy.dimension.name, level.name, ann);
+//   }
+//   return query;
+// }
+
+// function setLangCaptions(query, lang) {
+//   const drilldowns = query.getDrilldowns() || [];
+//   drilldowns.forEach(level => {
+//     query = setCaptionForLevelAndLang(query, level, lang);
+
+//     // when parents requested, also get their i18n'd captions
+//     if (query.options.parents) {
+//       rangeRight(1, level.depth).forEach(d => {
+//         const ancestor = level.hierarchy.levels.find(l => l.depth === d);
+//         query = setCaptionForLevelAndLang(query, ancestor, lang);
+//       });
+//     }
+//   });
+//   return query;
+// }

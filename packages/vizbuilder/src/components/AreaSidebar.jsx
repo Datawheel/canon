@@ -2,8 +2,14 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import BaseSelect from "./BaseSelect";
-import {setCube, setMeasure, setLevel, removeLevel} from "../actions/events";
-import {fetchCubes} from "../actions/fetch";
+import {
+  setMeasure,
+  setDrilldown,
+  removeDrilldown,
+  updateLocalContext
+} from "../actions/events";
+import {fetchCubes, fetchQuery} from "../actions/fetch";
+import {queryTypes, optionsTypes} from "../state";
 
 import "./AreaSidebar.css";
 
@@ -11,21 +17,17 @@ class AreaSidebar extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    this.setCube = setCube.bind(this);
     this.setMeasure = setMeasure.bind(this);
-    this.setLevel = setLevel.bind(this);
-    this.removeLevel = removeLevel.bind(this);
+    this.setDrilldown = setDrilldown.bind(this);
+    this.removeDrilldown = removeDrilldown.bind(this);
+    this.fetchQuery = fetchQuery.bind(this);
+    this.updateLocalContext = updateLocalContext.bind(this);
   }
 
   componentDidMount() {
-    this.context.datasetUpdate([
-      {parent: "Group 1", id: "alpha", value: 29},
-      {parent: "Group 1", id: "beta", value: 10},
-      {parent: "Group 1", id: "gamma", value: 2},
-      {parent: "Group 2", id: "delta", value: 29},
-      {parent: "Group 2", id: "eta", value: 25}
-    ]);
-    fetchCubes.call(this);
+    this.context
+      .loadWrapper(fetchCubes.bind(this), this.fetchQuery)
+      .then(this.updateLocalContext);
   }
 
   render() {
@@ -35,11 +37,11 @@ class AreaSidebar extends React.PureComponent {
       <div className="area-sidebar">
         <div className="wrapper">
           <div className="group">
-            <h3>Cube</h3>
+            <h3>Measure</h3>
             <BaseSelect
-              items={options.cubes}
-              value={query.cube}
-              onItemSelect={this.setCube}
+              items={options.measures}
+              value={query.measure}
+              onItemSelect={this.setMeasure}
             />
           </div>
           <div className="group">
@@ -47,17 +49,9 @@ class AreaSidebar extends React.PureComponent {
             <BaseSelect
               multiple={true}
               items={options.levels}
-              value={query.drillDowns}
-              onItemSelect={this.setLevel}
-              onItemRemove={this.removeLevel}
-            />
-          </div>
-          <div className="group">
-            <h3>Measure</h3>
-            <BaseSelect
-              items={options.measures}
-              value={query.measure}
-              onItemSelect={this.setMeasure}
+              value={query.drilldowns}
+              onItemSelect={this.setDrilldown}
+              onItemRemove={this.removeDrilldown}
             />
           </div>
         </div>
@@ -67,12 +61,12 @@ class AreaSidebar extends React.PureComponent {
 }
 
 AreaSidebar.contextTypes = {
-  query: PropTypes.any,
-  options: PropTypes.any,
+  query: queryTypes,
+  options: optionsTypes,
   queryUpdate: PropTypes.func,
   optionsUpdate: PropTypes.func,
   datasetUpdate: PropTypes.func,
-  loadCycle: PropTypes.func,
+  loadWrapper: PropTypes.func
 };
 
 export default AreaSidebar;
