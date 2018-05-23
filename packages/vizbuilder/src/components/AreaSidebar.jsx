@@ -4,13 +4,12 @@ import PropTypes from "prop-types";
 import BaseSelect from "./BaseSelect";
 import MeasureSelect from "./MeasureSelect";
 import {
-  setMeasure,
-  setDrilldown,
   removeDrilldown,
+  setDrilldown,
+  setMeasure,
   updateLocalContext
 } from "../actions/events";
 import {fetchCubes, fetchQuery} from "../actions/fetch";
-import {queryTypes, optionsTypes} from "../state";
 
 import "./AreaSidebar.css";
 
@@ -26,13 +25,11 @@ class AreaSidebar extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.context
-      .loadWrapper(fetchCubes.bind(this), this.fetchQuery)
-      .then(this.updateLocalContext);
+    this.context.loadWrapper(fetchCubes.bind(this), this.fetchQuery);
   }
 
   render() {
-    const {query, options} = this.context;
+    const {query, options} = this.props;
 
     return (
       <div className="area-sidebar">
@@ -62,8 +59,6 @@ class AreaSidebar extends React.PureComponent {
 }
 
 AreaSidebar.contextTypes = {
-  query: queryTypes,
-  options: optionsTypes,
   queryUpdate: PropTypes.func,
   optionsUpdate: PropTypes.func,
   datasetUpdate: PropTypes.func,

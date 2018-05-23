@@ -10,7 +10,13 @@ export function fetchCubes() {
 
   return api.cubes().then(cubes => {
     const firstCube = cubes[0];
-    const measures = cubes.reduce((sum, cube) => sum.concat(cube.measures), []);
+    const measures = cubes.reduce((sum, cube) => {
+      for (const measure of cube.measures) {
+        measure.annotations._cube = cube.name;
+        sum.push(measure);
+      }
+      return sum;
+    }, []);
     const levels = getValidDrilldowns(firstCube);
 
     return Promise.all([
@@ -37,7 +43,8 @@ export function fetchMembers(level) {
 }
 
 export function fetchQuery() {
-  const {query, datasetUpdate} = this.context;
+  const {query} = this.props;
+  const {datasetUpdate} = this.context;
 
   return api.query(query).then(result => {
     const data = result.data || {};

@@ -11,42 +11,46 @@ export function updateLocalContext() {
 }
 
 export function setMeasure(measure) {
-  const {options, queryUpdate, optionsUpdate} = this.context;
+  const {options} = this.props;
+  const {queryUpdate, optionsUpdate, loadWrapper} = this.context;
 
   const cube = options.cubes.find(cube => cube.measures.indexOf(measure) > -1);
   const levels = getValidDrilldowns(cube);
 
-  optionsUpdate({levels});
-  queryUpdate({
-    cube,
-    measure,
-    drilldowns: levels.slice(0, 1)
-  })
-    .then(this.fetchQuery)
-    .then(this.updateLocalContext);
+  return loadWrapper(
+    () =>
+      Promise.all([
+        optionsUpdate({levels}),
+        queryUpdate({
+          cube,
+          measure,
+          drilldowns: levels.slice(0, 1)
+        })
+      ]),
+    this.fetchQuery
+  );
 }
 
 export function setDrilldown(level) {
-  const {query, options, queryUpdate} = this.context;
+  const {options, query} = this.props;
+  const {queryUpdate} = this.context;
 
   if (options.levels.indexOf(level) > -1) {
+    // TODO: make sure there's no repeated hierarchies
     queryUpdate({
       drilldowns: [].concat(query.drilldowns, level)
-    })
-      .then(this.fetchQuery)
-      .then(this.updateLocalContext);
+    }).then(this.fetchQuery);
   }
 }
 
 export function removeDrilldown(levelName) {
-  const {query, options, queryUpdate} = this.context;
+  const {options, query} = this.props;
+  const {queryUpdate} = this.context;
   const level = options.levels.find(lvl => lvl.name === levelName);
 
   if (level) {
     queryUpdate({
       drilldowns: query.drilldowns.filter(lvl => lvl !== level)
-    })
-      .then(this.fetchQuery)
-      .then(this.updateLocalContext);
+    }).then(this.fetchQuery);
   }
 }

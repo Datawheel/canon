@@ -22,7 +22,7 @@ class Vizbuilder extends React.PureComponent {
     super(props);
 
     initClient(props.src);
-    this.state = initialState;
+    this.state = initialState();
 
     this.loadWrapper = loadWrapper.bind(this);
     this.queryUpdate = queryUpdate.bind(this);
@@ -41,25 +41,26 @@ class Vizbuilder extends React.PureComponent {
   }
 
   render() {
+    const {options, query, dataset} = this.state;
     return (
       <div className="vizbuilder">
-        <AreaLoading />
-        <AreaSidebar />
-        <AreaChart />
+        <AreaLoading {...this.state.load} />
+        <AreaSidebar options={options} query={query} />
+        <AreaChart dataset={dataset} query={query} />
       </div>
     );
   }
 }
 
 Vizbuilder.childContextTypes = {
-  load: loadTypes,
-  query: queryTypes,
-  options: optionsTypes,
   dataset: PropTypes.array,
+  load: loadTypes,
+  options: optionsTypes,
+  query: queryTypes,
+  datasetUpdate: PropTypes.func,
   loadWrapper: PropTypes.func,
-  queryUpdate: PropTypes.func,
   optionsUpdate: PropTypes.func,
-  datasetUpdate: PropTypes.func
+  queryUpdate: PropTypes.func
 };
 
 export default Vizbuilder;

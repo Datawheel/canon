@@ -1,32 +1,34 @@
 import PropTypes from "prop-types";
 
-export default {
-  load: {
-    inProgress: false,
-    total: 0,
-    done: 0,
-    error: undefined
-  },
-  query: {
-    cube: null,
-    measure: null,
-    drilldowns: [],
-    filters: [],
-    cuts: [],
-    options: {},
-    locale: "en",
-    limit: undefined,
-    offset: undefined,
-    order: undefined,
-    orderDesc: undefined
-  },
-  options: {
-    cubes: [],
-    levels: [],
-    measures: []
-  },
-  dataset: []
-};
+export default function initialStateFactory() {
+  return {
+    load: {
+      inProgress: true,
+      total: 0,
+      done: 0,
+      error: undefined
+    },
+    query: {
+      cube: null,
+      measure: null,
+      drilldowns: [],
+      filters: [],
+      cuts: [],
+      options: {},
+      locale: "en",
+      limit: undefined,
+      offset: undefined,
+      order: undefined,
+      orderDesc: undefined
+    },
+    options: {
+      cubes: [],
+      levels: [],
+      measures: []
+    },
+    dataset: []
+  };
+}
 
 export const loadTypes = PropTypes.shape({
   inProgress: PropTypes.bool,
