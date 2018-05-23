@@ -1,15 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {uuid} from "d3plus-common";
-import {
-  Treemap,
-  Donut,
-  Pie,
-  BarChart,
-  StackedArea,
-  Plot,
-  LinePlot
-} from "d3plus-react";
+import {Treemap, Donut, Pie, BarChart, StackedArea} from "d3plus-react";
 import {
   AnchorButton,
   Button,
@@ -39,14 +31,14 @@ class AreaChart extends React.Component {
       chartConfig: {
         type: "Treemap",
         colorScale: "value",
-        measure: "value",
-        dimension: "id"
+        measure: "Output",
+        dimension: "Year"
       },
       previewConfig: {
         type: "Treemap",
         colorScale: "value",
-        measure: "value",
-        dimension: "id"
+        measure: "Output",
+        dimension: "Year"
       }
     };
 
@@ -57,8 +49,11 @@ class AreaChart extends React.Component {
 
   changePreview(type) {
     this.setState({
-      previewConfig: {
-        type
+      isOpen: !this.state.isOpen,
+      chartConfig: {
+        type,
+        measure: "Output",
+        dimension: "Year"
       }
     });
   }
@@ -69,16 +64,19 @@ class AreaChart extends React.Component {
   }
 
   createConfig(data) {
-    const {chartConfig, isOpen} = this.state;
+    console.log(data);
+    const {chartConfig} = this.state;
     const x = chartConfig.groupBy;
 
     // Confs of Viz
     const vizConfig = {
+      groupBy: chartConfig.dimension,
       total: d => d[chartConfig.measure],
       totalConfig: {
         fontSize: 14
       },
-      sum: d => d[chartConfig.measure]
+      sum: d => d[chartConfig.measure],
+      value: d => d[chartConfig.measure]
     };
 
     const colorScaleConfig = {
@@ -120,17 +118,12 @@ class AreaChart extends React.Component {
       ...timelineConfig,
       legendConfig,
       data,
-      height: 125,
+      height: 400,
       uuid: uuid(),
       tooltipConfig: {
         title: `<h5 class="title xs-small">${chartConfig.measure}</h5>`
       }
     };
-
-    /* if (["BarChart"].includes(type)) config = { ...config, ...barConfig };
-    if (["Treemap", "Donut", "Pie"].includes(type)) {
-      config = {...config, ...vizConfig};
-    }*/
 
     if (chartConfig.type === "Geomap") config.colorScale = chartConfig.measure;
     if (chartConfig.groupBy) config.groupBy = chartConfig.groupBy;
@@ -171,67 +164,62 @@ class AreaChart extends React.Component {
   render() {
     const config = this.createConfig(this.context.dataset);
 
+    console.log(this.context);
+
     const annotations = {
       source_link: "",
       source_name: ""
     };
 
     const CustomViz = components[this.state.chartConfig.type];
+    console.log(CustomViz);
     const PreviewZoomViz = components[this.state.previewConfig.type];
 
     return (
       <div className="area-chart">
-        <Dialog
-          iconName="inbox"
-          isOpen={this.state.isOpen}
-          title="Dialog header"
-          className="preview"
-          onClose={evt => this.toggleDialog()}
-        >
-          <div className="pt-dialog-body">
-            <div className="preview-body">
-              <div className="preview-panel">
-                {Object.keys(components).map(comp => 
-                  <div key={comp} onClick={evt => this.changePreview(comp)}>
-                    <RenderOnce
-                      components={components}
-                      chart={comp}
-                      config={config}
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="preview-main">
-                <PreviewZoomViz config={{...config, height: 300}} />
-              </div>
-            </div>
-          </div>
-          <div className="pt-dialog-footer">
-            <div className="pt-dialog-footer-actions">
-              <Button text="Cancel" onClick={evt => this.toggleDialog()} />
-              <Button
-                intent={Intent.PRIMARY}
-                onClick={evt =>
-                  this.toggleDialog(this.state.previewConfig.type)
-                }
-                text="Confirm"
-              />
-            </div>
-          </div>
-        </Dialog>
         <h4>
           {`${this.state.chartConfig.type} of ${
             this.state.chartConfig.measure
           } by ${this.state.chartConfig.dimension}`}
         </h4>
-        <div>
+        {/* <div>
           <Button
             intent={Intent.PRIMARY}
             onClick={evt => this.toggleDialog()}
             text="Change chart"
           />
+        </div>*/}
+        <div className="viz-section-wrapper">
+          {!this.state.isOpen &&
+            Object.keys(components).map(comp => {
+              const PreviewZoomViz = components[comp];
+              return (
+                <div className="viz-card" key={comp}>
+                  <PreviewZoomViz
+                    components={components}
+                    chart={comp}
+                    config={config}
+                  />
+                  <div className="viz-footer">
+                    <a onClick={evt => this.changePreview(comp)}>ENLARGE</a>
+                  </div>
+                </div>
+              );
+            })}
         </div>
-        <CustomViz config={{...config, height: 500}} />
+
+        {this.state.isOpen && 
+          <div className="viz-card-wrapper">
+            <CustomViz config={{...config, height: 500}} />
+            <div className="viz-footer">
+              <a
+                onClick={evt => this.changePreview(this.state.chartConfig.type)}
+              >
+                CLOSE
+              </a>
+            </div>
+          </div>
+        }
         <div className="source-note">
           <span className="source-note-txt">{"Source"}:</span>
           <a
