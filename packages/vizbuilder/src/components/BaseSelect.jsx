@@ -40,7 +40,7 @@ function BaseSelect(props) {
     return React.createElement(MultiSelect, props, props.children);
   }
   else {
-    if (typeof props.value !== "object") {
+    if (!props.value || typeof props.value !== "object") {
       props.value = props.defaultOption;
     }
     else {

@@ -23,12 +23,14 @@ function setStatePromise(newState) {
  */
 function setStateFetchError(n, err) {
   return setStatePromise.call(this, state => {
-    const stillLoading = state.loadDone + n !== state.loadTotal;
+    const stillLoading = state.load.done + n !== state.load.total;
     return {
-      loading: stillLoading,
-      loadTotal: stillLoading ? state.loadTotal : 0,
-      loadDone: stillLoading ? state.loadDone + n : 0,
-      loadError: err
+      load: {
+        inProgress: stillLoading,
+        total: stillLoading ? state.load.total : 0,
+        done: stillLoading ? state.load.done + n : 0,
+        error: err
+      }
     };
   });
 }
@@ -44,17 +46,19 @@ export function loadCycle(n) {
   return {
     start: setStatePromise.bind(this, state => ({
       load: {
-        loading: true,
-        loadTotal: state.loadTotal + n
+        ...state.load,
+        inProgress: true,
+        total: state.load.total + n
       }
     })),
     resolved: setStatePromise.bind(this, state => {
-      const stillLoading = state.loadDone + n !== state.loadTotal;
+      const stillLoading = state.load.done + n !== state.load.total;
       return {
         load: {
-          loading: stillLoading,
-          loadTotal: stillLoading ? state.loadTotal : 0,
-          loadDone: stillLoading ? state.loadDone + n : 0
+          ...state.load,
+          inProgress: stillLoading,
+          total: stillLoading ? state.load.total : 0,
+          done: stillLoading ? state.load.done + n : 0
         }
       };
     }),
