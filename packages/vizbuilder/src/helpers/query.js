@@ -1,3 +1,5 @@
+import {joinDrilldownList} from "./sorting";
+
 export function queryBuilder(query, params) {
   let i, item;
 
@@ -43,10 +45,8 @@ export function queryBuilder(query, params) {
 }
 
 export function queryConverter(params) {
-  const getName = item => item.name;
-
   return {
-    measures: params.cube.measures.map(getName),
+    measures: [params.measure.name],
     drilldowns: params.drilldowns.map(lvl =>
       lvl.fullName.slice(1, -1).split("].[")
     ),
@@ -56,7 +56,7 @@ export function queryConverter(params) {
     offset: undefined,
     order: undefined,
     orderDesc: undefined,
-    options: Object.create(null),
+    options: params.options,
     locale: "en"
   };
 }

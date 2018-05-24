@@ -1,8 +1,4 @@
 .area-sidebar {
-  & .wrapper {
-    margin: 15px;
-  }
-
   & .group {
     margin-bottom: 1em;
   }

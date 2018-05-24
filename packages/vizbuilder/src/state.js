@@ -14,7 +14,13 @@ export default function initialStateFactory() {
       drilldowns: [],
       filters: [],
       cuts: [],
-      options: {},
+      options: {
+        nonempty: true,
+        distinct: false,
+        parents: false,
+        debug: false,
+        sparse: true
+      },
       locale: "en",
       limit: undefined,
       offset: undefined,

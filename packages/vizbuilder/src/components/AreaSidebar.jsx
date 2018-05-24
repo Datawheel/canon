@@ -12,6 +12,7 @@ import {
 import {fetchCubes, fetchQuery} from "../actions/fetch";
 
 import "./AreaSidebar.css";
+import LevelSelect from "./LevelSelect";
 
 class AreaSidebar extends React.PureComponent {
   constructor(props) {
@@ -44,8 +45,7 @@ class AreaSidebar extends React.PureComponent {
           </div>
           <div className="group">
             <h3>Level</h3>
-            <BaseSelect
-              multiple={true}
+            <LevelSelect
               items={options.levels}
               value={query.drilldowns}
               onItemSelect={this.setDrilldown}

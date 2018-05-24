@@ -1,9 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
+import {Intent} from "@blueprintjs/core";
 
 import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
 import AreaChart from "./components/AreaChart";
+import {ErrorToaster} from "./components/ErrorToaster";
 import {initClient} from "./helpers/api";
 import initialState, {loadTypes, queryTypes, optionsTypes} from "./state";
 import {
@@ -38,6 +40,14 @@ class Vizbuilder extends React.PureComponent {
       optionsUpdate: this.optionsUpdate,
       datasetUpdate: this.datasetUpdate
     };
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const {error} = this.state.load;
+    if (error && prevState.load.error !== error) {
+      console.log(error.stack);
+      ErrorToaster.show({intent: Intent.WARNING, message: error.message});
+    }
   }
 
   render() {

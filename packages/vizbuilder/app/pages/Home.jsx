@@ -6,6 +6,6 @@ import "./Home.css";
 
 export default class Home extends React.Component {
   render() {
-    return <Vizbuilder src="https://chilecube.datawheel.us" />;
+    return <Vizbuilder src="https://mondrian.frabarz.cl" />;
   }
 }

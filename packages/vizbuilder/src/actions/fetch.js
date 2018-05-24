@@ -1,5 +1,5 @@
 import * as api from "../helpers/api";
-import {getValidDrilldowns} from "../helpers/sorting";
+import {getValidDrilldowns, addTimeDrilldown} from "../helpers/sorting";
 
 /**
  * These functions should be handled/called with this as the component where they are used.
@@ -18,13 +18,14 @@ export function fetchCubes() {
       return sum;
     }, []);
     const levels = getValidDrilldowns(firstCube);
+    const drilldowns = addTimeDrilldown(levels.slice(0, 1), firstCube);
 
     return Promise.all([
       optionsUpdate({cubes, measures, levels}),
       queryUpdate({
         cube: firstCube,
         measure: firstCube.measures[0],
-        drilldowns: levels.slice(0, 1)
+        drilldowns
       })
     ]);
   });

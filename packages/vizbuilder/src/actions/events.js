@@ -1,4 +1,8 @@
-import {getValidDrilldowns} from "../helpers/sorting";
+import {
+  getValidDrilldowns,
+  joinDrilldownList,
+  addTimeDrilldown
+} from "../helpers/sorting";
 
 /*
  * These functions are event handlers for multiple components.
@@ -16,16 +20,13 @@ export function setMeasure(measure) {
 
   const cube = options.cubes.find(cube => cube.measures.indexOf(measure) > -1);
   const levels = getValidDrilldowns(cube);
+  const drilldowns = addTimeDrilldown(levels.slice(0, 1), cube);
 
   return loadWrapper(
     () =>
       Promise.all([
         optionsUpdate({levels}),
-        queryUpdate({
-          cube,
-          measure,
-          drilldowns: levels.slice(0, 1)
-        })
+        queryUpdate({cube, measure, drilldowns})
       ]),
     this.fetchQuery
   );
@@ -36,10 +37,9 @@ export function setDrilldown(level) {
   const {queryUpdate} = this.context;
 
   if (options.levels.indexOf(level) > -1) {
-    // TODO: make sure there's no repeated hierarchies
-    queryUpdate({
-      drilldowns: [].concat(query.drilldowns, level)
-    }).then(this.fetchQuery);
+    let drilldowns = joinDrilldownList(query.drilldowns, level);
+    drilldowns = addTimeDrilldown(drilldowns, query.cube);
+    queryUpdate({drilldowns}).then(this.fetchQuery);
   }
 }
 
@@ -48,7 +48,7 @@ export function removeDrilldown(levelName) {
   const {queryUpdate} = this.context;
   const level = options.levels.find(lvl => lvl.name === levelName);
 
-  if (level) {
+  if (level && !(/\[date\]/i).test(level.fullName)) {
     queryUpdate({
       drilldowns: query.drilldowns.filter(lvl => lvl !== level)
     }).then(this.fetchQuery);

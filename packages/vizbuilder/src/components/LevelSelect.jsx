@@ -3,28 +3,28 @@ import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 import {Icon} from "@blueprintjs/core";
 
-import "./MeasureSelect.css";
+// import "./LevelSelect.css";
 import BaseSelect from "./BaseSelect";
 
-function MeasureSelect(props) {
+function LevelSelect(props) {
   props.items = props.items.slice(0, 100);
   return React.createElement(BaseSelect, props);
 }
 
-MeasureSelect.defaultProps = {
+LevelSelect.defaultProps = {
   itemListPredicate(query, items) {
     query = query.trim();
     query = escapeRegExp(query);
     query = query.replace(/\s+/g, ".+");
     const tester = RegExp(query || ".", "i");
     return items.filter(item =>
-      tester.test(`${item.caption || item.name} ${item.annotations._cube}`)
+      tester.test(`${item.caption || item.name} ${item.hierarchy.dimension.name}`)
     );
   },
   itemRenderer({handleClick, item, isActive}) {
     return (
       <li
-        className={classnames("select-option", "select-measure", {
+        className={classnames("select-option", "select-level", {
           active: isActive,
           disabled: item.disabled
         })}
@@ -34,11 +34,12 @@ MeasureSelect.defaultProps = {
         {item.icon && <Icon iconName={item.icon} />}
         <span className="select-option-label">{item.name}</span>
         <span className="select-option-label lead">
-          {item.annotations._cube}
+          {item.hierarchy.dimension.name}
         </span>
       </li>
     );
-  }
+  },
+  multiple: true
 };
 
-export default MeasureSelect;
+export default LevelSelect;
