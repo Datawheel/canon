@@ -12,8 +12,7 @@ export default function initialStateFactory() {
       cube: null,
       measure: null,
       drilldowns: [],
-      filters: [],
-      cuts: [],
+      conditions: [],
       options: {
         nonempty: true,
         distinct: false,

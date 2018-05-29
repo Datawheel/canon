@@ -32,15 +32,7 @@ export function fetchCubes() {
 }
 
 export function fetchMembers(level) {
-  const {optionsUpdate} = this.context;
-
-  return api.members(level).then(members =>
-    optionsUpdate({
-      members: {
-        [level.fullName]: members
-      }
-    })
-  );
+  return api.members(level).then(members => this.setState({members}));
 }
 
 export function fetchQuery() {

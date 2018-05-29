@@ -28,6 +28,25 @@ export const LABELS = {
   8: "Contains the term"
 };
 
+export const SYMBOLS = {
+  UNDEFINED: null,
+  0: null,
+  EQUAL: "=",
+  1: "=",
+  LOWER: "<",
+  2: "<",
+  LOWEREQUAL: "<=",
+  3: "<=",
+  HIGHER: ">",
+  4: ">",
+  HIGHEREQUAL: ">=",
+  5: ">=",
+  NOTEQUAL: "!=",
+  6: "!=",
+  CONTAINS: null,
+  8: null
+};
+
 export const KIND_NUMBER = [
   "EQUAL",
   "LOWER",

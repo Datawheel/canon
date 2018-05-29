@@ -1,9 +1,15 @@
+import union from "lodash/union";
+
+function isTimeDimension(dimension) {
+  return dimension.dimensionType === 1 || dimension.name === "Date";
+}
+
 export function getValidDrilldowns(cube) {
   return cube.dimensions.reduce(flattenDimensions, []);
 }
 
 export function flattenDimensions(container, dimension) {
-  return dimension.dimensionType === 1 || dimension.name === "Date"
+  return isTimeDimension(dimension)
     ? container
     : dimension.hierarchies.reduce(flattenHierarchies, container);
 }
@@ -14,7 +20,11 @@ export function flattenHierarchies(container, hierarchy) {
 
 export function joinDrilldownList(array, drilldown) {
   array = array.filter(dd => dd.hierarchy !== drilldown.hierarchy);
-  return array.concat(drilldown);
+  drilldown = [].concat(drilldown || []);
+  return union(array, drilldown).sort(
+    (a, b) =>
+      a.hierarchy.dimension.dimensionType - b.hierarchy.dimension.dimensionType
+  );
 }
 
 export function addTimeDrilldown(array, cube) {

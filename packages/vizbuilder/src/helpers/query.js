@@ -1,4 +1,4 @@
-import {joinDrilldownList} from "./sorting";
+import {SYMBOLS as OPERATOR_SYMBOLS} from "./operators";
 
 export function queryBuilder(query, params) {
   let i, item;
@@ -16,8 +16,12 @@ export function queryBuilder(query, params) {
   for (i = 0; i < params.cuts.length; i++) {
     item = params.cuts[i];
     if (typeof item !== "string") {
-      item = item.values.map(v => `${item.key}.&[${v}]`).join(",");
-      if (item.indexOf("],[") > -1) item = `{${item}}`;
+      const key = "property" in item ? item.property.fullName : item.key;
+
+      item = item.values.map(v => `${key}.&[${v}]`).join(",");
+      if (item.indexOf("],[") > -1) {
+        item = `{${item}}`;
+      }
     }
     query = query.cut(item);
   }
@@ -45,13 +49,13 @@ export function queryBuilder(query, params) {
 }
 
 export function queryConverter(params) {
-  return {
+  const query = {
     measures: [params.measure.name],
     drilldowns: params.drilldowns.map(lvl =>
       lvl.fullName.slice(1, -1).split("].[")
     ),
-    cuts: params.cuts,
-    filters: params.filters,
+    cuts: [],
+    filters: [],
     limit: undefined,
     offset: undefined,
     order: undefined,
@@ -59,6 +63,33 @@ export function queryConverter(params) {
     options: params.options,
     locale: "en"
   };
+
+  for (let i = 0; i < params.conditions.length; i++) {
+    const condition = params.conditions[i];
+
+    if (!condition.property) {
+      continue;
+    }
+
+    if (condition.type === "cut") {
+      const cut = {
+        key: condition.property.fullName,
+        values: condition.values
+      };
+      query.cuts.push(cut);
+    }
+
+    if (condition.type === "filter") {
+      const filter = [].concat(
+        condition.property.name,
+        OPERATOR_SYMBOLS[condition.operator],
+        condition.values
+      );
+      query.filters.push(filter);
+    }
+  }
+
+  return query;
 }
 
 // function setCaptionForLevelAndLang(query, level, lang) {

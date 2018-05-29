@@ -39,7 +39,8 @@ LevelSelect.defaultProps = {
       </li>
     );
   },
-  multiple: true
+  multiple: true,
+  tagRenderer: item => `${item.hierarchy.dimension.name} › ${item.name}`
 };
 
 export default LevelSelect;

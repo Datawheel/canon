@@ -1,7 +1,9 @@
+import OPERATORS from "../helpers/operators";
+import {makeRandomId} from "../helpers/random";
 import {
+  addTimeDrilldown,
   getValidDrilldowns,
-  joinDrilldownList,
-  addTimeDrilldown
+  joinDrilldownList
 } from "../helpers/sorting";
 
 /*
@@ -15,24 +17,25 @@ export function updateLocalContext() {
 }
 
 export function setMeasure(measure) {
-  const {options} = this.props;
+  const {options, query} = this.props;
   const {queryUpdate, optionsUpdate, loadWrapper} = this.context;
 
   const cube = options.cubes.find(cube => cube.measures.indexOf(measure) > -1);
   const levels = getValidDrilldowns(cube);
   const drilldowns = addTimeDrilldown(levels.slice(0, 1), cube);
+  const conditions = query.cube === cube ? query.conditions : [];
 
   return loadWrapper(
     () =>
       Promise.all([
         optionsUpdate({levels}),
-        queryUpdate({cube, measure, drilldowns})
+        queryUpdate({cube, measure, drilldowns, conditions})
       ]),
     this.fetchQuery
   );
 }
 
-export function setDrilldown(level) {
+export function addDrilldown(level) {
   const {options, query} = this.props;
   const {queryUpdate} = this.context;
 
@@ -46,11 +49,51 @@ export function setDrilldown(level) {
 export function removeDrilldown(levelName) {
   const {options, query} = this.props;
   const {queryUpdate} = this.context;
+
+  levelName = levelName.split(" › ").pop();
   const level = options.levels.find(lvl => lvl.name === levelName);
 
   if (level && !(/\[date\]/i).test(level.fullName)) {
-    queryUpdate({
-      drilldowns: query.drilldowns.filter(lvl => lvl !== level)
-    }).then(this.fetchQuery);
+    const drilldowns = query.drilldowns.filter(lvl => lvl !== level);
+    queryUpdate({drilldowns}).then(this.fetchQuery);
+  }
+}
+
+export function addCondition() {
+  const {conditions} = this.props.query;
+  const {loadWrapper, queryUpdate} = this.context;
+
+  const newConditions = [].concat(conditions, {
+    hash: makeRandomId(),
+    operator: OPERATORS.EQUAL,
+    property: "",
+    type: "cut",
+    values: []
+  });
+
+  loadWrapper(queryUpdate.bind(this, {conditions: newConditions}), this.fetchQuery);
+}
+
+export function updateCondition(condition) {
+  const {conditions} = this.props.query;
+  const {loadWrapper, queryUpdate} = this.context;
+
+  const index = conditions.findIndex(cond => cond.hash === condition.hash);
+
+  if (index > -1) {
+    const newConditions = conditions.slice();
+    newConditions.splice(index, 1, condition);
+    loadWrapper(queryUpdate.bind(this, {conditions: newConditions}), this.fetchQuery);
+  }
+}
+
+export function removeCondition(condition) {
+  const {conditions} = this.props.query;
+  const {loadWrapper, queryUpdate} = this.context;
+
+  const newConditions = conditions.filter(cond => cond.hash !== condition.hash);
+
+  if (newConditions.length < conditions.length) {
+    loadWrapper(queryUpdate.bind(this, {conditions: newConditions}), this.fetchQuery);
   }
 }

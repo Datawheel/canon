@@ -1,28 +1,23 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import BaseSelect from "./BaseSelect";
-import MeasureSelect from "./MeasureSelect";
-import {
-  removeDrilldown,
-  setDrilldown,
-  setMeasure,
-  updateLocalContext
-} from "../actions/events";
+import {addDrilldown, removeDrilldown, setMeasure} from "../actions/events";
 import {fetchCubes, fetchQuery} from "../actions/fetch";
 
-import "./AreaSidebar.css";
+import ConditionManager from "./ConditionManager";
 import LevelSelect from "./LevelSelect";
+import MeasureSelect from "./MeasureSelect";
+
+import "./AreaSidebar.css";
 
 class AreaSidebar extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    this.setMeasure = setMeasure.bind(this);
-    this.setDrilldown = setDrilldown.bind(this);
-    this.removeDrilldown = removeDrilldown.bind(this);
+    this.addDrilldown = addDrilldown.bind(this);
     this.fetchQuery = fetchQuery.bind(this);
-    this.updateLocalContext = updateLocalContext.bind(this);
+    this.removeDrilldown = removeDrilldown.bind(this);
+    this.setMeasure = setMeasure.bind(this);
   }
 
   componentDidMount() {
@@ -32,26 +27,31 @@ class AreaSidebar extends React.PureComponent {
   render() {
     const {query, options} = this.props;
 
+    if (!query.cube) return null;
+
     return (
       <div className="area-sidebar">
         <div className="wrapper">
           <div className="group">
-            <h3>Measure</h3>
+            <span className="label">Measure</span>
             <MeasureSelect
               items={options.measures}
               value={query.measure}
               onItemSelect={this.setMeasure}
             />
           </div>
+
           <div className="group">
-            <h3>Level</h3>
+            <span className="label">Level</span>
             <LevelSelect
               items={options.levels}
               value={query.drilldowns}
-              onItemSelect={this.setDrilldown}
+              onItemSelect={this.addDrilldown}
               onItemRemove={this.removeDrilldown}
             />
           </div>
+
+          <ConditionManager query={query} />
         </div>
       </div>
     );

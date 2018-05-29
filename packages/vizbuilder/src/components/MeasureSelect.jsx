@@ -3,7 +3,6 @@ import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 import {Icon} from "@blueprintjs/core";
 
-import "./MeasureSelect.css";
 import BaseSelect from "./BaseSelect";
 
 function MeasureSelect(props) {
