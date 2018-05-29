@@ -84,6 +84,9 @@ class AreaChart extends React.Component {
 
   render() {
     const {dataset, query} = this.props;
+
+    console.log(query);
+    // dd.hierarchy.dimension.dimensionType === 1
     const {type} = this.state;
 
     if (!dataset.length) {
@@ -97,6 +100,9 @@ class AreaChart extends React.Component {
       dimension: query.drilldowns[0] ? query.drilldowns[0].name : "",
       groupBy: ""
     };
+    
+    console.log(chartConfig)
+    
     const config = createConfig(chartConfig);
     config.data = dataset;
     config.height = type ? 500 : 400;

@@ -60,7 +60,7 @@ export default function createConfig(chartConfig) {
     ...barConfig,
     ...colorScaleConfig,
     ...timelineConfig,
-    legendConfig,
+    legend: false,
     height: 400,
     uuid: uuid(),
     tooltipConfig: {
