@@ -51,18 +51,22 @@ export function loadCycle(n) {
         total: state.load.total + n
       }
     })),
-    resolved: setStatePromise.bind(this, state => {
-      const stillLoading = state.load.done + n !== state.load.total;
-      return {
-        load: {
-          ...state.load,
-          inProgress: stillLoading,
-          total: stillLoading ? state.load.total : 0,
-          done: stillLoading ? state.load.done + n : 0
-        }
-      };
-    }),
-    rejected: setStateFetchError.bind(this, n)
+    resolved: setStatePromise.bind(this, state => ({
+      load: {
+        ...state.load,
+        done: state.load.done + 1
+      }
+    })),
+    rejected: setStateFetchError.bind(this, n),
+    finish: setStatePromise.bind(this, state => ({
+      load: {
+        ...state.load,
+        inProgress: false,
+        total: 0,
+        done: 0,
+        error: null
+      }
+    }))
   };
 }
 
@@ -71,10 +75,10 @@ export function loadWrapper(...funcs) {
   let promise = load.start();
 
   for (const func of funcs) {
-    promise = promise.then(func);
+    promise = promise.then(func).then(load.resolved);
   }
 
-  return promise.then(load.resolved, load.rejected);
+  return promise.then(null, load.rejected).then(load.finish);
 }
 
 export function loadUpdate(newLoad) {

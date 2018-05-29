@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 export default function initialStateFactory() {
   return {
     load: {
-      inProgress: true,
+      inProgress: false,
       total: 0,
       done: 0,
       error: undefined
