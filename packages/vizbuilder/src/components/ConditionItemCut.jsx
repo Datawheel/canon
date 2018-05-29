@@ -1,8 +1,10 @@
 import React from "react";
 import {Button} from "@blueprintjs/core";
-import BaseSelect from "./BaseSelect";
-import MemberSelect from "./MemberSelect";
+
 import {fetchMembers} from "../actions/fetch";
+
+import ConditionPropertySelect from "./ConditionPropertySelect";
+import MemberSelect from "./MemberSelect";
 
 class FilterItemLevel extends React.PureComponent {
   constructor(props) {
@@ -31,7 +33,7 @@ class FilterItemLevel extends React.PureComponent {
     return (
       <div className="condition-item cut">
         <div className="group condition-property">
-          <BaseSelect
+          <ConditionPropertySelect
             value={props.property}
             items={props.properties}
             onItemSelect={props.onSetProperty}

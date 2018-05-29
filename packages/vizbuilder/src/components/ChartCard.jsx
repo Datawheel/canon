@@ -13,7 +13,7 @@ class ChartCard extends React.Component {
       <div className="chart-card">
         <div className="wrapper">
           {header}
-          <ChartComponent components={charts} chart={type} config={config} />
+          <ChartComponent config={config} />
           {footer}
         </div>
       </div>

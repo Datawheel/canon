@@ -6,13 +6,13 @@ import OPERATORS, {
   LABELS as OPERATOR_LABELS
 } from "../helpers/operators";
 
-import BaseSelect from "./BaseSelect";
+import ConditionPropertySelect from "./ConditionPropertySelect";
 
 function FilterItemMeasure(props) {
   return (
     <div className="condition-item filter">
       <div className="group condition-property">
-        <BaseSelect
+        <ConditionPropertySelect
           value={props.property}
           items={props.properties}
           onItemSelect={props.onSetProperty}
