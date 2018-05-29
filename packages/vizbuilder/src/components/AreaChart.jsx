@@ -1,5 +1,5 @@
 import React from "react";
-import {Button} from "@blueprintjs/core";
+import {Button, NonIdealState} from "@blueprintjs/core";
 
 import createConfig, {charts} from "../helpers/chartconfig";
 import ChartCard from "./ChartCard";
@@ -90,7 +90,11 @@ class AreaChart extends React.Component {
     const {type} = this.state;
 
     if (!dataset.length) {
-      return <div className="area-chart empty">Empty dataset</div>;
+      return (
+        <div className="area-chart empty">
+          <NonIdealState visual="square" title="Empty dataset" />
+        </div>
+      );
     }
 
     const chartConfig = {

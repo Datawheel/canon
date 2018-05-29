@@ -9,12 +9,12 @@ function ConditionPropertySelect(props) {
   let item;
 
   if (!props.value || typeof props.value !== "object") {
-    item = BaseSelect.defaultProps.defaultOption;
+    item = props.defaultOption;
   }
   else {
     item =
       props.items.find(item => item.name === props.value.name) ||
-      BaseSelect.defaultProps.defaultOption;
+      props.defaultOption;
   }
 
   const txt =
@@ -33,6 +33,7 @@ function ConditionPropertySelect(props) {
 }
 
 ConditionPropertySelect.defaultProps = {
+  ...BaseSelect.defaultProps,
   itemListPredicate(query, items) {
     query = query.trim();
     query = escapeRegExp(query);
