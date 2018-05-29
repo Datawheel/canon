@@ -8,10 +8,17 @@
     display: block;
   }
 
+  & .select-option,
+  & .select-option > span,
+  & .select-option-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   & .select-option {
     display: block;
     padding: 4px 0;
-    white-space: nowrap;
     cursor: pointer;
 
     &.current {

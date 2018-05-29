@@ -1,4 +1,10 @@
 .area-chart {
+  &.empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   & .chart-wrapper {
     margin: 0 -10px;
 

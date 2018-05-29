@@ -25,9 +25,12 @@
 .area-sidebar,
 .area-chart {
   height: 100vh;
-  overflow: auto;
 
   & > .wrapper {
     margin: 15px;
   }
+}
+
+.area-chart {
+  overflow: auto;
 }

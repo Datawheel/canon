@@ -5,7 +5,6 @@ import createConfig, {charts} from "../helpers/chartconfig";
 import ChartCard from "./ChartCard";
 
 import "./AreaChart.css";
-import "./PreviewDialog.css";
 
 class AreaChart extends React.Component {
   constructor(props) {
@@ -87,7 +86,9 @@ class AreaChart extends React.Component {
     const {dataset, query} = this.props;
     const {type} = this.state;
 
-    if (!dataset.length) return null;
+    if (!dataset.length) {
+      return <div className="area-chart empty">Empty dataset</div>;
+    }
 
     const chartConfig = {
       type: type || "Treemap",
