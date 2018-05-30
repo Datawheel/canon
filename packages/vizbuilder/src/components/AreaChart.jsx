@@ -2,7 +2,17 @@ import React from "react";
 import {Button, NonIdealState} from "@blueprintjs/core";
 
 import createConfig, {charts} from "../helpers/chartconfig";
-import ChartCard from "./ChartCard";
+import {Treemap, Donut, Pie, BarChart, StackedArea} from "d3plus-react";
+
+import "./ChartCard.css";
+
+const icharts = {
+  Treemap,
+  Donut,
+  Pie,
+  BarChart,
+  StackedArea
+};
 
 import "./AreaChart.css";
 
@@ -11,6 +21,7 @@ class AreaChart extends React.Component {
     super(props);
 
     this.state = {
+      chartConfig: {},
       type: null,
       annotations: {
         source_link: "about:blank",
@@ -59,7 +70,7 @@ class AreaChart extends React.Component {
 
     return (
       <footer>
-        {type
+        {type 
           ? <span className="source-note">
             <span className="source-note-txt">{"Source: "}</span>
             <a
@@ -84,10 +95,29 @@ class AreaChart extends React.Component {
 
   render() {
     const {dataset, query} = this.props;
-
-    console.log(query);
     // dd.hierarchy.dimension.dimensionType === 1
     const {type} = this.state;
+
+    const aggregatorType = query.measure
+      ? query.measure.annotations &&
+        query.measure.annotations.aggregation_method
+        ? query.measure.annotations.aggregation_method
+        : query.measure.aggregatorType
+      : "UNKNOWN";
+
+    const name = query.measure && query.measure.name ? query.measure.name : "";
+
+    const chartConfig = {
+      type: type || "Treemap",
+      colorScale: "value",
+      measure2: query.measure ? query.measure.name : "",
+      measure: {
+        name,
+        aggregatorType
+      },
+      dimension: query.drilldowns[0] ? query.drilldowns[0].name : "",
+      groupBy: ""
+    };
 
     if (!dataset.length) {
       return (
@@ -97,19 +127,7 @@ class AreaChart extends React.Component {
       );
     }
 
-    const chartConfig = {
-      type: type || "Treemap",
-      colorScale: "value",
-      measure: query.measure ? query.measure.name : "",
-      dimension: query.drilldowns[0] ? query.drilldowns[0].name : "",
-      groupBy: ""
-    };
-    
-    console.log(chartConfig)
-    
-    const config = createConfig(chartConfig);
-    config.data = dataset;
-    config.height = type ? 500 : 400;
+    console.log(dataset);
 
     const timeDim = "Year" in dataset[0];
 
@@ -117,22 +135,38 @@ class AreaChart extends React.Component {
       <div className="area-chart">
         <div className="wrapper">
           <div className={`chart-wrapper ${type || "multi"}`}>
-            {Object.keys(charts).map(function(itype) {
+            {Object.keys(charts).map(itype => {
               if (type && itype !== type) return null;
               if (/StackedArea|BarChart/.test(itype) && !timeDim) return null;
+              if (
+                /Treemap|Donut|Pie/.test(itype) &&
+                chartConfig.measure.aggregatorType === "AVERAGE"
+              ) {
+                return null;
+              }
 
-              return (
-                <ChartCard
+              const ChartComponent = icharts[itype];
+
+              chartConfig.type = itype;
+              const config = createConfig(chartConfig);
+              config.data = dataset;
+              config.height = type ? 500 : 400;
+              {
+
+                /* <ChartComponent
                   key={itype}
                   type={itype}
                   config={config}
                   header={
-                    <header>{`${itype} of ${chartConfig.measure} by ${
-                      chartConfig.dimension
-                    }`}</header>
+                    
                   }
-                  footer={this.renderFooter.call(this, itype)}
-                />
+                  footer={}
+                />*/
+              }
+              return (
+                
+                    <ChartComponent config={config} />
+                    
               );
             }, this)}
           </div>

@@ -31,16 +31,17 @@ export const colorScaleConfig = {
 
 export default function createConfig(chartConfig) {
   const x = chartConfig.groupBy;
+  const measure = chartConfig.measure;
 
   // Confs of Viz
   const vizConfig = {
     groupBy: chartConfig.dimension,
-    total: d => d[chartConfig.measure],
+    total: d => d[measure.name],
     totalConfig: {
       fontSize: 14
     },
-    sum: d => d[chartConfig.measure],
-    value: d => d[chartConfig.measure]
+    sum: d => d[measure.name],
+    value: d => d[measure.name]
   };
 
   const barConfig = {
@@ -49,9 +50,9 @@ export default function createConfig(chartConfig) {
       title: x
     },
     discrete: "x",
-    y: chartConfig.measure,
+    y: measure.name,
     yConfig: {
-      title: chartConfig.measure
+      title: measure.name
     }
   };
 
@@ -64,11 +65,25 @@ export default function createConfig(chartConfig) {
     height: 400,
     uuid: uuid(),
     tooltipConfig: {
-      title: `<h5 class="title xs-small">${chartConfig.measure}</h5>`
+      title: `<h5 class="title xs-small">${measure.name}</h5>`,
+      body: d => d[measure.name]
     }
   };
+  //groupBy: "ID Year",
 
-  if (chartConfig.type === "Geomap") config.colorScale = chartConfig.measure;
+  if (chartConfig.type === "Geomap") config.colorScale = measure.name;
+  if (chartConfig.type === "BarChart") { 
+    config.groupBy = false;
+    //config.x = chartConfig.dimension;
+    config.x = "ID Year";
+    //config.time = "ID Year";
+  }
+
+  if (chartConfig.type === "StackedArea") { 
+    //config.groupBy = false;
+    config.groupBy = chartConfig.dimension;
+    config.x = "ID Year";
+  };
   if (chartConfig.groupBy) config.groupBy = chartConfig.groupBy;
   if (x) config.x = x;
 
