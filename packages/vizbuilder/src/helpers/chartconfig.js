@@ -44,46 +44,47 @@ export default function createConfig(chartConfig) {
     value: d => d[measure.name]
   };
 
-  const barConfig = {
-    x: "ID Year",
-    xConfig: {
-      title: x
-    },
-    discrete: "x",
-    y: measure.name,
-    yConfig: {
-      title: measure.name
-    }
-  };
+  let config = {duration: 0, height: 400, legend: false};
 
-  const config = {
-    ...vizConfig,
-    ...barConfig,
-    ...colorScaleConfig,
-    ...timelineConfig,
-    legend: false,
-    height: 400,
-    uuid: uuid(),
-    tooltipConfig: {
-      title: `<h5 class="title xs-small">${measure.name}</h5>`,
-      body: d => d[measure.name]
-    }
-  };
-  //groupBy: "ID Year",
-
-  if (chartConfig.type === "Geomap") config.colorScale = measure.name;
-  if (chartConfig.type === "BarChart") { 
-    config.groupBy = false;
-    //config.x = chartConfig.dimension;
-    config.x = "ID Year";
-    //config.time = "ID Year";
+  if (/BarChart/.test(chartConfig.type)) {
+    config = {
+      ...config,
+      groupBy: false,
+      x: "ID Year",
+      xConfig: {
+        title: x
+      },
+      discrete: "x",
+      y: measure.name,
+      yConfig: {
+        title: measure.name
+      }
+    };
+  }
+  else {
+    config = {
+      ...config,
+      ...vizConfig,
+      uuid: uuid(),
+      tooltipConfig: {
+        title: `<h5 class="title xs-small">${measure.name}</h5>`,
+        body: d => d[measure.name]
+      }
+    };
   }
 
-  if (chartConfig.type === "StackedArea") { 
-    //config.groupBy = false;
+  // groupBy: "ID Year",
+
+  if (chartConfig.type === "Geomap") config.colorScale = measure.name;
+  if (chartConfig.type === "BarChart") {
+    // config.time = "ID Year";
+  }
+
+  if (chartConfig.type === "StackedArea") {
+    // config.groupBy = false;
     config.groupBy = chartConfig.dimension;
     config.x = "ID Year";
-  };
+  }
   if (chartConfig.groupBy) config.groupBy = chartConfig.groupBy;
   if (x) config.x = x;
 

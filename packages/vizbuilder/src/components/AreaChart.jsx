@@ -2,16 +2,13 @@ import React from "react";
 import {Button, NonIdealState} from "@blueprintjs/core";
 
 import createConfig, {charts} from "../helpers/chartconfig";
-import {Treemap, Donut, Pie, BarChart, StackedArea} from "d3plus-react";
+import {Treemap, BarChart, StackedArea, Donut, Pie} from "d3plus-react";
 
 import "./ChartCard.css";
 
 const icharts = {
   Treemap,
-  Donut,
-  Pie,
-  BarChart,
-  StackedArea
+  BarChart
 };
 
 import "./AreaChart.css";
@@ -107,6 +104,10 @@ class AreaChart extends React.Component {
     );
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props !== nextProps;
+  }
+
   render() {
     const {dataset, query} = this.props;
     // dd.hierarchy.dimension.dimensionType === 1
@@ -145,11 +146,38 @@ class AreaChart extends React.Component {
 
     const timeDim = "Year" in dataset[0];
 
-    return (
+    chartConfig.type = "BarChart";
+
+    const config = createConfig(chartConfig);
+    config.data = dataset;
+    
+
+        return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
         <div className="wrapper">
           <div className={`chart-wrapper ${type || "multi"}`}>
-            {Object.keys(charts).map(itype => {
+          
+            {Object.keys(icharts).map(itype => {
+              chartConfig.type = itype;
+              const config = createConfig(chartConfig);
+              console.log(config)
+              console.log(icharts[itype])
+              config.height = type ? 500 : 400;
+              config.data = dataset;
+
+              const ChartComponent = icharts[itype];
+              
+
+              return (
+                <div className="chart-card">
+                  <div className="wrapper">
+                    <ChartComponent config={config} />
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Object.keys(icharts).map(itype => {
               if (type && itype !== type) return null;
               if (/StackedArea|BarChart/.test(itype) && !timeDim) return null;
               if (
@@ -165,24 +193,9 @@ class AreaChart extends React.Component {
               const config = createConfig(chartConfig);
               config.data = dataset;
               config.height = type ? 500 : 400;
-              {
-
-                /* <ChartComponent
-                  key={itype}
-                  type={itype}
-                  config={config}
-                  header={
-                    
-                  }
-                  footer={}
-                />*/
-              }
-              return (
-                
-                    <ChartComponent config={config} />
-                    
-              );
-            }, this)}
+              
+              return <ChartComponent config={config} />;
+            })*/}
           </div>
         </div>
       </div>
@@ -191,3 +204,13 @@ class AreaChart extends React.Component {
 }
 
 export default AreaChart;
+
+/* <ChartComponent
+    key={itype}
+    type={itype}
+    config={config}
+    header={
+      
+    }
+    footer={}
+  />*/
