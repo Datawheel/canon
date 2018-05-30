@@ -19,7 +19,10 @@ class AreaChart extends React.Component {
     };
 
     this.actions = {};
-    this.resizeCall = 0;
+    this.resizeCall = undefined;
+    this.scrollCall = undefined;
+
+    this.scrollEnsure = this.scrollEnsure.bind(this);
   }
 
   toggleDialog(type = false) {
@@ -35,16 +38,27 @@ class AreaChart extends React.Component {
     }
   }
 
+  dispatchScroll() {
+    console.log("scroll");
+    window.dispatchEvent(new CustomEvent("scroll"));
+  }
+
+  dispatchResize() {
+    window.dispatchEvent(new CustomEvent("resize"));
+  }
+
+  scrollEnsure() {
+    clearTimeout(this.scrollCall);
+    this.scrollCall = setTimeout(this.dispatchScroll, 400);
+  }
+
   selectChart(type) {
     this.setState(state => ({
       type: !state.type ? type : null
     }));
 
     clearTimeout(this.resizeCall);
-    this.resizeCall = setTimeout(
-      () => window.dispatchEvent(new CustomEvent("resize")),
-      500
-    );
+    this.resizeCall = setTimeout(this.dispatchResize, 500);
   }
 
   getAction(type) {
@@ -114,7 +128,7 @@ class AreaChart extends React.Component {
     const timeDim = "Year" in dataset[0];
 
     return (
-      <div className="area-chart">
+      <div className="area-chart" onScroll={this.scrollEnsure}>
         <div className="wrapper">
           <div className={`chart-wrapper ${type || "multi"}`}>
             {Object.keys(charts).map(function(itype) {
