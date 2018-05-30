@@ -45,7 +45,7 @@ class Vizbuilder extends React.PureComponent {
   componentDidUpdate(prevProps, prevState) {
     const {error} = this.state.load;
     if (error && prevState.load.error !== error) {
-      console.log(error.stack);
+      console.error(error.stack);
       ErrorToaster.show({intent: Intent.WARNING, message: error.message});
     }
   }

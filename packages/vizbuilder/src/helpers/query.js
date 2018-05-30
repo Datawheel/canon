@@ -71,15 +71,15 @@ export function queryConverter(params) {
       continue;
     }
 
-    if (condition.type === "cut") {
+    if (isValidCut(condition)) {
       const cut = {
         key: condition.property.fullName,
-        values: condition.values
+        values: condition.values.map(v => v.key)
       };
       query.cuts.push(cut);
     }
 
-    if (condition.type === "filter") {
+    if (isValidFilter(condition)) {
       const filter = [].concat(
         condition.property.name,
         OPERATOR_SYMBOLS[condition.operator],
@@ -90,6 +90,18 @@ export function queryConverter(params) {
   }
 
   return query;
+}
+
+export function isValidFilter(condition) {
+  return (
+    condition.type === "filter" &&
+    !isNaN(condition.values[0]) &&
+    OPERATOR_SYMBOLS[condition.operator]
+  );
+}
+
+export function isValidCut(condition) {
+  return condition.type === "cut" && condition.values.length > 0;
 }
 
 // function setCaptionForLevelAndLang(query, level, lang) {
