@@ -52,6 +52,7 @@ class Vizbuilder extends React.PureComponent {
 
   render() {
     const {options, query, dataset} = this.state;
+    console.log(this.state.query.cube)
     return (
       <div className="vizbuilder">
         <AreaLoading {...this.state.load} />

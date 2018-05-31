@@ -1,14 +1,20 @@
 import React from "react";
 import {Button, NonIdealState} from "@blueprintjs/core";
 
-import createConfig, {charts} from "../helpers/chartconfig";
+import createConfig from "../helpers/chartconfig";
+// charts
 import {Treemap, BarChart, StackedArea, Donut, Pie} from "d3plus-react";
 
 import "./ChartCard.css";
 
 const icharts = {
+  BarChart,
   Treemap,
-  BarChart
+  Donut,
+  Pie,
+  StackedArea
+  //StackedArea,
+  //Donut
 };
 
 import "./AreaChart.css";
@@ -105,7 +111,11 @@ class AreaChart extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return this.props !== nextProps;
+    console.log(this.props.dataset.length === nextProps.dataset.length)
+    console.log(this.props)
+    console.log(nextProps)
+    return this.props.query !== nextProps.query;
+    // this.props.query !== nextProps.query
   }
 
   render() {
@@ -123,7 +133,7 @@ class AreaChart extends React.Component {
     const name = query.measure && query.measure.name ? query.measure.name : "";
 
     const chartConfig = {
-      type: type || "Treemap",
+      type: type || "TreemapS",
       colorScale: "value",
       measure2: query.measure ? query.measure.name : "",
       measure: {
@@ -142,17 +152,14 @@ class AreaChart extends React.Component {
       );
     }
 
-    console.log(dataset);
-
     const timeDim = "Year" in dataset[0];
 
-    chartConfig.type = "BarChart";
+    chartConfig.type = "TreemapS";
 
-    const config = createConfig(chartConfig);
-    config.data = dataset;
+    
     
 
-        return (
+    return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
         <div className="wrapper">
           <div className={`chart-wrapper ${type || "multi"}`}>
@@ -160,10 +167,7 @@ class AreaChart extends React.Component {
             {Object.keys(icharts).map(itype => {
               chartConfig.type = itype;
               const config = createConfig(chartConfig);
-              console.log(config)
-              console.log(icharts[itype])
-              config.height = type ? 500 : 400;
-              config.data = dataset;
+    config.data = dataset;
 
               const ChartComponent = icharts[itype];
               

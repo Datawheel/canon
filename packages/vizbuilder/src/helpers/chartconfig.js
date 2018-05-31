@@ -1,13 +1,13 @@
-import {Treemap, Donut, Pie, BarChart, StackedArea} from "d3plus-react";
+//import {Treemap, Donut, Pie, BarChart, StackedArea} from "d3plus-react";
 import {uuid} from "d3plus-common";
 
-export const charts = {
+/*export const charts = {
   Treemap,
   Donut,
   Pie,
   BarChart,
   StackedArea
-};
+};*/
 
 export const legendConfig = {
   label: false,
@@ -44,7 +44,7 @@ export default function createConfig(chartConfig) {
     value: d => d[measure.name]
   };
 
-  let config = {duration: 0, height: 400, legend: false};
+  let config = {shapeConfig: {duration: 0}, height: 400, legend: false, tooltip: false};
 
   if (/BarChart/.test(chartConfig.type)) {
     config = {
@@ -65,11 +65,12 @@ export default function createConfig(chartConfig) {
     config = {
       ...config,
       ...vizConfig,
-      uuid: uuid(),
-      tooltipConfig: {
+      uuid: uuid()
+
+      /* tooltipConfig: {
         title: `<h5 class="title xs-small">${measure.name}</h5>`,
         body: d => d[measure.name]
-      }
+      }*/
     };
   }
 
