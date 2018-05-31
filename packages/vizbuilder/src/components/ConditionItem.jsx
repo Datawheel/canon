@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {Button} from "@blueprintjs/core";
-import union from "lodash/union";
+import unionBy from "lodash/unionBy";
 
 import ConditionItemClosed from "./ConditionItemClosed";
 import ConditionItemCut from "./ConditionItemCut";
@@ -154,7 +154,7 @@ class ConditionItem extends React.PureComponent {
 
   addCutValue(value) {
     const condition = this.getConditionObject();
-    condition.values = union(condition.values, [value]);
+    condition.values = unionBy(condition.values, [value], member => member.key);
     this.props.onUpdate(condition);
   }
 
@@ -166,9 +166,8 @@ class ConditionItem extends React.PureComponent {
 }
 
 ConditionItem.contextTypes = {
-  queryUpdate: PropTypes.func,
-  optionsUpdate: PropTypes.func,
-  loadWrapper: PropTypes.func
+  loadWrapper: PropTypes.func,
+  stateUpdate: PropTypes.func
 };
 
 export default ConditionItem;
