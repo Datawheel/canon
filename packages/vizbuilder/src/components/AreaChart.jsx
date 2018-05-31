@@ -4,6 +4,7 @@ import {Button, NonIdealState} from "@blueprintjs/core";
 import createConfig from "../helpers/chartconfig";
 // charts
 import {Treemap, BarChart, StackedArea, Donut, Pie} from "d3plus-react";
+import ChartCard from "./ChartCard";
 
 import "./ChartCard.css";
 
@@ -13,8 +14,8 @@ const icharts = {
   Donut,
   Pie,
   StackedArea
-  //StackedArea,
-  //Donut
+  // StackedArea,
+  // Donut
 };
 
 import "./AreaChart.css";
@@ -110,7 +111,10 @@ class AreaChart extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return this.props.dataset !== nextProps.dataset;
+    return (
+      this.props.dataset !== nextProps.dataset ||
+      this.state.type !== nextState.type
+    );
   }
 
   render() {
@@ -151,28 +155,31 @@ class AreaChart extends React.Component {
 
     chartConfig.type = "TreemapS";
 
-    
-    
-
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
         <div className="wrapper">
           <div className={`chart-wrapper ${type || "multi"}`}>
-          
             {Object.keys(icharts).map(itype => {
+              if (type && itype !== type) return null;
+              if (/StackedArea|BarChart/.test(itype) && !timeDim) return null;
+
               chartConfig.type = itype;
               const config = createConfig(chartConfig);
-    config.data = dataset;
-
-              const ChartComponent = icharts[itype];
-              
+              config.data = dataset;
+              config.height = type ? 500 : 400;
 
               return (
-                <div className="chart-card">
-                  <div className="wrapper">
-                    <ChartComponent config={config} />
-                  </div>
-                </div>
+                <ChartCard
+                  key={itype}
+                  type={itype}
+                  config={config}
+                  header={
+                    <header>{`${itype} of ${chartConfig.measure.name} by ${
+                      chartConfig.dimension
+                    }`}</header>
+                  }
+                  footer={this.renderFooter.call(this, itype)}
+                />
               );
             })}
 

@@ -1,13 +1,13 @@
-//import {Treemap, Donut, Pie, BarChart, StackedArea} from "d3plus-react";
+import {Treemap, Donut, Pie, BarChart, StackedArea} from "d3plus-react";
 import {uuid} from "d3plus-common";
 
-/*export const charts = {
+export const charts = {
   Treemap,
   Donut,
   Pie,
   BarChart,
   StackedArea
-};*/
+};
 
 export const legendConfig = {
   label: false,
