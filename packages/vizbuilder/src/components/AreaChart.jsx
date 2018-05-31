@@ -119,7 +119,6 @@ class AreaChart extends React.Component {
 
   render() {
     const {dataset, query} = this.props;
-    // dd.hierarchy.dimension.dimensionType === 1
     const {type} = this.state;
 
     const aggregatorType = query.measure
@@ -162,6 +161,13 @@ class AreaChart extends React.Component {
             {Object.keys(icharts).map(itype => {
               if (type && itype !== type) return null;
               if (/StackedArea|BarChart/.test(itype) && !timeDim) return null;
+
+              if (
+                /Pie|Donut|Treemap|StackedArea/.test(itype) &&
+                chartConfig.measure.aggregatorType === "AVERAGE"
+              ) {
+                return null; 
+              }
 
               chartConfig.type = itype;
               const config = createConfig(chartConfig);

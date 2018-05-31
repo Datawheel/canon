@@ -49,7 +49,22 @@ export default function createConfig(chartConfig) {
   if (/BarChart/.test(chartConfig.type)) {
     config = {
       ...config,
-      groupBy: false,
+      groupBy: "ID Year",
+      x: "ID Year",
+      xConfig: {
+        title: x
+      },
+      discrete: "x",
+      y: measure.name,
+      yConfig: {
+        title: measure.name
+      }
+    };
+  }
+  else if (/StackedArea/.test(chartConfig.type)) {
+    config = {
+      ...config,
+      ...vizConfig,
       x: "ID Year",
       xConfig: {
         title: x
