@@ -32,6 +32,7 @@ export const colorScaleConfig = {
 export default function createConfig(chartConfig) {
   const x = chartConfig.groupBy;
   const measure = chartConfig.measure;
+  const dimension = chartConfig.dimension;
 
   // Confs of Viz
   const vizConfig = {
@@ -44,7 +45,16 @@ export default function createConfig(chartConfig) {
     value: d => d[measure.name]
   };
 
-  let config = {shapeConfig: {duration: 0}, height: 400, legend: false, tooltip: false};
+  let config = {
+    height: 400,
+    legend: false,
+    uuid: uuid(),
+    tooltipConfig: {
+      width: 90,
+      title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
+      body: d => `<div>${measure.name}: ${d[measure.name]}</div>`
+    }
+  };
 
   if (/BarChart/.test(chartConfig.type)) {
     config = {
@@ -79,13 +89,7 @@ export default function createConfig(chartConfig) {
   else {
     config = {
       ...config,
-      ...vizConfig,
-      uuid: uuid()
-
-      /* tooltipConfig: {
-        title: `<h5 class="title xs-small">${measure.name}</h5>`,
-        body: d => d[measure.name]
-      }*/
+      ...vizConfig
     };
   }
 

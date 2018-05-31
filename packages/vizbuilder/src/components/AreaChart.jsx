@@ -2,21 +2,8 @@ import React from "react";
 import {Button, NonIdealState} from "@blueprintjs/core";
 
 import createConfig from "../helpers/chartconfig";
-// charts
-import {Treemap, BarChart, StackedArea, Donut, Pie} from "d3plus-react";
+import {charts} from "../helpers/chartconfig";
 import ChartCard from "./ChartCard";
-
-import "./ChartCard.css";
-
-const icharts = {
-  BarChart,
-  Treemap,
-  Donut,
-  Pie,
-  StackedArea
-  // StackedArea,
-  // Donut
-};
 
 import "./AreaChart.css";
 
@@ -158,7 +145,7 @@ class AreaChart extends React.Component {
       <div className="area-chart" onScroll={this.scrollEnsure}>
         <div className="wrapper">
           <div className={`chart-wrapper ${type || "multi"}`}>
-            {Object.keys(icharts).map(itype => {
+            {Object.keys(charts).map(itype => {
               if (type && itype !== type) return null;
               if (/StackedArea|BarChart/.test(itype) && !timeDim) return null;
 
