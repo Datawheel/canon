@@ -1,19 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {Intent} from "@blueprintjs/core";
+import classnames from "classnames";
 
+import {datasetUpdate, loadWrapper, stateUpdate} from "./actions/mutations";
+import AreaChart from "./components/AreaChart";
 import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
-import AreaChart from "./components/AreaChart";
 import {ErrorToaster} from "./components/ErrorToaster";
 import {initClient} from "./helpers/api";
-import initialState, {loadTypes, queryTypes, optionsTypes} from "./state";
-import {
-  loadWrapper,
-  queryUpdate,
-  optionsUpdate,
-  datasetUpdate
-} from "./actions/mutations";
+import initialState, {loadTypes, optionsTypes, queryTypes} from "./state";
 
 import "@blueprintjs/core/dist/blueprint.css";
 import "@blueprintjs/labs/dist/blueprint-labs.css";
@@ -26,19 +22,16 @@ class Vizbuilder extends React.PureComponent {
     initClient(props.src);
     this.state = initialState();
 
-    this.loadWrapper = loadWrapper.bind(this);
-    this.queryUpdate = queryUpdate.bind(this);
-    this.optionsUpdate = optionsUpdate.bind(this);
     this.datasetUpdate = datasetUpdate.bind(this);
+    this.loadWrapper = loadWrapper.bind(this);
+    this.stateUpdate = stateUpdate.bind(this);
   }
 
   getChildContext() {
     return {
-      ...this.state,
+      datasetUpdate: this.datasetUpdate,
       loadWrapper: this.loadWrapper,
-      queryUpdate: this.queryUpdate,
-      optionsUpdate: this.optionsUpdate,
-      datasetUpdate: this.datasetUpdate
+      stateUpdate: this.stateUpdate
     };
   }
 
@@ -52,9 +45,9 @@ class Vizbuilder extends React.PureComponent {
 
   render() {
     const {options, query, dataset} = this.state;
-    console.log(this.state.query.cube)
+    const inProgress = this.state.load.inProgress;
     return (
-      <div className="vizbuilder">
+      <div className={classnames("vizbuilder", {loading: inProgress})}>
         <AreaLoading {...this.state.load} />
         <AreaSidebar options={options} query={query} />
         <AreaChart dataset={dataset} query={query} />
@@ -70,8 +63,7 @@ Vizbuilder.childContextTypes = {
   query: queryTypes,
   datasetUpdate: PropTypes.func,
   loadWrapper: PropTypes.func,
-  optionsUpdate: PropTypes.func,
-  queryUpdate: PropTypes.func
+  stateUpdate: PropTypes.func
 };
 
 export default Vizbuilder;

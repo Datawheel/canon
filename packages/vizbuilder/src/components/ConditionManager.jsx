@@ -52,10 +52,9 @@ class ConditionManager extends React.Component {
 }
 
 ConditionManager.contextTypes = {
-  queryUpdate: PropTypes.func,
-  optionsUpdate: PropTypes.func,
   datasetUpdate: PropTypes.func,
-  loadWrapper: PropTypes.func
+  loadWrapper: PropTypes.func,
+  stateUpdate: PropTypes.func
 };
 
 export default ConditionManager;

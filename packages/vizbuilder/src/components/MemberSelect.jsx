@@ -4,13 +4,13 @@ import escapeRegExp from "lodash/escapeRegExp";
 
 import {MultiSelect} from "@blueprintjs/labs";
 
-function SelectMembers(props) {
+function MemberSelect(props) {
   props.className = classnames("select-box select-member", props.className);
   props.tagInputProps.onRemove = props.onItemRemove;
   return React.createElement(MultiSelect, props);
 }
 
-SelectMembers.defaultProps = {
+MemberSelect.defaultProps = {
   itemListPredicate(query, items) {
     query = query.trim();
     query = escapeRegExp(query);
@@ -35,4 +35,4 @@ SelectMembers.defaultProps = {
   tagInputProps: {}
 };
 
-export default SelectMembers;
+export default MemberSelect;

@@ -81,6 +81,23 @@ export function loadWrapper(...funcs) {
   return promise.then(null, load.rejected).then(load.finish);
 }
 
+export function stateUpdate(newState) {
+  return setStatePromise.call(this, state => {
+    const finalState = {};
+    const keys = Object.keys(newState);
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      finalState[key] = {
+        ...state[key],
+        ...newState[key]
+      };
+    }
+
+    return finalState;
+  });
+}
+
 export function loadUpdate(newLoad) {
   return setStatePromise.call(this, state => ({
     load: {

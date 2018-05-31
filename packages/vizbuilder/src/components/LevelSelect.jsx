@@ -7,7 +7,6 @@ import {Icon} from "@blueprintjs/core";
 import BaseSelect from "./BaseSelect";
 
 function LevelSelect(props) {
-  props.items = props.items.slice(0, 100);
   return React.createElement(BaseSelect, props);
 }
 
