@@ -17,7 +17,6 @@ export function setMeasure(measure) {
   const {loadWrapper, stateUpdate} = this.context;
 
   return loadWrapper(() => {
-    console.log("setMeasure");
     const cube = options.cubes.find(
       cube => cube.measures.indexOf(measure) > -1
     );

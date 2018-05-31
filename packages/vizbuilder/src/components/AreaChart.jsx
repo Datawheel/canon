@@ -53,7 +53,6 @@ class AreaChart extends React.Component {
   }
 
   dispatchScroll() {
-    console.log("scroll");
     window.dispatchEvent(new CustomEvent("scroll"));
   }
 
@@ -111,11 +110,7 @@ class AreaChart extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    console.log(this.props.dataset.length === nextProps.dataset.length)
-    console.log(this.props)
-    console.log(nextProps)
-    return this.props.query !== nextProps.query;
-    // this.props.query !== nextProps.query
+    return this.props.dataset !== nextProps.dataset;
   }
 
   render() {
