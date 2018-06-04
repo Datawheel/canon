@@ -1,8 +1,9 @@
-import {Treemap, Donut, Pie, BarChart, StackedArea} from "d3plus-react";
+import {Treemap, Donut, Pie, BarChart, StackedArea, Geomap} from "d3plus-react";
 import {uuid} from "d3plus-common";
 
 export const charts = {
   Treemap,
+  Geomap,
   Donut,
   Pie,
   BarChart,
@@ -50,7 +51,7 @@ export default function createConfig(chartConfig) {
     legend: false,
     uuid: uuid(),
     tooltipConfig: {
-      width: 90,
+      width: 60,
       title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
       body: d => `<div>${measure.name}: ${d[measure.name]}</div>`
     }
@@ -86,6 +87,33 @@ export default function createConfig(chartConfig) {
       }
     };
   }
+  else if (/Geomap/.test(chartConfig.type)) {
+    config = {
+      ...config,
+      tiles: false,
+      id: "ID State",
+      topojsonId: "id",
+      topojsonKey: "states",
+      groupBy: "ID State",
+      topojson: "/topojson/states.json",
+      ocean: "transparent",
+      projection: "geoAlbersUsa",
+      colorScale: measure.name,
+      //colorScalePosition: "left",
+      colorScalePosition: "bottom",
+      legend: false,
+      colorScaleConfig: {
+        scale: "jenks",
+        height: 300,
+        width: 200
+        //align: "start"
+      },
+      duration: 0,
+      zoom: true,
+      zoomFactor: 2,
+      zoomScroll: false
+    };
+  }
   else {
     config = {
       ...config,
@@ -95,7 +123,11 @@ export default function createConfig(chartConfig) {
 
   // groupBy: "ID Year",
 
-  if (chartConfig.type === "Geomap") config.colorScale = measure.name;
+  if (chartConfig.type === "Geomap") {
+    // config.colorScale = measure.name;
+    // config.colorScaleConfig.axisConfig.title = `Colored by ${measure}`;
+  }
+
   if (chartConfig.type === "BarChart") {
     // config.time = "ID Year";
   }

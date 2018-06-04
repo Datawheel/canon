@@ -13,6 +13,7 @@ class AreaChart extends React.Component {
 
     this.state = {
       chartConfig: {},
+      year: null,
       type: null,
       annotations: {
         source_link: "about:blank",
@@ -25,6 +26,7 @@ class AreaChart extends React.Component {
     this.scrollCall = undefined;
 
     this.scrollEnsure = this.scrollEnsure.bind(this);
+    this.selectYear = this.selectYear.bind(this);
   }
 
   toggleDialog(type = false) {
@@ -60,6 +62,12 @@ class AreaChart extends React.Component {
 
     clearTimeout(this.resizeCall);
     this.resizeCall = setTimeout(this.dispatchResize, 500);
+  }
+
+  selectYear(evt) {
+    this.setState({
+      year: parseInt(evt.target.value)
+    });
   }
 
   getAction(type) {
@@ -100,7 +108,8 @@ class AreaChart extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return (
       this.props.dataset !== nextProps.dataset ||
-      this.state.type !== nextState.type
+      this.state.type !== nextState.type ||
+      this.state.year !== nextState.year
     );
   }
 
@@ -120,7 +129,6 @@ class AreaChart extends React.Component {
     const chartConfig = {
       type: type || "TreemapS",
       colorScale: "value",
-      measure2: query.measure ? query.measure.name : "",
       measure: {
         name,
         aggregatorType
@@ -137,9 +145,16 @@ class AreaChart extends React.Component {
       );
     }
 
+    console.log(this.state.year);
+
+    console.log(dataset)
     const timeDim = "Year" in dataset[0];
 
-    chartConfig.type = "TreemapS";
+    const findAllYears = timeDim
+      ? [...new Set(dataset.map(item => item["ID Year"]))].sort((a, b) => b - a)
+      : "";
+
+    chartConfig.type = "Treemap";
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
@@ -153,13 +168,29 @@ class AreaChart extends React.Component {
                 /Pie|Donut|Treemap|StackedArea/.test(itype) &&
                 chartConfig.measure.aggregatorType === "AVERAGE"
               ) {
-                return null; 
+                return null;
               }
 
               chartConfig.type = itype;
               const config = createConfig(chartConfig);
-              config.data = dataset;
+
+              config.data = this.state.year
+                ? dataset.filter(
+                  item => item["ID Year"] === this.state.year
+                )
+                : dataset;
               config.height = type ? 500 : 400;
+
+              if (type === null) {
+                config.colorScaleConfig = {
+                  height: 0,
+                  width: 0
+                };
+              }
+
+              {
+                console.log(config);
+              }
 
               return (
                 <ChartCard
@@ -167,9 +198,16 @@ class AreaChart extends React.Component {
                   type={itype}
                   config={config}
                   header={
-                    <header>{`${itype} of ${chartConfig.measure.name} by ${
-                      chartConfig.dimension
-                    }`}</header>
+                    <header>
+                      {`${itype} of ${chartConfig.measure.name} by ${
+                        chartConfig.dimension
+                      }`}
+                      <select onChange={this.selectYear} name="" id="">
+                        {findAllYears.map(item => 
+                          <option value={item}>{item}</option>
+                        )}
+                      </select>
+                    </header>
                   }
                   footer={this.renderFooter.call(this, itype)}
                 />
