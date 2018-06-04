@@ -33,7 +33,7 @@ class AreaSidebar extends React.PureComponent {
       <div className="area-sidebar">
         <div className="wrapper">
           <div className="group">
-            <span className="label">Measure</span>
+            <span className="label">Showing</span>
             <MeasureSelect
               items={options.measures}
               value={query.measure}
