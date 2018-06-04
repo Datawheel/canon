@@ -28,7 +28,6 @@ class ConditionManager extends React.Component {
 
     return (
       <div className="group condition-manager">
-        <span className="label">Filters/Cuts</span>
         <div className="condition-items">
           {conditions.map(function(condition) {
             return React.createElement(ConditionItem, {
