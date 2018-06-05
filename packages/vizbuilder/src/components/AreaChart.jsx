@@ -15,10 +15,7 @@ class AreaChart extends React.Component {
       chartConfig: {},
       year: null,
       type: null,
-      annotations: {
-        source_link: "about:blank",
-        source_name: "MINSAL"
-      }
+      annotations: {}
     };
 
     this.actions = {};
@@ -78,23 +75,10 @@ class AreaChart extends React.Component {
   }
 
   renderFooter(itype) {
-    const {type, annotations} = this.state;
+    const {type} = this.state;
 
     return (
       <footer>
-        {type 
-          ? <span className="source-note">
-            <span className="source-note-txt">{"Source: "}</span>
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              className="source-note-link"
-              href={annotations.source_link}
-            >
-              {annotations.source_name}
-            </a>
-          </span>
-          : null}
         <Button
           className="pt-minimal"
           iconName={type ? "cross" : "zoom-in"}
@@ -147,7 +131,7 @@ class AreaChart extends React.Component {
 
     console.log(this.state.year);
 
-    console.log(dataset)
+    console.log(dataset);
     const timeDim = "Year" in dataset[0];
 
     const findAllYears = timeDim
@@ -175,9 +159,7 @@ class AreaChart extends React.Component {
               const config = createConfig(chartConfig);
 
               config.data = this.state.year
-                ? dataset.filter(
-                  item => item["ID Year"] === this.state.year
-                )
+                ? dataset.filter(item => item["ID Year"] === this.state.year)
                 : dataset;
               config.height = type ? 500 : 400;
 
