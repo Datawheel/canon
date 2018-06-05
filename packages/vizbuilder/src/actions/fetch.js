@@ -11,13 +11,15 @@ export function fetchCubes() {
     .cubes()
     .then(cubes => {
       const firstCube = cubes[0];
-      const measures = cubes.reduce((sum, cube) => {
-        for (const measure of cube.measures) {
-          measure.annotations._cube = cube.name;
-          sum.push(measure);
-        }
-        return sum;
-      }, []);
+      const measures = cubes
+        .reduce((sum, cube) => {
+          for (const measure of cube.measures) {
+            measure.annotations._cube = cube.name;
+            sum.push(measure);
+          }
+          return sum;
+        }, [])
+        .sort((a, b) => a.name.localeCompare(b.name));
       const levels = getValidDrilldowns(firstCube);
       const drilldowns = addTimeDrilldown(levels.slice(0, 1), firstCube);
 
