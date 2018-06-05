@@ -12,7 +12,7 @@
   "dependencies": {
     "@blueprintjs/labs": "^0.14.4",
     "classnames": "^2.2.5",
-    "datawheel-canon": "^0.15.17",
+    "datawheel-canon": "^0.15.18",
     "mondrian-rest-client": "^1.0.3"
   },
   "devDependencies": {
