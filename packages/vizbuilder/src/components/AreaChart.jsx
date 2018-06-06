@@ -150,10 +150,10 @@ class AreaChart extends React.Component {
         <div className="wrapper">
           <div className={`chart-wrapper ${type || "multi"}`}>
             {Object.keys(charts).map(itype => {
+              // Check if measure can be displayed in a specific chart
               if (type && itype !== type) return null;
               if (/StackedArea|BarChart/.test(itype) && !timeDim) return null;
               if (/Geomap/.test(itype) && !geoDim) return null;
-
               if (
                 /Pie|Donut|Treemap|StackedArea/.test(itype) &&
                 chartConfig.measure.aggregatorType === "AVERAGE"
