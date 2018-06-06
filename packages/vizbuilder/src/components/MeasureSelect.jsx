@@ -33,7 +33,7 @@ MeasureSelect.defaultProps = {
         {item.icon && <Icon iconName={item.icon} />}
         <span className="select-option-label">{item.name}</span>
         <span className="select-option-label lead">
-          {item.annotations._cube}
+          {item.annotations._source_name}
         </span>
       </li>
     );

@@ -1,4 +1,6 @@
 import {SYMBOLS as OPERATOR_SYMBOLS} from "./operators";
+import {getMeasureMOE} from "./sorting";
+import {isValidCut, isValidFilter} from "./validation";
 
 export function queryBuilder(query, params) {
   let i, item;
@@ -64,6 +66,11 @@ export function queryConverter(params) {
     locale: "en"
   };
 
+  const measureMOE = getMeasureMOE(params.cube, params.measure);
+  if (measureMOE) {
+    query.measures.push(measureMOE.name);
+  }
+
   for (let i = 0; i < params.conditions.length; i++) {
     const condition = params.conditions[i];
 
@@ -90,18 +97,6 @@ export function queryConverter(params) {
   }
 
   return query;
-}
-
-export function isValidFilter(condition) {
-  return (
-    condition.type === "filter" &&
-    !isNaN(condition.values[0]) &&
-    OPERATOR_SYMBOLS[condition.operator]
-  );
-}
-
-export function isValidCut(condition) {
-  return condition.type === "cut" && condition.values.length > 0;
 }
 
 // function setCaptionForLevelAndLang(query, level, lang) {

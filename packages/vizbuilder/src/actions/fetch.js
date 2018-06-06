@@ -1,5 +1,9 @@
 import * as api from "../helpers/api";
-import {getValidDrilldowns, addTimeDrilldown} from "../helpers/sorting";
+import {
+  addTimeDrilldown,
+  getValidDrilldowns,
+  getValidMeasures
+} from "../helpers/sorting";
 
 /**
  * These functions should be handled/called with `this`
@@ -11,15 +15,7 @@ export function fetchCubes() {
     .cubes()
     .then(cubes => {
       const firstCube = cubes[0];
-      const measures = cubes
-        .reduce((sum, cube) => {
-          for (const measure of cube.measures) {
-            measure.annotations._cube = cube.name;
-            sum.push(measure);
-          }
-          return sum;
-        }, [])
-        .sort((a, b) => a.name.localeCompare(b.name));
+      const measures = getValidMeasures(cubes);
       const levels = getValidDrilldowns(firstCube);
       const drilldowns = addTimeDrilldown(levels.slice(0, 1), firstCube);
 

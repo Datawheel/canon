@@ -1,7 +1,48 @@
 import union from "lodash/union";
+import {isTimeDimension} from "./validation";
 
-function isTimeDimension(dimension) {
-  return dimension.dimensionType === 1 || dimension.name === "Date";
+export function getValidMeasures(cubes) {
+  const measures = [];
+
+  let nCbs = cubes.length;
+  while (nCbs--) {
+    const cube = cubes[nCbs];
+    const sourceName = cube.annotations.source_name || cube.caption || cube.name;
+
+    let nMsr = cube.measures.length;
+    while (nMsr--) {
+      const measure = cube.measures[nMsr];
+      measure.annotations._source_name = sourceName;
+
+      const key = measure.annotations.error_for_measure;
+      if (key === undefined) {
+        measures.push(measure);
+      }
+    }
+  }
+
+  return measures.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function getMeasureMOE(cube, measure) {
+  const measureName = measure.name.toLowerCase();
+
+  if (cube.measures.indexOf(measure) > -1) {
+    let nMsr = cube.measures.length;
+    while (nMsr--) {
+      const currentMeasure = cube.measures[nMsr];
+
+      const name = currentMeasure.name.toLowerCase();
+      if (
+        currentMeasure.annotations.error_for_measure &&
+        name.indexOf(measureName) === 0
+      ) {
+        return currentMeasure;
+      }
+    }
+  }
+
+  return undefined;
 }
 
 export function getValidDrilldowns(cube) {
