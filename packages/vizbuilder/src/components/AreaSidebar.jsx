@@ -5,6 +5,7 @@ import {addDrilldown, removeDrilldown, setMeasure} from "../actions/events";
 import {fetchCubes, fetchQuery} from "../actions/fetch";
 
 import ConditionManager from "./ConditionManager";
+import ConditionalAnchor from "./ConditionalAnchor";
 import LevelSelect from "./LevelSelect";
 import MeasureSelect from "./MeasureSelect";
 
@@ -56,6 +57,29 @@ class AreaSidebar extends React.PureComponent {
 
           <ConditionManager query={query} />
         </div>
+        {this.renderSourceBlock.call(this)}
+      </div>
+    );
+  }
+
+  renderSourceBlock() {
+    const ann = this.props.query.cube.annotations;
+
+    return (
+      <div className="wrapper sources">
+        <p>
+          <span>Source: </span>
+          <ConditionalAnchor className="source-link" href={ann.source_link}>
+            {ann.source_name}
+          </ConditionalAnchor>
+        </p>
+        <p>{ann.source_description}</p>
+        <p>
+          <span>Dataset: </span>
+          <ConditionalAnchor className="source-link" href={ann.dataset_link}>
+            {ann.dataset_name}
+          </ConditionalAnchor>
+        </p>
       </div>
     );
   }

@@ -3,7 +3,8 @@ import {
   addTimeDrilldown,
   getMeasureMOE,
   getValidDrilldowns,
-  getValidMeasures
+  getValidMeasures,
+  injectCubeInfoOnMeasure
 } from "../helpers/sorting";
 
 /**
@@ -15,6 +16,8 @@ export function fetchCubes() {
   return api
     .cubes()
     .then(cubes => {
+      injectCubeInfoOnMeasure(cubes);
+
       const firstCube = cubes[0];
       const measures = getValidMeasures(cubes);
       const levels = getValidDrilldowns(firstCube);

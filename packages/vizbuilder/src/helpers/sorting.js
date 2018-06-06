@@ -1,6 +1,33 @@
 import union from "lodash/union";
 import {isTimeDimension} from "./validation";
 
+export function injectCubeInfoOnMeasure(cubes) {
+  cubes = [].concat(cubes);
+
+  let nCbs = cubes.length;
+  while (nCbs--) {
+    const cube = cubes[nCbs];
+
+    const cubeName = cube.name;
+    const sourceName = cube.annotations.source_name || cube.caption || cubeName;
+    // const sourceDesc = cube.annotations.source_description;
+    // const sourceLink = cube.annotations.source_link;
+    // const datasetName = cube.annotations.dataset_name;
+    // const datasetLink = cube.annotations.dataset_link;
+
+    let nMsr = cube.measures.length;
+    while (nMsr--) {
+      const annotations = cube.measures[nMsr].annotations;
+      annotations._cube_name = cubeName;
+      annotations._source_name = sourceName;
+      // annotations._source_desc = sourceDesc;
+      // annotations._source_link = sourceLink;
+      // annotations._dataset_name = datasetName;
+      // annotations._dataset_link = datasetLink;
+    }
+  }
+}
+
 export function getValidMeasures(cubes) {
   cubes = [].concat(cubes);
   const measures = [];
@@ -8,13 +35,9 @@ export function getValidMeasures(cubes) {
   let nCbs = cubes.length;
   while (nCbs--) {
     const cube = cubes[nCbs];
-    const sourceName = cube.annotations.source_name || cube.caption || cube.name;
-
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
-      measure.annotations._source_name = sourceName;
-
       const key = measure.annotations.error_for_measure;
       if (key === undefined) {
         measures.push(measure);
