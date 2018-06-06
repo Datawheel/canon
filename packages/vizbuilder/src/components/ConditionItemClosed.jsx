@@ -4,14 +4,14 @@ import {Button} from "@blueprintjs/core";
 import {LABELS as OPERATOR_LABELS} from "../helpers/operators";
 
 const renderCutValue = item => <span key={item.name}>{item.name}</span>;
-const renderFilterValue = (item, i) => i == 0 ? item : "";
+const renderFilterValue = (item, i) => i === 0 ? item : "";
 
 function ConditionItemClosed(props) {
   const property = props.property;
   const isCut = "hierarchy" in property;
 
-  const operator = isCut ? OPERATOR_LABELS[props.operator] : "is any of";
-  const values = props.values.map(isCut ? renderFilterValue : renderCutValue);
+  const operator = isCut ? "is any of" : OPERATOR_LABELS[props.operator];
+  const values = props.values.map(isCut ? renderCutValue : renderFilterValue);
 
   const cnDisabled = props.disabled ? "disabled" : "enabled";
   const cnType = isCut ? "cut" : "filter";

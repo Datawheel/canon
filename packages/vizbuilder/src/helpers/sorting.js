@@ -2,6 +2,7 @@ import union from "lodash/union";
 import {isTimeDimension} from "./validation";
 
 export function getValidMeasures(cubes) {
+  cubes = [].concat(cubes);
   const measures = [];
 
   let nCbs = cubes.length;
