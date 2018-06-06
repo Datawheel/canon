@@ -6,11 +6,12 @@ import {Icon} from "@blueprintjs/core";
 import BaseSelect from "./BaseSelect";
 
 function MeasureSelect(props) {
-  props.items = props.items.slice(0, 100);
+  props.items = props.items.slice(0, 500);
   return React.createElement(BaseSelect, props);
 }
 
 MeasureSelect.defaultProps = {
+  ...BaseSelect.defaultProps,
   itemListPredicate(query, items) {
     query = query.trim();
     query = escapeRegExp(query);
