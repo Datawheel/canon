@@ -133,7 +133,8 @@ export default function createConfig(chartConfig) {
   if (chartConfig.type === "BarChart") {
     config.tooltipConfig = {
       width: 60,
-      title: d => `<h5 class="title xs-small">${d["ID Year"]}</h5>`
+      title: d => `<h5 class="title xs-small">${d["ID Year"]}</h5>`,
+      body: d => `<div>${measure.name}: ${d[measure.name]}</div>`
     };
   }
 
