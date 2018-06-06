@@ -44,6 +44,7 @@ export default function createConfig(chartConfig) {
   const measure = chartConfig.measure;
   const dimension = chartConfig.dimension;
   const moe = chartConfig.moe || null;
+  console.log(chartConfig)
 
   // Confs of Viz
   const vizConfig = {

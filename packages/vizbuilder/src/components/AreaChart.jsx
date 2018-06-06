@@ -124,7 +124,8 @@ class AreaChart extends React.Component {
         aggregatorType
       },
       dimension: query.drilldowns[0] ? query.drilldowns[0].name : "",
-      groupBy: ""
+      groupBy: "",
+      moe: query.moe || null
     };
 
     if (!dataset.length) {
