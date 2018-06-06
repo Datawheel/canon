@@ -48,6 +48,7 @@ export default function createConfig(chartConfig) {
   // Confs of Viz
   const vizConfig = {
     groupBy: chartConfig.dimension,
+    loadingMessage: "Loading",
     total: d => d[measure.name],
     totalConfig: {
       fontSize: 14

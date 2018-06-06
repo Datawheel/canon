@@ -13,7 +13,7 @@ class AreaChart extends React.Component {
 
     this.state = {
       chartConfig: {},
-      year: null,
+      year: "All years",
       type: null,
       annotations: {}
     };
@@ -63,7 +63,7 @@ class AreaChart extends React.Component {
 
   selectYear(evt) {
     this.setState({
-      year: parseInt(evt.target.value)
+      year: evt.target.value
     });
   }
 
@@ -95,6 +95,12 @@ class AreaChart extends React.Component {
       this.state.type !== nextState.type ||
       this.state.year !== nextState.year
     );
+  }
+
+  componentDidMount() {
+    this.setState({
+      year: "All years"
+    });
   }
 
   render() {
@@ -135,10 +141,9 @@ class AreaChart extends React.Component {
     const findAllYears = timeDim
       ? [...new Set(dataset.map(item => item["ID Year"]))].sort((a, b) => b - a)
       : "";
+    findAllYears.unshift("All years");
 
     chartConfig.type = "Treemap";
-
-    console.log(dataset);
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
@@ -160,8 +165,11 @@ class AreaChart extends React.Component {
               const config = createConfig(chartConfig);
 
               config.data =
-                this.state.year && !(/LinePlot|BarChart|StackedArea/).test(itype)
-                  ? dataset.filter(item => item["ID Year"] === this.state.year)
+                this.state.year !== "All years" &&
+                !(/LinePlot|BarChart|StackedArea/).test(itype)
+                  ? dataset.filter(
+                    item => item["ID Year"] === parseInt(this.state.year, 10)
+                  )
                   : dataset;
               config.height = type ? 500 : 400;
 
