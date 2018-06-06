@@ -43,6 +43,9 @@ export default function createConfig(chartConfig) {
   const x = chartConfig.groupBy;
   const measure = chartConfig.measure;
   const dimension = chartConfig.dimension;
+  const moe = chartConfig.moe || null;
+
+  console.log(moe);
 
   // Confs of Viz
   const vizConfig = {
@@ -137,13 +140,20 @@ export default function createConfig(chartConfig) {
     // config.colorScaleConfig.axisConfig.title = `Colored by ${measure}`;
   }
 
-  if (chartConfig.type === "LinePlot") {
+  if (chartConfig.type === "LinePlot" && moe) {
     config.confidence = [
-      d => d[measure.name] - 1000,
-      d => d[measure.name] + 1000
+      d => d[measure.name] - d[moe.name],
+      d => d[measure.name] + d[moe.name]
     ];
     config.confidenceConfig = {
-      fillOpacity: 0.2
+      fillOpacity: 0.15
+    };
+    config.tooltipConfig = {
+      width: 60,
+      title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
+      body: d =>
+        `<div>${measure.name}: ${d[measure.name]}</div>` +
+        `<div>MOE: ${d[moe.name]}</div>`
     };
   }
 
