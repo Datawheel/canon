@@ -138,7 +138,7 @@ class AreaChart extends React.Component {
 
     chartConfig.type = "Treemap";
 
-    console.log(dataset)
+    console.log(dataset);
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
@@ -159,9 +159,10 @@ class AreaChart extends React.Component {
               chartConfig.type = itype;
               const config = createConfig(chartConfig);
 
-              config.data = this.state.year
-                ? dataset.filter(item => item["ID Year"] === this.state.year)
-                : dataset;
+              config.data =
+                this.state.year && !(/LinePlot|BarChart|StackedArea/).test(itype)
+                  ? dataset.filter(item => item["ID Year"] === this.state.year)
+                  : dataset;
               config.height = type ? 500 : 400;
 
               if (type === null) {
@@ -182,7 +183,10 @@ class AreaChart extends React.Component {
                         chartConfig.dimension
                       }`}
                       {!(/StackedArea|BarChart|LinePlot/).test(itype) && 
-                        <select onChange={this.selectYear} name="" id="">
+                        <select
+                          onChange={this.selectYear}
+                          value={this.state.year}
+                        >
                           {findAllYears.map(item => 
                             <option value={item}>{item}</option>
                           )}
@@ -194,26 +198,6 @@ class AreaChart extends React.Component {
                 />
               );
             })}
-
-            {/* Object.keys(icharts).map(itype => {
-              if (type && itype !== type) return null;
-              if (/StackedArea|BarChart/.test(itype) && !timeDim) return null;
-              if (
-                /Treemap|Donut|Pie/.test(itype) &&
-                chartConfig.measure.aggregatorType === "AVERAGE"
-              ) {
-                return null;
-              }
-
-              const ChartComponent = icharts[itype];
-
-              chartConfig.type = itype;
-              const config = createConfig(chartConfig);
-              config.data = dataset;
-              config.height = type ? 500 : 400;
-              
-              return <ChartComponent config={config} />;
-            })*/}
           </div>
         </div>
       </div>
