@@ -1,9 +1,18 @@
-import {Treemap, Donut, Pie, BarChart, StackedArea, Geomap} from "d3plus-react";
+import {
+  Treemap,
+  Donut,
+  Pie,
+  BarChart,
+  StackedArea,
+  Geomap,
+  LinePlot
+} from "d3plus-react";
 import {uuid} from "d3plus-common";
 
 export const charts = {
   Treemap,
   Geomap,
+  LinePlot,
   Donut,
   Pie,
   BarChart,
@@ -72,7 +81,7 @@ export default function createConfig(chartConfig) {
       }
     };
   }
-  else if (/StackedArea/.test(chartConfig.type)) {
+  else if (/StackedArea|LinePlot/.test(chartConfig.type)) {
     config = {
       ...config,
       ...vizConfig,
@@ -99,14 +108,14 @@ export default function createConfig(chartConfig) {
       ocean: "transparent",
       projection: "geoAlbersUsa",
       colorScale: measure.name,
-      //colorScalePosition: "left",
+      // colorScalePosition: "left",
       colorScalePosition: "bottom",
       legend: false,
       colorScaleConfig: {
         scale: "jenks",
         height: 300,
         width: 200
-        //align: "start"
+        // align: "start"
       },
       duration: 0,
       zoom: true,
@@ -128,8 +137,14 @@ export default function createConfig(chartConfig) {
     // config.colorScaleConfig.axisConfig.title = `Colored by ${measure}`;
   }
 
-  if (chartConfig.type === "BarChart") {
-    // config.time = "ID Year";
+  if (chartConfig.type === "LinePlot") {
+    config.confidence = [
+      d => d[measure.name] - 1000,
+      d => d[measure.name] + 1000
+    ];
+    config.confidenceConfig = {
+      fillOpacity: 0.2
+    };
   }
 
   if (chartConfig.type === "StackedArea") {

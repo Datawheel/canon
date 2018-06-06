@@ -111,7 +111,7 @@ class AreaChart extends React.Component {
     const name = query.measure && query.measure.name ? query.measure.name : "";
 
     const chartConfig = {
-      type: type || "TreemapS",
+      type: type || "Treemap",
       colorScale: "value",
       measure: {
         name,
@@ -129,16 +129,16 @@ class AreaChart extends React.Component {
       );
     }
 
-    console.log(this.state.year);
-
-    console.log(dataset);
     const timeDim = "Year" in dataset[0];
+    const geoDim = ("ID State" || "ID County") in dataset[0] ? true : false;
 
     const findAllYears = timeDim
       ? [...new Set(dataset.map(item => item["ID Year"]))].sort((a, b) => b - a)
       : "";
 
     chartConfig.type = "Treemap";
+
+    console.log(dataset)
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
@@ -147,6 +147,7 @@ class AreaChart extends React.Component {
             {Object.keys(charts).map(itype => {
               if (type && itype !== type) return null;
               if (/StackedArea|BarChart/.test(itype) && !timeDim) return null;
+              if (/Geomap/.test(itype) && !geoDim) return null;
 
               if (
                 /Pie|Donut|Treemap|StackedArea/.test(itype) &&
@@ -170,10 +171,6 @@ class AreaChart extends React.Component {
                 };
               }
 
-              {
-                console.log(config);
-              }
-
               return (
                 <ChartCard
                   key={itype}
@@ -184,11 +181,13 @@ class AreaChart extends React.Component {
                       {`${itype} of ${chartConfig.measure.name} by ${
                         chartConfig.dimension
                       }`}
-                      <select onChange={this.selectYear} name="" id="">
-                        {findAllYears.map(item => 
-                          <option value={item}>{item}</option>
-                        )}
-                      </select>
+                      {!(/StackedArea|BarChart|LinePlot/).test(itype) && 
+                        <select onChange={this.selectYear} name="" id="">
+                          {findAllYears.map(item => 
+                            <option value={item}>{item}</option>
+                          )}
+                        </select>
+                      }
                     </header>
                   }
                   footer={this.renderFooter.call(this, itype)}
@@ -223,13 +222,3 @@ class AreaChart extends React.Component {
 }
 
 export default AreaChart;
-
-/* <ChartComponent
-    key={itype}
-    type={itype}
-    config={config}
-    header={
-      
-    }
-    footer={}
-  />*/
