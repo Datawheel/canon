@@ -1,6 +1,7 @@
 import * as api from "../helpers/api";
 import {
   addTimeDrilldown,
+  getMeasureMOE,
   getValidDrilldowns,
   getValidMeasures
 } from "../helpers/sorting";
@@ -18,12 +19,15 @@ export function fetchCubes() {
       const measures = getValidMeasures(cubes);
       const levels = getValidDrilldowns(firstCube);
       const drilldowns = addTimeDrilldown(levels.slice(0, 1), firstCube);
+      const firstMeasure = firstCube.measures[0];
+      const firstMoe = getMeasureMOE(firstCube, firstMeasure);
 
       return {
         options: {cubes, measures, levels},
         query: {
           cube: firstCube,
-          measure: firstCube.measures[0],
+          measure: firstMeasure,
+          moe: firstMoe,
           drilldowns
         }
       };

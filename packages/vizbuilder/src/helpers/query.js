@@ -1,5 +1,4 @@
 import {SYMBOLS as OPERATOR_SYMBOLS} from "./operators";
-import {getMeasureMOE} from "./sorting";
 import {isValidCut, isValidFilter} from "./validation";
 
 export function queryBuilder(query, params) {
@@ -66,9 +65,8 @@ export function queryConverter(params) {
     locale: "en"
   };
 
-  const measureMOE = getMeasureMOE(params.cube, params.measure);
-  if (measureMOE) {
-    query.measures.push(measureMOE.name);
+  if (params.moe) {
+    query.measures.push(params.moe.name);
   }
 
   for (let i = 0; i < params.conditions.length; i++) {
