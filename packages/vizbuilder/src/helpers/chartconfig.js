@@ -45,8 +45,6 @@ export default function createConfig(chartConfig) {
   const dimension = chartConfig.dimension;
   const moe = chartConfig.moe || null;
 
-  console.log(moe);
-
   // Confs of Viz
   const vizConfig = {
     groupBy: chartConfig.dimension,
@@ -111,14 +109,12 @@ export default function createConfig(chartConfig) {
       ocean: "transparent",
       projection: "geoAlbersUsa",
       colorScale: measure.name,
-      // colorScalePosition: "left",
       colorScalePosition: "bottom",
       legend: false,
       colorScaleConfig: {
         scale: "jenks",
-        height: 300,
-        width: 200
-        // align: "start"
+        height: 500,
+        width: 900
       },
       duration: 0,
       zoom: true,
@@ -133,11 +129,11 @@ export default function createConfig(chartConfig) {
     };
   }
 
-  // groupBy: "ID Year",
-
-  if (chartConfig.type === "Geomap") {
-    // config.colorScale = measure.name;
-    // config.colorScaleConfig.axisConfig.title = `Colored by ${measure}`;
+  if (chartConfig.type === "BarChart") {
+    config.tooltipConfig = {
+      width: 60,
+      title: d => `<h5 class="title xs-small">${d["ID Year"]}</h5>`
+    };
   }
 
   if (chartConfig.type === "LinePlot" && moe) {
@@ -152,13 +148,14 @@ export default function createConfig(chartConfig) {
       width: 60,
       title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
       body: d =>
+        "<div>" +
         `<div>${measure.name}: ${d[measure.name]}</div>` +
-        `<div>MOE: ${d[moe.name]}</div>`
+        `<div>MOE: ${d[moe.name]}</div>` +
+        "</div>"
     };
   }
 
   if (chartConfig.type === "StackedArea") {
-    // config.groupBy = false;
     config.groupBy = chartConfig.dimension;
     config.x = "ID Year";
   }
