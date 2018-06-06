@@ -38,3 +38,17 @@ export function addTimeDrilldown(array, cube) {
   }
   return array;
 }
+
+export function composePropertyName(item) {
+  let txt = item.name;
+  if ("hierarchy" in item) {
+    const hname = item.hierarchy.name;
+    if (hname !== item.name && hname !== item.hierarchy.dimension.name) {
+      txt = `${item.hierarchy.name} › ${txt}`;
+    }
+    if (item.name !== item.hierarchy.dimension.name) {
+      txt = `${item.hierarchy.dimension.name} › ${txt}`;
+    }
+  }
+  return txt;
+}
