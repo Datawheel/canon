@@ -8,6 +8,7 @@ import {
   LinePlot
 } from "d3plus-react";
 import {uuid} from "d3plus-common";
+import {formatAbbreviate} from "d3plus-format";
 
 export const charts = {
   Treemap,
@@ -44,7 +45,6 @@ export default function createConfig(chartConfig) {
   const measure = chartConfig.measure;
   const dimension = chartConfig.dimension;
   const moe = chartConfig.moe || null;
-  console.log(chartConfig)
 
   // Confs of Viz
   const vizConfig = {
@@ -65,7 +65,8 @@ export default function createConfig(chartConfig) {
     tooltipConfig: {
       width: 60,
       title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
-      body: d => `<div>${measure.name}: ${d[measure.name]}</div>`
+      body: d =>
+        `<div>${measure.name}: ${formatAbbreviate(d[measure.name])}</div>`
     }
   };
 
@@ -135,7 +136,8 @@ export default function createConfig(chartConfig) {
     config.tooltipConfig = {
       width: 60,
       title: d => `<h5 class="title xs-small">${d["ID Year"]}</h5>`,
-      body: d => `<div>${measure.name}: ${d[measure.name]}</div>`
+      body: d =>
+        `<div>${measure.name}: ${formatAbbreviate(d[measure.name])}</div>`
     };
   }
 
@@ -152,8 +154,8 @@ export default function createConfig(chartConfig) {
       title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
       body: d =>
         "<div>" +
-        `<div>${measure.name}: ${d[measure.name]}</div>` +
-        `<div>MOE: ${d[moe.name]}</div>` +
+        `<div>${measure.name}: ${formatAbbreviate(d[measure.name])}</div>` +
+        `<div>MOE: ±${formatAbbreviate(d[moe.name])}</div>` +
         "</div>"
     };
   }
