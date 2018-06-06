@@ -1,9 +1,18 @@
-import {Treemap, Donut, Pie, BarChart, StackedArea, Geomap} from "d3plus-react";
+import {
+  Treemap,
+  Donut,
+  Pie,
+  BarChart,
+  StackedArea,
+  Geomap,
+  LinePlot
+} from "d3plus-react";
 import {uuid} from "d3plus-common";
 
 export const charts = {
   Treemap,
   Geomap,
+  LinePlot,
   Donut,
   Pie,
   BarChart,
@@ -34,6 +43,7 @@ export default function createConfig(chartConfig) {
   const x = chartConfig.groupBy;
   const measure = chartConfig.measure;
   const dimension = chartConfig.dimension;
+  const moe = chartConfig.moe || null;
 
   // Confs of Viz
   const vizConfig = {
@@ -72,7 +82,7 @@ export default function createConfig(chartConfig) {
       }
     };
   }
-  else if (/StackedArea/.test(chartConfig.type)) {
+  else if (/StackedArea|LinePlot/.test(chartConfig.type)) {
     config = {
       ...config,
       ...vizConfig,
@@ -99,14 +109,12 @@ export default function createConfig(chartConfig) {
       ocean: "transparent",
       projection: "geoAlbersUsa",
       colorScale: measure.name,
-      //colorScalePosition: "left",
       colorScalePosition: "bottom",
       legend: false,
       colorScaleConfig: {
         scale: "jenks",
-        height: 300,
-        width: 200
-        //align: "start"
+        height: 500,
+        width: 900
       },
       duration: 0,
       zoom: true,
@@ -121,19 +129,33 @@ export default function createConfig(chartConfig) {
     };
   }
 
-  // groupBy: "ID Year",
-
-  if (chartConfig.type === "Geomap") {
-    // config.colorScale = measure.name;
-    // config.colorScaleConfig.axisConfig.title = `Colored by ${measure}`;
+  if (chartConfig.type === "BarChart") {
+    config.tooltipConfig = {
+      width: 60,
+      title: d => `<h5 class="title xs-small">${d["ID Year"]}</h5>`
+    };
   }
 
-  if (chartConfig.type === "BarChart") {
-    // config.time = "ID Year";
+  if (chartConfig.type === "LinePlot" && moe) {
+    config.confidence = [
+      d => d[measure.name] - d[moe.name],
+      d => d[measure.name] + d[moe.name]
+    ];
+    config.confidenceConfig = {
+      fillOpacity: 0.15
+    };
+    config.tooltipConfig = {
+      width: 60,
+      title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
+      body: d =>
+        "<div>" +
+        `<div>${measure.name}: ${d[measure.name]}</div>` +
+        `<div>MOE: ${d[moe.name]}</div>` +
+        "</div>"
+    };
   }
 
   if (chartConfig.type === "StackedArea") {
-    // config.groupBy = false;
     config.groupBy = chartConfig.dimension;
     config.x = "ID Year";
   }
