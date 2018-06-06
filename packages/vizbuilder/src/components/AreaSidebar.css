@@ -3,6 +3,16 @@
     margin-bottom: 1em;
   }
 
+  & .details {
+    margin: 0.5rem 0;
+    font-size: 0.75rem;
+    color: #666;
+
+    &:empty {
+      display: none;
+    }
+  }
+
   & h3 {
     font-size: 1rem;
   }

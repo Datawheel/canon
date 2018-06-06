@@ -7,7 +7,7 @@ import ConditionItemClosed from "./ConditionItemClosed";
 import ConditionItemCut from "./ConditionItemCut";
 import ConditionItemFilter from "./ConditionItemFilter";
 import ConditionPropertySelect from "./ConditionPropertySelect";
-import {isValidCut, isValidFilter} from "../helpers/query";
+import {isValidCut, isValidFilter} from "../helpers/validation";
 
 class ConditionItem extends React.PureComponent {
   constructor(props) {

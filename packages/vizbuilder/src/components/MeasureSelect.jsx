@@ -6,11 +6,12 @@ import {Icon} from "@blueprintjs/core";
 import BaseSelect from "./BaseSelect";
 
 function MeasureSelect(props) {
-  props.items = props.items.slice(0, 100);
+  props.items = props.items.slice(0, 500);
   return React.createElement(BaseSelect, props);
 }
 
 MeasureSelect.defaultProps = {
+  ...BaseSelect.defaultProps,
   itemListPredicate(query, items) {
     query = query.trim();
     query = escapeRegExp(query);
@@ -33,7 +34,7 @@ MeasureSelect.defaultProps = {
         {item.icon && <Icon iconName={item.icon} />}
         <span className="select-option-label">{item.name}</span>
         <span className="select-option-label lead">
-          {item.annotations._cube}
+          {item.annotations._source_name}
         </span>
       </li>
     );

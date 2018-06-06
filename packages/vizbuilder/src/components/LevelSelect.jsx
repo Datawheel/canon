@@ -11,6 +11,7 @@ function LevelSelect(props) {
 }
 
 LevelSelect.defaultProps = {
+  ...BaseSelect.defaultProps,
   itemListPredicate(query, items) {
     query = query.trim();
     query = escapeRegExp(query);

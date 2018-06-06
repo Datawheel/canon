@@ -29,6 +29,8 @@ class AreaSidebar extends React.PureComponent {
 
     if (!query.cube) return null;
 
+    const measureDetails = query.measure.annotations.details || "";
+
     return (
       <div className="area-sidebar">
         <div className="wrapper">
@@ -39,6 +41,7 @@ class AreaSidebar extends React.PureComponent {
               value={query.measure}
               onItemSelect={this.setMeasure}
             />
+            <p className="details">{measureDetails}</p>
           </div>
 
           <div className="group">
