@@ -18,11 +18,12 @@ export function fetchCubes() {
     .then(cubes => {
       injectCubeInfoOnMeasure(cubes);
 
-      const firstCube = cubes[0];
       const measures = getValidMeasures(cubes);
+      const firstMeasure = measures[0];
+      const firstCubeName = firstMeasure.annotations._cube_name;
+      const firstCube = cubes.find(cube => cube.name === firstCubeName);
       const levels = getValidDrilldowns(firstCube);
       const drilldowns = addTimeDrilldown(levels.slice(0, 1), firstCube);
-      const firstMeasure = firstCube.measures[0];
       const firstMoe = getMeasureMOE(firstCube, firstMeasure);
 
       return {

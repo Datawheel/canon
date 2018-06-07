@@ -67,14 +67,16 @@ class AreaSidebar extends React.PureComponent {
 
     return (
       <div className="wrapper sources">
-        <p>
+        <p hidden={!ann.source_name}>
           <span>Source: </span>
           <ConditionalAnchor className="source-link" href={ann.source_link}>
             {ann.source_name}
           </ConditionalAnchor>
         </p>
-        <p>{ann.source_description}</p>
-        <p>
+        <p hidden={!ann.source_description}>
+          {ann.source_description}
+        </p>
+        <p hidden={!ann.dataset_name}>
           <span>Dataset: </span>
           <ConditionalAnchor className="source-link" href={ann.dataset_link}>
             {ann.dataset_name}
