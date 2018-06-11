@@ -107,6 +107,14 @@ class AreaChart extends React.Component {
     const {dataset, query} = this.props;
     const {type} = this.state;
 
+    if (!dataset.length) {
+      return (
+        <div className="area-chart empty">
+          <NonIdealState visual="square" title="Empty dataset" />
+        </div>
+      );
+    }
+
     const aggregatorType = query.measure
       ? query.measure.annotations &&
         query.measure.annotations.aggregation_method
@@ -123,18 +131,10 @@ class AreaChart extends React.Component {
         name,
         aggregatorType
       },
-      dimension: query.drilldowns[0] ? query.drilldowns[0].name : "",
+      dimension: query.drilldown ? query.drilldown.name : "",
       groupBy: "",
       moe: query.moe || null
     };
-
-    if (!dataset.length) {
-      return (
-        <div className="area-chart empty">
-          <NonIdealState visual="square" title="Empty dataset" />
-        </div>
-      );
-    }
 
     const timeDim = "Year" in dataset[0];
     const geoDim = ("ID State" || "ID County") in dataset[0] ? true : false;

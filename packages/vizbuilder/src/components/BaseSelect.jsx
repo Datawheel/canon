@@ -40,19 +40,25 @@ function BaseSelect(props) {
     return React.createElement(MultiSelect, props, props.children);
   }
   else {
-    if (!props.value || typeof props.value !== "object") {
-      props.value = props.defaultOption;
+    let item = props.value;
+
+    if (props.items.indexOf(item) === -1) {
+      console.log("nope", item);
+      if (!item || typeof item !== "object") {
+        item = props.defaultOption;
     }
     else {
-      props.value =
-        props.items.find(item => item.name === props.value.name) ||
-        props.defaultOption;
+        item =
+          props.items.find(i => i.name === item.name) || props.defaultOption;
+      }
+
+      props.value = item;
     }
 
     props.children = props.children ||
-      <div className="select-option current" title={props.value.name}>
-        {props.value.icon && <Icon iconName={props.value.icon} />}
-        <span className="value">{props.value.name}</span>
+      <div className="select-option current" title={item.name}>
+        {item.icon && <Icon iconName={item.icon} />}
+        <span className="value">{item.name}</span>
         <Icon iconName={props.caret} />
       </div>
     ;
@@ -89,6 +95,11 @@ BaseSelect.defaultProps = {
   multiple: false,
   noResults: <span className="select-noresults">No results</span>,
   popoverProps: {
+    modifiers: {
+      preventOverflow: {
+        boundariesElement: "viewport"
+      }
+    },
     popoverClassName: "select-box select-box-popover pt-minimal"
   },
   resetOnSelect: true,

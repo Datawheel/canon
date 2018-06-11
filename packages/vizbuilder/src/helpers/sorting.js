@@ -61,6 +61,7 @@ export function getMeasureMOE(cube, measure) {
       const currentMeasure = cube.measures[nMsr];
 
       const name = currentMeasure.name.toLowerCase();
+      // TODO: update this condition when `error_for_measure` gets implemented
       if (
         currentMeasure.annotations.error_for_measure &&
         name.indexOf(measureName) === 0
@@ -73,17 +74,21 @@ export function getMeasureMOE(cube, measure) {
   return undefined;
 }
 
-export function getValidDrilldowns(cube) {
-  return cube.dimensions.reduce(flattenDimensions, []);
+export function getValidDimensions(cube) {
+  return cube.dimensions.filter(dim => !isTimeDimension(dim));
 }
 
-export function flattenDimensions(container, dimension) {
+export function getValidDrilldowns(cube) {
+  return getValidDimensions(cube).reduce(reduceLevelsFromDimension, []);
+}
+
+export function reduceLevelsFromDimension(container, dimension) {
   return isTimeDimension(dimension)
     ? container
-    : dimension.hierarchies.reduce(flattenHierarchies, container);
+    : dimension.hierarchies.reduce(reduceLevelsFromHierarchy, container);
 }
 
-export function flattenHierarchies(container, hierarchy) {
+export function reduceLevelsFromHierarchy(container, hierarchy) {
   return container.concat(hierarchy.levels.slice(1));
 }
 
@@ -96,16 +101,15 @@ export function joinDrilldownList(array, drilldown) {
   );
 }
 
-export function addTimeDrilldown(array, cube) {
+export function getTimeDrilldown(cube) {
   const timeDim = cube.timeDimension || cube.dimensionsByName.Date;
   if (timeDim) {
     const timeHie = timeDim.hierarchies.slice(-1).pop();
     if (timeHie) {
-      const timeDrilldown = timeHie.levels.slice(1, 2);
-      array = joinDrilldownList(array, timeDrilldown);
+      return timeHie.levels.slice(1, 2).pop();
     }
   }
-  return array;
+  return undefined;
 }
 
 export function composePropertyName(item) {
