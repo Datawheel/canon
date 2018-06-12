@@ -67,10 +67,10 @@ function renderMiddleware() {
     renderRouterContext: (child, props) => {
 
       const needs = props.components.filter(comp => comp.need || comp.preneed || comp.postneed);
-      const {action, hash, key, query} = props.location;
+      const {action, hash, query, state} = props.location;
 
       if (action !== "REPLACE" || !Object.keys(query).length) {
-        if (window.__SSR__ || !key || !needs.length) {
+        if (window.__SSR__ || state === "HASH" || !needs.length) {
           window.__SSR__ = false;
           if (hash) scrollToHash(hash);
           else window.scrollTo(0, 0);
