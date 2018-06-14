@@ -139,12 +139,26 @@ class AreaChart extends React.Component {
     const timeDim = "Year" in dataset[0];
     const geoDim = ("ID State" || "ID County") in dataset[0] ? true : false;
 
-    const findAllYears = timeDim
-      ? [...new Set(dataset.map(item => item["ID Year"]))].sort((a, b) => b - a)
-      : "";
-    findAllYears.unshift("All years");
-
-    chartConfig.type = "Treemap";
+    let yearSelector = null;
+    if (timeDim) {
+      const yearMap = dataset.reduce((all, item) => {
+        all[item.Year] = true;
+        return all;
+      }, {});
+      const yearOptions = Object.keys(yearMap)
+        .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+        .map(item =>
+          <option key={item} value={item}>
+            {item}
+          </option>
+        );
+      yearSelector =
+        <select onChange={this.selectYear} value={this.state.year}>
+          <option value="All years">All years</option>
+          {yearOptions}
+        </select>
+      ;
+    }
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
@@ -181,6 +195,10 @@ class AreaChart extends React.Component {
                 };
               }
 
+              const cardTitle = `${itype} of ${chartConfig.measure.name} by ${
+                chartConfig.dimension
+              }`;
+
               return (
                 <ChartCard
                   key={itype}
@@ -188,19 +206,9 @@ class AreaChart extends React.Component {
                   config={config}
                   header={
                     <header>
-                      {`${itype} of ${chartConfig.measure.name} by ${
-                        chartConfig.dimension
-                      }`}
-                      {!(/StackedArea|BarChart|LinePlot/).test(itype) && 
-                        <select
-                          onChange={this.selectYear}
-                          value={this.state.year}
-                        >
-                          {findAllYears.map(item => 
-                            <option value={item}>{item}</option>
-                          )}
-                        </select>
-                      }
+                      {cardTitle}
+                      {!(/StackedArea|BarChart|LinePlot/).test(itype) &&
+                        yearSelector}
                     </header>
                   }
                   footer={this.renderFooter.call(this, itype)}
