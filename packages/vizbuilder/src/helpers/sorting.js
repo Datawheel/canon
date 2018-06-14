@@ -11,6 +11,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cbName = cube.caption || cube.name;
     const cbTopic = cube.annotations.topic;
     const cbSubtopic = cube.annotations.subtopic;
+    const selectorKey = `${cbTopic}-${cbSubtopic}-`;
     const sourceName = cube.annotations.source_name;
     // const sourceDesc = cube.annotations.source_description;
     // const sourceLink = cube.annotations.source_link;
@@ -19,11 +20,14 @@ export function injectCubeInfoOnMeasure(cubes) {
 
     let nMsr = cube.measures.length;
     while (nMsr--) {
-      const annotations = cube.measures[nMsr].annotations;
+      const measure = cube.measures[nMsr];
+      const annotations = measure.annotations;
       annotations._cb_name = cbName;
       annotations._cb_topic = cbTopic;
       annotations._cb_subtopic = cbSubtopic;
-      annotations._cb_sourcename = sourceName;
+      annotations._cb_sourceName = sourceName;
+      annotations._selectorKey =
+        selectorKey + (measure.caption || measure.name);
       // annotations._source_desc = sourceDesc;
       // annotations._source_link = sourceLink;
       // annotations._dataset_name = datasetName;
@@ -49,7 +53,9 @@ export function getValidMeasures(cubes) {
     }
   }
 
-  return measures.sort((a, b) => a.name.localeCompare(b.name));
+  return measures.sort((a, b) =>
+    a.annotations._selectorKey.localeCompare(b.annotations._selectorKey)
+  );
 }
 
 export function getMeasureMOE(cube, measure) {
