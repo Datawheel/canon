@@ -7,22 +7,6 @@ import {Select, MultiSelect} from "@blueprintjs/labs";
 
 import "./BaseSelect.css";
 
-/**
- * @template T
- * @typedef IProps
- * @prop {IconName} caret
- * @prop {T} defaultOption
- * @prop {Array} items
- * @prop {boolean} multiple
- * @prop {T} value
- */
-
-/**
- * @class BaseSelect
- * @template T
- * @param {ISelectProps & IProps | IMultiSelectProps & IProps} props
- * @prop {ISelectProps & IProps | IMultiSelectProps & IProps} defaultProps
- */
 function BaseSelect(props) {
   props = {
     ...props,
@@ -46,8 +30,8 @@ function BaseSelect(props) {
       console.log("nope", item);
       if (!item || typeof item !== "object") {
         item = props.defaultOption;
-    }
-    else {
+      }
+      else {
         item =
           props.items.find(i => i.name === item.name) || props.defaultOption;
       }
@@ -67,7 +51,6 @@ function BaseSelect(props) {
   }
 }
 
-/** @type {ISelectProps & IProps | IMultiSelectProps & IProps} */
 BaseSelect.defaultProps = {
   caret: "double-caret-vertical",
   defaultOption: {value: null, name: "Select...", disabled: true},
