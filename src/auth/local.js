@@ -11,10 +11,16 @@ const {name} = JSON.parse(require("shelljs").cat("package.json"));
 
 const activationRoute = process.env.CANON_ACTIVATION_LINK || "/activate",
       canonActivation = process.env.CANON_SIGNUP_ACTIVATION,
+      confirmEmailFilepath = process.env.CANON_ACTIVATION_HTML
+        ? path.join(process.cwd(), process.env.CANON_ACTIVATION_HTML)
+        : path.join(__dirname, "emails/activation.html"),
       mgApiKey = process.env.CANON_MAILGUN_API,
       mgDomain = process.env.CANON_MAILGUN_DOMAIN,
       mgEmail = process.env.CANON_MAILGUN_EMAIL,
       mgName = process.env.CANON_MAILGUN_NAME || name,
+      resetEmailFilepath = process.env.CANON_RESET_HTML
+        ? path.join(process.cwd(), process.env.CANON_RESET_HTML)
+        : path.join(__dirname, "emails/resetPassword.html"),
       resetRoute = process.env.CANON_RESET_LINK || "/reset";
 
 const isAuthenticated = (req, res, next) => {
@@ -95,7 +101,6 @@ module.exports = function(app) {
   function sendActivation(user, req, err, done) {
 
     const mailgun = new Mailgun({apiKey: mgApiKey, domain: mgDomain});
-    const confirmEmailFilepath = path.join(__dirname, "emails/activation.html");
 
     user.activateToken = bcrypt.genSaltSync();
     const expiryHours = 48;
@@ -199,7 +204,6 @@ module.exports = function(app) {
           if (user) {
 
             const mailgun = new Mailgun({apiKey: mgApiKey, domain: mgDomain});
-            const resetEmailFilepath = path.join(__dirname, "emails/resetPassword.html");
 
             user.resetToken = bcrypt.genSaltSync();
             const expiryHours = 2;
