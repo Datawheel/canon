@@ -138,6 +138,8 @@ async function start() {
   app.use(cookieParser());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({extended: true, limit: "50mb"}));
+  app.use(express.static(staticPath));
+  app.use(i18nMiddleware.handle(i18n));
 
   const secret = process.env.CANON_SESSION_SECRET || name;
   const maxAge = process.env.CANON_SESSION_TIMEOUT || 60 * 60 * 1000; // one hour
@@ -290,9 +292,6 @@ async function start() {
     const FRAMEGUARD = yn(process.env.CANON_HELMET_FRAMEGUARD);
     app.use(helmet({frameguard: FRAMEGUARD === void 0 ? false : FRAMEGUARD}));
   }
-
-  app.use(express.static(staticPath));
-  app.use(i18nMiddleware.handle(i18n));
 
   app.get("*", App.default(store, i18n, headerConfig));
 

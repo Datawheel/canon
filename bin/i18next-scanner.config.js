@@ -7,7 +7,7 @@ const {name} = JSON.parse(shell.cat("package.json"));
 
 const localePath = path.join(__dirname, "../src/locale.js");
 
-const defaultLocale = JSON.parse(shell.cat(localePath).slice(15).slice(0, -2));
+const defaultLocale = JSON.parse(shell.cat(localePath).replace(/^[^{]+/g, "").slice(0, -2));
 
 module.exports = {
   options: {

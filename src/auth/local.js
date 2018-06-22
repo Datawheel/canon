@@ -112,14 +112,20 @@ module.exports = function(app) {
           if (error) return err(error);
 
           const url = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+
+          const translationVariables = {
+            confirmLink: `${url}${activationRoute}?email=${email}&token=${activateToken}`,
+            site: mgName,
+            username: user.username,
+            url
+          };
+
           const render = template
-            .replace(/{{username}}/g, user.username)
-            .replace(/{{site_url}}/g, url)
-            .replace(/{{site_name}}/g, mgName)
-            .replace(/{{confirm_link}}/g, `${url}${activationRoute}?email=${email}&token=${activateToken}`);
+            .replace(/t\(['|"]([A-z\.]+)['|"]\)/g, (match, str) => req.t(str, translationVariables))
+            .replace(/\{\{([A-z\.]+)\}\}/g, (match, str) => translationVariables[str]);
 
           return new BuildMail("text/html")
-            .addHeader({from: mgEmail, subject: "Please verify your email address", to: email})
+            .addHeader({from: mgEmail, subject: req.t("Activate.mailgun.title"), to: email})
             .setContent(render).build((error, mail) => {
               if (error) return err(error);
               return mailgun.messages().sendMime({to: email, message: mail.toString("ascii")}, done);
@@ -204,14 +210,22 @@ module.exports = function(app) {
                 fs.readFile(resetEmailFilepath, "utf8", (error, template) => {
 
                   if (error) return res.json({error});
+
                   const url = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+
+                  const translationVariables = {
+                    resetLink: `${url}${resetRoute}?token=${user.resetToken}`,
+                    site: mgName,
+                    username: user.username,
+                    url
+                  };
+
                   const render = template
-                    .replace(/{{site_url}}/g, url)
-                    .replace(/{{site_name}}/g, mgName)
-                    .replace(/{{reset_link}}/g, `${url}${resetRoute}?token=${user.resetToken}`);
+                    .replace(/t\(['|"]([A-z\.]+)['|"]\)/g, (match, str) => req.t(str, translationVariables))
+                    .replace(/\{\{([A-z\.]+)\}\}/g, (match, str) => translationVariables[str]);
 
                   return new BuildMail("text/html")
-                    .addHeader({from: mgEmail, subject: "Password Reset", to: email})
+                    .addHeader({from: mgEmail, subject: req.t("Reset.mailgun.title"), to: email})
                     .setContent(render).build((error, mail) => {
                       if (error) return res.json({error});
                       return mailgun.messages().sendMime({to: email, message: mail.toString("ascii")}, () => res.json({success: true}));
