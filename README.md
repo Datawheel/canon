@@ -357,6 +357,14 @@ When sending e-mails, datahweel-canon will use the "name" field of your **packag
 export CANON_MAILGUN_NAME="Datawheel Canon"
 ```
 
+The default contents of the e-mail to be sent is stored [here](https://github.com/Datawheel/datawheel-canon/blob/master/src/auth/emails/resetPassword.html), and can be overridden using any local HTML file using the following environment variable:
+
+```sh
+export CANON_RESET_HTML="path/to/file.html"
+```
+
+The path to this file is relative to the current working directory (`process.cwd()`), and the text inside of the file is run through the i18n parser like all of the front-end client facing components. The associated translation tags can be located under the `mailgun` key inside of the `Reset` key.
+
 ### E-mail Verification
 
 If you would like your site to require e-mail verification, you can utilize [Mailgun](https://www.mailgun.com) in a way very similar to the [Password Reset](#password-reset) workflow. Set the appropriate [Mailgun](https://www.mailgun.com) environment variables:
@@ -410,6 +418,14 @@ When sending e-mails, datahweel-canon will use the "name" field of your **packag
 ```sh
 export CANON_MAILGUN_NAME="Datawheel Canon"
 ```
+
+The default contents of the e-mail to be sent is stored [here](https://github.com/Datawheel/datawheel-canon/blob/master/src/auth/emails/activation.html), and can be overridden using any local HTML file using the following environment variable:
+
+```sh
+export CANON_ACTIVATION_HTML="path/to/file.html"
+```
+
+The path to this file is relative to the current working directory (`process.cwd()`), and the text inside of the file is run through the i18n parser like all of the front-end client facing components. The associated translation tags can be located under the `mailgun` key inside of the `Activation` key.
 
 ### Roles
 
