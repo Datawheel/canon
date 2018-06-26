@@ -9,9 +9,8 @@ import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
 import {ErrorToaster} from "./components/ErrorToaster";
 import {initClient} from "./helpers/api";
-import initialState, {loadTypes, optionsTypes, queryTypes} from "./state";
+import initialState from "./state";
 
-import "@blueprintjs/core/dist/blueprint.css";
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
 
@@ -44,11 +43,10 @@ class Vizbuilder extends React.PureComponent {
   }
 
   render() {
-    const {options, query, dataset} = this.state;
-    const inProgress = this.state.load.inProgress;
+    const {dataset, load, options, query} = this.state;
     return (
-      <div className={classnames("vizbuilder", {loading: inProgress})}>
-        <AreaLoading {...this.state.load} />
+      <div className={classnames("vizbuilder", {loading: load.inProgress})}>
+        <AreaLoading {...load} />
         <AreaSidebar options={options} query={query} />
         <AreaChart dataset={dataset} query={query} />
       </div>
@@ -57,10 +55,6 @@ class Vizbuilder extends React.PureComponent {
 }
 
 Vizbuilder.childContextTypes = {
-  dataset: PropTypes.array,
-  load: loadTypes,
-  options: optionsTypes,
-  query: queryTypes,
   datasetUpdate: PropTypes.func,
   loadWrapper: PropTypes.func,
   stateUpdate: PropTypes.func

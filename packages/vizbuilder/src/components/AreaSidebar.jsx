@@ -36,9 +36,10 @@ class AreaSidebar extends React.PureComponent {
     return (
       <div className="area-sidebar">
         <div className="wrapper">
-          <div className="group">
-            <span className="label">Showing</span>
+          <div className="control">
+            <p className="label">Showing</p>
             <MeasureSelect
+              className="custom-select"
               items={options.measures}
               value={query.measure}
               onItemSelect={this.setMeasure}
@@ -46,9 +47,10 @@ class AreaSidebar extends React.PureComponent {
             <p className="details">{measureDetails}</p>
           </div>
 
-          <div className="group">
-            <span className="label">Grouped by</span>
+          <div className="control">
+            <p className="label">Grouped by</p>
             <BaseSelect
+              className="custom-select"
               filterable={false}
               items={options.dimensions}
               value={query.dimension}
@@ -56,9 +58,10 @@ class AreaSidebar extends React.PureComponent {
             />
           </div>
 
-          <div className="group">
-            <span className="label">At depth level</span>
+          <div className="control">
+            <p className="label">At depth level</p>
             <LevelSelect
+              className="custom-select"
               filterable={false}
               items={options.levels}
               value={query.drilldown}

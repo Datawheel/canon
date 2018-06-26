@@ -2,8 +2,9 @@ import React from "react";
 import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 
-import {Icon} from "@blueprintjs/core";
-import {Select, MultiSelect} from "@blueprintjs/labs";
+import {Icon} from "@blueprintjs/core/dist/esm/components/icon/icon";
+import {MultiSelect} from "@blueprintjs/labs/dist/esm/components/select/multiSelect";
+import {Select} from "@blueprintjs/labs/dist/esm/components/select/select";
 
 import "./BaseSelect.css";
 
@@ -71,7 +72,7 @@ BaseSelect.defaultProps = {
         title={item.name}
       >
         {item.icon && <Icon iconName={item.icon} />}
-        <span className="select-option-label">{item.name}</span>
+        <span className="select-label">{item.name}</span>
       </span>
     );
   },

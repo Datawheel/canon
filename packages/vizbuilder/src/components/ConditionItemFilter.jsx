@@ -13,6 +13,7 @@ function FilterItemMeasure(props) {
     <div className="condition-item filter">
       <div className="group condition-property">
         <ConditionPropertySelect
+          className="custom-select"
           value={props.property}
           items={props.properties}
           onItemSelect={props.onSetProperty}

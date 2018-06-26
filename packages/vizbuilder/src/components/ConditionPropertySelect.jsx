@@ -55,7 +55,7 @@ ConditionPropertySelect.defaultProps = {
         onClick={handleClick}
         title={name}
       >
-        <span className="select-option-label">{name}</span>
+        <span className="select-label">{name}</span>
       </li>
     );
   }

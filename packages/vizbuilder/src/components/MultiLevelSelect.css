@@ -1,0 +1,18 @@
+.mlsel-target-wrapper {
+  display: block;
+  cursor: pointer;
+}
+
+.mlsel-popover-content {}
+
+.mlsel-filter-group {
+  margin-bottom: 4px;
+}
+
+.mlsel-filter-input {}
+
+.mlsel-filter-reset {}
+
+.mlsel-select-list {
+  margin-top: 5px;
+}

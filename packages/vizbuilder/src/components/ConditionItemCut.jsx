@@ -34,6 +34,7 @@ class FilterItemLevel extends React.PureComponent {
       <div className="condition-item cut">
         <div className="group condition-property">
           <ConditionPropertySelect
+            className="custom-select"
             value={props.property}
             items={props.properties}
             onItemSelect={props.onSetProperty}
@@ -41,6 +42,7 @@ class FilterItemLevel extends React.PureComponent {
         </div>
         <div className="group condition-values">
           <MemberSelect
+            className="custom-select"
             items={this.state.members}
             selectedItems={props.values}
             onItemSelect={props.onAddValue}

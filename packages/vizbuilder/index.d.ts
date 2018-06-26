@@ -1,35 +1,18 @@
-import { IconName } from "@blueprintjs/core";
-import { ISelectProps, IMultiSelectProps } from "@blueprintjs/labs";
-import Measure from 'mondrian-rest-client/lib/types/measure';
-import { Cube } from 'mondrian-rest-client';
-import Dimension, { Level } from 'mondrian-rest-client/lib/types/dimension';
+import {Cube} from "mondrian-rest-client";
+import Dimension, {Level} from "mondrian-rest-client/lib/types/dimension";
+import Measure from "mondrian-rest-client/lib/types/measure";
+import { IVizbuilderState, IVizbuilderProps } from "./typings/state";
 
-interface VizbuilderState {
-  load: LoadState;
-  items: ItemsState;
-  query: QueryState;
-  dataset: Array<any>;
-}
-
-interface LoadState {
-  loading: boolean;
-  loadTotal: number;
-  loadCurrent: number;
-}
-
-interface ItemsState {
-  cubes: Array<Cube>;
-  measures: Array<Measure>;
-  dimensions: Array<Dimension>;
-}
-
-interface QueryState {
-  cube: Cube;
-  measure: Array<Measure>;
-  drilldown: Array<Level>;
-  filter: Array<Filter>;
-}
-
-interface Filter {
-
+declare module "@datawheel/vizbuilder" {
+  export class Vizbuilder extends React.Component<
+    IVizbuilderProps,
+    IVizbuilderState
+  > {
+    state: IVizbuilderState;
+    constructor(props: IVizbuilderProps);
+    getChildContext(): any;
+    shouldComponentUpdate(nextProps): boolean;
+    componentDidUpdate(prevProps, prevState): void;
+    render(): JSX.Element;
+  }
 }

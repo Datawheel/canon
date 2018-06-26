@@ -77,6 +77,7 @@ class ConditionItem extends React.PureComponent {
         <div className="group">
           <span className="label">Select a Property</span>
           <ConditionPropertySelect
+            className="custom-select"
             items={this.props.properties}
             value={this.props.property}
             onItemSelect={this.setInitialProperty}

@@ -32,8 +32,8 @@ LevelSelect.defaultProps = {
         onClick={item.disabled || handleClick}
         title={item.name}
       >
-        <span className="select-option-label">{item.name}</span>
-        <span className="select-option-label lead">
+        <span className="select-label">{item.name}</span>
+        <span className="select-label lead">
           {item.hierarchy.dimension.name}
         </span>
       </li>

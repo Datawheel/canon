@@ -12,6 +12,8 @@ import {getValidDrilldowns, getValidMeasures} from "../helpers/sorting";
 
 import ConditionItem from "./ConditionItem";
 
+import "./ConditionManager.css";
+
 class ConditionManager extends React.Component {
   constructor(props) {
     super(props);

@@ -1,6 +1,6 @@
 import React from "react";
 
-import Vizbuilder from "../../src/index.jsx";
+import Vizbuilder from "../../";
 
 import "./Home.css";
 

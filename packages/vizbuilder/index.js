@@ -1,3 +1,3 @@
-const Vizbuilder = require("./src/index.jsx");
+import Vizbuilder from "./src/";
 
-module.exports = Vizbuilder;
+export default Vizbuilder;
