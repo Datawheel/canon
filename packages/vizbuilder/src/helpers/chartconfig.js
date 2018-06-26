@@ -43,19 +43,20 @@ export const colorScaleConfig = {
 export default function createConfig(chartConfig) {
   const x = chartConfig.groupBy;
   const measure = chartConfig.measure;
+  const measureName = measure.name;
   const dimension = chartConfig.dimension;
-  const moe = chartConfig.moe || null;
+  const moe = chartConfig.moe;
 
   // Confs of Viz
   const vizConfig = {
     groupBy: chartConfig.dimension,
     loadingMessage: "Loading",
-    total: d => d[measure.name],
+    total: d => d[measureName],
     totalConfig: {
       fontSize: 14
     },
-    sum: d => d[measure.name],
-    value: d => d[measure.name]
+    sum: d => d[measureName],
+    value: d => d[measureName]
   };
 
   let config = {
@@ -66,7 +67,7 @@ export default function createConfig(chartConfig) {
       width: 60,
       title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
       body: d =>
-        `<div>${measure.name}: ${formatAbbreviate(d[measure.name])}</div>`
+        `<div>${measureName}: ${formatAbbreviate(d[measureName])}</div>`
     }
   };
 
@@ -79,9 +80,9 @@ export default function createConfig(chartConfig) {
         title: x
       },
       discrete: "x",
-      y: measure.name,
+      y: measureName,
       yConfig: {
-        title: measure.name
+        title: measureName
       }
     };
   }
@@ -94,9 +95,9 @@ export default function createConfig(chartConfig) {
         title: x
       },
       discrete: "x",
-      y: measure.name,
+      y: measureName,
       yConfig: {
-        title: measure.name
+        title: measureName
       }
     };
   }
@@ -111,7 +112,7 @@ export default function createConfig(chartConfig) {
       topojson: "/topojson/states.json",
       ocean: "transparent",
       projection: "geoAlbersUsa",
-      colorScale: measure.name,
+      colorScale: measureName,
       colorScalePosition: "bottom",
       legend: false,
       colorScaleConfig: {
@@ -137,14 +138,14 @@ export default function createConfig(chartConfig) {
       width: 60,
       title: d => `<h5 class="title xs-small">${d["ID Year"]}</h5>`,
       body: d =>
-        `<div>${measure.name}: ${formatAbbreviate(d[measure.name])}</div>`
+        `<div>${measureName}: ${formatAbbreviate(d[measureName])}</div>`
     };
   }
 
   if (chartConfig.type === "LinePlot" && moe) {
     config.confidence = [
-      d => d[measure.name] - d[moe.name],
-      d => d[measure.name] + d[moe.name]
+      d => d[measureName] - d[moe],
+      d => d[measureName] + d[moe]
     ];
     config.confidenceConfig = {
       fillOpacity: 0.15
@@ -154,8 +155,8 @@ export default function createConfig(chartConfig) {
       title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
       body: d =>
         "<div>" +
-        `<div>${measure.name}: ${formatAbbreviate(d[measure.name])}</div>` +
-        `<div>MOE: ±${formatAbbreviate(d[moe.name])}</div>` +
+        `<div>${measureName}: ${formatAbbreviate(d[measureName])}</div>` +
+        `<div>MOE: ±${formatAbbreviate(d[moe])}</div>` +
         "</div>"
     };
   }

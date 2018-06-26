@@ -1,5 +1,12 @@
 import PropTypes from "prop-types";
 
+const labels = {
+  loading: {
+    title: "Loading",
+    description: "Please wait..."
+  }
+};
+
 export default function initialStateFactory() {
   return {
     load: {
@@ -35,7 +42,8 @@ export default function initialStateFactory() {
       levels: [],
       measures: []
     },
-    dataset: []
+    dataset: [],
+    labels
   };
 }
 

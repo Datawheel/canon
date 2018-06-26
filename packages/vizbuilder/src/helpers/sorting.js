@@ -1,7 +1,14 @@
 import union from "lodash/union";
-import {isTimeDimension} from "./validation";
+import {makeRandomId} from "./random";
+
+const cutChars = string => `${string}-----`.substr(0, 5);
+
+export function isTimeDimension(dimension) {
+  return dimension.dimensionType === 1 || dimension.name === "Date";
+}
 
 export function injectCubeInfoOnMeasure(cubes) {
+  // ensure `cubes` is an array
   cubes = [].concat(cubes);
 
   let nCbs = cubes.length;
@@ -12,6 +19,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cbTopic = cube.annotations.topic;
     const cbSubtopic = cube.annotations.subtopic;
     const selectorKey = `${cbTopic}-${cbSubtopic}-`;
+    const sortKey = `${cutChars(cbTopic)}-${cutChars(cbSubtopic)}-`;
     const sourceName = cube.annotations.source_name;
     // const sourceDesc = cube.annotations.source_description;
     // const sourceLink = cube.annotations.source_link;
@@ -22,12 +30,15 @@ export function injectCubeInfoOnMeasure(cubes) {
     while (nMsr--) {
       const measure = cube.measures[nMsr];
       const annotations = measure.annotations;
+      annotations._key = makeRandomId();
       annotations._cb_name = cbName;
       annotations._cb_topic = cbTopic;
       annotations._cb_subtopic = cbSubtopic;
       annotations._cb_sourceName = sourceName;
       annotations._selectorKey =
         selectorKey + (measure.caption || measure.name);
+      annotations._sortKey = `${sortKey}${measure.caption ||
+        measure.name}`.toLowerCase();
       // annotations._source_desc = sourceDesc;
       // annotations._source_link = sourceLink;
       // annotations._dataset_name = datasetName;
@@ -46,6 +57,10 @@ export function getValidMeasures(cubes) {
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
+      // TODO: ensure this is checked server-side and remove
+      if (/\smoe$/i.test(measure.name)) {
+        continue;
+      }
       const key = measure.annotations.error_for_measure;
       if (key === undefined) {
         measures.push(measure);
@@ -59,19 +74,15 @@ export function getValidMeasures(cubes) {
 }
 
 export function getMeasureMOE(cube, measure) {
-  const measureName = measure.name.toLowerCase();
+  const measureName = RegExp(measure.name, "i");
 
   if (cube.measures.indexOf(measure) > -1) {
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const currentMeasure = cube.measures[nMsr];
 
-      const name = currentMeasure.name.toLowerCase();
-      // TODO: update this condition when `error_for_measure` gets implemented
-      if (
-        currentMeasure.annotations.error_for_measure &&
-        name.indexOf(measureName) === 0
-      ) {
+      const key = currentMeasure.annotations.error_for_measure;
+      if (key && measureName.test(key)) {
         return currentMeasure;
       }
     }

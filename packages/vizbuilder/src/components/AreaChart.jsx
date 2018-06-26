@@ -106,6 +106,7 @@ class AreaChart extends React.Component {
   render() {
     const {dataset, query} = this.props;
     const {type} = this.state;
+    const year = parseInt(this.state.year, 10) || "All years";
 
     if (!dataset.length) {
       return (
@@ -133,7 +134,7 @@ class AreaChart extends React.Component {
       },
       dimension: query.drilldown ? query.drilldown.name : "",
       groupBy: "",
-      moe: query.moe || null
+      moe: query.moe ? query.moe.name : null
     };
 
     const timeDim = "Year" in dataset[0];
@@ -153,7 +154,7 @@ class AreaChart extends React.Component {
           </option>
         );
       yearSelector =
-        <select onChange={this.selectYear} value={this.state.year}>
+        <select onChange={this.selectYear} value={year}>
           <option value="All years">All years</option>
           {yearOptions}
         </select>
@@ -180,11 +181,9 @@ class AreaChart extends React.Component {
               const config = createConfig(chartConfig);
 
               config.data =
-                this.state.year !== "All years" &&
+                year !== "All years" &&
                 !(/LinePlot|BarChart|StackedArea/).test(itype)
-                  ? dataset.filter(
-                    item => item["ID Year"] === parseInt(this.state.year, 10)
-                  )
+                  ? dataset.filter(item => item["ID Year"] === year)
                   : dataset;
               config.height = type ? 500 : 400;
 
