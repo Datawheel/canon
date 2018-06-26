@@ -25,7 +25,7 @@
       "greeting": "Hi {{username}},",
       "link": "Or copy and paste the following into your browser: {{confirmLink}}",
       "signature": "The {{site}} Team",
-      "title": "E-mail Verification",
+      "title": "Verificacion de Email",
       "welcome": "Welcome to {{site}}!"
     }
   },
@@ -98,6 +98,6 @@
   "home": {
     "body": "home.body",
     "sub": "Here is a sub-title.",
-    "title": "Titulo Canon"
+    "title": "<b>Titulo</b> Canon"
   }
 }

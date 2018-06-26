@@ -53,103 +53,20 @@ const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
 const pixelScript = process.env.CANON_FACEBOOK_PIXEL === undefined ? ""
   : `<!-- Facebook Pixel -->
   <script> !function(f,b,e,v,n,t,s) {if(f.fbq)return;n=f.fbq=function(){
-    n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)}; 
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0'; 
-    n.queue=[];t=b.createElement(e);t.async=!0; t.src=v;s=b.getElementsByTagName(e)[0]; 
-    s.parentNode.insertBefore(t,s)}(window,document,'script', 'https://connect.facebook.net/en_US/fbevents.js'); 
-    fbq('init', '${process.env.CANON_FACEBOOK_PIXEL}'); fbq('track', 'PageView'); 
+    n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0; t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window,document,'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '${process.env.CANON_FACEBOOK_PIXEL}'); fbq('track', 'PageView');
   </script>
   <!-- End Facebook Pixel -->`;
 
-export default function(defaultStore = {}, i18n, headerConfig) {
+export default function(defaultStore = {}, headerConfig) {
 
   return function(req, res) {
 
-    function fetchResource(lng) {
-      if (!lng) return undefined;
-      if (lng.indexOf("-") === 2 || lng.indexOf("_") === 2) lng = lng.slice(0, 2);
-      return [lng, i18n.getResourceBundle(lng, i18n.options.defaultNS)];
-    }
-
-    // Set the current language of the app using 7 different strategies
-    let locale, resources;
-
-    // 1st strategy: check the subdomain:
-    // i.e. de.myapp.com would set the language to German
-    if (req.headers.host.indexOf(".") > 0) {
-      const ret = fetchResource(req.headers.host.split(".")[0]);
-      if (ret) {
-        locale = ret[0];
-        resources = ret[1];
-      }
-    }
-
-    // 2nd strategy: check the URL query str for a 'lang' key:
-    // i.e. myapp.com?lang=de would set the language to German
-    if (resources === undefined) {
-      const ret = fetchResource(req.query.lang);
-      if (ret) {
-        locale = ret[0];
-        resources = ret[1];
-      }
-    }
-
-    // 3rd strategy: check the URL query str for a 'language' key:
-    // i.e. myapp.com?language=de would set the language to German
-    if (resources === undefined) {
-      const ret = fetchResource(req.query.language);
-      if (ret) {
-        locale = ret[0];
-        resources = ret[1];
-      }
-    }
-
-    // 4th strategy: check the URL query str for a 'locale' key:
-    // i.e. myapp.com?locale=de would set the language to German
-    if (resources === undefined) {
-      const ret = fetchResource(req.query.locale);
-      if (ret) {
-        locale = ret[0];
-        resources = ret[1];
-      }
-    }
-
-    // 5th strategy: check the first element of the URL path and see if it matches
-    // anything in the CANON_LANGUAGES env var
-    if (resources === undefined) {
-      const splitPath = req.path.split("/");
-      const CANON_LANGUAGES = process.env.CANON_LANGUAGES || false;
-      if (CANON_LANGUAGES && splitPath.length > 1) {
-        const firstPathElem = splitPath[1];
-        if (CANON_LANGUAGES.split(",").includes(firstPathElem)) {
-          const ret = fetchResource(firstPathElem);
-          if (ret) {
-            locale = ret[0];
-            resources = ret[1];
-          }
-        }
-      }
-    }
-
-    // 6th strategy: check the request headers for a language:
-    // many browsers by default will send a language
-    if (resources === undefined) {
-      const ret = fetchResource(req.language);
-      if (ret) {
-        locale = ret[0];
-        resources = ret[1];
-      }
-    }
-
-    // 7th strategy: fallback to whatever the CANON_LANGUAGE_DEFAULT environment
-    // var is set to, if it's not set use english
-    if (resources === undefined) {
-      const ret = fetchResource(process.env.CANON_LANGUAGE_DEFAULT || "en");
-      if (ret) {
-        locale = ret[0];
-        resources = ret[1];
-      }
-    }
+    const locale = req.i18n.language,
+          resources = req.i18n.getResourceBundle(req.i18n.language);
 
     const windowLocation = {
       basename,
@@ -168,7 +85,6 @@ export default function(defaultStore = {}, i18n, headerConfig) {
     const history = createMemoryHistory({basename, entries: [location]});
     const store = configureStore({i18n: {locale, resources}, location: windowLocation, ...defaultStore}, history);
     const routes = createRoutes(store);
-    i18n.changeLanguage(locale);
     const rtl = ["ar", "he"].includes(locale);
 
     match({history, routes}, (err, redirect, props) => {
@@ -182,7 +98,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
           .then(() => {
             const initialState = store.getState();
             const componentHTML = renderToString(
-              <CanonProvider helmet={headerConfig} i18n={i18n} locale={locale} store={store}>
+              <CanonProvider helmet={headerConfig} i18n={req.i18n} locale={locale} store={store}>
                 <RouterContext {...props} />
               </CanonProvider>
             );
@@ -212,7 +128,7 @@ export default function(defaultStore = {}, i18n, headerConfig) {
 
     <script>
       window.__SSR__ = true;
-      window.__APP_NAME__ = "${ i18n.options.defaultNS }";
+      window.__APP_NAME__ = "${ req.i18n.options.defaultNS }";
       window.__HELMET_DEFAULT__ = ${ serialize(headerConfig, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
       window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
     </script>

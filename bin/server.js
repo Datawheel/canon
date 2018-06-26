@@ -68,8 +68,8 @@ function resolve(file) {
 
 }
 
-const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
-const LANGUAGES = process.env.CANON_LANGUAGES || "en";
+const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
+const LANGUAGES = process.env.CANON_LANGUAGES || "canon";
 
 shell.echo(chalk.bold("\n\n 📂  Gathering Resources\n"));
 const store = resolve("store.js") || {};
@@ -87,10 +87,6 @@ store.env = {
 
 const headerConfig = resolve("helmet.js") || {};
 
-const i18n = require("i18next");
-const Backend = require("i18next-node-fs-backend");
-const i18nMiddleware = require("i18next-express-middleware");
-
 shell.cp(path.join(appDir, "node_modules/normalize.css/normalize.css"), path.join(staticPath, "assets/normalize.css"));
 
 const blueprintInput = path.join(appDir, "node_modules/@blueprintjs/core/");
@@ -99,14 +95,26 @@ shell.mkdir("-p", path.join(blueprintOutput, "dist"));
 shell.cp(path.join(blueprintInput, "dist/blueprint.css"), path.join(blueprintOutput, "dist/blueprint.css"));
 shell.cp("-r", path.join(blueprintInput, "resources"), path.join(blueprintOutput, "resources"));
 
+const i18n = require("i18next");
+const Backend = require("i18next-node-fs-backend");
+const i18nMiddleware = require("i18next-express-middleware");
+
+const lngDetector = new i18nMiddleware.LanguageDetector();
+fs.readdirSync(path.join(canonPath, "src/i18n/detection/"))
+  .filter(file => file && file.indexOf(".") !== 0)
+  .forEach(file => {
+    lngDetector.addDetector(require(path.join(canonPath, "src/i18n/detection/", file)));
+  });
+
 i18n
   .use(Backend)
-  .use(i18nMiddleware.LanguageDetector)
+  .use(lngDetector)
   .init({
 
-    fallbackLng: "canon",
+    fallbackLng: LANGUAGE_DEFAULT,
     lng: LANGUAGE_DEFAULT,
     preload: LANGUAGES ? LANGUAGES.split(",") : LANGUAGE_DEFAULT,
+    whitelist: LANGUAGES ? LANGUAGES.split(",") : LANGUAGE_DEFAULT,
 
     // have a common namespace used around the full app
     ns: [name],
@@ -114,13 +122,13 @@ i18n
 
     debug: process.env.NODE_ENV !== "production" ? yn(process.env.CANON_LOGLOCALE) : false,
 
-    interpolation: {
-      escapeValue: false // not needed for react!!
-    },
-
     backend: {
       loadPath: path.join(appDir, "locales/{{lng}}/{{ns}}.json"),
       jsonIndent: 2
+    },
+
+    detection: {
+      order: ["domain", "query", "path", "header"]
     }
 
   });
@@ -293,7 +301,7 @@ async function start() {
     app.use(helmet({frameguard: FRAMEGUARD === void 0 ? false : FRAMEGUARD}));
   }
 
-  app.get("*", App.default(store, i18n, headerConfig));
+  app.get("*", App.default(store, headerConfig));
 
   app.listen(PORT);
 

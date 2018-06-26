@@ -5,7 +5,7 @@ const fs = require("fs"),
 const locales = process.env.CANON_LANGUAGES || "en";
 const {name} = JSON.parse(shell.cat("package.json"));
 
-const localePath = path.join(__dirname, "../src/locale.js");
+const localePath = path.join(__dirname, "../src/i18n/canon.js");
 
 const defaultLocale = JSON.parse(shell.cat(localePath).replace(/^[^{]+/g, "").slice(0, -2));
 
