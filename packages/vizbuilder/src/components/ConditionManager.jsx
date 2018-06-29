@@ -12,7 +12,7 @@ import {getValidDrilldowns, getValidMeasures} from "../helpers/sorting";
 
 import ConditionItem from "./ConditionItem";
 
-import "./ConditionManager.css";
+import "./_ConditionManager.css";
 
 class ConditionManager extends React.Component {
   constructor(props) {

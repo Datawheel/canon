@@ -5,7 +5,7 @@ import createConfig from "../helpers/chartconfig";
 import {charts} from "../helpers/chartconfig";
 import ChartCard from "./ChartCard";
 
-import "./AreaChart.css";
+import "./_AreaChart.css";
 
 class AreaChart extends React.Component {
   constructor(props) {

@@ -9,7 +9,7 @@ import ConditionalAnchor from "./ConditionalAnchor";
 import LevelSelect from "./LevelSelect";
 import MeasureSelect from "./MeasureSelect";
 
-import "./AreaSidebar.css";
+import "./_AreaSidebar.css";
 import BaseSelect from "./BaseSelect";
 
 class AreaSidebar extends React.PureComponent {

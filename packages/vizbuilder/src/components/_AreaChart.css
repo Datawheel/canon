@@ -18,14 +18,46 @@
 
   & .chart-card {
     width: 100%;
+    min-width: 300px;
     transition: all 0.2s ease-in-out;
 
+    & > .wrapper {
+      display: flex;
+      flex-flow: column nowrap;
+      margin: 10px;
+      padding: 15px 25px;
+    }
+
+    & header {
+      flex: 0 0;
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    & .viz {
+      flex: 1 0;
+      margin: 1rem 0;
+
+      & > svg {
+        display: block;
+        max-width: 100%;
+      }
+    }
+
     & footer {
+      flex: 1 0;
       display: flex;
       flex-flow: row nowrap;
       justify-content: flex-end;
+
+      & .source-note {
+        flex: 1 0;
+      }
     }
   }
+
 }
 
 @media screen and (min-width: 1200px) {

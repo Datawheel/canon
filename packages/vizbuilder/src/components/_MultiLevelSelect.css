@@ -5,14 +5,10 @@
 
 .mlsel-popover-content {}
 
-.mlsel-filter-group {
-  margin-bottom: 4px;
-}
-
 .mlsel-filter-input {}
 
 .mlsel-filter-reset {}
 
-.mlsel-select-list {
-  margin-top: 5px;
+.mlsel-filter-group + .mlsel-select-list {
+  padding-top: 5px;
 }

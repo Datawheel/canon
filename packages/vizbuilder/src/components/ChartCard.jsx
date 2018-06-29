@@ -2,8 +2,6 @@ import React from "react";
 
 import {charts} from "../helpers/chartconfig";
 
-import "./ChartCard.css";
-
 class ChartCard extends React.Component {
   render() {
     const {type, config, header, footer} = this.props;

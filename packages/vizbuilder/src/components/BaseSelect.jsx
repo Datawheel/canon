@@ -6,7 +6,7 @@ import {Icon} from "@blueprintjs/core/dist/esm/components/icon/icon";
 import {MultiSelect} from "@blueprintjs/labs/dist/esm/components/select/multiSelect";
 import {Select} from "@blueprintjs/labs/dist/esm/components/select/select";
 
-import "./BaseSelect.css";
+import "./_BaseSelect.css";
 
 function BaseSelect(props) {
   props = {

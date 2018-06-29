@@ -4,7 +4,7 @@ import {Popover2} from "@blueprintjs/labs";
 
 import VirtualListWrapper from "./VirtualListWrapper";
 
-import "./MultiLevelSelect.css";
+import "./_MultiLevelSelect.css";
 
 class MultiLevelSelect extends React.Component {
   constructor(props) {
