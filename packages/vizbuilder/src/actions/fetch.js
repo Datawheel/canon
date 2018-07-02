@@ -54,10 +54,9 @@ export function fetchMembers(level) {
 
 export function fetchQuery() {
   const {query} = this.props;
-  const {datasetUpdate} = this.context;
 
   return api.query(query).then(result => {
     const data = result.data || {};
-    return datasetUpdate(data.data);
+    return {dataset: data.data || []};
   });
 }

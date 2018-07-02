@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import {Intent} from "@blueprintjs/core";
 import classnames from "classnames";
 
-import {datasetUpdate, loadWrapper, stateUpdate} from "./actions/mutations";
+import {loadControl, setStatePromise} from "./actions/loadstate";
 import AreaChart from "./components/AreaChart";
 import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
@@ -21,15 +21,13 @@ class Vizbuilder extends React.PureComponent {
     initClient(props.src);
     this.state = initialState();
 
-    this.datasetUpdate = datasetUpdate.bind(this);
-    this.loadWrapper = loadWrapper.bind(this);
-    this.stateUpdate = stateUpdate.bind(this);
+    this.loadControl = loadControl.bind(this);
+    this.stateUpdate = this.stateUpdate.bind(this);
   }
 
   getChildContext() {
     return {
-      datasetUpdate: this.datasetUpdate,
-      loadWrapper: this.loadWrapper,
+      loadControl: this.loadControl,
       stateUpdate: this.stateUpdate
     };
   }
@@ -52,11 +50,27 @@ class Vizbuilder extends React.PureComponent {
       </div>
     );
   }
+
+  stateUpdate(newState) {
+    return setStatePromise.call(this, state => {
+      const finalState = {};
+      const keys = Object.keys(newState);
+
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        finalState[key] = {
+          ...state[key],
+          ...newState[key]
+        };
+      }
+
+      return finalState;
+    });
+  }
 }
 
 Vizbuilder.childContextTypes = {
-  datasetUpdate: PropTypes.func,
-  loadWrapper: PropTypes.func,
+  loadControl: PropTypes.func,
   stateUpdate: PropTypes.func
 };
 

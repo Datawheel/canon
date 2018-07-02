@@ -15,9 +15,9 @@ import {
 
 export function setMeasure(measure) {
   const {options, query} = this.props;
-  const {loadWrapper, stateUpdate} = this.context;
+  const {loadControl} = this.context;
 
-  return loadWrapper(() => {
+  return loadControl(() => {
     const cubeName = measure.annotations._cb_name;
     const cube = options.cubes.find(cube => cube.name === cubeName);
     const moe = getMeasureMOE(cube, measure);
@@ -31,73 +31,42 @@ export function setMeasure(measure) {
 
     const conditions = query.cube === cube ? query.conditions : [];
 
-    return stateUpdate({
+    return {
       options: {dimensions, levels},
       query: {cube, measure, moe, dimension, drilldown, timeDrilldown, conditions}
-    });
+    };
   }, this.fetchQuery);
 }
 
 export function setDimension(dimension) {
-  const {loadWrapper, stateUpdate} = this.context;
+  const {loadControl} = this.context;
 
-  return loadWrapper(() => {
+  return loadControl(() => {
     const levels = reduceLevelsFromDimension([], dimension);
     const drilldown = levels[0];
 
-    return stateUpdate({
+    return {
       options: {levels},
       query: {dimension, drilldown}
-    });
+    };
   }, this.fetchQuery);
 }
 
-// export function addDrilldown(level) {
-//   const {options, query} = this.props;
-//   const {loadWrapper, stateUpdate} = this.context;
-
-//   if (options.levels.indexOf(level) > -1) {
-//     return loadWrapper(() => {
-//       const drilldowns = joinDrilldownList(query.drilldowns, level);
-//       return stateUpdate({query: {drilldowns}});
-//     }, this.fetchQuery);
-//   }
-
-//   return undefined;
-// }
-
 export function setDrilldown(level) {
   const {options} = this.props;
-  const {loadWrapper, stateUpdate} = this.context;
+  const {loadControl} = this.context;
 
   if (options.levels.indexOf(level) > -1) {
-    return loadWrapper(() => {
-      const drilldown = level;
-      return stateUpdate({query: {drilldown}});
-    }, this.fetchQuery);
+    return loadControl(() => ({query: {drilldown: level}}), this.fetchQuery);
   }
 
   return undefined;
 }
 
-// export function removeDrilldown(levelName) {
-//   const {options, query} = this.props;
-//   const {stateUpdate} = this.context;
-
-//   levelName = levelName.split(" › ").pop();
-//   const level = options.levels.find(lvl => lvl.name === levelName);
-
-//   if (level && !(/\[date\]/i).test(level.fullName)) {
-//     const drilldowns = query.drilldowns.filter(lvl => lvl !== level);
-//     stateUpdate({query: {drilldowns}}).then(this.fetchQuery);
-//   }
-// }
-
 export function addCondition() {
   const {conditions} = this.props.query;
-  const {loadWrapper, stateUpdate} = this.context;
+  const {stateUpdate} = this.context;
 
-  loadWrapper(() => {
     const newConditions = [].concat(conditions, {
       hash: makeRandomId(),
       operator: OPERATORS.EQUAL,
@@ -105,35 +74,31 @@ export function addCondition() {
       type: "cut",
       values: []
     });
-    return stateUpdate({query: {conditions: newConditions}});
-  }, this.fetchQuery);
+  return stateUpdate({query: {conditions: newConditions}});
 }
 
 export function updateCondition(condition) {
   const {conditions} = this.props.query;
-  const {loadWrapper, stateUpdate} = this.context;
+  const {loadControl} = this.context;
 
   const index = conditions.findIndex(cond => cond.hash === condition.hash);
 
   if (index > -1) {
-    loadWrapper(() => {
+    loadControl(() => {
       const newConditions = conditions.slice();
       newConditions.splice(index, 1, condition);
-      return stateUpdate({query: {conditions: newConditions}});
+      return {query: {conditions: newConditions}};
     }, this.fetchQuery);
   }
 }
 
 export function removeCondition(condition) {
   const {conditions} = this.props.query;
-  const {loadWrapper, stateUpdate} = this.context;
+  const {loadControl} = this.context;
 
   const newConditions = conditions.filter(cond => cond.hash !== condition.hash);
 
   if (newConditions.length < conditions.length) {
-    loadWrapper(
-      () => stateUpdate({query: {conditions: newConditions}}),
-      this.fetchQuery
-    );
+    loadControl(() => ({query: {conditions: newConditions}}), this.fetchQuery);
   }
 }

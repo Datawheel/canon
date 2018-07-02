@@ -23,7 +23,7 @@ class AreaSidebar extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.context.loadWrapper(fetchCubes.bind(this), this.fetchQuery);
+    this.context.loadControl(fetchCubes.bind(this), this.fetchQuery);
   }
 
   render() {
@@ -100,9 +100,7 @@ class AreaSidebar extends React.PureComponent {
 }
 
 AreaSidebar.contextTypes = {
-  datasetUpdate: PropTypes.func,
-  loadWrapper: PropTypes.func,
-  stateUpdate: PropTypes.func
+  loadControl: PropTypes.func
 };
 
 export default AreaSidebar;
