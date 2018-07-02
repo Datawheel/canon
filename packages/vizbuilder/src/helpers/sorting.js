@@ -1,7 +1,8 @@
+import sort from "fast-sort";
 import union from "lodash/union";
-import {makeRandomId} from "./random";
+import {unique} from "shorthash";
 
-const cutChars = string => `${string}-----`.substr(0, 5);
+import {sortSlice} from "./random";
 
 export function isTimeDimension(dimension) {
   return dimension.dimensionType === 1 || dimension.name === "Date";
@@ -18,19 +19,22 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cbName = cube.caption || cube.name;
     const cbTopic = cube.annotations.topic;
     const cbSubtopic = cube.annotations.subtopic;
-    const selectorKey = `${cbTopic}-${cbSubtopic}-`;
-    const sortKey = `${cutChars(cbTopic)}-${cutChars(cbSubtopic)}-`;
+    const selectorKey = `${cbTopic}_${cbSubtopic}_`;
+    const sortKey = sortSlice(selectorKey);
     const sourceName = cube.annotations.source_name;
     // const sourceDesc = cube.annotations.source_description;
     // const sourceLink = cube.annotations.source_link;
     // const datasetName = cube.annotations.dataset_name;
     // const datasetLink = cube.annotations.dataset_link;
 
+    cube.annotations._key = unique(cbName);
+
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
       const annotations = measure.annotations;
-      annotations._key = makeRandomId();
+
+      annotations._key = unique(`${cbName} ${measure.name}`);
       annotations._cb_name = cbName;
       annotations._cb_topic = cbTopic;
       annotations._cb_subtopic = cbSubtopic;
@@ -43,6 +47,24 @@ export function injectCubeInfoOnMeasure(cubes) {
       // annotations._source_link = sourceLink;
       // annotations._dataset_name = datasetName;
       // annotations._dataset_link = datasetLink;
+    }
+
+    let nDim = cube.dimensions.length;
+    while (nDim--) {
+      const dimension = cube.dimensions[nDim];
+      const keyPrefix = `${cbName} ${dimension.name} `;
+
+      let nHie = dimension.hierarchies.length;
+      while (nHie--) {
+        const hierarchy = dimension.hierarchies[nHie];
+
+        let nLvl = hierarchy.levels.length;
+        while (nLvl--) {
+          const level = hierarchy.levels[nLvl];
+
+          level.annotations._key = unique(keyPrefix + level.name);
+        }
+      }
     }
   }
 }
@@ -68,9 +90,7 @@ export function getValidMeasures(cubes) {
     }
   }
 
-  return measures.sort((a, b) =>
-    a.annotations._selectorKey.localeCompare(b.annotations._selectorKey)
-  );
+  return sort(measures).asc(a => a.annotations._selectorKey);
 }
 
 export function getMeasureMOE(cube, measure) {
@@ -95,8 +115,9 @@ export function getValidDimensions(cube) {
   return cube.dimensions.filter(dim => !isTimeDimension(dim));
 }
 
-export function getValidDrilldowns(cube) {
-  return getValidDimensions(cube).reduce(reduceLevelsFromDimension, []);
+export function getValidDrilldowns(dimensions) {
+  // TODO: check if it's necessary to prepare this for NamedSets
+  return dimensions.reduce(reduceLevelsFromDimension, []);
 }
 
 export function reduceLevelsFromDimension(container, dimension) {
@@ -112,9 +133,8 @@ export function reduceLevelsFromHierarchy(container, hierarchy) {
 export function joinDrilldownList(array, drilldown) {
   array = array.filter(dd => dd.hierarchy !== drilldown.hierarchy);
   drilldown = [].concat(drilldown || []);
-  return union(array, drilldown).sort(
-    (a, b) =>
-      a.hierarchy.dimension.dimensionType - b.hierarchy.dimension.dimensionType
+  return sort(union(array, drilldown)).asc(
+    a => a.hierarchy.dimension.dimensionType
   );
 }
 
