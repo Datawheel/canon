@@ -1,11 +1,12 @@
 import * as api from "../helpers/api";
 import {
-  reduceLevelsFromDimension,
   getMeasureMOE,
   getTimeDrilldown,
+  getValidDimensions,
+  getValidDrilldowns,
   getValidMeasures,
   injectCubeInfoOnMeasure,
-  getValidDimensions
+  reduceLevelsFromDimension
 } from "../helpers/sorting";
 
 /**
@@ -13,39 +14,50 @@ import {
  * as the component where they are used.
  */
 
-export function fetchCubes() {
-  return api
-    .cubes()
-    .then(cubes => {
-      injectCubeInfoOnMeasure(cubes);
+const findByKeyOrFirst = (key, array) =>
+  key
+    ? array.find(item => item.annotations._key === key) || array[0]
+    : array[0];
 
-      const measures = getValidMeasures(cubes);
-      const firstMeasure = measures[0];
-      const firstCubeName = firstMeasure.annotations._cb_name;
-      const firstCube = cubes.find(cube => cube.name === firstCubeName);
-      const firstMoe = getMeasureMOE(firstCube, firstMeasure);
-      const timeDrilldown = getTimeDrilldown(firstCube);
+export function fetchCubes(locationQuery) {
+  return api.cubes().then(cubes => {
+    injectCubeInfoOnMeasure(cubes);
 
-      const dimensions = getValidDimensions(firstCube);
-      const firstDimension = dimensions[0];
+    const measures = getValidMeasures(cubes);
+    const firstMeasure = findByKeyOrFirst(locationQuery.ms, measures);
+    const firstCubeName = firstMeasure.annotations._cb_name;
+    const firstCube = cubes.find(cube => cube.name === firstCubeName);
+    const firstMoe = getMeasureMOE(firstCube, firstMeasure);
+    const timeDrilldown = getTimeDrilldown(firstCube);
 
-      const levels = reduceLevelsFromDimension([], firstDimension);
-      const drilldown = levels[0];
+    const dimensions = getValidDimensions(firstCube);
+    const drilldowns = getValidDrilldowns(dimensions);
 
-      return {
-        options: {cubes, measures, dimensions, levels},
-        query: {
-          cube: firstCube,
-          measure: firstMeasure,
-          moe: firstMoe,
-          dimension: firstDimension,
-          drilldown,
-          timeDrilldown,
-          conditions: []
-        }
-      };
-    })
-    .then(this.context.stateUpdate);
+    let drilldown, firstDimension, levels;
+    if ("dd" in locationQuery) {
+      drilldown = findByKeyOrFirst(locationQuery.dd, drilldowns);
+      firstDimension = drilldown.hierarchy.dimension;
+      levels = reduceLevelsFromDimension([], firstDimension);
+    }
+    else {
+      firstDimension = dimensions[0];
+      levels = reduceLevelsFromDimension([], firstDimension);
+      drilldown = levels[0];
+    }
+
+    return {
+      options: {cubes, measures, dimensions, drilldowns, levels},
+      query: {
+        cube: firstCube,
+        measure: firstMeasure,
+        moe: firstMoe,
+        dimension: firstDimension,
+        drilldown,
+        timeDrilldown,
+        conditions: []
+      }
+    };
+  });
 }
 
 export function fetchMembers(level) {
@@ -54,9 +66,15 @@ export function fetchMembers(level) {
 
 export function fetchQuery() {
   const {query} = this.props;
+  return Promise.all([api.query(query), api.members(query.drilldown)]).then(
+    results => {
+      const data = results[0].data || {};
+      const members = results[1];
 
-  return api.query(query).then(result => {
-    const data = result.data || {};
-    return {dataset: data.data || []};
-  });
+      return {
+        options: {members},
+        dataset: data.data || []
+      };
+    }
+  );
 }

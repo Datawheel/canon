@@ -4,7 +4,8 @@ import {
   getMeasureMOE,
   getTimeDrilldown,
   getValidDimensions,
-  reduceLevelsFromDimension
+  reduceLevelsFromDimension,
+  getValidDrilldowns
 } from "../helpers/sorting";
 
 /*
@@ -24,15 +25,16 @@ export function setMeasure(measure) {
     const timeDrilldown = getTimeDrilldown(cube);
 
     const dimensions = getValidDimensions(cube);
-    const dimension = dimensions[0];
+    const drilldowns = getValidDrilldowns(dimensions);
 
+    const dimension = dimensions[0];
     const levels = reduceLevelsFromDimension([], dimension);
     const drilldown = levels[0];
 
     const conditions = query.cube === cube ? query.conditions : [];
 
     return {
-      options: {dimensions, levels},
+      options: {dimensions, drilldowns, levels},
       query: {cube, measure, moe, dimension, drilldown, timeDrilldown, conditions}
     };
   }, this.fetchQuery);
@@ -67,13 +69,13 @@ export function addCondition() {
   const {conditions} = this.props.query;
   const {stateUpdate} = this.context;
 
-    const newConditions = [].concat(conditions, {
-      hash: makeRandomId(),
-      operator: OPERATORS.EQUAL,
-      property: "",
-      type: "cut",
-      values: []
-    });
+  const newConditions = [].concat(conditions, {
+    hash: makeRandomId(),
+    operator: OPERATORS.EQUAL,
+    property: "",
+    type: "cut",
+    values: []
+  });
   return stateUpdate({query: {conditions: newConditions}});
 }
 

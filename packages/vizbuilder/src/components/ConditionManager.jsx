@@ -8,7 +8,6 @@ import {
   updateCondition
 } from "../actions/events";
 import {fetchQuery} from "../actions/fetch";
-import {getValidDrilldowns, getValidMeasures} from "../helpers/sorting";
 
 import ConditionItem from "./ConditionItem";
 
@@ -25,11 +24,9 @@ class ConditionManager extends React.Component {
   }
 
   render() {
-    const {conditions, cube} = this.props.query;
-    const properties = [].concat(
-      getValidMeasures(cube),
-      getValidDrilldowns(cube)
-    );
+    const {conditions} = this.props.query;
+    const {measures, drilldowns} = this.props.options;
+    const properties = [].concat(measures, drilldowns);
 
     return (
       <div className="group condition-manager">

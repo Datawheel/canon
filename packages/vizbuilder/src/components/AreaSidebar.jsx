@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import queryString from "query-string";
 
 import {setDimension, setDrilldown, setMeasure} from "../actions/events";
 import {fetchCubes, fetchQuery} from "../actions/fetch";
@@ -23,7 +24,8 @@ class AreaSidebar extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.context.loadControl(fetchCubes.bind(this), this.fetchQuery);
+    const query = queryString.parse(window.location.search);
+    this.context.loadControl(fetchCubes.bind(this, query), this.fetchQuery);
   }
 
   render() {
@@ -69,7 +71,7 @@ class AreaSidebar extends React.PureComponent {
             />
           </div>
 
-          <ConditionManager query={query} />
+          <ConditionManager query={query} options={options} />
         </div>
         {this.renderSourceBlock.call(this)}
       </div>

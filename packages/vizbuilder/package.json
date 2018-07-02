@@ -18,9 +18,12 @@
     "@blueprintjs/core": "^1.35.7",
     "@blueprintjs/labs": "^0.14.4",
     "classnames": "^2.2.5",
+    "fast-sort": "^1.5.1",
     "lodash": "^4.17.10",
     "mondrian-rest-client": "^1.0.3",
-    "react-tiny-virtual-list": "^2.1.4"
+    "query-string": "^6.1.0",
+    "react-tiny-virtual-list": "^2.1.4",
+    "shorthash": "^0.0.2"
   },
   "devDependencies": {
     "@types/react": "^15.6.2",
