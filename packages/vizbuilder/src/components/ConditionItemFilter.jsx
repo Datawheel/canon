@@ -31,7 +31,7 @@ function FilterItemMeasure(props) {
         </div>
         <NumericInput
           className="pt-fill"
-          value={props.values[0] || 0}
+          value={props.values[0]}
           onValueChange={props.onSetValue}
         />
       </div>

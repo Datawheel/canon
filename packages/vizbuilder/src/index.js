@@ -8,7 +8,7 @@ import AreaChart from "./components/AreaChart";
 import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
 import {ErrorToaster} from "./components/ErrorToaster";
-import {initClient} from "./helpers/api";
+import {resetClient} from "./helpers/api";
 import initialState from "./state";
 
 import "@blueprintjs/labs/dist/blueprint-labs.css";
@@ -18,7 +18,7 @@ class Vizbuilder extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    initClient(props.src);
+    resetClient(props.src);
     this.state = initialState();
 
     this.loadControl = loadControl.bind(this);
@@ -33,6 +33,12 @@ class Vizbuilder extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const {src} = this.props;
+    if (src && prevProps.src !== src) {
+      resetClient(src);
+      this.setState(initialState());
+    }
+
     const {error} = this.state.load;
     if (error && prevState.load.error !== error) {
       console.error(error.stack);

@@ -1,5 +1,9 @@
 import {SYMBOLS as OPERATOR_SYMBOLS} from "./operators";
 
+export function isValidCondition(condition) {
+  return isValidFilter(condition) || isValidCut(condition);
+}
+
 export function isValidFilter(condition) {
   return (
     condition.type === "filter" &&

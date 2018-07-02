@@ -5,7 +5,7 @@ import {queryBuilder, queryConverter} from "./query";
 let client;
 let lastPath, lastQuery;
 
-export function initClient(src) {
+export function resetClient(src) {
   client = new Client(src);
 }
 
