@@ -9,12 +9,14 @@ export function isTimeDimension(dimension) {
 }
 
 export function injectCubeInfoOnMeasure(cubes) {
-  // ensure `cubes` is an array
-  cubes = [].concat(cubes);
-
   let nCbs = cubes.length;
   while (nCbs--) {
     const cube = cubes[nCbs];
+
+    if (cube.annotations.hide_in_ui) {
+      cubes.splice(nCbs, 1);
+      continue;
+    }
 
     const cbName = cube.caption || cube.name;
     const cbTopic = cube.annotations.topic;
