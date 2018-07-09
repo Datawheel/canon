@@ -33,13 +33,19 @@ class Vizbuilder extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const {src} = this.props;
+    const {src, datasetDidChange} = this.props;
+    const {dataset, load} = this.state;
+    const {error} = load;
+
     if (src && prevProps.src !== src) {
       resetClient(src);
       this.setState(initialState());
     }
 
-    const {error} = this.state.load;
+    if (datasetDidChange && dataset !== prevState.dataset) {
+      datasetDidChange(dataset);
+    }
+
     if (error && prevState.load.error !== error) {
       console.error(error.stack);
       ErrorToaster.show({intent: Intent.WARNING, message: error.message});
@@ -78,6 +84,12 @@ class Vizbuilder extends React.PureComponent {
 Vizbuilder.childContextTypes = {
   loadControl: PropTypes.func,
   stateUpdate: PropTypes.func
+};
+
+Vizbuilder.propTypes = {
+  src: PropTypes.string,
+  datasetWillChange: PropTypes.func,
+  datasetDidChange: PropTypes.func
 };
 
 export default Vizbuilder;
