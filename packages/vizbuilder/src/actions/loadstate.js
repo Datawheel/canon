@@ -69,8 +69,8 @@ export function mergeStates(state, newState) {
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    if (key === "dataset") {
-      finalState.dataset = newState.dataset;
+    if ("dataset|members".includes(key)) {
+      finalState[key] = newState[key];
     }
     else {
       finalState[key] = {

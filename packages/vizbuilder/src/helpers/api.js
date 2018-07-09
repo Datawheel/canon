@@ -1,5 +1,6 @@
 import {Client} from "mondrian-rest-client";
 import {queryBuilder, queryConverter} from "./query";
+import {getIncludedMembers} from "./sorting";
 
 /** @type {Client} */
 let client;
@@ -27,7 +28,13 @@ export function query(params) {
   const newPath = query.path();
   if (newPath !== lastPath) {
     lastPath = newPath;
-    lastQuery = client.query(query, params.format || "jsonrecords");
+    lastQuery = client
+      .query(query, params.format || "jsonrecords")
+      .then(result => {
+        const dataset = (result.data || {}).data || [];
+        const members = getIncludedMembers(query, dataset);
+        return {dataset, members};
+      });
   }
 
   return Promise.resolve(lastQuery);

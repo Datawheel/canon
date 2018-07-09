@@ -21,6 +21,7 @@ const findByKeyOrFirst = (key, array) =>
 
 export function fetchCubes(locationQuery) {
   return api.cubes().then(cubes => {
+    locationQuery = locationQuery || {};
     injectCubeInfoOnMeasure(cubes);
 
     const measures = getValidMeasures(cubes);
@@ -55,6 +56,9 @@ export function fetchCubes(locationQuery) {
         drilldown,
         timeDrilldown,
         conditions: []
+      },
+      queryOptions: {
+        parents: drilldown.depth > 1
       }
     };
   });
@@ -65,16 +69,9 @@ export function fetchMembers(level) {
 }
 
 export function fetchQuery() {
-  const {query} = this.props;
-  return Promise.all([api.query(query), api.members(query.drilldown)]).then(
-    results => {
-      const data = results[0].data || {};
-      const members = results[1];
-
-      return {
-        options: {members},
-        dataset: data.data || []
-      };
-    }
-  );
+  const {query, queryOptions} = this.props;
+  return api.query({
+    ...query,
+    options: queryOptions
+  });
 }

@@ -47,12 +47,12 @@ class Vizbuilder extends React.PureComponent {
   }
 
   render() {
-    const {dataset, load, options, query} = this.state;
+    const {dataset, load, members, options, query} = this.state;
     return (
       <div className={classnames("vizbuilder", {loading: load.inProgress})}>
         <AreaLoading {...load} />
         <AreaSidebar options={options} query={query} />
-        <AreaChart dataset={dataset} query={query} />
+        <AreaChart dataset={dataset} members={members} query={query} />
       </div>
     );
   }

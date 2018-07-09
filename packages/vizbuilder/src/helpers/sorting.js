@@ -162,3 +162,24 @@ export function composePropertyName(item) {
   }
   return txt;
 }
+
+export function getIncludedMembers(query, dataset) {
+  if (dataset.length) {
+    return query.getDrilldowns().reduce((members, dd) => {
+      const key = dd.name;
+      const set = {};
+
+      let n = dataset.length;
+      while (n--) {
+        const value = dataset[n][key];
+        set[value] = 0;
+      }
+
+      members[key] = Object.keys(set).sort();
+      return members;
+    }, {});
+  }
+  else {
+    return {};
+  }
+}

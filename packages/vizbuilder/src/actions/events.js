@@ -35,7 +35,10 @@ export function setMeasure(measure) {
 
     return {
       options: {dimensions, drilldowns, levels},
-      query: {cube, measure, moe, dimension, drilldown, timeDrilldown, conditions}
+      query: {cube, measure, moe, dimension, drilldown, timeDrilldown, conditions},
+      queryOptions: {
+        parents: drilldown.depth > 1
+      }
     };
   }, this.fetchQuery);
 }
@@ -49,17 +52,28 @@ export function setDimension(dimension) {
 
     return {
       options: {levels},
-      query: {dimension, drilldown}
+      query: {dimension, drilldown},
+      queryOptions: {
+        parents: drilldown.depth > 1
+      }
     };
   }, this.fetchQuery);
 }
 
-export function setDrilldown(level) {
+export function setDrilldown(drilldown) {
   const {options} = this.props;
   const {loadControl} = this.context;
 
-  if (options.levels.indexOf(level) > -1) {
-    return loadControl(() => ({query: {drilldown: level}}), this.fetchQuery);
+  if (options.levels.indexOf(drilldown) > -1) {
+    return loadControl(
+      () => ({
+        query: {drilldown},
+        queryOptions: {
+          parents: drilldown.depth > 1
+        }
+      }),
+      this.fetchQuery
+    );
   }
 
   return undefined;
