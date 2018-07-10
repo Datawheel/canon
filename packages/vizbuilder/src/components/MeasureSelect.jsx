@@ -5,10 +5,6 @@ import escapeRegExp from "lodash/escapeRegExp";
 import MultiLevelSelect from "./MultiLevelSelect";
 
 class MeasureSelect extends MultiLevelSelect {
-  getItemHeight(item) {
-    return item._level ? item._level === 1 ? 22 : 28 : 40;
-  }
-
   renderTarget(item) {
     return (
       <div className="select-option current" title={item.caption || item.name}>
@@ -22,6 +18,9 @@ class MeasureSelect extends MultiLevelSelect {
 MeasureSelect.displayName = "MeasureSelect";
 MeasureSelect.defaultProps = {
   ...MultiLevelSelect.defaultProps,
+  getItemHeight(item) {
+    return item._level ? item._level === 1 ? 22 : 28 : 40;
+  },
   itemListPredicate(query, items) {
     query = query.trim();
     query = escapeRegExp(query);

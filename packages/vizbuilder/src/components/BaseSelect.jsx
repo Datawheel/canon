@@ -55,6 +55,7 @@ function BaseSelect(props) {
 BaseSelect.defaultProps = {
   caret: "double-caret-vertical",
   defaultOption: {value: null, name: "Select...", disabled: true},
+  filterable: true,
   items: [],
   itemListPredicate(query, items) {
     query = query.trim();
