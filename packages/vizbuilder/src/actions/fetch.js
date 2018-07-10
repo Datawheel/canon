@@ -6,7 +6,8 @@ import {
   getValidDrilldowns,
   getValidMeasures,
   injectCubeInfoOnMeasure,
-  reduceLevelsFromDimension
+  reduceLevelsFromDimension,
+  preventHierarchyIncompatibility
 } from "../helpers/sorting";
 
 /**
@@ -45,6 +46,8 @@ export function fetchCubes(locationQuery) {
       levels = reduceLevelsFromDimension([], firstDimension);
       drilldown = levels[0];
     }
+
+    preventHierarchyIncompatibility(drilldowns, drilldown);
 
     return {
       options: {cubes, measures, dimensions, drilldowns, levels},

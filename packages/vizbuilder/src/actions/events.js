@@ -4,8 +4,9 @@ import {
   getMeasureMOE,
   getTimeDrilldown,
   getValidDimensions,
+  getValidDrilldowns,
   reduceLevelsFromDimension,
-  getValidDrilldowns
+  preventHierarchyIncompatibility
 } from "../helpers/sorting";
 
 /*
@@ -31,6 +32,8 @@ export function setMeasure(measure) {
     const levels = reduceLevelsFromDimension([], dimension);
     const drilldown = levels[0];
 
+    preventHierarchyIncompatibility(drilldowns, drilldown);
+
     const conditions = query.cube === cube ? query.conditions : [];
 
     return {
@@ -44,14 +47,18 @@ export function setMeasure(measure) {
 }
 
 export function setDimension(dimension) {
+  const {dimensions} = this.props.options;
   const {loadControl} = this.context;
 
   return loadControl(() => {
     const levels = reduceLevelsFromDimension([], dimension);
     const drilldown = levels[0];
 
+    const drilldowns = getValidDrilldowns(dimensions);
+    preventHierarchyIncompatibility(drilldowns, drilldown);
+
     return {
-      options: {levels},
+      options: {drilldowns, levels},
       query: {dimension, drilldown},
       queryOptions: {
         parents: drilldown.depth > 1
@@ -65,15 +72,18 @@ export function setDrilldown(drilldown) {
   const {loadControl} = this.context;
 
   if (options.levels.indexOf(drilldown) > -1) {
-    return loadControl(
-      () => ({
+    return loadControl(() => {
+      const drilldowns = getValidDrilldowns(options.dimensions);
+      preventHierarchyIncompatibility(drilldowns, drilldown);
+
+      return {
+        options: {drilldowns},
         query: {drilldown},
         queryOptions: {
           parents: drilldown.depth > 1
         }
-      }),
-      this.fetchQuery
-    );
+      };
+    }, this.fetchQuery);
   }
 
   return undefined;

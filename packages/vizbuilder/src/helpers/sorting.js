@@ -122,6 +122,21 @@ export function getValidDrilldowns(dimensions) {
   return dimensions.reduce(reduceLevelsFromDimension, []);
 }
 
+export function preventHierarchyIncompatibility(array, interestLevel) {
+  const interestHierarchy = interestLevel.hierarchy;
+
+  let n = array.length;
+  while (n--) {
+    const level = array[n];
+    if (
+      level.hierarchy === interestHierarchy &&
+      level.depth > interestLevel.depth
+    ) {
+      array.splice(n, 1);
+    }
+  }
+}
+
 export function reduceLevelsFromDimension(container, dimension) {
   return isTimeDimension(dimension)
     ? container
