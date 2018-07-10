@@ -1,9 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import queryString from "query-string";
 
 import {setDimension, setDrilldown, setMeasure} from "../actions/events";
-import {fetchCubes, fetchQuery} from "../actions/fetch";
+import {fetchQuery} from "../actions/fetch";
 
 import ConditionManager from "./ConditionManager";
 import ConditionalAnchor from "./ConditionalAnchor";
@@ -21,14 +20,6 @@ class AreaSidebar extends React.PureComponent {
     this.setDimension = setDimension.bind(this);
     this.setDrilldown = setDrilldown.bind(this);
     this.setMeasure = setMeasure.bind(this);
-  }
-
-  componentDidMount() {
-    const locationQuery = queryString.parse(location.search);
-    this.context.loadControl(
-      fetchCubes.bind(this, locationQuery),
-      this.fetchQuery
-    );
   }
 
   render() {

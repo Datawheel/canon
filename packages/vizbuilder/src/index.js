@@ -1,14 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
-import {Intent} from "@blueprintjs/core";
 import classnames from "classnames";
+import queryString from "query-string";
 
+import {fetchCubes} from "./actions/fetch";
 import {loadControl, setStatePromise} from "./actions/loadstate";
 import AreaChart from "./components/AreaChart";
 import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
-import {ErrorToaster} from "./components/ErrorToaster";
-import {resetClient} from "./helpers/api";
+import * as api from "./helpers/api";
 import initialState from "./state";
 
 import "@blueprintjs/labs/dist/blueprint-labs.css";
@@ -18,10 +18,11 @@ class Vizbuilder extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    resetClient(props.src);
+    api.resetClient(props.src);
     this.state = initialState();
 
     this.loadControl = loadControl.bind(this);
+    this.firstLoad = this.firstLoad.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
   }
 
@@ -32,14 +33,19 @@ class Vizbuilder extends React.PureComponent {
     };
   }
 
+  componentDidMount() {
+    const locationQuery = queryString.parse(location.search);
+    this.firstLoad(locationQuery);
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const {src, datasetDidChange} = this.props;
     const {dataset, load} = this.state;
     const {error} = load;
 
     if (src && prevProps.src !== src) {
-      resetClient(src);
-      this.setState(initialState());
+      api.resetClient(src);
+      this.setState(initialState(), this.firstLoad);
     }
 
     if (datasetDidChange && dataset !== prevState.dataset) {
@@ -77,6 +83,16 @@ class Vizbuilder extends React.PureComponent {
       }
 
       return finalState;
+    });
+  }
+
+  firstLoad(locationQuery) {
+    this.loadControl(fetchCubes.bind(this, locationQuery), () => {
+      const {query, queryOptions} = this.state;
+      return api.query({
+        ...query,
+        options: queryOptions
+      });
     });
   }
 }
