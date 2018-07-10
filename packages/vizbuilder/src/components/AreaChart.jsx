@@ -1,8 +1,7 @@
 import React from "react";
-import {Button, NonIdealState} from "@blueprintjs/core";
+import {NonIdealState} from "@blueprintjs/core";
 
-import createConfig from "../helpers/chartconfig";
-import {charts} from "../helpers/chartconfig";
+import createChartConfig, {charts, ALL_YEARS} from "../helpers/chartconfig";
 import ChartCard from "./ChartCard";
 
 import "./_AreaChart.css";
@@ -12,13 +11,15 @@ class AreaChart extends React.Component {
     super(props);
 
     this.state = {
-      chartConfig: {},
-      year: "All years",
-      type: null,
-      annotations: {}
+      activeType: null,
+      year: ALL_YEARS
     };
 
-    this.actions = {};
+    this.actions = Object.keys(charts).reduce((box, type) => {
+      box[type] = this.selectChart.bind(this, type);
+      return box;
+    }, {});
+
     this.resizeCall = undefined;
     this.scrollCall = undefined;
 
@@ -26,20 +27,16 @@ class AreaChart extends React.Component {
     this.selectYear = this.selectYear.bind(this);
   }
 
-  toggleDialog(type = false) {
-    if (type) {
-      this.setState({
-        chartConfig: {
-          type,
-          colorScale: "value",
-          measure: "value",
-          dimension: "parent"
-        }
-      });
-    }
+  shouldComponentUpdate(nextProps, nextState) {
+    return (
+      this.props.dataset !== nextProps.dataset ||
+      this.state.activeType !== nextState.activeType ||
+      this.state.year !== nextState.year
+    );
   }
 
   dispatchScroll() {
+    // TODO: Discuss how could we implement IntersectionObserver
     window.dispatchEvent(new CustomEvent("scroll"));
   }
 
@@ -54,7 +51,7 @@ class AreaChart extends React.Component {
 
   selectChart(type) {
     this.setState(state => ({
-      type: !state.type ? type : null
+      activeType: !state.activeType ? type : null
     }));
 
     clearTimeout(this.resizeCall);
@@ -67,153 +64,60 @@ class AreaChart extends React.Component {
     });
   }
 
-  getAction(type) {
-    if (!(type in this.actions)) {
-      this.actions[type] = this.selectChart.bind(this, type);
-    }
-    return this.actions[type];
-  }
-
-  renderFooter(itype) {
-    const {type} = this.state;
-
-    return (
-      <footer>
-        <Button
-          className="pt-minimal"
-          iconName={type ? "cross" : "zoom-in"}
-          text={type ? "CLOSE" : "ENLARGE"}
-          onClick={this.getAction.call(this, itype)}
-        />
-      </footer>
-    );
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return (
-      this.props.dataset !== nextProps.dataset ||
-      this.state.type !== nextState.type ||
-      this.state.year !== nextState.year
-    );
-  }
-
-  componentDidMount() {
-    this.setState({
-      year: "All years"
-    });
-  }
-
   render() {
-    const {dataset, query} = this.props;
-    const {type} = this.state;
-    const year = parseInt(this.state.year, 10) || "All years";
+    const {dataset, query, members} = this.props;
+    const {activeType} = this.state;
+    const year = parseInt(this.state.year, 10) || ALL_YEARS;
 
     if (!dataset.length) {
       return (
         <div className="area-chart empty">
-          <NonIdealState visual="square" title="Empty dataset" />
+          <NonIdealState visual="error" title="Empty dataset" />
         </div>
       );
     }
 
-    const aggregatorType = query.measure
-      ? query.measure.annotations &&
-        query.measure.annotations.aggregation_method
-        ? query.measure.annotations.aggregation_method
-        : query.measure.aggregatorType
-      : "UNKNOWN";
-
-    const name = query.measure && query.measure.name ? query.measure.name : "";
-
-    const chartConfig = {
-      type: type || "Treemap",
-      colorScale: "value",
-      measure: {
-        name,
-        aggregatorType
-      },
-      dimension: query.drilldown ? query.drilldown.name : "",
-      groupBy: "",
-      moe: query.moe ? query.moe.name : null
-    };
-
-    const timeDim = "Year" in dataset[0];
-    const geoDim = ("ID State" || "ID County") in dataset[0] ? true : false;
-
-    let yearSelector = null;
-    if (timeDim) {
-      const yearMap = dataset.reduce((all, item) => {
-        all[item.Year] = true;
-        return all;
-      }, {});
-      const yearOptions = Object.keys(yearMap)
-        .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
-        .map(item =>
+    const yearSelector = Array.isArray(members.Year) &&
+      <select onChange={this.selectYear} value={year}>
+        <option value={ALL_YEARS}>All years</option>
+        {members.Year.map(item =>
           <option key={item} value={item}>
             {item}
           </option>
-        );
-      yearSelector =
-        <select onChange={this.selectYear} value={year}>
-          <option value="All years">All years</option>
-          {yearOptions}
-        </select>
-      ;
-    }
+        )}
+      </select>
+    ;
+
+    const chartConfig = createChartConfig({
+      activeType,
+      availableKeys: new Set(Object.keys(members)),
+      query,
+      year
+    });
+
+    const filteredDataset =
+      year !== ALL_YEARS
+        ? dataset.filter(item => item.Year == year) // eslint-disable-line eqeqeq
+        : dataset;
+
+    const chartElements = chartConfig.map(chart =>
+      <ChartCard
+        key={chart.type}
+        type={chart.type}
+        active={chart.type === activeType}
+        query={query}
+        config={chart.config}
+        dataset={filteredDataset}
+        onSelect={this.actions[chart.type]}
+        yearSelector={yearSelector}
+      />
+    );
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
         <div className="wrapper">
-          <div className={`chart-wrapper ${type || "multi"}`}>
-            {Object.keys(charts).map(itype => {
-              // Check if measure can be displayed in a specific chart
-              if (type && itype !== type) return null;
-              if (/StackedArea|BarChart/.test(itype) && !timeDim) return null;
-              if (/Geomap/.test(itype) && !geoDim) return null;
-              if (
-                /Pie|Donut|Treemap|StackedArea/.test(itype) &&
-                chartConfig.measure.aggregatorType === "AVERAGE"
-              ) {
-                return null;
-              }
-
-              chartConfig.type = itype;
-              const config = createConfig(chartConfig);
-
-              config.data =
-                year !== "All years" &&
-                !(/LinePlot|BarChart|StackedArea/).test(itype)
-                  ? dataset.filter(item => item["ID Year"] === year)
-                  : dataset;
-              config.height = type ? 500 : 400;
-
-              if (type === null) {
-                config.colorScaleConfig = {
-                  height: 0,
-                  width: 0
-                };
-              }
-
-              const cardTitle = `${itype} of ${chartConfig.measure.name} by ${
-                chartConfig.dimension
-              }`;
-
-              return (
-                <ChartCard
-                  key={itype}
-                  type={itype}
-                  config={config}
-                  header={
-                    <header>
-                      {cardTitle}
-                      {!(/StackedArea|BarChart|LinePlot/).test(itype) &&
-                        yearSelector}
-                    </header>
-                  }
-                  footer={this.renderFooter.call(this, itype)}
-                />
-              );
-            })}
+          <div className={`chart-wrapper ${activeType || "multi"}`}>
+            {chartElements}
           </div>
         </div>
       </div>

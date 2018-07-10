@@ -1,172 +1,329 @@
 import {
-  Treemap,
-  Donut,
-  Pie,
   BarChart,
-  StackedArea,
-  Geomap,
-  LinePlot
-} from "d3plus-react";
-import {uuid} from "d3plus-common";
-import {formatAbbreviate} from "d3plus-format";
-
-export const charts = {
-  Treemap,
+  Donut,
   Geomap,
   LinePlot,
-  Donut,
-  Pie,
-  BarChart,
-  StackedArea
+  StackedArea,
+  Treemap
+} from "d3plus-react";
+import {formatAbbreviate} from "d3plus-format";
+import {sortByGeographyState, sortByCustomKey} from "./sorting";
+
+export const charts = {
+  barchart: BarChart,
+  barchartyear: BarChart,
+  // histogram: BarChart,
+  donut: Donut,
+  geomap: Geomap,
+  lineplot: LinePlot,
+  stacked: StackedArea,
+  treemap: Treemap
 };
 
-export const legendConfig = {
+export const ALL_YEARS = "All years";
+
+export const legendConfig = () => ({
   label: false,
   shapeConfig: {
     width: 0,
     height: 0
   }
+});
+
+export const tooltipConfig = (query, keyTitle, keyBody) => {
+  keyTitle = keyTitle || query.drilldown.name;
+  keyBody = keyBody || query.measure.name;
+
+  const config = {
+    width: 60,
+    title: d =>
+      `<h5 class="title xs-small">${[].concat(d[keyTitle]).join("<br/>")}</h5>`
+  };
+
+  if (query.timeDrilldown && keyTitle !== "Year") {
+    if (query.moe) {
+      const moeName = query.moe.name;
+      config.body = d =>
+        `<div>
+  <p>${keyBody}: ${formatAbbreviate(d[keyBody])}</p>
+  <p>MOE: ±${formatAbbreviate(d[moeName])}</p>
+  <p>Year: ${d.Year}</p>
+  </div>`;
+    }
+    else {
+      config.body = d =>
+        `<div>
+  <p>${keyBody}: ${formatAbbreviate(d[keyBody])}</p>
+  <p>Year: ${d.Year}</p>
+  </div>`;
+    }
+  }
+  else {
+    if (query.moe) {
+      const moeName = query.moe.name;
+      config.body = d =>
+        `<div>
+<p>${keyBody}: ${formatAbbreviate(d[keyBody])}</p>
+<p>MOE: ±${formatAbbreviate(d[moeName])}</p>
+</div>`;
+    }
+    else {
+      config.body = d =>
+        `<div>
+<p>${keyBody}: ${formatAbbreviate(d[keyBody])}</p>
+</div>`;
+    }
+  }
+
+  return config;
 };
 
 export const timelineConfig = {
   // time: !isOpen ? "ID Year" : ""
 };
 
-export const colorScaleConfig = {
-  colorScale: false,
-  colorScaleConfig: {
-    color: "#0D47A1",
-    scale: "jenks"
-  }
-};
+const makeConfig = {
+  barchart(commonConfig, query, flags) {
+    // BAR CHART
+    // Useful for discrete categories of data, specially integers.
 
-export default function createConfig(chartConfig) {
-  const x = chartConfig.groupBy;
-  const measure = chartConfig.measure;
-  const measureName = measure.name;
-  const dimension = chartConfig.dimension;
-  const moe = chartConfig.moe;
+    const {timeDrilldown, drilldown, measure} = query;
 
-  // Confs of Viz
-  const vizConfig = {
-    groupBy: chartConfig.dimension,
-    loadingMessage: "Loading",
-    total: d => d[measureName],
-    totalConfig: {
-      fontSize: 14
-    },
-    sum: d => d[measureName],
-    value: d => d[measureName]
-  };
+    const drilldownName = drilldown.name;
+    const measureName = measure.name;
 
-  let config = {
-    height: 400,
-    legend: false,
-    uuid: uuid(),
-    tooltipConfig: {
-      width: 60,
-      title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
-      body: d =>
-        `<div>${measureName}: ${formatAbbreviate(d[measureName])}</div>`
+    const config = {
+      ...commonConfig,
+      discrete: "x",
+      x: drilldownName,
+      xConfig: {title: drilldownName},
+      y: measureName,
+      yConfig: {title: measureName},
+      stacked: drilldown.depth > 1
+    };
+
+    if (timeDrilldown) {
+      config.groupBy = [timeDrilldown.hierarchy.levels[1].name];
     }
-  };
 
-  if (/BarChart/.test(chartConfig.type)) {
-    config = {
-      ...config,
-      groupBy: "ID Year",
-      x: "ID Year",
-      xConfig: {
-        title: x
-      },
+    if (flags.availableKeys.has("State")) {
+      config.xSort = sortByGeographyState;
+    }
+    else {
+      config.xSort = sortByCustomKey(drilldownName);
+    }
+
+    return config;
+  },
+  barchartyear(commonConfig, query) {
+    const {drilldown, timeDrilldown, measure} = query;
+
+    const drilldownName = timeDrilldown.name;
+    const measureName = measure.name;
+
+    const config = {
+      ...commonConfig,
       discrete: "x",
+      x: drilldownName,
+      xConfig: {title: drilldownName},
       y: measureName,
-      yConfig: {
-        title: measureName
-      }
+      yConfig: {title: measureName},
+      stacked: true,
+      groupBy: [drilldown.name],
+      tooltipConfig: tooltipConfig(query, drilldownName)
     };
-  }
-  else if (/StackedArea|LinePlot/.test(chartConfig.type)) {
-    config = {
-      ...config,
-      ...vizConfig,
-      x: "ID Year",
-      xConfig: {
-        title: x
-      },
-      discrete: "x",
+
+    return config;
+  },
+  histogram(commonConfig, query, flags) {
+    // HISTOGRAM
+    // Allows to see the frequency distribution of a continuous dataset.
+    // Useful mainly with range buckets.
+
+    const config = this.barchart(commonConfig, query, flags);
+    config.groupPadding = 0;
+    return config;
+  },
+  donut(commonConfig, query) {
+    const {drilldown, measure} = query;
+
+    const drilldownName = drilldown.name;
+    const measureName = measure.name;
+
+    const config = {
+      ...commonConfig,
+      xConfig: {title: null},
       y: measureName,
-      yConfig: {
-        title: measureName
-      }
+      yConfig: {title: measureName},
+      groupBy: drilldownName
     };
-  }
-  else if (/Geomap/.test(chartConfig.type)) {
-    config = {
-      ...config,
+
+    return config;
+  },
+  geomap(commonConfig, query, flags) {
+    const drilldownName = query.drilldown.name;
+
+    const config = {
+      ...commonConfig,
+      ...flags.colorScale,
       tiles: false,
-      id: "ID State",
+      id: `ID ${drilldownName}`,
       topojsonId: "id",
       topojsonKey: "states",
-      groupBy: "ID State",
+      groupBy: `ID ${drilldownName}`,
       topojson: "/topojson/states.json",
       ocean: "transparent",
       projection: "geoAlbersUsa",
-      colorScale: measureName,
-      colorScalePosition: "bottom",
-      legend: false,
-      colorScaleConfig: {
-        scale: "jenks",
-        height: 500,
-        width: 900
-      },
-      duration: 0,
       zoom: true,
       zoomFactor: 2,
       zoomScroll: false
     };
+
+    if (flags.activeType !== "geomap") {
+      config.colorScaleConfig = {};
+      config.colorScalePosition = false;
+    }
+
+    return config;
+  },
+  lineplot(commonConfig, query) {
+    const {timeDrilldown, drilldown, measure, moe} = query;
+
+    const drilldownName = timeDrilldown.name;
+    const measureName = measure.name;
+
+    const config = {
+      ...commonConfig,
+      discrete: "x",
+      groupBy: drilldown.hierarchy.levels[1].name,
+      x: drilldownName,
+      xConfig: {title: drilldownName},
+      y: measureName,
+      yConfig: {title: measureName}
+    };
+
+    if (moe) {
+      const moeName = moe.name;
+
+      config.confidence = [
+        d => d[measureName] - d[moeName],
+        d => d[measureName] + d[moeName]
+      ];
+      config.confidenceConfig = {
+        fillOpacity: 0.15
+      };
+    }
+
+    return config;
+  },
+  stacked(commonConfig, query) {
+    const config = this.lineplot(commonConfig, query);
+    return config;
+  },
+  treemap(commonConfig, query) {
+    const {drilldown, measure} = query;
+
+    const drilldownName = drilldown.name;
+    const measureName = measure.name;
+
+    const config = {
+      ...commonConfig,
+      groupBy: drilldownName,
+      y: measureName,
+      yConfig: {title: measureName}
+    };
+
+    return config;
+  }
+};
+
+export default function createChartConfig({
+  activeType,
+  query,
+  availableKeys,
+  year
+}) {
+  const availableCharts = new Set(
+    activeType ? [activeType] : Object.keys(charts)
+  );
+
+  const measureName = query.measure.name;
+  const getMeasureName = d => d[measureName];
+
+  const commonConfig = {
+    height: activeType ? 500 : 400,
+    legend: false,
+
+    tooltip: true,
+    tooltipConfig: tooltipConfig(query),
+
+    duration: 0,
+    loadingMessage: "Loading",
+    sum: getMeasureName,
+    value: getMeasureName,
+    totalConfig: {
+      fontSize: 14
+    }
+  };
+
+  const colorScale = {
+    colorScale: measureName,
+    colorScalePosition: "bottom",
+    colorScaleConfig: {
+      scale: "jenks",
+      height: 500,
+      width: 900
+    }
+  };
+
+  if (!activeType) {
+    const hasTimeDim = availableKeys.has("Year");
+    const hasGeoDim = availableKeys.has("State") || availableKeys.has("County");
+    const aggregatorType =
+      query.measure.annotations.aggregation_method ||
+      query.measure.aggregatorType ||
+      "UNKNOWN";
+
+    if (!hasTimeDim || year !== ALL_YEARS) {
+      availableCharts.delete("stacked");
+      availableCharts.delete("barchartyear");
+      availableCharts.delete("lineplot");
+    }
+    if (!hasGeoDim || year === ALL_YEARS) {
+      availableCharts.delete("geomap");
+    }
+    if (aggregatorType === "AVERAGE") {
+      availableCharts.delete("donut");
+      availableCharts.delete("stacked");
+      availableCharts.delete("treemap");
+      availableCharts.delete("histogram");
+    }
+    if (aggregatorType !== "SUM") {
+      availableCharts.delete("treemap");
+      availableCharts.delete("barchartyear");
+    }
   }
   else {
-    config = {
-      ...config,
-      ...vizConfig
-    };
+    if (year !== ALL_YEARS) {
+      commonConfig.total = getMeasureName;
+      commonConfig.totalConfig = {
+        fontSize: 10,
+        padding: 5,
+        resize: false,
+        textAnchor: "middle"
+      };
+    }
   }
 
-  if (chartConfig.type === "BarChart") {
-    config.tooltipConfig = {
-      width: 60,
-      title: d => `<h5 class="title xs-small">${d["ID Year"]}</h5>`,
-      body: d =>
-        `<div>${measureName}: ${formatAbbreviate(d[measureName])}</div>`
-    };
-  }
+  const flags = {
+    activeType,
+    availableKeys,
+    colorScale,
+    year
+  };
 
-  if (chartConfig.type === "LinePlot" && moe) {
-    config.confidence = [
-      d => d[measureName] - d[moe],
-      d => d[measureName] + d[moe]
-    ];
-    config.confidenceConfig = {
-      fillOpacity: 0.15
-    };
-    config.tooltipConfig = {
-      width: 60,
-      title: d => `<h5 class="title xs-small">${d[dimension]}</h5>`,
-      body: d =>
-        "<div>" +
-        `<div>${measureName}: ${formatAbbreviate(d[measureName])}</div>` +
-        `<div>MOE: ±${formatAbbreviate(d[moe])}</div>` +
-        "</div>"
-    };
-  }
-
-  if (chartConfig.type === "StackedArea") {
-    config.groupBy = chartConfig.dimension;
-    config.x = "ID Year";
-  }
-  if (chartConfig.groupBy) config.groupBy = chartConfig.groupBy;
-  if (x) config.x = x;
-
-  return config;
+  return Array.from(availableCharts, type => ({
+    type,
+    config: makeConfig[type](commonConfig, query, flags)
+  }));
 }

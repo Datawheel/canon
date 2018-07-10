@@ -2,10 +2,11 @@ import sort from "fast-sort";
 import union from "lodash/union";
 import {unique} from "shorthash";
 
+import {STATES} from "./constants";
 import {sortSlice} from "./random";
 
 export function isTimeDimension(dimension) {
-  return dimension.dimensionType === 1 || dimension.name === "Date";
+  return dimension.dimensionType === 1 || dimension.name === "Date" || dimension.name === "Year";
 }
 
 export function injectCubeInfoOnMeasure(cubes) {
@@ -156,7 +157,7 @@ export function joinDrilldownList(array, drilldown) {
 }
 
 export function getTimeDrilldown(cube) {
-  const timeDim = cube.timeDimension || cube.dimensionsByName.Date;
+  const timeDim = cube.timeDimension || cube.dimensionsByName.Date || cube.dimensionsByName.Year;
   if (timeDim) {
     const timeHie = timeDim.hierarchies.slice(-1).pop();
     if (timeHie) {
@@ -199,4 +200,12 @@ export function getIncludedMembers(query, dataset) {
   else {
     return {};
   }
+}
+
+export function sortByCustomKey(key) {
+  return (a, b) => `${a[key]}`.localeCompare(`${b[key]}`);
+}
+
+export function sortByGeographyState(a, b) {
+  return STATES.indexOf(a.State) - STATES.indexOf(b.State);
 }
