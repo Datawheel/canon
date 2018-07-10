@@ -8,6 +8,7 @@ import {loadControl, setStatePromise} from "./actions/loadstate";
 import AreaChart from "./components/AreaChart";
 import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
+import {UIToaster} from "./components/UIToaster";
 import * as api from "./helpers/api";
 import initialState from "./state";
 
@@ -41,7 +42,7 @@ class Vizbuilder extends React.PureComponent {
   componentDidUpdate(prevProps, prevState) {
     const {src, datasetDidChange} = this.props;
     const {dataset, load} = this.state;
-    const {error} = load;
+    const {error, severity} = load;
 
     if (src && prevProps.src !== src) {
       api.resetClient(src);
@@ -53,8 +54,8 @@ class Vizbuilder extends React.PureComponent {
     }
 
     if (error && prevState.load.error !== error) {
-      console.error(error.stack);
-      ErrorToaster.show({intent: Intent.WARNING, message: error.message});
+      console.warn(error.stack);
+      UIToaster.show({intent: severity, message: error.message});
     }
   }
 

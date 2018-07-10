@@ -6,7 +6,8 @@ export default function initialStateFactory() {
       inProgress: false,
       total: 0,
       done: 0,
-      error: undefined
+      error: undefined,
+      severity: -1
     },
     query: {
       conditions: [],

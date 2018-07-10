@@ -1,3 +1,5 @@
+import {Intent} from "@blueprintjs/core";
+
 /* HELPER FUNCTIONS */
 
 /**
@@ -47,7 +49,8 @@ export function loadControl() {
         inProgress: false,
         total: 0,
         done: 0,
-        error: null
+        error: null,
+        severity: Intent.NONE
       }
     }),
     err =>
@@ -57,10 +60,18 @@ export function loadControl() {
           inProgress: false,
           total: 0,
           done: 0,
-          error: err
+          error: err,
+          severity: getSeverityByError(err)
         }
       })
   );
+}
+
+function getSeverityByError(error) {
+  if (error.response) {
+    return Intent.WARNING;
+  }
+  return Intent.DANGER;
 }
 
 export function mergeStates(state, newState) {
