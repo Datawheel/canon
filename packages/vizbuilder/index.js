@@ -1,3 +1,1 @@
-import Vizbuilder from "./src/";
-
-export default Vizbuilder;
+export {default as Vizbuilder} from "./src/";
