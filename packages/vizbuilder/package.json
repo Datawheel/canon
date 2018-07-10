@@ -27,7 +27,8 @@
   },
   "devDependencies": {
     "@types/react": "^15.6.2",
-    "datawheel-canon": "^0.15.18"
+    "datawheel-canon": "^0.15.18",
+    "konami-code": "^0.2.1"
   },
   "repository": {
     "type": "git",
