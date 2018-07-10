@@ -24,9 +24,10 @@ class ConditionManager extends React.Component {
   }
 
   render() {
-    const {conditions} = this.props.query;
-    const {measures, drilldowns} = this.props.options;
-    const properties = [].concat(measures, drilldowns);
+    const props = this.props;
+    const {conditions, cube} = props.query;
+    const {drilldowns} = props.options;
+    const properties = [].concat(cube.measures, drilldowns);
 
     return (
       <div className="group condition-manager">
