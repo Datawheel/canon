@@ -24,8 +24,11 @@ class AreaSidebar extends React.PureComponent {
   }
 
   componentDidMount() {
-    const query = queryString.parse(window.location.search);
-    this.context.loadControl(fetchCubes.bind(this, query), this.fetchQuery);
+    const locationQuery = queryString.parse(location.search);
+    this.context.loadControl(
+      fetchCubes.bind(this, locationQuery),
+      this.fetchQuery
+    );
   }
 
   render() {
