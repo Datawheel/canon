@@ -65,9 +65,14 @@ class AreaSidebar extends React.PureComponent {
             />
           </div>
 
-          <ConditionManager query={query} options={options} />
+          <ConditionManager
+            className="control"
+            query={query}
+            options={options}
+          />
+
+          {this.renderSourceBlock.call(this)}
         </div>
-        {this.renderSourceBlock.call(this)}
       </div>
     );
   }
@@ -76,7 +81,7 @@ class AreaSidebar extends React.PureComponent {
     const ann = this.props.query.cube.annotations;
 
     return (
-      <div className="wrapper sources">
+      <div className="control sources">
         <p hidden={!ann.source_name}>
           <span>Source: </span>
           <ConditionalAnchor className="source-link" href={ann.source_link}>

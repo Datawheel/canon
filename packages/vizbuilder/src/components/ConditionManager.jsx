@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {Button} from "@blueprintjs/core";
+import classNames from "classnames";
 
 import {
   addCondition,
@@ -30,7 +31,7 @@ class ConditionManager extends React.Component {
     const properties = [].concat(cube.measures, drilldowns);
 
     return (
-      <div className="group condition-manager">
+      <div className={classNames(props.className, "condition-manager")}>
         <div className="condition-items">
           {conditions.map(function(condition) {
             return React.createElement(ConditionItem, {

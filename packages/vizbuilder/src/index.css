@@ -27,7 +27,7 @@
   overflow: auto;
 
   & > .wrapper {
-    margin: 15px;
+    padding: 15px;
   }
 }
 
@@ -42,6 +42,7 @@
 
   color: var(--white);
   background-color: rgba(0, 0, 0, 0.75);
+  transform: translate3d(0, 0, 0);
 
   & .pt-non-ideal-state-visual {
     width: 100%;
