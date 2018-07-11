@@ -16,9 +16,10 @@ new shell.ShellString(JSON.stringify(pkg, null, 2)).to("package.json");
 // copies over files from bin/scaffold
 shell.ls("-AR", path.join(__dirname, "scaffold/")).forEach(fileName => {
   const oldPath = path.join(__dirname, `scaffold/${fileName}`);
-  const newPath = path.join(appDir, fileName.replace("dot_", "."));
+  fileName = fileName.replace("dot_", ".");
+  const newPath = path.join(appDir, fileName);
   if (shell.test("-d", oldPath)) shell.mkdir("-p", newPath);
-  else if (!shell.test("-e", newPath)) {
+  else if (!shell.test("-e", newPath) || fileName.indexOf(".") === 0) {
     const contents = shell.cat(oldPath)
       .replace(/\{\{pkg.name\}\}/g, pkg.name)
       .replace(/\{\{pkg.description\}\}/g, pkg.description);
