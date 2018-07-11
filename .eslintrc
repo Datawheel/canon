@@ -157,5 +157,10 @@
       2,
       "never"
     ]
+  },
+  "settings": {
+    "react": {
+      "version": "15.6.2"
+    }
   }
 }
