@@ -50,12 +50,15 @@ class AreaChart extends React.Component {
   }
 
   selectChart(type) {
-    this.setState(state => ({
-      activeType: !state.activeType ? type : null
-    }));
-
-    clearTimeout(this.resizeCall);
-    this.resizeCall = setTimeout(this.dispatchResize, 500);
+    this.setState(
+      state => ({
+        activeType: !state.activeType ? type : null
+      }),
+      () => {
+        this.dispatchResize();
+        this.dispatchScroll();
+      }
+    );
   }
 
   selectYear(evt) {
