@@ -12,7 +12,7 @@ class AreaChart extends React.Component {
 
     this.state = {
       activeType: null,
-      year: ALL_YEARS
+      year: null
     };
 
     this.actions = Object.keys(charts).reduce((box, type) => {
@@ -70,7 +70,10 @@ class AreaChart extends React.Component {
   render() {
     const {dataset, query, members} = this.props;
     const {activeType} = this.state;
-    const year = parseInt(this.state.year, 10) || ALL_YEARS;
+    const hasYearMember = Array.isArray(members.Year);
+    const year =
+      this.state.year ||
+      (hasYearMember ? members.Year.slice().pop() : ALL_YEARS);
 
     if (!dataset.length) {
       return (
@@ -80,7 +83,7 @@ class AreaChart extends React.Component {
       );
     }
 
-    const yearSelector = Array.isArray(members.Year) &&
+    const yearSelector = hasYearMember &&
       <select onChange={this.selectYear} value={year}>
         <option value={ALL_YEARS}>All years</option>
         {members.Year.map(item =>
