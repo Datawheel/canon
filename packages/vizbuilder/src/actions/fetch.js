@@ -68,7 +68,9 @@ export function fetchCubes(locationQuery) {
 }
 
 export function fetchMembers(level) {
-  return api.members(level).then(members => this.setState({members}));
+  this.setState({loading: true, members: []}, () =>
+    api.members(level).then(members => this.setState({loading: false, members}))
+  );
 }
 
 export function fetchQuery() {

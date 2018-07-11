@@ -11,6 +11,7 @@ class FilterItemLevel extends React.PureComponent {
     super(props);
 
     this.state = {
+      loading: false,
       members: []
     };
   }
@@ -28,6 +29,7 @@ class FilterItemLevel extends React.PureComponent {
   }
 
   render() {
+    const {loading, members} = this.state;
     const props = this.props;
 
     return (
@@ -42,8 +44,9 @@ class FilterItemLevel extends React.PureComponent {
         </div>
         <div className="group condition-values">
           <MemberSelect
+            loading={loading}
             className="custom-select"
-            items={this.state.members}
+            items={members}
             selectedItems={props.values}
             onItemSelect={props.onAddValue}
             onItemRemove={props.onRemoveValue}
