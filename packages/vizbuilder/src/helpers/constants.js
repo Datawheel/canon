@@ -1,3 +1,5 @@
+export const isWindowAvailable = typeof window !== "undefined";
+
 export const STATES = [
   "Hawaii",
   "Alaska",
@@ -52,3 +54,16 @@ export const STATES = [
   "Maine",
   "Puerto Rico"
 ];
+
+export function getAreaChartDimensions() {
+  if (isWindowAvailable) {
+    const areaChart = document.querySelector(
+      ".vizbuilder .area-chart > .wrapper"
+    );
+    const dimensions = areaChart.getBoundingClientRect();
+    return {width: dimensions.width - 80, height: dimensions.height - 180};
+  }
+  else {
+    return {width: 900, height: 480};
+  }
+}

@@ -8,6 +8,7 @@ import {
 } from "d3plus-react";
 import {formatAbbreviate} from "d3plus-format";
 import {sortByGeographyState, sortByCustomKey} from "./sorting";
+import { getAreaChartDimensions } from "./constants";
 
 export const charts = {
   barchart: BarChart,
@@ -168,20 +169,24 @@ const makeConfig = {
       ...flags.colorScale,
       tiles: false,
       id: `ID ${drilldownName}`,
-      topojsonId: "id",
-      topojsonKey: "states",
       groupBy: `ID ${drilldownName}`,
-      topojson: "/topojson/states.json",
       ocean: "transparent",
       projection: "geoAlbersUsa",
+      topojson: "/topojson/states.json",
+      topojsonId: "id",
+      topojsonKey: "states",
       zoom: true,
       zoomFactor: 2,
       zoomScroll: false
     };
 
-    if (flags.activeType !== "geomap") {
-      config.colorScaleConfig = {};
-      config.colorScalePosition = false;
+    if (flags.activeType === "geomap") {
+      const size = getAreaChartDimensions();
+      config.colorScaleConfig = {
+        scale: "jenks",
+        height: size.height,
+        width: size.width
+      };
     }
 
     return config;
@@ -269,11 +274,7 @@ export default function createChartConfig({
   const colorScale = {
     colorScale: measureName,
     colorScalePosition: "bottom",
-    colorScaleConfig: {
-      scale: "jenks",
-      height: 500,
-      width: 900
-    }
+    colorScaleConfig: {width: 0, height: 0}
   };
 
   if (!activeType) {

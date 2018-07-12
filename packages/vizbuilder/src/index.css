@@ -28,6 +28,7 @@
 
   & > .wrapper {
     padding: 15px;
+    min-height: 100%;
   }
 }
 

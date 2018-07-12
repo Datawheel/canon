@@ -1,6 +1,5 @@
 import {Position, Toaster} from "@blueprintjs/core";
-
-const isWindowAvailable = typeof window !== "undefined";
+import {isWindowAvailable} from "../helpers/constants";
 
 export const UIToaster = isWindowAvailable
   ? Toaster.create({className: "area-toaster", position: Position.TOP})
