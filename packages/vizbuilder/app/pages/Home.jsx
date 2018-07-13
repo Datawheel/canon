@@ -1,7 +1,7 @@
 import React from "react";
 import KonamiCode from "konami-code";
 
-import Vizbuilder from "../../";
+import Vizbuilder from "../../src/";
 
 import "./Home.css";
 
@@ -23,7 +23,7 @@ export default class Home extends React.Component {
     const kc = new KonamiCode();
     kc.listen(() => {
       const source = window.prompt(
-        "Please input a Mondrian server URL:",
+        "Please input a Mondrian server URL.\nLeave the field empty to use DataUSA again.",
         DATAUSA
       );
       localStorage.setItem("source", source);
