@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>E-mail Verification</title>
+    <title>t("Activate.mailgun.title")</title>
     <style type="text/css">
 
       @media only screen and (max-width: 620px) {
@@ -74,7 +74,7 @@
         <td class="container" style="font-size:14px;vertical-align:top;display:block;max-width:580px;padding:10px;width:580px;Margin:0 auto !important;">
           <div class="content" style="box-sizing:border-box;display:block;Margin:0 auto;max-width:580px;padding:10px;">
             <!-- START CENTERED WHITE CONTAINER -->
-            <span class="preheader" style="color:transparent;display:none;height:0;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;visibility:hidden;width:0;">Welcome to {{site_name}}!</span>
+            <span class="preheader" style="color:transparent;display:none;height:0;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;visibility:hidden;width:0;">t("Activate.mailgun.welcome")</span>
             <table class="main" style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;background:#fff;border-radius:3px;width:100%;">
               <!-- START MAIN CONTENT AREA -->
               <tr>
@@ -82,8 +82,8 @@
                   <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;">
                     <tr>
                       <td style="font-size:14px;vertical-align:top;">
-                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">Hi {{username}},</p>
-                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">Thanks for signing up for {{site_name}}! Please confirm your email address by clicking on the link below.</p>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">t("Activate.mailgun.greeting")</p>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">t("Activate.mailgun.body")</p>
                         <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;box-sizing:border-box;width:100%;">
                           <tbody>
                             <tr>
@@ -92,7 +92,7 @@
                                   <tbody>
                                     <tr>
                                       <td style="vertical-align:top;text-align:center;">
-                                        <a href="{{confirm_link}}" target="_blank" style="box-shadow:inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 0 rgba(16, 22, 26, 0.2);border:none;border-radius:3px;box-sizing:border-box;color:#ffffff;cursor:pointer;display:inline-block;font-size:16px;line-height:30px;min-width:30px;min-height:30px;font-weight:600;margin:0;padding:0 15px;text-decoration:none;background-color:#0f9960;background-image:linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))">Click To Confirm</a>
+                                        <a href="{{confirmLink}}" target="_blank" style="box-shadow:inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 0 rgba(16, 22, 26, 0.2);border:none;border-radius:3px;box-sizing:border-box;color:#ffffff;cursor:pointer;display:inline-block;font-size:16px;line-height:30px;min-width:30px;min-height:30px;font-weight:600;margin:0;padding:0 15px;text-decoration:none;background-color:#0f9960;background-image:linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))">t("Activate.mailgun.button")</a>
                                       </td>
                                     </tr>
                                   </tbody>
@@ -101,10 +101,10 @@
                             </tr>
                           </tbody>
                         </table>
-                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">Or copy and paste the following into your browser: {{confirm_link}}</p>
-                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">You're receiving this email because you recently created a new {{site_name}} account or added a new email address. If this wasn't you, please ignore this email.</p>
-                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">Yours sincerely,</p>
-                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">The {{site_name}} Team</p>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">t("Activate.mailgun.link")</p>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">t("Activate.mailgun.footer")</p>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">t("Activate.mailgun.closing")</p>
+                        <p style="font-size:14px;font-weight:normal;margin:0;Margin-bottom:15px;">t("Activate.mailgun.signature")</p>
                       </td>
                     </tr>
                   </table>
@@ -117,7 +117,7 @@
               <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;">
                 <tr>
                   <td class="content-block" style="font-size:14px;vertical-align:top;color:#999999;font-size:12px;text-align:center;">
-                    <a href="{{site_url}}" style="color:#3498db;text-decoration:underline;color:#999999;font-size:12px;text-align:center;">{{site_name}}</a>
+                    <a href="{{url}}" style="color:#3498db;text-decoration:underline;color:#999999;font-size:12px;text-align:center;">{{site}}</a>
                   </td>
                 </tr>
               </table>

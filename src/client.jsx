@@ -21,7 +21,7 @@ const routes = createRoutes(store);
 import i18n from "i18next";
 import yn from "yn";
 
-import defaultTranslations from "./locale";
+import defaultTranslations from "./i18n/canon";
 import CanonProvider from "./CanonProvider";
 
 const {locale, resources} = window.__INITIAL_STATE__.i18n;
@@ -35,9 +35,6 @@ i18n
     debug: NODE_ENV !== "production" ? yn(CANON_LOGLOCALE) : false,
     ns: [name],
     defaultNS: name,
-    interpolation: {
-      escapeValue: false // not needed for react!!
-    },
     react: {
       wait: true
     },
@@ -67,10 +64,10 @@ function renderMiddleware() {
     renderRouterContext: (child, props) => {
 
       const needs = props.components.filter(comp => comp.need || comp.preneed || comp.postneed);
-      const {action, hash, key, query} = props.location;
+      const {action, hash, query, state} = props.location;
 
       if (action !== "REPLACE" || !Object.keys(query).length) {
-        if (window.__SSR__ || !key || !needs.length) {
+        if (window.__SSR__ || state === "HASH" || !needs.length) {
           window.__SSR__ = false;
           if (hash) scrollToHash(hash);
           else window.scrollTo(0, 0);
