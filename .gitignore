@@ -6,11 +6,11 @@ node_modules
 
 # these static files will be generated on build
 /static/assets
-/packages/**/static/assets
+/packages/*/static/assets
 /static/reports
-packages/**/static/reports
+packages/*/static/reports
 /index.js
-/packages/**/index.js
+/packages/*/index.js
 
 # environment variable files for autoenv and direnv
 .env
