@@ -12,7 +12,8 @@
     "build": "canon-build",
     "locales": "canon-locales",
     "setup": "canon-setup",
-    "start": "canon-start"
+    "start": "canon-start",
+    "test": "eslint src/*.js src/**/*.js"
   },
   "dependencies": {
     "@blueprintjs/core": "^1.35.7",
