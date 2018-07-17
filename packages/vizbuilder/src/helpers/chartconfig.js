@@ -279,7 +279,7 @@ export default function createChartConfig({
 
   if (!activeType) {
     const hasTimeDim = availableKeys.has("Year");
-    const hasGeoDim = availableKeys.has("State") || availableKeys.has("County");
+    const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
     const aggregatorType =
       query.measure.annotations.aggregation_method ||
       query.measure.aggregatorType ||
