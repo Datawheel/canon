@@ -1,5 +1,7 @@
 import {SYMBOLS as OPERATOR_SYMBOLS} from "./operators";
 
+export const isWindowAvailable = typeof window !== "undefined";
+
 export function isValidCondition(condition) {
   return isValidFilter(condition) || isValidCut(condition);
 }

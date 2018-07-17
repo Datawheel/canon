@@ -1,4 +1,4 @@
-export const isWindowAvailable = typeof window !== "undefined";
+import {isWindowAvailable} from "./validation";
 
 export const STATES = [
   "Hawaii",
