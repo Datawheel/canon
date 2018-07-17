@@ -7,8 +7,8 @@ import {
   Treemap
 } from "d3plus-react";
 import {formatAbbreviate} from "d3plus-format";
+import {getAreaChartDimensions} from "./constants";
 import {sortByGeographyState, sortByCustomKey} from "./sorting";
-import { getAreaChartDimensions } from "./constants";
 
 export const charts = {
   barchart: BarChart,
@@ -228,12 +228,13 @@ const makeConfig = {
   treemap(commonConfig, query) {
     const {drilldown, measure} = query;
 
-    const drilldownName = drilldown.name;
+    const levels = drilldown.hierarchy.levels;
+    const ddIndex = levels.indexOf(drilldown);
     const measureName = measure.name;
 
     const config = {
       ...commonConfig,
-      groupBy: drilldownName,
+      groupBy: levels.slice(1, ddIndex + 1).map(lvl => lvl.name),
       y: measureName,
       yConfig: {title: measureName}
     };
