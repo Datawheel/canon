@@ -1,8 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import {setDimension, setDrilldown, setMeasure} from "../actions/events";
 import {fetchQuery} from "../actions/fetch";
+import {
+  getMeasureMOE,
+  getTimeDrilldown,
+  getValidDimensions,
+  getValidDrilldowns,
+  preventHierarchyIncompatibility,
+  reduceLevelsFromDimension
+} from "../helpers/sorting";
 
 import ConditionManager from "./ConditionManager";
 import ConditionalAnchor from "./ConditionalAnchor";
@@ -17,9 +24,91 @@ class AreaSidebar extends React.PureComponent {
     super(props);
 
     this.fetchQuery = fetchQuery.bind(this);
-    this.setDimension = setDimension.bind(this);
-    this.setDrilldown = setDrilldown.bind(this);
-    this.setMeasure = setMeasure.bind(this);
+    this.setDimension = this.setDimension.bind(this);
+    this.setDrilldown = this.setDrilldown.bind(this);
+    this.setMeasure = this.setMeasure.bind(this);
+  }
+
+  setDimension(dimension) {
+    const {dimensions} = this.props.options;
+    const {loadControl} = this.context;
+
+    return loadControl(() => {
+      const levels = reduceLevelsFromDimension([], dimension);
+      const drilldown = levels[0];
+
+      const drilldowns = getValidDrilldowns(dimensions);
+      preventHierarchyIncompatibility(drilldowns, drilldown);
+
+      return {
+        options: {drilldowns, levels},
+        query: {dimension, drilldown},
+        queryOptions: {
+          parents: drilldown.depth > 1
+        }
+      };
+    }, this.fetchQuery);
+  }
+
+  setDrilldown(drilldown) {
+    const {options} = this.props;
+    const {loadControl} = this.context;
+
+    if (options.levels.indexOf(drilldown) > -1) {
+      return loadControl(() => {
+        const drilldowns = getValidDrilldowns(options.dimensions);
+        preventHierarchyIncompatibility(drilldowns, drilldown);
+
+        return {
+          options: {drilldowns},
+          query: {drilldown},
+          queryOptions: {
+            parents: drilldown.depth > 1
+          }
+        };
+      }, this.fetchQuery);
+    }
+
+    return undefined;
+  }
+
+  setMeasure(measure) {
+    const {options, query} = this.props;
+    const {loadControl} = this.context;
+
+    return loadControl(() => {
+      const cubeName = measure.annotations._cb_name;
+      const cube = options.cubes.find(cube => cube.name === cubeName);
+      const moe = getMeasureMOE(cube, measure);
+      const timeDrilldown = getTimeDrilldown(cube);
+
+      const dimensions = getValidDimensions(cube);
+      const drilldowns = getValidDrilldowns(dimensions);
+
+      const dimension = dimensions[0];
+      const levels = reduceLevelsFromDimension([], dimension);
+      const drilldown = levels[0];
+
+      preventHierarchyIncompatibility(drilldowns, drilldown);
+
+      const conditions = query.cube === cube ? query.conditions : [];
+
+      return {
+        options: {dimensions, drilldowns, levels},
+        query: {
+          cube,
+          measure,
+          moe,
+          dimension,
+          drilldown,
+          timeDrilldown,
+          conditions
+        },
+        queryOptions: {
+          parents: drilldown.depth > 1
+        }
+      };
+    }, this.fetchQuery);
   }
 
   render() {
