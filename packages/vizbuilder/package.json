@@ -5,7 +5,6 @@
   "main": "src/index.js",
   "author": "Francisco Abarzúa & Carlos Navarrete",
   "license": "MIT",
-  "typings": "index.d.ts",
   "scripts": {
     "clearcache": "rm -rf node_modules/datawheel-canon/src/node_modules/.cache/*",
     "dev": "canon-dev",

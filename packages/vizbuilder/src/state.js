@@ -1,5 +1,3 @@
-import PropTypes from "prop-types";
-
 export default function initialStateFactory() {
   return {
     load: {
@@ -45,33 +43,3 @@ export default function initialStateFactory() {
     meta: {}
   };
 }
-
-export const loadTypes = PropTypes.shape({
-  inProgress: PropTypes.bool,
-  total: PropTypes.number,
-  done: PropTypes.number,
-  error: PropTypes.instanceOf(Error)
-});
-
-export const queryTypes = PropTypes.shape({
-  conditions: PropTypes.array,
-  cube: PropTypes.any,
-  dimension: PropTypes.any,
-  drilldown: PropTypes.any,
-  measure: PropTypes.any,
-  moe: PropTypes.any,
-  limit: PropTypes.number,
-  locale: PropTypes.string,
-  offset: PropTypes.number,
-  options: PropTypes.any,
-  order: PropTypes.any,
-  orderDesc: PropTypes.bool,
-  timeDrilldown: PropTypes.any
-});
-
-export const optionsTypes = PropTypes.shape({
-  cubes: PropTypes.array,
-  dimensions: PropTypes.array,
-  levels: PropTypes.array,
-  measures: PropTypes.array
-});
