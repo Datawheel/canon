@@ -97,27 +97,3 @@ export function queryConverter(params) {
 
   return query;
 }
-
-// function setCaptionForLevelAndLang(query, level, lang) {
-//   const ann = level.annotations[`${lang}_caption`];
-//   if (ann) {
-//     query.caption(level.hierarchy.dimension.name, level.name, ann);
-//   }
-//   return query;
-// }
-
-// function setLangCaptions(query, lang) {
-//   const drilldowns = query.getDrilldowns() || [];
-//   drilldowns.forEach(level => {
-//     query = setCaptionForLevelAndLang(query, level, lang);
-
-//     // when parents requested, also get their i18n'd captions
-//     if (query.options.parents) {
-//       rangeRight(1, level.depth).forEach(d => {
-//         const ancestor = level.hierarchy.levels.find(l => l.depth === d);
-//         query = setCaptionForLevelAndLang(query, ancestor, lang);
-//       });
-//     }
-//   });
-//   return query;
-// }

@@ -23,14 +23,6 @@ export const charts = {
 
 export const ALL_YEARS = "All years";
 
-export const legendConfig = () => ({
-  label: false,
-  shapeConfig: {
-    width: 0,
-    height: 0
-  }
-});
-
 export const tooltipConfig = (query, keyTitle, keyBody) => {
   keyTitle = keyTitle || query.drilldown.name;
   keyBody = keyBody || query.measure.name;
@@ -77,10 +69,6 @@ export const tooltipConfig = (query, keyTitle, keyBody) => {
   }
 
   return config;
-};
-
-export const timelineConfig = {
-  // time: !isOpen ? "ID Year" : ""
 };
 
 const makeConfig = {
@@ -168,7 +156,6 @@ const makeConfig = {
       ...commonConfig,
       ...flags.colorScale,
       tiles: false,
-      id: `ID ${drilldownName}`,
       groupBy: `ID ${drilldownName}`,
       ocean: "transparent",
       projection: "geoAlbersUsa",
