@@ -7,7 +7,6 @@ import {
   Treemap
 } from "d3plus-react";
 import {formatAbbreviate} from "d3plus-format";
-import {getAreaChartDimensions} from "./constants";
 import {sortByGeographyState, sortByCustomKey} from "./sorting";
 
 export const charts = {
@@ -172,30 +171,28 @@ const makeConfig = {
   geomap(commonConfig, query, flags) {
     const drilldownName = query.drilldown.name;
     const measureName = query.measure.name;
+    const isActive = flags.activeType === "geomap";
 
     const topojsonConfig =
       flags.topojson[drilldownName] || flags.topojson.default;
 
-    const userConfig =
-      flags.activeType == "geomap"
+    const userConfig = isActive
         ? flags.chartConfig.geomapActive
         : flags.chartConfig.geomap;
 
     const config = {
       ...commonConfig,
       colorScale: measureName,
+      colorScalePosition: isActive ? "bottom" : false,
       groupBy: `ID ${drilldownName}`,
       zoomScroll: false,
       ...topojsonConfig,
       ...userConfig
     };
 
-    if (flags.activeType === "geomap") {
-      const size = getAreaChartDimensions();
+    if (isActive) {
       config.colorScaleConfig = {
-        scale: "jenks",
-        height: size.height,
-        width: size.width
+        scale: "jenks"
       };
     }
 
