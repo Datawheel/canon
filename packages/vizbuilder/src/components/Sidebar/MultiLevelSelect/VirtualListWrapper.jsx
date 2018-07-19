@@ -40,6 +40,8 @@ class VirtualListWrapper extends React.Component {
         itemCount={items.length}
         itemSize={this.getItemHeight}
         renderItem={this.renderItem}
+        scrollToIndex={props.scrollToIndex}
+        scrollToAlignment="center"
       />
     );
   }
