@@ -5,7 +5,11 @@ import {unique} from "shorthash";
 import {STATES} from "./constants";
 
 export function isTimeDimension(dimension) {
-  return dimension.dimensionType === 1 || dimension.name === "Date" || dimension.name === "Year";
+  return (
+    dimension.dimensionType === 1 ||
+    dimension.name === "Date" ||
+    dimension.name === "Year"
+  );
 }
 
 export function injectCubeInfoOnMeasure(cubes) {
@@ -24,10 +28,6 @@ export function injectCubeInfoOnMeasure(cubes) {
     const selectorKey = `${cbTopic}_${cbSubtopic}_`;
     const sortKey = sortSlice(selectorKey);
     const sourceName = cube.annotations.source_name;
-    // const sourceDesc = cube.annotations.source_description;
-    // const sourceLink = cube.annotations.source_link;
-    // const datasetName = cube.annotations.dataset_name;
-    // const datasetLink = cube.annotations.dataset_link;
 
     cube.annotations._key = unique(cbName);
 
@@ -45,10 +45,6 @@ export function injectCubeInfoOnMeasure(cubes) {
         selectorKey + (measure.caption || measure.name);
       annotations._sortKey = `${sortKey}${measure.caption ||
         measure.name}`.toLowerCase();
-      // annotations._source_desc = sourceDesc;
-      // annotations._source_link = sourceLink;
-      // annotations._dataset_name = datasetName;
-      // annotations._dataset_link = datasetLink;
     }
 
     let nDim = cube.dimensions.length;
@@ -156,7 +152,10 @@ export function joinDrilldownList(array, drilldown) {
 }
 
 export function getTimeDrilldown(cube) {
-  const timeDim = cube.timeDimension || cube.dimensionsByName.Date || cube.dimensionsByName.Year;
+  const timeDim =
+    cube.timeDimension ||
+    cube.dimensionsByName.Date ||
+    cube.dimensionsByName.Year;
   if (timeDim) {
     const timeHie = timeDim.hierarchies.slice(-1).pop();
     if (timeHie) {
