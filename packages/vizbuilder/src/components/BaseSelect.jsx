@@ -6,7 +6,7 @@ import {Icon} from "@blueprintjs/core/dist/esm/components/icon/icon";
 import {MultiSelect} from "@blueprintjs/labs/dist/esm/components/select/multiSelect";
 import {Select} from "@blueprintjs/labs/dist/esm/components/select/select";
 
-import "./_BaseSelect.css";
+import "./BaseSelect.css";
 
 function BaseSelect(props) {
   props = {
@@ -17,10 +17,11 @@ function BaseSelect(props) {
     })
   };
 
+  props.tagInputProps.onRemove = props.multiple ? props.onItemRemove : null;
+  props.tagInputProps.placeholder = props.multiple ? props.placeholder : null;
+
   if (props.multiple) {
     props.selectedItems = [].concat(props.value || []);
-    props.tagInputProps.onRemove = props.onItemRemove;
-    props.tagInputProps.placeholder = props.placeholder;
 
     return React.createElement(MultiSelect, props, props.children);
   }

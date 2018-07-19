@@ -4,7 +4,7 @@ import {Button, NumericInput} from "@blueprintjs/core";
 import OPERATORS, {
   KIND_NUMBER as NUMBER_OPERATORS,
   LABELS as OPERATOR_LABELS
-} from "../helpers/operators";
+} from "../../../helpers/operators";
 
 import ConditionPropertySelect from "./ConditionPropertySelect";
 

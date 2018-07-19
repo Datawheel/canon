@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import {fetchQuery} from "../actions/fetch";
+import {fetchQuery} from "../../actions/fetch";
 import {
   getMeasureMOE,
   getTimeDrilldown,
@@ -9,17 +9,17 @@ import {
   getValidDrilldowns,
   preventHierarchyIncompatibility,
   reduceLevelsFromDimension
-} from "../helpers/sorting";
+} from "../../helpers/sorting";
 
 import ConditionManager from "./ConditionManager";
 import ConditionalAnchor from "./ConditionalAnchor";
 import LevelSelect from "./LevelSelect";
 import MeasureSelect from "./MeasureSelect";
 
-import "./_AreaSidebar.css";
-import BaseSelect from "./BaseSelect";
+import "./style.css";
+import BaseSelect from "../BaseSelect";
 
-class AreaSidebar extends React.PureComponent {
+class Sidebar extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -189,8 +189,8 @@ class AreaSidebar extends React.PureComponent {
   }
 }
 
-AreaSidebar.contextTypes = {
+Sidebar.contextTypes = {
   loadControl: PropTypes.func
 };
 
-export default AreaSidebar;
+export default Sidebar;

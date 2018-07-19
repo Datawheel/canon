@@ -3,8 +3,8 @@ import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 import {Icon} from "@blueprintjs/core";
 
-import BaseSelect from "./BaseSelect";
-import {composePropertyName} from "../helpers/sorting";
+import BaseSelect from "../../BaseSelect";
+import {composePropertyName} from "../../../helpers/sorting";
 
 function ConditionPropertySelect(props) {
   let item;

@@ -1,7 +1,7 @@
 import React from "react";
 import {Button} from "@blueprintjs/core";
 
-import {fetchMembers} from "../actions/fetch";
+import {fetchMembers} from "../../../actions/fetch";
 
 import ConditionPropertySelect from "./ConditionPropertySelect";
 import MemberSelect from "./MemberSelect";

@@ -1,7 +1,7 @@
 import React from "react";
 import {Button} from "@blueprintjs/core";
 
-import {charts} from "../helpers/chartconfig";
+import {charts} from "../../helpers/chartconfig";
 
 class ChartCard extends React.Component {
   render() {

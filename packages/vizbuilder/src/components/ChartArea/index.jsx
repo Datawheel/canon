@@ -1,12 +1,12 @@
 import React from "react";
 import {NonIdealState} from "@blueprintjs/core";
 
-import createChartConfig, {charts, ALL_YEARS} from "../helpers/chartconfig";
+import createChartConfig, {charts, ALL_YEARS} from "../../helpers/chartconfig";
 import ChartCard from "./ChartCard";
 
-import "./_AreaChart.css";
+import "./style.css";
 
-class AreaChart extends React.Component {
+class ChartArea extends React.Component {
   constructor(props) {
     super(props);
 
@@ -132,4 +132,4 @@ class AreaChart extends React.Component {
   }
 }
 
-export default AreaChart;
+export default ChartArea;

@@ -4,12 +4,12 @@ import {Button} from "@blueprintjs/core";
 import classNames from "classnames";
 import {uuid} from "d3plus-common";
 
-import {fetchQuery} from "../actions/fetch";
-import OPERATORS from "../helpers/operators";
+import {fetchQuery} from "../../../actions/fetch";
+import OPERATORS from "../../../helpers/operators";
 
 import ConditionItem from "./ConditionItem";
 
-import "./_ConditionManager.css";
+import "./style.css";
 
 class ConditionManager extends React.Component {
   constructor(props) {
