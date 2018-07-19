@@ -73,13 +73,15 @@ export const tooltipConfig = (query, keyTitle, keyBody) => {
 
 const makeConfig = {
   barchart(commonConfig, query, flags) {
-    // BAR CHART
-    // Useful for discrete categories of data, specially integers.
-
     const {timeDrilldown, drilldown, measure} = query;
 
     const drilldownName = drilldown.name;
     const measureName = measure.name;
+
+    const userConfig =
+      flags.activeType == "barchart"
+        ? flags.chartConfig.barchartActive
+        : flags.chartConfig.barchart;
 
     const config = {
       ...commonConfig,
@@ -88,7 +90,8 @@ const makeConfig = {
       xConfig: {title: drilldownName},
       y: measureName,
       yConfig: {title: measureName},
-      stacked: drilldown.depth > 1
+      stacked: drilldown.depth > 1,
+      ...userConfig
     };
 
     if (timeDrilldown) {
@@ -104,11 +107,16 @@ const makeConfig = {
 
     return config;
   },
-  barchartyear(commonConfig, query) {
+  barchartyear(commonConfig, query, flags) {
     const {drilldown, timeDrilldown, measure} = query;
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
+
+    const userConfig =
+      flags.activeType == "barchartyear"
+        ? flags.chartConfig.barchartyearActive
+        : flags.chartConfig.barchartyear;
 
     const config = {
       ...commonConfig,
@@ -119,52 +127,67 @@ const makeConfig = {
       yConfig: {title: measureName},
       stacked: true,
       groupBy: [drilldown.name],
-      tooltipConfig: tooltipConfig(query, drilldownName)
+      tooltipConfig: tooltipConfig(query, drilldownName),
+      ...userConfig
     };
 
     return config;
   },
   histogram(commonConfig, query, flags) {
-    // HISTOGRAM
-    // Allows to see the frequency distribution of a continuous dataset.
-    // Useful mainly with range buckets.
-
     const config = this.barchart(commonConfig, query, flags);
-    config.groupPadding = 0;
-    return config;
+
+    const userConfig =
+      flags.activeType == "histogram"
+        ? flags.chartConfig.histogramActive
+        : flags.chartConfig.histogram;
+
+    return {
+      ...config,
+      groupPadding: 0,
+      ...userConfig
+    };
   },
-  donut(commonConfig, query) {
+  donut(commonConfig, query, flags) {
     const {drilldown, measure} = query;
 
     const drilldownName = drilldown.name;
     const measureName = measure.name;
+
+    const userConfig =
+      flags.activeType == "donut"
+        ? flags.chartConfig.donutActive
+        : flags.chartConfig.donut;
 
     const config = {
       ...commonConfig,
       xConfig: {title: null},
       y: measureName,
       yConfig: {title: measureName},
-      groupBy: drilldownName
+      groupBy: drilldownName,
+      ...userConfig
     };
 
     return config;
   },
   geomap(commonConfig, query, flags) {
     const drilldownName = query.drilldown.name;
+    const measureName = query.measure.name;
+
+    const topojsonConfig =
+      flags.topojson[drilldownName] || flags.topojson.default;
+
+    const userConfig =
+      flags.activeType == "geomap"
+        ? flags.chartConfig.geomapActive
+        : flags.chartConfig.geomap;
 
     const config = {
       ...commonConfig,
-      ...flags.colorScale,
-      tiles: false,
+      colorScale: measureName,
       groupBy: `ID ${drilldownName}`,
-      ocean: "transparent",
-      projection: "geoAlbersUsa",
-      topojson: "/topojson/states.json",
-      topojsonId: "id",
-      topojsonKey: "states",
-      zoom: true,
-      zoomFactor: 2,
-      zoomScroll: false
+      zoomScroll: false,
+      ...topojsonConfig,
+      ...userConfig
     };
 
     if (flags.activeType === "geomap") {
@@ -178,11 +201,16 @@ const makeConfig = {
 
     return config;
   },
-  lineplot(commonConfig, query) {
+  lineplot(commonConfig, query, flags) {
     const {timeDrilldown, drilldown, measure, moe} = query;
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
+
+    const userConfig =
+      flags.activeType == "lineplot"
+        ? flags.chartConfig.lineplotActive
+        : flags.chartConfig.lineplot;
 
     const config = {
       ...commonConfig,
@@ -191,7 +219,8 @@ const makeConfig = {
       x: drilldownName,
       xConfig: {title: drilldownName},
       y: measureName,
-      yConfig: {title: measureName}
+      yConfig: {title: measureName},
+      ...userConfig
     };
 
     if (moe) {
@@ -201,29 +230,38 @@ const makeConfig = {
         d => d[measureName] - d[moeName],
         d => d[measureName] + d[moeName]
       ];
-      config.confidenceConfig = {
-        fillOpacity: 0.15
-      };
     }
 
     return config;
   },
-  stacked(commonConfig, query) {
+  stacked(commonConfig, query, flags) {
     const config = this.lineplot(commonConfig, query);
-    return config;
+
+    const userConfig =
+      flags.activeType == "stacked"
+        ? flags.chartConfig.stackedActive
+        : flags.chartConfig.stacked;
+
+    return {
+      ...config,
+      ...userConfig
+    };
   },
-  treemap(commonConfig, query) {
-    const {drilldown, measure} = query;
+  treemap(commonConfig, query, flags) {
+    const {drilldown} = query;
 
     const levels = drilldown.hierarchy.levels;
     const ddIndex = levels.indexOf(drilldown);
-    const measureName = measure.name;
+
+    const userConfig =
+      flags.activeType == "treemap"
+        ? flags.chartConfig.treemapActive
+        : flags.chartConfig.treemap;
 
     const config = {
       ...commonConfig,
       groupBy: levels.slice(1, ddIndex + 1).map(lvl => lvl.name),
-      y: measureName,
-      yConfig: {title: measureName}
+      ...userConfig
     };
 
     return config;
@@ -232,8 +270,9 @@ const makeConfig = {
 
 export default function createChartConfig({
   activeType,
-  query,
   availableKeys,
+  userConfig,
+  query,
   year
 }) {
   const availableCharts = new Set(
@@ -247,22 +286,13 @@ export default function createChartConfig({
     height: activeType ? 500 : 400,
     legend: false,
 
-    tooltip: true,
     tooltipConfig: tooltipConfig(query),
 
     duration: 0,
-    loadingMessage: "Loading",
     sum: getMeasureName,
     value: getMeasureName,
-    totalConfig: {
-      fontSize: 14
-    }
-  };
 
-  const colorScale = {
-    colorScale: measureName,
-    colorScalePosition: "bottom",
-    colorScaleConfig: {width: 0, height: 0}
+    ...userConfig.chartConfig.common
   };
 
   if (!activeType) {
@@ -278,9 +308,11 @@ export default function createChartConfig({
       availableCharts.delete("barchartyear");
       availableCharts.delete("lineplot");
     }
+
     if (!hasGeoDim || year === ALL_YEARS) {
       availableCharts.delete("geomap");
     }
+
     if (aggregatorType === "AVERAGE") {
       availableCharts.delete("donut");
       availableCharts.delete("stacked");
@@ -295,19 +327,14 @@ export default function createChartConfig({
   else {
     if (year !== ALL_YEARS) {
       commonConfig.total = getMeasureName;
-      commonConfig.totalConfig = {
-        fontSize: 10,
-        padding: 5,
-        resize: false,
-        textAnchor: "middle"
-      };
     }
   }
 
   const flags = {
     activeType,
     availableKeys,
-    colorScale,
+    topojson: userConfig.topojson || {},
+    chartConfig: userConfig.chartConfig || {},
     year
   };
 

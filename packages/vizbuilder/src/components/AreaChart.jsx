@@ -68,7 +68,7 @@ class AreaChart extends React.Component {
   }
 
   render() {
-    const {dataset, query, members} = this.props;
+    const {dataset, members, query, userConfig} = this.props;
     const {activeType} = this.state;
     const hasYearMember = Array.isArray(members.Year);
     const year =
@@ -98,6 +98,7 @@ class AreaChart extends React.Component {
       activeType,
       availableKeys: new Set(Object.keys(members)),
       query,
+      userConfig,
       year
     });
 

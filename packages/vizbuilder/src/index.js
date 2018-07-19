@@ -65,12 +65,22 @@ class Vizbuilder extends React.PureComponent {
   }
 
   render() {
+    const {config} = this.props;
     const {dataset, load, members, options, query, queryOptions} = this.state;
     return (
       <div className={classnames("vizbuilder", {loading: load.inProgress})}>
         <AreaLoading {...load} />
-        <AreaSidebar options={options} query={query} queryOptions={queryOptions} />
-        <AreaChart dataset={dataset} members={members} query={query} />
+        <AreaSidebar
+          options={options}
+          query={query}
+          queryOptions={queryOptions}
+        />
+        <AreaChart
+          dataset={dataset}
+          members={members}
+          query={query}
+          userConfig={config}
+        />
       </div>
     );
   }
@@ -109,9 +119,73 @@ Vizbuilder.childContextTypes = {
 };
 
 Vizbuilder.propTypes = {
-  src: PropTypes.string,
+  config: PropTypes.shape({
+    topojson: PropTypes.objectOf(
+      PropTypes.shape({
+        topojson: PropTypes.string.isRequired,
+        topojsonId: PropTypes.string,
+        topojsonKey: PropTypes.string
+      })
+    ),
+    chartConfig: PropTypes.shape({
+      common: PropTypes.object,
+      barchart: PropTypes.object,
+      barchartActive: PropTypes.object,
+      barchartyear: PropTypes.object,
+      barchartyearActive: PropTypes.object,
+      donut: PropTypes.object,
+      donutActive: PropTypes.object,
+      geomap: PropTypes.object,
+      geomapActive: PropTypes.object,
+      lineplot: PropTypes.object,
+      lineplotActive: PropTypes.object,
+      stacked: PropTypes.object,
+      stackedActive: PropTypes.object,
+      treemap: PropTypes.object,
+      treemapActive: PropTypes.object
+    })
+  }),
+  datasetDidChange: PropTypes.func,
   datasetWillChange: PropTypes.func,
-  datasetDidChange: PropTypes.func
+  src: PropTypes.string.isRequired
+};
+
+// EXAMPLE, will be removed later
+Vizbuilder.defaultProps = {
+  config: {
+    topojson: {
+      default: {
+        topojson: "/topojson/states.json",
+        topojsonId: "id",
+        topojsonKey: "states"
+      },
+      State: {
+        topojson: "/topojson/states.json",
+        topojsonId: "id",
+        topojsonKey: "states"
+      }
+    },
+    chartConfig: {
+      common: {
+        totalConfig: {
+          fontSize: 10,
+          padding: 5,
+          resize: false,
+          textAnchor: "middle"
+        },
+        confidenceConfig: {
+          fillOpacity: 0.15
+        }
+      },
+      geomap: {
+        ocean: "transparent",
+        projection: "geoAlbersUsa",
+        tiles: false,
+        zoom: true,
+        zoomFactor: 2
+      }
+    }
+  }
 };
 
 export default Vizbuilder;
