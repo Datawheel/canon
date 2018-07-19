@@ -1,5 +1,3 @@
-import {isWindowAvailable} from "./validation";
-
 export const STATES = [
   "Hawaii",
   "Alaska",
@@ -56,7 +54,7 @@ export const STATES = [
 ];
 
 export function getAreaChartDimensions() {
-  if (isWindowAvailable) {
+  if (typeof window !== "undefined") {
     const areaChart = document.querySelector(
       ".vizbuilder .area-chart > .wrapper"
     );

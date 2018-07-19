@@ -2,18 +2,23 @@ import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
 import queryString from "query-string";
+import {Position, Toaster} from "@blueprintjs/core";
 
 import {fetchCubes} from "./actions/fetch";
 import {loadControl, setStatePromise} from "./actions/loadstate";
 import AreaChart from "./components/AreaChart";
 import AreaLoading from "./components/AreaLoading";
 import AreaSidebar from "./components/AreaSidebar";
-import {UIToaster} from "./components/UIToaster";
 import * as api from "./helpers/api";
 import initialState from "./state";
 
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
+
+const UIToaster =
+  typeof window !== "undefined"
+    ? Toaster.create({className: "area-toaster", position: Position.TOP})
+    : null;
 
 class Vizbuilder extends React.PureComponent {
   constructor(props) {
