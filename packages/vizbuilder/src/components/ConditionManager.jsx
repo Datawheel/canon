@@ -2,10 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import {Button} from "@blueprintjs/core";
 import classNames from "classnames";
+import {uuid} from "d3plus-common";
 
 import {fetchQuery} from "../actions/fetch";
 import OPERATORS from "../helpers/operators";
-import {makeRandomId} from "../helpers/random";
 
 import ConditionItem from "./ConditionItem";
 
@@ -26,7 +26,7 @@ class ConditionManager extends React.Component {
     const {stateUpdate} = this.context;
 
     const newConditions = [].concat(conditions, {
-      hash: makeRandomId(),
+      hash: uuid(),
       operator: OPERATORS.EQUAL,
       property: "",
       type: "cut",

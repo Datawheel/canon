@@ -3,7 +3,6 @@ import union from "lodash/union";
 import {unique} from "shorthash";
 
 import {STATES} from "./constants";
-import {sortSlice} from "./random";
 
 export function isTimeDimension(dimension) {
   return dimension.dimensionType === 1 || dimension.name === "Date" || dimension.name === "Year";
@@ -200,6 +199,16 @@ export function getIncludedMembers(query, dataset) {
   else {
     return {};
   }
+}
+
+/**
+ * Slices a string to
+ * @param {string} string The string to slice
+ * @returns {string}
+ */
+export function sortSlice(string) {
+  string = `${string}`.replace(/\W/g, "").toLowerCase();
+  return `${string.slice(0, 5)}-----`.slice(0, 6);
 }
 
 export function sortByCustomKey(key) {
