@@ -84,6 +84,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      title: `Barchart of ${measureName} by ${drilldownName}`,
       discrete: "x",
       x: drilldownName,
       xConfig: {title: drilldownName},
@@ -119,6 +120,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      title: `Barchart of ${measureName} by ${drilldownName}`,
       discrete: "x",
       x: drilldownName,
       xConfig: {title: drilldownName},
@@ -142,6 +144,7 @@ const makeConfig = {
 
     return {
       ...config,
+      // title: `Histogram of ${measureName} by ${drilldownName}`,
       groupPadding: 0,
       ...userConfig
     };
@@ -159,6 +162,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      title: `Donut chart of ${measureName} by ${drilldownName}`,
       xConfig: {title: null},
       y: measureName,
       yConfig: {title: measureName},
@@ -182,6 +186,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      title: `Geomap of ${measureName} by ${drilldownName}`,
       colorScale: measureName,
       colorScalePosition: isActive ? "bottom" : false,
       groupBy: `ID ${drilldownName}`,
@@ -211,6 +216,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      title: `Line plot of ${measureName} by ${drilldownName}`,
       discrete: "x",
       groupBy: drilldown.hierarchy.levels[1].name,
       x: drilldownName,
@@ -232,7 +238,10 @@ const makeConfig = {
     return config;
   },
   stacked(commonConfig, query, flags) {
-    const config = this.lineplot(commonConfig, query);
+    const config = this.lineplot(commonConfig, query, flags);
+
+    const drilldownName = query.drilldown.name;
+    const measureName = query.measure.name;
 
     const userConfig =
       flags.activeType == "stacked"
@@ -241,11 +250,15 @@ const makeConfig = {
 
     return {
       ...config,
+      title: `Stacked area chart of ${measureName} by ${drilldownName}`,
       ...userConfig
     };
   },
   treemap(commonConfig, query, flags) {
-    const {drilldown} = query;
+    const {drilldown, measure} = query;
+
+    const drilldownName = drilldown.name;
+    const measureName = measure.name;
 
     const levels = drilldown.hierarchy.levels;
     const ddIndex = levels.indexOf(drilldown);
@@ -257,6 +270,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      title: `Treemap of ${measureName} by ${drilldownName}`,
       groupBy: levels.slice(1, ddIndex + 1).map(lvl => lvl.name),
       ...userConfig
     };

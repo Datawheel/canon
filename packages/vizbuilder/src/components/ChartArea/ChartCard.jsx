@@ -16,22 +16,15 @@ class ChartCard extends React.Component {
     } = this.props;
     const ChartComponent = charts[type];
 
-    const title = `${type} of ${query.measure.name || ""} by ${query.drilldown
-      .name || ""}`;
-
     config.data = dataset;
 
     return (
       <div className="chart-card">
         <div className="wrapper">
-          <header>
-            <span className="title">{title}</span>
-            {!(/StackedArea|LinePlot/).test(type) && yearSelector}
-          </header>
-
           <ChartComponent config={config} />
 
           <footer>
+            {!(/StackedArea|LinePlot/).test(type) && yearSelector}
             <Button
               className="pt-minimal"
               iconName={active ? "cross" : "zoom-in"}
