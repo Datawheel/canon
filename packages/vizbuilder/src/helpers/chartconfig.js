@@ -7,7 +7,7 @@ import {
   Treemap
 } from "d3plus-react";
 import {formatAbbreviate} from "d3plus-format";
-import {sortByGeographyState, sortByCustomKey} from "./sorting";
+import {sortByCustomKey} from "./sorting";
 
 export const charts = {
   barchart: BarChart,
@@ -78,7 +78,7 @@ const makeConfig = {
     const measureName = measure.name;
 
     const userConfig =
-      flags.activeType == "barchart"
+      flags.activeType === "barchart" && flags.chartConfig.barchartActive
         ? flags.chartConfig.barchartActive
         : flags.chartConfig.barchart;
 
@@ -91,18 +91,12 @@ const makeConfig = {
       y: measureName,
       yConfig: {title: measureName},
       stacked: drilldown.depth > 1,
+      xSort: sortByCustomKey(drilldownName),
       ...userConfig
     };
 
     if (timeDrilldown) {
       config.groupBy = [timeDrilldown.hierarchy.levels[1].name];
-    }
-
-    if (flags.availableKeys.has("State")) {
-      config.xSort = sortByGeographyState;
-    }
-    else {
-      config.xSort = sortByCustomKey(drilldownName);
     }
 
     return config;
@@ -114,7 +108,7 @@ const makeConfig = {
     const measureName = measure.name;
 
     const userConfig =
-      flags.activeType == "barchartyear"
+      flags.activeType === "barchartyear"
         ? flags.chartConfig.barchartyearActive
         : flags.chartConfig.barchartyear;
 
@@ -138,7 +132,7 @@ const makeConfig = {
     const config = this.barchart(commonConfig, query, flags);
 
     const userConfig =
-      flags.activeType == "histogram"
+      flags.activeType === "histogram"
         ? flags.chartConfig.histogramActive
         : flags.chartConfig.histogram;
 
@@ -156,7 +150,7 @@ const makeConfig = {
     const measureName = measure.name;
 
     const userConfig =
-      flags.activeType == "donut"
+      flags.activeType === "donut"
         ? flags.chartConfig.donutActive
         : flags.chartConfig.donut;
 
@@ -210,7 +204,7 @@ const makeConfig = {
     const measureName = measure.name;
 
     const userConfig =
-      flags.activeType == "lineplot"
+      flags.activeType === "lineplot"
         ? flags.chartConfig.lineplotActive
         : flags.chartConfig.lineplot;
 
@@ -244,7 +238,7 @@ const makeConfig = {
     const measureName = query.measure.name;
 
     const userConfig =
-      flags.activeType == "stacked"
+      flags.activeType === "stacked"
         ? flags.chartConfig.stackedActive
         : flags.chartConfig.stacked;
 
@@ -264,7 +258,7 @@ const makeConfig = {
     const ddIndex = levels.indexOf(drilldown);
 
     const userConfig =
-      flags.activeType == "treemap"
+      flags.activeType === "treemap"
         ? flags.chartConfig.treemapActive
         : flags.chartConfig.treemap;
 

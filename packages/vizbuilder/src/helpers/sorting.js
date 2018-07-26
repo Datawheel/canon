@@ -2,8 +2,6 @@ import sort from "fast-sort";
 import union from "lodash/union";
 import {unique} from "shorthash";
 
-import {STATES} from "./constants";
-
 export function isTimeDimension(dimension) {
   return (
     dimension.dimensionType === 1 ||
@@ -136,11 +134,7 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
 export function reduceLevelsFromDimension(container, dimension) {
   return isTimeDimension(dimension)
     ? container
-    : dimension.hierarchies.reduce(reduceLevelsFromHierarchy, container);
-}
-
-export function reduceLevelsFromHierarchy(container, hierarchy) {
-  return container.concat(hierarchy.levels.slice(1));
+    : dimension.hierarchies.reduce((container, hierarchy) => container.concat(hierarchy.levels.slice(1)), container);
 }
 
 export function joinDrilldownList(array, drilldown) {
@@ -169,11 +163,12 @@ export function composePropertyName(item) {
   let txt = item.name;
   if ("hierarchy" in item) {
     const hname = item.hierarchy.name;
-    if (hname !== item.name && hname !== item.hierarchy.dimension.name) {
+    const dname = item.hierarchy.dimension.name;
+    if (hname !== item.name && hname !== dname) {
       txt = `${item.hierarchy.name} › ${txt}`;
     }
-    if (item.name !== item.hierarchy.dimension.name) {
-      txt = `${item.hierarchy.dimension.name} › ${txt}`;
+    if (dname !== item.name) {
+      txt = `${dname} › ${txt}`;
     }
   }
   return txt;
@@ -212,8 +207,4 @@ export function sortSlice(string) {
 
 export function sortByCustomKey(key) {
   return (a, b) => `${a[key]}`.localeCompare(`${b[key]}`);
-}
-
-export function sortByGeographyState(a, b) {
-  return STATES.indexOf(a.State) - STATES.indexOf(b.State);
 }
