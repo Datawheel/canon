@@ -1,6 +1,13 @@
 import {SYMBOLS as OPERATOR_SYMBOLS} from "./operators";
 import {isValidCut, isValidFilter} from "./validation";
 
+/**
+ * Converts the params in the current `query` state to a
+ * mondrian-rest-client Query object.
+ * @param {Query} query A new Query object, obtained from the corresponding Cube.
+ * @param {object} params A query params object, ready to be implemented.
+ * @returns {Query}
+ */
 export function queryBuilder(query, params) {
   let i, item;
 
@@ -49,6 +56,12 @@ export function queryBuilder(query, params) {
   return query; // setLangCaptions(query, params.locale);
 }
 
+/**
+ * Creates a query params object, ready to be converted into a
+ * mondrian-rest-client Query object.
+ * @param {object} params The current `query` object from the Vizbuilder state.
+ * @returns {object}
+ */
 export function queryConverter(params) {
   const query = {
     measures: [params.measure.name],

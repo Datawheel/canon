@@ -11,15 +11,22 @@ import {
 } from "../helpers/sorting";
 
 /**
- * These functions should be handled/called with `this`
- * as the component where they are used.
+ * Returns the first element in the `haystack` whose `_key` annotation
+ * matches the `needle` param. If none found, returns the first element
+ * from the `haystack`.
+ * @param {string} needle The key to match
+ * @param {any[]} haystack The array where to search for the object.
  */
+export function findByKeyOrFirst(needle, haystack) {
+  return needle
+    ? haystack.find(item => item.annotations._key === needle) || haystack[0]
+    : haystack[0];
+}
 
-const findByKeyOrFirst = (key, array) =>
-  key
-    ? array.find(item => item.annotations._key === key) || array[0]
-    : array[0];
-
+/**
+ * Retrieves the cube list and prepares the initial state for the first query
+ * @param {object} locationQuery An object made from key-string pairs, from the parsing of the current Location.search
+ */
 export function fetchCubes(locationQuery) {
   return api.cubes().then(cubes => {
     locationQuery = locationQuery || {};
@@ -67,12 +74,19 @@ export function fetchCubes(locationQuery) {
   });
 }
 
+/**
+ * Retrieves all the members for a certain Level.
+ * @param {Level} level A mondrian-rest-client Level object
+ */
 export function fetchMembers(level) {
   this.setState({loading: true, members: []}, () =>
     api.members(level).then(members => this.setState({loading: false, members}))
   );
 }
 
+/**
+ * Retrieves the dataset for the query in the current Vizbuilder state.
+ */
 export function fetchQuery() {
   const {query, queryOptions} = this.props;
   return api.query({

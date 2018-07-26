@@ -2,6 +2,11 @@ import sort from "fast-sort";
 import union from "lodash/union";
 import {unique} from "shorthash";
 
+/**
+ * Checks if the dimension passed as argument is a time-type dimension.
+ * @param {Dimension} dimension A mondrian-rest-client dimension object
+ * @returns {boolean}
+ */
 export function isTimeDimension(dimension) {
   return (
     dimension.dimensionType === 1 ||
@@ -10,6 +15,13 @@ export function isTimeDimension(dimension) {
   );
 }
 
+/**
+ * Prepares the array of cubes that will be used in the vizbuilder.
+ * Specifically, filters the cubes that aren't for public use, and injects
+ * information about the parent cube into the annotations of its measures
+ * and levels.
+ * @param {Cube[]} cubes An array of cubes. This array is modified in place.
+ */
 export function injectCubeInfoOnMeasure(cubes) {
   let nCbs = cubes.length;
   while (nCbs--) {
@@ -65,6 +77,11 @@ export function injectCubeInfoOnMeasure(cubes) {
   }
 }
 
+/**
+ * Reduces a list of cubes to the measures that will be used in the vizbuilder.
+ * @param {Cube[]} cubes An array of the cubes to be reduced.
+ * @returns {Measure[]}
+ */
 export function getValidMeasures(cubes) {
   cubes = [].concat(cubes);
   const measures = [];
@@ -89,6 +106,13 @@ export function getValidMeasures(cubes) {
   return sort(measures).asc(a => a.annotations._selectorKey);
 }
 
+/**
+ * Returns the MOE measure for a certain measure, in the full measure list
+ * from the cube. If there's no MOE for the measure, returns undefined.
+ * @param {Cube} cube The measure's parent cube
+ * @param {*} measure The measure
+ * @returns {Measure|undefined}
+ */
 export function getMeasureMOE(cube, measure) {
   const measureName = RegExp(measure.name, "i");
 
@@ -107,15 +131,32 @@ export function getMeasureMOE(cube, measure) {
   return undefined;
 }
 
+/**
+ * Returns an array with non-time dimensions from a cube.
+ * @param {Cube} cube The cube where the dimensions will be reduced from
+ * @returns {Dimension[]}
+ */
 export function getValidDimensions(cube) {
   return cube.dimensions.filter(dim => !isTimeDimension(dim));
 }
 
+/**
+ * Extracts the levels from non-time dimensions, to be used as drilldowns.
+ * @param {Dimension[]} dimensions The dimensions where to extract levels from.
+ * @returns {Level[]}
+ */
 export function getValidDrilldowns(dimensions) {
   // TODO: check if it's necessary to prepare this for NamedSets
   return dimensions.reduce(reduceLevelsFromDimension, []);
 }
 
+/**
+ * Modifies the `array`, removing the Level elements that would cause an
+ * incompatibility problem in a cut if queried with the `interestLevel` as
+ * a drilldown.
+ * @param {Level[]} array An array of mondrian-rest-client Levels
+ * @param {Level} interestLevel The Level to test by hierarchy incompatibility
+ */
 export function preventHierarchyIncompatibility(array, interestLevel) {
   const interestHierarchy = interestLevel.hierarchy;
 
@@ -131,12 +172,24 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
   }
 }
 
+/**
+ * A function to be reused in the `Array.prototype.reduce` method, to obtain
+ * the valid Level elements from an array of Dimension elements.
+ * @param {Dimension[]} container The target array to save the reduced elements
+ * @param {Dimension} dimension The current Dimension in the iteration
+ * @returns {Dimension[]}
+ */
 export function reduceLevelsFromDimension(container, dimension) {
   return isTimeDimension(dimension)
     ? container
     : dimension.hierarchies.reduce((container, hierarchy) => container.concat(hierarchy.levels.slice(1)), container);
 }
 
+/**
+ * Adds a Level object to a list of Level objects, and removes duplicate elements.
+ * @param {Level[]} array Target Level array
+ * @param {Level} drilldown Level object to add
+ */
 export function joinDrilldownList(array, drilldown) {
   array = array.filter(dd => dd.hierarchy !== drilldown.hierarchy);
   drilldown = [].concat(drilldown || []);
@@ -145,6 +198,12 @@ export function joinDrilldownList(array, drilldown) {
   );
 }
 
+/**
+ * Extracts a time-type Dimension from a Cube object. If not found,
+ * returns undefined.
+ * @param {Cube} cube The Cube object to extract the time Dimension from
+ * @returns {Dimension|undefined}
+ */
 export function getTimeDrilldown(cube) {
   const timeDim =
     cube.timeDimension ||
@@ -159,6 +218,11 @@ export function getTimeDrilldown(cube) {
   return undefined;
 }
 
+/**
+ * For a drilldown, generates a standard name format to use in selectors.
+ * @param {Level|Measure} item A Level or Measure object
+ * @returns {string}
+ */
 export function composePropertyName(item) {
   let txt = item.name;
   if ("hierarchy" in item) {
@@ -174,6 +238,12 @@ export function composePropertyName(item) {
   return txt;
 }
 
+/**
+ * Returns an object where the keys are the current query's drilldowns
+ * and its values are arrays with the values available in the current dataset.
+ * @param {Query} query A mondrian-rest-client Query object
+ * @param {Array<any>} dataset The result dataset for the query object passed along.
+ */
 export function getIncludedMembers(query, dataset) {
   if (dataset.length) {
     return query.getDrilldowns().reduce((members, dd) => {
@@ -196,7 +266,7 @@ export function getIncludedMembers(query, dataset) {
 }
 
 /**
- * Slices a string to
+ * Generates a string that can be used as index to sort elements.
  * @param {string} string The string to slice
  * @returns {string}
  */
@@ -205,6 +275,11 @@ export function sortSlice(string) {
   return `${string.slice(0, 5)}-----`.slice(0, 6);
 }
 
+/**
+ * Generates a sorting function to be used in `Array.prototype.sort`,
+ * based on a certain key.
+ * @param {string} key The key to the property to be used as comparison string
+ */
 export function sortByCustomKey(key) {
   return (a, b) => `${a[key]}`.localeCompare(`${b[key]}`);
 }

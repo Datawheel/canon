@@ -17,6 +17,12 @@ export function setStatePromise(newState) {
   });
 }
 
+/**
+ * Executes a change in the Vizbuilder state, while controlling the appearance
+ * of the loading screen and progress bar. It also stores error objects for
+ * easier debugging.
+ * @returns {Promise<void>}
+ */
 export function loadControl() {
   const initialState = this.state;
   const funcs = Array.from(arguments);
@@ -67,6 +73,11 @@ export function loadControl() {
   );
 }
 
+/**
+ * Returns a severity level (based on blueprint's Intent scale) depending
+ * on the type of error passed.
+ * @param {Error} error An Error object
+ */
 function getSeverityByError(error) {
   if (error.response) {
     return Intent.WARNING;
@@ -74,6 +85,11 @@ function getSeverityByError(error) {
   return Intent.DANGER;
 }
 
+/**
+ * Merges state objects up to 1 level deep in the overall state.
+ * @param {object} state The initial state
+ * @param {object} newState The new state to merge
+ */
 export function mergeStates(state, newState) {
   const finalState = {};
   const keys = Object.keys(newState);

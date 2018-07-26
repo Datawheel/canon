@@ -70,6 +70,9 @@ export const tooltipConfig = (query, keyTitle, keyBody) => {
   return config;
 };
 
+/**
+ * @prop {[x: string]: ChartConfigFunction}
+ */
 const makeConfig = {
   barchart(commonConfig, query, flags) {
     const {timeDrilldown, drilldown, measure} = query;
@@ -175,8 +178,8 @@ const makeConfig = {
       flags.topojson[drilldownName] || flags.topojson.default;
 
     const userConfig = isActive
-        ? flags.chartConfig.geomapActive
-        : flags.chartConfig.geomap;
+      ? flags.chartConfig.geomapActive
+      : flags.chartConfig.geomap;
 
     const config = {
       ...commonConfig,
@@ -273,6 +276,12 @@ const makeConfig = {
   }
 };
 
+/**
+ * Generates an array with valid config objects, depending on the type of data
+ * retrieved and the current user defined parameters, to use in d3plus charts.
+ * @param {CreateChartConfigParams} param0 The object containing the parameters
+ * @returns {CreateChartConfigResult[]}
+ */
 export default function createChartConfig({
   activeType,
   availableKeys,
@@ -348,3 +357,26 @@ export default function createChartConfig({
     config: makeConfig[type](commonConfig, query, flags)
   }));
 }
+
+/**
+ * @typedef {(commonConfig, query, flags) => object} ChartConfigFunction
+ * @param {object} commonConfig The common config between all charts
+ * @param {object} query The current `query` object from the Vizbuilder's state
+ * @param {object} flags An object with flags and other state variables
+ * @returns {object} The config for the chart of the corresponding type
+ */
+
+/**
+ * @typedef {object} CreateChartConfigParams
+ * @prop {string} activeType The currently active chart type
+ * @prop {string[]} availableKeys The currently available drilldowns in the dataset
+ * @prop {object} userConfig The config params provided by the user
+ * @prop {object} query The current `query` object from the Vizbuilder's state
+ * @prop {string} year The currently selected year
+ */
+
+/**
+ * @typedef {object} CreateChartConfigResult
+ * @prop {string} type The type of chart for this config
+ * @prop {object} config The config object for the chart
+ */
