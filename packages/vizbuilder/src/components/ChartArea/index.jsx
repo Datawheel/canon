@@ -55,8 +55,8 @@ class ChartArea extends React.Component {
         activeType: !state.activeType ? type : null
       }),
       () => {
-        this.dispatchResize();
-        this.dispatchScroll();
+        requestAnimationFrame(this.dispatchResize);
+        requestAnimationFrame(this.dispatchScroll);
       }
     );
   }
