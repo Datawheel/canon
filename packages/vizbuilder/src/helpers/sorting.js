@@ -92,10 +92,6 @@ export function getValidMeasures(cubes) {
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
-      // TODO: ensure this is checked server-side and remove
-      if (/\smoe$/i.test(measure.name)) {
-        continue;
-      }
       const key = measure.annotations.error_for_measure;
       if (key === undefined) {
         measures.push(measure);
