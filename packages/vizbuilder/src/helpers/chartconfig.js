@@ -6,7 +6,6 @@ import {
   StackedArea,
   Treemap
 } from "d3plus-react";
-import {formatAbbreviate} from "d3plus-format";
 import {sortByCustomKey} from "./sorting";
 
 export const charts = {
@@ -22,52 +21,20 @@ export const charts = {
 
 export const ALL_YEARS = "All years";
 
-export const tooltipConfig = (query, keyTitle, keyBody) => {
-  keyTitle = keyTitle || query.drilldown.name;
-  keyBody = keyBody || query.measure.name;
-
-  const config = {
-    width: 60,
-    title: d =>
-      `<h5 class="title xs-small">${[].concat(d[keyTitle]).join("<br/>")}</h5>`
+export const tooltipGenerator = (label, drilldowns, measure, moe) => {
+  const tbody = Array.from(drilldowns)
+    .filter(d => d !== label)
+    .map(dd => [dd, d => d[dd]]);
+  tbody.push([measure, d => `${(d[measure] * 1 || 0).toFixed(4)}`]);
+  if (moe) {
+    moe = moe.name;
+    tbody.push(["Margin of Error", d => `±${(d[moe] * 1 || 0).toFixed(4)}`]);
+  }
+  return {
+    title: null,
+    thead: [label, d => d[label]],
+    tbody
   };
-
-  if (query.timeDrilldown && keyTitle !== "Year") {
-    if (query.moe) {
-      const moeName = query.moe.name;
-      config.body = d =>
-        `<div>
-  <p>${keyBody}: ${formatAbbreviate(d[keyBody])}</p>
-  <p>MOE: ±${formatAbbreviate(d[moeName])}</p>
-  <p>Year: ${d.Year}</p>
-  </div>`;
-    }
-    else {
-      config.body = d =>
-        `<div>
-  <p>${keyBody}: ${formatAbbreviate(d[keyBody])}</p>
-  <p>Year: ${d.Year}</p>
-  </div>`;
-    }
-  }
-  else {
-    if (query.moe) {
-      const moeName = query.moe.name;
-      config.body = d =>
-        `<div>
-<p>${keyBody}: ${formatAbbreviate(d[keyBody])}</p>
-<p>MOE: ±${formatAbbreviate(d[moeName])}</p>
-</div>`;
-    }
-    else {
-      config.body = d =>
-        `<div>
-<p>${keyBody}: ${formatAbbreviate(d[keyBody])}</p>
-</div>`;
-    }
-  }
-
-  return config;
 };
 
 /**
@@ -125,7 +92,12 @@ const makeConfig = {
       yConfig: {title: measureName},
       stacked: true,
       groupBy: [drilldown.name],
-      tooltipConfig: tooltipConfig(query, drilldownName),
+      tooltipConfig: tooltipGenerator(
+        drilldownName,
+        flags.availableKeys,
+        measureName,
+        query.moe
+      ),
       ...userConfig
     };
 
@@ -300,7 +272,12 @@ export default function createChartConfig({
     height: activeType ? 500 : 400,
     legend: false,
 
-    tooltipConfig: tooltipConfig(query),
+    tooltipConfig: tooltipGenerator(
+      query.drilldown.name,
+      availableKeys,
+      measureName,
+      query.moe
+    ),
 
     duration: 0,
     sum: getMeasureName,
