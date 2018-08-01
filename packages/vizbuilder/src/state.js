@@ -33,11 +33,16 @@ export default function initialStateFactory() {
       sparse: true
     },
     options: {
-      cubes: [], // All cubes retrieved initially
-      dimensions: [], /* All non-time dimensions for the
-                         cube which owns the current measure */
-      levels: [], // All valid levels from this `dimensions` array
-      measures: [], // All valid measures (not MoEs) from all the cubes retrieved
+      // All cubes retrieved initially
+      cubes: [],
+      // All non-time Dimensions for the cube which owns the current measure
+      dimensions: [],
+      // All valid levels from the `dimensions` array
+      levels: [],
+      // All non-time Levels that can be used as Cuts for the current query
+      drilldowns: [],
+      // All valid measures (not MoEs) from all the cubes retrieved
+      measures: [],
       // ??
       members: []
     },

@@ -45,17 +45,13 @@ class Vizbuilder extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const {src, datasetDidChange} = this.props;
-    const {dataset, load} = this.state;
+    const {src} = this.props;
+    const {load} = this.state;
     const {error, severity} = load;
 
     if (src && prevProps.src !== src) {
       api.resetClient(src);
       this.setState(initialState(), this.firstLoad);
-    }
-
-    if (datasetDidChange && dataset !== prevState.dataset) {
-      datasetDidChange(dataset);
     }
 
     if (error && prevState.load.error !== error) {
@@ -145,8 +141,6 @@ Vizbuilder.propTypes = {
       treemapActive: PropTypes.object
     })
   }),
-  datasetDidChange: PropTypes.func,
-  datasetWillChange: PropTypes.func,
   src: PropTypes.string.isRequired
 };
 

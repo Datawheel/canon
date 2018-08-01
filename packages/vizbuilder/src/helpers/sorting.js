@@ -142,7 +142,6 @@ export function getValidDimensions(cube) {
  * @returns {Level[]}
  */
 export function getValidDrilldowns(dimensions) {
-  // TODO: check if it's necessary to prepare this for NamedSets
   return dimensions.reduce(reduceLevelsFromDimension, []);
 }
 

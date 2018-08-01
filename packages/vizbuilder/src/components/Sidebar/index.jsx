@@ -51,12 +51,12 @@ class Sidebar extends React.PureComponent {
   }
 
   setDrilldown(drilldown) {
-    const {options} = this.props;
+    const {dimensions, levels} = this.props.options;
     const {loadControl} = this.context;
 
-    if (options.levels.indexOf(drilldown) > -1) {
+    if (levels.indexOf(drilldown) > -1) {
       return loadControl(() => {
-        const drilldowns = getValidDrilldowns(options.dimensions);
+        const drilldowns = getValidDrilldowns(dimensions);
         preventHierarchyIncompatibility(drilldowns, drilldown);
 
         return {
