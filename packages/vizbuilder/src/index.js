@@ -149,14 +149,27 @@ Vizbuilder.defaultProps = {
   config: {
     topojson: {
       default: {
-        topojson: "/topojson/states.json",
+        topojson: "/topojson/world.json",
         topojsonId: "id",
-        topojsonKey: "states"
+        topojsonKey: "countries"
       },
       State: {
         topojson: "/topojson/states.json",
         topojsonId: "id",
         topojsonKey: "states"
+      },
+      Puma: {
+        topojson: "/topojson/pumas.json",
+        topojsonId: "id",
+        topojsonKey: "pumas"
+      },
+      get PUMA() {
+        return this.Puma;
+      },
+      Msa: {
+        topojson: "/topojson/msas.json",
+        topojsonId: "id",
+        topojsonKey: "msas"
       }
     },
     chartConfig: {
