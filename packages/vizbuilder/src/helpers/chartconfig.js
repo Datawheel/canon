@@ -3,6 +3,7 @@ import {
   Donut,
   Geomap,
   LinePlot,
+  Pie,
   StackedArea,
   Treemap
 } from "d3plus-react";
@@ -11,10 +12,11 @@ import {sortByCustomKey} from "./sorting";
 export const charts = {
   barchart: BarChart,
   barchartyear: BarChart,
-  // histogram: BarChart,
   donut: Donut,
   geomap: Geomap,
+  // histogram: BarChart,
   lineplot: LinePlot,
+  pie: Pie,
   stacked: StackedArea,
   treemap: Treemap
 };
@@ -103,21 +105,6 @@ const makeConfig = {
 
     return config;
   },
-  histogram(commonConfig, query, flags) {
-    const config = this.barchart(commonConfig, query, flags);
-
-    const userConfig =
-      flags.activeType === "histogram"
-        ? flags.chartConfig.histogramActive
-        : flags.chartConfig.histogram;
-
-    return {
-      ...config,
-      // title: `Histogram of ${measureName} by ${drilldownName}`,
-      groupPadding: 0,
-      ...userConfig
-    };
-  },
   donut(commonConfig, query, flags) {
     const {drilldown, measure} = query;
 
@@ -172,6 +159,21 @@ const makeConfig = {
 
     return config;
   },
+  histogram(commonConfig, query, flags) {
+    const config = this.barchart(commonConfig, query, flags);
+
+    const userConfig =
+      flags.activeType === "histogram"
+        ? flags.chartConfig.histogramActive
+        : flags.chartConfig.histogram;
+
+    return {
+      ...config,
+      // title: `Histogram of ${measureName} by ${drilldownName}`,
+      groupPadding: 0,
+      ...userConfig
+    };
+  },
   lineplot(commonConfig, query, flags) {
     const {timeDrilldown, drilldown, measure, moe} = query;
 
@@ -205,6 +207,9 @@ const makeConfig = {
     }
 
     return config;
+  },
+  pie(commonConfig, query, flags) {
+    return this.donut(commonConfig, query, flags);
   },
   stacked(commonConfig, query, flags) {
     const config = this.lineplot(commonConfig, query, flags);
