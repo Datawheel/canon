@@ -18,6 +18,9 @@ module.exports = function(sequelize, db) {
       instagram: db.STRING,
       linkedin: db.STRING,
       twitter: db.STRING
+    },
+    {
+      freezeTableName: true
     }
   );
 
