@@ -96,8 +96,8 @@ class ChartArea extends React.Component {
 
     const chartConfig = createChartConfig({
       activeType,
-      availableKeys: new Set(Object.keys(members)),
       query,
+      members,
       userConfig,
       year
     });
