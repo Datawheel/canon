@@ -256,15 +256,17 @@ const makeConfig = {
  */
 export default function createChartConfig({
   activeType,
-  availableKeys,
-  userConfig,
+  members,
   query,
+  userConfig,
   year
 }) {
+  const availableKeys = new Set(Object.keys(members));
   const availableCharts = new Set(
     activeType ? [activeType] : Object.keys(charts)
   );
 
+  const drilldownName = query.drilldown.name;
   const measureName = query.measure.name;
   const getMeasureName = d => d[measureName];
 
@@ -273,7 +275,7 @@ export default function createChartConfig({
     legend: false,
 
     tooltipConfig: tooltipGenerator(
-      query.drilldown.name,
+      drilldownName,
       availableKeys,
       measureName,
       query.moe
@@ -285,6 +287,10 @@ export default function createChartConfig({
 
     ...userConfig.chartConfig.common
   };
+
+  if (members[drilldownName].length > 20) {
+    availableCharts.delete("barchart");
+  }
 
   if (!activeType) {
     const hasTimeDim = availableKeys.has("Year");
@@ -346,9 +352,9 @@ export default function createChartConfig({
 /**
  * @typedef {object} CreateChartConfigParams
  * @prop {string} activeType The currently active chart type
- * @prop {string[]} availableKeys The currently available drilldowns in the dataset
- * @prop {object} userConfig The config params provided by the user
+ * @prop {object} members An object with the members in the current dataset
  * @prop {object} query The current `query` object from the Vizbuilder's state
+ * @prop {object} userConfig The config params provided by the user
  * @prop {string} year The currently selected year
  */
 
