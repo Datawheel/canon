@@ -7,6 +7,7 @@ import {
   StackedArea,
   Treemap
 } from "d3plus-react";
+import {formatAbbreviate} from "d3plus-format";
 import {sortByCustomKey} from "./sorting";
 
 export const charts = {
@@ -27,10 +28,10 @@ export const tooltipGenerator = (label, drilldowns, measure, moe) => {
   const tbody = Array.from(drilldowns)
     .filter(d => d !== label)
     .map(dd => [dd, d => d[dd]]);
-  tbody.push([measure, d => `${(d[measure] * 1 || 0).toFixed(4)}`]);
+  tbody.push([measure, d => `${formatAbbreviate(d[measure] * 1 || 0)}`]);
   if (moe) {
     moe = moe.name;
-    tbody.push(["Margin of Error", d => `±${(d[moe] * 1 || 0).toFixed(4)}`]);
+    tbody.push(["Margin of Error", d => `±${formatAbbreviate(d[moe] * 1 || 0)}`]);
   }
   return {
     title: null,
