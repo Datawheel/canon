@@ -49,11 +49,6 @@ const makeConfig = {
     const drilldownName = drilldown.name;
     const measureName = measure.name;
 
-    const userConfig =
-      flags.activeType === "barchart" && flags.chartConfig.barchartActive
-        ? flags.chartConfig.barchartActive
-        : flags.chartConfig.barchart;
-
     const config = {
       ...commonConfig,
       title: `Barchart of ${measureName} by ${drilldownName}`,
@@ -64,7 +59,7 @@ const makeConfig = {
       yConfig: {title: measureName},
       stacked: drilldown.depth > 1,
       xSort: sortByCustomKey(drilldownName),
-      ...userConfig
+      ...flags.chartConfig
     };
 
     if (timeDrilldown) {
@@ -78,11 +73,6 @@ const makeConfig = {
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
-
-    const userConfig =
-      flags.activeType === "barchartyear"
-        ? flags.chartConfig.barchartyearActive
-        : flags.chartConfig.barchartyear;
 
     const config = {
       ...commonConfig,
@@ -100,7 +90,7 @@ const makeConfig = {
         measureName,
         query.moe
       ),
-      ...userConfig
+      ...flags.chartConfig
     };
 
     return config;
@@ -111,11 +101,6 @@ const makeConfig = {
     const drilldownName = drilldown.name;
     const measureName = measure.name;
 
-    const userConfig =
-      flags.activeType === "donut"
-        ? flags.chartConfig.donutActive
-        : flags.chartConfig.donut;
-
     const config = {
       ...commonConfig,
       title: `Donut chart of ${measureName} by ${drilldownName}`,
@@ -123,7 +108,7 @@ const makeConfig = {
       y: measureName,
       yConfig: {title: measureName},
       groupBy: drilldownName,
-      ...userConfig
+      ...flags.chartConfig
     };
 
     return config;
@@ -136,10 +121,6 @@ const makeConfig = {
     const topojsonConfig =
       flags.topojson[drilldownName] || flags.topojson.default;
 
-    const userConfig = isActive
-      ? flags.chartConfig.geomapActive
-      : flags.chartConfig.geomap;
-
     const config = {
       ...commonConfig,
       title: `Geomap of ${measureName} by ${drilldownName}`,
@@ -148,7 +129,7 @@ const makeConfig = {
       groupBy: `ID ${drilldownName}`,
       zoomScroll: false,
       ...topojsonConfig,
-      ...userConfig
+      ...flags.chartConfig
     };
 
     if (isActive) {
@@ -162,16 +143,11 @@ const makeConfig = {
   histogram(commonConfig, query, flags) {
     const config = this.barchart(commonConfig, query, flags);
 
-    const userConfig =
-      flags.activeType === "histogram"
-        ? flags.chartConfig.histogramActive
-        : flags.chartConfig.histogram;
-
     return {
       ...config,
       // title: `Histogram of ${measureName} by ${drilldownName}`,
       groupPadding: 0,
-      ...userConfig
+      ...flags.chartConfig
     };
   },
   lineplot(commonConfig, query, flags) {
@@ -179,11 +155,6 @@ const makeConfig = {
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
-
-    const userConfig =
-      flags.activeType === "lineplot"
-        ? flags.chartConfig.lineplotActive
-        : flags.chartConfig.lineplot;
 
     const config = {
       ...commonConfig,
@@ -194,7 +165,7 @@ const makeConfig = {
       xConfig: {title: drilldownName},
       y: measureName,
       yConfig: {title: measureName},
-      ...userConfig
+      ...flags.chartConfig
     };
 
     if (moe) {
@@ -217,15 +188,10 @@ const makeConfig = {
     const drilldownName = query.drilldown.name;
     const measureName = query.measure.name;
 
-    const userConfig =
-      flags.activeType === "stacked"
-        ? flags.chartConfig.stackedActive
-        : flags.chartConfig.stacked;
-
     return {
       ...config,
       title: `Stacked area chart of ${measureName} by ${drilldownName}`,
-      ...userConfig
+      ...flags.chartConfig
     };
   },
   treemap(commonConfig, query, flags) {
@@ -237,16 +203,11 @@ const makeConfig = {
     const levels = drilldown.hierarchy.levels;
     const ddIndex = levels.indexOf(drilldown);
 
-    const userConfig =
-      flags.activeType === "treemap"
-        ? flags.chartConfig.treemapActive
-        : flags.chartConfig.treemap;
-
     const config = {
       ...commonConfig,
       title: `Treemap of ${measureName} by ${drilldownName}`,
       groupBy: levels.slice(1, ddIndex + 1).map(lvl => lvl.name),
-      ...userConfig
+      ...flags.chartConfig
     };
 
     return config;
@@ -263,12 +224,14 @@ export default function createChartConfig({
   activeType,
   members,
   query,
+  topojson,
   userConfig,
+  visualizations,
   year
 }) {
   const availableKeys = new Set(Object.keys(members));
   const availableCharts = new Set(
-    activeType ? [activeType] : Object.keys(charts)
+    activeType ? [activeType] : visualizations
   );
 
   const drilldownName = query.drilldown.name;
@@ -288,9 +251,7 @@ export default function createChartConfig({
 
     duration: 0,
     sum: getMeasureName,
-    value: getMeasureName,
-
-    ...userConfig.chartConfig.common
+    value: getMeasureName
   };
 
   if (members[drilldownName].length > 20) {
@@ -335,15 +296,16 @@ export default function createChartConfig({
   const flags = {
     activeType,
     availableKeys,
-    topojson: userConfig.topojson || {},
-    chartConfig: userConfig.chartConfig || {},
+    topojson: topojson || {},
+    chartConfig: userConfig || {},
     year
   };
 
-  return Array.from(availableCharts, type => ({
-    type,
-    config: makeConfig[type](commonConfig, query, flags)
-  }));
+  return Array.from(availableCharts, type =>
+    type in charts
+      ? {type, config: makeConfig[type](commonConfig, query, flags)}
+      : null
+  ).filter(Boolean);
 }
 
 /**
@@ -358,8 +320,10 @@ export default function createChartConfig({
  * @typedef {object} CreateChartConfigParams
  * @prop {string} activeType The currently active chart type
  * @prop {object} members An object with the members in the current dataset
- * @prop {object} query The current `query` object from the Vizbuilder's state
+ * @prop {object} query The current query object from the Vizbuilder's state
+ * @prop {object} topojson An object where keys are Level names and values are config params for the topojson properties
  * @prop {object} userConfig The config params provided by the user
+ * @prop {string[]} visualizations An array with valid visualization names to present
  * @prop {string} year The currently selected year
  */
 

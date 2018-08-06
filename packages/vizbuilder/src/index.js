@@ -61,7 +61,7 @@ class Vizbuilder extends React.PureComponent {
   }
 
   render() {
-    const {config} = this.props;
+    const {config, topojson, visualizations} = this.props;
     const {dataset, load, members, options, query, queryOptions} = this.state;
     return (
       <div className={classnames("vizbuilder", {loading: load.inProgress})}>
@@ -75,7 +75,9 @@ class Vizbuilder extends React.PureComponent {
           dataset={dataset}
           members={members}
           query={query}
+          topojson={topojson}
           userConfig={config}
+          visualizations={visualizations}
         />
       </div>
     );
@@ -115,84 +117,36 @@ Vizbuilder.childContextTypes = {
 };
 
 Vizbuilder.propTypes = {
-  config: PropTypes.shape({
-    topojson: PropTypes.objectOf(
-      PropTypes.shape({
-        topojson: PropTypes.string.isRequired,
-        topojsonId: PropTypes.string,
-        topojsonKey: PropTypes.string
-      })
-    ),
-    chartConfig: PropTypes.shape({
-      common: PropTypes.object,
-      barchart: PropTypes.object,
-      barchartActive: PropTypes.object,
-      barchartyear: PropTypes.object,
-      barchartyearActive: PropTypes.object,
-      donut: PropTypes.object,
-      donutActive: PropTypes.object,
-      geomap: PropTypes.object,
-      geomapActive: PropTypes.object,
-      lineplot: PropTypes.object,
-      lineplotActive: PropTypes.object,
-      stacked: PropTypes.object,
-      stackedActive: PropTypes.object,
-      treemap: PropTypes.object,
-      treemapActive: PropTypes.object
+  // this config object will be applied to all charts
+  config: PropTypes.object,
+  src: PropTypes.string.isRequired,
+  topojson: PropTypes.objectOf(
+    // keys are the Level names where each object apply
+    PropTypes.shape({
+      // URL for the topojson file
+      topojson: PropTypes.string.isRequired,
+      // the key that relates each topojson shape with the dataset value
+      topojsonId: PropTypes.string,
+      // the key in the topojson file for the shapes to use
+      topojsonKey: PropTypes.string
     })
-  }),
-  src: PropTypes.string.isRequired
+  ),
+  visualizations: PropTypes.arrayOf(PropTypes.string)
 };
 
 // EXAMPLE, will be removed later
 Vizbuilder.defaultProps = {
-  config: {
-    topojson: {
-      default: {
-        topojson: "/topojson/world.json",
-        topojsonId: "id",
-        topojsonKey: "countries"
-      },
-      State: {
-        topojson: "/topojson/states.json",
-        topojsonId: "id",
-        topojsonKey: "states"
-      },
-      Puma: {
-        topojson: "/topojson/pumas.json",
-        topojsonId: "id",
-        topojsonKey: "pumas"
-      },
-      get PUMA() {
-        return this.Puma;
-      },
-      Msa: {
-        topojson: "/topojson/msas.json",
-        topojsonId: "id",
-        topojsonKey: "msas"
-      }
-    },
-    chartConfig: {
-      common: {
-        totalConfig: {
-          fontSize: 10,
-          padding: 5,
-          resize: false,
-          textAnchor: "middle"
-        },
-        confidenceConfig: {
-          fillOpacity: 0.15
-        }
-      },
-      geomap: {
-        ocean: "transparent",
-        projection: "geoAlbersUsa",
-        tiles: false,
-        zoom: true,
-        zoomFactor: 2
-      }
-    }
-  }
+  config: {},
+  topojson: {},
+  visualizations: [
+    "treemap",
+    "barchart",
+    "geomap",
+    "histogram",
+    "barchartyear",
+    "lineplot",
+    "stacked"
+  ]
 };
 
 export default Vizbuilder;

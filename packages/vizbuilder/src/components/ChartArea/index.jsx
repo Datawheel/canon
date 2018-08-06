@@ -30,6 +30,7 @@ class ChartArea extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return (
       this.props.dataset !== nextProps.dataset ||
+      this.props.visualizations !== nextProps.visualizations ||
       this.state.activeType !== nextState.activeType ||
       this.state.year !== nextState.year
     );
@@ -68,7 +69,7 @@ class ChartArea extends React.Component {
   }
 
   render() {
-    const {dataset, members, query, userConfig} = this.props;
+    const {dataset, members, query, topojson, userConfig, visualizations} = this.props;
     const {activeType} = this.state;
     const hasYearMember = Array.isArray(members.Year);
     const year =
@@ -98,7 +99,9 @@ class ChartArea extends React.Component {
       activeType,
       query,
       members,
+      topojson,
       userConfig,
+      visualizations,
       year
     });
 
