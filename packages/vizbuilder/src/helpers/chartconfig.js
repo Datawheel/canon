@@ -118,9 +118,6 @@ const makeConfig = {
     const measureName = query.measure.name;
     const isActive = flags.activeType === "geomap";
 
-    const topojsonConfig =
-      flags.topojson[drilldownName] || flags.topojson.default;
-
     const config = {
       ...commonConfig,
       title: `Geomap of ${measureName} by ${drilldownName}`,
@@ -128,7 +125,7 @@ const makeConfig = {
       colorScalePosition: isActive ? "bottom" : false,
       groupBy: `ID ${drilldownName}`,
       zoomScroll: false,
-      ...topojsonConfig,
+      ...flags.topojsonConfig,
       ...flags.chartConfig
     };
 
@@ -254,11 +251,17 @@ export default function createChartConfig({
     value: getMeasureName
   };
 
-  if (members[drilldownName].length > 20) {
-    availableCharts.delete("barchart");
-  }
+  const topojsonConfig = topojson[drilldownName];
 
   if (!activeType) {
+    if (members[drilldownName].length > 20) {
+      availableCharts.delete("barchart");
+    }
+
+    if (!topojsonConfig) {
+      availableCharts.delete("geomap")
+    }
+
     const hasTimeDim = availableKeys.has("Year");
     const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
     const aggregatorType =
@@ -296,7 +299,7 @@ export default function createChartConfig({
   const flags = {
     activeType,
     availableKeys,
-    topojson: topojson || {},
+    topojsonConfig,
     chartConfig: userConfig || {},
     year
   };
