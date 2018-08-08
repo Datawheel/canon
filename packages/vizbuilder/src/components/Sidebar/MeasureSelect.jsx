@@ -31,20 +31,31 @@ MeasureSelect.defaultProps = {
     );
   },
   itemListComposer(items) {
+    const nope = {
+      annotations: {_cb_topic: "", _cb_subtopic: ""}
+    };
+
     return items.reduce((all, measure, i, array) => {
-      const prevMeasure = array[i - 1];
-
       const topic = measure.annotations._cb_topic;
-      if (!i || topic !== prevMeasure.annotations._cb_topic) {
-        all.push({_level: 1, annotations: {_key: topic}, name: topic});
-      }
-
       const subtopic = measure.annotations._cb_subtopic;
-      if (!i || subtopic !== prevMeasure.annotations._cb_subtopic) {
-        all.push({_level: 2, annotations: {_key: subtopic}, name: subtopic});
-      }
 
-      all.push(measure);
+      if (topic && subtopic) {
+        const prevMeasure = array[i - 1] || nope;
+
+        if (topic !== prevMeasure.annotations._cb_topic) {
+          all.push({_level: 1, annotations: {_key: topic}, name: topic});
+        }
+
+        if (subtopic !== prevMeasure.annotations._cb_subtopic) {
+          all.push({
+            _level: 2,
+            annotations: {_key: `${topic}-${subtopic}`},
+            name: subtopic
+          });
+        }
+
+        all.push(measure);
+      }
 
       return all;
     }, []);
