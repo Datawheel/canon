@@ -94,6 +94,8 @@ const makeConfig = {
       ...flags.chartConfig
     };
 
+    delete config.time;
+
     return config;
   },
   donut(commonConfig, query, flags) {
@@ -149,7 +151,7 @@ const makeConfig = {
     };
   },
   lineplot(commonConfig, query, flags) {
-    const {timeDrilldown, drilldown, measure, moe} = query;
+    const {drilldown, measure, moe, timeDrilldown} = query;
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
@@ -158,7 +160,7 @@ const makeConfig = {
       ...commonConfig,
       title: `Line plot of ${measureName} by ${drilldownName}`,
       discrete: "x",
-      groupBy: drilldown.hierarchy.levels[1].name,
+      groupBy: drilldown.name,
       x: drilldownName,
       xConfig: {title: drilldownName},
       y: measureName,
@@ -175,6 +177,8 @@ const makeConfig = {
       ];
     }
 
+    delete config.time;
+
     return config;
   },
   pie(commonConfig, query, flags) {
@@ -186,11 +190,9 @@ const makeConfig = {
     const drilldownName = query.drilldown.name;
     const measureName = query.measure.name;
 
-    return {
-      ...config,
-      title: `Stacked area chart of ${measureName} by ${drilldownName}`,
-      ...flags.chartConfig
-    };
+    config.title = `Stacked area chart of ${measureName} by ${drilldownName}`;
+
+    return config;
   },
   treemap(commonConfig, query, flags) {
     const {drilldown, measure} = query;
@@ -224,13 +226,13 @@ export default function createChartConfig({
   query,
   topojson,
   userConfig,
-  visualizations,
-  year
+  visualizations
 }) {
-  const availableKeys = new Set(Object.keys(members));
-  const availableCharts = new Set(
-    activeType ? [activeType] : visualizations
-  );
+  const availableKeys = Object.keys(members);
+  const availableCharts = new Set(activeType ? [activeType] : visualizations);
+
+  const hasTimeDim = query.timeDrilldown && Array.isArray(members.Year);
+  const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
 
   const drilldownName = query.drilldown.name;
   const measureName = query.measure.name;
@@ -252,6 +254,11 @@ export default function createChartConfig({
     value: getMeasureName
   };
 
+  if (hasTimeDim) {
+    const timeDrilldownName = query.timeDrilldown.name;
+    commonConfig.time = timeDrilldownName;
+  }
+
   const topojsonConfig = topojson[drilldownName];
 
   if (!activeType) {
@@ -259,24 +266,18 @@ export default function createChartConfig({
       availableCharts.delete("barchart");
     }
 
-    if (!topojsonConfig) {
-      availableCharts.delete("geomap")
-    }
-
-    const hasTimeDim = availableKeys.has("Year");
-    const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
     const aggregatorType =
       query.measure.annotations.aggregation_method ||
       query.measure.aggregatorType ||
       "UNKNOWN";
 
-    if (!hasTimeDim || year !== ALL_YEARS) {
+    if (!hasTimeDim) {
       availableCharts.delete("stacked");
       availableCharts.delete("barchartyear");
       availableCharts.delete("lineplot");
     }
 
-    if (!hasGeoDim || year === ALL_YEARS) {
+    if (!hasGeoDim || !topojsonConfig) {
       availableCharts.delete("geomap");
     }
 
@@ -292,20 +293,19 @@ export default function createChartConfig({
     }
   }
   else {
-    if (year !== ALL_YEARS) {
       commonConfig.total = getMeasureName;
     }
-  }
 
   const flags = {
     activeType,
     availableKeys,
     topojsonConfig,
-    chartConfig: userConfig || {},
-    year
+    chartConfig: userConfig || {}
   };
 
-  return Array.from(availableCharts, type =>
+  return Array.from(
+    availableCharts,
+    type =>
     type in charts
       ? {type, config: makeConfig[type](commonConfig, query, flags)}
       : null
@@ -328,7 +328,6 @@ export default function createChartConfig({
  * @prop {object} topojson An object where keys are Level names and values are config params for the topojson properties
  * @prop {object} userConfig The config params provided by the user
  * @prop {string[]} visualizations An array with valid visualization names to present
- * @prop {string} year The currently selected year
  */
 
 /**

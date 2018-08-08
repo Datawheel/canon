@@ -10,9 +10,7 @@ class ChartCard extends React.Component {
       config,
       dataset,
       onSelect,
-      query,
-      type,
-      yearSelector
+      type
     } = this.props;
     const ChartComponent = charts[type];
 
@@ -24,7 +22,6 @@ class ChartCard extends React.Component {
           <ChartComponent config={config} />
 
           <footer>
-            {!(/StackedArea|LinePlot/).test(type) && yearSelector}
             <Button
               className="pt-minimal"
               iconName={active ? "cross" : "zoom-in"}

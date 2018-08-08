@@ -1,7 +1,7 @@
 import React from "react";
 import {NonIdealState} from "@blueprintjs/core";
 
-import createChartConfig, {charts, ALL_YEARS} from "../../helpers/chartconfig";
+import createChartConfig, {charts} from "../../helpers/chartconfig";
 import ChartCard from "./ChartCard";
 
 import "./style.css";
@@ -11,8 +11,7 @@ class ChartArea extends React.Component {
     super(props);
 
     this.state = {
-      activeType: null,
-      year: null
+      activeType: null
     };
 
     this.actions = Object.keys(charts).reduce((box, type) => {
@@ -24,15 +23,13 @@ class ChartArea extends React.Component {
     this.scrollCall = undefined;
 
     this.scrollEnsure = this.scrollEnsure.bind(this);
-    this.selectYear = this.selectYear.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     return (
       this.props.dataset !== nextProps.dataset ||
       this.props.visualizations !== nextProps.visualizations ||
-      this.state.activeType !== nextState.activeType ||
-      this.state.year !== nextState.year
+      this.state.activeType !== nextState.activeType
     );
   }
 
@@ -62,19 +59,17 @@ class ChartArea extends React.Component {
     );
   }
 
-  selectYear(evt) {
-    this.setState({
-      year: evt.target.value
-    });
-  }
-
   render() {
-    const {dataset, members, query, topojson, userConfig, visualizations} = this.props;
+    const {
+      dataset,
+      members,
+      query,
+      topojson,
+      userConfig,
+      visualizations
+    } = this.props;
     const {activeType} = this.state;
-    const hasYearMember = Array.isArray(members.Year);
-    const year =
-      this.state.year ||
-      (hasYearMember ? members.Year.slice().pop() : ALL_YEARS);
+    const actions = this.actions;
 
     if (!dataset.length) {
       return (
@@ -84,42 +79,23 @@ class ChartArea extends React.Component {
       );
     }
 
-    const yearSelector = hasYearMember &&
-      <select onChange={this.selectYear} value={year}>
-        <option value={ALL_YEARS}>All years</option>
-        {members.Year.map(item =>
-          <option key={item} value={item}>
-            {item}
-          </option>
-        )}
-      </select>
-    ;
-
     const chartConfig = createChartConfig({
       activeType,
-      query,
       members,
+      query,
       topojson,
       userConfig,
-      visualizations,
-      year
+      visualizations
     });
-
-    const filteredDataset =
-      year !== ALL_YEARS
-        ? dataset.filter(item => item.Year == year) // eslint-disable-line eqeqeq
-        : dataset;
 
     const chartElements = chartConfig.map(chart =>
       <ChartCard
         key={chart.type}
-        type={chart.type}
         active={chart.type === activeType}
-        query={query}
         config={chart.config}
-        dataset={filteredDataset}
-        onSelect={this.actions[chart.type]}
-        yearSelector={yearSelector}
+        dataset={dataset}
+        onSelect={actions[chart.type]}
+        type={chart.type}
       />
     );
 
