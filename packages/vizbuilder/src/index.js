@@ -134,7 +134,6 @@ Vizbuilder.propTypes = {
   visualizations: PropTypes.arrayOf(PropTypes.string)
 };
 
-// EXAMPLE, will be removed later
 Vizbuilder.defaultProps = {
   config: {},
   topojson: {},
