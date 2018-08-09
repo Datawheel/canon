@@ -25,17 +25,17 @@ export const charts = {
 export const ALL_YEARS = "All years";
 
 export const tooltipGenerator = (label, drilldowns, measure, moe) => {
-  const tbody = Array.from(drilldowns)
-    .filter(d => d !== label)
-    .map(dd => [dd, d => d[dd]]);
+  const tbody = drilldowns.filter(d => d !== label).map(dd => [dd, d => d[dd]]);
   tbody.push([measure, d => `${formatAbbreviate(d[measure] * 1 || 0)}`]);
   if (moe) {
-    moe = moe.name;
-    tbody.push(["Margin of Error", d => `±${formatAbbreviate(d[moe] * 1 || 0)}`]);
+    const moeName = moe.name;
+    tbody.push([
+      "Margin of Error",
+      d => `±${formatAbbreviate(d[moeName] * 1 || 0)}`
+    ]);
   }
   return {
-    title: null,
-    thead: [label, d => d[label]],
+    title: d => [].concat(d[label]).join(", "),
     tbody
   };
 };
@@ -293,8 +293,8 @@ export default function createChartConfig({
     }
   }
   else {
-      commonConfig.total = getMeasureName;
-    }
+    commonConfig.total = getMeasureName;
+  }
 
   const flags = {
     activeType,
@@ -306,9 +306,9 @@ export default function createChartConfig({
   return Array.from(
     availableCharts,
     type =>
-    type in charts
-      ? {type, config: makeConfig[type](commonConfig, query, flags)}
-      : null
+      type in charts
+        ? {type, config: makeConfig[type](commonConfig, query, flags)}
+        : null
   ).filter(Boolean);
 }
 
