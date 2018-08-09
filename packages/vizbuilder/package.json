@@ -1,0 +1,39 @@
+{
+  "name": "@datawheel/vizbuilder",
+  "description": "Visualization explorer for data retrieved from mondrian-rest.",
+  "version": "0.1.0",
+  "main": "src/index.js",
+  "author": "Francisco Abarzúa & Carlos Navarrete",
+  "license": "MIT",
+  "scripts": {
+    "clearcache": "rm -rf node_modules/datawheel-canon/src/node_modules/.cache/*",
+    "dev": "canon-dev",
+    "build": "canon-build",
+    "locales": "canon-locales",
+    "setup": "canon-setup",
+    "start": "canon-start",
+    "test": "eslint src/*.js src/**/*.js src/*.jsx src/**/*.jsx"
+  },
+  "dependencies": {
+    "@blueprintjs/core": "^1.35.7",
+    "@blueprintjs/labs": "^0.14.4",
+    "classnames": "^2.2.5",
+    "d3plus-format": "^0.1.2",
+    "d3plus-react": "^0.4.2",
+    "fast-sort": "^1.5.1",
+    "lodash": "^4.17.10",
+    "mondrian-rest-client": "^1.0.3",
+    "query-string": "^6.1.0",
+    "react-tiny-virtual-list": "^2.1.4",
+    "shorthash": "^0.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^15.6.2",
+    "datawheel-canon": "^0.15.18",
+    "konami-code": "^0.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Datawheel/datawheel-canon.git"
+  }
+}

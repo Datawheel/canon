@@ -1,0 +1,22 @@
+npm-debug.log*
+.DS_Store
+
+# node modules should never be synced with git
+node_modules
+
+# these static files will be generated on build
+static/assets
+static/reports
+/index.js
+
+# environment variable files for autoenv and direnv
+.env
+.envrc
+
+# editor specific files
+.vscode/*
+jsconfig.json
+
+# docker files
+dockerfiles/nginx/certs/*
+dockerfiles/nginx/conf.d/default.conf
