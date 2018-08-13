@@ -44,7 +44,9 @@ i18n
     }
   });
 
-
+/**
+    Scrolls to a page element if it exists on the page.
+*/
 function scrollToHash(hash, wait = true) {
   const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
   if (elem) {
@@ -58,6 +60,11 @@ function scrollToHash(hash, wait = true) {
   }
 }
 
+/**
+    Middleware that captures all router requests and detects the following:
+      * Smooth scrolling to anchor links
+      * Initiatlize SSR needs loading
+*/
 function renderMiddleware() {
 
   return {
