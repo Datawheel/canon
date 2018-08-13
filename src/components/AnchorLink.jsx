@@ -13,8 +13,24 @@ class AnchorLink extends Component {
   }
 
   render() {
-    const {children, className, id, to} = this.props;
-    return <a className={className} href={ `#${to}` } id={ id } onClick={this.onClick.bind(this)}>{ children }</a>;
+    const {children, className, dangerouslySetInnerHTML, id, to} = this.props;
+
+    if (dangerouslySetInnerHTML) {
+      return <a className={className}
+        href={ `#${to}` }
+        id={ id }
+        dangerouslySetInnerHTML={dangerouslySetInnerHTML}
+        onClick={this.onClick.bind(this)}></a>;
+    }
+    else {
+      return <a className={className}
+        href={ `#${to}` }
+        id={ id }
+        onClick={this.onClick.bind(this)}>
+        { children }
+      </a>;
+    }
+
   }
 
 }
