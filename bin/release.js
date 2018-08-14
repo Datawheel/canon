@@ -18,17 +18,17 @@ minor = minor.slice(0, minor.length - 1).join(".");
 let body = "";
 execAsync("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD")
   .then(stdout => {
-    body = stdout.length ? stdout : `v${version}`;
+    body = stdout.length ? stdout : `${name}@${version}`;
     return execAsync("npm publish --access public ./");
   })
   .then(() => {
     shell.echo("published to npm");
     return execAsync("git add --all");
   })
-  .then(() => execAsync(`git commit -m \"compiles v${version}\"`))
+  .then(() => execAsync(`git commit -m \"compiles ${name}@${version}\"`))
   .then(() => {
     shell.echo("git commit");
-    return execAsync(`git tag v${version}`);
+    return execAsync(`git tag ${name}@${version}`);
   })
   .then(() => execAsync("git push origin --follow-tags"))
   .then(() => {
