@@ -1,12 +1,12 @@
 {
-  "name": "@datawheel/vizbuilder",
+  "name": "@datawheel/canon-vizbuilder",
   "description": "Visualization explorer for data retrieved from mondrian-rest.",
   "version": "0.1.0",
   "main": "src/index.js",
   "author": "Francisco Abarzúa & Carlos Navarrete",
   "license": "MIT",
   "scripts": {
-    "clearcache": "rm -rf node_modules/datawheel-canon/src/node_modules/.cache/*",
+    "clearcache": "rm -rf node_modules/@datawheel/canon-core/src/node_modules/.cache/*",
     "dev": "canon-dev",
     "build": "canon-build",
     "locales": "canon-locales",
@@ -34,6 +34,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:Datawheel/datawheel-canon.git"
+    "url": "git+https://github.com/datawheel/canon.git"
   }
 }
