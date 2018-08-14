@@ -17,6 +17,7 @@
   "dependencies": {
     "@blueprintjs/core": "^1.35.7",
     "@blueprintjs/labs": "^0.14.4",
+    "@datawheel/canon-core": "^0.16.0",
     "classnames": "^2.2.5",
     "d3plus-format": "^0.1.2",
     "d3plus-react": "^0.4.2",
@@ -29,7 +30,6 @@
   },
   "devDependencies": {
     "@types/react": "^15.6.2",
-    "datawheel-canon": "^0.15.18",
     "konami-code": "^0.2.1"
   },
   "repository": {
