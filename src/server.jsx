@@ -4,6 +4,8 @@ import React from "react";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
+import {I18nextProvider} from "react-i18next";
+import {Provider} from "react-redux";
 import createRoutes from "routes";
 import configureStore from "./storeConfig";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
@@ -61,6 +63,9 @@ const pixelScript = process.env.CANON_FACEBOOK_PIXEL === undefined ? ""
   </script>
   <!-- End Facebook Pixel -->`;
 
+/**
+    Returns the default server logic for rendering a page.
+*/
 export default function(defaultStore = {}, headerConfig) {
 
   return function(req, res) {
@@ -98,9 +103,13 @@ export default function(defaultStore = {}, headerConfig) {
           .then(() => {
             const initialState = store.getState();
             const componentHTML = renderToString(
-              <CanonProvider helmet={headerConfig} i18n={req.i18n} locale={locale} store={store}>
-                <RouterContext {...props} />
-              </CanonProvider>
+              <I18nextProvider i18n={req.i18n}>
+                <Provider store={store}>
+                  <CanonProvider helmet={headerConfig} locale={locale}>
+                    <RouterContext {...props} />
+                  </CanonProvider>
+                </Provider>
+              </I18nextProvider>
             );
 
             const header = Helmet.rewind();

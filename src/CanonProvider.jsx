@@ -1,15 +1,17 @@
 import React, {Component} from "react";
 import {match} from "react-router";
 import PropTypes from "prop-types";
-import {I18nextProvider} from "react-i18next";
-import {Provider} from "react-redux";
+import {connect} from "react-redux";
+import Loading from "components/Loading";
+import d3plus from "d3plus.js";
+import Helmet from "react-helmet";
 import urllite from "urllite";
 
 class CanonProvider extends Component {
 
   getChildContext() {
-    const {helmet, locale} = this.props;
-    return {helmet, locale};
+    const {data, helmet, locale, router} = this.props;
+    return {d3plus, data, helmet, locale, router};
   }
 
   onClick(e) {
@@ -66,24 +68,38 @@ class CanonProvider extends Component {
   }
 
   render() {
-    const {children, i18n, store} = this.props;
-    return <I18nextProvider i18n={i18n}>
-      <Provider store={store}>
-        <div id="Canon" onClick={this.onClick.bind(this)}>
-          { children }
-        </div>
-      </Provider>
-    </I18nextProvider>;
+
+    const {children, helmet, loading, locale} = this.props;
+
+    return <div id="Canon" onClick={this.onClick.bind(this)}>
+      <Helmet
+        htmlAttributes={{lang: locale, amp: undefined}}
+        defaultTitle={helmet.title}
+        titleTemplate={`%s | ${helmet.title}`}
+        meta={helmet.meta}
+        link={helmet.link}
+      />
+      { loading ? <Loading /> : children }
+    </div>;
   }
 }
 
 CanonProvider.childContextTypes = {
+  data: PropTypes.object,
+  d3plus: PropTypes.object,
   helmet: PropTypes.object,
-  locale: PropTypes.string
+  locale: PropTypes.string,
+  router: PropTypes.object
 };
 
 CanonProvider.defaultProps = {
-  helmet: {}
+  helmet: {},
+  data: {}
 };
+
+CanonProvider = connect(state => ({
+  data: state.data,
+  loading: state.loading
+}))(CanonProvider);
 
 export default CanonProvider;

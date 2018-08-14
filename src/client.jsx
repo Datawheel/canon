@@ -7,6 +7,8 @@ import {createHistory} from "history";
 import {applyRouterMiddleware, Router, RouterContext, useRouterHistory} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
 import {animateScroll} from "react-scroll";
+import {I18nextProvider} from "react-i18next";
+import {Provider} from "react-redux";
 import createRoutes from "routes";
 import configureStore from "./storeConfig";
 import {LOADING_END, LOADING_START} from "./consts";
@@ -70,7 +72,7 @@ function renderMiddleware() {
   return {
     renderRouterContext: (child, props) => {
 
-      const needs = props.components.filter(comp => comp.need || comp.preneed || comp.postneed);
+      const needs = props.components.filter(comp => comp && (comp.need || comp.preneed || comp.postneed));
       const {action, hash, query, state} = props.location;
 
       if (action !== "REPLACE" || !Object.keys(query).length) {
@@ -101,16 +103,27 @@ function renderMiddleware() {
 const helmet = window.__HELMET_DEFAULT__;
 
 /**
-    Wraps all router components in the CanonProvider
+    Wraps the top-level router component in the CanonProvider
 */
 function createElement(Component, props) {
-  return <CanonProvider router={props.router} match={props.match} helmet={helmet} i18n={i18n} locale={locale} store={store}>
-    <Component {...props} />
-  </CanonProvider>;
+
+  if (props.children && props.route.path === "/") {
+    return <CanonProvider router={props.router} helmet={helmet} i18n={i18n}>
+      <Component {...props} />
+    </CanonProvider>;
+  }
+  else {
+    return <Component {...props} />;
+  }
+
 }
 
 render(
-  <Router createElement={createElement} history={history} render={applyRouterMiddleware(renderMiddleware())}>
-    {routes}
-  </Router>,
+  <I18nextProvider i18n={i18n}>
+    <Provider store={store}>
+      <Router createElement={createElement} history={history} render={applyRouterMiddleware(renderMiddleware())}>
+        {routes}
+      </Router>
+    </Provider>
+  </I18nextProvider>,
   document.getElementById("React-Container"));

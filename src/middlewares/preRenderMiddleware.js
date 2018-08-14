@@ -8,6 +8,7 @@ export default function preRenderMiddleware(store, {components, params}) {
 
   function parseComponents(str) {
     return components
+      .filter(Boolean)
       .reduce((arr, component) => {
         (component[str] || []).forEach(n => {
           if (n.WrappedComponent) n = n.WrappedComponent;

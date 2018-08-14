@@ -24,6 +24,12 @@ function checkForId(nextState, replaceState) {
   }
 }
 
+class Wrapper extends React.Component {
+  render() {
+    return <div id="Wrapper">{this.props.children}</div>;
+  }
+}
+
 export default function RouteCreate() {
 
   return (
@@ -34,7 +40,10 @@ export default function RouteCreate() {
       <Route path="reset" component={Reset} />
       <Route path=":lang/profile/:id" component={Profile} />
       <Route path="profile(/:id)" onEnter={checkForId} component={Profile} />
-      <Route path="admin" component={UserAdmin} />
+      <Route path="/admin" component={Wrapper}>
+        <IndexRoute component={UserAdmin} />
+        <Route path="/admin/nested" component={UserAdmin} />
+      </Route>
     </Route>
   );
 

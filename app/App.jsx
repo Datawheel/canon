@@ -5,7 +5,7 @@ import Footer from "components/Footer";
 
 import "./App.css";
 
-import {Canon, isAuthenticated} from "../src";
+import {isAuthenticated} from "../src";
 
 class App extends Component {
 
@@ -20,7 +20,7 @@ class App extends Component {
   render() {
     const {children} = this.props;
     return (
-      <Canon>
+      <div>
         <Nav />
         <div className="test-1"></div>
         <div className="test-2"></div>
@@ -28,7 +28,7 @@ class App extends Component {
         <div className="box green"></div>
         { children }
         <Footer />
-      </Canon>
+      </div>
     );
   }
 
