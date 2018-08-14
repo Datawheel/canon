@@ -1,5 +1,5 @@
 {
-  "name": "datawheel-canon",
+  "name": "@datawheel/canon-core",
   "version": "0.15.21",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "src/index.js",
@@ -7,27 +7,28 @@
     "canon-build": "bin/build.js",
     "canon-dev": "bin/dev.js",
     "canon-locales": "bin/locales.js",
+    "canon-release": "bin/release.js",
     "canon-setup": "bin/setup.js",
     "canon-start": "bin/start.js"
   },
   "scripts": {
-    "release": "node bin/release",
     "build": "canon-build",
     "dev": "canon-dev",
     "locales": "canon-locales",
+    "release": "canon-release",
     "setup": "canon-setup",
     "start": "canon-start"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/datawheel/datawheel-canon.git"
+    "url": "git+https://github.com/datawheel/canon.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/datawheel/datawheel-canon/issues"
+    "url": "https://github.com/datawheel/canon/issues"
   },
-  "homepage": "https://github.com/datawheel/datawheel-canon#readme",
+  "homepage": "https://github.com/datawheel/canon#readme",
   "dependencies": {
     "@blueprintjs/core": "1.35.5",
     "axios": "^0.17.1",

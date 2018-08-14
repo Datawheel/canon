@@ -4,9 +4,12 @@ const execAsync = require("execAsync"),
       release = require("grizzly"),
       shell = require("shelljs"),
       token = shell.env.GITHUB_TOKEN,
-      {name, version} = JSON.parse(shell.cat("package.json"));
+      {name, repository, version} = JSON.parse(shell.cat("package.json"));
 
 // shell.config.silent = true;
+
+const user = repository.url.split("github.com/")[1].split("/")[0];
+const repo = repository.url.split("github.com/")[1].split("/")[1].split(".")[0];
 
 let minor = version.split(".");
 const prerelease = parseFloat(minor[0]) === 0;
@@ -30,15 +33,14 @@ execAsync("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`.
   .then(() => execAsync("git push origin --follow-tags"))
   .then(() => {
     release(token, {
-      repo: name,
-      user: "datawheel",
-      tag: `v${version}`,
-      name: `v${version}`,
+      user, repo,
+      tag: `${name}@${version}`,
+      name: `${name}@${version}`,
       body, prerelease
     }, error => {
       if (error) {
-        shell.echo(`repo: ${name}`);
-        shell.echo(`tag/name: v${version}`);
+        shell.echo(`package: ${name}`);
+        shell.echo(`version: ${version}`);
         shell.echo(`body: ${body}`);
         shell.echo(`prerelease: ${prerelease}`);
         shell.echo(error.message);
