@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 
-const release = require("grizzly"),
+const execAsync = require("execAsync"),
+      release = require("grizzly"),
       shell = require("shelljs"),
       token = shell.env.GITHUB_TOKEN,
       {name, version} = JSON.parse(shell.cat("package.json"));
@@ -11,61 +12,46 @@ let minor = version.split(".");
 const prerelease = parseFloat(minor[0]) === 0;
 minor = minor.slice(0, minor.length - 1).join(".");
 
-function kill(code, stdout) {
-  shell.echo(stdout);
-  shell.exit(code);
-}
-
-shell.exec("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD", (code, stdout) => {
-  const body = stdout.length ? stdout : `v${version}`;
-
-  shell.exec("npm publish ./", (code, stdout) => {
-    if (code) kill(code, stdout);
+let body = "";
+execAsync("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD")
+  .then(stdout => {
+    body = stdout.length ? stdout : `v${version}`;
+    return execAsync("npm publish ./");
+  })
+  .then(() => {
     shell.echo("published to npm");
+    return execAsync("git add --all");
+  })
+  .then(() => execAsync(`git commit -m \"compiles v${version}\"`))
+  .then(() => {
+    shell.echo("git commit");
+    return execAsync(`git tag v${version}`);
+  })
+  .then(() => execAsync("git push origin --follow-tags"))
+  .then(() => {
+    release(token, {
+      repo: name,
+      user: "datawheel",
+      tag: `v${version}`,
+      name: `v${version}`,
+      body, prerelease
+    }, error => {
+      if (error) {
+        shell.echo(`repo: ${name}`);
+        shell.echo(`tag/name: v${version}`);
+        shell.echo(`body: ${body}`);
+        shell.echo(`prerelease: ${prerelease}`);
+        shell.echo(error.message);
+        shell.exit(1);
+      }
+      else {
+        shell.echo("release pushed");
+        shell.exit(0);
 
-    shell.exec("git add --all", (code, stdout) => {
-      if (code) kill(code, stdout);
-
-      shell.exec(`git commit -m \"compiles v${version}\"`, (code, stdout) => {
-        if (code) kill(code, stdout);
-        shell.echo("git commit");
-
-        shell.exec(`git tag v${version}`, (code, stdout) => {
-          if (code) kill(code, stdout);
-
-          shell.exec("git push origin --follow-tags", (code, stdout) => {
-            if (code) kill(code, stdout);
-
-            release(token, {
-              repo: name,
-              user: "datawheel",
-              tag: `v${version}`,
-              name: `v${version}`,
-              body, prerelease
-            }, error => {
-              if (error) {
-                shell.echo(`repo: ${name}`);
-                shell.echo(`tag/name: v${version}`);
-                shell.echo(`body: ${body}`);
-                shell.echo(`prerelease: ${prerelease}`);
-                shell.echo(error.message);
-                shell.exit(1);
-              }
-              else {
-                shell.echo("release pushed");
-                shell.exit(0);
-
-              }
-            });
-
-          });
-
-        });
-
-      });
-
+      }
     });
-
+  })
+  .catch(err => {
+    shell.echo(err);
+    shell.exit(1);
   });
-
-});
