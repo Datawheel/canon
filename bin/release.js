@@ -19,7 +19,7 @@ let body = "";
 execAsync("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD")
   .then(stdout => {
     body = stdout.length ? stdout : `v${version}`;
-    return execAsync("npm publish ./");
+    return execAsync("npm publish --access public ./");
   })
   .then(() => {
     shell.echo("published to npm");
