@@ -18,7 +18,7 @@
   "dependencies": {
     "@blueprintjs/core": "^1.35.7",
     "@blueprintjs/labs": "^0.14.4",
-    "@datawheel/canon-core": "^0.16.0",
+    "@datawheel/canon-core": "^0.16.1",
     "classnames": "^2.2.5",
     "d3plus-format": "^0.1.2",
     "d3plus-react": "^0.4.2",
