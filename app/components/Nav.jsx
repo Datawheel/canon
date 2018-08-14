@@ -5,6 +5,8 @@ import "./Nav.css";
 
 import Icon from "./icon-save.svg";
 
+const userLinks = "<a class='user-link' data-refresh='true' href='/login'>Login</a><a class='user-link' href='/reset'>Reset</a><a class='user-link' href='/signup'>Sign Up</a><a class='user-link' href='/no/route/here/please/stop'>No Route</a><a class='user-link' target='_blank' href='http://www.google.com'>Google</a>";
+
 class Nav extends Component {
 
   render() {
@@ -13,18 +15,14 @@ class Nav extends Component {
     return (
       <nav className="nav">
         <Link className="logo" to="/"><img src={Icon} /> Canonical Design</Link>
-        <Link className="link" to="/profile/040AF00182">Profile</Link>
+        <a className="link" href="/profile/040AF00182">Profile</a>
         <Link className="link" to="/profile">Random Profile</Link>
         { user
           ? <div className="user-info">
             { user.role >= 2 ? <Link className="user-link" to="/admin">Admin</Link> : null }
             <a className="user-link" href="/auth/logout">Logout</a>
           </div>
-          : <div className="user-info">
-            <Link className="user-link" to="/login">Login</Link>
-            <Link className="user-link" to="/reset">Reset</Link>
-            <Link className="user-link" to="/signup">Sign Up</Link>
-          </div>
+          : <div className="user-info" dangerouslySetInnerHTML={{__html: userLinks}}></div>
         }
       </nav>
     );

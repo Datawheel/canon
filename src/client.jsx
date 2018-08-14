@@ -94,16 +94,23 @@ function renderMiddleware() {
       return <RouterContext {...props}/>;
 
     }
-
   };
 
 }
 
 const helmet = window.__HELMET_DEFAULT__;
 
+/**
+    Wraps all router components in the CanonProvider
+*/
+function createElement(Component, props) {
+  return <CanonProvider router={props.router} match={props.match} helmet={helmet} i18n={i18n} locale={locale} store={store}>
+    <Component {...props} />
+  </CanonProvider>;
+}
+
 render(
-  <CanonProvider helmet={helmet} i18n={i18n} locale={locale} store={store}>
-    <Router history={history} render={applyRouterMiddleware(renderMiddleware())}>
-      {routes}
-    </Router>
-  </CanonProvider>, document.getElementById("React-Container"));
+  <Router createElement={createElement} history={history} render={applyRouterMiddleware(renderMiddleware())}>
+    {routes}
+  </Router>,
+  document.getElementById("React-Container"));
