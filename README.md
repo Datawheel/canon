@@ -1,7 +1,7 @@
-# datawheel-canon
+# Canon
 Reusable React environment and components for creating visualization engines.
 
-![](https://github.com/datawheel/datawheel-canon/raw/master/docs/bang.png)
+![](https://github.com/datawheel/canon/raw/master/docs/bang.png)
 
 #### Contents
 * [Setup and Installation](#setup-and-installation)
@@ -33,16 +33,16 @@ Reusable React environment and components for creating visualization engines.
 
 ## Setup and Installation
 
-datawheel-canon is published on NPM, and should be installed just like any other node package. After creating a package.json file (try `npm init`), install datawheel-canon like this:
+Canon is published on NPM, and should be installed just like any other node package. After creating a package.json file (try `npm init`), install Canon like this:
 
 ```bash
-npm i datawheel-canon
+npm i @datawheel/canon-core
 ```
 
 Once installed, run the following command to create some initial scaffolding:
 
 ```bash
-node node_modules/datawheel-canon/bin/setup.js
+npx canon-setup
 ```
 
 Now that the necessary files are in place, simply run `npm run dev` to spin up the development server.
@@ -50,7 +50,7 @@ Now that the necessary files are in place, simply run `npm run dev` to spin up t
 If you encounter an error that causes the node server to keep running in the background, the following command should kill the process:
 
 ```bash
-kill -9 $(ps aux | grep datawheel-canon/bin/server.js | grep -v grep | awk '{print $2}')
+kill -9 $(ps aux | grep @datawheel/canon-core/bin/server.js | grep -v grep | awk '{print $2}')
 ```
 
 ---
@@ -66,7 +66,7 @@ Deploying a site with canon is as easy as these 2 steps:
 
 ## Localization
 
-In order to enable localization for a datawheel-canon site, you must first define the available languages as an environment variable:
+In order to enable localization for a Canon site, you must first define the available languages as an environment variable:
 
 ```sh
 export CANON_LANGUAGES="en,es"
@@ -100,7 +100,7 @@ export default translate()(Nav);
 
 When a component is wrapped with `translate`, it will have access to a function named `t` inside it's props. This function is what handles fetching the appropriate translation, and also allows us to scrape an entire project to locate every string that needs translation. When you are ready to start populating translations, simply run `npm run locales`.
 
-datawheel-canon will search your entire codebase for any component using the `t( )` function. Translations are stored in JSON files in a `locales/` folder in the root directory. In this example, running the script would produce the following file structure:
+Canon will search your entire codebase for any component using the `t( )` function. Translations are stored in JSON files in a `locales/` folder in the root directory. In this example, running the script would produce the following file structure:
 
 ```
 locales/
@@ -175,7 +175,7 @@ export default {
 
 ## Page Routing
 
-All page routes need to be hooked up in `app/routes.jsx`. This filename and location cannot be changed, as the internals of datawheel-canon rely on it's presence. For linking between pages, use the [react-router](https://github.com/ReactTraining/react-router) `<Link>` component:
+All page routes need to be hooked up in `app/routes.jsx`. This filename and location cannot be changed, as the internals of Canon rely on it's presence. For linking between pages, use the [react-router](https://github.com/ReactTraining/react-router) `<Link>` component:
 
 ```jsx
 import {Link} from "react-router";
@@ -244,10 +244,10 @@ export CANON_DB_PW="XXX"
 export CANON_LOGINS=true
 ```
 
-datawheel-canon will automatically instantiate a "users" table in the specified database to enable full user management. At this point, all that is needed in your application is to use the Login and Signup components exported by datawheel-canon:
+Canon will automatically instantiate a "users" table in the specified database to enable full user management. At this point, all that is needed in your application is to use the Login and Signup components exported by Canon:
 
 ```jsx
-import {Login, SignUp} from "datawheel-canon";
+import {Login, SignUp} from "@datawheel/canon-core";
 ```
 
 These two components can either be used directly with a Route, or as children of other components. They are simple forms that handle all of the authentication and errors. If you would like to change the page the user is redirected to after logging in, you can override the default "redirect" prop:
@@ -267,7 +267,7 @@ Once login/signup forms have been set up, any component that needs access to the
 ```jsx
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {Canon, isAuthenticated} from "datawheel-canon";
+import {Canon, isAuthenticated} from "@datawheel/canon-core";
 
 class App extends Component {
 
@@ -317,7 +317,7 @@ export CANON_LEGAL_TERMS="/terms"
 
 ### Password Reset
 
-If a user forgets their password, it is common practice to allow sending their e-mail on file a link to reset it. datawheel-canon has built-in [Mailgun](https://www.mailgun.com) support, so once you have set up an account for your project through their website, you can enable this ability with the following environment variables (taken from the [Mailgun](https://www.mailgun.com) developer interface):
+If a user forgets their password, it is common practice to allow sending their e-mail on file a link to reset it. Canon has built-in [Mailgun](https://www.mailgun.com) support, so once you have set up an account for your project through their website, you can enable this ability with the following environment variables (taken from the [Mailgun](https://www.mailgun.com) developer interface):
 
 ```sh
 export CANON_MAILGUN_API="key-################################"
@@ -325,12 +325,12 @@ export CANON_MAILGUN_DOMAIN="###.###.###"
 export CANON_MAILGUN_EMAIL="###@###.###"
 ```
 
-With those variables set, if a user is trying to log in and types an incorrect password, the alert message will contain a link to reset their password. They will receive an e-mail containing a link that directs them to a page at the route `/reset`. This route needs to be hooked up as part of the **app/routes.jsx** file, and needs to contain the `<Reset />` component exported by datawheel-canon. For example:
+With those variables set, if a user is trying to log in and types an incorrect password, the alert message will contain a link to reset their password. They will receive an e-mail containing a link that directs them to a page at the route `/reset`. This route needs to be hooked up as part of the **app/routes.jsx** file, and needs to contain the `<Reset />` component exported by Canon. For example:
 
 ```jsx
 import React from "react";
 import {Route} from "react-router";
-import {Reset} from "datawheel-canon";
+import {Reset} from "@datawheel/canon-core";
 
 const App = () => "Hello World";
 
@@ -357,7 +357,7 @@ When sending e-mails, datahweel-canon will use the "name" field of your **packag
 export CANON_MAILGUN_NAME="Datawheel Canon"
 ```
 
-The default contents of the e-mail to be sent is stored [here](https://github.com/Datawheel/datawheel-canon/blob/master/src/auth/emails/resetPassword.html), and can be overridden using any local HTML file using the following environment variable:
+The default contents of the e-mail to be sent is stored [here](https://github.com/Datawheel/canon/blob/master/src/auth/emails/resetPassword.html), and can be overridden using any local HTML file using the following environment variable:
 
 ```sh
 export CANON_RESET_HTML="path/to/file.html"
@@ -380,7 +380,7 @@ And then hook up an `/activate` route with the `<Activate />` component:
 ```jsx
 import React from "react";
 import {Route} from "react-router";
-import {Activate} from "datawheel-canon";
+import {Activate} from "@datawheel/canon-core";
 
 const App = () => "Hello World";
 
@@ -419,7 +419,7 @@ When sending e-mails, datahweel-canon will use the "name" field of your **packag
 export CANON_MAILGUN_NAME="Datawheel Canon"
 ```
 
-The default contents of the e-mail to be sent is stored [here](https://github.com/Datawheel/datawheel-canon/blob/master/src/auth/emails/activation.html), and can be overridden using any local HTML file using the following environment variable:
+The default contents of the e-mail to be sent is stored [here](https://github.com/Datawheel/canon/blob/master/src/auth/emails/activation.html), and can be overridden using any local HTML file using the following environment variable:
 
 ```sh
 export CANON_ACTIVATION_HTML="path/to/file.html"
@@ -429,17 +429,17 @@ The path to this file is relative to the current working directory (`process.cwd
 
 ### Roles
 
-Every new user of a datawheel-canon site has a default "role" value of `0`. This value is accessible via the user object in the "auth" redux store object. The default roles are as follows:
+Every new user of a Canon site has a default "role" value of `0`. This value is accessible via the user object in the "auth" redux store object. The default roles are as follows:
 
 * `0` User
 * `1` Contributor
 * `2` Admin
 
-datawheel-canon exports a `<UserAdmin />` component that allows for changing these roles. It is a simple table that displays all users and their current role assignments.
+Canon exports a `<UserAdmin />` component that allows for changing these roles. It is a simple table that displays all users and their current role assignments.
 
 ### Social Logins
 
-Once the respective social network application has been set up in their developer interface, datawheel-canon looks for a corresponding API and SECRET environment variables to enable that login.
+Once the respective social network application has been set up in their developer interface, Canon looks for a corresponding API and SECRET environment variables to enable that login.
 
 *NOTE*: If deploying using Supervisor, environment variables cannot be wrapped in quotation marks.
 
@@ -454,7 +454,7 @@ export CANON_SOCIAL_REDIRECT="/profile"
 2. Once logged in, hover over "My Apps" in the top right of the page and click "Add a New App"
 3. Set up "Facebook Login" as the product.
 4. Choose "Web" as the Platform.
-5. Skip the Quickstart guide and go directly to "Settings" in the sidebar. Your settings should look like the following image, with at the very least `http://localhost:3300/auth/facebook/callback` in the Valid OAuth redirect URIs. Once there is a production URL, you will need to add that callback URL here along with localhost. ![](https://github.com/datawheel/datawheel-canon/raw/master/docs/facebook-oauth.png)
+5. Skip the Quickstart guide and go directly to "Settings" in the sidebar. Your settings should look like the following image, with at the very least `http://localhost:3300/auth/facebook/callback` in the Valid OAuth redirect URIs. Once there is a production URL, you will need to add that callback URL here along with localhost. ![](https://github.com/datawheel/canon/raw/master/docs/facebook-oauth.png)
 6. Go to "Settings" > "Advanced" and turn on "Allow API Access to App Settings" (at the time of writing, it was the last toggle in the "Security" panel)
 7. Go to "Settings" > "Basic" and copy the App ID and App Secret to your environment as the following variables:
 ```sh
@@ -522,7 +522,7 @@ export CANON_TWITTER_SECRET="##############################"
 
 ## Custom API Routes
 
-If you app requires custom API routes, datawheel-canon will import any files located in a `api/` directory and attach them to the current Express instance. For example, a file located at `api/simpleRoute.js`:
+If you app requires custom API routes, Canon will import any files located in a `api/` directory and attach them to the current Express instance. For example, a file located at `api/simpleRoute.js`:
 
 ```js
 module.exports = function(app) {
@@ -577,7 +577,7 @@ module.exports = function(app) {
 
 ## Custom Database Models
 
-If you have custom database models that you would like to interact with in API routes, datawheel-canon will import any file in a `db/` folder and set up all the associations Sequelize requires. For example, a `db/testTable.js` would look like this:
+If you have custom database models that you would like to interact with in API routes, Canon will import any file in a `db/` folder and set up all the associations Sequelize requires. For example, a `db/testTable.js` would look like this:
 
 ```js
 module.exports = function(sequelize, db) {
@@ -606,7 +606,7 @@ module.exports = function(sequelize, db) {
 
 ## Server-Side Caching
 
-Some projects benefit by creating a server-side data cache to be used in API routes (for example, metadata about cube dimensions). datawheel-canon imports all files present in the top level `cache/` directory, and stores their return contents in `app.settings.cache` based on their filename. For example, to store the results of an API request in the cache, you could create the following file at `cache/majors.js`:
+Some projects benefit by creating a server-side data cache to be used in API routes (for example, metadata about cube dimensions). Canon imports all files present in the top level `cache/` directory, and stores their return contents in `app.settings.cache` based on their filename. For example, to store the results of an API request in the cache, you could create the following file at `cache/majors.js`:
 
 ```js
 const axios = require("axios");
