@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-const execAsync = require("execAsync"),
+const execAsync = require("./execAsync"),
       release = require("grizzly"),
       shell = require("shelljs"),
       token = shell.env.GITHUB_TOKEN,
