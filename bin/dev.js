@@ -13,7 +13,7 @@ const {name} = JSON.parse(shell.cat("package.json"));
 const appDir = process.cwd();
 const staticFolder = process.env.CANON_STATIC_FOLDER || "static";
 const staticPath = path.join(appDir, staticFolder);
-const canonPath = name === "datawheel-canon" ? appDir : path.join(appDir, "node_modules/@datawheel/canon-core/");
+const canonPath = name === "@datawheel/canon-core" ? appDir : path.join(appDir, "node_modules/@datawheel/canon-core/");
 let started = false;
 
 shell.rm("-rf", path.join(staticPath, "assets/"));

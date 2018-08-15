@@ -36,7 +36,7 @@ const appPath = path.join(appDir, "app");
 const {name} = JSON.parse(shell.cat(path.join(appDir, "package.json")));
 const staticPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static");
 
-const canonPath = name === "datawheel-canon" ? appDir : path.join(appDir, "node_modules/@datawheel/canon-core/");
+const canonPath = name === "@datawheel/canon-core" ? appDir : path.join(appDir, "node_modules/@datawheel/canon-core/");
 
 function resolve(file) {
 
