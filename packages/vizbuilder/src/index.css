@@ -3,11 +3,11 @@
   display: flex;
   flex-direction: row;
 
-  & > .area-loading {
+  & > .loading {
     display: none;
   }
 
-  &.loading > .area-loading {
+  &.loading > .loading {
     display: flex;
   }
 

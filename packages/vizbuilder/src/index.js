@@ -7,10 +7,11 @@ import {Position, Toaster} from "@blueprintjs/core";
 import {fetchCubes} from "./actions/fetch";
 import {loadControl, setStatePromise} from "./actions/loadstate";
 import ChartArea from "./components/ChartArea";
-import LoadingScreen from "./components/Loading";
 import Sidebar from "./components/Sidebar";
 import * as api from "./helpers/api";
 import initialState from "./state";
+
+import LoadingScreen from "components/Loading";
 
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
@@ -65,7 +66,7 @@ class Vizbuilder extends React.PureComponent {
     const {dataset, load, members, options, query, queryOptions} = this.state;
     return (
       <div className={classnames("vizbuilder", {loading: load.inProgress})}>
-        <LoadingScreen {...load} />
+        <LoadingScreen total={load.total} progress={load.done} />
         <Sidebar
           options={options}
           query={query}
