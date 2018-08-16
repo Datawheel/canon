@@ -138,12 +138,12 @@ Vizbuilder.defaultProps = {
   config: {},
   topojson: {},
   visualizations: [
+    "geomap",
     "treemap",
     "barchart",
-    "geomap",
+    "lineplot",
     "histogram",
     "barchartyear",
-    "lineplot",
     "stacked"
   ]
 };
