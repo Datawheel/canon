@@ -12,47 +12,73 @@ import {
 } from "../helpers/sorting";
 
 /**
- * Returns the first element in the `haystack` whose `_key` annotation
- * matches the `needle` param. If none found, returns the first element
- * from the `haystack`.
+ * If `needle` is a valid value, returns the first element in the `haystack`
+ * that matches the annotation._key property.
+ * If there's no matches and `elseFirst` is true, returns the first element
+ * in the `haystack`.
  * @param {string} needle The key to match
  * @param {any[]} haystack The array where to search for the object.
+ * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
  */
-export function findByKeyOrFirst(needle, haystack) {
-  return needle
-    ? haystack.find(item => item.annotations._key === needle) || haystack[0]
-    : haystack[0];
+export function findByKey(needle, haystack, elseFirst = false) {
+  const findResult = needle ? haystack.find(item => item.annotations._key === needle) : undefined;
+  return elseFirst ? findResult || haystack[0] : findResult;
+}
+
+/**
+ * If `needle` is a valid value, returns the first element in the `haystack`
+ * that matches the name property.
+ * If there's no matches and `elseFirst` is true, returns the first element
+ * in the `haystack`.
+ * @param {string} needle The key to match
+ * @param {any[]} haystack The array where to search for the object.
+ * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
+ */
+export function findByName(needle, haystack, elseFirst = false) {
+  const findResult = needle ? haystack.find(item => item.name === needle) : undefined;
+  return elseFirst ? findResult || haystack[0] : findResult;
 }
 
 /**
  * Retrieves the cube list and prepares the initial state for the first query
- * @param {object} locationQuery An object made from key-string pairs, from the parsing of the current Location.search
+ * @param {InitialQueryState} initialQuery An object with initial state parameters
  */
-export function fetchCubes(locationQuery) {
+export function fetchCubes(initialQuery) {
   return api.cubes().then(cubes => {
-    locationQuery = locationQuery || {};
+    initialQuery = initialQuery || {};
     injectCubeInfoOnMeasure(cubes);
 
     const measures = getValidMeasures(cubes);
-    const firstMeasure = findByKeyOrFirst(locationQuery.ms, measures);
-    const firstCubeName = firstMeasure.annotations._cb_name;
-    const firstCube = cubes.find(cube => cube.name === firstCubeName);
-    const firstMoe = getMeasureMOE(firstCube, firstMeasure);
-    const timeDrilldown = getTimeDrilldown(firstCube);
+    const measure = findByKey(initialQuery.ms, measures) || findByName(initialQuery.defaultMeasure, measures, true);
 
-    const dimensions = getValidDimensions(firstCube);
+    const cubeName = measure.annotations._cb_name;
+    const cube = cubes.find(cube => cube.name === cubeName);
+    const moe = getMeasureMOE(cube, measure);
+    const timeDrilldown = getTimeDrilldown(cube);
+
+    const dimensions = getValidDimensions(cube);
     const drilldowns = getValidDrilldowns(dimensions);
 
-    let drilldown, firstDimension, levels;
-    if ("dd" in locationQuery) {
-      drilldown = findByKeyOrFirst(locationQuery.dd, drilldowns);
-      firstDimension = drilldown.hierarchy.dimension;
-      levels = reduceLevelsFromDimension([], firstDimension);
+    let dimension;
+    // Check first for URL-based initial state
+    let drilldown = findByKey(initialQuery.dd, drilldowns);
+    let levels = [];
+
+    if (drilldown) {
+      dimension = drilldown.hierarchy.dimension;
+      levels = reduceLevelsFromDimension(levels, dimension);
     }
     else {
-      firstDimension = dimensions[0];
-      levels = reduceLevelsFromDimension([], firstDimension);
-      drilldown = levels[0];
+      if ("defaultDimension" in initialQuery) {
+        dimension = findByName(initialQuery.defaultDimension, dimensions, true);
+        levels = reduceLevelsFromDimension(levels, dimension);
+        drilldown = findByName(initialQuery.defaultLevel, levels, true);
+      }
+      else {
+        drilldown = findByName(initialQuery.defaultLevel, drilldowns, true);
+        dimension = drilldown.hierarchy.dimension;
+        levels = reduceLevelsFromDimension(levels, dimension);
+      }
     }
 
     preventHierarchyIncompatibility(drilldowns, drilldown);
@@ -61,10 +87,10 @@ export function fetchCubes(locationQuery) {
     return {
       options: {cubes, measures, dimensions, drilldowns, levels},
       query: {
-        cube: firstCube,
-        measure: firstMeasure,
-        moe: firstMoe,
-        dimension: firstDimension,
+        cube,
+        measure,
+        moe,
+        dimension,
         drilldown,
         timeDrilldown,
         conditions: []
@@ -96,3 +122,12 @@ export function fetchQuery() {
     options: queryOptions
   });
 }
+
+/**
+ * @typedef {InitialQueryState}
+ * @prop {string?} defaultDimension Initial dimension set by the user
+ * @prop {string?} defaultLevel Initial level for drilldown set by the user
+ * @prop {string?} defaultMeasure Initial measure set by the user
+ * @prop {string?} ms Initial measure key, parsed from the permalink
+ * @prop {string?} dd Initial drilldown key, parsed from the permalink
+ */
