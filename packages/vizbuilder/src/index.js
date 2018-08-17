@@ -40,7 +40,17 @@ class Vizbuilder extends React.PureComponent {
   }
 
   componentDidMount() {
+    const props = this.props;
     const locationQuery = queryString.parse(location.search);
+    if (props.defaultMeasure) {
+      locationQuery.defaultMeasure = props.defaultMeasure;
+    }
+    if (props.defaultDimension) {
+      locationQuery.defaultDimension = props.defaultDimension;
+    }
+    if (props.defaultLevel) {
+      locationQuery.defaultLevel = props.defaultLevel;
+    }
     this.firstLoad(locationQuery);
   }
 
@@ -100,8 +110,8 @@ class Vizbuilder extends React.PureComponent {
     });
   }
 
-  firstLoad(locationQuery) {
-    this.loadControl(fetchCubes.bind(this, locationQuery), () => {
+  firstLoad(initialQuery) {
+    this.loadControl(fetchCubes.bind(this, initialQuery), () => {
       const {query, queryOptions} = this.state;
       return api.query({
         ...query,
@@ -119,6 +129,9 @@ Vizbuilder.childContextTypes = {
 Vizbuilder.propTypes = {
   // this config object will be applied to all charts
   config: PropTypes.object,
+  defaultDimension: PropTypes.string,
+  defaultLevel: PropTypes.string,
+  defaultMeasure: PropTypes.string,
   src: PropTypes.string.isRequired,
   topojson: PropTypes.objectOf(
     // keys are the Level names where each object apply
