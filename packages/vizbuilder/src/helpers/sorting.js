@@ -2,6 +2,8 @@ import sort from "fast-sort";
 import union from "lodash/union";
 import {unique} from "shorthash";
 
+import {sortSlice} from "./formatting";
+
 /**
  * Checks if the dimension passed as argument is a time-type dimension.
  * @param {Dimension} dimension A mondrian-rest-client dimension object
@@ -214,26 +216,6 @@ export function getTimeDrilldown(cube) {
 }
 
 /**
- * For a drilldown, generates a standard name format to use in selectors.
- * @param {Level|Measure} item A Level or Measure object
- * @returns {string}
- */
-export function composePropertyName(item) {
-  let txt = item.name;
-  if ("hierarchy" in item) {
-    const hname = item.hierarchy.name;
-    const dname = item.hierarchy.dimension.name;
-    if (hname !== item.name && hname !== dname) {
-      txt = `${item.hierarchy.name} › ${txt}`;
-    }
-    if (dname !== item.name) {
-      txt = `${dname} › ${txt}`;
-    }
-  }
-  return txt;
-}
-
-/**
  * Returns an object where the keys are the current query's drilldowns
  * and its values are arrays with the values available in the current dataset.
  * @param {Query} query A mondrian-rest-client Query object
@@ -258,16 +240,6 @@ export function getIncludedMembers(query, dataset) {
   else {
     return {};
   }
-}
-
-/**
- * Generates a string that can be used as index to sort elements.
- * @param {string} string The string to slice
- * @returns {string}
- */
-export function sortSlice(string) {
-  string = `${string}`.replace(/\W/g, "").toLowerCase();
-  return `${string.slice(0, 5)}-----`.slice(0, 6);
 }
 
 /**

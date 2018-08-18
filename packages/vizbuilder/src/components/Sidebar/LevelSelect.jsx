@@ -2,7 +2,7 @@ import React from "react";
 import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 
-import {composePropertyName} from "../../helpers/sorting";
+import {PROPNAMESTYLES, composePropertyName} from "../../helpers/formatting";
 import BaseSelect from "../BaseSelect";
 
 function LevelSelect(props) {
@@ -32,7 +32,7 @@ LevelSelect.defaultProps = {
         onClick={item.disabled || handleClick}
         title={item.name}
       >
-        <span className="select-label">{item.name}</span>
+        <span className="select-label">{composePropertyName(item, PROPNAMESTYLES.HIELVL)}</span>
         <span className="select-label lead">
           {item.hierarchy.dimension.name}
         </span>
