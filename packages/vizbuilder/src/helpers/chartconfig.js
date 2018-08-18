@@ -40,6 +40,22 @@ export const tooltipGenerator = (label, drilldowns, measure, moe) => {
   };
 };
 
+const numberFormatters = {
+  general: formatAbbreviate,
+  currency: value => `$${formatAbbreviate(value)}`,
+  plusminus: value => `±${formatAbbreviate(value)}`,
+
+  getByUnits(units) {
+    switch (units) {
+      case "Dollars":
+        return this.currency;
+
+      default:
+        return this.general;
+    }
+  }
+};
+
 /**
  * @prop {[x: string]: ChartConfigFunction}
  */
@@ -49,6 +65,7 @@ const makeConfig = {
 
     const drilldownName = drilldown.name;
     const measureName = measure.name;
+    const measureUnits = measure.annotations.units_of_measurement;
 
     const config = {
       ...commonConfig,
@@ -56,7 +73,10 @@ const makeConfig = {
       x: drilldownName,
       xConfig: {title: drilldownName},
       y: measureName,
-      yConfig: {title: measureName},
+      yConfig: {
+        title: measureName,
+        tickFormat: numberFormatters.getByUnits(measureUnits)
+      },
       stacked: drilldown.depth > 1,
       xSort: sortByCustomKey(drilldownName),
       ...flags.chartConfig
@@ -73,6 +93,7 @@ const makeConfig = {
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
+    const measureUnits = measure.annotations.units_of_measurement;
 
     const config = {
       ...commonConfig,
@@ -81,7 +102,10 @@ const makeConfig = {
       x: drilldownName,
       xConfig: {title: drilldownName},
       y: measureName,
-      yConfig: {title: measureName},
+      yConfig: {
+        title: measureName,
+        tickFormat: numberFormatters.getByUnits(measureUnits)
+      },
       stacked: true,
       groupBy: [drilldown.name],
       tooltipConfig: tooltipGenerator(
@@ -102,12 +126,16 @@ const makeConfig = {
 
     const drilldownName = drilldown.name;
     const measureName = measure.name;
+    const measureUnits = measure.annotations.units_of_measurement;
 
     const config = {
       ...commonConfig,
       xConfig: {title: null},
       y: measureName,
-      yConfig: {title: measureName},
+      yConfig: {
+        title: measureName,
+        tickFormat: numberFormatters.getByUnits(measureUnits)
+      },
       groupBy: drilldownName,
       ...flags.chartConfig
     };
@@ -151,6 +179,7 @@ const makeConfig = {
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
+    const measureUnits = measure.annotations.units_of_measurement;
 
     const config = {
       ...commonConfig,
@@ -160,7 +189,10 @@ const makeConfig = {
       x: drilldownName,
       xConfig: {title: drilldownName},
       y: measureName,
-      yConfig: {title: measureName},
+      yConfig: {
+        title: measureName,
+        tickFormat: numberFormatters.getByUnits(measureUnits)
+      },
       ...flags.chartConfig
     };
 
