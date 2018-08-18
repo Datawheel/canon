@@ -74,7 +74,7 @@ class MultiLevelSelect extends React.Component {
   }
 
   handleQueryInput(evt) {
-    this.setState({query: `${evt.target.value}`.trim()});
+    this.setState({query: `${evt.target.value}`});
   }
 
   maybeRenderResetButton() {
