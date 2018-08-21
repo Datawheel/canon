@@ -32,7 +32,7 @@ LevelSelect.defaultProps = {
         onClick={item.disabled || handleClick}
         title={item.name}
       >
-        <span className="select-label">{composePropertyName(item, PROPNAMESTYLES.HIELVL)}</span>
+        <span className="select-label">{item.name}</span>
         <span className="select-label lead">
           {item.hierarchy.dimension.name}
         </span>

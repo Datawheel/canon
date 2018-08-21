@@ -196,6 +196,30 @@ export function joinDrilldownList(array, drilldown) {
 }
 
 /**
+ * Checks for duplicate levels, based on their names.
+ * If a duplicate is found, the level whose hierarchy name
+ * is different to their own name is removed.
+ * @see Issue#136 on {@link https://github.com/Datawheel/canon/issues/136 | GitHub}
+ * @param {Level[]} array The level array to filter
+ */
+export function removeDuplicateLevels(array) {
+  const nameList = array.map(lvl => lvl.name);
+  let n = array.length;
+  while (n--) {
+    const currName = nameList[n];
+    if (
+      // the current element's name is more than once on the list
+      nameList.indexOf(currName) !== nameList.lastIndexOf(currName) &&
+      // and its hierarchy's name is different to its own name
+      array[n].hierarchy.name !== currName
+    ) {
+      nameList.splice(n, 1);
+      array.splice(n, 1);
+    }
+  }
+}
+
+/**
  * Extracts a time-type Dimension from a Cube object. If not found,
  * returns undefined.
  * @param {Cube} cube The Cube object to extract the time Dimension from

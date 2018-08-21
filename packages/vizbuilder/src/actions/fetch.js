@@ -7,7 +7,8 @@ import {
   getValidMeasures,
   injectCubeInfoOnMeasure,
   reduceLevelsFromDimension,
-  preventHierarchyIncompatibility
+  preventHierarchyIncompatibility,
+  removeDuplicateLevels
 } from "../helpers/sorting";
 
 /**
@@ -55,6 +56,7 @@ export function fetchCubes(locationQuery) {
     }
 
     preventHierarchyIncompatibility(drilldowns, drilldown);
+    removeDuplicateLevels(levels);
 
     return {
       options: {cubes, measures, dimensions, drilldowns, levels},
