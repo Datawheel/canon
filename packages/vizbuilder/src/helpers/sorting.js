@@ -161,8 +161,8 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
   while (n--) {
     const level = array[n];
     if (
-      level.hierarchy === interestHierarchy &&
-      level.depth > interestLevel.depth
+      level.hierarchy !== interestHierarchy ||
+      (level.hierarchy === interestHierarchy && level.depth > interestLevel.depth)
     ) {
       array.splice(n, 1);
     }
