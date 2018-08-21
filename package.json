@@ -15,6 +15,7 @@
     "build": "canon-build",
     "dev": "canon-dev",
     "locales": "canon-locales",
+    "postinstall": "canon-setup",
     "release": "canon-release",
     "setup": "canon-setup",
     "start": "canon-start"
