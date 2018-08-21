@@ -8,11 +8,11 @@ const throttle = new PromiseThrottle({
   promiseImplementation: Promise
 });
 
-const {CUBE_URL} = process.env;
+const {CANON_LOGICLAYER_CUBE} = process.env;
 
 module.exports = async function() {
 
-  const client = new Client(CUBE_URL);
+  const client = new Client(CANON_LOGICLAYER_CUBE);
 
   const cubes = await client.cubes();
 

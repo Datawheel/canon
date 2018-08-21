@@ -6,12 +6,12 @@ const Sequelize = require("sequelize"),
       path = require("path"),
       yn = require("yn");
 
-const {CUBE_URL} = process.env;
+const {CANON_LOGICLAYER_CUBE} = process.env;
 
 // const debug = process.env.NODE_ENV === "development";
 const debug = false;
 
-const canonConfig = require(path.join(process.cwd(), "canon.js"))["canon-logic"] || {};
+const canonConfig = require(path.join(process.cwd(), "canon.js"))["logiclayer"] || {};
 const aliases = canonConfig.aliases || {};
 const dimensionMap = canonConfig.dimensionMap || {};
 const cubeFilters = canonConfig.cubeFilters || [];
@@ -89,7 +89,7 @@ module.exports = function(app) {
   app.get("/api/data/", async(req, res) => {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
 
-    let reserved = ["cuts", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year"];
+    let reserved = ["drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year"];
     reserved = reserved.concat(d3Array.merge(reserved.map(r => {
       let alts = aliases[r] || [];
       if (typeof alts === "string") alts = [alts];
@@ -98,10 +98,6 @@ module.exports = function(app) {
 
     const measures = findKey(req.query, "measures", []);
     if (!measures.length) res.json({error: "Query must contain at least one measure."});
-
-    const cuts = findKey(req.query, "cuts", [])
-      .map(cut => cut.split(":"))
-      .map(arr => [arr[0], [arr[1]]]);
 
     const drilldowns = findKey(req.query, "drilldowns", []);
     const properties = findKey(req.query, "properties", []);
@@ -121,6 +117,8 @@ module.exports = function(app) {
       }
       limit = parseInt(limit, 10);
     }
+
+    const cuts = [];
 
     const searchDims = db && db.search ? await db.search.findAll({
       attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("dimension")), "dimension"]],
@@ -405,7 +403,7 @@ module.exports = function(app) {
 
         // TODO for some reason doing this axios call wipes out cube.dimensions
         const cubeDims = cube.dimensions;
-        const members = await axios.get(`${CUBE_URL}cubes/${name}/dimensions/${dimension}/hierarchies/${hierarchy}/levels/${level}/members`)
+        const members = await axios.get(`${CANON_LOGICLAYER_CUBE}cubes/${name}/dimensions/${dimension}/hierarchies/${hierarchy}/levels/${level}/members`)
           .then(resp => resp.data.members.map(d => d.key));
         cube.dimensions = cubeDims;
 
