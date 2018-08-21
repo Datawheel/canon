@@ -122,10 +122,10 @@ module.exports = function(app) {
       limit = parseInt(limit, 10);
     }
 
-    const searchDims = await db.search.findAll({
+    const searchDims = db && db.search ? await db.search.findAll({
       attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("dimension")), "dimension"]],
       where: {}
-    }).map(d => d.dimension);
+    }).map(d => d.dimension) : [];
 
     const dimensions = [], renames = [];
     for (let key in req.query) {
@@ -210,8 +210,8 @@ module.exports = function(app) {
       }
     }
 
-    const searchQueries = dimensions
-      .map(({dimension, id}) => db.search.findAll({where: {dimension, id}}));
+    const searchQueries = db && db.search ? dimensions
+      .map(({dimension, id}) => db.search.findAll({where: {dimension, id}})) : [];
     const attributes = await Promise.all(searchQueries);
 
     const queries = {};
@@ -355,7 +355,7 @@ module.exports = function(app) {
             if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
               const masterDims = dimCuts[dim][level];
               const subLevel = cube.subs[level];
-              if (subLevel) {
+              if (db && db.search && subLevel) {
                 cubeDimCuts[dim][subLevel] = [];
                 for (let d = 0; d < masterDims.length; d++) {
                   const oldId = masterDims[d].id;
