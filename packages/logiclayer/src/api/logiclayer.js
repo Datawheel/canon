@@ -1,9 +1,9 @@
 const Sequelize = require("sequelize"),
       axios = require("axios"),
-      canonConfig = require("../canon.js")["canon-logic"] || {},
       d3Array = require("d3-array"),
       d3Collection = require("d3-collection"),
       multiSort = require("../utils/multiSort"),
+      path = require("path"),
       yn = require("yn");
 
 const {CUBE_URL} = process.env;
@@ -11,6 +11,7 @@ const {CUBE_URL} = process.env;
 // const debug = process.env.NODE_ENV === "development";
 const debug = false;
 
+const canonConfig = require(path.join(process.cwd(), "canon.js"))["canon-logic"] || {};
 const aliases = canonConfig.aliases || {};
 const dimensionMap = canonConfig.dimensionMap || {};
 const cubeFilters = canonConfig.cubeFilters || [];
