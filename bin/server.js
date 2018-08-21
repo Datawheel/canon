@@ -39,13 +39,15 @@ const staticPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static"
 const canonPath = name === "@datawheel/canon-core" ? appDir : path.join(appDir, "node_modules/@datawheel/canon-core/");
 
 const moduleFolder = path.join(appDir, "node_modules/@datawheel/");
-const modules = [appDir];
+const modules = [];
+if (name === "@datawheel/canon-core") modules.push(path.join(appDir, "src/"));
 if (shell.test("-d", moduleFolder)) {
   fs.readdirSync(moduleFolder)
     .forEach(folder => {
       modules.push(path.join(moduleFolder, folder, "src/"));
     });
 }
+modules.push(appDir);
 
 const moduleRegex = /@datawheel\/canon\-([A-z]+)\//g;
 
@@ -178,41 +180,6 @@ async function start() {
   const maxAge = process.env.CANON_SESSION_TIMEOUT || 60 * 60 * 1000; // one hour
   app.use(cookieSession({maxAge, name, secret}));
 
-  if (dbName && dbUser) {
-
-    const db = new Sequelize(dbName, dbUser, dbPw,
-      {
-        host: dbHost,
-        dialect: "postgres",
-        define: {timestamps: true},
-        logging: () => {}
-      }
-    );
-
-    app.set("db", db);
-
-  }
-  shell.echo(`Database: ${ dbHost && dbUser ? `${dbUser}@${dbHost}` : "NONE" }`);
-
-  let dbFolder = false;
-  if (dbName && dbUser) {
-    dbFolder = path.join(appDir, "db/");
-    let modelCount = 0;
-    if (shell.test("-d", dbFolder)) {
-      const {db} = app.settings;
-
-      fs.readdirSync(dbFolder)
-        .filter(file => file && file.indexOf(".") !== 0)
-        .forEach(file => {
-          const model = db.import(path.join(dbFolder, file));
-          db[model.name] = model;
-          modelCount++;
-        });
-
-    }
-    shell.echo(`Custom DB Models: ${modelCount}`);
-  }
-
   let dbDetect = false;
   if (dbName && dbUser) {
     for (let i = 0; i < modules.length; i++) {
@@ -222,6 +189,15 @@ async function start() {
         if (!dbDetect) {
           dbDetect = true;
           shell.echo(chalk.bold("\n 💽  Database Models\n"));
+          app.set("db", new Sequelize(dbName, dbUser, dbPw,
+            {
+              host: dbHost,
+              dialect: "postgres",
+              define: {timestamps: true},
+              logging: () => {}
+            }
+          ));
+          shell.echo(`Database: ${dbUser}@${dbHost}`);
         }
         const module = moduleName(dbFolder);
         const {db} = app.settings;
@@ -233,6 +209,13 @@ async function start() {
             shell.echo(`${module}: ${model.name}`);
           });
       }
+    }
+    if (dbDetect) {
+      const {db} = app.settings;
+      await db.sync({alter: true});
+      Object.keys(db).forEach(modelName => {
+        if ("associate" in db[modelName]) db[modelName].associate(db);
+      });
     }
   }
 
@@ -252,19 +235,8 @@ async function start() {
       terms: process.env.CANON_LEGAL_TERMS || false
     };
 
-    const {db} = app.settings;
-    if (!db.models.users) {
-      db.users = db.import(path.join(canonPath, "src/db/users.js"));
-    }
+    shell.echo("User Authentication: ON");
 
-  }
-  shell.echo(`User Authentication: ${ logins ? "ON" : "OFF" }`);
-
-  if (dbDetect) {
-    const {db} = app.settings;
-    Object.keys(db).forEach(modelName => {
-      if ("associate" in db[modelName]) db[modelName].associate(db);
-    });
   }
 
   const cache = {};
