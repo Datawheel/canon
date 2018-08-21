@@ -24,36 +24,21 @@ export const charts = {
 
 export const ALL_YEARS = "All years";
 
-export const tooltipGenerator = (label, drilldowns, measure, moe) => {
-  const tbody = drilldowns.filter(d => d !== label).map(dd => [dd, d => d[dd]]);
-  tbody.push([measure, d => `${formatAbbreviate(d[measure] * 1 || 0)}`]);
+export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
+  const {drilldownName, measureName, moe} = query;
+  const tbody = drilldowns.filter(d => d !== drilldownName).map(dd => [dd, d => d[dd]]);
+  tbody.push([measureName, d => measureFormatter(d[measureName])]);
   if (moe) {
     const moeName = moe.name;
     tbody.push([
       "Margin of Error",
-      d => `±${formatAbbreviate(d[moeName] * 1 || 0)}`
+      d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
     ]);
   }
   return {
-    title: d => [].concat(d[label]).join(", "),
+    title: d => [].concat(d[drilldownName]).join(", "),
     tbody
   };
-};
-
-const numberFormatters = {
-  general: formatAbbreviate,
-  currency: value => `$${formatAbbreviate(value)}`,
-  plusminus: value => `±${formatAbbreviate(value)}`,
-
-  getByUnits(units) {
-    switch (units) {
-      case "Dollars":
-        return this.currency;
-
-      default:
-        return this.general;
-    }
-  }
 };
 
 /**
@@ -65,7 +50,6 @@ const makeConfig = {
 
     const drilldownName = drilldown.name;
     const measureName = measure.name;
-    const measureUnits = measure.annotations.units_of_measurement;
 
     const config = {
       ...commonConfig,
@@ -73,10 +57,6 @@ const makeConfig = {
       x: drilldownName,
       xConfig: {title: drilldownName},
       y: measureName,
-      yConfig: {
-        title: measureName,
-        tickFormat: numberFormatters.getByUnits(measureUnits)
-      },
       stacked: drilldown.depth > 1,
       xSort: sortByCustomKey(drilldownName),
       ...flags.chartConfig
@@ -93,7 +73,6 @@ const makeConfig = {
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
-    const measureUnits = measure.annotations.units_of_measurement;
 
     const config = {
       ...commonConfig,
@@ -102,18 +81,8 @@ const makeConfig = {
       x: drilldownName,
       xConfig: {title: drilldownName},
       y: measureName,
-      yConfig: {
-        title: measureName,
-        tickFormat: numberFormatters.getByUnits(measureUnits)
-      },
       stacked: true,
       groupBy: [drilldown.name],
-      tooltipConfig: tooltipGenerator(
-        drilldownName,
-        flags.availableKeys,
-        measureName,
-        query.moe
-      ),
       ...flags.chartConfig
     };
 
@@ -126,16 +95,10 @@ const makeConfig = {
 
     const drilldownName = drilldown.name;
     const measureName = measure.name;
-    const measureUnits = measure.annotations.units_of_measurement;
 
     const config = {
       ...commonConfig,
-      xConfig: {title: null},
       y: measureName,
-      yConfig: {
-        title: measureName,
-        tickFormat: numberFormatters.getByUnits(measureUnits)
-      },
       groupBy: drilldownName,
       ...flags.chartConfig
     };
@@ -179,7 +142,6 @@ const makeConfig = {
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
-    const measureUnits = measure.annotations.units_of_measurement;
 
     const config = {
       ...commonConfig,
@@ -189,10 +151,6 @@ const makeConfig = {
       x: drilldownName,
       xConfig: {title: drilldownName},
       y: measureName,
-      yConfig: {
-        title: measureName,
-        tickFormat: numberFormatters.getByUnits(measureUnits)
-      },
       ...flags.chartConfig
     };
 
@@ -223,10 +181,7 @@ const makeConfig = {
     return config;
   },
   treemap(commonConfig, query, flags) {
-    const {drilldown, measure} = query;
-
-    const drilldownName = drilldown.name;
-    const measureName = measure.name;
+    const {drilldown} = query;
 
     const levels = drilldown.hierarchy.levels;
     const ddIndex = levels.indexOf(drilldown);
@@ -249,6 +204,7 @@ const makeConfig = {
  */
 export default function createChartConfig({
   activeType,
+  formatting,
   members,
   query,
   topojson,
@@ -263,6 +219,8 @@ export default function createChartConfig({
 
   const drilldownName = query.drilldown.name;
   const measureName = query.measure.name;
+  const measureUnits = query.measure.annotations.units_of_measurement;
+  const measureFormatter = formatting[measureUnits] || formatAbbreviate;
   const getMeasureName = d => d[measureName];
 
   const commonConfig = {
@@ -271,11 +229,16 @@ export default function createChartConfig({
     legend: false,
 
     tooltipConfig: tooltipGenerator(
-      drilldownName,
+      {drilldownName, measureName, moe: query.moe},
       availableKeys,
-      measureName,
-      query.moe
+      measureFormatter
     ),
+
+    xConfig: {title: null},
+    yConfig: {
+      title: measureName,
+      tickFormat: measureFormatter
+    },
 
     duration: 0,
     sum: getMeasureName,
@@ -327,6 +290,7 @@ export default function createChartConfig({
   const flags = {
     activeType,
     availableKeys,
+    measureFormatter,
     topojsonConfig,
     chartConfig: userConfig || {}
   };
@@ -351,6 +315,7 @@ export default function createChartConfig({
 /**
  * @typedef {object} CreateChartConfigParams
  * @prop {string} activeType The currently active chart type
+ * @prop {object} formatting An object with formatting functions for measure values. Keys are the value of measure.annotations.units_of_measurement
  * @prop {object} members An object with the members in the current dataset
  * @prop {object} query The current query object from the Vizbuilder's state
  * @prop {object} topojson An object where keys are Level names and values are config params for the topojson properties

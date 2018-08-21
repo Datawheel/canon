@@ -62,6 +62,7 @@ class ChartArea extends React.Component {
   render() {
     const {
       dataset,
+      formatting,
       members,
       query,
       topojson,
@@ -81,6 +82,7 @@ class ChartArea extends React.Component {
 
     const chartConfig = createChartConfig({
       activeType,
+      formatting,
       members,
       query,
       topojson,

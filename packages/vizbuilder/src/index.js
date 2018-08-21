@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import classnames from "classnames";
 import queryString from "query-string";
 import {Position, Toaster} from "@blueprintjs/core";
+import {formatAbbreviate} from "d3plus-format";
 
 import {fetchCubes} from "./actions/fetch";
 import {loadControl, setStatePromise} from "./actions/loadstate";
@@ -62,7 +63,7 @@ class Vizbuilder extends React.PureComponent {
   }
 
   render() {
-    const {config, topojson, visualizations} = this.props;
+    const {config, formatting, topojson, visualizations} = this.props;
     const {dataset, load, members, options, query, queryOptions} = this.state;
     return (
       <div className={classnames("vizbuilder", {loading: load.inProgress})}>
@@ -74,6 +75,7 @@ class Vizbuilder extends React.PureComponent {
         />
         <ChartArea
           dataset={dataset}
+          formatting={formatting}
           members={members}
           query={query}
           topojson={topojson}
@@ -120,6 +122,10 @@ Vizbuilder.childContextTypes = {
 Vizbuilder.propTypes = {
   // this config object will be applied to all charts
   config: PropTypes.object,
+  // formatting functions object,
+  // keys according to value of measure.annotations.units_of_measurement
+  formatting: PropTypes.objectOf(PropTypes.func),
+  // source URL for the mondrian server
   src: PropTypes.string.isRequired,
   topojson: PropTypes.objectOf(
     // keys are the Level names where each object apply
@@ -137,6 +143,9 @@ Vizbuilder.propTypes = {
 
 Vizbuilder.defaultProps = {
   config: {},
+  formatting: {
+    Dollars: d => `$${formatAbbreviate(d * 1 || 0)}`
+  },
   topojson: {},
   visualizations: [
     "geomap",
