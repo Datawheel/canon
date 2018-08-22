@@ -83,7 +83,7 @@ module.exports = function(app) {
   app.get("/api/cubes", (req, res) => {
     const returnCaches = {...cache.cube};
     delete returnCaches.client;
-    res.json(returnCaches).end();
+    res.json(returnCaches);
   });
 
   app.get("/api/data/", async(req, res) => {
@@ -585,7 +585,7 @@ module.exports = function(app) {
       return d;
     });
 
-    res.json({data: mergedData, source}).end();
+    res.json({data: mergedData, source});
 
   });
 
