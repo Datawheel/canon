@@ -4,7 +4,7 @@ import escapeRegExp from "lodash/escapeRegExp";
 import {Icon} from "@blueprintjs/core";
 
 import BaseSelect from "../../BaseSelect";
-import {composePropertyName} from "../../../helpers/sorting";
+import {composePropertyName} from "../../../helpers/formatting";
 
 function ConditionPropertySelect(props) {
   let item;
