@@ -212,7 +212,7 @@ async function start() {
     }
     if (dbDetect) {
       const {db} = app.settings;
-      await db.sync({alter: true});
+      await db.sync({alter: true}).catch(() => {});
       Object.keys(db).forEach(modelName => {
         if ("associate" in db[modelName]) db[modelName].associate(db);
       });
