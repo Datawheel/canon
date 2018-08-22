@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import classnames from "classnames";
 import queryString from "query-string";
 import {Position, Toaster} from "@blueprintjs/core";
-import {formatAbbreviate} from "d3plus-format";
 
 import {fetchCubes} from "./actions/fetch";
 import {loadControl, setStatePromise} from "./actions/loadstate";
@@ -143,9 +142,7 @@ Vizbuilder.propTypes = {
 
 Vizbuilder.defaultProps = {
   config: {},
-  formatting: {
-    Dollars: d => `$${formatAbbreviate(d * 1 || 0)}`
-  },
+  formatting: {},
   topojson: {},
   visualizations: [
     "geomap",
