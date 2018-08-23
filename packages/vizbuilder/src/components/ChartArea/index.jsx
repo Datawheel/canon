@@ -88,8 +88,8 @@ class ChartArea extends React.Component {
     const chartConfig = createChartConfig({
       activeType,
       formatting: {
-        ...formatting,
-        ...DEFAULT_FORMATTERS
+        ...DEFAULT_FORMATTERS,
+        ...formatting
       },
       members,
       query,
