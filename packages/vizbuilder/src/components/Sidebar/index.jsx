@@ -8,7 +8,8 @@ import {
   getValidDimensions,
   getValidDrilldowns,
   preventHierarchyIncompatibility,
-  reduceLevelsFromDimension
+  reduceLevelsFromDimension,
+  removeDuplicateLevels
 } from "../../helpers/sorting";
 
 import ConditionManager from "./ConditionManager";
@@ -39,6 +40,7 @@ class Sidebar extends React.PureComponent {
 
       const drilldowns = getValidDrilldowns(dimensions);
       preventHierarchyIncompatibility(drilldowns, drilldown);
+      removeDuplicateLevels(levels);
 
       return {
         options: {drilldowns, levels},
@@ -90,6 +92,7 @@ class Sidebar extends React.PureComponent {
       const drilldown = levels[0];
 
       preventHierarchyIncompatibility(drilldowns, drilldown);
+      removeDuplicateLevels(levels);
 
       const conditions = query.cube === cube ? query.conditions : [];
 

@@ -38,6 +38,30 @@ const staticPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static"
 
 const canonPath = name === "@datawheel/canon-core" ? appDir : path.join(appDir, "node_modules/@datawheel/canon-core/");
 
+const moduleFolder = path.join(appDir, "node_modules/@datawheel/");
+const modules = [];
+if (name === "@datawheel/canon-core") modules.push(path.join(appDir, "src/"));
+if (shell.test("-d", moduleFolder)) {
+  fs.readdirSync(moduleFolder)
+    .forEach(folder => {
+      modules.push(path.join(moduleFolder, folder, "src/"));
+    });
+}
+modules.push(appDir);
+
+const moduleRegex = /@datawheel\/canon\-([A-z]+)\//g;
+
+/**
+    Extracts canon module name from a filepath.
+*/
+function moduleName(path) {
+  const exec = moduleRegex.exec(path);
+  return exec ? exec[1] : "local";
+}
+
+/**
+    Uses require.resolve to detect if a file is present.
+*/
 function resolve(file) {
 
   const fullPath = path.join(appPath, file);
@@ -71,7 +95,7 @@ function resolve(file) {
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
 const LANGUAGES = process.env.CANON_LANGUAGES || "canon";
 
-shell.echo(chalk.bold("\n\n 📂  Gathering Resources\n"));
+shell.echo(chalk.bold("\n 📂  Gathering Resources\n"));
 const store = resolve("store.js") || {};
 store.env = {
   CANON_API: API,
@@ -133,9 +157,12 @@ i18n
 
   });
 
+/**
+    Main server spinup function.
+*/
 async function start() {
 
-  shell.echo(chalk.bold("\n\n 🌐  Running Express Server\n"));
+  shell.echo(chalk.bold("\n 🌐  Running Express Server\n"));
   shell.echo(`Environment: ${NODE_ENV}`);
   shell.echo(`Port: ${PORT}`);
 
@@ -153,39 +180,43 @@ async function start() {
   const maxAge = process.env.CANON_SESSION_TIMEOUT || 60 * 60 * 1000; // one hour
   app.use(cookieSession({maxAge, name, secret}));
 
+  let dbDetect = false;
   if (dbName && dbUser) {
-
-    const db = new Sequelize(dbName, dbUser, dbPw,
-      {
-        host: dbHost,
-        dialect: "postgres",
-        define: {timestamps: true},
-        logging: () => {}
+    for (let i = 0; i < modules.length; i++) {
+      const folder = modules[i];
+      const dbFolder = path.join(folder, "db/");
+      if (shell.test("-d", dbFolder)) {
+        if (!dbDetect) {
+          dbDetect = true;
+          shell.echo(chalk.bold("\n 💽  Database Models\n"));
+          app.set("db", new Sequelize(dbName, dbUser, dbPw,
+            {
+              host: dbHost,
+              dialect: "postgres",
+              define: {timestamps: true},
+              logging: () => {}
+            }
+          ));
+          shell.echo(`Database: ${dbUser}@${dbHost}`);
+        }
+        const module = moduleName(dbFolder);
+        const {db} = app.settings;
+        fs.readdirSync(dbFolder)
+          .filter(file => file && file.indexOf(".") !== 0)
+          .forEach(file => {
+            const model = db.import(path.join(dbFolder, file));
+            db[model.name] = model;
+            shell.echo(`${module}: ${model.name}`);
+          });
       }
-    );
-
-    app.set("db", db);
-
-  }
-  shell.echo(`Database: ${ dbHost && dbUser ? `${dbUser}@${dbHost}` : "NONE" }`);
-
-  let dbFolder = false;
-  if (dbName && dbUser) {
-    dbFolder = path.join(appDir, "db/");
-    let modelCount = 0;
-    if (shell.test("-d", dbFolder)) {
-      const {db} = app.settings;
-
-      fs.readdirSync(dbFolder)
-        .filter(file => file && file.indexOf(".") !== 0)
-        .forEach(file => {
-          const model = db.import(path.join(dbFolder, file));
-          db[model.name] = model;
-          modelCount++;
-        });
-
     }
-    shell.echo(`Custom DB Models: ${modelCount}`);
+    if (dbDetect) {
+      const {db} = app.settings;
+      await db.sync({alter: true}).catch(() => {});
+      Object.keys(db).forEach(modelName => {
+        if ("associate" in db[modelName]) db[modelName].associate(db);
+      });
+    }
   }
 
   if (logins) {
@@ -204,54 +235,56 @@ async function start() {
       terms: process.env.CANON_LEGAL_TERMS || false
     };
 
-    const {db} = app.settings;
-    if (!db.models.users) {
-      db.users = db.import(path.join(canonPath, "src/db/users.js"));
-    }
-
-  }
-  shell.echo(`User Authentication: ${ logins ? "ON" : "OFF" }`);
-
-  if (dbFolder && shell.test("-d", dbFolder)) {
-
-    const {db} = app.settings;
-
-    Object.keys(db).forEach(modelName => {
-      if ("associate" in db[modelName]) db[modelName].associate(db);
-    });
+    shell.echo("User Authentication: ON");
 
   }
 
-  const cacheFolder = path.join(appDir, "cache/");
   const cache = {};
-  let caches = 0;
-  if (shell.test("-d", cacheFolder)) {
-    const promises = [];
-    fs.readdirSync(cacheFolder)
-      .filter(file => file && file.indexOf(".") !== 0)
-      .forEach(file => {
-        caches++;
-        const cacheName = file.split(".")[0];
-        const promise = require(path.join(cacheFolder, file))(app);
-        promises.push(Promise.all([cacheName, promise]));
+  let cacheDetect = false;
+  for (let i = 0; i < modules.length; i++) {
+    const folder = modules[i];
+    const cacheFolder = path.join(folder, "cache/");
+    if (shell.test("-d", cacheFolder)) {
+      if (!cacheDetect) {
+        cacheDetect = true;
+        shell.echo(chalk.bold("\n 📦  Filling Caches\n"));
+      }
+      const module = moduleName(cacheFolder);
+      const promises = [];
+      fs.readdirSync(cacheFolder)
+        .filter(file => file && file.indexOf(".") !== 0)
+        .forEach(file => {
+          const cacheName = file.split(".")[0];
+          const promise = require(path.join(cacheFolder, file))(app);
+          promises.push(Promise.all([cacheName, promise]));
+        });
+      const res = await Promise.all(promises);
+      res.forEach(([title, data]) => {
+        cache[title] = data;
+        shell.echo(`${module}: ${title}`);
       });
-    const res = await Promise.all(promises);
-    res.forEach(([title, data]) => cache[title] = data);
+    }
   }
-  shell.echo(`Caches: ${caches}`);
   app.set("cache", cache);
 
-  const apiFolder = path.join(appDir, "api/");
-  let routes = 0;
-  if (shell.test("-d", apiFolder)) {
-    fs.readdirSync(apiFolder)
-      .filter(file => file && file.indexOf(".") !== 0)
-      .forEach(file => {
-        routes++;
-        return require(path.join(apiFolder, file))(app);
-      });
+  let apiDetect = false;
+  for (let i = 0; i < modules.length; i++) {
+    const folder = modules[i];
+    const apiFolder = path.join(folder, "api/");
+    if (shell.test("-d", apiFolder)) {
+      if (!apiDetect) {
+        apiDetect = true;
+        shell.echo(chalk.bold("\n 📡  API Routes\n"));
+      }
+      const module = moduleName(apiFolder);
+      fs.readdirSync(apiFolder)
+        .filter(file => file && file.indexOf(".") !== 0)
+        .forEach(file => {
+          shell.echo(`${module}: ${file.replace(".js", "")}`);
+          return require(path.join(apiFolder, file))(app);
+        });
+    }
   }
-  shell.echo(`API Routes: ${routes}`);
 
   if (NODE_ENV === "production" && opbeatApp && opbeatOrg && opbeatToken) {
     const opbeat = require("opbeat").start({
@@ -267,7 +300,7 @@ async function start() {
 
   if (NODE_ENV === "development") {
 
-    shell.echo(chalk.bold("\n\n 🔷  Bundling Client Webpack\n"));
+    shell.echo(chalk.bold("\n 🔷  Bundling Client Webpack\n"));
 
     const webpackDevConfig = require(path.join(canonPath, "webpack/webpack.config.dev-client"));
     const compiler = webpack(webpackDevConfig);
@@ -315,7 +348,7 @@ else {
 
       store.attrs = {};
 
-      shell.echo(chalk.bold("\n\n 📚  Caching Attributes\n"));
+      shell.echo(chalk.bold("\n 📚  Caching Attributes\n"));
 
       const promises = res.data.data.map(attr => axios.get(`${API}attrs/${attr}`)
         .then(res => {

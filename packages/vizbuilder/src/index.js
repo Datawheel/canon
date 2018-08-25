@@ -41,7 +41,17 @@ class Vizbuilder extends React.PureComponent {
   }
 
   componentDidMount() {
+    const props = this.props;
     const locationQuery = queryString.parse(location.search);
+    if (props.defaultMeasure) {
+      locationQuery.defaultMeasure = props.defaultMeasure;
+    }
+    if (props.defaultDimension) {
+      locationQuery.defaultDimension = props.defaultDimension;
+    }
+    if (props.defaultLevel) {
+      locationQuery.defaultLevel = props.defaultLevel;
+    }
     this.firstLoad(locationQuery);
   }
 
@@ -102,8 +112,8 @@ class Vizbuilder extends React.PureComponent {
     });
   }
 
-  firstLoad(locationQuery) {
-    this.loadControl(fetchCubes.bind(this, locationQuery), () => {
+  firstLoad(initialQuery) {
+    this.loadControl(fetchCubes.bind(this, initialQuery), () => {
       const {query, queryOptions} = this.state;
       return api.query({
         ...query,
@@ -121,8 +131,14 @@ Vizbuilder.childContextTypes = {
 Vizbuilder.propTypes = {
   // this config object will be applied to all charts
   config: PropTypes.object,
+  // default dimension and level are optional
+  // but if set, default measure is required
+  defaultDimension: PropTypes.string,
+  defaultLevel: PropTypes.string,
+  defaultMeasure: PropTypes.string,
   // formatting functions object,
-  // keys according to value of measure.annotations.units_of_measurement
+  // keys are the possible values of measure.annotations.units_of_measurement
+  // values are the formatting function to apply to those measures
   formatting: PropTypes.objectOf(PropTypes.func),
   // source URL for the mondrian server
   src: PropTypes.string.isRequired,

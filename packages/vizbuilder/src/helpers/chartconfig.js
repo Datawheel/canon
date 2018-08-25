@@ -278,7 +278,7 @@ export default function createChartConfig({
       availableCharts.delete("treemap");
       availableCharts.delete("histogram");
     }
-    if (aggregatorType !== "SUM") {
+    if (aggregatorType !== "UNKNOWN" && aggregatorType !== "SUM") {
       availableCharts.delete("treemap");
       availableCharts.delete("barchartyear");
     }

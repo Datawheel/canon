@@ -2,7 +2,7 @@ import React from "react";
 import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 
-import {composePropertyName} from "../../helpers/sorting";
+import {PROPNAMESTYLES, composePropertyName} from "../../helpers/formatting";
 import BaseSelect from "../BaseSelect";
 
 function LevelSelect(props) {

@@ -4,6 +4,4 @@ app/
 cache/
 db/
 locales/
-packages/
-src/node_modules/
 static/

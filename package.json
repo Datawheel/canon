@@ -1,6 +1,6 @@
 {
   "name": "@datawheel/canon-core",
-  "version": "0.16.2",
+  "version": "0.16.6",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "src/index.js",
   "bin": {
@@ -127,5 +127,8 @@
     "webpack-hot-middleware": "^2.21.0",
     "yml-loader": "^2.1.0",
     "yn": "^2.0.0"
+  },
+  "devDependencies": {
+    "@datawheel/canon-logiclayer": "0.1.0"
   }
 }

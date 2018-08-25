@@ -2,6 +2,8 @@ import sort from "fast-sort";
 import union from "lodash/union";
 import {unique} from "shorthash";
 
+import {sortSlice} from "./formatting";
+
 /**
  * Checks if the dimension passed as argument is a time-type dimension.
  * @param {Dimension} dimension A mondrian-rest-client dimension object
@@ -159,8 +161,8 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
   while (n--) {
     const level = array[n];
     if (
-      level.hierarchy === interestHierarchy &&
-      level.depth > interestLevel.depth
+      level.hierarchy !== interestHierarchy ||
+      (level.hierarchy === interestHierarchy && level.depth > interestLevel.depth)
     ) {
       array.splice(n, 1);
     }
@@ -194,6 +196,30 @@ export function joinDrilldownList(array, drilldown) {
 }
 
 /**
+ * Checks for duplicate levels, based on their names.
+ * If a duplicate is found, the level whose hierarchy name
+ * is different to their own name is removed.
+ * @see Issue#136 on {@link https://github.com/Datawheel/canon/issues/136 | GitHub}
+ * @param {Level[]} array The level array to filter
+ */
+export function removeDuplicateLevels(array) {
+  const nameList = array.map(lvl => lvl.name);
+  let n = array.length;
+  while (n--) {
+    const currName = nameList[n];
+    if (
+      // the current element's name is more than once on the list
+      nameList.indexOf(currName) !== nameList.lastIndexOf(currName) &&
+      // and its hierarchy's name is different to its own name
+      array[n].hierarchy.name !== currName
+    ) {
+      nameList.splice(n, 1);
+      array.splice(n, 1);
+    }
+  }
+}
+
+/**
  * Extracts a time-type Dimension from a Cube object. If not found,
  * returns undefined.
  * @param {Cube} cube The Cube object to extract the time Dimension from
@@ -211,26 +237,6 @@ export function getTimeDrilldown(cube) {
     }
   }
   return undefined;
-}
-
-/**
- * For a drilldown, generates a standard name format to use in selectors.
- * @param {Level|Measure} item A Level or Measure object
- * @returns {string}
- */
-export function composePropertyName(item) {
-  let txt = item.name;
-  if ("hierarchy" in item) {
-    const hname = item.hierarchy.name;
-    const dname = item.hierarchy.dimension.name;
-    if (hname !== item.name && hname !== dname) {
-      txt = `${item.hierarchy.name} › ${txt}`;
-    }
-    if (dname !== item.name) {
-      txt = `${dname} › ${txt}`;
-    }
-  }
-  return txt;
 }
 
 /**
@@ -258,16 +264,6 @@ export function getIncludedMembers(query, dataset) {
   else {
     return {};
   }
-}
-
-/**
- * Generates a string that can be used as index to sort elements.
- * @param {string} string The string to slice
- * @returns {string}
- */
-export function sortSlice(string) {
-  string = `${string}`.replace(/\W/g, "").toLowerCase();
-  return `${string.slice(0, 5)}-----`.slice(0, 6);
 }
 
 /**
