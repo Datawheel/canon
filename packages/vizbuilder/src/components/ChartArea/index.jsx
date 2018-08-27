@@ -1,10 +1,15 @@
 import React from "react";
 import {NonIdealState} from "@blueprintjs/core";
+import {formatAbbreviate} from "d3plus-format";
 
 import createChartConfig, {charts} from "../../helpers/chartconfig";
 import ChartCard from "./ChartCard";
 
 import "./style.css";
+
+const DEFAULT_FORMATTERS = {
+  Dollars: d => `$${formatAbbreviate(d * 1 || 0)}`
+}
 
 class ChartArea extends React.Component {
   constructor(props) {
@@ -62,6 +67,7 @@ class ChartArea extends React.Component {
   render() {
     const {
       dataset,
+      formatting,
       members,
       query,
       topojson,
@@ -81,6 +87,10 @@ class ChartArea extends React.Component {
 
     const chartConfig = createChartConfig({
       activeType,
+      formatting: {
+        ...DEFAULT_FORMATTERS,
+        ...formatting
+      },
       members,
       query,
       topojson,

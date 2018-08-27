@@ -72,7 +72,7 @@ class Vizbuilder extends React.PureComponent {
   }
 
   render() {
-    const {config, topojson, visualizations} = this.props;
+    const {config, formatting, topojson, visualizations} = this.props;
     const {dataset, load, members, options, query, queryOptions} = this.state;
     return (
       <div className={classnames("vizbuilder", {loading: load.inProgress})}>
@@ -84,6 +84,7 @@ class Vizbuilder extends React.PureComponent {
         />
         <ChartArea
           dataset={dataset}
+          formatting={formatting}
           members={members}
           query={query}
           topojson={topojson}
@@ -130,9 +131,16 @@ Vizbuilder.childContextTypes = {
 Vizbuilder.propTypes = {
   // this config object will be applied to all charts
   config: PropTypes.object,
+  // default dimension and level are optional
+  // but if set, default measure is required
   defaultDimension: PropTypes.string,
   defaultLevel: PropTypes.string,
   defaultMeasure: PropTypes.string,
+  // formatting functions object,
+  // keys are the possible values of measure.annotations.units_of_measurement
+  // values are the formatting function to apply to those measures
+  formatting: PropTypes.objectOf(PropTypes.func),
+  // source URL for the mondrian server
   src: PropTypes.string.isRequired,
   topojson: PropTypes.objectOf(
     // keys are the Level names where each object apply
@@ -150,6 +158,7 @@ Vizbuilder.propTypes = {
 
 Vizbuilder.defaultProps = {
   config: {},
+  formatting: {},
   topojson: {},
   visualizations: [
     "geomap",
