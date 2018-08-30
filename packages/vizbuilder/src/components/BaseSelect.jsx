@@ -113,7 +113,6 @@ BaseSelect.defaultProps = {
     },
     popoverClassName: "select-box select-box-popover pt-minimal"
   },
-  resetOnSelect: true,
   tagRenderer: item => item.name,
   tagInputProps: {
     className: "input-area",
