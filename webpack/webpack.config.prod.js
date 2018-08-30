@@ -35,7 +35,7 @@ module.exports = [
         filename: "styles.css",
         allChunks: true
       }),
-      new HardSourceWebpackPlugin(),
+      new HardSourceWebpackPlugin({cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]")}),
       new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: false}),
       new webpack.DefinePlugin(Object.keys(process.env)
         .filter(e => e.startsWith("CANON_CONST_"))

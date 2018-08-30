@@ -32,7 +32,7 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new HardSourceWebpackPlugin(),
+    new HardSourceWebpackPlugin({cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]")}),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)

@@ -4,6 +4,7 @@ import {translate, Trans} from "react-i18next";
 import "./Home.css";
 import {Button} from "@blueprintjs/core";
 import {Activate} from "../../src/";
+import Vizbuilder from "@datawheel/canon-vizbuilder";
 
 // import styles from "style.yml";
 

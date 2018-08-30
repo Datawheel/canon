@@ -129,6 +129,7 @@
     "yn": "^2.0.0"
   },
   "devDependencies": {
-    "@datawheel/canon-logiclayer": "0.1.0"
+    "@datawheel/canon-logiclayer": "0.1.0",
+    "@datawheel/canon-vizbuilder": "^0.1.1"
   }
 }

@@ -61,6 +61,7 @@ module.exports = props => {
         path.join(appDir, "src"),
         path.join(appDir, "utils"),
         path.join(appDir, "node_modules/yn"),
+        path.join(appDir, "node_modules/@datawheel"),
         path.join(__dirname, "../../src")
       ]
     },
