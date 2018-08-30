@@ -36,7 +36,7 @@ module.exports = {
       filename: "styles.css",
       allChunks: true
     }),
-    // new HardSourceWebpackPlugin({cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]")}),
+    new HardSourceWebpackPlugin({cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]")}),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))
