@@ -39,23 +39,21 @@ MeasureSelect.defaultProps = {
       const topic = measure.annotations._cb_topic;
       const subtopic = measure.annotations._cb_subtopic;
 
-      if (topic && subtopic) {
-        const prevMeasure = array[i - 1] || nope;
+      const prevMeasure = array[i - 1] || nope;
 
-        if (topic !== prevMeasure.annotations._cb_topic) {
-          all.push({_level: 1, annotations: {_key: topic}, name: topic});
-        }
-
-        if (subtopic !== prevMeasure.annotations._cb_subtopic) {
-          all.push({
-            _level: 2,
-            annotations: {_key: `${topic}-${subtopic}`},
-            name: subtopic
-          });
-        }
-
-        all.push(measure);
+      if (topic !== prevMeasure.annotations._cb_topic) {
+        all.push({_level: 1, annotations: {_key: topic}, name: topic});
       }
+
+      if (subtopic && subtopic !== prevMeasure.annotations._cb_subtopic) {
+        all.push({
+          _level: 2,
+          annotations: {_key: `${topic}-${subtopic}`},
+          name: subtopic
+        });
+      }
+
+      all.push(measure);
 
       return all;
     }, []);
@@ -73,7 +71,7 @@ MeasureSelect.defaultProps = {
         <span className="select-label lead">
           {item.annotations._cb_sourceName}
         </span>
-      ;
+        ;
     }
     else {
       className.push("select-optgroup", `level-${item._level}`);

@@ -28,13 +28,3 @@ export function composePropertyName(item, style = PROPNAMESTYLES.DIMHIELVL) {
   }
   return txt;
 }
-
-/**
- * Generates a string that can be used as index to sort elements.
- * @param {string} string The string to slice
- * @returns {string}
- */
-export function sortSlice(string) {
-  string = `${string}`.replace(/\W/g, "").toLowerCase();
-  return `${string.slice(0, 5)}-----`.slice(0, 6);
-}
