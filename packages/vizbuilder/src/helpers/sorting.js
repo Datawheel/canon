@@ -2,8 +2,6 @@ import sort from "fast-sort";
 import union from "lodash/union";
 import {unique} from "shorthash";
 
-import {sortSlice} from "./formatting";
-
 /**
  * Checks if the dimension passed as argument is a time-type dimension.
  * @param {Dimension} dimension A mondrian-rest-client dimension object
@@ -28,35 +26,33 @@ export function injectCubeInfoOnMeasure(cubes) {
   let nCbs = cubes.length;
   while (nCbs--) {
     const cube = cubes[nCbs];
+    const cbAnnotations = cube.annotations;
 
-    if (cube.annotations.hide_in_ui) {
+    if (cbAnnotations.hide_in_ui) {
       cubes.splice(nCbs, 1);
       continue;
     }
 
     const cbName = cube.caption || cube.name;
-    const cbTopic = cube.annotations.topic;
-    const cbSubtopic = cube.annotations.subtopic;
+    const cbTopic = cbAnnotations.topic || "Other";
+    const cbSubtopic = cbAnnotations.subtopic;
     const selectorKey = `${cbTopic}_${cbSubtopic}_`;
-    const sortKey = sortSlice(selectorKey);
-    const sourceName = cube.annotations.source_name;
+    const sourceName = cbAnnotations.source_name;
 
-    cube.annotations._key = unique(cbName);
+    cbAnnotations._key = unique(cbName);
 
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
-      const annotations = measure.annotations;
+      const measureLabel = measure.caption || measure.name;
+      const msAnnotations = measure.annotations;
 
-      annotations._key = unique(`${cbName} ${measure.name}`);
-      annotations._cb_name = cbName;
-      annotations._cb_topic = cbTopic;
-      annotations._cb_subtopic = cbSubtopic;
-      annotations._cb_sourceName = sourceName;
-      annotations._selectorKey =
-        selectorKey + (measure.caption || measure.name);
-      annotations._sortKey = `${sortKey}${measure.caption ||
-        measure.name}`.toLowerCase();
+      msAnnotations._key = unique(`${cbName} ${measure.name}`);
+      msAnnotations._cb_name = cbName;
+      msAnnotations._cb_topic = cbTopic;
+      msAnnotations._cb_subtopic = cbSubtopic;
+      msAnnotations._cb_sourceName = sourceName;
+      msAnnotations._selectorKey = selectorKey + measureLabel;
     }
 
     let nDim = cube.dimensions.length;
@@ -87,6 +83,7 @@ export function injectCubeInfoOnMeasure(cubes) {
 export function getValidMeasures(cubes) {
   cubes = [].concat(cubes);
   const measures = [];
+  const otherMeasures = [];
 
   let nCbs = cubes.length;
   while (nCbs--) {
@@ -94,14 +91,23 @@ export function getValidMeasures(cubes) {
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
-      const key = measure.annotations.error_for_measure;
-      if (key === undefined) {
-        measures.push(measure);
+      const msAnnotations = measure.annotations;
+      if (msAnnotations.error_for_measure === undefined) {
+        if (msAnnotations._cb_topic === "Other") {
+          otherMeasures.push(measure);
+        }
+        else {
+          measures.push(measure);
+        }
       }
     }
   }
 
-  return sort(measures).asc(a => a.annotations._selectorKey);
+  const sortingFunction = a => a.annotations._selectorKey;
+  const sortedMeasures = sort(measures).asc(sortingFunction);
+  const sortedOther = sort(otherMeasures).asc(sortingFunction);
+
+  return sortedMeasures.concat(sortedOther);
 }
 
 /**
