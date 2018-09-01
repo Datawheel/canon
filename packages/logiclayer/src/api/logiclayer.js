@@ -11,7 +11,7 @@ const {CANON_LOGICLAYER_CUBE} = process.env;
 // const debug = process.env.NODE_ENV === "development";
 const debug = false;
 
-const canonConfig = require(path.join(process.cwd(), "canon.js"))["logiclayer"] || {};
+const canonConfig = require(path.join(process.cwd(), "canon.js")).logiclayer || {};
 const aliases = canonConfig.aliases || {};
 const dimensionMap = canonConfig.dimensionMap || {};
 const cubeFilters = canonConfig.cubeFilters || [];
@@ -21,6 +21,9 @@ const substitutions = canonConfig.substitutions || {};
 const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
 const cartesian = (a = [], b, ...c) => b ? cartesian(f(a, b), ...c)[0] : a.map(x => [x]);
 
+/**
+    Returns the unique intersection of 2 Arrays.
+*/
 function intersect(a, b) {
   return [...new Set(a)].filter(x => new Set(b).has(x));
 }
