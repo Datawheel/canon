@@ -244,14 +244,15 @@ module.exports = function(app) {
             if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
               for (const level in dimCuts[dim]) {
                 if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
-                  const drilldownDim = findDimension(flatDims, level, dim);
+                  const dimension = dim in dimensionMap ? dimensionMap[dim] : dim;
+                  const drilldownDim = findDimension(flatDims, level);
                   if (!drilldownDim) {
-                    if (substitutions[dim] && substitutions[dim].levels[level]) {
-                      const potentialSubs = substitutions[dim].levels[level];
+                    if (substitutions[dimension] && substitutions[dimension].levels[level]) {
+                      const potentialSubs = substitutions[dimension].levels[level];
                       let sub;
                       for (let i = 0; i < potentialSubs.length; i++) {
                         const p = potentialSubs[i];
-                        const subDim = findDimension(flatDims, p, dim);
+                        const subDim = findDimension(flatDims, p);
                         if (subDim) {
                           sub = p;
                           break;
@@ -346,28 +347,31 @@ module.exports = function(app) {
 
       const cubeDimCuts = {};
       cube.substitutions = [];
+
       for (const dim in dimCuts) {
         if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
-          cubeDimCuts[dim] = {};
+          const realDim = flatDims.find(d => d.dimension === dim || d.level === dim).dimension;
+          cubeDimCuts[realDim] = {};
           for (const level in dimCuts[dim]) {
             if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
               const masterDims = dimCuts[dim][level];
               const subLevel = cube.subs[level];
               if (db && db.search && subLevel) {
-                cubeDimCuts[dim][subLevel] = [];
+                cubeDimCuts[realDim][subLevel] = [];
                 for (let d = 0; d < masterDims.length; d++) {
                   const oldId = masterDims[d].id;
-                  const subUrl = substitutions[dim].url(oldId, subLevel);
+                  const dimension = dim in dimensionMap ? dimensionMap[dim] : dim;
+                  const subUrl = substitutions[dimension].url(oldId, subLevel);
                   const subId = await axios.get(subUrl)
                     .then(resp => resp.data)
-                    .then(substitutions[dim].callback);
-                  const subAttr = await db.search.findOne({where: {id: subId, dimension: dim, hierarchy: subLevel}});
+                    .then(substitutions[dimension].callback);
+                  const subAttr = await db.search.findOne({where: {id: subId, dimension, hierarchy: subLevel}});
                   cube.substitutions.push(subAttr);
-                  cubeDimCuts[dim][subLevel].push(subAttr);
+                  cubeDimCuts[realDim][subLevel].push(subAttr);
                 }
               }
               else {
-                cubeDimCuts[dim][level] = masterDims;
+                cubeDimCuts[realDim][level] = masterDims;
               }
             }
           }
