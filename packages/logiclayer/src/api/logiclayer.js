@@ -363,7 +363,7 @@ module.exports = function(app) {
 
       for (const dim in dimCuts) {
         if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
-          const realDim = flatDims.find(d => d.dimension === dim || d.level === dim).dimension;
+          const realDim = flatDims.find(d => d.dimension === dim || d.level === dim) ? flatDims.find(d => d.dimension === dim || d.level === dim).dimension : dim;
           cubeDimCuts[realDim] = {};
           for (const level in dimCuts[dim]) {
             if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
