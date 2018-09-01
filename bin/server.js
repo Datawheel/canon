@@ -92,6 +92,14 @@ function resolve(file) {
 
 }
 
+/**
+    Uses require.resolve to detect if a file is present.
+*/
+function readFiles(folder, fileType = "js") {
+  return fs.readdirSync(folder)
+    .filter(file => file && file.indexOf(".") !== 0 && file.indexOf(`.${fileType}`) === file.length - 1 - fileType.length);
+}
+
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
 const LANGUAGES = process.env.CANON_LANGUAGES || "canon";
 
@@ -124,8 +132,7 @@ const Backend = require("i18next-node-fs-backend");
 const i18nMiddleware = require("i18next-express-middleware");
 
 const lngDetector = new i18nMiddleware.LanguageDetector();
-fs.readdirSync(path.join(canonPath, "src/i18n/detection/"))
-  .filter(file => file && file.indexOf(".") !== 0)
+readFiles(path.join(canonPath, "src/i18n/detection/"))
   .forEach(file => {
     lngDetector.addDetector(require(path.join(canonPath, "src/i18n/detection/", file)));
   });
@@ -201,8 +208,7 @@ async function start() {
         }
         const module = moduleName(dbFolder);
         const {db} = app.settings;
-        fs.readdirSync(dbFolder)
-          .filter(file => file && file.indexOf(".") !== 0)
+        readFiles(dbFolder)
           .forEach(file => {
             const model = db.import(path.join(dbFolder, file));
             db[model.name] = model;
@@ -251,8 +257,7 @@ async function start() {
       }
       const module = moduleName(cacheFolder);
       const promises = [];
-      fs.readdirSync(cacheFolder)
-        .filter(file => file && file.indexOf(".") !== 0)
+      readFiles(cacheFolder)
         .forEach(file => {
           const cacheName = file.split(".")[0];
           const promise = require(path.join(cacheFolder, file))(app);
@@ -277,8 +282,7 @@ async function start() {
         shell.echo(chalk.bold("\n 📡  API Routes\n"));
       }
       const module = moduleName(apiFolder);
-      fs.readdirSync(apiFolder)
-        .filter(file => file && file.indexOf(".") !== 0)
+      readFiles(apiFolder)
         .forEach(file => {
           shell.echo(`${module}: ${file.replace(".js", "")}`);
           return require(path.join(apiFolder, file))(app);
