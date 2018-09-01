@@ -18,8 +18,11 @@
     "mondrian-rest-client": "^1.0.4",
     "promise-throttle": "^1.0.0"
   },
+  "devDependencies": {
+    "@datawheel/canon-core": "^0.16.7"
+  },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.16.2"
+    "@datawheel/canon-core": "^0.16.7"
   },
   "repository": {
     "type": "git",
