@@ -1,6 +1,16 @@
 # Canon Logic Layer
 
-The Canon Logic Layer is a REST API that simplifies queries to a mondrian cube using shorthand and introspective logic.
+The Canon Logic Layer is a REST API that simplifies queries to a mondrian cube using shorthand and introspective logic. This documentation contains installation instructions, basic usage examples, and explanations of the custom logic and settings that can be provided through the `canon.js` file in the root directory of a project.
+
+#### Contents
+* [Installation](#installation)
+* [Usage](#usage)
+* [Reserved Keywords](#reserved-keywords)
+* [Cuts](#cuts)
+* [Aliases](#aliases)
+* [Custom Cube Filtering](#custom-cube-filtering)
+
+___
 
 ## Installation
 
@@ -14,7 +24,11 @@ Additionally, an environment variable must be set to tell the logic layer which 
 export CANON_LOGICLAYER_CUBE=https://canon-api.datausa.io/
 ```
 
+___
+
 Once the package has been installed on any site using `@datawheel/canon-core`, and the `CANON_LOGICLAYER_CUBE` environment variable has been set, the canon core server will automatically hook up the necessary cache and api routes for the logic layer.
+
+___
 
 ## Usage
 
@@ -71,6 +85,8 @@ The logic layer exposes an endpoint at `/api/data` that will return JSON based o
 }
 ```
 
+___
+
 ## Reserved Keywords
 
 |keyword|description|default|
@@ -84,9 +100,13 @@ The logic layer exposes an endpoint at `/api/data` that will return JSON based o
 |`sort`|The sort direction for the `order` property. Can be either `"desc"` or `"asc"`|`"desc"`|
 |`Year`|Which years to return from the database. In addition to supported comma-separated values (ie. `"2015,2016"`), there is also a preset list of shorthands: `"latest"`, `"previous"`, `"oldest"`, `"all"`|`"all"`|
 
+___
+
 ## Cuts
 
 Any keyword argument that is not recognized from the above list is considered a cut, and will be treated as such. In the Data USA example above, the `State=04000US25` is cutting the `State` dimension on the ID `04000US25`.
+
+___
 
 ## Aliases
 
@@ -107,6 +127,8 @@ module.exports = {
   }
 };
 ```
+
+___
 
 ## Custom Cube Filtering
 
