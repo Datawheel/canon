@@ -128,7 +128,7 @@ module.exports = function(app) {
       where: {}
     }).map(d => d.dimension) : [];
 
-    const dimensions = [], renames = [];
+    const dimensions = [], filters = [], renames = [];
     for (let key in req.query) {
       if (!reserved.includes(key)) {
 
@@ -197,7 +197,17 @@ module.exports = function(app) {
 
         ids = d3Array.merge(ids);
         if (ids.length) {
-          if (searchDims.includes(searchDim)) {
+          const strippedKey = key.replace(/\<|\>/g, "");
+          if (strippedKey in cubeMeasures) {
+            const value = parseFloat(ids[0], 10);
+            if (ids.length === 1 && !isNaN(value)) {
+              const operation = key.indexOf("<") === key.length - 1 ? "<="
+                : key.indexOf(">") === key.length - 1 ? ">="
+                  : "=";
+              filters.push([strippedKey, operation, value]);
+            }
+          }
+          else if (searchDims.includes(searchDim)) {
             dimensions.push({
               alternate: key,
               dimension: searchDim,
@@ -496,6 +506,10 @@ module.exports = function(app) {
             const p = yn(parents);
             query.option("parents", p);
             if (p && debug) console.log("Parents: true");
+
+            filters
+              .filter(f => cube.measures.includes(f[0]))
+              .forEach(filter => query.filter(...filter));
 
             // TODO add this once mondrian-rest ordering works
             // if (limit) {

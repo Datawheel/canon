@@ -6,7 +6,7 @@ The Canon Logic Layer is a REST API that simplifies queries to a mondrian cube u
 * [Installation](#installation)
 * [Usage](#usage)
 * [Reserved Keywords](#reserved-keywords)
-* [Cuts](#cuts)
+* [Cuts and Filters](#cuts-and-filters)
 * [Aliases](#aliases)
 * [Custom Cube Filtering](#custom-cube-filtering)
 
@@ -102,9 +102,9 @@ ___
 
 ___
 
-## Cuts
+## Cuts and Filters
 
-Any keyword argument that is not recognized from the above list is considered a cut, and will be treated as such. In the Data USA example above, the `State=04000US25` is cutting the `State` dimension on the ID `04000US25`.
+Any keyword argument that is not recognized from the above list is considered either a cut or a filter, depending on if the keyword is a dimension or measure, respectively. In the Data USA example above, the `State=04000US25` is cutting the `State` dimension on the ID `04000US25`. For filtering by a measure, you can use `>=` and `<=` in addition to standard equalality (`=`).
 
 ___
 
