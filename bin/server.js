@@ -5,6 +5,7 @@ const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
       chalk = require("chalk"),
       cookieParser = require("cookie-parser"),
       cookieSession = require("cookie-session"),
+      d3Array = require("d3-array"),
       express = require("express"),
       fs = require("fs"),
       gzip = require("compression"),
@@ -96,8 +97,14 @@ function resolve(file) {
     Uses require.resolve to detect if a file is present.
 */
 function readFiles(folder, fileType = "js") {
-  return fs.readdirSync(folder)
-    .filter(file => file && file.indexOf(".") !== 0 && file.indexOf(`.${fileType}`) === file.length - 1 - fileType.length);
+  return d3Array.merge(fs.readdirSync(folder)
+    .filter(file => file && file.indexOf(".") !== 0)
+    .map(file => {
+      const fullPath = path.join(folder, file);
+      if (shell.test("-d", fullPath)) return readFiles(fullPath, fileType);
+      else if (file.indexOf(`.${fileType}`) === file.length - 1 - fileType.length) return [fullPath];
+      else return [];
+    }));
 }
 
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
@@ -134,7 +141,7 @@ const i18nMiddleware = require("i18next-express-middleware");
 const lngDetector = new i18nMiddleware.LanguageDetector();
 readFiles(path.join(canonPath, "src/i18n/detection/"))
   .forEach(file => {
-    lngDetector.addDetector(require(path.join(canonPath, "src/i18n/detection/", file)));
+    lngDetector.addDetector(require(file));
   });
 
 i18n
@@ -210,7 +217,7 @@ async function start() {
         const {db} = app.settings;
         readFiles(dbFolder)
           .forEach(file => {
-            const model = db.import(path.join(dbFolder, file));
+            const model = db.import(file);
             db[model.name] = model;
             shell.echo(`${module}: ${model.name}`);
           });
@@ -259,8 +266,9 @@ async function start() {
       const promises = [];
       readFiles(cacheFolder)
         .forEach(file => {
-          const cacheName = file.split(".")[0];
-          const promise = require(path.join(cacheFolder, file))(app);
+          const parts = file.split("/");
+          const cacheName = parts[parts.length - 1].replace(".js", "");
+          const promise = require(file)(app);
           promises.push(Promise.all([cacheName, promise]));
         });
       const res = await Promise.all(promises);
@@ -284,8 +292,10 @@ async function start() {
       const module = moduleName(apiFolder);
       readFiles(apiFolder)
         .forEach(file => {
-          shell.echo(`${module}: ${file.replace(".js", "")}`);
-          return require(path.join(apiFolder, file))(app);
+          const parts = file.split("/");
+          const apiName = parts[parts.length - 1].replace(".js", "");
+          shell.echo(`${module}: ${apiName}`);
+          return require(file)(app);
         });
     }
   }
