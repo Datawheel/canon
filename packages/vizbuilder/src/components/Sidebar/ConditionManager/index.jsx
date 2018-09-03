@@ -69,6 +69,7 @@ class ConditionManager extends React.Component {
 
     return (
       <div className={classNames(props.className, "condition-manager")}>
+        <p className="label">Filters</p>
         <div className="condition-items">
           {conditions.map(function(condition) {
             return React.createElement(ConditionItem, {
