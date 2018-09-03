@@ -20,7 +20,7 @@ function FilterItemMeasure(props) {
         />
       </div>
       <div className="group condition-values pt-control-group">
-        <div className="pt-select">
+        <div className="pt-select pt-fill">
           <select value={props.operator} onChange={props.onSetOperator}>
             {NUMBER_OPERATORS.map(ms =>
               <option key={ms} value={OPERATORS[ms]}>
