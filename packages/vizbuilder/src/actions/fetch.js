@@ -40,6 +40,26 @@ export function findByName(needle, haystack, elseFirst = false) {
 }
 
 /**
+ * Looks for an element of `defaults` in `haystack`, using the `matchingFunction`.
+ * If `elseFirst` is true and there's no match, returns the first element in `haystack`.
+ * @param {(needle, haystack) => any} matchingFunction The function to use to find the elements
+ * @param {any[]} haystack The array where to search for the object
+ * @param {string[]} defaults The array of default names to search for
+ * @param {boolean?} elseFirst A flag to return the first element in case of no matching result
+ */
+export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
+  let matchResult;
+  let n = defaults.length;
+  while (n--) {
+    const needle = defaults[n];
+    if (matchResult = matchingFunction(needle, haystack)) {
+      break;
+    }
+  }
+  return elseFirst ? matchResult || haystack[0] : matchResult;
+}
+
+/**
  * Retrieves the cube list and prepares the initial state for the first query
  * @param {InitialQueryState} initialQuery An object with initial state parameters
  */
@@ -69,13 +89,16 @@ export function fetchCubes(initialQuery) {
       levels = reduceLevelsFromDimension(levels, dimension);
     }
     else {
+      const defaultLevel = [].concat(initialQuery.defaultLevel).reverse();
+
       if ("defaultDimension" in initialQuery) {
-        dimension = findByName(initialQuery.defaultDimension, dimensions, true);
+        const defaultDimension = [].concat(initialQuery.defaultDimension).reverse();
+        dimension = matchDefault(dimensions, defaultDimension, true);
         levels = reduceLevelsFromDimension(levels, dimension);
-        drilldown = findByName(initialQuery.defaultLevel, levels, true);
+        drilldown = matchDefault(drilldowns, defaultLevel, true);
       }
       else {
-        drilldown = findByName(initialQuery.defaultLevel, drilldowns, true);
+        drilldown = matchDefault(drilldowns, defaultLevel);
         dimension = drilldown.hierarchy.dimension;
         levels = reduceLevelsFromDimension(levels, dimension);
       }
