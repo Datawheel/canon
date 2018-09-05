@@ -369,7 +369,7 @@ module.exports = function(app) {
             if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
               const masterDims = dimCuts[dim][level];
               const subLevel = cube.subs[level];
-              if (db && db.search && subLevel) {
+              if (subLevel) {
                 cubeDimCuts[realDim][subLevel] = [];
                 for (let d = 0; d < masterDims.length; d++) {
                   const oldId = masterDims[d].id;
@@ -377,10 +377,13 @@ module.exports = function(app) {
                   const subUrl = substitutions[dimension].url(oldId, subLevel);
                   const subId = await axios.get(subUrl)
                     .then(resp => resp.data)
-                    .then(substitutions[dimension].callback);
-                  const subAttr = await db.search.findOne({where: {id: subId, dimension, hierarchy: subLevel}});
-                  cube.substitutions.push(subAttr);
-                  cubeDimCuts[realDim][subLevel].push(subAttr);
+                    .then(substitutions[dimension].callback)
+                    .catch(() => false);
+                  if (subId) {
+                    const subAttr = {id: subId, dimension, hierarchy: subLevel};
+                    cube.substitutions.push(subAttr);
+                    cubeDimCuts[realDim][subLevel].push(subAttr);
+                  }
                 }
               }
               else {
