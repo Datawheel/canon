@@ -105,15 +105,16 @@ export function fetchCubes(initialQuery) {
     }
     else {
       const defaultLevel = [].concat(initialQuery.defaultLevel).reverse();
+      const matchDefaultByName = matchDefault.bind(null, findByName);
 
       if ("defaultDimension" in initialQuery) {
         const defaultDimension = [].concat(initialQuery.defaultDimension).reverse();
-        dimension = matchDefault(dimensions, defaultDimension, true);
+        dimension = matchDefaultByName(dimensions, defaultDimension, true);
         levels = reduceLevelsFromDimension(levels, dimension);
-        drilldown = matchDefault(drilldowns, defaultLevel, true);
+        drilldown = matchDefaultByName(levels, defaultLevel, true);
       }
       else {
-        drilldown = matchDefault(drilldowns, defaultLevel);
+        drilldown = matchDefaultByName(drilldowns, defaultLevel, true);
         dimension = drilldown.hierarchy.dimension;
         levels = reduceLevelsFromDimension(levels, dimension);
       }
@@ -162,10 +163,10 @@ export function fetchQuery() {
 }
 
 /**
- * @typedef {InitialQueryState}
- * @prop {string?} defaultDimension Initial dimension set by the user
- * @prop {string?} defaultLevel Initial level for drilldown set by the user
- * @prop {string?} defaultMeasure Initial measure set by the user
- * @prop {string?} ms Initial measure key, parsed from the permalink
- * @prop {string?} dd Initial drilldown key, parsed from the permalink
+ * @typedef {any} InitialQueryState
+ * @prop {string} [defaultDimension] Initial dimension set by the user
+ * @prop {string} [defaultLevel] Initial level for drilldown set by the user
+ * @prop {string} [defaultMeasure] Initial measure set by the user
+ * @prop {string} [ms] Initial measure key, parsed from the permalink
+ * @prop {string} [dd] Initial drilldown key, parsed from the permalink
  */
