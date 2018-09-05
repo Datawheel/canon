@@ -40,7 +40,7 @@ module.exports = {
           "NAPCS Class": ["SCTG2"]
         },
         url: id => `${CANON_API}api/napcs/${id}/sctg/`,
-        callback: resp => resp[0].id
+        callback: resp => resp.map(d => d.id)
       }
     }
   }

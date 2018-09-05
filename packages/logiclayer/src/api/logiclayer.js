@@ -375,14 +375,17 @@ module.exports = function(app) {
                   const oldId = masterDims[d].id;
                   const dimension = dim in dimensionMap ? dimensionMap[dim] : dim;
                   const subUrl = substitutions[dimension].url(oldId, subLevel);
-                  const subId = await axios.get(subUrl)
+                  const subIds = await axios.get(subUrl)
                     .then(resp => resp.data)
                     .then(substitutions[dimension].callback)
-                    .catch(() => false);
-                  if (subId) {
-                    const subAttr = {id: subId, dimension, hierarchy: subLevel};
-                    cube.substitutions.push(subAttr);
-                    cubeDimCuts[realDim][subLevel].push(subAttr);
+                    .then(ids => ids instanceof Array ? ids : [ids])
+                    .catch(() => []);
+                  if (subIds.length) {
+                    subIds.forEach(subId => {
+                      const subAttr = {id: subId, dimension, hierarchy: subLevel};
+                      cube.substitutions.push(subAttr);
+                      cubeDimCuts[realDim][subLevel].push(subAttr);
+                    });
                   }
                 }
               }
