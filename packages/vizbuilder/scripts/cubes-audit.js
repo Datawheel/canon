@@ -8,15 +8,26 @@ const client = new Client("https://canon-api.datausa.io");
 client.cubes().then(cubes => {
 
   let row = "";
-
-  cubes.map(cube => {
+  cubes.sort((a, b) => a.name > b.name ? 1 : -1).forEach(cube => {
     const {dimensions, measures, annotations} = cube;
-    row += `### ${cube.name} \n`;
+    row += `### CUBE: ${cube.name} \n`;
     row += "\n";
-    row += `- [${annotations.source_name ? "x" : " "}] source_name \n`;
-    row += `- [${annotations.source_description ? "x" : " "}] source_description \n`;
-    row += `- [${annotations.source_link ? "x" : " "}] source_link \n`;
+    if (annotations.source_name) row += "- [ ] source_name \n";
+    if (annotations.source_description) row += "- [ ] source_description \n";
+    if (annotations.source_link) row += "- [ ] source_link \n";
+    if (annotations.dataset_name) row += "- [ ] dataset_name \n";
+    if (annotations.dataset_link) row += "- [ ] dataset_link \n";
+    if (annotations.topic) row += "- [ ] topic \n";
+    if (annotations.subtopic) row += "- [ ] subtopic \n";
+    if (annotations.details) row += "- [ ] details \n";
     row += "\n";
+
+    measures.forEach(measure => {
+      row += `### MEASURE: ${measure.name} \n`;
+      if (measure.annotations.units_of_measurement) row += "- [ ] units_of_measurement \n";
+      row += "\n";
+    });
+
   });
 
   fs.writeFile("./scripts/cubes-audit.md", row, "utf8", err => {
