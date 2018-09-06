@@ -45,6 +45,7 @@ client.cubes().then(cubes => {
     });
 
     measures.forEach(measure => {
+<<<<<<< HEAD
       if (!measure.annotations.error_for_measure) {
         row += `### MEASURE: ${measure.name} \n`;
         if (!measure.annotations.units_of_measurement) row += "- [ ] units_of_measurement \n";
@@ -52,6 +53,13 @@ client.cubes().then(cubes => {
         row += "\n";
       }
       
+=======
+      if (!measure.annotations.units_of_measurement) {
+        row += `### MEASURE: ${measure.name} \n`;
+        row += "- [ ] units_of_measurement \n";
+        row += "\n";
+      }
+>>>>>>> master
     });
 
     row += "----\n";

@@ -141,9 +141,10 @@ class ConditionItem extends React.PureComponent {
     this.setState({diff: condition});
   }
 
-  setFilterValue(value) {
+  setFilterValue(valueAsNumber, valueAsString) {
+    const test = /d*[\.,]d?/.test(valueAsString);
     const condition = this.getConditionObject();
-    condition.values = [value];
+    condition.values = [test ? valueAsString : valueAsNumber];
     this.setState({diff: condition});
   }
 

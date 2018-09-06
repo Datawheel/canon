@@ -80,6 +80,8 @@ export default class Home extends React.Component {
       config={DEFAULT_CONFIG}
       src={this.state.source}
       topojson={DEFAULT_TOPOJSON}
+      defaultDimension={["Gender", "Age"]}
+      defaultLevel={["State"]}
     />;
   }
 }

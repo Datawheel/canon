@@ -8,6 +8,8 @@ const throttle = new PromiseThrottle({
   promiseImplementation: Promise
 });
 
+const currentYear = new Date().getFullYear();
+
 const {CANON_LOGICLAYER_CUBE} = process.env;
 
 module.exports = async function() {
@@ -66,11 +68,12 @@ module.exports = async function() {
       const query = client.members(levels[levels.length - 1])
         .then(members => {
           const years = members.map(d => d.key).sort();
+          const current = years.filter(year => parseInt(year, 10) <= currentYear);
           return {
             cube: cube.name,
-            latest: years[years.length - 1],
-            oldest: years[0],
-            previous: years.length > 1 ? years[years.length - 2] : years[years.length - 1],
+            latest: current[current.length - 1],
+            oldest: current[0],
+            previous: current.length > 1 ? current[current.length - 2] : current[current.length - 1],
             years
           };
         })
