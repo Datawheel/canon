@@ -124,7 +124,7 @@ class Sidebar extends React.PureComponent {
     return (
       <div className="area-sidebar">
         <div className="wrapper">
-          <div className="control">
+          <div className="control select-measure">
             <p className="label">Showing</p>
             <MeasureSelect
               className="custom-select"
@@ -136,25 +136,27 @@ class Sidebar extends React.PureComponent {
           </div>
 
           <div className="control">
-            <p className="label">Grouped by</p>
-            <BaseSelect
-              className="custom-select"
-              filterable={false}
-              items={options.dimensions}
-              value={query.dimension}
-              onItemSelect={this.setDimension}
-            />
-          </div>
+            <div className="control select-dimension">
+              <p className="label">Grouped by</p>
+              <BaseSelect
+                className="custom-select"
+                filterable={false}
+                items={options.dimensions}
+                value={query.dimension}
+                onItemSelect={this.setDimension}
+              />
+            </div>
 
-          <div className="control">
-            <p className="label">At depth level</p>
-            <LevelSelect
-              className="custom-select"
-              filterable={false}
-              items={options.levels}
-              value={query.drilldown}
-              onItemSelect={this.setDrilldown}
-            />
+            <div className="control select-level">
+              <p className="label">At depth level</p>
+              <LevelSelect
+                className="custom-select"
+                filterable={false}
+                items={options.levels}
+                value={query.drilldown}
+                onItemSelect={this.setDrilldown}
+              />
+            </div>
           </div>
 
           <ConditionManager
