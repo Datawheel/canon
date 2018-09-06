@@ -27,6 +27,7 @@ class Vizbuilder extends React.PureComponent {
 
     api.resetClient(props.src);
     this.state = initialState();
+    this.defaultQuery = {};
 
     this.loadControl = loadControl.bind(this);
     this.firstLoad = this.firstLoad.bind(this);
@@ -41,18 +42,12 @@ class Vizbuilder extends React.PureComponent {
   }
 
   componentDidMount() {
-    const props = this.props;
-    const locationQuery = queryString.parse(location.search);
-    if (props.defaultMeasure) {
-      locationQuery.defaultMeasure = props.defaultMeasure;
+    const defaultQuery = {
+      ...queryString.parse(window.location.search),
+      ...this.getDefaultQuery(this.props)
     }
-    if (props.defaultDimension) {
-      locationQuery.defaultDimension = props.defaultDimension;
-    }
-    if (props.defaultLevel) {
-      locationQuery.defaultLevel = props.defaultLevel;
-    }
-    this.firstLoad(locationQuery);
+    this.defaultQuery = defaultQuery;
+    this.firstLoad(defaultQuery);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -78,6 +73,7 @@ class Vizbuilder extends React.PureComponent {
       <div className={classnames("vizbuilder", {loading: load.inProgress})}>
         <LoadingScreen total={load.total} progress={load.done} />
         <Sidebar
+          defaultQuery={this.defaultQuery}
           options={options}
           query={query}
           queryOptions={queryOptions}
@@ -120,6 +116,20 @@ class Vizbuilder extends React.PureComponent {
         options: queryOptions
       });
     });
+  }
+
+  getDefaultQuery(props) {
+    const defaultQuery = {};
+    if (props.defaultMeasure) {
+      defaultQuery.defaultMeasure = props.defaultMeasure;
+    }
+    if (props.defaultDimension) {
+      defaultQuery.defaultDimension = props.defaultDimension;
+    }
+    if (props.defaultLevel) {
+      defaultQuery.defaultLevel = props.defaultLevel;
+    }
+    return defaultQuery;
   }
 }
 

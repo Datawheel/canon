@@ -105,16 +105,15 @@ export function fetchCubes(initialQuery) {
     }
     else {
       const defaultLevel = [].concat(initialQuery.defaultLevel).reverse();
-      const matchDefaultByName = matchDefault.bind(null, findByName);
 
       if ("defaultDimension" in initialQuery) {
         const defaultDimension = [].concat(initialQuery.defaultDimension).reverse();
-        dimension = matchDefaultByName(dimensions, defaultDimension, true);
+        dimension = matchDefault(findByName, dimensions, defaultDimension, true);
         levels = reduceLevelsFromDimension(levels, dimension);
-        drilldown = matchDefaultByName(levels, defaultLevel, true);
+        drilldown = matchDefault(findByName, levels, defaultLevel, true);
       }
       else {
-        drilldown = matchDefaultByName(drilldowns, defaultLevel, true);
+        drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
         dimension = drilldown.hierarchy.dimension;
         levels = reduceLevelsFromDimension(levels, dimension);
       }
