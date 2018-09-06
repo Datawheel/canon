@@ -1,12 +1,23 @@
+## CUBES AUDIT 
+
+Data obtained from https://canon-api.datausa.io 
+Last updated on 9/6/2018, 7:10:47 AM 
+
 ### CUBE: acs_yg_gini_1 
 
 - [ ] source_name 
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
 ### MEASURE: Gini 
 
 ### MEASURE: Gini Moe 
+
+=====================
 
 ### CUBE: acs_yg_gini_5 
 
@@ -14,9 +25,15 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
 ### MEASURE: Gini 
 
 ### MEASURE: Gini Moe 
+
+=====================
 
 ### CUBE: acs_yg_household_income_1 
 
@@ -24,9 +41,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Household Income Bucket 
+
 ### MEASURE: Income Households 
 
 ### MEASURE: Income Households Moe 
+
+=====================
 
 ### CUBE: acs_yg_household_income_5 
 
@@ -34,9 +59,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Household Income Bucket 
+
 ### MEASURE: Income Households 
 
 ### MEASURE: Income Households Moe 
+
+=====================
 
 ### CUBE: acs_yg_housing_median_value_1 
 
@@ -44,9 +77,15 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
 ### MEASURE: Housing Median Value 
 
 ### MEASURE: Housing Median Value Moe 
+
+=====================
 
 ### CUBE: acs_yg_housing_median_value_5 
 
@@ -54,9 +93,15 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
 ### MEASURE: Housing Median Value 
 
 ### MEASURE: Housing Median Value Moe 
+
+=====================
 
 ### CUBE: acs_yg_total_population_1 
 
@@ -64,9 +109,15 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
 ### MEASURE: Total Population 
 
 ### MEASURE: Total Population Moe 
+
+=====================
 
 ### CUBE: acs_yg_total_population_5 
 
@@ -74,9 +125,15 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
 ### MEASURE: Total Population 
 
 ### MEASURE: Total Population Moe 
+
+=====================
 
 ### CUBE: acs_ygc_citizenship_status_1 
 
@@ -84,9 +141,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Citizenship Status 
+
 ### MEASURE: Citizenship Status Population 
 
 ### MEASURE: Citizenship Status Population Moe 
+
+=====================
 
 ### CUBE: acs_ygc_citizenship_status_5 
 
@@ -94,9 +159,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Citizenship Status 
+
 ### MEASURE: Citizenship Status Population 
 
 ### MEASURE: Citizenship Status Population Moe 
+
+=====================
 
 ### CUBE: acs_ygcs_median_age_by_citizenship_status_by_sex_1 
 
@@ -104,9 +177,21 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Nativity Status 
+
+### DIMENSION: Naturalized Status 
+
+### DIMENSION: Sex 
+
 ### MEASURE: Citizenship Median Age 
 
 ### MEASURE: Citizenship Median Age Moe 
+
+=====================
 
 ### CUBE: acs_ygcs_median_age_by_citizenship_status_by_sex_5 
 
@@ -114,9 +199,21 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Nativity Status 
+
+### DIMENSION: Naturalized Status 
+
+### DIMENSION: Sex 
+
 ### MEASURE: Citizenship Median Age 
 
 ### MEASURE: Citizenship Median Age Moe 
+
+=====================
 
 ### CUBE: acs_ygf_place_of_birth_for_foreign_born_1 
 
@@ -124,9 +221,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Place of Birth 
+
 ### MEASURE: Foreign Born Population 
 
 ### MEASURE: Foreign Born Population Moe 
+
+=====================
 
 ### CUBE: acs_ygf_place_of_birth_for_foreign_born_5 
 
@@ -134,9 +239,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Place of Birth 
+
 ### MEASURE: Foreign Born Population 
 
 ### MEASURE: Foreign Born Population Moe 
+
+=====================
 
 ### CUBE: acs_ygh_health_care_coverage_overall_1 
 
@@ -144,9 +257,21 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Age 
+
+### DIMENSION: Health Coverage 
+
+### DIMENSION: Kaiser Health Coverage 
+
 ### MEASURE: Health Care Coverage Population 
 
 ### MEASURE: Health Care Coverage Population Moe 
+
+=====================
 
 ### CUBE: acs_ygh_health_care_coverage_overall_5 
 
@@ -154,9 +279,21 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Age 
+
+### DIMENSION: Health Coverage 
+
+### DIMENSION: Kaiser Health Coverage 
+
 ### MEASURE: Health Care Coverage Population 
 
 ### MEASURE: Health Care Coverage Population Moe 
+
+=====================
 
 ### CUBE: acs_ygh_homeowners_with_mortgage_spending_30_percent_on_costs_1 
 
@@ -164,9 +301,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Mortgage Status 
+
 ### MEASURE: Housing Unit With Mortgage 
 
 ### MEASURE: Housing Unit With Mortgage Moe 
+
+=====================
 
 ### CUBE: acs_ygh_homeowners_with_mortgage_spending_30_percent_on_costs_5 
 
@@ -174,9 +319,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Mortgage Status 
+
 ### MEASURE: Housing Unit With Mortgage 
 
 ### MEASURE: Housing Unit With Mortgage Moe 
+
+=====================
 
 ### CUBE: acs_ygh_households_with_no_internet_1 
 
@@ -184,9 +337,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Internet Access 
+
 ### MEASURE: Internet Households 
 
 ### MEASURE: Internet Households Moe 
+
+=====================
 
 ### CUBE: acs_ygh_households_with_no_internet_5 
 
@@ -194,9 +355,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Internet Access 
+
 ### MEASURE: Internet Households 
 
 ### MEASURE: Internet Households Moe 
+
+=====================
 
 ### CUBE: acs_ygh_occupied_households_lacking_kitchen_1 
 
@@ -204,9 +373,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Kitchen Facilities 
+
 ### MEASURE: Occupied Households 
 
 ### MEASURE: Occupied Households Moe 
+
+=====================
 
 ### CUBE: acs_ygh_occupied_households_lacking_kitchen_5 
 
@@ -214,9 +391,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Kitchen Facilities 
+
 ### MEASURE: Occupied Households 
 
 ### MEASURE: Occupied Households Moe 
+
+=====================
 
 ### CUBE: acs_ygh_occupied_households_lacking_plumbing_1 
 
@@ -224,9 +409,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Plumbing Facilities 
+
 ### MEASURE: Occupied Households 
 
 ### MEASURE: Occupied Households Moe 
+
+=====================
 
 ### CUBE: acs_ygh_occupied_households_lacking_plumbing_5 
 
@@ -234,9 +427,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Plumbing Facilities 
+
 ### MEASURE: Occupied Households 
 
 ### MEASURE: Occupied Households Moe 
+
+=====================
 
 ### CUBE: acs_ygh_renters_with_gross_rent_30_percent_of_household_income_1 
 
@@ -244,9 +445,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Household Income 
+
+### DIMENSION: Gross Rent Percent of Income 
+
 ### MEASURE: Renter Population 
 
 ### MEASURE: Renter Population Moe 
+
+=====================
 
 ### CUBE: acs_ygh_renters_with_gross_rent_30_percent_of_household_income_5 
 
@@ -254,9 +465,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Household Income 
+
+### DIMENSION: Gross Rent Percent of Income 
+
 ### MEASURE: Renter Population 
 
 ### MEASURE: Renter Population Moe 
+
+=====================
 
 ### CUBE: acs_ygh_renters_with_gross_rent_30_percent_of_household_income_c_1 
 
@@ -264,9 +485,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Household Income 
+
+### DIMENSION: Gross Rent Percent of Income 
+
 ### MEASURE: Renters Population 
 
 ### MEASURE: Renters Population Moe 
+
+=====================
 
 ### CUBE: acs_ygh_renters_with_gross_rent_30_percent_of_household_income_c_5 
 
@@ -274,9 +505,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Household Income 
+
+### DIMENSION: Gross Rent Percent of Income 
+
 ### MEASURE: Renters Population 
 
 ### MEASURE: Renters Population Moe 
+
+=====================
 
 ### CUBE: acs_yghsa_health_coverage_status_by_sex_by_age_1 
 
@@ -284,9 +525,21 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Age 
+
+### DIMENSION: Health Insurance Status 
+
 ### MEASURE: Health Insurance Coverage Population 
 
 ### MEASURE: Health Insurance Coverage Population Moe 
+
+=====================
 
 ### CUBE: acs_yghsa_health_coverage_status_by_sex_by_age_5 
 
@@ -294,9 +547,21 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Age 
+
+### DIMENSION: Health Insurance Status 
+
 ### MEASURE: Health Insurance Coverage Population 
 
 ### MEASURE: Health Insurance Coverage Population Moe 
+
+=====================
 
 ### CUBE: acs_yghsa_health_coverage_type_by_sex_by_age_1 
 
@@ -304,9 +569,21 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Age 
+
+### DIMENSION: Health Coverage 
+
 ### MEASURE: Health Care Coverage Population 
 
 ### MEASURE: Health Care Coverage Population Moe 
+
+=====================
 
 ### CUBE: acs_yghsa_health_coverage_type_by_sex_by_age_5 
 
@@ -314,9 +591,21 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Age 
+
+### DIMENSION: Health Coverage 
+
 ### MEASURE: Health Care Coverage Population 
 
 ### MEASURE: Health Care Coverage Population Moe 
+
+=====================
 
 ### CUBE: acs_ygl_language_spoken_at_home_by_english_ability_1 
 
@@ -324,6 +613,14 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Language Spoken at Home 
+
+### DIMENSION: English Ability 
+
 ### MEASURE: Language Population 
 
 ### MEASURE: Language Population Moe 
@@ -331,6 +628,8 @@
 ### MEASURE: Language Spoken at Home yg RCA 
 
 ### MEASURE: English Ability yg RCA 
+
+=====================
 
 ### CUBE: acs_ygl_language_spoken_at_home_by_english_ability_2016_1 
 
@@ -338,6 +637,14 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Language Spoken at Home 
+
+### DIMENSION: English Ability 
+
 ### MEASURE: Language Population 
 
 ### MEASURE: Language Population Moe 
@@ -345,6 +652,8 @@
 ### MEASURE: Language Spoken at Home yg RCA 
 
 ### MEASURE: English Ability yg RCA 
+
+=====================
 
 ### CUBE: acs_ygl_language_spoken_at_home_by_english_ability_2016_5 
 
@@ -352,6 +661,14 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Language Spoken at Home 
+
+### DIMENSION: English Ability 
+
 ### MEASURE: Language Population 
 
 ### MEASURE: Language Population Moe 
@@ -359,6 +676,8 @@
 ### MEASURE: Language Spoken at Home yg RCA 
 
 ### MEASURE: English Ability yg RCA 
+
+=====================
 
 ### CUBE: acs_ygl_language_spoken_at_home_by_english_ability_5 
 
@@ -366,6 +685,14 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Language Spoken at Home 
+
+### DIMENSION: English Ability 
+
 ### MEASURE: Language Population 
 
 ### MEASURE: Language Population Moe 
@@ -374,15 +701,27 @@
 
 ### MEASURE: English Ability yg RCA 
 
+=====================
+
 ### CUBE: acs_ygmt_mortgage_status_by_real_estate_taxes_1 
 
 - [ ] source_name 
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Mortgage Status 
+
+### DIMENSION: Real Estate Taxes Paid 
+
 ### MEASURE: Mortgage Status Population 
 
 ### MEASURE: Mortgage Status Population Moe 
+
+=====================
 
 ### CUBE: acs_ygmt_mortgage_status_by_real_estate_taxes_5 
 
@@ -390,9 +729,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Mortgage Status 
+
+### DIMENSION: Real Estate Taxes Paid 
+
 ### MEASURE: Mortgage Status Population 
 
 ### MEASURE: Mortgage Status Population Moe 
+
+=====================
 
 ### CUBE: acs_ygo_housing_value_bucket_1 
 
@@ -400,9 +749,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Value Bucket 
+
 ### MEASURE: Housing Units 
 
 ### MEASURE: Housing Units Moe 
+
+=====================
 
 ### CUBE: acs_ygo_housing_value_bucket_5 
 
@@ -410,9 +767,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Value Bucket 
+
 ### MEASURE: Housing Units 
 
 ### MEASURE: Housing Units Moe 
+
+=====================
 
 ### CUBE: acs_ygo_tenure_1 
 
@@ -420,9 +785,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Occupied By 
+
 ### MEASURE: Tenure Population 
 
 ### MEASURE: Tenure Population Moe 
+
+=====================
 
 ### CUBE: acs_ygo_tenure_5 
 
@@ -430,9 +803,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Occupied By 
+
 ### MEASURE: Tenure Population 
 
 ### MEASURE: Tenure Population Moe 
+
+=====================
 
 ### CUBE: acs_ygpa_place_of_birth_by_age_1 
 
@@ -440,9 +821,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Place of Birth 
+
+### DIMENSION: Age 
+
 ### MEASURE: Place of Birth Population 
 
 ### MEASURE: Place of Birth Population Moe 
+
+=====================
 
 ### CUBE: acs_ygpa_place_of_birth_by_age_5 
 
@@ -450,9 +841,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Place of Birth 
+
+### DIMENSION: Age 
+
 ### MEASURE: Place of Birth Population 
 
 ### MEASURE: Place of Birth Population Moe 
+
+=====================
 
 ### CUBE: acs_ygpsar_poverty_by_sex_age_race_1 
 
@@ -460,9 +861,23 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Poverty Status 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Age 
+
+### DIMENSION: Race 
+
 ### MEASURE: Population 
 
 ### MEASURE: Population Moe 
+
+=====================
 
 ### CUBE: acs_ygpsar_poverty_by_sex_age_race_5 
 
@@ -470,9 +885,23 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Poverty Status 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Age 
+
+### DIMENSION: Race 
+
 ### MEASURE: Population 
 
 ### MEASURE: Population Moe 
+
+=====================
 
 ### CUBE: acs_ygr_median_household_income_race_1 
 
@@ -480,9 +909,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Race 
+
 ### MEASURE: Household Income Dollars 
 
 ### MEASURE: Household Income Dollars Moe 
+
+=====================
 
 ### CUBE: acs_ygr_median_household_income_race_5 
 
@@ -490,9 +927,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Race 
+
 ### MEASURE: Household Income Dollars 
 
 ### MEASURE: Household Income Dollars Moe 
+
+=====================
 
 ### CUBE: acs_ygr_race_with_hispanic_1 
 
@@ -500,9 +945,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Ethnicity 
+
+### DIMENSION: Race 
+
 ### MEASURE: Hispanic Race Population 
 
 ### MEASURE: Hispanic Race Population Moe 
+
+=====================
 
 ### CUBE: acs_ygr_race_with_hispanic_5 
 
@@ -510,9 +965,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Ethnicity 
+
+### DIMENSION: Race 
+
 ### MEASURE: Hispanic Race Population 
 
 ### MEASURE: Hispanic Race Population Moe 
+
+=====================
 
 ### CUBE: acs_ygs_aggregate_travel_time_to_work_1 
 
@@ -520,9 +985,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
 ### MEASURE: Aggregate Travel Time to Work Minutes 
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
+
+=====================
 
 ### CUBE: acs_ygs_aggregate_travel_time_to_work_5 
 
@@ -530,9 +1003,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
 ### MEASURE: Aggregate Travel Time to Work Minutes 
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
+
+=====================
 
 ### CUBE: acs_ygs_median_age_total_1 
 
@@ -540,9 +1021,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
 ### MEASURE: Median Age 
 
 ### MEASURE: Median Age Moe 
+
+=====================
 
 ### CUBE: acs_ygs_median_age_total_5 
 
@@ -550,9 +1039,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
 ### MEASURE: Median Age 
 
 ### MEASURE: Median Age Moe 
+
+=====================
 
 ### CUBE: acs_ygsi_sex_by_industry_1 
 
@@ -560,6 +1057,14 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Industry 
+
 ### MEASURE: Industry Population 
 
 ### MEASURE: Industry Population Moe 
@@ -567,6 +1072,8 @@
 ### MEASURE: Sex yg RCA 
 
 ### MEASURE: Industry yg RCA 
+
+=====================
 
 ### CUBE: acs_ygsi_sex_by_industry_5 
 
@@ -574,6 +1081,14 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Industry 
+
 ### MEASURE: Industry Population 
 
 ### MEASURE: Industry Population Moe 
@@ -581,6 +1096,8 @@
 ### MEASURE: Sex yg RCA 
 
 ### MEASURE: Industry yg RCA 
+
+=====================
 
 ### CUBE: acs_ygsi_sex_by_industry_c_1 
 
@@ -588,6 +1105,14 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Industry 
+
 ### MEASURE: Industry Population 
 
 ### MEASURE: Industry Population Moe 
@@ -595,6 +1120,8 @@
 ### MEASURE: Sex yg RCA 
 
 ### MEASURE: Industry yg RCA 
+
+=====================
 
 ### CUBE: acs_ygsi_sex_by_industry_c_5 
 
@@ -602,6 +1129,14 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Industry 
+
 ### MEASURE: Industry Population 
 
 ### MEASURE: Industry Population Moe 
@@ -610,15 +1145,27 @@
 
 ### MEASURE: Industry yg RCA 
 
+=====================
+
 ### CUBE: acs_ygso_sex_by_occupation_1 
 
 - [ ] source_name 
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Occupation 
+
 ### MEASURE: Occupation Population 
 
 ### MEASURE: Occupation Population Moe 
+
+=====================
 
 ### CUBE: acs_ygso_sex_by_occupation_5 
 
@@ -626,9 +1173,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Occupation 
+
 ### MEASURE: Occupation Population 
 
 ### MEASURE: Occupation Population Moe 
+
+=====================
 
 ### CUBE: acs_ygso_sex_by_occupation_c_1 
 
@@ -636,6 +1193,14 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Occupation 
+
 ### MEASURE: Occupation Population 
 
 ### MEASURE: Occupation Population Moe 
@@ -643,6 +1208,8 @@
 ### MEASURE: Sex yg RCA 
 
 ### MEASURE: Occupation yg RCA 
+
+=====================
 
 ### CUBE: acs_ygso_sex_by_occupation_c_5 
 
@@ -650,6 +1217,14 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Occupation 
+
 ### MEASURE: Occupation Population 
 
 ### MEASURE: Occupation Population Moe 
@@ -658,15 +1233,27 @@
 
 ### MEASURE: Occupation yg RCA 
 
+=====================
+
 ### CUBE: acs_ygst_sex_of_workers_by_transportation_to_work_1 
 
 - [ ] source_name 
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Transportation 
+
 ### MEASURE: Work Transportation Population 
 
 ### MEASURE: Work Transportation Population Moe 
+
+=====================
 
 ### CUBE: acs_ygst_sex_of_workers_by_transportation_to_work_5 
 
@@ -674,9 +1261,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Transportation 
+
 ### MEASURE: Work Transportation Population 
 
 ### MEASURE: Work Transportation Population Moe 
+
+=====================
 
 ### CUBE: acs_ygsv_sex_of_workers_by_vehicles_available_1 
 
@@ -684,9 +1281,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Vehicles Available 
+
 ### MEASURE: Vehicles Available Population 
 
 ### MEASURE: Vehicles Available Population Moe 
+
+=====================
 
 ### CUBE: acs_ygsv_sex_of_workers_by_vehicles_available_5 
 
@@ -694,9 +1301,19 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Sex 
+
+### DIMENSION: Vehicles Available 
+
 ### MEASURE: Vehicles Available Population 
 
 ### MEASURE: Vehicles Available Population Moe 
+
+=====================
 
 ### CUBE: acs_ygt_aggregate_travel_time_workers_by_transportation_to_work_1 
 
@@ -704,9 +1321,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Transportation 
+
 ### MEASURE: Aggregate Travel Time to Work Minutes 
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
+
+=====================
 
 ### CUBE: acs_ygt_aggregate_travel_time_workers_by_transportation_to_work_5 
 
@@ -714,9 +1339,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Transportation 
+
 ### MEASURE: Aggregate Travel Time to Work Minutes 
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
+
+=====================
 
 ### CUBE: acs_ygt_mean_transportation_time_to_work_1 
 
@@ -724,9 +1357,15 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
 ### MEASURE: Mean Transportation Time to Work Minutes 
 
 ### MEASURE: Mean Transportation Time to Work Minutes Moe 
+
+=====================
 
 ### CUBE: acs_ygt_mean_transportation_time_to_work_5 
 
@@ -734,9 +1373,15 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
 ### MEASURE: Mean Transportation Time to Work Minutes 
 
 ### MEASURE: Mean Transportation Time to Work Minutes Moe 
+
+=====================
 
 ### CUBE: acs_ygt_means_of_transportation_to_work_1 
 
@@ -744,9 +1389,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Transportation 
+
 ### MEASURE: Means of Work Transportation Population 
 
 ### MEASURE: Means of Work Transportation Population Moe 
+
+=====================
 
 ### CUBE: acs_ygt_means_of_transportation_to_work_5 
 
@@ -754,9 +1407,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Transportation 
+
 ### MEASURE: Means of Work Transportation Population 
 
 ### MEASURE: Means of Work Transportation Population Moe 
+
+=====================
 
 ### CUBE: acs_ygt_travel_time_to_work_1 
 
@@ -764,9 +1425,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Travel Time 
+
 ### MEASURE: Minutes 
 
 ### MEASURE: Minutes Moe 
+
+=====================
 
 ### CUBE: acs_ygt_travel_time_to_work_5 
 
@@ -774,9 +1443,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Travel Time 
+
 ### MEASURE: Minutes 
 
 ### MEASURE: Minutes Moe 
+
+=====================
 
 ### CUBE: acs_ygv_veterans_1 
 
@@ -784,9 +1461,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Period of Service 
+
 ### MEASURE: Veteran Population 
 
 ### MEASURE: Veteran Population Moe 
+
+=====================
 
 ### CUBE: acs_ygv_veterans_5 
 
@@ -794,9 +1479,17 @@
 - [ ] source_link 
 - [ ] dataset_name 
 
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: Period of Service 
+
 ### MEASURE: Veteran Population 
 
 ### MEASURE: Veteran Population Moe 
+
+=====================
 
 ### CUBE: bea_use 
 
@@ -806,10 +1499,25 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Industry IO Code 
+
+### DIMENSION: Commodity IO Code 
+
 ### MEASURE: Value Millions 
+
+=====================
 
 ### CUBE: bls_ces 
 
+
+### DIMENSION: Year 
+
+### DIMENSION: PUMS Industry 
+
+### DIMENSION: BLS Industry Flat 
 
 ### MEASURE: Average Hourly Earnings 
 
@@ -817,8 +1525,14 @@
 
 ### MEASURE: Employees Thousands 
 
+=====================
+
 ### CUBE: bls_growth_industry 
 
+
+### DIMENSION: PUMS Industry 
+
+### DIMENSION: BLS Industry Flat 
 
 ### MEASURE: Employees Thousands 2006 
 
@@ -844,8 +1558,14 @@
 
 ### MEASURE: Output CARC 2016-2026 
 
+=====================
+
 ### CUBE: bls_growth_occupation 
 
+
+### DIMENSION: PUMS Occupation 
+
+### DIMENSION: BLS Occupation Flat 
 
 ### MEASURE: Employees Thousands 2016 
 
@@ -861,8 +1581,18 @@
 
 ### MEASURE: Openings Thousands 2016-2026 
 
+=====================
+
 ### CUBE: county_business_patterns 
 
+
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
+
+### DIMENSION: PUMS Industry 
+
+### DIMENSION: BLS Industry 
 
 ### MEASURE: Total Number of Establishments 
 
@@ -894,8 +1624,14 @@
 
 ### MEASURE: Number of Establishments: 1,000 or More Employee Size Class 
 
+=====================
+
 ### CUBE: county_health_ranking 
 
+
+### DIMENSION: Geography 
+
+### DIMENSION: Year 
 
 ### MEASURE: % 65 And Older Data Source 
 
@@ -1697,12 +2433,18 @@
 
 ### MEASURE: Violent Crime CI High 
 
+=====================
+
 ### CUBE: dartmouth_reimbursements 
 
 - [ ] source_name 
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: Geography 
 
 ### MEASURE: Home Health Reimbursements A 
 
@@ -1720,6 +2462,8 @@
 
 ### MEASURE: Hospital B Reimbursements 
 
+=====================
+
 ### CUBE: dot_faf 
 
 - [ ] source_name 
@@ -1729,9 +2473,24 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Origin 
+- [ ] dim_type 
+
+### DIMENSION: Destination 
+- [ ] dim_type 
+
+### DIMENSION: SCTG 
+
+### DIMENSION: Transportation Mode 
+
 ### MEASURE: Millions Of Dollars 
 
 ### MEASURE: Thousands Of Tons 
+
+=====================
 
 ### CUBE: ed_defaults 
 
@@ -1740,11 +2499,21 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
+### DIMENSION: OPEID 
+
 ### MEASURE: Borrowers In Default 
 
 ### MEASURE: Borrowers Entered Repayment 
 
 ### MEASURE: Default Rate 
+
+=====================
 
 ### CUBE: health_30day_hospital_readmission_rate_among_medicare_patients 
 
@@ -1755,8 +2524,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: 30-Day Hospital Readmission Rate Among Medicare Patients 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_adult_hospital_patients_who_did_not_receive_good_communication_about_discharge_information 
 
@@ -1767,8 +2544,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Adult Patients Who Did Not Receive Good Communication About Hospital Discharge 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_adults_not_seen_doctor_past_12months_because_of_cost 
 
@@ -1779,8 +2564,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Adults Who Haven't Seen a Doctor in the Past 12 Months Due to Cost  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_adults_reporting_not_having_personal_doctor 
 
@@ -1791,8 +2584,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Adults Reporting Not Having a Personal Doctor 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_adults_who_reported_that_home_health_providers_always_explained_things_in_an_easyway_to_understand 
 
@@ -1803,8 +2604,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Adults Who Reported Home Health Providers Always Explained Things in a Way That Was Easy to Understand 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_adults_with_major_depressive_episodes 
 
@@ -1815,8 +2624,19 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Start Year 
+- [ ] dim_type 
+
+### DIMENSION: End Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Adults With Major Depressive Episode 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_deaths_per_1000_adult_hospital_admissions_with_pneumonia 
 
@@ -1827,8 +2647,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Deaths Per 1,000 Adult Hospital Admissions With Pneumonia 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_dental_services_per_capita 
 
@@ -1839,8 +2667,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Per Capita Spending on Dental Services  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_drug_overdose_deathrate 
 
@@ -1851,8 +2687,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Drug Overdose Death Rate Per 100,000 Age-Adjusted 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_estimates_of_chronically_homeless_individuals 
 
@@ -1863,8 +2707,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Estimates of Chronically Homeless Individuals 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_home_health_care_patients_whose_management_of_oral_medications_improved 
 
@@ -1875,8 +2727,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Home Health Care Patients Whose Management of Oral Medications Improved 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_home_health_care_per_capita 
 
@@ -1887,8 +2747,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Per Capita Spending on Home Health Care  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_hospice_patients_who_recieved_care_consistent_with_their_stated_end_of_life_wishes 
 
@@ -1899,8 +2767,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Adult Hospice Patients Who Received Care Consistent With Their End-Of-Life Wishes 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_hospital_care_per_capita 
 
@@ -1911,8 +2787,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Per Capita Spending on Hospital Care  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_long_stay_nursing_home_residents_hospitalized_within_six_months_period_among_medicare_patients 
 
@@ -1923,8 +2807,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Long-Stay Medicare Nursing Home Residents Hospitalized Within Six-Month Period 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_longstay_nursing_home_residents_with_toomuch_weight_loss 
 
@@ -1935,8 +2827,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Long-Stay Nursing Home Residents With Too Much Weight Loss 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_medicaid_spending_per_enrolle 
 
@@ -1947,8 +2847,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Per Enrollee Medicaid Spending on Personal Health Care 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_medical_durables_per_capita 
 
@@ -1959,8 +2867,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Per Capita Spending on Durable Medical Equipment  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_medicare_spending_per_enrolle 
 
@@ -1971,8 +2887,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Per Enrollee Medicare Spending on Personal Health Care 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_mental_health_service_use_among_adults_with_any_mental_illness 
 
@@ -1983,8 +2907,19 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Start Year 
+- [ ] dim_type 
+
+### DIMENSION: End Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Mental Health Service Use Among Adults With Mental Illness 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_nonmedical_use_of_pain_relievers_in_the_past_year_among_people_aged12_or_older 
 
@@ -1995,6 +2930,15 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Start Year 
+- [ ] dim_type 
+
+### DIMENSION: End Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Nonmedical Use of Prescription Pain Relievers Among Individuals Aged 12+  
 - [ ] units_of_measurement 
 
@@ -2003,6 +2947,8 @@
 
 ### MEASURE: Nonmedical Use of Pain Relievers Among Individuals Aged 12+ (Upperconfidence)  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_number_of_households_receiving_rental_assistance 
 
@@ -2013,8 +2959,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Number of Families Receiving Rental Assistance 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_nursing_home_care_per_capita 
 
@@ -2025,8 +2979,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Per Capita Spending on Nursing Care Facilities and Continuing Care Retirement Communities 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_opioid_overdose_deathrate 
 
@@ -2037,8 +2999,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Opioid Overdose Death Rate Per 100,000 Age-Adjusted 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_other_health_residential_and_personal_care_per_capita 
 
@@ -2049,8 +3019,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Per Capita Spending on Other Health Residential and Personal Care  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_other_professional_services_per_capita 
 
@@ -2061,8 +3039,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Per Capita Spending on Other Professional Services  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_past_year_serious_mental_illness_among_adults 
 
@@ -2073,8 +3059,19 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Start Year 
+- [ ] dim_type 
+
+### DIMENSION: End Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Adults With Serious Mental Illness 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_past_year_treatment_for_depression_among_adolescents_age12_17_with_major_depressive_episodes 
 
@@ -2085,8 +3082,19 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Start Year 
+- [ ] dim_type 
+
+### DIMENSION: End Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Treatment for Depression Among Adolescents (12-17) With MDE 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_patients_whose_ability_to_walk_or_move_improved_among_medicare_patients_who_received_home_health 
 
@@ -2097,8 +3105,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Medicare Patients Receiving Home Health Whose Ability to Walk or Move Around Improved  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_percapita_doctors_office_visit_spending 
 
@@ -2109,8 +3125,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Doctor's Office Visit Medicare Spending Per Capita 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_percapita_home_health_spending 
 
@@ -2121,8 +3145,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Home Health Medicare Spending Per Capita 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_percapita_medicare_inpatient_hospital_spending 
 
@@ -2133,8 +3165,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Inpatient Medicare Spending Per Capita 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_percapita_physician_and_clinical_services 
 
@@ -2145,8 +3185,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Per Capita Spending on Physician and Clinical Services 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_percapita_rx_and_other_medical_nondurables 
 
@@ -2157,8 +3205,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Per Capita Spending on Drugs and Other Non-Durable Products 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_percapita_skilled_nursing_facility_spending 
 
@@ -2169,8 +3225,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Skilled Nursing Facility Medicare Spending Per Capita 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_percent_medicaid_spending_by_adults 
 
@@ -2181,8 +3245,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Share of Medicaid Spending to Adults 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_percent_medicaid_spending_by_aged 
 
@@ -2193,8 +3265,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Share of Medicaid Spending to the Elderly Population 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_percent_medicaid_spending_by_children 
 
@@ -2205,8 +3285,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Share of Medicaid Spending to Children 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_percent_medicaid_spending_by_disabled 
 
@@ -2217,8 +3305,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Share of Medicaid Spending to the Disabled Population  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_potentially_avoidable_emergency_room_visits_among_medicare_patients 
 
@@ -2229,8 +3325,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Potentially Avoidable Emergency Department Visits, Per 1,000 Medicare Beneficiaries 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_private_insurance_spending_per_enrolle 
 
@@ -2241,8 +3345,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Per Enrollee Private Health Insurance Spending on Personal Health Care 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_substance_use_disorder_past_year_among_adolescents_and_adults 
 
@@ -2253,8 +3365,19 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Start Year 
+- [ ] dim_type 
+
+### DIMENSION: End Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Substance Use Disorder Among Adolescents and Adults (12+) 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_total_medicaid_spending 
 
@@ -2265,8 +3388,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Medicaid Spending on Personal Health Care 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_total_medicare_spending 
 
@@ -2277,8 +3408,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Medicare Spending on Personal Health Care 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_total_personal_health_care_spending 
 
@@ -2289,8 +3428,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Per Capita Spending on Personal Health Care  
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: health_total_private_health_insurance_spending 
 
@@ -2301,8 +3448,16 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Geography 
+- [ ] dim_type 
+
 ### MEASURE: Total Private Health Insurance Spending on Personal Health Care 
 - [ ] units_of_measurement 
+
+=====================
 
 ### CUBE: ipeds_admissions 
 
@@ -2310,6 +3465,12 @@
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: Geography 
 
 ### MEASURE: Applicants Total 
 
@@ -2363,6 +3524,8 @@
 
 ### MEASURE: Yield Women 
 
+=====================
+
 ### CUBE: ipeds_completions 
 
 - [ ] source_name 
@@ -2370,6 +3533,22 @@
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: Geography 
+
+### DIMENSION: Sector 
+
+### DIMENSION: CIP 
+
+### DIMENSION: IPEDS Race 
+
+### DIMENSION: Degree 
+
+### DIMENSION: Gender 
 
 ### MEASURE: Completions 
 
@@ -2385,6 +3564,8 @@
 
 ### MEASURE: Completions Growth 
 
+=====================
+
 ### CUBE: ipeds_enrollment 
 
 - [ ] source_name 
@@ -2392,9 +3573,25 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+
+### DIMENSION: Gender 
+
+### DIMENSION: Enrollment Status 
+
+### DIMENSION: Level Of Study 
+
+### DIMENSION: IPEDS Race 
+
+### DIMENSION: University 
+
+### DIMENSION: Geography 
+
 ### MEASURE: Enrollment 
 
 ### MEASURE: Number Of Institutions 
+
+=====================
 
 ### CUBE: ipeds_finance_expenses 
 
@@ -2402,6 +3599,12 @@
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: IPEDS Expense Category 
 
 ### MEASURE: Salary Expenses 
 
@@ -2427,12 +3630,18 @@
 
 ### MEASURE: Median Benefits Expenses 
 
+=====================
+
 ### CUBE: ipeds_finance_financials 
 
 - [ ] source_name 
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
 
 ### MEASURE: Endowment Value 
 
@@ -2508,6 +3717,8 @@
 
 ### MEASURE: Endowment 100th Percentile 
 
+=====================
+
 ### CUBE: ipeds_graduation_timeframe 
 
 - [ ] source_name 
@@ -2515,9 +3726,21 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: Geography 
+
+### DIMENSION: Timeframe 
+
+### DIMENSION: Program Type 
+
 ### MEASURE: Number Completers BA 
 
 ### MEASURE: Median Percent Completed BA 
+
+=====================
 
 ### CUBE: ipeds_ic_living_expenses 
 
@@ -2525,6 +3748,12 @@
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: Living Arrangement 
 
 ### MEASURE: Total Other Expenses 
 
@@ -2534,6 +3763,8 @@
 
 ### MEASURE: Median Other Expenses 
 
+=====================
+
 ### CUBE: ipeds_retention_rates 
 
 - [ ] source_name 
@@ -2541,11 +3772,17 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
 ### MEASURE: Full Time Retention Rate 
 
 ### MEASURE: Part Time Retention Rate 
 
 ### MEASURE: Student Faculty Ratio 
+
+=====================
 
 ### CUBE: ipeds_salaries_instructional 
 
@@ -2553,6 +3790,14 @@
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: Academic Rank 
+
+### DIMENSION: Gender 
 
 ### MEASURE: Total Instructional Employees 
 
@@ -2566,11 +3811,19 @@
 
 ### MEASURE: Median Outlays Instructional Employees 
 
+=====================
+
 ### CUBE: ipeds_salaries_noninstructional 
 
 - [ ] source_name 
 - [ ] source_link 
 - [ ] topic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: IPEDS Occupation 
 
 ### MEASURE: Total Noninstructional Employees 
 
@@ -2580,12 +3833,20 @@
 
 ### MEASURE: Median Outlays Noninstructional Employees 
 
+=====================
+
 ### CUBE: ipeds_sfa_aid 
 
 - [ ] source_name 
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: Income Range 
 
 ### MEASURE: Total Number In Income Bracket 
 
@@ -2595,6 +3856,8 @@
 
 ### MEASURE: Median Averge Net Price Federal Aid 
 
+=====================
+
 ### CUBE: ipeds_sfa_living 
 
 - [ ] source_name 
@@ -2602,9 +3865,19 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: Geography 
+
+### DIMENSION: Living Arrangement 
+
 ### MEASURE: Total Number in Living Arrangement 
 
 ### MEASURE: Average Number in Living Arrangement 
+
+=====================
 
 ### CUBE: ipeds_sfa_university 
 
@@ -2612,6 +3885,10 @@
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
 
 ### MEASURE: Median Percent With Grant Aid 
 
@@ -2633,12 +3910,22 @@
 
 ### MEASURE: Median Average Net Price Grant Or Scholarship Aid 
 
+=====================
+
 ### CUBE: ipeds_tuition 
 
 - [ ] source_name 
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: Geography 
+
+### DIMENSION: Sector 
 
 ### MEASURE: District Tuition 
 
@@ -2684,12 +3971,22 @@
 
 ### MEASURE: Books And Supplies 
 
+=====================
+
 ### CUBE: ipeds_tuition_by_cip 
 
 - [ ] source_name 
 - [ ] source_link 
 - [ ] topic 
 - [ ] subtopic 
+
+### DIMENSION: Year 
+
+### DIMENSION: University 
+
+### DIMENSION: Sector 
+
+### DIMENSION: CIP 
 
 ### MEASURE: District Tuition 
 
@@ -2739,6 +4036,8 @@
 
 ### MEASURE: Total Graduates 
 
+=====================
+
 ### CUBE: ipeds_undergrad_grad_rate_demographics 
 
 - [ ] source_name 
@@ -2746,14 +4045,32 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Year 
+
+### DIMENSION: Gender 
+
+### DIMENSION: IPEDS Race 
+
+### DIMENSION: University 
+
+### DIMENSION: Geography 
+
 ### MEASURE: Cohort Size 
 
 ### MEASURE: Number Of Finishers 
 
 ### MEASURE: Graduation Rate 
 
+=====================
+
 ### CUBE: onet_by_cip 
 
+
+### DIMENSION: Year 
+
+### DIMENSION: CIP 
+
+### DIMENSION: Skill Element 
 
 ### MEASURE: IM Value 
 
@@ -2768,10 +4085,18 @@
 ### MEASURE: rca_d 
 
 ### MEASURE: RCA 
+
+=====================
 
 ### CUBE: onet_by_pums 
 
 
+### DIMENSION: Year 
+
+### DIMENSION: PUMS Occupation 
+
+### DIMENSION: Skill Element 
+
 ### MEASURE: IM Value 
 
 ### MEASURE: LV Value 
@@ -2785,6 +4110,8 @@
 ### MEASURE: rca_d 
 
 ### MEASURE: RCA 
+
+=====================
 
 ### CUBE: pums_1 
 
@@ -2795,6 +4122,46 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Geography 
+- [ ] dim_type 
+
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Workforce Status 
+
+### DIMENSION: Employment Time Status 
+
+### DIMENSION: Age 
+
+### DIMENSION: Weeks Worked 
+
+### DIMENSION: PUMS Occupation 
+
+### DIMENSION: PUMS Industry 
+
+### DIMENSION: Birthplace 
+
+### DIMENSION: PUMS Degree 
+
+### DIMENSION: PUMS Degree Field 
+
+### DIMENSION: Gender 
+
+### DIMENSION: Race 
+
+### DIMENSION: Employment Status 
+
+### DIMENSION: Citizenship Status 
+
+### DIMENSION: Nativity 
+
+### DIMENSION: Veteran Status 
+
+### DIMENSION: Wage Bin 
+
+### DIMENSION: Age Five Plus 
+
 ### MEASURE: Record Count 
 
 ### MEASURE: Total Population 
@@ -2826,6 +4193,8 @@
 ### MEASURE: yiopop RCA 
 
 ### MEASURE: ygbpop RCA 
+
+=====================
 
 ### CUBE: pums_5 
 
@@ -2836,6 +4205,46 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Geography 
+- [ ] dim_type 
+
+### DIMENSION: Year 
+- [ ] dim_type 
+
+### DIMENSION: Workforce Status 
+
+### DIMENSION: Employment Time Status 
+
+### DIMENSION: Age 
+
+### DIMENSION: Weeks Worked 
+
+### DIMENSION: PUMS Occupation 
+
+### DIMENSION: PUMS Industry 
+
+### DIMENSION: Birthplace 
+
+### DIMENSION: PUMS Degree 
+
+### DIMENSION: PUMS Degree Field 
+
+### DIMENSION: Gender 
+
+### DIMENSION: Race 
+
+### DIMENSION: Employment Status 
+
+### DIMENSION: Citizenship Status 
+
+### DIMENSION: Nativity 
+
+### DIMENSION: Veteran Status 
+
+### DIMENSION: Wage Bin 
+
+### DIMENSION: Age Five Plus 
+
 ### MEASURE: Record Count 
 
 ### MEASURE: Total Population 
@@ -2868,6 +4277,8 @@
 
 ### MEASURE: ygbpop RCA 
 
+=====================
+
 ### CUBE: usa_spending 
 
 - [ ] source_name 
@@ -2876,7 +4287,26 @@
 - [ ] topic 
 - [ ] subtopic 
 
+### DIMENSION: Geography 
+- [ ] dim_type 
+
+### DIMENSION: Action Date 
+- [ ] dim_type 
+
+### DIMENSION: Fiscal Year 
+- [ ] dim_type 
+
+### DIMENSION: Transaction Type 
+
+### DIMENSION: Agency 
+
+### DIMENSION: Product Service Code 
+
+### DIMENSION: NAPCS 
+
 ### MEASURE: Obligation Amount 
 
 ### MEASURE: Total Loan Value 
+
+=====================
 
