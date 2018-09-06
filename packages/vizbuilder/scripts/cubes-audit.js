@@ -14,6 +14,7 @@ client.cubes().then(cubes => {
   let row = "## CUBES AUDIT \n";
   row += "\n";
   row += `Data obtained from ${PATH} \n`;
+  row += "\n";
   row += `Last updated on ${now} \n`;
   row += "\n";
 
