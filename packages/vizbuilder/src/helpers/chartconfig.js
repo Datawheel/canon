@@ -50,7 +50,7 @@ const makeConfig = {
 
     const drilldownName = drilldown.name;
     const measureName = measure.name;
-    console.log(flags.chartConfig);
+
     const config = {
       ...commonConfig,
       discrete: "y",
