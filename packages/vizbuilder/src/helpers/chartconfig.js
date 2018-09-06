@@ -53,12 +53,13 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
-      discrete: "x",
-      x: drilldownName,
-      xConfig: {title: drilldownName},
-      y: measureName,
+      discrete: "y",
+      label: d => d[drilldownName],
+      y: drilldownName,
+      yConfig: {title: drilldownName, ticks: []},
+      x: measureName,
       stacked: drilldown.depth > 1,
-      xSort: sortByCustomKey(drilldownName),
+      ySort: sortByCustomKey(drilldownName),
       ...flags.chartConfig
     };
 
@@ -148,6 +149,7 @@ const makeConfig = {
       title: `${measureName} by ${drilldownName}`,
       discrete: "x",
       groupBy: drilldown.name,
+      yConfig: {scale: "linear", title: measureName},
       x: drilldownName,
       xConfig: {title: drilldownName},
       y: measureName,
