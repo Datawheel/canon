@@ -1,12 +1,8 @@
 ## CUBES AUDIT 
 
 Data obtained from https://canon-api.datausa.io 
-<<<<<<< HEAD
 
-Last updated on 9/6/2018, 1:45:37 PM 
-=======
-Last updated on 9/6/2018, 1:05:36 PM 
->>>>>>> master
+Last updated on 9/6/2018, 1:54:31 PM 
 
 ### CUBE: acs_yg_gini_1 
 - [ ] source_description 
@@ -26,10 +22,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Gini Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -51,10 +44,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Gini Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -79,10 +69,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Income Households Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -107,10 +94,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Income Households Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -132,10 +116,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Median Value Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -157,10 +138,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Median Value Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -182,10 +160,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Total Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -207,10 +182,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Total Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -235,10 +207,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Citizenship Status Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -263,10 +232,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Citizenship Status Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -297,10 +263,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Citizenship Median Age Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -331,10 +294,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Citizenship Median Age Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -359,10 +319,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Foreign Born Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -387,10 +344,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Foreign Born Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -421,10 +375,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Care Coverage Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -455,10 +406,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Care Coverage Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -483,10 +431,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Unit With Mortgage Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -511,10 +456,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Unit With Mortgage Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -539,10 +481,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Internet Households Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -567,10 +506,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Internet Households Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -595,10 +531,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupied Households Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -623,10 +556,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupied Households Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -651,10 +581,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupied Households Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -679,10 +606,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupied Households Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -710,10 +634,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Renter Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -741,10 +662,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Renter Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -772,10 +690,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Renters Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -803,10 +718,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Renters Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -837,10 +749,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Insurance Coverage Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -871,10 +780,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Insurance Coverage Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -905,10 +811,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Care Coverage Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -939,10 +842,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Care Coverage Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -970,10 +870,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Language Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ### MEASURE: Language Spoken at Home yg RCA 
 - [ ] units_of_measurement 
@@ -1007,10 +904,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Language Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ### MEASURE: Language Spoken at Home yg RCA 
 - [ ] units_of_measurement 
@@ -1044,10 +938,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Language Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ### MEASURE: Language Spoken at Home yg RCA 
 - [ ] units_of_measurement 
@@ -1081,10 +972,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Language Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ### MEASURE: Language Spoken at Home yg RCA 
 - [ ] units_of_measurement 
@@ -1118,10 +1006,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Mortgage Status Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1149,10 +1034,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Mortgage Status Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1177,10 +1059,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Units Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1205,10 +1084,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Units Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1233,10 +1109,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Tenure Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1261,10 +1134,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Tenure Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1292,10 +1162,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Place of Birth Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1323,10 +1190,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Place of Birth Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1360,10 +1224,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1397,10 +1258,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1425,10 +1283,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Household Income Dollars Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1453,10 +1308,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Household Income Dollars Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1484,10 +1336,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Hispanic Race Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1515,10 +1364,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Hispanic Race Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1543,10 +1389,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1571,10 +1414,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1599,10 +1439,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Median Age Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1627,10 +1464,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Median Age Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1658,10 +1492,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Industry Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1695,10 +1526,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Industry Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1732,10 +1560,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Industry Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1769,10 +1594,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Industry Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1806,10 +1628,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupation Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1837,10 +1656,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupation Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1868,10 +1684,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupation Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1905,10 +1718,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupation Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1942,10 +1752,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Work Transportation Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -1973,10 +1780,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Work Transportation Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2004,10 +1808,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Vehicles Available Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2035,10 +1836,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Vehicles Available Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2063,10 +1861,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2091,10 +1886,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2116,10 +1908,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Mean Transportation Time to Work Minutes Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2141,10 +1930,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Mean Transportation Time to Work Minutes Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2169,10 +1955,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Means of Work Transportation Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2197,10 +1980,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Means of Work Transportation Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2225,10 +2005,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Minutes Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2253,10 +2030,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Minutes Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2281,10 +2055,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Veteran Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -2309,10 +2080,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Veteran Population Moe 
 - [ ] units_of_measurement 
-<<<<<<< HEAD
 - [ ] error_for_measure 
-=======
->>>>>>> master
 
 ----
 
@@ -3822,510 +3590,324 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: 30-Day Hospital Readmission Rate Among Medicare Patients 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_adult_hospital_patients_who_did_not_receive_good_communication_about_discharge_information 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Adult Patients Who Did Not Receive Good Communication About Hospital Discharge 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_adults_not_seen_doctor_past_12months_because_of_cost 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Adults Who Haven't Seen a Doctor in the Past 12 Months Due to Cost  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_adults_reporting_not_having_personal_doctor 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Adults Reporting Not Having a Personal Doctor 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_adults_who_reported_that_home_health_providers_always_explained_things_in_an_easyway_to_understand 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Adults Who Reported Home Health Providers Always Explained Things in a Way That Was Easy to Understand 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_adults_with_major_depressive_episodes 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Adults With Major Depressive Episode 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_deaths_per_1000_adult_hospital_admissions_with_pneumonia 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Deaths Per 1,000 Adult Hospital Admissions With Pneumonia 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_dental_services_per_capita 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Per Capita Spending on Dental Services  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_drug_overdose_deathrate 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Drug Overdose Death Rate Per 100,000 Age-Adjusted 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_estimates_of_chronically_homeless_individuals 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Estimates of Chronically Homeless Individuals 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_home_health_care_patients_whose_management_of_oral_medications_improved 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Home Health Care Patients Whose Management of Oral Medications Improved 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_home_health_care_per_capita 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Per Capita Spending on Home Health Care  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_hospice_patients_who_recieved_care_consistent_with_their_stated_end_of_life_wishes 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Adult Hospice Patients Who Received Care Consistent With Their End-Of-Life Wishes 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_hospital_care_per_capita 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Per Capita Spending on Hospital Care  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_long_stay_nursing_home_residents_hospitalized_within_six_months_period_among_medicare_patients 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Long-Stay Medicare Nursing Home Residents Hospitalized Within Six-Month Period 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_longstay_nursing_home_residents_with_toomuch_weight_loss 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Long-Stay Nursing Home Residents With Too Much Weight Loss 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_medicaid_spending_per_enrolle 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Per Enrollee Medicaid Spending on Personal Health Care 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_medical_durables_per_capita 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Per Capita Spending on Durable Medical Equipment  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_medicare_spending_per_enrolle 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Per Enrollee Medicare Spending on Personal Health Care 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_mental_health_service_use_among_adults_with_any_mental_illness 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Mental Health Service Use Among Adults With Mental Illness 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_nonmedical_use_of_pain_relievers_in_the_past_year_among_people_aged12_or_older 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Nonmedical Use of Prescription Pain Relievers Among Individuals Aged 12+  
 
-### MEASURE: Nonmedical Use of Pain Relievers Among Individuals Aged 12+ (Lowerconfidence) 
 
-### MEASURE: Nonmedical Use of Pain Relievers Among Individuals Aged 12+ (Upperconfidence)  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_number_of_households_receiving_rental_assistance 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Number of Families Receiving Rental Assistance 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_nursing_home_care_per_capita 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Per Capita Spending on Nursing Care Facilities and Continuing Care Retirement Communities 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_opioid_overdose_deathrate 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Opioid Overdose Death Rate Per 100,000 Age-Adjusted 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_other_health_residential_and_personal_care_per_capita 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Per Capita Spending on Other Health Residential and Personal Care  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_other_professional_services_per_capita 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Per Capita Spending on Other Professional Services  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_past_year_serious_mental_illness_among_adults 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Adults With Serious Mental Illness 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_past_year_treatment_for_depression_among_adolescents_age12_17_with_major_depressive_episodes 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Treatment for Depression Among Adolescents (12-17) With MDE 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_patients_whose_ability_to_walk_or_move_improved_among_medicare_patients_who_received_home_health 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Medicare Patients Receiving Home Health Whose Ability to Walk or Move Around Improved  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_percapita_doctors_office_visit_spending 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Doctor's Office Visit Medicare Spending Per Capita 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_percapita_home_health_spending 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Home Health Medicare Spending Per Capita 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_percapita_medicare_inpatient_hospital_spending 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Inpatient Medicare Spending Per Capita 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_percapita_physician_and_clinical_services 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Per Capita Spending on Physician and Clinical Services 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_percapita_rx_and_other_medical_nondurables 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Per Capita Spending on Drugs and Other Non-Durable Products 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_percapita_skilled_nursing_facility_spending 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Skilled Nursing Facility Medicare Spending Per Capita 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_percent_medicaid_spending_by_adults 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Share of Medicaid Spending to Adults 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_percent_medicaid_spending_by_aged 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Share of Medicaid Spending to the Elderly Population 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_percent_medicaid_spending_by_children 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Share of Medicaid Spending to Children 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_percent_medicaid_spending_by_disabled 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Share of Medicaid Spending to the Disabled Population  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_potentially_avoidable_emergency_room_visits_among_medicare_patients 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Potentially Avoidable Emergency Department Visits, Per 1,000 Medicare Beneficiaries 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_private_insurance_spending_per_enrolle 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Per Enrollee Private Health Insurance Spending on Personal Health Care 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_substance_use_disorder_past_year_among_adolescents_and_adults 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Substance Use Disorder Among Adolescents and Adults (12+) 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_total_medicaid_spending 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Medicaid Spending on Personal Health Care 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_total_medicare_spending 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Medicare Spending on Personal Health Care 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_total_personal_health_care_spending 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Per Capita Spending on Personal Health Care  
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: health_total_private_health_insurance_spending 
 - [ ] source_link 
 - [ ] details 
 
-<<<<<<< HEAD
-### MEASURE: Total Private Health Insurance Spending on Personal Health Care 
 
-=======
->>>>>>> master
 ----
 
 ### CUBE: ipeds_admissions 
@@ -5294,7 +4876,6 @@ Last updated on 9/6/2018, 1:05:36 PM
 ### MEASURE: Average Wage 
 - [ ] units_of_measurement 
 
-<<<<<<< HEAD
 ### MEASURE: Average Age 
 - [ ] units_of_measurement 
 
@@ -5304,32 +4885,6 @@ Last updated on 9/6/2018, 1:05:36 PM
 ### MEASURE: Average Usual Hours Worked Per Week 
 - [ ] units_of_measurement 
 
-=======
-### MEASURE: Average Wage Appx MOE 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Age 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Age Appx MOE 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Income 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Income Appx MOE 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Usual Hours Worked Per Week 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Usual Hours Worked Per Week Appx MOE 
-- [ ] units_of_measurement 
-
-### MEASURE: Total Population MOE Appx 
-- [ ] units_of_measurement 
-
->>>>>>> master
 ### MEASURE: ygopop RCA 
 - [ ] units_of_measurement 
 
@@ -5411,7 +4966,6 @@ Last updated on 9/6/2018, 1:05:36 PM
 ### MEASURE: Average Wage 
 - [ ] units_of_measurement 
 
-<<<<<<< HEAD
 ### MEASURE: Average Age 
 - [ ] units_of_measurement 
 
@@ -5421,32 +4975,6 @@ Last updated on 9/6/2018, 1:05:36 PM
 ### MEASURE: Average Usual Hours Worked Per Week 
 - [ ] units_of_measurement 
 
-=======
-### MEASURE: Average Wage Appx MOE 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Age 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Age Appx MOE 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Income 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Income Appx MOE 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Usual Hours Worked Per Week 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Usual Hours Worked Per Week Appx MOE 
-- [ ] units_of_measurement 
-
-### MEASURE: Total Population MOE Appx 
-- [ ] units_of_measurement 
-
->>>>>>> master
 ### MEASURE: ygopop RCA 
 - [ ] units_of_measurement 
 
