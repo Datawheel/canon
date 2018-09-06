@@ -37,7 +37,7 @@ function findDimension(flatDims, level, dimension) {
     ? flatDims.filter(d => d.level === level.level && d.dimension === level.dimension && d.hierarchy === level.hierarchy)
     : dimension
       ? flatDims.filter(d => d.level === level && d.dimension === dimension)
-      : flatDims.filter(d => d.level === level);
+      : flatDims.filter(d => d.level === level || d.level.replace(`${d.dimension} `, "") === level);
 
   if (!dims.length && typeof level === "object") dims = flatDims.filter(d => d.level === level.level && d.dimension === level.dimension);
   else if (!dims.length) dims = flatDims.filter(d => d.level === dimension);
@@ -267,7 +267,7 @@ module.exports = function(app) {
                         const p = potentialSubs[i];
                         const subDim = findDimension(flatDims, p);
                         if (subDim) {
-                          sub = p;
+                          sub = subDim.level;
                           break;
                         }
                       }
@@ -360,7 +360,6 @@ module.exports = function(app) {
 
       const cubeDimCuts = {};
       cube.substitutions = [];
-
       for (const dim in dimCuts) {
         if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
           const realDim = flatDims.find(d => d.dimension === dim || d.level === dim) ? flatDims.find(d => d.dimension === dim || d.level === dim).dimension : dim;
@@ -374,7 +373,8 @@ module.exports = function(app) {
                 for (let d = 0; d < masterDims.length; d++) {
                   const oldId = masterDims[d].id;
                   const dimension = dim in dimensionMap ? dimensionMap[dim] : dim;
-                  const subUrl = substitutions[dimension].url(oldId, subLevel);
+                  const rawLevel = subLevel.includes(realDim) ? subLevel.replace(`${realDim} `, "") : subLevel;
+                  const subUrl = substitutions[dimension].url(oldId, rawLevel);
                   const subIds = await axios.get(subUrl)
                     .then(resp => resp.data)
                     .then(substitutions[dimension].callback)
