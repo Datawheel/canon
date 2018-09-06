@@ -362,12 +362,12 @@ module.exports = function(app) {
       cube.substitutions = [];
       for (const dim in dimCuts) {
         if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
-          const fullDim = flatDims.find(d => d.dimension === dim || d.level === dim) ? flatDims.find(d => d.dimension === dim || d.level === dim) : {dimension: dim};
+          let fullDim = flatDims.find(d => d.dimension === dim || d.level === dim) || {dimension: dim};
           const realDim = fullDim.dimension;
           cubeDimCuts[realDim] = {};
           for (const level in dimCuts[dim]) {
             if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
-              if (!fullDim.level) fullDim.level = level;
+              fullDim = flatDims.find(d => (d.dimension === dim || d.level === dim) && d.level.includes(level)) || {dimension: dim, level};
               const masterDims = dimCuts[dim][level];
               const subLevel = cube.subs[level];
               if (subLevel) {
@@ -411,7 +411,7 @@ module.exports = function(app) {
       const crosses = cartesian(...dims);
       if (!crosses.length) crosses.push([]);
 
-      const queryYears = Array.from(new Set(d3Array.merge(year
+      const queryYears = years[name] ? Array.from(new Set(d3Array.merge(year
         .split(",")
         .map(y => {
           if (y === "latest") return [years[name].latest];
@@ -420,7 +420,7 @@ module.exports = function(app) {
           if (y === "all") return years[name].years;
           return [y];
         })
-      )));
+      ))) : [];
 
       if (perValue && perValue in cube.dimensions) {
         const {dimension, hierarchy, level} = cube.dimensions[perValue]
@@ -457,8 +457,8 @@ module.exports = function(app) {
             const queryCuts = cuts.map(([level, value]) => [findDimension(flatDims, level), value]);
 
             if (debug) console.log(`\nLogic Layer Query: ${name}`);
-            if ("Year" in cube.dimensions) {
-              const drill = {dimension: "Year", hierarchy: "Year", level: "Year"};
+            if (years[name] && queryYears.length) {
+              const drill = flatDims.find(d => d.dimension === years[name].dimension);
               queryDrilldowns.push(drill);
               if (year !== "all") queryCuts.push([drill, queryYears]);
             }

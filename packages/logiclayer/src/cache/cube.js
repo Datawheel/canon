@@ -61,16 +61,17 @@ module.exports = async function() {
   });
 
   const cubeQueries = cubes
-    .filter(cube => cube.dimensions.find(d => d.name === "Year"))
+    .filter(cube => cube.dimensions.find(d => d.name.includes("Year")))
     .map(cube => {
-
-      const levels = cube.dimensions.find(d => d.name === "Year").hierarchies[0].levels;
+      const dim = cube.dimensions.find(d => d.name.includes("Year"));
+      const levels = dim.hierarchies[0].levels;
       const query = client.members(levels[levels.length - 1])
         .then(members => {
           const years = members.map(d => d.key).sort();
           const current = years.filter(year => parseInt(year, 10) <= currentYear);
           return {
             cube: cube.name,
+            dimension: dim.name,
             latest: current[current.length - 1],
             oldest: current[0],
             previous: current.length > 1 ? current[current.length - 2] : current[current.length - 1],
