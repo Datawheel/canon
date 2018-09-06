@@ -59,6 +59,11 @@ const makeConfig = {
       yConfig: {title: drilldownName, ticks: []},
       x: measureName,
       stacked: drilldown.depth > 1,
+      shapeConfig: {
+        labelConfig: {
+          textAnchor: "start"
+        }
+      },
       ySort: sortByCustomKey(drilldownName),
       ...flags.chartConfig
     };
