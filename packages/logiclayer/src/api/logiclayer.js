@@ -362,10 +362,12 @@ module.exports = function(app) {
       cube.substitutions = [];
       for (const dim in dimCuts) {
         if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
-          const realDim = flatDims.find(d => d.dimension === dim || d.level === dim) ? flatDims.find(d => d.dimension === dim || d.level === dim).dimension : dim;
+          const fullDim = flatDims.find(d => d.dimension === dim || d.level === dim) ? flatDims.find(d => d.dimension === dim || d.level === dim) : {dimension: dim};
+          const realDim = fullDim.dimension;
           cubeDimCuts[realDim] = {};
           for (const level in dimCuts[dim]) {
             if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
+              if (!fullDim.level) fullDim.level = level;
               const masterDims = dimCuts[dim][level];
               const subLevel = cube.subs[level];
               if (subLevel) {
@@ -390,7 +392,7 @@ module.exports = function(app) {
                 }
               }
               else {
-                cubeDimCuts[realDim][level] = masterDims;
+                cubeDimCuts[realDim][fullDim.level] = masterDims;
               }
             }
           }
