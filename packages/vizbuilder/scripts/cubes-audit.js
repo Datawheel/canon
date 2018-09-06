@@ -34,18 +34,18 @@ client.cubes().then(cubes => {
     dimensions.forEach(dimension => {
       row += `### DIMENSION: ${dimension.name} \n`;
       if (dimension.annotations.dim_type) row += "- [ ] dim_type \n";
+      else row += "Annotations in dimensions necessary for VizBuilder are completed \n";
       row += "\n";
     });
 
     measures.forEach(measure => {
       row += `### MEASURE: ${measure.name} \n`;
-      if (measure.annotations.units_of_measurement) {
-        row += "- [ ] units_of_measurement \n"; 
-      }
+      if (measure.annotations.units_of_measurement) row += "- [ ] units_of_measurement \n";
+      else row += "Annotations in measures necessary for VizBuilder are completed \n";
       row += "\n";
     });
 
-    row += "=====================\n";
+    row += "----\n";
     row += "\n";
   });
 
