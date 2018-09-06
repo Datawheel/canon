@@ -50,7 +50,7 @@ const makeConfig = {
 
     const drilldownName = drilldown.name;
     const measureName = measure.name;
-
+    console.log(flags.chartConfig);
     const config = {
       ...commonConfig,
       discrete: "y",
@@ -60,8 +60,10 @@ const makeConfig = {
       x: measureName,
       stacked: drilldown.depth > 1,
       shapeConfig: {
-        labelConfig: {
-          textAnchor: "start"
+        Bar: {
+          labelConfig: {
+            textAnchor: "start"
+          }
         }
       },
       ySort: sortByCustomKey(drilldownName),
