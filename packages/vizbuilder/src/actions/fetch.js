@@ -1,42 +1,77 @@
+import {unique} from "shorthash";
 import * as api from "../helpers/api";
 import {
+  findByKey,
+  findByName,
   getMeasureMOE,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns,
   getValidMeasures,
-  injectCubeInfoOnMeasure,
-  reduceLevelsFromDimension,
+  matchDefault,
   preventHierarchyIncompatibility,
+  reduceLevelsFromDimension,
   removeDuplicateLevels
 } from "../helpers/sorting";
 
 /**
- * If `needle` is a valid value, returns the first element in the `haystack`
- * that matches the annotation._key property.
- * If there's no matches and `elseFirst` is true, returns the first element
- * in the `haystack`.
- * @param {string} needle The key to match
- * @param {any[]} haystack The array where to search for the object.
- * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
+ * Prepares the array of cubes that will be used in the vizbuilder.
+ * Specifically, filters the cubes that aren't for public use, and injects
+ * information about the parent cube into the annotations of its measures
+ * and levels.
+ * @param {Cube[]} cubes An array of cubes. This array is modified in place.
  */
-export function findByKey(needle, haystack, elseFirst = false) {
-  const findResult = needle ? haystack.find(item => item.annotations._key === needle) : undefined;
-  return elseFirst ? findResult || haystack[0] : findResult;
-}
+export function injectCubeInfoOnMeasure(cubes) {
+  let nCbs = cubes.length;
+  while (nCbs--) {
+    const cube = cubes[nCbs];
+    const cbAnnotations = cube.annotations;
 
-/**
- * If `needle` is a valid value, returns the first element in the `haystack`
- * that matches the name property.
- * If there's no matches and `elseFirst` is true, returns the first element
- * in the `haystack`.
- * @param {string} needle The key to match
- * @param {any[]} haystack The array where to search for the object.
- * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
- */
-export function findByName(needle, haystack, elseFirst = false) {
-  const findResult = needle ? haystack.find(item => item.name === needle) : undefined;
-  return elseFirst ? findResult || haystack[0] : findResult;
+    if (cbAnnotations.hide_in_ui) {
+      cubes.splice(nCbs, 1);
+      continue;
+    }
+
+    const cbName = cube.caption || cube.name;
+    const cbTopic = cbAnnotations.topic || "Other";
+    const cbSubtopic = cbAnnotations.subtopic;
+    const selectorKey = `${cbTopic}_${cbSubtopic}_`;
+    const sourceName = cbAnnotations.source_name;
+
+    cbAnnotations._key = unique(cbName);
+
+    let nMsr = cube.measures.length;
+    while (nMsr--) {
+      const measure = cube.measures[nMsr];
+      const measureLabel = measure.caption || measure.name;
+      const msAnnotations = measure.annotations;
+
+      msAnnotations._key = unique(`${cbName} ${measure.name}`);
+      msAnnotations._cb_name = cbName;
+      msAnnotations._cb_topic = cbTopic;
+      msAnnotations._cb_subtopic = cbSubtopic;
+      msAnnotations._cb_sourceName = sourceName;
+      msAnnotations._selectorKey = selectorKey + measureLabel;
+    }
+
+    let nDim = cube.dimensions.length;
+    while (nDim--) {
+      const dimension = cube.dimensions[nDim];
+      const keyPrefix = `${cbName} ${dimension.name} `;
+
+      let nHie = dimension.hierarchies.length;
+      while (nHie--) {
+        const hierarchy = dimension.hierarchies[nHie];
+
+        let nLvl = hierarchy.levels.length;
+        while (nLvl--) {
+          const level = hierarchy.levels[nLvl];
+
+          level.annotations._key = unique(keyPrefix + level.name);
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -69,13 +104,16 @@ export function fetchCubes(initialQuery) {
       levels = reduceLevelsFromDimension(levels, dimension);
     }
     else {
+      const defaultLevel = [].concat(initialQuery.defaultLevel).reverse();
+
       if ("defaultDimension" in initialQuery) {
-        dimension = findByName(initialQuery.defaultDimension, dimensions, true);
+        const defaultDimension = [].concat(initialQuery.defaultDimension).reverse();
+        dimension = matchDefault(findByName, dimensions, defaultDimension, true);
         levels = reduceLevelsFromDimension(levels, dimension);
-        drilldown = findByName(initialQuery.defaultLevel, levels, true);
+        drilldown = matchDefault(findByName, levels, defaultLevel, true);
       }
       else {
-        drilldown = findByName(initialQuery.defaultLevel, drilldowns, true);
+        drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
         dimension = drilldown.hierarchy.dimension;
         levels = reduceLevelsFromDimension(levels, dimension);
       }
@@ -124,10 +162,10 @@ export function fetchQuery() {
 }
 
 /**
- * @typedef {InitialQueryState}
- * @prop {string?} defaultDimension Initial dimension set by the user
- * @prop {string?} defaultLevel Initial level for drilldown set by the user
- * @prop {string?} defaultMeasure Initial measure set by the user
- * @prop {string?} ms Initial measure key, parsed from the permalink
- * @prop {string?} dd Initial drilldown key, parsed from the permalink
+ * @typedef {any} InitialQueryState
+ * @prop {string} [defaultDimension] Initial dimension set by the user
+ * @prop {string} [defaultLevel] Initial level for drilldown set by the user
+ * @prop {string} [defaultMeasure] Initial measure set by the user
+ * @prop {string} [ms] Initial measure key, parsed from the permalink
+ * @prop {string} [dd] Initial drilldown key, parsed from the permalink
  */

@@ -3,10 +3,12 @@ import PropTypes from "prop-types";
 
 import {fetchQuery} from "../../actions/fetch";
 import {
+  findByName,
   getMeasureMOE,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns,
+  matchDefault,
   preventHierarchyIncompatibility,
   reduceLevelsFromDimension,
   removeDuplicateLevels
@@ -33,10 +35,12 @@ class Sidebar extends React.PureComponent {
   setDimension(dimension) {
     const {dimensions} = this.props.options;
     const {loadControl} = this.context;
+    const {defaultQuery = []} = this.props;
+    const defaultLevel = [].concat(defaultQuery.defaultLevel).reverse();
 
     return loadControl(() => {
       const levels = reduceLevelsFromDimension([], dimension);
-      const drilldown = levels[0];
+      const drilldown = matchDefault(findByName, levels, defaultLevel, true);
 
       const drilldowns = getValidDrilldowns(dimensions);
       preventHierarchyIncompatibility(drilldowns, drilldown);
@@ -75,7 +79,7 @@ class Sidebar extends React.PureComponent {
   }
 
   setMeasure(measure) {
-    const {options, query} = this.props;
+    const {defaultQuery, options, query} = this.props;
     const {loadControl} = this.context;
 
     return loadControl(() => {
@@ -87,9 +91,20 @@ class Sidebar extends React.PureComponent {
       const dimensions = getValidDimensions(cube);
       const drilldowns = getValidDrilldowns(dimensions);
 
-      const dimension = dimensions[0];
-      const levels = reduceLevelsFromDimension([], dimension);
-      const drilldown = levels[0];
+      let dimension, drilldown, levels = [];
+      const defaultLevel = [].concat(defaultQuery.defaultLevel).reverse();
+
+      if ("defaultDimension" in defaultQuery) {
+        const defaultDimension = [].concat(defaultQuery.defaultDimension).reverse();
+        dimension = matchDefault(findByName, dimensions, defaultDimension, true);
+        levels = reduceLevelsFromDimension(levels, dimension);
+        drilldown = matchDefault(findByName, levels, defaultLevel, true);
+      }
+      else {
+        drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
+        dimension = drilldown.hierarchy.dimension;
+        levels = reduceLevelsFromDimension(levels, dimension);
+      }
 
       preventHierarchyIncompatibility(drilldowns, drilldown);
       removeDuplicateLevels(levels);
