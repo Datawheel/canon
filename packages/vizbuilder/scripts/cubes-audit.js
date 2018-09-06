@@ -45,11 +45,13 @@ client.cubes().then(cubes => {
     });
 
     measures.forEach(measure => {
-      if (!measure.annotations.units_of_measurement) {
+      if (!measure.annotations.error_for_measure) {
         row += `### MEASURE: ${measure.name} \n`;
-        row += "- [ ] units_of_measurement \n";
+        if (!measure.annotations.units_of_measurement) row += "- [ ] units_of_measurement \n";
+        if (measure.name.toUpperCase().includes("MOE")) row += "- [ ] error_for_measure \n";
         row += "\n";
       }
+      
     });
 
     row += "----\n";
