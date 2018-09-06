@@ -1,13 +1,22 @@
-// node scripts/cubes.js
+// node scripts/cubes-audit.js
 
-const {Client} = require("mondrian-rest-client"), 
+const {Client} = require("mondrian-rest-client"),
       fs = require("fs");
 
-const client = new Client("https://canon-api.datausa.io");
+const PATH = "https://canon-api.datausa.io";
+const client = new Client(PATH);
+const now = new Date()
+  .toLocaleString("en-US", {timeZone: "America/New_York"})
+  .replace("T", " ")
+  .replace(/\..*$/, "");
 
 client.cubes().then(cubes => {
+  let row = "## CUBES AUDIT \n";
+  row += "\n";
+  row += `Data obtained from ${PATH} \n`;
+  row += `Last updated on ${now} \n`;
+  row += "\n";
 
-  let row = "";
   cubes.sort((a, b) => a.name > b.name ? 1 : -1).forEach(cube => {
     const {dimensions, measures, annotations} = cube;
     row += `### CUBE: ${cube.name} \n`;
@@ -22,17 +31,26 @@ client.cubes().then(cubes => {
     if (annotations.details) row += "- [ ] details \n";
     row += "\n";
 
-    measures.forEach(measure => {
-      row += `### MEASURE: ${measure.name} \n`;
-      if (measure.annotations.units_of_measurement) row += "- [ ] units_of_measurement \n";
+    dimensions.forEach(dimension => {
+      row += `### DIMENSION: ${dimension.name} \n`;
+      if (dimension.annotations.dim_type) row += "- [ ] dim_type \n";
       row += "\n";
     });
 
+    measures.forEach(measure => {
+      row += `### MEASURE: ${measure.name} \n`;
+      if (measure.annotations.units_of_measurement) {
+        row += "- [ ] units_of_measurement \n"; 
+      }
+      row += "\n";
+    });
+
+    row += "=====================\n";
+    row += "\n";
   });
 
   fs.writeFile("./scripts/cubes-audit.md", row, "utf8", err => {
     if (err) console.log(err);
     else console.log("created scripts/cubes-audit.md");
   });
-
 });
