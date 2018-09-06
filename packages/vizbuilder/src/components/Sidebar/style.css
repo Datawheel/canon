@@ -5,6 +5,10 @@
     & .label {
       margin: 0;
     }
+
+    & > .control {
+      margin-bottom: 0.8em;
+    }
   }
 
   & .details {
