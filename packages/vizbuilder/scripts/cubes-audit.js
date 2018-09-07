@@ -3,8 +3,8 @@
 const {Client} = require("mondrian-rest-client"),
       fs = require("fs");
 
-const PATH = "https://canon-api.datausa.io";
-const client = new Client(PATH);
+const DEFAULT = "https://canon-api.datausa.io";
+const client = new Client(process.env.CANON_AUDIT_API || DEFAULT);
 const now = new Date()
   .toLocaleString("en-US", {timeZone: "America/New_York"})
   .replace("T", " ")
