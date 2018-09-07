@@ -116,23 +116,17 @@ const makeConfig = {
   geomap(commonConfig, query, flags) {
     const drilldownName = query.drilldown.name;
     const measureName = query.measure.name;
-    const isActive = flags.activeType === "geomap";
 
     const config = {
       ...commonConfig,
       colorScale: measureName,
-      colorScalePosition: isActive ? "bottom" : false,
+      colorScaleConfig: {scale: "jenks"},
+      colorScalePosition: "right",
       groupBy: `ID ${drilldownName}`,
       zoomScroll: false,
       ...flags.topojsonConfig,
       ...flags.chartConfig
     };
-
-    if (isActive) {
-      config.colorScaleConfig = {
-        scale: "jenks"
-      };
-    }
 
     return config;
   },
