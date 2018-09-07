@@ -143,8 +143,14 @@ Vizbuilder.propTypes = {
   config: PropTypes.object,
   // default dimension and level are optional
   // but if set, default measure is required
-  defaultDimension: PropTypes.string,
-  defaultLevel: PropTypes.string,
+  defaultDimension: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string)
+  ]),
+  defaultLevel: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string)
+  ]),
   defaultMeasure: PropTypes.string,
   // formatting functions object,
   // keys are the possible values of measure.annotations.units_of_measurement
