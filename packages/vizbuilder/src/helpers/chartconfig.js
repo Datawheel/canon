@@ -221,10 +221,14 @@ export default function createChartConfig({
   const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
 
   const drilldownName = query.drilldown.name;
-  const measureName = query.measure.name;
-  const measureUnits = query.measure.annotations.units_of_measurement;
+
+  const measure = query.measure;
+  const measureName = measure.name;
+  const measureUnits = measure.annotations.units_of_measurement;
   const measureFormatter = formatting[measureUnits] || formatAbbreviate;
   const getMeasureName = d => d[measureName];
+
+  const aggregatorType = measure.annotations.aggregation_method || measure.aggregatorType || "UNKNOWN";
 
   const commonConfig = {
     title: `${measureName} by ${drilldownName}`,
@@ -253,17 +257,16 @@ export default function createChartConfig({
     commonConfig.time = timeDrilldownName;
   }
 
+  if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
+    commonConfig.total = getMeasureName;
+  }
+
   const topojsonConfig = topojson[drilldownName];
 
   if (!activeType) {
     if (members[drilldownName].length > 20) {
       availableCharts.delete("barchart");
     }
-
-    const aggregatorType =
-      query.measure.annotations.aggregation_method ||
-      query.measure.aggregatorType ||
-      "UNKNOWN";
 
     if (!hasTimeDim) {
       availableCharts.delete("stacked");
@@ -286,16 +289,14 @@ export default function createChartConfig({
       availableCharts.delete("barchartyear");
     }
   }
-  else {
-    commonConfig.total = getMeasureName;
-  }
 
   const flags = {
     activeType,
+    aggregatorType,
     availableKeys,
+    chartConfig: userConfig || {},
     measureFormatter,
-    topojsonConfig,
-    chartConfig: userConfig || {}
+    topojsonConfig
   };
 
   return Array.from(
