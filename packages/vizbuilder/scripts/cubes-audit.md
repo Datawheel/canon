@@ -1,7 +1,8 @@
 ## CUBES AUDIT 
 
 Data obtained from https://canon-api.datausa.io 
-Last updated on 9/6/2018, 1:05:36 PM 
+
+Last updated on 9/7/2018, 6:38:32 AM 
 
 ### CUBE: acs_yg_gini_1 
 - [ ] source_description 
@@ -21,6 +22,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Gini Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -42,6 +44,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Gini Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -66,6 +69,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Income Households Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -90,6 +94,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Income Households Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -111,6 +116,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Median Value Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -132,6 +138,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Median Value Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -153,6 +160,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Total Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -174,6 +182,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Total Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -198,6 +207,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Citizenship Status Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -222,6 +232,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Citizenship Status Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -252,6 +263,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Citizenship Median Age Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -282,6 +294,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Citizenship Median Age Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -306,6 +319,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Foreign Born Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -330,6 +344,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Foreign Born Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -360,6 +375,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Care Coverage Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -390,6 +406,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Care Coverage Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -414,6 +431,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Unit With Mortgage Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -438,6 +456,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Unit With Mortgage Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -462,6 +481,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Internet Households Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -486,6 +506,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Internet Households Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -510,6 +531,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupied Households Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -534,6 +556,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupied Households Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -558,6 +581,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupied Households Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -582,6 +606,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupied Households Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -609,6 +634,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Renter Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -636,6 +662,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Renter Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -663,6 +690,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Renters Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -690,6 +718,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Renters Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -720,6 +749,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Insurance Coverage Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -750,6 +780,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Insurance Coverage Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -780,6 +811,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Care Coverage Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -810,6 +842,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Health Care Coverage Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -837,6 +870,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Language Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ### MEASURE: Language Spoken at Home yg RCA 
 - [ ] units_of_measurement 
@@ -870,6 +904,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Language Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ### MEASURE: Language Spoken at Home yg RCA 
 - [ ] units_of_measurement 
@@ -903,6 +938,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Language Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ### MEASURE: Language Spoken at Home yg RCA 
 - [ ] units_of_measurement 
@@ -936,6 +972,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Language Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ### MEASURE: Language Spoken at Home yg RCA 
 - [ ] units_of_measurement 
@@ -969,6 +1006,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Mortgage Status Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -996,6 +1034,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Mortgage Status Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1020,6 +1059,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Units Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1044,6 +1084,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Housing Units Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1068,6 +1109,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Tenure Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1092,6 +1134,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Tenure Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1119,6 +1162,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Place of Birth Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1146,6 +1190,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Place of Birth Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1179,6 +1224,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1212,6 +1258,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1236,6 +1283,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Household Income Dollars Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1260,6 +1308,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Household Income Dollars Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1287,6 +1336,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Hispanic Race Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1314,6 +1364,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Hispanic Race Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1338,6 +1389,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1362,6 +1414,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1386,6 +1439,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Median Age Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1410,6 +1464,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Median Age Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1437,6 +1492,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Industry Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1470,6 +1526,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Industry Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1503,6 +1560,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Industry Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1536,6 +1594,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Industry Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1569,6 +1628,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupation Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1596,6 +1656,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupation Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1623,6 +1684,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupation Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1656,6 +1718,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Occupation Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ### MEASURE: Sex yg RCA 
 - [ ] units_of_measurement 
@@ -1689,6 +1752,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Work Transportation Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1716,6 +1780,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Work Transportation Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1743,6 +1808,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Vehicles Available Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1770,6 +1836,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Vehicles Available Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1794,6 +1861,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1818,6 +1886,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Aggregate Travel Time to Work Minutes Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1839,6 +1908,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Mean Transportation Time to Work Minutes Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1860,6 +1930,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Mean Transportation Time to Work Minutes Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1884,6 +1955,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Means of Work Transportation Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1908,6 +1980,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Means of Work Transportation Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1932,6 +2005,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Minutes Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1956,6 +2030,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Minutes Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -1980,6 +2055,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Veteran Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -2004,6 +2080,7 @@ Last updated on 9/6/2018, 1:05:36 PM
 
 ### MEASURE: Veteran Population Moe 
 - [ ] units_of_measurement 
+- [ ] error_for_measure 
 
 ----
 
@@ -3513,11 +3590,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_adult_hospital_patients_who_did_not_receive_good_communication_about_discharge_information 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3525,11 +3604,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_adults_reporting_not_having_personal_doctor 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3537,11 +3618,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_adults_with_major_depressive_episodes 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3549,11 +3632,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_dental_services_per_capita 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3561,11 +3646,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_estimates_of_chronically_homeless_individuals 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3573,11 +3660,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_home_health_care_per_capita 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3585,11 +3674,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_hospital_care_per_capita 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3597,11 +3688,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_longstay_nursing_home_residents_with_toomuch_weight_loss 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3609,11 +3702,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_medical_durables_per_capita 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3621,11 +3716,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_mental_health_service_use_among_adults_with_any_mental_illness 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3633,11 +3730,15 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
+
+
 ----
 
 ### CUBE: health_number_of_households_receiving_rental_assistance 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3645,11 +3746,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_opioid_overdose_deathrate 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3657,11 +3760,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_other_professional_services_per_capita 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3669,11 +3774,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_past_year_treatment_for_depression_among_adolescents_age12_17_with_major_depressive_episodes 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3681,11 +3788,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_percapita_doctors_office_visit_spending 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3693,11 +3802,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_percapita_medicare_inpatient_hospital_spending 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3705,11 +3816,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_percapita_rx_and_other_medical_nondurables 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3717,11 +3830,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_percent_medicaid_spending_by_adults 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3729,11 +3844,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_percent_medicaid_spending_by_children 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3741,11 +3858,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_potentially_avoidable_emergency_room_visits_among_medicare_patients 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3753,11 +3872,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_substance_use_disorder_past_year_among_adolescents_and_adults 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3765,11 +3886,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_total_medicare_spending 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -3777,11 +3900,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 - [ ] source_link 
 - [ ] details 
 
+
 ----
 
 ### CUBE: health_total_private_health_insurance_spending 
 - [ ] source_link 
 - [ ] details 
+
 
 ----
 
@@ -4751,28 +4876,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 ### MEASURE: Average Wage 
 - [ ] units_of_measurement 
 
-### MEASURE: Average Wage Appx MOE 
-- [ ] units_of_measurement 
-
 ### MEASURE: Average Age 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Age Appx MOE 
 - [ ] units_of_measurement 
 
 ### MEASURE: Average Income 
 - [ ] units_of_measurement 
 
-### MEASURE: Average Income Appx MOE 
-- [ ] units_of_measurement 
-
 ### MEASURE: Average Usual Hours Worked Per Week 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Usual Hours Worked Per Week Appx MOE 
-- [ ] units_of_measurement 
-
-### MEASURE: Total Population MOE Appx 
 - [ ] units_of_measurement 
 
 ### MEASURE: ygopop RCA 
@@ -4856,28 +4966,13 @@ Last updated on 9/6/2018, 1:05:36 PM
 ### MEASURE: Average Wage 
 - [ ] units_of_measurement 
 
-### MEASURE: Average Wage Appx MOE 
-- [ ] units_of_measurement 
-
 ### MEASURE: Average Age 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Age Appx MOE 
 - [ ] units_of_measurement 
 
 ### MEASURE: Average Income 
 - [ ] units_of_measurement 
 
-### MEASURE: Average Income Appx MOE 
-- [ ] units_of_measurement 
-
 ### MEASURE: Average Usual Hours Worked Per Week 
-- [ ] units_of_measurement 
-
-### MEASURE: Average Usual Hours Worked Per Week Appx MOE 
-- [ ] units_of_measurement 
-
-### MEASURE: Total Population MOE Appx 
 - [ ] units_of_measurement 
 
 ### MEASURE: ygopop RCA 
