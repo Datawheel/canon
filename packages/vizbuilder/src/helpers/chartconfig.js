@@ -50,15 +50,23 @@ const makeConfig = {
 
     const drilldownName = drilldown.name;
     const measureName = measure.name;
-
+    console.log(flags.chartConfig);
     const config = {
       ...commonConfig,
-      discrete: "x",
-      x: drilldownName,
-      xConfig: {title: drilldownName},
-      y: measureName,
+      discrete: "y",
+      label: d => d[drilldownName],
+      y: drilldownName,
+      yConfig: {title: drilldownName, ticks: []},
+      x: measureName,
       stacked: drilldown.depth > 1,
-      xSort: sortByCustomKey(drilldownName),
+      shapeConfig: {
+        Bar: {
+          labelConfig: {
+            textAnchor: "start"
+          }
+        }
+      },
+      ySort: sortByCustomKey(drilldownName),
       ...flags.chartConfig
     };
 
@@ -108,23 +116,17 @@ const makeConfig = {
   geomap(commonConfig, query, flags) {
     const drilldownName = query.drilldown.name;
     const measureName = query.measure.name;
-    const isActive = flags.activeType === "geomap";
 
     const config = {
       ...commonConfig,
       colorScale: measureName,
-      colorScalePosition: isActive ? "bottom" : false,
+      colorScaleConfig: {scale: "jenks"},
+      colorScalePosition: "right",
       groupBy: `ID ${drilldownName}`,
       zoomScroll: false,
       ...flags.topojsonConfig,
       ...flags.chartConfig
     };
-
-    if (isActive) {
-      config.colorScaleConfig = {
-        scale: "jenks"
-      };
-    }
 
     return config;
   },
@@ -148,6 +150,7 @@ const makeConfig = {
       title: `${measureName} by ${drilldownName}`,
       discrete: "x",
       groupBy: drilldown.name,
+      yConfig: {scale: "linear", title: measureName},
       x: drilldownName,
       xConfig: {title: drilldownName},
       y: measureName,
@@ -218,10 +221,14 @@ export default function createChartConfig({
   const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
 
   const drilldownName = query.drilldown.name;
-  const measureName = query.measure.name;
-  const measureUnits = query.measure.annotations.units_of_measurement;
+
+  const measure = query.measure;
+  const measureName = measure.name;
+  const measureUnits = measure.annotations.units_of_measurement;
   const measureFormatter = formatting[measureUnits] || formatAbbreviate;
   const getMeasureName = d => d[measureName];
+
+  const aggregatorType = measure.annotations.aggregation_method || measure.aggregatorType || "UNKNOWN";
 
   const commonConfig = {
     title: `${measureName} by ${drilldownName}`,
@@ -250,17 +257,16 @@ export default function createChartConfig({
     commonConfig.time = timeDrilldownName;
   }
 
+  if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
+    commonConfig.total = getMeasureName;
+  }
+
   const topojsonConfig = topojson[drilldownName];
 
   if (!activeType) {
     if (members[drilldownName].length > 20) {
       availableCharts.delete("barchart");
     }
-
-    const aggregatorType =
-      query.measure.annotations.aggregation_method ||
-      query.measure.aggregatorType ||
-      "UNKNOWN";
 
     if (!hasTimeDim) {
       availableCharts.delete("stacked");
@@ -283,16 +289,14 @@ export default function createChartConfig({
       availableCharts.delete("barchartyear");
     }
   }
-  else {
-    commonConfig.total = getMeasureName;
-  }
 
   const flags = {
     activeType,
+    aggregatorType,
     availableKeys,
+    chartConfig: userConfig || {},
     measureFormatter,
-    topojsonConfig,
-    chartConfig: userConfig || {}
+    topojsonConfig
   };
 
   return Array.from(
