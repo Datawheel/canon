@@ -2,6 +2,7 @@ import React from "react";
 import {Button} from "@blueprintjs/core";
 
 import {charts} from "../../helpers/chartconfig";
+import {relativeStdDev} from "../../helpers/math";
 
 class ChartCard extends React.Component {
   render() {
@@ -15,6 +16,11 @@ class ChartCard extends React.Component {
     const ChartComponent = charts[type];
 
     config.data = dataset;
+
+    if (type === "lineplot" && relativeStdDev(dataset, config.y) > 1) {
+      config.yConfig.scale = "log";
+      config.yConfig.gridConfig = {"stroke-width": 0};
+    }
 
     return (
       <div className="chart-card">
