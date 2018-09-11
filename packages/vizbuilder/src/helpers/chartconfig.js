@@ -288,6 +288,12 @@ export default function createChartConfig({
       availableCharts.delete("treemap");
       availableCharts.delete("barchartyear");
     }
+
+    if (Object.keys(members).some(d => d !== "Year" && members[d].length === 1)) {
+      availableCharts.delete("treemap");
+      availableCharts.delete("barchartyear");
+    }
+
   }
 
   const flags = {
