@@ -11,6 +11,16 @@ export function average(data, measureName) {
   return sum / len;
 }
 
+/**
+ * Calculate the Relative Standard Deviation
+ * This means it should have a numeric value, and a valid operator.
+ * @param {Array} data An array to check
+ * @param {String} measureName Name of the measure
+ */
+export function relativeStdDev(data, measureName) {
+  return standardDeviation(data, measureName) / average(data, measureName);
+}
+
 
 /**
  * Calculate the standard deviation of a data array
