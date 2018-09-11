@@ -1,5 +1,19 @@
 /**
- * Calculate standard deviation of a data array
+ * Calculate the average of a data array
+ * This means it should have a numeric value, and a valid operator.
+ * @param {Array} data An array to check
+ * @param {String} measureName Name of the measure
+ */
+export function average(data, measureName) {
+  const len = data.length, 
+        sum = data.reduce((sum, d) => sum + d[measureName], 0);
+  
+  return sum / len;
+}
+
+
+/**
+ * Calculate the standard deviation of a data array
  * This means it should have a numeric value, and a valid operator.
  * @param {Array} data An array to check
  * @param {String} measureName Name of the measure
