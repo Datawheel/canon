@@ -15,6 +15,7 @@ import LoadingScreen from "components/Loading";
 
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
+import {isSameQuery} from "./helpers/validation";
 
 const UIToaster =
   typeof window !== "undefined"
@@ -27,6 +28,7 @@ class Vizbuilder extends React.PureComponent {
 
     api.resetClient(props.src);
     this.state = initialState();
+    this.queryHistory = [];
     this.defaultQuery = {};
 
     this.loadControl = loadControl.bind(this);
@@ -45,14 +47,14 @@ class Vizbuilder extends React.PureComponent {
     const defaultQuery = {
       ...queryString.parse(window.location.search),
       ...this.getDefaultQuery(this.props)
-    }
+    };
     this.defaultQuery = defaultQuery;
     this.firstLoad(defaultQuery);
   }
 
   componentDidUpdate(prevProps, prevState) {
     const {src} = this.props;
-    const {load} = this.state;
+    const {load, query} = this.state;
     const {error, severity} = load;
 
     if (src && prevProps.src !== src) {
@@ -63,6 +65,10 @@ class Vizbuilder extends React.PureComponent {
     if (error && prevState.load.error !== error) {
       console.warn(error.stack);
       UIToaster.show({intent: severity, message: error.message});
+    }
+
+    if (query.cube && this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
+      this.queryHistory.push(query);
     }
   }
 

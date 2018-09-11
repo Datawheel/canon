@@ -162,6 +162,23 @@ export function fetchQuery() {
 }
 
 /**
+ * Reconstructs the Vizbuilder options state from an earlier Vizbuilder query state.
+ * @param {object} query The query object from Vizbuilder's state.
+ */
+export function fetchOptionsFromState(query) {
+  return function() {
+    const dimensions = getValidDimensions(query.cube);
+    const drilldowns = getValidDrilldowns(dimensions);
+    const levels = reduceLevelsFromDimension([], query.dimension);
+
+    preventHierarchyIncompatibility(drilldowns, query.drilldown);
+    removeDuplicateLevels(levels);
+
+    return {dimensions, levels, drilldowns};
+  };
+}
+
+/**
  * @typedef {any} InitialQueryState
  * @prop {string} [defaultDimension] Initial dimension set by the user
  * @prop {string} [defaultLevel] Initial level for drilldown set by the user

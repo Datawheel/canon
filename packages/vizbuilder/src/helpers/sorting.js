@@ -55,7 +55,8 @@ export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
   let n = defaults.length;
   while (n--) {
     const needle = defaults[n];
-    if (matchResult = matchingFunction(needle, haystack)) {
+    matchResult = matchingFunction(needle, haystack);
+    if (matchResult) {
       break;
     }
   }
@@ -153,10 +154,7 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
   let n = array.length;
   while (n--) {
     const level = array[n];
-    if (
-      level.hierarchy !== interestHierarchy ||
-      (level.hierarchy === interestHierarchy && level.depth > interestLevel.depth)
-    ) {
+    if (level.hierarchy !== interestHierarchy || level.depth > interestLevel.depth) {
       array.splice(n, 1);
     }
   }
