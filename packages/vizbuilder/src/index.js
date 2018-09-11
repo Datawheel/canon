@@ -53,9 +53,9 @@ class Vizbuilder extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const {src} = this.props;
+    const {src, onChange} = this.props;
     const {load, query} = this.state;
-    const {error, severity} = load;
+    const {error} = load;
 
     if (src && prevProps.src !== src) {
       api.resetClient(src);
@@ -64,7 +64,11 @@ class Vizbuilder extends React.PureComponent {
 
     if (error && prevState.load.error !== error) {
       console.warn(error.stack);
-      UIToaster.show({intent: severity, message: error.message});
+      UIToaster.show({intent: load.severity, message: error.message});
+    }
+
+    if (onChange && !isSameQuery(prevProps.query, query)) {
+      onChange(query, this.state.dataset, this.state.options);
     }
 
     if (query.cube && this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
@@ -162,6 +166,8 @@ Vizbuilder.propTypes = {
   // keys are the possible values of measure.annotations.units_of_measurement
   // values are the formatting function to apply to those measures
   formatting: PropTypes.objectOf(PropTypes.func),
+  // state update hook
+  onChange: PropTypes.func,
   // source URL for the mondrian server
   src: PropTypes.string.isRequired,
   topojson: PropTypes.objectOf(
