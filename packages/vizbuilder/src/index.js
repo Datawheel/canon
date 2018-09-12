@@ -60,7 +60,7 @@ class Vizbuilder extends React.PureComponent {
   componentDidMount() {
     if (this.props.permalink) {
       this.defaultQuery = parsePermalink(
-        window.location.search,
+        window.location,
         this.permalinkKeywords,
         this.defaultQuery
       );
@@ -137,13 +137,11 @@ class Vizbuilder extends React.PureComponent {
           userConfig={config}
           visualizations={visualizations}
         />
-        {permalink && (
-          <PermalinkManager
-            activeType={activeType}
-            keywords={this.permalinkKeywords}
-            query={query}
-          />
-        )}
+        {permalink && <PermalinkManager
+          activeType={activeType}
+          keywords={this.permalinkKeywords}
+          query={query}
+        />}
       </div>
     );
   }
