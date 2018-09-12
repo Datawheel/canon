@@ -50,6 +50,13 @@ const DEFAULT_CONFIG = {
   zoomFactor: 2
 };
 
+const DEFAULT_PERMAKEYS = {
+  measure: "msr",
+  dimension: "dim",
+  level: "lvl",
+  enlarged: "show"
+};
+
 export default class Home extends React.Component {
   constructor(props) {
     super(props);
@@ -82,6 +89,7 @@ export default class Home extends React.Component {
       topojson={DEFAULT_TOPOJSON}
       defaultDimension={["Geography", "Gender", "Age"]}
       defaultLevel={["State"]}
+      permalinkKeywords={DEFAULT_PERMAKEYS}
     />;
   }
 }

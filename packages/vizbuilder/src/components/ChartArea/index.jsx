@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {NonIdealState} from "@blueprintjs/core";
 import {formatAbbreviate} from "d3plus-format";
 
@@ -9,15 +10,11 @@ import "./style.css";
 
 const DEFAULT_FORMATTERS = {
   Dollars: d => `$${formatAbbreviate(d * 1 || 0)}`
-}
+};
 
 class ChartArea extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      activeType: null
-    };
 
     this.actions = Object.keys(charts).reduce((box, type) => {
       box[type] = this.selectChart.bind(this, type);
@@ -30,11 +27,11 @@ class ChartArea extends React.Component {
     this.scrollEnsure = this.scrollEnsure.bind(this);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     return (
       this.props.dataset !== nextProps.dataset ||
       this.props.visualizations !== nextProps.visualizations ||
-      this.state.activeType !== nextState.activeType
+      this.props.activeType !== nextProps.activeType
     );
   }
 
@@ -53,19 +50,17 @@ class ChartArea extends React.Component {
   }
 
   selectChart(type) {
-    this.setState(
-      state => ({
-        activeType: !state.activeType ? type : null
-      }),
-      () => {
+    this.context
+      .stateUpdate({activeType: this.props.activeType ? null : type})
+      .then(() => {
         requestAnimationFrame(this.dispatchResize);
         requestAnimationFrame(this.dispatchScroll);
-      }
-    );
+      });
   }
 
   render() {
     const {
+      activeType,
       dataset,
       formatting,
       members,
@@ -74,7 +69,6 @@ class ChartArea extends React.Component {
       userConfig,
       visualizations
     } = this.props;
-    const {activeType} = this.state;
     const actions = this.actions;
 
     if (!dataset.length) {
@@ -98,7 +92,7 @@ class ChartArea extends React.Component {
       visualizations
     });
 
-    const chartElements = chartConfig.map(chart =>
+    const chartElements = chartConfig.map(chart => (
       <ChartCard
         key={chart.type}
         active={chart.type === activeType}
@@ -107,7 +101,7 @@ class ChartArea extends React.Component {
         onSelect={actions[chart.type]}
         type={chart.type}
       />
-    );
+    ));
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
@@ -120,5 +114,31 @@ class ChartArea extends React.Component {
     );
   }
 }
+
+ChartArea.contextTypes = {
+  stateUpdate: PropTypes.func
+};
+
+ChartArea.propTypes = {
+  activeType: PropTypes.string,
+  dataset: PropTypes.array,
+  formatting: PropTypes.objectOf(PropTypes.func),
+  members: PropTypes.objectOf(PropTypes.array),
+  query: PropTypes.object,
+  topojson: PropTypes.objectOf(
+    PropTypes.shape({
+      topojson: PropTypes.string.isRequired,
+      topojsonId: PropTypes.string,
+      topojsonKey: PropTypes.string
+    })
+  ),
+  userConfig: PropTypes.object,
+  visualizations: PropTypes.arrayOf(PropTypes.string)
+};
+
+ChartArea.defaultProps = {
+  activeType: null,
+  dataset: []
+};
 
 export default ChartArea;

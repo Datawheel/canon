@@ -42,10 +42,9 @@ export default function initialStateFactory() {
       // All non-time Levels that can be used as Cuts for the current query
       drilldowns: [],
       // All valid measures (not MoEs) from all the cubes retrieved
-      measures: [],
-      // ??
-      members: []
+      measures: []
     },
+    activeType: null,
     dataset: [],
     members: {},
     meta: {}

@@ -59,6 +59,8 @@ export function injectCubeInfoOnMeasure(cubes) {
       const dimension = cube.dimensions[nDim];
       const keyPrefix = `${cbName} ${dimension.name} `;
 
+      dimension.annotations._key = unique(keyPrefix);
+
       let nHie = dimension.hierarchies.length;
       while (nHie--) {
         const hierarchy = dimension.hierarchies[nHie];
@@ -80,11 +82,12 @@ export function injectCubeInfoOnMeasure(cubes) {
  */
 export function fetchCubes(initialQuery) {
   return api.cubes().then(cubes => {
-    initialQuery = initialQuery || {};
     injectCubeInfoOnMeasure(cubes);
 
     const measures = getValidMeasures(cubes);
-    const measure = findByKey(initialQuery.ms, measures) || findByName(initialQuery.defaultMeasure, measures, true);
+    const measure =
+      findByKey(initialQuery.measure, measures) ||
+      findByName(initialQuery.defaultMeasure, measures, true);
 
     const cubeName = measure.annotations._cb_name;
     const cube = cubes.find(cube => cube.name === cubeName);
@@ -96,7 +99,7 @@ export function fetchCubes(initialQuery) {
 
     let dimension;
     // Check first for URL-based initial state
-    let drilldown = findByKey(initialQuery.dd, drilldowns);
+    let drilldown = findByKey(initialQuery.level, drilldowns);
     let levels = [];
 
     if (drilldown) {
@@ -105,17 +108,26 @@ export function fetchCubes(initialQuery) {
     }
     else {
       const defaultLevel = [].concat(initialQuery.defaultLevel).reverse();
+      dimension = findByKey(initialQuery.dimension, dimensions);
 
-      if ("defaultDimension" in initialQuery) {
-        const defaultDimension = [].concat(initialQuery.defaultDimension).reverse();
-        dimension = matchDefault(findByName, dimensions, defaultDimension, true);
+      if (dimension) {
         levels = reduceLevelsFromDimension(levels, dimension);
         drilldown = matchDefault(findByName, levels, defaultLevel, true);
       }
       else {
-        drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
-        dimension = drilldown.hierarchy.dimension;
-        levels = reduceLevelsFromDimension(levels, dimension);
+        if ("defaultDimension" in initialQuery) {
+          const defaultDimension = []
+            .concat(initialQuery.defaultDimension)
+            .reverse();
+          dimension = matchDefault(findByName, dimensions, defaultDimension, true);
+          levels = reduceLevelsFromDimension(levels, dimension);
+          drilldown = matchDefault(findByName, levels, defaultLevel, true);
+        }
+        else {
+          drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
+          dimension = drilldown.hierarchy.dimension;
+          levels = reduceLevelsFromDimension(levels, dimension);
+        }
       }
     }
 
@@ -123,6 +135,7 @@ export function fetchCubes(initialQuery) {
     removeDuplicateLevels(levels);
 
     return {
+      activeType: initialQuery.enlarged || null,
       options: {cubes, measures, dimensions, drilldowns, levels},
       query: {
         cube,
