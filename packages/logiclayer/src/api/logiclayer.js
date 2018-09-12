@@ -2,6 +2,7 @@ const Sequelize = require("sequelize"),
       axios = require("axios"),
       d3Array = require("d3-array"),
       d3Collection = require("d3-collection"),
+      findYears = require("../utils/findYears"),
       multiSort = require("../utils/multiSort"),
       path = require("path"),
       yn = require("yn");
@@ -458,9 +459,11 @@ module.exports = function(app) {
 
             if (debug) console.log(`\nLogic Layer Query: ${name}`);
             if (years[name] && queryYears.length) {
-              const drill = flatDims.find(d => d.dimension === years[name].dimension);
-              queryDrilldowns.push(drill);
-              if (year !== "all") queryCuts.push([drill, queryYears]);
+              const {dimensions: drills, preferred: yearDrill} = findYears(flatDims);
+              drills.forEach(drill => {
+                queryDrilldowns.push(drill);
+                if (drill === yearDrill && year !== "all") queryCuts.push([drill, queryYears]);
+              });
             }
 
             dimSet.forEach(dim => {
