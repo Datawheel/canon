@@ -24,7 +24,9 @@ module.exports = async function() {
 
     cube.measures.forEach(measure => {
 
-      const {name} = measure;
+      const name = measure.name
+        .replace(/'/g, "\'");
+
       if (!measures[name]) measures[name] = [];
 
       const dimensions = cube.dimensions
