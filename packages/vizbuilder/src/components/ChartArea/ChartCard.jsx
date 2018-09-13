@@ -17,10 +17,7 @@ class ChartCard extends React.Component {
 
     config.data = dataset;
 
-    if (type === "lineplot" && relativeStdDev(dataset, config.y) > 1) {
-      config.yConfig.scale = "log";
-      config.yConfig.gridConfig = {"stroke-width": 0};
-    }
+    if (type === "lineplot" && relativeStdDev(dataset, config.y) > 1) config.yConfig.scale = "log";
 
     return (
       <div className="chart-card">
