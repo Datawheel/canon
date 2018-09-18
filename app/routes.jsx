@@ -19,7 +19,7 @@ function checkForId(nextState, replaceState) {
       ? `${reqestedUrl}${randId}`
       : `${reqestedUrl}/${randId}`;
 
-    replaceState(`/${nextUrl}`);
+    replaceState(`/${nextUrl}#thing?key=1`);
 
   }
 }

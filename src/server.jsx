@@ -95,7 +95,7 @@ export default function(defaultStore = {}, headerConfig) {
     match({history, routes}, (err, redirect, props) => {
 
       if (err) res.status(500).json(err);
-      else if (redirect) res.redirect(302, redirect.pathname + redirect.search);
+      else if (redirect) res.redirect(302, `${redirect.basename}${redirect.hash}${redirect.search}`);
       else if (props) {
         // This method waits for all render component
         // promises to resolve before returning to browser
