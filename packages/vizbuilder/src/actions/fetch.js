@@ -3,15 +3,12 @@ import * as api from "../helpers/api";
 import {
   findByKey,
   findByName,
+  finishBuildingStateFromParameters,
   getMeasureMOE,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns,
-  getValidMeasures,
-  matchDefault,
-  preventHierarchyIncompatibility,
-  reduceLevelsFromDimension,
-  removeDuplicateLevels
+  getValidMeasures
 } from "../helpers/sorting";
 
 /**
@@ -78,78 +75,36 @@ export function injectCubeInfoOnMeasure(cubes) {
 
 /**
  * Retrieves the cube list and prepares the initial state for the first query
- * @param {InitialQueryState} initialQuery An object with initial state parameters
+ * @param {ExternalQueryParams} params An object with initial state parameters
  */
-export function fetchCubes(initialQuery) {
+export function fetchCubes(params) {
   return api.cubes().then(cubes => {
     injectCubeInfoOnMeasure(cubes);
 
     const measures = getValidMeasures(cubes);
     const measure =
-      findByKey(initialQuery.measure, measures) ||
-      findByName(initialQuery.defaultMeasure, measures, true);
+      findByKey(params.measure, measures) ||
+      findByName(params.defaultMeasure, measures, true);
 
     const cubeName = measure.annotations._cb_name;
     const cube = cubes.find(cube => cube.name === cubeName);
-    const moe = getMeasureMOE(cube, measure);
-    const timeDrilldown = getTimeDrilldown(cube);
 
     const dimensions = getValidDimensions(cube);
     const drilldowns = getValidDrilldowns(dimensions);
 
-    let dimension;
-    // Check first for URL-based initial state
-    let drilldown = findByKey(initialQuery.level, drilldowns);
-    let levels = [];
-
-    if (drilldown) {
-      dimension = drilldown.hierarchy.dimension;
-      levels = reduceLevelsFromDimension(levels, dimension);
-    }
-    else {
-      const defaultLevel = [].concat(initialQuery.defaultLevel).reverse();
-      dimension = findByKey(initialQuery.dimension, dimensions);
-
-      if (dimension) {
-        levels = reduceLevelsFromDimension(levels, dimension);
-        drilldown = matchDefault(findByName, levels, defaultLevel, true);
-      }
-      else {
-        if ("defaultDimension" in initialQuery) {
-          const defaultDimension = []
-            .concat(initialQuery.defaultDimension)
-            .reverse();
-          dimension = matchDefault(findByName, dimensions, defaultDimension, true);
-          levels = reduceLevelsFromDimension(levels, dimension);
-          drilldown = matchDefault(findByName, levels, defaultLevel, true);
-        }
-        else {
-          drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
-          dimension = drilldown.hierarchy.dimension;
-          levels = reduceLevelsFromDimension(levels, dimension);
-        }
-      }
-    }
-
-    preventHierarchyIncompatibility(drilldowns, drilldown);
-    removeDuplicateLevels(levels);
-
-    return {
-      activeType: initialQuery.enlarged || null,
-      options: {cubes, measures, dimensions, drilldowns, levels},
+    const state = {
+      options: {cubes, measures, dimensions, drilldowns},
       query: {
         cube,
         measure,
-        moe,
-        dimension,
-        drilldown,
-        timeDrilldown,
+        moe: getMeasureMOE(cube, measure),
+        timeDrilldown: getTimeDrilldown(cube),
+        activeChart: params.enlarged || null,
         conditions: []
-      },
-      queryOptions: {
-        parents: drilldown.depth > 1
       }
     };
+
+    return finishBuildingStateFromParameters(state, params);
   });
 }
 
@@ -167,35 +122,9 @@ export function fetchMembers(level) {
  * Retrieves the dataset for the query in the current Vizbuilder state.
  */
 export function fetchQuery() {
-  const {query, queryOptions} = this.props;
+  const {query, queryOptions} = this.state;
   return api.query({
     ...query,
     options: queryOptions
   });
 }
-
-/**
- * Reconstructs the Vizbuilder options state from an earlier Vizbuilder query state.
- * @param {object} query The query object from Vizbuilder's state.
- */
-export function fetchOptionsFromState(query) {
-  return function() {
-    const dimensions = getValidDimensions(query.cube);
-    const drilldowns = getValidDrilldowns(dimensions);
-    const levels = reduceLevelsFromDimension([], query.dimension);
-
-    preventHierarchyIncompatibility(drilldowns, query.drilldown);
-    removeDuplicateLevels(levels);
-
-    return {dimensions, levels, drilldowns};
-  };
-}
-
-/**
- * @typedef {any} InitialQueryState
- * @prop {string} [defaultDimension] Initial dimension set by the user
- * @prop {string} [defaultLevel] Initial level for drilldown set by the user
- * @prop {string} [defaultMeasure] Initial measure set by the user
- * @prop {string} [ms] Initial measure key, parsed from the permalink
- * @prop {string} [dd] Initial drilldown key, parsed from the permalink
- */

@@ -3,19 +3,20 @@ import PropTypes from "prop-types";
 import classnames from "classnames";
 import {Position, Toaster} from "@blueprintjs/core";
 
-import {fetchCubes} from "./actions/fetch";
+import {fetchCubes, fetchQuery} from "./actions/fetch";
 import {loadControl, setStatePromise, mergeStates} from "./actions/loadstate";
 import ChartArea from "./components/ChartArea";
 import Sidebar from "./components/Sidebar";
-import PermalinkManager, {parsePermalink} from "./components/PermalinkManager";
+import PermalinkManager from "./components/PermalinkManager";
 import * as api from "./helpers/api";
+import {parsePermalink, permalinkToState} from "./helpers/permalink";
+import {isSameQuery} from "./helpers/validation";
 import initialState from "./state";
 
 import LoadingScreen from "components/Loading";
 
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
-import {isSameQuery} from "./helpers/validation";
 
 const UIToaster =
   typeof window !== "undefined"
@@ -46,12 +47,16 @@ class Vizbuilder extends React.PureComponent {
     };
 
     this.loadControl = loadControl.bind(this);
+    this.fetchQuery = fetchQuery.bind(this);
+
     this.firstLoad = this.firstLoad.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
+    this.handlePermalinkUpdate = this.handlePermalinkUpdate.bind(this);
   }
 
   getChildContext() {
     return {
+      fetchQuery: this.fetchQuery,
       loadControl: this.loadControl,
       stateUpdate: this.stateUpdate
     };
@@ -96,6 +101,12 @@ class Vizbuilder extends React.PureComponent {
     }
   }
 
+  handlePermalinkUpdate(location) {
+    const query = parsePermalink(location, this.permalinkKeywords);
+    const nextState = permalinkToState(this.state, query);
+    this.loadControl(() => nextState, this.fetchQuery);
+  }
+
   render() {
     const {
       config,
@@ -106,7 +117,6 @@ class Vizbuilder extends React.PureComponent {
     } = this.props;
     const {
       dataset,
-      activeType,
       load,
       members,
       options,
@@ -128,7 +138,7 @@ class Vizbuilder extends React.PureComponent {
           queryOptions={queryOptions}
         />
         <ChartArea
-          activeType={activeType}
+          activeChart={query.activeChart}
           dataset={dataset}
           formatting={formatting}
           members={members}
@@ -138,9 +148,11 @@ class Vizbuilder extends React.PureComponent {
           visualizations={visualizations}
         />
         {permalink && <PermalinkManager
-          activeType={activeType}
+          activeChart={query.activeChart}
+          href={permalink}
           keywords={this.permalinkKeywords}
           query={query}
+          onPermalinkUpdate={this.handlePermalinkUpdate}
         />}
       </div>
     );
@@ -162,6 +174,7 @@ class Vizbuilder extends React.PureComponent {
 }
 
 Vizbuilder.childContextTypes = {
+  fetchQuery: PropTypes.func,
   loadControl: PropTypes.func,
   stateUpdate: PropTypes.func
 };
@@ -187,7 +200,10 @@ Vizbuilder.propTypes = {
   // state update hook
   onChange: PropTypes.func,
   // permalink switch
-  permalink: PropTypes.bool,
+  // to make the permalink work after in subsequent changes, pass any
+  // object that reliably changes only when the url changes
+  // the ideal element is react-router's `location.search` string
+  permalink: PropTypes.any,
   // permalink keywords to parse from the url
   permalinkKeywords: PropTypes.objectOf(PropTypes.string),
   // source URL for the mondrian server

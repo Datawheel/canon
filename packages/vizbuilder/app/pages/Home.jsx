@@ -84,12 +84,13 @@ export default class Home extends React.Component {
 
   render() {
     return <Vizbuilder
-      config={DEFAULT_CONFIG}
       src={this.state.source}
-      topojson={DEFAULT_TOPOJSON}
+      config={DEFAULT_CONFIG}
       defaultDimension={["Geography", "Gender", "Age"]}
       defaultLevel={["State"]}
+      permalink={this.props.location.search}
       permalinkKeywords={DEFAULT_PERMAKEYS}
+      topojson={DEFAULT_TOPOJSON}
     />;
   }
 }

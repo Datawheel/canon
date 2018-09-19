@@ -31,7 +31,7 @@ class ChartArea extends React.Component {
     return (
       this.props.dataset !== nextProps.dataset ||
       this.props.visualizations !== nextProps.visualizations ||
-      this.props.activeType !== nextProps.activeType
+      this.props.activeChart !== nextProps.activeChart
     );
   }
 
@@ -50,17 +50,16 @@ class ChartArea extends React.Component {
   }
 
   selectChart(type) {
-    this.context
-      .stateUpdate({activeType: this.props.activeType ? null : type})
-      .then(() => {
-        requestAnimationFrame(this.dispatchResize);
-        requestAnimationFrame(this.dispatchScroll);
-      });
+    const query = {activeChart: this.props.activeChart ? null : type};
+    this.context.stateUpdate({query}).then(() => {
+      requestAnimationFrame(this.dispatchResize);
+      requestAnimationFrame(this.dispatchScroll);
+    });
   }
 
   render() {
     const {
-      activeType,
+      activeChart,
       dataset,
       formatting,
       members,
@@ -80,7 +79,7 @@ class ChartArea extends React.Component {
     }
 
     const chartConfig = createChartConfig({
-      activeType,
+      activeType: activeChart,
       formatting: {
         ...DEFAULT_FORMATTERS,
         ...formatting
@@ -95,7 +94,7 @@ class ChartArea extends React.Component {
     const chartElements = chartConfig.map(chart => (
       <ChartCard
         key={chart.type}
-        active={chart.type === activeType}
+        active={chart.type === activeChart}
         config={chart.config}
         dataset={dataset}
         onSelect={actions[chart.type]}
@@ -106,7 +105,7 @@ class ChartArea extends React.Component {
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
         <div className="wrapper">
-          <div className={`chart-wrapper ${activeType || "multi"}`}>
+          <div className={`chart-wrapper ${activeChart || "multi"}`}>
             {chartElements}
           </div>
         </div>
@@ -120,7 +119,7 @@ ChartArea.contextTypes = {
 };
 
 ChartArea.propTypes = {
-  activeType: PropTypes.string,
+  activeChart: PropTypes.string,
   dataset: PropTypes.array,
   formatting: PropTypes.objectOf(PropTypes.func),
   members: PropTypes.objectOf(PropTypes.array),
@@ -137,7 +136,7 @@ ChartArea.propTypes = {
 };
 
 ChartArea.defaultProps = {
-  activeType: null,
+  activeChart: null,
   dataset: []
 };
 

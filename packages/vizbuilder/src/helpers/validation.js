@@ -1,6 +1,19 @@
 import {SYMBOLS as OPERATOR_SYMBOLS} from "./operators";
 
 /**
+ * Checks if the dimension passed as argument is a time-type dimension.
+ * @param {Dimension} dimension A mondrian-rest-client dimension object
+ * @returns {boolean}
+ */
+export function isTimeDimension(dimension) {
+  return (
+    dimension.dimensionType === 1 ||
+    dimension.name === "Date" ||
+    dimension.name === "Year"
+  );
+}
+
+/**
  * Checks if an object can be used as a Condition
  * @param {object} condition An object to check
  */
@@ -38,11 +51,9 @@ export function isValidCut(condition) {
  */
 export function isSameQuery(query1, query2) {
   return (
-    query1.cube === query2.cube &&
+    query1.measure === query2.measure &&
     query1.dimension === query2.dimension &&
     query1.drilldown === query2.drilldown &&
-    query1.measure === query2.measure &&
-    query1.timeDrilldown === query2.timeDrilldown &&
     isSameCondition(query1.conditions, query2.conditions)
   );
 }

@@ -1,17 +1,57 @@
 import sort from "fast-sort";
 import union from "lodash/union";
 
+import {isTimeDimension} from "./validation";
+
 /**
- * Checks if the dimension passed as argument is a time-type dimension.
- * @param {Dimension} dimension A mondrian-rest-client dimension object
- * @returns {boolean}
+ * Completes the remaining items from `state` using the values from a `searchQuery` object.
+ * Gives priority to permalink keys, and if there's no matches, uses user default_ keys.
+ * @param {object} state A Vizbuilder's partial state. Requires at least the `state.query` (can be empty), `state.options.dimensions`, and `state.options.drilldowns}` objects;
+ * @param {ExternalQueryParams} params A default/permalink parameter object. `keys` map to `item.annotations._key`, `defaultKeys` map to `item.name`.
  */
-export function isTimeDimension(dimension) {
-  return (
-    dimension.dimensionType === 1 ||
-    dimension.name === "Date" ||
-    dimension.name === "Year"
-  );
+export function finishBuildingStateFromParameters(state, params) {
+  const {dimensions, drilldowns} = state.options;
+
+  let dimension, drilldown;
+  let levels = [];
+
+  drilldown = findByKey(params.level, drilldowns);
+  if (drilldown) {
+    dimension = drilldown.hierarchy.dimension;
+    levels = reduceLevelsFromDimension(levels, dimension);
+  }
+  else {
+    const defaultLevel = params.defaultLevel;
+    const defaultDimension = params.defaultDimension;
+
+    dimension = findByKey(params.dimension, dimensions);
+    if (dimension) {
+      levels = reduceLevelsFromDimension(levels, dimension);
+      drilldown = matchDefault(findByName, levels, defaultLevel, true);
+    }
+    else {
+      if (defaultDimension.length > 0) {
+        dimension = matchDefault(findByName, dimensions, defaultDimension, true);
+        levels = reduceLevelsFromDimension(levels, dimension);
+        drilldown = matchDefault(findByName, levels, defaultLevel, true);
+      }
+      else {
+        drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
+        dimension = drilldown.hierarchy.dimension;
+        levels = reduceLevelsFromDimension(levels, dimension);
+      }
+    }
+  }
+
+  preventHierarchyIncompatibility(drilldowns, drilldown);
+  removeDuplicateLevels(levels);
+
+  state.query.dimension = dimension;
+  state.query.drilldown = drilldown;
+  state.options.levels = levels;
+  state.queryOptions = {parents: drilldown.depth > 1};
+
+  return state;
 }
 
 /**
@@ -53,6 +93,7 @@ export function findByName(needle, haystack, elseFirst = false) {
 export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
   let matchResult;
   let n = defaults.length;
+  defaults = [].concat(defaults).reverse();
   while (n--) {
     const needle = defaults[n];
     matchResult = matchingFunction(needle, haystack);

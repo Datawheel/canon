@@ -11,6 +11,7 @@ export default function initialStateFactory() {
       severity: -1
     },
     query: {
+      activeChart: null,
       conditions: [],
       cube: null,
       dimension: null,
@@ -44,7 +45,6 @@ export default function initialStateFactory() {
       // All valid measures (not MoEs) from all the cubes retrieved
       measures: []
     },
-    activeType: null,
     dataset: [],
     members: {},
     meta: {}
