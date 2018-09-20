@@ -94,7 +94,12 @@ export default class Home extends React.Component {
       config={DEFAULT_CONFIG}
       defaultDimension={["Geography", "Gender", "Age"]}
       defaultLevel={["State"]}
-      permalink={this.props.location.search}
+      measureConfig={{
+        "Millions Of Dollars": {colorScaleConfig: {color: "blue"}},
+        "Opioid Overdose Death Rate Per 100,000 Age-Adjusted": {
+          colorScaleConfig: {color: "red"}
+        }
+      }}
       permalinkKeywords={DEFAULT_PERMAKEYS}
       topojson={DEFAULT_TOPOJSON}
     />;
