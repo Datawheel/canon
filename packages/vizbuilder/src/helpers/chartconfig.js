@@ -218,7 +218,7 @@ export default function createChartConfig({
   const availableCharts = new Set(activeType ? [activeType] : visualizations);
 
   const drilldownName = query.drilldown.name;
-  const timeDrilldownName = query.timeDrilldown.name;
+  const timeDrilldownName = query.timeDrilldown && query.timeDrilldown.name;
 
   const measure = query.measure;
   const measureName = measure.name;
