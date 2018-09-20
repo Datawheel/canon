@@ -76,7 +76,7 @@ class ChartArea extends React.Component {
     } = this.props;
     const {activeType} = this.state;
     const actions = this.actions;
-    console.log(this.state);
+
     if (!dataset.length) {
       return (
         <div className="area-chart empty">
