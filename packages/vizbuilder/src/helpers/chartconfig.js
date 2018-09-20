@@ -217,16 +217,17 @@ export default function createChartConfig({
   const availableKeys = Object.keys(members);
   const availableCharts = new Set(activeType ? [activeType] : visualizations);
 
-  const hasTimeDim = query.timeDrilldown && Array.isArray(members.Year);
-  const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
-
   const drilldownName = query.drilldown.name;
+  const timeDrilldownName = query.timeDrilldown.name;
 
   const measure = query.measure;
   const measureName = measure.name;
   const measureUnits = measure.annotations.units_of_measurement;
   const measureFormatter = formatting[measureUnits] || formatAbbreviate;
   const getMeasureName = d => d[measureName];
+
+  const hasTimeDim = timeDrilldownName && Array.isArray(members[timeDrilldownName]);
+  const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
 
   const aggregatorType = measure.annotations.aggregation_method || measure.aggregatorType || "UNKNOWN";
 
@@ -253,7 +254,6 @@ export default function createChartConfig({
   };
 
   if (hasTimeDim) {
-    const timeDrilldownName = query.timeDrilldown.name;
     commonConfig.time = timeDrilldownName;
   }
 

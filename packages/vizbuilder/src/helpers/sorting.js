@@ -10,7 +10,7 @@ export function isTimeDimension(dimension) {
   return (
     dimension.dimensionType === 1 ||
     dimension.name === "Date" ||
-    dimension.name === "Year"
+    dimension.name.indexOf("Year") > -1
   );
 }
 
