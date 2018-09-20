@@ -128,6 +128,8 @@ const makeConfig = {
       ...flags.chartConfig
     };
 
+    if (!flags.activeType) config.zoom = false;
+
     return config;
   },
   histogram(commonConfig, query, flags) {
