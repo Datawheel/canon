@@ -18,6 +18,12 @@ const DEFAULT_TOPOJSON = {
     topojsonId: "id",
     topojsonKey: "states"
   },
+  get "Origin State"() {
+    return this.State;
+  },
+  get "Destination State"() {
+    return this.State;
+  },
   Puma: {
     topojson: "/topojson/pumas.json",
     topojsonId: "id",

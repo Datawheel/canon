@@ -213,11 +213,12 @@ const makeConfig = {
  */
 export default function createChartConfig({
   activeType,
+  defaultConfig,
   formatting,
+  measureConfig,
   members,
   query,
   topojson,
-  userConfig,
   visualizations
 }) {
   const availableKeys = Object.keys(members);
@@ -296,12 +297,17 @@ export default function createChartConfig({
     commonConfig.total = getMeasureName;
   }
 
+  const currentMeasureConfig = measureConfig[measureName] || {};
+
   const flags = {
     activeType,
     availableKeys,
     measureFormatter,
     topojsonConfig,
-    chartConfig: userConfig || {}
+    chartConfig: {
+      ...defaultConfig,
+      ...currentMeasureConfig
+    }
   };
 
   return Array.from(
@@ -324,11 +330,12 @@ export default function createChartConfig({
 /**
  * @typedef {object} CreateChartConfigParams
  * @prop {string} activeType The currently active chart type
+ * @prop {object} defaultConfig The general config params provided by the user
  * @prop {object} formatting An object with formatting functions for measure values. Keys are the value of measure.annotations.units_of_measurement
+ * @prop {object} measureConfig The config params for specific measures provided by the user
  * @prop {object} members An object with the members in the current dataset
  * @prop {object} query The current query object from the Vizbuilder's state
  * @prop {object} topojson An object where keys are Level names and values are config params for the topojson properties
- * @prop {object} userConfig The config params provided by the user
  * @prop {string[]} visualizations An array with valid visualization names to present
  */
 

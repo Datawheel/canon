@@ -61,11 +61,12 @@ class ChartArea extends React.Component {
     const {
       activeChart,
       dataset,
+      defaultConfig,
       formatting,
+      measureConfig,
       members,
       query,
       topojson,
-      userConfig,
       visualizations
     } = this.props;
     const actions = this.actions;
@@ -80,14 +81,15 @@ class ChartArea extends React.Component {
 
     const chartConfig = createChartConfig({
       activeType: activeChart,
+      defaultConfig,
       formatting: {
         ...DEFAULT_FORMATTERS,
         ...formatting
       },
+      measureConfig,
       members,
       query,
       topojson,
-      userConfig,
       visualizations
     });
 
@@ -121,7 +123,9 @@ ChartArea.contextTypes = {
 ChartArea.propTypes = {
   activeChart: PropTypes.string,
   dataset: PropTypes.array,
+  defaultConfig: PropTypes.object,
   formatting: PropTypes.objectOf(PropTypes.func),
+  measureConfig: PropTypes.object,
   members: PropTypes.objectOf(PropTypes.array),
   query: PropTypes.object,
   topojson: PropTypes.objectOf(
@@ -131,7 +135,6 @@ ChartArea.propTypes = {
       topojsonKey: PropTypes.string
     })
   ),
-  userConfig: PropTypes.object,
   visualizations: PropTypes.arrayOf(PropTypes.string)
 };
 
