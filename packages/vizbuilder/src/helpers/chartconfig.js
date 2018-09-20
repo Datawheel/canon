@@ -268,7 +268,7 @@ export default function createChartConfig({
       availableCharts.delete("barchart");
     }
 
-    if (!hasTimeDim) {
+    if (!hasTimeDim || members[timeDrilldownName].length === 1) {
       availableCharts.delete("stacked");
       availableCharts.delete("barchartyear");
       availableCharts.delete("lineplot");
