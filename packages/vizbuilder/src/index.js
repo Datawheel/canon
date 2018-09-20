@@ -111,6 +111,7 @@ class Vizbuilder extends React.PureComponent {
     const {
       config,
       formatting,
+      measureConfig,
       permalink,
       topojson,
       visualizations
@@ -144,12 +145,13 @@ class Vizbuilder extends React.PureComponent {
           members={members}
           query={query}
           topojson={topojson}
-          userConfig={config}
+          defaultConfig={config}
+          measureConfig={measureConfig}
           visualizations={visualizations}
         />
         {permalink && <PermalinkManager
           activeChart={query.activeChart}
-          href={permalink}
+          href={permalink.search}
           keywords={this.permalinkKeywords}
           query={query}
           onPermalinkUpdate={this.handlePermalinkUpdate}
@@ -197,6 +199,8 @@ Vizbuilder.propTypes = {
   // keys are the possible values of measure.annotations.units_of_measurement
   // values are the formatting function to apply to those measures
   formatting: PropTypes.objectOf(PropTypes.func),
+  // individual measureConfigs
+  measureConfig: PropTypes.objectOf(PropTypes.object),
   // state update hook
   onChange: PropTypes.func,
   // permalink switch
