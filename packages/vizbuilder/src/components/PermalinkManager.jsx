@@ -1,12 +1,14 @@
 import React from "react";
-import {browserHistory} from "react-router";
+import PropTypes from "prop-types";
 
 class PermalinkManager extends React.PureComponent {
   componentDidUpdate(prevProps) {
+    const {router} = this.context;
     const {activeChart, href, keywords, query, onPermalinkUpdate} = this.props;
-    const newLocation = browserHistory.getCurrentLocation();
 
-    if (prevProps.href !== href) {
+    const newLocation = router.getCurrentLocation();
+
+    if (href && prevProps.href !== href) {
       newLocation.query[keywords.enlarged] = activeChart || undefined;
       onPermalinkUpdate(newLocation);
     }
@@ -19,10 +21,10 @@ class PermalinkManager extends React.PureComponent {
       };
 
       if (prevProps.activeChart !== activeChart) {
-        browserHistory.replace(newLocation);
+        router.replace(newLocation);
       }
       else {
-        browserHistory.push(newLocation);
+        router.push(newLocation);
       }
     }
   }
@@ -31,6 +33,10 @@ class PermalinkManager extends React.PureComponent {
     return null;
   }
 }
+
+PermalinkManager.contextTypes = {
+  router: PropTypes.object
+};
 
 PermalinkManager.defaultProps = {
   onPermalinkUpdate: () => null

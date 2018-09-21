@@ -108,6 +108,7 @@ class Vizbuilder extends React.PureComponent {
   }
 
   render() {
+    const {location} = this.context.router;
     const {
       config,
       formatting,
@@ -124,6 +125,8 @@ class Vizbuilder extends React.PureComponent {
       query,
       queryOptions
     } = this.state;
+
+    console.log(dataset);
 
     return (
       <div
@@ -151,7 +154,7 @@ class Vizbuilder extends React.PureComponent {
         />
         {permalink && <PermalinkManager
           activeChart={query.activeChart}
-          href={permalink.search}
+          href={location.search}
           keywords={this.permalinkKeywords}
           query={query}
           onPermalinkUpdate={this.handlePermalinkUpdate}
@@ -174,6 +177,10 @@ class Vizbuilder extends React.PureComponent {
     });
   }
 }
+
+Vizbuilder.contextTypes = {
+  router: PropTypes.object
+};
 
 Vizbuilder.childContextTypes = {
   fetchQuery: PropTypes.func,
@@ -207,7 +214,7 @@ Vizbuilder.propTypes = {
   // to make the permalink work after in subsequent changes, pass any
   // object that reliably changes only when the url changes
   // the ideal element is react-router's `location.search` string
-  permalink: PropTypes.any,
+  permalink: PropTypes.bool,
   // permalink keywords to parse from the url
   permalinkKeywords: PropTypes.objectOf(PropTypes.string),
   // source URL for the mondrian server
