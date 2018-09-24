@@ -113,9 +113,7 @@ export function fetchCubes(params) {
  * @param {Level} level A mondrian-rest-client Level object
  */
 export function fetchMembers(level) {
-  this.setState({loading: true, members: []}, () =>
-    api.members(level).then(members => this.setState({loading: false, members}))
-  );
+  return api.members(level);
 }
 
 /**
