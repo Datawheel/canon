@@ -24,20 +24,13 @@ const UIToaster =
     : null;
 
 class Vizbuilder extends React.PureComponent {
-  constructor(props) {
+  constructor(props, ctx) {
     super(props);
 
     api.resetClient(props.src);
     this.state = initialState();
-    this.queryHistory = [];
 
-    this.defaultQuery = {
-      defaultMeasure: props.defaultMeasure,
-      defaultDimension: props.defaultDimension,
-      defaultLevel: props.defaultLevel
-    };
-
-    this.permalinkKeywords = {
+    const permalinkKeywords = {
       dimension: "dimension",
       enlarged: "enlarged",
       filters: "filters",
@@ -45,6 +38,27 @@ class Vizbuilder extends React.PureComponent {
       measure: "measure",
       ...props.permalinkKeywords
     };
+
+    const defaultQuery = {
+      defaultMeasure: props.defaultMeasure,
+      defaultDimension: props.defaultDimension,
+      defaultLevel: props.defaultLevel
+    };
+
+    let initialStatePromise = fetchCubes.call(this, defaultQuery);
+
+    if (props.permalink) {
+      parsePermalink(permalinkKeywords, ctx.router.location, defaultQuery);
+      initialStatePromise = initialStatePromise.then(state =>
+        permalinkToState(state, defaultQuery)
+      );
+    }
+
+    this.initialStatePromise = initialStatePromise;
+
+    this.defaultQuery = defaultQuery;
+    this.permalinkKeywords = permalinkKeywords;
+    this.queryHistory = [];
 
     this.loadControl = loadControl.bind(this);
     this.fetchQuery = fetchQuery.bind(this);
@@ -61,16 +75,10 @@ class Vizbuilder extends React.PureComponent {
   }
 
   componentDidMount() {
-    if (this.props.permalink) {
-      this.defaultQuery = parsePermalink(
-        this.permalinkKeywords,
-        this.context.router.location,
-        this.defaultQuery
-      );
+    const initialStatePromise = this.initialStatePromise;
+    delete this.initialStatePromise;
+    this.loadControl(() => initialStatePromise, this.fetchQuery);
     }
-
-    this.loadControl(fetchCubes.bind(this, this.defaultQuery), this.fetchQuery);
-  }
 
   componentDidUpdate(prevProps, prevState) {
     const {onChange} = this.props;

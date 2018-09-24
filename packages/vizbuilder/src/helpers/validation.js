@@ -52,12 +52,12 @@ export function isValidCut(condition) {
  */
 export function isSamePermalinkQuery(keywords, query1, query2) {
   return (
-    query1[keywords.dimension] == query2[keywords.dimension] &&
-    query1[keywords.level] == query2[keywords.level] &&
-    query1[keywords.measure] == query2[keywords.measure] &&
+    query1[keywords.measure] === query2[keywords.measure] &&
+    query1[keywords.dimension] === query2[keywords.dimension] &&
+    query1[keywords.level] === query2[keywords.level] &&
     isSameArrayShallow(
-      [].concat(query1[keywords.filters]),
-      [].concat(query2[keywords.filters])
+      [].concat(query1[keywords.filters] || []),
+      [].concat(query2[keywords.filters] || [])
     )
   );
 }

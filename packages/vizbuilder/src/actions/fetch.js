@@ -1,7 +1,6 @@
 import {unique} from "shorthash";
 import * as api from "../helpers/api";
 import {
-  findByKey,
   findByName,
   finishBuildingStateFromParameters,
   getMeasureMOE,
@@ -82,9 +81,7 @@ export function fetchCubes(params) {
     injectCubeInfoOnMeasure(cubes);
 
     const measures = getValidMeasures(cubes);
-    const measure =
-      findByKey(params.measure, measures) ||
-      findByName(params.defaultMeasure, measures, true);
+    const measure = findByName(params.defaultMeasure, measures, true);
 
     const cubeName = measure.annotations._cb_name;
     const cube = cubes.find(cube => cube.name === cubeName);
