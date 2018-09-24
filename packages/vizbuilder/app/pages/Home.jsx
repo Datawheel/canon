@@ -60,6 +60,7 @@ const DEFAULT_PERMAKEYS = {
   measure: "msr",
   dimension: "dim",
   level: "lvl",
+  filters: "fil",
   enlarged: "show"
 };
 
