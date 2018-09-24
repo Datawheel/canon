@@ -48,8 +48,6 @@ class Vizbuilder extends React.PureComponent {
 
     this.loadControl = loadControl.bind(this);
     this.fetchQuery = fetchQuery.bind(this);
-
-    this.firstLoad = this.firstLoad.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
     this.handlePermalinkUpdate = this.handlePermalinkUpdate.bind(this);
   }
@@ -71,18 +69,13 @@ class Vizbuilder extends React.PureComponent {
       );
     }
 
-    this.firstLoad(this.defaultQuery);
+    this.loadControl(fetchCubes.bind(this, this.defaultQuery), this.fetchQuery);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const {src, onChange} = this.props;
+    const {onChange} = this.props;
     const {load, query} = this.state;
     const {error} = load;
-
-    if (src && prevProps.src !== src) {
-      api.resetClient(src);
-      this.setState(initialState(), this.firstLoad);
-    }
 
     if (error && prevState.load.error !== error) {
       console.warn(error.stack);
@@ -165,16 +158,6 @@ class Vizbuilder extends React.PureComponent {
 
   stateUpdate(newState) {
     return setStatePromise.call(this, state => mergeStates(state, newState));
-  }
-
-  firstLoad(initialQuery) {
-    this.loadControl(fetchCubes.bind(this, initialQuery), () => {
-      const {query, queryOptions} = this.state;
-      return api.query({
-        ...query,
-        options: queryOptions
-      });
-    });
   }
 }
 
