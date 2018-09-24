@@ -7,6 +7,7 @@ import {
   findByName,
   finishBuildingStateFromParameters,
   getMeasureMOE,
+  getMeasureSource,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns
@@ -68,6 +69,7 @@ export function permalinkToState(prevState, queryParams) {
 
   const dimensions = getValidDimensions(cube);
   const drilldowns = getValidDrilldowns(dimensions);
+  const sources = getMeasureSource(cube, measure);
 
   const nextState = finishBuildingStateFromParameters(
     mergeStates(prevState, {
@@ -77,6 +79,8 @@ export function permalinkToState(prevState, queryParams) {
         cube,
         measure,
         moe: getMeasureMOE(cube, measure),
+        collection: sources.collectionMeasure,
+        source: sources.sourceMeasure,
         timeDrilldown: getTimeDrilldown(cube)
       },
       options: {dimensions, drilldowns}

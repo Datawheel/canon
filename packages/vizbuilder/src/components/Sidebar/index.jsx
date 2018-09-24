@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import {
   findByName,
   getMeasureMOE,
+  getMeasureSource,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns,
@@ -87,6 +88,7 @@ class Sidebar extends React.PureComponent {
 
       const dimensions = getValidDimensions(cube);
       const drilldowns = getValidDrilldowns(dimensions);
+      const sources = getMeasureSource(cube, measure);
 
       const state = {
         options: {dimensions, drilldowns},
@@ -94,6 +96,8 @@ class Sidebar extends React.PureComponent {
           cube,
           measure,
           moe: getMeasureMOE(cube, measure),
+          collection: sources.collectionMeasure,
+          source: sources.sourceMeasure,
           timeDrilldown: getTimeDrilldown(cube)
         }
       };
