@@ -7,7 +7,8 @@ import {
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns,
-  getValidMeasures
+  getValidMeasures,
+  getMeasureSource
 } from "../helpers/sorting";
 
 /**
@@ -88,6 +89,7 @@ export function fetchCubes(params) {
 
     const dimensions = getValidDimensions(cube);
     const drilldowns = getValidDrilldowns(dimensions);
+    const sources = getMeasureSource(cube, measure);
 
     const state = {
       options: {cubes, measures, dimensions, drilldowns},
@@ -95,6 +97,8 @@ export function fetchCubes(params) {
         cube,
         measure,
         moe: getMeasureMOE(cube, measure),
+        collection: sources.collectionMeasure,
+        source: sources.sourceMeasure,
         timeDrilldown: getTimeDrilldown(cube),
         activeChart: params.enlarged || null,
         conditions: []

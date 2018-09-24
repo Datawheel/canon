@@ -18,6 +18,8 @@ export default function initialStateFactory() {
       drilldown: null,
       measure: null,
       moe: null,
+      source: null, 
+      collection: null, 
       limit: undefined,
       locale: "en",
       offset: undefined,
