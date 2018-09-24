@@ -65,8 +65,8 @@ class Vizbuilder extends React.PureComponent {
   componentDidMount() {
     if (this.props.permalink) {
       this.defaultQuery = parsePermalink(
-        window.location,
         this.permalinkKeywords,
+        this.context.router.location,
         this.defaultQuery
       );
     }
@@ -102,7 +102,7 @@ class Vizbuilder extends React.PureComponent {
   }
 
   handlePermalinkUpdate(location) {
-    const query = parsePermalink(location, this.permalinkKeywords);
+    const query = parsePermalink(this.permalinkKeywords, location);
     const nextState = permalinkToState(this.state, query);
     this.loadControl(() => nextState, this.fetchQuery);
   }

@@ -45,6 +45,26 @@ export function isValidCut(condition) {
 }
 
 /**
+ *
+ * @param {PermalinkKeywordMap} keywords A map with the parameter keys to parse from the location search
+ * @param {object} query1 A parsed query object from current's `location.search` parameters
+ * @param {object} query2 A parsed query object from current's `location.search` parameters
+ */
+export function isSamePermalinkQuery(keywords, query1, query2) {
+  const emptyArray = [];
+  return (
+    query1[keywords.dimension] == query2[keywords.dimension] &&
+    query1[keywords.enlarged] == query2[keywords.enlarged] &&
+    query1[keywords.level] == query2[keywords.level] &&
+    query1[keywords.measure] == query2[keywords.measure] &&
+    isSameArrayShallow(
+      query1[keywords.filters] || emptyArray,
+      query2[keywords.filters] || emptyArray
+    )
+  );
+}
+
+/**
  * Compares two Vizbuilder's query state object to check if it contains the same parameters.
  * @param {object} query1 A query object from Vizbuilder's state
  * @param {object} query2 A query object from Vizbuilder's state
