@@ -66,7 +66,7 @@ export function injectCubeInfoOnMeasure(cubes) {
         while (nLvl--) {
           const level = hierarchy.levels[nLvl];
 
-          level.annotations._key = unique(keyPrefix + level.name);
+          level.annotations._key = unique(`${keyPrefix} ${hierarchy.name} ${level.name}`);
         }
       }
     }
