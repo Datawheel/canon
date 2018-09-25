@@ -27,7 +27,7 @@ MeasureSelect.defaultProps = {
     query = query.replace(/\s+/g, ".+");
     const queryTester = RegExp(query || ".", "i");
     return items.filter(item =>
-      queryTester.test(item.annotations._selectorKey)
+      queryTester.test(item.annotations._searchIndex)
     );
   },
   itemListComposer(items) {

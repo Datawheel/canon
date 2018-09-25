@@ -140,7 +140,7 @@ export function getValidMeasures(cubes) {
     }
   }
 
-  const sortingFunction = a => a.annotations._selectorKey;
+  const sortingFunction = a => a.annotations._sortKey;
   const sortedMeasures = sort(measures).asc(sortingFunction);
   const sortedOther = sort(otherMeasures).asc(sortingFunction);
 
