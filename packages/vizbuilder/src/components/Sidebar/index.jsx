@@ -16,7 +16,7 @@ import {
   finishBuildingStateFromParameters
 } from "../../helpers/sorting";
 
-import BaseSelect from "./BaseSelect";
+import CommonSelect from "./CommonSelect";
 import ConditionalAnchor from "./ConditionalAnchor";
 import ConditionManager from "./ConditionManager";
 import LevelSelect from "./LevelSelect";
@@ -145,7 +145,7 @@ class Sidebar extends React.PureComponent {
           <div className="control">
             <div className="control select-dimension">
               <p className="label">Grouped by</p>
-              <BaseSelect
+              <CommonSelect
                 className="custom-select"
                 filterable={false}
                 items={options.dimensions}

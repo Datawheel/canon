@@ -65,7 +65,7 @@ MeasureSelect.defaultProps = {
     const className = [];
 
     if (!item._level) {
-      className.push("select-option");
+      className.push("select-option", "level-last");
       props.onClick = handleClick;
       child2 =
         <span className="select-label lead">
