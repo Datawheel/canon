@@ -1,17 +1,18 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import {fetchQuery} from "../../actions/fetch";
 import {
   findByName,
   getMeasureMOE,
+  getMeasureSource,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns,
   matchDefault,
   preventHierarchyIncompatibility,
   reduceLevelsFromDimension,
-  removeDuplicateLevels
+  removeDuplicateLevels,
+  finishBuildingStateFromParameters
 } from "../../helpers/sorting";
 
 import ConditionManager from "./ConditionManager";
@@ -26,7 +27,6 @@ class Sidebar extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    this.fetchQuery = fetchQuery.bind(this);
     this.setDimension = this.setDimension.bind(this);
     this.setDrilldown = this.setDrilldown.bind(this);
     this.setMeasure = this.setMeasure.bind(this);
@@ -34,7 +34,7 @@ class Sidebar extends React.PureComponent {
 
   setDimension(dimension) {
     const {dimensions} = this.props.options;
-    const {loadControl} = this.context;
+    const {loadControl, fetchQuery} = this.context;
     const {defaultQuery = []} = this.props;
     const defaultLevel = [].concat(defaultQuery.defaultLevel).reverse();
 
@@ -53,12 +53,12 @@ class Sidebar extends React.PureComponent {
           parents: drilldown.depth > 1
         }
       };
-    }, this.fetchQuery);
+    }, fetchQuery);
   }
 
   setDrilldown(drilldown) {
     const {dimensions, levels} = this.props.options;
-    const {loadControl} = this.context;
+    const {loadControl, fetchQuery} = this.context;
 
     if (levels.indexOf(drilldown) > -1) {
       return loadControl(() => {
@@ -72,7 +72,7 @@ class Sidebar extends React.PureComponent {
             parents: drilldown.depth > 1
           }
         };
-      }, this.fetchQuery);
+      }, fetchQuery);
     }
 
     return undefined;
@@ -80,53 +80,34 @@ class Sidebar extends React.PureComponent {
 
   setMeasure(measure) {
     const {defaultQuery, options, query} = this.props;
-    const {loadControl} = this.context;
+    const {loadControl, fetchQuery} = this.context;
 
     return loadControl(() => {
       const cubeName = measure.annotations._cb_name;
       const cube = options.cubes.find(cube => cube.name === cubeName);
-      const moe = getMeasureMOE(cube, measure);
-      const timeDrilldown = getTimeDrilldown(cube);
 
       const dimensions = getValidDimensions(cube);
       const drilldowns = getValidDrilldowns(dimensions);
+      const sources = getMeasureSource(cube, measure);
 
-      let dimension, drilldown, levels = [];
-      const defaultLevel = [].concat(defaultQuery.defaultLevel).reverse();
-
-      if ("defaultDimension" in defaultQuery) {
-        const defaultDimension = [].concat(defaultQuery.defaultDimension).reverse();
-        dimension = matchDefault(findByName, dimensions, defaultDimension, true);
-        levels = reduceLevelsFromDimension(levels, dimension);
-        drilldown = matchDefault(findByName, levels, defaultLevel, true);
-      }
-      else {
-        drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
-        dimension = drilldown.hierarchy.dimension;
-        levels = reduceLevelsFromDimension(levels, dimension);
-      }
-
-      preventHierarchyIncompatibility(drilldowns, drilldown);
-      removeDuplicateLevels(levels);
-
-      const conditions = query.cube === cube ? query.conditions : [];
-
-      return {
-        options: {dimensions, drilldowns, levels},
+      const state = {
+        options: {dimensions, drilldowns},
         query: {
           cube,
           measure,
-          moe,
-          dimension,
-          drilldown,
-          timeDrilldown,
-          conditions
-        },
-        queryOptions: {
-          parents: drilldown.depth > 1
+          moe: getMeasureMOE(cube, measure),
+          collection: sources.collectionMeasure,
+          source: sources.sourceMeasure,
+          timeDrilldown: getTimeDrilldown(cube)
         }
       };
-    }, this.fetchQuery);
+
+      if (query.cube !== cube) {
+        state.query.conditions = [];
+      }
+
+      return finishBuildingStateFromParameters(state, defaultQuery);
+    }, fetchQuery);
   }
 
   render() {
@@ -210,6 +191,7 @@ class Sidebar extends React.PureComponent {
 }
 
 Sidebar.contextTypes = {
+  fetchQuery: PropTypes.func,
   loadControl: PropTypes.func
 };
 

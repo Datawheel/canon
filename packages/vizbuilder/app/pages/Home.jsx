@@ -18,6 +18,12 @@ const DEFAULT_TOPOJSON = {
     topojsonId: "id",
     topojsonKey: "states"
   },
+  get "Origin State"() {
+    return this.State;
+  },
+  get "Destination State"() {
+    return this.State;
+  },
   Puma: {
     topojson: "/topojson/pumas.json",
     topojsonId: "id",
@@ -50,6 +56,14 @@ const DEFAULT_CONFIG = {
   zoomFactor: 2
 };
 
+const DEFAULT_PERMAKEYS = {
+  measure: "msr",
+  dimension: "dim",
+  level: "lvl",
+  filters: "fil",
+  enlarged: "show"
+};
+
 export default class Home extends React.Component {
   constructor(props) {
     super(props);
@@ -77,11 +91,18 @@ export default class Home extends React.Component {
 
   render() {
     return <Vizbuilder
-      config={DEFAULT_CONFIG}
       src={this.state.source}
-      topojson={DEFAULT_TOPOJSON}
+      config={DEFAULT_CONFIG}
       defaultDimension={["Geography", "Gender", "Age"]}
       defaultLevel={["State"]}
+      measureConfig={{
+        "Millions Of Dollars": {colorScaleConfig: {color: "blue"}},
+        "Opioid Overdose Death Rate Per 100,000 Age-Adjusted": {
+          colorScaleConfig: {color: "red"}
+        }
+      }}
+      permalinkKeywords={DEFAULT_PERMAKEYS}
+      topojson={DEFAULT_TOPOJSON}
     />;
   }
 }

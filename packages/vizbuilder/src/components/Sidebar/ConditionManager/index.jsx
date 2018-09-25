@@ -4,7 +4,6 @@ import {Button} from "@blueprintjs/core";
 import classNames from "classnames";
 import {uuid} from "d3plus-common";
 
-import {fetchQuery} from "../../../actions/fetch";
 import OPERATORS from "../../../helpers/operators";
 
 import ConditionItem from "./ConditionItem";
@@ -15,7 +14,6 @@ class ConditionManager extends React.Component {
   constructor(props) {
     super(props);
 
-    this.fetchQuery = fetchQuery.bind(this);
     this.addCondition = this.addCondition.bind(this);
     this.updateCondition = this.updateCondition.bind(this);
     this.removeCondition = this.removeCondition.bind(this);
@@ -37,7 +35,7 @@ class ConditionManager extends React.Component {
 
   updateCondition(condition) {
     const {conditions} = this.props.query;
-    const {loadControl} = this.context;
+    const {loadControl, fetchQuery} = this.context;
 
     const index = conditions.findIndex(cond => cond.hash === condition.hash);
 
@@ -46,18 +44,18 @@ class ConditionManager extends React.Component {
         const newConditions = conditions.slice();
         newConditions.splice(index, 1, condition);
         return {query: {conditions: newConditions}};
-      }, this.fetchQuery);
+      }, fetchQuery);
     }
   }
 
   removeCondition(condition) {
     const {conditions} = this.props.query;
-    const {loadControl} = this.context;
+    const {loadControl, fetchQuery} = this.context;
 
     const newConditions = conditions.filter(cond => cond.hash !== condition.hash);
 
     if (newConditions.length < conditions.length) {
-      loadControl(() => ({query: {conditions: newConditions}}), this.fetchQuery);
+      loadControl(() => ({query: {conditions: newConditions}}), fetchQuery);
     }
   }
 
@@ -93,6 +91,7 @@ class ConditionManager extends React.Component {
 }
 
 ConditionManager.contextTypes = {
+  fetchQuery: PropTypes.func,
   loadControl: PropTypes.func,
   stateUpdate: PropTypes.func
 };

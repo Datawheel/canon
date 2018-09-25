@@ -1,17 +1,57 @@
 import sort from "fast-sort";
 import union from "lodash/union";
 
+import {isTimeDimension} from "./validation";
+
 /**
- * Checks if the dimension passed as argument is a time-type dimension.
- * @param {Dimension} dimension A mondrian-rest-client dimension object
- * @returns {boolean}
+ * Completes the remaining items from `state` using the values from a `searchQuery` object.
+ * Gives priority to permalink keys, and if there's no matches, uses user default_ keys.
+ * @param {object} state A Vizbuilder's partial state. Requires at least the `state.query` (can be empty), `state.options.dimensions`, and `state.options.drilldowns}` objects;
+ * @param {ExternalQueryParams} params A default/permalink parameter object. `keys` map to `item.annotations._key`, `defaultKeys` map to `item.name`.
  */
-export function isTimeDimension(dimension) {
-  return (
-    dimension.dimensionType === 1 ||
-    dimension.name === "Date" ||
-    dimension.name.indexOf("Year") > -1
-  );
+export function finishBuildingStateFromParameters(state, params) {
+  const {dimensions, drilldowns} = state.options;
+
+  let dimension, drilldown;
+  let levels = [];
+
+  drilldown = findByKey(params.level, drilldowns);
+  if (drilldown) {
+    dimension = drilldown.hierarchy.dimension;
+    levels = reduceLevelsFromDimension(levels, dimension);
+  }
+  else {
+    const defaultLevel = params.defaultLevel;
+    const defaultDimension = params.defaultDimension;
+
+    dimension = findByKey(params.dimension, dimensions);
+    if (dimension) {
+      levels = reduceLevelsFromDimension(levels, dimension);
+      drilldown = matchDefault(findByName, levels, defaultLevel, true);
+    }
+    else {
+      if (defaultDimension.length > 0) {
+        dimension = matchDefault(findByName, dimensions, defaultDimension, true);
+        levels = reduceLevelsFromDimension(levels, dimension);
+        drilldown = matchDefault(findByName, levels, defaultLevel, true);
+      }
+      else {
+        drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
+        dimension = drilldown.hierarchy.dimension;
+        levels = reduceLevelsFromDimension(levels, dimension);
+      }
+    }
+  }
+
+  preventHierarchyIncompatibility(drilldowns, drilldown);
+  removeDuplicateLevels(levels);
+
+  state.query.dimension = dimension;
+  state.query.drilldown = drilldown;
+  state.options.levels = levels;
+  state.queryOptions = {parents: drilldown.depth > 1};
+
+  return state;
 }
 
 /**
@@ -53,9 +93,11 @@ export function findByName(needle, haystack, elseFirst = false) {
 export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
   let matchResult;
   let n = defaults.length;
+  defaults = [].concat(defaults).reverse();
   while (n--) {
     const needle = defaults[n];
-    if (matchResult = matchingFunction(needle, haystack)) {
+    matchResult = matchingFunction(needle, haystack);
+    if (matchResult) {
       break;
     }
   }
@@ -123,6 +165,37 @@ export function getMeasureMOE(cube, measure) {
 }
 
 /**
+ * Returns the source measure for a certain measure, in the full measure list
+ * from the cube. If there's no source for the measure, returns undefined.
+ * @param {Cube} cube The measure's parent cube
+ * @param {*} measure The measure
+ * @returns {Measure|undefined}
+ */
+export function getMeasureSource(cube, measure) {
+  let collectionMeasure, sourceMeasure;
+  const measureName = RegExp(measure.name, "i");
+
+  if (cube.measures.indexOf(measure) > -1) {
+    let nMsr = cube.measures.length;
+    while (nMsr--) {
+      const currentMeasure = cube.measures[nMsr];
+
+      const collectionKey = currentMeasure.annotations.collection_for_measure,
+            sourceKey = currentMeasure.annotations.source_for_measure;
+
+      if (!sourceMeasure && sourceKey && measureName.test(sourceKey)) {
+        sourceMeasure = currentMeasure;
+      }
+      if (!collectionMeasure && collectionKey && measureName.test(collectionKey)) {
+        collectionMeasure = currentMeasure;
+      }
+    }
+  }
+
+  return {collectionMeasure, sourceMeasure};
+}
+
+/**
  * Returns an array with non-time dimensions from a cube.
  * @param {Cube} cube The cube where the dimensions will be reduced from
  * @returns {Dimension[]}
@@ -153,10 +226,7 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
   let n = array.length;
   while (n--) {
     const level = array[n];
-    if (
-      level.hierarchy !== interestHierarchy ||
-      (level.hierarchy === interestHierarchy && level.depth > interestLevel.depth)
-    ) {
+    if (level.hierarchy !== interestHierarchy || level.depth > interestLevel.depth) {
       array.splice(n, 1);
     }
   }

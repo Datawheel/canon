@@ -17,14 +17,14 @@ class FilterItemLevel extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.fetchMembers.call(this, this.props.property);
+    this.updateMembers.call(this, this.props.property);
   }
 
   componentDidUpdate(prevProps) {
     const {property} = this.props;
 
     if (prevProps.property !== property) {
-      this.fetchMembers.call(this, property);
+      this.updateMembers.call(this, property);
     }
   }
 
@@ -64,9 +64,9 @@ class FilterItemLevel extends React.PureComponent {
     );
   }
 
-  fetchMembers(level) {
+  updateMembers(property) {
     this.setState({loading: true, members: []}, () =>
-      fetchMembers(level).then(members =>
+      fetchMembers(property).then(members =>
         this.setState({loading: false, members})
       )
     );

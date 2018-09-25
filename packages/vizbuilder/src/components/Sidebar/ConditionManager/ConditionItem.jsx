@@ -13,7 +13,7 @@ class ConditionItem extends React.PureComponent {
     super(props);
 
     this.state = {
-      isOpen: true,
+      isOpen: !props.property,
       diff: {}
     };
 

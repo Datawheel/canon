@@ -38,14 +38,10 @@ export function loadControl() {
 
   for (let i = 0; i < total; i++) {
     promise = promise.then(funcs[i]).then(newState =>
-      setStatePromise.call(this, currentState =>
-        mergeStates(currentState, {
-          ...newState,
-          load: {
-            done: currentState.load.done + 1
-          }
-        })
-      )
+      setStatePromise.call(this, currentState => {
+        newState.load = {done: currentState.load.done + 1};
+        return mergeStates(currentState, newState);
+      })
     );
   }
 

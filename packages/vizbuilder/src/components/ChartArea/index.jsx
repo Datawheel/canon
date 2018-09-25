@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {NonIdealState} from "@blueprintjs/core";
 import {formatAbbreviate} from "d3plus-format";
 
@@ -15,10 +16,6 @@ class ChartArea extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      activeType: null
-    };
-
     this.actions = Object.keys(charts).reduce((box, type) => {
       box[type] = this.selectChart.bind(this, type);
       return box;
@@ -30,11 +27,11 @@ class ChartArea extends React.Component {
     this.scrollEnsure = this.scrollEnsure.bind(this);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     return (
       this.props.dataset !== nextProps.dataset ||
       this.props.visualizations !== nextProps.visualizations ||
-      this.state.activeType !== nextState.activeType
+      this.props.activeChart !== nextProps.activeChart
     );
   }
 
@@ -53,28 +50,25 @@ class ChartArea extends React.Component {
   }
 
   selectChart(type) {
-    this.setState(
-      state => ({
-        activeType: !state.activeType ? type : null
-      }),
-      () => {
-        requestAnimationFrame(this.dispatchResize);
-        requestAnimationFrame(this.dispatchScroll);
-      }
-    );
+    const query = {activeChart: this.props.activeChart ? null : type};
+    this.context.stateUpdate({query}).then(() => {
+      requestAnimationFrame(this.dispatchResize);
+      requestAnimationFrame(this.dispatchScroll);
+    });
   }
 
   render() {
     const {
+      activeChart,
       dataset,
+      defaultConfig,
       formatting,
+      measureConfig,
       members,
       query,
       topojson,
-      userConfig,
       visualizations
     } = this.props;
-    const {activeType} = this.state;
     const actions = this.actions;
 
     if (!dataset.length) {
@@ -86,33 +80,34 @@ class ChartArea extends React.Component {
     }
 
     const chartConfig = createChartConfig({
-      activeType,
+      activeType: activeChart,
+      defaultConfig,
       formatting: {
         ...DEFAULT_FORMATTERS,
         ...formatting
       },
+      measureConfig,
       members,
       query,
       topojson,
-      userConfig,
       visualizations
     });
 
-    const chartElements = chartConfig.map(chart =>
+    const chartElements = chartConfig.map(chart => (
       <ChartCard
         key={chart.type}
-        active={chart.type === activeType}
+        active={chart.type === activeChart}
         config={chart.config}
         dataset={dataset}
         onSelect={actions[chart.type]}
         type={chart.type}
       />
-    );
+    ));
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
         <div className="wrapper">
-          <div className={`chart-wrapper ${activeType || "multi"}`}>
+          <div className={`chart-wrapper ${activeChart || "multi"}`}>
             {chartElements}
           </div>
         </div>
@@ -120,5 +115,32 @@ class ChartArea extends React.Component {
     );
   }
 }
+
+ChartArea.contextTypes = {
+  stateUpdate: PropTypes.func
+};
+
+ChartArea.propTypes = {
+  activeChart: PropTypes.string,
+  dataset: PropTypes.array,
+  defaultConfig: PropTypes.object,
+  formatting: PropTypes.objectOf(PropTypes.func),
+  measureConfig: PropTypes.object,
+  members: PropTypes.objectOf(PropTypes.array),
+  query: PropTypes.object,
+  topojson: PropTypes.objectOf(
+    PropTypes.shape({
+      topojson: PropTypes.string.isRequired,
+      topojsonId: PropTypes.string,
+      topojsonKey: PropTypes.string
+    })
+  ),
+  visualizations: PropTypes.arrayOf(PropTypes.string)
+};
+
+ChartArea.defaultProps = {
+  activeChart: null,
+  dataset: []
+};
 
 export default ChartArea;
