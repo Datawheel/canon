@@ -12,3 +12,11 @@
 .mlsel-filter-group + .mlsel-select-list {
   padding-top: 5px;
 }
+
+.mlsel-select-list {
+  & .select-option {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
