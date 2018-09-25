@@ -34,7 +34,16 @@ export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
       "Margin of Error",
       d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
     ]);
+  } 
+  else if (lci && uci) {
+    const lciName = lci.name;
+    const uciName = uci.name;
+    tbody.push([
+      "Confidence Interval",
+      d => `[${measureFormatter(d[lciName])}, ${measureFormatter(d[uciName])}]`
+    ]);
   }
+
   if (source) {
     const sourceName = source.name;
     tbody.push([
