@@ -25,7 +25,7 @@ export const charts = {
 export const ALL_YEARS = "All years";
 
 export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
-  const {drilldownName, measureName, moe} = query;
+  const {drilldownName, measureName, moe, source, collection} = query;
   const tbody = drilldowns.filter(d => d !== drilldownName).map(dd => [dd, d => d[dd]]);
   tbody.push([measureName, d => measureFormatter(d[measureName])]);
   if (moe) {
@@ -33,6 +33,20 @@ export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
     tbody.push([
       "Margin of Error",
       d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
+    ]);
+  }
+  if (source) {
+    const sourceName = source.name;
+    tbody.push([
+      "Source",
+      d => `${d[sourceName]}`
+    ]);
+  }
+  if (collection) {
+    const collectionData = collection.name;
+    tbody.push([
+      "Collection",
+      d => `${d[collectionData]}`
     ]);
   }
   return {
