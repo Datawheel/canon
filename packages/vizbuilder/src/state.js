@@ -20,20 +20,17 @@ export default function initialStateFactory() {
       moe: null,
       source: null, 
       collection: null, 
+      timeDrilldown: null,
       limit: undefined,
       locale: "en",
       offset: undefined,
       order: undefined,
       orderDesc: undefined,
-      timeDrilldown: null
-    },
-    // This object is later combined into `query` as part of the query building
-    queryOptions: {
-      nonempty: true,
-      distinct: false,
-      parents: false,
-      debug: false,
-      sparse: true
+      optionsNonempty: true,
+      optionsDistinct: false,
+      optionsParents: false,
+      optionsDebug: false,
+      optionsSparse: true
     },
     options: {
       // All cubes retrieved initially

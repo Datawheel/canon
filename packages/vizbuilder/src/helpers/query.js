@@ -75,7 +75,13 @@ export function queryConverter(params) {
     offset: undefined,
     order: undefined,
     orderDesc: undefined,
-    options: params.options,
+    options: {
+      nonempty: params.optionsNonempty,
+      distinct: params.optionsDistinct,
+      parents: params.optionsParents,
+      debug: params.optionsDebug,
+      sparse: params.optionsSparse
+    },
     locale: "en"
   };
 

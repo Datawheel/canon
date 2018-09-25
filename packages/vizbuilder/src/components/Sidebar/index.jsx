@@ -48,10 +48,7 @@ class Sidebar extends React.PureComponent {
 
       return {
         options: {drilldowns, levels},
-        query: {dimension, drilldown},
-        queryOptions: {
-          parents: drilldown.depth > 1
-        }
+        query: {dimension, drilldown, optionsParents: drilldown.depth > 1}
       };
     }, fetchQuery);
   }
@@ -67,10 +64,7 @@ class Sidebar extends React.PureComponent {
 
         return {
           options: {drilldowns},
-          query: {drilldown},
-          queryOptions: {
-            parents: drilldown.depth > 1
-          }
+          query: {drilldown, optionsParents: drilldown.depth > 1}
         };
       }, fetchQuery);
     }

@@ -121,9 +121,5 @@ export function fetchMembers(level) {
  * Retrieves the dataset for the query in the current Vizbuilder state.
  */
 export function fetchQuery() {
-  const {query, queryOptions} = this.state;
-  return api.query({
-    ...query,
-    options: queryOptions
-  });
+  return api.query(this.state.query);
 }

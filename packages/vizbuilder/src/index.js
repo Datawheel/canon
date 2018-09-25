@@ -112,7 +112,7 @@ class Vizbuilder extends React.PureComponent {
       topojson,
       visualizations
     } = this.props;
-    const {dataset, load, members, options, query, queryOptions} = this.state;
+    const {dataset, load, members, options, query} = this.state;
 
     return (
       <div
@@ -125,7 +125,6 @@ class Vizbuilder extends React.PureComponent {
           defaultQuery={this.defaultQuery}
           options={options}
           query={query}
-          queryOptions={queryOptions}
         />
         <ChartArea
           activeChart={query.activeChart}

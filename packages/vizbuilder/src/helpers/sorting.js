@@ -51,8 +51,8 @@ export function finishBuildingStateFromParameters(state, params) {
 
   state.query.dimension = dimension;
   state.query.drilldown = drilldown;
+  state.query.optionsParents = drilldown.depth > 1;
   state.options.levels = levels;
-  state.queryOptions = {parents: drilldown.depth > 1};
 
   return state;
 }
