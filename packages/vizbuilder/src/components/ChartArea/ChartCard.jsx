@@ -19,7 +19,7 @@ class ChartCard extends React.Component {
 
     if (type === "lineplot" && relativeStdDev(dataset, config.y) > 1) {
       config.yConfig.scale = "log";
-      config.yConfig.title = `Log ${config.yConfig.title}`;
+      config.yConfig.title = `${config.yConfig.title} (Log)`;
     } 
 
     return (
