@@ -1,6 +1,7 @@
 import {uuid} from "d3plus-common";
 
 import {fetchMembers} from "../actions/fetch";
+import {mergeStates} from "../actions/loadstate";
 import {
   findByKey,
   findByName,
@@ -71,7 +72,7 @@ export function permalinkToState(prevState, queryParams) {
   const sources = getMeasureSource(cube, measure);
 
   const nextState = finishBuildingStateFromParameters(
-    {
+    mergeStates(prevState, {
       query: {
         activeChart: queryParams.enlarged,
         conditions: [].concat(queryParams.filters || []),
@@ -83,7 +84,7 @@ export function permalinkToState(prevState, queryParams) {
         timeDrilldown: getTimeDrilldown(cube)
       },
       options: {dimensions, drilldowns}
-    },
+    }),
     queryParams
   );
 
@@ -147,8 +148,7 @@ export function unserializeCondition(measures, levels, conditionHash) {
       },
       () => null
     );
-  }
-  else {
+  } else {
     condition.property = findByKey(conditionTokens[1], measures);
     condition.values = conditionTokens.slice(3, 4);
 

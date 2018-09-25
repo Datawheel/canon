@@ -46,9 +46,10 @@ class Vizbuilder extends React.PureComponent {
     };
 
     let initialStatePromise = fetchCubes.call(this, defaultQuery);
+    const location = ctx.router.location;
 
-    if (props.permalink) {
-      parsePermalink(permalinkKeywords, ctx.router.location, defaultQuery);
+    if (props.permalink && location.search) {
+      parsePermalink(permalinkKeywords, location, defaultQuery);
       initialStatePromise = initialStatePromise.then(state =>
         permalinkToState(state, defaultQuery)
       );
@@ -63,13 +64,13 @@ class Vizbuilder extends React.PureComponent {
     this.loadControl = loadControl.bind(this);
     this.fetchQuery = fetchQuery.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
-    this.handlePermalinkUpdate = this.handlePermalinkUpdate.bind(this);
   }
 
   getChildContext() {
     return {
       fetchQuery: this.fetchQuery,
       loadControl: this.loadControl,
+      permalinkKeywords: this.permalinkKeywords,
       stateUpdate: this.stateUpdate
     };
   }
@@ -78,7 +79,7 @@ class Vizbuilder extends React.PureComponent {
     const initialStatePromise = this.initialStatePromise;
     delete this.initialStatePromise;
     this.loadControl(() => initialStatePromise, this.fetchQuery);
-    }
+  }
 
   componentDidUpdate(prevProps, prevState) {
     const {onChange} = this.props;
@@ -90,22 +91,15 @@ class Vizbuilder extends React.PureComponent {
       UIToaster.show({intent: load.severity, message: error.message});
     }
 
-    if (onChange && !isSameQuery(prevProps.query, query)) {
+    if (!query.cube) return;
+
+    if (!isSameQuery(prevState.query, query)) {
       onChange(query, this.state.dataset, this.state.options);
-    }
 
-    if (
-      query.cube &&
-      this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1
-    ) {
-      this.queryHistory.push(query);
+      if (this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
+        this.queryHistory.push(query);
+      }
     }
-  }
-
-  handlePermalinkUpdate(location) {
-    const query = parsePermalink(this.permalinkKeywords, location);
-    const nextState = permalinkToState(this.state, query);
-    this.loadControl(() => nextState, this.fetchQuery);
   }
 
   render() {
@@ -118,16 +112,7 @@ class Vizbuilder extends React.PureComponent {
       topojson,
       visualizations
     } = this.props;
-    const {
-      dataset,
-      load,
-      members,
-      options,
-      query,
-      queryOptions
-    } = this.state;
-
-    console.log(dataset);
+    const {dataset, load, members, options, query, queryOptions} = this.state;
 
     return (
       <div
@@ -156,9 +141,7 @@ class Vizbuilder extends React.PureComponent {
         {permalink && <PermalinkManager
           activeChart={query.activeChart}
           href={location.search}
-          keywords={this.permalinkKeywords}
-          query={query}
-          onPermalinkUpdate={this.handlePermalinkUpdate}
+          state={this.state}
         />}
       </div>
     );
@@ -176,6 +159,7 @@ Vizbuilder.contextTypes = {
 Vizbuilder.childContextTypes = {
   fetchQuery: PropTypes.func,
   loadControl: PropTypes.func,
+  permalinkKeywords: PropTypes.object,
   stateUpdate: PropTypes.func
 };
 
@@ -227,6 +211,7 @@ Vizbuilder.propTypes = {
 Vizbuilder.defaultProps = {
   config: {},
   formatting: {},
+  onChange() {},
   permalink: true,
   topojson: {},
   visualizations: [

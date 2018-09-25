@@ -5,6 +5,14 @@
     & .label {
       margin: 0;
     }
+
+    & > .control {
+      margin-bottom: 0.8em;
+    }
+
+    &.select-level {
+      margin-left: 0.8em;
+    }
   }
 
   & .details {

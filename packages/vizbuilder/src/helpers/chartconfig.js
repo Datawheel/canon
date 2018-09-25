@@ -116,22 +116,20 @@ const makeConfig = {
   geomap(commonConfig, query, flags) {
     const drilldownName = query.drilldown.name;
     const measureName = query.measure.name;
-    const isActive = flags.activeType === "geomap";
 
     const config = {
       ...commonConfig,
       colorScale: measureName,
-      colorScalePosition: isActive ? "bottom" : false,
+      colorScaleConfig: {scale: "jenks"},
+      colorScalePosition: "right",
       groupBy: `ID ${drilldownName}`,
       zoomScroll: false,
       ...flags.topojsonConfig,
       ...flags.chartConfig
     };
 
-    if (isActive) {
-      config.colorScaleConfig = {
-        scale: "jenks"
-      };
+    if (!flags.activeType) {
+      config.zoom = false;
     }
 
     return config;
@@ -224,14 +222,19 @@ export default function createChartConfig({
   const availableKeys = Object.keys(members);
   const availableCharts = new Set(activeType ? [activeType] : visualizations);
 
-  const hasTimeDim = query.timeDrilldown && Array.isArray(members.Year);
-  const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
-
   const drilldownName = query.drilldown.name;
-  const measureName = query.measure.name;
-  const measureUnits = query.measure.annotations.units_of_measurement;
+  const timeDrilldownName = query.timeDrilldown && query.timeDrilldown.name;
+
+  const measure = query.measure;
+  const measureName = measure.name;
+  const measureUnits = measure.annotations.units_of_measurement;
   const measureFormatter = formatting[measureUnits] || formatAbbreviate;
   const getMeasureName = d => d[measureName];
+
+  const hasTimeDim = timeDrilldownName && Array.isArray(members[timeDrilldownName]);
+  const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
+
+  const aggregatorType = measure.annotations.aggregation_method || measure.aggregatorType || "UNKNOWN";
 
   const commonConfig = {
     title: `${measureName} by ${drilldownName}`,
@@ -256,8 +259,11 @@ export default function createChartConfig({
   };
 
   if (hasTimeDim) {
-    const timeDrilldownName = query.timeDrilldown.name;
     commonConfig.time = timeDrilldownName;
+  }
+
+  if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
+    commonConfig.total = getMeasureName;
   }
 
   const topojsonConfig = topojson[drilldownName];
@@ -267,12 +273,7 @@ export default function createChartConfig({
       availableCharts.delete("barchart");
     }
 
-    const aggregatorType =
-      query.measure.annotations.aggregation_method ||
-      query.measure.aggregatorType ||
-      "UNKNOWN";
-
-    if (!hasTimeDim) {
+    if (!hasTimeDim || members[timeDrilldownName].length === 1) {
       availableCharts.delete("stacked");
       availableCharts.delete("barchartyear");
       availableCharts.delete("lineplot");
@@ -292,15 +293,19 @@ export default function createChartConfig({
       availableCharts.delete("treemap");
       availableCharts.delete("barchartyear");
     }
-  }
-  else {
-    commonConfig.total = getMeasureName;
+
+    if (availableKeys.some(d => d !== "Year" && members[d].length === 1)) {
+      availableCharts.delete("treemap");
+      availableCharts.delete("barchartyear");
+    }
+
   }
 
   const currentMeasureConfig = measureConfig[measureName] || {};
 
   const flags = {
     activeType,
+    aggregatorType,
     availableKeys,
     measureFormatter,
     topojsonConfig,

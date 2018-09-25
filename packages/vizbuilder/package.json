@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-vizbuilder",
   "description": "Visualization explorer for data retrieved from mondrian-rest.",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "main": "src/index.js",
   "author": "Francisco Abarzúa & Carlos Navarrete",
   "license": "MIT",
@@ -30,11 +30,9 @@
     "shorthash": "^0.0.2"
   },
   "devDependencies": {
+    "@datawheel/canon-core": "^0.16.10",
     "@types/react": "^15.6.2",
     "konami-code": "^0.2.1"
-  },
-  "peerDependencies": {
-    "@datawheel/canon-core": "^0.16.1"
   },
   "repository": {
     "type": "git",

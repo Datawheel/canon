@@ -1,30 +1,57 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import {
+  parsePermalink,
+  permalinkToState,
+  stateToPermalink
+} from "../helpers/permalink";
+import {isSamePermalinkQuery} from "../helpers/validation";
+
 class PermalinkManager extends React.PureComponent {
   componentDidUpdate(prevProps) {
-    const {router} = this.context;
-    const {activeChart, href, keywords, query, onPermalinkUpdate} = this.props;
+    const {router, permalinkKeywords} = this.context;
+    const {activeChart, href, state} = this.props;
 
-    const newLocation = router.getCurrentLocation();
+    if (state.load.inProgress) return;
 
-    if (href && prevProps.href !== href) {
-      newLocation.query[keywords.enlarged] = activeChart || undefined;
-      onPermalinkUpdate(newLocation);
-    }
-    else {
-      newLocation.query = {
-        [keywords.measure]: query.measure.annotations._key,
-        [keywords.dimension]: query.dimension.annotations._key,
-        [keywords.level]: query.drilldown.annotations._key,
-        [keywords.enlarged]: activeChart || undefined
-      };
+    const location = router.getCurrentLocation();
 
-      if (prevProps.activeChart !== activeChart) {
-        router.replace(newLocation);
+    const currentPermalinkQuery = location.query;
+    const statePermalinkQuery = stateToPermalink(
+      permalinkKeywords,
+      state.query
+    );
+
+    const samePermalinkQuery = isSamePermalinkQuery(
+      permalinkKeywords,
+      currentPermalinkQuery,
+      statePermalinkQuery
+    );
+
+    // if there's a difference between the location bar and the internal state
+    if (!samePermalinkQuery) {
+      // the href attribute changed, trigger a internal state update
+      if (prevProps.href !== href) {
+        const defaultQuery = parsePermalink(permalinkKeywords, location);
+        this.context.loadControl(
+          () => permalinkToState(state, defaultQuery),
+          this.context.fetchQuery
+        );
       }
+      // only the internal state changed, trigger a location bar update
       else {
-        router.push(newLocation);
+        const newLocation = {
+          pathname: location.pathname,
+          query: statePermalinkQuery
+        };
+
+        if (prevProps.activeChart !== activeChart) {
+          router.replace(newLocation);
+        }
+        else {
+          router.push(newLocation);
+        }
       }
     }
   }
@@ -35,11 +62,10 @@ class PermalinkManager extends React.PureComponent {
 }
 
 PermalinkManager.contextTypes = {
+  fetchQuery: PropTypes.func,
+  loadControl: PropTypes.func,
+  permalinkKeywords: PropTypes.object,
   router: PropTypes.object
-};
-
-PermalinkManager.defaultProps = {
-  onPermalinkUpdate: () => null
 };
 
 export default PermalinkManager;

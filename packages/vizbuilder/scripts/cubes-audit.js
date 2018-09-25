@@ -3,8 +3,8 @@
 const {Client} = require("mondrian-rest-client"),
       fs = require("fs");
 
-const PATH = "https://canon-api.datausa.io";
-const client = new Client(PATH);
+const DEFAULT = "https://canon-api.datausa.io";
+const client = new Client(process.env.CANON_AUDIT_API || DEFAULT);
 const now = new Date()
   .toLocaleString("en-US", {timeZone: "America/New_York"})
   .replace("T", " ")
@@ -45,11 +45,15 @@ client.cubes().then(cubes => {
     });
 
     measures.forEach(measure => {
-      if (!measure.annotations.units_of_measurement) {
-        row += `### MEASURE: ${measure.name} \n`;
-        row += "- [ ] units_of_measurement \n";
+      if (!measure.annotations.error_for_measure) {
+        
+        if (!measure.annotations.units_of_measurement || measure.name.toUpperCase().includes("MOE")) row += `### MEASURE: ${measure.name} \n`;
+
+        if (!measure.annotations.units_of_measurement) row += "- [ ] units_of_measurement \n";
+        if (measure.name.toUpperCase().includes("MOE")) row += "- [ ] error_for_measure \n";
         row += "\n";
       }
+      
     });
 
     row += "----\n";
