@@ -121,7 +121,12 @@ export function getValidMeasures(cubes) {
     while (nMsr--) {
       const measure = cube.measures[nMsr];
       const msAnnotations = measure.annotations;
-      if (msAnnotations.error_for_measure === undefined && msAnnotations.error_type === undefined) {
+      if (
+        msAnnotations.error_for_measure === undefined && 
+        msAnnotations.error_type === undefined && 
+        msAnnotations.source_for_measure === undefined &&
+        msAnnotations.collection_for_measure === undefined
+      ) {
         if (msAnnotations._cb_topic === "Other") {
           otherMeasures.push(measure);
         }
