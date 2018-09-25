@@ -28,14 +28,8 @@ export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
   const {drilldownName, measureName, moe, lci, uci, source, collection} = query;
   const tbody = drilldowns.filter(d => d !== drilldownName).map(dd => [dd, d => d[dd]]);
   tbody.push([measureName, d => measureFormatter(d[measureName])]);
-  if (moe) {
-    const moeName = moe.name;
-    tbody.push([
-      "Margin of Error",
-      d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
-    ]);
-  } 
-  else if (lci && uci) {
+
+  if (lci && uci) {
     const lciName = lci.name;
     const uciName = uci.name;
     tbody.push([
@@ -43,6 +37,13 @@ export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
       d => `[${measureFormatter(d[lciName])}, ${measureFormatter(d[uciName])}]`
     ]);
   }
+  else if (moe) {
+    const moeName = moe.name;
+    tbody.push([
+      "Margin of Error",
+      d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
+    ]);
+  } 
 
   if (source) {
     const sourceName = source.name;
@@ -185,7 +186,6 @@ const makeConfig = {
     };
 
     if (lci && uci) {
-      
       const lciName = lci.name;
       const uciName = uci.name;
 
@@ -194,6 +194,7 @@ const makeConfig = {
         d => d[uciName]
       ];
     }
+
     else if (moe) {
       const moeName = moe.name;
 
@@ -276,7 +277,7 @@ export default function createChartConfig({
     legend: false,
 
     tooltipConfig: tooltipGenerator(
-      {drilldownName, measureName, moe: query.moe},
+      {drilldownName, measureName, moe: query.moe, lci: query.lci, uci: query.uci},
       availableKeys,
       measureFormatter
     ),
