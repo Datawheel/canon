@@ -63,15 +63,15 @@ MeasureSelect.defaultProps = {
     const child1 = <span className="select-label">{item.name}</span>;
     let child2 = null;
     const className = [];
-
+    console.log(item);
     if (!item._level) {
       className.push("select-option", "level-last");
       props.onClick = handleClick;
       child2 =
         <span className="select-label lead">
-          {item.annotations._cb_sourceName}
+          {item.annotations._cb_sourceName} ({item.annotations._cb_name.replace("_", " ")})
         </span>
-        ;
+      ;
     }
     else {
       className.push("select-optgroup", `level-${item._level}`);
