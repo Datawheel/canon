@@ -184,7 +184,17 @@ const makeConfig = {
       ...flags.chartConfig
     };
 
-    if (moe) {
+    if (lci && uci) {
+      
+      const lciName = lci.name;
+      const uciName = uci.name;
+
+      config.confidence = [
+        d => d[lciName],
+        d => d[uciName]
+      ];
+    }
+    else if (moe) {
       const moeName = moe.name;
 
       config.confidence = [
@@ -192,15 +202,7 @@ const makeConfig = {
         d => d[measureName] + d[moeName]
       ];
     }
-    else if (lci && uci) {
-      const lciName = lci.name;
-      const uciName = uci.name;
-
-      config.confidence = [
-        d => d[measureName] - d[lciName],
-        d => d[measureName] + d[uciName]
-      ];
-    }
+    
 
     delete config.time;
 

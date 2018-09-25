@@ -172,6 +172,7 @@ export function getMeasureMOE(cube, measure) {
  * @returns {Measure|undefined}
  */
 export function getMeasureCI(cube, measure, type = "MOE") {
+  const measureName = RegExp(measure.name, "i");
 
   if (cube.measures.indexOf(measure) > -1) {
     let nMsr = cube.measures.length;
@@ -179,8 +180,9 @@ export function getMeasureCI(cube, measure, type = "MOE") {
       const currentMeasure = cube.measures[nMsr];
 
       const key = currentMeasure.annotations.error_type;
+      const keyErrorForMsr = currentMeasure.annotations.error_for_measure;
 
-      if (key && key === type) return currentMeasure;
+      if (key && measureName.test(keyErrorForMsr) && key === type) return currentMeasure;
     }
   }
 
