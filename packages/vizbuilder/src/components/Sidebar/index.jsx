@@ -90,7 +90,7 @@ class Sidebar extends React.PureComponent {
       const uci = getMeasureCI(cube, measure, "UCI");
       const moe = getMeasureMOE(cube, measure);
       const timeDrilldown = getTimeDrilldown(cube);
-      console.log(lci, uci);
+
       const dimensions = getValidDimensions(cube);
       const drilldowns = getValidDrilldowns(dimensions);
 
