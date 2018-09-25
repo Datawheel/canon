@@ -94,7 +94,7 @@ class Sidebar extends React.PureComponent {
       const dimensions = getValidDimensions(cube);
       const drilldowns = getValidDrilldowns(dimensions);
       const sources = getMeasureSource(cube, measure);
-      console.log(sources);
+
       const state = {
         options: {dimensions, drilldowns},
         query: {
