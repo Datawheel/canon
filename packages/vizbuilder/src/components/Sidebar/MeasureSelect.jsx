@@ -63,7 +63,7 @@ MeasureSelect.defaultProps = {
     const child1 = <span className="select-label">{item.name}</span>;
     let child2 = null;
     const className = [];
-    console.log(item);
+
     if (!item._level) {
       className.push("select-option");
       props.onClick = handleClick;
