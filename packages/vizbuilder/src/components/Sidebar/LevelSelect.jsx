@@ -3,7 +3,7 @@ import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 
 import {PROPNAMESTYLES, composePropertyName} from "../../helpers/formatting";
-import BaseSelect from "../BaseSelect";
+import BaseSelect from "./BaseSelect";
 
 function LevelSelect(props) {
   return React.createElement(BaseSelect, props);

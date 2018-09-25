@@ -15,13 +15,13 @@ import {
   finishBuildingStateFromParameters
 } from "../../helpers/sorting";
 
-import ConditionManager from "./ConditionManager";
+import BaseSelect from "./BaseSelect";
 import ConditionalAnchor from "./ConditionalAnchor";
+import ConditionManager from "./ConditionManager";
 import LevelSelect from "./LevelSelect";
 import MeasureSelect from "./MeasureSelect";
 
 import "./style.css";
-import BaseSelect from "../BaseSelect";
 
 class Sidebar extends React.PureComponent {
   constructor(props) {
