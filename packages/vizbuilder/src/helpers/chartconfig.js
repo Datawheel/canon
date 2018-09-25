@@ -25,7 +25,7 @@ export const charts = {
 export const ALL_YEARS = "All years";
 
 export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
-  const {drilldownName, measureName, moe, source, collection} = query;
+  const {drilldownName, measureName, moe, lci, uci, source, collection} = query;
   const tbody = drilldowns.filter(d => d !== drilldownName).map(dd => [dd, d => d[dd]]);
   tbody.push([measureName, d => measureFormatter(d[measureName])]);
   if (moe) {
@@ -158,7 +158,7 @@ const makeConfig = {
     };
   },
   lineplot(commonConfig, query, flags) {
-    const {drilldown, measure, moe, timeDrilldown} = query;
+    const {drilldown, measure, moe, lci, uci, timeDrilldown} = query;
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
@@ -181,6 +181,15 @@ const makeConfig = {
       config.confidence = [
         d => d[measureName] - d[moeName],
         d => d[measureName] + d[moeName]
+      ];
+    }
+    else if (lci && uci) {
+      const lciName = lci.name;
+      const uciName = uci.name;
+
+      config.confidence = [
+        d => d[measureName] - d[lciName],
+        d => d[measureName] + d[uciName]
       ];
     }
 
