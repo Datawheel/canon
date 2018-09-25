@@ -34,6 +34,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cbSubtopic = cbAnnotations.subtopic;
     const selectorKey = `${cbTopic}_${cbSubtopic}_`;
     const sourceName = cbAnnotations.source_name;
+    const datasetName = cbAnnotations.dataset_name;
 
     cbAnnotations._key = unique(cbName);
 
@@ -48,7 +49,8 @@ export function injectCubeInfoOnMeasure(cubes) {
       msAnnotations._cb_topic = cbTopic;
       msAnnotations._cb_subtopic = cbSubtopic;
       msAnnotations._cb_sourceName = sourceName;
-      msAnnotations._selectorKey = selectorKey + measureLabel;
+      msAnnotations._sortKey = selectorKey + measureLabel;
+      msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${sourceName}_${datasetName}`;
     }
 
     let nDim = cube.dimensions.length;
