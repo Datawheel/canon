@@ -25,7 +25,7 @@ export const charts = {
 export const ALL_YEARS = "All years";
 
 export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
-  const {drilldownName, measureName, moe} = query;
+  const {drilldownName, measureName, moe, source, collection} = query;
   const tbody = drilldowns.filter(d => d !== drilldownName).map(dd => [dd, d => d[dd]]);
   tbody.push([measureName, d => measureFormatter(d[measureName])]);
   if (moe) {
@@ -33,6 +33,20 @@ export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
     tbody.push([
       "Margin of Error",
       d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
+    ]);
+  }
+  if (source) {
+    const sourceName = source.name;
+    tbody.push([
+      "Source",
+      d => `${d[sourceName]}`
+    ]);
+  }
+  if (collection) {
+    const collectionData = collection.name;
+    tbody.push([
+      "Collection",
+      d => `${d[collectionData]}`
     ]);
   }
   return {
@@ -128,7 +142,9 @@ const makeConfig = {
       ...flags.chartConfig
     };
 
-    if (!flags.activeType) config.zoom = false;
+    if (!flags.activeType) {
+      config.zoom = false;
+    }
 
     return config;
   },
@@ -209,11 +225,12 @@ const makeConfig = {
  */
 export default function createChartConfig({
   activeType,
+  defaultConfig,
   formatting,
+  measureConfig,
   members,
   query,
   topojson,
-  userConfig,
   visualizations
 }) {
   const availableKeys = Object.keys(members);
@@ -291,20 +308,25 @@ export default function createChartConfig({
       availableCharts.delete("barchartyear");
     }
 
-    if (Object.keys(members).some(d => d !== "Year" && members[d].length === 1)) {
+    if (availableKeys.some(d => d !== "Year" && members[d].length === 1)) {
       availableCharts.delete("treemap");
       availableCharts.delete("barchartyear");
     }
 
   }
 
+  const currentMeasureConfig = measureConfig[measureName] || {};
+
   const flags = {
     activeType,
     aggregatorType,
     availableKeys,
-    chartConfig: userConfig || {},
     measureFormatter,
-    topojsonConfig
+    topojsonConfig,
+    chartConfig: {
+      ...defaultConfig,
+      ...currentMeasureConfig
+    }
   };
 
   return Array.from(
@@ -327,11 +349,12 @@ export default function createChartConfig({
 /**
  * @typedef {object} CreateChartConfigParams
  * @prop {string} activeType The currently active chart type
+ * @prop {object} defaultConfig The general config params provided by the user
  * @prop {object} formatting An object with formatting functions for measure values. Keys are the value of measure.annotations.units_of_measurement
+ * @prop {object} measureConfig The config params for specific measures provided by the user
  * @prop {object} members An object with the members in the current dataset
  * @prop {object} query The current query object from the Vizbuilder's state
  * @prop {object} topojson An object where keys are Level names and values are config params for the topojson properties
- * @prop {object} userConfig The config params provided by the user
  * @prop {string[]} visualizations An array with valid visualization names to present
  */
 

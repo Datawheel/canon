@@ -11,6 +11,7 @@ export default function initialStateFactory() {
       severity: -1
     },
     query: {
+      activeChart: null,
       conditions: [],
       cube: null,
       dimension: null,
@@ -19,6 +20,8 @@ export default function initialStateFactory() {
       lci: null,
       uci: null,
       moe: null,
+      source: null, 
+      collection: null, 
       limit: undefined,
       locale: "en",
       offset: undefined,
@@ -44,9 +47,7 @@ export default function initialStateFactory() {
       // All non-time Levels that can be used as Cuts for the current query
       drilldowns: [],
       // All valid measures (not MoEs) from all the cubes retrieved
-      measures: [],
-      // ??
-      members: []
+      measures: []
     },
     dataset: [],
     members: {},

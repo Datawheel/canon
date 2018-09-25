@@ -1,18 +1,15 @@
 import {unique} from "shorthash";
 import * as api from "../helpers/api";
 import {
-  findByKey,
   findByName,
+  finishBuildingStateFromParameters,
   getMeasureCI,
   getMeasureMOE,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns,
   getValidMeasures,
-  matchDefault,
-  preventHierarchyIncompatibility,
-  reduceLevelsFromDimension,
-  removeDuplicateLevels
+  getMeasureSource
 } from "../helpers/sorting";
 
 /**
@@ -60,6 +57,8 @@ export function injectCubeInfoOnMeasure(cubes) {
       const dimension = cube.dimensions[nDim];
       const keyPrefix = `${cbName} ${dimension.name} `;
 
+      dimension.annotations._key = unique(keyPrefix);
+
       let nHie = dimension.hierarchies.length;
       while (nHie--) {
         const hierarchy = dimension.hierarchies[nHie];
@@ -77,15 +76,14 @@ export function injectCubeInfoOnMeasure(cubes) {
 
 /**
  * Retrieves the cube list and prepares the initial state for the first query
- * @param {InitialQueryState} initialQuery An object with initial state parameters
+ * @param {ExternalQueryParams} params An object with initial state parameters
  */
-export function fetchCubes(initialQuery) {
+export function fetchCubes(params) {
   return api.cubes().then(cubes => {
-    initialQuery = initialQuery || {};
     injectCubeInfoOnMeasure(cubes);
 
     const measures = getValidMeasures(cubes);
-    const measure = findByKey(initialQuery.ms, measures) || findByName(initialQuery.defaultMeasure, measures, true);
+    const measure = findByName(params.defaultMeasure, measures, true);
 
     const cubeName = measure.annotations._cb_name;
     const cube = cubes.find(cube => cube.name === cubeName);
@@ -96,52 +94,25 @@ export function fetchCubes(initialQuery) {
 
     const dimensions = getValidDimensions(cube);
     const drilldowns = getValidDrilldowns(dimensions);
+    const sources = getMeasureSource(cube, measure);
 
-    let dimension;
-    // Check first for URL-based initial state
-    let drilldown = findByKey(initialQuery.dd, drilldowns);
-    let levels = [];
-
-    if (drilldown) {
-      dimension = drilldown.hierarchy.dimension;
-      levels = reduceLevelsFromDimension(levels, dimension);
-    }
-    else {
-      const defaultLevel = [].concat(initialQuery.defaultLevel).reverse();
-
-      if ("defaultDimension" in initialQuery) {
-        const defaultDimension = [].concat(initialQuery.defaultDimension).reverse();
-        dimension = matchDefault(findByName, dimensions, defaultDimension, true);
-        levels = reduceLevelsFromDimension(levels, dimension);
-        drilldown = matchDefault(findByName, levels, defaultLevel, true);
-      }
-      else {
-        drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
-        dimension = drilldown.hierarchy.dimension;
-        levels = reduceLevelsFromDimension(levels, dimension);
-      }
-    }
-
-    preventHierarchyIncompatibility(drilldowns, drilldown);
-    removeDuplicateLevels(levels);
-
-    return {
-      options: {cubes, measures, dimensions, drilldowns, levels},
+    const state = {
+      options: {cubes, measures, dimensions, drilldowns},
       query: {
         cube,
         measure,
         lci,
         uci,
         moe,
-        dimension,
-        drilldown,
         timeDrilldown,
+        collection: sources.collectionMeasure,
+        source: sources.sourceMeasure,
+        activeChart: params.enlarged || null,
         conditions: []
-      },
-      queryOptions: {
-        parents: drilldown.depth > 1
       }
     };
+
+    return finishBuildingStateFromParameters(state, params);
   });
 }
 
@@ -157,18 +128,9 @@ export function fetchMembers(level) {
  * Retrieves the dataset for the query in the current Vizbuilder state.
  */
 export function fetchQuery() {
-  const {query, queryOptions} = this.props;
+  const {query, queryOptions} = this.state;
   return api.query({
     ...query,
     options: queryOptions
   });
 }
-
-/**
- * @typedef {any} InitialQueryState
- * @prop {string} [defaultDimension] Initial dimension set by the user
- * @prop {string} [defaultLevel] Initial level for drilldown set by the user
- * @prop {string} [defaultMeasure] Initial measure set by the user
- * @prop {string} [ms] Initial measure key, parsed from the permalink
- * @prop {string} [dd] Initial drilldown key, parsed from the permalink
- */

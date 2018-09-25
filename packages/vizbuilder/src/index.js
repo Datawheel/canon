@@ -1,14 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
-import queryString from "query-string";
 import {Position, Toaster} from "@blueprintjs/core";
 
-import {fetchCubes} from "./actions/fetch";
-import {loadControl, setStatePromise} from "./actions/loadstate";
+import {fetchCubes, fetchQuery} from "./actions/fetch";
+import {loadControl, setStatePromise, mergeStates} from "./actions/loadstate";
 import ChartArea from "./components/ChartArea";
 import Sidebar from "./components/Sidebar";
+import PermalinkManager from "./components/PermalinkManager";
 import * as api from "./helpers/api";
+import {parsePermalink, permalinkToState} from "./helpers/permalink";
+import {isSameQuery} from "./helpers/validation";
 import initialState from "./state";
 
 import LoadingScreen from "components/Loading";
@@ -22,55 +24,102 @@ const UIToaster =
     : null;
 
 class Vizbuilder extends React.PureComponent {
-  constructor(props) {
+  constructor(props, ctx) {
     super(props);
 
     api.resetClient(props.src);
     this.state = initialState();
-    this.defaultQuery = {};
+
+    const permalinkKeywords = {
+      dimension: "dimension",
+      enlarged: "enlarged",
+      filters: "filters",
+      level: "level",
+      measure: "measure",
+      ...props.permalinkKeywords
+    };
+
+    const defaultQuery = {
+      defaultMeasure: props.defaultMeasure,
+      defaultDimension: props.defaultDimension,
+      defaultLevel: props.defaultLevel
+    };
+
+    let initialStatePromise = fetchCubes.call(this, defaultQuery);
+    const location = ctx.router.location;
+
+    if (props.permalink && location.search) {
+      parsePermalink(permalinkKeywords, location, defaultQuery);
+      initialStatePromise = initialStatePromise.then(state =>
+        permalinkToState(state, defaultQuery)
+      );
+    }
+
+    this.initialStatePromise = initialStatePromise;
+
+    this.defaultQuery = defaultQuery;
+    this.permalinkKeywords = permalinkKeywords;
+    this.queryHistory = [];
 
     this.loadControl = loadControl.bind(this);
-    this.firstLoad = this.firstLoad.bind(this);
+    this.fetchQuery = fetchQuery.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
   }
 
   getChildContext() {
     return {
+      fetchQuery: this.fetchQuery,
       loadControl: this.loadControl,
+      permalinkKeywords: this.permalinkKeywords,
       stateUpdate: this.stateUpdate
     };
   }
 
   componentDidMount() {
-    const defaultQuery = {
-      ...queryString.parse(window.location.search),
-      ...this.getDefaultQuery(this.props)
-    }
-    this.defaultQuery = defaultQuery;
-    this.firstLoad(defaultQuery);
+    const initialStatePromise = this.initialStatePromise;
+    delete this.initialStatePromise;
+    this.loadControl(() => initialStatePromise, this.fetchQuery);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const {src} = this.props;
-    const {load} = this.state;
-    const {error, severity} = load;
-
-    if (src && prevProps.src !== src) {
-      api.resetClient(src);
-      this.setState(initialState(), this.firstLoad);
-    }
+    const {onChange} = this.props;
+    const {load, query} = this.state;
+    const {error} = load;
 
     if (error && prevState.load.error !== error) {
       console.warn(error.stack);
-      UIToaster.show({intent: severity, message: error.message});
+      UIToaster.show({intent: load.severity, message: error.message});
+    }
+
+    if (!query.cube) return;
+
+    if (!isSameQuery(prevState.query, query)) {
+      onChange(query, this.state.dataset, this.state.options);
+
+      if (this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
+        this.queryHistory.push(query);
+      }
     }
   }
 
   render() {
-    const {config, formatting, topojson, visualizations} = this.props;
+    const {location} = this.context.router;
+    const {
+      config,
+      formatting,
+      measureConfig,
+      permalink,
+      topojson,
+      visualizations
+    } = this.props;
     const {dataset, load, members, options, query, queryOptions} = this.state;
+
     return (
-      <div className={classnames("vizbuilder", {loading: load.inProgress})}>
+      <div
+        className={classnames("vizbuilder", {
+          loading: load.inProgress
+        })}
+      >
         <LoadingScreen total={load.total} progress={load.done} />
         <Sidebar
           defaultQuery={this.defaultQuery}
@@ -79,62 +128,38 @@ class Vizbuilder extends React.PureComponent {
           queryOptions={queryOptions}
         />
         <ChartArea
+          activeChart={query.activeChart}
           dataset={dataset}
           formatting={formatting}
           members={members}
           query={query}
           topojson={topojson}
-          userConfig={config}
+          defaultConfig={config}
+          measureConfig={measureConfig}
           visualizations={visualizations}
         />
+        {permalink && <PermalinkManager
+          activeChart={query.activeChart}
+          href={location.search}
+          state={this.state}
+        />}
       </div>
     );
   }
 
   stateUpdate(newState) {
-    return setStatePromise.call(this, state => {
-      const finalState = {};
-      const keys = Object.keys(newState);
-
-      for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        finalState[key] = {
-          ...state[key],
-          ...newState[key]
-        };
-      }
-
-      return finalState;
-    });
-  }
-
-  firstLoad(initialQuery) {
-    this.loadControl(fetchCubes.bind(this, initialQuery), () => {
-      const {query, queryOptions} = this.state;
-      return api.query({
-        ...query,
-        options: queryOptions
-      });
-    });
-  }
-
-  getDefaultQuery(props) {
-    const defaultQuery = {};
-    if (props.defaultMeasure) {
-      defaultQuery.defaultMeasure = props.defaultMeasure;
-    }
-    if (props.defaultDimension) {
-      defaultQuery.defaultDimension = props.defaultDimension;
-    }
-    if (props.defaultLevel) {
-      defaultQuery.defaultLevel = props.defaultLevel;
-    }
-    return defaultQuery;
+    return setStatePromise.call(this, state => mergeStates(state, newState));
   }
 }
 
+Vizbuilder.contextTypes = {
+  router: PropTypes.object
+};
+
 Vizbuilder.childContextTypes = {
+  fetchQuery: PropTypes.func,
   loadControl: PropTypes.func,
+  permalinkKeywords: PropTypes.object,
   stateUpdate: PropTypes.func
 };
 
@@ -156,6 +181,17 @@ Vizbuilder.propTypes = {
   // keys are the possible values of measure.annotations.units_of_measurement
   // values are the formatting function to apply to those measures
   formatting: PropTypes.objectOf(PropTypes.func),
+  // individual measureConfigs
+  measureConfig: PropTypes.objectOf(PropTypes.object),
+  // state update hook
+  onChange: PropTypes.func,
+  // permalink switch
+  // to make the permalink work after in subsequent changes, pass any
+  // object that reliably changes only when the url changes
+  // the ideal element is react-router's `location.search` string
+  permalink: PropTypes.bool,
+  // permalink keywords to parse from the url
+  permalinkKeywords: PropTypes.objectOf(PropTypes.string),
   // source URL for the mondrian server
   src: PropTypes.string.isRequired,
   topojson: PropTypes.objectOf(
@@ -175,6 +211,8 @@ Vizbuilder.propTypes = {
 Vizbuilder.defaultProps = {
   config: {},
   formatting: {},
+  onChange() {},
+  permalink: true,
   topojson: {},
   visualizations: [
     "geomap",
