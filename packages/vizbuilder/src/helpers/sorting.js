@@ -19,6 +19,7 @@ export function finishBuildingStateFromParameters(state, params) {
   if (drilldown) {
     dimension = drilldown.hierarchy.dimension;
     levels = reduceLevelsFromDimension(levels, dimension);
+    removeDuplicateLevels(levels);
   }
   else {
     const defaultLevel = params.defaultLevel;
@@ -27,24 +28,26 @@ export function finishBuildingStateFromParameters(state, params) {
     dimension = findByKey(params.dimension, dimensions);
     if (dimension) {
       levels = reduceLevelsFromDimension(levels, dimension);
+      removeDuplicateLevels(levels);
       drilldown = matchDefault(findByName, levels, defaultLevel, true);
     }
     else {
       if (defaultDimension.length > 0) {
         dimension = matchDefault(findByName, dimensions, defaultDimension, true);
         levels = reduceLevelsFromDimension(levels, dimension);
+        removeDuplicateLevels(levels);
         drilldown = matchDefault(findByName, levels, defaultLevel, true);
       }
       else {
         drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
         dimension = drilldown.hierarchy.dimension;
         levels = reduceLevelsFromDimension(levels, dimension);
+        removeDuplicateLevels(levels);
       }
     }
   }
 
   preventHierarchyIncompatibility(drilldowns, drilldown);
-  removeDuplicateLevels(levels);
 
   state.query.dimension = dimension;
   state.query.drilldown = drilldown;
