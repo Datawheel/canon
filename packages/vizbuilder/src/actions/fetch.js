@@ -3,6 +3,7 @@ import * as api from "../helpers/api";
 import {
   findByKey,
   findByName,
+  getMeasureCI,
   getMeasureMOE,
   getTimeDrilldown,
   getValidDimensions,
@@ -88,6 +89,8 @@ export function fetchCubes(initialQuery) {
 
     const cubeName = measure.annotations._cb_name;
     const cube = cubes.find(cube => cube.name === cubeName);
+    const lci = getMeasureCI(cube, measure, "LCI");
+    const uci = getMeasureCI(cube, measure, "UCI");
     const moe = getMeasureMOE(cube, measure);
     const timeDrilldown = getTimeDrilldown(cube);
 
@@ -127,6 +130,8 @@ export function fetchCubes(initialQuery) {
       query: {
         cube,
         measure,
+        lci,
+        uci,
         moe,
         dimension,
         drilldown,

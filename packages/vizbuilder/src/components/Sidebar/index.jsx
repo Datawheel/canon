@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import {fetchQuery} from "../../actions/fetch";
 import {
   findByName,
+  getMeasureCI,
   getMeasureMOE,
   getTimeDrilldown,
   getValidDimensions,
@@ -85,9 +86,11 @@ class Sidebar extends React.PureComponent {
     return loadControl(() => {
       const cubeName = measure.annotations._cb_name;
       const cube = options.cubes.find(cube => cube.name === cubeName);
+      const lci = getMeasureCI(cube, measure, "LCI");
+      const uci = getMeasureCI(cube, measure, "UCI");
       const moe = getMeasureMOE(cube, measure);
       const timeDrilldown = getTimeDrilldown(cube);
-
+      console.log(lci, uci);
       const dimensions = getValidDimensions(cube);
       const drilldowns = getValidDrilldowns(dimensions);
 
@@ -116,6 +119,8 @@ class Sidebar extends React.PureComponent {
         query: {
           cube,
           measure,
+          lci,
+          uci,
           moe,
           dimension,
           drilldown,

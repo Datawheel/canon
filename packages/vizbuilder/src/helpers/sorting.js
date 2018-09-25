@@ -123,6 +123,30 @@ export function getMeasureMOE(cube, measure) {
 }
 
 /**
+ * Returns the CI measures for a certain measure, in the full measure list
+ * from the cube. If there's no CI for the measure, returns undefined.
+ * @param {Cube} cube The measure's parent cube
+ * @param {*} measure The measure
+ * @returns {Measure|undefined}
+ */
+export function getMeasureCI(cube, measure, type = "MOE") {
+
+  if (cube.measures.indexOf(measure) > -1) {
+    let nMsr = cube.measures.length;
+    while (nMsr--) {
+      const currentMeasure = cube.measures[nMsr];
+      const key = currentMeasure.annotations.error_type;
+
+      if (key && key === type) {
+        return currentMeasure;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+/**
  * Returns an array with non-time dimensions from a cube.
  * @param {Cube} cube The cube where the dimensions will be reduced from
  * @returns {Dimension[]}
@@ -155,7 +179,7 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
     const level = array[n];
     if (
       level.hierarchy !== interestHierarchy ||
-      (level.hierarchy === interestHierarchy && level.depth > interestLevel.depth)
+      level.hierarchy === interestHierarchy && level.depth > interestLevel.depth
     ) {
       array.splice(n, 1);
     }
