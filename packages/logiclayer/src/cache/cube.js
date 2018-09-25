@@ -1,7 +1,8 @@
 const {Client} = require("mondrian-rest-client"),
       PromiseThrottle = require("promise-throttle"),
       chalk = require("chalk"),
-      d3Array = require("d3-array");
+      d3Array = require("d3-array"),
+      findYears = require("../utils/findYears");
 
 const throttle = new PromiseThrottle({
   requestsPerSecond: 50,
@@ -23,7 +24,9 @@ module.exports = async function() {
 
     cube.measures.forEach(measure => {
 
-      const {name} = measure;
+      const name = measure.name
+        .replace(/'/g, "\'");
+
       if (!measures[name]) measures[name] = [];
 
       const dimensions = cube.dimensions
@@ -63,7 +66,9 @@ module.exports = async function() {
   const cubeQueries = cubes
     .filter(cube => cube.dimensions.find(d => d.name.includes("Year")))
     .map(cube => {
-      const dim = cube.dimensions.find(d => d.name.includes("Year"));
+
+      const {preferred: dim} = findYears(cube.dimensions);
+
       const levels = dim.hierarchies[0].levels;
       const query = client.members(levels[levels.length - 1])
         .then(members => {
@@ -71,7 +76,6 @@ module.exports = async function() {
           const current = years.filter(year => parseInt(year, 10) <= currentYear);
           return {
             cube: cube.name,
-            dimension: dim.name,
             latest: current[current.length - 1],
             oldest: current[0],
             previous: current.length > 1 ? current[current.length - 2] : current[current.length - 1],
