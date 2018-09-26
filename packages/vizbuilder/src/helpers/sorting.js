@@ -155,7 +155,7 @@ export function getValidMeasures(cubes) {
  * @returns {Measure|undefined}
  */
 export function getMeasureMeta(cube, measure) {
-  let lci, uci, moe, collection, source;
+  let collection, lci, moe, source, uci;
   const measureName = RegExp(measure.name, "i");
 
   if (cube.measures.indexOf(measure) > -1) {
@@ -173,9 +173,11 @@ export function getMeasureMeta(cube, measure) {
 
         if (errorType === "LCI") {
           lci = currentMeasure;
-        } else if (errorType === "UCI") {
+        }
+        else if (errorType === "UCI") {
           uci = currentMeasure;
-        } else {
+        }
+        else {
           moe = currentMeasure;
         }
       }
@@ -188,13 +190,13 @@ export function getMeasureMeta(cube, measure) {
         collection = currentMeasure;
       }
 
-      if (collection && ((lci && uci) || moe) && source) {
+      if (collection && (lci && uci || moe) && source) {
         break;
       }
     }
   }
 
-  return {lci, uci, moe, collection, source};
+  return {collection, lci, moe, source, uci};
 }
 
 /**

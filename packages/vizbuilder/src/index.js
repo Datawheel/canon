@@ -68,6 +68,7 @@ class Vizbuilder extends React.PureComponent {
 
   getChildContext() {
     return {
+      defaultQuery: this.defaultQuery,
       fetchQuery: this.fetchQuery,
       loadControl: this.loadControl,
       permalinkKeywords: this.permalinkKeywords,
@@ -131,7 +132,6 @@ class Vizbuilder extends React.PureComponent {
       >
         <LoadingScreen total={load.total} progress={load.done} />
         <Sidebar
-          defaultQuery={this.defaultQuery}
           options={options}
           query={query}
         />
@@ -176,6 +176,7 @@ Vizbuilder.contextTypes = {
 };
 
 Vizbuilder.childContextTypes = {
+  defaultQuery: PropTypes.any,
   fetchQuery: PropTypes.func,
   loadControl: PropTypes.func,
   permalinkKeywords: PropTypes.object,

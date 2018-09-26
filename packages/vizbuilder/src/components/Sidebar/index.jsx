@@ -33,8 +33,7 @@ class Sidebar extends React.PureComponent {
 
   setDimension(dimension) {
     const {dimensions} = this.props.options;
-    const {loadControl, fetchQuery} = this.context;
-    const {defaultQuery} = this.props;
+    const {defaultQuery, loadControl, fetchQuery} = this.context;
     const defaultLevel = [].concat(defaultQuery.defaultLevel).reverse();
 
     return loadControl(() => {
@@ -72,8 +71,8 @@ class Sidebar extends React.PureComponent {
   }
 
   setMeasure(measure) {
-    const {defaultQuery, options, query} = this.props;
-    const {loadControl, fetchQuery} = this.context;
+    const {options, query} = this.props;
+    const {defaultQuery, loadControl, fetchQuery} = this.context;
 
     return loadControl(() => {
       const cubeName = measure.annotations._cb_name;
@@ -183,6 +182,7 @@ class Sidebar extends React.PureComponent {
 }
 
 Sidebar.contextTypes = {
+  defaultQuery: PropTypes.any,
   fetchQuery: PropTypes.func,
   loadControl: PropTypes.func
 };
