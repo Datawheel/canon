@@ -45,7 +45,7 @@ export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
       "Margin of Error",
       d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
     ]);
-  } 
+  }
 
   if (source) {
     const sourceName = source.name;
@@ -203,7 +203,6 @@ const makeConfig = {
         d => d[uciName]
       ];
     }
-
     else if (moe) {
       const moeName = moe.name;
 
@@ -212,7 +211,6 @@ const makeConfig = {
         d => d[measureName] + d[moeName]
       ];
     }
-    
 
     delete config.time;
 
