@@ -359,6 +359,7 @@ export default function createChartConfig(
       availableCharts.delete("treemap");
       availableCharts.delete("barchart");
       availableCharts.delete("barchartyear");
+      availableCharts.delete("stacked");
     }
   }
 
