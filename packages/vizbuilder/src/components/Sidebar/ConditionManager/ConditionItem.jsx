@@ -163,8 +163,4 @@ class ConditionItem extends React.PureComponent {
   }
 }
 
-ConditionItem.contextTypes = {
-  loadControl: PropTypes.func
-};
-
 export default ConditionItem;

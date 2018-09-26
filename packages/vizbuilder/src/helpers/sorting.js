@@ -22,8 +22,8 @@ export function finishBuildingStateFromParameters(state, params) {
     removeDuplicateLevels(levels);
   }
   else {
-    const defaultLevel = params.defaultLevel;
-    const defaultDimension = params.defaultDimension;
+    const defaultLevel = params.defaultLevel || [];
+    const defaultDimension = params.defaultDimension || [];
 
     dimension = findByKey(params.dimension, dimensions);
     if (dimension) {

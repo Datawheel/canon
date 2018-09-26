@@ -18,7 +18,7 @@ export function isTimeDimension(dimension) {
  * @param {object} condition An object to check
  */
 export function isValidCondition(condition) {
-  return isValidFilter(condition) || isValidCut(condition);
+  return condition && (isValidFilter(condition) || isValidCut(condition));
 }
 
 /**

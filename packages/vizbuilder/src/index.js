@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import classnames from "classnames";
 import {Position, Toaster} from "@blueprintjs/core";
 
-import {fetchCubes, fetchQuery} from "./actions/fetch";
+import {fetchCubes, fetchMainQuery, fetchMetaQueries} from "./actions/fetch";
 import {loadControl, setStatePromise, mergeStates} from "./actions/loadstate";
 import ChartArea from "./components/ChartArea";
 import Sidebar from "./components/Sidebar";
@@ -62,7 +62,7 @@ class Vizbuilder extends React.PureComponent {
     this.queryHistory = [];
 
     this.loadControl = loadControl.bind(this);
-    this.fetchQuery = fetchQuery.bind(this);
+    this.fetchQuery = this.fetchQuery.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
   }
 
@@ -112,7 +112,16 @@ class Vizbuilder extends React.PureComponent {
       topojson,
       visualizations
     } = this.props;
-    const {dataset, load, members, options, query} = this.state;
+    const {
+      dataset,
+      load,
+      members,
+      metaDatasets,
+      metaMembers,
+      metaQueries,
+      options,
+      query,
+    } = this.state;
 
     return (
       <div
@@ -127,14 +136,18 @@ class Vizbuilder extends React.PureComponent {
           query={query}
         />
         <ChartArea
+          triggerUpdate={load.lastUpdate}
           activeChart={query.activeChart}
-          dataset={dataset}
-          formatting={formatting}
-          members={members}
-          query={query}
-          topojson={topojson}
           defaultConfig={config}
+          formatting={formatting}
+          mainDataset={dataset}
+          mainMembers={members}
+          mainQuery={query}
           measureConfig={measureConfig}
+          metaDatasets={metaDatasets}
+          metaMembers={metaMembers}
+          metaQueries={metaQueries}
+          topojson={topojson}
           visualizations={visualizations}
         />
         {permalink && <PermalinkManager
@@ -148,6 +161,13 @@ class Vizbuilder extends React.PureComponent {
 
   stateUpdate(newState) {
     return setStatePromise.call(this, state => mergeStates(state, newState));
+  }
+
+  fetchQuery() {
+    return Promise.all([
+      fetchMainQuery(this.state.query),
+      fetchMetaQueries(this.state.metaQueries)
+    ]).then(results => ({...results[0], ...results[1]}));
   }
 }
 

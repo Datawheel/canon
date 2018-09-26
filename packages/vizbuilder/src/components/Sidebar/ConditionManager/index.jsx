@@ -5,6 +5,7 @@ import classNames from "classnames";
 import {uuid} from "d3plus-common";
 
 import OPERATORS from "../../../helpers/operators";
+import {generateMetaQueries} from "../../../helpers/metaqueries";
 
 import ConditionItem from "./ConditionItem";
 
@@ -34,28 +35,34 @@ class ConditionManager extends React.Component {
   }
 
   updateCondition(condition) {
-    const {conditions} = this.props.query;
+    const {query} = this.props;
     const {loadControl, fetchQuery} = this.context;
 
-    const index = conditions.findIndex(cond => cond.hash === condition.hash);
+    const index = query.conditions.findIndex(cond => cond.hash === condition.hash);
 
     if (index > -1) {
       loadControl(() => {
-        const newConditions = conditions.slice();
+        const newConditions = query.conditions.slice();
         newConditions.splice(index, 1, condition);
-        return {query: {conditions: newConditions}};
+        return {
+          query: {conditions: newConditions},
+          metaQueries: generateMetaQueries(query, newConditions)
+        };
       }, fetchQuery);
     }
   }
 
   removeCondition(condition) {
-    const {conditions} = this.props.query;
+    const {query} = this.props;
     const {loadControl, fetchQuery} = this.context;
 
-    const newConditions = conditions.filter(cond => cond.hash !== condition.hash);
+    const newConditions = query.conditions.filter(cond => cond.hash !== condition.hash);
 
-    if (newConditions.length < conditions.length) {
-      loadControl(() => ({query: {conditions: newConditions}}), fetchQuery);
+    if (newConditions.length < query.conditions.length) {
+      loadControl(() => ({
+        query: {conditions: newConditions},
+        metaQueries: generateMetaQueries(query, newConditions)
+      }), fetchQuery);
     }
   }
 

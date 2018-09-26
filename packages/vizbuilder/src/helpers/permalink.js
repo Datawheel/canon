@@ -2,6 +2,7 @@ import {uuid} from "d3plus-common";
 
 import {fetchMembers} from "../actions/fetch";
 import {mergeStates} from "../actions/loadstate";
+import {generateMetaQueries} from "./metaqueries";
 import {
   findByKey,
   findByName,
@@ -96,7 +97,9 @@ export function permalinkToState(prevState, queryParams) {
     );
     const conditionPromises = state.query.conditions.map(conditionUnserializer);
     return Promise.all(conditionPromises).then(conditions => {
-      state.query.conditions = conditions.filter(isValidCondition);
+      const newConditions = conditions.filter(isValidCondition);
+      state.query.conditions = newConditions;
+      state.metaQueries = generateMetaQueries(state.query, newConditions);
       return state;
     });
   });
@@ -139,15 +142,17 @@ export function unserializeCondition(measures, levels, conditionHash) {
     condition.property = findByKey(conditionTokens[1], levels);
     const conditionValues = conditionTokens[3].split("~");
 
-    promise = fetchMembers(condition.property).then(
-      members => {
-        condition.values = conditionValues.map(memberKey =>
-          members.find(member => member.key === memberKey)
-        );
-        return condition;
-      },
-      () => null
-    );
+    promise = condition.property
+      ? fetchMembers(condition.property).then(
+          members => {
+            condition.values = conditionValues.map(memberKey =>
+              members.find(member => member.key === memberKey)
+            );
+            return condition;
+          },
+          () => null
+        )
+      : Promise.resolve(null);
   } else {
     condition.property = findByKey(conditionTokens[1], measures);
     condition.values = conditionTokens.slice(3, 4);

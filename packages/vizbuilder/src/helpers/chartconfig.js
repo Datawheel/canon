@@ -8,6 +8,8 @@ import {
   Treemap
 } from "d3plus-react";
 import {formatAbbreviate} from "d3plus-format";
+
+import {relativeStdDev} from "./math";
 import {sortByCustomKey} from "./sorting";
 
 export const charts = {
@@ -175,6 +177,11 @@ const makeConfig = {
       ...flags.chartConfig
     };
 
+    if (relativeStdDev(flags.dataset, measureName) > 1) {
+      config.yConfig.scale = "log";
+      config.yConfig.title += " (Log)";
+    }
+
     if (moe) {
       const moeName = moe.name;
 
@@ -220,19 +227,33 @@ const makeConfig = {
 /**
  * Generates an array with valid config objects, depending on the type of data
  * retrieved and the current user defined parameters, to use in d3plus charts.
- * @param {CreateChartConfigParams} param0 The object containing the parameters
+ * @param {Object} query The current query object from the Vizbuilder's state
+ * @param {Object[]} dataset The dataset for the current query
+ * @param {Object<string,string[]>} members An object with the members in the current dataset
+ * @param {string} activeType The currently active chart type
+ * @param {UserDefinedChartConfig} param0 The object containing the parameters
  * @returns {CreateChartConfigResult[]}
  */
-export default function createChartConfig({
-  activeType,
-  defaultConfig,
-  formatting,
-  measureConfig,
-  members,
+export default function createChartConfig(
   query,
-  topojson,
-  visualizations
-}) {
+  dataset,
+  members,
+  activeType,
+  {defaultConfig, formatting, measureConfig, topojson, visualizations}
+) {
+  const memberKey = query.member ? `${query.member.key}` : "";
+
+  // this prevents execution when the activeChart isn't for this query
+  if (activeType) {
+    let activeKey = activeType.split("_");
+    activeType = activeKey.shift();
+    activeKey = activeKey.join("_");
+
+    if (activeKey !== memberKey) {
+      return [];
+    }
+  }
+
   const availableKeys = Object.keys(members);
   const availableCharts = new Set(activeType ? [activeType] : visualizations);
 
@@ -243,7 +264,7 @@ export default function createChartConfig({
   const measureName = measure.name;
   const measureUnits = measure.annotations.units_of_measurement;
   const measureFormatter = formatting[measureUnits] || formatAbbreviate;
-  const getMeasureName = d => d[measureName];
+  const getMeasureValue = d => d[measureName];
 
   const hasTimeDim = timeDrilldownName && Array.isArray(members[timeDrilldownName]);
   const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
@@ -252,6 +273,7 @@ export default function createChartConfig({
 
   const commonConfig = {
     title: `${measureName} by ${drilldownName}`,
+    data: dataset,
     height: activeType ? 500 : 400,
     legend: false,
 
@@ -268,8 +290,8 @@ export default function createChartConfig({
     },
 
     duration: 0,
-    sum: getMeasureName,
-    value: getMeasureName
+    sum: getMeasureValue,
+    value: getMeasureValue
   };
 
   if (hasTimeDim) {
@@ -277,7 +299,7 @@ export default function createChartConfig({
   }
 
   if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
-    commonConfig.total = getMeasureName;
+    commonConfig.total = getMeasureValue;
   }
 
   const topojsonConfig = topojson[drilldownName];
@@ -312,7 +334,6 @@ export default function createChartConfig({
       availableCharts.delete("treemap");
       availableCharts.delete("barchartyear");
     }
-
   }
 
   const currentMeasureConfig = measureConfig[measureName] || {};
@@ -321,6 +342,7 @@ export default function createChartConfig({
     activeType,
     aggregatorType,
     availableKeys,
+    dataset,
     measureFormatter,
     topojsonConfig,
     chartConfig: {
@@ -331,9 +353,13 @@ export default function createChartConfig({
 
   return Array.from(
     availableCharts,
-    type =>
-      type in charts
-        ? {type, config: makeConfig[type](commonConfig, query, flags)}
+    chartType =>
+      charts.hasOwnProperty(chartType)
+        ? {
+            key: chartType + (memberKey ? `_${memberKey}` : ""),
+            component: charts[chartType],
+            config: makeConfig[chartType](commonConfig, query, flags)
+          }
         : null
   ).filter(Boolean);
 }
@@ -347,13 +373,10 @@ export default function createChartConfig({
  */
 
 /**
- * @typedef {object} CreateChartConfigParams
- * @prop {string} activeType The currently active chart type
+ * @typedef {object} UserDefinedChartConfig
  * @prop {object} defaultConfig The general config params provided by the user
  * @prop {object} formatting An object with formatting functions for measure values. Keys are the value of measure.annotations.units_of_measurement
  * @prop {object} measureConfig The config params for specific measures provided by the user
- * @prop {object} members An object with the members in the current dataset
- * @prop {object} query The current query object from the Vizbuilder's state
  * @prop {object} topojson An object where keys are Level names and values are config params for the topojson properties
  * @prop {string[]} visualizations An array with valid visualization names to present
  */
@@ -361,5 +384,7 @@ export default function createChartConfig({
 /**
  * @typedef {object} CreateChartConfigResult
  * @prop {string} type The type of chart for this config
+ * @prop {string} key A deterministic unique string to identify the chart
+ * @prop {object} component The chart component this config is intended to use
  * @prop {object} config The config object for the chart
  */

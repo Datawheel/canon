@@ -51,6 +51,7 @@ export function loadControl() {
         inProgress: false,
         total: 0,
         done: 0,
+        lastUpdate: Math.random(),
         error: null,
         severity: Intent.NONE
       }
@@ -92,7 +93,7 @@ export function mergeStates(state, newState) {
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    if ("dataset|members".includes(key)) {
+    if (/^dataset|^members|^meta/.test(key)) {
       finalState[key] = newState[key];
     }
     else {

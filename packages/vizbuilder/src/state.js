@@ -3,34 +3,13 @@
  */
 export default function initialStateFactory() {
   return {
+    lastUpdate: null,
     load: {
       inProgress: false,
       total: 0,
       done: 0,
       error: undefined,
       severity: -1
-    },
-    query: {
-      activeChart: null,
-      conditions: [],
-      cube: null,
-      dimension: null,
-      drilldown: null,
-      measure: null,
-      moe: null,
-      source: null, 
-      collection: null, 
-      timeDrilldown: null,
-      limit: undefined,
-      locale: "en",
-      offset: undefined,
-      order: undefined,
-      orderDesc: undefined,
-      optionsNonempty: true,
-      optionsDistinct: false,
-      optionsParents: false,
-      optionsDebug: false,
-      optionsSparse: true
     },
     options: {
       // All cubes retrieved initially
@@ -44,8 +23,32 @@ export default function initialStateFactory() {
       // All valid measures (not MoEs) from all the cubes retrieved
       measures: []
     },
+    query: {
+      activeChart: null,
+      conditions: [],
+      cube: null,
+      dimension: null,
+      drilldown: null,
+      measure: null,
+      moe: null,
+      source: null,
+      collection: null,
+      timeDrilldown: null,
+      limit: undefined,
+      locale: "en",
+      offset: undefined,
+      order: undefined,
+      orderDesc: undefined,
+      optionsNonempty: true,
+      optionsDistinct: false,
+      optionsParents: false,
+      optionsDebug: false,
+      optionsSparse: true
+    },
     dataset: [],
     members: {},
-    meta: {}
+    metaQueries: [],
+    metaDatasets: [],
+    metaMembers: []
   };
 }

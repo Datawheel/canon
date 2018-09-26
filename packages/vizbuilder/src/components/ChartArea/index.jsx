@@ -16,22 +16,17 @@ class ChartArea extends React.Component {
   constructor(props) {
     super(props);
 
-    this.actions = Object.keys(charts).reduce((box, type) => {
-      box[type] = this.selectChart.bind(this, type);
-      return box;
-    }, {});
-
     this.resizeCall = undefined;
     this.scrollCall = undefined;
 
+    this.selectChart = this.selectChart.bind(this);
     this.scrollEnsure = this.scrollEnsure.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
     return (
-      this.props.dataset !== nextProps.dataset ||
-      this.props.visualizations !== nextProps.visualizations ||
-      this.props.activeChart !== nextProps.activeChart
+      this.props.activeChart !== nextProps.activeChart ||
+      this.props.triggerUpdate !== nextProps.triggerUpdate
     );
   }
 
@@ -60,18 +55,20 @@ class ChartArea extends React.Component {
   render() {
     const {
       activeChart,
-      dataset,
       defaultConfig,
       formatting,
+      mainDataset,
+      mainMembers,
+      mainQuery,
       measureConfig,
-      members,
-      query,
+      metaDatasets,
+      metaMembers,
+      metaQueries,
       topojson,
       visualizations
     } = this.props;
-    const actions = this.actions;
 
-    if (!dataset.length) {
+    if (!mainDataset.length) {
       return (
         <div className="area-chart empty">
           <NonIdealState visual="error" title="Empty dataset" />
@@ -79,30 +76,45 @@ class ChartArea extends React.Component {
       );
     }
 
-    const chartConfig = createChartConfig({
-      activeType: activeChart,
+    const generalConfig = {
       defaultConfig,
       formatting: {
         ...DEFAULT_FORMATTERS,
         ...formatting
       },
       measureConfig,
-      members,
-      query,
       topojson,
       visualizations
-    });
+    };
 
-    const chartElements = chartConfig.map(chart => (
-      <ChartCard
-        key={chart.type}
-        active={chart.type === activeChart}
-        config={chart.config}
-        dataset={dataset}
-        onSelect={actions[chart.type]}
-        type={chart.type}
-      />
-    ));
+    const allQueries = [mainQuery].concat(metaQueries);
+    const allDatasets = [mainDataset].concat(metaDatasets);
+    const allMembers = [mainMembers].concat(metaMembers);
+
+    const chartElements = [];
+
+    let n = allQueries.length;
+
+    while (n--) {
+      const chartConfigs = createChartConfig(
+        allQueries[n],
+        allDatasets[n],
+        allMembers[n],
+        activeChart,
+        generalConfig
+      );
+      const asdf = chartConfigs.map((chartConfig, i) => (
+        <ChartCard
+          active={chartConfig.key === activeChart}
+          key={chartConfig.key}
+          name={chartConfig.key}
+          onSelect={this.selectChart}
+        >
+          <chartConfig.component config={chartConfig.config} />
+        </ChartCard>
+      ));
+      chartElements.unshift(...asdf);
+    }
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
@@ -122,12 +134,15 @@ ChartArea.contextTypes = {
 
 ChartArea.propTypes = {
   activeChart: PropTypes.string,
-  dataset: PropTypes.array,
   defaultConfig: PropTypes.object,
   formatting: PropTypes.objectOf(PropTypes.func),
+  mainDataset: PropTypes.array,
+  mainMembers: PropTypes.objectOf(PropTypes.array),
+  mainQuery: PropTypes.object,
   measureConfig: PropTypes.object,
-  members: PropTypes.objectOf(PropTypes.array),
-  query: PropTypes.object,
+  metaDatasets: PropTypes.arrayOf(PropTypes.array),
+  metaMembers: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.array)),
+  metaQueries: PropTypes.arrayOf(PropTypes.object),
   topojson: PropTypes.objectOf(
     PropTypes.shape({
       topojson: PropTypes.string.isRequired,
@@ -135,12 +150,13 @@ ChartArea.propTypes = {
       topojsonKey: PropTypes.string
     })
   ),
+  triggerUpdate: PropTypes.number,
   visualizations: PropTypes.arrayOf(PropTypes.string)
 };
 
 ChartArea.defaultProps = {
   activeChart: null,
-  dataset: []
+  mainDataset: []
 };
 
 export default ChartArea;
