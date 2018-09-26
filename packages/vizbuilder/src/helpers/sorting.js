@@ -342,7 +342,6 @@ export function getTimeDrilldown(cube) {
  * @param {Array<any>} dataset The result dataset for the query object passed along.
  */
 export function getIncludedMembers(query, dataset) {
-  if (dataset.length) {
     return query.getDrilldowns().reduce((members, dd) => {
       const key = dd.name;
       const set = {};
@@ -357,10 +356,6 @@ export function getIncludedMembers(query, dataset) {
       return members;
     }, {});
   }
-  else {
-    return {};
-  }
-}
 
 /**
  * Generates a sorting function to be used in `Array.prototype.sort`,
