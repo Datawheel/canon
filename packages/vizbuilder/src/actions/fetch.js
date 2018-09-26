@@ -49,6 +49,7 @@ export function injectCubeInfoOnMeasure(cubes) {
       const msAnnotations = measure.annotations;
 
       msAnnotations._key = unique(`${cbName} ${measure.name}`);
+      msAnnotations._cb_datasetName = datasetName;
       msAnnotations._cb_name = cbName;
       msAnnotations._cb_topic = cbTopic;
       msAnnotations._cb_subtopic = cbSubtopic;
