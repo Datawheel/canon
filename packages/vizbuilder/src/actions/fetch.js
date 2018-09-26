@@ -1,14 +1,17 @@
 import {unique} from "shorthash";
+
 import * as api from "../helpers/api";
+import {queryBuilder, queryConverter} from "../helpers/query";
 import {
   findByName,
   finishBuildingStateFromParameters,
+  getIncludedMembers,
   getMeasureMOE,
+  getMeasureSource,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns,
-  getValidMeasures,
-  getMeasureSource
+  getValidMeasures
 } from "../helpers/sorting";
 
 /**
@@ -81,32 +84,32 @@ export function fetchCubes(params) {
   return api.cubes().then(cubes => {
     injectCubeInfoOnMeasure(cubes);
 
-    const measures = getValidMeasures(cubes);
-    const measure = findByName(params.defaultMeasure, measures, true);
+      const measures = getValidMeasures(cubes);
+      const measure = findByName(params.defaultMeasure, measures, true);
 
-    const cubeName = measure.annotations._cb_name;
-    const cube = cubes.find(cube => cube.name === cubeName);
+      const cubeName = measure.annotations._cb_name;
+      const cube = cubes.find(cube => cube.name === cubeName);
 
-    const dimensions = getValidDimensions(cube);
-    const drilldowns = getValidDrilldowns(dimensions);
-    const sources = getMeasureSource(cube, measure);
+      const dimensions = getValidDimensions(cube);
+      const drilldowns = getValidDrilldowns(dimensions);
+      const sources = getMeasureSource(cube, measure);
 
-    const state = {
-      options: {cubes, measures, dimensions, drilldowns},
-      query: {
-        cube,
-        measure,
-        moe: getMeasureMOE(cube, measure),
-        collection: sources.collectionMeasure,
-        source: sources.sourceMeasure,
-        timeDrilldown: getTimeDrilldown(cube),
-        activeChart: params.enlarged || null,
-        conditions: []
-      }
-    };
+      const state = {
+        options: {cubes, measures, dimensions, drilldowns},
+        query: {
+          cube,
+          measure,
+          moe: getMeasureMOE(cube, measure),
+          collection: sources.collectionMeasure,
+          source: sources.sourceMeasure,
+          timeDrilldown: getTimeDrilldown(cube),
+          activeChart: params.enlarged || null,
+          conditions: []
+        }
+      };
 
-    return finishBuildingStateFromParameters(state, params);
-  });
+      return finishBuildingStateFromParameters(state, params);
+    });
 }
 
 /**
@@ -117,9 +120,45 @@ export function fetchMembers(level) {
   return api.members(level);
 }
 
+/** @type {string} */
+let lastPath;
+
+/** @type {Promise<QueryResults>} */
+let lastQuery;
+
 /**
  * Retrieves the dataset for the query in the current Vizbuilder state.
+ * @param {object} params The Vizbuilder's state query object
+ * @returns {Promise<QueryResults>}
  */
-export function fetchQuery() {
-  return api.query(this.state.query);
+export function fetchQuery(params) {
+  if (!params.cube) {
+    throw new Error("Invalid query: No 'cube' property defined.");
+  }
+
+  const mondrianQuery = queryBuilder(params.cube.query, queryConverter(params));
+
+  const newPath = mondrianQuery.path();
+
+  if (newPath !== lastPath) {
+    lastPath = newPath;
+    lastQuery = api.query(mondrianQuery).then(result => {
+      const dataset = (result.data || {}).data || [];
+      if (dataset.length > 9999) {
+        throw new Error(
+          "This query returned too many data points. Please try a query with less granularity."
+        );
+      }
+      const members = getIncludedMembers(mondrianQuery, dataset);
+      return {dataset, members};
+    });
+  }
+
+  return Promise.resolve(lastQuery);
 }
+
+/**
+ * @typedef QueryResults
+ * @prop {object[]} dataset The dataset for the current query
+ * @prop {object} members An object with the list of current member names for the current drilldowns. Is the output of the `getIncludedMembers` function.
+ */
