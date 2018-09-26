@@ -30,6 +30,8 @@ export default function initialStateFactory() {
       dimension: null,
       drilldown: null,
       measure: null,
+      lci: null,
+      uci: null,
       moe: null,
       source: null,
       collection: null,

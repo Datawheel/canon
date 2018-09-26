@@ -3,14 +3,27 @@ import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 
 import {PROPNAMESTYLES, composePropertyName} from "../../helpers/formatting";
-import BaseSelect from "../BaseSelect";
 
-function LevelSelect(props) {
-  return React.createElement(BaseSelect, props);
+import MultiLevelSelect from "./MultiLevelSelect";
+
+class LevelSelect extends MultiLevelSelect {
+  renderTarget(item) {
+    const valueLabel = item.caption || item.name;
+    return (
+      <div className="select-option current" title={valueLabel}>
+        <span className="value">{valueLabel}</span>
+        <span className="pt-icon-standard pt-icon-double-caret-vertical" />
+      </div>
+    );
+  }
 }
 
+LevelSelect.displayName = "LevelSelect";
 LevelSelect.defaultProps = {
-  ...BaseSelect.defaultProps,
+  ...MultiLevelSelect.defaultProps,
+  getItemHeight() {
+    return 40;
+  },
   itemListPredicate(query, items) {
     query = query.trim();
     query = escapeRegExp(query);
@@ -38,8 +51,7 @@ LevelSelect.defaultProps = {
         </span>
       </li>
     );
-  },
-  tagRenderer: composePropertyName
+  }
 };
 
 export default LevelSelect;

@@ -27,16 +27,26 @@ export const charts = {
 export const ALL_YEARS = "All years";
 
 export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
-  const {drilldownName, measureName, moe, source, collection} = query;
+  const {drilldownName, measureName, moe, lci, uci, source, collection} = query;
   const tbody = drilldowns.filter(d => d !== drilldownName).map(dd => [dd, d => d[dd]]);
   tbody.push([measureName, d => measureFormatter(d[measureName])]);
-  if (moe) {
+
+  if (lci && uci) {
+    const lciName = lci.name;
+    const uciName = uci.name;
+    tbody.push([
+      "Confidence Interval",
+      d => `[${measureFormatter(d[lciName] * 1 || 0)}, ${measureFormatter(d[uciName] * 1 || 0)}]`
+    ]);
+  }
+  else if (moe) {
     const moeName = moe.name;
     tbody.push([
       "Margin of Error",
       d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
     ]);
-  }
+  } 
+
   if (source) {
     const sourceName = source.name;
     tbody.push([
@@ -160,7 +170,7 @@ const makeConfig = {
     };
   },
   lineplot(commonConfig, query, flags) {
-    const {drilldown, measure, moe, timeDrilldown} = query;
+    const {drilldown, measure, moe, lci, uci, timeDrilldown} = query;
 
     const drilldownName = timeDrilldown.name;
     const measureName = measure.name;
@@ -184,7 +194,17 @@ const makeConfig = {
 
     if (flags.metaChart && query.member) config.title += ` (${query.member.name})`;
 
-    if (moe) {
+    if (lci && uci) {
+      const lciName = lci.name;
+      const uciName = uci.name;
+
+      config.confidence = [
+        d => d[lciName],
+        d => d[uciName]
+      ];
+    }
+
+    else if (moe) {
       const moeName = moe.name;
 
       config.confidence = [
@@ -192,6 +212,7 @@ const makeConfig = {
         d => d[measureName] + d[moeName]
       ];
     }
+    
 
     delete config.time;
 
@@ -282,7 +303,7 @@ export default function createChartConfig(
     legend: false,
 
     tooltipConfig: tooltipGenerator(
-      {drilldownName, measureName, moe: query.moe},
+      {drilldownName, measureName, moe: query.moe, lci: query.lci, uci: query.uci},
       availableKeys,
       measureFormatter
     ),
