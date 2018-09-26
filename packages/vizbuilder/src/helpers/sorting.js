@@ -125,8 +125,8 @@ export function getValidMeasures(cubes) {
       const measure = cube.measures[nMsr];
       const msAnnotations = measure.annotations;
       if (
-        msAnnotations.error_for_measure === undefined && 
-        msAnnotations.error_type === undefined && 
+        msAnnotations.error_for_measure === undefined &&
+        msAnnotations.error_type === undefined &&
         msAnnotations.source_for_measure === undefined &&
         msAnnotations.collection_for_measure === undefined
       ) {
@@ -197,7 +197,7 @@ export function getMeasureCI(cube, measure, type = "MOE") {
   return undefined;
 }
 
-/** 
+/**
  * Returns the source measure for a certain measure, in the full measure list
  * from the cube. If there's no source for the measure, returns undefined.
  * @param {Cube} cube The measure's parent cube
@@ -214,7 +214,7 @@ export function getMeasureSource(cube, measure) {
       const currentMeasure = cube.measures[nMsr];
 
       const collectionKey = currentMeasure.annotations.collection_for_measure,
-            sourceKey = currentMeasure.annotations.source_for_measure;
+        sourceKey = currentMeasure.annotations.source_for_measure;
 
       if (!sourceMeasure && sourceKey && measureName.test(sourceKey)) {
         sourceMeasure = currentMeasure;
@@ -255,11 +255,16 @@ export function getValidDrilldowns(dimensions) {
  */
 export function preventHierarchyIncompatibility(array, interestLevel) {
   const interestHierarchy = interestLevel.hierarchy;
+  const interestDimension = interestHierarchy.dimension;
 
   let n = array.length;
   while (n--) {
     const level = array[n];
-    if (level.hierarchy !== interestHierarchy || level.depth > interestLevel.depth) {
+    const hierarchy = level.hierarchy;
+    if (
+      hierarchy.dimension === interestDimension &&
+      (hierarchy !== interestHierarchy || level.depth > interestLevel.depth)
+    ) {
       array.splice(n, 1);
     }
   }
@@ -342,20 +347,20 @@ export function getTimeDrilldown(cube) {
  * @param {Array<any>} dataset The result dataset for the query object passed along.
  */
 export function getIncludedMembers(query, dataset) {
-    return query.getDrilldowns().reduce((members, dd) => {
-      const key = dd.name;
-      const set = {};
+  return query.getDrilldowns().reduce((members, dd) => {
+    const key = dd.name;
+    const set = {};
 
-      let n = dataset.length;
-      while (n--) {
-        const value = dataset[n][key];
-        set[value] = 0;
-      }
+    let n = dataset.length;
+    while (n--) {
+      const value = dataset[n][key];
+      set[value] = 0;
+    }
 
-      members[key] = Object.keys(set).sort();
-      return members;
-    }, {});
-  }
+    members[key] = Object.keys(set).sort();
+    return members;
+  }, {});
+}
 
 /**
  * Generates a sorting function to be used in `Array.prototype.sort`,

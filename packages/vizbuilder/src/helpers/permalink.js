@@ -147,7 +147,7 @@ export function unserializeCondition(measures, levels, conditionHash) {
       promise = fetchMembers(property).then(
         members => {
           condition.values = conditionValues.map(memberKey =>
-            members.find(member => member.key === memberKey)
+            members.find(member => `${member.key}` === memberKey)
           );
           return condition;
         },
