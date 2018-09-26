@@ -182,6 +182,8 @@ const makeConfig = {
       config.yConfig.title += " (Log)";
     }
 
+    if (flags.metaChart && query.member) config.title += ` (${query.member.name})`;
+
     if (moe) {
       const moeName = moe.name;
 
@@ -205,6 +207,7 @@ const makeConfig = {
     const measureName = query.measure.name;
 
     config.title = `${measureName} by ${drilldownName}`;
+    if (flags.metaChart && query.member) config.title += ` (${query.member.name})`;
 
     return config;
   },
@@ -316,7 +319,7 @@ export default function createChartConfig(
       availableCharts.delete("lineplot");
     }
 
-    if (!hasGeoDim || !topojsonConfig) {
+    if (!hasGeoDim || !topojsonConfig || hasGeoDim && members[drilldownName].length === 1) {
       availableCharts.delete("geomap");
     }
 
@@ -346,6 +349,7 @@ export default function createChartConfig(
     availableKeys,
     dataset,
     measureFormatter,
+    metaChart,
     topojsonConfig,
     chartConfig: {
       ...defaultConfig,
