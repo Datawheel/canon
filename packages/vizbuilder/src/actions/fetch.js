@@ -6,9 +6,7 @@ import {
   findByName,
   finishBuildingStateFromParameters,
   getIncludedMembers,
-  getMeasureCI,
-  getMeasureMOE,
-  getMeasureSource,
+  getMeasureMeta,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns,
@@ -93,26 +91,19 @@ export function fetchCubes(params) {
 
     const cubeName = measure.annotations._cb_name;
     const cube = cubes.find(cube => cube.name === cubeName);
-    const lci = getMeasureCI(cube, measure, "LCI");
-    const uci = getMeasureCI(cube, measure, "UCI");
-    const moe = getMeasureMOE(cube, measure);
+    const measureMeta = getMeasureMeta(cube, measure);
     const timeDrilldown = getTimeDrilldown(cube);
 
     const dimensions = getValidDimensions(cube);
     const drilldowns = getValidDrilldowns(dimensions);
-    const sources = getMeasureSource(cube, measure);
 
     const state = {
       options: {cubes, measures, dimensions, drilldowns},
       query: {
+        ...measureMeta,
         cube,
         measure,
-        lci,
-        uci,
-        moe,
         timeDrilldown,
-        collection: sources.collectionMeasure,
-        source: sources.sourceMeasure,
         activeChart: params.enlarged || null,
         conditions: []
       }

@@ -3,17 +3,15 @@ import PropTypes from "prop-types";
 
 import {
   findByName,
-  getMeasureCI,
-  getMeasureMOE,
-  getMeasureSource,
+  finishBuildingStateFromParameters,
+  getMeasureMeta,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns,
   matchDefault,
   preventHierarchyIncompatibility,
   reduceLevelsFromDimension,
-  removeDuplicateLevels,
-  finishBuildingStateFromParameters
+  removeDuplicateLevels
 } from "../../helpers/sorting";
 
 import CommonSelect from "./CommonSelect";
@@ -36,16 +34,16 @@ class Sidebar extends React.PureComponent {
   setDimension(dimension) {
     const {dimensions} = this.props.options;
     const {loadControl, fetchQuery} = this.context;
-    const {defaultQuery = []} = this.props;
+    const {defaultQuery} = this.props;
     const defaultLevel = [].concat(defaultQuery.defaultLevel).reverse();
 
     return loadControl(() => {
       const levels = reduceLevelsFromDimension([], dimension);
-      const drilldown = matchDefault(findByName, levels, defaultLevel, true);
+      removeDuplicateLevels(levels);
 
       const drilldowns = getValidDrilldowns(dimensions);
+      const drilldown = matchDefault(findByName, levels, defaultLevel, true);
       preventHierarchyIncompatibility(drilldowns, drilldown);
-      removeDuplicateLevels(levels);
 
       return {
         options: {drilldowns, levels},
@@ -80,29 +78,17 @@ class Sidebar extends React.PureComponent {
     return loadControl(() => {
       const cubeName = measure.annotations._cb_name;
       const cube = options.cubes.find(cube => cube.name === cubeName);
-      const lci = getMeasureCI(cube, measure, "LCI");
-      const uci = getMeasureCI(cube, measure, "UCI");
-      const moe = getMeasureMOE(cube, measure);
-      const timeDrilldown = getTimeDrilldown(cube);
+      const measureMeta = getMeasureMeta(cube, measure);
 
       const dimensions = getValidDimensions(cube);
       const drilldowns = getValidDrilldowns(dimensions);
-      const sources = getMeasureSource(cube, measure);
 
       const state = {
         options: {dimensions, drilldowns},
         query: {
+          ...measureMeta,
           cube,
           measure,
-          lci,
-          uci,
-          moe,
-          timeDrilldown
-        },
-        queryOptions: {
-          moe,
-          collection: sources.collectionMeasure,
-          source: sources.sourceMeasure,
           timeDrilldown: getTimeDrilldown(cube)
         }
       };

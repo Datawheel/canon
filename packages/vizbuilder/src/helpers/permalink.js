@@ -7,8 +7,7 @@ import {
   findByKey,
   findByName,
   finishBuildingStateFromParameters,
-  getMeasureMOE,
-  getMeasureSource,
+  getMeasureMeta,
   getTimeDrilldown,
   getValidDimensions,
   getValidDrilldowns
@@ -67,21 +66,19 @@ export function permalinkToState(prevState, queryParams) {
 
   const cubeName = measure.annotations._cb_name;
   const cube = stateOptions.cubes.find(cube => cube.name === cubeName);
+  const measureMeta = getMeasureMeta(cube, measure);
 
   const dimensions = getValidDimensions(cube);
   const drilldowns = getValidDrilldowns(dimensions);
-  const sources = getMeasureSource(cube, measure);
 
   const nextState = finishBuildingStateFromParameters(
     mergeStates(prevState, {
       query: {
+        ...measureMeta,
         activeChart: queryParams.enlarged,
         conditions: [].concat(queryParams.filters || []),
         cube,
         measure,
-        moe: getMeasureMOE(cube, measure),
-        collection: sources.collectionMeasure,
-        source: sources.sourceMeasure,
         timeDrilldown: getTimeDrilldown(cube)
       },
       options: {dimensions, drilldowns}

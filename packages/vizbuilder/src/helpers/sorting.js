@@ -154,78 +154,47 @@ export function getValidMeasures(cubes) {
  * @param {*} measure The measure
  * @returns {Measure|undefined}
  */
-export function getMeasureMOE(cube, measure) {
+export function getMeasureMeta(cube, measure) {
+  let lci, uci, moe, collection, source;
   const measureName = RegExp(measure.name, "i");
 
   if (cube.measures.indexOf(measure) > -1) {
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const currentMeasure = cube.measures[nMsr];
+      const measureAnnotations = currentMeasure.annotations;
 
-      const key = currentMeasure.annotations.error_for_measure;
-      if (key && measureName.test(key)) {
-        return currentMeasure;
+      const keyMoe = measureAnnotations.error_for_measure;
+      const keyCollection = measureAnnotations.collection_for_measure;
+      const keySource = measureAnnotations.source_for_measure;
+
+      if (keyMoe && measureName.test(keyMoe)) {
+        const errorType = measureAnnotations.error_type;
+
+        if (errorType === "LCI") {
+          lci = currentMeasure;
+        } else if (errorType === "UCI") {
+          uci = currentMeasure;
+        } else {
+          moe = currentMeasure;
+        }
+      }
+
+      if (!source && keySource && measureName.test(keySource)) {
+        source = currentMeasure;
+      }
+
+      if (!collection && keyCollection && measureName.test(keyCollection)) {
+        collection = currentMeasure;
+      }
+
+      if (collection && ((lci && uci) || moe) && source) {
+        break;
       }
     }
   }
 
-  return undefined;
-}
-
-/**
- * Returns the CI measures for a certain measure, in the full measure list
- * from the cube. If there's no CI for the measure, returns undefined.
- * @param {Cube} cube The measure's parent cube
- * @param {*} measure The measure
- * @returns {Measure|undefined}
- */
-export function getMeasureCI(cube, measure, type = "MOE") {
-  const measureName = RegExp(measure.name, "i");
-
-  if (cube.measures.indexOf(measure) > -1) {
-    let nMsr = cube.measures.length;
-    while (nMsr--) {
-      const currentMeasure = cube.measures[nMsr];
-
-      const key = currentMeasure.annotations.error_type;
-      const keyErrorForMsr = currentMeasure.annotations.error_for_measure;
-
-      if (key && measureName.test(keyErrorForMsr) && key === type) return currentMeasure;
-    }
-  }
-
-  return undefined;
-}
-
-/**
- * Returns the source measure for a certain measure, in the full measure list
- * from the cube. If there's no source for the measure, returns undefined.
- * @param {Cube} cube The measure's parent cube
- * @param {*} measure The measure
- * @returns {Measure|undefined}
- */
-export function getMeasureSource(cube, measure) {
-  let collectionMeasure, sourceMeasure;
-  const measureName = RegExp(measure.name, "i");
-
-  if (cube.measures.indexOf(measure) > -1) {
-    let nMsr = cube.measures.length;
-    while (nMsr--) {
-      const currentMeasure = cube.measures[nMsr];
-
-      const collectionKey = currentMeasure.annotations.collection_for_measure,
-        sourceKey = currentMeasure.annotations.source_for_measure;
-
-      if (!sourceMeasure && sourceKey && measureName.test(sourceKey)) {
-        sourceMeasure = currentMeasure;
-      }
-      if (!collectionMeasure && collectionKey && measureName.test(collectionKey)) {
-        collectionMeasure = currentMeasure;
-      }
-    }
-  }
-
-  return {collectionMeasure, sourceMeasure};
+  return {lci, uci, moe, collection, source};
 }
 
 /**
