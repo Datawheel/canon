@@ -5,6 +5,7 @@ import classNames from "classnames";
 import {uuid} from "d3plus-common";
 
 import OPERATORS from "../../../helpers/operators";
+import {getValidMeasures} from "../../../helpers/sorting";
 
 import ConditionItem from "./ConditionItem";
 
@@ -63,7 +64,7 @@ class ConditionManager extends React.Component {
     const props = this.props;
     const {conditions, cube} = props.query;
     const {drilldowns} = props.options;
-    const properties = [].concat(cube.measures, drilldowns);
+    const properties = [].concat(getValidMeasures(cube), drilldowns);
 
     return (
       <div className={classNames(props.className, "condition-manager")}>

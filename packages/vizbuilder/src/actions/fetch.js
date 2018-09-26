@@ -3,6 +3,7 @@ import * as api from "../helpers/api";
 import {
   findByName,
   finishBuildingStateFromParameters,
+  getMeasureCI,
   getMeasureMOE,
   getTimeDrilldown,
   getValidDimensions,
@@ -34,6 +35,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cbSubtopic = cbAnnotations.subtopic;
     const selectorKey = `${cbTopic}_${cbSubtopic}_`;
     const sourceName = cbAnnotations.source_name;
+    const datasetName = cbAnnotations.dataset_name;
 
     cbAnnotations._key = unique(cbName);
 
@@ -48,7 +50,8 @@ export function injectCubeInfoOnMeasure(cubes) {
       msAnnotations._cb_topic = cbTopic;
       msAnnotations._cb_subtopic = cbSubtopic;
       msAnnotations._cb_sourceName = sourceName;
-      msAnnotations._selectorKey = selectorKey + measureLabel;
+      msAnnotations._sortKey = selectorKey + measureLabel;
+      msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${sourceName}_${datasetName}`;
     }
 
     let nDim = cube.dimensions.length;
@@ -66,7 +69,7 @@ export function injectCubeInfoOnMeasure(cubes) {
         while (nLvl--) {
           const level = hierarchy.levels[nLvl];
 
-          level.annotations._key = unique(keyPrefix + level.name);
+          level.annotations._key = unique(`${keyPrefix} ${hierarchy.name} ${level.name}`);
         }
       }
     }
@@ -86,6 +89,10 @@ export function fetchCubes(params) {
 
     const cubeName = measure.annotations._cb_name;
     const cube = cubes.find(cube => cube.name === cubeName);
+    const lci = getMeasureCI(cube, measure, "LCI");
+    const uci = getMeasureCI(cube, measure, "UCI");
+    const moe = getMeasureMOE(cube, measure);
+    const timeDrilldown = getTimeDrilldown(cube);
 
     const dimensions = getValidDimensions(cube);
     const drilldowns = getValidDrilldowns(dimensions);
@@ -96,10 +103,12 @@ export function fetchCubes(params) {
       query: {
         cube,
         measure,
-        moe: getMeasureMOE(cube, measure),
+        lci,
+        uci,
+        moe,
+        timeDrilldown,
         collection: sources.collectionMeasure,
         source: sources.sourceMeasure,
-        timeDrilldown: getTimeDrilldown(cube),
         activeChart: params.enlarged || null,
         conditions: []
       }

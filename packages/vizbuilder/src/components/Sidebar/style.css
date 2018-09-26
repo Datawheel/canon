@@ -58,7 +58,7 @@
     font-style: italic;
   }
 
-  & .select-option {
+  & .select-option.level-last {
     padding-left: 26px;
   }
 }

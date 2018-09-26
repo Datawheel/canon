@@ -102,11 +102,18 @@ class MultiLevelSelect extends React.Component {
     } = this.props;
     const {query} = this.state;
 
-    const filteredItems = query ? itemListPredicate(query, items) : items;
-    const composedItems = itemListComposer(filteredItems);
+    let finalItems = items;
+
+    if (query && itemListPredicate) {
+      finalItems = itemListPredicate(query, finalItems);
+    }
+
+    if (itemListComposer) {
+      finalItems = itemListComposer(finalItems);
+    }
 
     const value = [].concat(this.props.value);
-    const valueIndex = composedItems.indexOf(value[0]);
+    const valueIndex = finalItems.indexOf(value[0]);
 
     return (
       <div className="mlsel-popover-content">
@@ -128,7 +135,7 @@ class MultiLevelSelect extends React.Component {
 
         <VirtualListWrapper
           className="mlsel-select-list"
-          items={composedItems}
+          items={finalItems}
           value={value}
           scrollToIndex={valueIndex}
           itemRenderer={itemRenderer}
@@ -171,6 +178,17 @@ MultiLevelSelect.defaultProps = {
   defaultOption: {name: "Select...", disabled: true},
   inputProps: {
     autoFocus: true
+  },
+  itemRenderer({style, handleClick, isActive, item}) {
+    const props = {
+      className: classNames("select-option", {active: isActive}),
+      key: item.annotations._key,
+      onClick: handleClick,
+      style,
+      title: item.name,
+    };
+    const child = <span className="select-label">{item.name}</span>;
+    return React.createElement("li", props, child);
   },
   popoverProps: {
     modifiers: {
