@@ -124,7 +124,12 @@ export function getValidMeasures(cubes) {
     while (nMsr--) {
       const measure = cube.measures[nMsr];
       const msAnnotations = measure.annotations;
-      if (msAnnotations.error_for_measure === undefined) {
+      if (
+        msAnnotations.error_for_measure === undefined && 
+        msAnnotations.error_type === undefined && 
+        msAnnotations.source_for_measure === undefined &&
+        msAnnotations.collection_for_measure === undefined
+      ) {
         if (msAnnotations._cb_topic === "Other") {
           otherMeasures.push(measure);
         }
@@ -135,7 +140,7 @@ export function getValidMeasures(cubes) {
     }
   }
 
-  const sortingFunction = a => a.annotations._selectorKey;
+  const sortingFunction = a => a.annotations._sortKey;
   const sortedMeasures = sort(measures).asc(sortingFunction);
   const sortedOther = sort(otherMeasures).asc(sortingFunction);
 
@@ -168,6 +173,31 @@ export function getMeasureMOE(cube, measure) {
 }
 
 /**
+ * Returns the CI measures for a certain measure, in the full measure list
+ * from the cube. If there's no CI for the measure, returns undefined.
+ * @param {Cube} cube The measure's parent cube
+ * @param {*} measure The measure
+ * @returns {Measure|undefined}
+ */
+export function getMeasureCI(cube, measure, type = "MOE") {
+  const measureName = RegExp(measure.name, "i");
+
+  if (cube.measures.indexOf(measure) > -1) {
+    let nMsr = cube.measures.length;
+    while (nMsr--) {
+      const currentMeasure = cube.measures[nMsr];
+
+      const key = currentMeasure.annotations.error_type;
+      const keyErrorForMsr = currentMeasure.annotations.error_for_measure;
+
+      if (key && measureName.test(keyErrorForMsr) && key === type) return currentMeasure;
+    }
+  }
+
+  return undefined;
+}
+
+/** 
  * Returns the source measure for a certain measure, in the full measure list
  * from the cube. If there's no source for the measure, returns undefined.
  * @param {Cube} cube The measure's parent cube

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 import {
   findByName,
+  getMeasureCI,
   getMeasureMOE,
   getMeasureSource,
   getTimeDrilldown,
@@ -15,13 +16,13 @@ import {
   finishBuildingStateFromParameters
 } from "../../helpers/sorting";
 
-import ConditionManager from "./ConditionManager";
+import CommonSelect from "./CommonSelect";
 import ConditionalAnchor from "./ConditionalAnchor";
+import ConditionManager from "./ConditionManager";
 import LevelSelect from "./LevelSelect";
 import MeasureSelect from "./MeasureSelect";
 
 import "./style.css";
-import BaseSelect from "../BaseSelect";
 
 class Sidebar extends React.PureComponent {
   constructor(props) {
@@ -79,6 +80,10 @@ class Sidebar extends React.PureComponent {
     return loadControl(() => {
       const cubeName = measure.annotations._cb_name;
       const cube = options.cubes.find(cube => cube.name === cubeName);
+      const lci = getMeasureCI(cube, measure, "LCI");
+      const uci = getMeasureCI(cube, measure, "UCI");
+      const moe = getMeasureMOE(cube, measure);
+      const timeDrilldown = getTimeDrilldown(cube);
 
       const dimensions = getValidDimensions(cube);
       const drilldowns = getValidDrilldowns(dimensions);
@@ -89,7 +94,13 @@ class Sidebar extends React.PureComponent {
         query: {
           cube,
           measure,
-          moe: getMeasureMOE(cube, measure),
+          lci,
+          uci,
+          moe,
+          timeDrilldown
+        },
+        queryOptions: {
+          moe,
           collection: sources.collectionMeasure,
           source: sources.sourceMeasure,
           timeDrilldown: getTimeDrilldown(cube)
@@ -128,7 +139,7 @@ class Sidebar extends React.PureComponent {
           <div className="control">
             <div className="control select-dimension">
               <p className="label">Grouped by</p>
-              <BaseSelect
+              <CommonSelect
                 className="custom-select"
                 filterable={false}
                 items={options.dimensions}

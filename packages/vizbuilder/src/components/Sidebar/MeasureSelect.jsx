@@ -27,7 +27,7 @@ MeasureSelect.defaultProps = {
     query = query.replace(/\s+/g, ".+");
     const queryTester = RegExp(query || ".", "i");
     return items.filter(item =>
-      queryTester.test(item.annotations._selectorKey)
+      queryTester.test(item.annotations._searchIndex)
     );
   },
   itemListComposer(items) {
@@ -65,7 +65,7 @@ MeasureSelect.defaultProps = {
     const className = [];
 
     if (!item._level) {
-      className.push("select-option");
+      className.push("select-option", "level-last");
       props.onClick = handleClick;
       child2 =
         <span className="select-label lead">

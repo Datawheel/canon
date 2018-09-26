@@ -89,6 +89,14 @@ export function queryConverter(params) {
     query.measures.push(params.moe.name);
   }
 
+  if (params.lci) {
+    query.measures.push(params.lci.name);
+  }
+
+  if (params.uci) {
+    query.measures.push(params.uci.name);
+  }
+
   for (let i = 0; i < params.conditions.length; i++) {
     const condition = params.conditions[i];
 
