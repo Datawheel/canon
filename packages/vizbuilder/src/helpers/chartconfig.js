@@ -239,7 +239,8 @@ export default function createChartConfig(
   dataset,
   members,
   activeType,
-  {defaultConfig, formatting, measureConfig, topojson, visualizations}
+  {defaultConfig, formatting, measureConfig, topojson, visualizations},
+  metaChart
 ) {
   const memberKey = query.member ? `${query.member.key}` : "";
 
@@ -303,7 +304,7 @@ export default function createChartConfig(
   }
 
   const topojsonConfig = topojson[drilldownName];
-
+  
   if (!activeType) {
     if (members[drilldownName].length > 20) {
       availableCharts.delete("barchart");
@@ -332,6 +333,7 @@ export default function createChartConfig(
 
     if (availableKeys.some(d => d !== "Year" && members[d].length === 1)) {
       availableCharts.delete("treemap");
+      availableCharts.delete("barchart");
       availableCharts.delete("barchartyear");
     }
   }
@@ -356,10 +358,10 @@ export default function createChartConfig(
     chartType =>
       charts.hasOwnProperty(chartType)
         ? {
-            key: chartType + (memberKey ? `_${memberKey}` : ""),
-            component: charts[chartType],
-            config: makeConfig[chartType](commonConfig, query, flags)
-          }
+          key: chartType + (memberKey ? `_${memberKey}` : ""),
+          component: charts[chartType],
+          config: makeConfig[chartType](commonConfig, query, flags)
+        }
         : null
   ).filter(Boolean);
 }
