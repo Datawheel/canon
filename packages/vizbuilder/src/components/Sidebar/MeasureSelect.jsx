@@ -69,7 +69,7 @@ MeasureSelect.defaultProps = {
       props.onClick = handleClick;
       child2 =
         <span className="select-label lead">
-          {item.annotations._cb_sourceName} ({item.annotations._cb_name.replace("_", " ")})
+          {item.annotations._cb_datasetName} - {item.annotations._cb_sourceName}
         </span>
       ;
     }
