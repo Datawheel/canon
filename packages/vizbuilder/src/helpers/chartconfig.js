@@ -263,6 +263,10 @@ export default function createChartConfig(
 ) {
   const memberKey = query.member ? `${query.member.key}` : "";
 
+  if (!dataset.length) {
+    return [];
+  }
+
   // this prevents execution when the activeChart isn't for this query
   if (activeType) {
     let activeKey = activeType.split("_");

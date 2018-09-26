@@ -12,6 +12,12 @@ const DEFAULT_FORMATTERS = {
   Dollars: d => `$${formatAbbreviate(d * 1 || 0)}`
 };
 
+const EMPTY_DATASETS = (
+  <div className="area-chart empty">
+    <NonIdealState visual="error" title="Empty dataset" />
+  </div>
+);
+
 class ChartArea extends React.Component {
   constructor(props) {
     super(props);
@@ -69,11 +75,7 @@ class ChartArea extends React.Component {
     } = this.props;
 
     if (!mainDataset.length) {
-      return (
-        <div className="area-chart empty">
-          <NonIdealState visual="error" title="Empty dataset" />
-        </div>
-      );
+      return EMPTY_DATASETS;
     }
 
     const generalConfig = {
@@ -103,7 +105,7 @@ class ChartArea extends React.Component {
         activeChart,
         generalConfig
       );
-      const asdf = chartConfigs.map(chartConfig => (
+      const configs = chartConfigs.map(chartConfig => (
         <ChartCard
           active={chartConfig.key === activeChart}
           key={chartConfig.key}
@@ -113,7 +115,11 @@ class ChartArea extends React.Component {
           <chartConfig.component config={chartConfig.config} />
         </ChartCard>
       ));
-      chartElements.unshift(...asdf);
+      chartElements.unshift(...configs);
+    }
+
+    if (!chartElements.length) {
+      return EMPTY_DATASETS;
     }
 
     return (
