@@ -9,7 +9,7 @@ import {isValidCut} from "./validation";
  * @param {Condition[]} conditions The list of conditions to use for combinations
  */
 export function generateMetaQueries(query, conditions) {
-  return conditions.reduce(function (output, condition, i) {
+  return conditions.reduce((output, condition) => {
     if (isValidCut(condition) && condition.values.length < 5) {
       const newQuery = condition.values.map(member =>
         generateAlternativeQuery(query, condition, member)
@@ -32,13 +32,15 @@ export function generateAlternativeQuery(generalQuery, condition, member) {
     ...generalQuery,
     member,
     drilldown,
-    conditions: [{
-      hash: uuid(),
-      operator: OPERATORS.EQUAL,
-      property: drilldown,
-      type: "cut",
-      values: [member]
-    }],
-    dimension: drilldown.hierarchy.dimension,
-  }
+    conditions: [
+      {
+        hash: uuid(),
+        operator: OPERATORS.EQUAL,
+        property: drilldown,
+        type: "cut",
+        values: [member]
+      }
+    ],
+    dimension: drilldown.hierarchy.dimension
+  };
 }

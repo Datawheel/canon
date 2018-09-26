@@ -96,16 +96,14 @@ class ChartArea extends React.Component {
     let n = allQueries.length;
 
     while (n--) {
-      const metaChart = metaQueries.includes(allQueries[n]);
       const chartConfigs = createChartConfig(
         allQueries[n],
         allDatasets[n],
         allMembers[n],
         activeChart,
-        generalConfig,
-        metaChart
+        generalConfig
       );
-      const asdf = chartConfigs.map((chartConfig, i) => 
+      const asdf = chartConfigs.map(chartConfig => (
         <ChartCard
           active={chartConfig.key === activeChart}
           key={chartConfig.key}
@@ -114,7 +112,7 @@ class ChartArea extends React.Component {
         >
           <chartConfig.component config={chartConfig.config} />
         </ChartCard>
-      );
+      ));
       chartElements.unshift(...asdf);
     }
 
