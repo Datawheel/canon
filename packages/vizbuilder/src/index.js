@@ -120,7 +120,7 @@ class Vizbuilder extends React.PureComponent {
       metaMembers,
       metaQueries,
       options,
-      query,
+      query
     } = this.state;
 
     return (

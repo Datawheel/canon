@@ -103,7 +103,7 @@ class ChartArea extends React.Component {
         activeChart,
         generalConfig
       );
-      const asdf = chartConfigs.map((chartConfig, i) => (
+      const asdf = chartConfigs.map(chartConfig => (
         <ChartCard
           active={chartConfig.key === activeChart}
           key={chartConfig.key}

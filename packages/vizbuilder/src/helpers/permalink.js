@@ -137,23 +137,25 @@ export function unserializeCondition(measures, levels, conditionHash) {
     values: []
   };
 
-  let promise;
+  let promise = Promise.resolve(null);
   if (condition.type === "cut") {
-    condition.property = findByKey(conditionTokens[1], levels);
-    const conditionValues = conditionTokens[3].split("~");
+    const property = findByKey(conditionTokens[1], levels);
+    if (property) {
+      condition.property = property;
+      const conditionValues = conditionTokens[3].split("~");
 
-    promise = condition.property
-      ? fetchMembers(condition.property).then(
-          members => {
-            condition.values = conditionValues.map(memberKey =>
-              members.find(member => member.key === memberKey)
-            );
-            return condition;
-          },
-          () => null
-        )
-      : Promise.resolve(null);
-  } else {
+      promise = fetchMembers(property).then(
+        members => {
+          condition.values = conditionValues.map(memberKey =>
+            members.find(member => member.key === memberKey)
+          );
+          return condition;
+        },
+        () => null
+      );
+    }
+  }
+  else {
     condition.property = findByKey(conditionTokens[1], measures);
     condition.values = conditionTokens.slice(3, 4);
 

@@ -36,7 +36,10 @@ export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
     const uciName = uci.name;
     tbody.push([
       "Confidence Interval",
-      d => `[${measureFormatter(d[lciName] * 1 || 0)}, ${measureFormatter(d[uciName] * 1 || 0)}]`
+      d =>
+        `[${measureFormatter(d[lciName] * 1 || 0)}, ${measureFormatter(
+          d[uciName] * 1 || 0
+        )}]`
     ]);
   }
   else if (moe) {
@@ -49,17 +52,11 @@ export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
 
   if (source) {
     const sourceName = source.name;
-    tbody.push([
-      "Source",
-      d => `${d[sourceName]}`
-    ]);
+    tbody.push(["Source", d => `${d[sourceName]}`]);
   }
   if (collection) {
     const collectionData = collection.name;
-    tbody.push([
-      "Collection",
-      d => `${d[collectionData]}`
-    ]);
+    tbody.push(["Collection", d => `${d[collectionData]}`]);
   }
   return {
     title: d => [].concat(d[drilldownName]).join(", "),
@@ -187,6 +184,10 @@ const makeConfig = {
       ...flags.chartConfig
     };
 
+    if (query.member) {
+      config.title += ` (${query.member.name})`;
+    }
+
     if (relativeStdDev(flags.dataset, measureName) > 1) {
       config.yConfig.scale = "log";
       config.yConfig.title += " (Log)";
@@ -196,10 +197,7 @@ const makeConfig = {
       const lciName = lci.name;
       const uciName = uci.name;
 
-      config.confidence = [
-        d => d[lciName],
-        d => d[uciName]
-      ];
+      config.confidence = [d => d[lciName], d => d[uciName]];
     }
     else if (moe) {
       const moeName = moe.name;
@@ -224,6 +222,9 @@ const makeConfig = {
     const measureName = query.measure.name;
 
     config.title = `${measureName} by ${drilldownName}`;
+    if (query.member) {
+      config.title += ` (${query.member.name})`;
+    }
 
     return config;
   },
@@ -297,7 +298,13 @@ export default function createChartConfig(
     legend: false,
 
     tooltipConfig: tooltipGenerator(
-      {drilldownName, measureName, moe: query.moe, lci: query.lci, uci: query.uci},
+      {
+        drilldownName,
+        measureName,
+        moe: query.moe,
+        lci: query.lci,
+        uci: query.uci
+      },
       availableKeys,
       measureFormatter
     ),
@@ -334,7 +341,7 @@ export default function createChartConfig(
       availableCharts.delete("lineplot");
     }
 
-    if (!hasGeoDim || !topojsonConfig) {
+    if (!hasGeoDim || !topojsonConfig || members[drilldownName].length === 1) {
       availableCharts.delete("geomap");
     }
 
@@ -351,7 +358,9 @@ export default function createChartConfig(
 
     if (availableKeys.some(d => d !== "Year" && members[d].length === 1)) {
       availableCharts.delete("treemap");
+      availableCharts.delete("barchart");
       availableCharts.delete("barchartyear");
+      availableCharts.delete("stacked");
     }
   }
 
@@ -373,13 +382,11 @@ export default function createChartConfig(
   return Array.from(
     availableCharts,
     chartType =>
-      charts.hasOwnProperty(chartType)
-        ? {
-            key: chartType + (memberKey ? `_${memberKey}` : ""),
-            component: charts[chartType],
-            config: makeConfig[chartType](commonConfig, query, flags)
-          }
-        : null
+      charts.hasOwnProperty(chartType) && {
+        key: chartType + (memberKey ? `_${memberKey}` : ""),
+        component: charts[chartType],
+        config: makeConfig[chartType](commonConfig, query, flags)
+      }
   ).filter(Boolean);
 }
 

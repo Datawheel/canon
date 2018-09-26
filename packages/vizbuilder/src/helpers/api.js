@@ -35,6 +35,6 @@ export function members(level) {
  * for the mondrian server.
  * @param {object} params The `query` element from the Vizbuilder's state.
  */
-export function query(query, format="jsonrecords") {
-  return client.query(query, format)
+export function query(query, format = "jsonrecords") {
+  return client.query(query, format);
 }
