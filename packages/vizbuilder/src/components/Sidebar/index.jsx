@@ -109,6 +109,7 @@ class Sidebar extends React.PureComponent {
 
       if (query.cube !== cube) {
         state.query.conditions = [];
+        state.metaQueries = [];
       }
 
       return finishBuildingStateFromParameters(state, defaultQuery);
