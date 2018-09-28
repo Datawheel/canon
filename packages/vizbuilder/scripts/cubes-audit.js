@@ -18,10 +18,7 @@ client.cubes().then(cubes => {
   row += `Last updated on ${now} \n`;
   row += "\n";
 
-  const listCubes = process.env.CANON_AUDIT_CUBE
-    ? [cubes.find(cube => cube.name === process.env.CANON_AUDIT_CUBE)] : cubes;
-
-  listCubes.sort((a, b) => a.name > b.name ? 1 : -1).forEach(cube => {
+  cubes.sort((a, b) => a.name > b.name ? 1 : -1).forEach(cube => {
     const {dimensions, measures, annotations} = cube;
 
     row += `### CUBE: ${cube.name} \n`;
