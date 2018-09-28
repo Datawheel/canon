@@ -75,7 +75,7 @@ function resolve(file) {
       return require(fullPath);
     }
     else if (contents.includes("export default")) {
-      const tempPath = `${shell.tempdir()}${file.replace(/\//g, "-")}.js`;
+      const tempPath = path.join(shell.tempdir(), `${file.replace(/\//g, "-")}.js`);
       new shell.ShellString(contents.replace("export default", "module.exports ="))
         .to(tempPath);
       shell.echo(`${file} imported from app directory (ES6)`);
