@@ -56,9 +56,11 @@ client.cubes().then(cubes => {
       row += `### MEASURE: ${measure.name} \n`;
       row += "\n";
 
-      const regexp = RegExp(measure.name, "i");
-
-      if (regexp.test("confidence limit") || regexp.test("moe")) {
+      if (
+        RegExp("confidence limit", "i").test(measure.name) || 
+        RegExp("confidence interval", "i").test(measure.name) || 
+        RegExp("moe", "i").test(measure.name)
+      ) {
         if (!measure.annotations.error_for_measure) {
           row += "- [ ] error_for_measure \n";
         }
