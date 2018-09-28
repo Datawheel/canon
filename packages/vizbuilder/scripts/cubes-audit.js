@@ -13,17 +13,21 @@ const now = new Date()
 client.cubes().then(cubes => {
   let row = "## CUBES AUDIT \n";
   row += "\n";
-  row += `Data obtained from ${DEFAULT} \n`;
+  row += `Data obtained from ${process.env.CANON_AUDIT_API || DEFAULT} \n`;
   row += "\n";
   row += `Last updated on ${now} \n`;
   row += "\n";
 
-  cubes.sort((a, b) => a.name > b.name ? 1 : -1).forEach(cube => {
+  const listCubes = process.env.CANON_AUDIT_CUBE 
+    ? [cubes.find(cube => cube.name === process.env.CANON_AUDIT_CUBE)] : cubes;
+
+  listCubes.sort((a, b) => a.name > b.name ? 1 : -1).forEach(cube => {
     const {dimensions, measures, annotations} = cube;
+
+    row += `### CUBE: ${cube.name} \n`;
 
     if (Object.keys(annotations).length < 8) {
 
-      row += `### CUBE: ${cube.name} \n`;
       if (!annotations.source_name) row += "- [ ] source_name \n";
       if (!annotations.source_description) row += "- [ ] source_description \n";
       if (!annotations.source_link) row += "- [ ] source_link \n";
@@ -35,6 +39,10 @@ client.cubes().then(cubes => {
       row += "\n";
 
     }
+    else {
+      row += "Happy Hacking. All annotations in the cube have been added! \n";
+      row += "\n";
+    }
 
     dimensions.forEach(dimension => {
       if (!dimension.annotations.dim_type) {
@@ -45,11 +53,15 @@ client.cubes().then(cubes => {
     });
 
     measures.forEach(measure => {
-      if (!measure.annotations.error_for_measure) {
+      console.log(measure.annotations);
+      if (
+        !measure.annotations.error_for_measure
+      ) {
         
         if (!measure.annotations.units_of_measurement || measure.name.toUpperCase().includes("MOE")) row += `### MEASURE: ${measure.name} \n`;
 
         if (!measure.annotations.units_of_measurement) row += "- [ ] units_of_measurement \n";
+        if (!measure.annotations.error_type) row += "- [ ] error_type \n";
         if (measure.name.toUpperCase().includes("MOE")) row += "- [ ] error_for_measure \n";
         row += "\n";
       }
