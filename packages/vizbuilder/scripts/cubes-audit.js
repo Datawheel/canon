@@ -18,7 +18,7 @@ client.cubes().then(cubes => {
   row += `Last updated on ${now} \n`;
   row += "\n";
 
-  const listCubes = process.env.CANON_AUDIT_CUBE 
+  const listCubes = process.env.CANON_AUDIT_CUBE
     ? [cubes.find(cube => cube.name === process.env.CANON_AUDIT_CUBE)] : cubes;
 
   listCubes.sort((a, b) => a.name > b.name ? 1 : -1).forEach(cube => {
@@ -53,19 +53,27 @@ client.cubes().then(cubes => {
     });
 
     measures.forEach(measure => {
-      console.log(measure.annotations);
-      if (
-        !measure.annotations.error_for_measure
-      ) {
-        
-        if (!measure.annotations.units_of_measurement || measure.name.toUpperCase().includes("MOE")) row += `### MEASURE: ${measure.name} \n`;
+      row += `### MEASURE: ${measure.name} \n`;
+      row += "\n";
 
-        if (!measure.annotations.units_of_measurement) row += "- [ ] units_of_measurement \n";
-        if (!measure.annotations.error_type) row += "- [ ] error_type \n";
-        if (measure.name.toUpperCase().includes("MOE")) row += "- [ ] error_for_measure \n";
-        row += "\n";
+      const regexp = RegExp(measure.name, "i");
+
+      if (regexp.test("confidence limit") || regexp.test("moe")) {
+        if (!measure.annotations.error_for_measure) {
+          row += "- [ ] error_for_measure \n";
+        }
+        if (!measure.annotations.error_type) {
+          row += "- [ ] error_type \n";
+        } 
+      } 
+      else {
+        if (!measure.annotations.units_of_measurement) {
+          row += "- [ ] units_of_measurement \n";
+        }
       }
-      
+
+      row += "\n";
+
     });
 
     row += "----\n";
