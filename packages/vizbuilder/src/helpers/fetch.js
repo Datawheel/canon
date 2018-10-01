@@ -1,7 +1,7 @@
 import {unique} from "shorthash";
 
-import * as api from "../helpers/api";
-import {queryBuilder, queryConverter} from "../helpers/query";
+import * as api from "./api";
+import {queryBuilder, queryConverter} from "./query";
 import {
   findByName,
   finishBuildingStateFromParameters,
@@ -11,7 +11,7 @@ import {
   getValidDimensions,
   getValidDrilldowns,
   getValidMeasures
-} from "../helpers/sorting";
+} from "./sorting";
 
 /**
  * Prepares the array of cubes that will be used in the vizbuilder.
