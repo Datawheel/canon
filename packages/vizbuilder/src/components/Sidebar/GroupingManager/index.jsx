@@ -12,7 +12,7 @@ import GroupingItem from "./GroupingItem";
 class GroupingManager extends SidebarCRUDManager {
   constructor(props) {
     super(props);
-    this.targetLabel = "groupings";
+    this.targetLabel = "groups";
     this.state = {
       realOptions: this.calculateRealOptions(props.itemOptions, props.items)
     };

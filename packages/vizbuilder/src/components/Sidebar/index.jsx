@@ -3,106 +3,21 @@ import PropTypes from "prop-types";
 
 import "./style.css";
 
-import {
-  findByName,
-  finishBuildingStateFromParameters,
-  getMeasureMeta,
-  getTimeDrilldown,
-  getValidDimensions,
-  getValidDrilldowns,
-  matchDefault,
-  preventHierarchyIncompatibility,
-  reduceLevelsFromDimension,
-  removeDuplicateLevels
-} from "../../helpers/sorting";
+import {generateBaseState} from "../../helpers/query";
 
 import ConditionalAnchor from "./ConditionalAnchor";
+import FilterManager from "./FilterManager";
 import GroupingManager from "./GroupingManager";
 import MeasureSelect from "./MeasureSelect";
-import FilterManager from "./FilterManager";
 
 class Sidebar extends React.PureComponent {
   constructor(props) {
     super(props);
-
-    this.setDimension = this.setDimension.bind(this);
-    this.setDrilldown = this.setDrilldown.bind(this);
     this.setMeasure = this.setMeasure.bind(this);
-  }
-
-  setDimension(dimension) {
-    const {dimensions} = this.props.options;
-    const {defaultQuery, loadControl, fetchQuery} = this.context;
-    const defaultLevel = [].concat(defaultQuery.defaultLevel).reverse();
-
-    return loadControl(() => {
-      const levels = reduceLevelsFromDimension([], dimension);
-      removeDuplicateLevels(levels);
-
-      const drilldowns = getValidDrilldowns(dimensions);
-      const drilldown = matchDefault(findByName, levels, defaultLevel, true);
-      preventHierarchyIncompatibility(drilldowns, drilldown);
-
-      return {
-        options: {drilldowns, levels},
-        query: {dimension, drilldown, optionsParents: drilldown.depth > 1}
-      };
-    }, fetchQuery);
-  }
-
-  setDrilldown(drilldown) {
-    const {dimensions, levels} = this.props.options;
-    const {loadControl, fetchQuery} = this.context;
-
-    if (levels.indexOf(drilldown) > -1) {
-      return loadControl(() => {
-        const drilldowns = getValidDrilldowns(dimensions);
-        preventHierarchyIncompatibility(drilldowns, drilldown);
-
-        return {
-          options: {drilldowns},
-          query: {drilldown, optionsParents: drilldown.depth > 1}
-        };
-      }, fetchQuery);
-    }
-
-    return undefined;
-  }
-
-  setMeasure(measure) {
-    const {options, query} = this.props;
-    const {defaultQuery, loadControl, fetchQuery} = this.context;
-
-    return loadControl(() => {
-      const cubeName = measure.annotations._cb_name;
-      const cube = options.cubes.find(cube => cube.name === cubeName);
-      const measureMeta = getMeasureMeta(cube, measure);
-
-      const dimensions = getValidDimensions(cube);
-      const drilldowns = getValidDrilldowns(dimensions);
-
-      const state = {
-        options: {dimensions, drilldowns},
-        query: {
-          ...measureMeta,
-          cube,
-          measure,
-          timeDrilldown: getTimeDrilldown(cube)
-        }
-      };
-
-      if (query.cube !== cube) {
-        state.query.conditions = [];
-        state.metaQueries = [];
-      }
-
-      return finishBuildingStateFromParameters(state, defaultQuery);
-    }, fetchQuery);
   }
 
   render() {
     const {query, options} = this.props;
-
     if (!query.cube) return null;
 
     const measureDetails = query.measure.annotations.details || "";
@@ -121,34 +36,10 @@ class Sidebar extends React.PureComponent {
             <p className="details">{measureDetails}</p>
           </div>
 
-          {/* <div className="control">
-            <div className="control select-dimension">
-              <p className="label">Grouped by</p>
-              <CommonSelect
-                className="custom-select"
-                filterable={false}
-                items={options.dimensions}
-                value={query.dimension}
-                onItemSelect={this.setDimension}
-              />
-            </div>
-
-            <div className="control select-level">
-              <p className="label">At depth level</p>
-              <LevelSelect
-                className="custom-select"
-                filterable={false}
-                items={options.levels}
-                value={query.drilldown}
-                onItemSelect={this.setDrilldown}
-              />
-            </div>
-          </div> */}
-
           <GroupingManager
             className="control select-levels"
             label="Grouped by"
-            items={query.groupings}
+            items={query.groups}
             itemOptions={options.levels}
           />
 
@@ -158,12 +49,6 @@ class Sidebar extends React.PureComponent {
             items={query.filters}
             itemOptions={query.cube.measures}
           />
-
-          {/* <ConditionManager
-            className="control"
-            query={query}
-            options={options}
-          /> */}
 
           {this.renderSourceBlock.call(this)}
         </div>
@@ -192,11 +77,36 @@ class Sidebar extends React.PureComponent {
       </div>
     );
   }
+
+  setMeasure(measure) {
+    const {context} = this;
+    const {options, query} = this.props;
+    const {getDefaultGroup} = context;
+
+    return context.loadControl(
+      () => {
+        const newState = generateBaseState(options.cubes, measure);
+        const newQuery = newState.query;
+        const isSameCube = newQuery.cube !== query.cube;
+
+        newQuery.activeChart = query.activeChart;
+        newQuery.groups = isSameCube
+          ? query.groups
+          : getDefaultGroup(newState.options.levels);
+        newQuery.filters = isSameCube ? query.filters : [];
+
+        return newState;
+      },
+      context.generateQueries,
+      context.fetchQueries
+    );
+  }
 }
 
 Sidebar.contextTypes = {
-  defaultQuery: PropTypes.any,
-  fetchQuery: PropTypes.func,
+  fetchQueries: PropTypes.func,
+  generateQueries: PropTypes.func,
+  getDefaultGroup: PropTypes.func,
   loadControl: PropTypes.func
 };
 

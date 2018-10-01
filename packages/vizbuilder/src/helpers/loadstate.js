@@ -73,7 +73,7 @@ export function loadControl() {
           }
         })
         .then(() => {
-          if (process.env.NODE_ENV !== 'production') {
+          if (process.env.NODE_ENV !== "production") {
             console.group("STATE UPDATE ERROR");
             console.error(err.message);
             console.error(err.stack);
@@ -87,10 +87,10 @@ export function loadControl() {
     }
   );
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     promise = promise.then(() => {
       console.groupCollapsed("FINAL STATE");
-      console.table(this.state.query.groupings);
+      console.table(this.state.query.groups);
       console.groupEnd();
     });
   }
@@ -121,9 +121,10 @@ export function mergeStates(state, newState) {
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    if (/^dataset|^members|^meta/.test(key)) {
+    if (/^queries|^datasets|^members|^meta/.test(key)) {
       finalState[key] = newState[key];
-    } else {
+    }
+    else {
       finalState[key] = {
         ...state[key],
         ...newState[key]

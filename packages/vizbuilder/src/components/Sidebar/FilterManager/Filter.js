@@ -1,5 +1,5 @@
 import {uuid} from "d3plus-common";
-import OPERATORS from "../../../helpers/operators";
+import OPERATORS, {SYMBOLS} from "../../../helpers/operators";
 
 class Filter {
   static isValid(filter) {
@@ -26,6 +26,10 @@ class Filter {
       this.measure &&
       `${this.measure.annotations._key}-${this.operator}-${this.value}`
     );
+  }
+
+  serialize() {
+    return [this.measure.name, SYMBOLS[this.operator], this.value];
   }
 
   getClone() {

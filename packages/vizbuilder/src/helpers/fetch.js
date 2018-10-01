@@ -1,15 +1,12 @@
 import {unique} from "shorthash";
 
 import * as api from "./api";
-import {queryBuilder, queryConverter} from "./query";
+import {TooMuchData} from "./errors";
+import {generateBaseState, queryBuilder, queryConverter} from "./query";
 import {
   findByName,
-  finishBuildingStateFromParameters,
+  getDefaultGroup,
   getIncludedMembers,
-  getMeasureMeta,
-  getTimeDrilldown,
-  getValidDimensions,
-  getValidDrilldowns,
   getValidMeasures
 } from "./sorting";
 
@@ -71,7 +68,9 @@ export function injectCubeInfoOnMeasure(cubes) {
         while (nLvl--) {
           const level = hierarchy.levels[nLvl];
 
-          level.annotations._key = unique(`${keyPrefix} ${hierarchy.name} ${level.name}`);
+          level.annotations._key = unique(
+            `${keyPrefix} ${hierarchy.name} ${level.name}`
+          );
         }
       }
     }
@@ -89,27 +88,16 @@ export function fetchCubes(params) {
     const measures = getValidMeasures(cubes);
     const measure = findByName(params.defaultMeasure, measures, true);
 
-    const cubeName = measure.annotations._cb_name;
-    const cube = cubes.find(cube => cube.name === cubeName);
-    const measureMeta = getMeasureMeta(cube, measure);
-    const timeDrilldown = getTimeDrilldown(cube);
+    const newState = generateBaseState(cubes, measure);
 
-    const dimensions = getValidDimensions(cube);
-    const drilldowns = getValidDrilldowns(dimensions);
+    const newOptions = newState.options;
+    newOptions.cubes = cubes;
+    newOptions.measures = measures;
 
-    const state = {
-      options: {cubes, measures, dimensions, drilldowns},
-      query: {
-        ...measureMeta,
-        cube,
-        measure,
-        timeDrilldown,
-        activeChart: params.enlarged || null,
-        conditions: []
-      }
-    };
+    const newQuery = newState.query;
+    newQuery.groups = getDefaultGroup(params.defaultGroup, newOptions.levels);
 
-    return finishBuildingStateFromParameters(state, params);
+    return newState;
   });
 }
 
@@ -121,41 +109,20 @@ export function fetchMembers(level) {
   return api.members(level);
 }
 
-/** @type {string} */
-let lastPath;
-
-/** @type {Promise<QueryResults>} */
-let lastQuery;
-
 /**
  * Retrieves the dataset for the query in the current Vizbuilder state.
- * @param {object} params The Vizbuilder's state query object
+ * @param {Query} query The Vizbuilder's state query object
  * @returns {Promise<QueryResults>}
  */
-export function fetchMainQuery(params) {
-  if (!params.cube) {
-    throw new Error("Invalid query: No 'cube' property defined.");
-  }
-
-  const mondrianQuery = queryBuilder(params.cube.query, queryConverter(params));
-
-  const newPath = mondrianQuery.path();
-
-  if (newPath !== lastPath) {
-    lastPath = newPath;
-    lastQuery = api.query(mondrianQuery).then(result => {
-      const dataset = (result.data || {}).data || [];
-      if (dataset.length > 9999) {
-        throw new Error(
-          "This query returned too many data points. Please try a query with less granularity."
-        );
-      }
-      const members = getIncludedMembers(mondrianQuery, dataset);
-      return {dataset, members};
-    });
-  }
-
-  return Promise.resolve(lastQuery);
+export function fetchQuery(query) {
+  return api.query(query).then(result => {
+    const dataset = (result.data || {}).data || [];
+    if (dataset.length > 9999) {
+      throw new TooMuchData(query, dataset.length);
+    }
+    const members = getIncludedMembers(query, dataset);
+    return {dataset, members};
+  });
 }
 
 /**

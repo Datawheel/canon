@@ -25,8 +25,8 @@ class SidebarCRUDManager extends React.Component {
           }
         };
       },
-      context.generateMetaQueries,
-      context.fetchQuery
+      context.generateQueries,
+      context.fetchQueries
     );
   }
 
@@ -47,8 +47,8 @@ class SidebarCRUDManager extends React.Component {
           }
         };
       },
-      context.generateMetaQueries,
-      context.fetchQuery
+      context.generateQueries,
+      context.fetchQueries
     );
   }
 
@@ -69,15 +69,15 @@ class SidebarCRUDManager extends React.Component {
           }
         };
       },
-      context.generateMetaQueries,
-      context.fetchQuery
+      context.generateQueries,
+      context.fetchQueries
     );
   }
 }
 
 SidebarCRUDManager.contextTypes = {
-  generateMetaQueries: PropTypes.func,
-  fetchQuery: PropTypes.func,
+  generateQueries: PropTypes.func,
+  fetchQueries: PropTypes.func,
   loadControl: PropTypes.func,
   stateUpdate: PropTypes.func
 };

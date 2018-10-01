@@ -1,15 +1,85 @@
-import {SYMBOLS as OPERATOR_SYMBOLS} from "./operators";
-import {isValidCut, isValidFilter} from "./validation";
+import {getMeasureMeta, getTimeLevel, getValidLevels} from "./sorting";
+
+/**
+ * Generates a partial state object, whose elements
+ * only depend on a measure.
+ * @param {Cube[]} cubes A list with all the cubes available
+ * @param {Measure} measure The currently selected Measure
+ */
+export function generateBaseState(cubes, measure) {
+  const cubeName = measure.annotations._cb_name;
+  const cube = cubes.find(cube => cube.name === cubeName);
+
+  const query = getMeasureMeta(cube, measure);
+  query.measure = measure;
+  query.cube = cube;
+  query.timeLevel = getTimeLevel(cube);
+
+  const options = {
+    levels: getValidLevels(cube)
+  };
+
+  return {options, query};
+}
+
+/**
+ * Generates an array of mondrian-rest-client queries from
+ * the current parameters in Vizbuilder.
+ * @param {Object} params The Vizbuilder `state.query` object.
+ */
+export function generateQueries(params) {
+  // TODO: add "metaqueries"
+  return params.groups.map(grouping =>
+    queryBuilder(queryConverter(params, grouping.level))
+  );
+}
+
+/**
+ * Creates a query params object, ready to be converted into a
+ * mondrian-rest-client Query object.
+ * @param {object} params The current `query` object from the Vizbuilder state.
+ */
+export function queryConverter(params, drilldown) {
+  const query = {
+    queryObject: params.cube.query,
+    measures: [
+      params.measure.name,
+      params.moe && params.moe.name,
+      params.lci && params.lci.name,
+      params.uci && params.uci.name
+    ].filter(Boolean),
+    drilldowns: []
+      .concat(drilldown, params.timeLevel)
+      .filter(Boolean)
+      .map(lvl => lvl.fullName.slice(1, -1).split("].[")),
+    cuts: [],
+    filters: params.filters.map(filter => filter.serialize()),
+    limit: undefined,
+    offset: undefined,
+    order: undefined,
+    orderDesc: undefined,
+    options: {
+      nonempty: true,
+      distinct: false,
+      parents: drilldown.depth > 1,
+      debug: false,
+      sparse: true
+    },
+    locale: "en"
+  };
+
+  return query;
+}
 
 /**
  * Converts the params in the current `query` state to a
  * mondrian-rest-client Query object.
- * @param {Query} query A new Query object, obtained from the corresponding Cube.
  * @param {object} params A query params object, ready to be implemented.
  * @returns {Query}
  */
-export function queryBuilder(query, params) {
+export function queryBuilder(params) {
   let i, item;
+  let query = params.queryObject;
 
   item = params.measures.length;
   for (i = 0; i < item; i++) {
@@ -23,14 +93,15 @@ export function queryBuilder(query, params) {
 
   for (i = 0; i < params.cuts.length; i++) {
     item = params.cuts[i];
+
     if (typeof item !== "string") {
       const key = "property" in item ? item.property.fullName : item.key;
-
       item = item.values.map(v => `${key}.&[${v}]`).join(",");
       if (item.indexOf("],[") > -1) {
         item = `{${item}}`;
       }
     }
+
     query = query.cut(item);
   }
 
@@ -54,73 +125,4 @@ export function queryBuilder(query, params) {
   }
 
   return query; // setLangCaptions(query, params.locale);
-}
-
-/**
- * Creates a query params object, ready to be converted into a
- * mondrian-rest-client Query object.
- * @param {object} params The current `query` object from the Vizbuilder state.
- * @returns {object}
- */
-export function queryConverter(params) {
-  const query = {
-    measures: [params.measure.name],
-    drilldowns: []
-      .concat(params.drilldown, params.timeDrilldown)
-      .filter(Boolean)
-      .map(lvl => lvl.fullName.slice(1, -1).split("].[")),
-    cuts: [],
-    filters: [],
-    limit: undefined,
-    offset: undefined,
-    order: undefined,
-    orderDesc: undefined,
-    options: {
-      nonempty: params.optionsNonempty,
-      distinct: params.optionsDistinct,
-      parents: params.optionsParents,
-      debug: params.optionsDebug,
-      sparse: params.optionsSparse
-    },
-    locale: "en"
-  };
-
-  if (params.moe) {
-    query.measures.push(params.moe.name);
-  }
-
-  if (params.lci) {
-    query.measures.push(params.lci.name);
-  }
-
-  if (params.uci) {
-    query.measures.push(params.uci.name);
-  }
-
-  for (let i = 0; i < params.conditions.length; i++) {
-    const condition = params.conditions[i];
-
-    if (!condition.property) {
-      continue;
-    }
-
-    if (isValidCut(condition)) {
-      const cut = {
-        key: condition.property.fullName,
-        values: condition.values.map(v => v.key)
-      };
-      query.cuts.push(cut);
-    }
-
-    if (isValidFilter(condition)) {
-      const filter = [].concat(
-        condition.property.name,
-        OPERATOR_SYMBOLS[condition.operator],
-        condition.values
-      );
-      query.filters.push(filter);
-    }
-  }
-
-  return query;
 }

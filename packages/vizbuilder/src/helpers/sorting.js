@@ -2,6 +2,7 @@ import sort from "fast-sort";
 import union from "lodash/union";
 
 import {isTimeDimension} from "./validation";
+import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 /**
  * Completes the remaining items from `state` using the values from a `searchQuery` object.
@@ -33,7 +34,12 @@ export function finishBuildingStateFromParameters(state, params) {
     }
     else {
       if (defaultDimension.length > 0) {
-        dimension = matchDefault(findByName, dimensions, defaultDimension, true);
+        dimension = matchDefault(
+          findByName,
+          dimensions,
+          defaultDimension,
+          true
+        );
         levels = reduceLevelsFromDimension(levels, dimension);
         removeDuplicateLevels(levels);
         drilldown = matchDefault(findByName, levels, defaultLevel, true);
@@ -67,7 +73,9 @@ export function finishBuildingStateFromParameters(state, params) {
  * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
  */
 export function findByKey(needle, haystack, elseFirst = false) {
-  const findResult = needle ? haystack.find(item => item.annotations._key === needle) : undefined;
+  const findResult = needle
+    ? haystack.find(item => item.annotations._key === needle)
+    : undefined;
   return elseFirst ? findResult || haystack[0] : findResult;
 }
 
@@ -81,7 +89,29 @@ export function findByKey(needle, haystack, elseFirst = false) {
  * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
  */
 export function findByName(needle, haystack, elseFirst = false) {
-  const findResult = needle ? haystack.find(item => item.name === needle) : undefined;
+  const findResult = needle
+    ? haystack.find(item => item.name === needle)
+    : undefined;
+  return elseFirst ? findResult || haystack[0] : findResult;
+}
+
+/**
+ * If `needle` is a valid value, returns the first element in the `haystack`
+ * that matches the fullName property.
+ * If there's no matches and `elseFirst` is true, returns the first element
+ * in the `haystack`.
+ * @param {string} needle The key to match
+ * @param {any[]} haystack The array where to search for the object.
+ * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
+ */
+export function findByFullName(needle, haystack, elseFirst = false) {
+  let findResult;
+  if (typeof needle === "string") {
+    if (needle.indexOf("].[") === -1) {
+      needle = `[${needle.split(".").join("].[")}]`;
+    }
+    findResult = haystack.find(item => item.fullName === needle);
+  }
   return elseFirst ? findResult || haystack[0] : findResult;
 }
 
@@ -148,6 +178,16 @@ export function getValidMeasures(cubes) {
 }
 
 /**
+ * Finds a valid Level using a user defined parameter list.
+ * @param {object[]} defaultGroup Array of user-defined default levels
+ * @param {Level[]} levels An array with all the available valid levels
+ */
+export function getDefaultGroup(defaultGroup, levels) {
+  const level = matchDefault(findByFullName, levels, defaultGroup, true);
+  return [new Grouping(level)];
+}
+
+/**
  * Returns the MOE measure for a certain measure, in the full measure list
  * from the cube. If there's no MOE for the measure, returns undefined.
  * @param {Cube} cube The measure's parent cube
@@ -190,7 +230,7 @@ export function getMeasureMeta(cube, measure) {
         collection = currentMeasure;
       }
 
-      if (collection && (lci && uci || moe) && source) {
+      if (collection && ((lci && uci) || moe) && source) {
         break;
       }
     }
@@ -200,12 +240,37 @@ export function getMeasureMeta(cube, measure) {
 }
 
 /**
+ * Extracts a time-type Dimension from a Cube object. If not found,
+ * returns undefined.
+ * @param {Cube} cube The Cube object to extract the time Dimension from
+ * @returns {Dimension|undefined}
+ */
+export function getTimeLevel(cube) {
+  const timeDim =
+    cube.timeDimension ||
+    cube.dimensionsByName.Date ||
+    cube.dimensionsByName.Year;
+  if (timeDim) {
+    const timeHie = timeDim.hierarchies.slice(-1).pop();
+    if (timeHie) {
+      return timeHie.levels.slice(1, 2).pop();
+    }
+  }
+  return undefined;
+}
+
+/**
  * Returns an array with non-time dimensions from a cube.
  * @param {Cube} cube The cube where the dimensions will be reduced from
  * @returns {Dimension[]}
  */
 export function getValidDimensions(cube) {
   return cube.dimensions.filter(dim => !isTimeDimension(dim));
+}
+
+export function getValidLevels(cube) {
+  const dimensions = getValidDimensions(cube);
+  return dimensions.reduce(reduceLevelsFromDimension, []);
 }
 
 /**
@@ -249,9 +314,12 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
  * @returns {Dimension[]}
  */
 export function reduceLevelsFromDimension(container, dimension) {
-  return isTimeDimension(dimension)
-    ? container
-    : dimension.hierarchies.reduce((container, hierarchy) => container.concat(hierarchy.levels.slice(1)), container);
+  return isTimeDimension(dimension) ?
+    container :
+    dimension.hierarchies.reduce(
+      (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
+      container
+    );
 }
 
 /**
@@ -289,26 +357,6 @@ export function removeDuplicateLevels(array) {
       array.splice(n, 1);
     }
   }
-}
-
-/**
- * Extracts a time-type Dimension from a Cube object. If not found,
- * returns undefined.
- * @param {Cube} cube The Cube object to extract the time Dimension from
- * @returns {Dimension|undefined}
- */
-export function getTimeDrilldown(cube) {
-  const timeDim =
-    cube.timeDimension ||
-    cube.dimensionsByName.Date ||
-    cube.dimensionsByName.Year;
-  if (timeDim) {
-    const timeHie = timeDim.hierarchies.slice(-1).pop();
-    if (timeHie) {
-      return timeHie.levels.slice(1, 2).pop();
-    }
-  }
-  return undefined;
 }
 
 /**

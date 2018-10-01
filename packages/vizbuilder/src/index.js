@@ -2,20 +2,21 @@ import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
 
-import {fetchCubes, fetchMainQuery, fetchMetaQueries} from "./helpers/fetch";
-import {loadControl, setStatePromise, mergeStates} from "./helpers/loadstate";
-import * as api from "./helpers/api";
-import {parsePermalink, permalinkToState} from "./helpers/permalink";
-import {isSameQuery} from "./helpers/validation";
-import initialState from "./state";
-
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
 
-import ChartArea from "./components/ChartArea";
-import Sidebar from "./components/Sidebar";
-import PermalinkManager from "./components/PermalinkManager";
 import LoadingScreen from "components/Loading";
+import ChartArea from "./components/ChartArea";
+// import PermalinkManager from "./components/PermalinkManager";
+import Sidebar from "./components/Sidebar";
+
+import * as api from "./helpers/api";
+import {fetchCubes, fetchQuery} from "./helpers/fetch";
+import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
+import {generateQueries} from "./helpers/query";
+import {getDefaultGroup} from "./helpers/sorting";
+
+import initialState from "./state";
 
 class Vizbuilder extends React.PureComponent {
   constructor(props, ctx) {
@@ -35,36 +36,39 @@ class Vizbuilder extends React.PureComponent {
     };
 
     const defaultQuery = {
-      defaultMeasure: props.defaultMeasure,
-      defaultDimension: props.defaultDimension,
-      defaultLevel: props.defaultLevel
+      defaultGroup: props.defaultGroup,
+      defaultMeasure: props.defaultMeasure
     };
 
     let initialStatePromise = fetchCubes.call(this, defaultQuery);
     const location = ctx.router.location;
 
-    if (props.permalink && location.search) {
-      parsePermalink(permalinkKeywords, location, defaultQuery);
-      initialStatePromise = initialStatePromise.then(state =>
-        permalinkToState(state, defaultQuery)
-      );
-    }
+    // if (props.permalink && location.search) {
+    //   parsePermalink(permalinkKeywords, location, defaultQuery);
+    //   initialStatePromise = initialStatePromise.then(state =>
+    //     permalinkToState(state, defaultQuery)
+    //   );
+    // }
 
     this.initialStatePromise = initialStatePromise;
 
     this.defaultQuery = defaultQuery;
+    this.getDefaultGroup = getDefaultGroup.bind(null, props.defaultGroup);
     this.permalinkKeywords = permalinkKeywords;
     this.queryHistory = [];
 
     this.loadControl = loadControl.bind(this);
-    this.fetchQuery = this.fetchQuery.bind(this);
+    this.fetchQueries = this.fetchQueries.bind(this);
+    this.generateQueries = this.generateQueries.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
   }
 
   getChildContext() {
     return {
       defaultQuery: this.defaultQuery,
-      fetchQuery: this.fetchQuery,
+      fetchQueries: this.fetchQueries,
+      generateQueries: this.generateQueries,
+      getDefaultGroup: this.getDefaultGroup,
       loadControl: this.loadControl,
       permalinkKeywords: this.permalinkKeywords,
       stateUpdate: this.stateUpdate
@@ -74,7 +78,11 @@ class Vizbuilder extends React.PureComponent {
   componentDidMount() {
     const initialStatePromise = this.initialStatePromise;
     delete this.initialStatePromise;
-    this.loadControl(() => initialStatePromise, this.fetchQuery);
+    this.loadControl(
+      () => initialStatePromise,
+      this.generateQueries,
+      this.fetchQueries
+    );
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -83,13 +91,13 @@ class Vizbuilder extends React.PureComponent {
 
     if (!query.cube) return;
 
-    if (!isSameQuery(prevState.query, query)) {
-      onChange(query, this.state.dataset, this.state.options);
+    // if (!isSameQuery(prevState.query, query)) {
+    //   onChange(query, this.state.dataset, this.state.options);
 
-      if (this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
-        this.queryHistory.push(query);
-      }
-    }
+    //   if (this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
+    //     this.queryHistory.push(query);
+    //   }
+    // }
   }
 
   render() {
@@ -120,10 +128,7 @@ class Vizbuilder extends React.PureComponent {
         })}
       >
         <LoadingScreen total={load.total} progress={load.done} />
-        <Sidebar
-          options={options}
-          query={query}
-        />
+        <Sidebar options={options} query={query} />
         <ChartArea
           triggerUpdate={load.lastUpdate}
           activeChart={query.activeChart}
@@ -139,11 +144,11 @@ class Vizbuilder extends React.PureComponent {
           topojson={topojson}
           visualizations={visualizations}
         />
-        {permalink && <PermalinkManager
+        {/* {permalink && <PermalinkManager
           activeChart={query.activeChart}
           href={location.search}
           state={this.state}
-        />}
+        />} */}
       </div>
     );
   }
@@ -152,11 +157,23 @@ class Vizbuilder extends React.PureComponent {
     return setStatePromise.call(this, state => mergeStates(state, newState));
   }
 
-  fetchQuery() {
-    return Promise.all([
-      fetchMainQuery(this.state.query),
-      fetchMetaQueries(this.state.metaQueries)
-    ]).then(results => ({...results[0], ...results[1]}));
+  generateQueries() {
+    return {queries: generateQueries(this.state.query)};
+  }
+
+  fetchQueries() {
+    const {queries} = this.state;
+    return Promise.all(queries.map(fetchQuery)).then(results => {
+      const datasets = [];
+      const members = [];
+      let n = results.length;
+      while (n--) {
+        const result = results[n];
+        datasets.unshift(result.dataset);
+        members.unshift(result.members);
+      }
+      return {datasets, members};
+    });
   }
 }
 
@@ -166,7 +183,9 @@ Vizbuilder.contextTypes = {
 
 Vizbuilder.childContextTypes = {
   defaultQuery: PropTypes.any,
-  fetchQuery: PropTypes.func,
+  fetchQueries: PropTypes.func,
+  generateQueries: PropTypes.func,
+  getDefaultGroup: PropTypes.func,
   loadControl: PropTypes.func,
   permalinkKeywords: PropTypes.object,
   stateUpdate: PropTypes.func
@@ -175,21 +194,8 @@ Vizbuilder.childContextTypes = {
 Vizbuilder.propTypes = {
   // this config object will be applied to all charts
   config: PropTypes.object,
-  // default dimension and level are optional
-  // but if set, default measure is required
-  defaultDimension: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.arrayOf(PropTypes.string)
-  ]),
-  defaultLevel: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.arrayOf(PropTypes.string)
-  ]),
-  defaultGroup: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.arrayOf(PropTypes.string)
-  ]),
   defaultMeasure: PropTypes.string,
+  defaultGroup: PropTypes.arrayOf(PropTypes.string),
   // formatting functions object,
   // keys are the possible values of measure.annotations.units_of_measurement
   // values are the formatting function to apply to those measures
