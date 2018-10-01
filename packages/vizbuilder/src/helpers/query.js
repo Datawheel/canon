@@ -32,7 +32,11 @@ export function generateQueries(params) {
   // TODO: add "metaqueries"
   return params.groups.filter(isValidGrouping).map(grouping => ({
     ...params,
-    level: grouping.level
+    level: grouping.level,
+    cuts: grouping.hasMembers && {
+      key: grouping.level.fullName,
+      values: grouping.members
+    }
   }));
 }
 
@@ -53,7 +57,7 @@ export function queryConverter(params) {
     .filter(Boolean)
     .map(lvl => lvl.fullName.slice(1, -1).split("].["));
 
-  const cuts = [];
+  const cuts = [].concat(params.cuts).filter(Boolean);
 
   const filters = params.filters
     .map(filter => filter.serialize())
@@ -104,8 +108,8 @@ export function queryBuilder(params) {
     item = params.cuts[i];
 
     if (typeof item !== "string") {
-      const key = "property" in item ? item.property.fullName : item.key;
-      item = item.values.map(v => `${key}.&[${v}]`).join(",");
+      const key = item.key;
+      item = item.values.map(v => `${key}.&[${v.key}]`).join(",");
       if (item.indexOf("],[") > -1) {
         item = `{${item}}`;
       }
