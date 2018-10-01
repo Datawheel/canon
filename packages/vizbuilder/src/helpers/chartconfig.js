@@ -264,7 +264,7 @@ export default function createChartConfig(
   activeType,
   {defaultConfig, formatting, measureConfig, topojson, visualizations}
 ) {
-  const memberKey = query.member ? `${query.member.key}` : "";
+  const queryKey = query.key;
 
   if (!dataset.length) {
     return [];
@@ -273,10 +273,10 @@ export default function createChartConfig(
   // this prevents execution when the activeChart isn't for this query
   if (activeType) {
     let activeKey = activeType.split("_");
-    activeType = activeKey.shift();
+    activeType = activeKey.pop();
     activeKey = activeKey.join("_");
 
-    if (activeKey !== memberKey) {
+    if (activeKey !== queryKey) {
       return [];
     }
   }
@@ -396,7 +396,7 @@ export default function createChartConfig(
     availableCharts,
     chartType =>
       charts.hasOwnProperty(chartType) && {
-        key: chartType + (memberKey ? `_${memberKey}` : ""),
+        key: `${queryKey}_${chartType}`,
         component: charts[chartType],
         config: makeConfig[chartType](commonConfig, query, flags)
       }

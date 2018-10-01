@@ -29,15 +29,34 @@ export function generateBaseState(cubes, measure) {
  * @param {Object} params The Vizbuilder `state.query` object.
  */
 export function generateQueries(params) {
-  // TODO: add "metaqueries"
-  return params.groups.filter(isValidGrouping).map(grouping => ({
-    ...params,
-    level: grouping.level,
-    cuts: grouping.hasMembers && {
-      key: grouping.level.fullName,
-      values: grouping.members
+  const validGroups = params.groups.filter(isValidGrouping);
+  const queries = [];
+
+  for (let i = 0; i < validGroups.length; i++) {
+    const grouping = validGroups[i];
+    const level = grouping.level;
+
+    queries.push({
+      ...params,
+      key: level.annotations._key,
+      level,
+      cuts: grouping.hasMembers && [
+        {key: level.fullName, values: grouping.members}
+      ]
+    });
+
+    if (grouping.hasMembers && grouping.members.length < 5) {
+      const memberQueries = grouping.members.map(member => ({
+        ...params,
+        key: `${level.annotations._key}_${member.key}`,
+        level,
+        cuts: [{key: level.fullName, values: [member]}]
+      }));
+      queries.push(...memberQueries);
     }
-  }));
+  }
+
+  return queries;
 }
 
 /**
