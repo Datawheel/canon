@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import "./style.css";
+
 import {
   findByName,
   finishBuildingStateFromParameters,
@@ -14,13 +16,10 @@ import {
   removeDuplicateLevels
 } from "../../helpers/sorting";
 
-import CommonSelect from "./CommonSelect";
 import ConditionalAnchor from "./ConditionalAnchor";
-import ConditionManager from "./ConditionManager";
-import LevelSelect from "./LevelSelect";
+import GroupingManager from "./GroupingManager";
 import MeasureSelect from "./MeasureSelect";
-
-import "./style.css";
+import FilterManager from "./FilterManager";
 
 class Sidebar extends React.PureComponent {
   constructor(props) {
@@ -122,7 +121,7 @@ class Sidebar extends React.PureComponent {
             <p className="details">{measureDetails}</p>
           </div>
 
-          <div className="control">
+          {/* <div className="control">
             <div className="control select-dimension">
               <p className="label">Grouped by</p>
               <CommonSelect
@@ -144,13 +143,27 @@ class Sidebar extends React.PureComponent {
                 onItemSelect={this.setDrilldown}
               />
             </div>
-          </div>
+          </div> */}
 
-          <ConditionManager
+          <GroupingManager
+            className="control select-levels"
+            label="Grouped by"
+            items={query.groupings}
+            itemOptions={options.levels}
+          />
+
+          <FilterManager
+            className="control select-filters"
+            label="Filter by"
+            items={query.filters}
+            itemOptions={query.cube.measures}
+          />
+
+          {/* <ConditionManager
             className="control"
             query={query}
             options={options}
-          />
+          /> */}
 
           {this.renderSourceBlock.call(this)}
         </div>
