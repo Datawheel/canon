@@ -34,6 +34,7 @@ class Vizbuilder extends React.PureComponent {
       dimension: "dimension",
       enlarged: "enlarged",
       filters: "filters",
+      groups: "groups",
       level: "level",
       measure: "measure",
       ...props.permalinkKeywords
@@ -193,6 +194,10 @@ Vizbuilder.propTypes = {
     PropTypes.arrayOf(PropTypes.string)
   ]),
   defaultLevel: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string)
+  ]),
+  defaultGroup: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string)
   ]),

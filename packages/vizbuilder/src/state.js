@@ -24,6 +24,8 @@ export default function initialStateFactory() {
       measures: []
     },
     query: {
+      groupings: [],
+      filters: [],
       activeChart: null,
       conditions: [],
       cube: null,
