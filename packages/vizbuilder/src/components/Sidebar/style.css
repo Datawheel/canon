@@ -11,10 +11,24 @@
     & > .control {
       margin-bottom: 0.8em;
     }
+  }
 
-    &.select-level {
-      margin-left: 0.8em;
-    }
+  & .grouping-manager .actions,
+  & .filter-manager .actions {
+    margin-top: 0.2rem;
+    text-align: right;
+  }
+
+  & .grouping-item,
+  & .filter-item {
+    padding: 0.3rem;
+    margin: 0 0 0.4rem;
+    border: 1px solid;
+  }
+
+  & .filter-item .values div {
+    display: inline;
+    margin-right: 0.5rem;
   }
 
   & .details {

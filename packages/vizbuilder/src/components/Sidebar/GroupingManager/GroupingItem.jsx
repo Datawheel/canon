@@ -47,15 +47,17 @@ class GroupingItem extends SidebarCRUDItem {
     const {item} = this.props;
     return (
       <div className="grouping-item">
-        <div className="grouping-name">{composePropertyName(item.level)}</div>
-        {item.hasMembers && (
-          <div className="group filter-members">
-            {item.members.map(member => (
-              <span key={member.key}>{member.name}</span>
-            ))}
-          </div>
-        )}
-        <div className="grouping-actions">
+        <div className="group values">
+          <div className="grouping-name">{composePropertyName(item.level)}</div>
+          {item.hasMembers && (
+            <div className="group grouping-members">
+              {item.members.map(member => (
+                <span key={member.key}>{member.name}</span>
+                ))}
+            </div>
+          )}
+        </div>
+        <div className="group actions">
           <Button
             text="Delete"
             className="pt-small"

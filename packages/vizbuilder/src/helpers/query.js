@@ -40,20 +40,29 @@ export function generateQueries(params) {
  * @param {object} params The current `query` object from the Vizbuilder state.
  */
 export function queryConverter(params, drilldown) {
-  const query = {
+  const measures = [
+    params.measure.name,
+    params.moe && params.moe.name,
+    params.lci && params.lci.name,
+    params.uci && params.uci.name
+  ].filter(Boolean);
+
+  const drilldowns = [drilldown, params.timeLevel]
+    .filter(Boolean)
+    .map(lvl => lvl.fullName.slice(1, -1).split("].["));
+
+  const cuts = [];
+
+  const filters = params.filters
+    .map(filter => filter.serialize())
+    .filter(Boolean);
+
+  return {
     queryObject: params.cube.query,
-    measures: [
-      params.measure.name,
-      params.moe && params.moe.name,
-      params.lci && params.lci.name,
-      params.uci && params.uci.name
-    ].filter(Boolean),
-    drilldowns: []
-      .concat(drilldown, params.timeLevel)
-      .filter(Boolean)
-      .map(lvl => lvl.fullName.slice(1, -1).split("].[")),
-    cuts: [],
-    filters: params.filters.map(filter => filter.serialize()),
+    measures,
+    drilldowns,
+    cuts,
+    filters,
     limit: undefined,
     offset: undefined,
     order: undefined,
@@ -67,8 +76,6 @@ export function queryConverter(params, drilldown) {
     },
     locale: "en"
   };
-
-  return query;
 }
 
 /**

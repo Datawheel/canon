@@ -1,5 +1,5 @@
 import {uuid} from "d3plus-common";
-import OPERATORS, {SYMBOLS} from "../../../helpers/operators";
+import OPERATORS, {LABELS, SYMBOLS} from "../../../helpers/operators";
 
 class Filter {
   static isValid(filter) {
@@ -17,6 +17,10 @@ class Filter {
     return this.measure && this.measure.name;
   }
 
+  get operatorLabel() {
+    return LABELS[this.operator];
+  }
+
   get hasValue() {
     return isFinite(this.value) && !isNaN(this.value);
   }
@@ -29,7 +33,9 @@ class Filter {
   }
 
   serialize() {
-    return [this.measure.name, SYMBOLS[this.operator], this.value];
+    return (
+      this.measure && [this.measure.name, SYMBOLS[this.operator], this.value]
+    );
   }
 
   getClone() {
@@ -44,9 +50,9 @@ class Filter {
     return clone;
   }
 
-  setOperator(operator) {
+  setOperator(evt) {
     const clone = this.getClone();
-    clone.operator = operator;
+    clone.operator = evt.target.value * 1;
     return clone;
   }
 

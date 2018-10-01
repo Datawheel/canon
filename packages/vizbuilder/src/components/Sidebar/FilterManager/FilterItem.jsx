@@ -36,9 +36,12 @@ class FilterItem extends SidebarCRUDItem {
     const {item} = this.props;
     return (
       <div className="filter-item">
-        <div className="filter-name">{composePropertyName(item.measure)}</div>
-        <div className="filter-value">{item.value}</div>
-        <div className="filter-actions">
+        <div className="group values">
+          <div className="filter-name">{composePropertyName(item.measure)}</div>
+          <div className="filter-operator">{item.operatorLabel}</div>
+          <div className="filter-value">{item.value}</div>
+        </div>
+        <div className="group actions">
           <Button
             text="Delete"
             className="pt-small"

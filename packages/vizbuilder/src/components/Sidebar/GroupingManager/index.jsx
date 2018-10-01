@@ -2,8 +2,6 @@ import {Button} from "@blueprintjs/core";
 import classnames from "classnames";
 import React from "react";
 
-import "./style.css";
-
 import SidebarCRUDManager from "../SidebarCRUDManager";
 
 import Grouping from "./Grouping";
