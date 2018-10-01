@@ -1,7 +1,7 @@
 import {uuid} from "d3plus-common";
 
-import {fetchMembers} from "../actions/fetch";
-import {mergeStates} from "../actions/loadstate";
+import {fetchMembers} from "./fetch";
+import {mergeStates} from "./loadstate";
 import {generateMetaQueries} from "./metaqueries";
 import {
   findByKey,

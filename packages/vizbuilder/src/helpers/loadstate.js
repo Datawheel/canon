@@ -1,4 +1,9 @@
-import {Intent} from "@blueprintjs/core";
+import {Intent, Position, Toaster} from "@blueprintjs/core";
+
+const UIToaster =
+  typeof window !== "undefined"
+    ? Toaster.create({className: "toaster", position: Position.TOP})
+    : null;
 
 /* HELPER FUNCTIONS */
 
@@ -45,7 +50,7 @@ export function loadControl() {
     );
   }
 
-  return promise.then(
+  promise = promise.then(
     setStatePromise.bind(this, {
       load: {
         inProgress: false,
@@ -56,18 +61,41 @@ export function loadControl() {
         severity: Intent.NONE
       }
     }),
-    err =>
-      setStatePromise.call(this, {
-        ...initialState,
-        load: {
-          inProgress: false,
-          total: 0,
-          done: 0,
-          error: err,
-          severity: getSeverityByError(err)
-        }
-      })
+    err => {
+      setStatePromise
+        .call(this, {
+          ...initialState,
+          load: {
+            inProgress: false,
+            total: 0,
+            done: 0,
+            error: err
+          }
+        })
+        .then(() => {
+          if (process.env.NODE_ENV !== 'production') {
+            console.group("STATE UPDATE ERROR");
+            console.error(err.message);
+            console.error(err.stack);
+            console.groupEnd();
+          }
+          UIToaster.show({
+            intent: getSeverityByError(err),
+            message: err.message
+          });
+        });
+    }
   );
+
+  if (process.env.NODE_ENV !== 'production') {
+    promise = promise.then(() => {
+      console.groupCollapsed("FINAL STATE");
+      console.table(this.state.query.groupings);
+      console.groupEnd();
+    });
+  }
+
+  return promise;
 }
 
 /**
@@ -95,8 +123,7 @@ export function mergeStates(state, newState) {
     const key = keys[i];
     if (/^dataset|^members|^meta/.test(key)) {
       finalState[key] = newState[key];
-    }
-    else {
+    } else {
       finalState[key] = {
         ...state[key],
         ...newState[key]

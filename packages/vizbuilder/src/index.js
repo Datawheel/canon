@@ -1,27 +1,21 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
-import {Position, Toaster} from "@blueprintjs/core";
 
-import {fetchCubes, fetchMainQuery, fetchMetaQueries} from "./actions/fetch";
-import {loadControl, setStatePromise, mergeStates} from "./actions/loadstate";
-import ChartArea from "./components/ChartArea";
-import Sidebar from "./components/Sidebar";
-import PermalinkManager from "./components/PermalinkManager";
+import {fetchCubes, fetchMainQuery, fetchMetaQueries} from "./helpers/fetch";
+import {loadControl, setStatePromise, mergeStates} from "./helpers/loadstate";
 import * as api from "./helpers/api";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
 import {isSameQuery} from "./helpers/validation";
 import initialState from "./state";
 
-import LoadingScreen from "components/Loading";
-
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
 
-const UIToaster =
-  typeof window !== "undefined"
-    ? Toaster.create({className: "area-toaster", position: Position.TOP})
-    : null;
+import ChartArea from "./components/ChartArea";
+import Sidebar from "./components/Sidebar";
+import PermalinkManager from "./components/PermalinkManager";
+import LoadingScreen from "components/Loading";
 
 class Vizbuilder extends React.PureComponent {
   constructor(props, ctx) {
@@ -85,13 +79,7 @@ class Vizbuilder extends React.PureComponent {
 
   componentDidUpdate(prevProps, prevState) {
     const {onChange} = this.props;
-    const {load, query} = this.state;
-    const {error} = load;
-
-    if (error && prevState.load.error !== error) {
-      console.warn(error.stack);
-      UIToaster.show({intent: load.severity, message: error.message});
-    }
+    const {query} = this.state;
 
     if (!query.cube) return;
 
