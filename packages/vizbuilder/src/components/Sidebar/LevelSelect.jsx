@@ -2,13 +2,12 @@ import React from "react";
 import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 
-import {PROPNAMESTYLES, composePropertyName} from "../../helpers/formatting";
-
 import MultiLevelSelect from "./MultiLevelSelect";
+import {composePropertyName} from "../../helpers/formatting";
 
 class LevelSelect extends MultiLevelSelect {
   renderTarget(item) {
-    const valueLabel = item.caption || item.name;
+    const valueLabel = composePropertyName(item);
     return (
       <div className="select-option current" title={valueLabel}>
         <span className="value">{valueLabel}</span>
@@ -22,35 +21,54 @@ LevelSelect.displayName = "LevelSelect";
 LevelSelect.defaultProps = {
   ...MultiLevelSelect.defaultProps,
   getItemHeight() {
-    return 40;
+    return 26;
   },
-  itemListPredicate(query, items) {
+  itemListPredicate(query, levels) {
     query = query.trim();
     query = escapeRegExp(query);
     query = query.replace(/\s+/g, ".+");
     const tester = RegExp(query || ".", "i");
-    return items.filter(item =>
+    return levels.filter(lvl =>
       tester.test(
-        `${item.caption || item.name} ${item.hierarchy.dimension.name}`
+        `${lvl.caption || lvl.name} ${lvl.hierarchy.dimension.name}`
       )
     );
   },
-  itemRenderer({handleClick, item, isActive}) {
-    return (
-      <li
-        className={classnames("select-option", "select-level", {
+  itemListComposer(levels) {
+    const nope = {hierarchy:{}};
+    return levels.reduce((all, level, i, levels) => {
+      const prevLevel = levels[i - 1] || nope;
+      const prevDimension = prevLevel.hierarchy.dimension;
+      const currDimension = level.hierarchy.dimension;
+      if (prevDimension !== currDimension) {
+        all.push(currDimension);
+      }
+      all.push(level)
+      return all;
+    }, []);
+  },
+  itemRenderer({style, handleClick, item, isActive}) {
+    const isHeader = Boolean(item.cube);
+
+    const props = {
+      key: item.annotations._key,
+      style,
+      onClick: !isHeader && handleClick,
+      title: item.name,
+      className: classnames(
+        "select-level",
+        isHeader ? "select-optgroup" : "select-option",
+        isHeader ? `level-1` : "level-last",
+        {
           active: isActive,
           disabled: item.disabled
-        })}
-        onClick={item.disabled || handleClick}
-        title={item.name}
-      >
-        <span className="select-label">{item.name}</span>
-        <span className="select-label lead">
-          {item.hierarchy.dimension.name}
-        </span>
-      </li>
-    );
+        }
+      )
+    }
+
+    const child = <span className="select-label">{item.name}</span>;
+
+    return React.createElement('li', props, child);
   }
 };
 
