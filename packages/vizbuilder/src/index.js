@@ -111,12 +111,10 @@ class Vizbuilder extends React.PureComponent {
       visualizations
     } = this.props;
     const {
-      dataset,
       load,
+      datasets,
       members,
-      metaDatasets,
-      metaMembers,
-      metaQueries,
+      queries,
       options,
       query
     } = this.state;
@@ -134,13 +132,10 @@ class Vizbuilder extends React.PureComponent {
           activeChart={query.activeChart}
           defaultConfig={config}
           formatting={formatting}
-          mainDataset={dataset}
-          mainMembers={members}
-          mainQuery={query}
+          datasets={datasets}
+          members={members}
+          queries={queries}
           measureConfig={measureConfig}
-          metaDatasets={metaDatasets}
-          metaMembers={metaMembers}
-          metaQueries={metaQueries}
           topojson={topojson}
           visualizations={visualizations}
         />

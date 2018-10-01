@@ -1,5 +1,3 @@
-import {SYMBOLS as OPERATOR_SYMBOLS} from "./operators";
-
 /**
  * Checks if the dimension passed as argument is a time-type dimension.
  * @param {Dimension} dimension A mondrian-rest-client dimension object
@@ -14,34 +12,30 @@ export function isTimeDimension(dimension) {
 }
 
 /**
- * Checks if an object can be used as a Condition
- * @param {object} condition An object to check
+ * Checks if an object can be used as a filter.
+ * This means it should have a measure, a valid operator, and a numeric value.
+ * @param {object} filter An object to check
  */
-export function isValidCondition(condition) {
-  return condition && (isValidFilter(condition) || isValidCut(condition));
+export function isValidFilter(filter) {
+  return filter && filter.measure && filter.operator > 0 && filter.hasValue;
 }
 
 /**
- * Checks if an object can be used as a filter-type Condition.
- * This means it should have a numeric value, and a valid operator.
- * Since `values` should always be an Array, the numeric value must be on index 0.
- * @param {object} condition An object to check
+ * Checks if an object can be used as a grouping.
+ * This means it should have a valid level.
+ * @param {object} filter An object to check
  */
-export function isValidFilter(condition) {
-  return (
-    condition.type === "filter" &&
-    !isNaN(condition.values[0]) &&
-    OPERATOR_SYMBOLS[condition.operator]
-  );
+export function isValidGrouping(grouping) {
+  return grouping && grouping.level;
 }
 
 /**
- * Checks if an object can be used as a cut-type Condition.
- * This means it should have at least 1 element in its values.
- * @param {object} condition An object to check
+ * Checks if a Grouping object can be used as a cut.
+ * This means it should have at least 1 member.
+ * @param {object} grouping An object to check
  */
-export function isValidCut(condition) {
-  return condition.type === "cut" && condition.values.length > 0;
+export function isValidCut(grouping) {
+  return isValidGrouping(grouping) && grouping.hasMembers;
 }
 
 /**

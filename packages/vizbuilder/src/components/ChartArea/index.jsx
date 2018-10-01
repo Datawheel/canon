@@ -63,18 +63,15 @@ class ChartArea extends React.Component {
       activeChart,
       defaultConfig,
       formatting,
-      mainDataset,
-      mainMembers,
-      mainQuery,
       measureConfig,
-      metaDatasets,
-      metaMembers,
-      metaQueries,
+      datasets,
+      members,
+      queries,
       topojson,
       visualizations
     } = this.props;
 
-    if (!mainDataset.length) {
+    if (!datasets.length) {
       return EMPTY_DATASETS;
     }
 
@@ -89,19 +86,15 @@ class ChartArea extends React.Component {
       visualizations
     };
 
-    const allQueries = [mainQuery].concat(metaQueries);
-    const allDatasets = [mainDataset].concat(metaDatasets);
-    const allMembers = [mainMembers].concat(metaMembers);
-
     const chartElements = [];
 
-    let n = allQueries.length;
+    let n = queries.length;
 
     while (n--) {
       const chartConfigs = createChartConfig(
-        allQueries[n],
-        allDatasets[n],
-        allMembers[n],
+        queries[n],
+        datasets[n],
+        members[n],
         activeChart,
         generalConfig
       );
@@ -142,13 +135,10 @@ ChartArea.propTypes = {
   activeChart: PropTypes.string,
   defaultConfig: PropTypes.object,
   formatting: PropTypes.objectOf(PropTypes.func),
-  mainDataset: PropTypes.array,
-  mainMembers: PropTypes.objectOf(PropTypes.array),
-  mainQuery: PropTypes.object,
   measureConfig: PropTypes.object,
-  metaDatasets: PropTypes.arrayOf(PropTypes.array),
-  metaMembers: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.array)),
-  metaQueries: PropTypes.arrayOf(PropTypes.object),
+  datasets: PropTypes.arrayOf(PropTypes.array),
+  members: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.array)),
+  queries: PropTypes.arrayOf(PropTypes.object),
   topojson: PropTypes.objectOf(
     PropTypes.shape({
       topojson: PropTypes.string.isRequired,
@@ -162,7 +152,7 @@ ChartArea.propTypes = {
 
 ChartArea.defaultProps = {
   activeChart: null,
-  mainDataset: []
+  dataset: []
 };
 
 export default ChartArea;

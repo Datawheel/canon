@@ -1,14 +1,8 @@
 import {uuid} from "d3plus-common";
 
+import {isValidCut, isValidGrouping} from "../../../helpers/validation";
+
 class Grouping {
-  static isValid(grouping) {
-    return grouping && grouping.level;
-  }
-
-  static isValidCut(grouping) {
-    return Grouping.isValid(grouping) && grouping.hasMembers;
-  }
-
   constructor(level, members) {
     /** @type {string} A unique id for the grouping element */
     this.uuid = uuid();
@@ -70,5 +64,8 @@ class Grouping {
     return clone;
   }
 }
+
+Grouping.isValid = isValidGrouping;
+Grouping.isValidCut = isValidCut;
 
 export default Grouping;

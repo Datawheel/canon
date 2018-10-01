@@ -1,11 +1,9 @@
 import {uuid} from "d3plus-common";
+
 import OPERATORS, {LABELS, SYMBOLS} from "../../../helpers/operators";
+import {isValidFilter} from "../../../helpers/validation";
 
 class Filter {
-  static isValid(filter) {
-    return filter && filter.measure && filter.hasValue;
-  }
-
   constructor(measure, operator) {
     this.uuid = uuid();
     this.measure = measure;
@@ -52,7 +50,7 @@ class Filter {
 
   setOperator(evt) {
     const clone = this.getClone();
-    clone.operator = evt.target.value * 1;
+    clone.operator = evt.target.value * 1 || 0;
     return clone;
   }
 
@@ -62,5 +60,7 @@ class Filter {
     return clone;
   }
 }
+
+Filter.isValid = isValidFilter;
 
 export default Filter;

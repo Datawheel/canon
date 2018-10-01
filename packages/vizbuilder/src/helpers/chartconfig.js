@@ -26,14 +26,20 @@ export const charts = {
 
 export const ALL_YEARS = "All years";
 
-export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
-  const {drilldownName, measureName, moe, lci, uci, source, collection} = query;
-  const tbody = drilldowns.filter(d => d !== drilldownName).map(dd => [dd, d => d[dd]]);
+export const tooltipGenerator = (query, levels, measureFormatter) => {
+  const {
+    levelName,
+    measureName,
+    moeName,
+    lciName,
+    uciName,
+    sourceName,
+    collectionName
+  } = query;
+  const tbody = levels.filter(d => d !== levelName).map(dd => [dd, d => d[dd]]);
   tbody.push([measureName, d => measureFormatter(d[measureName])]);
 
-  if (lci && uci) {
-    const lciName = lci.name;
-    const uciName = uci.name;
+  if (lciName && uciName) {
     tbody.push([
       "Confidence Interval",
       d =>
@@ -41,25 +47,23 @@ export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
           d[uciName] * 1 || 0
         )}]`
     ]);
-  }
-  else if (moe) {
-    const moeName = moe.name;
+  } else if (moeName) {
     tbody.push([
       "Margin of Error",
       d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
     ]);
   }
 
-  if (source) {
-    const sourceName = source.name;
+  if (sourceName) {
     tbody.push(["Source", d => `${d[sourceName]}`]);
   }
-  if (collection) {
-    const collectionData = collection.name;
-    tbody.push(["Collection", d => `${d[collectionData]}`]);
+
+  if (collectionName) {
+    tbody.push(["Collection", d => `${d[collectionName]}`]);
   }
+
   return {
-    title: d => [].concat(d[drilldownName]).join(", "),
+    title: d => [].concat(d[levelName]).join(", "),
     tbody
   };
 };
@@ -69,19 +73,19 @@ export const tooltipGenerator = (query, drilldowns, measureFormatter) => {
  */
 const makeConfig = {
   barchart(commonConfig, query, flags) {
-    const {timeDrilldown, drilldown, measure} = query;
+    const {timeLevel, level, measure} = query;
 
-    const drilldownName = drilldown.name;
+    const levelName = level.name;
     const measureName = measure.name;
 
     const config = {
       ...commonConfig,
       discrete: "y",
-      label: d => d[drilldownName],
-      y: drilldownName,
-      yConfig: {title: drilldownName, ticks: []},
+      label: d => d[levelName],
+      y: levelName,
+      yConfig: {title: levelName, ticks: []},
       x: measureName,
-      stacked: drilldown.depth > 1,
+      stacked: level.depth > 1,
       shapeConfig: {
         Bar: {
           labelConfig: {
@@ -89,31 +93,31 @@ const makeConfig = {
           }
         }
       },
-      ySort: sortByCustomKey(drilldownName),
+      ySort: sortByCustomKey(levelName),
       ...flags.chartConfig
     };
 
-    if (timeDrilldown) {
-      config.groupBy = [timeDrilldown.hierarchy.levels[1].name];
+    if (timeLevel) {
+      config.groupBy = [timeLevel.hierarchy.levels[1].name];
     }
 
     return config;
   },
   barchartyear(commonConfig, query, flags) {
-    const {drilldown, timeDrilldown, measure} = query;
+    const {level, timeLevel, measure} = query;
 
-    const drilldownName = timeDrilldown.name;
+    const levelName = timeLevel.name;
     const measureName = measure.name;
 
     const config = {
       ...commonConfig,
-      title: `${measureName} by ${drilldownName}`,
+      title: `${measureName} by ${levelName}`,
       discrete: "x",
-      x: drilldownName,
-      xConfig: {title: drilldownName},
+      x: levelName,
+      xConfig: {title: levelName},
       y: measureName,
       stacked: true,
-      groupBy: [drilldown.name],
+      groupBy: [level.name],
       ...flags.chartConfig
     };
 
@@ -122,22 +126,22 @@ const makeConfig = {
     return config;
   },
   donut(commonConfig, query, flags) {
-    const {drilldown, measure} = query;
+    const {level, measure} = query;
 
-    const drilldownName = drilldown.name;
+    const levelName = level.name;
     const measureName = measure.name;
 
     const config = {
       ...commonConfig,
       y: measureName,
-      groupBy: drilldownName,
+      groupBy: levelName,
       ...flags.chartConfig
     };
 
     return config;
   },
   geomap(commonConfig, query, flags) {
-    const drilldownName = query.drilldown.name;
+    const levelName = query.level.name;
     const measureName = query.measure.name;
 
     const config = {
@@ -145,7 +149,7 @@ const makeConfig = {
       colorScale: measureName,
       colorScaleConfig: {scale: "jenks"},
       colorScalePosition: "right",
-      groupBy: `ID ${drilldownName}`,
+      groupBy: `ID ${levelName}`,
       zoomScroll: false,
       ...flags.topojsonConfig,
       ...flags.chartConfig
@@ -167,19 +171,19 @@ const makeConfig = {
     };
   },
   lineplot(commonConfig, query, flags) {
-    const {drilldown, measure, moe, lci, uci, timeDrilldown} = query;
+    const {level, measure, moe, lci, uci, timeLevel} = query;
 
-    const drilldownName = timeDrilldown.name;
+    const levelName = timeLevel.name;
     const measureName = measure.name;
 
     const config = {
       ...commonConfig,
-      title: `${measureName} by ${drilldownName}`,
+      title: `${measureName} by ${levelName}`,
       discrete: "x",
-      groupBy: drilldown.name,
+      groupBy: level.name,
       yConfig: {scale: "linear", title: measureName},
-      x: drilldownName,
-      xConfig: {title: drilldownName},
+      x: levelName,
+      xConfig: {title: levelName},
       y: measureName,
       ...flags.chartConfig
     };
@@ -198,8 +202,7 @@ const makeConfig = {
       const uciName = uci.name;
 
       config.confidence = [d => d[lciName], d => d[uciName]];
-    }
-    else if (moe) {
+    } else if (moe) {
       const moeName = moe.name;
 
       config.confidence = [
@@ -218,10 +221,10 @@ const makeConfig = {
   stacked(commonConfig, query, flags) {
     const config = this.lineplot(commonConfig, query, flags);
 
-    const drilldownName = query.drilldown.name;
+    const levelName = query.level.name;
     const measureName = query.measure.name;
 
-    config.title = `${measureName} by ${drilldownName}`;
+    config.title = `${measureName} by ${levelName}`;
     if (query.member) {
       config.title += ` (${query.member.name})`;
     }
@@ -229,10 +232,10 @@ const makeConfig = {
     return config;
   },
   treemap(commonConfig, query, flags) {
-    const {drilldown} = query;
+    const {level} = query;
 
-    const levels = drilldown.hierarchy.levels;
-    const ddIndex = levels.indexOf(drilldown);
+    const levels = level.hierarchy.levels;
+    const ddIndex = levels.indexOf(level);
 
     const config = {
       ...commonConfig,
@@ -281,33 +284,39 @@ export default function createChartConfig(
   const availableKeys = Object.keys(members);
   const availableCharts = new Set(activeType ? [activeType] : visualizations);
 
-  const drilldownName = query.drilldown.name;
-  const timeDrilldownName = query.timeDrilldown && query.timeDrilldown.name;
-
   const measure = query.measure;
   const measureName = measure.name;
   const measureUnits = measure.annotations.units_of_measurement;
   const measureFormatter = formatting[measureUnits] || formatAbbreviate;
   const getMeasureValue = d => d[measureName];
 
-  const hasTimeDim = timeDrilldownName && Array.isArray(members[timeDrilldownName]);
-  const hasGeoDim = query.dimension.annotations.dim_type === "GEOGRAPHY";
+  const levelName = query.level.name;
+  const timeLevelName = query.timeLevel && query.timeLevel.name;
+  const dimension = query.level.hierarchy.dimension;
 
-  const aggregatorType = measure.annotations.aggregation_method || measure.aggregatorType || "UNKNOWN";
+  const hasTimeDim = timeLevelName && Array.isArray(members[timeLevelName]);
+  const hasGeoDim = dimension.annotations.dim_type === "GEOGRAPHY";
+
+  const aggregatorType =
+    measure.annotations.aggregation_method ||
+    measure.aggregatorType ||
+    "UNKNOWN";
 
   const commonConfig = {
-    title: `${measureName} by ${drilldownName}`,
+    title: `${measureName} by ${levelName}`,
     data: dataset,
     height: activeType ? 500 : 400,
     legend: false,
 
     tooltipConfig: tooltipGenerator(
       {
-        drilldownName,
+        levelName,
         measureName,
-        moe: query.moe,
-        lci: query.lci,
-        uci: query.uci
+        moeName: query.moe && query.moe.name,
+        lciName: query.lci && query.lci.name,
+        uciName: query.uci && query.uci.name,
+        sourceName: query.source && query.source.name,
+        collectionName: query.collection && query.collection.name
       },
       availableKeys,
       measureFormatter
@@ -325,27 +334,27 @@ export default function createChartConfig(
   };
 
   if (hasTimeDim) {
-    commonConfig.time = timeDrilldownName;
+    commonConfig.time = timeLevelName;
   }
 
   if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
     commonConfig.total = getMeasureValue;
   }
 
-  const topojsonConfig = topojson[drilldownName];
+  const topojsonConfig = topojson[levelName];
 
   if (!activeType) {
-    if (members[drilldownName].length > 20) {
+    if (members[levelName].length > 20) {
       availableCharts.delete("barchart");
     }
 
-    if (!hasTimeDim || members[timeDrilldownName].length === 1) {
+    if (!hasTimeDim || members[timeLevelName].length === 1) {
       availableCharts.delete("stacked");
       availableCharts.delete("barchartyear");
       availableCharts.delete("lineplot");
     }
 
-    if (!hasGeoDim || !topojsonConfig || members[drilldownName].length === 1) {
+    if (!hasGeoDim || !topojsonConfig || members[levelName].length === 1) {
       availableCharts.delete("geomap");
     }
 

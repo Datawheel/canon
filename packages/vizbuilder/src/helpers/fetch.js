@@ -115,12 +115,13 @@ export function fetchMembers(level) {
  * @returns {Promise<QueryResults>}
  */
 export function fetchQuery(query) {
-  return api.query(query).then(result => {
+  const mondrianQuery = queryBuilder(queryConverter(query));
+  return api.query(mondrianQuery).then(result => {
     const dataset = (result.data || {}).data || [];
     if (dataset.length > 9999) {
-      throw new TooMuchData(query, dataset.length);
+      throw new TooMuchData(mondrianQuery, dataset.length);
     }
-    const members = getIncludedMembers(query, dataset);
+    const members = getIncludedMembers(mondrianQuery, dataset);
     return {dataset, members};
   });
 }

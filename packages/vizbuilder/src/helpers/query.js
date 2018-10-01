@@ -1,4 +1,5 @@
 import {getMeasureMeta, getTimeLevel, getValidLevels} from "./sorting";
+import {isValidGrouping} from "./validation";
 
 /**
  * Generates a partial state object, whose elements
@@ -29,9 +30,10 @@ export function generateBaseState(cubes, measure) {
  */
 export function generateQueries(params) {
   // TODO: add "metaqueries"
-  return params.groups.map(grouping =>
-    queryBuilder(queryConverter(params, grouping.level))
-  );
+  return params.groups.filter(isValidGrouping).map(grouping => ({
+    ...params,
+    level: grouping.level
+  }));
 }
 
 /**
@@ -39,7 +41,7 @@ export function generateQueries(params) {
  * mondrian-rest-client Query object.
  * @param {object} params The current `query` object from the Vizbuilder state.
  */
-export function queryConverter(params, drilldown) {
+export function queryConverter(params) {
   const measures = [
     params.measure.name,
     params.moe && params.moe.name,
@@ -47,7 +49,7 @@ export function queryConverter(params, drilldown) {
     params.uci && params.uci.name
   ].filter(Boolean);
 
-  const drilldowns = [drilldown, params.timeLevel]
+  const drilldowns = [params.level, params.timeLevel]
     .filter(Boolean)
     .map(lvl => lvl.fullName.slice(1, -1).split("].["));
 
@@ -70,7 +72,7 @@ export function queryConverter(params, drilldown) {
     options: {
       nonempty: true,
       distinct: false,
-      parents: drilldown.depth > 1,
+      parents: params.level.depth > 1,
       debug: false,
       sparse: true
     },
