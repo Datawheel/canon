@@ -58,8 +58,7 @@ const DEFAULT_CONFIG = {
 
 const DEFAULT_PERMAKEYS = {
   measure: "msr",
-  dimension: "dim",
-  level: "lvl",
+  groups: "grp",
   filters: "fil",
   enlarged: "show"
 };

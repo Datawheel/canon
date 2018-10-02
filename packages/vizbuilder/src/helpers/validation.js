@@ -47,13 +47,9 @@ export function isValidCut(grouping) {
 export function isSamePermalinkQuery(keywords, query1, query2) {
   return (
     query1[keywords.measure] === query2[keywords.measure] &&
-    query1[keywords.dimension] === query2[keywords.dimension] &&
-    query1[keywords.level] === query2[keywords.level] &&
-    query1[keywords.enlarged] === query2[keywords.enlarged] &&
-    isSameArrayShallow(
-      [].concat(query1[keywords.filters] || []),
-      [].concat(query2[keywords.filters] || [])
-    )
+    isSameArrayShallow(query1[keywords.groups], query2[keywords.groups]) &&
+    isSameArrayShallow(query1[keywords.filters], query2[keywords.filters]) &&
+    query1[keywords.enlarged] === query2[keywords.enlarged]
   );
 }
 
@@ -65,33 +61,29 @@ export function isSamePermalinkQuery(keywords, query1, query2) {
 export function isSameQuery(query1, query2) {
   return (
     query1.measure === query2.measure &&
-    query1.dimension === query2.dimension &&
-    query1.drilldown === query2.drilldown &&
-    isSameCondition(query1.conditions, query2.conditions)
+    areSameObjects(isValidGrouping, query1.groups, query2.groups) &&
+    areSameObjects(isValidFilter, query1.filters, query2.filters)
   );
 }
 
 /**
  * Compares two condition arrays and checks if all its elements are equivalent.
- * @param {Condition[]} conditions1 A condition to compare
- * @param {Condition[]} conditions2 An array of conditions to compare
+ * @param {obj => boolean} validator A function to validate objects
+ * @param {object[]} obj1 An array of serializable objects to compare
+ * @param {object[]} obj2 An array of serializable objects to compare
  */
-export function isSameCondition(conditions1, conditions2) {
-  let n = conditions1.length;
+export function areSameObjects(validator, obj1, obj2) {
+  obj1 = obj1.filter(validator);
+  obj2 = obj2.filter(validator);
 
-  if (n !== conditions2.length) {
+  let n = obj1.length;
+
+  if (n !== obj2.length) {
     return false;
   }
 
   while (n--) {
-    const cond1 = conditions1[n];
-    const cond2 = conditions2[n];
-    if (
-      cond1.type !== cond2.type &&
-      cond1.property !== cond2.property &&
-      cond1.operator !== cond2.operator &&
-      !isSameArrayShallow(cond1.values, cond2.values)
-    ) {
+    if (`${obj1[n]}` !== `${obj2[n]}`) {
       return false;
     }
   }
@@ -107,6 +99,9 @@ export function isSameCondition(conditions1, conditions2) {
  * @param {any[]} array2 An array to compare
  */
 export function isSameArrayShallow(array1, array2) {
+  array1 = [].concat(array1 || []);
+  array2 = [].concat(array2 || []);
+
   let n = array1.length;
 
   if (n !== array2.length) {

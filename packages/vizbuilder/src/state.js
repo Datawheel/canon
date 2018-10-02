@@ -3,7 +3,6 @@
  */
 export default function initialStateFactory() {
   return {
-    lastUpdate: null,
     load: {
       inProgress: false,
       total: 0,

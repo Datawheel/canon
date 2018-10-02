@@ -4,11 +4,11 @@ import OPERATORS, {LABELS, SYMBOLS} from "../../../helpers/operators";
 import {isValidFilter} from "../../../helpers/validation";
 
 class Filter {
-  constructor(measure, operator) {
+  constructor(measure, operator, value) {
     this.uuid = uuid();
     this.measure = measure;
     this.operator = operator || OPERATORS.EQUAL;
-    this.value = 0;
+    this.value = value || 0;
   }
 
   get name() {

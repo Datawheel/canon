@@ -25,10 +25,18 @@ class Grouping {
   toString() {
     return (
       this.level &&
-      `${this.level.annotations._key}-${this.members
-        .map(member => member.key)
-        .join("~")}`
+      `${this.level.annotations._key}${
+        this.hasMembers
+          ? `-${this.members.map(member => member.key).join("~")}`
+          : ""
+      }`
     );
+  }
+
+  serialize() {
+    const fullName = this.level.fullName;
+    const string = this.members.map(m => `${fullName}.&[${m.key}]`).join(",");
+    return string.indexOf("],[") > -1 ? `{${string}}` : string;
   }
 
   getClone() {

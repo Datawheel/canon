@@ -1,18 +1,10 @@
-import {uuid} from "d3plus-common";
+import Filter from "../components/Sidebar/FilterManager/Filter";
+import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 import {fetchMembers} from "./fetch";
-import {mergeStates} from "./loadstate";
-import {generateMetaQueries} from "./metaqueries";
-import {
-  findByKey,
-  findByName,
-  finishBuildingStateFromParameters,
-  getMeasureMeta,
-  getTimeDrilldown,
-  getValidDimensions,
-  getValidDrilldowns
-} from "./sorting";
-import {isValidCondition} from "./validation";
+import {generateBaseState} from "./query";
+import {findByKey} from "./sorting";
+import {isValidFilter, isValidGrouping} from "./validation";
 
 /**
  * Parses the current `locationSearch` using the `keywords` defined by the user, and
@@ -23,14 +15,14 @@ import {isValidCondition} from "./validation";
  * @param {T} [target] The object where the parsed parameters are going to be saved
  * @returns {Partial<T & PermalinkKeywordMap>}
  */
-export function parsePermalink(keywords, location, target) {
+export function parsePermalink(keywords, location) {
   const locationQuery = location.query || {};
-
-  return Object.keys(keywords).reduce((query, key) => {
-    const assignedKey = keywords[key];
-    query[key] = locationQuery[assignedKey];
-    return query;
-  }, target || {});
+  return {
+    measure: locationQuery[keywords.measure],
+    groups: [].concat(locationQuery[keywords.groups]).filter(Boolean),
+    filters: [].concat(locationQuery[keywords.filters]).filter(Boolean),
+    enlarged: locationQuery[keywords.enlarged]
+  };
 }
 
 /**
@@ -39,13 +31,16 @@ export function parsePermalink(keywords, location, target) {
  * @param {object} query The `query` element from the Vizbuilder's state.
  */
 export function stateToPermalink(keywords, query) {
+  const toString = item => `${item}`;
   return {
     [keywords.measure]: query.measure.annotations._key,
-    [keywords.dimension]: query.dimension.annotations._key,
-    [keywords.level]: query.drilldown.annotations._key,
-    [keywords.filters]: query.conditions
-      .filter(isValidCondition)
-      .map(serializeCondition)
+    [keywords.groups]: query.groups
+      .filter(isValidGrouping)
+      .map(toString)
+      .sort(),
+    [keywords.filters]: query.filters
+      .filter(isValidFilter)
+      .map(toString)
       .sort(),
     [keywords.enlarged]: query.activeChart || undefined
   };
@@ -53,113 +48,67 @@ export function stateToPermalink(keywords, query) {
 
 /**
  * Reconstructs a complete minimal state from a permalink query object.
- * @param {object} prevState The current entire Vizbuilder's `state` object.
  * @param {ExternalQueryParams} queryParams The current permalink parameter object.
+ * @param {object} prevState The current entire Vizbuilder's `state` object.
  */
-export function permalinkToState(prevState, queryParams) {
-  const stateOptions = prevState.options;
+export function permalinkToState(queryParams, prevState) {
+  const oldOptions = prevState.options;
+  const oldQuery = prevState.query;
 
-  const measures = stateOptions.measures;
-  const measure =
-    findByKey(queryParams.measure, measures) ||
-    findByName(queryParams.defaultMeasure, measures, true);
+  const measures = oldOptions.measures;
+  const measure = findByKey(queryParams.measure, measures) || oldQuery.measure;
 
-  const cubeName = measure.annotations._cb_name;
-  const cube = stateOptions.cubes.find(cube => cube.name === cubeName);
-  const measureMeta = getMeasureMeta(cube, measure);
+  const newState = generateBaseState(oldOptions.cubes, measure);
+  const newQuery = newState.query;
 
-  const dimensions = getValidDimensions(cube);
-  const drilldowns = getValidDrilldowns(dimensions);
+  newQuery.activeChart = queryParams.enlarged || null;
 
-  const nextState = finishBuildingStateFromParameters(
-    mergeStates(prevState, {
-      query: {
-        ...measureMeta,
-        activeChart: queryParams.enlarged,
-        conditions: [].concat(queryParams.filters || []),
-        cube,
-        measure,
-        timeDrilldown: getTimeDrilldown(cube)
-      },
-      options: {dimensions, drilldowns}
-    }),
-    queryParams
-  );
+  newQuery.filters = queryParams.filters
+    .map(filterHash => {
+      const parts = filterHash.split("-");
+      const value = parts.pop() * 1 || 0;
+      const operator = parts.pop() * 1 || OPERATORS.EQUAL;
+      const measureKey = parts.join("-");
+      const measure = findByKey(measureKey, measures);
+      return measure && new Filter(measure, operator, value);
+    })
+    .filter(Boolean);
 
-  return Promise.resolve(nextState).then(state => {
-    const conditionUnserializer = unserializeCondition.bind(
-      null,
-      measures,
-      state.options.drilldowns
-    );
-    const conditionPromises = state.query.conditions.map(conditionUnserializer);
-    return Promise.all(conditionPromises).then(conditions => {
-      const newConditions = conditions.filter(isValidCondition);
-      state.query.conditions = newConditions;
-      state.metaQueries = generateMetaQueries(state.query, newConditions);
+  return Promise.resolve(newState).then(state => {
+    const groupPromises = queryParams.groups.reduce((promises, groupHash) => {
+      const parts = groupHash.split("-");
+      const levelKey = parts.shift();
+      const level = findByKey(levelKey, state.options.levels);
+      if (level) {
+        const memberKeys = parts.join("-").split("~");
+        let promise;
+        if (memberKeys.length > 0) {
+          promise = fetchMembers(level).then(members => {
+            const finalMembers = members
+              .filter(member => memberKeys.indexOf(`${member.key}`) > -1)
+              .sort((a, b) => `${a.key}`.localeCompare(`${b.key}`));
+            return new Grouping(level, finalMembers);
+          });
+        } else {
+          promise = new Grouping(level);
+        }
+        promises.push(promise);
+      }
+      return promises;
+    }, []);
+
+    if (!groupPromises.length) {
+      const level = state.options.levels[0];
+      groupPromises.push(
+        fetchMembers(level).then(members => new Grouping(level, members))
+      );
+    }
+
+    return Promise.all(groupPromises).then(groups => {
+      state.query.groups = groups;
       return state;
     });
   });
-}
-
-/**
- * Converts a Condition object into a serialized, decodeable string
- * @param {Condition} condition A Condition object to serialize
- */
-export function serializeCondition(condition) {
-  return [
-    condition.type.substr(0, 1),
-    condition.property.annotations._key,
-    condition.operator,
-    condition.type === "cut"
-      ? condition.values.map(member => member.key).join("~")
-      : condition.values[0]
-  ].join("-");
-}
-
-/**
- * Converts a serialized condition into a Condition object
- * @param {Measure[]} measures List of measures for the current cube
- * @param {Level[]} levels List of levels valid to cut by for the current drilldown
- * @param {string} conditionHash A condition encoded by `serializeCondition`
- */
-export function unserializeCondition(measures, levels, conditionHash) {
-  const conditionTokens = conditionHash.split("-");
-
-  const condition = {
-    hash: uuid(),
-    type: conditionTokens[0] === "c" ? "cut" : "filter",
-    property: null,
-    operator: conditionTokens[2] * 1,
-    values: []
-  };
-
-  let promise = Promise.resolve(null);
-  if (condition.type === "cut") {
-    const property = findByKey(conditionTokens[1], levels);
-    if (property) {
-      condition.property = property;
-      const conditionValues = conditionTokens[3].split("~");
-
-      promise = fetchMembers(property).then(
-        members => {
-          condition.values = conditionValues.map(memberKey =>
-            members.find(member => `${member.key}` === memberKey)
-          );
-          return condition;
-        },
-        () => null
-      );
-    }
-  }
-  else {
-    condition.property = findByKey(conditionTokens[1], measures);
-    condition.values = conditionTokens.slice(3, 4);
-
-    promise = Promise.resolve(condition);
-  }
-
-  return promise;
 }
 
 /**

@@ -7,14 +7,16 @@ import "./index.css";
 
 import LoadingScreen from "components/Loading";
 import ChartArea from "./components/ChartArea";
-// import PermalinkManager from "./components/PermalinkManager";
+import PermalinkManager from "./components/PermalinkManager";
 import Sidebar from "./components/Sidebar";
 
 import * as api from "./helpers/api";
 import {fetchCubes, fetchQuery} from "./helpers/fetch";
 import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
 import {generateQueries} from "./helpers/query";
+import {parsePermalink, permalinkToState} from "./helpers/permalink";
 import {getDefaultGroup} from "./helpers/sorting";
+import {isSameQuery} from "./helpers/validation";
 
 import initialState from "./state";
 
@@ -26,11 +28,9 @@ class Vizbuilder extends React.PureComponent {
     this.state = initialState();
 
     const permalinkKeywords = {
-      dimension: "dimension",
       enlarged: "enlarged",
       filters: "filters",
       groups: "groups",
-      level: "level",
       measure: "measure",
       ...props.permalinkKeywords
     };
@@ -43,12 +43,12 @@ class Vizbuilder extends React.PureComponent {
     let initialStatePromise = fetchCubes.call(this, defaultQuery);
     const location = ctx.router.location;
 
-    // if (props.permalink && location.search) {
-    //   parsePermalink(permalinkKeywords, location, defaultQuery);
-    //   initialStatePromise = initialStatePromise.then(state =>
-    //     permalinkToState(state, defaultQuery)
-    //   );
-    // }
+    if (props.permalink && location.search) {
+      const permalinkQuery = parsePermalink(permalinkKeywords, location);
+      initialStatePromise = initialStatePromise.then(
+        permalinkToState.bind(null, permalinkQuery)
+      );
+    }
 
     this.initialStatePromise = initialStatePromise;
 
@@ -91,13 +91,13 @@ class Vizbuilder extends React.PureComponent {
 
     if (!query.cube) return;
 
-    // if (!isSameQuery(prevState.query, query)) {
-    //   onChange(query, this.state.dataset, this.state.options);
+    if (!isSameQuery(prevState.query, query)) {
+      onChange(query, this.state.options);
 
     //   if (this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
     //     this.queryHistory.push(query);
     //   }
-    // }
+    }
   }
 
   render() {
@@ -110,14 +110,7 @@ class Vizbuilder extends React.PureComponent {
       topojson,
       visualizations
     } = this.props;
-    const {
-      load,
-      datasets,
-      members,
-      queries,
-      options,
-      query
-    } = this.state;
+    const {load, datasets, members, queries, options, query} = this.state;
 
     return (
       <div
@@ -139,11 +132,11 @@ class Vizbuilder extends React.PureComponent {
           topojson={topojson}
           visualizations={visualizations}
         />
-        {/* {permalink && <PermalinkManager
+        {permalink && <PermalinkManager
           activeChart={query.activeChart}
           href={location.search}
           state={this.state}
-        />} */}
+        />}
       </div>
     );
   }

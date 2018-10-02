@@ -314,9 +314,9 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
  * @returns {Dimension[]}
  */
 export function reduceLevelsFromDimension(container, dimension) {
-  return isTimeDimension(dimension) ?
-    container :
-    dimension.hierarchies.reduce(
+  return isTimeDimension(dimension)
+    ? container
+    : dimension.hierarchies.reduce(
       (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
       container
     );
