@@ -46,13 +46,29 @@
       align-items: center;
     }
   }
-
 }
 
 @media screen and (min-width: 1200px) {
-  .area-chart .multi .chart-card { width: 50%; }
+  .area-chart .multi .chart-card {
+    width: 50%;
+  }
 }
 
 @media screen and (min-width: 1700px) {
-  .area-chart .multi .chart-card { width: 33.333%; }
+  .area-chart .multi {
+    & > .chart-card:first-child:nth-last-child(1),
+    & > .chart-card:first-child:nth-last-child(1) ~ .chart-card {
+      width: 100%;
+    }
+
+    & > .chart-card:first-child:nth-last-child(2),
+    & > .chart-card:first-child:nth-last-child(2) ~ .chart-card {
+      width: 50%;
+    }
+
+    & > .chart-card:first-child:nth-last-child(n+3),
+    & > .chart-card:first-child:nth-last-child(n+3) ~ .chart-card {
+      width: 33.333%;
+    }
+  }
 }
