@@ -158,7 +158,8 @@ export function getValidMeasures(cubes) {
         msAnnotations.error_for_measure === undefined &&
         msAnnotations.error_type === undefined &&
         msAnnotations.source_for_measure === undefined &&
-        msAnnotations.collection_for_measure === undefined
+        msAnnotations.collection_for_measure === undefined &&
+        msAnnotations.aggregation_method !== "RCA"
       ) {
         if (msAnnotations._cb_topic === "Other") {
           otherMeasures.push(measure);
@@ -230,7 +231,7 @@ export function getMeasureMeta(cube, measure) {
         collection = currentMeasure;
       }
 
-      if (collection && ((lci && uci) || moe) && source) {
+      if (collection && (lci && uci || moe) && source) {
         break;
       }
     }
