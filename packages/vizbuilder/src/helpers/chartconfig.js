@@ -229,6 +229,8 @@ const makeConfig = {
       config.title += ` (${query.member.name})`;
     }
 
+    config.yConfig = {scale: "linear", title: measureName};
+
     return config;
   },
   treemap(commonConfig, query, flags) {
