@@ -90,6 +90,7 @@ const makeConfig = {
           }
         }
       },
+      total: false,
       ySort: sortByCustomKey(drilldownName),
       ...flags.chartConfig
     };
