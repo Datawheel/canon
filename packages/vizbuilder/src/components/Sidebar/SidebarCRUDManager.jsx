@@ -16,18 +16,12 @@ class SidebarCRUDManager extends React.Component {
     const {context, targetLabel} = this;
     const {items} = this.props;
 
-    context.loadControl(
-      () => {
-        const item = this.createNewInstance.call(this);
-        return {
-          query: {
-            [targetLabel]: [].concat(items, item)
-          }
-        };
-      },
-      context.generateQueries,
-      context.fetchQueries
-    );
+    const item = this.createNewInstance.call(this);
+    context.stateUpdate({
+      query: {
+        [targetLabel]: [].concat(items, item)
+      }
+    });
   }
 
   updateElement(item) {
