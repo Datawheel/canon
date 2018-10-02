@@ -121,7 +121,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
-      title: `${measureName} by ${levelName}`,
+      title: `${measureName} by ${levelName}\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`,
       discrete: "x",
       x: levelName,
       xConfig: {title: levelName},
@@ -205,7 +205,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
-      title: `${measureName} by ${levelName}`,
+      title: `${measureName} by ${levelName}\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`,
       discrete: "x",
       groupBy: level.name,
       yConfig: {scale: "linear", title: measureName},
@@ -216,7 +216,7 @@ const makeConfig = {
     };
 
     if (query.member) {
-      config.title += ` (${query.member.name})`;
+      config.title = `${measureName} by ${levelName} (${query.member.name})\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`;
     }
 
     if (relativeStdDev(flags.dataset, measureName) > 1) {
@@ -260,11 +260,12 @@ const makeConfig = {
     const config = this.lineplot(commonConfig, query, flags);
 
     const levelName = query.level.name;
+    const measure = query.measure;
     const measureName = query.measure.name;
 
-    config.title = `${measureName} by ${levelName}`;
+    config.title = `${measureName} by ${levelName}\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`;
     if (query.member) {
-      config.title += ` (${query.member.name})`;
+      config.title = `${measureName} by ${levelName} (${query.member.name})\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`;
     }
 
     config.yConfig = {scale: "linear", title: measureName};
@@ -294,7 +295,7 @@ const makeConfig = {
     const config = this.treemap(commonConfig, query, flags);
     config.groupBy.push(query.xlevel.name);
     return config;
-  },
+  }
 };
 
 /**
@@ -353,7 +354,7 @@ export default function createChartConfig(
     "UNKNOWN";
 
   const commonConfig = {
-    title: `${measureName} by ${levelName}`,
+    title: `${measureName} by ${levelName}\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`,
     data: dataset,
     height: activeType ? 500 : 400,
     legend: false,
@@ -447,12 +448,12 @@ export default function createChartConfig(
   return Array.from(
     availableCharts,
     chartType => {
-      const functionName = chartType + (isCrossLevel ? 'x' : '');
+      const functionName = chartType + (isCrossLevel ? "x" : "");
       return charts.hasOwnProperty(functionName) && {
         key: `${queryKey}_${chartType}`,
         component: charts[chartType],
         config: makeConfig[functionName](commonConfig, query, flags)
-      }
+      };
     }
   ).filter(Boolean);
 }
