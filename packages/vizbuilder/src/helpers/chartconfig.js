@@ -294,7 +294,7 @@ const makeConfig = {
     const config = this.treemap(commonConfig, query, flags);
     config.groupBy.push(query.xlevel.name);
     return config;
-  },
+  }
 };
 
 /**
@@ -330,6 +330,8 @@ export default function createChartConfig(
       return [];
     }
   }
+
+
 
   const availableKeys = Object.keys(members);
   const availableCharts = new Set(activeType ? [activeType] : visualizations);
@@ -383,8 +385,12 @@ export default function createChartConfig(
     value: getMeasureValue
   };
 
-  if (hasTimeDim) {
+  if (hasTimeDim && activeType) {
     commonConfig.time = timeLevelName;
+    commonConfig.timeline = true;
+  } 
+  else {
+    commonConfig.timeline = false;
   }
 
   if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
@@ -394,6 +400,7 @@ export default function createChartConfig(
   const topojsonConfig = topojson[levelName];
 
   if (!activeType) {
+
     if (members[levelName].length > 20) {
       availableCharts.delete("barchart");
     }
@@ -447,12 +454,12 @@ export default function createChartConfig(
   return Array.from(
     availableCharts,
     chartType => {
-      const functionName = chartType + (isCrossLevel ? 'x' : '');
+      const functionName = chartType + (isCrossLevel ? "x" : "");
       return charts.hasOwnProperty(functionName) && {
         key: `${queryKey}_${chartType}`,
         component: charts[chartType],
         config: makeConfig[functionName](commonConfig, query, flags)
-      }
+      };
     }
   ).filter(Boolean);
 }
