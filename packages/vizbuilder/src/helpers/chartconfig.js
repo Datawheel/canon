@@ -109,6 +109,7 @@ const makeConfig = {
     const config = {
       ...commonConfig,
       title: `${measureName} by ${drilldownName}`,
+      total: false,
       discrete: "x",
       x: drilldownName,
       xConfig: {title: drilldownName},
@@ -176,6 +177,7 @@ const makeConfig = {
     const config = {
       ...commonConfig,
       title: `${measureName} by ${drilldownName}`,
+      total: false,
       discrete: "x",
       groupBy: drilldown.name,
       yConfig: {scale: "linear", title: measureName},
@@ -299,6 +301,9 @@ export default function createChartConfig({
 
   if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
     commonConfig.total = getMeasureName;
+  } 
+  else {
+    commonConfig.total = false;
   }
 
   const topojsonConfig = topojson[drilldownName];
