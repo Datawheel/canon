@@ -14,14 +14,17 @@ import {sortByCustomKey} from "./sorting";
 
 export const charts = {
   barchart: BarChart,
+  barchartx: BarChart,
   barchartyear: BarChart,
   donut: Donut,
   geomap: Geomap,
-  // histogram: BarChart,
   lineplot: LinePlot,
+  lineplotx: LinePlot,
   pie: Pie,
   stacked: StackedArea,
-  treemap: Treemap
+  stackedx: StackedArea,
+  treemap: Treemap,
+  treemapx: Treemap
 };
 
 export const ALL_YEARS = "All years";
@@ -47,7 +50,8 @@ export const tooltipGenerator = (query, levels, measureFormatter) => {
           d[uciName] * 1 || 0
         )}]`
     ]);
-  } else if (moeName) {
+  }
+  else if (moeName) {
     tbody.push([
       "Margin of Error",
       d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
@@ -103,6 +107,12 @@ const makeConfig = {
 
     return config;
   },
+  barchartx(commonConfig, query, flags) {
+    const config = this.barchart(commonConfig, query, flags);
+    // config.y = query.level.name;
+    config.groupBy = [query.xlevel.name];
+    return config;
+  },
   barchartyear(commonConfig, query, flags) {
     const {level, timeLevel, measure} = query;
 
@@ -125,6 +135,11 @@ const makeConfig = {
 
     return config;
   },
+  barchartyearx(commonConfig, query, flags) {
+    const config = this.barchartyear(commonConfig, query, flags);
+    // config.groupBy = [query.level.name, query.xlevel.name];
+    return config;
+  },
   donut(commonConfig, query, flags) {
     const {level, measure} = query;
 
@@ -134,10 +149,15 @@ const makeConfig = {
     const config = {
       ...commonConfig,
       y: measureName,
-      groupBy: levelName,
+      groupBy: [levelName],
       ...flags.chartConfig
     };
 
+    return config;
+  },
+  donutx(commonConfig, query, flags) {
+    const config = this.donut(commonConfig, query, flags);
+    config.groupBy = [query.level.name, query.xlevel.name];
     return config;
   },
   geomap(commonConfig, query, flags) {
@@ -149,7 +169,7 @@ const makeConfig = {
       colorScale: measureName,
       colorScaleConfig: {scale: "jenks"},
       colorScalePosition: "right",
-      groupBy: `ID ${levelName}`,
+      groupBy: [`ID ${levelName}`],
       zoomScroll: false,
       ...flags.topojsonConfig,
       ...flags.chartConfig
@@ -159,6 +179,13 @@ const makeConfig = {
       config.zoom = false;
     }
 
+    return config;
+  },
+  geomapx(commonConfig, query, flags) {
+    const level1Name = query.level.name;
+    const level2Name = query.xlevel.name;
+    const config = this.geomap(commonConfig, query, flags);
+    config.groupBy = [level1Name, level2Name];
     return config;
   },
   histogram(commonConfig, query, flags) {
@@ -202,7 +229,8 @@ const makeConfig = {
       const uciName = uci.name;
 
       config.confidence = [d => d[lciName], d => d[uciName]];
-    } else if (moe) {
+    }
+    else if (moe) {
       const moeName = moe.name;
 
       config.confidence = [
@@ -215,8 +243,18 @@ const makeConfig = {
 
     return config;
   },
+  lineplotx(commonConfig, query, flags) {
+    const config = this.lineplot(commonConfig, query, flags);
+    config.groupBy = [query.level.name, query.xlevel.name];
+    return config;
+  },
   pie(commonConfig, query, flags) {
     return this.donut(commonConfig, query, flags);
+  },
+  piex(commonConfig, query, flags) {
+    const config = this.pie(commonConfig, query, flags);
+    config.groupBy = [query.level.name, query.xlevel.name];
+    return config;
   },
   stacked(commonConfig, query, flags) {
     const config = this.lineplot(commonConfig, query, flags);
@@ -233,6 +271,11 @@ const makeConfig = {
 
     return config;
   },
+  stackedx(commonConfig, query, flags) {
+    const config = this.stacked(commonConfig, query, flags);
+    config.groupBy = [query.level.name, query.xlevel.name];
+    return config;
+  },
   treemap(commonConfig, query, flags) {
     const {level} = query;
 
@@ -246,7 +289,12 @@ const makeConfig = {
     };
 
     return config;
-  }
+  },
+  treemapx(commonConfig, query, flags) {
+    const config = this.treemap(commonConfig, query, flags);
+    config.groupBy.push(query.xlevel.name);
+    return config;
+  },
 };
 
 /**
@@ -394,14 +442,18 @@ export default function createChartConfig(
     }
   };
 
+  const isCrossLevel = Boolean(query.xlevel);
+
   return Array.from(
     availableCharts,
-    chartType =>
-      charts.hasOwnProperty(chartType) && {
+    chartType => {
+      const functionName = chartType + (isCrossLevel ? 'x' : '');
+      return charts.hasOwnProperty(functionName) && {
         key: `${queryKey}_${chartType}`,
         component: charts[chartType],
-        config: makeConfig[chartType](commonConfig, query, flags)
+        config: makeConfig[functionName](commonConfig, query, flags)
       }
+    }
   ).filter(Boolean);
 }
 

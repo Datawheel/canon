@@ -29,13 +29,63 @@ export function generateBaseState(cubes, measure) {
  * @param {Object} params The Vizbuilder `state.query` object.
  */
 export function generateQueries(params) {
-  const validGroups = params.groups.filter(isValidGrouping);
   const queries = [];
+
+  const validGroups = [];
+  const validNotCuts = [];
+  const validCuts = [];
+  const cutMap = new WeakMap();
+
+  const totalGroups = params.groups.length;
+  for (let i = 0; i < totalGroups; i++) {
+    const grouping = params.groups[i];
+    if (isValidGrouping(grouping)) {
+      validGroups.push(grouping);
+
+      if (grouping.hasMembers) {
+        validCuts.push(grouping);
+        cutMap.set(grouping.level, grouping);
+      }
+      else {
+        validNotCuts.push(grouping);
+      }
+    }
+  }
+
+  /*
+  Generate combination queries
+  -
+  For each `Cut`, makes a query for every
+  C(n,2) combination of all levels.
+   */
+
+  const totalValidGroups = validGroups.length;
+  if (totalValidGroups > 1) {
+    for (let j = 0; j < totalValidGroups - 1; j++) {
+      for (let k = 1; k < totalValidGroups; k++) {
+        const currGroup = validGroups[j].level;
+        const nextGroup = validGroups[k].level;
+
+        const cuts = [cutMap.get(currGroup), cutMap.get(nextGroup)]
+          .map(grouping => grouping && grouping.serialize());
+
+        console.log("query.cross");
+        queries.push({
+          ...params,
+          key: `${currGroup.annotations._key}~${nextGroup.annotations._key}`,
+          cuts,
+          level: currGroup,
+          xlevel: nextGroup
+        });
+      }
+    }
+  }
 
   for (let i = 0; i < validGroups.length; i++) {
     const grouping = validGroups[i];
     const level = grouping.level;
 
+    console.log("query.unilevel", level.name);
     queries.push({
       ...params,
       key: level.annotations._key,
@@ -46,15 +96,29 @@ export function generateQueries(params) {
     });
 
     if (grouping.hasMembers && grouping.members.length < 5) {
-      const memberQueries = grouping.members.map(member => ({
-        ...params,
-        key: `${level.annotations._key}_${member.key}`,
-        level,
-        cuts: [{key: level.fullName, values: [member]}]
-      }));
+      const memberQueries = grouping.members.map(member => {
+        console.log("query.unimember", member.fullName);
+        return {
+          ...params,
+          key: `${level.annotations._key}_${member.key}`,
+          member,
+          level,
+          cuts: [{key: level.fullName, values: [member]}]
+        };
+      });
       queries.push(...memberQueries);
     }
   }
+
+  console.table(queries, [
+    "key",
+    "cuts",
+    "filters",
+    "level",
+    "xlevel",
+    "measure"
+  ]);
+  console.debug(queries);
 
   return queries;
 }
@@ -72,7 +136,8 @@ export function queryConverter(params) {
     params.uci && params.uci.name
   ].filter(Boolean);
 
-  const drilldowns = [params.level, params.timeLevel]
+  const drilldowns = []
+    .concat(params.level, params.xlevel, params.timeLevel)
     .filter(Boolean)
     .map(lvl => lvl.fullName.slice(1, -1).split("].["));
 
