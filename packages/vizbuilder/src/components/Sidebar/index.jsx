@@ -21,6 +21,19 @@ class Sidebar extends React.PureComponent {
     if (!query.cube) return null;
 
     const measureDetails = query.measure.annotations.details || "";
+    const cbMeasures = query.cube.measures.reduce((all, measure) => {
+      const msAnnotations = measure.annotations;
+      if (
+        msAnnotations.error_for_measure === undefined &&
+        msAnnotations.error_type === undefined &&
+        msAnnotations.source_for_measure === undefined &&
+        msAnnotations.collection_for_measure === undefined &&
+        msAnnotations.aggregation_method !== "RCA"
+      ) {
+        all.push(measure);
+      }
+      return all;
+    }, []);
 
     return (
       <div className="area-sidebar">
@@ -47,7 +60,7 @@ class Sidebar extends React.PureComponent {
             className="control select-filters"
             label="Filter by"
             items={query.filters}
-            itemOptions={query.cube.measures}
+            itemOptions={cbMeasures}
           />
 
           {this.renderSourceBlock.call(this)}
