@@ -56,19 +56,11 @@
 
 @media screen and (min-width: 1700px) {
   .area-chart .multi {
-    & > .chart-card:first-child:nth-last-child(1),
-    & > .chart-card:first-child:nth-last-child(1) ~ .chart-card {
-      width: 100%;
-    }
-
-    & > .chart-card:first-child:nth-last-child(2),
-    & > .chart-card:first-child:nth-last-child(2) ~ .chart-card {
-      width: 50%;
-    }
-
-    & > .chart-card:first-child:nth-last-child(n+3),
-    & > .chart-card:first-child:nth-last-child(n+3) ~ .chart-card {
-      width: 33.333%;
+    display: flex;
+    flex-wrap: wrap;
+    & .chart-card {
+      flex: 1;
+      min-width: 33.333%;
     }
   }
 }
