@@ -17,10 +17,18 @@ import {isValidFilter, isValidGrouping} from "./validation";
  */
 export function parsePermalink(keywords, location) {
   const locationQuery = location.query || {};
+  const sortByPermalinkKey = (a, b) =>
+    parseInt(a.split("-")[0]) - parseInt(b.split("-")[0]);
   return {
     measure: locationQuery[keywords.measure],
-    groups: [].concat(locationQuery[keywords.groups]).filter(Boolean),
-    filters: [].concat(locationQuery[keywords.filters]).filter(Boolean),
+    groups: []
+      .concat(locationQuery[keywords.groups])
+      .filter(Boolean)
+      .sort(sortByPermalinkKey),
+    filters: []
+      .concat(locationQuery[keywords.filters])
+      .filter(Boolean)
+      .sort(sortByPermalinkKey),
     enlarged: locationQuery[keywords.enlarged]
   };
 }
@@ -31,7 +39,7 @@ export function parsePermalink(keywords, location) {
  * @param {object} query The `query` element from the Vizbuilder's state.
  */
 export function stateToPermalink(keywords, query) {
-  const toString = item => `${item}`;
+  const toString = (item, i) => `${i}-${item}`;
   return {
     [keywords.measure]: query.measure.annotations._key,
     [keywords.groups]: query.groups
@@ -52,20 +60,27 @@ export function stateToPermalink(keywords, query) {
  * @param {object} prevState The current entire Vizbuilder's `state` object.
  */
 export function permalinkToState(queryParams, prevState) {
-  const oldOptions = prevState.options;
-  const oldQuery = prevState.query;
+  const prevOptions = prevState.options;
 
-  const measures = oldOptions.measures;
-  const measure = findByKey(queryParams.measure, measures) || oldQuery.measure;
+  const measures = prevOptions.measures;
+  const measure = findByKey(queryParams.measure, measures);
 
-  const newState = generateBaseState(oldOptions.cubes, measure);
+  const newState =
+    measure && measure !== prevState.query.measure
+      ? generateBaseState(prevOptions.cubes, measure)
+      : prevState;
+  const newOptions = newState.options;
   const newQuery = newState.query;
+
+  newOptions.cubes = prevOptions.cubes;
+  newOptions.measures = prevOptions.measures;
 
   newQuery.activeChart = queryParams.enlarged || null;
 
   newQuery.filters = queryParams.filters
     .map(filterHash => {
       const parts = filterHash.split("-");
+      parts.shift(); // remove order numeral
       const value = parts.pop() * 1 || 0;
       const operator = parts.pop() * 1 || OPERATORS.EQUAL;
       const measureKey = parts.join("-");
@@ -77,6 +92,7 @@ export function permalinkToState(queryParams, prevState) {
   return Promise.resolve(newState).then(state => {
     const groupPromises = queryParams.groups.reduce((promises, groupHash) => {
       const parts = groupHash.split("-");
+      parts.shift(); // remove order numeral
       const levelKey = parts.shift();
       const level = findByKey(levelKey, state.options.levels);
       if (level) {
@@ -89,7 +105,8 @@ export function permalinkToState(queryParams, prevState) {
               .sort((a, b) => `${a.key}`.localeCompare(`${b.key}`));
             return new Grouping(level, finalMembers);
           });
-        } else {
+        }
+        else {
           promise = new Grouping(level);
         }
         promises.push(promise);
