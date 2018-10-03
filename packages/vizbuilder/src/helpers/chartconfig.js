@@ -385,13 +385,9 @@ export default function createChartConfig(
     value: getMeasureValue
   };
 
-  if (hasTimeDim && activeType) {
-    commonConfig.time = timeLevelName;
-    commonConfig.timeline = true;
-  } 
-  else {
-    commonConfig.timeline = false;
-  }
+  if (hasTimeDim) commonConfig.time = timeLevelName;
+  if (activeType) commonConfig.timeline = true;
+  else commonConfig.timeline = false;
 
   if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
     commonConfig.total = getMeasureValue;
