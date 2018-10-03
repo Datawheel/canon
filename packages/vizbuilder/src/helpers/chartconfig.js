@@ -179,6 +179,14 @@ const makeConfig = {
       config.zoom = false;
     }
 
+    const levelCut =
+      query.cuts &&
+      query.cuts.find(cut => cut.key.indexOf(`[${levelName}]`) > -1);
+    if (levelCut) {
+      const levelCutMembers = levelCut.values.map(member => member.key);
+      config.fitFilter = d => levelCutMembers.indexOf(d.id) > -1;
+    }
+
     return config;
   },
   geomapx(commonConfig, query, flags) {
