@@ -94,20 +94,6 @@ export function generateQueries(params) {
         {key: level.fullName, values: grouping.members}
       ]
     });
-
-    if (grouping.hasMembers && grouping.members.length < 5) {
-      const memberQueries = grouping.members.map(member => {
-        console.log("query.unimember", member.fullName);
-        return {
-          ...params,
-          key: `${level.annotations._key}_${member.key}`,
-          member,
-          level,
-          cuts: [{key: level.fullName, values: [member]}]
-        };
-      });
-      queries.push(...memberQueries);
-    }
   }
 
   console.table(queries, [
@@ -180,12 +166,12 @@ export function queryBuilder(params) {
 
   item = params.measures.length;
   for (i = 0; i < item; i++) {
-    query = query.measure(params.measures[i]);
+    query.measure(params.measures[i]);
   }
 
   item = params.drilldowns.length;
   for (i = 0; i < item; i++) {
-    query = query.drilldown(...params.drilldowns[i]);
+    query.drilldown(...params.drilldowns[i]);
   }
 
   for (i = 0; i < params.cuts.length; i++) {
@@ -199,25 +185,25 @@ export function queryBuilder(params) {
       }
     }
 
-    query = query.cut(item);
+    query.cut(item);
   }
 
   item = params.filters.length;
   for (i = 0; i < item; i++) {
-    query = query.filter(...params.filters[i]);
+    query.filter(...params.filters[i]);
   }
 
   if (params.limit) {
-    query = query.pagination(params.limit, params.offset);
+    query.pagination(params.limit, params.offset);
   }
 
   if (params.order) {
-    query = query.sorting(params.order, params.orderDesc);
+    query.sorting(params.order, params.orderDesc);
   }
 
   for (item in params.options) {
     if (params.options.hasOwnProperty(item)) {
-      query = query.option(item, params.options[item]);
+      query.option(item, params.options[item]);
     }
   }
 
