@@ -127,35 +127,6 @@ export function fetchQuery(query) {
 }
 
 /**
- * Retrieves the datasets for a list of alternative state queries
- * @param {object[]} metaqueries List of alternative state queries to retrieve
- */
-export function fetchMetaQueries(metaqueries) {
-  const failedResponse = {dataset: false, members: false};
-  const requests = metaqueries.map(params => {
-    const mondrianQuery = queryBuilder(
-      params.cube.query,
-      queryConverter(params)
-    );
-    return api.query(mondrianQuery).then(
-      result => {
-        const dataset = (result.data || {}).data || [];
-        if (dataset.length > 9999) {
-          return failedResponse;
-        }
-        return {dataset, members: getIncludedMembers(mondrianQuery, dataset)};
-      },
-      () => failedResponse
-    );
-  });
-
-  return Promise.all(requests).then(responses => ({
-    metaDatasets: responses.map(res => res.dataset),
-    metaMembers: responses.map(res => res.members)
-  }));
-}
-
-/**
  * @typedef QueryResults
  * @prop {object[]} dataset The dataset for the current query
  * @prop {object} members An object with the list of current member names for the current drilldowns. Is the output of the `getIncludedMembers` function.

@@ -1,3 +1,5 @@
+import {findFirstNumber} from "./formatting";
+
 /**
  * Checks if the dimension passed as argument is a time-type dimension.
  * @param {Dimension} dimension A mondrian-rest-client dimension object
@@ -115,4 +117,28 @@ export function isSameArrayShallow(array1, array2) {
   }
 
   return true;
+}
+
+/**
+ * Determines if an object is a valid finite number.
+ * @param {any} n object to check
+ */
+export function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+/**
+ * Tries to guess if the elements in a list of strings are related to a number.
+ * Useful to sort by that number.
+ * @param {string[]} list An array of string to determine
+ */
+export function areKindaNumeric(list, tolerance = 0.8) {
+  return (
+    list.reduce(
+      (sum, item) => sum + (isNumeric(findFirstNumber(item)) ? 1 : 0),
+      0
+    ) /
+      list.length >
+    tolerance
+  );
 }

@@ -1,7 +1,8 @@
 import sort from "fast-sort";
 import union from "lodash/union";
 
-import {isTimeDimension} from "./validation";
+import {findFirstNumber} from "./formatting";
+import {isTimeDimension, areKindaNumeric} from "./validation";
 import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 /**
@@ -387,6 +388,10 @@ export function getIncludedMembers(query, dataset) {
  * based on a certain key.
  * @param {string} key The key to the property to be used as comparison string
  */
-export function sortByCustomKey(key) {
+export function sortByCustomKey(key, members) {
+  if (areKindaNumeric(members)) {
+    return (a, b) => findFirstNumber(a) - findFirstNumber(b);
+  }
+
   return (a, b) => `${a[key]}`.localeCompare(`${b[key]}`);
 }
