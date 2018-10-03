@@ -198,26 +198,33 @@ const makeConfig = {
     };
   },
   lineplot(commonConfig, query, flags) {
-    const {level, measure, moe, lci, uci, timeLevel} = query;
+    const {level, measure, moe, lci, uci, member, timeLevel, xlevel} = query;
 
-    const levelName = timeLevel.name;
+    const timeLevelName = timeLevel.name;
     const measureName = measure.name;
+
+    const groupBy = [level.name, xlevel && xlevel.name].filter(Boolean);
+    let levelsTitle = groupBy.join(" and ");
+    if (member) {
+      levelsTitle = levelsTitle.replace(
+        member.level_name,
+        `${member.level_name} (${member.name})`
+      );
+    }
+
+    let title = `${measureName} by ${levelsTitle} by ${timeLevelName}`;
 
     const config = {
       ...commonConfig,
-      title: `${measureName} by ${levelName}`,
       discrete: "x",
-      groupBy: level.name,
+      groupBy,
+      title,
       yConfig: {scale: "linear", title: measureName},
-      x: levelName,
-      xConfig: {title: levelName},
+      x: timeLevelName,
+      xConfig: {title: timeLevelName},
       y: measureName,
       ...flags.chartConfig
     };
-
-    if (query.member) {
-      config.title += ` (${query.member.name})`;
-    }
 
     if (relativeStdDev(flags.dataset, measureName) > 1) {
       config.yConfig.scale = "log";
@@ -244,9 +251,7 @@ const makeConfig = {
     return config;
   },
   lineplotx(commonConfig, query, flags) {
-    const config = this.lineplot(commonConfig, query, flags);
-    config.groupBy = [query.level.name, query.xlevel.name];
-    return config;
+    return this.lineplot(commonConfig, query, flags);
   },
   pie(commonConfig, query, flags) {
     return this.donut(commonConfig, query, flags);
