@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {Button} from "@blueprintjs/core";
-import Loading from "../../components/Loading";
+import Loading from "components/Loading";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import MoveButtons from "../components/MoveButtons";

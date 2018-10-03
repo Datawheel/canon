@@ -2,10 +2,10 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import {Dialog} from "@blueprintjs/core";
-import varSwapRecursive from "utils/varSwapRecursive";
+import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
-import Loading from "../../../components/Loading";
-import Viz from "../../../components/Viz";
+import Loading from "components/Loading";
+import Viz from "../Viz";
 import FooterButtons from "../FooterButtons";
 import "./VisualizationCard.css";
 
