@@ -1,7 +1,7 @@
 import {uuid} from "d3plus-common";
 
 import OPERATORS, {LABELS, SYMBOLS} from "../../../helpers/operators";
-import {isValidFilter} from "../../../helpers/validation";
+import {isValidFilter, isNumeric} from "../../../helpers/validation";
 
 class Filter {
   constructor(measure, operator, value) {
@@ -20,7 +20,7 @@ class Filter {
   }
 
   get hasValue() {
-    return isFinite(this.value) && !isNaN(this.value);
+    return isNumeric(this.value);
   }
 
   toString() {
@@ -56,7 +56,7 @@ class Filter {
 
   setValue(value) {
     const clone = this.getClone();
-    clone.value = value;
+    clone.value = value || 0;
     return clone;
   }
 }

@@ -97,7 +97,7 @@ const makeConfig = {
           }
         }
       },
-      ySort: sortByCustomKey(levelName),
+      ySort: sortByCustomKey(levelName, flags.members[levelName]),
       ...flags.chartConfig
     };
 
@@ -435,6 +435,7 @@ export default function createChartConfig(
     availableKeys,
     dataset,
     measureFormatter,
+    members,
     topojsonConfig,
     chartConfig: {
       ...defaultConfig,

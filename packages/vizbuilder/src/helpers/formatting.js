@@ -28,3 +28,12 @@ export function composePropertyName(item, style = PROPNAMESTYLES.DIMHIELVL) {
   }
   return txt;
 }
+
+/**
+ * Returns the first number it finds in a `string`, else returns `elseValue`.
+ * @param {string} string The string to test
+ * @param {number} elseValue A value to return in case the string doesn't contain any
+ */
+export function findFirstNumber(string, elseValue) {
+  return (`${string}`.match(/[0-9\.\,]+/) || [elseValue])[0] * 1;
+}
