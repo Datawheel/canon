@@ -121,7 +121,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
-      title: `${measureName} by ${levelName}\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`,
+      title: `${measureName} by ${levelName}\n${flags.subtitle}`,
       discrete: "x",
       x: levelName,
       xConfig: {title: levelName},
@@ -205,7 +205,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
-      title: `${measureName} by ${levelName}\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`,
+      title: `${measureName} by ${levelName}\n${flags.subtitle}`,
       discrete: "x",
       groupBy: level.name,
       yConfig: {scale: "linear", title: measureName},
@@ -216,7 +216,7 @@ const makeConfig = {
     };
 
     if (query.member) {
-      config.title = `${measureName} by ${levelName} (${query.member.name})\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`;
+      config.title = `${measureName} by ${levelName} (${query.member.name})\n${flags.subtitle}`;
     }
 
     if (relativeStdDev(flags.dataset, measureName) > 1) {
@@ -263,9 +263,9 @@ const makeConfig = {
     const measure = query.measure;
     const measureName = query.measure.name;
 
-    config.title = `${measureName} by ${levelName}\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`;
+    config.title = `${measureName} by ${levelName}\n${flags.subtitle}`;
     if (query.member) {
-      config.title = `${measureName} by ${levelName} (${query.member.name})\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`;
+      config.title = `${measureName} by ${levelName} (${query.member.name})\n${flags.subtitle}`;
     }
 
     config.yConfig = {scale: "linear", title: measureName};
@@ -353,8 +353,10 @@ export default function createChartConfig(
     measure.aggregatorType ||
     "UNKNOWN";
 
+  const subtitle = `${measure.annotations._cb_datasetName} - ${measure.annotations._cb_sourceName}`;
+
   const commonConfig = {
-    title: `${measureName} by ${levelName}\n${measure.annotations._cb_datasetName}-${measure.annotations._cb_sourceName}`,
+    title: `${measureName} by ${levelName}\n${subtitle}`,
     data: dataset,
     height: activeType ? 500 : 400,
     legend: false,
@@ -437,6 +439,7 @@ export default function createChartConfig(
     dataset,
     measureFormatter,
     topojsonConfig,
+    subtitle,
     chartConfig: {
       ...defaultConfig,
       ...currentMeasureConfig
