@@ -404,7 +404,7 @@ export default function createChartConfig(
       availableCharts.delete("lineplot");
     }
 
-    if (!hasGeoDim || !topojsonConfig || members[levelName].length === 1) {
+    if (!hasGeoDim || !topojsonConfig || members[levelName].length < 3) {
       availableCharts.delete("geomap");
     }
 
