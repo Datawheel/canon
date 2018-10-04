@@ -101,7 +101,7 @@ class Sidebar extends React.PureComponent {
       () => {
         const newState = generateBaseState(options.cubes, measure);
         const newQuery = newState.query;
-        const isSameCube = newQuery.cube !== query.cube;
+        const isSameCube = newQuery.cube === query.cube;
 
         newQuery.activeChart = query.activeChart;
         newQuery.groups = isSameCube

@@ -10,7 +10,9 @@ class LevelSelect extends MultiLevelSelect {
     const valueLabel = composePropertyName(item);
     return (
       <div className="select-option current" title={valueLabel}>
-        <span className="value">{valueLabel}</span>
+        <span className="value">
+          <span className="select-label">{valueLabel}</span>
+        </span>
         <span className="pt-icon-standard pt-icon-double-caret-vertical" />
       </div>
     );

@@ -44,10 +44,17 @@
     padding-right: 3px;
 
     & .value {
-      flex: 1 1;
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
       width: 0;
-      padding: 0 10px;
       line-height: 22px;
+
+      & span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
 
     & .pt-icon-standard {
