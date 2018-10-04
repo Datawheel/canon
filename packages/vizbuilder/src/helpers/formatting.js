@@ -38,8 +38,14 @@ export function findFirstNumber(string, elseValue) {
   return (`${string}`.match(/[0-9\.\,]+/) || [elseValue])[0] * 1;
 }
 
+/**
+ * Joins a list of strings to form an enumeration phrase of type "a, b, c, and d".
+ * @param {string[]} list List of strings to join
+ */
 export function joinStringsWithCommaAnd(list) {
   const copy = list.slice();
   const last = copy.pop();
-  return copy.length > 2 ? `${copy.join(', ')}, and ${last}` : list.join(' and ');
+  return copy.length > 2
+    ? `${copy.join(", ")}, and ${last}`
+    : list.join(" and ");
 }

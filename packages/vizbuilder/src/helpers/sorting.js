@@ -2,7 +2,7 @@ import sort from "fast-sort";
 import union from "lodash/union";
 
 import {findFirstNumber} from "./formatting";
-import {isTimeDimension, areKindaNumeric} from "./validation";
+import {areKindaNumeric, isTimeDimension} from "./validation";
 import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 /**
