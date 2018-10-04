@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import "./BaseSelect.css";
 import "./style.css";
 
 import {generateBaseState} from "../../helpers/query";
