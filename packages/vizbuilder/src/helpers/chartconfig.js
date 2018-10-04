@@ -1,3 +1,4 @@
+import {formatAbbreviate} from "d3plus-format";
 import {
   BarChart,
   Donut,
@@ -7,8 +8,8 @@ import {
   StackedArea,
   Treemap
 } from "d3plus-react";
-import {formatAbbreviate} from "d3plus-format";
 
+import {joinStringsWithCommaAnd} from "./formatting";
 import {relativeStdDev} from "./math";
 import {sortByCustomKey} from "./sorting";
 
@@ -73,7 +74,7 @@ export const tooltipGenerator = (query, levels, measureFormatter) => {
 };
 
 /**
- * @prop {[x: string]: ChartConfigFunction}
+ * @type {Object<string,ChartConfigFunction>}
  */
 const makeConfig = {
   barchart(commonConfig, query, flags) {
@@ -212,7 +213,7 @@ const makeConfig = {
     const measureName = measure.name;
 
     const groupBy = [level.name, xlevel && xlevel.name].filter(Boolean);
-    let levelsTitle = groupBy.join(" and ");
+    let levelsTitle = joinStringsWithCommaAnd(groupBy);
     if (member) {
       levelsTitle = levelsTitle.replace(
         member.level_name,
@@ -220,7 +221,7 @@ const makeConfig = {
       );
     }
 
-    const title = `${measureName} by ${levelsTitle} by ${timeLevelName}\n${flags.subtitle}`;
+    const title = `${measureName} by ${levelsTitle}, by ${timeLevelName}\n${flags.subtitle}`;
 
     const config = {
       ...commonConfig,
@@ -465,25 +466,36 @@ export default function createChartConfig(
 
   const isCrossLevel = Boolean(query.xlevel);
 
-  return Array.from(
-    availableCharts,
-    chartType => {
-      const functionName = chartType + (isCrossLevel ? "x" : "");
-      return charts.hasOwnProperty(functionName) && {
+  return Array.from(availableCharts, chartType => {
+    const functionName = chartType + (isCrossLevel ? "x" : "");
+    return (
+      charts.hasOwnProperty(functionName) && {
         key: `${queryKey}_${chartType}`,
         component: charts[chartType],
         config: makeConfig[functionName](commonConfig, query, flags)
-      };
-    }
-  ).filter(Boolean);
+      }
+    );
+  }).filter(Boolean);
 }
 
 /**
- * @typedef {(commonConfig, query, flags) => object} ChartConfigFunction
+ * @typedef {(commonConfig, query, flags: ConfigFunctionFlags) => object} ChartConfigFunction
  * @param {object} commonConfig The common config between all charts
  * @param {object} query The current `query` object from the Vizbuilder's state
- * @param {object} flags An object with flags and other state variables
+ * @param {ConfigFunctionFlags} flags An object with flags and other state variables
  * @returns {object} The config for the chart of the corresponding type
+ */
+
+/**
+ * @typedef {object} ConfigFunctionFlags
+ * @prop {string} [activeType]
+ * @prop {string} aggregatorType
+ * @prop {string[]} availableKeys
+ * @prop {object[]} dataset
+ * @prop {(value: number) => string} measureFormatter
+ * @prop {string[]} members
+ * @prop {object} topojsonConfig
+ * @prop {object} chartConfig
  */
 
 /**

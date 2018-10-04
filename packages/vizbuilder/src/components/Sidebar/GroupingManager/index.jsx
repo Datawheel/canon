@@ -29,6 +29,7 @@ class GroupingManager extends SidebarCRUDManager {
           text="Add grouping"
           className="pt-fill"
           iconName="insert"
+          disabled={this.state.realOptions.length === 0}
           onClick={this.createElement}
         />
       </div>

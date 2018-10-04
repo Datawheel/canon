@@ -29,7 +29,9 @@ function ConditionPropertySelect(props) {
     BaseSelect,
     props,
     <div className="select-option current" title={name}>
-      <span className="value">{name}</span>
+      <span className="value">
+        <span className="select-label">{name}</span>
+      </span>
       <Icon iconName={props.caret} />
     </div>
   );

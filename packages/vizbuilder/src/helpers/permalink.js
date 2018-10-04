@@ -2,6 +2,7 @@ import Filter from "../components/Sidebar/FilterManager/Filter";
 import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 import {fetchMembers} from "./fetch";
+import OPERATORS from "./operators";
 import {generateBaseState} from "./query";
 import {findByKey} from "./sorting";
 import {isValidFilter, isValidGrouping} from "./validation";
@@ -18,7 +19,7 @@ import {isValidFilter, isValidGrouping} from "./validation";
 export function parsePermalink(keywords, location) {
   const locationQuery = location.query || {};
   const sortByPermalinkKey = (a, b) =>
-    parseInt(a.split("-")[0]) - parseInt(b.split("-")[0]);
+    parseInt(a.split("-")[0], 10) - parseInt(b.split("-")[0], 10);
   return {
     measure: locationQuery[keywords.measure],
     groups: []
