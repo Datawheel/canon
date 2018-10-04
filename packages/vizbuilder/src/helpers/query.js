@@ -1,4 +1,9 @@
-import {getMeasureMeta, getTimeLevel, getValidLevels} from "./sorting";
+import {
+  getCombinationsChoose2,
+  getMeasureMeta,
+  getTimeLevel,
+  getValidLevels
+} from "./sorting";
 import {isValidGrouping} from "./validation";
 
 /**
@@ -52,43 +57,16 @@ export function generateQueries(params) {
     }
   }
 
-  /*
-  Generate combination queries
-  -
-  For each `Cut`, makes a query for every
-  C(n,2) combination of all levels.
-   */
-
   const totalValidGroups = validGroups.length;
-  if (totalValidGroups > 1) {
-    for (let j = 0; j < totalValidGroups - 1; j++) {
-      for (let k = 1; k < totalValidGroups; k++) {
-        const currGroup = validGroups[j].level;
-        const nextGroup = validGroups[k].level;
 
-        const cuts = [cutMap.get(currGroup), cutMap.get(nextGroup)]
-          .map(grouping => grouping && grouping.serialize());
-
-        console.log("query.cross");
-        queries.push({
-          ...params,
-          key: `${currGroup.annotations._key}~${nextGroup.annotations._key}`,
-          cuts,
-          level: currGroup,
-          xlevel: nextGroup
-        });
-      }
-    }
-  }
-
-  for (let i = 0; i < validGroups.length; i++) {
+  for (let i = 0; i < totalValidGroups; i++) {
     const grouping = validGroups[i];
     const level = grouping.level;
 
     console.log("query.unilevel", level.name);
     queries.push({
       ...params,
-      key: level.annotations._key,
+      key: grouping.key,
       level,
       cuts: grouping.hasMembers && [
         {key: level.fullName, values: grouping.members}
@@ -96,15 +74,35 @@ export function generateQueries(params) {
     });
   }
 
-  console.table(queries, [
-    "key",
-    "cuts",
-    "filters",
-    "level",
-    "xlevel",
-    "measure"
-  ]);
-  console.debug(queries);
+  if (totalValidGroups > 1) {
+    const combinations = getCombinationsChoose2(validGroups);
+
+    while (true) {
+      const combination = combinations.next();
+      if (combination.done) break;
+
+      const grouping1 = combination.value[0];
+      const grouping2 = combination.value[1];
+
+      console.log("query.bilevel", grouping1.name, grouping2.name);
+      queries.push({
+        ...params,
+        key: `${grouping1.key}_${grouping2.key}`,
+        level: grouping1.level,
+        xlevel: grouping2.level,
+        cuts: [
+          grouping1.hasMembers && {
+            key: grouping1.level.fullName,
+            values: grouping1.members
+          },
+          grouping2.hasMembers && {
+            key: grouping2.level.fullName,
+            values: grouping2.members
+          }
+        ].filter(Boolean)
+      });
+    }
+  }
 
   return queries;
 }
@@ -162,7 +160,7 @@ export function queryConverter(params) {
  */
 export function queryBuilder(params) {
   let i, item;
-  let query = params.queryObject;
+  const query = params.queryObject;
 
   item = params.measures.length;
   for (i = 0; i < item; i++) {
