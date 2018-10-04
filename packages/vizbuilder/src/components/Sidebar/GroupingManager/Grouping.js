@@ -14,6 +14,10 @@ class Grouping {
     this.members = members || [];
   }
 
+  get key() {
+    return this.level && this.level.annotations._key;
+  }
+
   get name() {
     return this.level && this.level.name;
   }
@@ -25,7 +29,7 @@ class Grouping {
   toString() {
     return (
       this.level &&
-      `${this.level.annotations._key}${
+      `${this.key}${
         this.hasMembers
           ? `-${this.members.map(member => member.key).join("~")}`
           : ""

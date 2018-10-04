@@ -212,7 +212,7 @@ const makeConfig = {
     const measureName = measure.name;
 
     const groupBy = [level.name, xlevel && xlevel.name].filter(Boolean);
-    let levelsTitle = groupBy.join(" and ");
+    let levelsTitle = joinStringsWithCommaAnd(groupBy);
     if (member) {
       levelsTitle = levelsTitle.replace(
         member.level_name,
@@ -220,7 +220,7 @@ const makeConfig = {
       );
     }
 
-    let title = `${measureName} by ${levelsTitle} by ${timeLevelName}`;
+    let title = `${measureName} by ${levelsTitle}, by ${timeLevelName}`;
 
     const config = {
       ...commonConfig,

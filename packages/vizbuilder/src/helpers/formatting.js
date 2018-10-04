@@ -37,3 +37,9 @@ export function composePropertyName(item, style = PROPNAMESTYLES.DIMHIELVL) {
 export function findFirstNumber(string, elseValue) {
   return (`${string}`.match(/[0-9\.\,]+/) || [elseValue])[0] * 1;
 }
+
+export function joinStringsWithCommaAnd(list) {
+  const copy = list.slice();
+  const last = copy.pop();
+  return copy.length > 2 ? `${copy.join(', ')}, and ${last}` : list.join(' and ');
+}

@@ -11,6 +11,10 @@ class Filter {
     this.value = value || 0;
   }
 
+  get key() {
+    return this.measure && this.measure.annotations._key;
+  }
+
   get name() {
     return this.measure && this.measure.name;
   }
@@ -24,10 +28,7 @@ class Filter {
   }
 
   toString() {
-    return (
-      this.measure &&
-      `${this.measure.annotations._key}-${this.operator}-${this.value}`
-    );
+    return this.measure && `${this.key}-${this.operator}-${this.value}`;
   }
 
   serialize() {
