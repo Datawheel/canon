@@ -1,27 +1,24 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
-import {Position, Toaster} from "@blueprintjs/core";
-
-import {fetchCubes, fetchQuery} from "./actions/fetch";
-import {loadControl, setStatePromise, mergeStates} from "./actions/loadstate";
-import ChartArea from "./components/ChartArea";
-import Sidebar from "./components/Sidebar";
-import PermalinkManager from "./components/PermalinkManager";
-import * as api from "./helpers/api";
-import {parsePermalink, permalinkToState} from "./helpers/permalink";
-import {isSameQuery} from "./helpers/validation";
-import initialState from "./state";
-
-import LoadingScreen from "components/Loading";
 
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
 
-const UIToaster =
-  typeof window !== "undefined"
-    ? Toaster.create({className: "area-toaster", position: Position.TOP})
-    : null;
+import LoadingScreen from "components/Loading";
+import ChartArea from "./components/ChartArea";
+import PermalinkManager from "./components/PermalinkManager";
+import Sidebar from "./components/Sidebar";
+
+import * as api from "./helpers/api";
+import {fetchCubes, fetchQuery} from "./helpers/fetch";
+import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
+import {generateQueries} from "./helpers/query";
+import {parsePermalink, permalinkToState} from "./helpers/permalink";
+import {getDefaultGroup} from "./helpers/sorting";
+import {isSameQuery} from "./helpers/validation";
+
+import initialState from "./state";
 
 class Vizbuilder extends React.PureComponent {
   constructor(props, ctx) {
@@ -31,44 +28,47 @@ class Vizbuilder extends React.PureComponent {
     this.state = initialState();
 
     const permalinkKeywords = {
-      dimension: "dimension",
       enlarged: "enlarged",
       filters: "filters",
-      level: "level",
+      groups: "groups",
       measure: "measure",
       ...props.permalinkKeywords
     };
 
     const defaultQuery = {
-      defaultMeasure: props.defaultMeasure,
-      defaultDimension: props.defaultDimension,
-      defaultLevel: props.defaultLevel
+      defaultGroup: props.defaultGroup,
+      defaultMeasure: props.defaultMeasure
     };
 
     let initialStatePromise = fetchCubes.call(this, defaultQuery);
     const location = ctx.router.location;
 
     if (props.permalink && location.search) {
-      parsePermalink(permalinkKeywords, location, defaultQuery);
-      initialStatePromise = initialStatePromise.then(state =>
-        permalinkToState(state, defaultQuery)
+      const permalinkQuery = parsePermalink(permalinkKeywords, location);
+      initialStatePromise = initialStatePromise.then(
+        permalinkToState.bind(null, permalinkQuery)
       );
     }
 
     this.initialStatePromise = initialStatePromise;
 
     this.defaultQuery = defaultQuery;
+    this.getDefaultGroup = getDefaultGroup.bind(null, props.defaultGroup);
     this.permalinkKeywords = permalinkKeywords;
     this.queryHistory = [];
 
     this.loadControl = loadControl.bind(this);
-    this.fetchQuery = fetchQuery.bind(this);
+    this.fetchQueries = this.fetchQueries.bind(this);
+    this.generateQueries = this.generateQueries.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
   }
 
   getChildContext() {
     return {
-      fetchQuery: this.fetchQuery,
+      defaultQuery: this.defaultQuery,
+      fetchQueries: this.fetchQueries,
+      generateQueries: this.generateQueries,
+      getDefaultGroup: this.getDefaultGroup,
       loadControl: this.loadControl,
       permalinkKeywords: this.permalinkKeywords,
       stateUpdate: this.stateUpdate
@@ -78,27 +78,25 @@ class Vizbuilder extends React.PureComponent {
   componentDidMount() {
     const initialStatePromise = this.initialStatePromise;
     delete this.initialStatePromise;
-    this.loadControl(() => initialStatePromise, this.fetchQuery);
+    this.loadControl(
+      () => initialStatePromise,
+      this.generateQueries,
+      this.fetchQueries
+    );
   }
 
   componentDidUpdate(prevProps, prevState) {
     const {onChange} = this.props;
-    const {load, query} = this.state;
-    const {error} = load;
-
-    if (error && prevState.load.error !== error) {
-      console.warn(error.stack);
-      UIToaster.show({intent: load.severity, message: error.message});
-    }
+    const {query} = this.state;
 
     if (!query.cube) return;
 
     if (!isSameQuery(prevState.query, query)) {
-      onChange(query, this.state.dataset, this.state.options);
+      onChange(query, this.state.options);
 
-      if (this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
-        this.queryHistory.push(query);
-      }
+    //   if (this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
+    //     this.queryHistory.push(query);
+    //   }
     }
   }
 
@@ -112,7 +110,7 @@ class Vizbuilder extends React.PureComponent {
       topojson,
       visualizations
     } = this.props;
-    const {dataset, load, members, options, query, queryOptions} = this.state;
+    const {load, datasets, members, queries, options, query} = this.state;
 
     return (
       <div
@@ -121,21 +119,17 @@ class Vizbuilder extends React.PureComponent {
         })}
       >
         <LoadingScreen total={load.total} progress={load.done} />
-        <Sidebar
-          defaultQuery={this.defaultQuery}
-          options={options}
-          query={query}
-          queryOptions={queryOptions}
-        />
+        <Sidebar options={options} query={query} />
         <ChartArea
+          triggerUpdate={load.lastUpdate}
           activeChart={query.activeChart}
-          dataset={dataset}
-          formatting={formatting}
-          members={members}
-          query={query}
-          topojson={topojson}
           defaultConfig={config}
+          formatting={formatting}
+          datasets={datasets}
+          members={members}
+          queries={queries}
           measureConfig={measureConfig}
+          topojson={topojson}
           visualizations={visualizations}
         />
         {permalink && <PermalinkManager
@@ -150,6 +144,25 @@ class Vizbuilder extends React.PureComponent {
   stateUpdate(newState) {
     return setStatePromise.call(this, state => mergeStates(state, newState));
   }
+
+  generateQueries() {
+    return {queries: generateQueries(this.state.query)};
+  }
+
+  fetchQueries() {
+    const {queries} = this.state;
+    return Promise.all(queries.map(fetchQuery)).then(results => {
+      const datasets = [];
+      const members = [];
+      let n = results.length;
+      while (n--) {
+        const result = results[n];
+        datasets.unshift(result.dataset);
+        members.unshift(result.members);
+      }
+      return {datasets, members};
+    });
+  }
 }
 
 Vizbuilder.contextTypes = {
@@ -157,7 +170,10 @@ Vizbuilder.contextTypes = {
 };
 
 Vizbuilder.childContextTypes = {
-  fetchQuery: PropTypes.func,
+  defaultQuery: PropTypes.any,
+  fetchQueries: PropTypes.func,
+  generateQueries: PropTypes.func,
+  getDefaultGroup: PropTypes.func,
   loadControl: PropTypes.func,
   permalinkKeywords: PropTypes.object,
   stateUpdate: PropTypes.func
@@ -166,17 +182,8 @@ Vizbuilder.childContextTypes = {
 Vizbuilder.propTypes = {
   // this config object will be applied to all charts
   config: PropTypes.object,
-  // default dimension and level are optional
-  // but if set, default measure is required
-  defaultDimension: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.arrayOf(PropTypes.string)
-  ]),
-  defaultLevel: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.arrayOf(PropTypes.string)
-  ]),
   defaultMeasure: PropTypes.string,
+  defaultGroup: PropTypes.arrayOf(PropTypes.string),
   // formatting functions object,
   // keys are the possible values of measure.annotations.units_of_measurement
   // values are the formatting function to apply to those measures

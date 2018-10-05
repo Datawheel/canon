@@ -58,8 +58,7 @@ const DEFAULT_CONFIG = {
 
 const DEFAULT_PERMAKEYS = {
   measure: "msr",
-  dimension: "dim",
-  level: "lvl",
+  groups: "grp",
   filters: "fil",
   enlarged: "show"
 };
@@ -93,6 +92,7 @@ export default class Home extends React.Component {
     return <Vizbuilder
       src={this.state.source}
       config={DEFAULT_CONFIG}
+      defaultGroup={["Geography.State"]}
       defaultDimension={["Geography", "Gender", "Age"]}
       defaultLevel={["State"]}
       measureConfig={{

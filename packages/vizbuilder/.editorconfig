@@ -9,6 +9,8 @@ indent_size = 2
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
+quote_type = double
+spaces_around_brackets = outside
 
 [*.md]
 insert_final_newline = false

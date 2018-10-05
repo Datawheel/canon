@@ -1,16 +1,14 @@
 import {unique} from "shorthash";
-import * as api from "../helpers/api";
+
+import * as api from "./api";
+import {TooMuchData} from "./errors";
+import {generateBaseState, queryBuilder, queryConverter} from "./query";
 import {
   findByName,
-  finishBuildingStateFromParameters,
-  getMeasureCI,
-  getMeasureMOE,
-  getTimeDrilldown,
-  getValidDimensions,
-  getValidDrilldowns,
-  getValidMeasures,
-  getMeasureSource
-} from "../helpers/sorting";
+  getDefaultGroup,
+  getIncludedMembers,
+  getValidMeasures
+} from "./sorting";
 
 /**
  * Prepares the array of cubes that will be used in the vizbuilder.
@@ -70,7 +68,9 @@ export function injectCubeInfoOnMeasure(cubes) {
         while (nLvl--) {
           const level = hierarchy.levels[nLvl];
 
-          level.annotations._key = unique(`${keyPrefix} ${hierarchy.name} ${level.name}`);
+          level.annotations._key = unique(
+            `${keyPrefix} ${hierarchy.name} ${level.name}`
+          );
         }
       }
     }
@@ -88,34 +88,16 @@ export function fetchCubes(params) {
     const measures = getValidMeasures(cubes);
     const measure = findByName(params.defaultMeasure, measures, true);
 
-    const cubeName = measure.annotations._cb_name;
-    const cube = cubes.find(cube => cube.name === cubeName);
-    const lci = getMeasureCI(cube, measure, "LCI");
-    const uci = getMeasureCI(cube, measure, "UCI");
-    const moe = getMeasureMOE(cube, measure);
-    const timeDrilldown = getTimeDrilldown(cube);
+    const newState = generateBaseState(cubes, measure);
 
-    const dimensions = getValidDimensions(cube);
-    const drilldowns = getValidDrilldowns(dimensions);
-    const sources = getMeasureSource(cube, measure);
+    const newOptions = newState.options;
+    newOptions.cubes = cubes;
+    newOptions.measures = measures;
 
-    const state = {
-      options: {cubes, measures, dimensions, drilldowns},
-      query: {
-        cube,
-        measure,
-        lci,
-        uci,
-        moe,
-        timeDrilldown,
-        collection: sources.collectionMeasure,
-        source: sources.sourceMeasure,
-        activeChart: params.enlarged || null,
-        conditions: []
-      }
-    };
+    const newQuery = newState.query;
+    newQuery.groups = getDefaultGroup(params.defaultGroup, newOptions.levels);
 
-    return finishBuildingStateFromParameters(state, params);
+    return newState;
   });
 }
 
@@ -129,11 +111,23 @@ export function fetchMembers(level) {
 
 /**
  * Retrieves the dataset for the query in the current Vizbuilder state.
+ * @param {Query} query The Vizbuilder's state query object
+ * @returns {Promise<QueryResults>}
  */
-export function fetchQuery() {
-  const {query, queryOptions} = this.state;
-  return api.query({
-    ...query,
-    options: queryOptions
+export function fetchQuery(query) {
+  const mondrianQuery = queryBuilder(queryConverter(query));
+  return api.query(mondrianQuery).then(result => {
+    const dataset = (result.data || {}).data || [];
+    if (dataset.length > 9999) {
+      throw new TooMuchData(mondrianQuery, dataset.length);
+    }
+    const members = getIncludedMembers(mondrianQuery, dataset);
+    return {dataset, members};
   });
 }
+
+/**
+ * @typedef QueryResults
+ * @prop {object[]} dataset The dataset for the current query
+ * @prop {object} members An object with the list of current member names for the current drilldowns. Is the output of the `getIncludedMembers` function.
+ */

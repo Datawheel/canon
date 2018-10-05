@@ -1,61 +1,9 @@
 import sort from "fast-sort";
 import union from "lodash/union";
 
-import {isTimeDimension} from "./validation";
-
-/**
- * Completes the remaining items from `state` using the values from a `searchQuery` object.
- * Gives priority to permalink keys, and if there's no matches, uses user default_ keys.
- * @param {object} state A Vizbuilder's partial state. Requires at least the `state.query` (can be empty), `state.options.dimensions`, and `state.options.drilldowns}` objects;
- * @param {ExternalQueryParams} params A default/permalink parameter object. `keys` map to `item.annotations._key`, `defaultKeys` map to `item.name`.
- */
-export function finishBuildingStateFromParameters(state, params) {
-  const {dimensions, drilldowns} = state.options;
-
-  let dimension, drilldown;
-  let levels = [];
-
-  drilldown = findByKey(params.level, drilldowns);
-  if (drilldown) {
-    dimension = drilldown.hierarchy.dimension;
-    levels = reduceLevelsFromDimension(levels, dimension);
-    removeDuplicateLevels(levels);
-  }
-  else {
-    const defaultLevel = params.defaultLevel;
-    const defaultDimension = params.defaultDimension;
-
-    dimension = findByKey(params.dimension, dimensions);
-    if (dimension) {
-      levels = reduceLevelsFromDimension(levels, dimension);
-      removeDuplicateLevels(levels);
-      drilldown = matchDefault(findByName, levels, defaultLevel, true);
-    }
-    else {
-      if (defaultDimension.length > 0) {
-        dimension = matchDefault(findByName, dimensions, defaultDimension, true);
-        levels = reduceLevelsFromDimension(levels, dimension);
-        removeDuplicateLevels(levels);
-        drilldown = matchDefault(findByName, levels, defaultLevel, true);
-      }
-      else {
-        drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
-        dimension = drilldown.hierarchy.dimension;
-        levels = reduceLevelsFromDimension(levels, dimension);
-        removeDuplicateLevels(levels);
-      }
-    }
-  }
-
-  preventHierarchyIncompatibility(drilldowns, drilldown);
-
-  state.query.dimension = dimension;
-  state.query.drilldown = drilldown;
-  state.options.levels = levels;
-  state.queryOptions = {parents: drilldown.depth > 1};
-
-  return state;
-}
+import {findFirstNumber} from "./formatting";
+import {areKindaNumeric, isTimeDimension} from "./validation";
+import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 /**
  * If `needle` is a valid value, returns the first element in the `haystack`
@@ -67,7 +15,9 @@ export function finishBuildingStateFromParameters(state, params) {
  * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
  */
 export function findByKey(needle, haystack, elseFirst = false) {
-  const findResult = needle ? haystack.find(item => item.annotations._key === needle) : undefined;
+  const findResult = needle
+    ? haystack.find(item => item.annotations._key === needle)
+    : undefined;
   return elseFirst ? findResult || haystack[0] : findResult;
 }
 
@@ -81,7 +31,29 @@ export function findByKey(needle, haystack, elseFirst = false) {
  * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
  */
 export function findByName(needle, haystack, elseFirst = false) {
-  const findResult = needle ? haystack.find(item => item.name === needle) : undefined;
+  const findResult = needle
+    ? haystack.find(item => item.name === needle)
+    : undefined;
+  return elseFirst ? findResult || haystack[0] : findResult;
+}
+
+/**
+ * If `needle` is a valid value, returns the first element in the `haystack`
+ * that matches the fullName property.
+ * If there's no matches and `elseFirst` is true, returns the first element
+ * in the `haystack`.
+ * @param {string} needle The key to match
+ * @param {any[]} haystack The array where to search for the object.
+ * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
+ */
+export function findByFullName(needle, haystack, elseFirst = false) {
+  let findResult;
+  if (typeof needle === "string") {
+    if (needle.indexOf("].[") === -1) {
+      needle = `[${needle.split(".").join("].[")}]`;
+    }
+    findResult = haystack.find(item => item.fullName === needle);
+  }
   return elseFirst ? findResult || haystack[0] : findResult;
 }
 
@@ -125,10 +97,11 @@ export function getValidMeasures(cubes) {
       const measure = cube.measures[nMsr];
       const msAnnotations = measure.annotations;
       if (
-        msAnnotations.error_for_measure === undefined && 
-        msAnnotations.error_type === undefined && 
+        msAnnotations.error_for_measure === undefined &&
+        msAnnotations.error_type === undefined &&
         msAnnotations.source_for_measure === undefined &&
-        msAnnotations.collection_for_measure === undefined
+        msAnnotations.collection_for_measure === undefined &&
+        msAnnotations.aggregation_method !== "RCA"
       ) {
         if (msAnnotations._cb_topic === "Other") {
           otherMeasures.push(measure);
@@ -148,84 +121,85 @@ export function getValidMeasures(cubes) {
 }
 
 /**
+ * Finds a valid Level using a user defined parameter list.
+ * @param {object[]} defaultGroup Array of user-defined default levels
+ * @param {Level[]} levels An array with all the available valid levels
+ */
+export function getDefaultGroup(defaultGroup, levels) {
+  const level = matchDefault(findByFullName, levels, defaultGroup, true);
+  return [new Grouping(level)];
+}
+
+/**
  * Returns the MOE measure for a certain measure, in the full measure list
  * from the cube. If there's no MOE for the measure, returns undefined.
  * @param {Cube} cube The measure's parent cube
  * @param {*} measure The measure
  * @returns {Measure|undefined}
  */
-export function getMeasureMOE(cube, measure) {
+export function getMeasureMeta(cube, measure) {
+  let collection, lci, moe, source, uci;
   const measureName = RegExp(measure.name, "i");
 
   if (cube.measures.indexOf(measure) > -1) {
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const currentMeasure = cube.measures[nMsr];
+      const measureAnnotations = currentMeasure.annotations;
 
-      const key = currentMeasure.annotations.error_for_measure;
-      if (key && measureName.test(key)) {
-        return currentMeasure;
+      const keyMoe = measureAnnotations.error_for_measure;
+      const keyCollection = measureAnnotations.collection_for_measure;
+      const keySource = measureAnnotations.source_for_measure;
+
+      if (keyMoe && measureName.test(keyMoe)) {
+        const errorType = measureAnnotations.error_type;
+
+        if (errorType === "LCI") {
+          lci = currentMeasure;
+        }
+        else if (errorType === "UCI") {
+          uci = currentMeasure;
+        }
+        else {
+          moe = currentMeasure;
+        }
+      }
+
+      if (!source && keySource && measureName.test(keySource)) {
+        source = currentMeasure;
+      }
+
+      if (!collection && keyCollection && measureName.test(keyCollection)) {
+        collection = currentMeasure;
+      }
+
+      if (collection && (lci && uci || moe) && source) {
+        break;
       }
     }
   }
 
-  return undefined;
+  return {collection, lci, moe, source, uci};
 }
 
 /**
- * Returns the CI measures for a certain measure, in the full measure list
- * from the cube. If there's no CI for the measure, returns undefined.
- * @param {Cube} cube The measure's parent cube
- * @param {*} measure The measure
- * @returns {Measure|undefined}
+ * Extracts a time-type Dimension from a Cube object. If not found,
+ * returns undefined.
+ * @param {Cube} cube The Cube object to extract the time Dimension from
+ * @returns {Dimension|undefined}
  */
-export function getMeasureCI(cube, measure, type = "MOE") {
-  const measureName = RegExp(measure.name, "i");
-
-  if (cube.measures.indexOf(measure) > -1) {
-    let nMsr = cube.measures.length;
-    while (nMsr--) {
-      const currentMeasure = cube.measures[nMsr];
-
-      const key = currentMeasure.annotations.error_type;
-      const keyErrorForMsr = currentMeasure.annotations.error_for_measure;
-
-      if (key && measureName.test(keyErrorForMsr) && key === type) return currentMeasure;
+export function getTimeLevel(cube) {
+  const timeDim =
+    cube.timeDimension ||
+    cube.dimensionsByName.Date ||
+    cube.dimensionsByName.Year;
+  if (timeDim) {
+    const timeHie = timeDim.hierarchies.slice(-1).pop();
+    if (timeHie) {
+      return timeHie.levels.slice(1, 2).pop();
     }
   }
-
   return undefined;
-}
-
-/** 
- * Returns the source measure for a certain measure, in the full measure list
- * from the cube. If there's no source for the measure, returns undefined.
- * @param {Cube} cube The measure's parent cube
- * @param {*} measure The measure
- * @returns {Measure|undefined}
- */
-export function getMeasureSource(cube, measure) {
-  let collectionMeasure, sourceMeasure;
-  const measureName = RegExp(measure.name, "i");
-
-  if (cube.measures.indexOf(measure) > -1) {
-    let nMsr = cube.measures.length;
-    while (nMsr--) {
-      const currentMeasure = cube.measures[nMsr];
-
-      const collectionKey = currentMeasure.annotations.collection_for_measure,
-            sourceKey = currentMeasure.annotations.source_for_measure;
-
-      if (!sourceMeasure && sourceKey && measureName.test(sourceKey)) {
-        sourceMeasure = currentMeasure;
-      }
-      if (!collectionMeasure && collectionKey && measureName.test(collectionKey)) {
-        collectionMeasure = currentMeasure;
-      }
-    }
-  }
-
-  return {collectionMeasure, sourceMeasure};
 }
 
 /**
@@ -235,6 +209,11 @@ export function getMeasureSource(cube, measure) {
  */
 export function getValidDimensions(cube) {
   return cube.dimensions.filter(dim => !isTimeDimension(dim));
+}
+
+export function getValidLevels(cube) {
+  const dimensions = getValidDimensions(cube);
+  return dimensions.reduce(reduceLevelsFromDimension, []);
 }
 
 /**
@@ -255,11 +234,16 @@ export function getValidDrilldowns(dimensions) {
  */
 export function preventHierarchyIncompatibility(array, interestLevel) {
   const interestHierarchy = interestLevel.hierarchy;
+  const interestDimension = interestHierarchy.dimension;
 
   let n = array.length;
   while (n--) {
     const level = array[n];
-    if (level.hierarchy !== interestHierarchy || level.depth > interestLevel.depth) {
+    const hierarchy = level.hierarchy;
+    if (
+      hierarchy.dimension === interestDimension &&
+      (hierarchy !== interestHierarchy || level.depth > interestLevel.depth)
+    ) {
       array.splice(n, 1);
     }
   }
@@ -275,7 +259,10 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
 export function reduceLevelsFromDimension(container, dimension) {
   return isTimeDimension(dimension)
     ? container
-    : dimension.hierarchies.reduce((container, hierarchy) => container.concat(hierarchy.levels.slice(1)), container);
+    : dimension.hierarchies.reduce(
+        (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
+        container
+      );
 }
 
 /**
@@ -316,50 +303,25 @@ export function removeDuplicateLevels(array) {
 }
 
 /**
- * Extracts a time-type Dimension from a Cube object. If not found,
- * returns undefined.
- * @param {Cube} cube The Cube object to extract the time Dimension from
- * @returns {Dimension|undefined}
- */
-export function getTimeDrilldown(cube) {
-  const timeDim =
-    cube.timeDimension ||
-    cube.dimensionsByName.Date ||
-    cube.dimensionsByName.Year;
-  if (timeDim) {
-    const timeHie = timeDim.hierarchies.slice(-1).pop();
-    if (timeHie) {
-      return timeHie.levels.slice(1, 2).pop();
-    }
-  }
-  return undefined;
-}
-
-/**
  * Returns an object where the keys are the current query's drilldowns
  * and its values are arrays with the values available in the current dataset.
  * @param {Query} query A mondrian-rest-client Query object
  * @param {Array<any>} dataset The result dataset for the query object passed along.
  */
 export function getIncludedMembers(query, dataset) {
-  if (dataset.length) {
-    return query.getDrilldowns().reduce((members, dd) => {
-      const key = dd.name;
-      const set = {};
+  return query.getDrilldowns().reduce((members, dd) => {
+    const key = dd.name;
+    const set = {};
 
-      let n = dataset.length;
-      while (n--) {
-        const value = dataset[n][key];
-        set[value] = 0;
-      }
+    let n = dataset.length;
+    while (n--) {
+      const value = dataset[n][key];
+      set[value] = 0;
+    }
 
-      members[key] = Object.keys(set).sort();
-      return members;
-    }, {});
-  }
-  else {
-    return {};
-  }
+    members[key] = Object.keys(set).sort();
+    return members;
+  }, {});
 }
 
 /**
@@ -367,6 +329,21 @@ export function getIncludedMembers(query, dataset) {
  * based on a certain key.
  * @param {string} key The key to the property to be used as comparison string
  */
-export function sortByCustomKey(key) {
+export function sortByCustomKey(key, members) {
+  if (areKindaNumeric(members)) {
+    return (a, b) => findFirstNumber(a) - findFirstNumber(b);
+  }
+
   return (a, b) => `${a[key]}`.localeCompare(`${b[key]}`);
+}
+
+export function* getCombinationsChoose2(set) {
+  const n = set.length;
+  if (n > 0) {
+    const first = set[0];
+    for (let i = 1; i < n; i++) {
+      yield [first, set[i]];
+    }
+    yield* getCombinationsChoose2(set.slice(1));
+  }
 }

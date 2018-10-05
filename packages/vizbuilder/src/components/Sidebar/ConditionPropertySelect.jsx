@@ -3,8 +3,8 @@ import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 import {Icon} from "@blueprintjs/core";
 
-import BaseSelect from "../BaseSelect";
-import {composePropertyName} from "../../../helpers/formatting";
+import BaseSelect from "./BaseSelect";
+import {composePropertyName} from "../../helpers/formatting";
 
 function ConditionPropertySelect(props) {
   let item;
@@ -29,7 +29,9 @@ function ConditionPropertySelect(props) {
     BaseSelect,
     props,
     <div className="select-option current" title={name}>
-      <span className="value">{name}</span>
+      <span className="value">
+        <span className="select-label">{name}</span>
+      </span>
       <Icon iconName={props.caret} />
     </div>
   );

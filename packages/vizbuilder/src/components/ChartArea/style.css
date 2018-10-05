@@ -46,13 +46,21 @@
       align-items: center;
     }
   }
-
 }
 
 @media screen and (min-width: 1200px) {
-  .area-chart .multi .chart-card { width: 50%; }
+  .area-chart .multi .chart-card {
+    width: 50%;
+  }
 }
 
 @media screen and (min-width: 1700px) {
-  .area-chart .multi .chart-card { width: 33.333%; }
+  .area-chart .multi {
+    display: flex;
+    flex-wrap: wrap;
+    & .chart-card {
+      flex: 1;
+      min-width: 33.333%;
+    }
+  }
 }

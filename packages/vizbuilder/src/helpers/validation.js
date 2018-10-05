@@ -1,4 +1,4 @@
-import {SYMBOLS as OPERATOR_SYMBOLS} from "./operators";
+import {findFirstNumber} from "./formatting";
 
 /**
  * Checks if the dimension passed as argument is a time-type dimension.
@@ -14,34 +14,30 @@ export function isTimeDimension(dimension) {
 }
 
 /**
- * Checks if an object can be used as a Condition
- * @param {object} condition An object to check
+ * Checks if an object can be used as a filter.
+ * This means it should have a measure, a valid operator, and a numeric value.
+ * @param {object} filter An object to check
  */
-export function isValidCondition(condition) {
-  return isValidFilter(condition) || isValidCut(condition);
+export function isValidFilter(filter) {
+  return filter && filter.measure && filter.operator > 0 && filter.hasValue;
 }
 
 /**
- * Checks if an object can be used as a filter-type Condition.
- * This means it should have a numeric value, and a valid operator.
- * Since `values` should always be an Array, the numeric value must be on index 0.
- * @param {object} condition An object to check
+ * Checks if an object can be used as a grouping.
+ * This means it should have a valid level.
+ * @param {object} filter An object to check
  */
-export function isValidFilter(condition) {
-  return (
-    condition.type === "filter" &&
-    !isNaN(condition.values[0]) &&
-    OPERATOR_SYMBOLS[condition.operator]
-  );
+export function isValidGrouping(grouping) {
+  return grouping && grouping.level;
 }
 
 /**
- * Checks if an object can be used as a cut-type Condition.
- * This means it should have at least 1 element in its values.
- * @param {object} condition An object to check
+ * Checks if a Grouping object can be used as a cut.
+ * This means it should have at least 1 member.
+ * @param {object} grouping An object to check
  */
-export function isValidCut(condition) {
-  return condition.type === "cut" && condition.values.length > 0;
+export function isValidCut(grouping) {
+  return isValidGrouping(grouping) && grouping.hasMembers;
 }
 
 /**
@@ -53,13 +49,9 @@ export function isValidCut(condition) {
 export function isSamePermalinkQuery(keywords, query1, query2) {
   return (
     query1[keywords.measure] === query2[keywords.measure] &&
-    query1[keywords.dimension] === query2[keywords.dimension] &&
-    query1[keywords.level] === query2[keywords.level] &&
-    query1[keywords.enlarged] === query2[keywords.enlarged] &&
-    isSameArrayShallow(
-      [].concat(query1[keywords.filters] || []),
-      [].concat(query2[keywords.filters] || [])
-    )
+    isSameArrayShallow(query1[keywords.groups], query2[keywords.groups]) &&
+    isSameArrayShallow(query1[keywords.filters], query2[keywords.filters]) &&
+    query1[keywords.enlarged] === query2[keywords.enlarged]
   );
 }
 
@@ -71,33 +63,29 @@ export function isSamePermalinkQuery(keywords, query1, query2) {
 export function isSameQuery(query1, query2) {
   return (
     query1.measure === query2.measure &&
-    query1.dimension === query2.dimension &&
-    query1.drilldown === query2.drilldown &&
-    isSameCondition(query1.conditions, query2.conditions)
+    areSameObjects(isValidGrouping, query1.groups, query2.groups) &&
+    areSameObjects(isValidFilter, query1.filters, query2.filters)
   );
 }
 
 /**
  * Compares two condition arrays and checks if all its elements are equivalent.
- * @param {Condition[]} conditions1 A condition to compare
- * @param {Condition[]} conditions2 An array of conditions to compare
+ * @param {obj => boolean} validator A function to validate objects
+ * @param {object[]} obj1 An array of serializable objects to compare
+ * @param {object[]} obj2 An array of serializable objects to compare
  */
-export function isSameCondition(conditions1, conditions2) {
-  let n = conditions1.length;
+export function areSameObjects(validator, obj1, obj2) {
+  obj1 = obj1.filter(validator);
+  obj2 = obj2.filter(validator);
 
-  if (n !== conditions2.length) {
+  let n = obj1.length;
+
+  if (n !== obj2.length) {
     return false;
   }
 
   while (n--) {
-    const cond1 = conditions1[n];
-    const cond2 = conditions2[n];
-    if (
-      cond1.type !== cond2.type &&
-      cond1.property !== cond2.property &&
-      cond1.operator !== cond2.operator &&
-      !isSameArrayShallow(cond1.values, cond2.values)
-    ) {
+    if (`${obj1[n]}` !== `${obj2[n]}`) {
       return false;
     }
   }
@@ -113,6 +101,9 @@ export function isSameCondition(conditions1, conditions2) {
  * @param {any[]} array2 An array to compare
  */
 export function isSameArrayShallow(array1, array2) {
+  array1 = [].concat(array1 || []);
+  array2 = [].concat(array2 || []);
+
   let n = array1.length;
 
   if (n !== array2.length) {
@@ -126,4 +117,28 @@ export function isSameArrayShallow(array1, array2) {
   }
 
   return true;
+}
+
+/**
+ * Determines if an object is a valid finite number.
+ * @param {any} n object to check
+ */
+export function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+/**
+ * Tries to guess if the elements in a list of strings are related to a number.
+ * Useful to sort by that number.
+ * @param {string[]} list An array of string to determine
+ */
+export function areKindaNumeric(list, tolerance = 0.8) {
+  return (
+    list.reduce(
+      (sum, item) => sum + (isNumeric(findFirstNumber(item)) ? 1 : 0),
+      0
+    ) /
+      list.length >
+    tolerance
+  );
 }

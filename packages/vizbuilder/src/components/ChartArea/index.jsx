@@ -12,26 +12,27 @@ const DEFAULT_FORMATTERS = {
   Dollars: d => `$${formatAbbreviate(d * 1 || 0)}`
 };
 
+const EMPTY_DATASETS = (
+  <div className="area-chart empty">
+    <NonIdealState visual="error" title="Empty dataset" />
+  </div>
+);
+
 class ChartArea extends React.Component {
   constructor(props) {
     super(props);
 
-    this.actions = Object.keys(charts).reduce((box, type) => {
-      box[type] = this.selectChart.bind(this, type);
-      return box;
-    }, {});
-
     this.resizeCall = undefined;
     this.scrollCall = undefined;
 
+    this.selectChart = this.selectChart.bind(this);
     this.scrollEnsure = this.scrollEnsure.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
     return (
-      this.props.dataset !== nextProps.dataset ||
-      this.props.visualizations !== nextProps.visualizations ||
-      this.props.activeChart !== nextProps.activeChart
+      this.props.activeChart !== nextProps.activeChart ||
+      this.props.triggerUpdate !== nextProps.triggerUpdate
     );
   }
 
@@ -60,49 +61,59 @@ class ChartArea extends React.Component {
   render() {
     const {
       activeChart,
-      dataset,
       defaultConfig,
       formatting,
       measureConfig,
+      datasets,
       members,
-      query,
+      queries,
       topojson,
       visualizations
     } = this.props;
-    const actions = this.actions;
 
-    if (!dataset.length) {
-      return (
-        <div className="area-chart empty">
-          <NonIdealState visual="error" title="Empty dataset" />
-        </div>
-      );
+    if (!datasets.length) {
+      return EMPTY_DATASETS;
     }
 
-    const chartConfig = createChartConfig({
-      activeType: activeChart,
+    const generalConfig = {
       defaultConfig,
       formatting: {
         ...DEFAULT_FORMATTERS,
         ...formatting
       },
       measureConfig,
-      members,
-      query,
       topojson,
       visualizations
-    });
+    };
 
-    const chartElements = chartConfig.map(chart => (
-      <ChartCard
-        key={chart.type}
-        active={chart.type === activeChart}
-        config={chart.config}
-        dataset={dataset}
-        onSelect={actions[chart.type]}
-        type={chart.type}
-      />
-    ));
+    const chartElements = [];
+
+    let n = queries.length;
+
+    while (n--) {
+      const chartConfigs = createChartConfig(
+        queries[n],
+        datasets[n],
+        members[n],
+        activeChart,
+        generalConfig
+      );
+      const configs = chartConfigs.map(chartConfig => (
+        <ChartCard
+          active={chartConfig.key === activeChart}
+          key={chartConfig.key}
+          name={chartConfig.key}
+          onSelect={this.selectChart}
+        >
+          <chartConfig.component config={chartConfig.config} />
+        </ChartCard>
+      ));
+      chartElements.unshift(...configs);
+    }
+
+    if (!chartElements.length) {
+      return EMPTY_DATASETS;
+    }
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
@@ -122,12 +133,12 @@ ChartArea.contextTypes = {
 
 ChartArea.propTypes = {
   activeChart: PropTypes.string,
-  dataset: PropTypes.array,
   defaultConfig: PropTypes.object,
   formatting: PropTypes.objectOf(PropTypes.func),
   measureConfig: PropTypes.object,
-  members: PropTypes.objectOf(PropTypes.array),
-  query: PropTypes.object,
+  datasets: PropTypes.arrayOf(PropTypes.array),
+  members: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.array)),
+  queries: PropTypes.arrayOf(PropTypes.object),
   topojson: PropTypes.objectOf(
     PropTypes.shape({
       topojson: PropTypes.string.isRequired,
@@ -135,6 +146,7 @@ ChartArea.propTypes = {
       topojsonKey: PropTypes.string
     })
   ),
+  triggerUpdate: PropTypes.number,
   visualizations: PropTypes.arrayOf(PropTypes.string)
 };
 

@@ -8,7 +8,12 @@ class MeasureSelect extends MultiLevelSelect {
   renderTarget(item) {
     return (
       <div className="select-option current" title={item.caption || item.name}>
-        <span className="value">{item.caption || item.name}</span>
+        <div className="value">
+          <span className="select-label">{item.caption || item.name}</span>
+          <span className="select-label lead">
+            {item.annotations._cb_datasetName} - {item.annotations._cb_sourceName}
+          </span>
+        </div>
         <span className="pt-icon-standard pt-icon-double-caret-vertical" />
       </div>
     );

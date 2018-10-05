@@ -28,3 +28,24 @@ export function composePropertyName(item, style = PROPNAMESTYLES.DIMHIELVL) {
   }
   return txt;
 }
+
+/**
+ * Returns the first number it finds in a `string`, else returns `elseValue`.
+ * @param {string} string The string to test
+ * @param {number} elseValue A value to return in case the string doesn't contain any
+ */
+export function findFirstNumber(string, elseValue) {
+  return (`${string}`.match(/[0-9\.\,]+/) || [elseValue])[0] * 1;
+}
+
+/**
+ * Joins a list of strings to form an enumeration phrase of type "a, b, c, and d".
+ * @param {string[]} list List of strings to join
+ */
+export function joinStringsWithCommaAnd(list) {
+  const copy = list.slice();
+  const last = copy.pop();
+  return copy.length > 2
+    ? `${copy.join(", ")}, and ${last}`
+    : list.join(" and ");
+}
