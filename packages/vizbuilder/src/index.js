@@ -35,10 +35,9 @@ class Vizbuilder extends React.PureComponent {
       ...props.permalinkKeywords
     };
 
-    const defaultQuery = {
-      defaultGroup: props.defaultGroup,
-      defaultMeasure: props.defaultMeasure
-    };
+    const defaultGroup = [].concat(props.defaultGroup || []);
+    const defaultMeasure = props.defaultMeasure;
+    const defaultQuery = {defaultGroup, defaultMeasure};
 
     let initialStatePromise = fetchCubes(defaultQuery);
     const location = ctx.router.location;
@@ -53,7 +52,7 @@ class Vizbuilder extends React.PureComponent {
     this.initialStatePromise = initialStatePromise;
 
     this.defaultQuery = defaultQuery;
-    this.getDefaultGroup = getDefaultGroup.bind(null, props.defaultGroup);
+    this.getDefaultGroup = getDefaultGroup.bind(null, defaultGroup);
     this.permalinkKeywords = permalinkKeywords;
     this.queryHistory = [];
 

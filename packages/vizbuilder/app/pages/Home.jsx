@@ -92,7 +92,6 @@ export default class Home extends React.Component {
     return <Vizbuilder
       src={this.state.source}
       config={DEFAULT_CONFIG}
-      defaultGroup={["Geography.State"]}
       measureConfig={{
         "Millions Of Dollars": {colorScaleConfig: {color: "blue"}},
         "Opioid Overdose Death Rate Per 100,000 Age-Adjusted": {
