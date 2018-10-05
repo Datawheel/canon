@@ -2,7 +2,8 @@ import {
   getCombinationsChoose2,
   getMeasureMeta,
   getTimeLevel,
-  getValidLevels
+  getValidLevels,
+  removeDuplicateLevels
 } from "./sorting";
 import {isValidGrouping} from "./validation";
 
@@ -24,6 +25,8 @@ export function generateBaseState(cubes, measure) {
   const options = {
     levels: getValidLevels(cube)
   };
+
+  removeDuplicateLevels(options.levels);
 
   return {options, query};
 }
