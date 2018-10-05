@@ -75,10 +75,9 @@ class GroupingManager extends SidebarCRUDManager {
   }
 
   preUpdateHook(item) {
-    console.log(item);
 
     if (!item.level) {
-      throw new IncompleteParameter('You must select a property.');
+      throw new IncompleteParameter("You must select a property.");
     }
 
     const usedDimensions = this.getUsedDimensions(this.props.items);

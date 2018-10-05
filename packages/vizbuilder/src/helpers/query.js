@@ -63,7 +63,6 @@ export function generateQueries(params) {
     const grouping = validGroups[i];
     const level = grouping.level;
 
-    console.log("query.unilevel", level.name);
     queries.push({
       ...params,
       key: grouping.key,
@@ -84,7 +83,6 @@ export function generateQueries(params) {
       const grouping1 = combination.value[0];
       const grouping2 = combination.value[1];
 
-      console.log("query.bilevel", grouping1.name, grouping2.name);
       queries.push({
         ...params,
         key: `${grouping1.key}_${grouping2.key}`,
