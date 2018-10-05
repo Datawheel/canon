@@ -40,7 +40,7 @@ class Vizbuilder extends React.PureComponent {
       defaultMeasure: props.defaultMeasure
     };
 
-    let initialStatePromise = fetchCubes.call(this, defaultQuery);
+    let initialStatePromise = fetchCubes(defaultQuery);
     const location = ctx.router.location;
 
     if (props.permalink && location.search) {
