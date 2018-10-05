@@ -324,7 +324,7 @@ class StoryBuilder extends Component {
                   reportSave={this.reportSave.bind(this)}
                 />
                 : null
-            : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
+            : <NonIdealState title="No Story Selected" description="Please select a Story from the menu on the left." visual="path-search" />
           }
         </div>
 
