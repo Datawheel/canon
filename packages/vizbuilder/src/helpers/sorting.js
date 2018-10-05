@@ -47,13 +47,7 @@ export function findByName(needle, haystack, elseFirst = false) {
  * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
  */
 export function findByFullName(needle, haystack, elseFirst = false) {
-  let findResult;
-  if (typeof needle === "string") {
-    if (needle.indexOf("].[") === -1) {
-      needle = `[${needle.split(".").join("].[")}]`;
-    }
-    findResult = haystack.find(item => item.fullName === needle);
-  }
+  const findResult = haystack.find(item => item.fullName.indexOf(needle) > -1);
   return elseFirst ? findResult || haystack[0] : findResult;
 }
 
@@ -70,7 +64,7 @@ export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
   let n = defaults.length;
   defaults = [].concat(defaults).reverse();
   while (n--) {
-    const needle = defaults[n];
+    const needle = `[${defaults[n]}]`.replace(/\./g, "].[");
     matchResult = matchingFunction(needle, haystack);
     if (matchResult) {
       break;
