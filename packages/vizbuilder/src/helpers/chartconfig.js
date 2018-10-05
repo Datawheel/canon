@@ -123,8 +123,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
-      total: false,
-      title: `${measureName} by ${levelName}`,
+      title: `${measureName} by ${levelName}\n${flags.subtitle}`,
       total: false,
       discrete: "x",
       x: levelName,
@@ -224,18 +223,24 @@ const makeConfig = {
       );
     }
 
+    const title = `${measureName} by ${levelsTitle}, by ${timeLevelName}\n${flags.subtitle}`;
+
     const config = {
       ...commonConfig,
       total: false,
       discrete: "x",
       groupBy,
-      title: `${measureName} by ${levelsTitle}, by ${timeLevelName}`,
+      title,
       yConfig: {scale: "linear", title: measureName},
       x: timeLevelName,
       xConfig: {title: timeLevelName},
       y: measureName,
       ...flags.chartConfig
     };
+
+    if (query.member) {
+      config.title = `${measureName} by ${levelsTitle} by ${timeLevelName} (${query.member.name})\n${flags.subtitle}`;
+    }
 
     if (relativeStdDev(flags.dataset, measureName) > 1) {
       config.yConfig.scale = "log";
@@ -278,9 +283,9 @@ const makeConfig = {
     const levelName = query.level.name;
     const measureName = query.measure.name;
 
-    config.title = `${measureName} by ${levelName}`;
+    config.title = `${measureName} by ${levelName}\n${flags.subtitle}`;
     if (query.member) {
-      config.title += ` (${query.member.name})`;
+      config.title = `${measureName} by ${levelName} (${query.member.name})\n${flags.subtitle}`;
     }
 
     config.yConfig = {scale: "linear", title: measureName};
@@ -370,8 +375,10 @@ export default function createChartConfig(
     measure.aggregatorType ||
     "UNKNOWN";
 
+  const subtitle = `${measure.annotations._cb_datasetName} - ${measure.annotations._cb_sourceName}`;
+
   const commonConfig = {
-    title: `${measureName} by ${levelName}`,
+    title: `${measureName} by ${levelName}\n${subtitle}`,
     data: dataset,
     height: activeType ? 500 : 400,
     legend: false,
@@ -457,6 +464,7 @@ export default function createChartConfig(
     measureFormatter,
     members,
     topojsonConfig,
+    subtitle,
     chartConfig: {
       ...defaultConfig,
       ...currentMeasureConfig
