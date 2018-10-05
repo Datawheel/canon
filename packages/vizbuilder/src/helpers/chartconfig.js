@@ -347,6 +347,8 @@ export default function createChartConfig(
     }
   }
 
+
+
   const availableKeys = Object.keys(members);
   const availableCharts = new Set(activeType ? [activeType] : visualizations);
 
@@ -400,9 +402,9 @@ export default function createChartConfig(
     value: getMeasureValue
   };
 
-  if (hasTimeDim) {
-    commonConfig.time = timeLevelName;
-  }
+  if (hasTimeDim) commonConfig.time = timeLevelName;
+  if (activeType) commonConfig.timeline = true;
+  else commonConfig.timeline = false;
 
   if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
     commonConfig.total = getMeasureValue;
@@ -411,6 +413,7 @@ export default function createChartConfig(
   const topojsonConfig = topojson[levelName];
 
   if (!activeType) {
+
     if (members[levelName].length > 20) {
       availableCharts.delete("barchart");
     }
