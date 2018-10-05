@@ -85,6 +85,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      total: false,
       discrete: "y",
       label: d => d[levelName],
       y: levelName,
@@ -122,7 +123,9 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      total: false,
       title: `${measureName} by ${levelName}`,
+      total: false,
       discrete: "x",
       x: levelName,
       xConfig: {title: levelName},
@@ -223,6 +226,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      total: false,
       discrete: "x",
       groupBy,
       title: `${measureName} by ${levelsTitle}, by ${timeLevelName}`,
@@ -391,6 +395,7 @@ export default function createChartConfig(
     },
 
     duration: 0,
+    total: false,
     sum: getMeasureValue,
     value: getMeasureValue
   };
