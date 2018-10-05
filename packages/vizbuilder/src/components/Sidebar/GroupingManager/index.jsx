@@ -75,19 +75,19 @@ class GroupingManager extends SidebarCRUDManager {
   }
 
   preUpdateHook(item) {
-
     if (!item.level) {
       throw new IncompleteParameter("You must select a property.");
     }
 
-    const usedDimensions = this.getUsedDimensions(this.props.items);
+    const currentGroupings = this.props.items.filter(group => group.uuid !== item.uuid);
+    const usedDimensions = this.getUsedDimensions(currentGroupings);
     if (usedDimensions.indexOf(item.level.hierarchy.dimension) > -1) {
       throw new DimensionInUse();
     }
   }
 
-  getUsedDimensions(items) {
-    return this.props.items
+  getUsedDimensions(groups) {
+    return groups
       .filter(item => item.level)
       .map(item => item.level.hierarchy.dimension);
   }
