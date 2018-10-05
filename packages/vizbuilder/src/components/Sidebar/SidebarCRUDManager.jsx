@@ -25,7 +25,7 @@ class SidebarCRUDManager extends React.Component {
   }
 
   updateElement(item) {
-    const {context, targetLabel} = this;
+    const {context, preUpdateHook, targetLabel} = this;
     const {items} = this.props;
 
     const index = items.findIndex(obj => obj.uuid === item.uuid);
@@ -33,6 +33,8 @@ class SidebarCRUDManager extends React.Component {
 
     context.loadControl(
       () => {
+        preUpdateHook && preUpdateHook.call(this, item);
+
         const newItems = items.slice();
         newItems.splice(index, 1, item);
         return {

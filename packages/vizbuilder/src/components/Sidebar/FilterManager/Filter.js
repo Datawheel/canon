@@ -44,21 +44,32 @@ class Filter {
   }
 
   setMeasure(measure) {
-    const clone = this.getClone();
-    clone.measure = measure;
-    return clone;
+    if (this.measure !== measure) {
+      const clone = this.getClone();
+      clone.measure = measure;
+      return clone;
+    }
+    return this;
   }
 
   setOperator(evt) {
-    const clone = this.getClone();
-    clone.operator = evt.target.value * 1 || 0;
-    return clone;
+    const newOperator = parseInt(evt.target.value, 10) || 1;
+    if (this.operator !== newOperator) {
+      const clone = this.getClone();
+      clone.operator = newOperator;
+      return clone;
+    }
+    return this;
   }
 
   setValue(value) {
-    const clone = this.getClone();
-    clone.value = value || 0;
-    return clone;
+    const newValue = value || 0;
+    if (this.value !== value) {
+      const clone = this.getClone();
+      clone.value = value || 0;
+      return clone;
+    }
+    return this;
   }
 }
 

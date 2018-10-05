@@ -50,12 +50,13 @@ class Grouping {
   }
 
   setLevel(level) {
-    const clone = this.getClone();
-    if (clone.level !== level) {
+    if (this.level !== level) {
+      const clone = this.getClone();
       clone.level = level;
       clone.members = [];
+      return clone;
     }
-    return clone;
+    return this;
   }
 
   addMember(member) {
