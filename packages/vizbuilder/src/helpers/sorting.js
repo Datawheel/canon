@@ -6,65 +6,6 @@ import {areKindaNumeric, isTimeDimension} from "./validation";
 import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 /**
- * Completes the remaining items from `state` using the values from a `searchQuery` object.
- * Gives priority to permalink keys, and if there's no matches, uses user default_ keys.
- * @param {object} state A Vizbuilder's partial state. Requires at least the `state.query` (can be empty), `state.options.dimensions`, and `state.options.drilldowns}` objects;
- * @param {ExternalQueryParams} params A default/permalink parameter object. `keys` map to `item.annotations._key`, `defaultKeys` map to `item.name`.
- */
-export function finishBuildingStateFromParameters(state, params) {
-  const {dimensions, drilldowns} = state.options;
-
-  let dimension, drilldown;
-  let levels = [];
-
-  drilldown = findByKey(params.level, drilldowns);
-  if (drilldown) {
-    dimension = drilldown.hierarchy.dimension;
-    levels = reduceLevelsFromDimension(levels, dimension);
-    removeDuplicateLevels(levels);
-  }
-  else {
-    const defaultLevel = params.defaultLevel || [];
-    const defaultDimension = params.defaultDimension || [];
-
-    dimension = findByKey(params.dimension, dimensions);
-    if (dimension) {
-      levels = reduceLevelsFromDimension(levels, dimension);
-      removeDuplicateLevels(levels);
-      drilldown = matchDefault(findByName, levels, defaultLevel, true);
-    }
-    else {
-      if (defaultDimension.length > 0) {
-        dimension = matchDefault(
-          findByName,
-          dimensions,
-          defaultDimension,
-          true
-        );
-        levels = reduceLevelsFromDimension(levels, dimension);
-        removeDuplicateLevels(levels);
-        drilldown = matchDefault(findByName, levels, defaultLevel, true);
-      }
-      else {
-        drilldown = matchDefault(findByName, drilldowns, defaultLevel, true);
-        dimension = drilldown.hierarchy.dimension;
-        levels = reduceLevelsFromDimension(levels, dimension);
-        removeDuplicateLevels(levels);
-      }
-    }
-  }
-
-  preventHierarchyIncompatibility(drilldowns, drilldown);
-
-  state.query.dimension = dimension;
-  state.query.drilldown = drilldown;
-  state.query.optionsParents = drilldown.depth > 1;
-  state.options.levels = levels;
-
-  return state;
-}
-
-/**
  * If `needle` is a valid value, returns the first element in the `haystack`
  * that matches the annotation._key property.
  * If there's no matches and `elseFirst` is true, returns the first element
@@ -319,9 +260,9 @@ export function reduceLevelsFromDimension(container, dimension) {
   return isTimeDimension(dimension)
     ? container
     : dimension.hierarchies.reduce(
-      (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
-      container
-    );
+        (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
+        container
+      );
 }
 
 /**
@@ -394,4 +335,15 @@ export function sortByCustomKey(key, members) {
   }
 
   return (a, b) => `${a[key]}`.localeCompare(`${b[key]}`);
+}
+
+export function* getCombinationsChoose2(set) {
+  const n = set.length;
+  if (n > 0) {
+    const first = set[0];
+    for (let i = 1; i < n; i++) {
+      yield [first, set[i]];
+    }
+    yield* getCombinationsChoose2(set.slice(1));
+  }
 }

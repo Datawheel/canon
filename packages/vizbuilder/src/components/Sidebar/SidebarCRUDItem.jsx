@@ -19,7 +19,7 @@ class SidebarCRUDItem extends React.Component {
 
   handleApply() {
     const item = this.state.newItem;
-    return item ? this.props.onUpdate(item) : this.handleClose();
+    return item && this.props.item !== item ? this.props.onUpdate(item) : this.handleClose();
   }
 
   handleClose() {

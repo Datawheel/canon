@@ -85,6 +85,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      total: false,
       discrete: "y",
       label: d => d[levelName],
       y: levelName,
@@ -123,6 +124,7 @@ const makeConfig = {
     const config = {
       ...commonConfig,
       title: `${measureName} by ${levelName}\n${flags.subtitle}`,
+      total: false,
       discrete: "x",
       x: levelName,
       xConfig: {title: levelName},
@@ -225,6 +227,7 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
+      total: false,
       discrete: "x",
       groupBy,
       title,
@@ -349,6 +352,8 @@ export default function createChartConfig(
     }
   }
 
+
+
   const availableKeys = Object.keys(members);
   const availableCharts = new Set(activeType ? [activeType] : visualizations);
 
@@ -399,13 +404,14 @@ export default function createChartConfig(
     },
 
     duration: 0,
+    total: false,
     sum: getMeasureValue,
     value: getMeasureValue
   };
 
-  if (hasTimeDim) {
-    commonConfig.time = timeLevelName;
-  }
+  if (hasTimeDim) commonConfig.time = timeLevelName;
+  if (activeType) commonConfig.timeline = true;
+  else commonConfig.timeline = false;
 
   if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
     commonConfig.total = getMeasureValue;
@@ -414,6 +420,7 @@ export default function createChartConfig(
   const topojsonConfig = topojson[levelName];
 
   if (!activeType) {
+
     if (members[levelName].length > 20) {
       availableCharts.delete("barchart");
     }
