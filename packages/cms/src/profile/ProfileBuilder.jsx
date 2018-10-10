@@ -476,14 +476,37 @@ class ProfileBuilder extends Component {
       this.formatTreeVariables.bind(this)();
     };
     if (force || !variablesHash[slug]) {
-      axios.get(`/api/variables/${slug}/${id}`).then(resp => {
-        variablesHash[slug] = resp.data;
-        this.setState({variablesHash, currentSlug: slug}, maybeCallback);
-      });
+      if (slug && id) {
+        axios.get(`/api/variables/${slug}/${id}`).then(resp => {
+          variablesHash[slug] = resp.data;
+          this.setState({variablesHash, currentSlug: slug}, maybeCallback);
+        });
+      }
     }
     else {
       this.setState({variablesHash, currentSlug: slug}, maybeCallback);
     }
+  }
+
+  addFirst() {
+    const profileStub = {ordering: 0};
+    const sectionStub = {ordering: 0};
+    const topicStub = {ordering: 0};
+
+    axios.post("/api/cms/profile/new", profileStub).then(p => {
+      sectionStub.profile_id = p.data.id;
+      axios.post("/api/cms/section/new", sectionStub).then(s => {
+        topicStub.section_id = s.data.id;
+        axios.post("/api/cms/topic/new", topicStub).then(t => {
+          if (t.status === 200) {
+            axios.get("/api/cms/tree").then(resp => {
+              const profiles = resp.data;
+              this.setState({profiles}, this.buildNodes.bind(this));
+            });
+          }
+        });
+      });
+    });
   }
 
   render() {
@@ -507,6 +530,7 @@ class ProfileBuilder extends Component {
             contents={nodes}
 
           />
+          {nodes.length === 0 && <button id="firstbutton" onClick={this.addFirst.bind(this)}>Add First Profile</button>}
         </div>
         <div id="item-editor">
           { currentNode && currentSlug && <Preview currentSlug={currentSlug} onSelectPreview={this.onSelectPreview.bind(this)}/>}
