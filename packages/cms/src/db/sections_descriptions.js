@@ -11,7 +11,14 @@ module.exports = function(sequelize, db) {
         type: db.TEXT,
         defaultValue: "New Description"
       },        
-      section_id: db.INTEGER,
+      section_id: {
+        type: db.INTEGER,
+        onDelete: "cascade",
+        references: {
+          model: "sections",
+          key: "id"
+        }
+      },
       allowed: {
         type: db.STRING,
         defaultValue: "always"

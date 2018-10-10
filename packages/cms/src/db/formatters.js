@@ -7,9 +7,15 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
-      name: db.STRING,
+      name: {
+        type: db.STRING, 
+        defaultValue: "New Formatter"
+      },
       description: db.TEXT,
-      logic: db.TEXT
+      logic: {
+        type: db.TEXT,
+        defaultValue: "return {}"
+      }
     }, 
     {
       freezeTableName: true,

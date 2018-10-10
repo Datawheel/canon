@@ -19,7 +19,14 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         defaultValue: "New Value"
       },      
-      storytopic_id: db.INTEGER,
+      storytopic_id: {
+        type: db.INTEGER,
+        onDelete: "cascade",
+        references: {
+          model: "storytopics",
+          key: "id"
+        }
+      },
       ordering: db.INTEGER
     }, 
     {

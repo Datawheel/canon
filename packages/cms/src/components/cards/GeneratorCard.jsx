@@ -38,7 +38,16 @@ class GeneratorCard extends Component {
   formatDisplay() {
     const {variables, type} = this.props;
     const {id} = this.state.minData;
-    const displayData = type === "generator" ? variables._genStatus[id] : variables._matStatus[id];
+    let displayData = {};
+    if (type === "generator") {
+      displayData = variables._genStatus[id];
+    }
+    else if (type === "materializer") {
+      displayData = variables._matStatus[id];
+    }
+    else {
+      // something
+    }
     this.setState({displayData});
   }
 

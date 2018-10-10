@@ -15,7 +15,14 @@ module.exports = function(sequelize, db) {
         type: db.TEXT,
         defaultValue: ""
       },          
-      topic_id: db.INTEGER,
+      topic_id: {
+        type: db.INTEGER,
+        onDelete: "cascade",
+        references: {
+          model: "topics",
+          key: "id"
+        }
+      },
       name: {
         type: db.STRING,
         defaultValue: "newselector"

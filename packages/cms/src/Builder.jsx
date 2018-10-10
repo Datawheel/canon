@@ -4,6 +4,7 @@ import {Tab2, Tabs2} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
+import FormatterEditor from "./formatter/FormatterEditor";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
 import formatters from "./utils/formatters";
@@ -45,6 +46,7 @@ class Builder extends Component {
         <Tabs2 id="tabs" onChange={this.handleTabChange.bind(this)} selectedTabId={this.state.currentTab}>
           <Tab2 id="profile" title="Profiles" panel={<ProfileBuilder />} />
           <Tab2 id="story" title="Stories" panel={<StoryBuilder />} />
+          <Tab2 id="formatter" title="Formatters" panel={<FormatterEditor />} />
         </Tabs2>
       </div>
     );

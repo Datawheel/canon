@@ -11,7 +11,14 @@ module.exports = function(sequelize, db) {
         type: db.TEXT,
         defaultValue: "New Footnote"
       }, 
-      story_id: db.INTEGER,
+      story_id: {
+        type: db.INTEGER,
+        onDelete: "cascade",
+        references: {
+          model: "stories",
+          key: "id"
+        }
+      },
       ordering: db.INTEGER
     }, 
     {

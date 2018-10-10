@@ -23,7 +23,14 @@ module.exports = function(sequelize, db) {
         type: db.STRING, 
         defaultValue: "New Twitter"
       },
-      story_id: db.INTEGER,
+      story_id: {
+        type: db.INTEGER,
+        onDelete: "cascade",
+        references: {
+          model: "stories",
+          key: "id"
+        }
+      },
       ordering: db.INTEGER,
       bio: {
         type: db.TEXT, 

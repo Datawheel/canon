@@ -15,7 +15,14 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         defaultValue: "new-storytopic-slug"
       },
-      story_id: db.INTEGER,
+      story_id: {
+        type: db.INTEGER,
+        onDelete: "cascade",
+        references: {
+          model: "stories",
+          key: "id"
+        }
+      },
       type: {
         type: db.STRING,
         defaultValue: "TextViz"

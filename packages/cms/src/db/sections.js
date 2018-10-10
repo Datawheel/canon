@@ -15,7 +15,14 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         defaultValue: "new-section-slug"
       },
-      profile_id: db.INTEGER,
+      profile_id: {
+        type: db.INTEGER,
+        onDelete: "cascade",
+        references: {
+          model: "profiles",
+          key: "id"
+        }
+      },
       ordering: db.INTEGER,
       allowed: {
         type: db.STRING,

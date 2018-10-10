@@ -20,7 +20,14 @@ module.exports = function(sequelize, db) {
         defaultValue: "return {}"
       },
       ordering: db.INTEGER,
-      profile_id: db.INTEGER
+      profile_id: {
+        type: db.INTEGER,
+        onDelete: "cascade",
+        references: {
+          model: "profiles",
+          key: "id"
+        }
+      }
     },
     {
       freezeTableName: true,

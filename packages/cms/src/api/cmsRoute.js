@@ -25,6 +25,10 @@ const storyReqTreeOnly = {
   ]
 };
 
+const formatterReqTreeOnly = {
+  attributes: ["id", "name"]
+};
+
 const profileReqProfileOnly = {
   include: [
     {association: "generators", attributes: ["id", "name"]},
@@ -143,6 +147,12 @@ module.exports = function(app) {
     });
   });  
 
+  app.get("/api/cms/formattertree", (req, res) => {
+    db.formatters.findAll(formatterReqTreeOnly).then(formatters => {
+      res.json(formatters).end();
+    });
+  });
+
   app.get("/api/cms/profile/get/:id", (req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, profileReqProfileOnly, {where: {id}});
@@ -203,6 +213,10 @@ module.exports = function(app) {
 
   app.get("/api/cms/materializer/get/:id", (req, res) => {
     db.materializers.findOne({where: {id: req.params.id}}).then(u => res.json(u).end());
+  });
+
+  app.get("/api/cms/formatter/get/:id", (req, res) => {
+    db.formatters.findOne({where: {id: req.params.id}}).then(u => res.json(u).end());
   });
 
   app.get("/api/cms/profile_stat/get/:id", (req, res) => {
@@ -397,6 +411,18 @@ module.exports = function(app) {
         });
       });
     });
+  });
+
+  app.post("/api/cms/formatter/update", (req, res) => {
+    db.formatters.update(req.body, {where: {id: req.body.id}}).then(u => res.json(u));
+  });
+
+  app.post("/api/cms/formatter/new", (req, res) => {
+    db.formatters.create(req.body).then(u => res.json(u));
+  });
+
+  app.delete("/api/cms/formatter/delete", (req, res) => {
+    db.formatters.destroy({where: {id: req.query.id}}).then(u => res.json(u));
   });
 
   app.post("/api/cms/story_description/update", (req, res) => {
