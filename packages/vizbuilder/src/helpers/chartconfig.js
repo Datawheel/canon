@@ -352,8 +352,6 @@ export default function createChartConfig(
     }
   }
 
-
-
   const availableKeys = Object.keys(members);
   const availableCharts = new Set(activeType ? [activeType] : visualizations);
 
@@ -367,7 +365,7 @@ export default function createChartConfig(
   const timeLevelName = query.timeLevel && query.timeLevel.name;
   const dimension = query.level.hierarchy.dimension;
 
-  const hasTimeDim = timeLevelName && Array.isArray(members[timeLevelName]);
+  const hasTimeDim = timeLevelName && members[timeLevelName].length;
   const hasGeoDim = dimension.annotations.dim_type === "GEOGRAPHY";
 
   const aggregatorType =
@@ -423,6 +421,9 @@ export default function createChartConfig(
 
     if (members[levelName].length > 20) {
       availableCharts.delete("barchart");
+    }
+    if (members[levelName].length > 60) {
+      availableCharts.delete("lineplot");
     }
 
     if (!hasTimeDim || members[timeLevelName].length === 1) {
