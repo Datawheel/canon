@@ -11,7 +11,7 @@ class VirtualListWrapper extends React.Component {
     let height = 0;
     props.items.some(item => {
       height += props.getItemHeight(item);
-      return height > 300
+      return height > 300;
     });
     this.height = height;
   }
@@ -42,7 +42,7 @@ class VirtualListWrapper extends React.Component {
     return (
       <VirtualList
         className={props.className}
-        width={300}
+        width="100%"
         height={this.height}
         itemCount={items.length}
         itemSize={this.getItemHeight}

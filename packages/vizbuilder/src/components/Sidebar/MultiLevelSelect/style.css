@@ -4,6 +4,8 @@
 }
 
 .mlsel-popover-content {
+  min-width: 250px;
+
   .mlsel-filter-input {
   }
 
