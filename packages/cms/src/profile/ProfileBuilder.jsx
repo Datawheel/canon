@@ -128,6 +128,10 @@ class ProfileBuilder extends Component {
 
   addItem(n, dir) {
     const {nodes} = this.state;
+    const {variablesHash, currentSlug} = this.state;
+    const {stripHTML} = this.context.formatters;
+    const {formatters} = this.context;
+    const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
     n = this.locateNode(n.itemType, n.data.id);
     let parent;
     let parentArray;
@@ -222,6 +226,7 @@ class ProfileBuilder extends Component {
           if (topic.status === 200) {
             obj.id = `topic${topic.data.id}`;
             obj.data = topic.data;
+            obj.label = varSwap(this.decode(stripHTML(obj.data.title)), formatters, variables);
             const parent = this.locateNode("section", obj.data.section_id);
             parent.childNodes.push(obj);
             parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
@@ -236,11 +241,13 @@ class ProfileBuilder extends Component {
         axios.post(sectionPath, obj.data).then(section => {
           obj.id = `section${section.data.id}`;
           obj.data = section.data;
+          obj.label = varSwap(this.decode(stripHTML(obj.data.title)), formatters, variables);
           objTopic.data.section_id = section.data.id;
           axios.post(topicPath, objTopic.data).then(topic => {
             if (topic.status === 200) {
               objTopic.id = `topic${topic.data.id}`;
               objTopic.data = topic.data;
+              objTopic.label = varSwap(this.decode(stripHTML(objTopic.data.title)), formatters, variables);
               const parent = this.locateNode("profile", obj.data.profile_id);
               parent.childNodes.push(obj);
               parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
@@ -256,15 +263,18 @@ class ProfileBuilder extends Component {
         axios.post(profilePath, obj.data).then(profile => {
           obj.id = `profile${profile.data.id}`;
           obj.data = profile.data;
+          obj.label = obj.data.slug;
           objSection.data.profile_id = profile.data.id;
           axios.post(sectionPath, objSection.data).then(section => {
             objSection.id = `section${section.data.id}`;
             objSection.data = section.data;
+            objSection.label = varSwap(this.decode(stripHTML(objSection.data.title)), formatters, variables);
             objTopic.data.section_id = section.data.id;
             axios.post(topicPath, objTopic.data).then(topic => {
               if (topic.status === 200) {
                 objTopic.id = `topic${topic.data.id}`;
                 objTopic.data = topic.data;
+                objTopic.label = varSwap(this.decode(stripHTML(objTopic.data.title)), formatters, variables);
                 nodes.push(obj);
                 nodes.sort((a, b) => a.data.ordering - b.data.ordering);
                 this.setState({nodes}, this.handleNodeClick.bind(this, obj));
