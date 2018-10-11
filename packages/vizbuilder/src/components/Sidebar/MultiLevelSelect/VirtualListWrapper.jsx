@@ -13,7 +13,7 @@ class VirtualListWrapper extends React.Component {
       height += props.getItemHeight(item);
       return height > 300;
     });
-    this.height = height;
+    this.height = Math.max(60, height);
   }
 
   getItemHeight(index) {
