@@ -99,7 +99,7 @@ class GroupingItem extends SidebarCRUDItem {
         </div>
         <div className="group actions">
           <Button
-            text={item.level ? "Reset" : "Delete"}
+            text={item.level ? "Cancel" : "Delete"}
             className="pt-small"
             onClick={item.level ? this.handleClose : this.handleDelete}
           />

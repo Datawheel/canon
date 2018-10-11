@@ -60,9 +60,9 @@ export function findByFullName(needle, haystack, elseFirst = false) {
  * @param {boolean?} elseFirst A flag to return the first element in case of no matching result
  */
 export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
+  defaults = defaults.slice().reverse();
   let matchResult;
   let n = defaults.length;
-  defaults = [].concat(defaults).reverse();
   while (n--) {
     const needle = `[${defaults[n]}]`.replace(/\./g, "].[");
     matchResult = matchingFunction(needle, haystack);

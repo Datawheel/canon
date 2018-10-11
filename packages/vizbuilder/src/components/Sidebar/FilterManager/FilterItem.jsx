@@ -90,7 +90,7 @@ class FilterItem extends SidebarCRUDItem {
           <Button
             className="pt-small"
             onClick={activeItem.measure ? this.handleClose : this.handleDelete}
-            text={activeItem.measure ? "Reset" : "Delete"}
+            text={activeItem.measure ? "Cancel" : "Delete"}
           />
           <Button
             className="pt-small pt-intent-primary"
