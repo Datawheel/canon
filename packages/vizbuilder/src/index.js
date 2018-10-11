@@ -93,9 +93,9 @@ class Vizbuilder extends React.PureComponent {
     if (!isSameQuery(prevState.query, query)) {
       onChange(query, this.state.options);
 
-    //   if (this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
-    //     this.queryHistory.push(query);
-    //   }
+      //   if (this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
+      //     this.queryHistory.push(query);
+      //   }
     }
   }
 
@@ -149,16 +149,31 @@ class Vizbuilder extends React.PureComponent {
   }
 
   fetchQueries() {
-    const {queries} = this.state;
+    const {query, queries} = this.state;
+    const activeChartLevel = `${query.activeChart}`.split("_")[0];
+    const isValidActiveChart = query.groups.some(
+      group => group.key === activeChartLevel
+    );
+
     return Promise.all(queries.map(fetchQuery)).then(results => {
       const datasets = [];
       const members = [];
+
       let n = results.length;
       while (n--) {
         const result = results[n];
         datasets.unshift(result.dataset);
         members.unshift(result.members);
       }
+
+      if (!isValidActiveChart) {
+        return {
+          datasets,
+          members,
+          query: {activeChart: null}
+        };
+      }
+
       return {datasets, members};
     });
   }
