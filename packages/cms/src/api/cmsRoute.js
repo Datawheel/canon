@@ -2,7 +2,7 @@ const sequelize = require("sequelize");
 const shell = require("shelljs");
 const Op = sequelize.Op;
 
-const topicTypeDir = "app/toCanon/topics/";
+const topicTypeDir = "src/components/topics/";
 
 const profileReqTreeOnly = {
   attributes: ["id", "title", "slug", "ordering"],

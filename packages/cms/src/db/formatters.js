@@ -26,6 +26,12 @@ module.exports = function(sequelize, db) {
     }
   );
 
+  f.seed = [
+    {
+      
+    }
+  ];
+
   return f;
 
 };

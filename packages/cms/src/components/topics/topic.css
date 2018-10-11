@@ -1,0 +1,142 @@
+.topic {
+  color: white;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  padding: 25px 25px;
+  width: 100%;
+
+  & .topic-content {
+    align-self: flex-start;
+    flex: 1;
+
+    &:first-child {
+      flex: none;
+      margin: 3px 0 12px;
+      max-width: 415px;
+      width: 50%;
+    }
+
+    &:only-child {
+      margin: 3px auto 12px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    & .topic-title {
+      font-family: "Pathway Gothic One", sans-serif;
+      font-size: 30px;
+      font-weight: 400;
+      line-height: 1.1;
+      margin: 0 auto;
+      z-index: 2;
+      & a {
+        color: #333;
+        display: inline-block;
+        margin-top: calc(calc(var(--subnav-size) + 10px) * -1);
+        outline: 0;
+        padding-top: calc(var(--subnav-size) + 10px);
+        position: relative;
+      }
+    }
+
+    & .topic-subtitle {
+      color: var(--red);
+      font-family: "Palanquin", sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      margin: 0px auto 10px;
+      width: 100%;
+    }
+
+    & .topic-stats {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    & .topic-descriptions {
+      position: relative;
+    }
+
+    & .topic-description {
+      color: var(--darkgray);
+      font-family: "Palanquin", sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.5;
+      opacity: 1;
+      transition: opacity 0.5s;
+      & a {
+        color: #32415A;
+        text-decoration: underline;
+      }
+      & p {
+        margin-bottom: 10px;
+      }
+    }
+
+    & a.footnote {
+      margin-left: 2px;
+      text-decoration: none;
+    }
+
+  }
+
+  & .topic-visualization {
+    flex: 1;
+    margin-left: 50px;
+    min-height: 400px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  &.topic-loading {
+    & .topic-description, & .topic-stats, & .topic-visualization {
+      opacity: 0.25;
+    }
+  }
+
+  & .pt-non-ideal-state {
+    left: 0;
+    position: absolute;
+    top: 0;
+  }
+
+  &.compare {
+    & .topic-body {
+      flex-wrap: wrap;
+      & .topic-content {
+        max-width: none !important;
+        width: 100%;
+        & .topic-text {
+          &:not(:first-child) {
+            margin-left: 50px;
+          }
+        }
+        & .topic-visualization {
+          margin-left: 0;
+          &:not(:first-child) {
+            margin-left: 50px;
+          }
+        }
+      }
+    }
+  }
+
+  &.Column {
+    flex: 1;
+    flex-direction: column;
+    width: auto;
+    & .topic-content {
+      max-width: none;
+      width: 100%;
+    }
+    & .topic-visualization {
+      margin: 0;
+      min-height: 200px;
+    }
+  }
+
+}
