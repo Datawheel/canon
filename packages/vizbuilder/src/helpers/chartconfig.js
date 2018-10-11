@@ -81,7 +81,6 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
-      total: false,
       discrete: "y",
       label: d => d[levelName],
       y: levelName,
@@ -103,6 +102,10 @@ const makeConfig = {
       config.groupBy = [timeLevel.hierarchy.levels[1].name];
     }
 
+    if (!config.time) {
+      delete config.total;
+    }
+
     return config;
   },
   barchart_ab(commonConfig, query, flags) {
@@ -120,7 +123,6 @@ const makeConfig = {
     const config = {
       ...commonConfig,
       title: `${measureName} by ${levelName}\n${flags.subtitle}`,
-      total: false,
       discrete: "x",
       x: levelName,
       xConfig: {title: levelName},
@@ -131,6 +133,7 @@ const makeConfig = {
     };
 
     delete config.time;
+    delete config.total;
 
     return config;
   },
@@ -218,7 +221,6 @@ const makeConfig = {
 
     const config = {
       ...commonConfig,
-      total: false,
       discrete: "x",
       groupBy,
       title,
@@ -251,6 +253,10 @@ const makeConfig = {
         d => d[measureName] - d[moeName],
         d => d[measureName] + d[moeName]
       ];
+    }
+
+    if (!config.time) {
+      delete config.total;
     }
 
     delete config.time;
