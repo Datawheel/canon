@@ -31,26 +31,14 @@ class FormatterEditor extends Component {
       formatters.push(resp.data);
       this.setState({formatters});
     });
+  }
 
-    /*
-    const {minData} = this.state;
-    const payload = {};
-    payload.profile_id = minData.id;
-    // todo: move this ordering out to axios (let the server concat it to the end)
-    payload.ordering = minData[propMap[type]].length;
-    axios.post(`/api/cms/${type}/new`, payload).then(resp => {
-      if (resp.status === 200) {
-        if (type === "generator" || type === "materializer") {
-          minData[propMap[type]].push({id: resp.data.id, name: resp.data.name, ordering: resp.data.ordering || null});
-          this.setState({minData}, this.fetchVariables.bind(this, true));
-        }
-        else {
-          minData[propMap[type]].push({id: resp.data.id, ordering: resp.data.ordering});
-          this.setState({minData});
-        }
-      }
-    });
-    */
+  onSave() {
+    this.forceUpdate();
+  }
+
+  onDelete(type, newArray) {
+    this.setState({formatters: newArray});
   }
 
   render() {
@@ -70,6 +58,8 @@ class FormatterEditor extends Component {
             .map(g => <GeneratorCard
               key={g.id}
               id={g.id}
+              onSave={this.onSave.bind(this)}
+              onDelete={this.onDelete.bind(this)}
               type="formatter"
               variables={{}}
             />)

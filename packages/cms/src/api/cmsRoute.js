@@ -422,7 +422,11 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/formatter/delete", (req, res) => {
-    db.formatters.destroy({where: {id: req.query.id}}).then(u => res.json(u));
+    db.formatters.destroy({where: {id: req.query.id}}).then(() => {
+      db.formatters.findAll({attributes: ["id", "name", "description"]}).then(rows => {
+        res.json(rows).end();
+      });
+    });
   });
 
   app.post("/api/cms/story_description/update", (req, res) => {

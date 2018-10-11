@@ -11,7 +11,10 @@ module.exports = function(sequelize, db) {
         type: db.STRING, 
         defaultValue: "New Formatter"
       },
-      description: db.TEXT,
+      description: {
+        type: db.TEXT,
+        defaultValue: "New Description"
+      },
       logic: {
         type: db.TEXT,
         defaultValue: "return {}"

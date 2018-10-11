@@ -37,7 +37,7 @@ class GeneratorCard extends Component {
 
   formatDisplay() {
     const {variables, type} = this.props;
-    const {id} = this.state.minData;
+    const {id, description} = this.state.minData;
     let displayData = {};
     if (type === "generator") {
       displayData = variables._genStatus[id];
@@ -46,7 +46,7 @@ class GeneratorCard extends Component {
       displayData = variables._matStatus[id];
     }
     else {
-      // something
+      displayData.description = description;
     }
     this.setState({displayData});
   }
@@ -88,6 +88,7 @@ class GeneratorCard extends Component {
           onClose={() => this.setState({isOpen: false})}
           title="Variable Editor"
         >
+          
           <div className="pt-dialog-body">
             <GeneratorEditor data={minData} variables={variables} type={type} />
           </div>

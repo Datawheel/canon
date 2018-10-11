@@ -45,14 +45,16 @@ class GeneratorEditor extends Component {
       generator: <p className="pt-text-muted">You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</p>,
       materializer: <p className="pt-text-muted">You have access to all variables previously created by generators</p>,
       profile_visualization: <p className="pt-text-muted">You have access to all variables previously created by generators and materializers.</p>,
-      topic_visualization: <p className="pt-text-muted">You have access to all variables previously created by generators and materializers.</p>
+      topic_visualization: <p className="pt-text-muted">You have access to all variables previously created by generators and materializers.</p>,
+      formatter: <p className="pt-text-muted">You have access to the variable <code>n</code>, which represents the string to be formatted.</p>
     };
 
     const postMessage = {
       generator: <p className="pt-text-muted">Be sure to return an <strong>object</strong> with the variables you want stored as keys.</p>,
       materalizer: <p className="pt-text-muted">Be sure to return an <strong>object</strong> with the variables you want stored as keys.</p>,
       profile_visualization: <p className="pt-text-muted">Be sure to return a valid config object for a visualization</p>,
-      topic_visualization: <p className="pt-text-muted">Be sure to return a valid config object for a visualization</p>
+      topic_visualization: <p className="pt-text-muted">Be sure to return a valid config object for a visualization</p>,
+      formatter: <p className="pt-text-muted">Be sure to return a <strong>string</strong> that represents your formatted content.</p>
     };
 
     const varOptions = [<option key="always" value="always">Always</option>]
@@ -70,7 +72,7 @@ class GeneratorEditor extends Component {
 
     return (
       <div id="generator-editor">
-        { type === "generator" || type === "materializer"
+        { type === "generator" || type === "materializer" || type === "formatter"
           ? <label className="pt-label pt-inline">
             <span className="label-text">Name</span>
             <input className="pt-input" type="text" dir="auto" value={data.name} onChange={this.changeField.bind(this, "name")}/>
@@ -84,7 +86,7 @@ class GeneratorEditor extends Component {
           </label>
           : null
         }
-        { type === "generator" || type === "materializer"
+        { type === "generator" || type === "materializer" || type === "formatter"
           ? <label className="pt-label pt-inline">
             <span className="label-text">Description</span>
             <input className="pt-input" type="text" dir="auto" value={data.description} onChange={this.changeField.bind(this, "description")}/>
