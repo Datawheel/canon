@@ -17,7 +17,7 @@ module.exports = function(sequelize, db) {
       },
       logic: {
         type: db.TEXT,
-        defaultValue: "return {}"
+        defaultValue: "return n;"
       }
     }, 
     {

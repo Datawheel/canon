@@ -540,7 +540,7 @@ class ProfileBuilder extends Component {
             contents={nodes}
 
           />
-          {nodes.length === 0 && <button id="firstbutton" onClick={this.addFirst.bind(this)}>Add First Profile</button>}
+          {nodes.length === 0 && <button className="firstbutton" onClick={this.addFirst.bind(this)}>Add First Profile</button>}
         </div>
         <div id="item-editor">
           { currentNode && currentSlug && <Preview currentSlug={currentSlug} onSelectPreview={this.onSelectPreview.bind(this)}/>}

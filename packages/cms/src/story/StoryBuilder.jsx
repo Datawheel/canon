@@ -249,6 +249,23 @@ class StoryBuilder extends Component {
     this.setState({currentNode: node});
   }
 
+  addFirst() {
+    const storyStub = {ordering: 0};
+    const storytopicStub = {ordering: 0};
+
+    axios.post("/api/cms/story/new", storyStub).then(s => {
+      storytopicStub.story_id = s.data.id;
+      axios.post("/api/cms/storytopic/new", storytopicStub).then(t => {
+        if (t.status === 200) {
+          axios.get("/api/cms/storytree").then(resp => {
+            const stories = resp.data;
+            this.setState({stories}, this.buildNodes.bind(this));
+          });
+        }
+      });
+    });
+  }
+
   handleNodeCollapse(node) {
     node.isExpanded = false;
     this.setState({nodes: this.state.nodes});
@@ -310,6 +327,7 @@ class StoryBuilder extends Component {
             contents={nodes}
 
           />
+          {nodes.length === 0 && <button className="firstbutton" onClick={this.addFirst.bind(this)}>Add First Story</button>}
         </div>
         <div id="item-editor">
           { currentNode
