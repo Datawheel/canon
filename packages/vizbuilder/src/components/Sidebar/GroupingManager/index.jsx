@@ -6,7 +6,11 @@ import SidebarCRUDManager from "../SidebarCRUDManager";
 
 import Grouping from "./Grouping";
 import GroupingItem from "./GroupingItem";
-import {IncompleteParameter, NoMoreOptions, DimensionInUse} from "../../../helpers/errors";
+import {
+  IncompleteParameter,
+  NoMoreOptions,
+  DimensionInUse
+} from "../../../helpers/errors";
 
 class GroupingManager extends SidebarCRUDManager {
   constructor(props) {
@@ -17,6 +21,15 @@ class GroupingManager extends SidebarCRUDManager {
     this.state = {
       unusedOptions: this.getUnusedOptions(props.itemOptions, usedDimensions)
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const {items, itemOptions} = this.props;
+    if (prevProps.items !== items) {
+      const usedDimensions = this.getUsedDimensions(items);
+      const unusedOptions = this.getUnusedOptions(itemOptions, usedDimensions);
+      this.setState({unusedOptions});
+    }
   }
 
   render() {
@@ -58,12 +71,7 @@ class GroupingManager extends SidebarCRUDManager {
   }
 
   createNewInstance() {
-    const usedDimensions = this.getUsedDimensions(this.props.items);
-    const unusedOptions = this.getUnusedOptions(
-      this.props.itemOptions,
-      usedDimensions
-    );
-    this.setState({unusedOptions});
+    const {unusedOptions} = this.state;
     if (!unusedOptions.length) {
       throw new NoMoreOptions(
         "There's no more dimensions you can select for this measure."
@@ -75,19 +83,21 @@ class GroupingManager extends SidebarCRUDManager {
   }
 
   preUpdateHook(item) {
-
     if (!item.level) {
       throw new IncompleteParameter("You must select a property.");
     }
 
-    const usedDimensions = this.getUsedDimensions(this.props.items);
+    const currentGroupings = this.props.items.filter(
+      group => group.uuid !== item.uuid
+    );
+    const usedDimensions = this.getUsedDimensions(currentGroupings);
     if (usedDimensions.indexOf(item.level.hierarchy.dimension) > -1) {
       throw new DimensionInUse();
     }
   }
 
-  getUsedDimensions(items) {
-    return this.props.items
+  getUsedDimensions(groups) {
+    return groups
       .filter(item => item.level)
       .map(item => item.level.hierarchy.dimension);
   }
