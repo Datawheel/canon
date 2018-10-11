@@ -121,10 +121,10 @@ export function queryConverter(params) {
     params.uci && params.uci.name
   ].filter(Boolean);
 
-  const drilldowns = []
+  const drilldownList = []
     .concat(params.level, params.xlevel, params.timeLevel)
-    .filter(Boolean)
-    .map(lvl => lvl.fullName.slice(1, -1).split("].["));
+    .filter(Boolean);
+  const drilldowns = drilldownList.map(lvl => lvl.fullName.slice(1, -1).split("].["));
 
   const cuts = [].concat(params.cuts).filter(Boolean);
 
@@ -145,7 +145,7 @@ export function queryConverter(params) {
     options: {
       nonempty: true,
       distinct: false,
-      parents: params.level.depth > 1,
+      parents: drilldownList.some(dd => dd.depth > 1),
       debug: false,
       sparse: true
     },
