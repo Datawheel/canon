@@ -15,17 +15,13 @@ import {sortByCustomKey} from "./sorting";
 
 export const charts = {
   barchart: BarChart,
-  barchartx: BarChart,
   barchartyear: BarChart,
   donut: Donut,
   geomap: Geomap,
   lineplot: LinePlot,
-  lineplotx: LinePlot,
   pie: Pie,
   stacked: StackedArea,
-  stackedx: StackedArea,
-  treemap: Treemap,
-  treemapx: Treemap
+  treemap: Treemap
 };
 
 export const ALL_YEARS = "All years";
@@ -109,7 +105,7 @@ const makeConfig = {
 
     return config;
   },
-  barchartx(commonConfig, query, flags) {
+  barchart_ab(commonConfig, query, flags) {
     const config = this.barchart(commonConfig, query, flags);
     // config.y = query.level.name;
     config.groupBy = [query.xlevel.name];
@@ -138,11 +134,6 @@ const makeConfig = {
 
     return config;
   },
-  barchartyearx(commonConfig, query, flags) {
-    const config = this.barchartyear(commonConfig, query, flags);
-    // config.groupBy = [query.level.name, query.xlevel.name];
-    return config;
-  },
   donut(commonConfig, query, flags) {
     const {level, measure} = query;
 
@@ -158,7 +149,7 @@ const makeConfig = {
 
     return config;
   },
-  donutx(commonConfig, query, flags) {
+  donut_ab(commonConfig, query, flags) {
     const config = this.donut(commonConfig, query, flags);
     config.groupBy = [query.level.name, query.xlevel.name];
     return config;
@@ -192,7 +183,7 @@ const makeConfig = {
 
     return config;
   },
-  geomapx(commonConfig, query, flags) {
+  geomap_ab(commonConfig, query, flags) {
     const level1Name = query.level.name;
     const level2Name = query.xlevel.name;
     const config = this.geomap(commonConfig, query, flags);
@@ -266,13 +257,13 @@ const makeConfig = {
 
     return config;
   },
-  lineplotx(commonConfig, query, flags) {
+  lineplot_ab(commonConfig, query, flags) {
     return this.lineplot(commonConfig, query, flags);
   },
   pie(commonConfig, query, flags) {
     return this.donut(commonConfig, query, flags);
   },
-  piex(commonConfig, query, flags) {
+  pie_ab(commonConfig, query, flags) {
     const config = this.pie(commonConfig, query, flags);
     config.groupBy = [query.level.name, query.xlevel.name];
     return config;
@@ -292,7 +283,7 @@ const makeConfig = {
 
     return config;
   },
-  stackedx(commonConfig, query, flags) {
+  stacked_ab(commonConfig, query, flags) {
     const config = this.stacked(commonConfig, query, flags);
     config.groupBy = [query.level.name, query.xlevel.name];
     return config;
@@ -311,9 +302,50 @@ const makeConfig = {
 
     return config;
   },
-  treemapx(commonConfig, query, flags) {
-    const config = this.treemap(commonConfig, query, flags);
-    config.groupBy.push(query.xlevel.name);
+  treemap_ab(commonConfig, query, flags) {
+    const {level, measure, timeLevel, xlevel} = query;
+
+    const levels = level.hierarchy.levels;
+    const ddIndex = levels.indexOf(level);
+
+    const groupBy = levels.slice(1, ddIndex + 1).map(lvl => lvl.name);
+    groupBy.push(xlevel.name);
+    const config = {
+      ...commonConfig,
+      groupBy,
+      ...flags.chartConfig
+    };
+
+    const levelsTitle = joinStringsWithCommaAnd([level.name, xlevel.name]);
+    config.title = `${measure.name} by ${levelsTitle}`;
+    if (timeLevel) {
+      config.title += `, by ${timeLevel.name}`;
+    }
+    config.title += `\n${flags.subtitle}`;
+
+    return config;
+  },
+  treemap_ba(commonConfig, query, flags) {
+    const {level, measure, timeLevel, xlevel} = query;
+
+    const levels = xlevel.hierarchy.levels;
+    const ddIndex = levels.indexOf(xlevel);
+
+    const groupBy = levels.slice(1, ddIndex + 1).map(lvl => lvl.name);
+    groupBy.push(level.name);
+    const config = {
+      ...commonConfig,
+      groupBy,
+      ...flags.chartConfig
+    };
+
+    const levelsTitle = joinStringsWithCommaAnd([xlevel.name, level.name]);
+    config.title = `${measure.name} by ${levelsTitle}`;
+    if (timeLevel) {
+      config.title += `, by ${timeLevel.name}`;
+    }
+    config.title += `\n${flags.subtitle}`;
+
     return config;
   }
 };
@@ -357,11 +389,13 @@ export default function createChartConfig(
 
   const measure = query.measure;
   const measureName = measure.name;
-  const measureUnits = measure.annotations.units_of_measurement;
-  const measureFormatter = formatting[measureUnits] || formatAbbreviate;
+  const measureAnn = measure.annotations;
+  const measureFormatter =
+    formatting[measureAnn.units_of_measurement] || formatAbbreviate;
   const getMeasureValue = d => d[measureName];
 
   const levelName = query.level.name;
+  const xlevelName = query.xlevel && query.xlevel.name;
   const timeLevelName = query.timeLevel && query.timeLevel.name;
   const dimension = query.level.hierarchy.dimension;
 
@@ -369,11 +403,9 @@ export default function createChartConfig(
   const hasGeoDim = dimension.annotations.dim_type === "GEOGRAPHY";
 
   const aggregatorType =
-    measure.annotations.aggregation_method ||
-    measure.aggregatorType ||
-    "UNKNOWN";
+    measureAnn.aggregation_method || measure.aggregatorType || "UNKNOWN";
 
-  const subtitle = `${measure.annotations._cb_datasetName} - ${measure.annotations._cb_sourceName}`;
+  const subtitle = `${measureAnn._cb_datasetName} - ${measureAnn._cb_sourceName}`;
 
   const commonConfig = {
     title: `${measureName} by ${levelName}\n${subtitle}`,
@@ -407,9 +439,10 @@ export default function createChartConfig(
     value: getMeasureValue
   };
 
-  if (hasTimeDim) commonConfig.time = timeLevelName;
-  if (activeType) commonConfig.timeline = true;
-  else commonConfig.timeline = false;
+  if (hasTimeDim) {
+    commonConfig.time = timeLevelName;
+    commonConfig.timeline = Boolean(activeType);
+  }
 
   if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
     commonConfig.total = getMeasureValue;
@@ -422,14 +455,20 @@ export default function createChartConfig(
     if (members[levelName].length > 20) {
       availableCharts.delete("barchart");
     }
-    if (members[levelName].length > 60) {
+
+    let totalMembers = members[levelName].length;
+    if (xlevelName) {
+      totalMembers *= members[xlevelName].length;
+    }
+    if (totalMembers > 60) {
       availableCharts.delete("lineplot");
+      availableCharts.delete("stacked");
     }
 
     if (!hasTimeDim || members[timeLevelName].length === 1) {
-      availableCharts.delete("stacked");
       availableCharts.delete("barchartyear");
       availableCharts.delete("lineplot");
+      availableCharts.delete("stacked");
     }
 
     if (!hasGeoDim || !topojsonConfig || members[levelName].length < 3) {
@@ -438,20 +477,53 @@ export default function createChartConfig(
 
     if (aggregatorType === "AVERAGE") {
       availableCharts.delete("donut");
+      availableCharts.delete("histogram");
       availableCharts.delete("stacked");
       availableCharts.delete("treemap");
-      availableCharts.delete("histogram");
     }
     if (aggregatorType !== "UNKNOWN" && aggregatorType !== "SUM") {
-      availableCharts.delete("treemap");
       availableCharts.delete("barchartyear");
+      availableCharts.delete("treemap");
     }
 
     if (availableKeys.some(d => d !== "Year" && members[d].length === 1)) {
-      availableCharts.delete("treemap");
       availableCharts.delete("barchart");
       availableCharts.delete("barchartyear");
       availableCharts.delete("stacked");
+      availableCharts.delete("treemap");
+    }
+
+    if (xlevelName) {
+      if (availableCharts.has("barchart")) {
+        availableCharts.delete("barchart");
+        availableCharts.add("barchart_ab");
+      }
+
+      if (availableCharts.has("donut")) {
+        availableCharts.delete("donut");
+        availableCharts.add("donut_ab");
+      }
+
+      if (availableCharts.has("geomap")) {
+        availableCharts.delete("geomap");
+        availableCharts.add("geomap_ab");
+      }
+
+      if (availableCharts.has("lineplot")) {
+        availableCharts.delete("lineplot");
+        availableCharts.add("lineplot_ab");
+      }
+
+      if (availableCharts.has("stacked")) {
+        availableCharts.delete("stacked_ab");
+        availableCharts.add("stacked_ab");
+      }
+
+      if (availableCharts.has("treemap")) {
+        availableCharts.delete("treemap");
+        availableCharts.add("treemap_ab");
+        availableCharts.add("treemap_ba");
+      }
     }
   }
 
@@ -472,13 +544,12 @@ export default function createChartConfig(
     }
   };
 
-  const isCrossLevel = Boolean(query.xlevel);
-
-  return Array.from(availableCharts, chartType => {
-    const functionName = chartType + (isCrossLevel ? "x" : "");
+  return Array.from(availableCharts, functionName => {
+    const chartType = functionName.split("_")[0];
     return (
-      charts.hasOwnProperty(functionName) && {
-        key: `${queryKey}_${chartType}`,
+      charts.hasOwnProperty(chartType) &&
+      makeConfig.hasOwnProperty(functionName) && {
+        key: `${queryKey}_${functionName}`,
         component: charts[chartType],
         config: makeConfig[functionName](commonConfig, query, flags)
       }
