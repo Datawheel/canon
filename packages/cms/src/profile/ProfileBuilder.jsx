@@ -30,14 +30,19 @@ class ProfileBuilder extends Component {
       currentNode: null,
       currentSlug: null,
       variablesHash: {},
-      preview: "04000US25"
+      preview: "04000US25",
+      cubeData: {}
     };
   }
 
   componentDidMount() {
-    axios.get("/api/cms/tree").then(resp => {
-      const profiles = resp.data;
-      this.setState({profiles}, this.buildNodes.bind(this));
+    const treeGet = axios.get("/api/cms/tree");
+    const cubeGet = axios.get("/api/cubeData");
+    Promise.all([treeGet, cubeGet]).then(resp => {
+      const profiles = resp[0].data;
+      const cubeData = resp[1].data;
+      console.log(cubeData);
+      this.setState({profiles, cubeData}, this.buildNodes.bind(this));
     });
   }
 

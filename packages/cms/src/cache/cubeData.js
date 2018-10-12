@@ -14,10 +14,13 @@ module.exports = async function() {
 
   cubes.forEach(cube => {
 
-    measures = measures.concat(cube.measures.map(measure => measure.name.replace(/'/g, "\'")));
+    // todo: move this into the dimensions
+    // measures = measures.concat(cube.measures.map(measure => measure.name.replace(/'/g, "\'")));
 
     dimensions = dimensions.concat(cube.dimensions
       .reduce((acc, d) => {
+        
+        console.log(d.cube.measures);
         let hierarchies = d.hierarchies
           .map(h => {
             const levels = h.levels.map(l => {
@@ -41,6 +44,6 @@ module.exports = async function() {
       }, {}));
   });
 
-  return {measures, dimensions};
+  return {dimensions};
 
 };
