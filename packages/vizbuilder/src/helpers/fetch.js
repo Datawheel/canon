@@ -10,8 +10,6 @@ import {
   getValidMeasures
 } from "./sorting";
 
-const CANON_VIZBUILDER_DATACAP = parseInt(process.env.CANON_VIZBUILDER_DATACAP, 10) || 20000;
-
 /**
  * Prepares the array of cubes that will be used in the vizbuilder.
  * Specifically, filters the cubes that aren't for public use, and injects
@@ -116,17 +114,21 @@ export function fetchMembers(level) {
  * @param {Query} query The Vizbuilder's state query object
  * @returns {Promise<QueryResults>}
  */
-export function fetchQuery(query) {
+export function fetchQuery(datacap, query) {
   const mondrianQuery = queryBuilder(queryConverter(query));
   const timeLevelName = query.timeLevel;
   return api.query(mondrianQuery).then(result => {
     const dataset = (result.data || {}).data || [];
     const members = getIncludedMembers(mondrianQuery, dataset);
-    const dataAmount =
-      dataset.length / (members[timeLevelName] || [null]).length;
-    if (dataAmount > CANON_VIZBUILDER_DATACAP) {
+
+    let dataAmount = dataset.length;
+    if (Array.isArray(members[timeLevelName])) {
+      dataAmount *= 1 / members[timeLevelName].length;
+    }
+    if (dataAmount > datacap) {
       throw new TooMuchData(mondrianQuery, dataAmount);
     }
+
     return {dataset, members};
   });
 }

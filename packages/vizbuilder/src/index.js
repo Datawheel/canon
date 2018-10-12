@@ -154,8 +154,9 @@ class Vizbuilder extends React.PureComponent {
     const isValidActiveChart = query.groups.some(
       group => group.key === activeChartLevel
     );
+    const queryFetcher = fetchQuery.bind(null, this.props.datacap);
 
-    return Promise.all(queries.map(fetchQuery)).then(results => {
+    return Promise.all(queries.map(queryFetcher)).then(results => {
       const datasets = [];
       const members = [];
 
@@ -196,6 +197,7 @@ Vizbuilder.childContextTypes = {
 Vizbuilder.propTypes = {
   // this config object will be applied to all charts
   config: PropTypes.object,
+  datacap: PropTypes.number,
   defaultMeasure: PropTypes.string,
   defaultGroup: PropTypes.arrayOf(PropTypes.string),
   // formatting functions object,
@@ -231,6 +233,7 @@ Vizbuilder.propTypes = {
 
 Vizbuilder.defaultProps = {
   config: {},
+  datacap: 20000,
   formatting: {},
   onChange() {},
   permalink: true,
