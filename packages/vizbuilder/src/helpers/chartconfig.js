@@ -1,3 +1,4 @@
+import {assign} from "d3plus-common";
 import {formatAbbreviate} from "d3plus-format";
 import {
   BarChart,
@@ -79,24 +80,27 @@ const makeConfig = {
     const levelName = level.name;
     const measureName = measure.name;
 
-    const config = {
-      ...commonConfig,
-      discrete: "y",
-      label: d => d[levelName],
-      y: levelName,
-      yConfig: {title: levelName, ticks: []},
-      x: measureName,
-      stacked: level.depth > 1,
-      shapeConfig: {
-        Bar: {
-          labelConfig: {
-            textAnchor: "start"
+    const config = assign(
+      {},
+      commonConfig,
+      {
+        discrete: "y",
+        label: d => d[levelName],
+        y: levelName,
+        yConfig: {title: levelName, ticks: []},
+        x: measureName,
+        stacked: level.depth > 1,
+        shapeConfig: {
+          Bar: {
+            labelConfig: {
+              textAnchor: "start"
+            }
           }
-        }
+        },
+        ySort: sortByCustomKey(levelName, flags.members[levelName])
       },
-      ySort: sortByCustomKey(levelName, flags.members[levelName]),
-      ...flags.chartConfig
-    };
+      flags.chartConfig
+    );
 
     if (timeLevel) {
       config.groupBy = [timeLevel.hierarchy.levels[1].name];
@@ -120,17 +124,20 @@ const makeConfig = {
     const levelName = timeLevel.name;
     const measureName = measure.name;
 
-    const config = {
-      ...commonConfig,
-      title: `${measureName} by ${levelName}\n${flags.subtitle}`,
-      discrete: "x",
-      x: levelName,
-      xConfig: {title: levelName},
-      y: measureName,
-      stacked: true,
-      groupBy: [level.name],
-      ...flags.chartConfig
-    };
+    const config = assign(
+      {},
+      commonConfig,
+      {
+        title: `${measureName} by ${levelName}\n${flags.subtitle}`,
+        discrete: "x",
+        x: levelName,
+        xConfig: {title: levelName},
+        y: measureName,
+        stacked: true,
+        groupBy: [level.name]
+      },
+      flags.chartConfig
+    );
 
     delete config.time;
     delete config.total;
@@ -143,12 +150,15 @@ const makeConfig = {
     const levelName = level.name;
     const measureName = measure.name;
 
-    const config = {
-      ...commonConfig,
-      y: measureName,
-      groupBy: [levelName],
-      ...flags.chartConfig
-    };
+    const config = assign(
+      {},
+      commonConfig,
+      {
+        y: measureName,
+        groupBy: [levelName]
+      },
+      flags.chartConfig
+    );
 
     return config;
   },
@@ -161,16 +171,22 @@ const makeConfig = {
     const levelName = query.level.name;
     const measureName = query.measure.name;
 
-    const config = {
-      ...commonConfig,
-      colorScale: measureName,
-      colorScaleConfig: {scale: "jenks"},
-      colorScalePosition: "right",
-      groupBy: [`ID ${levelName}`],
-      zoomScroll: false,
-      ...flags.topojsonConfig,
-      ...flags.chartConfig
-    };
+    const config = assign(
+      {},
+      commonConfig,
+      {
+        colorScale: measureName,
+        colorScaleConfig: {
+          axisConfig: {tickFormat: flags.measureFormatter},
+          scale: "jenks"
+        },
+        colorScalePosition: "right",
+        groupBy: [`ID ${levelName}`],
+        zoomScroll: false
+      },
+      flags.topojsonConfig,
+      flags.chartConfig
+    );
 
     if (!flags.activeType) {
       config.zoom = false;
@@ -196,11 +212,13 @@ const makeConfig = {
   histogram(commonConfig, query, flags) {
     const config = this.barchart(commonConfig, query, flags);
 
-    return {
-      ...config,
-      groupPadding: 0,
-      ...flags.chartConfig
-    };
+    return assign(
+      config,
+      {
+        groupPadding: 0
+      },
+      flags.chartConfig
+    );
   },
   lineplot(commonConfig, query, flags) {
     const {level, measure, moe, lci, uci, member, timeLevel, xlevel} = query;
@@ -219,17 +237,20 @@ const makeConfig = {
 
     const title = `${measureName} by ${levelsTitle}, by ${timeLevelName}\n${flags.subtitle}`;
 
-    const config = {
-      ...commonConfig,
-      discrete: "x",
-      groupBy,
-      title,
-      yConfig: {scale: "linear", title: measureName},
-      x: timeLevelName,
-      xConfig: {title: timeLevelName},
-      y: measureName,
-      ...flags.chartConfig
-    };
+    const config = assign(
+      {},
+      commonConfig,
+      {
+        discrete: "x",
+        groupBy,
+        title,
+        yConfig: {scale: "linear", title: measureName},
+        x: timeLevelName,
+        xConfig: {title: timeLevelName},
+        y: measureName
+      },
+      flags.chartConfig
+    );
 
     if (query.member) {
       config.title = `${measureName} by ${levelsTitle} by ${timeLevelName} (${query.member.name})\n${flags.subtitle}`;
@@ -300,11 +321,14 @@ const makeConfig = {
     const levels = level.hierarchy.levels;
     const ddIndex = levels.indexOf(level);
 
-    const config = {
-      ...commonConfig,
-      groupBy: levels.slice(1, ddIndex + 1).map(lvl => lvl.name),
-      ...flags.chartConfig
-    };
+    const config = assign(
+      {},
+      commonConfig,
+      {
+        groupBy: levels.slice(1, ddIndex + 1).map(lvl => lvl.name)
+      },
+      flags.chartConfig
+    );
 
     return config;
   },
@@ -316,11 +340,12 @@ const makeConfig = {
 
     const groupBy = levels.slice(1, ddIndex + 1).map(lvl => lvl.name);
     groupBy.push(xlevel.name);
-    const config = {
-      ...commonConfig,
-      groupBy,
-      ...flags.chartConfig
-    };
+    const config = assign(
+      {},
+      commonConfig,
+      {groupBy},
+      flags.chartConfig
+    );
 
     const levelsTitle = joinStringsWithCommaAnd([level.name, xlevel.name]);
     config.title = `${measure.name} by ${levelsTitle}`;
@@ -339,11 +364,12 @@ const makeConfig = {
 
     const groupBy = levels.slice(1, ddIndex + 1).map(lvl => lvl.name);
     groupBy.push(level.name);
-    const config = {
-      ...commonConfig,
-      groupBy,
-      ...flags.chartConfig
-    };
+    const config = assign(
+      {},
+      commonConfig,
+      {groupBy},
+      flags.chartConfig
+    );
 
     const levelsTitle = joinStringsWithCommaAnd([xlevel.name, level.name]);
     config.title = `${measure.name} by ${levelsTitle}`;
@@ -432,6 +458,7 @@ export default function createChartConfig(
       availableKeys,
       measureFormatter
     ),
+    totalFormat: measureFormatter,
 
     xConfig: {title: null},
     yConfig: {
@@ -457,7 +484,6 @@ export default function createChartConfig(
   const topojsonConfig = topojson[levelName];
 
   if (!activeType) {
-
     if (members[levelName].length > 20) {
       availableCharts.delete("barchart");
     }

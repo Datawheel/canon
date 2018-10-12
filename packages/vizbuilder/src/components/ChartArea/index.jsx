@@ -9,7 +9,8 @@ import ChartCard from "./ChartCard";
 import "./style.css";
 
 const DEFAULT_FORMATTERS = {
-  Dollars: d => `$${formatAbbreviate(d * 1 || 0)}`
+  USD: d => `$${formatAbbreviate(d * 1 || 0)}`,
+  get Dollars() { return this.USD }
 };
 
 const EMPTY_DATASETS = (
