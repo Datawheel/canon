@@ -1,7 +1,8 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {NonIdealState, Tree} from "@blueprintjs/core";
+import {NonIdealState, Tree, Dialog} from "@blueprintjs/core";
+import NewProfile from "./NewProfile";
 import ProfileEditor from "./ProfileEditor";
 import SectionEditor from "./SectionEditor";
 import TopicEditor from "./TopicEditor";
@@ -503,8 +504,9 @@ class ProfileBuilder extends Component {
     }
   }
 
-  addFirst() {
-    const profileStub = {ordering: 0};
+  addProfile() {
+    const {nodes} = this.state;
+    const profileStub = {ordering: nodes.length};
     const sectionStub = {ordering: 0};
     const topicStub = {ordering: 0};
 
@@ -526,7 +528,7 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode, variablesHash, currentSlug, preview} = this.state;
+    const {nodes, currentNode, variablesHash, currentSlug, preview, profileModalOpen, cubeData} = this.state;
 
     const {NODE_ENV} = this.props.env;
     if (NODE_ENV === "production") return null;
@@ -545,8 +547,17 @@ class ProfileBuilder extends Component {
             contents={nodes}
 
           />
-          {nodes.length === 0 && <button className="firstbutton" onClick={this.addFirst.bind(this)}>Add First Profile</button>}
+          <button className="firstbutton" onClick={() => this.setState({profileModalOpen: true})}>Add Profile</button>
         </div>
+        <Dialog
+          className="profileModal"
+          isOpen={profileModalOpen}
+          icon="new-object"
+          onClose={() => this.setState({profileModalOpen: false})}
+          title="Add New Profile"
+        >
+          <NewProfile cubeData={cubeData}/>
+        </Dialog>
         <div id="item-editor">
           { currentNode && currentSlug && <Preview currentSlug={currentSlug} onSelectPreview={this.onSelectPreview.bind(this)}/>}
           { currentNode
