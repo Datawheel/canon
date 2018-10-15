@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 // import {Menu, MenuItem, MenuDivider, Popover, Position} from "@blueprintjs/core";
+import {MultiSelect} from "@blueprintjs/labs";
 
 class NewProfile extends Component {
 
@@ -68,7 +69,7 @@ class NewProfile extends Component {
           </div>
         </div>
         }
-        
+
       </div>
 
     );
