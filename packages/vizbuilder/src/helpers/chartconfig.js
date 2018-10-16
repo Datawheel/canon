@@ -407,13 +407,11 @@ export default function createChartConfig(
 
   // this prevents execution when the activeChart isn't for this query
   if (activeType) {
-    let activeKey = activeType.split("_");
-    activeType = activeKey.pop();
-    activeKey = activeKey.join("_");
-
-    if (activeKey !== queryKey) {
+    const tokens = activeType.split("-");
+    if (tokens.indexOf(queryKey) !== 0) {
       return [];
     }
+    activeType = tokens.pop();
   }
 
   const availableKeys = Object.keys(members);
@@ -581,7 +579,7 @@ export default function createChartConfig(
     return (
       charts.hasOwnProperty(chartType) &&
       makeConfig.hasOwnProperty(functionName) && {
-        key: `${queryKey}_${functionName}`,
+        key: `${queryKey}-${functionName}`,
         component: charts[chartType],
         config: makeConfig[functionName](commonConfig, query, flags)
       }
