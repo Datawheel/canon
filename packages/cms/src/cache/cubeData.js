@@ -22,6 +22,8 @@ module.exports = async function() {
     cube.dimensions.forEach(d => {
       const dimension = {};    
       dimension.name = `${d.name} (${cube.name})`;
+      dimension.cubeName = cube.name;
+      dimension.dimName = d.name;
       dimension.measures = cube.measures.map(m => m.name.replace(/'/g, "\'"));
       const hierarchies = d.hierarchies.map(h => {
         
