@@ -105,6 +105,8 @@ export function generateQueries(params) {
     }
   }
 
+  queries.reverse();
+
   return queries;
 }
 
