@@ -150,9 +150,9 @@ class Vizbuilder extends React.PureComponent {
 
   fetchQueries() {
     const {query, queries} = this.state;
-    const activeChartLevel = `${query.activeChart}`.split("_")[0];
-    const isValidActiveChart = query.groups.some(
-      group => group.key === activeChartLevel
+    const activeQueryKey = `${query.activeChart}`.split('-')[0];
+    const isValidActiveChart = queries.some(
+      query => query.key === activeQueryKey
     );
     const queryFetcher = fetchQuery.bind(null, this.props.datacap);
 
