@@ -73,7 +73,7 @@ export function loadControl() {
           }
         })
         .then(() => {
-          if (process.env.NODE_ENV !== "production") {
+          if (__DEV__) {
             console.group("STATE UPDATE ERROR");
             console.error(err.message);
             console.error(err.stack);
@@ -87,10 +87,10 @@ export function loadControl() {
     }
   );
 
-  if (process.env.NODE_ENV !== "production") {
+  if (__DEV__) {
     promise = promise.then(() => {
       console.groupCollapsed("FINAL STATE");
-      console.table(this.state.query.groups);
+      console.table(this.state.queries);
       console.groupEnd();
     });
   }
