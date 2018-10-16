@@ -45,7 +45,22 @@ export function findFirstNumber(string, elseValue) {
 export function joinStringsWithCommaAnd(list) {
   const copy = list.slice();
   const last = copy.pop();
-  return copy.length > 2
+  return copy.length > 1
     ? `${copy.join(", ")}, and ${last}`
     : list.join(" and ");
+}
+
+/* this function will probably change soon */
+export function composeChartTitle(query, subtitle, levels) {
+  const {level, measure, timeLevel, xlevel} = query;
+  let title = `${measure.name} by `;
+
+  const allLevels = levels || [level.name, xlevel && xlevel.name];
+  title += joinStringsWithCommaAnd(allLevels.filter(Boolean));
+
+  if (timeLevel) {
+    title += `, by ${timeLevel.name}`;
+  }
+
+  return `${title}\n${subtitle}`
 }
