@@ -10,7 +10,7 @@ import {
   Treemap
 } from "d3plus-react";
 
-import {joinStringsWithCommaAnd} from "./formatting";
+import {composeChartTitle} from "./formatting";
 import {relativeStdDev} from "./math";
 import {sortByCustomKey} from "./sorting";
 
@@ -121,20 +121,21 @@ const makeConfig = {
   barchartyear(commonConfig, query, flags) {
     const {level, timeLevel, measure} = query;
 
-    const levelName = timeLevel.name;
+    const levelName = level.name;
+    const timeLevelName = timeLevel.name;
     const measureName = measure.name;
 
     const config = assign(
       {},
       commonConfig,
       {
-        title: `${measureName} by ${levelName}\n${flags.subtitle}`,
+        title: `${measureName} by ${levelName}, by ${timeLevelName}\n${flags.subtitle}`,
         discrete: "x",
-        x: levelName,
-        xConfig: {title: levelName},
+        x: timeLevelName,
+        xConfig: {title: timeLevelName},
         y: measureName,
         stacked: true,
-        groupBy: [level.name]
+        groupBy: [levelName]
       },
       flags.chartConfig
     );
@@ -226,24 +227,12 @@ const makeConfig = {
     const timeLevelName = timeLevel.name;
     const measureName = measure.name;
 
-    const groupBy = [level.name, xlevel && xlevel.name].filter(Boolean);
-    let levelsTitle = joinStringsWithCommaAnd(groupBy);
-    if (member) {
-      levelsTitle = levelsTitle.replace(
-        member.level_name,
-        `${member.level_name} (${member.name})`
-      );
-    }
-
-    const title = `${measureName} by ${levelsTitle}, by ${timeLevelName}\n${flags.subtitle}`;
-
     const config = assign(
       {},
       commonConfig,
       {
         discrete: "x",
-        groupBy,
-        title,
+        groupBy: [level.name, xlevel && xlevel.name].filter(Boolean),
         yConfig: {scale: "linear", title: measureName},
         x: timeLevelName,
         xConfig: {title: timeLevelName},
@@ -251,10 +240,6 @@ const makeConfig = {
       },
       flags.chartConfig
     );
-
-    if (query.member) {
-      config.title = `${measureName} by ${levelsTitle} by ${timeLevelName} (${query.member.name})\n${flags.subtitle}`;
-    }
 
     if (relativeStdDev(flags.dataset, measureName) > 1) {
       config.yConfig.scale = "log";
@@ -297,14 +282,7 @@ const makeConfig = {
   },
   stacked(commonConfig, query, flags) {
     const config = this.lineplot(commonConfig, query, flags);
-
-    const levelName = query.level.name;
     const measureName = query.measure.name;
-
-    config.title = `${measureName} by ${levelName}\n${flags.subtitle}`;
-    if (query.member) {
-      config.title = `${measureName} by ${levelName} (${query.member.name})\n${flags.subtitle}`;
-    }
 
     config.yConfig = {scale: "linear", title: measureName};
 
@@ -334,49 +312,31 @@ const makeConfig = {
   },
   treemap_ab(commonConfig, query, flags) {
     const {level, measure, timeLevel, xlevel} = query;
+    const config = assign({}, commonConfig, flags.chartConfig);
 
     const levels = level.hierarchy.levels;
     const ddIndex = levels.indexOf(level);
 
     const groupBy = levels.slice(1, ddIndex + 1).map(lvl => lvl.name);
     groupBy.push(xlevel.name);
-    const config = assign(
-      {},
-      commonConfig,
-      {groupBy},
-      flags.chartConfig
-    );
 
-    const levelsTitle = joinStringsWithCommaAnd([level.name, xlevel.name]);
-    config.title = `${measure.name} by ${levelsTitle}`;
-    if (timeLevel) {
-      config.title += `, by ${timeLevel.name}`;
-    }
-    config.title += `\n${flags.subtitle}`;
+    config.groupBy = groupBy;
+    config.title = composeChartTitle(query, flags.subtitle, [level.name, xlevel.name]);
 
     return config;
   },
   treemap_ba(commonConfig, query, flags) {
     const {level, measure, timeLevel, xlevel} = query;
+    const config = assign({}, commonConfig, flags.chartConfig);
 
     const levels = xlevel.hierarchy.levels;
     const ddIndex = levels.indexOf(xlevel);
 
     const groupBy = levels.slice(1, ddIndex + 1).map(lvl => lvl.name);
     groupBy.push(level.name);
-    const config = assign(
-      {},
-      commonConfig,
-      {groupBy},
-      flags.chartConfig
-    );
 
-    const levelsTitle = joinStringsWithCommaAnd([xlevel.name, level.name]);
-    config.title = `${measure.name} by ${levelsTitle}`;
-    if (timeLevel) {
-      config.title += `, by ${timeLevel.name}`;
-    }
-    config.title += `\n${flags.subtitle}`;
+    config.groupBy = groupBy;
+    config.title = composeChartTitle(query, flags.subtitle, [xlevel.name, level.name]);
 
     return config;
   }
@@ -440,7 +400,7 @@ export default function createChartConfig(
   const subtitle = `${measureAnn._cb_datasetName} - ${measureAnn._cb_sourceName}`;
 
   const commonConfig = {
-    title: `${measureName} by ${levelName}\n${subtitle}`,
+    title: composeChartTitle(query, subtitle),
     data: dataset,
     height: activeType ? 500 : 400,
     legend: false,
@@ -602,11 +562,12 @@ export default function createChartConfig(
  * @prop {string} [activeType]
  * @prop {string} aggregatorType
  * @prop {string[]} availableKeys
+ * @prop {object} chartConfig
  * @prop {object[]} dataset
  * @prop {(value: number) => string} measureFormatter
  * @prop {string[]} members
  * @prop {object} topojsonConfig
- * @prop {object} chartConfig
+ * @prop {object} subtitle
  */
 
 /**
