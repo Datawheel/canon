@@ -9,8 +9,15 @@ import ChartCard from "./ChartCard";
 import "./style.css";
 
 const DEFAULT_FORMATTERS = {
+  Growth: d => `${formatAbbreviate(d * 100 || 0)}%`,
+  Percentage: d => `${formatAbbreviate(d * 1 || 0)}%`,
+  Rate: d => `${formatAbbreviate(d * 100 || 0)}%`,
+  Ratio: d => `${formatAbbreviate(d * 1 || 0)} to 1`,
   USD: d => `$${formatAbbreviate(d * 1 || 0)}`,
-  get Dollars() { return this.USD }
+  get Dollars() { return this.USD },
+  "Thousands of Dollars"(d) { return this.USD(d * 1e3) },
+  "Millions of Dollars"(d) { return this.USD(d * 1e6) },
+  "Billions of Dollars"(d) { return this.USD(d * 1e9) }
 };
 
 const EMPTY_DATASETS = (
