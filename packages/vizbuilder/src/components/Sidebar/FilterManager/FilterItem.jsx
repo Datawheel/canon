@@ -84,6 +84,7 @@ class FilterItem extends SidebarCRUDItem {
             className="pt-fill"
             value={activeItem.value}
             onValueChange={this.handleSetValue}
+            allowNumericCharactersOnly={true}
           />
         </div>
         <div className="group actions">

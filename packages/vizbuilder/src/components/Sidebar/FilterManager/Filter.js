@@ -62,11 +62,11 @@ class Filter {
     return this;
   }
 
-  setValue(value) {
-    const newValue = value || 0;
-    if (this.value !== value) {
+  setValue(valueAsNumber, valueAsString) {
+    const newValue = valueAsString || 0;
+    if (this.value !== newValue) {
       const clone = this.getClone();
-      clone.value = value || 0;
+      clone.value = newValue;
       return clone;
     }
     return this;

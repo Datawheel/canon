@@ -34,9 +34,9 @@ class SidebarCRUDItem extends React.Component {
     this.setState({isOpen: true});
   }
 
-  handleUpdate(action, value) {
+  handleUpdate(action, ...values) {
     const activeItem = this.state.newItem || this.props.item;
-    const newItem = activeItem[action].call(activeItem, value);
+    const newItem = activeItem[action].apply(activeItem, values);
     this.setState({newItem});
   }
 }
