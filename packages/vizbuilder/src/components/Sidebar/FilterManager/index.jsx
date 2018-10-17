@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import classnames from "classnames";
 import {Button} from "@blueprintjs/core";
 
-// import "./style.css";
-
 import Filter from "./Filter";
 import FilterItem from "./FilterItem";
 import SidebarCRUDManager from "../SidebarCRUDManager";
