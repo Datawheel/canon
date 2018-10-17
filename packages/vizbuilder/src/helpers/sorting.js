@@ -91,6 +91,7 @@ export function getValidMeasures(cubes) {
       const measure = cube.measures[nMsr];
       const msAnnotations = measure.annotations;
       if (
+        !msAnnotations.hide_in_ui ||
         msAnnotations.error_for_measure === undefined &&
         msAnnotations.error_type === undefined &&
         msAnnotations.source_for_measure === undefined &&
@@ -202,7 +203,9 @@ export function getTimeLevel(cube) {
  * @returns {Dimension[]}
  */
 export function getValidDimensions(cube) {
-  return cube.dimensions.filter(dim => !isTimeDimension(dim));
+  return cube.dimensions.filter(
+    dim => !isTimeDimension(dim) && !dim.annotations.hide_in_ui
+  );
 }
 
 export function getValidLevels(cube) {
@@ -251,7 +254,7 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
  * @returns {Dimension[]}
  */
 export function reduceLevelsFromDimension(container, dimension) {
-  return isTimeDimension(dimension)
+  return isTimeDimension(dimension) || dimension.annotations.hide_in_ui
     ? container
     : dimension.hierarchies.reduce(
         (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
