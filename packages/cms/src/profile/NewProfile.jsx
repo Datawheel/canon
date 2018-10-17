@@ -12,8 +12,10 @@ class NewProfile extends Component {
         cubeName: "", 
         dimName: "",
         dimension: "",
+        hierarchies: [],
         levels: []
-      }
+      },
+      selectedDimension: {}
     };
   }
 
@@ -26,23 +28,33 @@ class NewProfile extends Component {
   chooseDimension(e) {
     const {cubeData} = this.props;
     const {profileData} = this.state;
-    const dim = cubeData.find(d => d.name === e.target.value);
-    profileData.cubeName = dim.cubeName;
+    const selectedDimension = cubeData.find(d => d.name === e.target.value);
+    profileData.cubeName = selectedDimension.cubeName;
     profileData.dimension = e.target.value;
-    profileData.dimName = dim.dimName;
-    this.setState({profileData});
+    profileData.dimName = selectedDimension.dimName;
+    profileData.hierarchies = selectedDimension.hierarchies;
+    profileData.levels = selectedDimension.hierarchies.map(h => h.level);
+    this.setState({profileData, selectedDimension});
 
   }
 
   addLevel(level) {
-    const {profileData} = this.state;
+    const {profileData, selectedDimension} = this.state;
     profileData.levels.push(level);
+    profileData.hierarchies = [];
+    profileData.levels.forEach(level => {
+      profileData.hierarchies.push(selectedDimension.hierarchies.find(h => h.level === level));
+    });
     this.setState({profileData});
   }
 
   removeLevel(level) {
-    const {profileData} = this.state;
+    const {profileData, selectedDimension} = this.state;
     profileData.levels = profileData.levels.filter(l => l !== level);
+    profileData.hierarchies = [];
+    profileData.levels.forEach(level => {
+      profileData.hierarchies.push(selectedDimension.hierarchies.find(h => h.level === level));
+    });
     this.setState({profileData});
   }
 
