@@ -338,6 +338,20 @@ module.exports = function(app) {
     db.profiles.create(req.body).then(u => res.json(u));
   });
 
+  app.post("/api/cms/profile/newScaffold", (req, res) => {
+    const profileData = req.body;
+    db.profiles.create({slug: profileData.slug, ordering: profileData.ordering}).then(profile => {
+      db.sections.create({ordering: 0, profile_id: profile.id}).then(section => {
+        db.topics.create({ordering: 0, section_id: section.id}).then(() => {
+          db.profiles.findAll(profileReqTreeOnly).then(profiles => {
+            profiles = sortProfileTree(profiles);
+            res.json(profiles).end();
+          });
+        });
+      });
+    });
+  });
+
   app.delete("/api/cms/profile/delete", (req, res) => {
     // db.profiles.destroy({where: {id: req.query.id}}).then(u => res.json(u));
     db.profiles.findOne({where: {id: req.query.id}}).then(row => {

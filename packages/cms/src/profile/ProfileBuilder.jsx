@@ -391,6 +391,19 @@ class ProfileBuilder extends Component {
   }
 
   /**
+   * Called by the NewProfile Modal Popover. profileData contains special metadata that will need to be passed to 
+   * a script that will populate the search table with the appropriate entities.
+   */
+  onCreateProfile(profileData) {
+    profileData.ordering = this.state.nodes.length;
+    axios.post("/api/cms/profile/newScaffold", profileData).then(resp => {
+      const profiles = resp.data;
+      const profileModalOpen = false;
+      this.setState({profiles, profileModalOpen}, this.buildNodes.bind(this));  
+    });
+  }
+
+  /**
    * Given a node type (profile, section, topic) and an id, crawl down the tree and fetch a reference to the Tree node with that id
    */
   locateNode(type, id) {
@@ -556,7 +569,7 @@ class ProfileBuilder extends Component {
           onClose={() => this.setState({profileModalOpen: false})}
           title="Add New Profile"
         >
-          <NewProfile cubeData={cubeData}/>
+          <NewProfile cubeData={cubeData} onCreateProfile={this.onCreateProfile.bind(this)}/>
         </Dialog>
         <div id="item-editor">
           { currentNode && currentSlug && <Preview currentSlug={currentSlug} onSelectPreview={this.onSelectPreview.bind(this)}/>}

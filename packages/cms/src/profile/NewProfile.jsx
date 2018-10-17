@@ -60,7 +60,7 @@ class NewProfile extends Component {
 
   createProfile() {
     const {profileData} = this.state;
-    console.log("would ship", profileData);
+    if (this.props.onCreateProfile) this.props.onCreateProfile(profileData);
   }
 
   render() {
