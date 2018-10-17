@@ -393,7 +393,10 @@ export default function createChartConfig(
   const hasGeoDim = dimension.annotations.dim_type === "GEOGRAPHY";
 
   const aggregatorType =
-    measureAnn.aggregation_method || measure.aggregatorType || "UNKNOWN";
+    measureAnn.pre_aggregation_method ||
+    measureAnn.aggregation_method ||
+    measure.aggregatorType ||
+    "UNKNOWN";
 
   const subtitle = `${measureAnn._cb_datasetName} - ${measureAnn._cb_sourceName}`;
 
