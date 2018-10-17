@@ -471,6 +471,10 @@ export default function createChartConfig(
       availableCharts.delete("stacked");
       availableCharts.delete("treemap");
     }
+    else if (aggregatorType === "MEDIAN") {
+      availableCharts.delete("stacked");
+    }
+
     if (aggregatorType !== "UNKNOWN" && aggregatorType !== "SUM") {
       availableCharts.delete("barchartyear");
       availableCharts.delete("treemap");
@@ -505,7 +509,7 @@ export default function createChartConfig(
       }
 
       if (availableCharts.has("stacked")) {
-        availableCharts.delete("stacked_ab");
+        availableCharts.delete("stacked");
         availableCharts.add("stacked_ab");
       }
 
