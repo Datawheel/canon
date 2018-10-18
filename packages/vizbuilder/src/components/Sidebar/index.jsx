@@ -5,6 +5,7 @@ import "./BaseSelect.css";
 import "./style.css";
 
 import {generateBaseState} from "../../helpers/query";
+import {isValidMeasure} from "../../helpers/validation";
 
 import ConditionalAnchor from "./ConditionalAnchor";
 import FilterManager from "./FilterManager";
@@ -22,19 +23,7 @@ class Sidebar extends React.PureComponent {
     if (!query.cube) return null;
 
     const measureDetails = query.measure.annotations.details || "";
-    const cbMeasures = query.cube.measures.reduce((all, measure) => {
-      const msAnnotations = measure.annotations;
-      if (
-        msAnnotations.error_for_measure === undefined &&
-        msAnnotations.error_type === undefined &&
-        msAnnotations.source_for_measure === undefined &&
-        msAnnotations.collection_for_measure === undefined &&
-        msAnnotations.aggregation_method !== "RCA"
-      ) {
-        all.push(measure);
-      }
-      return all;
-    }, []);
+    const cbMeasures = query.cube.measures.filter(isValidMeasure);
 
     return (
       <div className="area-sidebar">

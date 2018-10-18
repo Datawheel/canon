@@ -1,3 +1,5 @@
+import yn from "yn";
+
 import {findFirstNumber} from "./formatting";
 
 /**
@@ -10,6 +12,24 @@ export function isTimeDimension(dimension) {
     dimension.dimensionType === 1 ||
     dimension.name === "Date" ||
     dimension.name === "Year"
+  );
+}
+
+export function isValidMeasure(measure) {
+  const ann = measure.annotations;
+  const aggregatorType =
+    ann.pre_aggregation_method ||
+    ann.aggregation_method ||
+    measure.aggregatorType ||
+    "UNKNOWN";
+
+  return !(
+    yn(ann.hide_in_ui) ||
+    ann.error_for_measure ||
+    ann.error_type ||
+    ann.source_for_measure ||
+    ann.collection_for_measure ||
+    aggregatorType === "RCA"
   );
 }
 

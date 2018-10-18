@@ -2,7 +2,7 @@ import sort from "fast-sort";
 import union from "lodash/union";
 
 import {findFirstNumber} from "./formatting";
-import {areKindaNumeric, isTimeDimension} from "./validation";
+import {areKindaNumeric, isTimeDimension, isValidMeasure} from "./validation";
 import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 /**
@@ -89,16 +89,8 @@ export function getValidMeasures(cubes) {
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
-      const msAnnotations = measure.annotations;
-      if (
-        !msAnnotations.hide_in_ui ||
-        msAnnotations.error_for_measure === undefined &&
-        msAnnotations.error_type === undefined &&
-        msAnnotations.source_for_measure === undefined &&
-        msAnnotations.collection_for_measure === undefined &&
-        msAnnotations.aggregation_method !== "RCA"
-      ) {
-        if (msAnnotations._cb_topic === "Other") {
+      if (isValidMeasure(measure)) {
+        if (measure.annotations._cb_topic === "Other") {
           otherMeasures.push(measure);
         }
         else {
