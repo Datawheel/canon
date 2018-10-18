@@ -1,5 +1,6 @@
 import sort from "fast-sort";
 import union from "lodash/union";
+import yn from "yn";
 
 import {findFirstNumber} from "./formatting";
 import {areKindaNumeric, isTimeDimension, isValidMeasure} from "./validation";
@@ -196,13 +197,15 @@ export function getTimeLevel(cube) {
  */
 export function getValidDimensions(cube) {
   return cube.dimensions.filter(
-    dim => !isTimeDimension(dim) && !dim.annotations.hide_in_ui
+    dim => !isTimeDimension(dim) && !yn(dim.annotations.hide_in_ui)
   );
 }
 
 export function getValidLevels(cube) {
   const dimensions = getValidDimensions(cube);
-  return dimensions.reduce(reduceLevelsFromDimension, []);
+  return dimensions
+    .reduce(reduceLevelsFromDimension, [])
+    .filter(lvl => !yn(lvl.annotations.hide_in_ui));
 }
 
 /**
@@ -246,7 +249,7 @@ export function preventHierarchyIncompatibility(array, interestLevel) {
  * @returns {Dimension[]}
  */
 export function reduceLevelsFromDimension(container, dimension) {
-  return isTimeDimension(dimension) || dimension.annotations.hide_in_ui
+  return isTimeDimension(dimension) || yn(dimension.annotations.hide_in_ui)
     ? container
     : dimension.hierarchies.reduce(
         (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),

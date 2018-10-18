@@ -1,4 +1,5 @@
 import {unique} from "shorthash";
+import yn from "yn";
 
 import * as api from "./api";
 import {TooMuchData} from "./errors";
@@ -23,7 +24,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cube = cubes[nCbs];
     const cbAnnotations = cube.annotations;
 
-    if (cbAnnotations.hide_in_ui) {
+    if (yn(cbAnnotations.hide_in_ui)) {
       cubes.splice(nCbs, 1);
       continue;
     }
