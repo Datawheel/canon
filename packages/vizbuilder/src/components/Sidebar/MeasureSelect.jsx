@@ -10,9 +10,7 @@ class MeasureSelect extends MultiLevelSelect {
       <div className="select-option current" title={item.caption || item.name}>
         <div className="value">
           <span className="select-label">{item.caption || item.name}</span>
-          <span className="select-label lead">
-            {item.annotations._cb_datasetName} - {item.annotations._cb_sourceName}
-          </span>
+          <span className="select-label lead">{item.annotations._cb_tagline}</span>
         </div>
         <span className="pt-icon-standard pt-icon-double-caret-vertical" />
       </div>
@@ -24,7 +22,7 @@ MeasureSelect.displayName = "MeasureSelect";
 MeasureSelect.defaultProps = {
   ...MultiLevelSelect.defaultProps,
   getItemHeight(item) {
-    return item._level ? item._level === 1 ? 22 : 28 : 40;
+    return item._level ? (item._level === 1 ? 22 : 28) : 40;
   },
   itemListPredicate(query, items) {
     query = query.trim();
@@ -72,11 +70,9 @@ MeasureSelect.defaultProps = {
     if (!item._level) {
       className.push("select-option", "level-last");
       props.onClick = handleClick;
-      child2 =
-        <span className="select-label lead">
-          {item.annotations._cb_datasetName} - {item.annotations._cb_sourceName}
-        </span>
-      ;
+      child2 = (
+        <span className="select-label lead">{item.annotations._cb_tagline}</span>
+      );
     }
     else {
       className.push("select-optgroup", `level-${item._level}`);

@@ -33,8 +33,11 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cbTopic = cbAnnotations.topic || "Other";
     const cbSubtopic = cbAnnotations.subtopic;
     const selectorKey = `${cbTopic}_${cbSubtopic}_`;
-    const sourceName = cbAnnotations.source_name;
-    const datasetName = cbAnnotations.dataset_name;
+    // const sourceName = cbAnnotations.source_name;
+    // const datasetName = cbAnnotations.dataset_name;
+    const cbTagline = [cbAnnotations.source_name, cbAnnotations.dataset_name]
+      .filter(Boolean)
+      .join(" - ");
 
     cbAnnotations._key = unique(cbName);
 
@@ -45,13 +48,14 @@ export function injectCubeInfoOnMeasure(cubes) {
       const msAnnotations = measure.annotations;
 
       msAnnotations._key = unique(`${cbName} ${measure.name}`);
-      msAnnotations._cb_datasetName = datasetName;
+      // msAnnotations._cb_datasetName = datasetName;
       msAnnotations._cb_name = cbName;
+      msAnnotations._cb_tagline = cbTagline;
       msAnnotations._cb_topic = cbTopic;
       msAnnotations._cb_subtopic = cbSubtopic;
-      msAnnotations._cb_sourceName = sourceName;
+      // msAnnotations._cb_sourceName = sourceName;
       msAnnotations._sortKey = selectorKey + measureLabel;
-      msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${sourceName}_${datasetName}`;
+      msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${cbTagline}`;
     }
 
     let nDim = cube.dimensions.length;
@@ -69,9 +73,7 @@ export function injectCubeInfoOnMeasure(cubes) {
         while (nLvl--) {
           const level = hierarchy.levels[nLvl];
 
-          level.annotations._key = unique(
-            `${keyPrefix} ${hierarchy.name} ${level.name}`
-          );
+          level.annotations._key = unique(`${keyPrefix} ${hierarchy.name} ${level.name}`);
         }
       }
     }

@@ -398,7 +398,7 @@ export default function createChartConfig(
     measure.aggregatorType ||
     "UNKNOWN";
 
-  const subtitle = `${measureAnn._cb_datasetName} - ${measureAnn._cb_sourceName}`;
+  const subtitle = measureAnn._cb_tagline;
 
   const commonConfig = {
     title: composeChartTitle(query, subtitle),
