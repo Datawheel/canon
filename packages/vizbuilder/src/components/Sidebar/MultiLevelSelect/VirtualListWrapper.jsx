@@ -13,12 +13,22 @@ class VirtualListWrapper extends React.Component {
       height += props.getItemHeight(item);
       return height > 300;
     });
-    this.height = Math.max(60, height);
+    this.height = Math.max(100, height);
   }
 
   getItemHeight(index) {
     const props = this.props;
     return props.getItemHeight(props.items[index]);
+  }
+
+  getStickyIndices(key, items) {
+    const sticky = [];
+    let n = items.length;
+    while (n--) {
+      if (items[n][key]) sticky.push(n);
+    }
+    sticky.reverse()
+    return sticky;
   }
 
   renderItem({index, style}) {
@@ -42,13 +52,14 @@ class VirtualListWrapper extends React.Component {
     return (
       <VirtualList
         className={props.className}
-        width="100%"
         height={this.height}
         itemCount={items.length}
         itemSize={this.getItemHeight}
         renderItem={this.renderItem}
-        scrollToIndex={props.scrollToIndex}
         scrollToAlignment="center"
+        scrollToIndex={props.scrollToIndex}
+        stickyIndices={props.sticky && this.getStickyIndices(props.sticky, items)}
+        width="100%"
       />
     );
   }
