@@ -137,6 +137,7 @@ class MultiLevelSelect extends React.Component {
           className="mlsel-select-list"
           items={finalItems}
           value={value}
+          sticky={this.props.sticky}
           scrollToIndex={valueIndex}
           itemRenderer={itemRenderer}
           onItemClick={this.handleItemSelect}
