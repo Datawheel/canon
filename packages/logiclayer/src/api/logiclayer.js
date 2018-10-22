@@ -69,7 +69,7 @@ function findKey(query, key, fallback) {
   }
   if (fallback instanceof Array && !(value instanceof Array)) {
     value = value
-      .split(/\,([^\s])/g)
+      .split(/\,([^\s\d])/g)
       .reduce((arr, d) => {
         if (arr.length && arr[arr.length - 1].length === 1) arr[arr.length - 1] += d;
         else if (d.length) arr.push(d);
