@@ -11,6 +11,10 @@
     }
   }
 
+  & .select-wrapper {
+    margin-bottom: 4px;
+  }
+
   & .grouping-manager .actions,
   & .filter-manager .actions {
     margin-top: 0.2rem;
@@ -49,30 +53,26 @@
   }
 }
 
-.custom-select {
-  border: 1px solid;
-}
-
 .mlsel-popover-content {
   & .select-label {
     display: block;
     line-height: 18px;
   }
 
-  & .select-optgroup.level-1 {
-    padding-top: 4px;
-    line-height: 22px;
-    font-weight: 800;
+  & .select-optgroup {
+    background: #fff;
+
+    & .h1 {
+      font-weight: 800;
+    }
+
+    & .h2 {
+      padding-left: 15px;
+      font-style: italic;
+    }
   }
 
-  & .select-optgroup.level-2 {
-    padding-top: 10px;
-    padding-left: 15px;
-    line-height: 20px;
-    font-style: italic;
-  }
-
-  & .select-option.level-last {
+  & .select-option {
     padding-left: 26px;
   }
 }

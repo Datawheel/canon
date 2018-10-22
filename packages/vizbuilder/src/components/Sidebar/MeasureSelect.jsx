@@ -7,8 +7,8 @@ import MultiLevelSelect from "./MultiLevelSelect";
 class MeasureSelect extends MultiLevelSelect {
   renderTarget(item) {
     return (
-      <div className="select-option current" title={item.caption || item.name}>
-        <div className="value">
+      <div className="select-item select-option option-measure current" title={item.caption || item.name}>
+        <div className="select-value">
           <span className="select-label">{item.caption || item.name}</span>
           <span className="select-label lead">{item.annotations._cb_tagline}</span>
         </div>
@@ -30,9 +30,7 @@ MeasureSelect.defaultProps = {
     query = escapeRegExp(query);
     query = query.replace(/\s+/g, ".+");
     const queryTester = RegExp(query || ".", "i");
-    return items.filter(item =>
-      queryTester.test(item.annotations._searchIndex)
-    );
+    return items.filter(item => queryTester.test(item.annotations._searchIndex));
   },
   itemListComposer(items) {
     const nope = {
@@ -54,7 +52,7 @@ MeasureSelect.defaultProps = {
         if (subtopic) {
           header.subtopic = subtopic;
           header._key += `-${subtopic}`;
-      }
+        }
 
         all.push(header);
       }
@@ -66,7 +64,7 @@ MeasureSelect.defaultProps = {
   },
   itemRenderer({style, handleClick, isActive, item}) {
     const props = {key: item._key || item.annotations._key, style};
-    const className = ["select-item"];
+    const className = ["select-item", "option-filtermeasure"];
     let child1;
     let child2 = null;
 
