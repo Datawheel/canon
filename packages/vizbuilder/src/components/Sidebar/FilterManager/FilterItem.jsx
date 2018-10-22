@@ -5,7 +5,7 @@ import React from "react";
 import {composePropertyName} from "../../../helpers/formatting";
 import OPERATORS, {KIND_NUMBER as NUMBER_OPERATORS, LABELS as OPERATOR_LABELS} from "../../../helpers/operators";
 
-import ConditionPropertySelect from "../ConditionPropertySelect";
+import FilterMeasureSelect from "../FilterMeasureSelect";
 import SidebarCRUDItem from "../SidebarCRUDItem";
 import Filter from "./Filter";
 
@@ -63,8 +63,7 @@ class FilterItem extends SidebarCRUDItem {
     return (
       <div className="filter-item editing">
         <div className="group filter-measure">
-          <ConditionPropertySelect
-            className="custom-select"
+          <FilterMeasureSelect
             value={activeItem.measure}
             items={options}
             onItemSelect={this.handleSetMeasure}

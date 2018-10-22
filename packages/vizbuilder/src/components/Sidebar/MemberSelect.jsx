@@ -8,7 +8,7 @@ import {MultiSelect} from "@blueprintjs/labs";
 const spinner = <Spinner className="pt-small" />;
 
 function MemberSelect(props) {
-  props.className = classnames("select-box select-member", props.className);
+  props.className = classnames("select-wrapper select-member", props.className);
   props.tagInputProps.onRemove = props.onItemRemove;
   props.tagInputProps.rightElement = props.loading ? spinner : null;
   return React.createElement(MultiSelect, props);
@@ -25,17 +25,19 @@ MemberSelect.defaultProps = {
   itemRenderer({handleClick, item, isActive}) {
     return (
       <li
-        className={classnames("select-option", {active: isActive})}
+        className={classnames("select-item", "select-option", {active: isActive})}
         onClick={handleClick}
       >
-        {item.caption}
+        <span className="select-value">{item.caption}</span>
       </li>
     );
   },
   tagRenderer: item => item.caption,
   popoverProps: {
-    popoverClassName: "select-box select-box-popover select-member pt-minimal"
+    inline: true,
+    popoverClassName: "select-popover pt-minimal"
   },
+  resetOnSelect: true,
   tagInputProps: {}
 };
 

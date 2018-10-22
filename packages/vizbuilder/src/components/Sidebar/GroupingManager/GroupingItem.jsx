@@ -81,7 +81,7 @@ class GroupingItem extends SidebarCRUDItem {
       <div className="grouping-item editing">
         <div className="group grouping-level">
           <LevelSelect
-            className="custom-select"
+            className="select-level"
             items={options}
             value={activeItem.level}
             onItemSelect={this.handleUpdateLevel}
@@ -90,7 +90,7 @@ class GroupingItem extends SidebarCRUDItem {
         <div className="group grouping-members">
           <MemberSelect
             loading={loading}
-            className="custom-select"
+            className="select-member"
             items={members}
             selectedItems={activeItem.members}
             onItemSelect={this.handleAddMember}

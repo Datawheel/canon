@@ -9,8 +9,8 @@ class LevelSelect extends MultiLevelSelect {
   renderTarget(item) {
     const valueLabel = composePropertyName(item);
     return (
-      <div className="select-option current" title={valueLabel}>
-        <span className="value">
+      <div className="select-item select-option option-level current" title={valueLabel}>
+        <span className="select-value">
           <span className="select-label">{valueLabel}</span>
         </span>
         <span className="pt-icon-standard pt-icon-double-caret-vertical" />
@@ -52,25 +52,24 @@ LevelSelect.defaultProps = {
   itemRenderer({style, handleClick, item, isActive}) {
     const isHeader = Boolean(item.cube);
 
-    const props = {
+    const childClassName = classnames("select-label", {h1: isHeader});
+    const child = <span className={childClassName}>{item.name}</span>;
+
+    return React.createElement('div', {
       key: item.annotations._key,
       style,
       onClick: !isHeader && handleClick,
       title: item.name,
       className: classnames(
-        "select-level",
+        "select-item",
         isHeader ? "select-optgroup" : "select-option",
-        isHeader ? `level-1` : "level-last",
+        "option-level",
         {
           active: isActive,
           disabled: item.disabled
         }
       )
-    }
-
-    const child = <span className="select-label">{item.name}</span>;
-
-    return React.createElement('li', props, child);
+    }, child);
   }
 };
 

@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import "./BaseSelect.css";
 import "./style.css";
+import "./select.css";
 
 import {generateBaseState} from "../../helpers/query";
 import {isValidMeasure} from "../../helpers/validation";
@@ -28,10 +28,10 @@ class Sidebar extends React.PureComponent {
     return (
       <div className="area-sidebar">
         <div className="wrapper">
-          <div className="control select-measure">
+          <div className="control measure-manager">
             <p className="label">Showing</p>
             <MeasureSelect
-              className="custom-select"
+              className="select-measure"
               items={options.measures}
               value={query.measure}
               onItemSelect={this.setMeasure}
@@ -40,14 +40,14 @@ class Sidebar extends React.PureComponent {
           </div>
 
           <GroupingManager
-            className="control select-levels"
+            className="control levels-manager"
             label="Grouped by"
             items={query.groups}
             itemOptions={options.levels}
           />
 
           <FilterManager
-            className="control select-filters"
+            className="control filters-manager"
             label="Filter by"
             items={query.filters}
             itemOptions={cbMeasures}
