@@ -124,10 +124,17 @@ module.exports = function(app) {
 
     const cuts = [];
 
-    const searchDims = db && db.search ? await db.search.findAll({
-      attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("dimension")), "dimension"]],
-      where: {}
-    }).map(d => d.dimension) : [];
+    const searchDims = db && db.search ? await db.search
+      .findAll({
+        group: ["dimension", "hierarchy"],
+        attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("hierarchy")), "hierarchy"], "dimension"],
+        where: {}
+      })
+      .reduce((obj, d) => {
+        if (!obj[d.dimension]) obj[d.dimension] = [];
+        obj[d.dimension].push(d.hierarchy);
+        return obj;
+      }, {}) : [];
 
     const dimensions = [], filters = [], renames = [];
     for (let key in req.query) {
@@ -158,7 +165,7 @@ module.exports = function(app) {
                       const level = rel(id[0]);
                       if (level) {
                         drilldowns.push(rel(id[0]));
-                        if (searchDims.includes(searchDim)) {
+                        if (searchDim in searchDims) {
                           dimensions.push({
                             alternate: key,
                             dimension: searchDim,
@@ -208,7 +215,7 @@ module.exports = function(app) {
               filters.push([strippedKey, operation, value]);
             }
           }
-          else if (searchDims.includes(searchDim)) {
+          else if (searchDim in searchDims) {
             dimensions.push({
               alternate: key,
               dimension: searchDim,
@@ -554,8 +561,41 @@ module.exports = function(app) {
     }
 
     const data = await Promise.all(queryPromises);
+    const levels = d3Array.merge(Object.values(searchDims));
 
-    const flatArray = data.reduce((arr, d, i) => {
+    const slugLookup = {};
+    for (const dim in dimCuts) {
+      if ({}.hasOwnProperty.call(dimCuts, dim)) {
+        slugLookup[dim] = {};
+        for (const level in dimCuts[dim]) {
+          if ({}.hasOwnProperty.call(dimCuts[dim], level)) {
+            if (!slugLookup[dim][level]) slugLookup[dim][level] = {};
+            dimCuts[dim][level].forEach(d => {
+              if (d.slug) slugLookup[dim][level][d.id] = d.slug;
+            });
+          }
+        }
+      }
+    }
+
+    const searchLookups = [];
+    for (let i = 0; i < drilldowns.length; i++) {
+      const level = drilldowns[i];
+      if (levels.includes(level)) {
+        let dim;
+        for (const d in searchDims) {
+          if ({}.hasOwnProperty.call(searchDims, d) && searchDims[d].includes(level)) {
+            dim = d;
+            break;
+          }
+        }
+        searchLookups.push({dimension: dim, hierarchy: level});
+      }
+    }
+
+    const flatArray = await data.reduce(async(prom, d, i) => {
+
+      let arr = await prom;
 
       let data = d.error || !d.data.data ? [] : d.data.data;
 
@@ -565,8 +605,41 @@ module.exports = function(app) {
         data = data.slice(0, limit);
       }
 
+      if (db.search) {
+        const lookupKeys = intersect(levels, Object.keys(data[0]));
+        for (let x = 0; x < lookupKeys.length; x++) {
+          const level = lookupKeys[x];
+          const dim = searchLookups.find(d => d.hierarchy === level);
+          if (dim) {
+            if (!slugLookup[dim.dimension]) slugLookup[dim.dimension] = {};
+            if (!slugLookup[dim.dimension][dim.hierarchy]) slugLookup[dim.dimension][dim.hierarchy] = {};
+            const where = Object.assign({
+              id: data.map(d => d[`ID ${level}`]),
+              dimension: dim.dimension,
+              hierarchy: dim.hierarchy
+            });
+            const attrs = await db.search.findAll({where});
+            attrs.forEach(d => {
+              if (d.slug) slugLookup[dim.dimension][dim.hierarchy][d.id] = d.slug;
+            });
+          }
+        }
+      }
+
       const cross = queryCrosses[i].concat(renames);
+
       const newArray = data.map(row => {
+        for (const dimension in slugLookup) {
+          if ({}.hasOwnProperty.call(slugLookup, dimension)) {
+            const obj = slugLookup[dimension];
+            for (const level in obj) {
+              if ({}.hasOwnProperty.call(obj, level)) {
+                const slug = obj[level][row[`ID ${level}`]];
+                if (row[level] && slug) row[`Slug ${level}`] = slug;
+              }
+            }
+          }
+        }
         cross.forEach(c => {
           const type = Object.keys(c)[0];
           const level = c[type];
@@ -575,6 +648,10 @@ module.exports = function(app) {
             delete row[level];
             row[`ID ${type}`] = row[`ID ${level}`];
             delete row[`ID ${level}`];
+            if (row[`Slug ${level}`]) {
+              row[`Slug ${type}`] = row[`Slug ${level}`];
+              delete row[`Slug ${level}`];
+            }
           }
         });
         return row;
@@ -584,7 +661,7 @@ module.exports = function(app) {
 
       return arr;
 
-    }, []);
+    }, Promise.resolve([]));
 
     const crossKeys = d3Array.merge(queryCrosses).concat(renames).map(d => Object.keys(d)[0]);
     const keys = d3Array.merge([
