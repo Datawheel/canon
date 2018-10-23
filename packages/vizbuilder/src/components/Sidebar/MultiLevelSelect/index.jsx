@@ -137,6 +137,7 @@ class MultiLevelSelect extends React.Component {
           className="mlsel-select-list"
           items={finalItems}
           value={value}
+          sticky={this.props.sticky}
           scrollToIndex={valueIndex}
           itemRenderer={itemRenderer}
           onItemClick={this.handleItemSelect}
@@ -160,7 +161,7 @@ class MultiLevelSelect extends React.Component {
         disabled={props.disabled}
         {...props.popoverProps}
         content={popContent}
-        className={classNames("mlsel-target-wrapper pt-fill", props.className)}
+        className={classNames("select-wrapper mlsel-target-wrapper pt-fill", props.className)}
         onInteraction={this.handlePopoverInteraction}
         popoverWillOpen={this.handlePopoverWillOpen}
         popoverDidOpen={this.handlePopoverDidOpen}

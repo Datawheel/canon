@@ -7,8 +7,8 @@ import MultiLevelSelect from "./MultiLevelSelect";
 class MeasureSelect extends MultiLevelSelect {
   renderTarget(item) {
     return (
-      <div className="select-option current" title={item.caption || item.name}>
-        <div className="value">
+      <div className="select-item select-option option-measure current" title={item.caption || item.name}>
+        <div className="select-value">
           <span className="select-label">{item.caption || item.name}</span>
           <span className="select-label lead">{item.annotations._cb_tagline}</span>
         </div>
@@ -21,17 +21,16 @@ class MeasureSelect extends MultiLevelSelect {
 MeasureSelect.displayName = "MeasureSelect";
 MeasureSelect.defaultProps = {
   ...MultiLevelSelect.defaultProps,
-  getItemHeight(item) {
-    return item._level ? (item._level === 1 ? 22 : 28) : 40;
+  sticky: "_sticky",
+  getItemHeight() {
+    return 40;
   },
   itemListPredicate(query, items) {
     query = query.trim();
     query = escapeRegExp(query);
     query = query.replace(/\s+/g, ".+");
     const queryTester = RegExp(query || ".", "i");
-    return items.filter(item =>
-      queryTester.test(item.annotations._searchIndex)
-    );
+    return items.filter(item => queryTester.test(item.annotations._searchIndex));
   },
   itemListComposer(items) {
     const nope = {
@@ -44,16 +43,18 @@ MeasureSelect.defaultProps = {
 
       const prevMeasure = array[i - 1] || nope;
 
-      if (topic !== prevMeasure.annotations._cb_topic) {
-        all.push({_level: 1, annotations: {_key: topic}, name: topic});
-      }
+      if (
+        topic !== prevMeasure.annotations._cb_topic ||
+        subtopic !== prevMeasure.annotations._cb_subtopic
+      ) {
+        const header = {topic, _key: topic, _header: true, _sticky: true};
 
-      if (subtopic && subtopic !== prevMeasure.annotations._cb_subtopic) {
-        all.push({
-          _level: 2,
-          annotations: {_key: `${topic}-${subtopic}`},
-          name: subtopic
-        });
+        if (subtopic) {
+          header.subtopic = subtopic;
+          header._key += `-${subtopic}`;
+        }
+
+        all.push(header);
       }
 
       all.push(measure);
@@ -62,20 +63,22 @@ MeasureSelect.defaultProps = {
     }, []);
   },
   itemRenderer({style, handleClick, isActive, item}) {
-    const props = {key: item.annotations._key, style};
-    const child1 = <span className="select-label">{item.name}</span>;
+    const props = {key: item._key || item.annotations._key, style};
+    const className = ["select-item", "option-filtermeasure"];
+    let child1;
     let child2 = null;
-    const className = [];
 
-    if (!item._level) {
-      className.push("select-option", "level-last");
+    if (item._header) {
+      className.push("select-optgroup");
+      child1 = <span className="select-label h1">{item.topic}</span>;
+      if (item.subtopic) {
+        child2 = <span className="select-label h2">{item.subtopic}</span>;
+      }
+    } else {
+      className.push("select-option");
       props.onClick = handleClick;
-      child2 = (
-        <span className="select-label lead">{item.annotations._cb_tagline}</span>
-      );
-    }
-    else {
-      className.push("select-optgroup", `level-${item._level}`);
+      child1 = <span className="select-label">{item.name}</span>;
+      child2 = <span className="select-label lead">{item.annotations._cb_tagline}</span>;
     }
 
     props.className = classNames(className, {active: isActive});
