@@ -108,7 +108,7 @@ class TextCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { type === "story_footnote" && <div>Use Footnote Reference: <strong>{`Foot{{${ordering + 1}}}`}</strong></div>}
+        { type === "story_footnote" || type === "profile_footnote" && <div>Use Footnote Reference: <strong>{`Foot{{${ordering + 1}}}`}</strong></div>}
         { displays.map((k, i) => <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}}></p>) }
       </Card>
     );

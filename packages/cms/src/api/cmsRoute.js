@@ -39,7 +39,8 @@ const profileReqProfileOnly = {
     {association: "materializers", attributes: ["id", "name", "ordering"]},
     {association: "visualizations", attributes: ["id", "ordering"]},
     {association: "stats", attributes: ["id", "ordering"]},
-    {association: "descriptions", attributes: ["id", "ordering"]}
+    {association: "descriptions", attributes: ["id", "ordering"]},
+    {association: "footnotes", attributes: ["id", "ordering"]}
   ]
 };
 
@@ -103,7 +104,7 @@ const sortStoryTree = stories => {
 
 const sortProfile = profile => {
   profile = profile.toJSON();
-  ["materializers", "visualizations", "stats", "descriptions"].forEach(type => profile[type].sort(sorter));
+  ["materializers", "visualizations", "stats", "descriptions", "footnotes"].forEach(type => profile[type].sort(sorter));
   return profile;
 };
 
@@ -164,7 +165,6 @@ const populateSearch = (profileData, db) => {
 
     const cube = await client.cube(cubeName);
 
-    // const levels = cube.dimensionsByName[dimension].hierarchies[0].levels.slice(1);
     const levels = cube.dimensionsByName[dimension].hierarchies[0].levels.filter(l => l.name !== "(All)");
 
     let fullList = [];
@@ -312,6 +312,10 @@ module.exports = function(app) {
 
   app.get("/api/cms/profile_description/get/:id", (req, res) => {
     db.profiles_descriptions.findOne({where: {id: req.params.id}}).then(u => res.json(u).end());
+  });
+
+  app.get("/api/cms/profile_footnote/get/:id", (req, res) => {
+    db.profiles_footnotes.findOne({where: {id: req.params.id}}).then(u => res.json(u).end());
   });
 
   app.get("/api/cms/story_description/get/:id", (req, res) => {
@@ -502,6 +506,26 @@ module.exports = function(app) {
       db.profiles_descriptions.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.profiles_descriptions.destroy({where: {id: req.query.id}}).then(() => {
           db.profiles_descriptions.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "ordering"], order: [["ordering", "ASC"]]}).then(rows => {
+            res.json(rows).end();
+          });
+        });
+      });
+    });
+  });
+
+  app.post("/api/cms/profile_footnote/update", (req, res) => {
+    db.profiles_footnotes.update(req.body, {where: {id: req.body.id}}).then(u => res.json(u));
+  });
+
+  app.post("/api/cms/profile_footnote/new", (req, res) => {
+    db.profiles_footnotes.create(req.body).then(u => res.json(u));
+  });
+
+  app.delete("/api/cms/profile_footnote/delete", (req, res) => {
+    db.profiles_footnotes.findOne({where: {id: req.query.id}}).then(row => {
+      db.profiles_footnotes.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
+        db.profiles_footnotes.destroy({where: {id: req.query.id}}).then(() => {
+          db.profiles_footnotes.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "ordering"], order: [["ordering", "ASC"]]}).then(rows => {
             res.json(rows).end();
           });
         });

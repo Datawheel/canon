@@ -42,7 +42,6 @@ class ProfileBuilder extends Component {
     Promise.all([treeGet, cubeGet]).then(resp => {
       const profiles = resp[0].data;
       const cubeData = resp[1].data;
-      console.log(cubeData);
       this.setState({profiles, cubeData}, this.buildNodes.bind(this));
     });
   }

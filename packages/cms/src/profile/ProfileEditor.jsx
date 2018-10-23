@@ -16,7 +16,8 @@ const propMap = {
   materializer: "materializers",
   profile_stat: "stats",
   profile_description: "descriptions",
-  profile_visualization: "visualizations"
+  profile_visualization: "visualizations",
+  profile_footnote: "footnotes"
 };
 
 class ProfileEditor extends Component {
@@ -232,6 +233,32 @@ class ProfileEditor extends Component {
                 item={d}
                 array={minData.descriptions}
                 type="profile_description"
+                onMove={this.onMove.bind(this)}
+              />
+            </div>)
+          }
+        </div>
+
+        <h4>
+          Footnotes
+          <Button onClick={this.addItem.bind(this, "profile_footnote")} iconName="add" />
+        </h4>
+
+        <div className="footnotes">
+          { minData.footnotes && minData.footnotes.map(f =>
+            <div key={f.id}>
+              <TextCard key={f.id}
+                id={f.id}
+                ordering={f.ordering}
+                onDelete={this.onDelete.bind(this)}
+                fields={["description"]}
+                type="profile_footnote"
+                variables={variables}
+              />
+              <MoveButtons
+                item={f}
+                array={minData.footnotes}
+                type="profile_footnote"
                 onMove={this.onMove.bind(this)}
               />
             </div>)
