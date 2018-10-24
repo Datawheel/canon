@@ -51,7 +51,9 @@ export function joinStringsWithCommaAnd(list) {
 }
 
 /* this function will probably change soon */
-export function composeChartTitle(query, subtitle, levels) {
+export function composeChartTitle(params, flags) {
+  const {levels, timeline} = flags || {};
+  const {activeType, members, query} = params;
   const {level, measure, timeLevel, xlevel} = query;
   let title = `${measure.name} by `;
 
@@ -59,8 +61,14 @@ export function composeChartTitle(query, subtitle, levels) {
   title += joinStringsWithCommaAnd(allLevels.filter(Boolean));
 
   if (timeLevel) {
-    title += `, by ${timeLevel.name}`;
+    if (!timeline && !activeType && timeLevel.name in members) {
+      const period = members[timeLevel.name].slice().pop();
+      title += ` (${period})`;
+    }
+    else {
+      title += `, by ${timeLevel.name}`;
+    }
   }
 
-  return `${title}\n${subtitle}`
+  return `${title}\n${params.subtitle}`
 }
