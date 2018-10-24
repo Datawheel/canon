@@ -23,8 +23,11 @@ module.exports = function(sequelize, db) {
       label: {
         type: db.STRING,
         defaultValue: "New Profile Label"
+      },
+      dimension: {
+        type: db.STRING
       }
-    }, 
+    },
     {
       freezeTableName: true,
       timestamps: false

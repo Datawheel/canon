@@ -1,0 +1,29 @@
+.canon-search {
+  width: 100%;
+  & > span, & .pt-popover-target, & .pt-input-group, & .pt-overlay-content, & .pt-popover, & .pt-popover-content {
+    max-width: none;
+    width: 100%;
+  }
+  & .pt-overlay-content {
+    box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.1), 0 2px 4px rgba(16, 22, 26, 0.2), 0 8px 24px rgba(16, 22, 26, 0.2);
+    margin-left: 5px;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+  & .results {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    & .no-results {
+      padding: 6px 10px;
+    }
+    & .result {
+      padding: 6px 10px;
+      &:hover {
+        background-color: #eee;
+        cursor: pointer;
+      }
+    }
+  }
+}
