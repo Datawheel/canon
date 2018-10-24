@@ -31,7 +31,7 @@ class ProfileBuilder extends Component {
       currentNode: null,
       currentSlug: null,
       variablesHash: {},
-      preview: "04000US25",
+      preview: "",
       cubeData: {}
     };
   }
@@ -369,7 +369,8 @@ class ProfileBuilder extends Component {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.deleteItem.bind(this)} />;
     }
     if (this.props.setPath) this.props.setPath(node);
-    this.setState({currentNode: node});
+    const currentSlug = node.masterSlug;
+    this.setState({currentNode: node, currentSlug, preview: ""});
   }
 
   handleNodeCollapse(node) {
@@ -504,15 +505,19 @@ class ProfileBuilder extends Component {
       this.formatTreeVariables.bind(this)();
     };
     if (force || !variablesHash[slug]) {
-      if (slug && id) {
+      if (id) {
         axios.get(`/api/variables/${slug}/${id}`).then(resp => {
           variablesHash[slug] = resp.data;
-          this.setState({variablesHash, currentSlug: slug}, maybeCallback);
+          this.setState({variablesHash}, maybeCallback);
         });
+      }
+      else {
+        variablesHash[slug] = {_genStatus: {}, _matStatus: {}};
+        this.setState({variablesHash}, maybeCallback);
       }
     }
     else {
-      this.setState({variablesHash, currentSlug: slug}, maybeCallback);
+      this.setState({variablesHash}, maybeCallback);
     }
   }
 
