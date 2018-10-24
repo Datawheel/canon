@@ -206,7 +206,7 @@ class TopicEditor extends Component {
               <TextCard
                 key={s.id}
                 id={s.id}
-                fields={["title", "subtitle", "value"]}
+                fields={["title", "subtitle", "value", "tooltip"]}
                 type="topic_stat"
                 onDelete={this.onDelete.bind(this)}
                 variables={variables}

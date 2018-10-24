@@ -27,6 +27,10 @@ module.exports = function(sequelize, db) {
           key: "id"
         }
       },
+      tooltip: {
+        type: db.STRING,
+        defaultValue: "New Tooltip"
+      },
       allowed: {
         type: db.STRING,
         defaultValue: "always"

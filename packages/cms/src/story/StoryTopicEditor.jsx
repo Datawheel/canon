@@ -139,7 +139,7 @@ class StoryTopicEditor extends Component {
               <TextCard
                 key={s.id}
                 id={s.id}
-                fields={["title", "subtitle", "value"]}
+                fields={["title", "subtitle", "value", "tooltip"]}
                 type="storytopic_stat"
                 onDelete={this.onDelete.bind(this)}
                 variables={{}}

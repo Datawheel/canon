@@ -197,7 +197,7 @@ class ProfileEditor extends Component {
                   id={s.id}
                   onDelete={this.onDelete.bind(this)}
                   type="profile_stat"
-                  fields={["title", "subtitle", "value"]}
+                  fields={["title", "subtitle", "value", "tooltip"]}
                   variables={variables}
                 />
                 <MoveButtons
