@@ -35,7 +35,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cbSubtopic = cbAnnotations.subtopic;
     const selectorKey = `${cbTopic}_${cbSubtopic}_`;
     // const sourceName = cbAnnotations.source_name;
-    // const datasetName = cbAnnotations.dataset_name;
+    const datasetName = cbAnnotations.dataset_name;
     const cbTagline = cbAnnotations.source_name || "";
     const cbMeta = [cbAnnotations.source_name, cbAnnotations.dataset_name]
       .filter(Boolean)
@@ -50,7 +50,7 @@ export function injectCubeInfoOnMeasure(cubes) {
       const msAnnotations = measure.annotations;
 
       msAnnotations._key = unique(`${cbName} ${measure.name}`);
-      // msAnnotations._cb_datasetName = datasetName;
+      msAnnotations._cb_datasetName = datasetName;
       msAnnotations._cb_name = cbName;
       msAnnotations._cb_table_id = cbTableId;
       msAnnotations._cb_tagline = cbTagline;
