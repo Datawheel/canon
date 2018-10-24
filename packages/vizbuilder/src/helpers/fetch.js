@@ -35,7 +35,8 @@ export function injectCubeInfoOnMeasure(cubes) {
     const selectorKey = `${cbTopic}_${cbSubtopic}_`;
     // const sourceName = cbAnnotations.source_name;
     // const datasetName = cbAnnotations.dataset_name;
-    const cbTagline = [cbAnnotations.source_name, cbAnnotations.dataset_name]
+    const cbTagline = cbAnnotations.source_name || "";
+    const cbMeta = [cbAnnotations.source_name, cbAnnotations.dataset_name]
       .filter(Boolean)
       .join(" - ");
 
@@ -55,7 +56,7 @@ export function injectCubeInfoOnMeasure(cubes) {
       msAnnotations._cb_subtopic = cbSubtopic;
       // msAnnotations._cb_sourceName = sourceName;
       msAnnotations._sortKey = selectorKey + measureLabel;
-      msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${cbTagline}`;
+      msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${cbMeta}`;
     }
 
     let nDim = cube.dimensions.length;
