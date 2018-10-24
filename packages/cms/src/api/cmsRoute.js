@@ -425,7 +425,7 @@ module.exports = function(app) {
 
   app.post("/api/cms/profile/newScaffold", (req, res) => {
     const profileData = req.body;
-    db.profiles.create({slug: profileData.slug, ordering: profileData.ordering}).then(profile => {
+    db.profiles.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName}).then(profile => {
       db.sections.create({ordering: 0, profile_id: profile.id}).then(section => {
         db.topics.create({ordering: 0, section_id: section.id}).then(() => {
           db.profiles.findAll(profileReqTreeOnly).then(profiles => {

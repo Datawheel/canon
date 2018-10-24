@@ -20,6 +20,7 @@ module.exports = function(sequelize, db) {
         defaultValue: "new-profile-slug"
       },
       ordering: db.INTEGER,
+      dimension: db.STRING,
       label: {
         type: db.STRING,
         defaultValue: "New Profile Label"
