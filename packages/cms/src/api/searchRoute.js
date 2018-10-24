@@ -2,7 +2,11 @@ const sequelize = require("sequelize");
 
 module.exports = function(app) {
 
-  const {db} = app.settings;
+  const {db, cache} = app.settings;
+
+  app.get("/api/cubeData", (req, res) => {
+    res.json(cache.cubeData).end();
+  });  
 
   app.get("/api/search", async(req, res) => {
 

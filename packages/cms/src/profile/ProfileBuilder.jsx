@@ -7,7 +7,7 @@ import ProfileEditor from "./ProfileEditor";
 import SectionEditor from "./SectionEditor";
 import TopicEditor from "./TopicEditor";
 import PropTypes from "prop-types";
-import Preview from "../components/Preview";
+import {Search} from "../";
 import CtxMenu from "../components/CtxMenu";
 
 import varSwap from "../utils/varSwap";
@@ -71,6 +71,7 @@ class ProfileBuilder extends Component {
       label: p.slug,
       itemType: "profile",
       masterSlug: p.slug,
+      masterDimension: p.dimension,
       data: p,
       childNodes: p.sections.map(s => ({
         id: `section${s.id}`,
@@ -78,6 +79,7 @@ class ProfileBuilder extends Component {
         label: this.decode(stripHTML(s.title)),
         itemType: "section",
         masterSlug: p.slug,
+        masterDimension: p.dimension,
         data: s,
         childNodes: s.topics.map(t => ({
           id: `topic${t.id}`,
@@ -86,6 +88,7 @@ class ProfileBuilder extends Component {
           label: this.decode(stripHTML(t.title)),
           itemType: "topic",
           masterSlug: p.slug,
+          masterDimension: p.dimension,
           data: t
         }))
       }))
@@ -470,7 +473,7 @@ class ProfileBuilder extends Component {
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
   onSelectPreview(preview) {
-    this.setState({preview});
+    this.setState({preview: preview.id});
   }
 
   /*
@@ -576,7 +579,17 @@ class ProfileBuilder extends Component {
           <NewProfile cubeData={cubeData} onCreateProfile={this.onCreateProfile.bind(this)}/>
         </Dialog>
         <div id="item-editor">
-          { currentNode && currentSlug && <Preview currentSlug={currentSlug} onSelectPreview={this.onSelectPreview.bind(this)}/>}
+          { currentNode && 
+            currentSlug && 
+            <div id="Search">
+              <Search
+                render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
+                dimension={currentNode.masterDimension}
+                limit={20}
+              />
+              Search Me
+            </div>
+          }
           { currentNode
             ? currentNode.itemType === "profile"
               ? <ProfileEditor
