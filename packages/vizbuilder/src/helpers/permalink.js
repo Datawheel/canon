@@ -75,6 +75,7 @@ export function permalinkToState(queryParams, prevState) {
 
   newOptions.cubes = prevOptions.cubes;
   newOptions.measures = prevOptions.measures;
+  newOptions.measureMap = prevOptions.measureMap;
 
   newQuery.activeChart = queryParams.enlarged || null;
 

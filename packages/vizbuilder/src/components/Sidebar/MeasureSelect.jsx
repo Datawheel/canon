@@ -37,6 +37,8 @@ MeasureSelect.defaultProps = {
       annotations: {_cb_topic: "", _cb_subtopic: ""}
     };
 
+    const {value, itemMap} = this.props;
+
     return items.reduce((all, measure, i, array) => {
       const topic = measure.annotations._cb_topic;
       const subtopic = measure.annotations._cb_subtopic;
@@ -57,7 +59,17 @@ MeasureSelect.defaultProps = {
         all.push(header);
       }
 
-      all.push(measure);
+      const key = `${measure.annotations._cb_table_id}.${measure.name}`;
+      if (key in itemMap) {
+        const valueInTableId = itemMap[key].indexOf(value) > -1;
+        const reprMeasure = valueInTableId ? value : itemMap[key][0];
+        if (all.indexOf(reprMeasure) === -1) {
+          all.push(reprMeasure);
+        }
+      }
+      else {
+        all.push(measure);
+      }
 
       return all;
     }, []);

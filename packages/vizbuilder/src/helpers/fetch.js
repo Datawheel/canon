@@ -5,10 +5,10 @@ import * as api from "./api";
 import {TooMuchData} from "./errors";
 import {generateBaseState, queryBuilder, queryConverter} from "./query";
 import {
+  classifyMeasures,
   findByName,
   getDefaultGroup,
-  getIncludedMembers,
-  getValidMeasures
+  getIncludedMembers
 } from "./sorting";
 
 /**
@@ -30,6 +30,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     }
 
     const cbName = cube.caption || cube.name;
+    const cbTableId = cbAnnotations.table_id;
     const cbTopic = cbAnnotations.topic || "Other";
     const cbSubtopic = cbAnnotations.subtopic;
     const selectorKey = `${cbTopic}_${cbSubtopic}_`;
@@ -51,6 +52,7 @@ export function injectCubeInfoOnMeasure(cubes) {
       msAnnotations._key = unique(`${cbName} ${measure.name}`);
       // msAnnotations._cb_datasetName = datasetName;
       msAnnotations._cb_name = cbName;
+      msAnnotations._cb_table_id = cbTableId;
       msAnnotations._cb_tagline = cbTagline;
       msAnnotations._cb_topic = cbTopic;
       msAnnotations._cb_subtopic = cbSubtopic;
@@ -89,7 +91,7 @@ export function fetchCubes(params) {
   return api.cubes().then(cubes => {
     injectCubeInfoOnMeasure(cubes);
 
-    const measures = getValidMeasures(cubes);
+    const {measures, measureMap} = classifyMeasures(cubes);
     const measure = findByName(params.defaultMeasure, measures, true);
 
     const newState = generateBaseState(cubes, measure);
@@ -97,6 +99,7 @@ export function fetchCubes(params) {
     const newOptions = newState.options;
     newOptions.cubes = cubes;
     newOptions.measures = measures;
+    newOptions.measureMap = measureMap;
 
     const newQuery = newState.query;
     newQuery.groups = getDefaultGroup(params.defaultGroup, newOptions.levels);

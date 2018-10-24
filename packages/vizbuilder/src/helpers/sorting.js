@@ -79,23 +79,27 @@ export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
  * @param {Cube[]} cubes An array of the cubes to be reduced.
  * @returns {Measure[]}
  */
-export function getValidMeasures(cubes) {
+export function classifyMeasures(cubes) {
   cubes = [].concat(cubes);
   const measures = [];
   const otherMeasures = [];
+  const multiMeasures = {};
 
   let nCbs = cubes.length;
   while (nCbs--) {
     const cube = cubes[nCbs];
+    const cbHasTopic = cube.annotations.topic && cube.annotations.topic !== "Other";
+    const cbTableId = cube.annotations.table_id;
+
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
       if (isValidMeasure(measure)) {
-        if (measure.annotations._cb_topic === "Other") {
-          otherMeasures.push(measure);
-        }
-        else {
-          measures.push(measure);
+        (cbHasTopic ? measures : otherMeasures).push(measure);
+        if (cbTableId) {
+          const key = `${cbTableId}.${measure.name}`;
+          multiMeasures[key] = multiMeasures[key] || [];
+          multiMeasures[key].push(measure);
         }
       }
     }
@@ -105,7 +109,10 @@ export function getValidMeasures(cubes) {
   const sortedMeasures = sort(measures).asc(sortingFunction);
   const sortedOther = sort(otherMeasures).asc(sortingFunction);
 
-  return sortedMeasures.concat(sortedOther);
+  return {
+    measures: sortedMeasures.concat(sortedOther),
+    measureMap: multiMeasures
+  };
 }
 
 /**
