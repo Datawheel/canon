@@ -33,6 +33,7 @@ class Sidebar extends React.PureComponent {
             <MeasureSelect
               className="select-measure"
               items={options.measures}
+              itemMap={options.measureMap}
               value={query.measure}
               onItemSelect={this.setMeasure}
             />
