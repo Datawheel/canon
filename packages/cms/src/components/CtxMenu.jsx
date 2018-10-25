@@ -25,17 +25,25 @@ class CtxMenu extends Component {
         disabled={node.data.ordering === this.props.parentLength - 1}
       />
       <MenuDivider />
-      <MenuItem
-        iconName="add"
-        onClick={this.props.addItem.bind(this, node, "above")}
-        text={`Add ${node.itemType} Above`}
-      />
-      <MenuItem
-        iconName="add"
-        onClick={this.props.addItem.bind(this, node, "below")}
-        text={`Add ${node.itemType} Below`}
-      />
-      <MenuDivider />
+      {/*
+        Profiles are only added through a special modal that populates the corresponding
+        search table. Therefore, hide the "Add" buttons if this is a profile.
+      */}
+      {node.itemType !== "profile" && 
+        <MenuItem
+          iconName="add"
+          onClick={this.props.addItem.bind(this, node, "above")}
+          text={`Add ${node.itemType} Above`}
+        />
+      }
+      {node.itemType !== "profile" &&
+        <MenuItem
+          iconName="add"
+          onClick={this.props.addItem.bind(this, node, "below")}
+          text={`Add ${node.itemType} Below`}
+        />
+      }
+      {node.itemType !== "profile" && <MenuDivider />}
       <MenuItem
         className="pt-intent-danger"
         onClick={this.props.deleteItem.bind(this, node)}
