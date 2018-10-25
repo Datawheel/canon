@@ -372,9 +372,14 @@ class ProfileBuilder extends Component {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.deleteItem.bind(this)} />;
     }
     if (this.props.setPath) this.props.setPath(node);
-    const currentSlug = node.masterSlug;
-    // this.setState({currentNode: node, currentSlug, preview: ""});
-    this.setState({currentNode: node, currentSlug});
+    // If the slugs match, the master profile is the same, so keep the same preview 
+    if (this.state.currentSlug === node.masterSlug) {
+      this.setState({currentNode: node});
+    }
+    // If they don't match, update the currentSlug and reset the preview
+    else {
+      this.setState({currentNode: node, currentSlug: node.masterSlug, preview: ""});
+    }
   }
 
   handleNodeCollapse(node) {
@@ -510,17 +515,20 @@ class ProfileBuilder extends Component {
     };
     if (force || !variablesHash[slug]) {
       if (id) {
+        console.log("would hit", `/api/variables/${slug}/${id}`);
         axios.get(`/api/variables/${slug}/${id}`).then(resp => {
           variablesHash[slug] = resp.data;
           this.setState({variablesHash}, maybeCallback);
         });
       }
       else {
+        console.log("no id, so making a blank object");
         variablesHash[slug] = {_genStatus: {}, _matStatus: {}};
         this.setState({variablesHash}, maybeCallback);
       }
     }
     else {
+      console.log("doing nothing because no force");
       this.setState({variablesHash}, maybeCallback);
     }
   }
