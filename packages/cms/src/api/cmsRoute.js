@@ -9,7 +9,7 @@ const client = new Client(process.env.CANON_LOGICLAYER_CUBE);
 const topicTypeDir = "src/components/topics/";
 
 const profileReqTreeOnly = {
-  attributes: ["id", "title", "slug", "ordering"],
+  attributes: ["id", "title", "slug", "dimension", "ordering"],
   include: [
     {
       association: "sections", attributes: ["id", "title", "slug", "ordering", "profile_id"],

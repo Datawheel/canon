@@ -7,7 +7,7 @@ import ProfileEditor from "./ProfileEditor";
 import SectionEditor from "./SectionEditor";
 import TopicEditor from "./TopicEditor";
 import PropTypes from "prop-types";
-import {Search} from "../";
+import Search from "../components/Search/Search";
 import CtxMenu from "../components/CtxMenu";
 
 import varSwap from "../utils/varSwap";
@@ -373,7 +373,8 @@ class ProfileBuilder extends Component {
     }
     if (this.props.setPath) this.props.setPath(node);
     const currentSlug = node.masterSlug;
-    this.setState({currentNode: node, currentSlug, preview: ""});
+    // this.setState({currentNode: node, currentSlug, preview: ""});
+    this.setState({currentNode: node, currentSlug});
   }
 
   handleNodeCollapse(node) {
@@ -582,12 +583,12 @@ class ProfileBuilder extends Component {
           { currentNode && 
             currentSlug && 
             <div id="Search">
+              {preview ? `Currently Previewing: ${preview}` : "Search to Preview"}
               <Search
                 render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
                 dimension={currentNode.masterDimension}
                 limit={20}
               />
-              Search Me
             </div>
           }
           { currentNode

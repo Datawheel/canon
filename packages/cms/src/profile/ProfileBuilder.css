@@ -107,3 +107,8 @@
 .firstbutton {
   margin: 15px;
 }
+
+#Search {
+  z-index: 1;
+  position: relative;
+}

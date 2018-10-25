@@ -28,6 +28,15 @@ module.exports = function(app) {
     db.search.findOne({where: {id: pid, dimension: slugMap[pslug]}})
       .then(attr => {
 
+        /* when the query returns nothing, exit early. this was added because 
+        the code that follows crashes sequelize when it tries to use a null attr
+        TODO: more gracefully handle not founds
+        */
+        if (!attr) {
+          sendImage(); 
+          return;
+        }
+
         const {imageId} = attr;
 
         if (!imageId) {
