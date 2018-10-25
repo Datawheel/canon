@@ -515,20 +515,17 @@ class ProfileBuilder extends Component {
     };
     if (force || !variablesHash[slug]) {
       if (id) {
-        console.log("would hit", `/api/variables/${slug}/${id}`);
         axios.get(`/api/variables/${slug}/${id}`).then(resp => {
           variablesHash[slug] = resp.data;
           this.setState({variablesHash}, maybeCallback);
         });
       }
       else {
-        console.log("no id, so making a blank object");
         variablesHash[slug] = {_genStatus: {}, _matStatus: {}};
         this.setState({variablesHash}, maybeCallback);
       }
     }
     else {
-      console.log("doing nothing because no force");
       this.setState({variablesHash}, maybeCallback);
     }
   }

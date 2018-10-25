@@ -200,12 +200,10 @@ const populateSearch = (profileData, db) => {
       }
     }
 
-    shell.exit(0);
-
   }
 
   start();
-
+ 
 };
 
 module.exports = function(app) {
