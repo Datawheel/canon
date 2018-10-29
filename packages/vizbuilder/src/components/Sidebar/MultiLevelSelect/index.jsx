@@ -161,7 +161,7 @@ class MultiLevelSelect extends React.Component {
         disabled={props.disabled}
         {...props.popoverProps}
         content={popContent}
-        className={classNames("select-wrapper mlsel-target-wrapper pt-fill", props.className)}
+        className={classNames("select-target-wrapper mlsel-target-wrapper pt-fill", props.className)}
         onInteraction={this.handlePopoverInteraction}
         popoverWillOpen={this.handlePopoverWillOpen}
         popoverDidOpen={this.handlePopoverDidOpen}

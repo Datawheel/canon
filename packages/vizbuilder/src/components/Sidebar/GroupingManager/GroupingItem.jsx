@@ -90,9 +90,8 @@ class GroupingItem extends SidebarCRUDItem {
         <div className="group grouping-members">
           <MemberSelect
             loading={loading}
-            className="select-member"
             items={members}
-            selectedItems={activeItem.members}
+            value={activeItem.members}
             onItemSelect={this.handleAddMember}
             onItemRemove={this.handleRemoveMember}
           />

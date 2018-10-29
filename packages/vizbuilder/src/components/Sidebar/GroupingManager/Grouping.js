@@ -60,6 +60,10 @@ class Grouping {
   }
 
   addMember(member) {
+    const index = this.members.findIndex(obj => obj.key === member.key);
+    if (index > -1) {
+      return this;
+    }
     const clone = this.getClone();
     const members = clone.members.slice();
     members.push(member);
@@ -69,9 +73,12 @@ class Grouping {
   }
 
   removeMember(member) {
+    const index = this.members.findIndex(obj => obj.key === member.key);
+    if (index === -1) {
+      return this;
+    }
     const clone = this.getClone();
     const members = clone.members.slice();
-    const index = members.findIndex(obj => obj.key === member.key);
     members.splice(index, 1);
     clone.members = members;
     return clone;
