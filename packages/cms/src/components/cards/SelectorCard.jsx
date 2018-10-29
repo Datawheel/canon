@@ -17,7 +17,6 @@ class SelectorCard extends Component {
   }
 
   componentDidMount() {
-    // this.hitDB.bind(this)();
     this.setState({minData: this.props.minData});
   }
 
@@ -26,15 +25,6 @@ class SelectorCard extends Component {
       this.setState({minData: this.props.minData});
     }
   }
-
-  /*
-  hitDB() {
-    const {id, type} = this.props;
-    axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      this.setState({minData: resp.data});
-    });
-  }
-  */
 
   save() {
     const {type} = this.props;

@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import "./SelectorEditor.css"
+import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
 
