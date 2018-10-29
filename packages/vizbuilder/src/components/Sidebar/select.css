@@ -44,13 +44,16 @@
       flex: 0 0;
       min-width: 1em;
     }
+
+    & .select-value {
+      width: 0;
+    }
   }
 
   & .select-value {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    width: 0;
     padding-top: 3px;
     padding-bottom: 3px;
   }

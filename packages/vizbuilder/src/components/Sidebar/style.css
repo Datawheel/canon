@@ -76,3 +76,7 @@
     padding-left: 26px;
   }
 }
+
+.select-measure .select-item.current .select-label.name {
+  white-space: normal;
+}
