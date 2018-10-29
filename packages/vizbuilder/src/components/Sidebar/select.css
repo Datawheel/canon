@@ -1,4 +1,4 @@
-.select-wrapper {
+.select-target-wrapper {
   &.pt-popover-target {
     display: block;
   }
@@ -7,6 +7,14 @@
   & .disabled {
     pointer-events: none;
   }
+}
+
+.select-popover-content {
+  min-width: 240px;
+}
+
+.select-list-wrapper {
+  user-select: none;
 }
 
 .select-item,
