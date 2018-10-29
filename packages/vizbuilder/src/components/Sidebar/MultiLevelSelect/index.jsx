@@ -109,7 +109,7 @@ class MultiLevelSelect extends React.Component {
     }
 
     if (itemListComposer) {
-      finalItems = itemListComposer(finalItems);
+      finalItems = itemListComposer.call(this, finalItems);
     }
 
     const value = [].concat(this.props.value);

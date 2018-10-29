@@ -267,6 +267,8 @@ const makeConfig = {
 
     delete config.time;
 
+    config.title = composeChartTitle(flags, {timeline: true});
+
     return config;
   },
   lineplot_ab(commonConfig, query, flags) {
@@ -321,7 +323,7 @@ const makeConfig = {
     groupBy.push(xlevel.name);
 
     config.groupBy = groupBy;
-    config.title = composeChartTitle(query, flags.subtitle, [level.name, xlevel.name]);
+    config.title = composeChartTitle(flags, {levels: [level.name, xlevel.name]});
 
     return config;
   },
@@ -336,7 +338,7 @@ const makeConfig = {
     groupBy.push(level.name);
 
     config.groupBy = groupBy;
-    config.title = composeChartTitle(query, flags.subtitle, [xlevel.name, level.name]);
+    config.title = composeChartTitle(flags, {levels: [xlevel.name, level.name]});
 
     return config;
   }
@@ -401,7 +403,6 @@ export default function createChartConfig(
   const subtitle = measureAnn._cb_tagline;
 
   const commonConfig = {
-    title: composeChartTitle(query, subtitle),
     data: dataset,
     height: activeType ? 500 : 400,
     legend: false,
@@ -533,13 +534,16 @@ export default function createChartConfig(
     dataset,
     measureFormatter,
     members,
-    topojsonConfig,
+    query,
     subtitle,
+    topojsonConfig,
     chartConfig: {
       ...defaultConfig,
       ...currentMeasureConfig
     }
   };
+
+  commonConfig.title = composeChartTitle(flags);
 
   return Array.from(availableCharts, functionName => {
     const chartType = functionName.split("_")[0];
