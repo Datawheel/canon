@@ -11,10 +11,6 @@
     }
   }
 
-  & .select-wrapper {
-    margin-bottom: 4px;
-  }
-
   & .grouping-manager .actions,
   & .filter-manager .actions {
     margin-top: 0.2rem;
@@ -51,9 +47,11 @@
   & .source-link {
     font-weight: bold;
   }
-}
 
-.mlsel-popover-content {
+  & .select-target-wrapper {
+    margin-bottom: 4px;
+  }
+
   & .select-label {
     display: block;
     line-height: 18px;
@@ -72,7 +70,8 @@
     }
   }
 
-  & .select-option {
+  & .select-optgroup ~ .select-option,
+  & .select-option.padded {
     padding-left: 26px;
   }
 }
