@@ -9,7 +9,7 @@ class MeasureSelect extends MultiLevelSelect {
     return (
       <div className="select-item select-option option-measure current" title={item.caption || item.name}>
         <div className="select-value">
-          <span className="select-label">{item.caption || item.name}</span>
+          <span className="select-label name">{item.caption || item.name}</span>
           <span className="select-label lead">{item.annotations._cb_tagline}</span>
         </div>
         <span className="pt-icon-standard pt-icon-double-caret-vertical" />
@@ -82,13 +82,14 @@ MeasureSelect.defaultProps = {
 
     if (item._header) {
       className.push("select-optgroup");
-      child1 = <span className="select-label h1">{item.topic}</span>;
+      child1 = <span className="select-label h1" title={item.topic}>{item.topic}</span>;
       if (item.subtopic) {
-        child2 = <span className="select-label h2">{item.subtopic}</span>;
+        child2 = <span className="select-label h2" title={item.subtopic}>{item.subtopic}</span>;
       }
     } else {
       className.push("select-option");
       props.onClick = handleClick;
+      props.title = item.name;
       child1 = <span className="select-label">{item.name}</span>;
       child2 = <span className="select-label lead">{item.annotations._cb_tagline}</span>;
     }
