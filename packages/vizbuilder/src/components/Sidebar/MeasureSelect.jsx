@@ -74,7 +74,7 @@ MeasureSelect.defaultProps = {
       return all;
     }, []);
   },
-  itemRenderer({style, handleClick, isActive, item}) {
+  itemRenderer({handleClick, isActive, item, style}) {
     const props = {key: item._key || item.annotations._key, style};
     const className = ["select-item", "option-filtermeasure"];
     let child1;
