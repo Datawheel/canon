@@ -32,12 +32,13 @@ class Search extends Component {
       const {dimension, limit} = this.props;
       let fullUrl = `${url}?q=${userQuery}&limit=${limit}`;
       if (dimension) fullUrl += `&dimension=${dimension}`;
+      this.setState({userQuery});
       axios.get(fullUrl)
         .then(res => res.data)
         .then(data => {
           let results = data.results;
           if (limit) results = results.slice(0, limit);
-          this.setState({active: true, results, userQuery});
+          this.setState({active: true, results});
         });
     }
 
@@ -45,6 +46,11 @@ class Search extends Component {
 
   onFocus() {
     this.setState({active: true});
+  }
+
+  onSelect(result) {
+    this.input.blur();
+    this.setState({active: false, userQuery: result.name});
   }
 
   onToggle() {
@@ -71,7 +77,7 @@ class Search extends Component {
     select(document).on(`keydown.${id}`, () => {
 
       const {router} = this.context;
-      const {active} = this.state;
+      const {active, results} = this.state;
       const key = event.keyCode;
 
       const DOWN = 40,
@@ -91,10 +97,15 @@ class Search extends Component {
       else if (active && event.target === this.input) {
 
         const highlighted = document.querySelector(".highlighted");
+        const listItems = document.querySelectorAll(".results > li");
+        const currentIndex = [].indexOf.call(listItems, highlighted);
+        const d = results[currentIndex];
 
         if (key === ENTER && highlighted) {
-          this.setState({active: false});
-          router.push(highlighted.querySelector("a").href);
+          this.input.blur();
+          this.setState({active: false, userQuery: d.name});
+          const anchor = highlighted.querySelector("a");
+          if (anchor) router.push(anchor.href);
         }
         else if (key === DOWN || key === UP) {
 
@@ -103,16 +114,12 @@ class Search extends Component {
           }
           else {
 
-            const results = document.querySelectorAll(".results > li");
-
-            const currentIndex = [].indexOf.call(results, highlighted);
-
-            if (key === DOWN && currentIndex < results.length - 1) {
-              results[currentIndex + 1].classList.add("highlighted");
+            if (key === DOWN && currentIndex < listItems.length - 1) {
+              listItems[currentIndex + 1].classList.add("highlighted");
               highlighted.classList.remove("highlighted");
             }
             else if (key === UP) {
-              if (currentIndex > 0) results[currentIndex - 1].classList.add("highlighted");
+              if (currentIndex > 0) listItems[currentIndex - 1].classList.add("highlighted");
               highlighted.classList.remove("highlighted");
             }
           }
@@ -148,12 +155,12 @@ class Search extends Component {
         <Popover2 minimal={true} inline={true} autoFocus={false} isOpen={show}>
           <div className={`pt-input-group pt-fill ${active ? "active" : ""}`}>
             {icon && <span className="pt-icon pt-icon-search"></span>}
-            <input type="text" className="pt-input" ref={input => this.input = input} onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} placeholder={placeholder} />
+            <input type="text" className="pt-input" ref={input => this.input = input} onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} placeholder={placeholder} value={userQuery} />
             {buttonLink && <a href={`${buttonLink}?q=${userQuery}`} className="pt-button">{buttonText}</a>}
           </div>
           <ul className={active ? "results active" : "results"}>
             {results.map(result =>
-              <li key={result.id} className="result">
+              <li key={result.id} className="result" onClick={this.onSelect.bind(this, result)}>
                 {render(result, this.props)}
               </li>
             )}

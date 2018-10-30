@@ -20,7 +20,7 @@
     }
     & .result {
       padding: 6px 10px;
-      &:hover {
+      &:hover, &.highlighted {
         background-color: #eee;
         cursor: pointer;
       }
