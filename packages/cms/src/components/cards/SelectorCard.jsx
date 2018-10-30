@@ -17,7 +17,6 @@ class SelectorCard extends Component {
   }
 
   componentDidMount() {
-    // this.hitDB.bind(this)();
     this.setState({minData: this.props.minData});
   }
 
@@ -27,18 +26,10 @@ class SelectorCard extends Component {
     }
   }
 
-  /*
-  hitDB() {
-    const {id, type} = this.props;
-    axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      this.setState({minData: resp.data});
-    });
-  }
-  */
-
   save() {
     const {type} = this.props;
     const {minData} = this.state;
+    console.log("sending", minData);
     axios.post(`/api/cms/${type}/update`, minData).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
@@ -82,7 +73,9 @@ class SelectorCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        <h4>{minData.name}</h4>
+        <h4>{minData.title}</h4>
+        <h6>{minData.name}</h6>
+
         <ul>
           {minData.options && minData.options.map(o =>
             <li key={o.option} className={minData.default === o.option ? "is-default" : ""}>{o.option}</li>

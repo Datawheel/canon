@@ -23,6 +23,10 @@ module.exports = function(sequelize, db) {
           key: "id"
         }
       },
+      title: {
+        type: db.STRING,
+        defaultValue: "New Selector"
+      },
       name: {
         type: db.STRING,
         defaultValue: "newselector"

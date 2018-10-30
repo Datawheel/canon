@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import "./SelectorEditor.css"
+import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
 
@@ -86,6 +86,12 @@ class SelectorEditor extends Component {
     this.setState({data});
   }
 
+  editTitle(e) {
+    const {data} = this.state;
+    data.title = e.target.value;
+    this.setState({data});
+  }
+
   toggleCustom() {
     this.setState({showCustom: !this.state.showCustom});
   }
@@ -121,7 +127,11 @@ class SelectorEditor extends Component {
     return (
       <div id="selector-editor">
         <label>
-          Name:&nbsp;&nbsp;
+          Title (on page)
+          <input type="text" value={data.title} onChange={this.editTitle.bind(this)} />
+        </label><br/>
+        <label>
+          Name (in editor)
           <input type="text" value={data.name} onChange={this.editName.bind(this)} />
         </label>
         <ul>
