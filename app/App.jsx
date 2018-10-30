@@ -19,6 +19,7 @@ class App extends Component {
 
   render() {
     const {children} = this.props;
+    console.log(this.props.env);
     return (
       <div>
         <Nav />
@@ -40,4 +41,4 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-export default connect(() => ({}), mapDispatchToProps)(App);
+export default connect(state => ({env: state.env}), mapDispatchToProps)(App);

@@ -124,6 +124,13 @@ store.env = {
   NODE_ENV
 };
 
+Object.keys(process.env)
+  .forEach(key => {
+    if (key.startsWith("CANON_CONST_")) {
+      store.env[key.replace("CANON_CONST_", "")] = process.env[key];
+    }
+  });
+
 const headerConfig = resolve("helmet.js") || {};
 
 shell.cp(path.join(appDir, "node_modules/normalize.css/normalize.css"), path.join(staticPath, "assets/normalize.css"));
