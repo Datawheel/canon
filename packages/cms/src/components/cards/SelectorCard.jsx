@@ -29,7 +29,6 @@ class SelectorCard extends Component {
   save() {
     const {type} = this.props;
     const {minData} = this.state;
-    console.log("sending", minData);
     axios.post(`/api/cms/${type}/update`, minData).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
