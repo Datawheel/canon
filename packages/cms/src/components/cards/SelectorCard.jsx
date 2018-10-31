@@ -7,6 +7,10 @@ import SelectorEditor from "../editors/SelectorEditor";
 import PropTypes from "prop-types";
 import "./SelectorCard.css";
 
+/**
+ * Card Component for displaying dropdown selectors. Selectors may be singular dropdowns
+ * (selectors) or multi-select dropdowns (selectorsmulti)
+ */
 class SelectorCard extends Component {
 
   constructor(props) {
@@ -16,6 +20,12 @@ class SelectorCard extends Component {
     };
   }
 
+  /**
+   * Note that unlike all other cards, the SelectorCard actually has ALL its data from 
+   * the start, passed down in props. This was chosen so that the list of options could
+   * be shown on the front of the card. Now that Selectors have titles, it may make sense
+   * to change this to behave like all other cards, i.e., Fetch their own data on mount
+   */
   componentDidMount() {
     this.setState({minData: this.props.minData});
   }
@@ -50,7 +60,7 @@ class SelectorCard extends Component {
 
   render() {
     const {minData, isOpen} = this.state;
-    const {variables} = this.props;
+    const {variables, type} = this.props;
 
     if (!minData) return <Loading />;
 
@@ -64,7 +74,7 @@ class SelectorCard extends Component {
           title="Selector Editor"
         >
           <div className="pt-dialog-body">
-            <SelectorEditor variables={variables} data={minData} />
+            <SelectorEditor variables={variables} data={minData} type={type} />
           </div>
           <FooterButtons
             onDelete={this.delete.bind(this)}

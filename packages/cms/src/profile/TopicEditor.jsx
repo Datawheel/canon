@@ -14,7 +14,8 @@ const propMap = {
   topic_description: "descriptions",
   topic_subtitle: "subtitles",
   topic_visualization: "visualizations",
-  selector: "selectors"
+  selector: "selectors",
+  selectormulti: "selectorsmulti"
 };
 
 class TopicEditor extends Component {
@@ -59,7 +60,9 @@ class TopicEditor extends Component {
     payload.ordering = minData[propMap[type]].length;
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
       if (resp.status === 200) {
-        if (type === "selector") {
+        // Selectors, unlike the rest of the elements, actually do pass down their entire
+        // content to the Card (the others are simply given an id and load the data themselves)
+        if (type === "selector" || type === "selectormulti") {
           minData[propMap[type]].push(resp.data);
         }
         else {
@@ -192,6 +195,28 @@ class TopicEditor extends Component {
               item={s}
               array={minData.selectors}
               type="selector"
+              onMove={this.onMove.bind(this)}
+            />
+          </div>)
+        }
+        <h4>
+          Multi-Selectors
+          <Button onClick={this.addItem.bind(this, "selectormulti")} iconName="add" />
+        </h4>
+        { minData.selectorsmulti && minData.selectorsmulti.map(s =>
+          <div key={s.id}>
+            <SelectorCard
+              key={s.id}
+              minData={s}
+              type="selectormulti"
+              onSave={() => this.forceUpdate()}
+              onDelete={this.onDelete.bind(this)}
+              variables={variables}
+            />
+            <MoveButtons
+              item={s}
+              array={minData.selectors}
+              type="selectormulti"
               onMove={this.onMove.bind(this)}
             />
           </div>)

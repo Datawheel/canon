@@ -11,16 +11,22 @@ class SelectorEditor extends Component {
   }
 
   componentDidMount() {
-    const {data} = this.props;
-    const showCustom = data.default.includes("{{");
+    const {data, type} = this.props;
+    const showCustom = type === "selector" && data.default.includes("{{");
     this.setState({data, showCustom});
   }
 
   addOption() {
     const {data} = this.state;
+    const {variables} = this.props;
     if (!data.options) data.options = [];
-    // TODO: make this smarter with a default variable (how to do this, when they are keys not ints?)
-    data.options.push({option: "", allowed: "always"});
+    const varList = Object.keys(variables).filter(v => !v.startsWith("_") && !data.options.map(o => o.option).includes(v));
+    if (varList.length > 0) {
+      data.options.push({option: varList[0], allowed: "always"});  
+    }
+    else {
+      data.options.push({option: "", allowed: "always"});   
+    }
     this.setState({data});
   }
 
@@ -42,9 +48,20 @@ class SelectorEditor extends Component {
     this.setState({data});
   }
 
-  setDefault(option) {
+  setDefault(option, e) {
     const {data} = this.state;
-    data.default = option;
+    const {type} = this.props;
+    if (type === "selector") {
+      data.default = option;
+    }
+    else if (type === "selectormulti") {
+      if (e.target.checked) {
+        if (!data.default.includes(option)) data.default.push(option);
+      }
+      else {
+        data.default = data.default.filter(o => o !== option);
+      }
+    }
     this.setState({data, showCustom: false});
   }
 
@@ -92,14 +109,28 @@ class SelectorEditor extends Component {
     this.setState({data});
   }
 
+  isBoxChecked(option) {
+    const {data} = this.state;
+    const {type} = this.props;
+    if (type === "selector") {
+      return option === data.default;
+    }
+    else if (type === "selectormulti") {
+      return data.default.includes(option);
+    }
+    else {
+      return false;
+    }
+  }
+
   toggleCustom() {
     this.setState({showCustom: !this.state.showCustom});
   }
 
   render() {
 
-    const {data} = this.state;
-    const {variables} = this.props;
+    const {data, showCustom} = this.state;
+    const {variables, type} = this.props;
 
     if (!data || !variables) return null;
 
@@ -147,15 +178,15 @@ class SelectorEditor extends Component {
                 <button className="pt-button" onClick={this.moveUp.bind(this, i)}><span className="pt-icon pt-icon-arrow-up" /></button>
                 <button className="pt-button" onClick={this.moveDown.bind(this, i)}><span className="pt-icon pt-icon-arrow-down" /></button>
                 <button className="pt-button" onClick={this.deleteOption.bind(this, i)}><span className="pt-icon pt-icon-delete" /></button>
-                <input type="checkbox" checked={option.option === data.default} style={{margin: "5px"}} onChange={this.setDefault.bind(this, option.option)}/>
+                <input type="checkbox" checked={this.isBoxChecked.bind(this)(option.option)} style={{margin: "5px"}} onChange={this.setDefault.bind(this, option.option)}/>
               </li>
             )
           }
         </ul>
         <button className="pt-button" onClick={this.addOption.bind(this)}>Add Option <span className="pt-icon pt-icon-plus"/></button><br/>
-        <button className="pt-button" onClick={this.toggleCustom.bind(this)}>Custom Default <span className="pt-icon pt-icon-cog"/></button>
+        { type === "selector" && <button className="pt-button" onClick={this.toggleCustom.bind(this)}>Custom Default <span className="pt-icon pt-icon-cog"/></button> }
         {
-          this.state.showCustom && <div>
+          showCustom && <div>
             <select value={data.default} onChange={this.chooseCustom.bind(this)} style={{margin: "5px", width: "300px"}}>
               {customOptions}
             </select>
