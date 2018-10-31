@@ -35,7 +35,8 @@ const profileReq = {
             {association: "descriptions", separate: true},
             {association: "visualizations", separate: true},
             {association: "stats", separate: true},
-            {association: "selectors", separate: true}
+            {association: "selectors", separate: true},
+            {association: "selectorsmulti", separate: true}
           ]
         }
       ]
@@ -48,7 +49,8 @@ const topicReq = [
   {association: "descriptions", separate: true},
   {association: "visualizations", separate: true},
   {association: "stats", separate: true},
-  {association: "selectors", separate: true}
+  {association: "selectors", separate: true},
+  {association: "selectorsmulti", separate: true}
 ];
 
 const storyReq = {
@@ -98,6 +100,7 @@ const sortProfile = profile => {
         section.topics.map(topic => {
           if (topic.subtitles) topic.subtitles.sort(sorter);
           if (topic.selectors) topic.selectors.sort(sorter);
+          if (topic.selectorsmulti) topic.selectorsmulti.sort(sorter);
           if (topic.stats) topic.stats.sort(sorter);
           if (topic.descriptions) topic.descriptions.sort(sorter);
           if (topic.visualizations) topic.visualizations.sort(sorter);
@@ -293,6 +296,7 @@ module.exports = function(app) {
         const topic = varSwapRecursive(resp[2].toJSON(), formatterFunctions, variables, req.query);
         if (topic.subtitles) topic.subtitles.sort(sorter);
         if (topic.selectors) topic.selectors.sort(sorter);
+        if (topic.selectorsmulti) topic.selectorsmulti.sort(sorter);
         if (topic.stats) topic.stats.sort(sorter);
         if (topic.descriptions) topic.descriptions.sort(sorter);
         if (topic.visualizations) topic.visualizations.sort(sorter);

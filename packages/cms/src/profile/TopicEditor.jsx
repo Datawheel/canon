@@ -168,6 +168,7 @@ class TopicEditor extends Component {
               onDelete={this.onDelete.bind(this)}
               variables={variables}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectorsmulti={minData.selectorsmulti.map(s => Object.assign({}, s))}
             />
             <MoveButtons
               item={s}
@@ -236,6 +237,7 @@ class TopicEditor extends Component {
                 onDelete={this.onDelete.bind(this)}
                 variables={variables}
                 selectors={minData.selectors.map(s => Object.assign({}, s))}
+                selectorsmulti={minData.selectorsmulti.map(s => Object.assign({}, s))}
               />
               <MoveButtons
                 item={s}
@@ -260,6 +262,7 @@ class TopicEditor extends Component {
               onDelete={this.onDelete.bind(this)}
               variables={variables}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectorsmulti={minData.selectorsmulti.map(s => Object.assign({}, s))}
             />
             <MoveButtons
               item={d}
@@ -284,6 +287,7 @@ class TopicEditor extends Component {
                   type="topic_visualization"
                   variables={variables}
                   selectors={minData.selectors.map(s => Object.assign({}, s))}
+                  selectorsmulti={minData.selectorsmulti.map(s => Object.assign({}, s))}
                 />
                 <MoveButtons
                   item={v}
