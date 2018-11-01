@@ -2,7 +2,8 @@ const {Client} = require("mondrian-rest-client"),
       PromiseThrottle = require("promise-throttle"),
       chalk = require("chalk"),
       d3Array = require("d3-array"),
-      findYears = require("../utils/findYears");
+      findYears = require("../utils/findYears"),
+      readline = require("readline");
 
 const throttle = new PromiseThrottle({
   requestsPerSecond: 50,
@@ -63,6 +64,8 @@ module.exports = async function() {
 
   });
 
+  let count = 0, total;
+
   const cubeQueries = cubes
     .filter(cube => cube.dimensions.find(d => d.name.includes("Year")))
     .map(cube => {
@@ -72,6 +75,10 @@ module.exports = async function() {
       const levels = dim.hierarchies[0].levels;
       const query = client.members(levels[levels.length - 1])
         .then(members => {
+          count++;
+          readline.clearLine(process.stdout, 0);
+          readline.cursorTo(process.stdout, 0);
+          process.stdout.write(`logiclayer: cube (${count} of ${total} year queries complete)`);
           const years = members.map(d => d.key).sort();
           const current = years.filter(year => parseInt(year, 10) <= currentYear);
           return {
@@ -90,8 +97,12 @@ module.exports = async function() {
 
     });
 
+  total = cubeQueries.length;
+
   return Promise.all(cubeQueries)
     .then(rawYears => {
+      readline.clearLine(process.stdout, 0);
+      readline.cursorTo(process.stdout, 0);
 
       const years = rawYears.filter(d => d)
         .reduce((obj, d) => (obj[d.cube] = d, obj), {});
