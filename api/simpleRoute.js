@@ -6,4 +6,10 @@ module.exports = function(app) {
 
   });
 
+  app.get("/api/slug/:slug", (req, res) => {
+
+    res.json({slug: req.params.slug}).end();
+
+  });
+
 };

@@ -19,7 +19,7 @@ class App extends Component {
 
   render() {
     const {children} = this.props;
-    console.log(this.props.env);
+    // console.log(this.props.env);
     return (
       <div>
         <Nav />
