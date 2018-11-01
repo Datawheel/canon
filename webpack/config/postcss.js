@@ -27,7 +27,6 @@ module.exports = [
     browsers: ["> 1%", "last 2 versions"]
   }),
   require("postcss-reporter")({
-    clearMessages: true,
     filter: msg => msg.type === "warning" || msg.type !== "dependency"
   })
 ];
