@@ -261,11 +261,8 @@ const makeConfig = {
       ];
     }
 
-    if (!config.time) {
-      delete config.total;
-    }
-
     delete config.time;
+    delete config.total;
 
     config.title = composeChartTitle(flags, {timeline: true});
 
