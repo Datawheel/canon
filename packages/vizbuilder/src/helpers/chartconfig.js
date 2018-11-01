@@ -13,6 +13,7 @@ import {
 import {composeChartTitle} from "./formatting";
 import {relativeStdDev} from "./math";
 import {sortByCustomKey} from "./sorting";
+import {areMetaMeasuresZero} from "./validation";
 
 export const charts = {
   barchart: BarChart,
@@ -27,20 +28,18 @@ export const charts = {
 
 export const ALL_YEARS = "All years";
 
-export const tooltipGenerator = (query, levels, measureFormatter) => {
-  const {
-    levelName,
-    measureName,
-    moeName,
-    lciName,
-    uciName,
-    sourceName,
-    collectionName
-  } = query;
-  const tbody = levels.filter(d => d !== levelName).map(dd => [dd, d => d[dd]]);
+export const tooltipGenerator = (query, flags) => {
+  const measureFormatter = flags.measureFormatter;
+  const {levelName, measureName, sourceName, collectionName} = query;
+  const shouldShow = areMetaMeasuresZero(query, flags.dataset);
+
+  const tbody = flags.availableKeys
+    .filter(d => d !== levelName)
+    .map(dd => [dd, d => d[dd]]);
   tbody.push([measureName, d => measureFormatter(d[measureName])]);
 
-  if (lciName && uciName) {
+  if (shouldShow.lci && shouldShow.uci) {
+    const {lciName, uciName} = query;
     tbody.push([
       "Confidence Interval",
       d =>
@@ -49,7 +48,8 @@ export const tooltipGenerator = (query, levels, measureFormatter) => {
         )}]`
     ]);
   }
-  else if (moeName) {
+  else if (shouldShow.moe) {
+    const {moeName} = query;
     tbody.push([
       "Margin of Error",
       d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
@@ -261,11 +261,8 @@ const makeConfig = {
       ];
     }
 
-    if (!config.time) {
-      delete config.total;
-    }
-
     delete config.time;
+    delete config.total;
 
     config.title = composeChartTitle(flags, {timeline: true});
 
@@ -407,19 +404,6 @@ export default function createChartConfig(
     height: activeType ? 500 : 400,
     legend: false,
 
-    tooltipConfig: tooltipGenerator(
-      {
-        levelName,
-        measureName,
-        moeName: query.moe && query.moe.name,
-        lciName: query.lci && query.lci.name,
-        uciName: query.uci && query.uci.name,
-        sourceName: query.source && query.source.name,
-        collectionName: query.collection && query.collection.name
-      },
-      availableKeys,
-      measureFormatter
-    ),
     totalFormat: measureFormatter,
 
     xConfig: {title: null},
@@ -544,6 +528,18 @@ export default function createChartConfig(
   };
 
   commonConfig.title = composeChartTitle(flags);
+  commonConfig.tooltipConfig = tooltipGenerator(
+    {
+      levelName,
+      measureName,
+      moeName: query.moe && query.moe.name,
+      lciName: query.lci && query.lci.name,
+      uciName: query.uci && query.uci.name,
+      sourceName: query.source && query.source.name,
+      collectionName: query.collection && query.collection.name
+    },
+    flags
+  );
 
   return Array.from(availableCharts, functionName => {
     const chartType = functionName.split("_")[0];
