@@ -27,7 +27,7 @@ module.exports = async function() {
       const name = measure.name
         .replace(/'/g, "\'");
 
-      if (!measures[name]) measures[name] = [];
+      if (!measures[name]) measures[name] = {...measure, cubes: []};
 
       const dimensions = cube.dimensions
         .reduce((acc, d) => {
@@ -53,7 +53,7 @@ module.exports = async function() {
           return acc;
         }, {});
 
-      measures[name].push({
+      measures[name].cubes.push({
         annotations: cube.annotations,
         dimensions,
         name: cube.name

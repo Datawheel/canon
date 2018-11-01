@@ -254,7 +254,7 @@ module.exports = function(app) {
       const measure = measures[i];
 
       // filter out cubes that don't match cuts and dimensions
-      let cubes = (cubeMeasures[measure] || [])
+      let cubes = (cubeMeasures[measure] ? cubeMeasures[measure].cubes : [])
         .filter(cube => {
 
           const flatDims = cube.flatDims = d3Array.merge(Object.values(cube.dimensions));
