@@ -7,6 +7,7 @@ import Slug from "pages/Slug";
 import Login from "pages/Login";
 import SignUp from "pages/SignUp";
 import Profile from "profile/Profile";
+import Error from "pages/NotFound";
 
 import {Reset, UserAdmin} from "../src";
 
@@ -48,6 +49,7 @@ export default function RouteCreate() {
         <IndexRoute component={UserAdmin} />
         <Route path="/admin/nested" component={UserAdmin} />
       </Route>
+      <Route path="*" component={Error} />
     </Route>
   );
 

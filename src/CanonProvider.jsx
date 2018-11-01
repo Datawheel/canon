@@ -59,9 +59,11 @@ class CanonProvider extends Component {
 
     const {push, routes} = this.props.router;
 
+    const serverRoutes = ["/auth/logout"];
     match({location: url, routes}, (err, redirect, props) => {
       if (err) console.error(err);
-      if (props) push(url.pathname);
+      if (serverRoutes.includes(url.pathname)) window.location.href = el.href;
+      else if (props) push(url.pathname);
       else window.location.href = el.href;
     });
 
