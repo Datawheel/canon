@@ -11,6 +11,7 @@ module.exports = [
     path: appPath
   }),
   require("lost")(),
+  require("pixrem")(),
   require("postcss-mixins")(),
   require("postcss-each")(),
   require("postcss-for")(),
