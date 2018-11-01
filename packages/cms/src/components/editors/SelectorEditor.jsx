@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {RadioGroup, Radio} from "@blueprintjs/core";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -11,8 +12,20 @@ class SelectorEditor extends Component {
   }
 
   componentDidMount() {
-    const {data, type} = this.props;
-    const showCustom = type === "selector" && data.default.includes("{{");
+    const {data} = this.props;
+    // Temporarily overload the options list itself as a tracker for checkboxes.
+    // Note that before we ship this to the db, we strip out these isDefault booleans.
+    data.options = data.options.map(o => {
+      if (data.type === "single") {
+        o.isDefault = o.option === data.default;
+      }
+      else if (data.type === "multi") {
+        const defaults = data.default.split(",");
+        o.isDefault = defaults.includes(o.option);
+      }
+      return o;
+    });
+    const showCustom = data.default.includes("{{");
     this.setState({data, showCustom});
   }
 
@@ -22,10 +35,10 @@ class SelectorEditor extends Component {
     if (!data.options) data.options = [];
     const varList = Object.keys(variables).filter(v => !v.startsWith("_") && !data.options.map(o => o.option).includes(v));
     if (varList.length > 0) {
-      data.options.push({option: varList[0], allowed: "always"});  
+      data.options.push({option: varList[0], allowed: "always", isDefault: false});  
     }
     else {
-      data.options.push({option: "", allowed: "always"});   
+      data.options.push({option: "", allowed: "always", isDefault: false});   
     }
     this.setState({data});
   }
@@ -50,17 +63,27 @@ class SelectorEditor extends Component {
 
   setDefault(option, e) {
     const {data} = this.state;
-    const {type} = this.props;
-    if (type === "selector") {
+    const {checked} = e.target;
+    if (data.type === "single" && checked) {
+      data.options = data.options.map(o => {
+        o.isDefault = o.option === option;
+        return o;
+      });
       data.default = option;
     }
-    else if (type === "selectormulti") {
-      if (e.target.checked) {
-        if (!data.default.includes(option)) data.default.push(option);
+    else if (data.type === "multi") {
+      const theOption = data.options.find(o => o.option === option);
+      if (theOption) {
+        if (checked) {
+          theOption.isDefault = checked;
+        }
+        else {
+          if (data.options.filter(o => o.isDefault).length > 1) {
+            theOption.isDefault = checked;    
+          }
+        }
       }
-      else {
-        data.default = data.default.filter(o => o !== option);
-      }
+      data.default = data.options.filter(o => o.isDefault).map(o => o.option).join();
     }
     this.setState({data, showCustom: false});
   }
@@ -68,6 +91,32 @@ class SelectorEditor extends Component {
   deleteOption(i) {
     const {data} = this.state;
     data.options.splice(i, 1);
+    // If the last default was deleted, make the first option the new default
+    if (data.options.length > 0 && !data.options.map(o => o.isDefault).includes(true)) {
+      data.options[0].isDefault = true;
+      data.default = data.options[0].option;
+    }
+    this.setState({data});
+  }
+
+  handleTypeChange(e) {
+    const {data} = this.state;
+    data.type = e.target.value; 
+    if (data.type === "single") {
+      let foundDefault = false;
+      data.options = data.options.map(o => {
+        if (!foundDefault) {
+          if (o.isDefault) {
+            foundDefault = true;
+            data.default = o.option;
+          }
+        }
+        else {
+          o.isDefault = false;
+        }
+        return o;
+      });
+    }
     this.setState({data});
   }
 
@@ -109,20 +158,6 @@ class SelectorEditor extends Component {
     this.setState({data});
   }
 
-  isBoxChecked(option) {
-    const {data} = this.state;
-    const {type} = this.props;
-    if (type === "selector") {
-      return option === data.default;
-    }
-    else if (type === "selectormulti") {
-      return data.default.includes(option);
-    }
-    else {
-      return false;
-    }
-  }
-
   toggleCustom() {
     this.setState({showCustom: !this.state.showCustom});
   }
@@ -130,7 +165,7 @@ class SelectorEditor extends Component {
   render() {
 
     const {data, showCustom} = this.state;
-    const {variables, type} = this.props;
+    const {variables} = this.props;
 
     if (!data || !variables) return null;
 
@@ -157,6 +192,14 @@ class SelectorEditor extends Component {
 
     return (
       <div id="selector-editor">
+        <RadioGroup
+          label="Selector Type"
+          onChange={this.handleTypeChange.bind(this)}
+          selectedValue={data.type}
+        >
+          <Radio label="Single" value="single" />
+          <Radio label="Multi" value="multi" />
+        </RadioGroup>
         <label>
           Title (on page)
           <input type="text" value={data.title} onChange={this.editTitle.bind(this)} />
@@ -178,13 +221,13 @@ class SelectorEditor extends Component {
                 <button className="pt-button" onClick={this.moveUp.bind(this, i)}><span className="pt-icon pt-icon-arrow-up" /></button>
                 <button className="pt-button" onClick={this.moveDown.bind(this, i)}><span className="pt-icon pt-icon-arrow-down" /></button>
                 <button className="pt-button" onClick={this.deleteOption.bind(this, i)}><span className="pt-icon pt-icon-delete" /></button>
-                <input type="checkbox" checked={this.isBoxChecked.bind(this)(option.option)} style={{margin: "5px"}} onChange={this.setDefault.bind(this, option.option)}/>
+                <input type="checkbox" checked={option.isDefault} style={{margin: "5px"}} onChange={this.setDefault.bind(this, option.option)}/>
               </li>
             )
           }
         </ul>
         <button className="pt-button" onClick={this.addOption.bind(this)}>Add Option <span className="pt-icon pt-icon-plus"/></button><br/>
-        { type === "selector" && <button className="pt-button" onClick={this.toggleCustom.bind(this)}>Custom Default <span className="pt-icon pt-icon-cog"/></button> }
+        { data.type === "single" && <button className="pt-button" onClick={this.toggleCustom.bind(this)}>Custom Default <span className="pt-icon pt-icon-cog"/></button> }
         {
           showCustom && <div>
             <select value={data.default} onChange={this.chooseCustom.bind(this)} style={{margin: "5px", width: "300px"}}>

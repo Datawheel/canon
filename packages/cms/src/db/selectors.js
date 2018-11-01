@@ -30,7 +30,11 @@ module.exports = function(sequelize, db) {
       name: {
         type: db.STRING,
         defaultValue: "newselector"
-      },        
+      },
+      type: {
+        type: db.STRING,
+        defaultValue: "single"
+      },
       ordering: db.INTEGER
     }, 
     {

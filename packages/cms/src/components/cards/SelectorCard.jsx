@@ -9,7 +9,7 @@ import "./SelectorCard.css";
 
 /**
  * Card Component for displaying dropdown selectors. Selectors may be singular dropdowns
- * (selectors) or multi-select dropdowns (selectorsmulti)
+ * or multiselects
  */
 class SelectorCard extends Component {
 
@@ -39,6 +39,12 @@ class SelectorCard extends Component {
   save() {
     const {type} = this.props;
     const {minData} = this.state;
+    // In SelectorEditor, we use an "isDefault" property to assist with managing 
+    // checkbox states. Before we save the data to the db, remove that helper prop
+    minData.options = minData.options.map(o => {
+      delete o.isDefault;
+      return o;
+    });
     axios.post(`/api/cms/${type}/update`, minData).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
@@ -60,7 +66,7 @@ class SelectorCard extends Component {
 
   render() {
     const {minData, isOpen} = this.state;
-    const {variables, type} = this.props;
+    const {variables} = this.props;
 
     if (!minData) return <Loading />;
 
@@ -74,7 +80,7 @@ class SelectorCard extends Component {
           title="Selector Editor"
         >
           <div className="pt-dialog-body">
-            <SelectorEditor variables={variables} data={minData} type={type} />
+            <SelectorEditor variables={variables} data={minData} />
           </div>
           <FooterButtons
             onDelete={this.delete.bind(this)}

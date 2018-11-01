@@ -14,8 +14,7 @@ const propMap = {
   topic_description: "descriptions",
   topic_subtitle: "subtitles",
   topic_visualization: "visualizations",
-  selector: "selectors",
-  selectormulti: "selectorsmulti"
+  selector: "selectors"
 };
 
 class TopicEditor extends Component {
@@ -62,7 +61,7 @@ class TopicEditor extends Component {
       if (resp.status === 200) {
         // Selectors, unlike the rest of the elements, actually do pass down their entire
         // content to the Card (the others are simply given an id and load the data themselves)
-        if (type === "selector" || type === "selectormulti") {
+        if (type === "selector") {
           minData[propMap[type]].push(resp.data);
         }
         else {
@@ -168,7 +167,6 @@ class TopicEditor extends Component {
               onDelete={this.onDelete.bind(this)}
               variables={variables}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
-              selectorsmulti={minData.selectorsmulti.map(s => Object.assign({}, s))}
             />
             <MoveButtons
               item={s}
@@ -201,28 +199,6 @@ class TopicEditor extends Component {
           </div>)
         }
         <h4>
-          Multi-Selectors
-          <Button onClick={this.addItem.bind(this, "selectormulti")} iconName="add" />
-        </h4>
-        { minData.selectorsmulti && minData.selectorsmulti.map(s =>
-          <div key={s.id}>
-            <SelectorCard
-              key={s.id}
-              minData={s}
-              type="selectormulti"
-              onSave={() => this.forceUpdate()}
-              onDelete={this.onDelete.bind(this)}
-              variables={variables}
-            />
-            <MoveButtons
-              item={s}
-              array={minData.selectors}
-              type="selectormulti"
-              onMove={this.onMove.bind(this)}
-            />
-          </div>)
-        }
-        <h4>
           Stats
           <Button onClick={this.addItem.bind(this, "topic_stat")} iconName="add" />
         </h4>
@@ -237,7 +213,6 @@ class TopicEditor extends Component {
                 onDelete={this.onDelete.bind(this)}
                 variables={variables}
                 selectors={minData.selectors.map(s => Object.assign({}, s))}
-                selectorsmulti={minData.selectorsmulti.map(s => Object.assign({}, s))}
               />
               <MoveButtons
                 item={s}
@@ -262,7 +237,6 @@ class TopicEditor extends Component {
               onDelete={this.onDelete.bind(this)}
               variables={variables}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
-              selectorsmulti={minData.selectorsmulti.map(s => Object.assign({}, s))}
             />
             <MoveButtons
               item={d}
@@ -287,7 +261,6 @@ class TopicEditor extends Component {
                   type="topic_visualization"
                   variables={variables}
                   selectors={minData.selectors.map(s => Object.assign({}, s))}
-                  selectorsmulti={minData.selectorsmulti.map(s => Object.assign({}, s))}
                 />
                 <MoveButtons
                   item={v}

@@ -40,14 +40,13 @@ class TextCard extends Component {
   }
 
   formatDisplay() {
-    const {variables, selectors, selectorsmulti} = this.props;
+    const {variables, selectors} = this.props;
     const {formatters} = this.context;
     const {minData} = this.state;
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
     // polluting the object itself
     minData.selectors = selectors;
-    minData.selectorsmulti = selectorsmulti;
     const displayData = varSwapRecursive(minData, formatters, variables);
     this.setState({displayData});
   }

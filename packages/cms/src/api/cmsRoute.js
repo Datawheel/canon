@@ -65,8 +65,7 @@ const topicReqTopicOnly = {
     {association: "descriptions", attributes: ["id", "ordering"]},
     {association: "visualizations", attributes: ["id", "ordering"]},
     {association: "stats", attributes: ["id", "ordering"]},
-    {association: "selectors"},
-    {association: "selectorsmulti"}
+    {association: "selectors"}
   ]
 };
 
@@ -93,7 +92,6 @@ const tableMap = {
   section_description: "sections_descriptions",
   section_subtitle: "sections_subtitles",
   selector: "selectors",
-  selectormulti: "selectorsmulti",
   story: "stories",
   story_description: "stories_descriptions",
   story_footnote: "stories_footnotes",
@@ -153,7 +151,7 @@ const sortSection = section => {
 
 const sortTopic = topic => {
   topic = topic.toJSON();
-  ["subtitles", "visualizations", "stats", "descriptions", "selectors", "selectorsmulti"].forEach(type => topic[type].sort(sorter));
+  ["subtitles", "visualizations", "stats", "descriptions", "selectors"].forEach(type => topic[type].sort(sorter));
   return topic;
 };
 
@@ -497,18 +495,6 @@ module.exports = function(app) {
       db.selectors.update({ordering: sequelize.literal("ordering -1")}, {where: {topic_id: row.topic_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.selectors.destroy({where: {id: req.query.id}}).then(() => {
           db.selectors.findAll({where: {topic_id: row.topic_id}, order: [["ordering", "ASC"]]}).then(rows => {
-            res.json(rows).end();
-          });
-        });
-      });
-    });
-  });
-
-  app.delete("/api/cms/selectormulti/delete", (req, res) => {
-    db.selectorsmulti.findOne({where: {id: req.query.id}}).then(row => {
-      db.selectorsmulti.update({ordering: sequelize.literal("ordering -1")}, {where: {topic_id: row.topic_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
-        db.selectorsmulti.destroy({where: {id: req.query.id}}).then(() => {
-          db.selectorsmulti.findAll({where: {topic_id: row.topic_id}, order: [["ordering", "ASC"]]}).then(rows => {
             res.json(rows).end();
           });
         });
