@@ -118,7 +118,9 @@ class Vizbuilder extends React.PureComponent {
         })}
       >
         <LoadingScreen total={load.total} progress={load.done} />
-        <Sidebar options={options} query={query} />
+        <Sidebar options={options} query={query}>
+          {this.props.children}
+        </Sidebar>
         <ChartArea
           triggerUpdate={load.lastUpdate}
           activeChart={query.activeChart}

@@ -56,6 +56,8 @@ class Sidebar extends React.PureComponent {
             itemOptions={cbMeasures}
           />
 
+          {this.props.children}
+
           {this.renderSourceBlock.call(this)}
         </div>
       </div>
