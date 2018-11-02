@@ -91,7 +91,28 @@ class TextCard extends Component {
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
 
     return (
-      <Card onClick={() => this.setState({isOpen: true})} className={cardClass} interactive={true} elevation={1}>
+      <div className={`cms-card cms-${cardClass}`}>
+
+        {/* title & edit toggle button */}
+        <h5 className="cms-card-header">
+          <button className="cms-button" onClick={() => this.setState({isOpen: true})}>
+            Edit <span className="pt-icon pt-icon-cog" />
+          </button>
+        </h5>
+
+        { type === "story_footnote" || type === "profile_footnote" &&
+          <div>
+            Use Footnote Reference: <strong>{`Foot{{${ordering + 1}}}`}</strong>
+          </div>
+        }
+
+        { displays.map((k, i) =>
+          <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}} />
+        )}
+
+        {this.props.children}
+
+
         <Dialog
           iconName="document"
           isOpen={isOpen}
@@ -108,9 +129,7 @@ class TextCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { type === "story_footnote" || type === "profile_footnote" && <div>Use Footnote Reference: <strong>{`Foot{{${ordering + 1}}}`}</strong></div>}
-        { displays.map((k, i) => <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}}></p>) }
-      </Card>
+      </div>
     );
   }
 

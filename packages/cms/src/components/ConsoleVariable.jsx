@@ -27,7 +27,7 @@ export default class ConsoleVariable extends Component {
     }
     else if (v.toString) v = v.toString();
 
-    return <span className={`variable ${t}`}>{v}</span>;
+    return <span className={`cms-variable ${t}`}>{v}</span>;
 
   }
 

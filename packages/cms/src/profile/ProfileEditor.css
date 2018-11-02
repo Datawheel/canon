@@ -24,47 +24,21 @@
   }
 }
 
-.splash {
-  align-items: center;
-  background-size: cover;
-  display: flex;
-  flex-direction: column;
-  padding: 50px;
-  justify-content: center;
-  margin: 25px auto;
+.cms-splash-wrapper {
   text-align: center;
-  & .stats {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
 }
 
-#status {
-  background-color: rgba(255, 255, 255, 0);
-  bottom: 30px;
-  color: #888;
-  height: 30px;
-  font-size: 14px;
-  font-weight: 600;
-  left: 0;
-  opacity: 0.5;
-  padding: 5px;
-  position: fixed;
-  text-align: center;
-  transition: background-color 0.5s, opacity 0.5s;
-  width: 300px;
-  &.active {
-    background-color: rgba(255, 255, 255, 1);
+.cms-status {
+  &.is-done {
+    opacity: 0.25;
+  }
+  &.is-loading {
     opacity: 1;
   }
   & .pt-icon-standard {
-    margin-right: 5px;
-  }
-  & .pt-spinner {
-    margin-right: 5px;
-    vertical-align: bottom;
-    width: 18px;
+    display: inline-block;
+    height: 0.75em;
+    margin-right: 0.25em;
   }
 }
 

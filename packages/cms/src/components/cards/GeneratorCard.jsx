@@ -37,16 +37,13 @@ class GeneratorCard extends Component {
 
   formatDisplay() {
     const {variables, type} = this.props;
-    const {id, description} = this.state.minData;
+    const {id} = this.state.minData;
     let displayData = {};
     if (type === "generator") {
       displayData = variables._genStatus[id];
     }
     else if (type === "materializer") {
       displayData = variables._matStatus[id];
-    }
-    else {
-      displayData.description = description;
     }
     this.setState({displayData});
   }
@@ -77,10 +74,73 @@ class GeneratorCard extends Component {
     const {type, variables} = this.props;
     const {displayData, minData, isOpen} = this.state;
 
+    let description = "";
+    let showDesc = false;
+    if (minData && minData.description) {
+      description = minData.description;
+      if (description.toLowerCase() !== "new description" && description.toLowerCase() !== "") {
+        showDesc = true;
+      }
+    }
+
     if (!minData || !variables) return <Loading />;
 
     return (
-      <Card onClick={() => this.setState({isOpen: true})} className="generator-card" interactive={true} elevation={1}>
+      <div className="cms-card">
+
+        {/* title & edit toggle button */}
+        <h5 className="cms-card-header">
+          <span className={`cms-card-header-icon pt-icon-standard pt-icon-th ${type}`} />
+          {minData.name}
+          <button className="cms-button" onClick={() => this.setState({isOpen: true})}>
+            Edit <span className="pt-icon pt-icon-cog" />
+          </button>
+        </h5>
+
+
+        {/* if there's a useful description or display data, print a table */}
+        <table className="cms-card-table">
+          <tbody className="cms-card-table-body">
+
+            {/* if there's a description, print it */}
+            {showDesc &&
+              <tr className="cms-card-table-row">
+                <td className="cms-card-table-cell">
+                  description
+                </td>
+                <td className="cms-card-table-cell">
+                  <ConsoleVariable value={ description } />
+                </td>
+              </tr>
+            }
+
+            {/* check for display data */}
+            {displayData && (
+              // error
+              displayData.error
+                ? <tr className="cms-card-table-row">
+                  <td className="cms-card-table-cell cms-error">
+                    { displayData.error ? displayData.error : "error" }
+                  </td>
+                </tr>
+                // loop through data
+                : Object.keys(displayData).map(k =>
+                  <tr className="cms-card-table-row" key={ k }>
+                    <td className="cms-card-table-cell">
+                      { k }:
+                    </td>
+                    <td className="cms-card-table-cell">
+                      <ConsoleVariable value={ displayData[k] } />
+                    </td>
+                  </tr>
+                )
+            )}
+          </tbody>
+        </table>
+
+        {this.props.children}
+
+        {/* open state */}
         <Dialog
           className="generator-editor-dialog"
           iconName="code"
@@ -88,7 +148,7 @@ class GeneratorCard extends Component {
           onClose={() => this.setState({isOpen: false})}
           title="Variable Editor"
         >
-          
+
           <div className="pt-dialog-body">
             <GeneratorEditor data={minData} variables={variables} type={type} />
           </div>
@@ -98,23 +158,7 @@ class GeneratorCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        <h5><Icon className={type} iconName="th" />{minData.name}</h5>
-        <div className="table">
-          { displayData && displayData.error
-            ? <Callout intent={Intent.DANGER}>{ displayData.error }</Callout>
-            : <table className="pt-table pt-condensed pt-bordered">
-              <tbody>
-                { displayData && Object.keys(displayData).map(k =>
-                  <tr key={ k }>
-                    <td><code>{ k }</code></td>
-                    <td><ConsoleVariable value={ displayData[k] } /></td>
-                  </tr>
-                ) }
-              </tbody>
-            </table> }
-
-        </div>
-      </Card>
+      </div>
     );
   }
 

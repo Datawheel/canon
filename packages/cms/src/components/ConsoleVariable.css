@@ -1,30 +1,30 @@
-.variable {
+.cms-variable {
   color: inherit;
-  display: inline-block;
+  display: block;
   font-family: 'Menlo', monospace;
   font-style: inherit;
-  font-size: 0.7rem;
   font-weight: 500;
-  white-space: nowrap;
   word-break: keep-all;
+  max-width: 100%;
 
   &.object, &.array, &.function {
     font-style: italic;
   }
 
   &.number {
-    color: #2500CA;
+    color: #8EB6FF; /* fallback */
+    color: var(--type-number);
   }
-
   &.string {
-    color: #C40000;
+    color: #B9E28C; /* fallback */
+    color: var(--type-string);
   }
-
   &.undefined {
-    color: #888888;
+    color: #aebdcc; /* fallback */
+    color: var(--gray);
   }
-
   &.error {
-    color: #ff0000;
+    color: #DB64A6; /* fallback */
+    color: var(--type-error);
   }
 }

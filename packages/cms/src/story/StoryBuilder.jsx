@@ -296,7 +296,7 @@ class StoryBuilder extends Component {
 
   /**
    * If a save occurred in one of the editors, the user may have changed the title. This callback is responsible for
-   * updating the tree labels accordingly. 
+   * updating the tree labels accordingly.
    */
   reportSave(type, id, newValue) {
     const {nodes} = this.state;
@@ -318,8 +318,8 @@ class StoryBuilder extends Component {
     if (!nodes) return <div>Loading</div>;
 
     return (
-      <div id="profile-builder">
-        <div id="tree">
+      <div className="cms-panel story-panel" id="profile-builder">
+        <div className="cms-sidebar" id="tree">
           <Tree
             onNodeClick={this.handleNodeClick.bind(this)}
             onNodeCollapse={this.handleNodeCollapse.bind(this)}
@@ -329,7 +329,7 @@ class StoryBuilder extends Component {
           />
           {nodes.length === 0 && <button className="firstbutton" onClick={this.addFirst.bind(this)}>Add First Story</button>}
         </div>
-        <div id="item-editor">
+        <div className="cms-editor" id="item-editor">
           { currentNode
             ? currentNode.itemType === "story"
               ? <StoryEditor

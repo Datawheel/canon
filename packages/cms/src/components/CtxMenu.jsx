@@ -29,7 +29,7 @@ class CtxMenu extends Component {
         Profiles are only added through a special modal that populates the corresponding
         search table. Therefore, hide the "Add" buttons if this is a profile.
       */}
-      {node.itemType !== "profile" && 
+      {node.itemType !== "profile" &&
         <MenuItem
           iconName="add"
           onClick={this.props.addItem.bind(this, node, "above")}
@@ -54,7 +54,7 @@ class CtxMenu extends Component {
 
     return (
       <Popover content={menu} position={Position.RIGHT_TOP}>
-        <span className="pt-icon-standard pt-icon-cog"></span>
+        <span className="pt-icon-standard pt-icon-cog" />
       </Popover>
     );
   }

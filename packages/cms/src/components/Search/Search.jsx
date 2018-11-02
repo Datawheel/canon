@@ -150,7 +150,7 @@ class Search extends Component {
     const show = searchEmpty || active && userQuery.length;
 
     return (
-      <div ref={comp => this.container = comp} className={`pt-control-group canon-search ${className} ${active ? "active" : ""}`}>
+      <div ref={comp => this.container = comp} className={`cms-search pt-control-group canon-search ${className} ${active ? "active" : ""}`}>
         {InactiveComponent && <InactiveComponent active={active} onClick={this.onToggle.bind(this)} />}
         <Popover2 minimal={true} inline={true} autoFocus={false} isOpen={show}>
           <div className={`pt-input-group pt-fill ${active ? "active" : ""}`}>
@@ -161,7 +161,9 @@ class Search extends Component {
           <ul className={active ? "results active" : "results"}>
             {results.map(result =>
               <li key={result.id} className="result" onClick={this.onSelect.bind(this, result)}>
-                {render(result, this.props)}
+                <a className="result-link" href="">
+                  {render(result, this.props)}
+                </a>
               </li>
             )}
             {!results.length && <li className="no-results">No Results Found</li>}

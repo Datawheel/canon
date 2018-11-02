@@ -1,15 +1,164 @@
-.stat-card {
-  margin: 20px;
-  padding: 10px 10px 8px;
-  text-align: center;
-  width: 150px;
-  & .value {
-    font-size: 24px;
+/* card layout */
+.cms-card-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 1rem -1rem;
+}
+
+
+/* individual cards */
+.cms-card {
+  display: inline-flex;
+  flex-wrap: wrap;
+  flex: 1 0 18rem;
+  flex-direction: column;
+  margin: 1rem;
+  padding: 1rem;
+  width: 18rem;
+  max-width: calc(100% - 2rem);
+  /* theming */
+  background-color: #3e4455; /* fallback */
+  background-color: var(--dark-3);
+  border-radius: 2px;
+}
+
+
+/* card title & edit button */
+.cms-card-header {
+  display: flex;
+  align-items: baseline;
+  font-size: 1rem;
+  line-height: 1.125;
+  margin-top: -0.5em;
+  margin-bottom: -0.5em;
+
+  /* space out icon */
+  & .cms-card-header-icon {
+    margin-right: 0.25em;
+  }
+
+  /* size and position button */
+  & .cms-button {
+    font-size: 0.75em;
+    margin-left: auto;
+    min-width: 7.5em;
   }
 }
 
-.splash-card {
-  & .title {
+
+/* card table for displaying description, preview profile text, etc */
+.cms-card-table {
+  /* positioning */
+  margin-top: 1rem;
+  padding: 0;
+  border-collapse: collapse;
+  /* equal height tables */
+  display: flex;
+  flex-grow: 1;
+  justify-content: stretch;
+  min-height: 1.5rem;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cms-card-table-body {
+  display: block;
+  width: 100%;
+  max-height: 6rem;
+  overflow-y: auto;
+
+  /* placeholder */
+  &:empty {
+    display: block;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.25);
+  }
+  /* display values */
+  &:not(:empty) {
+    /* darker */
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* max height row with overflow */
+.cms-card-table-row {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 0.4em;
+  overflow-y: auto;
+
+  &:first-child { padding-top: 0.25em; }
+  &:last-child { padding-bottom: 0.25em; }
+}
+
+/* cell style */
+.cms-card-table-cell {
+  font-size: 0.625rem;
+  color: #cfdae2; /* fallback */
+  color: var(--light-3);
+  padding: 0.25em;
+}
+
+
+/* prevent reorder buttons from obscuring header */
+.cms-card > * {
+  z-index: 1;
+}
+
+/* reorder buttons layout */
+.cms-card .cms-reorder {
+  /* cover the whole thing */
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  /* place buttons */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* reorder button theming */
+.cms-card .cms-reorder-button {
+  /* sizing */
+  font-size: 10px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  padding: 0;
+  /* theming */
+  background-color: #181a21; /* fallback */
+  background-color: var(--black);
+  border-color: #181a21; /* fallback */
+  border-color: var(--black);
+
+  /* back button positioning */
+  &.cms-reorder-button-back {
+    left: -10px;
+  }
+  /* forward button positioning */
+  &.cms-reorder-button-forward {
+    margin-left: auto;
+    right: -10px;
+  }
+}
+
+
+/* first splash stat takes up full width */
+.cms-stats-card-list > .cms-card:first-child {
+  flex-basis: 100%;
+  max-width: calc(100% - 2rem);
+}
+
+/* individual stats */
+.cms-stat-card {
+  & p:not(:last-child) {
+    margin-bottom: 0.125em;
+  }
+  & .value {
     font-size: 24px;
   }
 }

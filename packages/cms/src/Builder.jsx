@@ -16,9 +16,9 @@ class Builder extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentTab: "profile",
+      currentTab: "profiles",
       formatters
-      
+
       /*
       formatters: (props.formatters || []).reduce((acc, d) => {
         const f = Function("n", "libs", "formatters", d.logic);
@@ -35,19 +35,31 @@ class Builder extends Component {
     return {formatters};
   }
 
-  handleTabChange(e) {
-    this.setState({currentTab: e});
+  handleTabChange(newTab) {
+    const {currentTab} = this.state;
+    if (newTab !== currentTab) {
+      this.setState({currentTab: newTab});
+    }
   }
 
   render() {
+    const {currentTab} = this.state;
+    const navLinks = ["profiles", "stories", "formatters"];
 
     return (
-      <div id="builder">
-        <Tabs2 id="tabs" onChange={this.handleTabChange.bind(this)} selectedTabId={this.state.currentTab}>
-          <Tab2 id="profile" title="Profiles" panel={<ProfileBuilder />} />
-          <Tab2 id="story" title="Stories" panel={<StoryBuilder />} />
-          <Tab2 id="formatter" title="Formatters" panel={<FormatterEditor />} />
-        </Tabs2>
+      <div className="cms">
+        <div className="cms-nav">
+          {navLinks.map(navLink =>
+            <button
+              className={`cms-nav-link${navLink === currentTab ? " is-active" : ""}`}
+              onClick={this.handleTabChange.bind(this, navLink)}>
+              {navLink}
+            </button>
+          )}
+        </div>
+        {currentTab === "profiles" && <ProfileBuilder />}
+        {currentTab === "stories" && <StoryBuilder />}
+        {currentTab === "formatters" && <FormatterEditor />}
       </div>
     );
   }

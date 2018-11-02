@@ -10,7 +10,7 @@ class MoveButtons extends Component {
       array: null
     };
   }
-  
+
   componentDidMount() {
     const {item, array} = this.props;
     this.setState({item, array});
@@ -64,15 +64,26 @@ class MoveButtons extends Component {
   }
 
   render() {
-    
+
     const {item, array} = this.state;
 
     if (!item || !array) return null;
 
     return (
-      <div id="move-buttons">
-        {item.ordering > 0 && <button onClick={() => this.move("left")}><span className="pt-icon pt-icon-arrow-left" /></button> }
-        {item.ordering < array.length - 1 && <button onClick={() => this.move("right")}><span className="pt-icon pt-icon-arrow-right" /></button> }
+      <div className="cms-reorder" id="move-buttons">
+        {item.ordering > 0 &&
+          <button
+            className="cms-button cms-reorder-button cms-reorder-button-back"
+            onClick={() => this.move("left")}>
+            <span className="pt-icon pt-icon-arrow-left" />
+          </button> }
+        {item.ordering < array.length - 1 &&
+          <button
+            className="cms-button cms-reorder-button cms-reorder-button-forward"
+            onClick={() => this.move("right")}
+          >
+            <span className="pt-icon pt-icon-arrow-right" />
+          </button> }
       </div>
     );
   }

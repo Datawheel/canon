@@ -372,7 +372,7 @@ class ProfileBuilder extends Component {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.deleteItem.bind(this)} />;
     }
     if (this.props.setPath) this.props.setPath(node);
-    // If the slugs match, the master profile is the same, so keep the same preview 
+    // If the slugs match, the master profile is the same, so keep the same preview
     if (this.state.currentSlug === node.masterSlug) {
       this.setState({currentNode: node});
     }
@@ -405,7 +405,7 @@ class ProfileBuilder extends Component {
   }
 
   /**
-   * Called by the NewProfile Modal Popover. profileData contains special metadata that will need to be passed to 
+   * Called by the NewProfile Modal Popover. profileData contains special metadata that will need to be passed to
    * a script that will populate the search table with the appropriate entities.
    */
   onCreateProfile(profileData) {
@@ -413,7 +413,7 @@ class ProfileBuilder extends Component {
     axios.post("/api/cms/profile/newScaffold", profileData).then(resp => {
       const profiles = resp.data;
       const profileModalOpen = false;
-      this.setState({profiles, profileModalOpen}, this.buildNodes.bind(this));  
+      this.setState({profiles, profileModalOpen}, this.buildNodes.bind(this));
     });
   }
 
@@ -514,9 +514,9 @@ class ProfileBuilder extends Component {
 
   /**
    * Certain events in the Editors, such as saving a generator, can change the resulting
-   * variables object. In order to ensure that this new variables object is passed down to 
+   * variables object. In order to ensure that this new variables object is passed down to
    * all the editors, each editor has a callback that accesses this function. We store the
-   * variables object in a hash that is keyed by the slug, so we don't re-run the get if 
+   * variables object in a hash that is keyed by the slug, so we don't re-run the get if
    * the variables are already there. However, we provide a "force" option, which editors
    * can use to say "trust me, I've changed something, you need to re-get the variables get"
    */
@@ -577,8 +577,14 @@ class ProfileBuilder extends Component {
     const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
 
     return (
-      <div id="profile-builder">
-        <div id="tree">
+      <div className="cms-panel profile-panel" id="profile-builder">
+        <div className="cms-sidebar" id="tree">
+
+          <button className="cms-button"
+            onClick={() => this.setState({profileModalOpen: true})}>
+              Add Profile <span className="pt-icon pt-icon-plus" />
+          </button>
+
           <Tree
             onNodeClick={this.handleNodeClick.bind(this)}
             onNodeCollapse={this.handleNodeCollapse.bind(this)}
@@ -586,7 +592,6 @@ class ProfileBuilder extends Component {
             contents={nodes}
 
           />
-          <button className="firstbutton" onClick={() => this.setState({profileModalOpen: true})}>Add Profile</button>
         </div>
         <Dialog
           className="profileModal"
@@ -597,9 +602,9 @@ class ProfileBuilder extends Component {
         >
           <NewProfile cubeData={cubeData} onCreateProfile={this.onCreateProfile.bind(this)}/>
         </Dialog>
-        <div id="item-editor">
-          { currentNode && 
-            currentSlug && 
+        <div className="cms-editor" id="item-editor">
+          { currentNode &&
+            currentSlug &&
             <div id="Search">
               {preview ? `Currently Previewing: ${preview}` : "Search to Preview"}
               <Search
