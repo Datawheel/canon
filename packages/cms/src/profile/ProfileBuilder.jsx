@@ -381,7 +381,7 @@ class ProfileBuilder extends Component {
       // An empty search string will automatically provide the highest z-index results.
       // Use this to auto-populate the preview when the user changes profiles.
       axios.get(`/api/search?q=&dimension=${node.masterDimension}`).then(resp => {
-        const preview = resp.data.results[0].id;
+        const preview = resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "";
         this.setState({currentNode: node, currentSlug: node.masterSlug, preview});
       });
     }
