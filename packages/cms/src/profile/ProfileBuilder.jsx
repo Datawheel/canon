@@ -378,7 +378,12 @@ class ProfileBuilder extends Component {
     }
     // If they don't match, update the currentSlug and reset the preview
     else {
-      this.setState({currentNode: node, currentSlug: node.masterSlug, preview: ""});
+      // An empty search string will automatically provide the highest z-index results.
+      // Use this to auto-populate the preview when the user changes profiles.
+      axios.get(`/api/search?q=&dimension=${node.masterDimension}`).then(resp => {
+        const preview = resp.data.results[0].id;
+        this.setState({currentNode: node, currentSlug: node.masterSlug, preview});
+      });
     }
   }
 
@@ -507,6 +512,14 @@ class ProfileBuilder extends Component {
     this.setState({nodes});
   }
 
+  /**
+   * Certain events in the Editors, such as saving a generator, can change the resulting
+   * variables object. In order to ensure that this new variables object is passed down to 
+   * all the editors, each editor has a callback that accesses this function. We store the
+   * variables object in a hash that is keyed by the slug, so we don't re-run the get if 
+   * the variables are already there. However, we provide a "force" option, which editors
+   * can use to say "trust me, I've changed something, you need to re-get the variables get"
+   */
   fetchVariables(slug, id, force, callback) {
     const {variablesHash} = this.state;
     const maybeCallback = () => {
