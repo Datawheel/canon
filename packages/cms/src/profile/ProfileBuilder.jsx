@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {NonIdealState, Tree, Dialog} from "@blueprintjs/core";
+import {NonIdealState, Tree, Dialog, Intent, Alert} from "@blueprintjs/core";
 import NewProfile from "./NewProfile";
 import ProfileEditor from "./ProfileEditor";
 import SectionEditor from "./SectionEditor";
@@ -297,9 +297,16 @@ class ProfileBuilder extends Component {
     }
   }
 
+  confirmDelete(n) {
+    this.setState({nodeToDelete: n});
+  }
+
   deleteItem(n) {
     const {nodes} = this.state;
     const {stripHTML} = this.context.formatters;
+    // If this method is running, then the user has clicked "Confirm" in the Deletion Alert. Setting the state of
+    // nodeToDelete back to false will close the Alert popover.
+    const nodeToDelete = false;
     n = this.locateNode(n.itemType, n.data.id);
     // todo: instead of the piecemeal refreshes being done for each of these tiers - is it sufficient to run buildNodes again?
     if (n.itemType === "topic") {
@@ -315,7 +322,7 @@ class ProfileBuilder extends Component {
           data: topicData
         }));
         parent.childNodes = topics;
-        this.setState({nodes}, this.handleNodeClick.bind(this, parent.childNodes[0]));
+        this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
       });
     }
     else if (n.itemType === "section") {
@@ -339,13 +346,13 @@ class ProfileBuilder extends Component {
           }))
         }));
         parent.childNodes = sections;
-        this.setState({nodes}, this.handleNodeClick.bind(this, parent.childNodes[0]));
+        this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
       });
     }
     else if (n.itemType === "profile") {
       axios.delete("/api/cms/profile/delete", {params: {id: n.data.id}}).then(resp => {
         const profiles = resp.data;
-        this.setState({profiles}, this.buildNodes.bind(this, true));
+        this.setState({profiles, nodeToDelete}, this.buildNodes.bind(this, true));
       });
     }
   }
@@ -359,17 +366,17 @@ class ProfileBuilder extends Component {
     if (node.itemType === "profile") parentLength = nodes.length;
     if (!currentNode) {
       node.isSelected = true;
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.deleteItem.bind(this)} />;
+      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
     else if (node.id !== currentNode.id) {
       node.isSelected = true;
       currentNode.isSelected = false;
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.deleteItem.bind(this)} />;
+      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
       currentNode.secondaryLabel = null;
     }
-    // This case is needed becuase, even if the same node is reclicked, its CtxMenu MUST update to reflect the new node (it may no longer be in its old location)
+    // This case is needed because, even if the same node is reclicked, its CtxMenu MUST update to reflect the new node (it may no longer be in its old location)
     else if (currentNode && node.id === currentNode.id) {
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.deleteItem.bind(this)} />;
+      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
     if (this.props.setPath) this.props.setPath(node);
     // If the slugs match, the master profile is the same, so keep the same preview
@@ -543,31 +550,9 @@ class ProfileBuilder extends Component {
     }
   }
 
-  addProfile() {
-    const {nodes} = this.state;
-    const profileStub = {ordering: nodes.length};
-    const sectionStub = {ordering: 0};
-    const topicStub = {ordering: 0};
-
-    axios.post("/api/cms/profile/new", profileStub).then(p => {
-      sectionStub.profile_id = p.data.id;
-      axios.post("/api/cms/section/new", sectionStub).then(s => {
-        topicStub.section_id = s.data.id;
-        axios.post("/api/cms/topic/new", topicStub).then(t => {
-          if (t.status === 200) {
-            axios.get("/api/cms/tree").then(resp => {
-              const profiles = resp.data;
-              this.setState({profiles}, this.buildNodes.bind(this));
-            });
-          }
-        });
-      });
-    });
-  }
-
   render() {
 
-    const {nodes, currentNode, variablesHash, currentSlug, preview, profileModalOpen, cubeData} = this.state;
+    const {nodes, currentNode, variablesHash, currentSlug, preview, profileModalOpen, cubeData, nodeToDelete} = this.state;
 
     const {NODE_ENV} = this.props.env;
     if (NODE_ENV === "production") return null;
@@ -577,6 +562,7 @@ class ProfileBuilder extends Component {
     const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
 
     return (
+
       <div className="cms-panel profile-panel" id="profile-builder">
         <div className="cms-sidebar" id="tree">
 
@@ -602,6 +588,17 @@ class ProfileBuilder extends Component {
         >
           <NewProfile cubeData={cubeData} onCreateProfile={this.onCreateProfile.bind(this)}/>
         </Dialog>
+        <Alert
+          isOpen={nodeToDelete}
+          cancelButtonText="Cancel"
+          confirmButtonText="Delete"
+          iconName="trash"
+          intent={Intent.DANGER}
+          onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
+          onCancel={() => this.setState({nodeToDelete: false})}
+        >
+          {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
+        </Alert>
         <div className="cms-editor" id="item-editor">
           { currentNode &&
             currentSlug &&

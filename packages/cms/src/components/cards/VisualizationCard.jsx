@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Intent, Alert} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
