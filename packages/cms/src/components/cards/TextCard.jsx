@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Card, Dialog} from "@blueprintjs/core";
+import {Card, Dialog, Intent, Alert} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
