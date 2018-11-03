@@ -12,6 +12,7 @@ import Sidebar from "./components/Sidebar";
 
 import * as api from "./helpers/api";
 import {fetchCubes, fetchQuery} from "./helpers/fetch";
+import {DEFAULT_MEASURE_FORMATTERS} from "./helpers/formatting";
 import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
 import {generateQueries} from "./helpers/query";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
@@ -52,6 +53,7 @@ class Vizbuilder extends React.PureComponent {
     this.initialStatePromise = initialStatePromise;
 
     this.defaultQuery = defaultQuery;
+    this.formatting = {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting};
     this.getDefaultGroup = getDefaultGroup.bind(null, defaultGroup);
     this.permalinkKeywords = permalinkKeywords;
     this.queryHistory = [];
@@ -66,6 +68,7 @@ class Vizbuilder extends React.PureComponent {
     return {
       defaultQuery: this.defaultQuery,
       fetchQueries: this.fetchQueries,
+      formatting: this.formatting,
       generateQueries: this.generateQueries,
       getDefaultGroup: this.getDefaultGroup,
       loadControl: this.loadControl,
@@ -103,7 +106,6 @@ class Vizbuilder extends React.PureComponent {
     const {location} = this.context.router;
     const {
       config,
-      formatting,
       measureConfig,
       permalink,
       topojson,
@@ -125,7 +127,6 @@ class Vizbuilder extends React.PureComponent {
           triggerUpdate={load.lastUpdate}
           activeChart={query.activeChart}
           defaultConfig={config}
-          formatting={formatting}
           datasets={datasets}
           members={members}
           queries={queries}
@@ -189,6 +190,7 @@ Vizbuilder.contextTypes = {
 Vizbuilder.childContextTypes = {
   defaultQuery: PropTypes.any,
   fetchQueries: PropTypes.func,
+  formatting: PropTypes.objectOf(PropTypes.func),
   generateQueries: PropTypes.func,
   getDefaultGroup: PropTypes.func,
   loadControl: PropTypes.func,

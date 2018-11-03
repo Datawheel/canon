@@ -8,18 +8,6 @@ import ChartCard from "./ChartCard";
 
 import "./style.css";
 
-const DEFAULT_FORMATTERS = {
-  Growth: d => `${formatAbbreviate(d * 100 || 0)}%`,
-  Percentage: d => `${formatAbbreviate(d * 1 || 0)}%`,
-  Rate: d => `${formatAbbreviate(d * 100 || 0)}%`,
-  Ratio: d => `${formatAbbreviate(d * 1 || 0)} to 1`,
-  USD: d => `$${formatAbbreviate(d * 1 || 0)}`,
-  get Dollars() { return this.USD },
-  "Thousands of Dollars"(d) { return this.USD(d * 1e3) },
-  "Millions of Dollars"(d) { return this.USD(d * 1e6) },
-  "Billions of Dollars"(d) { return this.USD(d * 1e9) }
-};
-
 const EMPTY_DATASETS = (
   <div className="area-chart empty">
     <NonIdealState visual="error" title="Empty dataset" />
@@ -70,7 +58,6 @@ class ChartArea extends React.Component {
     const {
       activeChart,
       defaultConfig,
-      formatting,
       measureConfig,
       datasets,
       members,
@@ -85,10 +72,7 @@ class ChartArea extends React.Component {
 
     const generalConfig = {
       defaultConfig,
-      formatting: {
-        ...DEFAULT_FORMATTERS,
-        ...formatting
-      },
+      formatting: this.context.formatting,
       measureConfig,
       topojson,
       visualizations
@@ -136,6 +120,7 @@ class ChartArea extends React.Component {
 }
 
 ChartArea.contextTypes = {
+  formatting: PropTypes.objectOf(PropTypes.func),
   stateUpdate: PropTypes.func
 };
 

@@ -1,5 +1,4 @@
 import {assign} from "d3plus-common";
-import {formatAbbreviate} from "d3plus-format";
 import {
   BarChart,
   Donut,
@@ -380,7 +379,7 @@ export default function createChartConfig(
   const measureName = measure.name;
   const measureAnn = measure.annotations;
   const measureFormatter =
-    formatting[measureAnn.units_of_measurement] || formatAbbreviate;
+    formatting[measureAnn.units_of_measurement] || formatting["default"];
   const getMeasureValue = d => d[measureName];
 
   const levelName = query.level.name;
