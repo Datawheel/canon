@@ -69,28 +69,21 @@ class Sidebar extends React.PureComponent {
     const ann = query.cube.annotations;
     const key = `${ann.table_id}.${query.measure.name}`;
 
-    let datasetArea;
+    let datasetValue;
     if (key in options.measureMap) {
-      datasetArea = (
-        <p hidden={!ann.dataset_name}>
-          <span>Dataset: </span>
-          <DatasetSelect
-            items={options.measureMap[key]}
-            onChange={this.setDataset}
-            value={query.measure}
-          />
-        </p>
+      datasetValue = (
+        <DatasetSelect
+          items={options.measureMap[key]}
+          onChange={this.setDataset}
+          value={query.measure}
+        />
       );
-    }
-    else {
-      datasetArea = (
-        <p hidden={!ann.dataset_name}>
-          <span>Dataset: </span>
-          <ConditionalAnchor className="source-link" href={ann.dataset_link}>
-            {ann.dataset_name}
-          </ConditionalAnchor>
-        </p>
-      )
+    } else {
+      datasetValue = (
+        <ConditionalAnchor className="source-link" href={ann.dataset_link}>
+          {ann.dataset_name}
+        </ConditionalAnchor>
+      );
     }
 
     return (
@@ -102,7 +95,10 @@ class Sidebar extends React.PureComponent {
           </ConditionalAnchor>
         </p>
         <p hidden={!ann.source_description}>{ann.source_description}</p>
-        {datasetArea}
+        <p hidden={!ann.dataset_name}>
+          <span>Dataset: </span>
+          {datasetValue}
+        </p>
       </div>
     );
   }
