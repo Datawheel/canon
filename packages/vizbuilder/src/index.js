@@ -9,6 +9,7 @@ import LoadingScreen from "components/Loading";
 import ChartArea from "./components/ChartArea";
 import PermalinkManager from "./components/PermalinkManager";
 import Sidebar from "./components/Sidebar";
+import Ranking from "./components/Sidebar/Ranking";
 
 import * as api from "./helpers/api";
 import {fetchCubes, fetchQuery} from "./helpers/fetch";
@@ -122,6 +123,7 @@ class Vizbuilder extends React.PureComponent {
         <LoadingScreen total={load.total} progress={load.done} />
         <Sidebar options={options} query={query}>
           {this.props.children}
+          <Ranking datasets={datasets} members={members} queries={queries} />
         </Sidebar>
         <ChartArea
           triggerUpdate={load.lastUpdate}
