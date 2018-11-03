@@ -1,3 +1,4 @@
+import sort from "fast-sort";
 import {unique} from "shorthash";
 import yn from "yn";
 
@@ -123,9 +124,11 @@ export function fetchMembers(level) {
  */
 export function fetchQuery(datacap, query) {
   const mondrianQuery = queryBuilder(queryConverter(query));
+  const measureName = query.measure.name;
   const timeLevelName = query.timeLevel;
   return api.query(mondrianQuery).then(result => {
     const dataset = (result.data || {}).data || [];
+    sort(dataset).desc(measureName);
     const members = getIncludedMembers(mondrianQuery, dataset);
 
     let dataAmount = dataset.length;
