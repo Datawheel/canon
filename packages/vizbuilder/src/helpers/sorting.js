@@ -3,7 +3,7 @@ import union from "lodash/union";
 import yn from "yn";
 
 import {findFirstNumber} from "./formatting";
-import {areKindaNumeric, isTimeDimension, isValidMeasure} from "./validation";
+import {areKindaNumeric, isNumeric, isTimeDimension, isValidMeasure} from "./validation";
 import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 /**
@@ -168,7 +168,7 @@ export function getMeasureMeta(cube, measure) {
         collection = currentMeasure;
       }
 
-      if (collection && (lci && uci || moe) && source) {
+      if (collection && ((lci && uci) || moe) && source) {
         break;
       }
     }
@@ -318,7 +318,14 @@ export function getIncludedMembers(query, dataset) {
       set[value] = 0;
     }
 
-    members[key] = Object.keys(set).sort();
+    const memberList = Object.keys(set);
+    if (memberList.every(isNumeric)) {
+      members[key] = memberList.map(n => n * 1).sort((a, b) => a - b);
+    }
+    else {
+      members[key] = memberList.sort();
+    }
+
     return members;
   }, {});
 }
