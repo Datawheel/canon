@@ -603,7 +603,7 @@ class ProfileBuilder extends Component {
           { currentNode &&
             currentSlug &&
             <div id="Search">
-              {preview ? `Currently Previewing: ${preview}` : "Search to Preview"}
+              {preview ? `Currently Previewing Data ID: ${preview}` : "Search to Preview"}
               <Search
                 render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
                 dimension={currentNode.masterDimension}
