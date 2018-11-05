@@ -1,0 +1,257 @@
+.datawheel-light {
+  /* CUSTOM PROPERTIES */
+  /* NOTE: these can be easily redefined to fit the client's branding */
+  /* WARNING: if supporting IE, these straight up won't work */
+  --white:   #ffffff; /* conflicts with canon's style.yml var(--white) */
+  --light-1: #f8f9fa;
+  --light-2: #e8eef1;
+  --light-3: #cfdae2;
+  --gray:    #aebdcc;
+  --dark-1:  #8a97ae;
+  --dark-2:  #596277;
+  --dark-3:  #3e4455;
+  --black:   #181a21;
+  --accent:       #FFCD33;
+  --accent-light: #FFD65B;
+  --accent-dark:  #C4960B;
+  --accent-black: #7F6516;
+  --alert: #75224D;
+  --alert-light: #992C64;
+  --type-number:      #8EB6FF;
+  --type-number-dark: #2D4A7F;
+  --type-string:      #B9E28C;
+  --type-string-dark: #62873B;
+  --type-error:       #DB64A6;
+  --type-error-dark:  #75224D;
+
+  /* BASE CMS STYLES */
+  background-color: #f8f9fa; /* fallback */
+  background-color: var(--light-1);
+  color: #181a21; /* fallback */
+  color: var(--black);
+
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    color: #181a21; /* fallback */
+    color: var(--black);
+  }
+
+  /* reset loading style */
+  & .loading {
+    background-color: #f8f9fa; /* fallback */
+    background-color: var(--light-1);
+    color: #181a21; /* fallback */
+    color: var(--black);
+  }
+
+
+  /* --------------------------------------- */
+  /* COMPONENTS */
+  /* --------------------------------------- */
+
+  /* buttons */
+  & .cms-button {
+    background-color: #C4960B; /* fallback */
+    background-color: var(--accent-dark);
+    border-color: #C4960B; /* fallback */
+    border-color: var(--accent-dark);
+    color: #ffffff; /* fallback */
+    /* color: var(--white); */
+
+    /* interactions */
+    &:hover, &:focus {
+      background-color: #7F6516; /* fallback */
+      background-color: var(--accent-black);
+      border-color: #7F6516; /* fallback */
+      border-color: var(--accent-black);
+    }
+  }
+  & .cms-button-naked {
+    color: #C4960B; /* fallback */
+    color: var(--accent-dark);
+
+    /* interactions */
+    &:hover, &:focus {
+      color: #7F6516; /* fallback */
+      color: var(--accent-black);
+    }
+  }
+
+  /* alerts */
+  & .cms-alert-color {
+    color: #992C64; /* fallback */
+    color: var(--alert-light);
+  }
+  & .cms-alert {
+    background-color: #75224D; /* fallback */
+    background-color: var(--alert);
+  }
+
+  /* variables */
+  & .cms-variable {
+    &.number {
+      color: #2D4A7F; /* fallback */
+      color: var(--type-number-dark);
+    }
+    &.string {
+      color: #62873B; /* fallback */
+      color: var(--type-string-dark);
+    }
+    &.undefined {
+      color: #596277; /* fallback */
+      color: var(--dark-2);
+    }
+    &.error {
+      color: #75224D; /* fallback */
+      color: var(--type-error-dark);
+    }
+  }
+
+  /* cards */
+  & .cms-card {
+    background-color: #ffffff; /* fallback */
+    /* background-color: var(--white); */
+    box-shadow: 0 5px 1rem #e8eef1; /* fallback */
+    box-shadow: 0 5px 1rem 0.25rem var(--light-2);
+    border-radius: 2px;
+
+    /* card table for displaying description, preview profile text, etc */
+    & .cms-card-table-cell {
+      color: #3e4455; /* fallback */
+      color: var(--dark-3);
+    }
+
+    /* placeholder */
+    & .cms-card-table-body:empty {
+      background-color: #f8f9fa; /* fallback */
+      background-color: var(--light-1);
+    }
+
+    /* display values */
+    & .cms-card-table-body:not(:empty) {
+      background-color: transparent;
+      border: 1px solid #e8eef1; /* fallback */
+      border: 1px solid var(--light-2);
+      box-shadow: 0 1px 0.125rem 1px inset #f8f9fa; /* fallback */
+      box-shadow: 0 1px 0.125rem 1px inset var(--light-1);
+    }
+
+    /* reorder buttons */
+    & .cms-reorder-button {
+      background-color: #FFD65B; /* fallback */
+      background-color: var(--accent-light);
+      border-color: #FFD65B; /* fallback */
+      border-color: var(--accent-light);
+      color: #ffffff; /* fallback */
+      /* background-color: var(--white); */
+
+      /* interactions */
+      &:hover, &:focus {
+        background-color: #C4960B; /* fallback */
+        background-color: var(--accent-dark);
+        border-color: #C4960B; /* fallback */
+        border-color: var(--accent-dark);
+      }
+    }
+  }
+
+  /* search */
+  & .cms-search {
+    & .pt-popover-content {
+      background-color: #ffffff !important; /* fallback */
+      /* background-color: var(--white) !important; */
+    }
+
+    /* results list */
+    & .results {
+      /* active state */
+      &.active {
+        background: #8a97ae;
+        background: var(--dark-1);
+      }
+    }
+    /* individual result item */
+    & .result {
+      display: block;
+
+      & .result-link {
+        background-color: #e8eef1;
+        background-color: var(--light-2);
+        color: #3e4455; /* fallback */
+        color: var(--dark-3);
+      }
+
+      /* interactions */
+      &:hover, &:focus,
+      &.highlighted {
+        & .result-link {
+          background-color: #f8f9fa;
+          background-color: var(--light-1);
+          color: #7F6516;
+          color: var(--accent-black);
+        }
+      }
+    }
+
+    /* empty state */
+    & .no-results {
+      color: #ffffff;
+      /* color: var(--white); */
+    }
+  }
+
+
+  /* --------------------------------------- */
+  /* LAYOUT */
+  /* --------------------------------------- */
+
+  /* offset main site nav */
+  & .cms-nav {
+    background-color: #cfdae2; /* fallback */
+    background-color: var(--light-3);
+  }
+  & .cms-nav-link {
+    color: #181a21; /* fallback */
+    color: var(--black);
+
+    &.is-active {
+      color: #7F6516; /* fallback */
+      color: var(--accent-black);
+      background-color: #ffffff; /* fallback */
+      /* background-color: var(--white); */
+
+      &:hover, &:focus {
+        color: #C4960B; /* fallback */
+        color: var(--accent-dark);
+      }
+    }
+
+    &:hover, &:focus {
+      color: #7F6516; /* fallback */
+      color: var(--accent-black);
+    }
+  }
+
+  /* sidebar */
+  & .cms-sidebar {
+    background-color: #ffffff; /* fallback */
+    /* background-color: var(--white); */
+    color: #3e4455; /* fallback */
+    color: var(--dark-3);
+    box-shadow: 0 0 1rem #e8eef1; /* fallback */
+    box-shadow: 0 0 1rem var(--light-2);
+
+    & .pt-tree-node-content:hover,
+    & .pt-tree-node-content .pt-tree-node-caret:hover,
+    & .pt-tree-node-content .pt-tree-node-cog:hover {
+      color: #7F6516; /* fallback */
+      color: var(--accent-black);
+    }
+
+    & .pt-tree-node-selected > .pt-tree-node-content {
+      background-color: #7F6516; /* fallback */
+      background-color: var(--accent-black);
+      color: #ffffff; /* fallback */
+      /* color: var(--white); */
+    }
+  }
+}

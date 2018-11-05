@@ -1,0 +1,147 @@
+.cms {
+  /* CUSTOM PROPERTIES */
+  /* NOTE: these can be easily redefined to fit the client's branding */
+  /* WARNING: if supporting IE, these straight up won't work */
+  --main-nav-height: 50px;
+  --cms-nav-height:  2rem;
+  --sidebar-width:  18rem;
+
+  /* BASE CMS STYLES */
+  min-height: 100vh; /* extend background on short pages */
+  text-align: left; /* override canon */
+
+  & * {
+    position: relative;
+  }
+
+  & code {
+    padding: 0.125em 0.5em;
+  }
+
+  /* fix search */
+  & .search {
+    z-index: 2;
+  }
+  /* fix blueprint popover */
+  & .pt-overlay-inline > span {
+    display: block;
+    top: -30px;
+  }
+}
+
+/* buttons */
+.cms-button {
+  padding: 0.5em 2em;
+  border-radius: 10em;
+  transition:
+    color 0.2s ease-out,
+    background-color 0.2s ease-out,
+    border-color 0.1s ease-out;
+
+  &:active {
+    border-style: solid;
+  }
+
+  & .pt-icon {
+    top: -1px;
+  }
+}
+.cms-button-naked {
+  background-color: transparent;
+  border: none;
+}
+
+/* alerts */
+.cms-alert {
+  padding: 0.5em 1em;
+  margin-bottom: 0;
+}
+
+
+/* --------------------------------------- */
+/* LAYOUT */
+/* --------------------------------------- */
+
+/* offset main site nav */
+.cms-nav {
+  top: 50px; /* fallback */
+  top: var(--main-nav-height);
+  height: 2rem; /* fallback */
+  height: var(--cms-nav-height);
+  overflow-x: auto;
+  display: flex;
+  z-index: 1;
+  width: 100%;
+  padding: 0 1rem;
+}
+.cms-nav-link {
+  background: none;
+  border: none;
+  line-height: 2rem; /* fallback */
+  line-height: var(--cms-nav-height);
+  padding: 0 1rem;
+  margin-right: 0;
+  outline: none;
+}
+.cms-theme-select {
+  padding: 0 1rem;
+  line-height: 2rem; /* fallback */
+  margin-left: auto;
+}
+
+/* main panel wrapper */
+.cms-panel {
+  max-height: calc(100vh - 50px - 2rem); /* fallback */
+  max-height: calc(100vh - var(--main-nav-height) - var(--cms-nav-height));
+  top: 50px; /* fallback */
+  top: var(--main-nav-height);
+}
+
+/* sidebar */
+.cms-sidebar {
+  /* sizing */
+  width: 18rem; /* fallback */
+  width: var(--sidebar-width);
+  padding: 0.75rem 0;
+  /* positioning */
+  position: fixed;
+  top: calc(50px + 2rem); /* fallback */
+  top: calc(var(--main-nav-height) + var(--cms-nav-height));
+  left: 0;
+  bottom: 0;
+  /* overflow container */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+
+  & > .cms-button {
+    width: calc(100% - 1.5rem);
+    left: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  & + .cms-editor {
+    width: calc(100% - 18rem); /* fallback */
+    width: calc(100% - var(--sidebar-width));
+    height: calc(100vh - 50px - 2rem); /* fallback */
+    height: calc(100vh - var(--main-nav-height) - var(--cms-nav-height));
+    left: 18rem; /* fallback */
+    left: var(--sidebar-width);
+    /* overflow container */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  }
+}
+
+.cms-editor {
+  padding: 2rem;
+}
+
+.cms-section-heading-button {
+  font-size: 0.5em;
+  vertical-align: top;
+  padding: 0;
+  width: 1.9em;
+  height: 1.9em;
+  line-height: 1.9;
+  margin-left: 0.5em;
+}

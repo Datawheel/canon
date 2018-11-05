@@ -1,0 +1,13 @@
+.cms-variable {
+  color: inherit;
+  display: block;
+  font-family: 'Menlo', monospace;
+  font-style: inherit;
+  font-weight: 500;
+  word-break: keep-all;
+  max-width: 100%;
+
+  &.object, &.array, &.function {
+    font-style: italic;
+  }
+}
