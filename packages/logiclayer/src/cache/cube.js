@@ -34,19 +34,20 @@ module.exports = async function() {
         .reduce((acc, d) => {
           let hierarchies = d.hierarchies
             .map(h => {
-              const levels = h.levels.map(l => {
-                const parts = l.fullName
-                  .split(".")
-                  .map(p => p.replace(/^\[|\]$/g, ""));
-                if (parts.length === 2) parts.unshift(parts[0]);
-                return {
-                  dimension: parts[0],
-                  hierarchy: parts[1],
-                  level: parts[2],
-                  properties: l.properties
-                };
-              });
-              levels.shift();
+              const levels = h.levels
+                .filter(d => d.name !== "(All)")
+                .map(l => {
+                  const parts = l.fullName
+                    .split(".")
+                    .map(p => p.replace(/^\[|\]$/g, ""));
+                  if (parts.length === 2) parts.unshift(parts[0]);
+                  return {
+                    dimension: parts[0],
+                    hierarchy: parts[1],
+                    level: parts[2],
+                    properties: l.properties
+                  };
+                });
               return levels;
             });
           hierarchies = Array.from(new Set(d3Array.merge(hierarchies)));
