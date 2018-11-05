@@ -4,7 +4,7 @@ module.exports = function(app) {
 
   app.get("/api/formatters", (req, res) => {
 
-    db.formatters.findAll()
+    db.formatter.findAll()
       .then(results => {
         res.json(results).end();
       });

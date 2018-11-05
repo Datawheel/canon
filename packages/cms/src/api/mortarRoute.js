@@ -124,7 +124,7 @@ module.exports = function(app) {
   app.get("/api/internalprofile/:slug", (req, res) => {
     const {slug} = req.params;
     const reqObj = Object.assign({}, profileReq, {where: {slug}});
-    db.profiles.findOne(reqObj).then(profile => res.json(sortProfile(profile)).end());
+    db.profile.findOne(reqObj).then(profile => res.json(sortProfile(profile)).end());
   });
 
   app.get("/api/variables/:slug/:id", (req, res) => {
@@ -138,9 +138,9 @@ module.exports = function(app) {
     /* Potential TODO here: Later in this function we manually get generators and materializers.
      * Maybe refactor this to get them immediately in the profile get using include.
      */
-    db.profiles.findOne({where: {slug}, raw: true})
+    db.profile.findOne({where: {slug}, raw: true})
       .then(profile =>
-        Promise.all([profile.id, db.search.findOne({where: {id, dimension: searchMap[slug]}}), db.formatters.findAll(), db.generators.findAll({where: {profile_id: profile.id}})])
+        Promise.all([profile.id, db.search.findOne({where: {id, dimension: searchMap[slug]}}), db.formatter.findAll(), db.generator.findAll({where: {profile_id: profile.id}})])
       )
       // Given a profile id and its generators, hit all the API endpoints they provide
       .then(resp => {
@@ -189,7 +189,7 @@ module.exports = function(app) {
           }, returnVariables);
         });
         returnVariables._genStatus = genStatus;
-        return Promise.all([returnVariables, formatterFunctions, db.materializers.findAll({where: {profile_id: pid}, raw: true})]);
+        return Promise.all([returnVariables, formatterFunctions, db.materializer.findAll({where: {profile_id: pid}, raw: true})]);
       })
       // Given the partially built returnVariables and all the materializers for this profile id,
       // Run the materializers and fold their generated variables into returnVariables
@@ -230,7 +230,7 @@ module.exports = function(app) {
      * We must pass that info as one of the arguments of the returned Promise.
     */
 
-    Promise.all([axios.get(`${origin}/api/variables/${slug}/${id}`), db.formatters.findAll()])
+    Promise.all([axios.get(`${origin}/api/variables/${slug}/${id}`), db.formatter.findAll()])
 
       // Given the completely built returnVariables and all the formatters (formatters are global)
       // Get the ACTUAL profile itself and all its dependencies and prepare it to be formatted and regex replaced
@@ -276,12 +276,12 @@ module.exports = function(app) {
     // As with profiles above, we need formatters, variables, and the topic itself in order to
     // create a "postProcessed" topic that can be returned to the requester.
     const getVariables = axios.get(`${origin}/api/variables/${slug}/${id}`);
-    const getFormatters = db.formatters.findAll();
+    const getFormatters = db.formatter.findAll();
 
     const where = {};
     if (isNaN(parseInt(topicId, 10))) where.slug = topicId;
     else where.id = topicId;
-    const getTopic = db.topics.findOne({where, include: topicReq});
+    const getTopic = db.topic.findOne({where, include: topicReq});
 
     Promise.all([getVariables, getFormatters, getTopic])
       .then(resp => {
@@ -308,7 +308,7 @@ module.exports = function(app) {
     const {id} = req.params;
     // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
-    db.stories.findOne(reqObj).then(story => {
+    db.story.findOne(reqObj).then(story => {
       story = sortStory(story);
       story.date = new Date(story.slug.substr(0, 10));
       res.json(story).end();
@@ -317,7 +317,7 @@ module.exports = function(app) {
 
   // Endpoint for getting all stories
   app.get("/api/canonstory", (req, res) => {
-    db.stories.findAll({include: [{association: "authors", attributes: ["name", "image"]}]}).then(stories => {
+    db.story.findAll({include: [{association: "authors", attributes: ["name", "image"]}]}).then(stories => {
       stories = stories.map(s => {
         s = s.toJSON();
         s.date = new Date(s.slug.substr(0, 10));

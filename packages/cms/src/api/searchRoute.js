@@ -36,7 +36,7 @@ module.exports = function(app) {
     });
 
     const dimensions = Array.from(new Set(rows.map(d => d.dimension)));
-    const slugs = await db.profiles.findAll({where: {dimension: dimensions}})
+    const slugs = await db.profile.findAll({where: {dimension: dimensions}})
       .reduce((obj, d) => (obj[d.dimension] = d.slug, obj), {});
 
     const results = rows.map(d => ({
