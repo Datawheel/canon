@@ -7,10 +7,19 @@ module.exports = function(sequelize, db) {
         type: db.TEXT
       },
       zvalue: db.DOUBLE,
-      dimension: db.TEXT,
-      name: db.TEXT,
+      dimension: {
+        primaryKey: true,
+        type: db.TEXT
+      },
+      name: {
+        primaryKey: true,
+        type: db.TEXT
+      },
       display: db.TEXT,
-      hierarchy: db.TEXT,
+      hierarchy: {
+        primaryKey: true,
+        type: db.TEXT
+      },
       stem: db.INTEGER,
       slug: db.TEXT,
       keywords: db.ARRAY(db.TEXT),
@@ -18,12 +27,6 @@ module.exports = function(sequelize, db) {
     },
     {
       freezeTableName: true,
-      indexes: [
-        {
-          unique: true,
-          fields: ["name", "id", "dimension", "hierarchy"]
-        }
-      ],
       timestamps: false
     }
   );
