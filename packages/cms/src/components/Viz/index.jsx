@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
+// d3plus.PercentageBar = import PercentageBar from "./PercentageBar"; // d3plus.Progress = jimmy's imported component
 import "./index.css";
 import Options from "./Options";
 import propify from "../../utils/d3plusPropify";
