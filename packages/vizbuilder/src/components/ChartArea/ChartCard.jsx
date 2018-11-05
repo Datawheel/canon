@@ -1,38 +1,30 @@
 import React from "react";
 import {Button} from "@blueprintjs/core";
 
-import {charts} from "../../helpers/chartconfig";
-import {relativeStdDev} from "../../helpers/math";
+class ChartCard extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.handleToggleSelect = this.handleToggleSelect.bind(this);
+  }
 
-class ChartCard extends React.Component {
+  handleToggleSelect() {
+    this.props.onSelect(this.props.name);
+  }
+
   render() {
-    const {
-      active,
-      config,
-      dataset,
-      onSelect,
-      type
-    } = this.props;
-    const ChartComponent = charts[type];
-
-    config.data = dataset;
-
-    if (type === "lineplot" && relativeStdDev(dataset, config.y) > 1) {
-      config.yConfig.scale = "log";
-      config.yConfig.title = `${config.yConfig.title} (Log)`;
-    } 
+    const {active} = this.props;
 
     return (
       <div className="chart-card">
         <div className="wrapper">
-          <ChartComponent config={config} />
+          {this.props.children}
 
           <footer>
             <Button
               className="pt-minimal"
               iconName={active ? "cross" : "zoom-in"}
               text={active ? "CLOSE" : "ENLARGE"}
-              onClick={onSelect}
+              onClick={this.handleToggleSelect}
             />
           </footer>
         </div>

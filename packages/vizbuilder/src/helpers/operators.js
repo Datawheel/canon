@@ -56,8 +56,7 @@ export const KIND_NUMBER = [
   "LOWER",
   "LOWEREQUAL",
   "HIGHER",
-  "HIGHEREQUAL",
-  "NOTEQUAL"
+  "HIGHEREQUAL"
 ];
 
 export const KIND_TEXT = ["EQUAL", "NOTEQUAL", "CONTAINS"];

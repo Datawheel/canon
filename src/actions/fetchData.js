@@ -1,5 +1,13 @@
 import axios from "axios";
 
+/**
+ * @function fetchData
+ * Fetches data server side to be used in rendering.
+ * @param {String} key The key used to store inside of the redux store data object (ie. "store.data.key").
+ * @param {String} url The URL to request data from. All keys in the url surrounded by angle brackets (ie. "<id>") will be replaced with any matching URL params and store variables.
+ * @param {Function} format Option callback function to format the return data.
+ * @param {*} config Optional axios config object.
+ */
 function fetchData(key, url, format = d => d, config = {}) {
 
   const returnFunction = (params, store) => {
@@ -17,7 +25,7 @@ function fetchData(key, url, format = d => d, config = {}) {
 
     return {
       type: "GET_DATA",
-      promise: axios.get(u, config).then(res => ({key, data: format(res.data)})),
+      promise: axios.get(encodeURI(u), config).then(res => ({key, data: format(res.data)})),
       description: u
     };
 

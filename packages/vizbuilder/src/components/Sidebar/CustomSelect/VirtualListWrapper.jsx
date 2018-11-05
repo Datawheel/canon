@@ -11,7 +11,7 @@ class VirtualListWrapper extends React.Component {
     let height = 0;
     props.items.some(item => {
       height += props.getItemHeight(item);
-      return height > 300;
+      return height > props.maxHeight;
     });
     this.height = Math.max(100, height);
   }
@@ -37,7 +37,7 @@ class VirtualListWrapper extends React.Component {
     return props.itemRenderer({
       handleClick: () => props.onItemClick(item),
       index,
-      isActive: props.value.indexOf(item) > -1,
+      isActive: props.findIndex(props.value, item) > -1,
       item,
       style
     });
@@ -63,6 +63,19 @@ class VirtualListWrapper extends React.Component {
       />
     );
   }
+}
+
+VirtualListWrapper.defaultProps = {
+  findIndex: (haystack, needle) => haystack.indexOf(needle),
+  getItemHeight: () => 22,
+  itemRenderer: undefined,
+  items: [],
+  maxHeight: 300,
+  noResults: null,
+  onItemClick: undefined,
+  scrollToIndex: undefined,
+  sticky: null,
+  value: undefined,
 }
 
 export default VirtualListWrapper;

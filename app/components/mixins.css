@@ -1,3 +1,7 @@
 @define-mixin padding $amount {
   padding: $amount;
 }
+
+@define-mixin margin {
+  margin: 100px;
+}

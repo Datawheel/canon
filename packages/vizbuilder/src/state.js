@@ -10,47 +10,31 @@ export default function initialStateFactory() {
       error: undefined,
       severity: -1
     },
-    query: {
-      activeChart: null,
-      conditions: [],
-      cube: null,
-      dimension: null,
-      drilldown: null,
-      measure: null,
-      lci: null,
-      uci: null,
-      moe: null,
-      source: null, 
-      collection: null, 
-      limit: undefined,
-      locale: "en",
-      offset: undefined,
-      order: undefined,
-      orderDesc: undefined,
-      timeDrilldown: null
-    },
-    // This object is later combined into `query` as part of the query building
-    queryOptions: {
-      nonempty: true,
-      distinct: false,
-      parents: false,
-      debug: false,
-      sparse: true
-    },
     options: {
       // All cubes retrieved initially
       cubes: [],
-      // All non-time Dimensions for the cube which owns the current measure
-      dimensions: [],
-      // All valid levels from the `dimensions` array
-      levels: [],
-      // All non-time Levels that can be used as Cuts for the current query
-      drilldowns: [],
-      // All valid measures (not MoEs) from all the cubes retrieved
-      measures: []
+      // All valid measures (not confidence/MoE) from the cubes retrieved
+      measures: [],
+      // All valid levels from the current cube
+      levels: []
     },
-    dataset: [],
-    members: {},
-    meta: {}
+    query: {
+      // The user can modify these:
+      measure: null,
+      groups: [],
+      filters: [],
+      activeChart: null,
+      // These are calculated from the above ones:
+      cube: null,
+      timeLevel: null,
+      lci: null,
+      uci: null,
+      moe: null,
+      source: null,
+      collection: null
+    },
+    queries: [],
+    datasets: [],
+    members: []
   };
 }

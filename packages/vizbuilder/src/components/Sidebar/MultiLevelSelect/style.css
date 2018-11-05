@@ -3,14 +3,18 @@
   cursor: pointer;
 }
 
-.mlsel-popover-content {}
+.mlsel-popover-content {
+  min-width: 250px;
 
-.mlsel-filter-input {}
+  .mlsel-filter-input {
+  }
 
-.mlsel-filter-reset {}
+  .mlsel-filter-reset {
+  }
 
-.mlsel-filter-group + .mlsel-select-list {
-  padding-top: 5px;
+  & .mlsel-filter-group {
+    margin-bottom: 5px;
+  }
 }
 
 .mlsel-select-list {

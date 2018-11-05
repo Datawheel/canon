@@ -5,15 +5,15 @@ import Vizbuilder from "../../src/";
 
 import "./Home.css";
 
-const DATAUSA = "https://canon-api.datausa.io";
+const DATAUSA = "https://gila-cliff-api.datausa.io";
 
 const DEFAULT_TOPOJSON = {
-  default: {
+  "default": {
     topojson: "/topojson/world.json",
     topojsonId: "id",
     topojsonKey: "countries"
   },
-  State: {
+  "State": {
     topojson: "/topojson/states.json",
     topojsonId: "id",
     topojsonKey: "states"
@@ -24,15 +24,15 @@ const DEFAULT_TOPOJSON = {
   get "Destination State"() {
     return this.State;
   },
-  Puma: {
+  "Puma": {
     topojson: "/topojson/pumas.json",
     topojsonId: "id",
     topojsonKey: "pumas"
   },
-  get PUMA() {
+  get "PUMA"() {
     return this.Puma;
   },
-  Msa: {
+  "Msa": {
     topojson: "/topojson/msas.json",
     topojsonId: "id",
     topojsonKey: "msas"
@@ -58,8 +58,7 @@ const DEFAULT_CONFIG = {
 
 const DEFAULT_PERMAKEYS = {
   measure: "msr",
-  dimension: "dim",
-  level: "lvl",
+  groups: "grp",
   filters: "fil",
   enlarged: "show"
 };
@@ -93,8 +92,7 @@ export default class Home extends React.Component {
     return <Vizbuilder
       src={this.state.source}
       config={DEFAULT_CONFIG}
-      defaultDimension={["Geography", "Gender", "Age"]}
-      defaultLevel={["State"]}
+      defaultGroup={["Geography.State"]}
       measureConfig={{
         "Millions Of Dollars": {colorScaleConfig: {color: "blue"}},
         "Opioid Overdose Death Rate Per 100,000 Age-Adjusted": {

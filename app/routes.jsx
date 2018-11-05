@@ -3,12 +3,15 @@ import {Route, IndexRoute} from "react-router";
 
 import App from "App";
 import Home from "pages/Home";
+import Slug from "pages/Slug";
 import Login from "pages/Login";
 import SignUp from "pages/SignUp";
 import Profile from "profile/Profile";
+import Error from "pages/NotFound";
 
 import {Reset, UserAdmin} from "../src";
 
+/** */
 function checkForId(nextState, replaceState) {
   if (!nextState.params.id) {
 
@@ -30,6 +33,7 @@ class Wrapper extends React.Component {
   }
 }
 
+/** */
 export default function RouteCreate() {
 
   return (
@@ -38,12 +42,14 @@ export default function RouteCreate() {
       <Route path="signup" component={SignUp} />
       <Route path="login" component={Login} />
       <Route path="reset" component={Reset} />
+      <Route path="test/:slug" component={Slug} />
       <Route path=":lang/profile/:id" component={Profile} />
       <Route path="profile(/:id)" onEnter={checkForId} component={Profile} />
       <Route path="/admin" component={Wrapper}>
         <IndexRoute component={UserAdmin} />
         <Route path="/admin/nested" component={UserAdmin} />
       </Route>
+      <Route path="*" component={Error} />
     </Route>
   );
 

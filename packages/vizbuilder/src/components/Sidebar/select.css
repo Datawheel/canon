@@ -1,64 +1,73 @@
-.select-box {
-  &.disabled,
-  & .disabled {
-    pointer-events: none;
-  }
-
+.select-target-wrapper {
   &.pt-popover-target {
     display: block;
   }
 
-  &.multi {
-    position: relative;
-
-    & > .pt-icon-standard {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 1;
-      margin: auto 0.5em;
-      height: 1em;
-      pointer-events: none;
-    }
+  &.disabled,
+  & .disabled {
+    pointer-events: none;
   }
 }
 
-.select-optgroup,
-.select-option > span,
+.select-popover-content {
+  min-width: 240px;
+}
+
+.select-list-wrapper {
+  user-select: none;
+}
+
+.select-item,
 .select-label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.select-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  list-style: none;
+}
+
 .select-option {
-  display: block;
-  padding: 4px 0;
   cursor: pointer;
+  padding-left: 4px;
+  padding-right: 4px;
+
+  &:hover {
+    background: #eee;
+  }
+
+  &.active {
+    background: #ccc;
+  }
 
   &.current {
-    display: flex;
     flex-direction: row;
     align-items: center;
-    padding-right: 3px;
-
-    & .value {
-      flex: 1 1;
-      width: 0;
-      padding: 0 10px;
-      line-height: 22px;
-    }
 
     & .pt-icon-standard {
       flex: 0 0;
       min-width: 1em;
     }
+
+    & .select-value {
+      width: 0;
+    }
+  }
+
+  & .select-value {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    padding-top: 3px;
+    padding-bottom: 3px;
   }
 
   & .select-label {
     display: block;
-    padding: 0 5px;
     line-height: 1.4em;
 
     &.lead {
@@ -72,18 +81,6 @@
   & .icon {
     display: inline-block;
     vertical-align: top;
-  }
-
-  &:hover {
-    background: #eee;
-  }
-
-  &.active {
-    background: #ccc;
-  }
-
-  &.disabled {
-    pointer-events: none;
   }
 }
 

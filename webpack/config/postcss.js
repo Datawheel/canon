@@ -11,6 +11,7 @@ module.exports = [
     path: appPath
   }),
   require("lost")(),
+  require("pixrem")(),
   require("postcss-mixins")(),
   require("postcss-each")(),
   require("postcss-for")(),
@@ -26,7 +27,6 @@ module.exports = [
     browsers: ["> 1%", "last 2 versions"]
   }),
   require("postcss-reporter")({
-    clearMessages: true,
     filter: msg => msg.type === "warning" || msg.type !== "dependency"
   })
 ];

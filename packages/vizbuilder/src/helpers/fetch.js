@@ -1,16 +1,15 @@
 import {unique} from "shorthash";
-import * as api from "../helpers/api";
+import yn from "yn";
+
+import * as api from "./api";
+import {TooMuchData} from "./errors";
+import {generateBaseState, queryBuilder, queryConverter} from "./query";
 import {
+  classifyMeasures,
   findByName,
-  finishBuildingStateFromParameters,
-  getMeasureCI,
-  getMeasureMOE,
-  getTimeDrilldown,
-  getValidDimensions,
-  getValidDrilldowns,
-  getValidMeasures,
-  getMeasureSource
-} from "../helpers/sorting";
+  getDefaultGroup,
+  getIncludedMembers
+} from "./sorting";
 
 /**
  * Prepares the array of cubes that will be used in the vizbuilder.
@@ -25,17 +24,22 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cube = cubes[nCbs];
     const cbAnnotations = cube.annotations;
 
-    if (cbAnnotations.hide_in_ui) {
+    if (yn(cbAnnotations.hide_in_ui)) {
       cubes.splice(nCbs, 1);
       continue;
     }
 
     const cbName = cube.caption || cube.name;
+    const cbTableId = cbAnnotations.table_id;
     const cbTopic = cbAnnotations.topic || "Other";
     const cbSubtopic = cbAnnotations.subtopic;
     const selectorKey = `${cbTopic}_${cbSubtopic}_`;
-    const sourceName = cbAnnotations.source_name;
+    // const sourceName = cbAnnotations.source_name;
     const datasetName = cbAnnotations.dataset_name;
+    const cbTagline = cbAnnotations.source_name || "";
+    const cbMeta = [cbAnnotations.source_name, cbAnnotations.dataset_name]
+      .filter(Boolean)
+      .join(" - ");
 
     cbAnnotations._key = unique(cbName);
 
@@ -48,11 +52,13 @@ export function injectCubeInfoOnMeasure(cubes) {
       msAnnotations._key = unique(`${cbName} ${measure.name}`);
       msAnnotations._cb_datasetName = datasetName;
       msAnnotations._cb_name = cbName;
+      msAnnotations._cb_table_id = cbTableId;
+      msAnnotations._cb_tagline = cbTagline;
       msAnnotations._cb_topic = cbTopic;
       msAnnotations._cb_subtopic = cbSubtopic;
-      msAnnotations._cb_sourceName = sourceName;
+      // msAnnotations._cb_sourceName = sourceName;
       msAnnotations._sortKey = selectorKey + measureLabel;
-      msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${sourceName}_${datasetName}`;
+      msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${cbMeta}`;
     }
 
     let nDim = cube.dimensions.length;
@@ -85,37 +91,20 @@ export function fetchCubes(params) {
   return api.cubes().then(cubes => {
     injectCubeInfoOnMeasure(cubes);
 
-    const measures = getValidMeasures(cubes);
+    const {measures, measureMap} = classifyMeasures(cubes);
     const measure = findByName(params.defaultMeasure, measures, true);
 
-    const cubeName = measure.annotations._cb_name;
-    const cube = cubes.find(cube => cube.name === cubeName);
-    const lci = getMeasureCI(cube, measure, "LCI");
-    const uci = getMeasureCI(cube, measure, "UCI");
-    const moe = getMeasureMOE(cube, measure);
-    const timeDrilldown = getTimeDrilldown(cube);
+    const newState = generateBaseState(cubes, measure);
 
-    const dimensions = getValidDimensions(cube);
-    const drilldowns = getValidDrilldowns(dimensions);
-    const sources = getMeasureSource(cube, measure);
+    const newOptions = newState.options;
+    newOptions.cubes = cubes;
+    newOptions.measures = measures;
+    newOptions.measureMap = measureMap;
 
-    const state = {
-      options: {cubes, measures, dimensions, drilldowns},
-      query: {
-        cube,
-        measure,
-        lci,
-        uci,
-        moe,
-        timeDrilldown,
-        collection: sources.collectionMeasure,
-        source: sources.sourceMeasure,
-        activeChart: params.enlarged || null,
-        conditions: []
-      }
-    };
+    const newQuery = newState.query;
+    newQuery.groups = getDefaultGroup(params.defaultGroup, newOptions.levels);
 
-    return finishBuildingStateFromParameters(state, params);
+    return newState;
   });
 }
 
@@ -129,11 +118,30 @@ export function fetchMembers(level) {
 
 /**
  * Retrieves the dataset for the query in the current Vizbuilder state.
+ * @param {Query} query The Vizbuilder's state query object
+ * @returns {Promise<QueryResults>}
  */
-export function fetchQuery() {
-  const {query, queryOptions} = this.state;
-  return api.query({
-    ...query,
-    options: queryOptions
+export function fetchQuery(datacap, query) {
+  const mondrianQuery = queryBuilder(queryConverter(query));
+  const timeLevelName = query.timeLevel;
+  return api.query(mondrianQuery).then(result => {
+    const dataset = (result.data || {}).data || [];
+    const members = getIncludedMembers(mondrianQuery, dataset);
+
+    let dataAmount = dataset.length;
+    if (Array.isArray(members[timeLevelName])) {
+      dataAmount *= 1 / members[timeLevelName].length;
+    }
+    if (dataAmount > datacap) {
+      throw new TooMuchData(mondrianQuery, dataAmount);
+    }
+
+    return {dataset, members};
   });
 }
+
+/**
+ * @typedef QueryResults
+ * @prop {object[]} dataset The dataset for the current query
+ * @prop {object} members An object with the list of current member names for the current drilldowns. Is the output of the `getIncludedMembers` function.
+ */
