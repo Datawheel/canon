@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@datawheel/canon-core": "^0.16.7",
-    "@datawheel/canon-logiclayer": "^0.1.10"
+    "@datawheel/canon-logiclayer": "^0.2.2"
   },
   "peerDependencies": {
     "@datawheel/canon-core": "^0.16.7"
