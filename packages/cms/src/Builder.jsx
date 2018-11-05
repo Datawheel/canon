@@ -10,6 +10,9 @@ import {connect} from "react-redux";
 import formatters from "./utils/formatters";
 
 import "./Builder.css";
+import "./themes/datawheel-dark.css";
+import "./themes/datawheel-light.css";
+import "./themes/cdc.css";
 
 class Builder extends Component {
 
@@ -17,7 +20,8 @@ class Builder extends Component {
     super(props);
     this.state = {
       currentTab: "profiles",
-      formatters
+      formatters,
+      theme: "datawheel-dark"
 
       /*
       formatters: (props.formatters || []).reduce((acc, d) => {
@@ -42,12 +46,16 @@ class Builder extends Component {
     }
   }
 
+  handleThemeSelect(e) {
+    this.setState({theme: e.target.value});
+  }
+
   render() {
-    const {currentTab} = this.state;
+    const {currentTab, theme} = this.state;
     const navLinks = ["profiles", "stories", "formatters"];
 
     return (
-      <div className="cms">
+      <div className={`cms ${theme}`}>
         <div className="cms-nav">
           {navLinks.map(navLink =>
             <button
@@ -56,6 +64,19 @@ class Builder extends Component {
               {navLink}
             </button>
           )}
+          <label className="cms-select-label cms-theme-select">theme: 
+            <select
+              className="cms-select"
+              name="select-theme"
+              id="select-theme"
+              value={this.state.selectValue}
+              onChange={this.handleThemeSelect.bind(this)}
+            >
+              <option value="datawheel-dark">dark</option>
+              <option value="datawheel-light">light</option>
+              <option value="cdc">CDC</option>
+            </select>
+          </label>
         </div>
         {currentTab === "profiles" && <ProfileBuilder />}
         {currentTab === "stories" && <StoryBuilder />}

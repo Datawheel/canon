@@ -10,21 +10,4 @@
   &.object, &.array, &.function {
     font-style: italic;
   }
-
-  &.number {
-    color: #8EB6FF; /* fallback */
-    color: var(--type-number);
-  }
-  &.string {
-    color: #B9E28C; /* fallback */
-    color: var(--type-string);
-  }
-  &.undefined {
-    color: #aebdcc; /* fallback */
-    color: var(--gray);
-  }
-  &.error {
-    color: #DB64A6; /* fallback */
-    color: var(--type-error);
-  }
 }

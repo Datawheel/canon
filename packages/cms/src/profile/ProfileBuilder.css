@@ -11,8 +11,6 @@
       height: auto; /* override blueprint */
 
       &:hover {
-        color: #FFD65B; /* fallback */
-        color: var(--accent-light);
         background: none;
       }
 
@@ -29,11 +27,6 @@
         line-height: 0.5rem !important;
         min-width: 0; /* override blueprint */
         font-size: 0.875rem;
-
-        &:hover {
-          color: #FFD65B; /* fallback */
-          color: var(--accent-light);
-        }
       }
       & .pt-tree-node-label {
         white-space: normal;
@@ -41,13 +34,6 @@
       & .pt-tree-node-secondary-label {
         line-height: 14px;
       }
-    }
-
-    &.pt-tree-node-selected > .pt-tree-node-content {
-      background-color: #181a21; /* fallback */
-      background-color: var(--black);
-      color: #FFD65B; /* fallback */
-      color: var(--accent-light);
     }
   }
   & .pt-tree-node-content-1 {
