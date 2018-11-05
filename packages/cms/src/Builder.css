@@ -171,7 +171,7 @@
   /* sizing */
   width: 18rem; /* fallback */
   width: var(--sidebar-width);
-  padding-top: 0.75rem;
+  padding: 0.75rem 0;
   /* positioning */
   position: fixed;
   top: calc(50px + 2rem); /* fallback */
@@ -181,6 +181,9 @@
   /* theming */
   background-color: #3e4455;
   background-color: var(--dark-3);
+  /* overflow container */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
 
   & > .cms-button {
     width: calc(100% - 1.5rem);

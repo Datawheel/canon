@@ -1,5 +1,4 @@
 .cms-sidebar {
-  overflow-y: scroll;
   & .pt-tree-node {
     &:hover {
       cursor: pointer;
@@ -65,7 +64,6 @@
   flex: 1;
   height: calc(100vh - 50px - 30px - 30px); /* fallback */
   height: calc(100vh - var(--main-nav-height) - 30px - 30px);
-  overflow-y: scroll;
   width: 100%;
   & .input-block, & .area-block {
     width: 100%;
