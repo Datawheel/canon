@@ -606,7 +606,7 @@ module.exports = function(app) {
       }
 
       if (db.search) {
-        const lookupKeys = intersect(levels, Object.keys(data[0]));
+        const lookupKeys = data.length ? intersect(levels, Object.keys(data[0])) : [];
         for (let x = 0; x < lookupKeys.length; x++) {
           const level = lookupKeys[x];
           const dim = searchLookups.find(d => d.hierarchy === level);
