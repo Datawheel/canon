@@ -21,7 +21,7 @@ class Builder extends Component {
     this.state = {
       currentTab: "profiles",
       formatters,
-      theme: "datawheel-dark"
+      theme: "cdc"
 
       /*
       formatters: (props.formatters || []).reduce((acc, d) => {
@@ -64,19 +64,6 @@ class Builder extends Component {
               {navLink}
             </button>
           )}
-          <label className="cms-select-label cms-theme-select">theme: 
-            <select
-              className="cms-select"
-              name="select-theme"
-              id="select-theme"
-              value={this.state.selectValue}
-              onChange={this.handleThemeSelect.bind(this)}
-            >
-              <option value="datawheel-dark">dark</option>
-              <option value="datawheel-light">light</option>
-              <option value="cdc">CDC</option>
-            </select>
-          </label>
         </div>
         {currentTab === "profiles" && <ProfileBuilder />}
         {currentTab === "stories" && <StoryBuilder />}
