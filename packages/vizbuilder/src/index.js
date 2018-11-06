@@ -54,7 +54,6 @@ class Vizbuilder extends React.PureComponent {
     this.initialStatePromise = initialStatePromise;
 
     this.defaultQuery = defaultQuery;
-    this.formatting = {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting};
     this.getDefaultGroup = getDefaultGroup.bind(null, defaultGroup);
     this.permalinkKeywords = permalinkKeywords;
     this.queryHistory = [];
@@ -66,12 +65,19 @@ class Vizbuilder extends React.PureComponent {
   }
 
   getChildContext() {
+    const props = this.props;
     return {
       defaultQuery: this.defaultQuery,
       fetchQueries: this.fetchQueries,
-      formatting: this.formatting,
       generateQueries: this.generateQueries,
       getDefaultGroup: this.getDefaultGroup,
+      generalConfig: {
+        defaultConfig: props.config,
+        formatting: {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting},
+        measureConfig: props.measureConfig,
+        topojson: props.topojson,
+        visualizations: props.visualizations
+      },
       loadControl: this.loadControl,
       permalinkKeywords: this.permalinkKeywords,
       stateUpdate: this.stateUpdate
@@ -105,13 +111,7 @@ class Vizbuilder extends React.PureComponent {
 
   render() {
     const {location} = this.context.router;
-    const {
-      config,
-      measureConfig,
-      permalink,
-      topojson,
-      visualizations
-    } = this.props;
+    const {permalink} = this.props;
     const {load, datasets, members, queries, options, query} = this.state;
 
     return (
@@ -126,15 +126,11 @@ class Vizbuilder extends React.PureComponent {
           <Ranking datasets={datasets} members={members} queries={queries} />
         </Sidebar>
         <ChartArea
-          triggerUpdate={load.lastUpdate}
           activeChart={query.activeChart}
-          defaultConfig={config}
           datasets={datasets}
+          lastUpdate={load.lastUpdate}
           members={members}
           queries={queries}
-          measureConfig={measureConfig}
-          topojson={topojson}
-          visualizations={visualizations}
         />
         {permalink && <PermalinkManager
           activeChart={query.activeChart}
@@ -192,7 +188,7 @@ Vizbuilder.contextTypes = {
 Vizbuilder.childContextTypes = {
   defaultQuery: PropTypes.any,
   fetchQueries: PropTypes.func,
-  formatting: PropTypes.objectOf(PropTypes.func),
+  generalConfig: PropTypes.object,
   generateQueries: PropTypes.func,
   getDefaultGroup: PropTypes.func,
   loadControl: PropTypes.func,
