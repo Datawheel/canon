@@ -582,6 +582,7 @@ class ProfileBuilder extends Component {
         <Dialog
           className="profileModal"
           isOpen={profileModalOpen}
+          inline={true}
           icon="new-object"
           onClose={() => this.setState({profileModalOpen: false})}
           title="Add New Profile"
@@ -603,7 +604,7 @@ class ProfileBuilder extends Component {
           { currentNode &&
             currentSlug &&
             <div id="Search">
-              {preview ? `Currently Previewing Data ID: ${preview}` : "Search to Preview"}
+              {preview ? `Current Data ID: ${preview}` : "Preview profile"}
               <Search
                 render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
                 dimension={currentNode.masterDimension}

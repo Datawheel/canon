@@ -31,9 +31,7 @@
 
 .generator-editor-dialog {
   height: 100vh;
-  margin-top: 50px; /* fallback */
-  margin-top: var(--nav-main-height);
-  max-height: calc(100vh - 25px - 50px); /* fallback */
-  max-height: calc(100vh - 25px - var(--nav-main-height));
+  margin-top: var(--nav-height);
+  max-height: calc(100vh - 25px - var(--nav-height));
   max-width: calc(100% - 25px);
 }

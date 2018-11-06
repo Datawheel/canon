@@ -84,7 +84,7 @@ class StoryTopicEditor extends Component {
 
     const {minData} = this.state;
 
-    if (!minData) return <Loading />;     
+    if (!minData) return <Loading />;
 
     const typeOptions = minData.types.map(t =>
       <option key={t} value={t}>{t}</option>
@@ -94,7 +94,7 @@ class StoryTopicEditor extends Component {
       <div id="storytopic-editor">
         <div className="pt-select">
           Topic Type
-          <select value={minData.type} onChange={this.changeField.bind(this, "type", true)} style={{margin: "5px", width: "200px"}}>
+          <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
             {typeOptions}
           </select>
         </div>

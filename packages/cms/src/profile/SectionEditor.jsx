@@ -119,12 +119,12 @@ class SectionEditor extends Component {
       <div id="section-editor">
         <div id="slug">
           slug
-          <input className="pt-input" style={{width: "180px"}} type="text" dir="auto" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
+          <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
           <button onClick={this.save.bind(this)}>rename</button>
         </div>
         <div className="pt-select">
           Allowed?
-          <select value={minData.allowed || "always"} onChange={this.chooseVariable.bind(this)} style={{margin: "5px", width: "200px"}}>
+          <select value={minData.allowed || "always"} onChange={this.chooseVariable.bind(this)}>
             {varOptions}
           </select>
         </div>

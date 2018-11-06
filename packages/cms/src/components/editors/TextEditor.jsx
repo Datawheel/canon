@@ -66,9 +66,9 @@ class TextEditor extends Component {
     if (!data || !fields || !variables || !formatters) return null;
 
     const quills = fields.map(f =>
-      <div key={f} style={{margin: "10px"}}>
-        <span style={{fontWeight: "bold"}}>{f}</span>
-        <QuillWrapper value={this.state.data[f] || ""} onChange={this.handleEditor.bind(this, f)} />
+      <div key={f}>
+        <label htmlFor={f}>{f}</label>
+        <QuillWrapper id={f} value={this.state.data[f] || ""} onChange={this.handleEditor.bind(this, f)} />
       </div>
     );
 
@@ -89,14 +89,14 @@ class TextEditor extends Component {
       <div id="text-editor">
         { showVars && <div className="pt-select">
           Allowed?
-          <select value={data.allowed || "always"} onChange={this.chooseVariable.bind(this)} style={{margin: "5px", width: "300px"}}>
+          <select value={data.allowed || "always"} onChange={this.chooseVariable.bind(this)}>
             {varOptions}
           </select>
-        </div> 
+        </div>
         }
         {/*
         <div className="pt-select">
-          <select onChange={this.chooseFormatter.bind(this)} style={{margin: "5px"}}>
+          <select onChange={this.chooseFormatter.bind(this)}>
             <option key="choose-a-formatter" value="choose-a-formatter">Choose a Formatter</option>
             {Object.keys(formatters).map(f => <option key={f} value={f}>{f}</option>)}
           </select>

@@ -9,7 +9,7 @@ class NewProfile extends Component {
     this.state = {
       profileData: {
         slug: "",
-        cubeName: "", 
+        cubeName: "",
         dimName: "",
         dimension: "",
         hierarchies: [],
@@ -23,7 +23,7 @@ class NewProfile extends Component {
     const {profileData} = this.state;
     profileData[field] = e.target.value;
     this.setState({profileData});
-  } 
+  }
 
   chooseDimension(e) {
     const {cubeData} = this.props;
@@ -77,21 +77,21 @@ class NewProfile extends Component {
       .map(m => <option key={m} value={m}>{m}</option>) : [];
 
     return (
-      <div style={{margin: "15px"}}>
-        <div style={{margin: "10px"}}>
-          Slug: 
-          <input className="pt-input" style={{marginLeft: "10px", width: "180px"}} type="text" dir="auto" value={profileData.slug} onChange={this.changeField.bind(this, "slug")}/>
+      <div className="pt-dialog-body">
+        <div className="field-container">
+          <label htmlFor="slug">Slug: </label>
+          <input id="slug" className="pt-input" type="text" value={profileData.slug} onChange={this.changeField.bind(this, "slug")}/>
         </div>
-        <div style={{margin: "10px"}}>
+        <div className="field-container">
           Dimension:
           <div className="pt-select">
-            <select style={{marginLeft: "10px"}} className="field-input" value={profileData.dimension} onChange={this.chooseDimension.bind(this)}>
+            <select className="field-input" value={profileData.dimension} onChange={this.chooseDimension.bind(this)}>
               <option value="default">Choose One</option>
               {dimOptions}
             </select>
           </div>
         </div>
-        { profileData.dimension && <div style={{margin: "10px"}}>
+        { profileData.dimension && <div>
           Levels:
           <MultiSelect
             // initialContent={}
@@ -113,17 +113,17 @@ class NewProfile extends Component {
           />
         </div>
         }
-        { profileData.dimension && profileData.levels.length > 0 && <div style={{margin: "10px"}}>
+        { profileData.dimension && profileData.levels.length > 0 && <div>
           Measure:
           <div className="pt-select">
-            <select style={{marginLeft: "10px"}} className="field-input" value={profileData.measure} onChange={this.changeField.bind(this, "measure")}>
+            <select className="field-input" value={profileData.measure} onChange={this.changeField.bind(this, "measure")}>
               <option value="default">Choose One</option>
               {measureOptions}
             </select>
           </div>
         </div>
         }
-        { profileData.dimension && profileData.levels.length > 0 && profileData.measure && <div style={{margin: "10px"}}>
+        { profileData.dimension && profileData.levels.length > 0 && profileData.measure && <div>
           <button onClick={this.createProfile.bind(this)}>Create Profile</button>
         </div>
         }

@@ -130,18 +130,18 @@ class TopicEditor extends Component {
       <div id="topic-editor">
         <div id="slug">
           slug
-          <input className="pt-input" style={{width: "180px"}} type="text" dir="auto" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
+          <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
           <button onClick={this.save.bind(this)}>rename</button>
         </div>
         <div className="pt-select">
           Allowed?
-          <select value={minData.allowed || "always"} onChange={this.changeField.bind(this, "allowed", true)} style={{margin: "5px", width: "200px"}}>
+          <select value={minData.allowed || "always"} onChange={this.changeField.bind(this, "allowed", true)}>
             {varOptions}
           </select>
         </div>
         <div className="pt-select">
           Topic Type
-          <select value={minData.type} onChange={this.changeField.bind(this, "type", true)} style={{margin: "5px", width: "200px"}}>
+          <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
             {typeOptions}
           </select>
         </div>

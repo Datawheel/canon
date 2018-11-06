@@ -161,9 +161,9 @@ class Search extends Component {
           <ul className={active ? "results active" : "results"}>
             {results.map(result =>
               <li key={result.id} className="result" onClick={this.onSelect.bind(this, result)}>
-                <a className="result-link" href="">
+                <span className="result-link" role="link">
                   {render(result, this.props)}
-                </a>
+                </span>
               </li>
             )}
             {!results.length && <li className="no-results">No Results Found</li>}

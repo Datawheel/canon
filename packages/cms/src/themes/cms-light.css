@@ -1,0 +1,190 @@
+/* BASE CMS STYLES */
+.cms-light {
+  background-color: var(--forward-3);
+  color: var(--background);
+
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    color: var(--background);
+  }
+
+  /* reset loading style */
+  & .loading {
+    background-color: var(--forward-3);
+    color: var(--background);
+  }
+
+
+  /* --------------------------------------- */
+  /* COMPONENTS */
+  /* --------------------------------------- */
+
+  /* buttons */
+  & .cms-button {
+    background-color: var(--accent-dark);
+    border-color: var(--accent-dark);
+    color: var(--foreground);
+
+    /* interactions */
+    &:hover, &:focus {
+      background-color: var(--accent-black);
+      border-color: var(--accent-black);
+    }
+  }
+  & .cms-button-naked {
+    color: var(--accent-dark);
+
+    /* interactions */
+    &:hover, &:focus {
+      color: var(--accent-black);
+    }
+  }
+
+  /* alerts */
+  & .cms-alert-color {
+    color: var(--alert-light);
+  }
+  & .cms-alert {
+    background-color: var(--alert);
+  }
+
+  /* variables */
+  & .cms-variable {
+    &.number { color: var(--type-number-dark); }
+    &.string { color: var(--type-string-dark); }
+    &.undefined { color: var(--backward-2); }
+    &.error { color: var(--type-error-dark); }
+  }
+
+  /* cards */
+  & .cms-card {
+    background-color: var(--foreground);
+    box-shadow: 0 5px 1rem 0.25rem var(--forward-2);
+    border-radius: 2px;
+
+    /* card table for displaying description, preview profile text, etc */
+    & .cms-card-table-cell {
+      color: var(--backward-3);
+    }
+
+    /* placeholder */
+    & .cms-card-table-body:empty {
+      background-color: var(--forward-3);
+    }
+
+    /* display values */
+    & .cms-card-table-body:not(:empty) {
+      background-color: transparent;
+      border: 1px solid var(--forward-2);
+      box-shadow: 0 1px 0.125rem 1px inset var(--forward-3);
+    }
+
+    /* reorder buttons */
+    & .cms-reorder-button {
+      background-color: var(--middle);
+      border-color: var(--middle);
+
+      /* interactions */
+      &:hover, &:focus {
+        background-color: var(--accent-black);
+        border-color: var(--accent-black);
+      }
+    }
+  }
+
+  /* search */
+  & .cms-search {
+    & .pt-popover-content {
+      background-color: var(--foreground) !important;
+    }
+
+    /* results list */
+    & .results {
+      /* active state */
+      &.active {
+        background-color: var(--backward-1);
+      }
+    }
+    /* individual result item */
+    & .result {
+      display: block;
+
+      & .result-link {
+        background-color: var(--forward-2);
+        color: var(--backward-3);
+      }
+
+      /* interactions */
+      &:hover, &:focus,
+      &.highlighted {
+        & .result-link {
+          background-color: var(--forward-3);
+          color: var(--accent-black);
+        }
+      }
+    }
+
+    /* empty state */
+    & .no-results {
+      color: var(--foreground);
+    }
+  }
+
+  /* dialogs */
+  & .pt-dialog {
+    background-color: var(--foreground);
+  }
+  & .pt-dialog-header {
+    background-color: var(--forward-2);
+  }
+  & .pt-dialog-close-button {
+    color: var(--backward-2);
+
+    &:hover, &:focus {
+      color: var(--accent-black);
+    }
+  }
+
+
+  /* --------------------------------------- */
+  /* LAYOUT */
+  /* --------------------------------------- */
+
+  /* offset main site nav */
+  & .cms-nav {
+    background-color: var(--forward-1);
+  }
+  & .cms-nav-link {
+    color: var(--background);
+
+    &.is-active {
+      color: var(--accent-black);
+      background-color: var(--foreground);
+
+      &:hover, &:focus {
+        color: var(--accent-dark);
+      }
+    }
+
+    &:hover, &:focus {
+      color: var(--accent-black);
+    }
+  }
+
+  /* sidebar */
+  & .cms-sidebar {
+    background-color: var(--foreground);
+    color: var(--backward-3);
+    box-shadow: 0 0 1rem var(--forward-2);
+
+    & .pt-tree-node-content:hover,
+    & .pt-tree-node-content .pt-tree-node-caret:hover,
+    & .pt-tree-node-content .pt-tree-node-cog:hover {
+      color: var(--accent-black);
+    }
+
+    & .pt-tree-node-selected > .pt-tree-node-content {
+      background-color: var(--accent-black);
+      color: var(--foreground);
+    }
+  }
+}

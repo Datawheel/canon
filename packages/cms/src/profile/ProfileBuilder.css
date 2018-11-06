@@ -48,8 +48,7 @@
   /* background-color: white; */
   box-sizing: border-box;
   flex: 1;
-  height: calc(100vh - 50px - 30px - 30px); /* fallback */
-  height: calc(100vh - var(--main-nav-height) - 30px - 30px);
+  height: calc(100vh - var(--nav-height) - 30px - 30px);
   width: 100%;
   & .input-block, & .area-block {
     width: 100%;
