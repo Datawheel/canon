@@ -458,7 +458,7 @@ export default function createChartConfig(
       availableCharts.delete("stacked");
     }
 
-    if (!hasGeoDim || !topojsonConfig || members[levelName].length < 3) {
+    if (!hasGeoDim || !topojsonConfig || members[levelName].length < 3 || xlevelName) {
       availableCharts.delete("geomap");
     }
 
