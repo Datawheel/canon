@@ -17,7 +17,7 @@ import {DEFAULT_MEASURE_FORMATTERS} from "./helpers/formatting";
 import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
 import {generateQueries} from "./helpers/query";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
-import {getDefaultGroup} from "./helpers/sorting";
+import {getDefaultGroup, higherTimeLessThanNow} from "./helpers/sorting";
 import {isSameQuery} from "./helpers/validation";
 
 import initialState from "./state";
@@ -123,7 +123,12 @@ class Vizbuilder extends React.PureComponent {
         <LoadingScreen total={load.total} progress={load.done} />
         <Sidebar options={options} query={query}>
           {this.props.children}
-          <Ranking datasets={datasets} members={members} queries={queries} />
+          <Ranking
+            datasets={datasets}
+            members={members}
+            queries={queries}
+            selectedTime={query.selectedTime}
+          />
         </Sidebar>
         <ChartArea
           activeChart={query.activeChart}
@@ -131,6 +136,7 @@ class Vizbuilder extends React.PureComponent {
           lastUpdate={load.lastUpdate}
           members={members}
           queries={queries}
+          selectedTime={query.selectedTime}
         />
         {permalink && <PermalinkManager
           activeChart={query.activeChart}
@@ -152,10 +158,11 @@ class Vizbuilder extends React.PureComponent {
   fetchQueries() {
     const {query, queries} = this.state;
     const activeQueryKey = `${query.activeChart}`.split("-")[0];
-    const isValidActiveChart = queries.some(
-      query => query.key === activeQueryKey
-    );
+    const activeChart = queries.some(query => query.key === activeQueryKey)
+      ? query.activeChart
+      : null;
     const queryFetcher = fetchQuery.bind(null, this.props.datacap);
+    const timeLevel = query.timeLevel;
 
     return Promise.all(queries.map(queryFetcher)).then(results => {
       const datasets = [];
@@ -168,15 +175,15 @@ class Vizbuilder extends React.PureComponent {
         members.unshift(result.members);
       }
 
-      if (!isValidActiveChart) {
-        return {
-          datasets,
-          members,
-          query: {activeChart: null}
-        };
-      }
+      const selectedTime =
+        timeLevel &&
+        higherTimeLessThanNow(members[0], timeLevel.name);
 
-      return {datasets, members};
+      return {
+        datasets,
+        members,
+        query: {activeChart, selectedTime},
+      };
     });
   }
 }

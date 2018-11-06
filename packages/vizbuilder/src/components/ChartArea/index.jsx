@@ -1,9 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {NonIdealState} from "@blueprintjs/core";
-import {formatAbbreviate} from "d3plus-format";
 
-import createChartConfig, {charts} from "../../helpers/chartconfig";
+import createChartConfig from "../../helpers/chartconfig";
 import ChartCard from "./ChartCard";
 
 import "./style.css";
@@ -21,13 +20,15 @@ class ChartArea extends React.Component {
     this.resizeCall = undefined;
     this.scrollCall = undefined;
 
-    this.selectChart = this.selectChart.bind(this);
+    this.handleTimeChange = this.handleTimeChange.bind(this);
     this.scrollEnsure = this.scrollEnsure.bind(this);
+    this.selectChart = this.selectChart.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
     return (
       this.props.activeChart !== nextProps.activeChart ||
+      this.props.selectedTime !== nextProps.selectedTime ||
       this.props.lastUpdate !== nextProps.lastUpdate
     );
   }
@@ -54,9 +55,14 @@ class ChartArea extends React.Component {
     });
   }
 
+  handleTimeChange(date) {
+    const selectedTime = date.getFullYear();
+    this.context.stateUpdate({query: {selectedTime}});
+  }
+
   render() {
     const {generalConfig} = this.context;
-    const {activeChart, datasets, members, queries} = this.props;
+    const {activeChart, selectedTime, datasets, members, queries} = this.props;
 
     if (!datasets.length) {
       return EMPTY_DATASETS;
@@ -71,7 +77,7 @@ class ChartArea extends React.Component {
         queries[n],
         datasets[n],
         members[n],
-        activeChart,
+        {activeChart, selectedTime, onTimeChange: this.handleTimeChange},
         generalConfig
       );
       const configs = chartConfigs.map(chartConfig => (

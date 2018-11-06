@@ -33,18 +33,15 @@ class Ranking extends React.PureComponent {
       </li>
     );
 
-    const currentYear = new Date().getFullYear();
-    const maxTimeMember = members[timeLevelName]
-      .filter(year => year <= currentYear)
-      .pop();
+    const selectedTime = props.selectedTime;
     const maxTimeDataset = dataset.filter(
-      d => d[timeLevelName] == maxTimeMember
+      d => d[timeLevelName] == selectedTime
     );
 
     if (maxTimeDataset.length < 20) {
       return (
         <div className="control ranking">
-          <p className="label">{`Ranking (${maxTimeMember})`}</p>
+          <p className="label">{`Ranking (${selectedTime})`}</p>
           <ol className="ranking-list">{maxTimeDataset.map(renderListItem)}</ol>
         </div>
       );
@@ -56,9 +53,9 @@ class Ranking extends React.PureComponent {
 
     return (
       <div className="control ranking">
-        <p className="label">{`Top 10 (${maxTimeMember})`}</p>
+        <p className="label">{`Top 10 (${selectedTime})`}</p>
         <ol className="ranking-upper">{upperDataset.map(renderListItem)}</ol>
-        <p className="label">{`Bottom 10 (${maxTimeMember})`}</p>
+        <p className="label">{`Bottom 10 (${selectedTime})`}</p>
         <ol className="ranking-lower" start={lowerIndex + 1}>
           {lowerDataset.map(renderListItem)}
         </ol>
