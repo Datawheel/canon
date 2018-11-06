@@ -132,7 +132,7 @@ class ProfileEditor extends Component {
           <label className="pt-label pt-inline">
             Profile Slug
             <div className="pt-input-group">
-              <input className="pt-input" style={{width: "180px"}} type="text" dir="auto" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
+              <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
               <button className="pt-button" onClick={this.save.bind(this)}>Rename</button>
             </div>
           </label>

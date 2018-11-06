@@ -35,10 +35,10 @@ class SelectorEditor extends Component {
     if (!data.options) data.options = [];
     const varList = Object.keys(variables).filter(v => !v.startsWith("_") && !data.options.map(o => o.option).includes(v));
     if (varList.length > 0) {
-      data.options.push({option: varList[0], allowed: "always", isDefault: false});  
+      data.options.push({option: varList[0], allowed: "always", isDefault: false});
     }
     else {
-      data.options.push({option: "", allowed: "always", isDefault: false});   
+      data.options.push({option: "", allowed: "always", isDefault: false});
     }
     this.setState({data});
   }
@@ -79,7 +79,7 @@ class SelectorEditor extends Component {
         }
         else {
           if (data.options.filter(o => o.isDefault).length > 1) {
-            theOption.isDefault = checked;    
+            theOption.isDefault = checked;
           }
         }
       }
@@ -101,7 +101,7 @@ class SelectorEditor extends Component {
 
   handleTypeChange(e) {
     const {data} = this.state;
-    data.type = e.target.value; 
+    data.type = e.target.value;
     if (data.type === "single") {
       let foundDefault = false;
       data.options = data.options.map(o => {
@@ -212,16 +212,16 @@ class SelectorEditor extends Component {
           {
             data.options && data.options.map((option, i) =>
               <li key={i}>
-                <select value={option.option} onChange={this.chooseOption.bind(this, i)} style={{margin: "5px", width: "300px"}}>
+                <select value={option.option} onChange={this.chooseOption.bind(this, i)}>
                   {varOptions}
                 </select>
-                <select value={option.allowed} onChange={this.chooseAllowed.bind(this, i)} style={{margin: "5px", width: "300px"}}>
+                <select value={option.allowed} onChange={this.chooseAllowed.bind(this, i)}>
                   { varOptions }
                 </select>
                 <button className="pt-button" onClick={this.moveUp.bind(this, i)}><span className="pt-icon pt-icon-arrow-up" /></button>
                 <button className="pt-button" onClick={this.moveDown.bind(this, i)}><span className="pt-icon pt-icon-arrow-down" /></button>
                 <button className="pt-button" onClick={this.deleteOption.bind(this, i)}><span className="pt-icon pt-icon-delete" /></button>
-                <input type="checkbox" checked={option.isDefault} style={{margin: "5px"}} onChange={this.setDefault.bind(this, option.option)}/>
+                <input type="checkbox" checked={option.isDefault} onChange={this.setDefault.bind(this, option.option)}/>
               </li>
             )
           }
@@ -230,7 +230,7 @@ class SelectorEditor extends Component {
         { data.type === "single" && <button className="pt-button" onClick={this.toggleCustom.bind(this)}>Custom Default <span className="pt-icon pt-icon-cog"/></button> }
         {
           showCustom && <div>
-            <select value={data.default} onChange={this.chooseCustom.bind(this)} style={{margin: "5px", width: "300px"}}>
+            <select value={data.default} onChange={this.chooseCustom.bind(this)}>
               {customOptions}
             </select>
           </div>

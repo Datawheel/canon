@@ -75,21 +75,21 @@ class GeneratorEditor extends Component {
         { type === "generator" || type === "materializer" || type === "formatter"
           ? <label className="pt-label pt-inline">
             <span className="label-text">Name</span>
-            <input className="pt-input" type="text" dir="auto" value={data.name} onChange={this.changeField.bind(this, "name")}/>
+            <input className="pt-input" type="text" value={data.name} onChange={this.changeField.bind(this, "name")}/>
           </label>
           : null
         }
         { type === "generator"
           ? <label className="pt-label pt-inline">
             <span className="label-text">API</span>
-            <input className="pt-input" type="text" dir="auto" value={data.api} onChange={this.changeField.bind(this, "api")}/>
+            <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")}/>
           </label>
           : null
         }
         { type === "generator" || type === "materializer" || type === "formatter"
           ? <label className="pt-label pt-inline">
             <span className="label-text">Description</span>
-            <input className="pt-input" type="text" dir="auto" value={data.description} onChange={this.changeField.bind(this, "description")}/>
+            <input className="pt-input" type="text" value={data.description} onChange={this.changeField.bind(this, "description")}/>
           </label>
           : null
         }

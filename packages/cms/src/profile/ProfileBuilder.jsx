@@ -582,6 +582,7 @@ class ProfileBuilder extends Component {
         <Dialog
           className="profileModal"
           isOpen={profileModalOpen}
+          inline={true}
           icon="new-object"
           onClose={() => this.setState({profileModalOpen: false})}
           title="Add New Profile"

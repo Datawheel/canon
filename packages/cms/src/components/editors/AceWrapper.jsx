@@ -34,7 +34,7 @@ export default class AceWrapper extends Component {
       clearTimeout(this.resize);
       this.resize = setTimeout(editor => editor.resize(), 400, this.editor.editor);
     }
-    
+
     /*
     if (this.editor && prevProps.variables !== this.props.variables) {
       this.updateCompleter.bind(this)();
@@ -49,7 +49,7 @@ export default class AceWrapper extends Component {
       require("brace/mode/javascript");
       require("brace/theme/kuroir");
       require("brace/theme/idle_fingers");
-      return <Ace theme={readOnly ? "kuroir" : "idle_fingers"} width="auto" height="auto" 
+      return <Ace theme={readOnly ? "kuroir" : "idle_fingers"} width="auto" height="auto"
         /* TODO: adding this until we fix the css so the editor shows up */
         style={{minHeight: "400px"}}
         ref={editor => this.editor = editor}

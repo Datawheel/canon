@@ -29,9 +29,9 @@ class PlainTextEditor extends Component {
     if (!data || !fields) return null;
 
     const inputs = fields.map(f =>
-      <div key={f} style={{margin: "10px"}}>
-        <span style={{fontWeight: "bold"}}>{f}</span>
-        <input className="pt-input" style={{width: "180px"}} type="text" dir="auto" value={data[f]} onChange={this.changeField.bind(this, f)}/>
+      <div key={f}>
+        <label htmlFor={f}>{f}</label>
+        <input id={f} className="pt-input" type="text" value={data[f]} onChange={this.changeField.bind(this, f)}/>
       </div>
     );
 

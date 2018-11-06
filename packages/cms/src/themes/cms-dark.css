@@ -1,0 +1,180 @@
+/* BASE CMS STYLES */
+.cms-dark {
+  background-color: var(--background);
+  color: var(--forward-3);
+
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    color: var(--foreground);
+  }
+
+  /* reset loading style */
+  & .loading {
+    color: var(--forward-3);
+    background-color: var(--background);
+  }
+
+
+  /* --------------------------------------- */
+  /* COMPONENTS */
+  /* --------------------------------------- */
+
+  /* buttons */
+  & .cms-button {
+    background-color: var(--accent-dark);
+    border-color: var(--accent-dark);
+    color: var(--foreground);
+
+    /* interactions */
+    &:hover, &:focus {
+      background-color: var(--accent-black);
+      border-color: var(--accent-black);
+    }
+  }
+  & .cms-button-naked {
+    color: var(--accent-dark);
+
+    /* interactions */
+    &:hover, &:focus {
+      color: var(--accent-black);
+    }
+  }
+
+  /* alerts */
+  & .cms-alert-color {
+    color: var(--alert-light);
+  }
+  & .cms-alert {
+    background-color: var(--alert);
+  }
+
+  /* variables */
+  & .cms-variable {
+    &.number { color: var(--type-number); }
+    &.string { color: var(--type-string); }
+    &.undefined { color: var(--middle); }
+    &.error { color: var(--type-error); }
+  }
+
+  /* cards */
+  & .cms-card {
+    background-color: var(--backward-3);
+    border-radius: 2px;
+
+    /* card table for displaying description, preview profile text, etc */
+    & .cms-card-table-cell {
+      color: var(--forward-1);
+    }
+
+    /* placeholder */
+    & .cms-card-table-body:empty {
+      background-color: rgba(0, 0, 0, 0.25);
+    }
+
+    /* display values */
+    & .cms-card-table-body:not(:empty) {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    /* reorder buttons */
+    & .cms-reorder-button {
+      background-color: var(--background);
+      border-color: var(--background);
+
+      &:hover, &:focus {
+        background-color: var(--accent-black);
+        border-color: var(--accent-black);
+      }
+    }
+  }
+
+  /* search */
+  & .cms-search {
+    & .pt-popover-content {
+      background-color: var(--background) !important;
+    }
+
+    /* results list */
+    & .results {
+      /* active state */
+      &.active {
+        background-color: var(--forward-1);
+      }
+    }
+    /* individual result item */
+    & .result {
+      display: block;
+
+      & .result-link {
+        background-color: var(--backward-1);
+        color: var(--background);
+      }
+
+      /* interactions */
+      &:hover, &:focus,
+      &.highlighted {
+        & .result-link {
+          background-color: var(--backward-3);
+          color: var(--accent);
+        }
+      }
+    }
+
+    /* empty state */
+    & .no-results {
+      color: var(--background);
+    }
+  }
+
+  /* dialogs */
+  & .pt-dialog {
+    background-color: var(--backward-3);
+  }
+  & .pt-dialog-header {
+    background-color: var(--backward-2);
+  }
+  & .pt-dialog-close-button {
+    color: var(--forward-1);
+
+    &:hover, &:focus {
+      color: var(--foreground);
+    }
+  }
+
+
+  /* --------------------------------------- */
+  /* LAYOUT */
+  /* --------------------------------------- */
+
+  /* offset main site nav */
+  & .cms-nav {
+    background-color: var(--backward-2);
+  }
+  & .cms-nav-link {
+    color: var(--forward-3);
+
+    &.is-active {
+      color: var(--accent);
+      background-color: var(--backward-3);
+    }
+
+    &:hover, &:focus {
+      color: var(--accent-light);
+    }
+  }
+
+  /* sidebar */
+  & .cms-sidebar {
+    background-color: var(--backward-3);
+
+    & .pt-tree-node-content:hover,
+    & .pt-tree-node-content .pt-tree-node-caret:hover,
+    & .pt-tree-node-content .pt-tree-node-cog:hover {
+      color: var(--accent-light);
+    }
+
+    & .pt-tree-node-selected > .pt-tree-node-content {
+      background-color: var(--background);
+      color: var(--accent-light);
+    }
+  }
+}

@@ -1,6 +1,5 @@
 // import libs from "./utils/libs";
 import React, {Component} from "react";
-import {Tab2, Tabs2} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
@@ -10,9 +9,8 @@ import {connect} from "react-redux";
 import formatters from "./utils/formatters";
 
 import "./Builder.css";
-import "./themes/datawheel-dark.css";
-import "./themes/datawheel-light.css";
-import "./themes/cdc.css";
+import "./themes/cms-dark.css";
+import "./themes/cms-light.css";
 
 class Builder extends Component {
 
@@ -21,7 +19,7 @@ class Builder extends Component {
     this.state = {
       currentTab: "profiles",
       formatters,
-      theme: "cdc"
+      theme: "cms-light"
 
       /*
       formatters: (props.formatters || []).reduce((acc, d) => {
@@ -64,6 +62,18 @@ class Builder extends Component {
               {navLink}
             </button>
           )}
+          <label className="cms-select-label cms-theme-select">theme: 
+            <select
+              className="cms-select"
+              name="select-theme"
+              id="select-theme"
+              value={this.state.selectValue}
+              onChange={this.handleThemeSelect.bind(this)}
+            >
+              <option value="cms-light">light</option>
+              <option value="cms-dark">dark</option>
+            </select>
+          </label>
         </div>
         {currentTab === "profiles" && <ProfileBuilder />}
         {currentTab === "stories" && <StoryBuilder />}
