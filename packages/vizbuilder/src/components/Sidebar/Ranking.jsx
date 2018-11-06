@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 class Ranking extends React.PureComponent {
   render() {
-    const formatting = this.context.formatting;
+    const {formatting} = this.context.generalConfig;
     const props = this.props;
     const dataset = props.datasets[0];
     const members = props.members[0];
@@ -68,7 +68,7 @@ class Ranking extends React.PureComponent {
 }
 
 Ranking.contextTypes = {
-  formatting: PropTypes.objectOf(PropTypes.func)
+  generalConfig: PropTypes.object
 };
 
 export default Ranking;

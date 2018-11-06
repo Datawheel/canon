@@ -28,7 +28,7 @@ class ChartArea extends React.Component {
   shouldComponentUpdate(nextProps) {
     return (
       this.props.activeChart !== nextProps.activeChart ||
-      this.props.triggerUpdate !== nextProps.triggerUpdate
+      this.props.lastUpdate !== nextProps.lastUpdate
     );
   }
 
@@ -55,28 +55,12 @@ class ChartArea extends React.Component {
   }
 
   render() {
-    const {
-      activeChart,
-      defaultConfig,
-      measureConfig,
-      datasets,
-      members,
-      queries,
-      topojson,
-      visualizations
-    } = this.props;
+    const {generalConfig} = this.context;
+    const {activeChart, datasets, members, queries} = this.props;
 
     if (!datasets.length) {
       return EMPTY_DATASETS;
     }
-
-    const generalConfig = {
-      defaultConfig,
-      formatting: this.context.formatting,
-      measureConfig,
-      topojson,
-      visualizations
-    };
 
     const chartElements = [];
 
@@ -120,27 +104,16 @@ class ChartArea extends React.Component {
 }
 
 ChartArea.contextTypes = {
-  formatting: PropTypes.objectOf(PropTypes.func),
+  generalConfig: PropTypes.object,
   stateUpdate: PropTypes.func
 };
 
 ChartArea.propTypes = {
   activeChart: PropTypes.string,
-  defaultConfig: PropTypes.object,
-  formatting: PropTypes.objectOf(PropTypes.func),
-  measureConfig: PropTypes.object,
   datasets: PropTypes.arrayOf(PropTypes.array),
+  lastUpdate: PropTypes.number,
   members: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.array)),
-  queries: PropTypes.arrayOf(PropTypes.object),
-  topojson: PropTypes.objectOf(
-    PropTypes.shape({
-      topojson: PropTypes.string.isRequired,
-      topojsonId: PropTypes.string,
-      topojsonKey: PropTypes.string
-    })
-  ),
-  triggerUpdate: PropTypes.number,
-  visualizations: PropTypes.arrayOf(PropTypes.string)
+  queries: PropTypes.arrayOf(PropTypes.object)
 };
 
 ChartArea.defaultProps = {
