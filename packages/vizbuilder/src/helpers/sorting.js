@@ -3,7 +3,12 @@ import union from "lodash/union";
 import yn from "yn";
 
 import {findFirstNumber} from "./formatting";
-import {areKindaNumeric, isNumeric, isTimeDimension, isValidMeasure} from "./validation";
+import {
+  areKindaNumeric,
+  isNumeric,
+  isTimeDimension,
+  isValidMeasure
+} from "./validation";
 import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 /**
@@ -88,7 +93,8 @@ export function classifyMeasures(cubes) {
   let nCbs = cubes.length;
   while (nCbs--) {
     const cube = cubes[nCbs];
-    const cbHasTopic = cube.annotations.topic && cube.annotations.topic !== "Other";
+    const cbHasTopic =
+      cube.annotations.topic && cube.annotations.topic !== "Other";
     const cbTableId = cube.annotations.table_id;
 
     let nMsr = cube.measures.length;
@@ -328,6 +334,18 @@ export function getIncludedMembers(query, dataset) {
 
     return members;
   }, {});
+}
+
+/**
+ * Returns the value of the highest timeLevel value in the dataset, but lower than the current time.
+ * @param {Object<string,number[]>} members An object with members and arrays of its available values
+ * @param {string} timeLevelName The name of the timeLevel for the current query
+ */
+export function higherTimeLessThanNow(members, timeLevelName) {
+  // TODO: prepare it to handle months, days, etc
+  const now = new Date();
+  const currentTime = now.getFullYear();
+  return members[timeLevelName].filter(time => time < currentTime).pop();
 }
 
 /**
