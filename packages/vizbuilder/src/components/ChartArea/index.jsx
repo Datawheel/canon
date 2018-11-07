@@ -1,9 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {NonIdealState} from "@blueprintjs/core";
-import {formatAbbreviate} from "d3plus-format";
 
-import createChartConfig, {charts} from "../../helpers/chartconfig";
+import createChartConfig from "../../helpers/chartconfig";
 import ChartCard from "./ChartCard";
 
 import "./style.css";
@@ -21,14 +20,16 @@ class ChartArea extends React.Component {
     this.resizeCall = undefined;
     this.scrollCall = undefined;
 
-    this.selectChart = this.selectChart.bind(this);
+    this.handleTimeChange = this.handleTimeChange.bind(this);
     this.scrollEnsure = this.scrollEnsure.bind(this);
+    this.selectChart = this.selectChart.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
     return (
       this.props.activeChart !== nextProps.activeChart ||
-      this.props.triggerUpdate !== nextProps.triggerUpdate
+      this.props.selectedTime !== nextProps.selectedTime ||
+      this.props.lastUpdate !== nextProps.lastUpdate
     );
   }
 
@@ -54,29 +55,18 @@ class ChartArea extends React.Component {
     });
   }
 
+  handleTimeChange(date) {
+    const selectedTime = date.getFullYear();
+    this.context.stateUpdate({query: {selectedTime}});
+  }
+
   render() {
-    const {
-      activeChart,
-      defaultConfig,
-      measureConfig,
-      datasets,
-      members,
-      queries,
-      topojson,
-      visualizations
-    } = this.props;
+    const {generalConfig} = this.context;
+    const {activeChart, selectedTime, datasets, members, queries} = this.props;
 
     if (!datasets.length) {
       return EMPTY_DATASETS;
     }
-
-    const generalConfig = {
-      defaultConfig,
-      formatting: this.context.formatting,
-      measureConfig,
-      topojson,
-      visualizations
-    };
 
     const chartElements = [];
 
@@ -87,7 +77,7 @@ class ChartArea extends React.Component {
         queries[n],
         datasets[n],
         members[n],
-        activeChart,
+        {activeChart, selectedTime, onTimeChange: this.handleTimeChange},
         generalConfig
       );
       const configs = chartConfigs.map(chartConfig => (
@@ -120,27 +110,16 @@ class ChartArea extends React.Component {
 }
 
 ChartArea.contextTypes = {
-  formatting: PropTypes.objectOf(PropTypes.func),
+  generalConfig: PropTypes.object,
   stateUpdate: PropTypes.func
 };
 
 ChartArea.propTypes = {
   activeChart: PropTypes.string,
-  defaultConfig: PropTypes.object,
-  formatting: PropTypes.objectOf(PropTypes.func),
-  measureConfig: PropTypes.object,
   datasets: PropTypes.arrayOf(PropTypes.array),
+  lastUpdate: PropTypes.number,
   members: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.array)),
-  queries: PropTypes.arrayOf(PropTypes.object),
-  topojson: PropTypes.objectOf(
-    PropTypes.shape({
-      topojson: PropTypes.string.isRequired,
-      topojsonId: PropTypes.string,
-      topojsonKey: PropTypes.string
-    })
-  ),
-  triggerUpdate: PropTypes.number,
-  visualizations: PropTypes.arrayOf(PropTypes.string)
+  queries: PropTypes.arrayOf(PropTypes.object)
 };
 
 ChartArea.defaultProps = {

@@ -8,11 +8,7 @@ import {findFirstNumber} from "./formatting";
  * @returns {boolean}
  */
 export function isTimeDimension(dimension) {
-  return (
-    dimension.dimensionType === 1 ||
-    dimension.name === "Date" ||
-    dimension.name === "Year"
-  );
+  return dimension.dimensionType === 1 || /year|date/i.test(dimension.name);
 }
 
 export function isValidMeasure(measure) {
