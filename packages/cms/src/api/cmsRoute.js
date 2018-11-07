@@ -491,4 +491,19 @@ module.exports = function(app) {
     });
   });
 
+  /**
+   * TEMPORARY TEST ROUTE FOR DEVELOPING PERCENTAGE BARS
+   */
+  app.get("/api/test", (req, res) => {
+    res.json([
+      {state: "mass", rate: 23}, 
+      {state: "ny", rate: 34}, 
+      {state: "connecticut", rate: 54},
+      {state: "rhode island", rate: 23},
+      {state: "maine", rate: 12},
+      {state: "pennsylvania", rate: 32},
+      {state: "new jersey", rate: 40}
+    ]).end();
+  });
+
 };
