@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import SingleBar from "./SingleBar";
+import {abbreviate} from "../../utils/formatters";
 
 import "./PercentageBar.css";
 
@@ -30,7 +30,8 @@ class PercentageBar extends Component {
 
     const defaults = {
       cutoff: 5,
-      dataFormat: d => d
+      dataFormat: d => d,
+      type: "PercentageBar"
     };
 
     config = Object.assign({}, defaults, config);
@@ -59,19 +60,24 @@ class PercentageBar extends Component {
     const {data, cutoff, title, value, groupBy, total} = config;
 
     const displayData = showAll ? data : data.slice(0, cutoff);
-    
-    const bars = displayData.map((d, i) => 
-      <SingleBar 
-        key={`bar-${i}`} 
-        percent={d[value] / total * 100} 
-        label={d[groupBy]} 
-        number={d[value]} 
-      />
-    );
-
+  
     return <div id="PercentageBar">
       <h3 className="pb-title">{title}</h3>
-      {bars}
+      { 
+        displayData.map((d, i) => {
+          const percent = d[value] / total * 100;
+          const label = d[groupBy];
+          const number = d[value];
+          return <div key={`pb-${i}`}className="percent-wrapper">
+            <p className="label s-size">{label}</p>
+            <div className="pt-progress-bar pt-intent-primary pt-no-stripes">
+              {!isNaN(percent) && <div className="pt-progress-meter" style={{width: `${percent}%`}}>
+              </div>}      
+              <p className="percent-label xs-size">{isNaN(percent) ? "No data" : number ? abbreviate(number) : `${percent.toFixed(2)}%` }</p>    
+            </div>
+          </div>;
+        })
+      }
       {data.length > cutoff && <button onClick={() => this.setState({showAll: !this.state.showAll})}>{showAll ? "Hide" : "Show More"}</button>}
     </div>;
 
