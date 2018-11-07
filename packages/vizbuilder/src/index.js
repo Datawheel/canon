@@ -60,17 +60,13 @@ class Vizbuilder extends React.PureComponent {
     this.queryHistory = [];
 
     this.loadControl = loadControl.bind(this);
-    this.fetchQueries = this.fetchQueries.bind(this);
-    this.generateQueries = this.generateQueries.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
   }
 
   getChildContext() {
     return {
       defaultQuery: this.defaultQuery,
-      fetchQueries: this.fetchQueries,
       formatting: this.formatting,
-      generateQueries: this.generateQueries,
       getDefaultGroup: this.getDefaultGroup,
       loadControl: this.loadControl,
       permalinkKeywords: this.permalinkKeywords,
@@ -81,11 +77,7 @@ class Vizbuilder extends React.PureComponent {
   componentDidMount() {
     const initialStatePromise = this.initialStatePromise;
     delete this.initialStatePromise;
-    this.loadControl(
-      () => initialStatePromise,
-      this.generateQueries,
-      this.fetchQueries
-    );
+    this.loadControl(() => initialStatePromise);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -148,41 +140,6 @@ class Vizbuilder extends React.PureComponent {
   stateUpdate(newState) {
     return setStatePromise.call(this, state => mergeStates(state, newState));
   }
-
-  generateQueries() {
-    return {queries: generateQueries(this.state.query)};
-  }
-
-  fetchQueries() {
-    const {query, queries} = this.state;
-    const activeQueryKey = `${query.activeChart}`.split("-")[0];
-    const isValidActiveChart = queries.some(
-      query => query.key === activeQueryKey
-    );
-    const queryFetcher = fetchQuery.bind(null, this.props.datacap);
-
-    return Promise.all(queries.map(queryFetcher)).then(results => {
-      const datasets = [];
-      const members = [];
-
-      let n = results.length;
-      while (n--) {
-        const result = results[n];
-        datasets.unshift(result.dataset);
-        members.unshift(result.members);
-      }
-
-      if (!isValidActiveChart) {
-        return {
-          datasets,
-          members,
-          query: {activeChart: null}
-        };
-      }
-
-      return {datasets, members};
-    });
-  }
 }
 
 Vizbuilder.contextTypes = {
@@ -191,9 +148,7 @@ Vizbuilder.contextTypes = {
 
 Vizbuilder.childContextTypes = {
   defaultQuery: PropTypes.any,
-  fetchQueries: PropTypes.func,
   formatting: PropTypes.objectOf(PropTypes.func),
-  generateQueries: PropTypes.func,
   getDefaultGroup: PropTypes.func,
   loadControl: PropTypes.func,
   permalinkKeywords: PropTypes.object,

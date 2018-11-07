@@ -104,27 +104,22 @@ class Sidebar extends React.PureComponent {
   }
 
   setMeasure(measure) {
-    const {context} = this;
+    const {getDefaultGroup} = this.context;
     const {options, query} = this.props;
-    const {getDefaultGroup} = context;
 
-    return context.loadControl(
-      () => {
-        const newState = generateBaseState(options.cubes, measure);
-        const newQuery = newState.query;
-        const isSameCube = newQuery.cube === query.cube;
+    return this.context.loadControl(() => {
+      const newState = generateBaseState(options.cubes, measure);
+      const newQuery = newState.query;
+      const isSameCube = newQuery.cube === query.cube;
 
-        newQuery.activeChart = query.activeChart;
-        newQuery.groups = isSameCube
-          ? query.groups
-          : getDefaultGroup(newState.options.levels);
-        newQuery.filters = isSameCube ? query.filters : [];
+      newQuery.activeChart = query.activeChart;
+      newQuery.groups = isSameCube
+        ? query.groups
+        : getDefaultGroup(newState.options.levels);
+      newQuery.filters = isSameCube ? query.filters : [];
 
-        return newState;
-      },
-      context.generateQueries,
-      context.fetchQueries
-    );
+      return newState;
+    });
   }
 
   setDataset(evt) {
@@ -133,14 +128,14 @@ class Sidebar extends React.PureComponent {
     const tableId = query.measure.annotations._cb_table_id;
     const key = `${tableId}.${query.measure.name}`;
     const measureList = options.measureMap[key];
-    const measure = measureList.find(item => item.annotations._cb_name == cubeName);
+    const measure = measureList.find(
+      item => item.annotations._cb_name == cubeName
+    );
     return this.setMeasure(measure);
   }
 }
 
 Sidebar.contextTypes = {
-  fetchQueries: PropTypes.func,
-  generateQueries: PropTypes.func,
   getDefaultGroup: PropTypes.func,
   loadControl: PropTypes.func
 };
