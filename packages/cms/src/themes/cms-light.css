@@ -47,6 +47,12 @@
     background-color: var(--alert);
   }
 
+  /* muted text */
+  & .cms-status.is-done,
+  & .pt-text-muted {
+    color: var(--backward-2);
+  }
+
   /* variables */
   & .cms-variable {
     &.number { color: var(--type-number-dark); }

@@ -1,5 +1,6 @@
 .cms-search {
   width: 100%;
+  margin-top: 5px; /* mimic blueprint label margin */
 
   & > span, & .pt-popover-target, & .pt-input-group, & .pt-overlay-content, & .pt-popover, & .pt-popover-content {
     max-width: none;
@@ -38,6 +39,7 @@
       display: block;
 
       & .result-link {
+        cursor: pointer; /* it's not a link, but it should be */
         display: block;
         padding: 0.5em 1.75rem;
       }

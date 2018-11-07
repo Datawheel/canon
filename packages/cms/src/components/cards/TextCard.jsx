@@ -112,7 +112,6 @@ class TextCard extends Component {
 
         {this.props.children}
 
-
         <Dialog
           iconName="document"
           isOpen={isOpen}

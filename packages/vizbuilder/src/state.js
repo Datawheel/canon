@@ -31,7 +31,8 @@ export default function initialStateFactory() {
       uci: null,
       moe: null,
       source: null,
-      collection: null
+      collection: null,
+      selectedTime: null
     },
     queries: [],
     datasets: [],

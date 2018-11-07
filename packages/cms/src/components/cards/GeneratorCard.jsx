@@ -138,6 +138,7 @@ class GeneratorCard extends Component {
           </tbody>
         </table>
 
+        {/* reorder buttons */}
         {this.props.children}
 
         {/* open state */}
