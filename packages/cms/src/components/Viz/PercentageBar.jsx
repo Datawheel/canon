@@ -14,9 +14,9 @@ class PercentageBar extends Component {
   }
 
   componentDidMount() {
-    
-    // const {config} = this.props;
-    
+    const {config} = this.props;
+
+    /*
     let config = {
       cutoff: 3,
       data: "http://localhost:3300/api/test",
@@ -27,6 +27,7 @@ class PercentageBar extends Component {
       total: 100,
       title: "All States"
     };
+    */
 
     const defaults = {
       cutoff: 5,
