@@ -320,14 +320,20 @@ class StoryBuilder extends Component {
     return (
       <div className="cms-panel story-panel" id="profile-builder">
         <div className="cms-sidebar" id="tree">
+
+          {/* new entity */}
+          {/* TODO: make this act like add profile button */}
+          <button className="cms-button" onClick={this.addFirst.bind(this)}>
+            Add story <span className="pt-icon pt-icon-plus" />
+          </button>
+
           <Tree
             onNodeClick={this.handleNodeClick.bind(this)}
             onNodeCollapse={this.handleNodeCollapse.bind(this)}
             onNodeExpand={this.handleNodeExpand.bind(this)}
             contents={nodes}
-
           />
-          {nodes.length === 0 && <button className="firstbutton" onClick={this.addFirst.bind(this)}>Add First Story</button>}
+
         </div>
         <div className="cms-editor" id="item-editor">
           { currentNode

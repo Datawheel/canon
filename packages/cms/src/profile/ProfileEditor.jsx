@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Button, Card, Icon, NonIdealState, Spinner} from "@blueprintjs/core";
+import {Icon} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import Loading from "components/Loading";
 
@@ -116,28 +116,36 @@ class ProfileEditor extends Component {
   render() {
 
     const {minData, recompiling} = this.state;
-    const {variables, preview} = this.props;
+    const {children, variables, preview} = this.props;
 
     if (!minData || !variables) return <Loading />;
 
     return (
-      <div id="profile-editor">
-
-        <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
-          <Icon iconName={ recompiling ? "more" : "tick"} />
-          { recompiling ? "Updating Variables" : "Variables Loaded" }
+      <div className="cms-editor-inner">
+        {/* profile preview & variable status */}
+        <div className="cms-profile-picker">
+          {/* search profiles*/}
+          {children}
+          {/* loading status */}
+          <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
+            <Icon iconName={ recompiling ? "more" : "tick"} />
+            { recompiling ? "Updating Variables" : "Variables Loaded" }
+          </div>
         </div>
 
-        <div id="slug">
-          <label className="pt-label pt-inline">
-            Profile Slug
+        {/* current profile options */}
+        <div className="cms-editor-header">
+          {/* change slug */}
+          <label className="pt-label cms-slug">
+            Profile slug
             <div className="pt-input-group">
               <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
-              <button className="pt-button" onClick={this.save.bind(this)}>Rename</button>
+              <button className="cms-button pt-button" onClick={this.save.bind(this)}>Rename</button>
             </div>
           </label>
         </div>
 
+        {/* generators */}
         <h2 className="cms-section-heading">
           Generators
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "generator")}>
@@ -159,8 +167,7 @@ class ProfileEditor extends Component {
           }
         </div>
 
-
-
+        {/* materializers */}
         <h2 className="cms-section-heading">
           Materializers
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "materializer")}>
@@ -185,18 +192,17 @@ class ProfileEditor extends Component {
                   type="materializer"
                   onMove={this.onMove.bind(this)}
                 />
-              </GeneratorCard>)
-          }
+              </GeneratorCard>
+            )}
         </div>
 
-
+        {/* splash stats */}
         <h2 className="cms-section-heading">
           Stats
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_stat")}>
             <span className="pt-icon pt-icon-plus" />
           </button>
         </h2>
-
         <div
           className="cms-splash-wrapper"
           style={{backgroundImage: `url("/api/profile/${minData.slug}/${preview}/thumb")`}}
@@ -209,7 +215,8 @@ class ProfileEditor extends Component {
               variables={variables}
             />
             { minData.stats && minData.stats.map(s =>
-              <TextCard key={s.id}
+              <TextCard
+                key={s.id}
                 id={s.id}
                 onDelete={this.onDelete.bind(this)}
                 type="profile_stat"
@@ -222,19 +229,18 @@ class ProfileEditor extends Component {
                   type="profile_stat"
                   onMove={this.onMove.bind(this)}
                 />
-              </TextCard>)
-            }
+              </TextCard>
+            )}
           </div>
         </div>
 
-
+        {/* about text */}
         <h2 className="cms-section-heading">
           About
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_description")}>
             <span className="pt-icon pt-icon-plus" />
           </button>
         </h2>
-
         <div className="cms-card-list">
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard key={d.id}
@@ -250,18 +256,17 @@ class ProfileEditor extends Component {
                 type="profile_description"
                 onMove={this.onMove.bind(this)}
               />
-            </TextCard>)
-          }
+            </TextCard>
+          )}
         </div>
 
-
+        {/* footnotes */}
         <h2 className="cms-section-heading">
           Footnotes
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_footnote")}>
             <span className="pt-icon pt-icon-plus" />
           </button>
         </h2>
-
         <div className="cms-card-list">
           { minData.footnotes && minData.footnotes.map(f =>
             <TextCard key={f.id}
@@ -278,18 +283,17 @@ class ProfileEditor extends Component {
                 type="profile_footnote"
                 onMove={this.onMove.bind(this)}
               />
-            </TextCard>)
-          }
+            </TextCard>
+          )}
         </div>
 
-
+        {/* visualizations */}
         <h2 className="cms-section-heading">
           Visualizations
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_visualization")}>
             <span className="pt-icon pt-icon-plus" />
           </button>
         </h2>
-
         <div className="cms-card-list visualizations">
           { minData.visualizations && minData.visualizations.map(v =>
             <VisualizationCard
@@ -305,8 +309,8 @@ class ProfileEditor extends Component {
                 type="profile_visualization"
                 onMove={this.onMove.bind(this)}
               />
-            </VisualizationCard>)
-          }
+            </VisualizationCard>
+          )}
         </div>
       </div>
     );

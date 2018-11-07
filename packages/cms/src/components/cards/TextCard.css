@@ -3,6 +3,11 @@
   display: flex;
   flex-wrap: wrap;
   margin: 1rem -1rem;
+
+  /* offset spacing at the bottom of the page */
+  &:last-child {
+    margin-bottom: -0.75rem;
+  }
 }
 
 
@@ -38,6 +43,12 @@
     font-size: 0.75em;
     margin-left: auto;
     min-width: 7.5em;
+  }
+
+  /* space out paragraph */
+  /* TODO: write better markup and replace */
+  & + p {
+    margin-top: 1rem;
   }
 }
 

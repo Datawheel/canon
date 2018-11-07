@@ -21,7 +21,7 @@ class SelectorCard extends Component {
   }
 
   /**
-   * Note that unlike all other cards, the SelectorCard actually has ALL its data from 
+   * Note that unlike all other cards, the SelectorCard actually has ALL its data from
    * the start, passed down in props. This was chosen so that the list of options could
    * be shown on the front of the card. Now that Selectors have titles, it may make sense
    * to change this to behave like all other cards, i.e., Fetch their own data on mount
@@ -39,7 +39,7 @@ class SelectorCard extends Component {
   save() {
     const {type} = this.props;
     const {minData} = this.state;
-    // In SelectorEditor, we use an "isDefault" property to assist with managing 
+    // In SelectorEditor, we use an "isDefault" property to assist with managing
     // checkbox states. Before we save the data to the db, remove that helper prop
     minData.options = minData.options.map(o => {
       delete o.isDefault;
@@ -71,7 +71,27 @@ class SelectorCard extends Component {
     if (!minData) return <Loading />;
 
     return (
-      <Card className="splash-card" key={minData.id} onClick={() => this.setState({isOpen: true})} interactive={true} elevation={1}>
+      <div className="cms-card">
+
+        {/* title & edit toggle button */}
+        <h5 className="cms-card-header">
+          {minData.title}
+          <button className="cms-button" onClick={() => this.setState({isOpen: true})}>
+            Edit <span className="pt-icon pt-icon-cog" />
+          </button>
+        </h5>
+
+        <p>{minData.name}</p>
+
+        <ul>
+          {minData.options && minData.options.map(o =>
+            <li key={o.option} className={minData.default === o.option ? "is-default" : ""}>{o.option}</li>
+          )}
+        </ul>
+
+        {/* reorder buttons */}
+        {this.props.children}
+
         <Dialog
           className="generator-editor-dialog"
           iconName="code"
@@ -88,15 +108,7 @@ class SelectorCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        <h4>{minData.title}</h4>
-        <h6>{minData.name}</h6>
-
-        <ul>
-          {minData.options && minData.options.map(o =>
-            <li key={o.option} className={minData.default === o.option ? "is-default" : ""}>{o.option}</li>
-          )}
-        </ul>
-      </Card>
+      </div>
     );
   }
 

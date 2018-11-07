@@ -16,6 +16,7 @@
 
       & .pt-tree-node-caret {
         padding: 0.25rem 0.5rem;
+        cursor: auto;
       }
 
       & .pt-icon-cog {

@@ -91,28 +91,45 @@ class StoryTopicEditor extends Component {
     );
 
     return (
-      <div id="storytopic-editor">
-        <div className="pt-select">
-          Topic Type
-          <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
-            {typeOptions}
-          </select>
+      <div className="cms-editor-inner">
+
+        {/* layout select */}
+        <div className="cms-editor-header">
+          <label className="pt-label pt-fill">
+            Layout
+            <div className="pt-select">
+              <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
+                {typeOptions}
+              </select>
+            </div>
+          </label>
         </div>
-        <h4>Title</h4>
-        <TextCard
-          id={minData.id}
-          fields={["title"]}
-          plainfields={["slug"]}
-          onSave={this.onSave.bind(this)}
-          type="storytopic"
-          variables={{}}
-        />
-        <h4>
+
+        {/* topic name */}
+        {/* TODO: move this to header */}
+        <h2 className="cms-section-heading">
+          Topic title
+        </h2>
+        <div className="cms-card-list">
+          <TextCard
+            id={minData.id}
+            fields={["title"]}
+            plainfields={["image", "slug"]}
+            type="story"
+            onSave={this.onSave.bind(this)}
+            variables={{}}
+          />
+        </div>
+
+        {/* subtitles */}
+        <h2 className="cms-section-heading">
           Subtitles
-          <Button onClick={this.addItem.bind(this, "storytopic_subtitle")} iconName="add" />
-        </h4>
-        { minData.subtitles && minData.subtitles.map(s =>
-          <div key={s.id}>
+          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "storytopic_subtitle")}>
+            <span className="pt-icon pt-icon-plus" />
+          </button>
+        </h2>
+        <div className="cms-card-list">
+          { minData.subtitles && minData.subtitles.map(s =>
             <TextCard
               key={s.id}
               id={s.id}
@@ -120,45 +137,53 @@ class StoryTopicEditor extends Component {
               type="storytopic_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
-            />
-            <MoveButtons
-              item={s}
-              array={minData.subtitles}
-              type="storytopic_subtitle"
-              onMove={this.onMove.bind(this)}
-            />
-          </div>)
-        }
-        <h4>
-          Stats
-          <Button onClick={this.addItem.bind(this, "storytopic_stat")} iconName="add" />
-        </h4>
-        <div className="stats">
-          { minData.stats && minData.stats.map(s =>
-            <div key={s.id}>
-              <TextCard
-                key={s.id}
-                id={s.id}
-                fields={["title", "subtitle", "value", "tooltip"]}
-                type="storytopic_stat"
-                onDelete={this.onDelete.bind(this)}
-                variables={{}}
+            >
+              <MoveButtons
+                item={s}
+                array={minData.subtitles}
+                type="storytopic_subtitle"
+                onMove={this.onMove.bind(this)}
               />
+            </TextCard>
+          )}
+        </div>
+
+        {/* stats */}
+        <h2 className="cms-section-heading">
+          Stats
+          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "storytopic_stat")}>
+            <span className="pt-icon pt-icon-plus" />
+          </button>
+        </h2>
+        <div className="cms-card-list">
+          { minData.stats && minData.stats.map(s =>
+            <TextCard
+              key={s.id}
+              id={s.id}
+              fields={["title", "subtitle", "value", "tooltip"]}
+              type="storytopic_stat"
+              onDelete={this.onDelete.bind(this)}
+              variables={{}}
+            >
               <MoveButtons
                 item={s}
                 array={minData.stats}
                 type="storytopic_stat"
                 onMove={this.onMove.bind(this)}
               />
-            </div>)
-          }
+            </TextCard>
+          )}
         </div>
-        <h4>
+
+        {/* descriptions */}
+        <h2 className="cms-section-heading">
           Descriptions
-          <Button onClick={this.addItem.bind(this, "storytopic_description")} iconName="add" />
-        </h4>
-        { minData.descriptions && minData.descriptions.map(d =>
-          <div key={d.id}>
+          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "storytopic_description")}>
+            <span className="pt-icon pt-icon-plus" />
+          </button>
+        </h2>
+        <div className="cms-card-list">
+          { minData.descriptions && minData.descriptions.map(d =>
             <TextCard
               key={d.id}
               id={d.id}
@@ -166,41 +191,40 @@ class StoryTopicEditor extends Component {
               type="storytopic_description"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
-            />
-            <MoveButtons
-              item={d}
-              array={minData.descriptions}
-              type="storytopic_description"
-              onMove={this.onMove.bind(this)}
-            />
-          </div>)
-        }
-        <h4>
+            >
+              <MoveButtons
+                item={d}
+                array={minData.descriptions}
+                type="storytopic_description"
+                onMove={this.onMove.bind(this)}
+              />
+            </TextCard>
+          )}
+        </div>{/* visualizations */}
+        <h2 className="cms-section-heading">
           Visualizations
-          <Button onClick={this.addItem.bind(this, "storytopic_visualization")} iconName="add" />
-        </h4>
-        <div className="visualizations">
-          <div>
-            { minData.visualizations && minData.visualizations.map(v =>
-              <div key={v.id}>
-                <VisualizationCard
-                  key={v.id}
-                  id={v.id}
-                  onDelete={this.onDelete.bind(this)}
-                  type="storytopic_visualization"
-                  variables={{}}
-                />
-                <MoveButtons
-                  item={v}
-                  array={minData.visualizations}
-                  type="storytopic_visualization"
-                  onMove={this.onMove.bind(this)}
-                />
-              </div>
-            )}
-          </div>
+          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "storytopic_visualization")}>
+            <span className="pt-icon pt-icon-plus" />
+          </button>
+        </h2>
+        <div className="cms-card-list visualizations">
+          { minData.visualizations && minData.visualizations.map(v =>
+            <VisualizationCard
+              key={v.id}
+              id={v.id}
+              onDelete={this.onDelete.bind(this)}
+              type="storytopic_visualization"
+              variables={{}}
+            >
+              <MoveButtons
+                item={v}
+                array={minData.visualizations}
+                type="storytopic_visualization"
+                onMove={this.onMove.bind(this)}
+              />
+            </VisualizationCard>
+          )}
         </div>
-
       </div>
     );
   }

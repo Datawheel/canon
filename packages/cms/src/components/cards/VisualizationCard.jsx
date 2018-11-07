@@ -67,7 +67,15 @@ class VisualizationCard extends Component {
     height = height ? height[1] : "400";
 
     return (
-      <div onClick={() => this.setState({isOpen: true})} className="cms-card" style={{height: `${height}px`}}>
+      <div className="cms-card" style={{minHeight: `calc(${height}px + 2.25rem)`}}>
+
+        {/* title & edit toggle button */}
+        <h5 className="cms-card-header">
+          <button className="cms-button" onClick={() => this.setState({isOpen: true})}>
+            Edit <span className="pt-icon pt-icon-cog" />
+          </button>
+        </h5>
+
         <Dialog
           className="generator-editor-dialog"
           iconName="code"
