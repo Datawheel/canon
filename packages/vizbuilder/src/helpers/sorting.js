@@ -174,7 +174,7 @@ export function getMeasureMeta(cube, measure) {
         collection = currentMeasure;
       }
 
-      if (collection && ((lci && uci) || moe) && source) {
+      if (collection && (lci && uci || moe) && source) {
         break;
       }
     }
@@ -214,20 +214,16 @@ export function getValidDimensions(cube) {
   );
 }
 
+/**
+ * Extracts the levels from non-time dimensions in a cube.
+ * @param {Cube} cube The cube where to extract levels from.
+ * @returns {Level[]}
+ */
 export function getValidLevels(cube) {
   const dimensions = getValidDimensions(cube);
   return dimensions
     .reduce(reduceLevelsFromDimension, [])
     .filter(lvl => !yn(lvl.annotations.hide_in_ui));
-}
-
-/**
- * Extracts the levels from non-time dimensions, to be used as drilldowns.
- * @param {Dimension[]} dimensions The dimensions where to extract levels from.
- * @returns {Level[]}
- */
-export function getValidDrilldowns(dimensions) {
-  return dimensions.reduce(reduceLevelsFromDimension, []);
 }
 
 /**
@@ -265,9 +261,9 @@ export function reduceLevelsFromDimension(container, dimension) {
   return isTimeDimension(dimension) || yn(dimension.annotations.hide_in_ui)
     ? container
     : dimension.hierarchies.reduce(
-        (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
-        container
-      );
+      (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
+      container
+    );
 }
 
 /**
@@ -361,7 +357,11 @@ export function sortByCustomKey(key, members) {
   return (a, b) => `${a[key]}`.localeCompare(`${b[key]}`);
 }
 
-export function* getCombinationsChoose2(set) {
+/**
+ * Generates a 2-object combination from a list of objects.
+ * @param {any[]} set An array of objects to get the combo.
+ */
+export function *getCombinationsChoose2(set) {
   const n = set.length;
   if (n > 0) {
     const first = set[0];

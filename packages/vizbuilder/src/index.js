@@ -12,12 +12,11 @@ import Sidebar from "./components/Sidebar";
 import Ranking from "./components/Sidebar/Ranking";
 
 import * as api from "./helpers/api";
-import {fetchCubes, fetchQuery} from "./helpers/fetch";
+import {fetchCubes} from "./helpers/fetch";
 import {DEFAULT_MEASURE_FORMATTERS} from "./helpers/formatting";
 import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
-import {generateQueries} from "./helpers/query";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
-import {getDefaultGroup, higherTimeLessThanNow} from "./helpers/sorting";
+import {getDefaultGroup} from "./helpers/sorting";
 import {isSameQuery} from "./helpers/validation";
 
 import initialState from "./state";

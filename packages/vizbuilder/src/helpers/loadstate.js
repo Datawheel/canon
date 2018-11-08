@@ -1,4 +1,3 @@
-//@ts-check
 import {Intent, Position, Toaster} from "@blueprintjs/core";
 import {fetchQuery} from "./fetch";
 import {generateQueries} from "./query";
@@ -45,14 +44,14 @@ export function loadControl(preQuery, postQuery) {
     const query = finalState.query;
     const queries = generateQueries(query);
 
+    /**
+     * Update 1
+     * Calculates state for the next query, generates queries,
+     * sets `load.inProgress = true` to activate the loading screen,
+     * saves the queries, and updates the state.
+     */
     return setStatePromise
       .call(this, currentState => {
-        /**
-         * Update 1
-         * Calculates state for the next query, generates queries,
-         * sets `load.inProgress = true` to activate the loading screen,
-         * saves the queries, and updates the state.
-         */
         finalState.load = {
           ...currentState.load,
           inProgress: true,
@@ -64,20 +63,18 @@ export function loadControl(preQuery, postQuery) {
       .then(() => {
         const fetchings = queries.map(query =>
           fetchQuery(datacap, query).then(result => {
+            /**
+             * Progress update
+             * After each query is fetched from the server,
+             * the counter adds 1.
+             */
             return setStatePromise
-              .call(this, currentState => {
-                /**
-                 * Progress update
-                 * After each query is fetched from the server,
-                 * the counter adds 1.
-                 */
-                return {
-                  load: {
-                    ...currentState.load,
-                    done: currentState.load.done + 1
-                  }
-                };
-              })
+              .call(this, currentState => ({
+                load: {
+                  ...currentState.load,
+                  done: currentState.load.done + 1
+                }
+              }))
               .then(() => result);
           })
         );
@@ -95,9 +92,9 @@ export function loadControl(preQuery, postQuery) {
 
         let n = results.length;
         while (n--) {
-          const result = results[n];
-          datasets.unshift(result.dataset);
-          members.unshift(result.members);
+          const fetchResult = results[n];
+          datasets.unshift(fetchResult.dataset);
+          members.unshift(fetchResult.members);
         }
 
         const selectedTime =

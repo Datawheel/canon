@@ -224,7 +224,7 @@ const makeConfig = {
     );
   },
   lineplot(commonConfig, query, flags) {
-    const {level, measure, moe, lci, uci, member, timeLevel, xlevel} = query;
+    const {level, measure, moe, lci, uci, timeLevel, xlevel} = query;
 
     const timeLevelName = timeLevel.name;
     const measureName = measure.name;
@@ -315,7 +315,7 @@ const makeConfig = {
     return config;
   },
   treemap_ab(commonConfig, query, flags) {
-    const {level, measure, timeLevel, xlevel} = query;
+    const {level, xlevel} = query;
     const config = assign({}, commonConfig, flags.chartConfig);
 
     const levels = level.hierarchy.levels;
@@ -330,7 +330,7 @@ const makeConfig = {
     return config;
   },
   treemap_ba(commonConfig, query, flags) {
-    const {level, measure, timeLevel, xlevel} = query;
+    const {level, xlevel} = query;
     const config = assign({}, commonConfig, flags.chartConfig);
 
     const levels = xlevel.hierarchy.levels;
@@ -385,7 +385,7 @@ export default function createChartConfig(
   const measureName = measure.name;
   const measureAnn = measure.annotations;
   const measureFormatter =
-    formatting[measureAnn.units_of_measurement] || formatting["default"];
+    formatting[measureAnn.units_of_measurement] || formatting.default;
   const getMeasureValue = d => d[measureName];
 
   const levelName = query.level.name;
@@ -425,11 +425,11 @@ export default function createChartConfig(
 
   if (hasTimeDim) {
     commonConfig.time = timeLevelName;
-    commonConfig.timeFilter = d => d[timeLevelName] == selectedTime;
+    commonConfig.timeFilter = d => d[timeLevelName] == selectedTime; // eslint-disable-line
     commonConfig.timeline = Boolean(activeChart);
     commonConfig.timelineConfig = {
       on: {end: onTimeChange}
-    }
+    };
   }
 
   if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
