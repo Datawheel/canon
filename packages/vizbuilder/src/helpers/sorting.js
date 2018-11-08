@@ -333,7 +333,7 @@ export function getIncludedMembers(query, dataset) {
 }
 
 /**
- * Returns the value of the highest timeLevel value in the dataset, but lower than the current time.
+ * Returns the value of the highest timeLevel value in the dataset, but lower or equal than the current time.
  * @param {Object<string,number[]>} members An object with members and arrays of its available values
  * @param {string} timeLevelName The name of the timeLevel for the current query
  */
@@ -341,7 +341,7 @@ export function higherTimeLessThanNow(members, timeLevelName) {
   // TODO: prepare it to handle months, days, etc
   const now = new Date();
   const currentTime = now.getFullYear();
-  return members[timeLevelName].filter(time => time < currentTime).pop();
+  return members[timeLevelName].filter(time => time <= currentTime).pop();
 }
 
 /**
