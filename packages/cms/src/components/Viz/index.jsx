@@ -1,10 +1,12 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
-// d3plus.PercentageBar = import PercentageBar from "./PercentageBar"; // d3plus.Progress = jimmy's imported component
+import PercentageBar from "./PercentageBar";
 import "./index.css";
 import Options from "./Options";
 import propify from "../../utils/d3plusPropify";
+
+const vizTypes = Object.assign({PercentageBar}, d3plus);
 
 class Viz extends Component {
 
@@ -26,7 +28,7 @@ class Viz extends Component {
     const {type} = vizProps.config;
     delete vizProps.config.type;
     if (!type) return null;
-    const Visualization = d3plus[type];
+    const Visualization = vizTypes[type];
 
     const title = this.props.title || config.title;
 
