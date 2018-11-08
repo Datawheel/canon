@@ -12,12 +12,11 @@ import Sidebar from "./components/Sidebar";
 import Ranking from "./components/Sidebar/Ranking";
 
 import * as api from "./helpers/api";
-import {fetchCubes, fetchQuery} from "./helpers/fetch";
+import {fetchCubes} from "./helpers/fetch";
 import {DEFAULT_MEASURE_FORMATTERS} from "./helpers/formatting";
 import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
-import {generateQueries} from "./helpers/query";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
-import {getDefaultGroup, higherTimeLessThanNow} from "./helpers/sorting";
+import {getDefaultGroup} from "./helpers/sorting";
 import {isSameQuery} from "./helpers/validation";
 
 import initialState from "./state";
@@ -59,8 +58,6 @@ class Vizbuilder extends React.PureComponent {
     this.queryHistory = [];
 
     this.loadControl = loadControl.bind(this);
-    this.fetchQueries = this.fetchQueries.bind(this);
-    this.generateQueries = this.generateQueries.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
   }
 
@@ -68,9 +65,6 @@ class Vizbuilder extends React.PureComponent {
     const props = this.props;
     return {
       defaultQuery: this.defaultQuery,
-      fetchQueries: this.fetchQueries,
-      generateQueries: this.generateQueries,
-      getDefaultGroup: this.getDefaultGroup,
       generalConfig: {
         defaultConfig: props.config,
         formatting: {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting},
@@ -78,6 +72,7 @@ class Vizbuilder extends React.PureComponent {
         topojson: props.topojson,
         visualizations: props.visualizations
       },
+      getDefaultGroup: this.getDefaultGroup,
       loadControl: this.loadControl,
       permalinkKeywords: this.permalinkKeywords,
       stateUpdate: this.stateUpdate
@@ -87,11 +82,7 @@ class Vizbuilder extends React.PureComponent {
   componentDidMount() {
     const initialStatePromise = this.initialStatePromise;
     delete this.initialStatePromise;
-    this.loadControl(
-      () => initialStatePromise,
-      this.generateQueries,
-      this.fetchQueries
-    );
+    this.loadControl(() => initialStatePromise);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -150,42 +141,6 @@ class Vizbuilder extends React.PureComponent {
   stateUpdate(newState) {
     return setStatePromise.call(this, state => mergeStates(state, newState));
   }
-
-  generateQueries() {
-    return {queries: generateQueries(this.state.query)};
-  }
-
-  fetchQueries() {
-    const {query, queries} = this.state;
-    const activeQueryKey = `${query.activeChart}`.split("-")[0];
-    const activeChart = queries.some(query => query.key === activeQueryKey)
-      ? query.activeChart
-      : null;
-    const queryFetcher = fetchQuery.bind(null, this.props.datacap);
-    const timeLevel = query.timeLevel;
-
-    return Promise.all(queries.map(queryFetcher)).then(results => {
-      const datasets = [];
-      const members = [];
-
-      let n = results.length;
-      while (n--) {
-        const result = results[n];
-        datasets.unshift(result.dataset);
-        members.unshift(result.members);
-      }
-
-      const selectedTime =
-        timeLevel &&
-        higherTimeLessThanNow(members[0], timeLevel.name);
-
-      return {
-        datasets,
-        members,
-        query: {activeChart, selectedTime},
-      };
-    });
-  }
 }
 
 Vizbuilder.contextTypes = {
@@ -194,9 +149,7 @@ Vizbuilder.contextTypes = {
 
 Vizbuilder.childContextTypes = {
   defaultQuery: PropTypes.any,
-  fetchQueries: PropTypes.func,
   generalConfig: PropTypes.object,
-  generateQueries: PropTypes.func,
   getDefaultGroup: PropTypes.func,
   loadControl: PropTypes.func,
   permalinkKeywords: PropTypes.object,
