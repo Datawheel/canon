@@ -12,6 +12,14 @@ export function isTimeDimension(dimension) {
 }
 
 /**
+ * Checks if the dimension should be presented in the UI.
+ * @param {Dimension} dimension A mondrian-rest-client dimension object
+ */
+export function isValidDimension(dimension) {
+  return !isTimeDimension(dimension) && !yn(dimension.annotations.hide_in_ui);
+}
+
+/**
  * Checks if a measure is valid to show in Vizbuilder's Measure selector.
  * @param {object} measure The measure to check.
  */

@@ -7,6 +7,7 @@ import {
   areKindaNumeric,
   isNumeric,
   isTimeDimension,
+  isValidDimension,
   isValidMeasure
 } from "./validation";
 import Grouping from "../components/Sidebar/GroupingManager/Grouping";
@@ -209,9 +210,7 @@ export function getTimeLevel(cube) {
  * @returns {Dimension[]}
  */
 export function getValidDimensions(cube) {
-  return cube.dimensions.filter(
-    dim => !isTimeDimension(dim) && !yn(dim.annotations.hide_in_ui)
-  );
+  return cube.dimensions.filter(isValidDimension);
 }
 
 /**

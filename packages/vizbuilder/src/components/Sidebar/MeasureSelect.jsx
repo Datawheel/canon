@@ -27,8 +27,7 @@ MeasureSelect.defaultProps = {
   },
   itemListPredicate(query, items) {
     query = query.trim();
-    query = escapeRegExp(query);
-    query = query.replace(/\s+/g, ".+");
+    query = escapeRegExp(query).replace(/\s+/g, "[^_]+");
     const queryTester = RegExp(query || ".", "i");
     return items.filter(item => queryTester.test(item.annotations._searchIndex));
   },
