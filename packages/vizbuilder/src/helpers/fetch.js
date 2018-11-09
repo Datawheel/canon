@@ -11,6 +11,7 @@ import {
   getDefaultGroup,
   getIncludedMembers
 } from "./sorting";
+import {isValidDimension} from "./validation";
 
 /**
  * Prepares the array of cubes that will be used in the vizbuilder.
@@ -40,9 +41,39 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cbTagline = cbAnnotations.source_name || "";
     const cbMeta = [cbAnnotations.source_name, cbAnnotations.dataset_name]
       .filter(Boolean)
-      .join(" - ");
+      .join("_");
 
     cbAnnotations._key = unique(cbName);
+
+    const cbLevelNameSet = new Set();
+    let nDim = cube.dimensions.length;
+    while (nDim--) {
+      const dimension = cube.dimensions[nDim];
+      const dimValid = isValidDimension(dimension);
+      const keyPrefix = `${cbName} ${dimension.name} `;
+
+      dimension.annotations._key = unique(keyPrefix);
+
+      let nHie = dimension.hierarchies.length;
+      while (nHie--) {
+        const hierarchy = dimension.hierarchies[nHie];
+
+        let nLvl = hierarchy.levels.length;
+        while (nLvl--) {
+          const level = hierarchy.levels[nLvl];
+          level.annotations._key = unique(
+            `${keyPrefix} ${hierarchy.name} ${level.name}`
+          );
+
+          if (nLvl > 0 && dimValid) {
+            cbLevelNameSet.add(level.name);
+          }
+        }
+      }
+    }
+
+    const cbLevelNameList = Array.from(cbLevelNameSet);
+    const levelKeys = cbLevelNameList.join("_");
 
     let nMsr = cube.measures.length;
     while (nMsr--) {
@@ -59,27 +90,7 @@ export function injectCubeInfoOnMeasure(cubes) {
       msAnnotations._cb_subtopic = cbSubtopic;
       // msAnnotations._cb_sourceName = sourceName;
       msAnnotations._sortKey = selectorKey + measureLabel;
-      msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${cbMeta}`;
-    }
-
-    let nDim = cube.dimensions.length;
-    while (nDim--) {
-      const dimension = cube.dimensions[nDim];
-      const keyPrefix = `${cbName} ${dimension.name} `;
-
-      dimension.annotations._key = unique(keyPrefix);
-
-      let nHie = dimension.hierarchies.length;
-      while (nHie--) {
-        const hierarchy = dimension.hierarchies[nHie];
-
-        let nLvl = hierarchy.levels.length;
-        while (nLvl--) {
-          const level = hierarchy.levels[nLvl];
-
-          level.annotations._key = unique(`${keyPrefix} ${hierarchy.name} ${level.name}`);
-        }
-      }
+      msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${cbMeta}_${levelKeys}`;
     }
   }
 }
