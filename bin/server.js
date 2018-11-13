@@ -273,7 +273,7 @@ async function start() {
       const promises = [];
       readFiles(cacheFolder)
         .forEach(file => {
-          const parts = file.split("/");
+          const parts = file.replace(/\\/g, "/").split("/");
           const cacheName = parts[parts.length - 1].replace(".js", "");
           const promise = require(file)(app);
           promises.push(Promise.all([cacheName, promise]));
@@ -299,7 +299,7 @@ async function start() {
       const module = moduleName(apiFolder);
       readFiles(apiFolder)
         .forEach(file => {
-          const parts = file.split("/");
+          const parts = file.replace(/\\/g, "/").split("/");
           const apiName = parts[parts.length - 1].replace(".js", "");
           shell.echo(`${module}: ${apiName}`);
           return require(file)(app);
