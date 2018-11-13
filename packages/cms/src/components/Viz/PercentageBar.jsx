@@ -14,28 +14,14 @@ class PercentageBar extends Component {
   }
 
   componentDidMount() {
-    const {config} = this.props;
-
-    /*
-    let config = {
-      cutoff: 3,
-      data: "http://localhost:3300/api/test",
-      dataFormat: d => d,
-      groupBy: "state",
-      value: "rate",
-      type: "PercentageBar",
-      total: 100,
-      title: "All States"
-    };
-    */
+    const propConfig = this.props.config;
 
     const defaults = {
       cutoff: 5,
-      dataFormat: d => d,
-      type: "PercentageBar"
+      dataFormat: d => d
     };
 
-    config = Object.assign({}, defaults, config);
+    const config = Object.assign({}, defaults, propConfig);
 
     // If the data is an API call, run the axios get and replace .data with its results
     if (typeof config.data === "string") {
