@@ -605,7 +605,7 @@ module.exports = function(app) {
         data = data.slice(0, limit);
       }
 
-      if (db.search) {
+      if (db && db.search) {
         const lookupKeys = data.length ? intersect(levels, Object.keys(data[0])) : [];
         for (let x = 0; x < lookupKeys.length; x++) {
           const level = lookupKeys[x];
