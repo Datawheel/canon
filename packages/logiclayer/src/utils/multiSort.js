@@ -7,7 +7,7 @@ module.exports = function(data, keys, sort = "desc") {
       if (aV !== bV) {
         if (!isNaN(parseFloat(aV))) aV = parseFloat(aV);
         if (!isNaN(parseFloat(bV))) bV = parseFloat(bV);
-        comparitor = typeof aV === "string"
+        comparitor = typeof aV === "string" && typeof bV === "string"
           ? sort === "desc" ?  bV.localeCompare(aV) : aV.localeCompare(bV)
           : sort === "desc" ?  bV - aV : aV - bV;
         break;

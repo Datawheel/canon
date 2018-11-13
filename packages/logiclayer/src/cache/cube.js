@@ -80,14 +80,17 @@ module.exports = async function() {
           readline.clearLine(process.stdout, 0);
           readline.cursorTo(process.stdout, 0);
           process.stdout.write(`logiclayer: cube (${count} of ${total} year queries complete)`);
-          const years = members.map(d => parseInt(d.name, 10)).filter(d => !isNaN(d)).sort();
-          const current = years.filter(year => parseInt(year, 10) <= currentYear);
+          const years = members
+            .map(d => (d.name = parseInt(d.name, 10), d))
+            .filter(d => !isNaN(d.name))
+            .sort((a, b) => a.name - b.name);
+          const current = years.filter(d => d.name <= currentYear);
           return {
             cube: cube.name,
-            latest: current[current.length - 1],
-            oldest: current[0],
-            previous: current.length > 1 ? current[current.length - 2] : current[current.length - 1],
-            years
+            latest: current[current.length - 1].key,
+            oldest: current[0].key,
+            previous: current.length > 1 ? current[current.length - 2].key : current[current.length - 1].key,
+            years: years.map(d => d.key)
           };
         })
         .catch(err => {

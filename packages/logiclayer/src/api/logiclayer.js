@@ -122,8 +122,6 @@ module.exports = function(app) {
       limit = parseInt(limit, 10);
     }
 
-    const cuts = [];
-
     const searchDims = db && db.search ? await db.search
       .findAll({
         group: ["dimension", "hierarchy"],
@@ -136,7 +134,12 @@ module.exports = function(app) {
         return obj;
       }, {}) : [];
 
-    const dimensions = [], filters = [], renames = [];
+    const cuts = [],
+          dimensions = [],
+          filters = [],
+          renames = [],
+          yearDims = [];
+
     for (let key in req.query) {
       if (!reserved.includes(key)) {
 
@@ -469,7 +472,11 @@ module.exports = function(app) {
               const {dimensions: drills, preferred: yearDrill} = findYears(flatDims);
               drills.forEach(drill => {
                 queryDrilldowns.push(drill);
-                if (drill === yearDrill && year !== "all") queryCuts.push([drill, queryYears]);
+                yearDims.push(drill.level);
+                if (drill === yearDrill) {
+                  if (year !== "all") queryCuts.push([drill, queryYears]);
+                  if (order.includes("Year")) order[order.indexOf("Year")] = yearDrill.level;
+                }
               });
             }
 
@@ -484,7 +491,7 @@ module.exports = function(app) {
               else if (level.cut) {
                 const {level: l, cut: cutValue} = level;
                 const drill = findDimension(flatDims, l);
-                if (dimension !== "Year" && !drilldowns.includes(drill.level)) queryDrilldowns.push(drill);
+                if (!dimension.includes("Year") && !drilldowns.includes(drill.level)) queryDrilldowns.push(drill);
                 queryCuts.push([drill, cutValue]);
               }
             });
@@ -668,7 +675,7 @@ module.exports = function(app) {
       crossKeys,
       drilldowns,
       cuts.map(d => d[0]),
-      ["Year"]
+      yearDims
     ]);
 
     let mergedData = d3Collection.nest()
