@@ -80,7 +80,7 @@ module.exports = async function() {
           readline.clearLine(process.stdout, 0);
           readline.cursorTo(process.stdout, 0);
           process.stdout.write(`logiclayer: cube (${count} of ${total} year queries complete)`);
-          const years = members.map(d => d.key).sort();
+          const years = members.map(d => parseInt(d.name, 10)).filter(d => !isNaN(d)).sort();
           const current = years.filter(year => parseInt(year, 10) <= currentYear);
           return {
             cube: cube.name,
