@@ -2,11 +2,12 @@ const {Client} = require("mondrian-rest-client");
 const d3Array = require("d3-array");
 const sequelize = require("sequelize");
 const shell = require("shelljs");
+const path = require("path");
 const Op = sequelize.Op;
 
 const client = new Client(process.env.CANON_LOGICLAYER_CUBE);
 
-const topicTypeDir = "src/components/topics/";
+const topicTypeDir = path.join(__dirname, "../components/topics/");
 
 const profileReqTreeOnly = {
   attributes: ["id", "title", "slug", "dimension", "ordering"],

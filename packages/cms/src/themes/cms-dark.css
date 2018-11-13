@@ -55,6 +55,12 @@
     &.error { color: var(--type-error); }
   }
 
+  /* muted text */
+  & .cms-status.is-done,
+  & .pt-text-muted {
+    color: var(--backward-1);
+  }
+
   /* cards */
   & .cms-card {
     background-color: var(--backward-3);

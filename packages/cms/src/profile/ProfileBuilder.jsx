@@ -561,14 +561,28 @@ class ProfileBuilder extends Component {
 
     const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
 
+    let profileSearch = "";
+    if (currentNode && currentSlug) {
+      profileSearch =
+        <div className="cms-profile-search pt-label">
+          {preview ? `Current data ID: ${preview}` : "Preview profile"}
+          <Search
+            render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
+            dimension={currentNode.masterDimension}
+            limit={20}
+          />
+        </div>;
+    }
+
     return (
 
       <div className="cms-panel profile-panel" id="profile-builder">
         <div className="cms-sidebar" id="tree">
 
+          {/* new entity */}
           <button className="cms-button"
             onClick={() => this.setState({profileModalOpen: true})}>
-              Add Profile <span className="pt-icon pt-icon-plus" />
+              Add profile <span className="pt-icon pt-icon-plus" />
           </button>
 
           <Tree
@@ -576,8 +590,8 @@ class ProfileBuilder extends Component {
             onNodeCollapse={this.handleNodeCollapse.bind(this)}
             onNodeExpand={this.handleNodeExpand.bind(this)}
             contents={nodes}
-
           />
+        
         </div>
         <Dialog
           className="profileModal"
@@ -601,17 +615,6 @@ class ProfileBuilder extends Component {
           {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
         </Alert>
         <div className="cms-editor" id="item-editor">
-          { currentNode &&
-            currentSlug &&
-            <div id="Search">
-              {preview ? `Current Data ID: ${preview}` : "Preview profile"}
-              <Search
-                render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
-                dimension={currentNode.masterDimension}
-                limit={20}
-              />
-            </div>
-          }
           { currentNode
             ? currentNode.itemType === "profile"
               ? <ProfileEditor
@@ -621,7 +624,9 @@ class ProfileBuilder extends Component {
                 fetchVariables={this.fetchVariables.bind(this)}
                 variables={variables}
                 reportSave={this.reportSave.bind(this)}
-              />
+              >
+                {profileSearch}
+              </ProfileEditor>
               : currentNode.itemType === "section"
                 ? <SectionEditor
                   id={currentNode.data.id}
@@ -630,7 +635,9 @@ class ProfileBuilder extends Component {
                   fetchVariables={this.fetchVariables.bind(this)}
                   variables={variables}
                   reportSave={this.reportSave.bind(this)}
-                />
+                >
+                  {profileSearch}
+                </SectionEditor>
                 : currentNode.itemType === "topic"
                   ? <TopicEditor
                     id={currentNode.data.id}
@@ -639,7 +646,9 @@ class ProfileBuilder extends Component {
                     fetchVariables={this.fetchVariables.bind(this)}
                     variables={variables}
                     reportSave={this.reportSave.bind(this)}
-                  />
+                  >
+                    {profileSearch}
+                  </TopicEditor>
                   : null
             : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
           }

@@ -140,6 +140,9 @@ const makeConfig = {
     );
 
     delete config.time;
+    delete config.timeFilter;
+    delete config.timeline;
+    delete config.timelineConfig;
     delete config.total;
 
     return config;
@@ -188,7 +191,7 @@ const makeConfig = {
       flags.chartConfig
     );
 
-    if (!flags.activeType) {
+    if (!flags.activeChart) {
       config.zoom = false;
     }
 
@@ -221,7 +224,7 @@ const makeConfig = {
     );
   },
   lineplot(commonConfig, query, flags) {
-    const {level, measure, moe, lci, uci, member, timeLevel, xlevel} = query;
+    const {level, measure, moe, lci, uci, timeLevel, xlevel} = query;
 
     const timeLevelName = timeLevel.name;
     const measureName = measure.name;
@@ -261,6 +264,9 @@ const makeConfig = {
     }
 
     delete config.time;
+    delete config.timeFilter;
+    delete config.timeline;
+    delete config.timelineConfig;
     delete config.total;
 
     config.title = composeChartTitle(flags, {timeline: true});
@@ -309,7 +315,7 @@ const makeConfig = {
     return config;
   },
   treemap_ab(commonConfig, query, flags) {
-    const {level, measure, timeLevel, xlevel} = query;
+    const {level, xlevel} = query;
     const config = assign({}, commonConfig, flags.chartConfig);
 
     const levels = level.hierarchy.levels;
@@ -324,7 +330,7 @@ const makeConfig = {
     return config;
   },
   treemap_ba(commonConfig, query, flags) {
-    const {level, measure, timeLevel, xlevel} = query;
+    const {level, xlevel} = query;
     const config = assign({}, commonConfig, flags.chartConfig);
 
     const levels = xlevel.hierarchy.levels;
@@ -346,7 +352,7 @@ const makeConfig = {
  * @param {Object} query The current query object from the Vizbuilder's state
  * @param {Object[]} dataset The dataset for the current query
  * @param {Object<string,string[]>} members An object with the members in the current dataset
- * @param {string} activeType The currently active chart type
+ * @param {any} activeChart The currently active chart type
  * @param {UserDefinedChartConfig} param0 The object containing the parameters
  * @returns {CreateChartConfigResult[]}
  */
@@ -354,7 +360,7 @@ export default function createChartConfig(
   query,
   dataset,
   members,
-  activeType,
+  {activeChart, selectedTime, onTimeChange},
   {defaultConfig, formatting, measureConfig, topojson, visualizations}
 ) {
   const queryKey = query.key;
@@ -364,22 +370,22 @@ export default function createChartConfig(
   }
 
   // this prevents execution when the activeChart isn't for this query
-  if (activeType) {
-    const tokens = activeType.split("-");
+  if (activeChart) {
+    const tokens = activeChart.split("-");
     if (tokens.indexOf(queryKey) !== 0) {
       return [];
     }
-    activeType = tokens.pop();
+    activeChart = tokens.pop();
   }
 
   const availableKeys = Object.keys(members);
-  const availableCharts = new Set(activeType ? [activeType] : visualizations);
+  const availableCharts = new Set(activeChart ? [activeChart] : visualizations);
 
   const measure = query.measure;
   const measureName = measure.name;
   const measureAnn = measure.annotations;
   const measureFormatter =
-    formatting[measureAnn.units_of_measurement] || formatting["default"];
+    formatting[measureAnn.units_of_measurement] || formatting.default;
   const getMeasureValue = d => d[measureName];
 
   const levelName = query.level.name;
@@ -400,7 +406,7 @@ export default function createChartConfig(
 
   const commonConfig = {
     data: dataset,
-    height: activeType ? 500 : 400,
+    height: activeChart ? 500 : 400,
     legend: false,
 
     totalFormat: measureFormatter,
@@ -419,7 +425,11 @@ export default function createChartConfig(
 
   if (hasTimeDim) {
     commonConfig.time = timeLevelName;
-    commonConfig.timeline = Boolean(activeType);
+    commonConfig.timeFilter = d => d[timeLevelName] == selectedTime; // eslint-disable-line
+    commonConfig.timeline = Boolean(activeChart);
+    commonConfig.timelineConfig = {
+      on: {end: onTimeChange}
+    };
   }
 
   if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
@@ -428,7 +438,7 @@ export default function createChartConfig(
 
   const topojsonConfig = topojson[levelName];
 
-  if (!activeType) {
+  if (!activeChart) {
     if (members[levelName].length > 20) {
       availableCharts.delete("barchart");
     }
@@ -448,7 +458,7 @@ export default function createChartConfig(
       availableCharts.delete("stacked");
     }
 
-    if (!hasGeoDim || !topojsonConfig || members[levelName].length < 3) {
+    if (!hasGeoDim || !topojsonConfig || members[levelName].length < 3 || xlevelName) {
       availableCharts.delete("geomap");
     }
 
@@ -511,10 +521,11 @@ export default function createChartConfig(
   const currentMeasureConfig = measureConfig[measureName] || {};
 
   const flags = {
-    activeType,
+    activeChart,
     aggregatorType,
     availableKeys,
     dataset,
+    selectedTime,
     measureFormatter,
     members,
     query,
@@ -563,7 +574,7 @@ export default function createChartConfig(
 
 /**
  * @typedef {object} ConfigFunctionFlags
- * @prop {string} [activeType]
+ * @prop {string} [activeChart]
  * @prop {string} aggregatorType
  * @prop {string[]} availableKeys
  * @prop {object} chartConfig

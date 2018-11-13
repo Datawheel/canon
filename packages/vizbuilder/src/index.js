@@ -12,10 +12,9 @@ import Sidebar from "./components/Sidebar";
 import Ranking from "./components/Sidebar/Ranking";
 
 import * as api from "./helpers/api";
-import {fetchCubes, fetchQuery} from "./helpers/fetch";
+import {fetchCubes} from "./helpers/fetch";
 import {DEFAULT_MEASURE_FORMATTERS} from "./helpers/formatting";
 import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
-import {generateQueries} from "./helpers/query";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
 import {getDefaultGroup} from "./helpers/sorting";
 import {isSameQuery} from "./helpers/validation";
@@ -54,23 +53,25 @@ class Vizbuilder extends React.PureComponent {
     this.initialStatePromise = initialStatePromise;
 
     this.defaultQuery = defaultQuery;
-    this.formatting = {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting};
     this.getDefaultGroup = getDefaultGroup.bind(null, defaultGroup);
     this.permalinkKeywords = permalinkKeywords;
     this.queryHistory = [];
 
     this.loadControl = loadControl.bind(this);
-    this.fetchQueries = this.fetchQueries.bind(this);
-    this.generateQueries = this.generateQueries.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
   }
 
   getChildContext() {
+    const props = this.props;
     return {
       defaultQuery: this.defaultQuery,
-      fetchQueries: this.fetchQueries,
-      formatting: this.formatting,
-      generateQueries: this.generateQueries,
+      generalConfig: {
+        defaultConfig: props.config,
+        formatting: {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting},
+        measureConfig: props.measureConfig,
+        topojson: props.topojson,
+        visualizations: props.visualizations
+      },
       getDefaultGroup: this.getDefaultGroup,
       loadControl: this.loadControl,
       permalinkKeywords: this.permalinkKeywords,
@@ -81,11 +82,7 @@ class Vizbuilder extends React.PureComponent {
   componentDidMount() {
     const initialStatePromise = this.initialStatePromise;
     delete this.initialStatePromise;
-    this.loadControl(
-      () => initialStatePromise,
-      this.generateQueries,
-      this.fetchQueries
-    );
+    this.loadControl(() => initialStatePromise);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -105,13 +102,7 @@ class Vizbuilder extends React.PureComponent {
 
   render() {
     const {location} = this.context.router;
-    const {
-      config,
-      measureConfig,
-      permalink,
-      topojson,
-      visualizations
-    } = this.props;
+    const {permalink} = this.props;
     const {load, datasets, members, queries, options, query} = this.state;
 
     return (
@@ -123,18 +114,20 @@ class Vizbuilder extends React.PureComponent {
         <LoadingScreen total={load.total} progress={load.done} />
         <Sidebar options={options} query={query}>
           {this.props.children}
-          <Ranking datasets={datasets} members={members} queries={queries} />
+          <Ranking
+            datasets={datasets}
+            members={members}
+            queries={queries}
+            selectedTime={query.selectedTime}
+          />
         </Sidebar>
         <ChartArea
-          triggerUpdate={load.lastUpdate}
           activeChart={query.activeChart}
-          defaultConfig={config}
           datasets={datasets}
+          lastUpdate={load.lastUpdate}
           members={members}
           queries={queries}
-          measureConfig={measureConfig}
-          topojson={topojson}
-          visualizations={visualizations}
+          selectedTime={query.selectedTime}
         />
         {permalink && <PermalinkManager
           activeChart={query.activeChart}
@@ -148,41 +141,6 @@ class Vizbuilder extends React.PureComponent {
   stateUpdate(newState) {
     return setStatePromise.call(this, state => mergeStates(state, newState));
   }
-
-  generateQueries() {
-    return {queries: generateQueries(this.state.query)};
-  }
-
-  fetchQueries() {
-    const {query, queries} = this.state;
-    const activeQueryKey = `${query.activeChart}`.split("-")[0];
-    const isValidActiveChart = queries.some(
-      query => query.key === activeQueryKey
-    );
-    const queryFetcher = fetchQuery.bind(null, this.props.datacap);
-
-    return Promise.all(queries.map(queryFetcher)).then(results => {
-      const datasets = [];
-      const members = [];
-
-      let n = results.length;
-      while (n--) {
-        const result = results[n];
-        datasets.unshift(result.dataset);
-        members.unshift(result.members);
-      }
-
-      if (!isValidActiveChart) {
-        return {
-          datasets,
-          members,
-          query: {activeChart: null}
-        };
-      }
-
-      return {datasets, members};
-    });
-  }
 }
 
 Vizbuilder.contextTypes = {
@@ -191,9 +149,7 @@ Vizbuilder.contextTypes = {
 
 Vizbuilder.childContextTypes = {
   defaultQuery: PropTypes.any,
-  fetchQueries: PropTypes.func,
-  formatting: PropTypes.objectOf(PropTypes.func),
-  generateQueries: PropTypes.func,
+  generalConfig: PropTypes.object,
   getDefaultGroup: PropTypes.func,
   loadControl: PropTypes.func,
   permalinkKeywords: PropTypes.object,

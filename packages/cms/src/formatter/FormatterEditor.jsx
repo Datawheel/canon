@@ -48,10 +48,13 @@ class FormatterEditor extends Component {
     return (
       <div className="cms-panel formatter-panel" id="formatter-editor">
         <div className="cms-editor">
-          <h4>
+
+          <h2 className="cms-section-heading">
             Formatters
-            <Button onClick={this.addItem.bind(this)} iconName="add" />
-          </h4>
+            <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this)}>
+              <span className="pt-icon pt-icon-plus" />
+            </button>
+          </h2>
           <p className="pt-text-muted">Javascript Formatters for Canon text components.</p>
           <div className="cms-card-list">
             { formatters && formatters

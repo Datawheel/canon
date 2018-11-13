@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-vizbuilder",
   "description": "Visualization explorer for data retrieved from mondrian-rest.",
-  "version": "0.1.12",
+  "version": "0.1.14",
   "main": "src/index.js",
   "author": "Francisco Abarzúa & Carlos Navarrete",
   "license": "MIT",

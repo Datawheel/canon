@@ -3,7 +3,12 @@ import union from "lodash/union";
 import yn from "yn";
 
 import {findFirstNumber} from "./formatting";
-import {areKindaNumeric, isNumeric, isTimeDimension, isValidMeasure} from "./validation";
+import {
+  areKindaNumeric,
+  isNumeric,
+  isTimeDimension,
+  isValidMeasure
+} from "./validation";
 import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 /**
@@ -88,7 +93,8 @@ export function classifyMeasures(cubes) {
   let nCbs = cubes.length;
   while (nCbs--) {
     const cube = cubes[nCbs];
-    const cbHasTopic = cube.annotations.topic && cube.annotations.topic !== "Other";
+    const cbHasTopic =
+      cube.annotations.topic && cube.annotations.topic !== "Other";
     const cbTableId = cube.annotations.table_id;
 
     let nMsr = cube.measures.length;
@@ -168,7 +174,7 @@ export function getMeasureMeta(cube, measure) {
         collection = currentMeasure;
       }
 
-      if (collection && ((lci && uci) || moe) && source) {
+      if (collection && (lci && uci || moe) && source) {
         break;
       }
     }
@@ -208,20 +214,16 @@ export function getValidDimensions(cube) {
   );
 }
 
+/**
+ * Extracts the levels from non-time dimensions in a cube.
+ * @param {Cube} cube The cube where to extract levels from.
+ * @returns {Level[]}
+ */
 export function getValidLevels(cube) {
   const dimensions = getValidDimensions(cube);
   return dimensions
     .reduce(reduceLevelsFromDimension, [])
     .filter(lvl => !yn(lvl.annotations.hide_in_ui));
-}
-
-/**
- * Extracts the levels from non-time dimensions, to be used as drilldowns.
- * @param {Dimension[]} dimensions The dimensions where to extract levels from.
- * @returns {Level[]}
- */
-export function getValidDrilldowns(dimensions) {
-  return dimensions.reduce(reduceLevelsFromDimension, []);
 }
 
 /**
@@ -259,9 +261,9 @@ export function reduceLevelsFromDimension(container, dimension) {
   return isTimeDimension(dimension) || yn(dimension.annotations.hide_in_ui)
     ? container
     : dimension.hierarchies.reduce(
-        (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
-        container
-      );
+      (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
+      container
+    );
 }
 
 /**
@@ -331,6 +333,18 @@ export function getIncludedMembers(query, dataset) {
 }
 
 /**
+ * Returns the value of the highest timeLevel value in the dataset, but lower than the current time.
+ * @param {Object<string,number[]>} members An object with members and arrays of its available values
+ * @param {string} timeLevelName The name of the timeLevel for the current query
+ */
+export function higherTimeLessThanNow(members, timeLevelName) {
+  // TODO: prepare it to handle months, days, etc
+  const now = new Date();
+  const currentTime = now.getFullYear();
+  return members[timeLevelName].filter(time => time < currentTime).pop();
+}
+
+/**
  * Generates a sorting function to be used in `Array.prototype.sort`,
  * based on a certain key.
  * @param {string} key The key to the property to be used as comparison string
@@ -343,7 +357,11 @@ export function sortByCustomKey(key, members) {
   return (a, b) => `${a[key]}`.localeCompare(`${b[key]}`);
 }
 
-export function* getCombinationsChoose2(set) {
+/**
+ * Generates a 2-object combination from a list of objects.
+ * @param {any[]} set An array of objects to get the combo.
+ */
+export function *getCombinationsChoose2(set) {
   const n = set.length;
   if (n > 0) {
     const first = set[0];

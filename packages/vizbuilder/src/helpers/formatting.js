@@ -7,10 +7,18 @@ export const DEFAULT_MEASURE_FORMATTERS = {
   Rate: d => `${formatAbbreviate(d * 100 || 0)}%`,
   Ratio: d => `${formatAbbreviate(d * 1 || 0)} to 1`,
   USD: d => `$${formatAbbreviate(d * 1 || 0)}`,
-  get Dollars() { return this.USD },
-  "Thousands of Dollars"(d) { return this.USD(d * 1e3) },
-  "Millions of Dollars"(d) { return this.USD(d * 1e6) },
-  "Billions of Dollars"(d) { return this.USD(d * 1e9) }
+  get Dollars() {
+    return this.USD;
+  },
+  "Thousands of Dollars"(d) {
+    return this.USD(d * 1e3);
+  },
+  "Millions of Dollars"(d) {
+    return this.USD(d * 1e6);
+  },
+  "Billions of Dollars"(d) {
+    return this.USD(d * 1e9);
+  }
 };
 
 export const PROPNAMESTYLES = {
@@ -65,10 +73,14 @@ export function joinStringsWithCommaAnd(list) {
     : list.join(" and ");
 }
 
-/* this function will probably change soon */
+/**
+ * Returns a common title string from a list of parameters.
+ * @param {ConfigFunctionFlags} params The common parameters for chartconfig functions.
+ * @param {Object<string,any>} flags An object with specific modificators for special cases.
+ */
 export function composeChartTitle(params, flags) {
   const {levels, timeline} = flags || {};
-  const {activeType, members, query} = params;
+  const {activeChart, members, query} = params;
   const {level, measure, timeLevel, xlevel} = query;
   let title = `${measure.name} by `;
 
@@ -76,14 +88,13 @@ export function composeChartTitle(params, flags) {
   title += joinStringsWithCommaAnd(allLevels.filter(Boolean));
 
   if (timeLevel) {
-    if (!timeline && !activeType && timeLevel.name in members) {
-      const period = members[timeLevel.name].slice().pop();
-      title += ` (${period})`;
+    if (!timeline && !activeChart && timeLevel.name in members) {
+      title += ` (${params.selectedTime})`;
     }
     else {
       title += `, by ${timeLevel.name}`;
     }
   }
 
-  return `${title}\n${params.subtitle}`
+  return `${title}\n${params.subtitle}`;
 }

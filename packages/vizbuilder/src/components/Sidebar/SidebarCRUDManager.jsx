@@ -25,55 +25,45 @@ class SidebarCRUDManager extends React.Component {
   }
 
   updateElement(item) {
-    const {context, preUpdateHook, targetLabel} = this;
+    const {preUpdateHook, targetLabel} = this;
     const {items} = this.props;
 
     const index = items.findIndex(obj => obj.uuid === item.uuid);
     if (index === -1) return;
 
-    context.loadControl(
-      () => {
-        preUpdateHook && preUpdateHook.call(this, item);
+    this.context.loadControl(() => {
+      preUpdateHook && preUpdateHook.call(this, item);
 
-        const newItems = items.slice();
-        newItems.splice(index, 1, item);
-        return {
-          query: {
-            [targetLabel]: newItems
-          }
-        };
-      },
-      context.generateQueries,
-      context.fetchQueries
-    );
+      const newItems = items.slice();
+      newItems.splice(index, 1, item);
+      return {
+        query: {
+          [targetLabel]: newItems
+        }
+      };
+    });
   }
 
   deleteElement(item) {
-    const {context, targetLabel} = this;
+    const {targetLabel} = this;
     const {items} = this.props;
 
     const index = items.findIndex(obj => obj.uuid === item.uuid);
     if (index === -1) return;
 
-    context.loadControl(
-      () => {
-        const newItems = items.slice();
-        newItems.splice(index, 1);
-        return {
-          query: {
-            [targetLabel]: newItems
-          }
-        };
-      },
-      context.generateQueries,
-      context.fetchQueries
-    );
+    this.context.loadControl(() => {
+      const newItems = items.slice();
+      newItems.splice(index, 1);
+      return {
+        query: {
+          [targetLabel]: newItems
+        }
+      };
+    });
   }
 }
 
 SidebarCRUDManager.contextTypes = {
-  generateQueries: PropTypes.func,
-  fetchQueries: PropTypes.func,
   loadControl: PropTypes.func,
   stateUpdate: PropTypes.func
 };

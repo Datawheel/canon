@@ -29,12 +29,6 @@
 }
 
 .cms-status {
-  &.is-done {
-    opacity: 0.25;
-  }
-  &.is-loading {
-    opacity: 1;
-  }
   & .pt-icon-standard {
     display: inline-block;
     height: 0.75em;

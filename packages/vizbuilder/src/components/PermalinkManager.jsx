@@ -10,13 +10,7 @@ import {isSamePermalinkQuery} from "../helpers/validation";
 
 class PermalinkManager extends React.PureComponent {
   componentDidUpdate(prevProps) {
-    const {
-      router,
-      permalinkKeywords,
-      loadControl,
-      generateQueries,
-      fetchQueries
-    } = this.context;
+    const {router, permalinkKeywords, loadControl} = this.context;
     const {activeChart, href, state} = this.props;
 
     if (state.load.inProgress) return;
@@ -40,11 +34,7 @@ class PermalinkManager extends React.PureComponent {
       // the href attribute changed, trigger a internal state update
       if (prevProps.href !== href) {
         const permalinkQuery = parsePermalink(permalinkKeywords, location);
-        loadControl(
-          permalinkToState.bind(null, permalinkQuery, state),
-          generateQueries,
-          fetchQueries
-        );
+        loadControl(permalinkToState.bind(null, permalinkQuery, state));
       }
       // only the internal state changed, trigger a location bar update
       else {
@@ -69,8 +59,6 @@ class PermalinkManager extends React.PureComponent {
 }
 
 PermalinkManager.contextTypes = {
-  fetchQueries: PropTypes.func,
-  generateQueries: PropTypes.func,
   loadControl: PropTypes.func,
   permalinkKeywords: PropTypes.object,
   router: PropTypes.object
