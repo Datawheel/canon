@@ -469,15 +469,11 @@ module.exports = function(app) {
 
             if (debug) console.log(`\nLogic Layer Query: ${name}`);
             if (years[name] && queryYears.length) {
-              const {dimensions: drills, preferred: yearDrill} = findYears(flatDims);
-              drills.forEach(drill => {
-                queryDrilldowns.push(drill);
-                yearDims.push(drill.level);
-                if (drill === yearDrill) {
-                  if (year !== "all") queryCuts.push([drill, queryYears]);
-                  if (order.includes("Year")) order[order.indexOf("Year")] = yearDrill.level;
-                }
-              });
+              const {preferred} = findYears(flatDims);
+              queryDrilldowns.push(preferred);
+              yearDims.push(preferred.level);
+              if (year !== "all") queryCuts.push([preferred, queryYears]);
+              if (order.includes("Year")) order[order.indexOf("Year")] = preferred.level;
             }
 
             dimSet.forEach(dim => {
