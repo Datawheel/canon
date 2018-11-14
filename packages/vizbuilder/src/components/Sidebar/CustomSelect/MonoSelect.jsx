@@ -22,6 +22,7 @@ class MonoSelect extends BaseSelect {
           className="select-list-wrapper"
           findIndex={props.findIndex}
           getItemHeight={props.getItemHeight}
+          itemMinSize={props.itemMinHeight}
           itemRenderer={props.itemRenderer}
           items={items}
           noResults={props.noResults}
@@ -38,9 +39,11 @@ class MonoSelect extends BaseSelect {
 MonoSelect.displayName = "MonoSelect";
 
 MonoSelect.defaultProps = {
+  ...BaseSelect.defaultProps,
   inputProps: {
     autoFocus: true
   },
+  itemMinHeight: 10,
   itemRenderer({style, handleClick, isActive, item}) {
     const props = {
       className: classNames("select-option", {active: isActive}),

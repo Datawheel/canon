@@ -2,15 +2,20 @@ import React from "react";
 import classNames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 
-import MultiLevelSelect from "./MultiLevelSelect";
+import {BaseMonoSelect} from "./CustomSelect";
 
-class MeasureSelect extends MultiLevelSelect {
+class MeasureSelect extends BaseMonoSelect {
   renderTarget(item) {
     return (
-      <div className="select-item select-option option-measure current" title={item.caption || item.name}>
+      <div
+        className="select-item select-option option-measure current"
+        title={item.caption || item.name}
+      >
         <div className="select-value">
           <span className="select-label name">{item.caption || item.name}</span>
-          <span className="select-label lead">{item.annotations._cb_tagline}</span>
+          <span className="select-label source">
+            {item.annotations._cb_tagline}
+          </span>
         </div>
         <span className="pt-icon-standard pt-icon-double-caret-vertical" />
       </div>
@@ -20,16 +25,18 @@ class MeasureSelect extends MultiLevelSelect {
 
 MeasureSelect.displayName = "MeasureSelect";
 MeasureSelect.defaultProps = {
-  ...MultiLevelSelect.defaultProps,
+  ...BaseMonoSelect.defaultProps,
   sticky: "_sticky",
   getItemHeight() {
-    return 40;
+    return 44;
   },
   itemListPredicate(query, items) {
     query = query.trim();
     query = escapeRegExp(query).replace(/\s+/g, "[^_]+");
     const queryTester = RegExp(query || ".", "i");
-    return items.filter(item => queryTester.test(item.annotations._searchIndex));
+    return items.filter(item =>
+      queryTester.test(item.annotations._searchIndex)
+    );
   },
   itemListComposer(items) {
     const nope = {
@@ -73,28 +80,46 @@ MeasureSelect.defaultProps = {
       return all;
     }, []);
   },
+  itemMinHeight: 44,
   itemRenderer({handleClick, isActive, item, style}) {
     const props = {key: item._key || item.annotations._key, style};
     const className = ["select-item", "option-filtermeasure"];
-    let child1;
-    let child2 = null;
+    const params = ["div", props];
 
     if (item._header) {
       className.push("select-optgroup");
-      child1 = <span className="select-label h1" title={item.topic}>{item.topic}</span>;
+      params.push(
+        <span className="select-label h1" title={item.topic}>
+          {item.topic}
+        </span>
+      );
       if (item.subtopic) {
-        child2 = <span className="select-label h2" title={item.subtopic}>{item.subtopic}</span>;
+        params.push(
+          <span className="select-label h2" title={item.subtopic}>
+            {item.subtopic}
+          </span>
+        );
       }
-    } else {
+    }
+    else {
       className.push("select-option");
       props.onClick = handleClick;
       props.title = item.name;
-      child1 = <span className="select-label">{item.name}</span>;
-      child2 = <span className="select-label lead">{item.annotations._cb_tagline}</span>;
+      params.push(
+        <span className="select-label">{item.name}</span>,
+        <span className="select-label source">
+          {item.annotations._cb_tagline}
+        </span>,
+        <span className="select-label dims">
+          {item.annotations._dim_labels.map(label => (
+            <span className="pt-tag">{label}</span>
+          ))}
+        </span>
+      );
     }
 
     props.className = classNames(className, {active: isActive});
-    return React.createElement("div", props, child1, child2);
+    return React.createElement(...params);
   }
 };
 

@@ -78,7 +78,8 @@ class Sidebar extends React.PureComponent {
           value={query.measure}
         />
       );
-    } else {
+    }
+    else {
       datasetValue = (
         <ConditionalAnchor className="source-link" href={ann.dataset_link}>
           {ann.dataset_name}

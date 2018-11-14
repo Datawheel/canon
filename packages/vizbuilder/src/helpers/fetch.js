@@ -45,34 +45,37 @@ export function injectCubeInfoOnMeasure(cubes) {
 
     cbAnnotations._key = unique(cbName);
 
-    const cbLevelNameSet = new Set();
+    const cbLevelList = cube.dimensions.filter(isValidDimension);
     let nDim = cube.dimensions.length;
     while (nDim--) {
       const dimension = cube.dimensions[nDim];
-      const dimValid = isValidDimension(dimension);
       const keyPrefix = `${cbName} ${dimension.name} `;
 
       dimension.annotations._key = unique(keyPrefix);
+      dimension.annotations._nlvls = 0;
 
       let nHie = dimension.hierarchies.length;
       while (nHie--) {
         const hierarchy = dimension.hierarchies[nHie];
 
         let nLvl = hierarchy.levels.length;
+        dimension.annotations._nlvls += nLvl;
         while (nLvl--) {
           const level = hierarchy.levels[nLvl];
+
           level.annotations._key = unique(
             `${keyPrefix} ${hierarchy.name} ${level.name}`
           );
-
-          if (nLvl > 0 && dimValid) {
-            cbLevelNameSet.add(level.name);
-          }
         }
       }
     }
 
-    const cbLevelNameList = Array.from(cbLevelNameSet);
+    const cbLevelNameList = cbLevelList
+      .sort((a, b) => {
+        const diff = b.annotations._nlvls - a.annotations._nlvls;
+        return diff !== 0 ? diff : `${a.name}`.localeCompare(b.name);
+      })
+      .map(dim => dim.name);
     const levelKeys = cbLevelNameList.join("_");
 
     let nMsr = cube.measures.length;
@@ -89,6 +92,13 @@ export function injectCubeInfoOnMeasure(cubes) {
       msAnnotations._cb_topic = cbTopic;
       msAnnotations._cb_subtopic = cbSubtopic;
       // msAnnotations._cb_sourceName = sourceName;
+      msAnnotations._dim_labels =
+        cbLevelNameList.length > 5
+          ? [].concat(
+              cbLevelNameList.slice(0, 4),
+              `plus ${cbLevelNameList.slice(4).length} more`
+            )
+          : cbLevelNameList;
       msAnnotations._sortKey = selectorKey + measureLabel;
       msAnnotations._searchIndex = `${selectorKey}${measureLabel}_${cbMeta}_${levelKeys}`;
     }

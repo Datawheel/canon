@@ -55,7 +55,8 @@ MemberSelect.defaultProps = {
       className.push("select-optgroup");
       props.key = `h1~${props.key}`;
       child = <span className="select-label h1" title={item.caption}>{item.caption}</span>;
-    } else {
+    }
+    else {
       className.push("select-option", "padded");
       props.onClick = handleClick;
       child = <span className="select-label" title={item.caption}>{item.caption}</span>;
