@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, {Component} from "react";
 import AceWrapper from "./AceWrapper";
 
@@ -9,7 +10,8 @@ class GeneratorEditor extends Component {
     super(props);
     this.state = {
       data: null,
-      variables: []
+      variables: [],
+      payload: null
     };
   }
 
@@ -36,9 +38,16 @@ class GeneratorEditor extends Component {
     this.setState({data});
   }
 
+  previewPayload() {
+    const {api} = this.state.data;
+    axios.get(api).then(resp => {
+      this.setState({payload: resp.data});
+    });
+  }
+
   render() {
 
-    const {data, variables} = this.state;
+    const {data, variables, payload} = this.state;
     const {type} = this.props;
 
     const preMessage = {
@@ -83,6 +92,7 @@ class GeneratorEditor extends Component {
           ? <label className="pt-label pt-inline">
             <span className="label-text">API</span>
             <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")}/>
+            <button onClick={this.previewPayload.bind(this)}>Preview</button>
           </label>
           : null
         }
@@ -105,6 +115,7 @@ class GeneratorEditor extends Component {
             </label> : null
           }
           <label className="pt-label">Callback {preMessage[type]}</label>
+          {payload && <div>{JSON.stringify(payload)}</div>}
           <AceWrapper
             className="editor"
             variables={variables}
