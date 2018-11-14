@@ -14,11 +14,22 @@ class VirtualListWrapper extends React.Component {
       return height > props.maxHeight;
     });
     this.height = Math.max(100, height);
+    this.calculatedSize = [];
+
+    this.vlist = undefined;
+    this.vlistRef = node => {
+      this.vlist = node;
+      node && node.recomputeSizes();
+    };
   }
 
   getItemHeight(index) {
-    const props = this.props;
-    return props.getItemHeight(props.items[index]);
+    const size = this.calculatedSize[index];
+    if (!size) {
+      const props = this.props;
+      return props.getItemHeight(props.items[index]);
+    }
+    return size;
   }
 
   getStickyIndices(key, items) {
@@ -27,20 +38,43 @@ class VirtualListWrapper extends React.Component {
     while (n--) {
       if (items[n][key]) sticky.push(n);
     }
-    sticky.reverse()
+    sticky.reverse();
     return sticky;
+  }
+
+  updateLocalSize(index, node) {
+    if (!node) return;
+    const bounds = node.getBoundingClientRect();
+    this.calculatedSize[index] = Math.max(
+      this.props.itemMinSize,
+      bounds.height
+    );
+    this.vlist && this.vlist.recomputeSizes(index);
   }
 
   renderItem({index, style}) {
     const props = this.props;
     const item = props.items[index];
-    return props.itemRenderer({
+    const calculatedSize = this.calculatedSize[index];
+
+    const renderedItem = props.itemRenderer({
       handleClick: () => props.onItemClick(item),
       index,
-      isActive: props.findIndex(props.value, item) > -1,
+      isActive: props.findIndex([].concat(props.value), item) > -1,
       item,
       style
     });
+
+    if (!calculatedSize) {
+      const newStyle = {...style};
+      delete newStyle.height;
+      return React.cloneElement(renderedItem, {
+        style: newStyle,
+        ref: this.updateLocalSize.bind(this, index)
+      });
+    }
+
+    return renderedItem;
   }
 
   render() {
@@ -51,6 +85,7 @@ class VirtualListWrapper extends React.Component {
 
     return (
       <VirtualList
+        ref={this.vlistRef}
         className={props.className}
         height={this.height}
         itemCount={items.length}
@@ -58,7 +93,9 @@ class VirtualListWrapper extends React.Component {
         renderItem={this.renderItem}
         scrollToAlignment="center"
         scrollToIndex={props.scrollToIndex}
-        stickyIndices={props.sticky && this.getStickyIndices(props.sticky, items)}
+        stickyIndices={
+          props.sticky && this.getStickyIndices(props.sticky, items)
+        }
         width="100%"
       />
     );
@@ -70,12 +107,13 @@ VirtualListWrapper.defaultProps = {
   getItemHeight: () => 22,
   itemRenderer: undefined,
   items: [],
+  itemMinSize: 10,
   maxHeight: 300,
   noResults: null,
   onItemClick: undefined,
   scrollToIndex: undefined,
   sticky: null,
-  value: undefined,
-}
+  value: undefined
+};
 
 export default VirtualListWrapper;

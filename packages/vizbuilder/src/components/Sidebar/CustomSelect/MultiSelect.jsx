@@ -67,8 +67,10 @@ class MultiSelect extends BaseSelect {
           className="select-list-wrapper"
           findIndex={props.findIndex}
           getItemHeight={props.getItemHeight}
+          itemMinSize={props.itemMinHeight}
           itemRenderer={props.itemRenderer}
           items={items}
+          minHeight={props.minHeight}
           noResults={props.noResults}
           onItemClick={this.handleItemSelect}
           scrollToIndex={Math.max(0, valueIndex)}
@@ -85,6 +87,7 @@ MultiSelect.displayName = "MultiSelect";
 MultiSelect.defaultProps = {
   ...BaseSelect.defaultProps,
   closeOnSelect: false,
+  itemMinHeight: 10,
   popoverProps: {
     openOnTargetFocus: false
   },
