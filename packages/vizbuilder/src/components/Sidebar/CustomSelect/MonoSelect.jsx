@@ -44,7 +44,7 @@ MonoSelect.defaultProps = {
     autoFocus: true
   },
   itemMinHeight: 10,
-  itemRenderer({style, handleClick, isActive, item}) {
+  itemRenderer({handleClick, isActive, item, style}) {
     const props = {
       className: classNames("select-option", {active: isActive}),
       key: item.annotations._key,
@@ -54,8 +54,7 @@ MonoSelect.defaultProps = {
     };
     const child = <span className="select-label">{item.name}</span>;
     return React.createElement("div", props, child);
-  },
-  value: []
+  }
 };
 
 export default MonoSelect;
