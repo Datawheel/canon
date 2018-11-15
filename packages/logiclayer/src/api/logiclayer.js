@@ -668,13 +668,18 @@ module.exports = function(app) {
 
     }, Promise.resolve([]));
 
-    const crossKeys = d3Array.merge(queryCrosses).concat(renames).map(d => Object.keys(d)[0]);
-    const keys = d3Array.merge([
-      crossKeys,
-      drilldowns,
-      cuts.map(d => d[0]),
-      yearDims
-    ]);
+    const crossKeys = d3Array.merge(queryCrosses)
+      .concat(renames)
+      .map(d => Object.keys(d)[0]);
+
+    const keys = d3Array
+      .merge([
+        crossKeys,
+        drilldowns,
+        cuts.map(d => d[0]),
+        yearDims
+      ])
+      .filter((x, i, a) => a.indexOf(x) == i);
 
     let mergedData = d3Collection.nest()
       .key(d => keys.map(key => d[key]).join("_"))
