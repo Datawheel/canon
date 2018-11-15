@@ -1,49 +1,39 @@
 import React from "react";
 import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
-import {Icon} from "@blueprintjs/core";
-import {Select} from "@blueprintjs/labs";
+
+import {BaseMonoSelect} from "./CustomSelect";
 
 import {composePropertyName} from "../../helpers/formatting";
 
-function FilterMeasureSelect(props) {
-  let item;
-
-  if (!props.value || typeof props.value !== "object") {
-    item = props.defaultOption;
+class FilterMeasureSelect extends BaseMonoSelect {
+  renderTarget(item) {
+    const name = composePropertyName(item);
+    return (
+      <div
+        className="select-item select-option option-filtermeasure current"
+        title={name}
+      >
+        <span className="select-value">
+          <span className="select-label">{name}</span>
+        </span>
+        <span className="pt-icon-standard pt-icon-double-caret-vertical" />
+      </div>
+    );
   }
-  else {
-    const valueName = props.value.name;
-    item = props.items.find(item => item.name === valueName) || props.defaultOption;
-  }
-
-  const name = composePropertyName(item);
-
-  return React.createElement(
-    Select,
-    {
-      ...props,
-      className: "select-wrapper select-filtermeasure",
-      value: item
-    },
-    <div className="select-item select-option option-filtermeasure current" title={name}>
-      <span className="select-value">
-        <span className="select-label">{name}</span>
-      </span>
-      <Icon iconName="double-caret-vertical" />
-    </div>
-  );
 }
 
+FilterMeasureSelect.displayName = "FilterMeasureSelect";
+
 FilterMeasureSelect.defaultProps = {
-  defaultOption: {value: null, name: "Select...", disabled: true},
-  items: [],
+  ...BaseMonoSelect.defaultProps,
+  defaultValue: {value: null, name: "Select...", disabled: true},
   itemListPredicate(query, items) {
     query = escapeRegExp(`${query}`.trim()).replace(/\s+/g, ".+") || ".";
     const tester = RegExp(query, "i");
     return items.filter(item => tester.test(composePropertyName(item)));
   },
-  itemRenderer({handleClick, item, isActive}) {
+  itemRenderer({handleClick, isActive, item, style}) {
     const name = composePropertyName(item);
     return (
       <div
@@ -51,6 +41,7 @@ FilterMeasureSelect.defaultProps = {
           active: isActive,
           disabled: item.disabled
         })}
+        style={style}
         onClick={handleClick}
         title={name}
       >
@@ -59,16 +50,6 @@ FilterMeasureSelect.defaultProps = {
         </span>
       </div>
     );
-  },
-  noResults: <span className="select-noresults">No results</span>,
-  popoverProps: {
-    inline: true,
-    modifiers: {
-      preventOverflow: {
-        boundariesElement: "viewport"
-      }
-    },
-    popoverClassName: "select-popover pt-minimal"
   }
 };
 
