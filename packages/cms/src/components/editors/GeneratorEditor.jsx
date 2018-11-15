@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, {Component} from "react";
 import AceWrapper from "./AceWrapper";
+import JSEditor from "./JSEditor";
+import {Switch} from "@blueprintjs/core";
 
 import "./GeneratorEditor.css";
 
@@ -11,7 +13,8 @@ class GeneratorEditor extends Component {
     this.state = {
       data: null,
       variables: [],
-      payload: null
+      payload: null,
+      ezmode: false
     };
   }
 
@@ -38,16 +41,32 @@ class GeneratorEditor extends Component {
     this.setState({data});
   }
 
-  previewPayload() {
+  previewPayload(ezmode) {
     const {api} = this.state.data;
     axios.get(api).then(resp => {
-      this.setState({payload: resp.data});
+      this.setState({payload: resp.data, ezmode});
     });
+  }
+
+  switchEZ() {
+    const {ezmode} = this.state;
+    if (ezmode) {
+      this.setState({ezmode: false});
+    }
+    else {
+      this.previewPayload.bind(this)(true);
+    }
+  }
+
+  onEZChange(code) {
+    const {data} = this.state;
+    data.logic = code;
+    this.setState({data});
   }
 
   render() {
 
-    const {data, variables, payload} = this.state;
+    const {data, variables, payload, ezmode} = this.state;
     const {type} = this.props;
 
     const preMessage = {
@@ -92,7 +111,7 @@ class GeneratorEditor extends Component {
           ? <label className="pt-label pt-inline">
             <span className="label-text">API</span>
             <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")}/>
-            <button onClick={this.previewPayload.bind(this)}>Preview</button>
+            <button onClick={this.previewPayload.bind(this, false)}>Preview</button>
           </label>
           : null
         }
@@ -103,6 +122,7 @@ class GeneratorEditor extends Component {
           </label>
           : null
         }
+        <Switch checked={this.state.ezmode} label="EZ Mode" onChange={this.switchEZ.bind(this)} />
         <div id="generator-ace">
           { type === "profile_visualization" || type === "topic_visualization"
             ? <label className="pt-label pt-inline">
@@ -115,16 +135,18 @@ class GeneratorEditor extends Component {
             </label> : null
           }
           <label className="pt-label">Callback {preMessage[type]}</label>
-          {payload && <div>{JSON.stringify(payload)}</div>}
-          <AceWrapper
-            className="editor"
-            variables={variables}
-            ref={ comp => this.editor = comp }
-            onChange={this.handleEditor.bind(this, "logic")}
-            value={data.logic}
-            {...this.props}
-          />
-          {postMessage[type]}
+          {payload && !ezmode && <textarea rows="10" cols="50" style={{fontFamily: "monospace"}} value={JSON.stringify(payload, null, 2)} />}
+          {ezmode ? <JSEditor payload={payload} onEZChange={this.onEZChange.bind(this)}/>
+            : <AceWrapper
+              className="editor"
+              variables={variables}
+              ref={ comp => this.editor = comp }
+              onChange={this.handleEditor.bind(this, "logic")}
+              value={data.logic}
+              {...this.props}
+            />
+          }
+          {!ezmode && postMessage[type]}
         </div>
       </div>
     );
