@@ -24,6 +24,10 @@ module.exports = {
                 : prefix === "310" ? "County"
                   : prefix === "160" ? "Tract"
                     : false;
+        },
+        childrenCounty: id => {
+          const prefix = id.slice(0, 3);
+          return prefix === "010" ? "State" : [`040${id.slice(3, 9)}`, "County"];
         }
       }
     },

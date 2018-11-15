@@ -160,39 +160,41 @@ module.exports = function(app) {
             if (id.includes(":") && key in relations) {
               const rels = Object.keys(relations[key]);
               id = id.split(":");
+              let root = id[0];
               return id.slice(1)
                 .map(v => {
                   if (rels.includes(v)) {
                     const rel = relations[key][v];
                     if (typeof rel === "function") {
-                      const level = rel(id[0]);
+                      let level = rel(root);
                       if (level) {
-                        drilldowns.push(rel(id[0]));
+                        if (level instanceof Array) [root, level] = level;
+                        drilldowns.push(level);
                         if (searchDim in searchDims) {
                           dimensions.push({
                             alternate: key,
                             dimension: searchDim,
-                            id: id[0],
+                            id: root,
                             relation: level
                           });
                         }
                         else {
-                          cuts.push([key, id[0]]);
+                          cuts.push([key, root]);
                         }
                         return [];
                       }
                       else {
-                        return [id[0]];
+                        return [root];
                       }
                     }
                     else if (rel.url) {
-                      return axios.get(rel.url(id[0]))
+                      return axios.get(rel.url(root))
                         .then(resp => resp.data)
                         .then(resp => rel.callback ? rel.callback(resp) : resp)
                         .catch(() => []);
                     }
                     else {
-                      return [id[0]];
+                      return [root];
                     }
                   }
                   else {
