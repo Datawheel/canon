@@ -20,7 +20,10 @@ class GeneratorEditor extends Component {
 
   componentDidMount() {
     const {data, variables} = this.props;
-    this.setState({data, variables});
+    // If ezmode has been used in the past, we MUST have the payload fetched from the
+    // API so that the results for the variables can be filled in.
+    const maybePreview = () => data.ez ? this.previewPayload(true) : null;
+    this.setState({data, variables}, maybePreview);
   }
 
   changeField(field, e) {
@@ -58,9 +61,10 @@ class GeneratorEditor extends Component {
     }
   }
 
-  onEZChange(code) {
+  onEZChange(code, ez) {
     const {data} = this.state;
     data.logic = code;
+    data.ez = ez;
     this.setState({data});
   }
 
@@ -136,7 +140,7 @@ class GeneratorEditor extends Component {
           }
           <label className="pt-label">Callback {preMessage[type]}</label>
           {payload && !ezmode && <textarea rows="10" cols="50" style={{fontFamily: "monospace"}} value={JSON.stringify(payload, null, 2)} />}
-          {ezmode ? <JSEditor payload={payload} onEZChange={this.onEZChange.bind(this)}/>
+          {payload && ezmode ? <JSEditor payload={payload} ez={data.ez} onEZChange={this.onEZChange.bind(this)}/>
             : <AceWrapper
               className="editor"
               variables={variables}
