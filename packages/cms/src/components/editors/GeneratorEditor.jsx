@@ -22,7 +22,7 @@ class GeneratorEditor extends Component {
     const {data, variables} = this.props;
     // If ezmode has been used in the past, we MUST have the payload fetched from the
     // API so that the results for the variables can be filled in.
-    const maybePreview = () => data.ez ? this.previewPayload(true) : null;
+    const maybePreview = () => data.ez ? this.previewPayload() : null;
     this.setState({data, variables}, maybePreview);
   }
 
@@ -44,17 +44,20 @@ class GeneratorEditor extends Component {
     this.setState({data});
   }
 
-  previewPayload(ezmode) {
+  previewPayload(forceEZ) {
     const {api} = this.state.data;
     axios.get(api).then(resp => {
-      this.setState({payload: resp.data, ezmode});
+      const payload = resp.data;
+      const ezmode = forceEZ ? true : this.state.ezmode;
+      this.setState({payload, ezmode});
     });
   }
 
   switchEZ() {
-    const {ezmode} = this.state;
+    const {ezmode, data} = this.state;
     if (ezmode) {
-      this.setState({ezmode: false});
+      data.ez = null;
+      this.setState({ezmode: false, data});
     }
     else {
       this.previewPayload.bind(this)(true);
@@ -102,6 +105,8 @@ class GeneratorEditor extends Component {
 
     if (!data) return null;
 
+    if (ezmode && !payload) return null;
+
     return (
       <div id="generator-editor">
         { type === "generator" || type === "materializer" || type === "formatter"
@@ -115,7 +120,7 @@ class GeneratorEditor extends Component {
           ? <label className="pt-label pt-inline">
             <span className="label-text">API</span>
             <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")}/>
-            <button onClick={this.previewPayload.bind(this, false)}>Preview</button>
+            {!ezmode && <button onClick={this.previewPayload.bind(this)}>Preview</button>}
           </label>
           : null
         }
@@ -140,7 +145,10 @@ class GeneratorEditor extends Component {
           }
           <label className="pt-label">Callback {preMessage[type]}</label>
           {payload && !ezmode && <textarea rows="10" cols="50" style={{fontFamily: "monospace"}} value={JSON.stringify(payload, null, 2)} />}
-          {payload && ezmode ? <JSEditor payload={payload} ez={data.ez} onEZChange={this.onEZChange.bind(this)}/>
+          {ezmode 
+            ? payload 
+              ? <JSEditor payload={payload} ez={data.ez} onEZChange={this.onEZChange.bind(this)}/> 
+              : null
             : <AceWrapper
               className="editor"
               variables={variables}
