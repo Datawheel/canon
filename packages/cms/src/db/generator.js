@@ -23,6 +23,10 @@ module.exports = function(sequelize, db) {
         type: db.TEXT,
         defaultValue: "return {}"
       },
+      ez: {
+        type: db.ARRAY(db.JSON),
+        defaultValue: null
+      },
       profile_id: {
         type: db.INTEGER,
         onDelete: "cascade",

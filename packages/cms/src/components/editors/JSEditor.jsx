@@ -11,31 +11,43 @@ export default class JSEditor extends Component {
   }
 
   componentDidMount() {
-    const {payload} = this.props;
-    // In the future, need to load this from some config?
-    // or reverse engineer it from the saved code?
-    const rows = Object.keys(payload).map(k => ({
-      use: true,
-      keyName: k,
-      pKey: k,
-      pVal: payload[k]
-    }));
+    const {payload, ez} = this.props;
+    // If an ez config has been provided, then the user has used ez in the past.
+    // Populate the ez menu accordingly and make it the default mode.
+    let rows = [];
+    if (ez) {
+      rows = ez.map(r => ({
+        use: r.use,
+        keyName: r.keyName,
+        pKey: r.pKey,
+        pVal: payload[r.pKey]
+      }));
+    }
+    // If an ez config has not been provided, then the user has never used one before,
+    // so prepare the interface based on the payload itself
+    else {
+      rows = Object.keys(payload).map(k => ({
+        use: true,
+        keyName: k,
+        pKey: k,
+        pVal: payload[k]
+      }));
+    }
     this.setState({rows});
-  }
-
-  convertObjectToCode() {
-    const {rows} = this.state;
-    return `return {
-      ${rows.filter(r => r.use).map(row => `${row.keyName}: "${row.pVal}"`)}
-    }`;
   }
 
   compileCode() {
     const {rows} = this.state;
     const code = `return {
-      ${rows.filter(r => r.use).map(row => `${row.keyName}: "${row.pVal}"`)}
+      ${rows.filter(r => r.use).map(row => `${row.keyName}: resp["${row.pKey}"]`)}
     };`;
-    if (this.props.onEZChange) this.props.onEZChange(code);
+    // Do not save the value of the variable to the database - these are computed 
+    // at "run-time" from the results of the API call.
+    const dbRows = rows.map(r => {
+      delete r.pVal;
+      return r;
+    });
+    if (this.props.onEZChange) this.props.onEZChange(code, dbRows);
   }
 
   changeKey(pKey, str) {
