@@ -16,18 +16,30 @@ module.exports = {
     },
     relations: {
       Geography: {
-        children: id => {
-          const prefix = id.slice(0, 3);
-          return prefix === "010" ? "State"
-            : prefix === "040" ? "County"
-              : prefix === "050" ? "Tract"
-                : prefix === "310" ? "County"
-                  : prefix === "160" ? "Tract"
-                    : false;
+        children: {
+          url: id => `${CANON_API}/api/geo/children/${id}/`
         },
-        childrenCounty: id => {
-          const prefix = id.slice(0, 3);
-          return prefix === "010" ? "State" : [`040${id.slice(3, 9)}`, "County"];
+        childrenCounty: {
+          url: id => `${CANON_API}/api/geo/childrenCounty/${id}/`
+        },
+        parents: {
+          url: id => {
+            const prefix = id.slice(0, 3);
+            const targetLevels = prefix === "040" ? "nation" /* state */
+              : prefix === "050" ? "nation,state" /* county */
+                : prefix === "310" ? "nation,state" /* msa */
+                  : prefix === "160" ? "nation,state" /* place */
+                    : prefix === "795" ? "nation,state" /* puma */
+                      : false;
+            return targetLevels
+              ? `${CANON_LOGICLAYER_CUBE}/geoservice-api/relations/intersects/${id}?targetLevels=${targetLevels}`
+              : `${CANON_LOGICLAYER_CUBE}/geoservice-api/relations/intersects/${id}`;
+          },
+          callback: arr => {
+            const ids = arr.map(d => d.geoid);
+            if (!ids.includes("01000US")) ids.push("01000US");
+            return ids;
+          }
         }
       }
     },
