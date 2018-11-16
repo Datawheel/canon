@@ -2,8 +2,6 @@ import axios from "axios";
 import React, {Component} from "react";
 import {abbreviate} from "../../utils/formatters";
 
-import "./PercentageBar.css";
-
 class PercentageBar extends Component {
 
   constructor(props) {
@@ -48,7 +46,7 @@ class PercentageBar extends Component {
 
     const displayData = showAll ? data : data.slice(0, cutoff);
   
-    return <div id="PercentageBar">
+    return <div className="PercentageBar">
       <h3 className="pb-title">{title}</h3>
       { 
         displayData.map((d, i) => {
