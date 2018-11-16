@@ -1,12 +1,14 @@
 import React, {Component} from "react";
 import {EditableText, Checkbox} from "@blueprintjs/core";
 
+import "./JSEditor.css";
+
 export default class JSEditor extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      rows: []
+      objects: []
     };
   }
 
@@ -14,70 +16,86 @@ export default class JSEditor extends Component {
     const {payload, ez} = this.props;
     // If an ez config has been provided, then the user has used ez in the past.
     // Populate the ez menu accordingly and make it the default mode.
-    let rows = [];
+    let objects = [];
     if (ez) {
-      rows = ez.map(r => ({
-        use: r.use,
-        keyName: r.keyName,
-        pKey: r.pKey,
-        pVal: payload[r.pKey]
-      }));
+      objects = ez.map((objArr, i) => 
+        objArr.map(o => ({
+          use: o.use,
+          keyName: o.keyName,
+          pKey: o.pKey,
+          pVal: payload[i][o.pKey]
+        }))
+      );
+      this.setState({objects});
     }
     // If an ez config has not been provided, then the user has never used one before,
     // so prepare the interface based on the payload itself
     else {
-      rows = Object.keys(payload).map(k => ({
-        use: true,
-        keyName: k,
-        pKey: k,
-        pVal: payload[k]
-      }));
+      objects = payload.map(obj => 
+        Object.keys(obj).map(k => ({
+          use: true,
+          keyName: k,
+          pKey: k,
+          pVal: obj[k]
+        }))
+      );
+      // If this component is mounting and is NOT provided an ez config, it means the
+      // user has just enabled ezmode. This means the parent component must be given
+      // the ez config NOW, so if the user clicks save without editing anything, it's there.
+      this.setState({objects}, this.compileCode.bind(this));
     }
-    this.setState({rows});
   }
 
   compileCode() {
-    const {rows} = this.state;
+    const {objects} = this.state;
+    const {payload} = this.props;
+    const prepend = payload.data ? "resp.data" : "resp";
     const code = `return {
-      ${rows.filter(r => r.use).map(row => `${row.keyName}: resp["${row.pKey}"]`)}
+      ${objects.map(o => o).filter(r => r.use).map(row => `${row.keyName}: ${prepend}["${row.pKey}"]`)}
     };`;
     // Do not save the value of the variable to the database - these are computed 
-    // at "run-time" from the results of the API call.
-    const dbRows = rows.map(r => {
-      delete r.pVal;
-      return r;
-    });
+    // at "run-time" from the results of the API call. Only save user data.
+    const dbRows = objects.map(o => o).map(r => ({
+      use: r.use,
+      keyName: r.keyName,
+      pKey: r.pKey
+    }));
     if (this.props.onEZChange) this.props.onEZChange(code, dbRows);
   }
 
-  changeKey(pKey, str) {
-    const {rows} = this.state;
-    const row = rows.find(r => r.pKey === pKey);
+  changeKey(i, pKey, str) {
+    const {objects} = this.state;
+    const row = objects[i].find(r => r.pKey === pKey);
     if (row) row.keyName = str;
-    this.setState({rows}, this.compileCode.bind(this));
+    this.setState({objects}, this.compileCode.bind(this));
   }
 
-  changeUse(pKey, e) {
-    const {rows} = this.state;
-    const row = rows.find(r => r.pKey === pKey);
+  changeUse(i, pKey, e) {
+    const {objects} = this.state;
+    const row = objects[i].find(r => r.pKey === pKey);
     if (row) row.use = e.target.checked;
-    this.setState({rows}, this.compileCode.bind(this));  
+    this.setState({objects}, this.compileCode.bind(this));  
   }
 
   render() {
 
-    const {rows} = this.state;
+    const {objects} = this.state;
     
-    return <div id="ezmode">
+    return <div className="ezmode">
       {
-        rows.map(row => 
-          <div key={row.pKey}>
-            <Checkbox checked={row.use} style={{width: "20px"}} onChange={this.changeUse.bind(this, row.pKey)}/>
-            <EditableText 
-              defaultValue={row.pKey} 
-              onChange={this.changeKey.bind(this, row.pKey)} />
-            <span>{row.pKey}</span>&nbsp;&nbsp;&nbsp;&nbsp;
-            <span>{String(row.pVal)}</span>
+        objects.map((objArr, i) => 
+          <div key={i} className="obj" style={{outline: "1px solid black"}}>
+            {`THING ${i}`}
+            {objArr.map(row => 
+              <div key={row.pKey} className="field-row">
+                <Checkbox checked={row.use} onChange={this.changeUse.bind(this, i, row.pKey)}/>
+                <EditableText 
+                  defaultValue={row.keyName} 
+                  onChange={this.changeKey.bind(this, i, row.pKey)} />
+                <span>{row.pKey}</span>&nbsp;&nbsp;&nbsp;&nbsp;{/* lol sorry james */}
+                <span>{String(row.pVal)}</span>
+              </div>          
+            )}
           </div>
         )
       }
