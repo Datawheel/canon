@@ -140,6 +140,32 @@ module.exports = function(app) {
           renames = [],
           yearDims = [];
 
+    /** */
+    function analyzeRelation(key, searchDim, obj) {
+
+      if (obj instanceof Array) return obj;
+      else if (obj.cut && obj.drilldown) {
+        drilldowns.push(obj.drilldown);
+        const cuts = obj.cut instanceof Array ? obj.cut : [obj.cut];
+        for (let i = 0; i < cuts.length; i++) {
+          const cut = cuts[i];
+          if (searchDim in searchDims) {
+            dimensions.push({
+              alternate: key,
+              dimension: searchDim,
+              id: cut,
+              relation: obj.drilldown
+            });
+          }
+          else {
+            cuts.push([key, cut]);
+          }
+        }
+      }
+      return [];
+
+    }
+
     for (let key in req.query) {
       if (!reserved.includes(key)) {
 
@@ -160,44 +186,31 @@ module.exports = function(app) {
             if (id.includes(":") && key in relations) {
               const rels = Object.keys(relations[key]);
               id = id.split(":");
+              const root = id[0];
               return id.slice(1)
                 .map(v => {
+
                   if (rels.includes(v)) {
+
                     const rel = relations[key][v];
+
                     if (typeof rel === "function") {
-                      const level = rel(id[0]);
-                      if (level) {
-                        drilldowns.push(rel(id[0]));
-                        if (searchDim in searchDims) {
-                          dimensions.push({
-                            alternate: key,
-                            dimension: searchDim,
-                            id: id[0],
-                            relation: level
-                          });
-                        }
-                        else {
-                          cuts.push([key, id[0]]);
-                        }
-                        return [];
-                      }
-                      else {
-                        return [id[0]];
-                      }
+                      return analyzeRelation(key, searchDim, rel(root));
                     }
                     else if (rel.url) {
-                      return axios.get(rel.url(id[0]))
+                      return axios.get(rel.url(root))
                         .then(resp => resp.data)
                         .then(resp => rel.callback ? rel.callback(resp) : resp)
+                        .then(obj => analyzeRelation(key, searchDim, obj))
                         .catch(() => []);
                     }
                     else {
-                      return [id[0]];
+                      return [root];
                     }
+
                   }
-                  else {
-                    return [v];
-                  }
+                  else return [v];
+
                 })
                 .filter(v => v);
             }
@@ -666,13 +679,18 @@ module.exports = function(app) {
 
     }, Promise.resolve([]));
 
-    const crossKeys = d3Array.merge(queryCrosses).concat(renames).map(d => Object.keys(d)[0]);
-    const keys = d3Array.merge([
-      crossKeys,
-      drilldowns,
-      cuts.map(d => d[0]),
-      yearDims
-    ]);
+    const crossKeys = d3Array.merge(queryCrosses)
+      .concat(renames)
+      .map(d => Object.keys(d)[0]);
+
+    const keys = d3Array
+      .merge([
+        crossKeys,
+        drilldowns,
+        cuts.map(d => d[0]),
+        yearDims
+      ])
+      .filter((x, i, a) => a.indexOf(x) === i);
 
     let mergedData = d3Collection.nest()
       .key(d => keys.map(key => d[key]).join("_"))
