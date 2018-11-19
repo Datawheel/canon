@@ -29,7 +29,7 @@ export const ALL_YEARS = "All years";
 
 export const tooltipGenerator = (query, flags) => {
   const measureFormatter = flags.measureFormatter;
-  const {levelName, measureName, sourceName, collectionName} = query;
+  const {levelName, measureName} = query;
   const shouldShow = areMetaMeasuresZero(query, flags.dataset);
 
   const tbody = flags.availableKeys
@@ -55,11 +55,13 @@ export const tooltipGenerator = (query, flags) => {
     ]);
   }
 
-  if (sourceName) {
+  if (shouldShow.src) {
+    const {sourceName} = query;
     tbody.push(["Source", d => `${d[sourceName]}`]);
   }
 
-  if (collectionName) {
+  if (shouldShow.clt) {
+    const {collectionName} = query;
     tbody.push(["Collection", d => `${d[collectionName]}`]);
   }
 
@@ -406,7 +408,6 @@ export default function createChartConfig(
 
   const commonConfig = {
     data: dataset,
-    height: activeChart ? 500 : 400,
     legend: false,
 
     totalFormat: measureFormatter,
@@ -478,8 +479,8 @@ export default function createChartConfig(
     }
 
     if (availableKeys.some(d => d !== "Year" && members[d].length === 1)) {
+      // if any drilldown (besides Year) only has 1 member, hide these
       availableCharts.delete("barchart");
-      availableCharts.delete("barchartyear");
       availableCharts.delete("stacked");
       availableCharts.delete("treemap");
     }
