@@ -21,7 +21,7 @@ class GroupingItem extends SidebarCRUDItem {
     const item = props.item;
 
     this.state = {
-      isOpen: !item.level,
+      isOpen: true,
       loading: true,
       members: [],
       newItem: !item.level ? item.setLevel(props.options[0]) : null
@@ -38,9 +38,10 @@ class GroupingItem extends SidebarCRUDItem {
   }
 
   render() {
-    return this.state.isOpen
+    const {item = {}} = this.props;
+    return !item.level || this.state.isOpen
       ? this.renderEditable.call(this)
-      : this.renderClosed.call(this);
+      : this.renderClosed.call(this)
   }
 
   renderClosed() {
@@ -53,7 +54,7 @@ class GroupingItem extends SidebarCRUDItem {
             <div className="group grouping-members">
               {item.members.map(member => (
                 <span key={member.key}>{member.name}</span>
-                ))}
+              ))}
             </div>
           )}
         </div>
