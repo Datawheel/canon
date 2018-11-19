@@ -90,11 +90,25 @@ export default class JSEditor extends Component {
     this.setState({objects}, this.compileCode.bind(this));  
   }
 
+  rebuild() {
+    const {payload} = this.props;
+    const objects = payload.map((obj, i) => 
+      Object.keys(obj).map(k => ({
+        use: true,
+        keyName: `${k}${i + 1}`,
+        pKey: k,
+        pVal: obj[k]
+      }))
+    );
+    this.setState({objects}, this.compileCode.bind(this));
+  }
+
   render() {
 
     const {objects} = this.state;
     
     return <div className="ezmode">
+      <button onClick={this.rebuild.bind(this)}>Rebuild</button>
       {
         objects.map((objArr, i) => 
           <div key={i} className="obj">
