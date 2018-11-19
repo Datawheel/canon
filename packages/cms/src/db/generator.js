@@ -24,7 +24,7 @@ module.exports = function(sequelize, db) {
         defaultValue: "return {}"
       },
       ez: {
-        type: db.ARRAY(db.JSON),
+        type: db.JSON,
         defaultValue: null
       },
       profile_id: {

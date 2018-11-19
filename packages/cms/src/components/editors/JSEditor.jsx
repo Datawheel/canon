@@ -31,10 +31,10 @@ export default class JSEditor extends Component {
     // If an ez config has not been provided, then the user has never used one before,
     // so prepare the interface based on the payload itself
     else {
-      objects = payload.map(obj => 
+      objects = payload.map((obj, i) => 
         Object.keys(obj).map(k => ({
           use: true,
-          keyName: k,
+          keyName: `${k}${i + 1}`,
           pKey: k,
           pVal: obj[k]
         }))
@@ -50,16 +50,23 @@ export default class JSEditor extends Component {
     const {objects} = this.state;
     const {payload} = this.props;
     const prepend = payload.data ? "resp.data" : "resp";
-    const code = `return {
-      ${objects.map(o => o).filter(r => r.use).map(row => `${row.keyName}: ${prepend}["${row.pKey}"]`)}
-    };`;
+    const code = 
+    `return {${objects
+      // For every object that was returned in the payload (represented as an array of keys), and the index of that object
+      .map((o, i) => o
+        // Filter out any keys that the user decided not to export
+        .filter(r => r.use)
+        // Using a string template, create the key export
+        .map(row => `\n  ${row.keyName}: ${prepend}[${i}]["${row.pKey}"]`))
+      // If the "use filter" resulted in a completely empty array, filter it out so no "dead commas" end up in the javascript
+      .filter(d => d.length)}\n};`;
     // Do not save the value of the variable to the database - these are computed 
     // at "run-time" from the results of the API call. Only save user data.
-    const dbRows = objects.map(o => o).map(r => ({
+    const dbRows = objects.map(o => o.map(r => ({
       use: r.use,
       keyName: r.keyName,
       pKey: r.pKey
-    }));
+    })));
     if (this.props.onEZChange) this.props.onEZChange(code, dbRows);
   }
 
@@ -77,6 +84,12 @@ export default class JSEditor extends Component {
     this.setState({objects}, this.compileCode.bind(this));  
   }
 
+  changeAll(i, e) {
+    const {objects} = this.state;
+    objects[i] = objects[i].map(o => Object.assign({}, o, {use: e.target.checked}));
+    this.setState({objects}, this.compileCode.bind(this));  
+  }
+
   render() {
 
     const {objects} = this.state;
@@ -84,8 +97,9 @@ export default class JSEditor extends Component {
     return <div className="ezmode">
       {
         objects.map((objArr, i) => 
-          <div key={i} className="obj" style={{outline: "1px solid black"}}>
+          <div key={i} className="obj">
             {`THING ${i}`}
+            <Checkbox checked={objArr.every(r => r.use)} onChange={this.changeAll.bind(this, i)}/>
             {objArr.map(row => 
               <div key={row.pKey} className="field-row">
                 <Checkbox checked={row.use} onChange={this.changeUse.bind(this, i, row.pKey)}/>
