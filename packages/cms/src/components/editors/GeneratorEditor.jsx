@@ -20,9 +20,9 @@ class GeneratorEditor extends Component {
 
   componentDidMount() {
     const {data, variables} = this.props;
-    // If ezmode has been used in the past, we MUST have the payload fetched from the
+    // If ezmode has been used in the past, we MUST fetch the payload from the
     // API so that the results for the variables can be filled in.
-    const maybePreview = () => data.ez ? this.previewPayload() : null;
+    const maybePreview = () => data.ez ? this.previewPayload(true) : null;
     this.setState({data, variables}, maybePreview);
   }
 

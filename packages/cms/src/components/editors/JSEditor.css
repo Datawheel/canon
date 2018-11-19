@@ -1,3 +1,7 @@
 .field-row {
   display: flex;
 }
+
+.obj {
+  outline: solid 1px black;
+}
