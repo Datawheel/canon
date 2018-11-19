@@ -48,7 +48,7 @@ class GeneratorEditor extends Component {
     const {api} = this.state.data;
     axios.get(api).then(resp => {
       const payload = resp.data;
-      const ezmode = forceEZ ? true : this.state.ezmode;
+      const ezmode = forceEZ === true ? true : this.state.ezmode;
       this.setState({payload, ezmode});
     });
   }
@@ -120,7 +120,7 @@ class GeneratorEditor extends Component {
           ? <label className="pt-label pt-inline">
             <span className="label-text">API</span>
             <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")}/>
-            {!ezmode && <button onClick={this.previewPayload.bind(this)}>Preview</button>}
+            <button onClick={this.previewPayload.bind(this)}>Preview</button>
           </label>
           : null
         }
@@ -144,7 +144,7 @@ class GeneratorEditor extends Component {
             </label> : null
           }
           <label className="pt-label">Callback {preMessage[type]}</label>
-          {payload && !ezmode && <textarea rows="10" cols="50" style={{fontFamily: "monospace"}} value={JSON.stringify(payload, null, 2)} />}
+          {payload && <textarea rows="10" cols="50" style={{fontFamily: "monospace"}} value={JSON.stringify(payload, null, 2)} />}
           {ezmode 
             ? payload 
               ? <JSEditor payload={payload} ez={data.ez} onEZChange={this.onEZChange.bind(this)}/> 
