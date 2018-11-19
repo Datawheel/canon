@@ -102,7 +102,7 @@ class Vizbuilder extends React.PureComponent {
 
   render() {
     const {location} = this.context.router;
-    const {permalink} = this.props;
+    const {permalink, toolbar} = this.props;
     const {load, datasets, members, queries, options, query} = this.state;
 
     return (
@@ -128,6 +128,7 @@ class Vizbuilder extends React.PureComponent {
           members={members}
           queries={queries}
           selectedTime={query.selectedTime}
+          toolbar={toolbar}
         />
         {permalink && <PermalinkManager
           activeChart={query.activeChart}
