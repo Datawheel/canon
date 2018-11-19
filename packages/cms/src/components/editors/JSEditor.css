@@ -5,3 +5,8 @@
 .obj {
   outline: solid 1px black;
 }
+
+.ezmode {
+  overflow-y: scroll;
+  height: 300px;
+}

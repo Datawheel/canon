@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {EditableText, Checkbox} from "@blueprintjs/core";
+import {EditableText, Checkbox, Alert, Intent} from "@blueprintjs/core";
 
 import "./JSEditor.css";
 
@@ -8,7 +8,8 @@ export default class JSEditor extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      objects: []
+      objects: [],
+      rebuildAlertOpen: false
     };
   }
 
@@ -90,6 +91,10 @@ export default class JSEditor extends Component {
     this.setState({objects}, this.compileCode.bind(this));  
   }
 
+  maybeRebuild() {
+    this.setState({rebuildAlertOpen: true});
+  }
+
   rebuild() {
     const {payload} = this.props;
     const objects = payload.map((obj, i) => 
@@ -100,15 +105,27 @@ export default class JSEditor extends Component {
         pVal: obj[k]
       }))
     );
-    this.setState({objects}, this.compileCode.bind(this));
+    this.setState({objects, rebuildAlertOpen: false}, this.compileCode.bind(this));
   }
 
   render() {
 
-    const {objects} = this.state;
+    const {objects, rebuildAlertOpen} = this.state;
     
     return <div className="ezmode">
-      <button onClick={this.rebuild.bind(this)}>Rebuild</button>
+      <Alert
+        cancelButtonText="Cancel"
+        confirmButtonText="Rebuild"
+        className="confirm-alert"
+        iconName="pt-icon-warning-sign"
+        intent={Intent.DANGER}
+        isOpen={rebuildAlertOpen}
+        onConfirm={this.rebuild.bind(this)}
+        onCancel={() => this.setState({rebuildAlertOpen: false})}
+      >
+        Are you sure you want to rebuild your variables from the current payload?
+      </Alert>
+      <button onClick={this.maybeRebuild.bind(this)}>Rebuild</button>
       {
         objects.map((objArr, i) => 
           <div key={i} className="obj">

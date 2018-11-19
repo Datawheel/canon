@@ -2,7 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import AceWrapper from "./AceWrapper";
 import JSEditor from "./JSEditor";
-import {Switch} from "@blueprintjs/core";
+import {Switch, Alert, Intent} from "@blueprintjs/core";
 
 import "./GeneratorEditor.css";
 
@@ -14,7 +14,8 @@ class GeneratorEditor extends Component {
       data: null,
       variables: [],
       payload: null,
-      ezmode: false
+      ezmode: false,
+      alertObj: false
     };
   }
 
@@ -44,20 +45,49 @@ class GeneratorEditor extends Component {
     this.setState({data});
   }
 
+  maybePreviewPayload() {
+    const alertObj = {
+      callback: this.previewPayload.bind(this),
+      message: "Are you sure you want to reload the API results? This will not change your current code, but it may cause some objects to become undefined!",
+      confirm: "Yes, reload the API results"
+    };
+    this.setState({alertObj});
+  }
+
   previewPayload(forceEZ) {
     const {api} = this.state.data;
     axios.get(api).then(resp => {
       const payload = resp.data;
       const ezmode = forceEZ === true ? true : this.state.ezmode;
-      this.setState({payload, ezmode});
+      this.setState({payload, ezmode, alertObj: false});
     });
+  }
+
+  maybeSwitchEZ() {
+    const {ezmode} = this.state;
+    let alertObj = false;
+    if (ezmode) {
+      alertObj = {
+        callback: this.switchEZ.bind(this),
+        message: "Are you sure you want to switch to Advanced Mode? This will abandon your EZ Mode state!",
+        confirm: "Yes, go to Advanced Mode"
+      };  
+    }
+    else {
+      alertObj = {
+        callback: this.switchEZ.bind(this),
+        message: "Are you sure you want to switch to EZ Mode? This will abandon your current Advanced Mode code!",
+        confirm: "Yes, go to EZ Mode"
+      };    
+    }
+    this.setState({alertObj});
   }
 
   switchEZ() {
     const {ezmode, data} = this.state;
     if (ezmode) {
       data.ez = null;
-      this.setState({ezmode: false, data});
+      this.setState({ezmode: false, alertObj: false, data});
     }
     else {
       this.previewPayload.bind(this)(true);
@@ -73,7 +103,7 @@ class GeneratorEditor extends Component {
 
   render() {
 
-    const {data, variables, payload, ezmode} = this.state;
+    const {data, variables, payload, ezmode, alertObj} = this.state;
     const {type} = this.props;
 
     const preMessage = {
@@ -109,6 +139,18 @@ class GeneratorEditor extends Component {
 
     return (
       <div id="generator-editor">
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="confirm-alert"
+          iconName="pt-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+        >
+          {alertObj.message}
+        </Alert>
         { type === "generator" || type === "materializer" || type === "formatter"
           ? <label className="pt-label pt-inline">
             <span className="label-text">Name</span>
@@ -120,7 +162,7 @@ class GeneratorEditor extends Component {
           ? <label className="pt-label pt-inline">
             <span className="label-text">API</span>
             <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")}/>
-            <button onClick={this.previewPayload.bind(this)}>Preview</button>
+            <button onClick={this.maybePreviewPayload.bind(this)}>{payload ? "Refetch Data" : "Fetch Data"}</button>
           </label>
           : null
         }
@@ -131,7 +173,7 @@ class GeneratorEditor extends Component {
           </label>
           : null
         }
-        <Switch checked={this.state.ezmode} label="EZ Mode" onChange={this.switchEZ.bind(this)} />
+        <Switch checked={ezmode} label="EZ Mode" onChange={this.maybeSwitchEZ.bind(this)} />
         <div id="generator-ace">
           { type === "profile_visualization" || type === "topic_visualization"
             ? <label className="pt-label pt-inline">
