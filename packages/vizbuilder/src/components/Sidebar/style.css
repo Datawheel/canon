@@ -24,8 +24,7 @@
     border: 1px solid;
   }
 
-  & .filter-item .values div {
-    display: inline;
+  & .filter-item .values span {
     margin-right: 0.5rem;
   }
 
