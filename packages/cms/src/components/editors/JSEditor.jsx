@@ -129,7 +129,7 @@ export default class JSEditor extends Component {
       {
         objects.map((objArr, i) => 
           <div key={i} className="obj">
-            {`THING ${i}`}
+            {`Object ${i}`}
             <Checkbox checked={objArr.every(r => r.use)} onChange={this.changeAll.bind(this, i)}/>
             {objArr.map(row => 
               <div key={row.pKey} className="field-row">
