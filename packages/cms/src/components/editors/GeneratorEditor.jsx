@@ -23,7 +23,7 @@ class GeneratorEditor extends Component {
     const {data, variables} = this.props;
     // If ezmode has been used in the past, we MUST fetch the payload from the
     // API so that the results for the variables can be filled in.
-    const maybePreview = () => data.ez ? this.previewPayload(true) : null;
+    const maybePreview = () => data.isez ? this.previewPayload(true) : null;
     this.setState({data, variables}, maybePreview);
   }
 
@@ -46,20 +46,31 @@ class GeneratorEditor extends Component {
   }
 
   maybePreviewPayload() {
-    const alertObj = {
-      callback: this.previewPayload.bind(this),
-      message: "Are you sure you want to reload the API results? This will not change your current code, but it may cause some objects to become undefined!",
-      confirm: "Yes, reload the API results"
-    };
-    this.setState({alertObj});
+    const {payload} = this.state;
+    // Only prompt the user if there is already a payload (therefore they are overriding/changing it) 
+    if (payload) {
+      const alertObj = {
+        callback: this.previewPayload.bind(this),
+        message: "Are you sure you want to reload the API results? This will not change your current code, but it may cause some objects to become undefined!",
+        confirm: "Yes, reload the API results"
+      };
+      this.setState({alertObj});
+    }
   }
 
   previewPayload(forceEZ) {
-    const {api} = this.state.data;
+    const {data} = this.state;
+    const {api} = data;
     axios.get(api).then(resp => {
       const payload = resp.data;
-      const ezmode = forceEZ === true ? true : this.state.ezmode;
-      this.setState({payload, ezmode, alertObj: false});
+      let {ezmode} = this.state;
+      // This comparison is important! forceEZ must be EXACTLY true to indicate we are overriding it. Otherwise it's a 
+      // proxy event from a click, which indeed is truthy, but not a pure argument override.
+      if (forceEZ === true) {
+        ezmode = true;
+        data.isez = true;
+      }
+      this.setState({payload, ezmode, data, alertObj: false});
     });
   }
 
@@ -86,7 +97,7 @@ class GeneratorEditor extends Component {
   switchEZ() {
     const {ezmode, data} = this.state;
     if (ezmode) {
-      data.ez = null;
+      data.isez = false;
       this.setState({ezmode: false, alertObj: false, data});
     }
     else {
