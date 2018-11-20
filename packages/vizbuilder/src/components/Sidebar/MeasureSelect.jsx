@@ -23,6 +23,8 @@ class MeasureSelect extends BaseMonoSelect {
   }
 }
 
+const headerItems = {};
+
 MeasureSelect.displayName = "MeasureSelect";
 MeasureSelect.defaultProps = {
   ...BaseMonoSelect.defaultProps,
@@ -47,7 +49,7 @@ MeasureSelect.defaultProps = {
 
     return items.reduce((all, measure, i, array) => {
       const topic = measure.annotations._cb_topic;
-      const subtopic = measure.annotations._cb_subtopic;
+      const subtopic = measure.annotations._cb_subtopic || undefined;
 
       const prevMeasure = array[i - 1] || nope;
 
@@ -55,13 +57,15 @@ MeasureSelect.defaultProps = {
         topic !== prevMeasure.annotations._cb_topic ||
         subtopic !== prevMeasure.annotations._cb_subtopic
       ) {
-        const header = {topic, _key: topic, _header: true, _sticky: true};
-
-        if (subtopic) {
-          header.subtopic = subtopic;
-          header._key += `-${subtopic}`;
-        }
-
+        let _key = topic + (subtopic ? `-${subtopic}` : "");
+        const header = headerItems[_key] || {
+          topic,
+          subtopic,
+          _key,
+          _header: true,
+          _sticky: true
+        };
+        headerItems[_key] = header;
         all.push(header);
       }
 
