@@ -14,7 +14,7 @@ class VirtualListWrapper extends React.Component {
       return height > props.maxHeight;
     });
     this.height = Math.max(100, height);
-    this.calculatedSize = [];
+    this.calculatedSize = new WeakMap();
 
     this.vlist = undefined;
     this.vlistRef = node => {
@@ -24,38 +24,34 @@ class VirtualListWrapper extends React.Component {
   }
 
   getItemHeight(index) {
-    const size = this.calculatedSize[index];
-    if (!size) {
-      const props = this.props;
-      return props.getItemHeight(props.items[index]);
-    }
-    return size;
+    const props = this.props;
+    const item = props.items[index];
+    return this.calculatedSize.get(item) || props.getItemHeight(item);
   }
 
   getStickyIndices(key, items) {
     const sticky = [];
     let n = items.length;
     while (n--) {
-      if (items[n][key]) sticky.push(n);
+      if (items[n][key]) sticky.unshift(n);
     }
-    sticky.reverse();
     return sticky;
   }
 
   updateLocalSize(index, node) {
     if (!node) return;
+    const props = this.props;
+    const item = props.items[index];
     const bounds = node.getBoundingClientRect();
-    this.calculatedSize[index] = Math.max(
-      this.props.itemMinSize,
-      bounds.height
-    );
+    const size = Math.max(props.itemMinSize, bounds.height);
+    this.calculatedSize.set(item, size);
     this.vlist && this.vlist.recomputeSizes(index);
   }
 
   renderItem({index, style}) {
     const props = this.props;
     const item = props.items[index];
-    const calculatedSize = this.calculatedSize[index];
+    const calculatedSize = this.calculatedSize.get(item);
 
     const renderedItem = props.itemRenderer({
       handleClick: () => props.onItemClick(item),
