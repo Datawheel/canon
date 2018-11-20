@@ -27,6 +27,10 @@ module.exports = function(sequelize, db) {
         type: db.JSON,
         defaultValue: null
       },
+      isez: {
+        type: db.BOOLEAN,
+        defaultValue: false
+      },
       profile_id: {
         type: db.INTEGER,
         onDelete: "cascade",
