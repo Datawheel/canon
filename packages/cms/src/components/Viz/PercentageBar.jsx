@@ -13,10 +13,10 @@ class PercentageBar extends Component {
 
   componentDidMount() {
     const propConfig = this.props.config;
+    const {dataFormat} = this.props;
 
     const defaults = {
-      cutoff: 5,
-      dataFormat: d => d
+      cutoff: 5
     };
 
     const config = Object.assign({}, defaults, propConfig);
@@ -24,13 +24,13 @@ class PercentageBar extends Component {
     // If the data is an API call, run the axios get and replace .data with its results
     if (typeof config.data === "string") {
       axios.get(config.data).then(resp => {
-        config.data = config.dataFormat(resp.data);
+        config.data = dataFormat(resp.data);
         if (!config.total) config.total = config.data.reduce((acc, d) => acc += d[config.value], 0);
         this.setState({config});
       });
     }
     else {
-      config.data = config.dataFormat(config.data);
+      config.data = dataFormat(config.data);
       if (!config.total) config.total = config.data.reduce((acc, d) => acc += d[config.value], 0);
       this.setState({config});
     }
