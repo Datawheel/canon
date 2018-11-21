@@ -10,11 +10,9 @@ import {isValidFilter, isValidGrouping} from "./validation";
 /**
  * Parses the current `locationSearch` using the `keywords` defined by the user, and
  * returns the result in an object. This object can also be optionally passed as `target`.
- * @template T
  * @param {PermalinkKeywordMap} keywords A map with the parameter keys to parse from the location search
  * @param {Location & {query:object}} location A location search parameter string
- * @param {T} [target] The object where the parsed parameters are going to be saved
- * @returns {Partial<T & PermalinkKeywordMap>}
+ * @returns {Partial<PermalinkKeywordMap>}
  */
 export function parsePermalink(keywords, location) {
   const locationQuery = location.query || {};
