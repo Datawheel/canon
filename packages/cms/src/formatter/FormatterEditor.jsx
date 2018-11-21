@@ -20,7 +20,7 @@ class FormatterEditor extends Component {
   }
 
   hitDB() {
-    axios.get("api/cms/formattertree").then(resp => {
+    axios.get("/api/cms/formattertree").then(resp => {
       this.setState({formatters: resp.data});
     });
   }
