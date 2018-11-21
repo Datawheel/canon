@@ -167,7 +167,7 @@ class ChartArea extends React.Component {
         >
           {chartElements.map(chartConfig => {
             const {config, key} = chartConfig;
-            config.height = chartHeight;
+            config.height = Math.max(400, chartHeight);
             return (
               <ChartCard
                 active={key === activeChart}
