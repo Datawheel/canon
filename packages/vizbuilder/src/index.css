@@ -1,7 +1,8 @@
 .vizbuilder {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
-  flex-direction: row;
+  flex-flow: row nowrap;
+  align-items: stretch;
 
   & > .loading {
     display: none;
@@ -12,23 +13,21 @@
   }
 
   & > .area-sidebar {
-    flex: 0 0 auto;
+    flex: 0 0 300px;
     width: 300px;
   }
 
   & > .area-chart {
-    flex: 1 0 0;
+    flex: 1 0 560px;
   }
 }
 
 .area-sidebar,
 .area-chart {
-  height: 100vh;
   overflow: auto;
 
   & > .wrapper {
     padding: 15px;
-    min-height: 100%;
   }
 }
 

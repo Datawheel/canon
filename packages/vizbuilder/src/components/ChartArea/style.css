@@ -1,6 +1,6 @@
 .area-chart {
-    display: flex;
-  flex-direction: column;
+  display: flex;
+  flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: stretch;
 
@@ -9,8 +9,14 @@
     align-items: center;
   }
 
+  & .toolbar-wrapper {
+    flex: 0 0 20px;
+    position: sticky;
+  }
+
   & .chart-wrapper {
-    margin: 0 -10px;
+    flex: 1 0 470px;
+    height: 0;
 
     &.multi {
       display: flex;
@@ -18,23 +24,31 @@
       justify-content: flex-start;
       align-items: flex-start;
     }
+
+    &.single .chart-card {
+      height: 100%;
+    }
+
+    &.unique .chart-card footer {
+      display: none;
+    }
   }
 
   & .chart-card {
-    width: 100%;
-    min-width: 300px;
-    transition: all 0.2s ease-in-out;
+    flex: 1 0 33%;
+    min-width: 500px;
+    min-height: 400px;
 
     & > .wrapper {
       display: flex;
       flex-flow: column nowrap;
-      margin: 10px;
-      padding: 15px 25px;
+      margin: 0 5px 10px;
+      padding: 15px;
+      height: 100%;
     }
 
     & .viz {
       flex: 1 0;
-      margin: 0 0 1rem;
 
       & > svg {
         display: block;
@@ -48,23 +62,7 @@
       flex-flow: row nowrap;
       justify-content: flex-end;
       align-items: center;
-    }
-  }
-}
-
-@media screen and (min-width: 1200px) {
-  .area-chart .multi .chart-card {
-    width: 50%;
-  }
-}
-
-@media screen and (min-width: 1700px) {
-  .area-chart .multi {
-    display: flex;
-    flex-wrap: wrap;
-    & .chart-card {
-      flex: 1;
-      min-width: 33.333%;
+      margin: 1rem 0 0;
     }
   }
 }
