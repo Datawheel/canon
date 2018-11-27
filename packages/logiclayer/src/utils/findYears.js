@@ -4,7 +4,7 @@ function findName(d) {
 }
 
 module.exports = function(dimensions) {
-  const dims = dimensions.filter(d => findName(d).includes("Year"));
+  const dims = dimensions.filter(d => findName(d).includes("Year") || d.type === "time");
   let dim;
 
   if (dims.length === 1) dim = dims[0];
