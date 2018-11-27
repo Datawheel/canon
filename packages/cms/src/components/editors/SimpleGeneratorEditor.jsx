@@ -1,9 +1,9 @@
 import React, {Component} from "react";
 import {EditableText, Checkbox, Alert, Intent} from "@blueprintjs/core";
 
-import "./JSEditor.css";
+import "./SimpleGeneratorEditor.css";
 
-export default class JSEditor extends Component {
+export default class SimpleGeneratorEditor extends Component {
 
   constructor(props) {
     super(props);
@@ -14,12 +14,12 @@ export default class JSEditor extends Component {
   }
 
   componentDidMount() {
-    const {payload, ez} = this.props;
-    // If an ez config has been provided, then the user has used ez in the past.
-    // Populate the ez menu accordingly and make it the default mode.
+    const {payload, simpleConfig} = this.props;
+    // If a simple config has been provided, then the user has used simple mode in the past.
+    // Populate the simple menu accordingly and make it the default mode.
     let objects = [];
-    if (ez) {
-      objects = ez.map((objArr, i) => 
+    if (simpleConfig) {
+      objects = simpleConfig.map((objArr, i) => 
         objArr.map(o => ({
           use: o.use,
           keyName: o.keyName,
@@ -27,9 +27,9 @@ export default class JSEditor extends Component {
           pVal: payload[i][o.pKey]
         }))
       );
-      this.setState({objects});
+      this.setState({objects}, this.compileCode.bind(this));
     }
-    // If an ez config has not been provided, then the user has never used one before,
+    // If a simple config has not been provided, then the user has never used one before,
     // so prepare the interface based on the payload itself
     else {
       objects = payload.map((obj, i) => 
@@ -40,9 +40,9 @@ export default class JSEditor extends Component {
           pVal: obj[k]
         }))
       );
-      // If this component is mounting and is NOT provided an ez config, it means the
-      // user has just enabled ezmode. This means the parent component must be given
-      // the ez config NOW, so if the user clicks save without editing anything, it's there.
+      // If this component is mounting and is NOT provided a simple config, it means the
+      // user has just enabled simple mode. This means the parent component must be given
+      // the simple logic NOW, so if the user clicks save without editing anything, it's there.
       this.setState({objects}, this.compileCode.bind(this));
     }
   }
@@ -68,7 +68,7 @@ export default class JSEditor extends Component {
       keyName: r.keyName,
       pKey: r.pKey
     })));
-    if (this.props.onEZChange) this.props.onEZChange(code, dbRows);
+    if (this.props.onSimpleChange) this.props.onSimpleChange(code, dbRows);
   }
 
   changeKey(i, pKey, str) {
@@ -112,7 +112,7 @@ export default class JSEditor extends Component {
 
     const {objects, rebuildAlertOpen} = this.state;
     
-    return <div className="ezmode">
+    return <div className="simplemode">
       <Alert
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"

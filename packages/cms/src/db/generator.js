@@ -23,11 +23,11 @@ module.exports = function(sequelize, db) {
         type: db.TEXT,
         defaultValue: "return {}"
       },
-      ez: {
+      logic_simple: {
         type: db.JSON,
         defaultValue: null
       },
-      isez: {
+      simple: {
         type: db.BOOLEAN,
         defaultValue: false
       },
