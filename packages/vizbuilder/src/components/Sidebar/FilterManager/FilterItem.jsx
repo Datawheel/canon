@@ -27,19 +27,31 @@ class FilterItem extends SidebarCRUDItem {
   }
 
   render() {
-    return this.state.isOpen
+    const {item = {}} = this.props;
+    return !item.measure || this.state.isOpen
       ? this.renderEditable.call(this)
       : this.renderClosed.call(this);
   }
 
   renderClosed() {
+    const {formatting} = this.context.generalConfig || {};
     const {item} = this.props;
+    let value = item.value;
+
+    if (formatting) {
+      const units = item.measure.annotations.units_of_measurement;
+      const formatter = formatting[units] || formatting.default;
+      value = formatter(value);
+    }
+
     return (
       <div className="filter-item">
         <div className="group values">
-          <div className="filter-name">{composePropertyName(item.measure)}</div>
-          <div className="filter-operator">{item.operatorLabel}</div>
-          <div className="filter-value">{item.value}</div>
+          <span className="filter-name">{composePropertyName(item.measure)}</span>
+          {" "}
+          <span className="filter-operator">{item.operatorLabel}</span>
+          {" "}
+          <span className="filter-value">{value}</span>
         </div>
         <div className="group actions">
           <Button
@@ -102,6 +114,10 @@ class FilterItem extends SidebarCRUDItem {
       </div>
     );
   }
+}
+
+FilterItem.contextTypes = {
+  generalConfig: PropTypes.object
 }
 
 FilterItem.propTypes = {

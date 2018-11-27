@@ -43,7 +43,7 @@ export function composePropertyName(item, style = PROPNAMESTYLES.DIMHIELVL) {
     const hname = item.hierarchy.name;
     const dname = item.hierarchy.dimension.name;
     if (style & PROPNAMESTYLES.HIE && hname !== item.name && hname !== dname) {
-      txt = `${item.hierarchy.name} › ${txt}`;
+      txt = `${hname} › ${txt}`;
     }
     if (style & PROPNAMESTYLES.DIM && dname !== item.name) {
       txt = `${dname} › ${txt}`;

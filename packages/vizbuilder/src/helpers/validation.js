@@ -179,14 +179,16 @@ export function areKindaNumeric(list, tolerance = 0.8) {
  * @param {object[]} dataset The dataset to analyze.
  */
 export function areMetaMeasuresZero(query, dataset) {
-  const {moeName, lciName, uciName} = query;
+  const {moeName, lciName, uciName, sourceName, collectionName} = query;
   const results = {};
   let n = dataset.length;
   while (n--) {
     const item = dataset[n];
-    results.moe = results.moe || item[moeName] > 0;
-    results.lci = results.lci || item[lciName] > 0;
-    results.uci = results.uci || item[uciName] > 0;
+    results.moe = results.moe || !(isNaN(item[moeName]) || item[moeName] === 0);
+    results.lci = results.lci || !(isNaN(item[lciName]) || item[lciName] === 0);
+    results.uci = results.uci || !(isNaN(item[uciName]) || item[uciName] === 0);
+    results.src = results.src || !!item[sourceName];
+    results.clt = results.clt || !!item[collectionName];
   }
   return results;
 }

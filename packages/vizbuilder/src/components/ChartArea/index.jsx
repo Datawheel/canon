@@ -62,7 +62,14 @@ class ChartArea extends React.Component {
 
   render() {
     const {generalConfig} = this.context;
-    const {activeChart, selectedTime, datasets, members, queries} = this.props;
+    const {
+      activeChart,
+      datasets,
+      members,
+      queries,
+      selectedTime,
+      toolbar
+    } = this.props;
 
     if (!datasets.length) {
       return EMPTY_DATASETS;
@@ -99,6 +106,7 @@ class ChartArea extends React.Component {
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
+        {toolbar && <div className="wrapper toolbar-wrapper">{toolbar}</div>}
         <div className="wrapper">
           <div className={`chart-wrapper ${activeChart || "multi"}`}>
             {chartElements}
@@ -124,7 +132,9 @@ ChartArea.propTypes = {
 
 ChartArea.defaultProps = {
   activeChart: null,
-  dataset: []
+  datasets: [],
+  members: [],
+  queries: []
 };
 
 export default ChartArea;

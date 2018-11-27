@@ -5,10 +5,10 @@ import Vizbuilder from "../../src/";
 
 import "./Home.css";
 
-const DATAUSA = "https://gila-cliff-api.datausa.io";
+const DATAUSA = "https://joshua-tree-api.datausa.io";
 
 const DEFAULT_TOPOJSON = {
-  "default": {
+  "Nation": {
     topojson: "/topojson/world.json",
     topojsonId: "id",
     topojsonKey: "countries"
@@ -23,6 +23,11 @@ const DEFAULT_TOPOJSON = {
   },
   get "Destination State"() {
     return this.State;
+  },
+  "County": {
+    topojson: "/topojson/counties.json",
+    topojsonId: "id",
+    topojsonKey: "counties"
   },
   "Puma": {
     topojson: "/topojson/pumas.json",
