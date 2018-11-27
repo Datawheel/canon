@@ -74,7 +74,12 @@ class TopicEditor extends Component {
 
   save() {
     const {minData} = this.state;
-    const payload = {id: minData.id, slug: minData.slug, type: minData.type};
+    const payload = {
+      id: minData.id, 
+      slug: minData.slug, 
+      type: minData.type,
+      allowed: minData.allowed
+    };
     axios.post("/api/cms/topic/update", payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
@@ -143,7 +148,7 @@ class TopicEditor extends Component {
           <label className="pt-label pt-fill">
             Allowed
             <div className="pt-select">
-              <select id="visibility-select" value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
+              <select id="visibility-select" value={minData.allowed || "always"} onChange={this.changeField.bind(this, "allowed", true)}>
                 {varOptions}
               </select>
             </div>
