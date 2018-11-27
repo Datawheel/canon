@@ -391,7 +391,7 @@ module.exports = function(app) {
           cubeDimCuts[realDim] = {};
           for (const level in dimCuts[dim]) {
             if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
-              fullDim = flatDims.find(d => (d.dimension === dim || d.level === dim) && d.level.includes(level)) || {dimension: dim, level};
+              fullDim = flatDims.find(d => (d.dimension === dim || d.level === dim) && d.level === level) || flatDims.find(d => (d.dimension === dim || d.level === dim) && d.level.includes(level)) || {dimension: dim, level};
               const masterDims = dimCuts[dim][level];
               const subLevel = cube.subs[level];
               if (subLevel) {
