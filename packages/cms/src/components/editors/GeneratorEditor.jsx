@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import AceWrapper from "./AceWrapper";
-import JSEditor from "./JSEditor";
+import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
 import {Switch, Alert, Intent} from "@blueprintjs/core";
 
 import "./GeneratorEditor.css";
@@ -14,16 +14,16 @@ class GeneratorEditor extends Component {
       data: null,
       variables: [],
       payload: null,
-      ezmode: false,
+      simple: false,
       alertObj: false
     };
   }
 
   componentDidMount() {
     const {data, variables} = this.props;
-    // If ezmode has been used in the past, we MUST fetch the payload from the
+    // If simple has been used in the past, we MUST fetch the payload from the
     // API so that the results for the variables can be filled in.
-    const maybePreview = () => data.isez ? this.previewPayload(true) : null;
+    const maybePreview = () => data.simple ? this.previewPayload(true) : null;
     this.setState({data, variables}, maybePreview);
   }
 
@@ -51,70 +51,74 @@ class GeneratorEditor extends Component {
     if (payload) {
       const alertObj = {
         callback: this.previewPayload.bind(this),
-        message: "Are you sure you want to reload the API results? This will not change your current code, but it may cause some objects to become undefined!",
+        message: "Are you sure you want to reload the API results? This will not change your current code, but it may cause some objects to become undefined.",
         confirm: "Yes, reload the API results"
       };
       this.setState({alertObj});
     }
+    // If there is no payload, they are fetching for the first time, so just grab it.
+    else {
+      this.previewPayload.bind(this)();
+    }
   }
 
-  previewPayload(forceEZ) {
+  previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
     axios.get(api).then(resp => {
       const payload = resp.data;
-      let {ezmode} = this.state;
-      // This comparison is important! forceEZ must be EXACTLY true to indicate we are overriding it. Otherwise it's a 
+      let {simple} = this.state;
+      // This comparison is important! forceSimple must be EXACTLY true to indicate we are overriding it. Otherwise it's a 
       // proxy event from a click, which indeed is truthy, but not a pure argument override.
-      if (forceEZ === true) {
-        ezmode = true;
-        data.isez = true;
+      if (forceSimple === true) {
+        simple = true;
+        data.simple = true;
       }
-      this.setState({payload, ezmode, data, alertObj: false});
+      this.setState({payload, simple, data, alertObj: false});
     });
   }
 
-  maybeSwitchEZ() {
-    const {ezmode} = this.state;
+  maybeSwitchSimple() {
+    const {simple} = this.state;
     let alertObj = false;
-    if (ezmode) {
+    if (simple) {
       alertObj = {
-        callback: this.switchEZ.bind(this),
-        message: "Are you sure you want to switch to Advanced Mode? This will abandon your EZ Mode state!",
+        callback: this.switchSimple.bind(this),
+        message: "Are you sure you want to switch to Advanced Mode? This will abandon your Simple Mode state.",
         confirm: "Yes, go to Advanced Mode"
       };  
     }
     else {
       alertObj = {
-        callback: this.switchEZ.bind(this),
-        message: "Are you sure you want to switch to EZ Mode? This will abandon your current Advanced Mode code!",
-        confirm: "Yes, go to EZ Mode"
+        callback: this.switchSimple.bind(this),
+        message: "Are you sure you want to switch to Simple Mode? This will abandon your current Advanced Mode code.",
+        confirm: "Yes, go to Simple Mode"
       };    
     }
     this.setState({alertObj});
   }
 
-  switchEZ() {
-    const {ezmode, data} = this.state;
-    if (ezmode) {
-      data.isez = false;
-      this.setState({ezmode: false, alertObj: false, data});
+  switchSimple() {
+    const {simple, data} = this.state;
+    if (simple) {
+      data.simple = false;
+      this.setState({simple: false, alertObj: false, data});
     }
     else {
       this.previewPayload.bind(this)(true);
     }
   }
 
-  onEZChange(code, ez) {
+  onSimpleChange(code, simple) {
     const {data} = this.state;
     data.logic = code;
-    data.ez = ez;
+    data.logic_simple = simple;
     this.setState({data});
   }
 
   render() {
 
-    const {data, variables, payload, ezmode, alertObj} = this.state;
+    const {data, variables, payload, simple, alertObj} = this.state;
     const {type} = this.props;
 
     const preMessage = {
@@ -146,7 +150,7 @@ class GeneratorEditor extends Component {
 
     if (!data) return null;
 
-    if (ezmode && !payload) return null;
+    if (simple && !payload) return null;
 
     return (
       <div id="generator-editor">
@@ -184,7 +188,7 @@ class GeneratorEditor extends Component {
           </label>
           : null
         }
-        <Switch checked={ezmode} label="EZ Mode" onChange={this.maybeSwitchEZ.bind(this)} />
+        <Switch checked={simple} label="Simple Mode" onChange={this.maybeSwitchSimple.bind(this)} />
         <div id="generator-ace">
           { type === "profile_visualization" || type === "topic_visualization"
             ? <label className="pt-label pt-inline">
@@ -198,9 +202,9 @@ class GeneratorEditor extends Component {
           }
           <label className="pt-label">Callback {preMessage[type]}</label>
           {payload && <textarea rows="10" cols="50" style={{fontFamily: "monospace"}} value={JSON.stringify(payload, null, 2)} />}
-          {ezmode 
+          {simple 
             ? payload 
-              ? <JSEditor payload={payload} ez={data.ez} onEZChange={this.onEZChange.bind(this)}/> 
+              ? <SimpleGeneratorEditor payload={payload} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/> 
               : null
             : <AceWrapper
               className="editor"
@@ -211,7 +215,7 @@ class GeneratorEditor extends Component {
               {...this.props}
             />
           }
-          {!ezmode && postMessage[type]}
+          {!simple && postMessage[type]}
         </div>
       </div>
     );

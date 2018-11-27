@@ -6,7 +6,7 @@
   outline: solid 1px black;
 }
 
-.ezmode {
+.simplemode {
   overflow-y: scroll;
   height: 300px;
 }
