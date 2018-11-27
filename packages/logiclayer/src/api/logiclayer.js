@@ -93,7 +93,7 @@ module.exports = function(app) {
   app.get("/api/data/", async(req, res) => {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
 
-    let reserved = ["drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year"];
+    let reserved = ["captions", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year"];
     reserved = reserved.concat(d3Array.merge(reserved.map(r => {
       let alts = aliases[r] || [];
       if (typeof alts === "string") alts = [alts];
@@ -107,6 +107,7 @@ module.exports = function(app) {
     const properties = findKey(req.query, "properties", []);
     const order = findKey(req.query, "order", ["Year"]);
     const year = findKey(req.query, "Year", "all");
+    const captions = findKey(req.query, "captions", false);
 
     const {
       parents = "false",
@@ -555,6 +556,23 @@ module.exports = function(app) {
             //   query.sorting(order[0], sort === "desc");
             //   if (debug) console.log(`Order: ${order[0]} (${sort})`);
             // }
+
+            if (captions) {
+              const drilldowns = query.getDrilldowns();
+              (drilldowns || []).forEach(level => {
+                const ann = level.annotations[`${captions}_caption`];
+                if (ann) query.caption(level.hierarchy.dimension.name, level.name, ann);
+
+                // when parents requested, also get their i18n'd captions
+                if (p) {
+                  d3Array.range(1, level.depth).reverse().forEach(d => {
+                    const ancestor = level.hierarchy.levels.find(l => l.depth === d);
+                    const ann = ancestor.annotations[`${captions}_caption`];
+                    if (ann) query.caption(ancestor.hierarchy.dimension.name, ancestor.name, ann);
+                  });
+                }
+              });
+            }
 
             return client.query(query, "jsonrecords");
 

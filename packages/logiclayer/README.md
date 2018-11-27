@@ -91,6 +91,7 @@ ___
 
 |keyword|description|default|
 |---|---|---|
+|`captions`|If the cube in use has multiple captions for dimensions, use this to set the desired output (ie. `captions=es` for DataChile).|`"false"`|
 |`drilldowns`|A comma-separated list of drilldowns that should match to a level in a dimension.|`""`|
 |`limit`|If defined, will only return the first X results.|`""`|
 |`measures`|A comma-separated list of measure names to return. This is the only required keyword, and is used as the basis to determine which cubes should be queried.|`""`|
