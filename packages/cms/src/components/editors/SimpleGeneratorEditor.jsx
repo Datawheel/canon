@@ -18,13 +18,14 @@ export default class SimpleGeneratorEditor extends Component {
     // If a simple config has been provided, then the user has used simple mode in the past.
     // Populate the simple menu accordingly and make it the default mode.
     let objects = [];
+    const pl = payload.data ? payload.data : payload;
     if (simpleConfig) {
       objects = simpleConfig.map((objArr, i) => 
         objArr.map(o => ({
           use: o.use,
           keyName: o.keyName,
           pKey: o.pKey,
-          pVal: payload[i][o.pKey]
+          pVal: pl[i][o.pKey]
         }))
       );
       this.setState({objects}, this.compileCode.bind(this));
@@ -32,7 +33,7 @@ export default class SimpleGeneratorEditor extends Component {
     // If a simple config has not been provided, then the user has never used one before,
     // so prepare the interface based on the payload itself
     else {
-      objects = payload.map((obj, i) => 
+      objects = pl.map((obj, i) => 
         Object.keys(obj).map(k => ({
           use: true,
           keyName: `${k}${i + 1}`,
@@ -97,7 +98,8 @@ export default class SimpleGeneratorEditor extends Component {
 
   rebuild() {
     const {payload} = this.props;
-    const objects = payload.map((obj, i) => 
+    const pl = payload.data ? payload.data : payload;
+    const objects = pl.map((obj, i) => 
       Object.keys(obj).map(k => ({
         use: true,
         keyName: `${k}${i + 1}`,
