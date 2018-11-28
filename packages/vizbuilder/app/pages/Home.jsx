@@ -5,7 +5,7 @@ import Vizbuilder from "../../src/";
 
 import "./Home.css";
 
-const DATAUSA = "https://joshua-tree-api.datausa.io";
+const DATAUSA = "https://katahdin-api.datausa.io";
 
 const DEFAULT_TOPOJSON = {
   "Nation": {
