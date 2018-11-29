@@ -574,6 +574,9 @@ class ProfileBuilder extends Component {
         </div>;
     }
 
+    const editorTypes = {profile: ProfileEditor, section: SectionEditor, topic: TopicEditor};
+    const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
+
     return (
 
       <div className="cms-panel profile-panel" id="profile-builder">
@@ -615,41 +618,17 @@ class ProfileBuilder extends Component {
           {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
         </Alert>
         <div className="cms-editor" id="item-editor">
-          { currentNode
-            ? currentNode.itemType === "profile"
-              ? <ProfileEditor
-                id={currentNode.data.id}
-                masterSlug={currentNode.masterSlug}
-                preview={preview}
-                fetchVariables={this.fetchVariables.bind(this)}
-                variables={variables}
-                reportSave={this.reportSave.bind(this)}
-              >
-                {profileSearch}
-              </ProfileEditor>
-              : currentNode.itemType === "section"
-                ? <SectionEditor
-                  id={currentNode.data.id}
-                  masterSlug={currentNode.masterSlug}
-                  preview={preview}
-                  fetchVariables={this.fetchVariables.bind(this)}
-                  variables={variables}
-                  reportSave={this.reportSave.bind(this)}
-                >
-                  {profileSearch}
-                </SectionEditor>
-                : currentNode.itemType === "topic"
-                  ? <TopicEditor
-                    id={currentNode.data.id}
-                    masterSlug={currentNode.masterSlug}
-                    preview={preview}
-                    fetchVariables={this.fetchVariables.bind(this)}
-                    variables={variables}
-                    reportSave={this.reportSave.bind(this)}
-                  >
-                    {profileSearch}
-                  </TopicEditor>
-                  : null
+          { currentNode 
+            ? <Editor
+              id={currentNode.data.id}
+              masterSlug={currentNode.masterSlug}
+              preview={preview}
+              fetchVariables={this.fetchVariables.bind(this)}
+              variables={variables}
+              reportSave={this.reportSave.bind(this)}
+            >
+              {profileSearch}
+            </Editor>
             : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
           }
         </div>

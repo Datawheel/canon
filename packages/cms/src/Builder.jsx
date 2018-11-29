@@ -6,7 +6,7 @@ import StoryBuilder from "./story/StoryBuilder";
 import FormatterEditor from "./formatter/FormatterEditor";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
-// import formatters from "./utils/formatters";
+import formatters from "./utils/formatters";
 
 import "./Builder.css";
 import "./themes/cms-dark.css";
@@ -18,15 +18,15 @@ class Builder extends Component {
     super(props);
     this.state = {
       currentTab: "profiles",
-      // formatters,
-      theme: "cms-light",
+      formatters,
+      theme: "cms-light"/*,
 
       formatters: (props.formatters || []).reduce((acc, d) => {
         const f = Function("n", "libs", "formatters", d.logic);
         const fName = d.name.replace(/^\w/g, chr => chr.toLowerCase());
         acc[fName] = n => f(n, libs, acc);
         return acc;
-      }, {})
+      }, {})*/
     };
   }
 
