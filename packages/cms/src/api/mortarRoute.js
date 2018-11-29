@@ -304,7 +304,7 @@ module.exports = function(app) {
   });
 
   // Endpoint for getting a story
-  app.get("/api/canonstory/:id", (req, res) => {
+  app.get("/api/story/:id", (req, res) => {
     const {id} = req.params;
     // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
@@ -316,7 +316,7 @@ module.exports = function(app) {
   });
 
   // Endpoint for getting all stories
-  app.get("/api/canonstory", (req, res) => {
+  app.get("/api/story", (req, res) => {
     db.story.findAll({include: [{association: "authors", attributes: ["name", "image"]}]}).then(stories => {
       stories = stories.map(s => {
         s = s.toJSON();
