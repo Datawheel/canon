@@ -28,7 +28,7 @@ module.exports = function(sequelize, db) {
         }
       },
       tooltip: {
-        type: db.STRING,
+        type: db.TEXT,
         defaultValue: "New Tooltip"
       },
       allowed: {
