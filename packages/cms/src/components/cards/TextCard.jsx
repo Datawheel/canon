@@ -1,9 +1,10 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Card, Dialog, Intent, Alert} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
+import MoveButtons from "../MoveButtons";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import PropTypes from "prop-types";
@@ -27,13 +28,14 @@ class TextCard extends Component {
     if (this.state.minData && (prevProps.variables !== this.props.variables || this.props.selectors !== prevProps.selectors)) {
       this.formatDisplay.bind(this)();
     }
-    if (prevProps.id !== this.props.id) {
+    if (prevProps.item.id !== this.props.item.id) {
       this.hitDB.bind(this)();
     }
   }
 
   hitDB() {
-    const {id, type} = this.props;
+    const {item, type} = this.props;
+    const {id} = item;
     axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
       this.setState({minData: resp.data}, this.formatDisplay.bind(this));
     });
@@ -79,7 +81,8 @@ class TextCard extends Component {
 
   render() {
     const {displayData, minData, isOpen} = this.state;
-    const {variables, fields, plainfields, type, ordering} = this.props;
+    const {variables, fields, plainfields, type, parentArray, item} = this.props;
+    const {ordering} = item;
 
     if (!minData || !displayData) return <Loading />;
 
@@ -110,7 +113,15 @@ class TextCard extends Component {
           <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}} />
         )}
 
-        {this.props.children}
+        {/* reorder buttons */}
+        { parentArray && 
+          <MoveButtons
+            item={item}
+            array={parentArray}
+            type={type}
+            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
+          />
+        } 
 
         <Dialog
           iconName="document"

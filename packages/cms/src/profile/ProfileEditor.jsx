@@ -158,7 +158,7 @@ class ProfileEditor extends Component {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(g => <GeneratorCard
               key={g.id}
-              id={g.id}
+              item={g}
               onSave={this.onSave.bind(this)}
               onDelete={this.onDelete.bind(this)}
               type="generator"
@@ -180,19 +180,14 @@ class ProfileEditor extends Component {
             .map(m =>
               <GeneratorCard
                 key={m.id}
-                id={m.id}
+                item={m}
                 onSave={this.onSave.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 type="materializer"
                 variables={variables}
-              >
-                <MoveButtons
-                  item={m}
-                  array={minData.materializers}
-                  type="materializer"
-                  onMove={this.onMove.bind(this)}
-                />
-              </GeneratorCard>
+                parentArray={minData.materializers}
+                onMove={this.onMove.bind(this)}
+              />
             )}
         </div>
 
@@ -209,7 +204,7 @@ class ProfileEditor extends Component {
         >
           <div className="cms-card-list cms-stats-card-list">
             <TextCard
-              id={minData.id}
+              item={minData}
               fields={["title", "subtitle"]}
               type="profile"
               variables={variables}
@@ -217,19 +212,14 @@ class ProfileEditor extends Component {
             { minData.stats && minData.stats.map(s =>
               <TextCard
                 key={s.id}
-                id={s.id}
+                item={s}
                 onDelete={this.onDelete.bind(this)}
                 type="profile_stat"
                 fields={["title", "subtitle", "value", "tooltip"]}
                 variables={variables}
-              >
-                <MoveButtons
-                  item={s}
-                  array={minData.stats}
-                  type="profile_stat"
-                  onMove={this.onMove.bind(this)}
-                />
-              </TextCard>
+                parentArray={minData.stats}
+                onMove={this.onMove.bind(this)}
+              />
             )}
           </div>
         </div>
@@ -244,19 +234,14 @@ class ProfileEditor extends Component {
         <div className="cms-card-list">
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard key={d.id}
-              id={d.id}
+              item={d}
               onDelete={this.onDelete.bind(this)}
               fields={["description"]}
               type="profile_description"
               variables={variables}
-            >
-              <MoveButtons
-                item={d}
-                array={minData.descriptions}
-                type="profile_description"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.descriptions}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -270,20 +255,14 @@ class ProfileEditor extends Component {
         <div className="cms-card-list">
           { minData.footnotes && minData.footnotes.map(f =>
             <TextCard key={f.id}
-              id={f.id}
-              ordering={f.ordering}
+              item={f}
               onDelete={this.onDelete.bind(this)}
               fields={["description"]}
               type="profile_footnote"
               variables={variables}
-            >
-              <MoveButtons
-                item={f}
-                array={minData.footnotes}
-                type="profile_footnote"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.footnotes}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -298,18 +277,13 @@ class ProfileEditor extends Component {
           { minData.visualizations && minData.visualizations.map(v =>
             <VisualizationCard
               key={v.id}
-              id={v.id}
+              item={v}
               onDelete={this.onDelete.bind(this)}
               type="profile_visualization"
               variables={variables}
-            >
-              <MoveButtons
-                item={v}
-                array={minData.visualizations}
-                type="profile_visualization"
-                onMove={this.onMove.bind(this)}
-              />
-            </VisualizationCard>
+              parentArray={minData.visualizations}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
       </div>

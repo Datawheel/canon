@@ -1,10 +1,9 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Icon, Button} from "@blueprintjs/core";
+import {Icon} from "@blueprintjs/core";
 import Loading from "components/Loading";
 import TextCard from "../components/cards/TextCard";
 import PropTypes from "prop-types";
-import MoveButtons from "../components/MoveButtons";
 import "./SectionEditor.css";
 
 const propMap = {
@@ -161,7 +160,7 @@ class SectionEditor extends Component {
         </h2>
         <div className="cms-card-list">
           <TextCard
-            id={minData.id}
+            item={minData}
             fields={["title"]}
             type="section"
             onSave={this.onSave.bind(this)}
@@ -180,19 +179,14 @@ class SectionEditor extends Component {
           { minData.subtitles && minData.subtitles.map(s =>
             <TextCard
               key={s.id}
-              id={s.id}
+              item={s}
               fields={["subtitle"]}
               type="section_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={variables}
-            >
-              <MoveButtons
-                item={s}
-                array={minData.subtitles}
-                type="section_subtitle"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.subtitles}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -207,19 +201,14 @@ class SectionEditor extends Component {
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard
               key={d.id}
-              id={d.id}
+              item={d}
               fields={["description"]}
               type="section_description"
               onDelete={this.onDelete.bind(this)}
               variables={variables}
-            >
-              <MoveButtons
-                item={d}
-                array={minData.descriptions}
-                type="section_description"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.descriptions}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
       </div>
