@@ -15,9 +15,6 @@ import CanonProvider from "./CanonProvider";
 
 import serialize from "serialize-javascript";
 
-const BASE_URL = process.env.CANON_BASE_URL || "/";
-const basename = BASE_URL.replace(/^[A-z]{4,5}\:\/{2}[A-z0-9\.\-]{1,}\:{0,}[0-9]{0,4}/g, "");
-
 const tagManagerHead = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
   : `
     <!-- Google Tag Manager -->
@@ -41,7 +38,8 @@ const tagManagerBody = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
     `;
 
 const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
-  : `<!-- Google Analytics -->
+  : `
+    <!-- Google Analytics -->
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -50,18 +48,27 @@ const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
       ga('create', '${process.env.CANON_GOOGLE_ANALYTICS}', 'auto');
       ga('send', 'pageview');
     </script>
-    <!-- End Google Analytics -->`;
+    <!-- End Google Analytics -->
+    `;
 
 const pixelScript = process.env.CANON_FACEBOOK_PIXEL === undefined ? ""
-  : `<!-- Facebook Pixel -->
-  <script> !function(f,b,e,v,n,t,s) {if(f.fbq)return;n=f.fbq=function(){
-    n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0; t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window,document,'script', 'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '${process.env.CANON_FACEBOOK_PIXEL}'); fbq('track', 'PageView');
-  </script>
-  <!-- End Facebook Pixel -->`;
+  : `
+    <!-- Facebook Pixel -->
+    <script> !function(f,b,e,v,n,t,s) {if(f.fbq)return;n=f.fbq=function(){
+      n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0; t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window,document,'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '${process.env.CANON_FACEBOOK_PIXEL}'); fbq('track', 'PageView');
+    </script>
+    <!-- End Facebook Pixel -->
+    `;
+
+const BASE_URL = process.env.CANON_BASE_URL || "/";
+const basename = BASE_URL.replace(/^[A-z]{4,5}\:\/{2}[A-z0-9\.\-]{1,}\:{0,}[0-9]{0,4}/g, "");
+const baseTag = process.env.CANON_BASE_URL === undefined ? ""
+  : `
+    <base href='${ BASE_URL }'>`;
 
 /**
     Returns the default server logic for rendering a page.
@@ -113,14 +120,19 @@ export default function(defaultStore = {}, headerConfig) {
             );
 
             const header = Helmet.rewind();
+            const htmlAttrs = header.htmlAttributes.toString().replace(" amp", "");
+
+            const defaultAttrs = headerConfig.htmlAttributes ? Object.keys(headerConfig.htmlAttributes)
+              .map(key => {
+                const val = headerConfig.htmlAttributes[key];
+                return ` ${key}${val ? `="${val}"` : ""}`;
+              })
+              .join("") : "";
 
             res.status(200).send(`<!doctype html>
-<html dir="${ rtl ? "rtl" : "ltr" }" ${header.htmlAttributes.toString()}>
+<html dir="${ rtl ? "rtl" : "ltr" }" ${htmlAttrs}${defaultAttrs}>
   <head>
-    ${tagManagerHead}
-    ${pixelScript}
-    ${ process.env.CANON_BASE_URL ? `<base href='${ BASE_URL }'>` : "" }
-
+    ${tagManagerHead}${pixelScript}${baseTag}
     ${ pretty(header.title.toString()).replace(/\n/g, "\n    ") }
 
     ${ pretty(header.meta.toString()).replace(/\n/g, "\n    ") }
@@ -130,6 +142,7 @@ export default function(defaultStore = {}, headerConfig) {
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/normalize.css'>
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/blueprint/dist/blueprint.css'>
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css'>
+
   </head>
   <body>
     ${tagManagerBody}
@@ -141,11 +154,9 @@ export default function(defaultStore = {}, headerConfig) {
       window.__HELMET_DEFAULT__ = ${ serialize(headerConfig, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
       window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
     </script>
-
     ${analtyicsScript}
-
-
     <script type="text/javascript" charset="utf-8" src="${ process.env.CANON_BASE_URL ? "" : "/" }assets/app.js"></script>
+
   </body>
 </html>`);
           })
