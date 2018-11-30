@@ -196,6 +196,27 @@ class ProfileEditor extends Component {
             )}
         </div>
 
+        {/* Top-level Profile */}
+        <h2 className="cms-section-heading">
+          Profile
+          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_stat")}>
+            <span className="pt-icon pt-icon-plus" />
+          </button>
+        </h2>
+        <div
+          className="cms-splash-wrapper"
+          style={{backgroundImage: `url("/api/profile/${minData.slug}/${preview}/thumb")`}}
+        >
+          <div className="cms-card-list cms-profile-header">
+            <TextCard
+              id={minData.id}
+              fields={["title", "subtitle"]}
+              type="profile"
+              variables={variables}
+            />
+          </div>
+        </div>
+
         {/* splash stats */}
         <h2 className="cms-section-heading">
           Stats
@@ -208,12 +229,6 @@ class ProfileEditor extends Component {
           style={{backgroundImage: `url("/api/profile/${minData.slug}/${preview}/thumb")`}}
         >
           <div className="cms-card-list cms-stats-card-list">
-            <TextCard
-              id={minData.id}
-              fields={["title", "subtitle"]}
-              type="profile"
-              variables={variables}
-            />
             { minData.stats && minData.stats.map(s =>
               <TextCard
                 key={s.id}
