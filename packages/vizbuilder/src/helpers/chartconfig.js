@@ -42,9 +42,9 @@ export const tooltipGenerator = (query, flags) => {
     tbody.push([
       "Confidence Interval",
       d =>
-        `[${measureFormatter(d[lciName] * 1 || 0)}, ${measureFormatter(
+        `${measureFormatter(d[lciName] * 1 || 0)} - ${measureFormatter(
           d[uciName] * 1 || 0
-        )}]`
+        )}`
     ]);
   }
   else if (shouldShow.moe) {
