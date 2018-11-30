@@ -1,6 +1,5 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {abbreviate} from "../../utils/formatters";
 
 class PercentageBar extends Component {
 
@@ -42,7 +41,7 @@ class PercentageBar extends Component {
 
     if (!config) return null;
 
-    const {data, cutoff, title, value, groupBy, total} = config;
+    const {data, cutoff, title, value, groupBy, total, showPercent} = config;
 
     const displayData = showAll ? data : data.slice(0, cutoff);
   
@@ -58,7 +57,7 @@ class PercentageBar extends Component {
             <div className="pt-progress-bar pt-intent-primary pt-no-stripes">
               {!isNaN(percent) && <div className="pt-progress-meter" style={{width: `${percent}%`}}>
               </div>}      
-              <p className="percent-label xs-size">{isNaN(percent) ? "No data" : number ? abbreviate(number) : `${percent.toFixed(2)}%` }</p>    
+              <p className="percent-label xs-size">{`${!isNaN(Number(number)) ? Number(number).toFixed(2) : number}${showPercent ? "%" : ""}`}</p>    
             </div>
           </div>;
         })
