@@ -8,17 +8,11 @@ export const DEFAULT_MEASURE_FORMATTERS = {
   Ratio: d => `${formatAbbreviate(d * 1 || 0)} to 1`,
   USD: d => `$${formatAbbreviate(d * 1 || 0)}`,
   get Dollars() {
-    return this.USD;
+    return DEFAULT_MEASURE_FORMATTERS.USD;
   },
-  "Thousands of Dollars"(d) {
-    return this.USD(d * 1e3);
-  },
-  "Millions of Dollars"(d) {
-    return this.USD(d * 1e6);
-  },
-  "Billions of Dollars"(d) {
-    return this.USD(d * 1e9);
-  }
+  "Thousands of Dollars": d => DEFAULT_MEASURE_FORMATTERS.USD(d * 1e3),
+  "Millions of Dollars": d => DEFAULT_MEASURE_FORMATTERS.USD(d * 1e6),
+  "Billions of Dollars": d => DEFAULT_MEASURE_FORMATTERS.USD(d * 1e9)
 };
 
 export const PROPNAMESTYLES = {
