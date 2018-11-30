@@ -140,11 +140,8 @@
   }
 }
 
-
-/* first splash stat takes up full width */
-.cms-stats-card-list > .cms-card:first-child {
+.cms-profile-header {
   flex-basis: 100%;
-  max-width: calc(100% - 2rem);
 }
 
 /* individual stats */
