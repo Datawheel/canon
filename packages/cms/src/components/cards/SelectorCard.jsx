@@ -1,8 +1,9 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Card, Dialog, Intent, Alert} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
+import MoveButtons from "../MoveButtons";
 import SelectorEditor from "../editors/SelectorEditor";
 import PropTypes from "prop-types";
 import "./SelectorCard.css";
@@ -66,7 +67,7 @@ class SelectorCard extends Component {
 
   render() {
     const {minData, isOpen} = this.state;
-    const {variables} = this.props;
+    const {variables, parentArray, type} = this.props;
 
     if (!minData) return <Loading />;
 
@@ -90,7 +91,14 @@ class SelectorCard extends Component {
         </ul>
 
         {/* reorder buttons */}
-        {this.props.children}
+        { parentArray && 
+          <MoveButtons
+            item={minData}
+            array={parentArray}
+            type={type}
+            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
+          />
+        } 
 
         <Dialog
           className="generator-editor-dialog"

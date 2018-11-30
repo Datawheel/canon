@@ -4,6 +4,7 @@ import {Dialog} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
+import MoveButtons from "../MoveButtons";
 import "./GeneratorCard.css";
 
 import ConsoleVariable from "../ConsoleVariable";
@@ -29,7 +30,8 @@ class GeneratorCard extends Component {
   }
 
   hitDB() {
-    const {id, type} = this.props;
+    const {item, type} = this.props;
+    const {id} = item;
     axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
       this.setState({minData: resp.data}, this.formatDisplay.bind(this));
     });
@@ -71,7 +73,7 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {type, variables} = this.props;
+    const {type, variables, item, parentArray} = this.props;
     const {displayData, minData, isOpen} = this.state;
 
     let description = "";
@@ -139,7 +141,14 @@ class GeneratorCard extends Component {
         </table>
 
         {/* reorder buttons */}
-        {this.props.children}
+        { parentArray && 
+          <MoveButtons
+            item={item}
+            array={parentArray}
+            type={type}
+            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
+          />
+        } 
 
         {/* open state */}
         <Dialog

@@ -1,12 +1,13 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import {Dialog, Intent, Alert} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import Viz from "../Viz";
 import FooterButtons from "../FooterButtons";
+import MoveButtons from "../MoveButtons";
 import "./VisualizationCard.css";
 
 class VisualizationCard extends Component {
@@ -23,7 +24,8 @@ class VisualizationCard extends Component {
   }
 
   hitDB() {
-    const {id, type} = this.props;
+    const {item, type} = this.props;
+    const {id} = item;
     axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
       this.setState({minData: resp.data});
     });
@@ -58,7 +60,7 @@ class VisualizationCard extends Component {
     if (!minData) return <Loading />;
 
     const {formatters} = this.context;
-    const {selectors, type, variables} = this.props;
+    const {selectors, type, variables, parentArray, item} = this.props;
 
     minData.selectors = selectors;
     const {logic} = varSwapRecursive(minData, formatters, variables);
@@ -75,6 +77,16 @@ class VisualizationCard extends Component {
             Edit <span className="pt-icon pt-icon-cog" />
           </button>
         </h5>
+        
+        {/* reorder buttons */}
+        { parentArray && 
+          <MoveButtons
+            item={item}
+            array={parentArray}
+            type={type}
+            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
+          />
+        } 
 
         <Dialog
           className="generator-editor-dialog"

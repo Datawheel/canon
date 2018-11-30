@@ -1,12 +1,10 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Button} from "@blueprintjs/core";
 import Loading from "components/Loading";
 import PropTypes from "prop-types";
 import TextCard from "../components/cards/TextCard";
 import SelectorCard from "../components/cards/SelectorCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
-import MoveButtons from "../components/MoveButtons";
 import "./TopicEditor.css";
 
 const propMap = {
@@ -171,7 +169,7 @@ class TopicEditor extends Component {
         </h2>
         <div className="cms-card-list">
           <TextCard
-            id={minData.id}
+            item={minData}
             fields={["title"]}
             onSave={this.onSave.bind(this)}
             type="topic"
@@ -190,20 +188,15 @@ class TopicEditor extends Component {
           { minData.subtitles && minData.subtitles.map(s =>
             <TextCard
               key={s.id}
-              id={s.id}
+              item={s}
               fields={["subtitle"]}
               type="topic_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={variables}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
-            >
-              <MoveButtons
-                item={s}
-                array={minData.subtitles}
-                type="topic_subtitle"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.subtitles}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -223,14 +216,9 @@ class TopicEditor extends Component {
               onSave={() => this.forceUpdate()}
               onDelete={this.onDelete.bind(this)}
               variables={variables}
-            >
-              <MoveButtons
-                item={s}
-                array={minData.selectors}
-                type="selector"
-                onMove={this.onMove.bind(this)}
-              />
-            </SelectorCard>
+              parentArray={minData.selectors}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -246,20 +234,15 @@ class TopicEditor extends Component {
           { minData.stats && minData.stats.map(s =>
             <TextCard
               key={s.id}
-              id={s.id}
+              item={s}
               fields={["title", "subtitle", "value", "tooltip"]}
               type="topic_stat"
               onDelete={this.onDelete.bind(this)}
               variables={variables}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
-            >
-              <MoveButtons
-                item={s}
-                array={minData.stats}
-                type="topic_stat"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.stats}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -274,20 +257,15 @@ class TopicEditor extends Component {
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard
               key={d.id}
-              id={d.id}
+              item={d}
               fields={["description"]}
               type="topic_description"
               onDelete={this.onDelete.bind(this)}
               variables={variables}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
-            >
-              <MoveButtons
-                item={d}
-                array={minData.descriptions}
-                type="topic_description"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.descriptions}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -302,19 +280,14 @@ class TopicEditor extends Component {
           { minData.visualizations && minData.visualizations.map(v =>
             <VisualizationCard
               key={v.id}
-              id={v.id}
+              item={v}
               onDelete={this.onDelete.bind(this)}
               type="topic_visualization"
               variables={variables}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
-            >
-              <MoveButtons
-                item={v}
-                array={minData.visualizations}
-                type="topic_visualization"
-                onMove={this.onMove.bind(this)}
-              />
-            </VisualizationCard>
+              parentArray={minData.visualizations}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
       </div>
