@@ -68,8 +68,8 @@ export function generateQueries(params) {
 
     queries.push({
       ...params,
-      key: grouping.key,
       level,
+      levels: [level],
       cuts: grouping.hasMembers && [
         {key: level.fullName, values: grouping.members}
       ]
@@ -88,9 +88,9 @@ export function generateQueries(params) {
 
       queries.push({
         ...params,
-        key: `${grouping1.key}_${grouping2.key}`,
         level: grouping1.level,
         xlevel: grouping2.level,
+        levels: [grouping1.level, grouping2.level],
         cuts: [
           grouping1.hasMembers && {
             key: grouping1.level.fullName,
@@ -104,8 +104,6 @@ export function generateQueries(params) {
       });
     }
   }
-
-  queries.reverse();
 
   return queries;
 }
@@ -126,7 +124,9 @@ export function queryConverter(params) {
   const drilldownList = []
     .concat(params.level, params.xlevel, params.timeLevel)
     .filter(Boolean);
-  const drilldowns = drilldownList.map(lvl => lvl.fullName.slice(1, -1).split("].["));
+  const drilldowns = drilldownList.map(lvl =>
+    lvl.fullName.slice(1, -1).split("].[")
+  );
 
   const cuts = [].concat(params.cuts).filter(Boolean);
 

@@ -24,14 +24,6 @@
       justify-content: flex-start;
       align-items: flex-start;
     }
-
-    &.single .chart-card {
-      height: 100%;
-    }
-
-    &.unique .chart-card footer {
-      display: none;
-    }
   }
 
   & .chart-card {
@@ -45,6 +37,10 @@
       margin: 0 5px 10px;
       padding: 15px;
       height: 100%;
+    }
+
+    &:only-child > .wrapper {
+      margin: 0;
     }
 
     & .viz {

@@ -175,11 +175,11 @@ export function areKindaNumeric(list, tolerance = 0.8) {
 /**
  * Checks if all the additional measures (MoE, UCI, LCI) in a dataset are different from zero.
  * @see Issue#257 on {@link https://github.com/Datawheel/canon/issues/257 | Github}
- * @param {object} query An object with the names of the properties in each item in dataset.
+ * @param {Object<string,string>} names A dictionary of names of the properties in each item in dataset.
  * @param {object[]} dataset The dataset to analyze.
  */
-export function areMetaMeasuresZero(query, dataset) {
-  const {moeName, lciName, uciName, sourceName, collectionName} = query;
+export function areMetaMeasuresZero(names, dataset) {
+  const {moeName, lciName, uciName, sourceName, collectionName} = names;
   const results = {};
   let n = dataset.length;
   while (n--) {

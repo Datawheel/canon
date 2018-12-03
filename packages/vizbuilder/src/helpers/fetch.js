@@ -160,7 +160,7 @@ export function fetchQuery(datacap, query) {
       throw new TooMuchData(mondrianQuery, dataAmount);
     }
 
-    return {dataset, members};
+    return {dataset, members, query};
   });
 }
 
