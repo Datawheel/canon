@@ -1,4 +1,7 @@
 import {Intent, Position, Toaster} from "@blueprintjs/core";
+
+import chartCriteria from "./chartCriteria";
+import {datagroupToCharts} from "./chartHelpers";
 import {fetchQuery} from "./fetch";
 import {generateQueries} from "./query";
 import {higherTimeLessThanNow} from "./sorting";
@@ -41,8 +44,8 @@ export function loadControl(preQuery, postQuery) {
 
   promise = promise.then(result => {
     const finalState = mergeStates(initialState, result || {});
-    const query = finalState.query;
-    const queries = generateQueries(query);
+    const vbQuery = finalState.query;
+    const queries = generateQueries(vbQuery);
 
     /**
      * Update 1
@@ -57,7 +60,7 @@ export function loadControl(preQuery, postQuery) {
           inProgress: true,
           total: queries.length
         };
-        finalState.queries = queries;
+        finalState.datagroups = [];
         return finalState;
       })
       .then(() => {
@@ -81,30 +84,42 @@ export function loadControl(preQuery, postQuery) {
         return Promise.all(fetchings);
       })
       .then(results => {
-        const datasets = [];
-        const members = [];
+        const generalConfig = this.getGeneralConfig();
+        const isGeomapOnly =
+          generalConfig.visualizations.length === 1 &&
+          generalConfig.visualizations[0] === "geomap";
 
-        const timeLevel = query.timeLevel;
-        const activeQueryKey = `${query.activeChart}`.split("-")[0];
-        const activeChart = queries.some(q => q.key === activeQueryKey)
-          ? query.activeChart
-          : null;
+        const datagroups = chartCriteria(vbQuery, results, generalConfig);
+        const charts = [];
 
-        let n = results.length;
-        while (n--) {
-          const fetchResult = results[n];
-          datasets.unshift(fetchResult.dataset);
-          members.unshift(fetchResult.members);
+        let selectedTime = Infinity;
+        let i = datagroups.length;
+        while (i--) {
+          const datagroup = datagroups[i];
+
+          const dgTimeList = datagroup.members[datagroup.names.timeLevelName];
+          selectedTime = Math.min(
+            selectedTime,
+            higherTimeLessThanNow(dgTimeList)
+          );
+
+          const dgCharts = datagroupToCharts(datagroup, generalConfig);
+          charts.push.apply(charts, dgCharts);
         }
 
-        const selectedTime =
-          timeLevel && higherTimeLessThanNow(members[0], timeLevel.name);
+        // activeChart example: treemap-z9TnC_1cDpEA
+        let activeChart = null;
+        if (charts.length === 1) {
+          activeChart = charts[0].key;
+        } else if (charts.map(ch => ch.key).indexOf(vbQuery.activeChart) > -1) {
+          activeChart = vbQuery.activeChart;
+        }
 
         return setStatePromise.call(this, currentState =>
           mergeStates(currentState, {
-            datasets,
-            members,
-            query: {activeChart, selectedTime}
+            charts,
+            datagroups,
+            query: {activeChart, isGeomapOnly, selectedTime}
           })
         );
       });
@@ -157,7 +172,9 @@ export function loadControl(preQuery, postQuery) {
   if (__DEV__) {
     promise = promise.then(() => {
       console.groupCollapsed("FINAL STATE");
-      console.table(this.state.queries);
+      for (let key in this.state) {
+        console.debug(key, this.state[key]);
+      }
       console.groupEnd();
     });
   }
@@ -188,10 +205,9 @@ export function mergeStates(state, newState) {
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    if (/^queries|^datasets|^members|^meta/.test(key)) {
+    if (Array.isArray(newState[key])) {
       finalState[key] = newState[key];
-    }
-    else {
+    } else {
       finalState[key] = {
         ...state[key],
         ...newState[key]

@@ -11,21 +11,21 @@ import PermalinkManager from "./components/PermalinkManager";
 import Sidebar from "./components/Sidebar";
 import Ranking from "./components/Sidebar/Ranking";
 
-import * as api from "./helpers/api";
+import {resetClient} from "./helpers/api";
+import {chartComponents} from "./helpers/chartHelpers";
 import {fetchCubes} from "./helpers/fetch";
 import {DEFAULT_MEASURE_FORMATTERS} from "./helpers/formatting";
 import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
 import {getDefaultGroup} from "./helpers/sorting";
 import {isSameQuery} from "./helpers/validation";
-
 import initialState from "./state";
 
 class Vizbuilder extends React.PureComponent {
   constructor(props, ctx) {
     super(props);
 
-    api.resetClient(props.src);
+    resetClient(props.src);
     this.state = initialState();
 
     const permalinkKeywords = {
@@ -59,19 +59,24 @@ class Vizbuilder extends React.PureComponent {
 
     this.loadControl = loadControl.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
-  }
-
-  getChildContext() {
-    const props = this.props;
-    return {
-      defaultQuery: this.defaultQuery,
-      generalConfig: {
+    this.getGeneralConfig = () => {
+      const props = this.props;
+      return {
         defaultConfig: props.config,
         formatting: {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting},
         measureConfig: props.measureConfig,
         topojson: props.topojson,
-        visualizations: props.visualizations
-      },
+        visualizations: props.visualizations.filter(viz =>
+          chartComponents.hasOwnProperty(viz)
+        )
+      };
+    };
+  }
+
+  getChildContext() {
+    return {
+      defaultQuery: this.defaultQuery,
+      generalConfig: this.getGeneralConfig(),
       getDefaultGroup: this.getDefaultGroup,
       loadControl: this.loadControl,
       permalinkKeywords: this.permalinkKeywords,
@@ -103,7 +108,7 @@ class Vizbuilder extends React.PureComponent {
   render() {
     const {location} = this.context.router;
     const {permalink, toolbar} = this.props;
-    const {load, datasets, members, queries, options, query} = this.state;
+    const {charts, datagroups, load, options, query} = this.state;
 
     return (
       <div
@@ -115,18 +120,15 @@ class Vizbuilder extends React.PureComponent {
         <Sidebar options={options} query={query}>
           {this.props.children}
           <Ranking
-            datasets={datasets}
-            members={members}
-            queries={queries}
+            datagroup={datagroups[0]}
             selectedTime={query.selectedTime}
           />
         </Sidebar>
         <ChartArea
           activeChart={query.activeChart}
-          datasets={datasets}
+          datagroups={datagroups}
+          charts={charts}
           lastUpdate={load.lastUpdate}
-          members={members}
-          queries={queries}
           selectedTime={query.selectedTime}
           toolbar={toolbar}
         />

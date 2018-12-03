@@ -1,7 +1,9 @@
 import sort from "fast-sort";
+import groupBy from "lodash/groupBy";
 import union from "lodash/union";
 import yn from "yn";
 
+import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 import {findFirstNumber} from "./formatting";
 import {
   areKindaNumeric,
@@ -10,7 +12,6 @@ import {
   isValidDimension,
   isValidMeasure
 } from "./validation";
-import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 
 /**
  * If `needle` is a valid value, returns the first element in the `haystack`
@@ -83,7 +84,6 @@ export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
 /**
  * Reduces a list of cubes to the measures that will be used in the vizbuilder.
  * @param {Cube[]} cubes An array of the cubes to be reduced.
- * @returns {Measure[]}
  */
 export function classifyMeasures(cubes) {
   cubes = [].concat(cubes);
@@ -137,7 +137,7 @@ export function getDefaultGroup(defaultGroup, levels) {
  * from the cube. If there's no MOE for the measure, returns undefined.
  * @param {Cube} cube The measure's parent cube
  * @param {*} measure The measure
- * @returns {Measure|undefined}
+ * @returns {Object<string,Measure|undefined>}
  */
 export function getMeasureMeta(cube, measure) {
   let collection, lci, moe, source, uci;
@@ -175,7 +175,7 @@ export function getMeasureMeta(cube, measure) {
         collection = currentMeasure;
       }
 
-      if (collection && (lci && uci || moe) && source) {
+      if (collection && ((lci && uci) || moe) && source) {
         break;
       }
     }
@@ -260,9 +260,9 @@ export function reduceLevelsFromDimension(container, dimension) {
   return isTimeDimension(dimension) || yn(dimension.annotations.hide_in_ui)
     ? container
     : dimension.hierarchies.reduce(
-      (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
-      container
-    );
+        (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
+        container
+      );
 }
 
 /**
@@ -333,14 +333,26 @@ export function getIncludedMembers(query, dataset) {
 
 /**
  * Returns the value of the highest timeLevel value in the dataset, but lower or equal than the current time.
- * @param {Object<string,number[]>} members An object with members and arrays of its available values
- * @param {string} timeLevelName The name of the timeLevel for the current query
+ * @param {number[]} timelist An array with time-related members
  */
-export function higherTimeLessThanNow(members, timeLevelName) {
+export function higherTimeLessThanNow(timelist) {
+  timelist = timelist || [];
   // TODO: prepare it to handle months, days, etc
   const now = new Date();
   const currentTime = now.getFullYear();
-  return members[timeLevelName].filter(time => time <= currentTime).pop();
+  return timelist.filter(time => time <= currentTime).pop();
+}
+
+export function getTopTenByYear(datagroup) {
+  const timeLevelName =
+    datagroup.query.timeLevel && datagroup.query.timeLevel.name;
+  const groups = groupBy(datagroup.dataset, timeLevelName);
+  const newDataset = Object.keys(groups).reduce((all, time) => {
+    const top = groups[time].slice(0, 10);
+    all.push.apply(all, top);
+    return all;
+  }, []);
+  return {newDataset, newMembers};
 }
 
 /**
@@ -360,7 +372,7 @@ export function sortByCustomKey(key, members) {
  * Generates a 2-object combination from a list of objects.
  * @param {any[]} set An array of objects to get the combo.
  */
-export function *getCombinationsChoose2(set) {
+export function* getCombinationsChoose2(set) {
   const n = set.length;
   if (n > 0) {
     const first = set[0];
@@ -369,4 +381,24 @@ export function *getCombinationsChoose2(set) {
     }
     yield* getCombinationsChoose2(set.slice(1));
   }
+}
+
+export function getPermutations(set) {
+  let result = [];
+
+  const permute = (arr, m = []) => {
+    if (arr.length === 0) {
+      result.push(m);
+    } else {
+      for (let i = 0; i < arr.length; i++) {
+        let curr = arr.slice();
+        let next = curr.splice(i, 1);
+        permute(curr.slice(), m.concat(next));
+      }
+    }
+  };
+
+  permute(set);
+
+  return result;
 }

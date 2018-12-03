@@ -34,8 +34,7 @@ export default function initialStateFactory() {
       collection: null,
       selectedTime: null
     },
-    queries: [],
-    datasets: [],
-    members: []
+    charts: [],
+    datagroups: []
   };
 }

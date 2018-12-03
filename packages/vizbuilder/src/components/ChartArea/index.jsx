@@ -8,7 +8,7 @@ import ChartCard from "./ChartCard";
 
 import "./style.css";
 
-const EMPTY_DATASETS = (
+const NO_CHARTS = (
   <div className="area-chart empty">
     <NonIdealState visual="error" title="Empty dataset" />
   </div>
@@ -106,46 +106,29 @@ class ChartArea extends React.Component {
   }
 
   render() {
-    const {generalConfig} = this.context;
-    const {
+    const {activeChart, charts, selectedTime, toolbar} = this.props;
+    const state = this.state;
+
+    const n = charts.length;
+    if (n === 0) {
+      return NO_CHARTS;
+    }
+
+    const isUniqueChart = n === 1;
+    const isSingleChart = activeChart || n === 1;
+
+    const chartsToRender = activeChart
+      ? charts.filter(chart => chart.key === activeChart)
+      : charts;
+
+    const uiparams = {
       activeChart,
-      datasets,
-      members,
-      queries,
+      isSingle: isSingleChart,
+      isUnique: isUniqueChart || chartsToRender.length === 1,
+      onTimeChange: this.handleTimeChange,
       selectedTime,
-      toolbar
-    } = this.props;
-    const {heightArea, heightToolbar} = this.state;
-
-    if (!datasets.length) {
-      return EMPTY_DATASETS;
-    }
-
-    const chartElements = [];
-
-    let n = queries.length;
-    while (n--) {
-      const configs = createChartConfig(
-        queries[n],
-        datasets[n],
-        members[n],
-        {activeChart, selectedTime, onTimeChange: this.handleTimeChange},
-        generalConfig
-      );
-      chartElements.unshift.apply(chartElements, configs);
-    }
-
-    if (!chartElements.length) {
-      return EMPTY_DATASETS;
-    }
-
-    const uniqueChart = !activeChart && chartElements.length === 1;
-    const singleChart = activeChart || chartElements.length === 1;
-    const chartHeight = uniqueChart
-      ? heightArea - heightToolbar
-      : singleChart
-      ? heightArea - heightToolbar - 50
-      : 400;
+      uiheight: state.heightArea - state.heightToolbar,
+    };
 
     return (
       <div
@@ -161,21 +144,23 @@ class ChartArea extends React.Component {
         <div
           className={classNames(
             "wrapper chart-wrapper",
-            {unique: uniqueChart, single: singleChart, multi: !singleChart},
+            isSingleChart ? "single" : "multi",
+            isUniqueChart && "unique",
             activeChart
           )}
         >
-          {chartElements.map(chartConfig => {
-            const {config, key} = chartConfig;
-            config.height = Math.max(400, chartHeight);
+          {chartsToRender.map(chart => {
+            const {key} = chart;
+            const config = createChartConfig(chart, uiparams);
             return (
               <ChartCard
-                active={key === activeChart}
+                active={key === activeChart || isSingleChart}
+                hideFooter={charts.length === 1}
                 key={key}
                 name={key}
                 onSelect={this.handleChartSelect}
               >
-                <chartConfig.component config={config} />
+                <chart.component config={config} />
               </ChartCard>
             );
           })}
@@ -186,23 +171,21 @@ class ChartArea extends React.Component {
 }
 
 ChartArea.contextTypes = {
-  generalConfig: PropTypes.object,
   stateUpdate: PropTypes.func
 };
 
 ChartArea.propTypes = {
   activeChart: PropTypes.string,
-  datasets: PropTypes.arrayOf(PropTypes.array),
+  datagroups: PropTypes.arrayOf(PropTypes.object),
   lastUpdate: PropTypes.number,
-  members: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.array)),
-  queries: PropTypes.arrayOf(PropTypes.object)
+  selectedTime: PropTypes.any,
+  toolbar: PropTypes.any
 };
 
 ChartArea.defaultProps = {
   activeChart: null,
-  datasets: [],
-  members: [],
-  queries: []
+  charts: [],
+  datagroups: []
 };
 
 export default ChartArea;

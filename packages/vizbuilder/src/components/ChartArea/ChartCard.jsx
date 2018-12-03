@@ -18,15 +18,16 @@ class ChartCard extends React.PureComponent {
       <div className="chart-card">
         <div className="wrapper">
           {this.props.children}
-
-          <footer>
-            <Button
-              className="pt-minimal"
-              iconName={active ? "cross" : "zoom-in"}
-              text={active ? "CLOSE" : "ENLARGE"}
-              onClick={this.handleToggleSelect}
-            />
-          </footer>
+          {!this.props.hideFooter && (
+            <footer>
+              <Button
+                className="pt-minimal"
+                iconName={active ? "cross" : "zoom-in"}
+                text={active ? "CLOSE" : "ENLARGE"}
+                onClick={this.handleToggleSelect}
+              />
+            </footer>
+          )}
         </div>
       </div>
     );

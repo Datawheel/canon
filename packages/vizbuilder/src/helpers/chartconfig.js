@@ -1,89 +1,18 @@
 import {assign} from "d3plus-common";
-import {
-  BarChart,
-  Donut,
-  Geomap,
-  LinePlot,
-  Pie,
-  StackedArea,
-  Treemap
-} from "d3plus-react";
 
-import {composeChartTitle} from "./formatting";
+// import {composeChartTitle} from "./formatting";
 import {relativeStdDev} from "./math";
 import {sortByCustomKey} from "./sorting";
-import {areMetaMeasuresZero} from "./validation";
 
-export const charts = {
-  barchart: BarChart,
-  barchartyear: BarChart,
-  donut: Donut,
-  geomap: Geomap,
-  lineplot: LinePlot,
-  pie: Pie,
-  stacked: StackedArea,
-  treemap: Treemap
-};
 
-export const ALL_YEARS = "All years";
-
-export const tooltipGenerator = (query, flags) => {
-  const measureFormatter = flags.measureFormatter;
-  const {levelName, measureName} = query;
-  const shouldShow = areMetaMeasuresZero(query, flags.dataset);
-
-  const tbody = flags.availableKeys
-    .filter(d => d !== levelName)
-    .map(dd => [dd, d => d[dd]]);
-  tbody.push([measureName, d => measureFormatter(d[measureName])]);
-
-  if (shouldShow.lci && shouldShow.uci) {
-    const {lciName, uciName} = query;
-    tbody.push([
-      "Confidence Interval",
-      d =>
-        `${measureFormatter(d[lciName] * 1 || 0)} - ${measureFormatter(
-          d[uciName] * 1 || 0
-        )}`
-    ]);
-  }
-  else if (shouldShow.moe) {
-    const {moeName} = query;
-    tbody.push([
-      "Margin of Error",
-      d => `± ${measureFormatter(d[moeName] * 1 || 0)}`
-    ]);
-  }
-
-  if (shouldShow.src) {
-    const {sourceName} = query;
-    tbody.push(["Source", d => `${d[sourceName]}`]);
-  }
-
-  if (shouldShow.clt) {
-    const {collectionName} = query;
-    tbody.push(["Collection", d => `${d[collectionName]}`]);
-  }
-
-  return {
-    title: d => [].concat(d[levelName]).join(", "),
-    tbody
-  };
-};
-
-/**
- * @type {Object<string,ChartConfigFunction>}
- */
 const makeConfig = {
-  barchart(commonConfig, query, flags) {
-    const {timeLevel, level, measure} = query;
-
-    const levelName = level.name;
-    const measureName = measure.name;
+  barchart(chart) {
+    const {timeLevel, level} = chart.query;
+    const {levelName, measureName} = chart.names;
 
     const config = assign(
       {},
-      commonConfig,
+      chart.baseConfig,
       {
         discrete: "y",
         label: d => d[levelName],
@@ -98,9 +27,9 @@ const makeConfig = {
             }
           }
         },
-        ySort: sortByCustomKey(levelName, flags.members[levelName])
+        ySort: sortByCustomKey(levelName, chart.members[levelName])
       },
-      flags.chartConfig
+      chart.userConfig
     );
 
     if (timeLevel) {
@@ -111,26 +40,20 @@ const makeConfig = {
       delete config.total;
     }
 
-    return config;
-  },
-  barchart_ab(commonConfig, query, flags) {
-    const config = this.barchart(commonConfig, query, flags);
-    // config.y = query.level.name;
-    config.groupBy = [query.xlevel.name];
-    return config;
-  },
-  barchartyear(commonConfig, query, flags) {
-    const {level, timeLevel, measure} = query;
+    if (chart.setup.length > 1) {
+      config.groupBy = [chart.setup[1].name];
+    }
 
-    const levelName = level.name;
-    const timeLevelName = timeLevel.name;
-    const measureName = measure.name;
+    return config;
+  },
+  barchartyear(chart) {
+    const {levelName, timeLevelName, measureName} = chart.names;
 
     const config = assign(
       {},
-      commonConfig,
+      chart.baseConfig,
       {
-        title: `${measureName} by ${levelName}, by ${timeLevelName}\n${flags.subtitle}`,
+        // title: `${measureName} by ${levelName}, by ${timeLevelName}\n${flags.subtitle}`,
         discrete: "x",
         x: timeLevelName,
         xConfig: {title: timeLevelName},
@@ -138,7 +61,7 @@ const makeConfig = {
         stacked: true,
         groupBy: [levelName]
       },
-      flags.chartConfig
+      chart.userConfig
     );
 
     delete config.time;
@@ -149,116 +72,93 @@ const makeConfig = {
 
     return config;
   },
-  donut(commonConfig, query, flags) {
-    const {level, measure} = query;
-
-    const levelName = level.name;
-    const measureName = measure.name;
+  donut(chart) {
+    const {levelName, measureName} = chart.names;
 
     const config = assign(
       {},
-      commonConfig,
+      chart.baseConfig,
       {
         y: measureName,
         groupBy: [levelName]
       },
-      flags.chartConfig
+      chart.userConfig
     );
+
+    if (chart.setup.length > 1) {
+      config.groupBy = chart.setup.map(lvl => lvl.name);
+    }
 
     return config;
   },
-  donut_ab(commonConfig, query, flags) {
-    const config = this.donut(commonConfig, query, flags);
-    config.groupBy = [query.level.name, query.xlevel.name];
-    return config;
-  },
-  geomap(commonConfig, query, flags) {
-    const levelName = query.level.name;
-    const measureName = query.measure.name;
+  geomap(chart) {
+    const {names, query} = chart;
+    const {levelName, measureName} = names;
 
     const config = assign(
       {},
-      commonConfig,
+      chart.baseConfig,
       {
         colorScale: measureName,
         colorScaleConfig: {
-          axisConfig: {tickFormat: flags.measureFormatter},
+          axisConfig: {tickFormat: chart.formatter},
           scale: "jenks"
         },
         colorScalePosition: "right",
         groupBy: [`ID ${levelName}`],
         zoomScroll: false
       },
-      flags.topojsonConfig,
-      flags.chartConfig
+      chart.topoConfig,
+      chart.userConfig
     );
-
-    if (!flags.activeChart) {
-      config.zoom = false;
-    }
 
     const levelCut =
       query.cuts &&
       query.cuts.find(cut => cut.key.indexOf(`[${levelName}]`) > -1);
-    if (levelCut) {
+    if (levelCut && !config.fitFilter) {
       const levelCutMembers = levelCut.values.map(member => member.key);
       config.fitFilter = d => levelCutMembers.indexOf(d.id) > -1;
     }
 
     return config;
   },
-  geomap_ab(commonConfig, query, flags) {
-    const level1Name = query.level.name;
-    const level2Name = query.xlevel.name;
-    const config = this.geomap(commonConfig, query, flags);
-    config.groupBy = [level1Name, level2Name];
-    return config;
-  },
-  histogram(commonConfig, query, flags) {
-    const config = this.barchart(commonConfig, query, flags);
+  histogram(chart) {
+    const config = this.barchart(chart);
 
     return assign(
       config,
       {
         groupPadding: 0
       },
-      flags.chartConfig
+      chart.userConfig
     );
   },
-  lineplot(commonConfig, query, flags) {
-    const {level, measure, moe, lci, uci, timeLevel, xlevel} = query;
-
-    const timeLevelName = timeLevel.name;
-    const measureName = measure.name;
+  lineplot(chart) {
+    const {measureName, moeName, lciName, uciName, timeLevelName} = chart.names;
 
     const config = assign(
       {},
-      commonConfig,
+      chart.baseConfig,
       {
         discrete: "x",
-        groupBy: [level.name, xlevel && xlevel.name].filter(Boolean),
+        groupBy: chart.setup.map(lvl => lvl.name),
         yConfig: {scale: "linear", title: measureName},
         x: timeLevelName,
         xConfig: {title: timeLevelName},
         y: measureName
       },
-      flags.chartConfig
+      chart.userConfig
     );
 
-    if (relativeStdDev(flags.dataset, measureName) > 1) {
+    if (relativeStdDev(chart.dataset, measureName) > 1) {
       config.yConfig.scale = "log";
       config.yConfig.title += " (Log)";
     }
 
-    if (lci && uci) {
-      const lciName = lci.name;
-      const uciName = uci.name;
-
+    if (lciName && uciName) {
       config.confidence = [d => d[lciName], d => d[uciName]];
     }
-    else if (moe) {
-      const moeName = moe.name;
-
+    else if (moeName) {
       config.confidence = [
         d => d[measureName] - d[moeName],
         d => d[measureName] + d[moeName]
@@ -271,78 +171,46 @@ const makeConfig = {
     delete config.timelineConfig;
     delete config.total;
 
-    config.title = composeChartTitle(flags, {timeline: true});
+    // config.title = composeChartTitle(flags, {timeline: true});
 
     return config;
   },
-  lineplot_ab(commonConfig, query, flags) {
-    return this.lineplot(commonConfig, query, flags);
+  lineplot_ab(chart) {
+    return this.lineplot(chart);
   },
-  pie(commonConfig, query, flags) {
-    return this.donut(commonConfig, query, flags);
+  pie(chart) {
+    return this.donut(chart);
   },
-  pie_ab(commonConfig, query, flags) {
-    const config = this.pie(commonConfig, query, flags);
-    config.groupBy = [query.level.name, query.xlevel.name];
-    return config;
-  },
-  stacked(commonConfig, query, flags) {
-    const config = this.lineplot(commonConfig, query, flags);
-    const measureName = query.measure.name;
+  stacked(chart) {
+    const {measureName} = chart.names;
 
+    const config = this.lineplot(chart);
     config.yConfig = {scale: "linear", title: measureName};
 
+    if (chart.setup.length > 1) {
+      config.groupBy = chart.setup.map(lvl => lvl.name);
+    }
+
     return config;
   },
-  stacked_ab(commonConfig, query, flags) {
-    const config = this.stacked(commonConfig, query, flags);
-    config.groupBy = [query.level.name, query.xlevel.name];
-    return config;
-  },
-  treemap(commonConfig, query, flags) {
-    const {level} = query;
+  treemap(chart) {
+    const {level} = chart.query;
 
     const levels = level.hierarchy.levels;
     const ddIndex = levels.indexOf(level);
 
     const config = assign(
       {},
-      commonConfig,
+      chart.baseConfig,
       {
         groupBy: levels.slice(1, ddIndex + 1).map(lvl => lvl.name)
       },
-      flags.chartConfig
+      chart.userConfig
     );
 
-    return config;
-  },
-  treemap_ab(commonConfig, query, flags) {
-    const {level, xlevel} = query;
-    const config = assign({}, commonConfig, flags.chartConfig);
-
-    const levels = level.hierarchy.levels;
-    const ddIndex = levels.indexOf(level);
-
-    const groupBy = levels.slice(1, ddIndex + 1).map(lvl => lvl.name);
-    groupBy.push(xlevel.name);
-
-    config.groupBy = groupBy;
-    config.title = composeChartTitle(flags, {levels: [level.name, xlevel.name]});
-
-    return config;
-  },
-  treemap_ba(commonConfig, query, flags) {
-    const {level, xlevel} = query;
-    const config = assign({}, commonConfig, flags.chartConfig);
-
-    const levels = xlevel.hierarchy.levels;
-    const ddIndex = levels.indexOf(xlevel);
-
-    const groupBy = levels.slice(1, ddIndex + 1).map(lvl => lvl.name);
-    groupBy.push(level.name);
-
-    config.groupBy = groupBy;
-    config.title = composeChartTitle(flags, {levels: [xlevel.name, level.name]});
+    if (chart.setup.length > 1) {
+      config.groupBy.push(chart.setup.slice(1).map(lvl => lvl.name));
+    }
 
     return config;
   }
@@ -351,254 +219,42 @@ const makeConfig = {
 /**
  * Generates an array with valid config objects, depending on the type of data
  * retrieved and the current user defined parameters, to use in d3plus charts.
- * @param {Object} query The current query object from the Vizbuilder's state
- * @param {Object[]} dataset The dataset for the current query
- * @param {Object<string,string[]>} members An object with the members in the current dataset
- * @param {any} activeChart The currently active chart type
- * @param {UserDefinedChartConfig} param0 The object containing the parameters
- * @returns {CreateChartConfigResult[]}
  */
 export default function createChartConfig(
-  query,
-  dataset,
-  members,
-  {activeChart, selectedTime, onTimeChange},
-  {defaultConfig, formatting, measureConfig, topojson, visualizations}
+  chart,
+  {activeChart, isSingle, isUnique, selectedTime, onTimeChange, uiheight}
 ) {
-  const queryKey = query.key;
+  const {chartType, members, names, query} = chart;
+  const {measureName, timeLevelName} = names;
+  const {measure} = query;
 
-  if (!dataset.length) {
-    return [];
-  }
+  const config = makeConfig[chartType](chart);
 
-  // this prevents execution when the activeChart isn't for this query
-  if (activeChart) {
-    const tokens = activeChart.split("-");
-    if (tokens.indexOf(queryKey) !== 0) {
-      return [];
-    }
-    activeChart = tokens.pop();
-  }
+  config.data = chart.dataset;
+  config.height = isSingle ? uiheight - (isUnique ? 50 : 0) : 400;
 
-  const availableKeys = Object.keys(members);
-  const availableCharts = new Set(activeChart ? [activeChart] : visualizations);
-
-  const measure = query.measure;
-  const measureName = measure.name;
   const measureAnn = measure.annotations;
-  const measureFormatter =
-    formatting[measureAnn.units_of_measurement] || formatting.default;
-  const getMeasureValue = d => d[measureName];
-
-  const levelName = query.level.name;
-  const xlevelName = query.xlevel && query.xlevel.name;
-  const timeLevelName = query.timeLevel && query.timeLevel.name;
-  const dimension = query.level.hierarchy.dimension;
 
   const hasTimeDim = timeLevelName && members[timeLevelName].length;
-  const hasGeoDim = dimension.annotations.dim_type === "GEOGRAPHY";
-
-  const aggregatorType =
-    measureAnn.pre_aggregation_method ||
-    measureAnn.aggregation_method ||
-    measure.aggregatorType ||
-    "UNKNOWN";
 
   const subtitle = measureAnn._cb_tagline;
 
-  const commonConfig = {
-    data: dataset,
-    legend: false,
-
-    totalFormat: measureFormatter,
-
-    xConfig: {title: null},
-    yConfig: {
-      title: measureName,
-      tickFormat: measureFormatter
-    },
-
-    duration: 0,
-    total: false,
-    sum: getMeasureValue,
-    value: getMeasureValue
-  };
-
   if (hasTimeDim) {
-    commonConfig.time = timeLevelName;
-    commonConfig.timeFilter = d => d[timeLevelName] == selectedTime; // eslint-disable-line
-    commonConfig.timeline = Boolean(activeChart);
-    commonConfig.timelineConfig = {
+    config.time = timeLevelName;
+    config.timeFilter = d => d[timeLevelName] == selectedTime; // eslint-disable-line
+    config.timeline = Boolean(activeChart);
+    config.timelineConfig = {
       on: {end: onTimeChange}
     };
   }
 
-  if (aggregatorType === "SUM" || aggregatorType === "UNKNOWN") {
-    commonConfig.total = getMeasureValue;
+  if (chart.aggType === "SUM" || chart.aggType === "UNKNOWN") {
+    config.total = measureName;
   }
 
-  const topojsonConfig = topojson[levelName];
-
-  if (!activeChart) {
-    if (members[levelName].length > 20) {
-      availableCharts.delete("barchart");
-    }
-
-    let totalMembers = members[levelName].length;
-    if (xlevelName) {
-      totalMembers *= members[xlevelName].length;
-    }
-    if (totalMembers > 60) {
-      availableCharts.delete("lineplot");
-      availableCharts.delete("stacked");
-    }
-
-    if (!hasTimeDim || members[timeLevelName].length === 1) {
-      availableCharts.delete("barchartyear");
-      availableCharts.delete("lineplot");
-      availableCharts.delete("stacked");
-    }
-
-    if (!hasGeoDim || !topojsonConfig || members[levelName].length < 3 || xlevelName) {
-      availableCharts.delete("geomap");
-    }
-
-    if (aggregatorType === "AVERAGE") {
-      availableCharts.delete("donut");
-      availableCharts.delete("histogram");
-      availableCharts.delete("stacked");
-      availableCharts.delete("treemap");
-    }
-    else if (aggregatorType === "MEDIAN") {
-      availableCharts.delete("stacked");
-    }
-
-    if (aggregatorType !== "UNKNOWN" && aggregatorType !== "SUM") {
-      availableCharts.delete("barchartyear");
-      availableCharts.delete("treemap");
-    }
-
-    if (availableKeys.some(d => d !== "Year" && members[d].length === 1)) {
-      // if any drilldown (besides Year) only has 1 member, hide these
-      availableCharts.delete("barchart");
-      availableCharts.delete("stacked");
-      availableCharts.delete("treemap");
-    }
-
-    if (xlevelName) {
-      if (availableCharts.has("barchart")) {
-        availableCharts.delete("barchart");
-        availableCharts.add("barchart_ab");
-      }
-
-      if (availableCharts.has("donut")) {
-        availableCharts.delete("donut");
-        availableCharts.add("donut_ab");
-      }
-
-      if (availableCharts.has("geomap")) {
-        availableCharts.delete("geomap");
-        availableCharts.add("geomap_ab");
-      }
-
-      if (availableCharts.has("lineplot")) {
-        availableCharts.delete("lineplot");
-        availableCharts.add("lineplot_ab");
-      }
-
-      if (availableCharts.has("stacked")) {
-        availableCharts.delete("stacked");
-        availableCharts.add("stacked_ab");
-      }
-
-      if (availableCharts.has("treemap")) {
-        availableCharts.delete("treemap");
-        availableCharts.add("treemap_ab");
-        availableCharts.add("treemap_ba");
-      }
-    }
+  if (chartType === "geomap" && isSingle) {
+    config.zoom = true;
   }
 
-  const currentMeasureConfig = measureConfig[measureName] || {};
-
-  const flags = {
-    activeChart,
-    aggregatorType,
-    availableKeys,
-    dataset,
-    selectedTime,
-    measureFormatter,
-    members,
-    query,
-    subtitle,
-    topojsonConfig,
-    chartConfig: {
-      ...defaultConfig,
-      ...currentMeasureConfig
-    }
-  };
-
-  commonConfig.title = composeChartTitle(flags);
-  commonConfig.tooltipConfig = tooltipGenerator(
-    {
-      levelName,
-      measureName,
-      moeName: query.moe && query.moe.name,
-      lciName: query.lci && query.lci.name,
-      uciName: query.uci && query.uci.name,
-      sourceName: query.source && query.source.name,
-      collectionName: query.collection && query.collection.name
-    },
-    flags
-  );
-
-  return Array.from(availableCharts, functionName => {
-    const chartType = functionName.split("_")[0];
-    return (
-      charts.hasOwnProperty(chartType) &&
-      makeConfig.hasOwnProperty(functionName) && {
-        key: `${queryKey}-${functionName}`,
-        component: charts[chartType],
-        config: makeConfig[functionName](commonConfig, query, flags)
-      }
-    );
-  }).filter(Boolean);
+  return config;
 }
-
-/**
- * @typedef {(commonConfig, query, flags: ConfigFunctionFlags) => object} ChartConfigFunction
- * @param {object} commonConfig The common config between all charts
- * @param {object} query The current `query` object from the Vizbuilder's state
- * @param {ConfigFunctionFlags} flags An object with flags and other state variables
- * @returns {object} The config for the chart of the corresponding type
- */
-
-/**
- * @typedef {object} ConfigFunctionFlags
- * @prop {string} [activeChart]
- * @prop {string} aggregatorType
- * @prop {string[]} availableKeys
- * @prop {object} chartConfig
- * @prop {object[]} dataset
- * @prop {(value: number) => string} measureFormatter
- * @prop {string[]} members
- * @prop {object} topojsonConfig
- * @prop {object} subtitle
- */
-
-/**
- * @typedef {object} UserDefinedChartConfig
- * @prop {object} defaultConfig The general config params provided by the user
- * @prop {object} formatting An object with formatting functions for measure values. Keys are the value of measure.annotations.units_of_measurement
- * @prop {object} measureConfig The config params for specific measures provided by the user
- * @prop {object} topojson An object where keys are Level names and values are config params for the topojson properties
- * @prop {string[]} visualizations An array with valid visualization names to present
- */
-
-/**
- * @typedef {object} CreateChartConfigResult
- * @prop {string} type The type of chart for this config
- * @prop {string} key A deterministic unique string to identify the chart
- * @prop {object} component The chart component this config is intended to use
- * @prop {object} config The config object for the chart
- */

@@ -3,23 +3,15 @@ import PropTypes from "prop-types";
 
 class Ranking extends React.PureComponent {
   render() {
-    const {formatting} = this.context.generalConfig;
-    const props = this.props;
-    const dataset = props.datasets[0];
-    const members = props.members[0];
-    const query = props.queries[0];
+    const {datagroup, selectedTime} = this.props;
+    const {dataset, formatter} = datagroup || {};
 
-    if (!dataset || !members || !query) return null;
+    if (!dataset || !dataset.length) return null;
 
-    const measureName = query.measure.name;
-    const levelName = query.level.name;
-    const timeLevelName = query.timeLevel.name;
+    const {measureName, levelName, timeLevelName, xlevelName} = datagroup.names;
 
-    const measureFormatter =
-      formatting[query.measure.annotations.units_of_measurement] ||
-      formatting["default"];
-    const getLevelNames = query.xlevel
-      ? a => `${a[levelName]} - ${a[query.xlevel.name]}`
+    const getLevelNames = xlevelName
+      ? a => `${a[levelName]} - ${a[xlevelName]}`
       : a => a[levelName];
 
     const renderListItem = datapoint => (
@@ -27,29 +19,30 @@ class Ranking extends React.PureComponent {
         <div className="row">
           <span className="item-label">{getLevelNames(datapoint)}</span>
           <span className="item-value">
-            {measureFormatter(datapoint[measureName])}
+            {formatter(datapoint[measureName])}
           </span>
         </div>
       </li>
     );
 
-    const selectedTime = props.selectedTime;
-    const maxTimeDataset = dataset.filter(
+    const selectedTimeDataset = dataset.filter(
       d => d[timeLevelName] == selectedTime
     );
 
-    if (maxTimeDataset.length < 20) {
+    if (selectedTimeDataset.length < 20) {
       return (
         <div className="control ranking">
           <p className="label">{`Ranking (${selectedTime})`}</p>
-          <ol className="ranking-list">{maxTimeDataset.map(renderListItem)}</ol>
+          <ol className="ranking-list">
+            {selectedTimeDataset.map(renderListItem)}
+          </ol>
         </div>
       );
     }
 
-    const upperDataset = maxTimeDataset.slice(0, 10);
-    const lowerIndex = maxTimeDataset.length - 10;
-    const lowerDataset = maxTimeDataset.slice(lowerIndex);
+    const upperDataset = selectedTimeDataset.slice(0, 10);
+    const lowerIndex = selectedTimeDataset.length - 10;
+    const lowerDataset = selectedTimeDataset.slice(lowerIndex);
 
     return (
       <div className="control ranking">
