@@ -7,7 +7,7 @@ import {
   getValidLevels,
   removeDuplicateLevels
 } from "./sorting";
-import {isValidGrouping} from "./validation";
+import {isValidGrouping, isGeoDimension} from "./validation";
 
 /**
  * Generates a partial state object, whose elements
@@ -15,7 +15,7 @@ import {isValidGrouping} from "./validation";
  * @param {Cube[]} cubes A list with all the cubes available
  * @param {Measure} measure The currently selected Measure
  */
-export function generateBaseState(cubes, measure) {
+export function generateBaseState(cubes, measure, geomapLevels) {
   const cubeName = measure.annotations._cb_name;
   const cube = cubes.find(cube => cube.name === cubeName);
 
@@ -27,6 +27,14 @@ export function generateBaseState(cubes, measure) {
   const options = {
     levels: getValidLevels(cube)
   };
+
+  if (geomapLevels) {
+    options.levels = options.levels.filter(
+      lvl =>
+        isGeoDimension(lvl.hierarchy.dimension) &&
+        geomapLevels.indexOf(lvl.name) > -1
+    );
+  }
 
   removeDuplicateLevels(options.levels);
 

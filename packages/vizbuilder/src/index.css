@@ -20,6 +20,10 @@
   & > .area-chart {
     flex: 1 0 560px;
   }
+
+  &.geo-only .levels-manager .grouping-items + button {
+    display: none;
+  }
 }
 
 .area-sidebar,

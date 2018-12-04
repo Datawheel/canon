@@ -9,9 +9,10 @@ import {
   classifyMeasures,
   findByName,
   getDefaultGroup,
-  getIncludedMembers
+  getIncludedMembers,
+  reduceLevelsFromDimension
 } from "./sorting";
-import {isValidDimension} from "./validation";
+import {isGeoDimension, isValidDimension} from "./validation";
 
 /**
  * Prepares the array of cubes that will be used in the vizbuilder.
@@ -109,19 +110,35 @@ export function injectCubeInfoOnMeasure(cubes) {
  * Retrieves the cube list and prepares the initial state for the first query
  * @param {ExternalQueryParams} params An object with initial state parameters
  */
-export function fetchCubes(params) {
+export function fetchCubes(params, props) {
+  const isGeomapOnly =
+    props.visualizations.length === 1 && props.visualizations[0] === "geomap";
+  const geomapLevels = isGeomapOnly && Object.keys(props.topojson);
+
   return api.cubes().then(cubes => {
+    // keep only cubes with geographical dimensions, whose levels are in the
+    // list of available geomap configurations
+    if (geomapLevels) {
+      cubes = cubes.filter(cube => {
+        const geoDim = cube.dimensions.find(isGeoDimension);
+        return geoDim && reduceLevelsFromDimension([], geoDim).some(
+          lvl => geomapLevels.indexOf(lvl.name) > -1
+        );
+      });
+    }
+
     injectCubeInfoOnMeasure(cubes);
 
     const {measures, measureMap} = classifyMeasures(cubes);
     const measure = findByName(params.defaultMeasure, measures, true);
 
-    const newState = generateBaseState(cubes, measure);
+    const newState = generateBaseState(cubes, measure, geomapLevels);
 
     const newOptions = newState.options;
     newOptions.cubes = cubes;
     newOptions.measures = measures;
     newOptions.measureMap = measureMap;
+    newOptions.geomapLevels = geomapLevels;
 
     const newQuery = newState.query;
     newQuery.groups = getDefaultGroup(params.defaultGroup, newOptions.levels);
