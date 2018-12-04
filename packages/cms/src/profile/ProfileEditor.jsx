@@ -6,7 +6,6 @@ import Loading from "components/Loading";
 
 import GeneratorCard from "../components/cards/GeneratorCard";
 import TextCard from "../components/cards/TextCard";
-import VisualizationCard from "../components/cards/VisualizationCard";
 import MoveButtons from "../components/MoveButtons";
 
 import "./ProfileEditor.css";
@@ -15,8 +14,6 @@ const propMap = {
   generator: "generators",
   materializer: "materializers",
   profile_stat: "stats",
-  profile_description: "descriptions",
-  profile_visualization: "visualizations",
   profile_footnote: "footnotes"
 };
 
@@ -194,9 +191,6 @@ class ProfileEditor extends Component {
         {/* Top-level Profile */}
         <h2 className="cms-section-heading">
           Profile
-          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_stat")}>
-            <span className="pt-icon pt-icon-plus" />
-          </button>
         </h2>
         <div
           className="cms-splash-wrapper"
@@ -239,27 +233,6 @@ class ProfileEditor extends Component {
           </div>
         </div>
 
-        {/* about text */}
-        <h2 className="cms-section-heading">
-          About
-          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_description")}>
-            <span className="pt-icon pt-icon-plus" />
-          </button>
-        </h2>
-        <div className="cms-card-list">
-          { minData.descriptions && minData.descriptions.map(d =>
-            <TextCard key={d.id}
-              item={d}
-              onDelete={this.onDelete.bind(this)}
-              fields={["description"]}
-              type="profile_description"
-              variables={variables}
-              parentArray={minData.descriptions}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        </div>
-
         {/* footnotes */}
         <h2 className="cms-section-heading">
           Footnotes
@@ -276,27 +249,6 @@ class ProfileEditor extends Component {
               type="profile_footnote"
               variables={variables}
               parentArray={minData.footnotes}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        </div>
-
-        {/* visualizations */}
-        <h2 className="cms-section-heading">
-          Visualizations
-          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_visualization")}>
-            <span className="pt-icon pt-icon-plus" />
-          </button>
-        </h2>
-        <div className="cms-card-list visualizations">
-          { minData.visualizations && minData.visualizations.map(v =>
-            <VisualizationCard
-              key={v.id}
-              item={v}
-              onDelete={this.onDelete.bind(this)}
-              type="profile_visualization"
-              variables={variables}
-              parentArray={minData.visualizations}
               onMove={this.onMove.bind(this)}
             />
           )}

@@ -20,9 +20,7 @@ const searchMap = {
 
 const profileReq = {
   include: [
-    {association: "visualizations", separate: true},
     {association: "stats", separate: true},
-    {association: "descriptions", separate: true},
     {
       association: "sections", separate: true,
       include: [
@@ -86,8 +84,6 @@ const sorter = (a, b) => a.ordering - b.ordering;
 const sortProfile = profile => {
   profile = profile.toJSON();
   if (profile.stats) profile.stats.sort(sorter);
-  if (profile.descriptions) profile.descriptions.sort(sorter);
-  if (profile.visualizations) profile.visualizations.sort(sorter);
   if (profile.sections) {
     profile.sections.sort(sorter);
     profile.sections.map(section => {

@@ -38,9 +38,7 @@ const profileReqProfileOnly = {
   include: [
     {association: "generators", attributes: ["id", "name"]},
     {association: "materializers", attributes: ["id", "name", "ordering"]},
-    {association: "visualizations", attributes: ["id", "ordering"]},
     {association: "stats", attributes: ["id", "ordering"]},
-    {association: "descriptions", attributes: ["id", "ordering"]},
     {association: "footnotes", attributes: ["id", "ordering"]}
   ]
 };
@@ -85,8 +83,8 @@ const storyTopicReqStoryTopicOnly = {
  * automatically generate Create, Update, and Delete Routes (as specified later in the get/post methods)
  */
 const cmsTables = [
-  "author", "formatter", "generator", "materializer", "profile", "profile_description",
-  "profile_footnote", "profile_stat", "profile_visualization", "section", "section_description",
+  "author", "formatter", "generator", "materializer", "profile",
+  "profile_footnote", "profile_stat", "section", "section_description",
   "section_subtitle", "selector", "story", "story_description", "story_footnote", "storytopic",
   "storytopic_description", "storytopic_stat", "storytopic_subtitle", "storytopic_visualization",
   "topic", "topic_description", "topic_stat", "topic_subtitle", "topic_visualization"
@@ -118,7 +116,7 @@ const sortStoryTree = stories => {
 
 const sortProfile = profile => {
   profile = profile.toJSON();
-  ["materializers", "visualizations", "stats", "descriptions", "footnotes"].forEach(type => profile[type].sort(sorter));
+  ["materializers", "stats", "footnotes"].forEach(type => profile[type].sort(sorter));
   return profile;
 };
 
@@ -352,7 +350,7 @@ module.exports = function(app) {
    * and "parent" refers to the foreign key that need be referenced in the associated where clause.
    */
   const deleteList = [
-    {elements: ["profile_description", "profile_footnote", "profile_stat", "profile_visualization"], parent: "profile_id"},
+    {elements: ["profile_footnote", "profile_stat"], parent: "profile_id"},
     {elements: ["section_description", "section_subtitle"], parent: "section_id"},
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
     {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"}
