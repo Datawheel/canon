@@ -9,6 +9,7 @@ class Filter {
     this.measure = measure;
     this.operator = operator || OPERATORS.EQUAL;
     this.value = value || 0;
+    this.visibleValue = this.value * this.getMultiplier();
   }
 
   get key() {
@@ -43,6 +44,24 @@ class Filter {
     return clone;
   }
 
+  getFormatter() {
+    const measure = this.measure;
+    if (measure) {
+      const unit = measure.annotations.units_of_measurement;
+      return Filter.formatters[unit] || Filter.formatters.default;
+    }
+    return Filter.formatters.default;
+  }
+
+  getMultiplier() {
+    const measure = this.measure;
+    if (measure) {
+      const unit = measure.annotations.units_of_measurement;
+      return Filter.multipliers[unit] || Filter.multipliers.default;
+    }
+    return Filter.multipliers.default;
+  }
+
   setMeasure(measure) {
     if (this.measure !== measure) {
       const clone = this.getClone();
@@ -66,7 +85,8 @@ class Filter {
     const newValue = valueAsString || 0;
     if (this.value !== newValue) {
       const clone = this.getClone();
-      clone.value = newValue;
+      clone.value = newValue / this.getMultiplier();
+      clone.visibleValue = newValue;
       return clone;
     }
     return this;

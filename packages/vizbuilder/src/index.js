@@ -9,12 +9,16 @@ import LoadingScreen from "components/Loading";
 import ChartArea from "./components/ChartArea";
 import PermalinkManager from "./components/PermalinkManager";
 import Sidebar from "./components/Sidebar";
+import Filter from "./components/Sidebar/FilterManager/Filter";
 import Ranking from "./components/Sidebar/Ranking";
 
 import {resetClient} from "./helpers/api";
 import {chartComponents} from "./helpers/chartHelpers";
 import {fetchCubes} from "./helpers/fetch";
-import {DEFAULT_MEASURE_FORMATTERS} from "./helpers/formatting";
+import {
+  DEFAULT_MEASURE_FORMATTERS,
+  DEFAULT_MEASURE_MULTIPLIERS
+} from "./helpers/formatting";
 import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
 import {getDefaultGroup} from "./helpers/sorting";
@@ -25,26 +29,11 @@ class Vizbuilder extends React.PureComponent {
   constructor(props, ctx) {
     super(props);
 
-    resetClient(props.src);
-    this.state = initialState();
+    let initialStatePromise = this.initialize(props);
 
-    const permalinkKeywords = {
-      enlarged: "enlarged",
-      filters: "filters",
-      groups: "groups",
-      measure: "measure",
-      ...props.permalinkKeywords
-    };
-
-    const defaultGroup = [].concat(props.defaultGroup || []);
-    const defaultMeasure = props.defaultMeasure;
-    const defaultQuery = {defaultGroup, defaultMeasure};
-
-    let initialStatePromise = fetchCubes(defaultQuery, props);
     const location = ctx.router.location;
-
     if (props.permalink && location.search) {
-      const permalinkQuery = parsePermalink(permalinkKeywords, location);
+      const permalinkQuery = parsePermalink(this.permalinkKeywords, location);
       initialStatePromise = initialStatePromise.then(
         permalinkToState.bind(null, permalinkQuery)
       );
@@ -52,30 +41,37 @@ class Vizbuilder extends React.PureComponent {
 
     this.initialStatePromise = initialStatePromise;
 
-    this.defaultQuery = defaultQuery;
-    this.getDefaultGroup = getDefaultGroup.bind(null, defaultGroup);
-    this.permalinkKeywords = permalinkKeywords;
-    this.queryHistory = [];
-
     this.loadControl = loadControl.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
-    this.getGeneralConfig = () => {
-      const props = this.props;
-      return {
-        defaultConfig: props.config,
-        formatting: {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting},
-        measureConfig: props.measureConfig,
-        topojson: props.topojson,
-        visualizations: props.visualizations.filter(viz =>
-          chartComponents.hasOwnProperty(viz)
-        )
-      };
+    this.getGeneralConfig = this.getGeneralConfig.bind(this);
+  }
+
+  initialize(props) {
+    this.state = initialState();
+
+    resetClient(props.src);
+
+    Filter.formatters = {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting};
+    Filter.multipliers = {...DEFAULT_MEASURE_MULTIPLIERS, ...props.multipliers};
+
+    const defaultGroup = [].concat(props.defaultGroup || []);
+    const defaultMeasure = props.defaultMeasure;
+    const defaultQuery = {defaultGroup, defaultMeasure};
+
+    this.getDefaultGroup = getDefaultGroup.bind(null, defaultGroup);
+    this.permalinkKeywords = {
+      enlarged: "enlarged",
+      filters: "filters",
+      groups: "groups",
+      measure: "measure",
+      ...props.permalinkKeywords
     };
+
+    return fetchCubes(defaultQuery, props);
   }
 
   getChildContext() {
     return {
-      defaultQuery: this.defaultQuery,
       generalConfig: this.getGeneralConfig(),
       getDefaultGroup: this.getDefaultGroup,
       loadControl: this.loadControl,
@@ -98,10 +94,6 @@ class Vizbuilder extends React.PureComponent {
 
     if (!isSameQuery(prevState.query, query)) {
       onChange(query, this.state.options);
-
-      //   if (this.queryHistory.findIndex(isSameQuery.bind(null, query)) === -1) {
-      //     this.queryHistory.push(query);
-      //   }
     }
   }
 
@@ -141,6 +133,20 @@ class Vizbuilder extends React.PureComponent {
     );
   }
 
+  getGeneralConfig() {
+    const props = this.props;
+    return {
+      defaultConfig: props.config,
+      formatting: {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting},
+      multipliers: {...DEFAULT_MEASURE_MULTIPLIERS, ...props.multipliers},
+      measureConfig: props.measureConfig,
+      topojson: props.topojson,
+      visualizations: props.visualizations.filter(viz =>
+        chartComponents.hasOwnProperty(viz)
+      )
+    };
+  }
+
   stateUpdate(newState) {
     return setStatePromise.call(this, state => mergeStates(state, newState));
   }
@@ -151,7 +157,6 @@ Vizbuilder.contextTypes = {
 };
 
 Vizbuilder.childContextTypes = {
-  defaultQuery: PropTypes.any,
   generalConfig: PropTypes.object,
   getDefaultGroup: PropTypes.func,
   loadControl: PropTypes.func,
@@ -200,6 +205,7 @@ Vizbuilder.defaultProps = {
   config: {},
   datacap: 20000,
   formatting: {},
+  multipliers: {},
   onChange() {},
   permalink: true,
   topojson: {},

@@ -85,9 +85,6 @@ export function loadControl(preQuery, postQuery) {
       })
       .then(results => {
         const generalConfig = this.getGeneralConfig();
-        const isGeomapOnly =
-          generalConfig.visualizations.length === 1 &&
-          generalConfig.visualizations[0] === "geomap";
 
         const datagroups = chartCriteria(vbQuery, results, generalConfig);
         const charts = [];
@@ -120,7 +117,7 @@ export function loadControl(preQuery, postQuery) {
           mergeStates(currentState, {
             charts,
             datagroups,
-            query: {activeChart, isGeomapOnly, selectedTime}
+            query: {activeChart, selectedTime}
           })
         );
       });
