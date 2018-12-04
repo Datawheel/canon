@@ -392,7 +392,8 @@ export function getPermutations(set) {
   const permute = (arr, m = []) => {
     if (arr.length === 0) {
       result.push(m);
-    } else {
+    }
+    else {
       for (let i = 0; i < arr.length; i++) {
         let curr = arr.slice();
         let next = curr.splice(i, 1);

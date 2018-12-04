@@ -111,7 +111,8 @@ export function loadControl(preQuery, postQuery) {
         let activeChart = null;
         if (charts.length === 1) {
           activeChart = charts[0].key;
-        } else if (charts.map(ch => ch.key).indexOf(vbQuery.activeChart) > -1) {
+        }
+        else if (charts.map(ch => ch.key).indexOf(vbQuery.activeChart) > -1) {
           activeChart = vbQuery.activeChart;
         }
 
@@ -207,7 +208,8 @@ export function mergeStates(state, newState) {
     const key = keys[i];
     if (Array.isArray(newState[key])) {
       finalState[key] = newState[key];
-    } else {
+    }
+    else {
       finalState[key] = {
         ...state[key],
         ...newState[key]
