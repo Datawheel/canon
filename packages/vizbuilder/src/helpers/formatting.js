@@ -15,6 +15,15 @@ export const DEFAULT_MEASURE_FORMATTERS = {
   "Billions of Dollars": d => DEFAULT_MEASURE_FORMATTERS.USD(d * 1e9)
 };
 
+export const DEFAULT_MEASURE_MULTIPLIERS = {
+  default: 1,
+  Growth: 100,
+  Rate: 100,
+  "Thousands of Dollars": 1e3,
+  "Millions of Dollars": 1e6,
+  "Billions of Dollars": 1e9
+};
+
 export const PROPNAMESTYLES = {
   LVL: 1,
   HIE: 2,

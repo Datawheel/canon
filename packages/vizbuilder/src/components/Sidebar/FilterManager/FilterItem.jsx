@@ -34,15 +34,8 @@ class FilterItem extends SidebarCRUDItem {
   }
 
   renderClosed() {
-    const {formatting} = this.context.generalConfig || {};
     const {item} = this.props;
-    let value = item.value;
-
-    if (formatting) {
-      const units = item.measure.annotations.units_of_measurement;
-      const formatter = formatting[units] || formatting.default;
-      value = formatter(value);
-    }
+    const formatter = item.getFormatter();
 
     return (
       <div className="filter-item">
@@ -51,7 +44,7 @@ class FilterItem extends SidebarCRUDItem {
           {" "}
           <span className="filter-operator">{item.operatorLabel}</span>
           {" "}
-          <span className="filter-value">{value}</span>
+          <span className="filter-value">{formatter(item.value)}</span>
         </div>
         <div className="group actions">
           <Button
@@ -93,7 +86,7 @@ class FilterItem extends SidebarCRUDItem {
           </div>
           <NumericInput
             className="pt-fill"
-            value={activeItem.value}
+            value={activeItem.visibleValue}
             onValueChange={this.handleSetValue}
             allowNumericCharactersOnly={true}
           />
@@ -114,10 +107,6 @@ class FilterItem extends SidebarCRUDItem {
       </div>
     );
   }
-}
-
-FilterItem.contextTypes = {
-  generalConfig: PropTypes.object
 }
 
 FilterItem.propTypes = {
