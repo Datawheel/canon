@@ -3,16 +3,15 @@ import PropTypes from "prop-types";
 
 class Ranking extends React.PureComponent {
   render() {
-    const {datagroup, selectedTime} = this.props;
-    const {dataset, formatter} = datagroup || {};
+    const {chart, selectedTime} = this.props;
+    const {dataset, formatter, names} = chart || {};
 
     if (!dataset || !dataset.length) return null;
 
-    const {measureName, levelName, timeLevelName, xlevelName} = datagroup.names;
+    const {measureName, timeLevelName} = names;
 
-    const getLevelNames = xlevelName
-      ? a => `${a[levelName]} - ${a[xlevelName]}`
-      : a => a[levelName];
+    const setupNames = chart.setup.map(lvl => lvl.name);
+    const getLevelNames = a => setupNames.map(name => a[name]).join(" - ");
 
     const renderListItem = datapoint => (
       <li className="ranking-item">

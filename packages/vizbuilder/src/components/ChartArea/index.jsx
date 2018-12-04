@@ -176,7 +176,7 @@ ChartArea.contextTypes = {
 
 ChartArea.propTypes = {
   activeChart: PropTypes.string,
-  datagroups: PropTypes.arrayOf(PropTypes.object),
+  charts: PropTypes.arrayOf(PropTypes.object),
   lastUpdate: PropTypes.number,
   selectedTime: PropTypes.any,
   toolbar: PropTypes.any
@@ -184,8 +184,7 @@ ChartArea.propTypes = {
 
 ChartArea.defaultProps = {
   activeChart: null,
-  charts: [],
-  datagroups: []
+  charts: []
 };
 
 export default ChartArea;
