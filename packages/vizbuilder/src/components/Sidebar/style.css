@@ -24,6 +24,10 @@
     border: 1px solid;
   }
 
+  & .grouping-item:only-child .action-delete {
+    display: none;
+  }
+
   & .filter-item .values span {
     margin-right: 0.5rem;
   }
