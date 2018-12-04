@@ -3,6 +3,15 @@ import yn from "yn";
 import {findFirstNumber} from "./formatting";
 
 /**
+ * Checks if the dimension passed as argument is a geographic-type dimension.
+ * @param {Dimension} dimension A mondrian-rest-client dimension object
+ * @returns {boolean}
+ */
+export function isGeoDimension(dimension) {
+  return dimension.annotations.dim_type === "GEOGRAPHY";
+}
+
+/**
  * Checks if the dimension passed as argument is a time-type dimension.
  * @param {Dimension} dimension A mondrian-rest-client dimension object
  * @returns {boolean}

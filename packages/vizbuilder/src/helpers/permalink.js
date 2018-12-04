@@ -66,7 +66,7 @@ export function permalinkToState(queryParams, prevState) {
 
   const newState =
     measure && measure !== prevState.query.measure
-      ? generateBaseState(prevOptions.cubes, measure)
+      ? generateBaseState(prevOptions.cubes, measure, prevOptions.geomapLevels)
       : prevState;
   const newOptions = newState.options;
   const newQuery = newState.query;

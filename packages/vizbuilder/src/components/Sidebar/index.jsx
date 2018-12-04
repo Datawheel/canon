@@ -109,7 +109,11 @@ class Sidebar extends React.PureComponent {
     const {options, query} = this.props;
 
     return this.context.loadControl(() => {
-      const newState = generateBaseState(options.cubes, measure);
+      const newState = generateBaseState(
+        options.cubes,
+        measure,
+        options.geomapLevels
+      );
       const newQuery = newState.query;
       const isSameCube = newQuery.cube === query.cube;
 

@@ -6,6 +6,7 @@
  */
 
 import {getTopTenByYear} from "./sorting";
+import {isGeoDimension} from "./validation";
 
 export default function chartCriteria(query, results, params) {
   /** @type {Datagroup[]} */
@@ -44,7 +45,7 @@ export default function chartCriteria(query, results, params) {
 
     const hasTimeLvl = timeLevelName && timeLevelMembers.length > 1;
     const hasGeoLvl = [query.level, query.xlevel].some(
-      lvl => lvl && lvl.hierarchy.dimension.annotations.dim_type === "GEOGRAPHY"
+      lvl => lvl && isGeoDimension(lvl.hierarchy.dimension)
     );
 
     // Hide barcharts with more than 20 members

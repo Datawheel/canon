@@ -40,7 +40,7 @@ class Vizbuilder extends React.PureComponent {
     const defaultMeasure = props.defaultMeasure;
     const defaultQuery = {defaultGroup, defaultMeasure};
 
-    let initialStatePromise = fetchCubes(defaultQuery);
+    let initialStatePromise = fetchCubes(defaultQuery, props);
     const location = ctx.router.location;
 
     if (props.permalink && location.search) {
@@ -113,6 +113,7 @@ class Vizbuilder extends React.PureComponent {
     return (
       <div
         className={classnames("vizbuilder", {
+          "geo-only": Boolean(options.geomapLevels),
           loading: load.inProgress
         })}
       >
