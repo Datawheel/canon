@@ -1,14 +1,14 @@
 import {assign} from "d3plus-common";
 
-// import {composeChartTitle} from "./formatting";
+import {OWN_TIMELINE} from "./chartHelpers";
+import {composeChartTitle} from "./formatting";
 import {relativeStdDev} from "./math";
 import {sortByCustomKey} from "./sorting";
-
 
 const makeConfig = {
   barchart(chart) {
     const {timeLevel, level} = chart.query;
-    const {levelName, measureName} = chart.names;
+    const {levelName, measureName, timeLevelName} = chart.names;
 
     const config = assign(
       {},
@@ -33,6 +33,7 @@ const makeConfig = {
     );
 
     if (timeLevel) {
+      config.time = timeLevelName;
       config.groupBy = [timeLevel.hierarchy.levels[1].name];
     }
 
@@ -53,7 +54,6 @@ const makeConfig = {
       {},
       chart.baseConfig,
       {
-        // title: `${measureName} by ${levelName}, by ${timeLevelName}\n${flags.subtitle}`,
         discrete: "x",
         x: timeLevelName,
         xConfig: {title: timeLevelName},
@@ -65,15 +65,12 @@ const makeConfig = {
     );
 
     delete config.time;
-    delete config.timeFilter;
-    delete config.timeline;
-    delete config.timelineConfig;
     delete config.total;
 
     return config;
   },
   donut(chart) {
-    const {levelName, measureName} = chart.names;
+    const {levelName, measureName, timeLevelName} = chart.names;
 
     const config = assign(
       {},
@@ -89,11 +86,15 @@ const makeConfig = {
       config.groupBy = chart.setup.map(lvl => lvl.name);
     }
 
+    if (timeLevelName) {
+      config.time = timeLevelName;
+    }
+
     return config;
   },
   geomap(chart) {
     const {names, query} = chart;
-    const {levelName, measureName} = names;
+    const {levelName, measureName, timeLevelName} = names;
 
     const config = assign(
       {},
@@ -118,6 +119,10 @@ const makeConfig = {
     if (levelCut && !config.fitFilter) {
       const levelCutMembers = levelCut.values.map(member => member.key);
       config.fitFilter = d => levelCutMembers.indexOf(d.id) > -1;
+    }
+
+    if (timeLevelName) {
+      config.time = timeLevelName;
     }
 
     return config;
@@ -157,8 +162,7 @@ const makeConfig = {
 
     if (lciName && uciName) {
       config.confidence = [d => d[lciName], d => d[uciName]];
-    }
-    else if (moeName) {
+    } else if (moeName) {
       config.confidence = [
         d => d[measureName] - d[moeName],
         d => d[measureName] + d[moeName]
@@ -166,17 +170,11 @@ const makeConfig = {
     }
 
     delete config.time;
-    delete config.timeFilter;
-    delete config.timeline;
-    delete config.timelineConfig;
     delete config.total;
 
     // config.title = composeChartTitle(flags, {timeline: true});
 
     return config;
-  },
-  lineplot_ab(chart) {
-    return this.lineplot(chart);
   },
   pie(chart) {
     return this.donut(chart);
@@ -194,8 +192,10 @@ const makeConfig = {
     return config;
   },
   treemap(chart) {
-    const {level} = chart.query;
+    const {timeLevelName} = chart.names;
+    const setup = chart.setup.slice();
 
+    const level = setup.shift();
     const levels = level.hierarchy.levels;
     const ddIndex = levels.indexOf(level);
 
@@ -208,8 +208,13 @@ const makeConfig = {
       chart.userConfig
     );
 
-    if (chart.setup.length > 1) {
-      config.groupBy.push(chart.setup.slice(1).map(lvl => lvl.name));
+    if (setup.length > 0) {
+      const additionalLevels = setup.map(lvl => lvl.name);
+      config.groupBy.push.apply(config.groupBy, additionalLevels);
+    }
+
+    if (timeLevelName) {
+      config.time = timeLevelName;
     }
 
     return config;
@@ -220,29 +225,29 @@ const makeConfig = {
  * Generates an array with valid config objects, depending on the type of data
  * retrieved and the current user defined parameters, to use in d3plus charts.
  */
-export default function createChartConfig(
-  chart,
-  {activeChart, isSingle, isUnique, selectedTime, onTimeChange, uiheight}
-) {
-  const {chartType, members, names, query} = chart;
+export default function createChartConfig(chart, uiparams) {
+  const {chartType, names, query} = chart;
   const {measureName, timeLevelName} = names;
-  const {measure} = query;
+  const {
+    activeChart,
+    isSingle,
+    isUnique,
+    selectedTime,
+    onTimeChange,
+    uiheight
+  } = uiparams;
+
+  const isEnlarged = chart.key === activeChart || isUnique;
+  const measureAnn = query.measure.annotations;
 
   const config = makeConfig[chartType](chart);
 
   config.data = chart.dataset;
-  config.height = isSingle ? uiheight - (isUnique ? 50 : 0) : 400;
+  config.height = isSingle ? uiheight - (isUnique ? 0 : 50) : 400;
 
-  const measureAnn = measure.annotations;
-
-  const hasTimeDim = timeLevelName && members[timeLevelName].length;
-
-  const subtitle = measureAnn._cb_tagline;
-
-  if (hasTimeDim) {
-    config.time = timeLevelName;
+  if (config.time) {
     config.timeFilter = d => d[timeLevelName] == selectedTime; // eslint-disable-line
-    config.timeline = Boolean(activeChart);
+    config.timeline = isEnlarged;
     config.timelineConfig = {
       on: {end: onTimeChange}
     };
@@ -252,9 +257,16 @@ export default function createChartConfig(
     config.total = measureName;
   }
 
-  if (chartType === "geomap" && isSingle) {
-    config.zoom = true;
-  }
+  config.zoom = chartType === "geomap" && isSingle;
+
+  config.title =
+    composeChartTitle(chart, {
+      activeChart,
+      selectedTime,
+      isTimeline: config.timeline || OWN_TIMELINE.indexOf(chartType) > -1
+    }) +
+    "\n" +
+    measureAnn._cb_tagline;
 
   return config;
 }
