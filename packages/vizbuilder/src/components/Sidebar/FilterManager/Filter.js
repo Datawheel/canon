@@ -38,7 +38,7 @@ class Filter {
   }
 
   getClone() {
-    const clone = new Filter(this.measure, this.operator);
+    const clone = new Filter(this.measure, this.operator, this.value);
     clone.uuid = this.uuid;
     return clone;
   }
