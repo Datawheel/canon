@@ -118,7 +118,8 @@ export function tooltipGenerator(datagroup) {
       d =>
         `${formatter(d[lciName] * 1 || 0)} - ${formatter(d[uciName] * 1 || 0)}`
     ]);
-  } else if (shouldShow.moe) {
+  }
+  else if (shouldShow.moe) {
     const {moeName} = names;
     tbody.push(["Margin of Error", d => `± ${formatter(d[moeName] * 1 || 0)}`]);
   }

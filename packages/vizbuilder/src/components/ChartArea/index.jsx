@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 import {NonIdealState} from "@blueprintjs/core";
 
-import createChartConfig from "../../helpers/chartconfig";
+import createChartConfig from "../../helpers/chartConfig";
 import ChartCard from "./ChartCard";
 
 import "./style.css";
