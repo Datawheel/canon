@@ -114,17 +114,17 @@ class ChartArea extends React.Component {
       return NO_CHARTS;
     }
 
-    const isUniqueChart = n === 1;
-    const isSingleChart = activeChart || n === 1;
-
     const chartsToRender = activeChart
       ? charts.filter(chart => chart.key === activeChart)
       : charts;
 
+    const isUniqueChart = n === 1;
+    const isSingleChart = chartsToRender.length === 1;
+
     const uiparams = {
       activeChart,
       isSingle: isSingleChart,
-      isUnique: isUniqueChart || chartsToRender.length === 1,
+      isUnique: isUniqueChart,
       onTimeChange: this.handleTimeChange,
       selectedTime,
       uiheight: state.heightArea - state.heightToolbar,
@@ -155,7 +155,7 @@ class ChartArea extends React.Component {
             return (
               <ChartCard
                 active={key === activeChart || isSingleChart}
-                hideFooter={charts.length === 1}
+                hideFooter={isUniqueChart}
                 key={key}
                 name={key}
                 onSelect={this.handleChartSelect}

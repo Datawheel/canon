@@ -309,22 +309,24 @@ export function removeDuplicateLevels(array) {
  * @param {Array<any>} dataset The result dataset for the query object passed along.
  */
 export function getIncludedMembers(query, dataset) {
-  return query.getDrilldowns().reduce((members, dd) => {
-    const key = dd.name;
-    const set = {};
+  return [].concat(query.levels, query.timeLevel).reduce((members, dd) => {
+    if (dd) {
+      const key = dd.name;
+      const set = {};
 
-    let n = dataset.length;
-    while (n--) {
-      const value = dataset[n][key];
-      set[value] = 0;
-    }
+      let n = dataset.length;
+      while (n--) {
+        const value = dataset[n][key];
+        set[value] = 0;
+      }
 
-    const memberList = Object.keys(set);
-    if (memberList.every(isNumeric)) {
-      members[key] = memberList.map(n => n * 1).sort((a, b) => a - b);
-    }
-    else {
-      members[key] = memberList.sort();
+      const memberList = Object.keys(set);
+      if (memberList.every(isNumeric)) {
+        members[key] = memberList.map(n => n * 1).sort((a, b) => a - b);
+      }
+      else {
+        members[key] = memberList.sort();
+      }
     }
 
     return members;
@@ -352,6 +354,7 @@ export function getTopTenByYear(datagroup) {
     all.push.apply(all, top);
     return all;
   }, []);
+  const newMembers = getIncludedMembers(datagroup.query, newDataset);
   return {newDataset, newMembers};
 }
 

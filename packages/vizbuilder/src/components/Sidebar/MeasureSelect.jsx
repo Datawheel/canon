@@ -30,7 +30,7 @@ MeasureSelect.defaultProps = {
   ...BaseMonoSelect.defaultProps,
   sticky: "_sticky",
   getItemHeight() {
-    return 44;
+    return 58;
   },
   itemListPredicate(query, items) {
     query = query.trim();

@@ -21,7 +21,7 @@ class GroupingItem extends SidebarCRUDItem {
     const item = props.item;
 
     this.state = {
-      isOpen: true,
+      isOpen: item.new,
       loading: true,
       members: [],
       newItem: !item.level ? item.setLevel(props.options[0]) : null

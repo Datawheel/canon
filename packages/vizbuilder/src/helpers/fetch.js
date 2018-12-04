@@ -150,7 +150,7 @@ export function fetchQuery(datacap, query) {
   return api.query(mondrianQuery).then(result => {
     const dataset = (result.data || {}).data || [];
     sort(dataset).desc(measureName);
-    const members = getIncludedMembers(mondrianQuery, dataset);
+    const members = getIncludedMembers(query, dataset);
 
     let dataAmount = dataset.length;
     if (Array.isArray(members[timeLevelName])) {

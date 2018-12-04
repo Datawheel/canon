@@ -69,26 +69,23 @@ export function joinStringsWithCommaAnd(list) {
 
 /**
  * Returns a common title string from a list of parameters.
- * @param {ConfigFunctionFlags} params The common parameters for chartconfig functions.
- * @param {Object<string,any>} flags An object with specific modificators for special cases.
  */
-export function composeChartTitle(params, flags) {
-  const {levels, timeline} = flags || {};
-  const {activeChart, members, query} = params;
-  const {level, measure, timeLevel, xlevel} = query;
-  let title = `${measure.name} by `;
+export function composeChartTitle(chart, uiparams) {
+  const {measureName, timeLevelName} = chart.names;
+  const levels = chart.setup.map(lvl => lvl.name);
 
-  const allLevels = levels || [level.name, xlevel && xlevel.name];
-  title += joinStringsWithCommaAnd(allLevels.filter(Boolean));
+  let title = `${measureName} by ${joinStringsWithCommaAnd(levels)}`;
 
-  if (timeLevel) {
-    if (!timeline && !activeChart && timeLevel.name in members) {
-      title += ` (${params.selectedTime})`;
+  if (timeLevelName) {
+    const {activeChart, isTimeline, selectedTime} = uiparams;
+
+    if (!activeChart && !isTimeline) {
+      title += ` (${selectedTime})`;
     }
     else {
-      title += `, by ${timeLevel.name}`;
+      title += `, by ${timeLevelName}`;
     }
   }
 
-  return `${title}\n${params.subtitle}`;
+  return title;
 }
