@@ -75,8 +75,14 @@ export default function chartCriteria(query, results, params) {
       availableCharts.delete("histogram");
       availableCharts.delete("stacked");
       availableCharts.delete("treemap");
-    } else if (aggregatorType === "MEDIAN") {
+    }
+    else if (aggregatorType === "MEDIAN") {
       availableCharts.delete("stacked");
+    }
+    // @see Issue#327 on {@link https://github.com/Datawheel/canon/issues/327 | GitHub}
+    else if (aggregatorType === "NONE") {
+      availableCharts.delete("stacked");
+      availableCharts.delete("barchart");
     }
 
     // Hide barchartyear and treemap if aggregation is not SUM or UNKNOWN
