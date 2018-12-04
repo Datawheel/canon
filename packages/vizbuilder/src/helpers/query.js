@@ -1,3 +1,5 @@
+import yn from "yn";
+
 import {
   getCombinationsChoose2,
   getMeasureMeta,
@@ -122,8 +124,20 @@ export function queryConverter(params) {
   ].filter(Boolean);
 
   const drilldownList = []
-    .concat(params.level, params.xlevel, params.timeLevel)
+    .concat(params.levels, params.timeLevel)
     .filter(Boolean);
+
+  // Add levels from required dimensions
+  params.cube.dimensions.forEach(dimension => {
+    if (
+      yn(dimension.annotations.is_required) &&
+      drilldownList.every(lvl => lvl.hierarchy.dimension !== dimension)
+    ) {
+      const firstLevel = dimension.hierarchies[0].levels[1];
+      drilldownList.push(firstLevel);
+    }
+  });
+
   const drilldowns = drilldownList.map(lvl =>
     lvl.fullName.slice(1, -1).split("].[")
   );
