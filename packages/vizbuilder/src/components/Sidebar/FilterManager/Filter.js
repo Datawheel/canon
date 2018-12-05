@@ -66,6 +66,8 @@ class Filter {
     if (this.measure !== measure) {
       const clone = this.getClone();
       clone.measure = measure;
+      clone.value = this.visibleValue / clone.getMultiplier() || this.visibleValue;
+      clone.visibleValue = this.visibleValue;
       return clone;
     }
     return this;
@@ -85,7 +87,7 @@ class Filter {
     const newValue = valueAsString || 0;
     if (this.value !== newValue) {
       const clone = this.getClone();
-      clone.value = newValue / this.getMultiplier();
+      clone.value = newValue / this.getMultiplier() || newValue;
       clone.visibleValue = newValue;
       return clone;
     }
