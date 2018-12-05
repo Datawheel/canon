@@ -2,6 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import AceWrapper from "./AceWrapper";
 import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
+import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
 import {Switch, Alert, Intent} from "@blueprintjs/core";
 
 import "./GeneratorEditor.css";
@@ -48,7 +49,7 @@ class GeneratorEditor extends Component {
   maybePreviewPayload() {
     const {payload} = this.state;
     // Only prompt the user if there is already a payload (therefore they are overriding/changing it) 
-    if (payload) {
+    if (payload && !payload.error) {
       const alertObj = {
         callback: this.previewPayload.bind(this),
         message: "Are you sure you want to reload the API results? This will not change your current code, but it may cause some objects to become undefined.",
@@ -56,7 +57,7 @@ class GeneratorEditor extends Component {
       };
       this.setState({alertObj});
     }
-    // If there is no payload, they are fetching for the first time, so just grab it.
+    // If there is no payload or it was an error, they are fetching for the first time, so just grab it.
     else {
       this.previewPayload.bind(this)();
     }
@@ -65,8 +66,31 @@ class GeneratorEditor extends Component {
   previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
-    axios.get(api).then(resp => {
-      const payload = resp.data;
+    if (api) {
+      axios.get(api).then(resp => {
+        const payload = resp.data;
+        let {simple} = this.state;
+        // This comparison is important! forceSimple must be EXACTLY true to indicate we are overriding it. Otherwise it's a 
+        // proxy event from a click, which indeed is truthy, but not a pure argument override.
+        if (forceSimple === true) {
+          simple = true;
+          data.simple = true;
+        }
+        this.setState({payload, simple, data, alertObj: false});
+      }).catch(() => {
+        const payload = {error: "Please enter a valid API URL."};
+        let {simple} = this.state;
+        // This comparison is important! forceSimple must be EXACTLY true to indicate we are overriding it. Otherwise it's a 
+        // proxy event from a click, which indeed is truthy, but not a pure argument override.
+        if (forceSimple === true) {
+          simple = true;
+          data.simple = true;
+        }
+        this.setState({payload, simple, data, alertObj: false});
+      });
+    } 
+    else {
+      const payload = {error: "Please enter a valid API URL."};
       let {simple} = this.state;
       // This comparison is important! forceSimple must be EXACTLY true to indicate we are overriding it. Otherwise it's a 
       // proxy event from a click, which indeed is truthy, but not a pure argument override.
@@ -75,7 +99,7 @@ class GeneratorEditor extends Component {
         data.simple = true;
       }
       this.setState({payload, simple, data, alertObj: false});
-    });
+    }
   }
 
   maybeSwitchSimple() {
@@ -177,7 +201,7 @@ class GeneratorEditor extends Component {
           ? <label className="pt-label pt-inline">
             <span className="label-text">API</span>
             <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")}/>
-            <button onClick={this.maybePreviewPayload.bind(this)}>{payload ? "Refetch Data" : "Fetch Data"}</button>
+            <button onClick={this.maybePreviewPayload.bind(this)}>{payload && !payload.error ? "Refetch Data" : "Fetch Data"}</button>
           </label>
           : null
         }
@@ -188,7 +212,7 @@ class GeneratorEditor extends Component {
           </label>
           : null
         }
-        <Switch checked={simple} label="Simple Mode" onChange={this.maybeSwitchSimple.bind(this)} />
+        { (type === "generator" || type.includes("_visualization")) && <Switch checked={simple} label="Simple Mode" onChange={this.maybeSwitchSimple.bind(this)} /> }
         <div id="generator-ace">
           { type === "profile_visualization" || type === "topic_visualization"
             ? <label className="pt-label pt-inline">
@@ -203,9 +227,11 @@ class GeneratorEditor extends Component {
           <label className="pt-label">Callback {preMessage[type]}</label>
           {payload && <textarea rows="10" cols="50" style={{fontFamily: "monospace"}} value={JSON.stringify(payload, null, 2)} />}
           {simple 
-            ? payload 
-              ? <SimpleGeneratorEditor payload={payload} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/> 
-              : null
+            ? type === "generator" 
+              ? payload 
+                ? <SimpleGeneratorEditor payload={payload} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/> 
+                : null
+              : <SimpleVisualizationEditor simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
             : <AceWrapper
               className="editor"
               variables={variables}

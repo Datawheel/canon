@@ -1,0 +1,12 @@
+.field-row {
+  display: flex;
+}
+
+.obj {
+  outline: solid 1px black;
+}
+
+.simplemode {
+  overflow-y: scroll;
+  height: 300px;
+}
