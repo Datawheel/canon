@@ -23,6 +23,14 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         defaultValue: "always"
       },
+      logic_simple: {
+        type: db.JSON,
+        defaultValue: null
+      },
+      simple: {
+        type: db.BOOLEAN,
+        defaultValue: false
+      },      
       ordering: db.INTEGER
     }, 
     {

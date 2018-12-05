@@ -14,7 +14,18 @@ export default class SimpleGeneratorEditor extends Component {
   }
 
   componentDidMount() {
+    this.populate.bind(this)();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.payload !== this.props.payload) this.populate.bind(this)();
+  }
+
+  populate() {
     const {payload, simpleConfig} = this.props;
+    // If the error prop exists in the payload, then the user has either not yet configured,
+    // or has incorrectly configured the API call.
+    if (payload.error) return;
     // If a simple config has been provided, then the user has used simple mode in the past.
     // Populate the simple menu accordingly and make it the default mode.
     let objects = [];
@@ -98,6 +109,7 @@ export default class SimpleGeneratorEditor extends Component {
 
   rebuild() {
     const {payload} = this.props;
+    if (payload.error) return;
     const pl = payload.data ? payload.data : payload;
     const objects = pl.map((obj, i) => 
       Object.keys(obj).map(k => ({
