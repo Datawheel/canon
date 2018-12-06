@@ -1,12 +1,20 @@
+import axios from "axios";
 import React, {Component} from "react";
 import {Alert, Intent} from "@blueprintjs/core";
 
 import "./SimpleVisualizationEditor.css";
 
 const vizLookup = {
-  TreeMap: ["groupBy", "sum"],
-  BarChart: ["x", "y", "z"],
-  StackedArea: ["groupBy"]
+  AreaPlot: ["groupBy", "x", "y"],
+  BarChart: ["groupBy", "x", "y"],
+  BumpChart: ["groupBy", "x", "y"],
+  Donut: ["groupBy", "value"],
+  Geomap: ["groupBy", "colorScale", "topojson"],
+  LinePlot: ["groupBy", "x", "y"],
+  PercentageBar: ["groupBy", "value"],
+  Pie: ["groupBy", "value"],
+  StackedArea: ["groupBy", "x", "y"],
+  Treemap: ["groupBy", "sum"]
 };
 
 export default class SimpleVisualizationEditor extends Component {
@@ -15,7 +23,8 @@ export default class SimpleVisualizationEditor extends Component {
     super(props);
     this.state = {
       object: {},
-      rebuildAlertOpen: false
+      rebuildAlertOpen: false,
+      payload: {}
     };
   }
 
@@ -26,7 +35,7 @@ export default class SimpleVisualizationEditor extends Component {
     let object = {};
     if (simpleConfig) {
       object = Object.assign({}, simpleConfig);
-      this.setState({object}, this.compileCode.bind(this));
+      this.setState({object}, this.firstBuild.bind(this));
     }
     // If a simple config has not been provided, then the user has never used one before,
     // so prepare the interface with a the first viz
@@ -41,43 +50,72 @@ export default class SimpleVisualizationEditor extends Component {
     }
   }
 
+  firstBuild() {
+    const {object} = this.state;
+    const {data} = object;
+    if (data) {
+      axios.get(data).then(resp => {
+        const payload = resp.data;
+        this.setState({payload}, this.compileCode.bind(this));
+      }).catch(() => {
+        console.log("API error");
+      });
+    }
+  }
+
   compileCode() {
     const {object} = this.state;
-    const {api} = this.props;
-    const code = `return ${JSON.stringify(Object.assign({}, object, {data: api}))}`;
+    const code = `return ${JSON.stringify(object)}`;
     if (this.props.onSimpleChange) this.props.onSimpleChange(code, object);
   }
 
   maybeRebuild() {
-    this.setState({rebuildAlertOpen: true});
+    const {payload} = this.state;
+    if (payload.data) {
+      this.setState({rebuildAlertOpen: true});
+    }
+    else {
+      this.rebuild.bind(this)();
+    }
   }
 
   onChange(field, e) {
     const {object} = this.state;
     object[field] = e.target.value;
-    this.setState({object}, this.compileCode.bind(this));
+    // If the user is changing the type, we need to clear and rebuild the object from scratch using a fresh payload.
+    if (field === "type") {
+      this.setState({object}, this.rebuild.bind(this));
+    }
+    // Otherwise they are just changing a drop-down field and we need only recompile the code above.
+    else {
+      this.setState({object}, this.compileCode.bind(this));  
+    }
   }
 
   rebuild() {
-    /*
-    const {payload} = this.props;
-    const pl = payload.data ? payload.data : payload;
-    const objects = pl.map((obj, i) => 
-      Object.keys(obj).map(k => ({
-        use: true,
-        keyName: `${k}${i + 1}`,
-        pKey: k,
-        pVal: obj[k]
-      }))
-    );
-    this.setState({objects, rebuildAlertOpen: false}, this.compileCode.bind(this));
-    */
-    this.setState({rebuildAlertOpen: false});
+    const {object} = this.state;
+    const {data, type} = object;
+    axios.get(data).then(resp => {
+      const payload = resp.data;
+      const firstObj = payload.data[0];
+      const newObject = {
+        data: object.data,
+        type: object.type
+      };
+      if (vizLookup[type] && firstObj) {
+        vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
+      }
+      this.setState({payload, object: newObject, rebuildAlertOpen: false}, this.compileCode.bind(this));
+    }).catch(() => {
+      console.log("API error");
+    });
   }
 
   render() {
 
-    const {object, rebuildAlertOpen} = this.state;
+    const {object, rebuildAlertOpen, payload} = this.state;
+
+    const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
     
     return <div className="simplemode">
       <Alert
@@ -90,13 +128,14 @@ export default class SimpleVisualizationEditor extends Component {
         onConfirm={this.rebuild.bind(this)}
         onCancel={() => this.setState({rebuildAlertOpen: false})}
       >
-        Are you sure you want to rebuild this visualization from the current payload?
+        Are you sure you want to rebuild this visualization using a new data URL?
       </Alert>
-      <button onClick={this.maybeRebuild.bind(this)}>Rebuild</button>
       <div>
         Data
-        <input className="pt-input" value={object.api} onChange={this.onChange.bind(this, "api")} />
+        <input className="pt-input" value={object.data} onChange={this.onChange.bind(this, "data")} />
+        {object.data && <button onClick={this.maybeRebuild.bind(this)}>{payload.data ? "Rebuild" : "Build"}</button>}
       </div>
+
       <div>
         Type 
         <div className="pt-select">
@@ -107,7 +146,8 @@ export default class SimpleVisualizationEditor extends Component {
           </select>
         </div>
       </div>
-      <div className="viz-dropdowns">
+      <hr/>
+      {payload.data && <div className="viz-dropdowns">
         <ul>
           {
             object.type &&
@@ -116,7 +156,7 @@ export default class SimpleVisualizationEditor extends Component {
                   {prop}: 
                   <div className="pt-select">
                     <select value={object[prop]} onChange={this.onChange.bind(this, prop)}>
-                      {Object.keys({}).map(type => 
+                      {Object.keys(firstObj).map(type => 
                         <option key={type} value={type}>{type}</option>
                       )}
                     </select>
@@ -126,6 +166,7 @@ export default class SimpleVisualizationEditor extends Component {
           }
         </ul>
       </div>
+      } 
     </div>;
 
   }

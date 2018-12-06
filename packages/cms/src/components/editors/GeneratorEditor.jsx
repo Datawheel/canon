@@ -21,11 +21,18 @@ class GeneratorEditor extends Component {
   }
 
   componentDidMount() {
-    const {data, variables} = this.props;
-    // If simple has been used in the past, we MUST fetch the payload from the
+    const {data, variables, type} = this.props;
+    // If simple has been used in the past and this is a generator, we MUST fetch the payload from the
     // API so that the results for the variables can be filled in.
-    const maybePreview = () => data.simple ? this.previewPayload(true) : null;
-    this.setState({data, variables}, maybePreview);
+    if (type === "generator") {
+      const maybePreview = () => data.simple ? this.previewPayload(true) : null;
+      this.setState({data, variables}, maybePreview);
+    }
+    // If simple has been used in the past as a visualization, we need only switch to simple mode without payload.
+    else if (type.includes("_visualization")) {
+      const {simple} = data;
+      this.setState({data, variables, simple});
+    }
   }
 
   changeField(field, e) {
@@ -46,6 +53,9 @@ class GeneratorEditor extends Component {
     this.setState({data});
   }
 
+  /**
+   * Called by the "Refetch Data" button. Make sure the user knows that a new fetch will change the payload.
+   */
   maybePreviewPayload() {
     const {payload} = this.state;
     // Only prompt the user if there is already a payload (therefore they are overriding/changing it) 
@@ -63,6 +73,11 @@ class GeneratorEditor extends Component {
     }
   }
 
+  /**
+   * Hits the API and sets the resulting payload in state. Note that this can be called either by pressing the Fetch Data
+   * button OR when the user switches to simple mode. When pressing fetch data, we need only hit the API again. However,
+   * if the user is switching to simple, then once the API returns, handle switching the UI to simple mode (forceEZ).
+   */
   previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
@@ -124,12 +139,22 @@ class GeneratorEditor extends Component {
 
   switchSimple() {
     const {simple, data} = this.state;
+    const {type} = this.props;
     if (simple) {
       data.simple = false;
       this.setState({simple: false, alertObj: false, data});
     }
+    // If we are enabling simple mode
     else {
-      this.previewPayload.bind(this)(true);
+      // If it's a generator, then we need a payload before we can switch over.
+      if (type === "generator") {
+        this.previewPayload.bind(this)(true);  
+      }
+      // However it's a visualization, no payload is needed. Enable simple mode and switch without an API call.
+      else if (type.includes("_visualization")) {
+        data.simple = true;
+        this.setState({simple: true, data, alertObj: false});
+      } 
     }
   }
 
@@ -173,8 +198,6 @@ class GeneratorEditor extends Component {
         }));
 
     if (!data) return null;
-
-    if (simple && !payload) return null;
 
     return (
       <div id="generator-editor">
@@ -224,7 +247,7 @@ class GeneratorEditor extends Component {
               </div>
             </label> : null
           }
-          <label className="pt-label">Callback {preMessage[type]}</label>
+          {!simple && <label className="pt-label">Callback {preMessage[type]}</label>}
           {payload && <textarea rows="10" cols="50" style={{fontFamily: "monospace"}} value={JSON.stringify(payload, null, 2)} />}
           {simple 
             ? type === "generator" 
