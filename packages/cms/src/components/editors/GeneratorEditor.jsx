@@ -33,6 +33,9 @@ class GeneratorEditor extends Component {
       const {simple} = data;
       this.setState({data, variables, simple});
     }
+    else {
+      this.setState({data, variables});
+    }
   }
 
   changeField(field, e) {
