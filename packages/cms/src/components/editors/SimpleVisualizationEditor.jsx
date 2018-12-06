@@ -17,6 +17,8 @@ const vizLookup = {
   Treemap: ["groupBy", "sum"]
 };
 
+const reservedWords = ["topojson"];
+
 export default class SimpleVisualizationEditor extends Component {
 
   constructor(props) {
@@ -154,13 +156,16 @@ export default class SimpleVisualizationEditor extends Component {
               vizLookup[object.type].map(prop => 
                 <li key={prop}>
                   {prop}: 
-                  <div className="pt-select">
-                    <select value={object[prop]} onChange={this.onChange.bind(this, prop)}>
-                      {Object.keys(firstObj).map(type => 
-                        <option key={type} value={type}>{type}</option>
-                      )}
-                    </select>
-                  </div>
+                  {reservedWords.includes(prop) 
+                    ? <input key={prop} value={object[prop]} onChange={this.onChange.bind(this, prop)} />
+                    : <div className="pt-select">
+                      <select value={object[prop]} onChange={this.onChange.bind(this, prop)}>
+                        {Object.keys(firstObj).map(type => 
+                          <option key={type} value={type}>{type}</option>
+                        )}
+                      </select>
+                    </div>
+                  }
                 </li>
               )
           }
