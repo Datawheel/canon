@@ -61,7 +61,7 @@ class FormatterEditor extends Component {
               .sort((a, b) => a.name.localeCompare(b.name))
               .map(g => <GeneratorCard
                 key={g.id}
-                id={g.id}
+                item={g}
                 onSave={this.onSave.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 type="formatter"
