@@ -60,7 +60,7 @@ class VisualizationCard extends Component {
     if (!minData) return <Loading />;
 
     const {formatters} = this.context;
-    const {selectors, type, variables, parentArray, item} = this.props;
+    const {selectors, type, variables, parentArray, item, preview} = this.props;
 
     minData.selectors = selectors;
     const {logic} = varSwapRecursive(minData, formatters, variables);
@@ -96,7 +96,7 @@ class VisualizationCard extends Component {
           title="Variable Editor"
         >
           <div className="pt-dialog-body">
-            <GeneratorEditor data={minData} variables={variables} type={type} />
+            <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
           </div>
           <FooterButtons
             onDelete={this.delete.bind(this)}

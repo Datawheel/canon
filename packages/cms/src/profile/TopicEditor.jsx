@@ -110,7 +110,7 @@ class TopicEditor extends Component {
   render() {
 
     const {minData} = this.state;
-    const {variables} = this.props;
+    const {variables, preview} = this.props;
 
     if (!minData || !variables) return <Loading />;
 
@@ -281,6 +281,7 @@ class TopicEditor extends Component {
             <VisualizationCard
               key={v.id}
               item={v}
+              preview={preview}
               onDelete={this.onDelete.bind(this)}
               type="topic_visualization"
               variables={variables}

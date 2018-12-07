@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {Alert, Intent} from "@blueprintjs/core";
+import urlSwap from "../../utils/urlSwap";
 
 import "./SimpleVisualizationEditor.css";
 
@@ -54,9 +55,14 @@ export default class SimpleVisualizationEditor extends Component {
 
   firstBuild() {
     const {object} = this.state;
+    const {preview, variables} = this.props;
     const {data} = object;
     if (data) {
-      axios.get(data).then(resp => {
+      // The API will have an <id> in it that needs to be replaced with the current preview.
+      // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>) 
+      // With its corresponding value.
+      const url = urlSwap(data, Object.assign({}, variables, {id: preview}));
+      axios.get(url).then(resp => {
         const payload = resp.data;
         this.setState({payload}, this.compileCode.bind(this));
       }).catch(() => {
@@ -67,7 +73,27 @@ export default class SimpleVisualizationEditor extends Component {
 
   compileCode() {
     const {object} = this.state;
-    const code = `return ${JSON.stringify(object)}`;
+    // If the user has put instances variables between brackets (e.g. <id> or <var>)
+    // Then we need to manually create a special template string out of what the user
+    // has written. Remember that the "logic" is javascript that will be executed, so
+    // if the user has written something like ?id=<id> then the resulting code
+    // must be a template string like `/api?id=${variables.id}`
+    const code = 
+    `return {${
+      Object.keys(object).map(k => {
+        if (k === "data") {
+          let fixedUrl = object[k];
+          (object[k].match(/<[^\&\=\/>]+>/g) || []).forEach(v => {
+            const strippedVar = v.replace("<", "").replace(">", "");
+            fixedUrl = fixedUrl.replace(v, `\$\{variables.${strippedVar}\}`);
+          });
+          return `\n  "${k}": "${fixedUrl}"`;
+        }
+        else {
+          return `\n  "${k}": "${object[k]}"`;  
+        }
+      })
+    }\n}`;
     if (this.props.onSimpleChange) this.props.onSimpleChange(code, object);
   }
 
