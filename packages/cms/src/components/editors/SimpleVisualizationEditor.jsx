@@ -87,7 +87,7 @@ export default class SimpleVisualizationEditor extends Component {
             const strippedVar = v.replace("<", "").replace(">", "");
             fixedUrl = fixedUrl.replace(v, `\$\{variables.${strippedVar}\}`);
           });
-          return `\n  "${k}": "${fixedUrl}"`;
+          return `\n  "${k}": \`${fixedUrl}\``;
         }
         else {
           return `\n  "${k}": "${object[k]}"`;  
