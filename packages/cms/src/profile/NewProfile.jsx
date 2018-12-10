@@ -78,11 +78,11 @@ class NewProfile extends Component {
 
     return (
       <div className="pt-dialog-body">
-        <div className="field-container field-container-inline">
+        <div className="cms-field-container cms-field-container-inline">
           <label htmlFor="slug">Slug: </label>
           <input id="slug" className="pt-input" type="text" value={profileData.slug} onChange={this.changeField.bind(this, "slug")}/>
         </div>
-        <div className="field-container">
+        <div className="cms-field-container">
           Dimension:
           <div className="pt-select">
             <select className="field-input" value={profileData.dimension} onChange={this.chooseDimension.bind(this)}>

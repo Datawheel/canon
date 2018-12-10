@@ -13,7 +13,7 @@
 
   /* these aren't links */
   & select, & button {
-    cursor: auto;
+    cursor: default;
   }
 
   /* keep select menus from breaking outside of container */
@@ -29,21 +29,44 @@
     margin-bottom: 1rem;
   }
 
-  & .field-container-inline {
-    display: flex;
-    align-items: center;
+  /* 100% width elements by default */
+  & .cms-field-container {
 
     /* reset label margin */
     & label {
       margin: 0 0.5em 0 0;
     }
-    & input {
-      flex: 1 0 auto;
+
+    & > * {
+      display: block;
+      width: 100%; /* shouldn't be necessary, but it is */
     }
   }
 
-  /* space out adjacent fields */
-  & .field-container + .field-container {
+  /* expects a label and an input */
+  & .cms-field-container-inline {
+    display: flex;
+    align-items: center;
+
+    /* override .cms-field-container defaults above */
+    & > * {
+      width: auto;
+    }
+
+    /* take up all the remaining space */
+    & input {
+      flex: 1 0 auto;
+
+      & + button {
+        margin-left: 0.5em;
+      }
+    }
+  }
+
+  /* space out adjacent fields & field groups */
+  & .cms-field-container + .cms-field-container,
+  & .cms-field-group + .cms-field-container,
+  & .cms-field-group + .cms-field-group {
     margin-top: 1rem;
   }
 
@@ -58,6 +81,7 @@
     left: 0;
     right: 0;
     bottom: 0;
+    z-index: 20; /* move to front */
     display: none;
 
     &.pt-overlay-open {
