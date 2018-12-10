@@ -9,8 +9,8 @@
 
   /* reset loading style */
   & .loading {
+    background-color: none;
     color: var(--forward-3);
-    background-color: var(--background);
   }
 
 

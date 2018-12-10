@@ -9,7 +9,7 @@
 
   /* reset loading style */
   & .loading {
-    background-color: var(--forward-3);
+    background-color: none;
     color: var(--background);
   }
 
