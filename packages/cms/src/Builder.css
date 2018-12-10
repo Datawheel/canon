@@ -196,6 +196,15 @@
   background-color: transparent;
   border: none;
 }
+.cms-dialog-footer-button {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+
+  &:not(:last-of-type) {
+    margin-right: 1.5em;
+  }
+}
 
 /* alerts */
 .cms-alert {

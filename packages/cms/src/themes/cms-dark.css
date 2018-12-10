@@ -31,11 +31,11 @@
     }
   }
   & .cms-button-naked {
-    color: var(--accent-dark);
+    color: var(--accent-light);
 
     /* interactions */
     &:hover, &:focus {
-      color: var(--accent-black);
+      color: var(--accent);
     }
   }
 
@@ -143,6 +143,20 @@
 
     &:hover, &:focus {
       color: var(--foreground);
+    }
+  }
+  & .cms-dialog-footer-button {
+    color: var(--forward-3);
+
+    & .cms-dialog-footer-button-icon {
+      color: var(--middle);
+    }
+
+    /* interactions */
+    &:hover, &:focus {
+      & .cms-dialog-footer-button-icon {
+        color: var(--forward-3);
+      }
     }
   }
 

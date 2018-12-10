@@ -102,10 +102,10 @@ class SelectorCard extends Component {
 
         <Dialog
           className="generator-editor-dialog"
-          iconName="code"
           isOpen={isOpen}
           onClose={() => this.setState({isOpen: false})}
           title="Selector Editor"
+          icon="false"
           inline="true"
         >
           <div className="pt-dialog-body">

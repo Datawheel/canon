@@ -149,6 +149,20 @@
       color: var(--accent-black);
     }
   }
+  & .cms-dialog-footer-button {
+    color: var(--backward-3);
+
+    & .cms-dialog-footer-button-icon {
+      color: var(--backward-1);
+    }
+
+    /* interactions */
+    &:hover, &:focus {
+      & .cms-dialog-footer-button-icon {
+        color: var(--backward-3);
+      }
+    }
+  }
 
 
   /* --------------------------------------- */
