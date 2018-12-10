@@ -78,7 +78,7 @@ class NewProfile extends Component {
 
     return (
       <div className="pt-dialog-body">
-        <div className="field-container">
+        <div className="field-container field-container-inline">
           <label htmlFor="slug">Slug: </label>
           <input id="slug" className="pt-input" type="text" value={profileData.slug} onChange={this.changeField.bind(this, "slug")}/>
         </div>
