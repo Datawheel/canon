@@ -246,6 +246,10 @@ export default function createChartConfig(chart, uiparams) {
   config.data = chart.dataset;
   config.height = isSingle ? uiheight - (isUnique ? 0 : 50) : 400;
 
+  if (chart.aggType === "SUM" || chart.aggType === "UNKNOWN") {
+    config.total = measureName;
+  }
+
   if (config.time) {
     config.timeFilter = d => d[timeLevelName] == selectedTime; // eslint-disable-line
     config.timeline = isEnlarged;
@@ -254,8 +258,8 @@ export default function createChartConfig(chart, uiparams) {
     };
   }
 
-  if (chart.aggType === "SUM" || chart.aggType === "UNKNOWN") {
-    config.total = measureName;
+  if (config.x === timeLevelName) {
+    delete config.total;
   }
 
   config.zoom = chartType === "geomap" && isSingle;
