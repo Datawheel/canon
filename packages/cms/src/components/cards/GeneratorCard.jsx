@@ -153,11 +153,11 @@ class GeneratorCard extends Component {
         {/* open state */}
         <Dialog
           className="generator-editor-dialog"
-          iconName="code"
           isOpen={isOpen}
           onClose={() => this.setState({isOpen: false})}
           title="Variable Editor"
           inline="true"
+          icon="false"
         >
 
           <div className="pt-dialog-body">

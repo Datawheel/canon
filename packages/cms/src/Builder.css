@@ -151,6 +151,12 @@
   & .loading {
     z-index: auto;
   }
+
+  /* use blueprint theming for quill editor for now */
+  & .quill {
+    background-color: #f5f8fa;
+    color: #182026;
+  }
 }
 
 /* buttons */
