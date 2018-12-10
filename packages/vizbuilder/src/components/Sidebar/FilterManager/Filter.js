@@ -8,8 +8,8 @@ class Filter {
     this.uuid = uuid();
     this.measure = measure;
     this.operator = operator || OPERATORS.EQUAL;
-    this.value = value || 0;
-    this.visibleValue = this.value * this.getMultiplier();
+    this.value = value;
+    this.visibleValue = this.value * this.getMultiplier() || "";
   }
 
   get key() {
@@ -84,7 +84,7 @@ class Filter {
   }
 
   setValue(valueAsNumber, valueAsString) {
-    const newValue = valueAsString || 0;
+    const newValue = valueAsString;
     if (this.value !== newValue) {
       const clone = this.getClone();
       clone.value = newValue / this.getMultiplier() || newValue;
