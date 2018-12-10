@@ -1,10 +1,8 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Button} from "@blueprintjs/core";
 import Loading from "components/Loading";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
-import MoveButtons from "../components/MoveButtons";
 
 const propMap = {
   storytopic_stat: "stats",
@@ -112,7 +110,7 @@ class StoryTopicEditor extends Component {
         </h2>
         <div className="cms-card-list">
           <TextCard
-            id={minData.id}
+            item={minData}
             fields={["title"]}
             plainfields={["image", "slug"]}
             type="story"
@@ -132,19 +130,14 @@ class StoryTopicEditor extends Component {
           { minData.subtitles && minData.subtitles.map(s =>
             <TextCard
               key={s.id}
-              id={s.id}
+              item={s}
               fields={["subtitle"]}
               type="storytopic_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
-            >
-              <MoveButtons
-                item={s}
-                array={minData.subtitles}
-                type="storytopic_subtitle"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.subtitles}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -159,19 +152,14 @@ class StoryTopicEditor extends Component {
           { minData.stats && minData.stats.map(s =>
             <TextCard
               key={s.id}
-              id={s.id}
+              item={s}
               fields={["title", "subtitle", "value", "tooltip"]}
               type="storytopic_stat"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
-            >
-              <MoveButtons
-                item={s}
-                array={minData.stats}
-                type="storytopic_stat"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.stats}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -186,19 +174,14 @@ class StoryTopicEditor extends Component {
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard
               key={d.id}
-              id={d.id}
+              item={d}
               fields={["description"]}
               type="storytopic_description"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
-            >
-              <MoveButtons
-                item={d}
-                array={minData.descriptions}
-                type="storytopic_description"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.descriptions}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>{/* visualizations */}
         <h2 className="cms-section-heading">
@@ -211,18 +194,13 @@ class StoryTopicEditor extends Component {
           { minData.visualizations && minData.visualizations.map(v =>
             <VisualizationCard
               key={v.id}
-              id={v.id}
+              item={v}
               onDelete={this.onDelete.bind(this)}
               type="storytopic_visualization"
               variables={{}}
-            >
-              <MoveButtons
-                item={v}
-                array={minData.visualizations}
-                type="storytopic_visualization"
-                onMove={this.onMove.bind(this)}
-              />
-            </VisualizationCard>
+              parentArray={minData.visualizations}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
       </div>
