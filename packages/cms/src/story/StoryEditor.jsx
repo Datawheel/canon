@@ -1,8 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Button} from "@blueprintjs/core";
 import TextCard from "../components/cards/TextCard";
-import MoveButtons from "../components/MoveButtons";
 import Loading from "components/Loading";
 
 const propMap = {
@@ -89,7 +87,7 @@ class StoryEditor extends Component {
         </h2>
         <div className="cms-card-list">
           <TextCard
-            id={minData.id}
+            item={minData}
             fields={["title"]}
             plainfields={["image", "slug"]}
             type="story"
@@ -108,19 +106,14 @@ class StoryEditor extends Component {
         <div className="cms-card-list">
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard key={d.id}
-              id={d.id}
+              item={d}
               onDelete={this.onDelete.bind(this)}
               fields={["description"]}
               type="story_description"
               variables={{}}
-            >
-              <MoveButtons
-                item={d}
-                array={minData.descriptions}
-                type="story_description"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.descriptions}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -134,20 +127,15 @@ class StoryEditor extends Component {
         <div className="cms-card-list">
           { minData.footnotes && minData.footnotes.map(d =>
             <TextCard key={d.id}
-              id={d.id}
+              item={d}
               ordering={d.ordering}
               onDelete={this.onDelete.bind(this)}
               fields={["description"]}
               type="story_footnote"
               variables={{}}
-            >
-              <MoveButtons
-                item={d}
-                array={minData.footnotes}
-                type="story_footnote"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.footnotes}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
 
@@ -161,20 +149,15 @@ class StoryEditor extends Component {
         <div className="cms-card-list">
           { minData.authors && minData.authors.map(d =>
             <TextCard key={d.id}
-              id={d.id}
+              item={d}
               onDelete={this.onDelete.bind(this)}
               fields={["bio"]}
               plainfields={["name", "title", "image", "twitter"]}
               type="author"
               variables={{}}
-            >
-              <MoveButtons
-                item={d}
-                array={minData.authors}
-                type="author"
-                onMove={this.onMove.bind(this)}
-              />
-            </TextCard>
+              parentArray={minData.authors}
+              onMove={this.onMove.bind(this)}
+            />
           )}
         </div>
       </div>
