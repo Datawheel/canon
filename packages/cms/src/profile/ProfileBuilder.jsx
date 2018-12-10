@@ -594,13 +594,12 @@ class ProfileBuilder extends Component {
             onNodeExpand={this.handleNodeExpand.bind(this)}
             contents={nodes}
           />
-        
+
         </div>
         <Dialog
           className="profileModal"
           isOpen={profileModalOpen}
           inline={true}
-          icon="new-object"
           onClose={() => this.setState({profileModalOpen: false})}
           title="Add New Profile"
         >
@@ -618,7 +617,7 @@ class ProfileBuilder extends Component {
           {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
         </Alert>
         <div className="cms-editor" id="item-editor">
-          { currentNode 
+          { currentNode
             ? <Editor
               id={currentNode.data.id}
               masterSlug={currentNode.masterSlug}

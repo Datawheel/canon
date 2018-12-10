@@ -77,23 +77,23 @@ class VisualizationCard extends Component {
             Edit <span className="pt-icon pt-icon-cog" />
           </button>
         </h5>
-        
+
         {/* reorder buttons */}
-        { parentArray && 
+        { parentArray &&
           <MoveButtons
             item={item}
             array={parentArray}
             type={type}
             onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
           />
-        } 
+        }
 
         <Dialog
           className="generator-editor-dialog"
-          iconName="code"
           isOpen={isOpen}
           onClose={() => this.setState({isOpen: false})}
           title="Variable Editor"
+          inline="true"
         >
           <div className="pt-dialog-body">
             <GeneratorEditor data={minData} variables={variables} type={type} />

@@ -91,14 +91,14 @@ class SelectorCard extends Component {
         </ul>
 
         {/* reorder buttons */}
-        { parentArray && 
+        { parentArray &&
           <MoveButtons
             item={minData}
             array={parentArray}
             type={type}
             onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
           />
-        } 
+        }
 
         <Dialog
           className="generator-editor-dialog"
@@ -106,6 +106,7 @@ class SelectorCard extends Component {
           isOpen={isOpen}
           onClose={() => this.setState({isOpen: false})}
           title="Selector Editor"
+          inline="true"
         >
           <div className="pt-dialog-body">
             <SelectorEditor variables={variables} data={minData} />

@@ -82,6 +82,9 @@
     right: 0;
     bottom: 0;
     z-index: 20; /* move to front */
+    /* override container alignment */
+    text-align: left;
+    /* hide by default */
     display: none;
 
     &.pt-overlay-open {
@@ -150,6 +153,9 @@
     background-image: none;
     &:hover {
       box-shadow: none;
+    }
+    &:active {
+      border: none; /* fixes resizing bug when buttons are pressed */
     }
   }
 

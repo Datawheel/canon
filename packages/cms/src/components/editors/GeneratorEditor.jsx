@@ -231,7 +231,7 @@ class GeneratorEditor extends Component {
         { type === "generator"
           ? <div className="cms-field-container">
             <label className="label" htmlFor="api">API</label>
-            <div className="cms-field-container-inline">
+            <div className="cms-field-container-inline pt-input-group">
               <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
               <button className="cms-button" onClick={this.maybePreviewPayload.bind(this)}>
                 {payload && !payload.error ? "Refetch Data" : "Fetch Data"}
