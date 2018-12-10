@@ -256,7 +256,9 @@ export default function createChartConfig(chart, uiparams) {
     };
   }
 
-  if (config.x === timeLevelName) {
+  const isTimeline = config.x === timeLevelName;
+
+  if (isTimeline) {
     delete config.total;
   }
 
@@ -266,7 +268,7 @@ export default function createChartConfig(chart, uiparams) {
     composeChartTitle(chart, {
       activeChart,
       selectedTime,
-      isTimeline: config.timeline || OWN_TIMELINE.indexOf(chartType) > -1
+      isTimeline: isTimeline || config.timeline
     }) +
     "\n" +
     measureAnn._cb_tagline;

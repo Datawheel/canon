@@ -24,7 +24,6 @@ export const chartComponents = {
 };
 
 export const ALL_YEARS = "All years";
-export const OWN_TIMELINE = ["barchartyear", "lineplot", "stacked"];
 
 export function datagroupToCharts(datagroup, generalConfig) {
   const {measureName, levelName} = datagroup.names;
