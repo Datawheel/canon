@@ -173,8 +173,6 @@ const makeConfig = {
     delete config.time;
     delete config.total;
 
-    // config.title = composeChartTitle(flags, {timeline: true});
-
     return config;
   },
   pie(chart) {

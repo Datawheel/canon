@@ -79,7 +79,6 @@ export function buildBaseConfig(datagroup, params) {
     value: getMeasureValue
   };
 
-  // config.title = composeChartTitle(flags);
   config.tooltipConfig = tooltipGenerator(datagroup);
 
   if (timeLevelName && datagroup.members[timeLevelName].length > 1) {

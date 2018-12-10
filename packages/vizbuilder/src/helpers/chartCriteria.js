@@ -8,6 +8,10 @@
 import {getTopTenByYear} from "./sorting";
 import {isGeoDimension} from "./validation";
 
+export const QUIRKS = {
+  TOPTEN: "topten"
+};
+
 export default function chartCriteria(query, results, params) {
   /** @type {Datagroup[]} */
   const datagroups = [];
@@ -134,7 +138,8 @@ export default function chartCriteria(query, results, params) {
         ...datagroup,
         charts: ["lineplot"],
         dataset: newDataset,
-        members: newMembers
+        members: newMembers,
+        quirk: QUIRKS.TOPTEN
       });
     }
 
@@ -154,5 +159,6 @@ export default function chartCriteria(query, results, params) {
  * @prop {Object<string, number[]|string[]>} members
  * @prop {Object<string, string>} names
  * @prop {any} query
+ * @prop {string} [quirk]
  * @prop {any} topojson
  */

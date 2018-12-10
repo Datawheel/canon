@@ -1,5 +1,7 @@
 import {formatAbbreviate} from "d3plus-format";
 
+import {QUIRKS} from "./chartCriteria";
+
 export const DEFAULT_MEASURE_FORMATTERS = {
   default: formatAbbreviate,
   Growth: d => `${formatAbbreviate(d * 100 || 0)}%`,
@@ -82,8 +84,13 @@ export function joinStringsWithCommaAnd(list) {
 export function composeChartTitle(chart, uiparams) {
   const {measureName, timeLevelName} = chart.names;
   const levels = chart.setup.map(lvl => lvl.name);
+  let title = "";
 
-  let title = `${measureName} by ${joinStringsWithCommaAnd(levels)}`;
+  if (chart.quirk === QUIRKS.TOPTEN) {
+    title += "Top Ten of ";
+  }
+
+  title += `${measureName} by ${joinStringsWithCommaAnd(levels)}`;
 
   if (timeLevelName) {
     const {activeChart, isTimeline, selectedTime} = uiparams;
