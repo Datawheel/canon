@@ -86,7 +86,7 @@ export function loadControl(preQuery, postQuery) {
       .then(results => {
         const generalConfig = this.getGeneralConfig();
 
-        const datagroups = chartCriteria(vbQuery, results, generalConfig);
+        const datagroups = chartCriteria(results, generalConfig);
         const charts = [];
 
         let selectedTime = Infinity;

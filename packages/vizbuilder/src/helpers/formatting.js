@@ -70,27 +70,45 @@ export function findFirstNumber(string, elseValue) {
  * Joins a list of strings to form an enumeration phrase of type "a, b, c, and d".
  * @param {string[]} list List of strings to join
  */
-export function joinStringsWithCommaAnd(list) {
+export function joinStringsWithCommaAnd(list, oxford) {
   const copy = list.slice();
   const last = copy.pop();
   return copy.length > 1
     ? `${copy.join(", ")}, and ${last}`
-    : list.join(" and ");
+    : list.join(`${oxford ? "," : ""} and `);
 }
 
 /**
  * Returns a common title string from a list of parameters.
  */
 export function composeChartTitle(chart, uiparams) {
+  const {query, setup} = chart;
   const {measureName, timeLevelName} = chart.names;
-  const levels = chart.setup.map(lvl => lvl.name);
-  let title = "";
+  const levels = setup.map(lvl => lvl.name);
+  const cuts = (query.cuts || []).map(cut => {
+    const levelFullName = cut.key;
+    const level = setup.find(lvl => lvl.fullName === levelFullName);
+    levels.splice(levels.indexOf(level.name), 1);
+    const values = cut.values.map(m => m.name);
+    return values.length > 1
+      ? `for the ${values.length} selected ${level.name}`
+      : `for ${values[0]}`;
+  });
 
-  if (chart.quirk === QUIRKS.TOPTEN) {
-    title += "Top Ten of ";
+  let title = measureName;
+
+  if (levels.length > 0) {
+    if (chart.quirk === QUIRKS.TOPTEN) {
+      title += ` for top 10 ${joinStringsWithCommaAnd(levels)}`;
+    }
+    else {
+      title += ` by ${joinStringsWithCommaAnd(levels)}`;
+    }
   }
 
-  title += `${measureName} by ${joinStringsWithCommaAnd(levels)}`;
+  if (cuts.length > 0) {
+    title += `, ${joinStringsWithCommaAnd(cuts, true)}`;
+  }
 
   if (timeLevelName) {
     const {activeChart, isTimeline, selectedTime} = uiparams;

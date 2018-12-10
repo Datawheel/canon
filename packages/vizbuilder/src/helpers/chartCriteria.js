@@ -5,6 +5,7 @@
  * dataset retrieved from the server.
  */
 
+import {isGeoPlusUniqueCutQuery} from "./chartHelpers";
 import {getTopTenByYear} from "./sorting";
 import {isGeoDimension} from "./validation";
 
@@ -12,7 +13,7 @@ export const QUIRKS = {
   TOPTEN: "topten"
 };
 
-export default function chartCriteria(query, results, params) {
+export default function chartCriteria(results, params) {
   /** @type {Datagroup[]} */
   const datagroups = [];
 
@@ -69,7 +70,7 @@ export default function chartCriteria(query, results, params) {
       !hasGeoLvl ||
       !topojsonConfig ||
       levelMembers.length < 3 ||
-      xlevelName
+      !isGeoPlusUniqueCutQuery(query)
     ) {
       availableCharts.delete("geomap");
     }
