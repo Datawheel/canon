@@ -100,7 +100,9 @@ class Vizbuilder extends React.PureComponent {
   render() {
     const {location} = this.context.router;
     const {permalink, toolbar} = this.props;
-    const {charts, load, options, query} = this.state;
+    const {charts, datagroups, load, options, query} = this.state;
+
+    const chartForRanking = datagroups.filter(ch => !ch.quirk).pop();
 
     return (
       <div
@@ -113,7 +115,7 @@ class Vizbuilder extends React.PureComponent {
         <Sidebar options={options} query={query}>
           {this.props.children}
           <Ranking
-            chart={charts[0]}
+            chart={chartForRanking}
             selectedTime={query.selectedTime}
           />
         </Sidebar>
