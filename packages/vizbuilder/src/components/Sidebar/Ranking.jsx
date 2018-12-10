@@ -4,14 +4,14 @@ import PropTypes from "prop-types";
 class Ranking extends React.PureComponent {
   render() {
     const {chart, selectedTime} = this.props;
-    const {dataset, formatter, names} = chart || {};
+    const {dataset, formatter, names, query} = chart || {};
 
     if (!dataset || !dataset.length) return null;
 
     const {measureName, timeLevelName} = names;
 
-    const setupNames = chart.setup.map(lvl => lvl.name);
-    const getLevelNames = a => setupNames.map(name => a[name]).join(" - ");
+    const levelNames = query.levels.map(lvl => lvl.name);
+    const getLevelNames = a => levelNames.map(name => a[name]).join(" - ");
 
     const renderListItem = datapoint => (
       <li className="ranking-item">
