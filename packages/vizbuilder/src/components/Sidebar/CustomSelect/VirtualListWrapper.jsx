@@ -100,7 +100,7 @@ class VirtualListWrapper extends React.Component {
 
 VirtualListWrapper.defaultProps = {
   findIndex: (haystack, needle) => haystack.indexOf(needle),
-  getItemHeight: () => 22,
+  getItemHeight: () => 26,
   itemRenderer: undefined,
   items: [],
   itemMinSize: 10,
