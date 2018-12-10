@@ -37,6 +37,7 @@ FilterMeasureSelect.defaultProps = {
     const name = composePropertyName(item);
     return (
       <div
+        key={item.annotations._key}
         className={classnames("select-option", "option-filtermeasure", {
           active: isActive,
           disabled: item.disabled
