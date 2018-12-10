@@ -28,6 +28,10 @@ class Ranking extends React.PureComponent {
       d => d[timeLevelName] == selectedTime
     );
 
+    if (selectedTimeDataset.length === 1) {
+      return null;
+    }
+
     if (selectedTimeDataset.length < 20) {
       return (
         <div className="control ranking">
