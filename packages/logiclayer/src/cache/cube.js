@@ -45,7 +45,8 @@ module.exports = async function() {
                     dimension: parts[0],
                     hierarchy: parts[1],
                     level: parts[2],
-                    properties: l.properties
+                    properties: l.properties,
+                    annotations: d.annotations
                   };
                 });
               return levels;
@@ -68,30 +69,36 @@ module.exports = async function() {
   let count = 0, total;
 
   const cubeQueries = cubes
-    .filter(cube => cube.dimensions.find(d => d.name.includes("Year")))
+    .filter(cube => {
+      const dims = findYears(cube.dimensions);
+      if (!dims) return false;
+      cube.yearDims = dims;
+      return cube;
+    })
     .map(cube => {
 
-      const {preferred: dim} = findYears(cube.dimensions);
+      const {preferred} = cube.yearDims;
+      const levels = preferred.hierarchies[0].levels;
 
-      const levels = dim.hierarchies[0].levels;
-      const query = client.members(levels[levels.length - 1])
+      const query = client.members(levels.find(d => d.name.includes("Year")))
         .then(members => {
           count++;
           readline.clearLine(process.stdout, 0);
           readline.cursorTo(process.stdout, 0);
-          process.stdout.write(`logiclayer: cube (${count} of ${total} year queries complete)`);
           const years = members
             .map(d => (d.name = parseInt(d.name, 10), d))
             .filter(d => !isNaN(d.name))
             .sort((a, b) => a.name - b.name);
           const current = years.filter(d => d.name <= currentYear);
-          return {
+          const obj = {
             cube: cube.name,
             latest: current[current.length - 1].key,
             oldest: current[0].key,
             previous: current.length > 1 ? current[current.length - 2].key : current[current.length - 1].key,
             years: years.map(d => d.key)
           };
+          process.stdout.write(`logiclayer: cube (${count} of ${total} year queries complete)`);
+          return obj;
         })
         .catch(err => {
           console.error(chalk`{bold.red Error} {bold [logiclayer - year cache]} ${cube.name} {italic.green (${err.status ? `${err.status} - ` : ""}${err.message})}`);
