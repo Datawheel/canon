@@ -162,6 +162,9 @@ module.exports = function(app) {
           }
         }
       }
+      else if (obj.drilldown) {
+        drilldowns.push(obj.drilldown);
+      }
       return [];
 
     }
