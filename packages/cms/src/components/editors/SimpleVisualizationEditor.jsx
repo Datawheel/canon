@@ -59,7 +59,7 @@ export default class SimpleVisualizationEditor extends Component {
     const {data} = object;
     if (data) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
-      // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>) 
+      // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value.
       const url = urlSwap(data, Object.assign({}, variables, {id: preview}));
       axios.get(url).then(resp => {
@@ -78,7 +78,7 @@ export default class SimpleVisualizationEditor extends Component {
     // has written. Remember that the "logic" is javascript that will be executed, so
     // if the user has written something like ?id=<id> then the resulting code
     // must be a template string like `/api?id=${variables.id}`
-    const code = 
+    const code =
     `return {${
       Object.keys(object).map(k => {
         if (k === "data") {
@@ -90,7 +90,7 @@ export default class SimpleVisualizationEditor extends Component {
           return `\n  "${k}": \`${fixedUrl}\``;
         }
         else {
-          return `\n  "${k}": "${object[k]}"`;  
+          return `\n  "${k}": "${object[k]}"`;
         }
       })
     }\n}`;
@@ -160,28 +160,26 @@ export default class SimpleVisualizationEditor extends Component {
       </Alert>
 
       {/* data URL */}
-      <div className="cms-field-group">
-        <div className="cms-field-container">
-          <label className="label" htmlFor="data">Data</label>
-          <div className="cms-field-container-inline pt-input-group">
-            <input className="pt-input" value={object.data} onChange={this.onChange.bind(this, "data")} id="data"/>
-            {object.data &&
-              <button className="cms-button pt-button" onClick={this.maybeRebuild.bind(this)}>
-                {payload.data ? "Rebuild" : "Build"}
-              </button>
-            }
-          </div>
+      <div className="cms-field-container">
+        <label className="label" htmlFor="data">Data</label>
+        <div className="cms-field-container-inline pt-input-group">
+          <input className="pt-input" value={object.data} onChange={this.onChange.bind(this, "data")} id="data"/>
+          {object.data &&
+            <button className="cms-button pt-button" onClick={this.maybeRebuild.bind(this)}>
+              {payload.data ? "Rebuild" : "Build"}
+            </button>
+          }
         </div>
+      </div>
 
-        <div className="cms-field-container">
-          Type
-          <div className="pt-select">
-            <select value={object.type} onChange={this.onChange.bind(this, "type")}>
-              {Object.keys(vizLookup).map(type =>
-                <option key={type} value={type}>{type}</option>
-              )}
-            </select>
-          </div>
+      <div className="cms-field-container">
+        Type
+        <div className="pt-select">
+          <select value={object.type} onChange={this.onChange.bind(this, "type")}>
+            {Object.keys(vizLookup).map(type =>
+              <option key={type} value={type}>{type}</option>
+            )}
+          </select>
         </div>
       </div>
 
