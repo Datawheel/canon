@@ -269,14 +269,15 @@ class GeneratorEditor extends Component {
         </div>
         {/* callback instructions */}
         {!simple &&
-          <p className="cms-paragraph">
+          <div className="cms-paragraph">
             Callback
             {preMessage[type]}
             {postMessage[type]}
-          </p>
+          </div>
         }
 
-        <div className={`cms-variable-editor-group${type.includes("_visualization") ? " single-column" : ""}`}>
+        {/*<div className={`cms-variable-editor-group${type.includes("_visualization") ? " single-column" : ""}`}>*/}
+        <div className={`cms-variable-editor-group${!payload ? " single-column" : ""}`}>
           {/* json */}
           {payload &&
             <pre className="cms-variable-editor-json">

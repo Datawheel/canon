@@ -440,7 +440,7 @@
 
 /* TODO: redo all/most of this */
 .cms-paragraph {
-  & p {
+  & div {
     margin-bottom: 0.25em;
   }
 }
