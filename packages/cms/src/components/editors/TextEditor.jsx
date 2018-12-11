@@ -66,7 +66,7 @@ class TextEditor extends Component {
     if (!data || !fields || !variables || !formatters) return null;
 
     const quills = fields.map(f =>
-      <div key={f}>
+      <div className="cms-field-container" key={f}>
         <label htmlFor={f}>{f}</label>
         <QuillWrapper id={f} value={this.state.data[f] || ""} onChange={this.handleEditor.bind(this, f)} />
       </div>
@@ -87,12 +87,15 @@ class TextEditor extends Component {
 
     return (
       <div id="text-editor">
-        { showVars && <div className="pt-select">
-          Allowed?
-          <select value={data.allowed || "always"} onChange={this.chooseVariable.bind(this)}>
-            {varOptions}
-          </select>
-        </div>
+        { showVars &&
+          <label className="cms-field-container">
+            Allowed?
+            <div className="pt-select">
+              <select value={data.allowed || "always"} onChange={this.chooseVariable.bind(this)}>
+                {varOptions}
+              </select>
+            </div>
+          </label>
         }
         {/*
         <div className="pt-select">

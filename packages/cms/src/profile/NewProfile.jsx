@@ -78,11 +78,11 @@ class NewProfile extends Component {
 
     return (
       <div className="pt-dialog-body">
-        <div className="field-container">
+        <div className="cms-field-container cms-field-container-inline">
           <label htmlFor="slug">Slug: </label>
           <input id="slug" className="pt-input" type="text" value={profileData.slug} onChange={this.changeField.bind(this, "slug")}/>
         </div>
-        <div className="field-container">
+        <div className="cms-field-container">
           Dimension:
           <div className="pt-select">
             <select className="field-input" value={profileData.dimension} onChange={this.chooseDimension.bind(this)}>
@@ -91,42 +91,49 @@ class NewProfile extends Component {
             </select>
           </div>
         </div>
-        { profileData.dimension && <div>
-          Levels:
-          <MultiSelect
-            // initialContent={}
-            items={levelList}
-            itemPredicate={(q, o) => `${o.toLowerCase()}`.indexOf(q.toLowerCase()) >= 0}
-            itemRenderer={i => <MenuItem
-              // iconName={this.isFilmSelected(film) ? "tick" : "blank"}
-              key={i.item}
-              // label={i.item}
-              onClick={i.handleClick}
-              text={i.item}
-              shouldDismissPopover={false}
-            />}
-            noResults={<MenuItem disabled={true} text="No results." />}
-            onItemSelect={o => profileData.levels.includes(o) ? this.removeLevel.bind(this)(o) : this.addLevel.bind(this)(o)}
-            tagRenderer={o => o}
-            tagInputProps={{onRemove: o => this.removeLevel.bind(this)(o)}}
-            selectedItems={profileData.levels}
-          />
-        </div>
-        }
-        { profileData.dimension && profileData.levels.length > 0 && <div>
-          Measure:
-          <div className="pt-select">
-            <select className="field-input" value={profileData.measure} onChange={this.changeField.bind(this, "measure")}>
-              <option value="default">Choose One</option>
-              {measureOptions}
-            </select>
+        { profileData.dimension &&
+          <div className="cms-field-container">
+            Levels:
+            <MultiSelect
+              items={levelList}
+              itemPredicate={(q, o) => `${o.toLowerCase()}`.indexOf(q.toLowerCase()) >= 0}
+              itemRenderer={i =>
+                <MenuItem
+                  key={i.item}
+                  onClick={i.handleClick}
+                  text={i.item}
+                  shouldDismissPopover={false}
+                />
+              }
+              noResults={<MenuItem disabled={true} text="No results." />}
+              onItemSelect={o => profileData.levels.includes(o) ? this.removeLevel.bind(this)(o) : this.addLevel.bind(this)(o)}
+              tagRenderer={o => o}
+              tagInputProps={{onRemove: o => this.removeLevel.bind(this)(o)}}
+              selectedItems={profileData.levels}
+              popoverProps={{
+                popoverClassName: "pt-minimal",
+                useSmartArrowPositioning: false
+              }}
+            />
           </div>
-        </div>
         }
-        { profileData.dimension && profileData.levels.length > 0 && profileData.measure && <div>
-          <button onClick={this.createProfile.bind(this)}>Create Profile</button>
-        </div>
+        { profileData.dimension && profileData.levels.length > 0 &&
+          <div className="cms-field-container">
+            Measure:
+            <div className="pt-select">
+              <select className="field-input" value={profileData.measure} onChange={this.changeField.bind(this, "measure")}>
+                <option value="default">Choose One</option>
+                {measureOptions}
+              </select>
+            </div>
+          </div>
         }
+        <div className="cms-field-container">
+          { profileData.dimension && profileData.levels.length > 0 && profileData.measure
+            ? <button className="cms-button" onClick={this.createProfile.bind(this)}>Create profile</button>
+            : <div className="cms-button is-disabled" disabled>Create profile</div>
+          }
+        </div>
 
       </div>
 

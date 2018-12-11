@@ -38,7 +38,7 @@ export default class SimpleGeneratorEditor extends Component {
     let objects = [];
     const pl = payload.data ? payload.data : payload;
     if (simpleConfig) {
-      objects = simpleConfig.map((objArr, i) => 
+      objects = simpleConfig.map((objArr, i) =>
         objArr.map(o => ({
           use: o.use,
           keyName: o.keyName,
@@ -51,7 +51,7 @@ export default class SimpleGeneratorEditor extends Component {
     // If a simple config has not been provided, then the user has never used one before,
     // so prepare the interface based on the payload itself
     else {
-      objects = pl.map((obj, i) => 
+      objects = pl.map((obj, i) =>
         Object.keys(obj).map(k => ({
           use: true,
           keyName: `${this.camelize(k)}${i + 1}`,
@@ -70,7 +70,7 @@ export default class SimpleGeneratorEditor extends Component {
     const {objects} = this.state;
     const {payload} = this.props;
     const prepend = payload.data ? "resp.data" : "resp";
-    const code = 
+    const code =
     `return {${objects
       // For every object that was returned in the payload (represented as an array of keys), and the index of that object
       .map((o, i) => o
@@ -80,7 +80,7 @@ export default class SimpleGeneratorEditor extends Component {
         .map(row => `\n  ${row.keyName}: ${prepend}[${i}]["${row.pKey}"]`))
       // If the "use filter" resulted in a completely empty array, filter it out so no "dead commas" end up in the javascript
       .filter(d => d.length)}\n};`;
-    // Do not save the value of the variable to the database - these are computed 
+    // Do not save the value of the variable to the database - these are computed
     // at "run-time" from the results of the API call. Only save user data.
     const dbRows = objects.map(o => o.map(r => ({
       use: r.use,
@@ -101,13 +101,13 @@ export default class SimpleGeneratorEditor extends Component {
     const {objects} = this.state;
     const row = objects[i].find(r => r.pKey === pKey);
     if (row) row.use = e.target.checked;
-    this.setState({objects}, this.compileCode.bind(this));  
+    this.setState({objects}, this.compileCode.bind(this));
   }
 
   changeAll(i, e) {
     const {objects} = this.state;
     objects[i] = objects[i].map(o => Object.assign({}, o, {use: e.target.checked}));
-    this.setState({objects}, this.compileCode.bind(this));  
+    this.setState({objects}, this.compileCode.bind(this));
   }
 
   maybeRebuild() {
@@ -118,7 +118,7 @@ export default class SimpleGeneratorEditor extends Component {
     const {payload} = this.props;
     if (payload.error) return;
     const pl = payload.data ? payload.data : payload;
-    const objects = pl.map((obj, i) => 
+    const objects = pl.map((obj, i) =>
       Object.keys(obj).map(k => ({
         use: true,
         keyName: `${this.camelize(k)}${i + 1}`,
@@ -132,7 +132,7 @@ export default class SimpleGeneratorEditor extends Component {
   render() {
 
     const {objects, rebuildAlertOpen} = this.state;
-    
+
     return <div className="simplemode">
       <Alert
         cancelButtonText="Cancel"
@@ -146,26 +146,40 @@ export default class SimpleGeneratorEditor extends Component {
       >
         Are you sure you want to rebuild your variables from the current payload?
       </Alert>
-      <button onClick={this.maybeRebuild.bind(this)}>Rebuild</button>
-      {
-        objects.map((objArr, i) => 
-          <div key={i} className="obj">
-            {`Object ${i}`}
-            <Checkbox checked={objArr.every(r => r.use)} onChange={this.changeAll.bind(this, i)}/>
-            {objArr.map(row => 
-              <div key={row.pKey} className="field-row">
-                <Checkbox checked={row.use} onChange={this.changeUse.bind(this, i, row.pKey)}/>
-                <EditableText 
-                  defaultValue={row.keyName} 
-                  onChange={this.changeKey.bind(this, i, row.pKey)} />
-                <span>{row.pKey}</span>&nbsp;&nbsp;&nbsp;&nbsp;{/* lol sorry james */}
-                <span>{String(row.pVal)}</span>
-              </div>          
-            )}
-          </div>
-        )
-      }
-    </div>;
+      <div className="cms-label">
+        Generated variables <button className="cms-button cms-button-icon-only" onClick={this.maybeRebuild.bind(this)}>
+          <span className="pt-icon pt-icon-undo" />
+        </button>
+      </div>
 
+      {/* <tr key={i} className="obj">
+          <td>
+            {`Object ${i}`}
+          </td>
+          <td>
+            <Checkbox checked={objArr.every(r => r.use)} onChange={this.changeAll.bind(this, i)}/>
+          </td>
+      </tr>*/}
+      <table className="cms-table">
+        {objects.map((objArr, i) =>
+          <tbody className="cms-table-group" key={objArr.i}>
+            {objArr.map(row =>
+              <tr key={row.pKey} className="cms-field-row">
+                <td>
+                  <Checkbox checked={row.use} onChange={this.changeUse.bind(this, i, row.pKey)}/>
+                </td>
+                <td>
+                  <EditableText
+                    defaultValue={row.keyName}
+                    onChange={this.changeKey.bind(this, i, row.pKey)} />
+                </td>
+                <td>{row.pKey}</td>
+                <td>{String(row.pVal)}</td>
+              </tr>
+            )}
+          </tbody>
+        )}
+      </table>
+    </div>;
   }
 }

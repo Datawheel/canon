@@ -74,8 +74,8 @@ class TopicEditor extends Component {
   save() {
     const {minData} = this.state;
     const payload = {
-      id: minData.id, 
-      slug: minData.slug, 
+      id: minData.id,
+      slug: minData.slug,
       type: minData.type,
       allowed: minData.allowed
     };
@@ -139,6 +139,17 @@ class TopicEditor extends Component {
           {/* loading status */}
           <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
             <Icon iconName={ recompiling ? "more" : "tick"} />
+            { recompiling ? "Updating Variables" : "Variables Loaded" }
+          </div>
+        </div>
+
+        {/* profile preview & variable status */}
+        <div className="cms-profile-picker">
+          {/* search profiles*/}
+          {children}
+          {/* loading status */}
+          <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
+            <span className={`pt-icon pt-icon-${recompiling ? "more" : "tick"}`} />
             { recompiling ? "Updating Variables" : "Variables Loaded" }
           </div>
         </div>

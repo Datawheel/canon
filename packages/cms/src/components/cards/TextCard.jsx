@@ -116,20 +116,20 @@ class TextCard extends Component {
         )}
 
         {/* reorder buttons */}
-        { parentArray && 
+        { parentArray &&
           <MoveButtons
             item={item}
             array={parentArray}
             type={type}
             onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
           />
-        } 
+        }
 
         <Dialog
-          iconName="document"
           isOpen={isOpen}
           onClose={() => this.setState({isOpen: false})}
           title="Text Editor"
+          inline="true"
         >
           <div className="pt-dialog-body">
             <PlainTextEditor data={minData} fields={plainfields} />

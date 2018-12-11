@@ -7,13 +7,17 @@
     position: relative;
   }
 
+  & svg, & img {
+    max-width: 100%;
+  }
+
   & code {
     padding: 0.125em 0.5em;
   }
 
   /* these aren't links */
   & select, & button {
-    cursor: auto;
+    cursor: default;
   }
 
   /* keep select menus from breaking outside of container */
@@ -29,8 +33,51 @@
     margin-bottom: 1rem;
   }
 
-  /* space out adjacent fields */
-  & .field-container + .field-container {
+  /* 100% width elements by default */
+  & .cms-field-container {
+
+    /* reset label margin */
+    & label {
+      margin: 0 0.5em 0 0;
+    }
+
+    & > * {
+      display: block;
+      width: 100%; /* shouldn't be necessary, but it is */
+    }
+  }
+
+  /* expects a label and an input */
+  & .cms-field-container-inline {
+    display: flex;
+    align-items: center;
+
+    /* override .cms-field-container defaults above */
+    & > * {
+      width: auto;
+    }
+
+    /* take up all the remaining space */
+    & input {
+      flex: 1 0 auto;
+
+      & + button {
+        margin-left: 0.5em;
+      }
+    }
+  }
+
+  /* grouped inputs */
+  & .cms-field-group {
+    columns: 2;
+    column-width: 18rem;
+    column-gap: 2rem;
+  }
+
+  /* space out adjacent fields & field groups */
+  & .cms-field-container + .cms-field-container,
+  & .cms-field-group + .cms-field-container,
+  & .cms-field-group + .cms-field-group {
     margin-top: 1rem;
   }
 
@@ -45,6 +92,10 @@
     left: 0;
     right: 0;
     bottom: 0;
+    z-index: 20; /* move to front */
+    /* override container alignment */
+    text-align: left;
+    /* hide by default */
     display: none;
 
     &.pt-overlay-open {
@@ -60,13 +111,28 @@
 
   /* dialogs */
   & .pt-dialog {
+    width: calc(100vw - 2rem);
+    height: auto;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
     padding-bottom: 0;
+    margin: 1rem;
+    margin-bottom: 2rem;
     border-radius: 4px;
+
+    /* adjust width on big screens */
+    @media (min-width: 54rem) {
+      width: 56rem;
+    }
   }
   & .pt-dialog-header {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 2.5rem;
     border-radius: 4px 4px 0 0;
     box-shadow: none;
+  }
+  & .pt-dialog-footer {
+    margin: 0;
+    padding: 0.75rem 2.5rem;
   }
   & .pt-dialog-close-button {
     padding: 0.5rem 0.75rem;
@@ -81,7 +147,7 @@
   }
   & .pt-dialog-body {
     margin: 0;
-    padding: 1.5rem;
+    padding: 2.125rem 2.5rem;
   }
 
   /* input group button overrides */
@@ -92,12 +158,25 @@
     margin: 0;
     height: 100%;
   }
+
+  /* override canon */
+  & .loading {
+    z-index: auto;
+  }
+
+  /* use blueprint theming for quill editor for now */
+  & .quill {
+    background-color: #f5f8fa;
+    color: #182026;
+  }
 }
 
 /* buttons */
 .cms-button {
   padding: 0.5em 2em;
   border-radius: 10em;
+  border: none !important;
+  /* transitions */
   transition:
     color 0.2s ease-out,
     background-color 0.2s ease-out,
@@ -112,23 +191,93 @@
     }
   }
 
-  &:active {
-    border-style: solid;
-  }
-
   & .pt-icon {
     top: -1px;
+  }
+
+  /* disabled state */
+  &.is-disabled,
+  &[disabled] {
+    text-align: center;
+    background-color: var(--middle) !important;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* TODO: move / redo this 💩 */
+  &.cms-button-icon-only {
+    width: 2.375em;
+    min-width: none;
+    padding-left: 0;
+    padding-right: 0;
+    transform: scale(0.75);
   }
 }
 .cms-button-naked {
   background-color: transparent;
   border: none;
 }
+.cms-dialog-footer-button {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  /* TODO: adjust the container margin, not button margin */
+  margin-top: -2.25rem;
+
+  &:not(:last-of-type) {
+    margin-right: 1.5em;
+  }
+}
 
 /* alerts */
 .cms-alert {
   padding: 0.5em 1em;
   margin-bottom: 0;
+}
+
+/* hacks the stupid multi-select */
+.cms .pt-multi-select.pt-tag-input {
+  border: 0;
+  margin: 0 0 -0.5rem 0; /* reset & offset inner element margin */
+  padding: 0;
+  height: auto; /* override blueprint forever */
+  /* theming */
+  background: none;
+  box-shadow: none;
+  outline: none;
+  display: inline-flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+
+  /* default sizing & spacing */
+  & > * {
+    margin-right: 0.5em;
+    min-height: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  & .pt-tag {
+    display: flex;
+    line-height: 2.25;
+    padding-right: 2em;
+
+    & .pt-tag-remove {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      text-align: right;
+    }
+  }
+
+  /* the real input */
+  & .pt-input-ghost {
+    order: -1;
+    border-radius: 3px;
+    border: 1px solid var(--middle);
+    padding-left: 0.75em;
+    padding-right: 0.75em;
+    min-width: 180px; /* match .pt-menu min-width ¯\_(ツ)_/¯ */
+  }
 }
 
 
@@ -258,4 +407,90 @@
   height: 1.9em;
   line-height: 1.9;
   margin-left: 0.5em;
+}
+
+.cms-variable-editor-group {
+  display: flex;
+
+  /* make the editor visible when for visualizations */
+  &.single-column {
+    display: block;
+  }
+
+  & > * {
+    height: 50vh;
+    overflow: auto;
+  }
+
+  & .cms-variable-editor-json {
+    margin: 0 2.5rem 0 0;
+    width: 15.5rem;
+
+    & + * {
+      width: calc(100% - 15.5rem - 2.5rem);
+    }
+  }
+
+  /* get code editor height from parent */
+  & .editor {
+    height: 100% !important;
+  }
+}
+
+
+/* TODO: redo all/most of this */
+.cms-paragraph {
+  & p {
+    margin-bottom: 0.25em;
+  }
+}
+
+.cms-label {
+  top: -0.25rem;
+}
+
+/* tables */
+.cms-table {
+  border-collapse: collapse;
+
+  /* fake margin, because tables */
+  & tbody + tbody {
+    border-top: 1.5rem solid transparent;
+  }
+
+  & tr {
+    vertical-align: top;
+
+    & + tr {
+      border-top: 1px solid var(--middle);
+    }
+  }
+
+  & td {
+    padding: 0.75rem;
+    &:first-child {
+      padding-left: 0;
+    }
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+
+  & .pt-checkbox {
+    margin-bottom: 0;
+  }
+}
+
+
+.cms-viz-editor {
+  margin-top: 1em;
+  height: auto; /* override vh */
+
+  & .viz-dropdown-list {
+    margin: 2rem 0;
+    padding: 0;
+    list-style: none;
+    columns: 3;
+    column-gap: 1.25rem;
+  }
 }

@@ -3,31 +3,20 @@ import React, {Component} from "react";
 class FooterButtons extends Component {
 
   render() {
-    
+
     const {onDelete, onCancel, onSave} = this.props;
 
     return (
       <div id="buttons">
         <div className="pt-dialog-footer">
           <div className="pt-dialog-footer-actions">
-            {this.props.onDelete && <button
-              className="pt-button pt-intent-danger"
-              onClick={onDelete}
-            >
-              Delete
-            </button>
+            {this.props.onDelete &&
+              <button className="cms-dialog-footer-button" onClick={onDelete}>
+                <span className="cms-dialog-footer-button-icon pt-icon pt-icon-trash" /> Delete
+              </button>
             }
-            <button
-              className="pt-button"
-              onClick={onCancel}
-            >
-              Cancel
-            </button>
-            <button
-              className="pt-button pt-intent-success"
-              onClick={onSave}
-            >
-              Save
+            <button className="cms-dialog-footer-button" onClick={onSave}>
+              <span className="cms-dialog-footer-button-icon pt-icon pt-icon-tick-circle" /> Save & close
             </button>
           </div>
         </div>

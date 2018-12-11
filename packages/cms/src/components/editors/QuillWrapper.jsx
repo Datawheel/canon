@@ -16,15 +16,13 @@ class QuillWrapper extends Component {
           matchVisual: false
         }
       };
-      return <div>
-        <Quill
-          theme="snow"
-          modules={modules}
-          onChangeSelection={range => range ? this.setState({currentRange: range}) : null}
-          ref={c => this.quillRef = c}
-          {...this.props}
-        />
-      </div>;
+      return <Quill
+        theme="snow"
+        modules={modules}
+        onChangeSelection={range => range ? this.setState({currentRange: range}) : null}
+        ref={c => this.quillRef = c}
+        {...this.props}
+      />;
     }
     return null;
   }

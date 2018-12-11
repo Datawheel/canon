@@ -9,7 +9,7 @@
 
   /* reset loading style */
   & .loading {
-    background-color: var(--forward-3);
+    background-color: none;
     color: var(--background);
   }
 
@@ -147,6 +147,20 @@
 
     &:hover, &:focus {
       color: var(--accent-black);
+    }
+  }
+  & .cms-dialog-footer-button {
+    color: var(--backward-3);
+
+    & .cms-dialog-footer-button-icon {
+      color: var(--backward-1);
+    }
+
+    /* interactions */
+    &:hover, &:focus {
+      & .cms-dialog-footer-button-icon {
+        color: var(--backward-3);
+      }
     }
   }
 

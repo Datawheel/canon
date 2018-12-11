@@ -8,7 +8,7 @@ import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
 // import formatters from "./utils/formatters";
 
-import "./Builder.css";
+import "./cms.css";
 import "./themes/cms-dark.css";
 import "./themes/cms-light.css";
 
