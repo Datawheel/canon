@@ -138,7 +138,7 @@ class TopicEditor extends Component {
           {children}
           {/* loading status */}
           <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
-            <Icon iconName={ recompiling ? "more" : "tick"} />
+            <span className={`pt-icon pt-icon-${recompiling ? "more" : "tick"}`} />
             { recompiling ? "Updating Variables" : "Variables Loaded" }
           </div>
         </div>

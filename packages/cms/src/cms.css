@@ -7,6 +7,10 @@
     position: relative;
   }
 
+  & svg, & img {
+    max-width: 100%;
+  }
+
   & code {
     padding: 0.125em 0.5em;
   }
@@ -408,6 +412,11 @@
 .cms-variable-editor-group {
   display: flex;
 
+  /* make the editor visible when for visualizations */
+  &.single-column {
+    display: block;
+  }
+
   & > * {
     height: 50vh;
     overflow: auto;
@@ -469,5 +478,19 @@
 
   & .pt-checkbox {
     margin-bottom: 0;
+  }
+}
+
+
+.cms-viz-editor {
+  margin-top: 1em;
+  height: auto; /* override vh */
+
+  & .viz-dropdown-list {
+    margin: 2rem 0;
+    padding: 0;
+    list-style: none;
+    columns: 3;
+    column-gap: 1.25rem;
   }
 }

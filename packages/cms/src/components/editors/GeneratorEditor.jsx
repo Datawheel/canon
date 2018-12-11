@@ -229,8 +229,8 @@ class GeneratorEditor extends Component {
           </div>
         }
 
-        { type === "generator"
-          ? <div className="cms-field-container">
+        { type === "generator" &&
+          <div className="cms-field-container">
             <label className="label" htmlFor="api">API</label>
             <div className="cms-field-container-inline pt-input-group">
               <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
@@ -239,7 +239,6 @@ class GeneratorEditor extends Component {
               </button>
             </div>
           </div>
-          : null
         }
         { (type === "generator" || type.includes("_visualization")) &&
           <div className="cms-field-container">
@@ -268,7 +267,7 @@ class GeneratorEditor extends Component {
           </p>
         }
 
-        <div className="cms-variable-editor-group">
+        <div className={`cms-variable-editor-group${type.includes("_visualization") ? " single-column" : ""}`}>
           {/* json */}
           {payload &&
             <pre className="cms-variable-editor-json">
@@ -286,6 +285,7 @@ class GeneratorEditor extends Component {
               : <SimpleVisualizationEditor
                 simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}
               />
+            // JS mode for both settings
             : <AceWrapper
               className="editor"
               variables={variables}

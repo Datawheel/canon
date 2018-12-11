@@ -118,8 +118,8 @@ export default class SimpleVisualizationEditor extends Component {
     const {object, rebuildAlertOpen, payload} = this.state;
 
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
-    
-    return <div className="simplemode">
+
+    return <div className="cms-viz-editor">
       <Alert
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"
@@ -132,27 +132,36 @@ export default class SimpleVisualizationEditor extends Component {
       >
         Are you sure you want to rebuild this visualization using a new data URL?
       </Alert>
-      <div>
-        Data
-        <input className="pt-input" value={object.data} onChange={this.onChange.bind(this, "data")} />
-        {object.data && <button onClick={this.maybeRebuild.bind(this)}>
-          {payload.data ? "Rebuild" : "Build"}
-        </button>}
-      </div>
 
-      <div>
-        Type
-        <div className="pt-select">
-          <select value={object.type} onChange={this.onChange.bind(this, "type")}>
-            {Object.keys(vizLookup).map(type =>
-              <option key={type} value={type}>{type}</option>
-            )}
-          </select>
+      {/* data URL */}
+      <div className="cms-field-group">
+        <div className="cms-field-container">
+          <label className="label" htmlFor="data">Data</label>
+          <div className="cms-field-container-inline pt-input-group">
+            <input className="pt-input" value={object.data} onChange={this.onChange.bind(this, "data")} id="data"/>
+            {object.data &&
+              <button className="cms-button pt-button" onClick={this.maybeRebuild.bind(this)}>
+                {payload.data ? "Rebuild" : "Build"}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div className="cms-field-container">
+          Type
+          <div className="pt-select">
+            <select value={object.type} onChange={this.onChange.bind(this, "type")}>
+              {Object.keys(vizLookup).map(type =>
+                <option key={type} value={type}>{type}</option>
+              )}
+            </select>
+          </div>
         </div>
       </div>
-      <hr/>
-      {payload.data && <div className="viz-dropdowns">
-        <ul>
+
+
+      {payload.data &&
+        <ul className="viz-dropdown-list">
           {
             object.type &&
               vizLookup[object.type].map(prop =>
@@ -172,7 +181,6 @@ export default class SimpleVisualizationEditor extends Component {
               )
           }
         </ul>
-      </div>
       }
     </div>;
 
