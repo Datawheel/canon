@@ -47,7 +47,8 @@
 
   /* space out paragraph */
   /* TODO: write better markup and replace */
-  & + p {
+  & + p,
+  & ~ .visualization {
     margin-top: 1rem;
   }
 }
