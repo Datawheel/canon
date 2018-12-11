@@ -123,15 +123,15 @@ class GeneratorEditor extends Component {
     if (simple) {
       alertObj = {
         callback: this.switchSimple.bind(this),
-        message: "Are you sure you want to switch to Advanced Mode? This will abandon your Simple Mode state.",
-        confirm: "Yes, go to Advanced Mode"
+        message: "Are you sure you want to switch to JS mode? This will abandon your UI mode state.",
+        confirm: "JS mode"
       };
     }
     else {
       alertObj = {
         callback: this.switchSimple.bind(this),
-        message: "Are you sure you want to switch to Simple Mode? This will abandon your current Advanced Mode code.",
-        confirm: "Yes, go to Simple Mode"
+        message: "Are you sure you want to switch to UI mode? This will abandon your current JS code.",
+        confirm: "UI mode"
       };
     }
     this.setState({alertObj});
@@ -204,12 +204,13 @@ class GeneratorEditor extends Component {
         <Alert
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
-          className="confirm-alert"
+          className="cms-confirm-alert"
           iconName="pt-icon-warning-sign"
           intent={Intent.DANGER}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
+          inline="true"
         >
           {alertObj.message}
         </Alert>
@@ -233,37 +234,58 @@ class GeneratorEditor extends Component {
             <label className="label" htmlFor="api">API</label>
             <div className="cms-field-container-inline pt-input-group">
               <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
-              <button className="cms-button" onClick={this.maybePreviewPayload.bind(this)}>
-                {payload && !payload.error ? "Refetch Data" : "Fetch Data"}
+              <button className="cms-button pt-button" onClick={this.maybePreviewPayload.bind(this)}>
+                {payload && !payload.error ? "Refetch data" : "Fetch data"}
               </button>
             </div>
           </div>
           : null
         }
-        { (type === "generator" || type.includes("_visualization")) && <Switch checked={simple} label="Simple Mode" onChange={this.maybeSwitchSimple.bind(this)} /> }
-        <div id="generator-ace">
-          { type === "profile_visualization" || type === "topic_visualization"
-            ? <label className="pt-label pt-inline">
+        { (type === "generator" || type.includes("_visualization")) &&
+          <div className="cms-field-container">
+            <Switch checked={simple} label="UI mode" onChange={this.maybeSwitchSimple.bind(this)} />
+          </div>
+        }
+        {/* visibility */}
+        <div className="cms-field-container">
+          { (type === "profile_visualization" || type === "topic_visualization") &&
+            <label className="pt-label pt-inline">
               <span className="label-text">Allowed</span>
               <div className="pt-select">
                 <select value={ data.allowed || "always" } onChange={this.chooseVariable.bind(this)}>
                   {varOptions}
                 </select>
               </div>
-            </label> : null
+            </label>
           }
-          {!simple && <label className="pt-label">Callback {preMessage[type]}</label>}
+        </div>
+        {/* callback instructions */}
+        {!simple &&
+          <p className="cms-paragraph">
+            Callback
+            {preMessage[type]}
+            {postMessage[type]}
+          </p>
+        }
+
+        <div className="cms-variable-editor-group">
+          {/* json */}
           {payload &&
-            <pre>
-              <code>{JSON.stringify(payload, null, 2)}</code>
+            <pre className="cms-variable-editor-json">
+              <code className="cms-variable-editor-json-inner">{JSON.stringify(payload, null, 2)}</code>
             </pre>
           }
           {simple
             ? type === "generator"
               ? payload
-                ? <SimpleGeneratorEditor payload={payload} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
+                ? <SimpleGeneratorEditor
+                  payload={payload}
+                  simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}
+                />
                 : null
-              : <SimpleVisualizationEditor simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
+              : <SimpleVisualizationEditor
+                simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}
+              />
             : <AceWrapper
               className="editor"
               variables={variables}
@@ -273,7 +295,6 @@ class GeneratorEditor extends Component {
               {...this.props}
             />
           }
-          {!simple && postMessage[type]}
         </div>
       </div>
     );

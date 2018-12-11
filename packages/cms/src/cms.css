@@ -63,6 +63,13 @@
     }
   }
 
+  /* grouped inputs */
+  & .cms-field-group {
+    columns: 2;
+    column-width: 18rem;
+    column-gap: 2rem;
+  }
+
   /* space out adjacent fields & field groups */
   & .cms-field-container + .cms-field-container,
   & .cms-field-group + .cms-field-container,
@@ -102,15 +109,16 @@
   & .pt-dialog {
     width: calc(100vw - 2rem);
     height: auto;
-    max-height: none;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
     padding-bottom: 0;
+    margin: 1rem;
+    margin-bottom: 2rem;
     border-radius: 4px;
 
     /* adjust width on big screens */
-    @media (min-width: 52rem) {
-      width: auto;
-      min-width: 50rem;
-      max-width: calc(100vw - 2rem);
+    @media (min-width: 54rem) {
+      width: 56rem;
     }
   }
   & .pt-dialog-header {
@@ -191,6 +199,15 @@
     cursor: not-allowed;
     pointer-events: none;
   }
+
+  /* TODO: move / redo this 💩 */
+  &.cms-button-icon-only {
+    width: 2.375em;
+    min-width: none;
+    padding-left: 0;
+    padding-right: 0;
+    transform: scale(0.75);
+  }
 }
 .cms-button-naked {
   background-color: transparent;
@@ -200,6 +217,8 @@
   background-color: transparent;
   border: none;
   padding: 0;
+  /* TODO: adjust the container margin, not button margin */
+  margin-top: -2.25rem;
 
   &:not(:last-of-type) {
     margin-right: 1.5em;
@@ -384,4 +403,71 @@
   height: 1.9em;
   line-height: 1.9;
   margin-left: 0.5em;
+}
+
+.cms-variable-editor-group {
+  display: flex;
+
+  & > * {
+    height: 50vh;
+    overflow: auto;
+  }
+
+  & .cms-variable-editor-json {
+    margin: 0 2.5rem 0 0;
+    width: 15.5rem;
+
+    & + * {
+      width: calc(100% - 15.5rem - 2.5rem);
+    }
+  }
+
+  /* get code editor height from parent */
+  & .editor {
+    height: 100% !important;
+  }
+}
+
+
+/* TODO: redo all/most of this */
+.cms-paragraph {
+  & p {
+    margin-bottom: 0.25em;
+  }
+}
+
+.cms-label {
+  top: -0.25rem;
+}
+
+/* tables */
+.cms-table {
+  border-collapse: collapse;
+
+  /* fake margin, because tables */
+  & tbody + tbody {
+    border-top: 1.5rem solid transparent;
+  }
+
+  & tr {
+    vertical-align: top;
+
+    & + tr {
+      border-top: 1px solid var(--middle);
+    }
+  }
+
+  & td {
+    padding: 0.75rem;
+    &:first-child {
+      padding-left: 0;
+    }
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+
+  & .pt-checkbox {
+    margin-bottom: 0;
+  }
 }

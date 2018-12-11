@@ -90,7 +90,7 @@ export default class SimpleVisualizationEditor extends Component {
     }
     // Otherwise they are just changing a drop-down field and we need only recompile the code above.
     else {
-      this.setState({object}, this.compileCode.bind(this));  
+      this.setState({object}, this.compileCode.bind(this));
     }
   }
 
@@ -135,14 +135,16 @@ export default class SimpleVisualizationEditor extends Component {
       <div>
         Data
         <input className="pt-input" value={object.data} onChange={this.onChange.bind(this, "data")} />
-        {object.data && <button onClick={this.maybeRebuild.bind(this)}>{payload.data ? "Rebuild" : "Build"}</button>}
+        {object.data && <button onClick={this.maybeRebuild.bind(this)}>
+          {payload.data ? "Rebuild" : "Build"}
+        </button>}
       </div>
 
       <div>
-        Type 
+        Type
         <div className="pt-select">
           <select value={object.type} onChange={this.onChange.bind(this, "type")}>
-            {Object.keys(vizLookup).map(type => 
+            {Object.keys(vizLookup).map(type =>
               <option key={type} value={type}>{type}</option>
             )}
           </select>
@@ -153,14 +155,14 @@ export default class SimpleVisualizationEditor extends Component {
         <ul>
           {
             object.type &&
-              vizLookup[object.type].map(prop => 
+              vizLookup[object.type].map(prop =>
                 <li key={prop}>
-                  {prop}: 
-                  {reservedWords.includes(prop) 
+                  {prop}:
+                  {reservedWords.includes(prop)
                     ? <input key={prop} value={object[prop]} onChange={this.onChange.bind(this, prop)} />
                     : <div className="pt-select">
                       <select value={object[prop]} onChange={this.onChange.bind(this, prop)}>
-                        {Object.keys(firstObj).map(type => 
+                        {Object.keys(firstObj).map(type =>
                           <option key={type} value={type}>{type}</option>
                         )}
                       </select>
@@ -171,7 +173,7 @@ export default class SimpleVisualizationEditor extends Component {
           }
         </ul>
       </div>
-      } 
+      }
     </div>;
 
   }

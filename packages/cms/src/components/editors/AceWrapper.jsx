@@ -49,22 +49,24 @@ export default class AceWrapper extends Component {
       require("brace/mode/javascript");
       require("brace/theme/kuroir");
       require("brace/theme/idle_fingers");
-      return <Ace theme={readOnly ? "kuroir" : "idle_fingers"} width="auto" height="auto"
-        /* TODO: adding this until we fix the css so the editor shows up */
-        style={{minHeight: "400px"}}
-        ref={editor => this.editor = editor}
-        wrapEnabled={false}
-        tabSize = {2}
-        mode="javascript"
-        setOptions={{
-          fontSize: "14px"
-          /*enableBasicAutocompletion: true,
-          enableLiveAutocompletion: true*/
-        }}
-        editorProps={{
-          $blockScrolling: Infinity
-        }}
-        {...this.props} />;
+      return <div className="cms-ace-container">
+        <Ace theme={readOnly ? "kuroir" : "idle_fingers"}
+          width="auto"
+          height="auto"
+          ref={editor => this.editor = editor}
+          wrapEnabled={false}
+          tabSize = {2}
+          mode="javascript"
+          setOptions={{
+            fontSize: "14px"
+            /*enableBasicAutocompletion: true,
+            enableLiveAutocompletion: true*/
+          }}
+          editorProps={{
+            $blockScrolling: Infinity
+          }}
+          {...this.props} />
+      </div>;
     }
     return null;
   }

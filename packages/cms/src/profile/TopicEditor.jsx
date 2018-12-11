@@ -73,8 +73,8 @@ class TopicEditor extends Component {
   save() {
     const {minData} = this.state;
     const payload = {
-      id: minData.id, 
-      slug: minData.slug, 
+      id: minData.id,
+      slug: minData.slug,
       type: minData.type,
       allowed: minData.allowed
     };
@@ -109,8 +109,8 @@ class TopicEditor extends Component {
 
   render() {
 
-    const {minData} = this.state;
-    const {variables} = this.props;
+    const {minData, recompiling} = this.state;
+    const {children, variables} = this.props;
 
     if (!minData || !variables) return <Loading />;
 
@@ -131,6 +131,17 @@ class TopicEditor extends Component {
 
     return (
       <div className="cms-editor-inner">
+
+        {/* profile preview & variable status */}
+        <div className="cms-profile-picker">
+          {/* search profiles*/}
+          {children}
+          {/* loading status */}
+          <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
+            <Icon iconName={ recompiling ? "more" : "tick"} />
+            { recompiling ? "Updating Variables" : "Variables Loaded" }
+          </div>
+        </div>
 
         {/* current topic options */}
         <div className="cms-editor-header">
