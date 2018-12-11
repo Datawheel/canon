@@ -4,6 +4,7 @@ import AceWrapper from "./AceWrapper";
 import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
 import {Switch, Alert, Intent} from "@blueprintjs/core";
+import urlSwap from "../../utils/urlSwap";
 
 import "./GeneratorEditor.css";
 
@@ -32,6 +33,9 @@ class GeneratorEditor extends Component {
     else if (type.includes("_visualization")) {
       const {simple} = data;
       this.setState({data, variables, simple});
+    }
+    else {
+      this.setState({data, variables});
     }
   }
 
@@ -81,8 +85,13 @@ class GeneratorEditor extends Component {
   previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
+    const {preview, variables} = this.props;
     if (api) {
-      axios.get(api).then(resp => {
+      // The API will have an <id> in it that needs to be replaced with the current preview.
+      // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>) 
+      // With its corresponding value.
+      const url = urlSwap(api, Object.assign({}, variables, {id: preview}));
+      axios.get(url).then(resp => {
         const payload = resp.data;
         let {simple} = this.state;
         // This comparison is important! forceSimple must be EXACTLY true to indicate we are overriding it. Otherwise it's a
@@ -168,7 +177,7 @@ class GeneratorEditor extends Component {
   render() {
 
     const {data, variables, payload, simple, alertObj} = this.state;
-    const {type} = this.props;
+    const {type, preview} = this.props;
 
     const preMessage = {
       generator: <p className="pt-text-muted">You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</p>,
@@ -282,10 +291,7 @@ class GeneratorEditor extends Component {
                   simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null
-              : <SimpleVisualizationEditor
-                simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}
-              />
-            // JS mode for both settings
+              : <SimpleVisualizationEditor preview={preview} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
             : <AceWrapper
               className="editor"
               variables={variables}

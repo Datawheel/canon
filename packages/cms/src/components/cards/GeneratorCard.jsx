@@ -73,7 +73,7 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {type, variables, item, parentArray} = this.props;
+    const {type, variables, item, parentArray, preview} = this.props;
     const {displayData, minData, isOpen} = this.state;
 
     let description = "";
@@ -161,7 +161,7 @@ class GeneratorCard extends Component {
         >
 
           <div className="pt-dialog-body">
-            <GeneratorEditor data={minData} variables={variables} type={type} />
+            <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
           </div>
           <FooterButtons
             onDelete={this.delete.bind(this)}

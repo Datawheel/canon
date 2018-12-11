@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Loading from "components/Loading";
+import {Icon} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import TextCard from "../components/cards/TextCard";
 import SelectorCard from "../components/cards/SelectorCard";
@@ -110,7 +111,7 @@ class TopicEditor extends Component {
   render() {
 
     const {minData, recompiling} = this.state;
-    const {children, variables} = this.props;
+    const {variables, preview, children} = this.props;
 
     if (!minData || !variables) return <Loading />;
 
@@ -131,6 +132,16 @@ class TopicEditor extends Component {
 
     return (
       <div className="cms-editor-inner">
+        {/* profile preview & variable status */}
+        <div className="cms-profile-picker">
+          {/* search profiles */}
+          {children}
+          {/* loading status */}
+          <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
+            <Icon iconName={ recompiling ? "more" : "tick"} />
+            { recompiling ? "Updating Variables" : "Variables Loaded" }
+          </div>
+        </div>
 
         {/* profile preview & variable status */}
         <div className="cms-profile-picker">
@@ -292,6 +303,7 @@ class TopicEditor extends Component {
             <VisualizationCard
               key={v.id}
               item={v}
+              preview={preview}
               onDelete={this.onDelete.bind(this)}
               type="topic_visualization"
               variables={variables}

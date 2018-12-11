@@ -21,6 +21,13 @@ export default class SimpleGeneratorEditor extends Component {
     if (prevProps.payload !== this.props.payload) this.populate.bind(this)();
   }
 
+  camelize(str) {
+    return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
+      if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+      return index === 0 ? match.toLowerCase() : match.toUpperCase();
+    });
+  }
+
   populate() {
     const {payload, simpleConfig} = this.props;
     // If the error prop exists in the payload, then the user has either not yet configured,
@@ -47,7 +54,7 @@ export default class SimpleGeneratorEditor extends Component {
       objects = pl.map((obj, i) =>
         Object.keys(obj).map(k => ({
           use: true,
-          keyName: `${k}${i + 1}`,
+          keyName: `${this.camelize(k)}${i + 1}`,
           pKey: k,
           pVal: obj[k]
         }))
@@ -114,7 +121,7 @@ export default class SimpleGeneratorEditor extends Component {
     const objects = pl.map((obj, i) =>
       Object.keys(obj).map(k => ({
         use: true,
-        keyName: `${k}${i + 1}`,
+        keyName: `${this.camelize(k)}${i + 1}`,
         pKey: k,
         pVal: obj[k]
       }))

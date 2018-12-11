@@ -156,6 +156,7 @@ class ProfileEditor extends Component {
             .map(g => <GeneratorCard
               key={g.id}
               item={g}
+              preview={preview}
               onSave={this.onSave.bind(this)}
               onDelete={this.onDelete.bind(this)}
               type="generator"

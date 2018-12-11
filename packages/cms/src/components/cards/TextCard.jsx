@@ -57,8 +57,10 @@ class TextCard extends Component {
     const {type, fields, plainfields} = this.props;
     const {minData} = this.state;
     const payload = {id: minData.id};
-    fields.forEach(field => payload[field] = minData[field]);
-    if (plainfields) plainfields.forEach(field => payload[field] = minData[field]);
+    // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save 
+    // this to the database - save an empty string instead.
+    fields.forEach(field => payload[field] = minData[field] === "<p><br></p>" ? "" : minData[field]);
+    if (plainfields) plainfields.forEach(field => payload[field] = minData[field] === "<p><br></p>" ? "" : minData[field]);
     payload.allowed = minData.allowed;
     axios.post(`/api/cms/${type}/update`, payload).then(resp => {
       if (resp.status === 200) {
