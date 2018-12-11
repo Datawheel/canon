@@ -276,7 +276,8 @@ class GeneratorEditor extends Component {
           </p>
         }
 
-        <div className={`cms-variable-editor-group${type.includes("_visualization") ? " single-column" : ""}`}>
+        {/*<div className={`cms-variable-editor-group${type.includes("_visualization") ? " single-column" : ""}`}>*/}
+        <div className={`cms-variable-editor-group${!payload ? " single-column" : ""}`}>
           {/* json */}
           {payload &&
             <pre className="cms-variable-editor-json">
