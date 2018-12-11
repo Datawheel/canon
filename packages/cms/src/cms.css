@@ -439,8 +439,8 @@
 
 
 /* TODO: redo all/most of this */
-.cms-paragraph {
-  & div {
+.cms-paragraphs {
+  & p {
     margin-bottom: 0.25em;
   }
 }

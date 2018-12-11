@@ -88,7 +88,7 @@ class GeneratorEditor extends Component {
     const {preview, variables} = this.props;
     if (api) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
-      // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>) 
+      // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value.
       const url = urlSwap(api, Object.assign({}, variables, {id: preview}));
       axios.get(url).then(resp => {
@@ -269,7 +269,7 @@ class GeneratorEditor extends Component {
         </div>
         {/* callback instructions */}
         {!simple &&
-          <div className="cms-paragraph">
+          <div className="cms-paragraphs">
             Callback
             {preMessage[type]}
             {postMessage[type]}
