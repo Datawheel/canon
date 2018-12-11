@@ -10,6 +10,7 @@ function loadJSON(filename) {
 const {CANON_LOGICLAYER_CUBE} = process.env;
 
 const napcs2sctg = loadJSON("../static/data/nacps2sctg.json");
+const naics2io = loadJSON("../static/data/pums_naics_to_iocode.json");
 
 module.exports = function(app) {
 
@@ -90,6 +91,15 @@ module.exports = function(app) {
 
     const ids = napcs2sctg[req.params.id] || [];
     res.json(ids.map(id => ({id})));
+
+  });
+
+  app.get("/api/naics/:id/io/:level", (req, res) => {
+
+    const {id, level} = req.params;
+    const matches = naics2io[id] || {};
+    const available = matches.L1 ? "L1" : "L0";
+    res.json({id: matches[available], level: level.replace(/L[0-9]$/g, available)});
 
   });
 

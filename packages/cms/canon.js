@@ -36,6 +36,10 @@ module.exports = {
     ],
     dimensionMap: {
       "CIP2": "CIP",
+      "Commodity L0": "PUMS Industry",
+      "Commodity L1": "PUMS Industry",
+      "Industry L0": "PUMS Industry",
+      "Industry L1": "PUMS Industry",
       "OPEID": "University",
       "SCTG2": "NAPCS",
       "Destination State": "Geography",
@@ -84,7 +88,7 @@ module.exports = {
       }
     },
     substitutions: {
-      Geography: {
+      "Geography": {
         levels: {
           State: ["Nation"],
           County: ["State", "Nation"],
@@ -98,7 +102,7 @@ module.exports = {
         },
         callback: arr => arr.sort((a, b) => b.overlap_size - a.overlap_size)[0].geoid
       },
-      CIP: {
+      "CIP": {
         levels: {
           CIP6: ["CIP4", "CIP2"],
           CIP4: ["CIP2"]
@@ -106,7 +110,7 @@ module.exports = {
         url: (id, level) => `${CANON_API}/api/cip/parent/${id}/${level}/`,
         callback: resp => resp.id
       },
-      NAPCS: {
+      "NAPCS": {
         levels: {
           "NAPCS Section": ["SCTG2"],
           "NAPCS Group": ["SCTG2"],
@@ -115,7 +119,16 @@ module.exports = {
         url: id => `${CANON_API}/api/napcs/${id}/sctg/`,
         callback: resp => resp.map(d => d.id)
       },
-      University: {
+      "PUMS Industry": {
+        levels: {
+          "Industry Group": ["Industry L1", "Commodity L1"],
+          "Industry Sub-Sector": ["Industry L1", "Commodity L1"],
+          "Industry Sector": ["Industry L1", "Commodity L1"]
+        },
+        url: (id, level) => `${CANON_API}/api/naics/${id}/io/${level}`,
+        callback: resp => resp
+      },
+      "University": {
         levels: {
           University: ["OPEID"]
         },

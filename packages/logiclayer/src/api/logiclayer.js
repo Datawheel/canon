@@ -2,6 +2,7 @@ const Sequelize = require("sequelize"),
       axios = require("axios"),
       d3Array = require("d3-array"),
       d3Collection = require("d3-collection"),
+      d3plusCommon = require("d3plus-common"),
       findYears = require("../utils/findYears"),
       multiSort = require("../utils/multiSort"),
       path = require("path"),
@@ -221,6 +222,7 @@ module.exports = function(app) {
           })));
 
         ids = d3Array.merge(ids);
+
         if (ids.length) {
           const strippedKey = key.replace(/\<|\>/g, "");
           if (strippedKey in cubeMeasures) {
@@ -285,6 +287,7 @@ module.exports = function(app) {
                   const dimension = dim in dimensionMap ? dimensionMap[dim] : dim;
                   const drilldownDim = findDimension(flatDims, level);
                   if (!drilldownDim) {
+
                     if (substitutions[dimension] && substitutions[dimension].levels[level]) {
                       const potentialSubs = substitutions[dimension].levels[level];
                       let sub;
@@ -394,19 +397,28 @@ module.exports = function(app) {
             if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
               fullDim = flatDims.find(d => (d.dimension === dim || d.level === dim) && d.level === level) || flatDims.find(d => (d.dimension === dim || d.level === dim) && d.level.includes(level)) || {dimension: dim, level};
               const masterDims = dimCuts[dim][level];
-              const subLevel = cube.subs[level];
+              let subLevel = cube.subs[level];
+
               if (subLevel) {
-                cubeDimCuts[realDim][subLevel] = [];
                 for (let d = 0; d < masterDims.length; d++) {
                   const oldId = masterDims[d].id;
                   const dimension = dim in dimensionMap ? dimensionMap[dim] : dim;
                   const rawLevel = subLevel.includes(realDim) ? subLevel.replace(`${realDim} `, "") : subLevel;
                   const subUrl = substitutions[dimension].url(oldId, rawLevel);
-                  const subIds = await axios.get(subUrl)
+
+                  let subIds = await axios.get(subUrl)
                     .then(resp => resp.data)
-                    .then(substitutions[dimension].callback)
-                    .then(ids => ids instanceof Array ? ids : [ids])
+                    .then(substitutions[dimension].callback ? substitutions[dimension].callback : d => d)
                     .catch(() => []);
+
+                  if (d3plusCommon.isObject(subIds) && subIds.id && subIds.level) {
+                    subLevel = subIds.level;
+                    subIds = subIds.id;
+                  }
+
+                  if (!(subIds instanceof Array)) subIds = [subIds];
+
+                  if (!(subLevel in cubeDimCuts[realDim])) cubeDimCuts[realDim][subLevel] = [];
                   if (subIds.length) {
                     subIds.forEach(subId => {
                       const subAttr = {id: subId, dimension, hierarchy: subLevel};
