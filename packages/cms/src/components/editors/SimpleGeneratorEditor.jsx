@@ -71,7 +71,9 @@ export default class SimpleGeneratorEditor extends Component {
   compileCode() {
     const {objects} = this.state;
     const {payload} = this.props;
-    const prepend = payload.data ? "resp.data" : "resp";
+    let prepend = "resp";
+    if (payload.results) prepend = "resp.results";
+    if (payload.data) prepend = "resp.data";
     const code =
     `return {${objects
       // For every object that was returned in the payload (represented as an array of keys), and the index of that object
