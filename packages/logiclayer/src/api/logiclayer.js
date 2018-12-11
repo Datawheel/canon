@@ -8,8 +8,6 @@ const Sequelize = require("sequelize"),
       path = require("path"),
       yn = require("yn");
 
-const {CANON_LOGICLAYER_CUBE} = process.env;
-
 // const debug = process.env.NODE_ENV === "development";
 const debug = false;
 
@@ -459,27 +457,6 @@ module.exports = function(app) {
         })
       ))) : [];
 
-      if (perValue && perValue in cube.dimensions) {
-        const {dimension, hierarchy, level} = cube.dimensions[perValue]
-          .find(d => d.level === perValue);
-
-        // TODO for some reason doing this axios call wipes out cube.dimensions
-        const cubeDims = cube.dimensions;
-        const members = await axios.get(`${CANON_LOGICLAYER_CUBE}cubes/${name}/dimensions/${dimension}/hierarchies/${hierarchy}/levels/${level}/members`)
-          .then(resp => resp.data.members.map(d => d.key));
-        cube.dimensions = cubeDims;
-
-        crosses.forEach(cross => {
-          const starterCross = cross.slice();
-          members.forEach((v, i) => {
-            const obj = {[perValue]: {level, cut: v}};
-            if (!i) cross.push(obj);
-            else crosses.push([...starterCross, obj]);
-          });
-        });
-
-      }
-
       queryCrosses = queryCrosses.concat(crosses);
 
       for (let iii = 0; iii < crosses.length; iii++) {
@@ -647,8 +624,15 @@ module.exports = function(app) {
 
       // TODO remove this once mondrian-rest ordering works
       if (perValue) {
-        data = multiSort(data, order, sort);
-        data = data.slice(0, limit);
+        let newData = [];
+        d3Collection.nest()
+          .key(d => d[perValue])
+          .entries(data)
+          .forEach(group => {
+            const top = multiSort(group.values, order, sort).slice(0, limit);
+            newData = newData.concat(top);
+          });
+        data = newData;
       }
 
       if (db && db.search) {
