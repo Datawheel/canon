@@ -647,7 +647,7 @@ module.exports = function(app) {
             if (!slugLookup[dim.dimension]) slugLookup[dim.dimension] = {};
             if (!slugLookup[dim.dimension][dim.hierarchy]) slugLookup[dim.dimension][dim.hierarchy] = {};
             const where = Object.assign({
-              id: data.map(d => d[`ID ${level}`]),
+              id: data.map(d => `${d[`ID ${level}`]}`),
               dimension: dim.dimension,
               hierarchy: dim.hierarchy
             });
