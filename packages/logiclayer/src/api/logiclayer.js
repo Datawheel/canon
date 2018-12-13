@@ -290,7 +290,8 @@ module.exports = function(app) {
                   if (!drilldownDim) {
 
                     if (substitutions[dimension] && substitutions[dimension].levels[level]) {
-                      const potentialSubs = substitutions[dimension].levels[level];
+                      let potentialSubs = substitutions[dimension].levels[level];
+                      if (potentialSubs.includes(dim)) potentialSubs = [dim];
                       let sub;
                       for (let i = 0; i < potentialSubs.length; i++) {
                         const p = potentialSubs[i];
