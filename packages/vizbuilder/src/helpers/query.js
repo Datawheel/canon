@@ -1,5 +1,6 @@
 import yn from "yn";
 
+import {fetchMembers} from "./fetch";
 import {
   getCombinationsChoose2,
   getMeasureMeta,
@@ -31,14 +32,81 @@ export function generateBaseState(cubes, measure, geomapLevels) {
   if (geomapLevels) {
     options.levels = options.levels.filter(
       lvl =>
-        isGeoDimension(lvl.hierarchy.dimension) &&
-        geomapLevels.indexOf(lvl.name) > -1
+      isGeoDimension(lvl.hierarchy.dimension) &&
+      geomapLevels.indexOf(lvl.name) > -1
     );
   }
 
   removeDuplicateLevels(options.levels);
 
   return {options, query};
+}
+
+export function replaceLevelsInGroupings(groupings, cube) {
+  const promises = groupings.map(grouping => {
+    const level = grouping.level;
+
+    if (!level) {
+      return Promise.resolve(grouping);
+    }
+
+    const dimensionName = level.hierarchy.dimension.name;
+    const targetDimension = cube.dimensions.find(dim => dim.name === dimensionName);
+    console.log(targetDimension.cube.name, targetDimension.name);
+
+    const hierarchyName = level.hierarchy.name;
+    const targetHierarchy = targetDimension.hierarchies.find(hie => hie.name === hierarchyName);
+    console.log(targetHierarchy.dimension.cube.name, targetHierarchy.name);
+
+    const levelName = level.name;
+    const targetLevel = targetHierarchy.levels.find(lvl => lvl.name === levelName);
+    console.log(targetLevel.hierarchy.dimension.cube.name, targetLevel.name);
+
+    const memberList = grouping.members;
+    let newGrouping = grouping.setLevel(targetLevel);
+
+    return fetchMembers(targetLevel).then(members => {
+      const memberKeys = {};
+      for (let member, i = 0; member = members[i]; i++) {
+        memberKeys[member.key] = member;
+      }
+      for (let member, i = 0; member = memberList[i]; i++) {
+        const newMember = memberKeys[member.key];
+        newGrouping = newGrouping.addMember(newMember);
+      }
+      console.log(newGrouping.level.hierarchy.dimension.cube.name, newGrouping.level.name)
+      return newGrouping;
+    });
+  });
+
+  return Promise.all(promises);
+}
+
+export function replaceMeasureInFilters(filters, cube) {
+  return filters.map(filter => {
+    const measure = filter.measure;
+    if (measure) {
+      const measureName = measure.name;
+      const targetMeasure = cube.measures.find(msr => msr.name === measureName);
+
+      filter = filter.setMeasure(targetMeasure);
+    }
+    return filter;
+  });
+}
+
+export function replaceKeysInString(string, oldList, newList, property) {
+  if (typeof string !== "string") return string;
+
+  property = property || 'key';
+
+  for (let i=0; i < newList.length; i++) {
+    if (oldList[i][property] && newList[i][property]) {
+      string = string.replace(oldList[i][property], newList[i][property]);
+    }
+  }
+
+  return string;
 }
 
 /**
@@ -63,8 +131,7 @@ export function generateQueries(params) {
       if (grouping.hasMembers) {
         validCuts.push(grouping);
         cutMap.set(grouping.level, grouping);
-      }
-      else {
+      } else {
         validNotCuts.push(grouping);
       }
     }
@@ -80,9 +147,10 @@ export function generateQueries(params) {
       ...params,
       level,
       levels: [level],
-      cuts: grouping.hasMembers && [
-        {key: level.fullName, values: grouping.members}
-      ]
+      cuts: grouping.hasMembers && [{
+        key: level.fullName,
+        values: grouping.members
+      }]
     });
   }
 

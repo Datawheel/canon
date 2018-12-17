@@ -4,7 +4,12 @@ import PropTypes from "prop-types";
 import "./style.css";
 import "./select.css";
 
-import {generateBaseState} from "../../helpers/query";
+import {
+  generateBaseState,
+  replaceLevelsInGroupings,
+  replaceMeasureInFilters,
+  replaceKeysInString
+} from "../../helpers/query";
 import {isValidMeasure} from "../../helpers/validation";
 
 import ConditionalAnchor from "./ConditionalAnchor";
@@ -108,21 +113,34 @@ class Sidebar extends React.PureComponent {
     const {getDefaultGroup} = this.context;
     const {options, query} = this.props;
 
+    const areMeasuresFromSameTable = (oldQ, newQ) => {
+      const key = `${newQ.cube.annotations.table_id}.${newQ.measure.name}`;
+      const measures = options.measureMap[key];
+      return measures.indexOf(oldQ.measure) > -1 && measures.indexOf(newQ.measure) > -1;
+    };
+
     return this.context.loadControl(() => {
-      const newState = generateBaseState(
-        options.cubes,
-        measure,
-        options.geomapLevels
-      );
+      const newState = generateBaseState(options.cubes, measure, options.geomapLevels);
       const newQuery = newState.query;
-      const isSameCube = newQuery.cube === query.cube;
 
-      newQuery.activeChart = query.activeChart;
-      newQuery.groups = isSameCube
-        ? query.groups
-        : getDefaultGroup(newState.options.levels);
-      newQuery.filters = isSameCube ? query.filters : [];
+      if (newQuery.cube === query.cube) {
+        newQuery.groups = query.groups;
+        newQuery.filters = query.filters;
+        newQuery.activeChart = query.activeChart;
+        return newState;
+      }
+      else if (areMeasuresFromSameTable(query, newQuery)) {
+        newQuery.filters = replaceMeasureInFilters(query.filters, newQuery.cube);
+        return replaceLevelsInGroupings(query.groups, newQuery.cube).then(newGroups => {
+          newQuery.groups = newGroups;
+          newQuery.activeChart = replaceKeysInString(query.activeChart, query.groups, newQuery.groups);
+          return newState;
+        });
+      }
 
+      newQuery.groups = getDefaultGroup(newState.options.levels);
+      newQuery.filters = [];
+      newQuery.activeChart = null;
       return newState;
     });
   }
@@ -133,9 +151,7 @@ class Sidebar extends React.PureComponent {
     const tableId = query.measure.annotations._cb_table_id;
     const key = `${tableId}.${query.measure.name}`;
     const measureList = options.measureMap[key];
-    const measure = measureList.find(
-      item => item.annotations._cb_name == cubeName
-    );
+    const measure = measureList.find(item => item.annotations._cb_name == cubeName);
     return this.setMeasure(measure);
   }
 }
