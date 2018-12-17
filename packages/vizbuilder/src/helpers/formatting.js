@@ -1,4 +1,5 @@
 import {formatAbbreviate} from "d3plus-format";
+import pluralize from "pluralize";
 
 import {QUIRKS} from "./chartCriteria";
 
@@ -91,7 +92,7 @@ export function composeChartTitle(chart, uiparams) {
     levels.splice(levels.indexOf(level.name), 1);
     const values = cut.values.map(m => m.name);
     return values.length > 1
-      ? `for the ${values.length} selected ${level.name}`
+      ? `for the ${values.length} Selected ${pluralize(level.name, values.length)}`
       : `for ${values[0]}`;
   });
 
@@ -107,7 +108,7 @@ export function composeChartTitle(chart, uiparams) {
   }
 
   if (cuts.length > 0) {
-    title += `, ${joinStringsWithCommaAnd(cuts, true)}`;
+    title += ` ${joinStringsWithCommaAnd(cuts, true)}`;
   }
 
   if (timeLevelName) {
@@ -117,7 +118,7 @@ export function composeChartTitle(chart, uiparams) {
       title += ` (${selectedTime})`;
     }
     else {
-      title += `, by ${timeLevelName}`;
+      title = title.replace(measureName, `${measureName} by ${timeLevelName}`);
     }
   }
 
