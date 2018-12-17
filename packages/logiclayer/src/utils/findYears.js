@@ -11,8 +11,8 @@ module.exports = function(dimensions) {
   let dim;
   if (dims.length === 1) dim = dims[0];
   else if (dims.find(d => findName(d) === "Year")) dim = dims.find(d => findName(d) === "Year");
-  else if (dims.find(d => findName(d).includes("Year"))) dim = dims.find(d => findName(d).includes("Year"));
   else if (dims.find(d => findName(d).includes("End"))) dim = dims.find(d => findName(d).includes("End"));
+  else if (dims.find(d => findName(d).includes("Year"))) dim = dims.find(d => findName(d).includes("Year"));
   else dim = dims[0];
 
   return {
