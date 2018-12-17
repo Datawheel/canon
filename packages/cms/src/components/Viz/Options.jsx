@@ -5,59 +5,16 @@ import {select} from "d3-selection";
 import {saveAs} from "file-saver";
 import {text} from "d3-request";
 import {saveElement} from "d3plus-export";
-import localforage from "localforage";
 
-import {Dialog, Icon, Position, Tooltip} from "@blueprintjs/core";
+import {Dialog, Icon} from "@blueprintjs/core";
 
 class Options extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      cartSize: undefined,
-      inCart: false,
       openDialog: false
     };
-  }
-
-  componentDidMount() {
-
-    const {slug} = this.props;
-    if (!slug) return;
-
-    localforage.getItem("datausa-cart")
-      .then(cart => {
-        const inCart = cart && cart.find(c => c.slug === slug);
-        this.setState({cartSize: cart ? cart.length : 0, inCart});
-      })
-      .catch(err => console.error(err));
-  }
-
-  onCart() {
-
-    const {data, slug, title} = this.props;
-
-    const {inCart} = this.state;
-    if (!inCart) {
-      localforage.getItem("datausa-cart")
-        .then(cart => {
-          if (!cart) cart = [];
-          cart.push({data, slug, title});
-          return localforage.setItem("datausa-cart", cart);
-        })
-        .then(() => this.setState({cartSize: this.state.cartSize + 1, inCart: true}))
-        .catch(err => console.error(err));
-    }
-    else {
-      localforage.getItem("datausa-cart")
-        .then(cart => {
-          const build = cart.find(c => c.slug === slug);
-          cart.splice(cart.indexOf(build), 1);
-          return localforage.setItem("datausa-cart", cart);
-        })
-        .then(() => this.setState({cartSize: this.state.cartSize - 1, inCart: false}))
-        .catch(err => console.error(err));
-    }
   }
 
   onCSV() {
@@ -88,24 +45,8 @@ class Options extends Component {
   }
 
   render() {
-    const {data, slug, title} = this.props;
-    const {cartSize, inCart, openDialog} = this.state;
-
-    const cartEnabled = data && slug && title;
-
-    // const profile = "test";
-    // const url = `https://dataafrica.io/profile/${profile}/${slug}`;
-    // <div className="option" onClick={this.onFocus.bind(this)} onMouseLeave={this.onBlur.bind(this)}>
-    //   <img src="/images/viz/share.svg" />
-    //   <input type="text" value={url} ref={input => this.input = input} readOnly="readonly" />
-    // </div>
-
-
-
-
-    // <div className="option view-table" onClick={this.onCSV.bind(this)}>
-    //   <span className="option-label">View Data</span>
-    // </div>
+    // const {data, slug, title} = this.props;
+    const {openDialog} = this.state;
 
     const DialogHeader = props => <div className="pt-dialog-header">
       <img src={ `/images/viz/${ props.slug }.svg` } />
@@ -129,17 +70,6 @@ class Options extends Component {
           </div>
         </div>
       </Dialog>
-
-      { cartEnabled ? <Tooltip position={Position.TOP_RIGHT}>
-        <div className={ `option add-to-cart ${ cartSize >= 5 ? "disabled" : "" }` } onClick={this.onCart.bind(this)}>
-          <span className="option-label">{ cartSize === undefined ? "Loading Cart" : inCart ? "Remove from Cart" : "Add Data to Cart" }</span>
-        </div>
-        <span>
-          { inCart ? "Remove this dataset from the cart."
-            : cartSize !== undefined && cartSize >= 5 ? `Cart limit of ${cartSize} has been reached. Please visit the cart page to download the current cart and/or remove data.`
-              : "Add the underlying data to the cart, and merge with any existing cart data." }
-        </span>
-      </Tooltip> : null }
 
     </div>;
 
