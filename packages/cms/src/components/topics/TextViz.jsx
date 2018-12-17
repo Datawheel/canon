@@ -4,10 +4,10 @@ import {AnchorLink} from "@datawheel/canon-core";
 import axios from "axios";
 import {nest} from "d3-collection";
 import {NonIdealState, Spinner} from "@blueprintjs/core";
-import Viz from "components/Viz/index";
+import Viz from "../Viz/index";
+import SourceGroup from "../Viz/SourceGroup";
+import StatGroup from "../Viz/StatGroup";
 import "./topic.css";
-import SourceGroup from "../components/SourceGroup";
-import StatGroup from "../components/StatGroup";
 
 class TextViz extends Component {
 
