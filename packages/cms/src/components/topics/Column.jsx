@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import Viz from "components/Viz/index";
+import Viz from "../Viz/index";
 import "./topic.css";
 
 export default class TextViz extends Component {
