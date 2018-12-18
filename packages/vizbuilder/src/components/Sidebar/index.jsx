@@ -114,7 +114,11 @@ class Sidebar extends React.PureComponent {
     const {options, query} = this.props;
 
     const areMeasuresFromSameTable = (oldQ, newQ) => {
-      const key = `${newQ.cube.annotations.table_id}.${newQ.measure.name}`;
+      const {table_id} = newQ.cube.annotations;
+      if (!table_id) {
+        return false;
+      }
+      const key = `${table_id}.${newQ.measure.name}`;
       const measures = options.measureMap[key];
       return measures.indexOf(oldQ.measure) > -1 && measures.indexOf(newQ.measure) > -1;
     };
