@@ -9,6 +9,8 @@ const client = new Client(process.env.CANON_LOGICLAYER_CUBE);
 
 const topicTypeDir = path.join(__dirname, "../components/topics/");
 
+const isDev = true;
+
 const profileReqTreeOnly = {
   attributes: ["id", "title", "slug", "dimension", "ordering"],
   include: [
@@ -316,11 +318,13 @@ module.exports = function(app) {
   const newList = cmsTables;
   newList.forEach(ref => {
     app.post(`/api/cms/${ref}/new`, (req, res) => {
+      if (!isDev) res.json("Not Authorized.").end();
       db[ref].create(req.body).then(u => res.json(u));
     });
   });
 
   app.post("/api/cms/profile/newScaffold", (req, res) => {
+    if (!isDev) res.json("Not Authorized.").end();
     const profileData = req.body;
     db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName}).then(profile => {
       db.section.create({ordering: 0, profile_id: profile.id}).then(section => {
@@ -340,6 +344,7 @@ module.exports = function(app) {
   const updateList = cmsTables;
   updateList.forEach(ref => {
     app.post(`/api/cms/${ref}/update`, (req, res) => {
+      if (!isDev) res.json("Not Authorized.").end();
       db[ref].update(req.body, {where: {id: req.body.id}}).then(u => res.json(u));
     });
   });
@@ -359,6 +364,7 @@ module.exports = function(app) {
   deleteList.forEach(list => {
     list.elements.forEach(ref => {
       app.delete(`/api/cms/${ref}/delete`, (req, res) => {
+        if (!isDev) res.json("Not Authorized.").end();
         db[ref].findOne({where: {id: req.query.id}}).then(row => {
           // Construct a where clause that looks someting like: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}
           // except "profile_id" is the "parent" in the array above
@@ -380,6 +386,7 @@ module.exports = function(app) {
 
   // Other (More Complex) Elements
   app.delete("/api/cms/generator/delete", (req, res) => {
+    if (!isDev) res.json("Not Authorized.").end();
     db.generator.findOne({where: {id: req.query.id}}).then(row => {
       db.generator.destroy({where: {id: req.query.id}}).then(() => {
         db.generator.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "name"]}).then(rows => {
@@ -390,6 +397,7 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/materializer/delete", (req, res) => {
+    if (!isDev) res.json("Not Authorized.").end();
     db.materializer.findOne({where: {id: req.query.id}}).then(row => {
       db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.materializer.destroy({where: {id: req.query.id}}).then(() => {
@@ -402,6 +410,7 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/profile/delete", (req, res) => {
+    if (!isDev) res.json("Not Authorized.").end();
     db.profile.findOne({where: {id: req.query.id}}).then(row => {
       db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.profile.destroy({where: {id: req.query.id}}).then(() => {
@@ -415,6 +424,7 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/story/delete", (req, res) => {
+    if (!isDev) res.json("Not Authorized.").end();
     db.story.findOne({where: {id: req.query.id}}).then(row => {
       db.story.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.story.destroy({where: {id: req.query.id}}).then(() => {
@@ -428,6 +438,7 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/formatter/delete", (req, res) => {
+    if (!isDev) res.json("Not Authorized.").end();
     db.formatter.destroy({where: {id: req.query.id}}).then(() => {
       db.formatter.findAll({attributes: ["id", "name", "description"]}).then(rows => {
         res.json(rows).end();
@@ -436,6 +447,7 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/section/delete", (req, res) => {
+    if (!isDev) res.json("Not Authorized.").end();
     db.section.findOne({where: {id: req.query.id}}).then(row => {
       db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.section.destroy({where: {id: req.query.id}}).then(() => {
@@ -455,6 +467,7 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/topic/delete", (req, res) => {
+    if (!isDev) res.json("Not Authorized.").end();
     db.topic.findOne({where: {id: req.query.id}}).then(row => {
       db.topic.update({ordering: sequelize.literal("ordering -1")}, {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.topic.destroy({where: {id: req.query.id}}).then(() => {
@@ -467,6 +480,7 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/storytopic/delete", (req, res) => {
+    if (!isDev) res.json("Not Authorized.").end();
     db.storytopic.findOne({where: {id: req.query.id}}).then(row => {
       db.storytopic.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.storytopic.destroy({where: {id: req.query.id}}).then(() => {
@@ -479,6 +493,7 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/selector/delete", (req, res) => {
+    if (!isDev) res.json("Not Authorized.").end();
     db.selector.findOne({where: {id: req.query.id}}).then(row => {
       db.selector.update({ordering: sequelize.literal("ordering -1")}, {where: {topic_id: row.topic_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.selector.destroy({where: {id: req.query.id}}).then(() => {
