@@ -44,6 +44,10 @@ function findDimension(flatDims, level, dimension) {
   if (dims.length > 1) {
     const hierarchyMatches = dims.filter(d => d.hierarchy === level);
     if (hierarchyMatches.length) dims = hierarchyMatches;
+    else {
+      const levelMatches = dims.filter(d => d.level === level);
+      if (levelMatches.length) dims = levelMatches;
+    }
   }
 
   return dims[0];
