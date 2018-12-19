@@ -8,7 +8,7 @@ const Sequelize = require("sequelize"),
       path = require("path"),
       yn = require("yn");
 
-const logging = yn(process.env.CANON_CMS_LOGGING);
+const logging = yn(process.env.CANON_LOGICLAYER_LOGGING);
 
 const canonConfig = require(path.join(process.cwd(), "canon.js")).logiclayer || {};
 const aliases = canonConfig.aliases || {};
