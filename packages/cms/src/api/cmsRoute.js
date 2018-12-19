@@ -231,7 +231,7 @@ module.exports = function(app) {
 
   /* GETS */
 
-  app.get("/api/cms/tree", isAuthenticated, (req, res) => {
+  app.get("/api/cms/tree", (req, res) => {
     db.profile.findAll(profileReqTreeOnly).then(profiles => {
       profiles = sortProfileTree(profiles);
       res.json(profiles).end();
