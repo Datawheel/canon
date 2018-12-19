@@ -8,8 +8,7 @@ const Sequelize = require("sequelize"),
       path = require("path"),
       yn = require("yn");
 
-// const debug = process.env.NODE_ENV === "development";
-const debug = false;
+const logging = yn(process.env.CANON_CMS_LOGGING);
 
 const canonConfig = require(path.join(process.cwd(), "canon.js")).logiclayer || {};
 const aliases = canonConfig.aliases || {};
@@ -474,7 +473,7 @@ module.exports = function(app) {
             const queryDrilldowns = drilldowns.map(d => findDimension(flatDims, d));
             const queryCuts = cuts.map(([level, value]) => [findDimension(flatDims, level), value]);
 
-            if (debug) console.log(`\nLogic Layer Query: ${name}`);
+            if (logging) console.log(`\nLogic Layer Query: ${name}`);
             if (years[name] && queryYears.length) {
               const {preferred} = findYears(flatDims);
               queryDrilldowns.push(preferred);
@@ -500,7 +499,7 @@ module.exports = function(app) {
             });
 
             cube.measures.forEach(measure => {
-              if (debug) console.log(`Measure: ${measure}`);
+              if (logging) console.log(`Measure: ${measure}`);
               query.measure(measure);
             });
 
@@ -509,7 +508,7 @@ module.exports = function(app) {
               const {dimension, hierarchy, level} = drill;
               if (!drilldowns.includes(hierarchy)) queryDrilldowns.push(drill);
               const cut = (value instanceof Array ? value : [value]).map(v => `[${dimension}].[${hierarchy}].[${level}].&[${v}]`).join(",");
-              if (debug) console.log(`Cut: ${cut}`);
+              if (logging) console.log(`Cut: ${cut}`);
               query.cut(`{${cut}}`);
             });
 
@@ -519,12 +518,12 @@ module.exports = function(app) {
               const dimString = `${dimension}, ${hierarchy}, ${level}`;
               if (!completedDrilldowns.includes(dimString)) {
                 completedDrilldowns.push(dimString);
-                if (debug) console.log(`Drilldown: ${dimString}`);
+                if (logging) console.log(`Drilldown: ${dimString}`);
                 query.drilldown(dimension, hierarchy, level);
                 (properties.length && d.properties ? d.properties : []).forEach(prop => {
                   if (properties.includes(prop)) {
                     const propString = `${dimension}, ${hierarchy}, ${prop}`;
-                    if (debug) console.log(`Property: ${propString}`);
+                    if (logging) console.log(`Property: ${propString}`);
                     query.property(dimension, hierarchy, prop);
                   }
                 });
@@ -533,7 +532,7 @@ module.exports = function(app) {
 
             const p = yn(parents);
             query.option("parents", p);
-            if (p && debug) console.log("Parents: true");
+            if (p && logging) console.log("Parents: true");
 
             filters
               .filter(f => cube.measures.includes(f[0]))
@@ -542,12 +541,12 @@ module.exports = function(app) {
             // TODO add this once mondrian-rest ordering works
             // if (limit) {
             //   query.pagination(limit);
-            //   if (debug) console.log(`Limit: ${limit}`);
+            //   if (logging) console.log(`Limit: ${limit}`);
             // }
             //
             // if (order.length === 1 && cube.measures.includes(order[0])) {
             //   query.sorting(order[0], sort === "desc");
-            //   if (debug) console.log(`Order: ${order[0]} (${sort})`);
+            //   if (logging) console.log(`Order: ${order[0]} (${sort})`);
             // }
 
             if (captions) {
@@ -719,7 +718,7 @@ module.exports = function(app) {
     // const sourceMeasures = d3Array.merge(Object.values(queries).map(d => d.measures));
     // if (order.length > 1 || !sourceMeasures.includes(order[0])) {
     //   mergedData = multiSort(mergedData, order, sort);
-    //   if (debug) console.log(`Order: ${order.join(", ")} (${sort})`);
+    //   if (logging) console.log(`Order: ${order.join(", ")} (${sort})`);
     // }
 
     // TODO remove this once mondrian-rest ordering works
