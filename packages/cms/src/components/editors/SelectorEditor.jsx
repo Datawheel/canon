@@ -227,7 +227,7 @@ class SelectorEditor extends Component {
           }
         </ul>
         <button className="pt-button" onClick={this.addOption.bind(this)}>Add Option <span className="pt-icon pt-icon-plus"/></button><br/>
-        { data.type === "single" && <button className="pt-button" onClick={this.toggleCustom.bind(this)}>Custom Default <span className="pt-icon pt-icon-cog"/></button> }
+        <button className="pt-button" onClick={this.toggleCustom.bind(this)}>Custom Default <span className="pt-icon pt-icon-cog"/></button> 
         {
           showCustom && <div>
             <select value={data.default} onChange={this.chooseCustom.bind(this)}>
