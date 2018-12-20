@@ -1,4 +1,3 @@
-//@ts-check
 /**
  * The main function here is chartCriteria
  * This function is in charge of deciding which charts will be rendered for each
@@ -7,7 +6,6 @@
 
 import {isGeoPlusUniqueCutQuery} from "./chartHelpers";
 import {getTopTenByYear} from "./sorting";
-import {isGeoDimension} from "./validation";
 
 export const QUIRKS = {
   TOPTEN: "topten"
@@ -27,6 +25,7 @@ export default function chartCriteria(results, params) {
     const measureName = query.measure.name;
     const levelName = query.level.name;
     const xlevelName = query.xlevel && query.xlevel.name;
+    const geoLevelName = query.geoLevel && query.geoLevel.name;
     const timeLevelName = query.timeLevel && query.timeLevel.name;
 
     const levelMembers = members[levelName] || [];
@@ -49,9 +48,7 @@ export default function chartCriteria(results, params) {
     const availableCharts = new Set(params.visualizations);
 
     const hasTimeLvl = timeLevelName && timeLevelMembers.length > 1;
-    const hasGeoLvl = [query.level, query.xlevel].some(
-      lvl => lvl && isGeoDimension(lvl.hierarchy.dimension)
-    );
+    const hasGeoLvl = Boolean(geoLevelName);
 
     // Hide barcharts with more than 20 members
     if (levelMembers.length > 20) {
@@ -67,10 +64,10 @@ export default function chartCriteria(results, params) {
 
     // Hide geomaps if there no geo levels, or if there's less than 3 members
     if (
-      !hasGeoLvl ||
       !topojsonConfig ||
+      !hasGeoLvl ||
       levelMembers.length < 3 ||
-      !isGeoPlusUniqueCutQuery(query)
+      (query.levels.length === 2 && !isGeoPlusUniqueCutQuery(query))
     ) {
       availableCharts.delete("geomap");
     }
@@ -127,10 +124,7 @@ export default function chartCriteria(results, params) {
      * and creates a new datagroup, lineplot-only, for the new trimmed dataset
      * @see Issue#296 on {@link https://github.com/Datawheel/canon/issues/296 | GitHub}
      */
-    let totalMembers = members[levelName].length;
-    if (xlevelName) {
-      totalMembers *= members[xlevelName].length;
-    }
+    const totalMembers = query.levels.reduce((total, lvl) => total * members[lvl.name].length, 1);
     if (availableCharts.has("lineplot") && totalMembers > 60) {
       availableCharts.delete("lineplot");
 

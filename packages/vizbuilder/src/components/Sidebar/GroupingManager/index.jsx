@@ -11,6 +11,7 @@ import {
   NoMoreOptions,
   DimensionInUse
 } from "../../../helpers/errors";
+import { getGeoLevel } from "../../../helpers/sorting";
 
 class GroupingManager extends SidebarCRUDManager {
   constructor(props) {
@@ -94,6 +95,12 @@ class GroupingManager extends SidebarCRUDManager {
     if (usedDimensions.indexOf(item.level.hierarchy.dimension) > -1) {
       throw new DimensionInUse();
     }
+  }
+
+  postUpdateHook(partialState) {
+    const partialQuery = partialState.query;
+    partialQuery.geoLevel = getGeoLevel(partialQuery);
+    return partialState;
   }
 
   getUsedDimensions(groups) {
