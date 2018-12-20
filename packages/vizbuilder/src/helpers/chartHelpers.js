@@ -10,7 +10,7 @@ import {
 } from "d3plus-react";
 
 import {getPermutations} from "./sorting";
-import {areMetaMeasuresZero, isGeoDimension} from "./validation";
+import {areMetaMeasuresZero} from "./validation";
 
 export const chartComponents = {
   barchart: BarChart,
@@ -139,11 +139,7 @@ export function tooltipGenerator(datagroup) {
 }
 
 export function isGeoPlusUniqueCutQuery(query) {
-  if (query.levels.length !== 2 || query.cuts.length === 0) return false;
-
-  const geoLvl = query.levels.find(lvl =>
-    isGeoDimension(lvl.hierarchy.dimension)
-  );
+  const geoLvl = query.geoLevel;
   const notGeoLvl = query.levels.find(lvl => lvl !== geoLvl);
   const notGeoLvlFullName = notGeoLvl.fullName;
   const notGeoLvlCut = query.cuts.find(cut => cut.key === notGeoLvlFullName);

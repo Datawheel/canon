@@ -4,7 +4,7 @@ import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 import {fetchMembers} from "./fetch";
 import OPERATORS from "./operators";
 import {generateBaseState} from "./query";
-import {findByKey} from "./sorting";
+import {findByKey, getGeoLevel} from "./sorting";
 import {isValidFilter, isValidGrouping} from "./validation";
 
 /**
@@ -96,7 +96,7 @@ export function permalinkToState(queryParams, prevState) {
       const levelKey = parts.shift();
       const level = findByKey(levelKey, state.options.levels);
       if (level) {
-        const memberKeys = parts.join("-").split("~");
+        const memberKeys = parts.join("-").split("~").filter(Boolean);
         let promise;
         if (memberKeys.length > 0) {
           promise = fetchMembers(level).then(members => {
@@ -123,6 +123,7 @@ export function permalinkToState(queryParams, prevState) {
 
     return Promise.all(groupPromises).then(groups => {
       state.query.groups = groups;
+      state.query.geoLevel = getGeoLevel(state.query);
       return state;
     });
   });

@@ -8,7 +8,7 @@ import {
   getValidLevels,
   removeDuplicateLevels
 } from "./sorting";
-import {isValidGrouping, isGeoDimension} from "./validation";
+import {isGeoDimension, isValidGrouping} from "./validation";
 
 /**
  * Generates a partial state object, whose elements
@@ -100,7 +100,7 @@ export function replaceKeysInString(string, oldList, newList, property) {
 
   property = property || 'key';
 
-  for (let i=0; i < newList.length; i++) {
+  for (let i = 0; i < newList.length; i++) {
     if (oldList[i][property] && newList[i][property]) {
       string = string.replace(oldList[i][property], newList[i][property]);
     }

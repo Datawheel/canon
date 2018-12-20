@@ -9,6 +9,7 @@ import {
   classifyMeasures,
   findByName,
   getDefaultGroup,
+  getGeoLevel,
   getIncludedMembers,
   reduceLevelsFromDimension
 } from "./sorting";
@@ -142,6 +143,7 @@ export function fetchCubes(params, props) {
 
     const newQuery = newState.query;
     newQuery.groups = getDefaultGroup(params.defaultGroup, newOptions.levels);
+    newQuery.geoLevel = getGeoLevel(newQuery);
 
     return newState;
   });
