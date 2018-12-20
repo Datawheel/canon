@@ -246,7 +246,7 @@ class ProfileEditor extends Component {
             <TextCard key={f.id}
               item={f}
               onDelete={this.onDelete.bind(this)}
-              fields={["description"]}
+              fields={["title", "description"]}
               type="profile_footnote"
               variables={variables}
               parentArray={minData.footnotes}

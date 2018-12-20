@@ -130,7 +130,7 @@ class StoryEditor extends Component {
               item={d}
               ordering={d.ordering}
               onDelete={this.onDelete.bind(this)}
-              fields={["description"]}
+              fields={["title", "description"]}
               type="story_footnote"
               variables={{}}
               parentArray={minData.footnotes}
