@@ -95,8 +95,6 @@ class TextCard extends Component {
       .filter(k => typeof displayData[k] === "string" && !["id", "image", "profile_id", "allowed", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
 
-    console.log(type);
-
     return (
       <div className={`cms-card cms-${cardClass}`}>
 
