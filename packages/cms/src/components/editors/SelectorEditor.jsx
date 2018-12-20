@@ -73,16 +73,7 @@ class SelectorEditor extends Component {
     }
     else if (data.type === "multi") {
       const theOption = data.options.find(o => o.option === option);
-      if (theOption) {
-        if (checked) {
-          theOption.isDefault = checked;
-        }
-        else {
-          if (data.options.filter(o => o.isDefault).length > 1) {
-            theOption.isDefault = checked;
-          }
-        }
-      }
+      if (theOption) theOption.isDefault = checked;
       data.default = data.options.filter(o => o.isDefault).map(o => o.option).join();
     }
     this.setState({data, showCustom: false});
