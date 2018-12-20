@@ -5,7 +5,7 @@ import Vizbuilder from "../../src/";
 
 import "./Home.css";
 
-const DATAUSA = "https://katahdin-api.datausa.io";
+const DATAUSA = "https://lassen-api.datausa.io";
 
 const DEFAULT_TOPOJSON = {
   "Nation": {
@@ -95,7 +95,7 @@ export default class Home extends React.Component {
 
   render() {
     return <Vizbuilder
-      src={this.state.source}
+      src={[this.state.source]}
       config={DEFAULT_CONFIG}
       defaultGroup={["Geography.State"]}
       measureConfig={{
