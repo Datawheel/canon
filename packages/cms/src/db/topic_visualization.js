@@ -29,7 +29,7 @@ module.exports = function(sequelize, db) {
       },
       simple: {
         type: db.BOOLEAN,
-        defaultValue: false
+        defaultValue: true
       },      
       ordering: db.INTEGER
     }, 
