@@ -5,7 +5,7 @@ import "./topic.css";
 
 /** */
 function findKey(str, key) {
-  const regex = new RegExp(`${key}\\:[\\s]*\\"([A-z]+)\\"`, "g");
+  const regex = new RegExp(`${key}\\:[\\s]*\\"([^\\"]+)\\"`, "g");
   const match = regex.exec(str);
   if (match) return match[1];
   else return match;
@@ -34,7 +34,7 @@ class Tabs extends Component {
     const selectorsPerViz = Math.ceil(selectors.length / visualizations.length);
     const tabSelectors = selectors.slice(selectorsPerViz * tabIndex, selectorsPerViz * (tabIndex + 1));
 
-    const titleKeys = ["tab", "title", "type"];
+    const titleKeys = ["tab", "type"];
 
     const tabs = visualizations.map((d, i) => {
       let title;
