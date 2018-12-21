@@ -11,7 +11,7 @@ export default function RouteCreate() {
   return (
     <Route path="/" component={App} history={browserHistory}>
       <IndexRoute component={Builder} />
-      <Route path="/profile" component={Profile} />
+      <Route path="/profile/:pslug/:pid" component={Profile} />
       <Route path="/search" component={Search} />
     </Route>
   );

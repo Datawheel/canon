@@ -1,11 +1,14 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
 import Viz from "../Viz/index";
 import "./topic.css";
 
-export default class TextViz extends Component {
+class Column extends Component {
 
   render() {
-    const {descriptions, slug, subtitles, title, visualizations} = this.props.contents;
+    const {contents, loading} = this.props;
+    const {onSelector, variables} = this.context;
+    const {descriptions, selectors, slug, subtitles, title, visualizations} = contents;
 
     return <div className={ `topic ${slug} Column` }>
       <div className="topic-content">
@@ -17,8 +20,31 @@ export default class TextViz extends Component {
         { subtitles.map((content, i) => <div key={i} className="topic-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
         { descriptions.map((content, i) => <div key={i} className="topic-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
       </div>
-      { visualizations.map((visualization, ii) => <Viz config={visualization} key={ii} className="topic-visualization" title={ title } slug={ `${slug}_${ii}` } />) }
+      { visualizations.length > 1 && selectors.length > 0 && <div className="topic-selectors">
+        { selectors.map(selector => <div className="pt-select" key={selector.name}>
+          <select onChange={d => onSelector(selector.name, d.target.value)} disabled={loading} defaultValue={selector.default}>
+            { selector.options.map(({option}) => <option value={option} key={option}>{variables[option]}</option>) }
+          </select>
+        </div>) }
+      </div> }
+      <div className="topic-flex">
+        { visualizations.length === 1 && selectors.length > 0 && <div className="topic-selectors">
+          { selectors.map(selector => <div className="pt-select pt-fill" key={selector.name}>
+            <select onChange={d => onSelector(selector.name, d.target.value)} disabled={loading} defaultValue={selector.default}>
+              { selector.options.map(({option}) => <option value={option} key={option}>{variables[option]}</option>) }
+            </select>
+          </div>) }
+        </div> }
+        { visualizations.map((visualization, ii) => <Viz config={visualization} key={ii} className="topic-visualization" title={ title } slug={ `${slug}_${ii}` } />) }
+      </div>
     </div>;
   }
 
 }
+
+Column.contextTypes = {
+  onSelector: PropTypes.func,
+  variables: PropTypes.object
+};
+
+export default Column;

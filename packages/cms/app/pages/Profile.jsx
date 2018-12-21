@@ -47,7 +47,7 @@ Profile.childContextTypes = {
 };
 
 Profile.need = [
-  fetchData("profile", "/api/profile/antibiotic-resistance/7"),
+  fetchData("profile", "/api/profile/<pslug>/<pid>"),
   fetchData("formatters", "/api/formatters")
 ];
 
