@@ -92,55 +92,83 @@ const cmsTables = [
 
 const sorter = (a, b) => a.ordering - b.ordering;
 
+/**
+ * Due to yet-unreproducible edge cases, sometimes elements lose their ordering. 
+ * This function sorts an array, then checks if the "ordering" property lines up 
+ * with the element's place in the array. If not, "patch" the element and send it back
+ * to the client, and asynchronously send an update to the db to match it.
+ */
+const flatSort = (conn, array) => 
+  array.sort(sorter).map((o, i) => {
+    if (o.ordering !== i) {
+      o.ordering = i;
+      conn.update({ordering: i}, {where: {id: o.id}});
+    }
+    return o;
+  });
+
+
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. todo: move it up to the query.
-const sortProfileTree = profiles => {
+const sortProfileTree = (db, profiles) => {
   profiles = profiles.map(p => p.toJSON());
-  profiles.sort(sorter);
+  profiles = flatSort(db.profile, profiles);
   profiles.forEach(p => {
-    p.sections.sort(sorter);
+    p.sections = flatSort(db.section, p.sections);
     p.sections.forEach(s => {
-      s.topics.sort(sorter);
+      s.topics = flatSort(db.topic, s.topics);
     });
   });
   return profiles;
 };
 
-const sortStoryTree = stories => {
+const sortStoryTree = (db, stories) => {
   stories = stories.map(s => s.toJSON());
-  stories.sort(sorter);
+  stories = flatSort(db.story, stories);
   stories.forEach(s => {
-    s.storytopics.sort(sorter);
+    s.storytopics = flatSort(db.storytopic, s.storytopics);
   });
   return stories;
 };
 
-const sortProfile = profile => {
+const sortProfile = (db, profile) => {
   profile = profile.toJSON();
-  ["materializers", "stats", "footnotes"].forEach(type => profile[type].sort(sorter));
+  profile.materializers = flatSort(db.materializer, profile.materializers);
+  profile.stats = flatSort(db.profile_stat, profile.stats);
+  profile.footnotes = flatSort(db.profile_footnote, profile.footnotes);
   return profile;
 };
 
-const sortStory = story => {
+const sortStory = (db, story) => {
   story = story.toJSON();
-  ["descriptions", "footnotes", "authors"].forEach(type => story[type].sort(sorter));
+  story.descriptions = flatSort(db.story_description, story.descriptions);
+  story.footnotes = flatSort(db.story_footnote, story.footnotes);
+  story.authors = flatSort(db.author, story.authors);
   return story;
 };
 
-const sortSection = section => {
+const sortSection = (db, section) => {
   section = section.toJSON();
-  ["subtitles", "descriptions"].forEach(type => section[type].sort(sorter));
+  section.subtitles = flatSort(db.section_subtitle, section.subtitles);
+  section.descriptions = flatSort(db.section_description, section.descriptions);
   return section;
 };
 
-const sortTopic = topic => {
+const sortTopic = (db, topic) => {
   topic = topic.toJSON();
-  ["subtitles", "visualizations", "stats", "descriptions", "selectors"].forEach(type => topic[type].sort(sorter));
+  topic.subtitles = flatSort(db.topic_subtitle, topic.subtitles);
+  topic.visualizations = flatSort(db.topic_visualization, topic.visualizations);
+  topic.stats = flatSort(db.topic_stat, topic.stats);
+  topic.descriptions = flatSort(db.topic_description, topic.descriptions);
+  topic.selectors = flatSort(db.selector, topic.selectors);
   return topic;
 };
 
-const sortStoryTopic = storytopic => {
+const sortStoryTopic = (db, storytopic) => {
   storytopic = storytopic.toJSON();
-  ["subtitles", "visualizations", "stats", "descriptions"].forEach(type => storytopic[type].sort(sorter));
+  storytopic.subtitles = flatSort(db.storytopic_subtitle, storytopic.subtitles);
+  storytopic.visualizations = flatSort(db.storytopic_visualization, storytopic.visualizations);
+  storytopic.stats = flatSort(db.storytopic_stat, storytopic.stats);
+  storytopic.descriptions = flatSort(db.storytopic_description, storytopic.descriptions);
   return storytopic;
 };
 
@@ -226,18 +254,16 @@ module.exports = function(app) {
 
   /* GETS */
 
-  app.get("/api/cms/tree", (req, res) => {
-    db.profile.findAll(profileReqTreeOnly).then(profiles => {
-      profiles = sortProfileTree(profiles);
-      res.json(profiles).end();
-    });
+  app.get("/api/cms/tree", async(req, res) => {
+    let profiles = await db.profile.findAll(profileReqTreeOnly);
+    profiles = sortProfileTree(db, profiles);
+    res.json(profiles).end();
   });
 
-  app.get("/api/cms/storytree", (req, res) => {
-    db.story.findAll(storyReqTreeOnly).then(stories => {
-      stories = sortStoryTree(stories);
-      res.json(stories).end();
-    });
+  app.get("/api/cms/storytree", async(req, res) => {
+    let stories = await db.story.findAll(storyReqTreeOnly);
+    stories = sortStoryTree(db, stories);
+    res.json(stories).end();
   });
 
   app.get("/api/cms/formattertree", (req, res) => {
@@ -246,58 +272,53 @@ module.exports = function(app) {
     });
   });
 
-  app.get("/api/cms/profile/get/:id", (req, res) => {
+  app.get("/api/cms/profile/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, profileReqProfileOnly, {where: {id}});
-    db.profile.findOne(reqObj).then(profile => {
-      res.json(sortProfile(profile)).end();
-    });
+    const profile = await db.profile.findOne(reqObj);
+    res.json(sortProfile(db, profile)).end();
   });
 
-  app.get("/api/cms/story/get/:id", (req, res) => {
+  app.get("/api/cms/story/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, storyReqStoryOnly, {where: {id}});
-    db.story.findOne(reqObj).then(story => {
-      res.json(sortStory(story)).end();
-    });
+    const story = await db.story.findOne(reqObj);
+    res.json(sortStory(db, story)).end();
   });
 
-  app.get("/api/cms/section/get/:id", (req, res) => {
+  app.get("/api/cms/section/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id}});
-    db.section.findOne(reqObj).then(section => {
-      res.json(sortSection(section)).end();
-    });
+    const section = await db.section.findOne(reqObj);
+    res.json(sortSection(db, section)).end();
   });
 
-  app.get("/api/cms/topic/get/:id", (req, res) => {
+  app.get("/api/cms/topic/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, topicReqTopicOnly, {where: {id}});
-    db.topic.findOne(reqObj).then(topic => {
-      const topicTypes = [];
-      shell.ls(`${topicTypeDir}*.jsx`).forEach(file => {
-        const compName = file.replace(topicTypeDir, "").replace(".jsx", "");
-        topicTypes.push(compName);
-      });
-      topic = sortTopic(topic);
-      topic.types = topicTypes;
-      res.json(topic).end();
+    let topic = db.topic.findOne(reqObj);
+    const topicTypes = [];
+    shell.ls(`${topicTypeDir}*.jsx`).forEach(file => {
+      const compName = file.replace(topicTypeDir, "").replace(".jsx", "");
+      topicTypes.push(compName);
     });
+    topic = sortTopic(db, topic);
+    topic.types = topicTypes;
+    res.json(topic).end();
   });
 
-  app.get("/api/cms/storytopic/get/:id", (req, res) => {
+  app.get("/api/cms/storytopic/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, storyTopicReqStoryTopicOnly, {where: {id}});
-    db.storytopic.findOne(reqObj).then(storytopic => {
-      const topicTypes = [];
-      shell.ls(`${topicTypeDir}*.jsx`).forEach(file => {
-        const compName = file.replace(topicTypeDir, "").replace(".jsx", "");
-        topicTypes.push(compName);
-      });
-      storytopic = sortStoryTopic(storytopic);
-      storytopic.types = topicTypes;
-      res.json(storytopic).end();
+    let storytopic = await db.storytopic.findOne(reqObj);
+    const topicTypes = [];
+    shell.ls(`${topicTypeDir}*.jsx`).forEach(file => {
+      const compName = file.replace(topicTypeDir, "").replace(".jsx", "");
+      topicTypes.push(compName);
     });
+    storytopic = sortStoryTopic(db, storytopic);
+    storytopic.types = topicTypes;
+    res.json(storytopic).end();
   });
 
   // Top-level tables have their own special gets, so exclude them from the "simple" gets
@@ -326,7 +347,7 @@ module.exports = function(app) {
       db.section.create({ordering: 0, profile_id: profile.id}).then(section => {
         db.topic.create({ordering: 0, section_id: section.id}).then(() => {
           db.profile.findAll(profileReqTreeOnly).then(profiles => {
-            profiles = sortProfileTree(profiles);
+            profiles = sortProfileTree(db, profiles);
             populateSearch(profileData, db);
             res.json(profiles).end();
           });
@@ -406,7 +427,7 @@ module.exports = function(app) {
       db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.profile.destroy({where: {id: req.query.id}}).then(() => {
           db.profile.findAll(profileReqTreeOnly).then(profiles => {
-            profiles = sortProfileTree(profiles);
+            profiles = sortProfileTree(db, profiles);
             res.json(profiles).end();
           });
         });
@@ -419,7 +440,7 @@ module.exports = function(app) {
       db.story.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.story.destroy({where: {id: req.query.id}}).then(() => {
           db.story.findAll(storyReqTreeOnly).then(stories => {
-            stories = sortStoryTree(stories);
+            stories = sortStoryTree(db, stories);
             res.json(stories).end();
           });
         });
