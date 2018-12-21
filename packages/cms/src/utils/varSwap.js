@@ -3,8 +3,7 @@ const libs = require("./libs");
 /* Given an object, a hashtable of formatting functions, and a lookup object full of variables
  * Replace every instance of {{var}} with its true value from the lookup object, and
  * apply the appropriate formatter
- * TODO: maybe make this recursive in the future, crawling down the object?
-*/
+ */
 
 module.exports = (sourceString, formatterFunctions, variables) => {  
   // Find all instances of the following type:  FormatterName{{VarToReplace}}
@@ -18,9 +17,20 @@ module.exports = (sourceString, formatterFunctions, variables) => {
     }
 
     const value = variables[keyMatch];
-    if (value === undefined) return "N/A";
-    else return formatter(value, libs, formatterFunctions);
-
+    if (value === undefined) {
+      return "N/A";
+    } 
+    // The user-created formatter may be malformed. Wrap in a try/catch so bad js in a
+    // formatter doesn't cause the CMS to crash.
+    else {
+      try {
+        return formatter(value, libs, formatterFunctions);
+      }
+      catch (e) {
+        console.log("Formatter error: ", e.message);
+        return "N/A";
+      }
+    }
   });
   return sourceString;
 };
