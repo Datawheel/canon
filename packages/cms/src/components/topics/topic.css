@@ -88,7 +88,7 @@
     }
   }
 
-  &.Column {
+  &.Column, &.Tabs {
     flex: 1;
     flex-direction: column;
     width: auto;
@@ -102,4 +102,11 @@
     }
   }
 
+}
+
+.topic-flex {
+  display: flex;
+  & .topic-selectors {
+    max-width: 300px;
+  }
 }
