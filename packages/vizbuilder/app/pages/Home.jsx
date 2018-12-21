@@ -5,7 +5,7 @@ import Vizbuilder from "../../src/";
 
 import "./Home.css";
 
-const DATAUSA = "https://lassen-api.datausa.io";
+const DATAUSA = "https://olympic-api.datausa.io";
 
 const DEFAULT_TOPOJSON = {
   "Nation": {
