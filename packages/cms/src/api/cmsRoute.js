@@ -98,7 +98,8 @@ const sorter = (a, b) => a.ordering - b.ordering;
  * with the element's place in the array. If not, "patch" the element and send it back
  * to the client, and asynchronously send an update to the db to match it.
  */
-const flatSort = (conn, array) => 
+const flatSort = (conn, array) => {
+  if (!array) return [];
   array.sort(sorter).map((o, i) => {
     if (o.ordering !== i) {
       o.ordering = i;
@@ -106,6 +107,8 @@ const flatSort = (conn, array) =>
     }
     return o;
   });
+  return array;
+};
 
 
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. todo: move it up to the query.
@@ -296,7 +299,7 @@ module.exports = function(app) {
   app.get("/api/cms/topic/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, topicReqTopicOnly, {where: {id}});
-    let topic = db.topic.findOne(reqObj);
+    let topic = await db.topic.findOne(reqObj);
     const topicTypes = [];
     shell.ls(`${topicTypeDir}*.jsx`).forEach(file => {
       const compName = file.replace(topicTypeDir, "").replace(".jsx", "");
