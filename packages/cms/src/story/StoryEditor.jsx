@@ -2,6 +2,9 @@ import axios from "axios";
 import React, {Component} from "react";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
+import {DatePicker} from "@blueprintjs/datetime";
+
+import "@blueprintjs/datetime/dist/blueprint-datetime.css";
 
 const propMap = {
   author: "authors",
@@ -36,6 +39,12 @@ class StoryEditor extends Component {
 
   onSave(minData) {
     if (this.props.reportSave) this.props.reportSave("story", minData.id, minData.title);
+  }
+
+  setDate(date) {
+    const {minData} = this.state;
+    minData.date = date;
+    this.setState({minData, showDate: false}, this.save.bind(this));
   }
 
   save() {
@@ -73,7 +82,7 @@ class StoryEditor extends Component {
 
   render() {
 
-    const {minData} = this.state;
+    const {minData, showDate} = this.state;
 
     if (!minData) return <Loading />;
 
@@ -94,6 +103,18 @@ class StoryEditor extends Component {
             onSave={this.onSave.bind(this)}
             variables={{}}
           />
+        </div>
+
+        <h2 className="cms-section-heading">
+          Date
+        </h2>
+        <div className="cms-card-list">
+          {new Date(minData.date).toDateString()}
+          {!showDate && <button onClick={() => this.setState({showDate: true})}>Choose Date...</button>}
+          {showDate && <DatePicker 
+            value={new Date(minData.date)}
+            onChange={this.setDate.bind(this)}
+          />}
         </div>
 
         {/* descriptions */}
