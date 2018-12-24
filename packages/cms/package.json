@@ -13,6 +13,7 @@
     "start": "canon-start"
   },
   "dependencies": {
+    "@blueprintjs/datetime": "^1.25.5",
     "@blueprintjs/labs": "^0.14.5",
     "axios": "^0.18.0",
     "buble": "^0.19.3",
