@@ -41,7 +41,9 @@ class PercentageBar extends Component {
 
     if (!config) return null;
 
-    const {data, cutoff, title, value, groupBy, total, showPercent} = config;
+    const {data, cutoff, title, value, groupBy, total, showPercent/*, numberFormat*/} = config;
+
+    //if (!numberFormat) numberFormat = d => `${Number(d[value] / total * 100).toFixed(2)}%`;
 
     const displayData = showAll ? data : data.slice(0, cutoff);
   

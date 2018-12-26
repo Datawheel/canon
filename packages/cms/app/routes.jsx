@@ -5,6 +5,7 @@ import App from "./App";
 import Profile from "./pages/Profile";
 import Builder from "../src/Builder";
 import Search from "./pages/Search";
+import Bar from "./pages/Bar";
 
 /** */
 export default function RouteCreate() {
@@ -13,6 +14,7 @@ export default function RouteCreate() {
       <IndexRoute component={Builder} />
       <Route path="/profile/:pslug/:pid" component={Profile} />
       <Route path="/search" component={Search} />
+      <Route path="/bar" component={Bar} />
     </Route>
   );
 }
