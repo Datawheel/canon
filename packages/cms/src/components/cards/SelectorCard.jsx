@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Alert, Intent} from "@blueprintjs/core";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
@@ -17,7 +17,8 @@ class SelectorCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      minData: null
+      minData: null,
+      alertObj: false
     };
   }
 
@@ -54,6 +55,15 @@ class SelectorCard extends Component {
     });
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
@@ -66,13 +76,27 @@ class SelectorCard extends Component {
   }
 
   render() {
-    const {minData, isOpen} = this.state;
+    const {minData, isOpen, alertObj} = this.state;
     const {variables, parentArray, type} = this.props;
 
     if (!minData) return <Loading />;
 
     return (
       <div className="cms-card">
+
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          iconName="pt-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+          inline="true"
+        >
+          {alertObj.message}
+        </Alert>
 
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
@@ -112,7 +136,7 @@ class SelectorCard extends Component {
             <SelectorEditor variables={variables} data={minData} />
           </div>
           <FooterButtons
-            onDelete={this.delete.bind(this)}
+            onDelete={this.maybeDelete.bind(this)}
             onCancel={() => this.setState({isOpen: false})}
             onSave={this.save.bind(this)}
           />
