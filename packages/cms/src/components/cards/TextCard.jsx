@@ -160,7 +160,7 @@ class TextCard extends Component {
             <TextEditor data={minData} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />
           </div>
           <FooterButtons
-            onDelete={["profile", "section", "topic"].includes(type) ? false : this.maybeDelete.bind(this)}
+            onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}
             onCancel={() => this.setState({isOpen: false})}
             onSave={this.save.bind(this)}
           />
