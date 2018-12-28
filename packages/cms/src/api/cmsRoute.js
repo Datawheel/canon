@@ -195,6 +195,17 @@ const formatter = (members, data, dimension, level) => {
   return newData;
 };
 
+const pruneSearch = async(dimension, db) => {
+  const currentProfiles = await db.profile.findAll();
+  const currentDimensions = currentProfiles.map(p => p.dimension);
+  // To be on the safe side, only clear the search table of dimensions that NO remaining
+  // profiles are currently making use of.
+  if (!currentDimensions.includes(dimension)) {
+    const resp = await db.search.destroy({where: {dimension}});
+    console.log(`Cleaned up search data. Rows affected: ${resp}`);
+  }
+};
+
 const populateSearch = (profileData, db) => {
 
   /**
@@ -429,6 +440,7 @@ module.exports = function(app) {
     db.profile.findOne({where: {id: req.query.id}}).then(row => {
       db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.profile.destroy({where: {id: req.query.id}}).then(() => {
+          pruneSearch(row.dimension, db);
           db.profile.findAll(profileReqTreeOnly).then(profiles => {
             profiles = sortProfileTree(db, profiles);
             res.json(profiles).end();
