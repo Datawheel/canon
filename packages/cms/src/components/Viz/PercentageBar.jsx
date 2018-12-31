@@ -16,7 +16,9 @@ class PercentageBar extends Component {
 
     const defaults = {
       cutoff: 5,
-      numberFormat: (d, value, total) => `${Number(d[value] / total * 100).toFixed(2)}%`
+      numberFormat: (d, value, total) => `${Number(d[value] / total * 100).toFixed(2)}%`,
+      showText: "Show More",
+      hideText: "Hide"
     };
 
     const config = Object.assign({}, defaults, propConfig);
@@ -42,7 +44,7 @@ class PercentageBar extends Component {
 
     if (!config) return null;
 
-    const {data, cutoff, title, value, groupBy, total, numberFormat} = config;
+    const {data, cutoff, title, value, groupBy, total, numberFormat, showText, hideText} = config;
 
     const displayData = showAll ? data : data.slice(0, cutoff);
 
@@ -65,7 +67,7 @@ class PercentageBar extends Component {
           </div>;
         })
       }
-      {data.length > cutoff && <button onClick={() => this.setState({showAll: !this.state.showAll})}>{showAll ? "Hide" : "Show More"}</button>}
+      {data.length > cutoff && <button onClick={() => this.setState({showAll: !this.state.showAll})}>{showAll ? hideText : showText}</button>}
     </div>;
 
   }
