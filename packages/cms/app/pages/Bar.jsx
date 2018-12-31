@@ -13,7 +13,6 @@ export default class Bar extends Component {
         {name: "alex", count: 10}
       ],
       dataFormat: d => d,
-      total: 100,
       groupBy: "name",
       value: "count"  
   }

@@ -15,7 +15,8 @@ class PercentageBar extends Component {
     const {dataFormat} = this.props;
 
     const defaults = {
-      cutoff: 5
+      cutoff: 5,
+      numberFormat: (d, value, total) => `${Number(d[value] / total * 100).toFixed(2)}%`
     };
 
     const config = Object.assign({}, defaults, propConfig);
@@ -41,11 +42,11 @@ class PercentageBar extends Component {
 
     if (!config) return null;
 
-    const {data, cutoff, title, value, groupBy, total, showPercent/*, numberFormat*/} = config;
-
-    //if (!numberFormat) numberFormat = d => `${Number(d[value] / total * 100).toFixed(2)}%`;
+    const {data, cutoff, title, value, groupBy, total, numberFormat} = config;
 
     const displayData = showAll ? data : data.slice(0, cutoff);
+
+    console.log(numberFormat);
   
     return <div className="PercentageBar">
       <h3 className="pb-title">{title}</h3>
@@ -53,14 +54,14 @@ class PercentageBar extends Component {
         displayData.map((d, i) => {
           const percent = d[value] / total * 100;
           const label = d[groupBy];
-          const number = d[value];
           return <div key={`pb-${i}`}className="percent-wrapper">
             <p className="label s-size">{label}</p>
             <div className="pt-progress-bar pt-intent-primary pt-no-stripes">
               {!isNaN(percent) && <div className="pt-progress-meter" style={{width: `${percent}%`}}>
               </div>}      
-              <p className="percent-label xs-size">{`${!isNaN(Number(number)) ? Number(number).toFixed(2) : number}${showPercent ? "%" : ""}`}</p>    
+              <p className="percent-label xs-size">{numberFormat(d, value, total)}</p>    
             </div>
+            
           </div>;
         })
       }
