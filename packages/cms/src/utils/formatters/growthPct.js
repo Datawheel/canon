@@ -1,3 +1,5 @@
+/* global formatters */
+
 /**
  * Abbreviates a growth value, turns it absolute, and adds a percent sign.
  */

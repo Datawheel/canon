@@ -1,3 +1,5 @@
+/* global formatters */
+
 const libs = require("./libs");
 
 /**

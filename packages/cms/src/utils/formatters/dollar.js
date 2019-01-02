@@ -1,3 +1,5 @@
+/* global formatters */
+
 /**
  * Adds a US dollar sign to the beginning of a String or Number.
  */
