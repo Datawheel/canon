@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Alert, Intent} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
@@ -15,7 +15,8 @@ class GeneratorCard extends Component {
     super(props);
     this.state = {
       minData: null,
-      displayData: null
+      displayData: null,
+      alertObj: false
     };
   }
 
@@ -50,6 +51,15 @@ class GeneratorCard extends Component {
     this.setState({displayData});
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
@@ -74,7 +84,7 @@ class GeneratorCard extends Component {
 
   render() {
     const {type, variables, item, parentArray, preview} = this.props;
-    const {displayData, minData, isOpen} = this.state;
+    const {displayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
     let showDesc = false;
@@ -89,6 +99,20 @@ class GeneratorCard extends Component {
 
     return (
       <div className="cms-card">
+
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          iconName="pt-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+          inline="true"
+        >
+          {alertObj.message}
+        </Alert>
 
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
@@ -164,7 +188,7 @@ class GeneratorCard extends Component {
             <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
           </div>
           <FooterButtons
-            onDelete={this.delete.bind(this)}
+            onDelete={this.maybeDelete.bind(this)}
             onCancel={() => this.setState({isOpen: false})}
             onSave={this.save.bind(this)}
           />

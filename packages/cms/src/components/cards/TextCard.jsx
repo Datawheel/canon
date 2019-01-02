@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Alert, Intent} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
@@ -16,7 +16,8 @@ class TextCard extends Component {
     super(props);
     this.state = {
       minData: null,
-      displayData: null
+      displayData: null,
+      alertObj: false
     };
   }
 
@@ -70,6 +71,15 @@ class TextCard extends Component {
     });
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
@@ -82,7 +92,7 @@ class TextCard extends Component {
   }
 
   render() {
-    const {displayData, minData, isOpen} = this.state;
+    const {displayData, minData, isOpen, alertObj} = this.state;
     const {variables, fields, plainfields, type, parentArray, item} = this.props;
     const {ordering} = item;
 
@@ -97,6 +107,20 @@ class TextCard extends Component {
 
     return (
       <div className={`cms-card cms-${cardClass}`}>
+
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          iconName="pt-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+          inline="true"
+        >
+          {alertObj.message}
+        </Alert>
 
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
@@ -136,7 +160,7 @@ class TextCard extends Component {
             <TextEditor data={minData} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />
           </div>
           <FooterButtons
-            onDelete={["profile", "section", "topic"].includes(type) ? false : this.delete.bind(this)}
+            onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}
             onCancel={() => this.setState({isOpen: false})}
             onSave={this.save.bind(this)}
           />
