@@ -16,7 +16,10 @@ class PercentageBar extends Component {
 
     const defaults = {
       cutoff: 5,
-      numberFormat: (d, value, total) => `${Number(d[value] / total * 100).toFixed(2)}%`,
+      numberFormat: (d, value, total) => {
+        const perc = Number(d[value] / total * 100);
+        return isNaN(perc) ? "No Data" : `${perc.toFixed(2)}%`;
+      },
       showText: "Show More",
       hideText: "Hide"
     };
@@ -27,13 +30,13 @@ class PercentageBar extends Component {
     if (typeof config.data === "string") {
       axios.get(config.data).then(resp => {
         config.data = dataFormat(resp.data);
-        if (!config.total) config.total = config.data.reduce((acc, d) => acc += d[config.value], 0);
+        if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
         this.setState({config});
       });
     }
     else {
       config.data = dataFormat(config.data);
-      if (!config.total) config.total = config.data.reduce((acc, d) => acc += d[config.value], 0);
+      if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
       this.setState({config});
     }
   }
@@ -47,8 +50,6 @@ class PercentageBar extends Component {
     const {data, cutoff, title, value, groupBy, total, numberFormat, showText, hideText} = config;
 
     const displayData = showAll ? data : data.slice(0, cutoff);
-
-    console.log(numberFormat);
   
     return <div className="PercentageBar">
       <h3 className="pb-title">{title}</h3>
@@ -61,9 +62,9 @@ class PercentageBar extends Component {
             <div className="pt-progress-bar pt-intent-primary pt-no-stripes">
               {!isNaN(percent) && <div className="pt-progress-meter" style={{width: `${percent}%`}}>
               </div>}      
-              <p className="percent-label xs-size">{numberFormat(d, value, total)}</p>    
+              
             </div>
-            
+            <p className="percent-label xs-size">{numberFormat(d, value, total)}</p>    
           </div>;
         })
       }
