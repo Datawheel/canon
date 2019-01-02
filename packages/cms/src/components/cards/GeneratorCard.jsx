@@ -5,6 +5,7 @@ import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
+import deepClone from "../../utils/deepClone";
 import "./GeneratorCard.css";
 
 import ConsoleVariable from "../ConsoleVariable";
@@ -74,13 +75,9 @@ class GeneratorCard extends Component {
     });
   }
 
-  cloneObject(obj) {
-    return JSON.parse(JSON.stringify(obj));
-  }
-
   openEditor() {
     const {minData} = this.state;
-    const initialData = this.cloneObject(minData);
+    const initialData = deepClone(minData);
     const isOpen = true;
     this.setState({initialData, isOpen});
   }
@@ -96,7 +93,7 @@ class GeneratorCard extends Component {
 
   closeEditorWithoutSaving() {
     const {initialData} = this.state;
-    const minData = this.cloneObject(initialData);
+    const minData = deepClone(initialData);
     const isOpen = false;
     const alertObj = false;
     this.setState({minData, isOpen, alertObj});
@@ -209,7 +206,6 @@ class GeneratorCard extends Component {
           </div>
           <FooterButtons
             onDelete={this.delete.bind(this)}
-            // onCancel={this.closeEditor.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>
