@@ -53,6 +53,15 @@ class GeneratorCard extends Component {
     this.setState({displayData});
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
@@ -205,7 +214,7 @@ class GeneratorCard extends Component {
             <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
           </div>
           <FooterButtons
-            onDelete={this.delete.bind(this)}
+            onDelete={this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>

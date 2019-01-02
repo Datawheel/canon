@@ -19,6 +19,10 @@ module.exports = function(sequelize, db) {
       slug: {
         type: db.STRING,
         defaultValue: "new-story-slug"
+      },
+      date: {
+        type: db.DATE,
+        defaultValue: "2018-01-01 00:00:00"
       }
     }, 
     {

@@ -180,6 +180,10 @@ class ProfileBuilder extends Component {
       }
     }
 
+    // New Topics and Sections need to inherit their masterDimension from their parent.
+    // This is not necessary for profiles, as profiles are now only added through the
+    // search scaffold (see onCreateProfile)
+
     const objTopic = {
       hasCaret: false,
       itemType: "topic",
@@ -188,6 +192,7 @@ class ProfileBuilder extends Component {
     objTopic.data.section_id = n.data.section_id;
     objTopic.data.ordering = loc;
     objTopic.masterSlug = parent.masterSlug;
+    objTopic.masterDimension = parent.masterDimension;
 
     const objSection = {
       hasCaret: true,
@@ -197,6 +202,7 @@ class ProfileBuilder extends Component {
     objSection.data.profile_id = n.data.profile_id;
     objSection.data.ordering = loc;
     objSection.masterSlug = parent.masterSlug;
+    objSection.masterDimension = parent.masterDimension;
 
     const objProfile = {
       hasCaret: true,
@@ -267,6 +273,7 @@ class ProfileBuilder extends Component {
           });
         });
       }
+
       else if (n.itemType === "profile") {
         axios.post(profilePath, obj.data).then(profile => {
           obj.id = `profile${profile.data.id}`;

@@ -57,6 +57,15 @@ class SelectorCard extends Component {
     });
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
@@ -153,7 +162,7 @@ class SelectorCard extends Component {
             <SelectorEditor variables={variables} data={minData} />
           </div>
           <FooterButtons
-            onDelete={this.delete.bind(this)}
+            onDelete={this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>

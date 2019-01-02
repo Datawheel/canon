@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-cms",
   "description": "Content Management System for Canon sites.",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "author": "James Mullen",
   "license": "MIT",
   "scripts": {
@@ -13,6 +13,7 @@
     "start": "canon-start"
   },
   "dependencies": {
+    "@blueprintjs/datetime": "^1.25.5",
     "@blueprintjs/labs": "^0.14.5",
     "axios": "^0.18.0",
     "buble": "^0.19.3",

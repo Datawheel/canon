@@ -73,6 +73,15 @@ class TextCard extends Component {
     });
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
@@ -177,7 +186,7 @@ class TextCard extends Component {
             <TextEditor data={minData} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />
           </div>
           <FooterButtons
-            onDelete={["profile", "section", "topic"].includes(type) ? false : this.delete.bind(this)}
+            onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>

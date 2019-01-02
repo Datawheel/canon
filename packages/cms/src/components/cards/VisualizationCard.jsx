@@ -34,6 +34,15 @@ class VisualizationCard extends Component {
     });
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
@@ -111,6 +120,20 @@ class VisualizationCard extends Component {
           {alertObj.message}
         </Alert>
 
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          iconName="pt-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+          inline="true"
+        >
+          {alertObj.message}
+        </Alert>
+
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
@@ -139,7 +162,7 @@ class VisualizationCard extends Component {
             <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
           </div>
           <FooterButtons
-            onDelete={this.delete.bind(this)}
+            onDelete={this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>
