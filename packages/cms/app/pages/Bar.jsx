@@ -18,6 +18,9 @@ export default class Bar extends Component {
       ],
       dataFormat: d => d,
       groupBy: "name",
+      cutoff: data => data.filter(d => d.name == "jim" || d.name == "dave" || d.name == "jonathan" || d.name == "walther"),
+      cutoffText: "showing blah blah blah blah blah",
+      sort: (a, b) => a.name == "jonathan" ? -1 : 1,
       value: "count"
   }
   `;

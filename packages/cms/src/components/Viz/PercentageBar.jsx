@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, {Component} from "react";
 
+import "./PercentageBar.css";
+
 class PercentageBar extends Component {
 
   constructor(props) {
@@ -16,6 +18,7 @@ class PercentageBar extends Component {
 
     const defaults = {
       cutoff: 5,
+      cutoffText: false,
       numberFormat: (d, value, total) => {
         const perc = Number(d[value] / total * 100);
         return isNaN(perc) ? "No Data" : `${perc.toFixed(2)}%`;
@@ -47,9 +50,13 @@ class PercentageBar extends Component {
 
     if (!config) return null;
 
-    const {data, cutoff, title, value, groupBy, total, numberFormat, showText, hideText} = config;
+    const {data, cutoff, cutoffText, title, value, groupBy, sort, total, numberFormat, showText, hideText} = config;
 
-    const displayData = showAll ? data : data.slice(0, cutoff);
+    const cutoffFunction = typeof cutoff === "number" ? data => data.slice(0, cutoff) : cutoff;
+
+    let displayData = showAll ? data : cutoffFunction(data);
+
+    if (sort) displayData = displayData.sort(sort);
   
     return <div className="PercentageBar">
       <h3 className="pb-title">{title}</h3>
@@ -68,7 +75,10 @@ class PercentageBar extends Component {
           </div>;
         })
       }
-      {data.length > cutoff && <button onClick={() => this.setState({showAll: !this.state.showAll})}>{showAll ? hideText : showText}</button>}
+      <div className="show-more">
+        {!showAll && cutoffText && <div className="cutoff-text">{cutoffText}</div>}
+        {(showAll || data.length > displayData.length) && <button onClick={() => this.setState({showAll: !this.state.showAll})}>{showAll ? hideText : showText}</button>}
+      </div>
     </div>;
 
   }
