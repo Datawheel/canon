@@ -57,7 +57,7 @@ const moduleRegex = /@datawheel\/canon\-([A-z]+)\//g;
 */
 function moduleName(path) {
   const exec = moduleRegex.exec(path);
-  return exec ? exec[1] : "local";
+  return exec ? exec[1] : name;
 }
 
 /**
@@ -217,7 +217,8 @@ async function start() {
               host: dbHost,
               dialect: "postgres",
               define: {timestamps: true},
-              logging: () => {}
+              logging: () => {},
+              operatorsAliases: Sequelize.Op
             }
           ));
           shell.echo(`Database: ${dbUser}@${dbHost}`);
