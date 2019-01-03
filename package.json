@@ -126,7 +126,7 @@
     "webpack-dev-middleware": "^2.0.1",
     "webpack-hot-middleware": "^2.21.0",
     "yml-loader": "^2.1.0",
-    "yn": "^2.0.0"
+    "yn": "^3.0.0"
   },
   "devDependencies": {
     "@datawheel/canon-logiclayer": "0.1.0",
