@@ -43,13 +43,6 @@ module.exports = props => {
         presets: babelPresets,
         plugins: [
           ["direct-import", modules],
-          ["transform-imports", {
-            "@blueprintjs/core": {
-              transform: path.join(__dirname, "../imports/blueprintjs.core.js"),
-              preventFullImport: true,
-              skipDefaultConversion: true
-            }
-          }],
           "transform-decorators-legacy",
           "transform-react-remove-prop-types",
           "transform-react-constant-elements",

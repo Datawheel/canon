@@ -20,17 +20,15 @@ class App extends Component {
   render() {
     const {children} = this.props;
     // console.log(this.props.env);
-    return (
-      <div>
-        <Nav />
-        <div className="test-1"></div>
-        <div className="test-2"></div>
-        <div className="box red"></div>
-        <div className="box green"></div>
-        { children }
-        <Footer />
-      </div>
-    );
+    return <div id="App">
+      <Nav />
+      <div className="test-1"></div>
+      <div className="test-2"></div>
+      <div className="box red"></div>
+      <div className="box green"></div>
+      <div>{ children }</div>
+      <Footer />
+    </div>;
   }
 
 }

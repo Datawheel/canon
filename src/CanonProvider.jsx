@@ -6,12 +6,22 @@ import Loading from "components/Loading";
 import d3plus from "d3plus.js";
 import Helmet from "react-helmet";
 import urllite from "urllite";
+import {Portal, Toaster} from "@blueprintjs/core";
+
+import "@blueprintjs/core/lib/css/blueprint.css";
+import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 
 class CanonProvider extends Component {
 
+  constructor(props) {
+    super(props);
+    this.toastRef = React.createRef();
+  }
+
   getChildContext() {
     const {data, helmet, locale, router} = this.props;
-    return {d3plus, data, helmet, locale, router};
+    const toast = this.toastRef;
+    return {d3plus, data, helmet, locale, router, toast};
   }
 
   onClick(e) {
@@ -81,7 +91,10 @@ class CanonProvider extends Component {
         meta={helmet.meta}
         link={helmet.link}
       />
-      { loading ? <Loading /> : children }
+      { loading ? <Loading /> : <div>{ children }</div> }
+      <Portal>
+        <Toaster ref={this.toastRef} />
+      </Portal>
     </div>;
   }
 }
@@ -91,7 +104,8 @@ CanonProvider.childContextTypes = {
   d3plus: PropTypes.object,
   helmet: PropTypes.object,
   locale: PropTypes.string,
-  router: PropTypes.object
+  router: PropTypes.object,
+  toast: PropTypes.object
 };
 
 CanonProvider.defaultProps = {

@@ -135,12 +135,6 @@ const headerConfig = resolve("helmet.js") || {};
 
 shell.cp(path.join(appDir, "node_modules/normalize.css/normalize.css"), path.join(staticPath, "assets/normalize.css"));
 
-const blueprintInput = path.join(appDir, "node_modules/@blueprintjs/core/");
-const blueprintOutput = path.join(staticPath, "assets/blueprint/");
-shell.mkdir("-p", path.join(blueprintOutput, "dist"));
-shell.cp(path.join(blueprintInput, "dist/blueprint.css"), path.join(blueprintOutput, "dist/blueprint.css"));
-shell.cp("-r", path.join(blueprintInput, "resources"), path.join(blueprintOutput, "resources"));
-
 const i18n = require("i18next");
 const Backend = require("i18next-node-fs-backend");
 const i18nMiddleware = require("i18next-express-middleware");
@@ -150,6 +144,9 @@ readFiles(path.join(canonPath, "src/i18n/detection/"))
   .forEach(file => {
     lngDetector.addDetector(require(file));
   });
+
+let namespace = name.split("/");
+namespace = namespace[namespace.length - 1];
 
 i18n
   .use(Backend)
@@ -162,14 +159,19 @@ i18n
     whitelist: LANGUAGES ? LANGUAGES.split(",") : LANGUAGE_DEFAULT,
 
     // have a common namespace used around the full app
-    ns: [name],
-    defaultNS: name,
+    ns: [namespace],
+    defaultNS: namespace,
 
     debug: process.env.NODE_ENV !== "production" ? yn(process.env.CANON_LOGLOCALE) : false,
 
     backend: {
       loadPath: path.join(appDir, "locales/{{lng}}/{{ns}}.json"),
       jsonIndent: 2
+    },
+
+    react: {
+      wait: true,
+      withRef: true
     },
 
     detection: {

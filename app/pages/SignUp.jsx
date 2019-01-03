@@ -5,7 +5,7 @@ import {SignUp} from "../../src";
 class SignUpWrapper extends Component {
 
   render() {
-    console.log("\nUSER\n", this.props.auth);
+    // console.log("\nUSER\n", this.props.auth);
     return <SignUp redirect={false} />;
 
   }

@@ -72,12 +72,12 @@ In order to enable localization for a Canon site, you must first define the avai
 export CANON_LANGUAGES="en,es"
 ```
 
-Next, any component that needs access to localized text needs to be wrapped in the react-i18next translate function:
+Next, any component that needs access to localized text needs to be wrapped in the react-i18next `withNamespaces` function:
 
 ```jsx
 import React, {Component} from "react";
 import {Link} from "react-router";
-import {translate} from "react-i18next";
+import {withNamespaces} from "react-i18next";
 
 class Nav extends Component {
 
@@ -95,10 +95,10 @@ class Nav extends Component {
   }
 }
 
-export default translate()(Nav);
+export default withNamespaces()(Nav);
 ```
 
-When a component is wrapped with `translate`, it will have access to a function named `t` inside it's props. This function is what handles fetching the appropriate translation, and also allows us to scrape an entire project to locate every string that needs translation. When you are ready to start populating translations, simply run `npm run locales`.
+When a component is wrapped with `withNamespaces`, it will have access to a function named `t` inside it's props. This function is what handles fetching the appropriate translation, and also allows us to scrape an entire project to locate every string that needs translation. When you are ready to start populating translations, simply run `npm run locales`.
 
 Canon will search your entire codebase for any component using the `t( )` function. Translations are stored in JSON files in a `locales/` folder in the root directory. In this example, running the script would produce the following file structure:
 

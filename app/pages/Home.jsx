@@ -1,10 +1,10 @@
 import React, {Component} from "react";
 import {Link} from "react-router";
-import {translate, Trans} from "react-i18next";
+import {withNamespaces, Trans} from "react-i18next";
 import "./Home.css";
 import {Button} from "@blueprintjs/core";
 import {Activate} from "../../src/";
-import Vizbuilder from "@datawheel/canon-vizbuilder";
+// import Vizbuilder from "@datawheel/canon-vizbuilder";
 
 // import styles from "style.yml";
 
@@ -28,7 +28,7 @@ class Home extends Component {
         <Trans i18nKey="complexTrans" count={count}>
           Hello <strong>{{name}}</strong>, you have {{count}} unread message. <Link to="/profile/040AF00182">Click here</Link>.
         </Trans>
-        <Button></Button>
+        <Button>Fake Button</Button>
         <Activate location={this.props.location} />
         <div className="spacer">
           testing
@@ -58,4 +58,4 @@ class Home extends Component {
   }
 }
 
-export default translate()(Home);
+export default withNamespaces()(Home);

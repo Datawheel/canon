@@ -1,8 +1,9 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import {withNamespaces} from "react-i18next";
 import {login, resetPassword} from "../actions/auth";
-import {translate} from "react-i18next";
-import {Intent, Toaster} from "@blueprintjs/core";
+import {Icon, Intent} from "@blueprintjs/core";
 import {SocialButtons} from "./SocialButtons";
 
 import {
@@ -20,8 +21,7 @@ class Login extends Component {
     this.state = {
       password: "",
       email: "",
-      submitted: false,
-      toast: typeof window !== "undefined" ? Toaster.create() : null
+      submitted: false
     };
     this.onChange = this.onChange.bind(this);
   }
@@ -41,12 +41,13 @@ class Login extends Component {
   componentDidUpdate() {
 
     const {auth, mailgun, t} = this.props;
-    const {email, submitted, toast} = this.state;
+    const {email, submitted} = this.state;
+    const Toast = this.context.toast.current;
 
     if (submitted && !auth.loading) {
 
       if (auth.error === WRONG_PW) {
-        toast.show({
+        Toast.show({
           action: mailgun ? {
             onClick: () => {
               this.setState({submitted: true});
@@ -54,19 +55,19 @@ class Login extends Component {
             },
             text: t("Reset.button")
           } : null,
-          iconName: "error",
+          icon: "error",
           intent: Intent.DANGER,
           message: t("Login.error")
         });
       }
       else if (auth.msg === RESET_SEND_SUCCESS) {
-        toast.show({iconName: "inbox", intent: Intent.SUCCESS, message: t("Reset.actions.RESET_SEND_SUCCESS", {email})});
+        Toast.show({icon: "inbox", intent: Intent.SUCCESS, message: t("Reset.actions.RESET_SEND_SUCCESS", {email})});
       }
       else if (auth.error === RESET_SEND_FAILURE) {
-        toast.show({iconName: "error", intent: Intent.DANGER, message: t("Reset.actions.RESET_SEND_FAILURE")});
+        Toast.show({icon: "error", intent: Intent.DANGER, message: t("Reset.actions.RESET_SEND_FAILURE")});
       }
       else if (!auth.error) {
-        toast.show({iconName: "endorsed", intent: Intent.SUCCESS, message: t("Login.success")});
+        Toast.show({icon: "endorsed", intent: Intent.SUCCESS, message: t("Login.success")});
       }
       this.setState({submitted: false});
     }
@@ -81,15 +82,15 @@ class Login extends Component {
     return (
       <div>
         <form id="login" onSubmit={this.onSubmit.bind(this)} className="login-container">
-          <div className="pt-input-group">
-            <span className="pt-icon pt-icon-envelope"></span>
-            <input className="pt-input" placeholder={ t("Login.E-mail") } value={email} type="email" name="email" onChange={this.onChange} tabIndex="1" />
+          <div className="bp3-input-group">
+            <Icon icon="envelope" />
+            <input className="bp3-input" placeholder={ t("Login.E-mail") } value={email} type="email" name="email" onChange={this.onChange} tabIndex="1" />
           </div>
-          <div className="pt-input-group">
-            <span className="pt-icon pt-icon-lock"></span>
-            <input className="pt-input" placeholder={ t("Login.Password") } value={password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
+          <div className="bp3-input-group">
+            <Icon icon="lock" />
+            <input className="bp3-input" placeholder={ t("Login.Password") } value={password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
           </div>
-          <button className="pt-button pt-fill" type="submit" tabIndex="5">{ t("Login.Login") }</button>
+          <button className="bp3-button bp3-fill" type="submit" tabIndex="5">{ t("Login.Login") }</button>
         </form>
         <SocialButtons social={social} />
       </div>
@@ -100,6 +101,10 @@ class Login extends Component {
 
 Login.defaultProps = {
   redirect: "/"
+};
+
+Login.contextTypes = {
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({
@@ -117,6 +122,6 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-Login = translate()(Login);
+Login = withNamespaces()(Login);
 Login = connect(mapStateToProps, mapDispatchToProps)(Login);
 export {Login};

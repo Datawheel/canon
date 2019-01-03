@@ -32,6 +32,5 @@ module.exports = [
   "d3plus-tooltip",
   "d3plus-viz",
   "react-i18next",
-  "react-router",
-  "redux"
+  "react-router"
 ];
