@@ -34,6 +34,8 @@ class Tabs extends Component {
     const selectorsPerViz = Math.ceil(selectors.length / visualizations.length);
     const tabSelectors = selectors.slice(selectorsPerViz * tabIndex, selectorsPerViz * (tabIndex + 1));
 
+    const tabDescriptions = descriptions.length === visualizations.length ? [descriptions[tabIndex]] : descriptions;
+
     const titleKeys = ["tab", "type"];
 
     const tabs = visualizations.map((d, i) => {
@@ -53,7 +55,7 @@ class Tabs extends Component {
           </h3>
         }
         { subtitles.map((content, i) => <div key={i} className="topic-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
-        { descriptions.map((content, i) => <div key={i} className="topic-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
+        { tabDescriptions.map((content, i) => <div key={i} className="topic-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
         { tabs.length > 1 && <div className={`tab-group tab-${tabIndex}`}>
           { tabs.map((title, key) =>
             <button className={tabIndex === key ? "tab selected" : "tab"} key={key} onClick={this.updateTabs.bind(this, key)}>
