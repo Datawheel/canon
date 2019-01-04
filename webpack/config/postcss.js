@@ -23,7 +23,7 @@ module.exports = [
   }),
   require("postcss-nesting")(),
   require("postcss-conditionals")(),
-  require("postcss-cssnext")({
+  require("postcss-preset-env")({
     browsers: ["> 1%", "last 2 versions"]
   }),
   require("postcss-reporter")({
