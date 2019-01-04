@@ -7,6 +7,7 @@ import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
+import deepClone from "../../utils/deepClone";
 import PropTypes from "prop-types";
 import "./TextCard.css";
 
@@ -17,6 +18,7 @@ class TextCard extends Component {
     this.state = {
       minData: null,
       displayData: null,
+      initialData: null,
       alertObj: false
     };
   }
@@ -91,6 +93,30 @@ class TextCard extends Component {
     });
   }
 
+  openEditor() {
+    const {minData} = this.state;
+    const initialData = deepClone(minData);
+    const isOpen = true;
+    this.setState({initialData, isOpen});
+  }
+
+  maybeCloseEditorWithoutSaving() {
+    const alertObj = {
+      callback: this.closeEditorWithoutSaving.bind(this),
+      message: "Are you sure you want to abandon changes?",
+      confirm: "Yes, Abandon changes."
+    };
+    this.setState({alertObj});
+  }
+
+  closeEditorWithoutSaving() {
+    const {initialData} = this.state;
+    const minData = deepClone(initialData);
+    const isOpen = false;
+    const alertObj = false;
+    this.setState({minData, isOpen, alertObj});
+  }
+
   render() {
     const {displayData, minData, isOpen, alertObj} = this.state;
     const {variables, fields, plainfields, type, parentArray, item} = this.props;
@@ -124,7 +150,7 @@ class TextCard extends Component {
 
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
-          <button className="cms-button" onClick={() => this.setState({isOpen: true})}>
+          <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="pt-icon pt-icon-cog" />
           </button>
         </h5>
@@ -151,7 +177,7 @@ class TextCard extends Component {
 
         <Dialog
           isOpen={isOpen}
-          onClose={() => this.setState({isOpen: false})}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Text Editor"
           inline="true"
         >
@@ -161,7 +187,6 @@ class TextCard extends Component {
           </div>
           <FooterButtons
             onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}
-            onCancel={() => this.setState({isOpen: false})}
             onSave={this.save.bind(this)}
           />
         </Dialog>

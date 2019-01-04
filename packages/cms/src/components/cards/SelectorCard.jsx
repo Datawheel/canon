@@ -6,6 +6,7 @@ import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
 import SelectorEditor from "../editors/SelectorEditor";
 import PropTypes from "prop-types";
+import deepClone from "../../utils/deepClone";
 import "./SelectorCard.css";
 
 /**
@@ -18,6 +19,7 @@ class SelectorCard extends Component {
     super(props);
     this.state = {
       minData: null,
+      initialData: null,
       alertObj: false
     };
   }
@@ -75,6 +77,30 @@ class SelectorCard extends Component {
     });
   }
 
+  openEditor() {
+    const {minData} = this.state;
+    const initialData = deepClone(minData);
+    const isOpen = true;
+    this.setState({initialData, isOpen});
+  }
+
+  maybeCloseEditorWithoutSaving() {
+    const alertObj = {
+      callback: this.closeEditorWithoutSaving.bind(this),
+      message: "Are you sure you want to abandon changes?",
+      confirm: "Yes, Abandon changes."
+    };
+    this.setState({alertObj});
+  }
+
+  closeEditorWithoutSaving() {
+    const {initialData} = this.state;
+    const minData = deepClone(initialData);
+    const isOpen = false;
+    const alertObj = false;
+    this.setState({minData, isOpen, alertObj});
+  }
+
   render() {
     const {minData, isOpen, alertObj} = this.state;
     const {variables, parentArray, type} = this.props;
@@ -101,7 +127,7 @@ class SelectorCard extends Component {
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
           {minData.title}
-          <button className="cms-button" onClick={() => this.setState({isOpen: true})}>
+          <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="pt-icon pt-icon-cog" />
           </button>
         </h5>
@@ -127,7 +153,7 @@ class SelectorCard extends Component {
         <Dialog
           className="generator-editor-dialog"
           isOpen={isOpen}
-          onClose={() => this.setState({isOpen: false})}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Selector Editor"
           icon="false"
           inline="true"
@@ -137,7 +163,6 @@ class SelectorCard extends Component {
           </div>
           <FooterButtons
             onDelete={this.maybeDelete.bind(this)}
-            onCancel={() => this.setState({isOpen: false})}
             onSave={this.save.bind(this)}
           />
         </Dialog>

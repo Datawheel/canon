@@ -4,7 +4,7 @@ class FooterButtons extends Component {
 
   render() {
 
-    const {onDelete, onCancel, onSave} = this.props;
+    const {onDelete, onSave} = this.props;
 
     return (
       <div id="buttons">

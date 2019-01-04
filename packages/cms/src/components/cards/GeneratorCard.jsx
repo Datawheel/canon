@@ -5,6 +5,7 @@ import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
+import deepClone from "../../utils/deepClone";
 import "./GeneratorCard.css";
 
 import ConsoleVariable from "../ConsoleVariable";
@@ -15,6 +16,7 @@ class GeneratorCard extends Component {
     super(props);
     this.state = {
       minData: null,
+      initialData: null,
       displayData: null,
       alertObj: false
     };
@@ -82,6 +84,30 @@ class GeneratorCard extends Component {
     });
   }
 
+  openEditor() {
+    const {minData} = this.state;
+    const initialData = deepClone(minData);
+    const isOpen = true;
+    this.setState({initialData, isOpen});
+  }
+
+  maybeCloseEditorWithoutSaving() {
+    const alertObj = {
+      callback: this.closeEditorWithoutSaving.bind(this),
+      message: "Are you sure you want to abandon changes?",
+      confirm: "Yes, Abandon changes."
+    };
+    this.setState({alertObj});
+  }
+
+  closeEditorWithoutSaving() {
+    const {initialData} = this.state;
+    const minData = deepClone(initialData);
+    const isOpen = false;
+    const alertObj = false;
+    this.setState({minData, isOpen, alertObj});
+  }
+
   render() {
     const {type, variables, item, parentArray, preview} = this.props;
     const {displayData, minData, isOpen, alertObj} = this.state;
@@ -118,7 +144,7 @@ class GeneratorCard extends Component {
         <h5 className="cms-card-header">
           <span className={`cms-card-header-icon pt-icon-standard pt-icon-th ${type}`} />
           {minData.name}
-          <button className="cms-button" onClick={() => this.setState({isOpen: true})}>
+          <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="pt-icon pt-icon-cog" />
           </button>
         </h5>
@@ -178,7 +204,7 @@ class GeneratorCard extends Component {
         <Dialog
           className="generator-editor-dialog"
           isOpen={isOpen}
-          onClose={() => this.setState({isOpen: false})}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Variable Editor"
           inline="true"
           icon="false"
@@ -189,7 +215,6 @@ class GeneratorCard extends Component {
           </div>
           <FooterButtons
             onDelete={this.maybeDelete.bind(this)}
-            onCancel={() => this.setState({isOpen: false})}
             onSave={this.save.bind(this)}
           />
         </Dialog>
