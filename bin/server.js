@@ -1,6 +1,4 @@
-const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
-      Sequelize = require("sequelize"),
-      axios = require("axios"),
+const Sequelize = require("sequelize"),
       bodyParser = require("body-parser"),
       chalk = require("chalk"),
       cookieParser = require("cookie-parser"),
@@ -11,7 +9,6 @@ const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
       gzip = require("compression"),
       helmet = require("helmet"),
       path = require("path"),
-      readline = require("readline"),
       shell = require("shelljs"),
       webpack = require("webpack"),
       yn = require("yn");
@@ -51,6 +48,16 @@ if (shell.test("-d", moduleFolder)) {
 modules.push(appDir);
 
 const moduleRegex = /@datawheel\/canon\-([A-z]+)\//g;
+
+/**
+ * @name title
+ * @param {String} str The string used as the title.
+ * @param {String} [icon] An optional Unicode character or Emoji to use in the title.
+ */
+function title(str, icon = "") {
+  shell.echo(chalk.bold(`\n\n${icon.length ? `${icon}  ` : ""}${str}`));
+  shell.echo(chalk.gray("\n——————————————————————————————————————————————\n"));
+}
 
 /**
     Extracts canon module name from a filepath.
@@ -110,7 +117,8 @@ function readFiles(folder, fileType = "js") {
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
 const LANGUAGES = process.env.CANON_LANGUAGES || "canon";
 
-shell.echo(chalk.bold("\n 📂  Gathering Resources\n"));
+title("Gathering Resources", "📂");
+
 const store = resolve("store.js") || {};
 store.env = {
   CANON_API: API,
@@ -185,7 +193,7 @@ i18n
 */
 async function start() {
 
-  shell.echo(chalk.bold("\n 🌐  Running Express Server\n"));
+  title("Running Express Server", "🌐");
   shell.echo(`Environment: ${NODE_ENV}`);
   shell.echo(`Port: ${PORT}`);
 
@@ -211,7 +219,9 @@ async function start() {
       if (shell.test("-d", dbFolder)) {
         if (!dbDetect) {
           dbDetect = true;
-          shell.echo(chalk.bold("\n 💽  Database Models\n"));
+
+          title("Setting up Database Models", "🗄️");
+
           app.set("db", new Sequelize(dbName, dbUser, dbPw,
             {
               host: dbHost,
@@ -270,7 +280,7 @@ async function start() {
     if (shell.test("-d", cacheFolder)) {
       if (!cacheDetect) {
         cacheDetect = true;
-        shell.echo(chalk.bold("\n 📦  Filling Caches\n"));
+        title("Filling Caches", "📦");
       }
       const module = moduleName(cacheFolder);
       const promises = [];
@@ -297,7 +307,7 @@ async function start() {
     if (shell.test("-d", apiFolder)) {
       if (!apiDetect) {
         apiDetect = true;
-        shell.echo(chalk.bold("\n 📡  API Routes\n"));
+        title("Hooking up API Routes", "📡");
       }
       const module = moduleName(apiFolder);
       readFiles(apiFolder)
@@ -324,25 +334,21 @@ async function start() {
 
   if (NODE_ENV === "development") {
 
-    shell.echo(chalk.bold("\n 🔷  Bundling Client Webpack\n"));
+    title("Bundling Client Webpack", "🔷");
 
-    const webpackDevConfig = require(path.join(canonPath, "webpack/webpack.config.dev-client"));
+    const webpackDevConfig = require(path.join(canonPath, "webpack/dev-client.js"));
     const compiler = webpack(webpackDevConfig);
 
-    compiler.apply(new ProgressPlugin((percentage, msg, current, active, modulepath) => {
-      if (process.stdout.isTTY && percentage < 1) {
-        readline.clearLine(process.stdout, 0);
-        readline.cursorTo(process.stdout, 0);
-        modulepath = modulepath ? ` …${modulepath.substr(modulepath.length - 30)}` : "";
-        current = current ? ` ${current}` : "";
-        active = active ? ` ${active}` : "";
-        process.stdout.write(`${(percentage * 100).toFixed(0)}% ${msg}${current}${active}${modulepath} `);
-      }
-      else if (percentage === 1) {
-        readline.clearLine(process.stdout, 0);
-        readline.cursorTo(process.stdout, 0);
-      }
-    }));
+    // compiler.hooks.done.tap({
+    //   name: "ClientWebpack",
+    //   context: true
+    // }, (a, b) => {
+    //   console.log(typeof a);
+    //   console.log(typeof b);
+    //   // readline.clearLine(process.stdout, 0);
+    //   // readline.cursorTo(process.stdout, 0);
+    //   // shell.echo(`webpack built ${stats.compilation.hash} in ${stats.endTime - stats.startTime}ms`);
+    // });
 
     app.use(require("webpack-dev-middleware")(compiler, {
       logLevel: "silent",
@@ -364,29 +370,4 @@ async function start() {
 
 }
 
-if (ATTRS === undefined) start();
-else {
-
-  axios.get(ATTRS)
-    .then(res => {
-
-      store.attrs = {};
-
-      shell.echo(chalk.bold("\n 📚  Caching Attributes\n"));
-
-      const promises = res.data.data.map(attr => axios.get(`${API}attrs/${attr}`)
-        .then(res => {
-          shell.echo(`Cached "${attr}" attributes`);
-          store.attrs[attr] = res.data;
-          return res;
-        })
-        .catch(err => {
-          shell.echo(`${API}attrs/${attr} errored with code ${err.response.status}`);
-          return Promise.reject(err);
-        }));
-
-      Promise.all(promises).then(start);
-
-    });
-
-}
+start();
