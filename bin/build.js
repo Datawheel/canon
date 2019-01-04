@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 
-const babel = require("babel-core"),
+const {title} = require("./logging.js"),
+      babel = require("babel-core"),
       chalk = require("chalk"),
       path = require("path"),
       shell = require("shelljs");
@@ -13,10 +14,10 @@ process.env.NODE_ENV = "production";
 shell.rm("-rf", path.join(staticPath, "assets/"));
 shell.mkdir("-p", path.join(staticPath, "assets/"));
 
-shell.echo(chalk.bold("\n\n 🔷  Bundling Production Webpack\n"));
-shell.exec(`webpack --progress --colors --hide-modules --config ${__dirname}/../webpack/webpack.config.prod.js`);
+title("Bundling Production Webpack", "🔷");
+shell.exec(`webpack --progress --colors --hide-modules --config ${__dirname}/../webpack/prod.js`);
 
-shell.echo(chalk.bold("\n\n 📒  Generating index.js\n"));
+title("Generating index.js", "📒");
 let {code} = babel.transformFileSync(`${__dirname}/server.js`, {
   ignore: [staticFolder],
   presets: [

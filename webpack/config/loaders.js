@@ -1,12 +1,9 @@
-const ExtractTextPlugin = require("extract-text-webpack-plugin"),
+const MiniCssExtractPlugin = require("mini-css-extract-plugin"),
       appDir = process.cwd(),
-      modules = require("../imports/es-modules"),
       path = require("path"),
       postCSS = require("./postcss");
 
-
 const cssLoaders = [
-  "iso-morphic-style-loader",
   {
     loader: "css-loader",
     options: {
@@ -42,7 +39,6 @@ module.exports = props => {
         compact: process.env.NODE_ENV === "production",
         presets: babelPresets,
         plugins: [
-          ["direct-import", modules],
           "transform-decorators-legacy",
           "transform-react-remove-prop-types",
           "transform-react-constant-elements",
@@ -68,7 +64,7 @@ module.exports = props => {
     },
     {
       test: /\.(scss|sass|css)$/i,
-      use: !props.extract ? cssLoaders : ExtractTextPlugin.extract({fallback: cssLoaders[0], use: cssLoaders.slice(1)})
+      use: !props.extract ? ["iso-morphic-style-loader"].concat(cssLoaders) : [MiniCssExtractPlugin.loader].concat(cssLoaders)
     }
   ];
 };

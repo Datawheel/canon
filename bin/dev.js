@@ -1,12 +1,13 @@
 #! /usr/bin/env node
 
-const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
-      chalk = require("chalk"),
+const {title} = require("./logging"),
       nodemon = require("nodemon"),
       path = require("path"),
       readline = require("readline"),
       shell = require("shelljs"),
       webpack = require("webpack");
+
+title("Bundling Server Webpack", "🔷");
 
 process.env.NODE_ENV = "development";
 const {name} = JSON.parse(shell.cat("package.json"));
@@ -19,21 +20,28 @@ let started = false;
 shell.rm("-rf", path.join(staticPath, "assets/"));
 shell.mkdir("-p", path.join(staticPath, "assets/"));
 
-shell.echo(chalk.bold("\n 🔷  Bundling Server Webpack\n"));
-
-const webpackDevConfig = require(path.join(__dirname, "../webpack/webpack.config.dev-server"));
+const webpackDevConfig = require(path.join(__dirname, "../webpack/dev-server.js"));
 const compiler = webpack(webpackDevConfig);
 
-compiler.apply(new ProgressPlugin((percentage, msg, current, active, modulepath) => {
-  if (process.stdout.isTTY && percentage < 1) {
-    readline.clearLine(process.stdout, 0);
-    readline.cursorTo(process.stdout, 0);
-    modulepath = modulepath ? ` …${modulepath.substr(modulepath.length - 30)}` : "";
-    current = current ? ` ${current}` : "";
-    active = active ? ` ${active}` : "";
-    process.stdout.write(`${(percentage * 100).toFixed(0)}% ${msg}${current}${active}${modulepath} `);
+compiler.watch({}, (err, stats) => {
+
+  if (err) console.error(err);
+  shell.echo(`webpack built server ${stats.compilation.hash} in ${stats.endTime - stats.startTime}ms`);
+  stats.compilation.errors.forEach(e => {
+    console.error("\n\n 🛑  SERVER WEBPACK ERROR\n");
+    console.error(e);
+  });
+  stats.compilation.warnings.forEach(e => {
+    console.warn("\n\n ⚠️  SERVER WEBPACK ERROR\n");
+    console.warn(e);
+  });
+
+  if (!shell.test("-f", path.join(staticPath, "assets/server.js"))) {
+    console.error("\n\n 🛑  SERVER WEBPACK ERROR\n");
+    console.error("Unable to build server.js");
+    shell.exit(1);
   }
-  else if (percentage === 1 && !started) {
+  else if (!started) {
 
     started = true;
     nodemon({
@@ -48,26 +56,6 @@ compiler.apply(new ProgressPlugin((percentage, msg, current, active, modulepath)
       .on("quit", () => {
         process.exit();
       });
-  }
 
-}));
-
-compiler.watch({}, (err, stats) => {
-  if (err) console.error(err);
-  readline.clearLine(process.stdout, 0);
-  readline.cursorTo(process.stdout, 0);
-  shell.echo(`webpack built ${stats.compilation.hash} in ${stats.endTime - stats.startTime}ms`);
-  stats.compilation.errors.forEach(e => {
-    console.error("\n\n 🛑  SERVER WEBPACK ERROR\n");
-    console.error(e);
-  });
-  stats.compilation.warnings.forEach(e => {
-    console.warn("\n\n ⚠️  SERVER WEBPACK ERROR\n");
-    console.warn(e);
-  });
-  if (!shell.test("-f", path.join(staticPath, "assets/server.js"))) {
-    console.error("\n\n 🛑  SERVER WEBPACK ERROR\n");
-    console.error("Unable to build server.js");
-    shell.exit(1);
   }
 });
