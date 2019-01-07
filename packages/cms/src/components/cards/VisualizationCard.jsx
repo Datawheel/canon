@@ -1,13 +1,14 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Alert, Intent} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import Viz from "../Viz";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
+import deepClone from "../../utils/deepClone";
 import "./VisualizationCard.css";
 
 class VisualizationCard extends Component {
@@ -15,7 +16,9 @@ class VisualizationCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      minData: null
+      minData: null,
+      initialData: null,
+      alertObj: false
     };
   }
 
@@ -29,6 +32,15 @@ class VisualizationCard extends Component {
     axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
       this.setState({minData: resp.data});
     });
+  }
+
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
   }
 
   delete() {
@@ -53,9 +65,33 @@ class VisualizationCard extends Component {
     });
   }
 
+  openEditor() {
+    const {minData} = this.state;
+    const initialData = deepClone(minData);
+    const isOpen = true;
+    this.setState({initialData, isOpen});
+  }
+
+  maybeCloseEditorWithoutSaving() {
+    const alertObj = {
+      callback: this.closeEditorWithoutSaving.bind(this),
+      message: "Are you sure you want to abandon changes?",
+      confirm: "Yes, Abandon changes."
+    };
+    this.setState({alertObj});
+  }
+
+  closeEditorWithoutSaving() {
+    const {initialData} = this.state;
+    const minData = deepClone(initialData);
+    const isOpen = false;
+    const alertObj = false;
+    this.setState({minData, isOpen, alertObj});
+  }
+
   render() {
 
-    const {minData, isOpen} = this.state;
+    const {minData, isOpen, alertObj} = this.state;
 
     if (!minData) return <Loading />;
 
@@ -70,10 +106,37 @@ class VisualizationCard extends Component {
 
     return (
       <div className="cms-card" style={{minHeight: `calc(${height}px + 2.25rem)`}}>
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          iconName="pt-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+          inline="true"
+        >
+          {alertObj.message}
+        </Alert>
+
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          iconName="pt-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+          inline="true"
+        >
+          {alertObj.message}
+        </Alert>
 
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
-          <button className="cms-button" onClick={() => this.setState({isOpen: true})}>
+          <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="pt-icon pt-icon-cog" />
           </button>
         </h5>
@@ -91,7 +154,7 @@ class VisualizationCard extends Component {
         <Dialog
           className="generator-editor-dialog"
           isOpen={isOpen}
-          onClose={() => this.setState({isOpen: false})}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Variable Editor"
           inline="true"
         >
@@ -99,8 +162,7 @@ class VisualizationCard extends Component {
             <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
           </div>
           <FooterButtons
-            onDelete={this.delete.bind(this)}
-            onCancel={() => this.setState({isOpen: false})}
+            onDelete={this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>

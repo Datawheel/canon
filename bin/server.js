@@ -1,6 +1,4 @@
-const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
-      Sequelize = require("sequelize"),
-      axios = require("axios"),
+const Sequelize = require("sequelize"),
       bodyParser = require("body-parser"),
       chalk = require("chalk"),
       cookieParser = require("cookie-parser"),
@@ -11,7 +9,6 @@ const ProgressPlugin = require("webpack/lib/ProgressPlugin"),
       gzip = require("compression"),
       helmet = require("helmet"),
       path = require("path"),
-      readline = require("readline"),
       shell = require("shelljs"),
       webpack = require("webpack"),
       yn = require("yn");
@@ -53,11 +50,21 @@ modules.push(appDir);
 const moduleRegex = /@datawheel\/canon\-([A-z]+)\//g;
 
 /**
+ * @name title
+ * @param {String} str The string used as the title.
+ * @param {String} [icon] An optional Unicode character or Emoji to use in the title.
+ */
+function title(str, icon = "") {
+  shell.echo(chalk.bold(`\n\n${icon.length ? `${icon}  ` : ""}${str}`));
+  shell.echo(chalk.gray("\n——————————————————————————————————————————————\n"));
+}
+
+/**
     Extracts canon module name from a filepath.
 */
 function moduleName(path) {
   const exec = moduleRegex.exec(path);
-  return exec ? exec[1] : "local";
+  return exec ? exec[1] : name;
 }
 
 /**
@@ -110,7 +117,8 @@ function readFiles(folder, fileType = "js") {
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
 const LANGUAGES = process.env.CANON_LANGUAGES || "canon";
 
-shell.echo(chalk.bold("\n 📂  Gathering Resources\n"));
+title("Gathering Resources", "📂");
+
 const store = resolve("store.js") || {};
 store.env = {
   CANON_API: API,
@@ -135,12 +143,6 @@ const headerConfig = resolve("helmet.js") || {};
 
 shell.cp(path.join(appDir, "node_modules/normalize.css/normalize.css"), path.join(staticPath, "assets/normalize.css"));
 
-const blueprintInput = path.join(appDir, "node_modules/@blueprintjs/core/");
-const blueprintOutput = path.join(staticPath, "assets/blueprint/");
-shell.mkdir("-p", path.join(blueprintOutput, "dist"));
-shell.cp(path.join(blueprintInput, "dist/blueprint.css"), path.join(blueprintOutput, "dist/blueprint.css"));
-shell.cp("-r", path.join(blueprintInput, "resources"), path.join(blueprintOutput, "resources"));
-
 const i18n = require("i18next");
 const Backend = require("i18next-node-fs-backend");
 const i18nMiddleware = require("i18next-express-middleware");
@@ -150,6 +152,9 @@ readFiles(path.join(canonPath, "src/i18n/detection/"))
   .forEach(file => {
     lngDetector.addDetector(require(file));
   });
+
+let namespace = name.split("/");
+namespace = namespace[namespace.length - 1];
 
 i18n
   .use(Backend)
@@ -162,14 +167,19 @@ i18n
     whitelist: LANGUAGES ? LANGUAGES.split(",") : LANGUAGE_DEFAULT,
 
     // have a common namespace used around the full app
-    ns: [name],
-    defaultNS: name,
+    ns: [namespace],
+    defaultNS: namespace,
 
     debug: process.env.NODE_ENV !== "production" ? yn(process.env.CANON_LOGLOCALE) : false,
 
     backend: {
       loadPath: path.join(appDir, "locales/{{lng}}/{{ns}}.json"),
       jsonIndent: 2
+    },
+
+    react: {
+      wait: true,
+      withRef: true
     },
 
     detection: {
@@ -183,7 +193,7 @@ i18n
 */
 async function start() {
 
-  shell.echo(chalk.bold("\n 🌐  Running Express Server\n"));
+  title("Running Express Server", "🌐");
   shell.echo(`Environment: ${NODE_ENV}`);
   shell.echo(`Port: ${PORT}`);
 
@@ -209,13 +219,16 @@ async function start() {
       if (shell.test("-d", dbFolder)) {
         if (!dbDetect) {
           dbDetect = true;
-          shell.echo(chalk.bold("\n 💽  Database Models\n"));
+
+          title("Setting up Database Models", "🗄️");
+
           app.set("db", new Sequelize(dbName, dbUser, dbPw,
             {
               host: dbHost,
               dialect: "postgres",
               define: {timestamps: true},
-              logging: () => {}
+              logging: () => {},
+              operatorsAliases: Sequelize.Op
             }
           ));
           shell.echo(`Database: ${dbUser}@${dbHost}`);
@@ -267,7 +280,7 @@ async function start() {
     if (shell.test("-d", cacheFolder)) {
       if (!cacheDetect) {
         cacheDetect = true;
-        shell.echo(chalk.bold("\n 📦  Filling Caches\n"));
+        title("Filling Caches", "📦");
       }
       const module = moduleName(cacheFolder);
       const promises = [];
@@ -294,7 +307,7 @@ async function start() {
     if (shell.test("-d", apiFolder)) {
       if (!apiDetect) {
         apiDetect = true;
-        shell.echo(chalk.bold("\n 📡  API Routes\n"));
+        title("Hooking up API Routes", "📡");
       }
       const module = moduleName(apiFolder);
       readFiles(apiFolder)
@@ -321,25 +334,21 @@ async function start() {
 
   if (NODE_ENV === "development") {
 
-    shell.echo(chalk.bold("\n 🔷  Bundling Client Webpack\n"));
+    title("Bundling Client Webpack", "🔷");
 
-    const webpackDevConfig = require(path.join(canonPath, "webpack/webpack.config.dev-client"));
+    const webpackDevConfig = require(path.join(canonPath, "webpack/dev-client.js"));
     const compiler = webpack(webpackDevConfig);
 
-    compiler.apply(new ProgressPlugin((percentage, msg, current, active, modulepath) => {
-      if (process.stdout.isTTY && percentage < 1) {
-        readline.clearLine(process.stdout, 0);
-        readline.cursorTo(process.stdout, 0);
-        modulepath = modulepath ? ` …${modulepath.substr(modulepath.length - 30)}` : "";
-        current = current ? ` ${current}` : "";
-        active = active ? ` ${active}` : "";
-        process.stdout.write(`${(percentage * 100).toFixed(0)}% ${msg}${current}${active}${modulepath} `);
-      }
-      else if (percentage === 1) {
-        readline.clearLine(process.stdout, 0);
-        readline.cursorTo(process.stdout, 0);
-      }
-    }));
+    // compiler.hooks.done.tap({
+    //   name: "ClientWebpack",
+    //   context: true
+    // }, (a, b) => {
+    //   console.log(typeof a);
+    //   console.log(typeof b);
+    //   // readline.clearLine(process.stdout, 0);
+    //   // readline.cursorTo(process.stdout, 0);
+    //   // shell.echo(`webpack built ${stats.compilation.hash} in ${stats.endTime - stats.startTime}ms`);
+    // });
 
     app.use(require("webpack-dev-middleware")(compiler, {
       logLevel: "silent",
@@ -361,29 +370,4 @@ async function start() {
 
 }
 
-if (ATTRS === undefined) start();
-else {
-
-  axios.get(ATTRS)
-    .then(res => {
-
-      store.attrs = {};
-
-      shell.echo(chalk.bold("\n 📚  Caching Attributes\n"));
-
-      const promises = res.data.data.map(attr => axios.get(`${API}attrs/${attr}`)
-        .then(res => {
-          shell.echo(`Cached "${attr}" attributes`);
-          store.attrs[attr] = res.data;
-          return res;
-        })
-        .catch(err => {
-          shell.echo(`${API}attrs/${attr} errored with code ${err.response.status}`);
-          return Promise.reject(err);
-        }));
-
-      Promise.all(promises).then(start);
-
-    });
-
-}
+start();

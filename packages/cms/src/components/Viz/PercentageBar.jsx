@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {abbreviate} from "../../utils/formatters";
+
+import "./PercentageBar.css";
 
 class PercentageBar extends Component {
 
@@ -16,7 +17,14 @@ class PercentageBar extends Component {
     const {dataFormat} = this.props;
 
     const defaults = {
-      cutoff: 5
+      cutoff: 5,
+      cutoffText: false,
+      numberFormat: (d, value, total) => {
+        const perc = Number(d[value] / total * 100);
+        return isNaN(perc) ? "No Data" : `${perc.toFixed(2)}%`;
+      },
+      showText: "Show More",
+      hideText: "Hide"
     };
 
     const config = Object.assign({}, defaults, propConfig);
@@ -25,13 +33,13 @@ class PercentageBar extends Component {
     if (typeof config.data === "string") {
       axios.get(config.data).then(resp => {
         config.data = dataFormat(resp.data);
-        if (!config.total) config.total = config.data.reduce((acc, d) => acc += d[config.value], 0);
+        if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
         this.setState({config});
       });
     }
     else {
       config.data = dataFormat(config.data);
-      if (!config.total) config.total = config.data.reduce((acc, d) => acc += d[config.value], 0);
+      if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
       this.setState({config});
     }
   }
@@ -42,9 +50,13 @@ class PercentageBar extends Component {
 
     if (!config) return null;
 
-    const {data, cutoff, title, value, groupBy, total} = config;
+    const {data, cutoff, cutoffText, title, value, groupBy, sort, total, numberFormat, showText, hideText} = config;
 
-    const displayData = showAll ? data : data.slice(0, cutoff);
+    const cutoffFunction = typeof cutoff === "number" ? data => data.slice(0, cutoff) : cutoff;
+
+    let displayData = showAll ? data : cutoffFunction(data);
+
+    if (sort) displayData = displayData.sort(sort);
   
     return <div className="PercentageBar">
       <h3 className="pb-title">{title}</h3>
@@ -52,18 +64,21 @@ class PercentageBar extends Component {
         displayData.map((d, i) => {
           const percent = d[value] / total * 100;
           const label = d[groupBy];
-          const number = d[value];
           return <div key={`pb-${i}`}className="percent-wrapper">
             <p className="label s-size">{label}</p>
             <div className="pt-progress-bar pt-intent-primary pt-no-stripes">
               {!isNaN(percent) && <div className="pt-progress-meter" style={{width: `${percent}%`}}>
               </div>}      
-              <p className="percent-label xs-size">{isNaN(percent) ? "No data" : number ? abbreviate(number) : `${percent.toFixed(2)}%` }</p>    
+              
             </div>
+            <p className="percent-label xs-size">{numberFormat(d, value, total)}</p>    
           </div>;
         })
       }
-      {data.length > cutoff && <button onClick={() => this.setState({showAll: !this.state.showAll})}>{showAll ? "Hide" : "Show More"}</button>}
+      <div className="show-more">
+        {!showAll && cutoffText && <div className="cutoff-text">{cutoffText}</div>}
+        {(showAll || data.length > displayData.length) && <button onClick={() => this.setState({showAll: !this.state.showAll})}>{showAll ? hideText : showText}</button>}
+      </div>
     </div>;
 
   }

@@ -18,10 +18,16 @@ ___
 npm i @datawheel/canon-logiclayer
 ```
 
-Additionally, an environment variable must be set to tell the logic layer which mondrian cube to use. For example, this would hook into the Data USA cube:
+An environment variable must be set to tell the logic layer which mondrian cube to use. For example, this would hook into the Data USA cube:
 
 ```bash
-export CANON_LOGICLAYER_CUBE=https://canon-api.datausa.io/
+export CANON_LOGICLAYER_CUBE=https://olympic-api.datausa.io/
+```
+
+Additionally, logging can be enabled with the following variable:
+
+```bash
+export CANON_LOGICLAYER_LOGGING=true
 ```
 
 ___

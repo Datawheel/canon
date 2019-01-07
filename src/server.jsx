@@ -140,7 +140,6 @@ export default function(defaultStore = {}, headerConfig) {
     ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
 
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/normalize.css'>
-    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/blueprint/dist/blueprint.css'>
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css'>
 
   </head>

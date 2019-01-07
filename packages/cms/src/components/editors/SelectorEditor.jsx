@@ -73,16 +73,7 @@ class SelectorEditor extends Component {
     }
     else if (data.type === "multi") {
       const theOption = data.options.find(o => o.option === option);
-      if (theOption) {
-        if (checked) {
-          theOption.isDefault = checked;
-        }
-        else {
-          if (data.options.filter(o => o.isDefault).length > 1) {
-            theOption.isDefault = checked;
-          }
-        }
-      }
+      if (theOption) theOption.isDefault = checked;
       data.default = data.options.filter(o => o.isDefault).map(o => o.option).join();
     }
     this.setState({data, showCustom: false});
@@ -227,7 +218,7 @@ class SelectorEditor extends Component {
           }
         </ul>
         <button className="pt-button" onClick={this.addOption.bind(this)}>Add Option <span className="pt-icon pt-icon-plus"/></button><br/>
-        { data.type === "single" && <button className="pt-button" onClick={this.toggleCustom.bind(this)}>Custom Default <span className="pt-icon pt-icon-cog"/></button> }
+        <button className="pt-button" onClick={this.toggleCustom.bind(this)}>Custom Default <span className="pt-icon pt-icon-cog"/></button> 
         {
           showCustom && <div>
             <select value={data.default} onChange={this.chooseCustom.bind(this)}>

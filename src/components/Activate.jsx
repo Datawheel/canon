@@ -1,8 +1,9 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
+import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import {sendActivation, validateActivation} from "../actions/auth";
-import {translate} from "react-i18next";
-import {Intent, Toaster} from "@blueprintjs/core";
+import {Intent} from "@blueprintjs/core";
 
 import {
   ACTIVATE_SEND_FAILURE,
@@ -19,7 +20,6 @@ class Activate extends Component {
     this.state = {
       activated: undefined,
       submitted: false,
-      toast: typeof window !== "undefined" ? Toaster.create() : null,
       token: false
     };
   }
@@ -42,7 +42,8 @@ class Activate extends Component {
   componentDidUpdate() {
 
     const {auth, t} = this.props;
-    const {activated, submitted, toast} = this.state;
+    const {activated, submitted} = this.state;
+    const Toast = this.context.toast.current;
 
     if (!activated && auth.msg === ACTIVATE_TOKEN_SUCCESS) {
       this.setState({activated: true});
@@ -52,15 +53,15 @@ class Activate extends Component {
     }
     else if (submitted && !auth.loading && (auth.msg || auth.error)) {
       if (auth.msg === ACTIVATE_SEND_SUCCESS) {
-        toast.show({iconName: "inbox", intent: Intent.SUCCESS, message: t("Activate.actions.ACTIVATE_SEND_SUCCESS", {email: auth.user.email})});
+        Toast.show({icon: "inbox", intent: Intent.SUCCESS, message: t("Activate.actions.ACTIVATE_SEND_SUCCESS", {email: auth.user.email})});
         this.setState({submitted: false});
       }
       else if (auth.error === ACTIVATE_SEND_FAILURE) {
-        toast.show({iconName: "error", intent: Intent.DANGER, message: t("Activate.actions.ACTIVATE_SEND_FAILURE", {email: auth.user.email})});
+        Toast.show({icon: "error", intent: Intent.DANGER, message: t("Activate.actions.ACTIVATE_SEND_FAILURE", {email: auth.user.email})});
         this.setState({submitted: false});
       }
       else if (auth.error === ACTIVATE_TOKEN_FAILURE) {
-        toast.show({iconName: "error", intent: Intent.DANGER, message: t("Activate.actions.ACTIVATE_TOKEN_FAILURE")});
+        Toast.show({icon: "error", intent: Intent.DANGER, message: t("Activate.actions.ACTIVATE_TOKEN_FAILURE")});
         this.setState({submitted: false});
       }
     }
@@ -78,7 +79,7 @@ class Activate extends Component {
     if (activated === undefined) {
 
       return (
-        <div className="pt-callout">
+        <div className="bp3-callout">
           <h5>E-mail:</h5>
         </div>
       );
@@ -87,9 +88,9 @@ class Activate extends Component {
     else if (activated) {
 
       return (
-        <div className="pt-callout pt-intent-success">
+        <div className="bp3-callout bp3-intent-success">
           <h5>E-mail: Verified</h5>
-          <button className="pt-button pt-fill pt-disabled" disabled>{ t("Activate.button") }</button>
+          <button className="bp3-button bp3-fill bp3-disabled" disabled>{ t("Activate.button") }</button>
         </div>
       );
 
@@ -97,9 +98,9 @@ class Activate extends Component {
     else {
 
       return (
-        <div className="pt-callout pt-intent-danger">
+        <div className="bp3-callout bp3-intent-danger">
           <h5>E-mail: Not Verified</h5>
-          <button className="pt-button pt-fill pt-intent-danger" onClick={this.sendActivation.bind(this)}>{ t("Activate.button") }</button>
+          <button className="bp3-button bp3-fill bp3-intent-danger" onClick={this.sendActivation.bind(this)}>{ t("Activate.button") }</button>
         </div>
       );
 
@@ -110,6 +111,10 @@ class Activate extends Component {
 
 Activate.defaultProps = {
   hidden: false
+};
+
+Activate.contextTypes = {
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({
@@ -125,6 +130,6 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-Activate = translate()(Activate);
+Activate = withNamespaces()(Activate);
 Activate = connect(mapStateToProps, mapDispatchToProps)(Activate);
 export {Activate};

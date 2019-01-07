@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {NonIdealState, Tree} from "@blueprintjs/core";
+import {NonIdealState, Tree, Alert, Intent} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import CtxMenu from "../components/CtxMenu";
 import StoryEditor from "./StoryEditor";
@@ -17,7 +17,8 @@ class StoryBuilder extends Component {
     super(props);
     this.state = {
       nodes: null,
-      stories: null
+      stories: null,
+      nodeToDelete: false
     };
   }
 
@@ -197,10 +198,15 @@ class StoryBuilder extends Component {
     }
   }
 
+  confirmDelete(n) {
+    this.setState({nodeToDelete: n});
+  }
+
   deleteItem(n) {
     const {nodes} = this.state;
     const {stripHTML} = this.context.formatters;
     n = this.locateNode(n.itemType, n.data.id);
+    const nodeToDelete = false;
     // todo: instead of the piecemeal refreshes being done for each of these tiers - is it sufficient to run buildNodes again?
     if (n.itemType === "storytopic") {
       const parent = this.locateNode("story", n.data.story_id);
@@ -214,13 +220,13 @@ class StoryBuilder extends Component {
           data: storyTopicData
         }));
         parent.childNodes = storytopics;
-        this.setState({nodes}, this.handleNodeClick.bind(this, parent.childNodes[0]));
+        this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
       });
     }
     else if (n.itemType === "story") {
       axios.delete("/api/cms/story/delete", {params: {id: n.data.id}}).then(resp => {
         const stories = resp.data;
-        this.setState({stories}, this.buildNodes.bind(this, true));
+        this.setState({stories, nodeToDelete}, this.buildNodes.bind(this, true));
       });
     }
   }
@@ -233,17 +239,17 @@ class StoryBuilder extends Component {
     if (node.itemType === "story") parentLength = nodes.length;
     if (!currentNode) {
       node.isSelected = true;
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.deleteItem.bind(this)} />;
+      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
     else if (node.id !== currentNode.id) {
       node.isSelected = true;
       currentNode.isSelected = false;
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.deleteItem.bind(this)} />;
+      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
       currentNode.secondaryLabel = null;
     }
     // This case is needed becuase, even if the same node is reclicked, its CtxMenu MUST update to reflect the new node (it may no longer be in its old location)
     else if (currentNode && node.id === currentNode.id) {
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.deleteItem.bind(this)} />;
+      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
     if (this.props.setPath) this.props.setPath(node);
     this.setState({currentNode: node});
@@ -313,12 +319,24 @@ class StoryBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode} = this.state;
+    const {nodes, currentNode, nodeToDelete} = this.state;
 
     if (!nodes) return <div>Loading</div>;
 
     return (
       <div className="cms-panel story-panel" id="profile-builder">
+        <Alert
+          isOpen={nodeToDelete}
+          cancelButtonText="Cancel"
+          confirmButtonText="Delete"
+          iconName="trash"
+          intent={Intent.DANGER}
+          onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
+          onCancel={() => this.setState({nodeToDelete: false})}
+        >
+          {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
+        </Alert>
+
         <div className="cms-sidebar" id="tree">
 
           {/* new entity */}

@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {translate} from "react-i18next";
+import {withNamespaces} from "react-i18next";
 import axios from "axios";
 
 class UserAdmin extends Component {
@@ -31,7 +31,7 @@ class UserAdmin extends Component {
     const {t} = this.props;
     const {users} = this.state;
 
-    return <table className="pt-table pt-striped">
+    return <table className="bp3-table bp3-striped">
       <thead>
         <tr>
           <th>{ t("Username") }</th>
@@ -54,7 +54,7 @@ class UserAdmin extends Component {
   }
 }
 
-UserAdmin = translate()(UserAdmin);
+UserAdmin = withNamespaces()(UserAdmin);
 UserAdmin = connect(state => ({
   auth: state.auth
 }))(UserAdmin);

@@ -7,6 +7,10 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
+      title: {
+        type: db.STRING,
+        defaultValue: "New Title"
+      },
       description: {
         type: db.TEXT,
         defaultValue: "New Footnote"

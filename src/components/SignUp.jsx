@@ -1,8 +1,9 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import {withNamespaces} from "react-i18next";
 import {signup} from "../actions/auth";
-import {translate} from "react-i18next";
-import {Intent, Toaster} from "@blueprintjs/core";
+import {Intent} from "@blueprintjs/core";
 import {SocialButtons} from "./SocialButtons";
 
 import {SIGNUP_EXISTS} from "../consts";
@@ -19,8 +20,7 @@ class SignUp extends Component {
       password: "",
       passwordAgain: "",
       email: null,
-      submitted: false,
-      toast: typeof window !== "undefined" ? Toaster.create() : null
+      submitted: false
     };
     this.onChange = this.onChange.bind(this);
   }
@@ -36,13 +36,13 @@ class SignUp extends Component {
     const {agreedToTerms, email, password, passwordAgain, username} = this.state;
 
     if (password !== passwordAgain) {
-      this.setState({error: {iconName: "lock", message: t("SignUp.error.PasswordMatch")}});
+      this.setState({error: {icon: "lock", message: t("SignUp.error.PasswordMatch")}});
     }
     else if (!username || !email || !password) {
-      this.setState({error: {iconName: "id-number", message: t("SignUp.error.IncompleteFields")}});
+      this.setState({error: {icon: "id-number", message: t("SignUp.error.IncompleteFields")}});
     }
     else if ((legal.privacy || legal.terms) && !agreedToTerms) {
-      this.setState({error: {iconName: "saved", message: t("SignUp.error.TermsAgree")}});
+      this.setState({error: {icon: "saved", message: t("SignUp.error.TermsAgree")}});
     }
     else {
       this.props.signup({username, email, password, redirect});
@@ -65,15 +65,15 @@ class SignUp extends Component {
       this.setState({submitted: false});
     }
     else if (error) {
-      this.showToast(error.message, error.iconName, error.intent);
+      this.showToast(error.message, error.icon, error.intent);
       this.setState({error: false});
     }
 
   }
 
-  showToast(message, iconName = "lock", intent = Intent.DANGER) {
-    const {toast} = this.state;
-    toast.show({iconName, intent, message});
+  showToast(message, icon = "lock", intent = Intent.DANGER) {
+    const Toast = this.context.toast.current;
+    Toast.show({icon, intent, message});
   }
 
   render() {
@@ -84,30 +84,30 @@ class SignUp extends Component {
     return (
       <div>
         <form id="signup" onSubmit={this.onSubmit.bind(this)} className="login-container">
-          <div className="pt-input-group">
-            <span className="pt-icon pt-icon-envelope"></span>
-            <input className="pt-input" placeholder={ t("SignUp.E-mail") } value={email} type="email" name="email" onChange={this.onChange} tabIndex="1" />
+          <div className="bp3-input-group">
+            <span className="bp3-icon bp3-icon-envelope"></span>
+            <input className="bp3-input" placeholder={ t("SignUp.E-mail") } value={email} type="email" name="email" onChange={this.onChange} tabIndex="1" />
           </div>
-          <div className="pt-input-group">
-            <span className="pt-icon pt-icon-user"></span>
-            <input className="pt-input" placeholder={ t("SignUp.Username") } value={this.state.username} type="text" name="username" onFocus={this.onChange} onChange={this.onChange} tabIndex="2" />
+          <div className="bp3-input-group">
+            <span className="bp3-icon bp3-icon-user"></span>
+            <input className="bp3-input" placeholder={ t("SignUp.Username") } value={this.state.username} type="text" name="username" onFocus={this.onChange} onChange={this.onChange} tabIndex="2" />
           </div>
-          <div className="pt-input-group">
-            <span className="pt-icon pt-icon-lock"></span>
-            <input className="pt-input" placeholder={ t("SignUp.Password") } value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
+          <div className="bp3-input-group">
+            <span className="bp3-icon bp3-icon-lock"></span>
+            <input className="bp3-input" placeholder={ t("SignUp.Password") } value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
           </div>
-          <div className="pt-input-group">
-            <span className="pt-icon pt-icon-lock"></span>
-            <input className="pt-input" placeholder={ t("SignUp.Confirm Password") } value={this.state.passwordAgain} type="password" name="passwordAgain" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="4" />
+          <div className="bp3-input-group">
+            <span className="bp3-icon bp3-icon-lock"></span>
+            <input className="bp3-input" placeholder={ t("SignUp.Confirm Password") } value={this.state.passwordAgain} type="password" name="passwordAgain" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="4" />
           </div>
           { legal.privacy || legal.terms
-            ? <label className="pt-control pt-checkbox" htmlFor="ppcbox">
+            ? <label className="bp3-control bp3-checkbox" htmlFor="ppcbox">
               <input type="checkbox" id="ppcbox" name="agreedToTerms" checked={agreedToTerms} onChange={this.onChange} />
-              <span className="pt-control-indicator"></span>
+              <span className="bp3-control-indicator"></span>
               <span dangerouslySetInnerHTML={{__html: legal.privacy && legal.terms ? t("SignUp.PrivacyTermsText") : legal.privacy ? t("SignUp.PrivacyText") : t("SignUp.TermsText"), legal}}></span>
             </label>
             : null }
-          <button type="submit" className="pt-button pt-fill" tabIndex="5">{ t("SignUp.Sign Up") }</button>
+          <button type="submit" className="bp3-button bp3-fill" tabIndex="5">{ t("SignUp.Sign Up") }</button>
         </form>
         <SocialButtons social={social} />
       </div>
@@ -118,6 +118,10 @@ class SignUp extends Component {
 
 SignUp.defaultProps = {
   redirect: "/"
+};
+
+SignUp.contextTypes = {
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({
@@ -132,6 +136,6 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
+SignUp = withNamespaces()(SignUp);
 SignUp = connect(mapStateToProps, mapDispatchToProps)(SignUp);
-SignUp = translate()(SignUp);
 export {SignUp};

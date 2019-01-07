@@ -1,8 +1,9 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import {withNamespaces} from "react-i18next";
 import {changePassword, resetPassword, validateReset} from "../actions/auth";
-import {translate} from "react-i18next";
-import {Intent, Toaster} from "@blueprintjs/core";
+import {Intent} from "@blueprintjs/core";
 
 import {
   RESET_PW_SUCCESS,
@@ -22,7 +23,6 @@ class Reset extends Component {
       password: "",
       email: "",
       submitted: false,
-      toast: typeof window !== "undefined" ? Toaster.create() : null,
       token: false
     };
     this.onChange = this.onChange.bind(this);
@@ -44,10 +44,11 @@ class Reset extends Component {
   changePassword(e) {
     e.preventDefault();
     const {t, router} = this.props;
-    const {password, passwordAgain, toast} = this.state;
+    const {password, passwordAgain} = this.state;
     const {token} = router.location.query;
     if (password !== passwordAgain) {
-      toast.show({iconName: "error", intent: Intent.DANGER, message: t("SignUp.error.PasswordMatch")});
+      const Toast = this.context.toast.current;
+      Toast.show({icon: "error", intent: Intent.DANGER, message: t("SignUp.error.PasswordMatch")});
       return;
     }
     this.props.changePassword(token, password);
@@ -62,25 +63,26 @@ class Reset extends Component {
 
   componentDidUpdate() {
     const {auth, t, router} = this.props;
-    const {email, submitted, toast, token} = this.state;
+    const {email, submitted, token} = this.state;
 
     if (!token && auth.msg === RESET_TOKEN_SUCCESS) {
       this.setState({token: true});
     }
     else if (submitted && !auth.loading && (auth.msg || auth.error)) {
+      const Toast = this.context.toast.current;
       if (auth.msg === RESET_PW_SUCCESS) {
         router.push("/login");
       }
       else if (auth.msg === RESET_SEND_SUCCESS) {
-        toast.show({iconName: "inbox", intent: Intent.SUCCESS, message: t("Reset.actions.RESET_SEND_SUCCESS", {email})});
+        Toast.show({icon: "inbox", intent: Intent.SUCCESS, message: t("Reset.actions.RESET_SEND_SUCCESS", {email})});
         this.setState({submitted: false});
       }
       else if (auth.error === RESET_SEND_FAILURE) {
-        toast.show({iconName: "error", intent: Intent.DANGER, message: t("Reset.actions.RESET_SEND_FAILURE", {email})});
+        Toast.show({icon: "error", intent: Intent.DANGER, message: t("Reset.actions.RESET_SEND_FAILURE", {email})});
         this.setState({submitted: false});
       }
       else if (auth.error === RESET_TOKEN_FAILURE) {
-        toast.show({iconName: "error", intent: Intent.DANGER, message: t("Reset.actions.RESET_TOKEN_FAILURE")});
+        Toast.show({icon: "error", intent: Intent.DANGER, message: t("Reset.actions.RESET_TOKEN_FAILURE")});
         this.setState({submitted: false});
       }
     }
@@ -96,15 +98,15 @@ class Reset extends Component {
       return (
         <div>
           <form id="reset" onSubmit={this.changePassword.bind(this)} className="reset-container">
-            <div className="pt-input-group">
-              <span className="pt-icon pt-icon-lock"></span>
-              <input className="pt-input" placeholder={ t("Reset.Password") } value={password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
+            <div className="bp3-input-group">
+              <span className="bp3-icon bp3-icon-lock"></span>
+              <input className="bp3-input" placeholder={ t("Reset.Password") } value={password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
             </div>
-            <div className="pt-input-group">
-              <span className="pt-icon pt-icon-lock"></span>
-              <input className="pt-input" placeholder={ t("Reset.Confirm Password") } value={passwordAgain} type="password" name="passwordAgain" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="4" />
+            <div className="bp3-input-group">
+              <span className="bp3-icon bp3-icon-lock"></span>
+              <input className="bp3-input" placeholder={ t("Reset.Confirm Password") } value={passwordAgain} type="password" name="passwordAgain" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="4" />
             </div>
-            <button className="pt-button pt-fill" type="submit" tabIndex="5">{ t("Reset.button") }</button>
+            <button className="bp3-button bp3-fill" type="submit" tabIndex="5">{ t("Reset.button") }</button>
           </form>
         </div>
       );
@@ -115,11 +117,11 @@ class Reset extends Component {
       return (
         <div>
           <form id="reset" onSubmit={this.resetPassword.bind(this)} className="reset-container">
-            <div className="pt-input-group">
-              <span className="pt-icon pt-icon-envelope"></span>
-              <input className="pt-input" placeholder={ t("Reset.E-mail") } value={email} type="email" name="email" onChange={this.onChange} tabIndex="1" />
+            <div className="bp3-input-group">
+              <span className="bp3-icon bp3-icon-envelope"></span>
+              <input className="bp3-input" placeholder={ t("Reset.E-mail") } value={email} type="email" name="email" onChange={this.onChange} tabIndex="1" />
             </div>
-            <button className="pt-button pt-fill" type="submit" tabIndex="5">{ t("Reset.button") }</button>
+            <button className="bp3-button bp3-fill" type="submit" tabIndex="5">{ t("Reset.button") }</button>
           </form>
         </div>
       );
@@ -128,6 +130,10 @@ class Reset extends Component {
 
   }
 }
+
+Reset.contextTypes = {
+  toast: PropTypes.object
+};
 
 const mapStateToProps = state => ({
   auth: state.auth
@@ -145,6 +151,6 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-Reset = translate()(Reset);
+Reset = withNamespaces()(Reset);
 Reset = connect(mapStateToProps, mapDispatchToProps)(Reset);
 export {Reset};

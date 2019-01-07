@@ -2,7 +2,7 @@
 import "babel-polyfill";
 
 import React from "react";
-import {render} from "react-dom";
+import {hydrate} from "react-dom";
 import {createHistory} from "history";
 import {applyRouterMiddleware, Router, RouterContext, useRouterHistory} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
@@ -38,7 +38,8 @@ i18n
     ns: [name],
     defaultNS: name,
     react: {
-      wait: true
+      wait: true,
+      withRef: true
     },
     resources: {
       [locale]: {[name]: resources},
@@ -118,7 +119,7 @@ function createElement(Component, props) {
 
 }
 
-render(
+hydrate(
   <I18nextProvider i18n={i18n}>
     <Provider store={store}>
       <Router createElement={createElement} history={history} render={applyRouterMiddleware(renderMiddleware())}>

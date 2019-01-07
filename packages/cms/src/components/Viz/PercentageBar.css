@@ -1,0 +1,7 @@
+.show-more {
+  display: flex;
+}
+
+.cutoff-text {
+  margin: 5px;
+}

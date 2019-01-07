@@ -13,7 +13,7 @@ class PermalinkManager extends React.PureComponent {
     const {router, permalinkKeywords, loadControl} = this.context;
     const {activeChart, href, state} = this.props;
 
-    if (state.load.inProgress) return;
+    if (state.load.inProgress || !state.query.cube) return;
 
     const location = router.getCurrentLocation();
 

@@ -1,8 +1,9 @@
-const ExtractTextPlugin = require("extract-text-webpack-plugin"),
-      HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
+const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
+      MiniCssExtractPlugin = require("mini-css-extract-plugin"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
+      progress = require("./progress"),
       webpack = require("webpack");
 
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
@@ -13,6 +14,7 @@ process.traceDeprecation = true;
 
 module.exports = {
   name: "server",
+  mode: "development",
   context: path.join(__dirname, "../src"),
   entry: {
     server: "./server"
@@ -32,12 +34,14 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new ExtractTextPlugin({
-      filename: "styles.css",
-      allChunks: true
+    new webpack.ProgressPlugin(progress),
+    new MiniCssExtractPlugin({
+      filename: "styles.css"
     }),
-    new HardSourceWebpackPlugin({cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]")}),
-    new webpack.NoEmitOnErrorsPlugin(),
+    new HardSourceWebpackPlugin({
+      cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
+      info: {level: "warn"}
+    }),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))
       .reduce((d, k) => {

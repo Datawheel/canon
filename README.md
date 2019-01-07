@@ -72,12 +72,12 @@ In order to enable localization for a Canon site, you must first define the avai
 export CANON_LANGUAGES="en,es"
 ```
 
-Next, any component that needs access to localized text needs to be wrapped in the react-i18next translate function:
+Next, any component that needs access to localized text needs to be wrapped in the react-i18next `withNamespaces` function:
 
 ```jsx
 import React, {Component} from "react";
 import {Link} from "react-router";
-import {translate} from "react-i18next";
+import {withNamespaces} from "react-i18next";
 
 class Nav extends Component {
 
@@ -95,10 +95,10 @@ class Nav extends Component {
   }
 }
 
-export default translate()(Nav);
+export default withNamespaces()(Nav);
 ```
 
-When a component is wrapped with `translate`, it will have access to a function named `t` inside it's props. This function is what handles fetching the appropriate translation, and also allows us to scrape an entire project to locate every string that needs translation. When you are ready to start populating translations, simply run `npm run locales`.
+When a component is wrapped with `withNamespaces`, it will have access to a function named `t` inside it's props. This function is what handles fetching the appropriate translation, and also allows us to scrape an entire project to locate every string that needs translation. When you are ready to start populating translations, simply run `npm run locales`.
 
 Canon will search your entire codebase for any component using the `t( )` function. Translations are stored in JSON files in a `locales/` folder in the root directory. In this example, running the script would produce the following file structure:
 
@@ -665,7 +665,6 @@ export CANON_LANGUAGE_DEFAULT="es"
 |variable|description|default|
 |---|---|---|
 |`CANON_API`|Used as a prefix with the fetchData action and the attribute types returned from the `ATTRS` url.|`undefined`|
-|`CANON_ATTRS`|A URL that should return a list of attribute classification strings to be pre-cached and passed to the default redux store.|`undefined`|
 |`CANON_BASE_URL`|If hosting assets or running the server from a different location that the project folder, this variable can be used to define the base URL for all static assets. A `<base>` tag will be added to the start of the `<head>` tag.|`undefined`|
 |`CANON_GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`).|`undefined`|
 |`CANON_FACEBOOK_PIXEL`|The unique Facebook Pixel ID for the project (ex. `"################"`).|`undefined`|

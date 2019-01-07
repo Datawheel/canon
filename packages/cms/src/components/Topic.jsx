@@ -1,15 +1,32 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
+import axios from "axios";
 
 import TextViz from "./topics/TextViz";
 import Column from "./topics/Column";
-const topicTypes = {Column, TextViz};
+import Tabs from "./topics/Tabs";
+const topicTypes = {Column, Tabs, TextViz};
 
 class Topic extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {sources: []};
+    this.state = {
+      contents: props.contents,
+      loading: false,
+      sources: []
+    };
+  }
+
+  onSelector(name, value) {
+    const {pid, pslug} = this.context.router.params;
+    const {id} = this.state.contents;
+    this.setState({loading: true});
+    this.updateSource.bind(this)(false);
+    axios.get(`/api/topic/${pslug}/${pid}/${id}?${name}=${value}`)
+      .then(resp => {
+        this.setState({contents: resp.data, loading: false});
+      });
   }
 
   updateSource(newSources) {
@@ -19,7 +36,7 @@ class Topic extends Component {
       newSources
         .map(s => s.annotations)
         .forEach(source => {
-          if (!sources.find(s => s.source_name === source.source_name)) sources.push(source);
+          if (source.source_name && !sources.find(s => s.source_name === source.source_name)) sources.push(source);
         });
       this.setState({sources});
     }
@@ -29,18 +46,17 @@ class Topic extends Component {
     const {formatters, variables} = this.context;
     return {
       formatters,
-      updateSource: this.updateSource.bind(this),
+      onSelector: this.onSelector.bind(this),
       variables: this.props.variables || variables
     };
   }
 
   render() {
 
-    const {sources} = this.state;
-    const {contents} = this.props;
+    const {contents, loading, sources} = this.state;
     const Comp = topicTypes[contents.type] || TextViz;
 
-    return <Comp contents={contents} sources={sources} />;
+    return <Comp contents={contents} loading={loading} sources={sources} />;
 
   }
 
@@ -48,12 +64,13 @@ class Topic extends Component {
 
 Topic.contextTypes = {
   formatters: PropTypes.object,
+  router: PropTypes.object,
   variables: PropTypes.object
 };
 
 Topic.childContextTypes = {
   formatters: PropTypes.object,
-  updateSource: PropTypes.func,
+  onSelector: PropTypes.func,
   variables: PropTypes.object
 };
 

@@ -113,7 +113,7 @@ class StoryTopicEditor extends Component {
             item={minData}
             fields={["title"]}
             plainfields={["image", "slug"]}
-            type="story"
+            type="storytopic"
             onSave={this.onSave.bind(this)}
             variables={{}}
           />

@@ -11,6 +11,7 @@ import {
   replaceKeysInString
 } from "../../helpers/query";
 import {isValidMeasure} from "../../helpers/validation";
+import {getGeoLevel} from "../../helpers/sorting";
 
 import ConditionalAnchor from "./ConditionalAnchor";
 import DatasetSelect from "./DatasetSelect";
@@ -131,20 +132,23 @@ class Sidebar extends React.PureComponent {
         newQuery.groups = query.groups;
         newQuery.filters = query.filters;
         newQuery.activeChart = query.activeChart;
-        return newState;
       }
       else if (areMeasuresFromSameTable(query, newQuery)) {
         newQuery.filters = replaceMeasureInFilters(query.filters, newQuery.cube);
         return replaceLevelsInGroupings(query.groups, newQuery.cube).then(newGroups => {
           newQuery.groups = newGroups;
+          newQuery.geoLevel = getGeoLevel(newQuery);
           newQuery.activeChart = replaceKeysInString(query.activeChart, query.groups, newQuery.groups);
           return newState;
         });
       }
+      else {
+        newQuery.groups = getDefaultGroup(newState.options.levels);
+        newQuery.filters = [];
+        newQuery.activeChart = null;
+      }
 
-      newQuery.groups = getDefaultGroup(newState.options.levels);
-      newQuery.filters = [];
-      newQuery.activeChart = null;
+      newQuery.geoLevel = getGeoLevel(newQuery);
       return newState;
     });
   }

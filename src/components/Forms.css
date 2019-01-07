@@ -1,7 +1,7 @@
 #login, #signup {
 
-  & .pt-input-group,
-  & .pt-button {
+  & .bp3-input-group,
+  & .bp3-button {
     margin-bottom: 10px;
   }
 
@@ -10,7 +10,7 @@
 #socials {
   display: flex;
 
-  & .pt-button {
+  & .bp3-button {
     align-items: center;
     color: white;
     display: flex;

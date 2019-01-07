@@ -93,7 +93,7 @@ class Vizbuilder extends React.PureComponent {
     if (!query.cube) return;
 
     if (!isSameQuery(prevState.query, query)) {
-      onChange(query, this.state.options);
+      onChange(query, this.state.charts);
     }
   }
 
@@ -107,8 +107,8 @@ class Vizbuilder extends React.PureComponent {
     return (
       <div
         className={classnames("vizbuilder", {
-          "geo-only": Boolean(options.geomapLevels),
-          loading: load.inProgress
+          "mapmode": Boolean(options.geomapLevels),
+          "loading": load.inProgress
         })}
       >
         <LoadingScreen total={load.total} progress={load.done} />
@@ -167,36 +167,21 @@ Vizbuilder.childContextTypes = {
 };
 
 Vizbuilder.propTypes = {
-  // this config object will be applied to all charts
   config: PropTypes.object,
   datacap: PropTypes.number,
   defaultMeasure: PropTypes.string,
   defaultGroup: PropTypes.arrayOf(PropTypes.string),
-  // formatting functions object,
-  // keys are the possible values of measure.annotations.units_of_measurement
-  // values are the formatting function to apply to those measures
   formatting: PropTypes.objectOf(PropTypes.func),
-  // individual measureConfigs
   measureConfig: PropTypes.objectOf(PropTypes.object),
-  // state update hook
   onChange: PropTypes.func,
-  // permalink switch
-  // to make the permalink work after in subsequent changes, pass any
-  // object that reliably changes only when the url changes
-  // the ideal element is react-router's `location.search` string
   permalink: PropTypes.bool,
-  // permalink keywords to parse from the url
   permalinkKeywords: PropTypes.objectOf(PropTypes.string),
-  // source URL for the mondrian server
   src: PropTypes.string.isRequired,
+  toolbar: PropTypes.element,
   topojson: PropTypes.objectOf(
-    // keys are the Level names where each object apply
     PropTypes.shape({
-      // URL for the topojson file
       topojson: PropTypes.string.isRequired,
-      // the key that relates each topojson shape with the dataset value
       topojsonId: PropTypes.string,
-      // the key in the topojson file for the shapes to use
       topojsonKey: PropTypes.string
     })
   ),
@@ -216,7 +201,6 @@ Vizbuilder.defaultProps = {
     "treemap",
     "barchart",
     "lineplot",
-    "histogram",
     "barchartyear",
     "stacked"
   ]

@@ -2,3 +2,9 @@
 body {
   font-family: "Roboto", sans-serif;
 }
+
+#Profile {
+  & .topic {
+    color: black;
+  }
+}

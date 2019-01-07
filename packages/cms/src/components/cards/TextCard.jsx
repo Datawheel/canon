@@ -1,12 +1,13 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Alert, Intent} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
+import deepClone from "../../utils/deepClone";
 import PropTypes from "prop-types";
 import "./TextCard.css";
 
@@ -16,7 +17,9 @@ class TextCard extends Component {
     super(props);
     this.state = {
       minData: null,
-      displayData: null
+      displayData: null,
+      initialData: null,
+      alertObj: false
     };
   }
 
@@ -70,6 +73,15 @@ class TextCard extends Component {
     });
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
@@ -81,8 +93,32 @@ class TextCard extends Component {
     });
   }
 
+  openEditor() {
+    const {minData} = this.state;
+    const initialData = deepClone(minData);
+    const isOpen = true;
+    this.setState({initialData, isOpen});
+  }
+
+  maybeCloseEditorWithoutSaving() {
+    const alertObj = {
+      callback: this.closeEditorWithoutSaving.bind(this),
+      message: "Are you sure you want to abandon changes?",
+      confirm: "Yes, Abandon changes."
+    };
+    this.setState({alertObj});
+  }
+
+  closeEditorWithoutSaving() {
+    const {initialData} = this.state;
+    const minData = deepClone(initialData);
+    const isOpen = false;
+    const alertObj = false;
+    this.setState({minData, isOpen, alertObj});
+  }
+
   render() {
-    const {displayData, minData, isOpen} = this.state;
+    const {displayData, minData, isOpen, alertObj} = this.state;
     const {variables, fields, plainfields, type, parentArray, item} = this.props;
     const {ordering} = item;
 
@@ -90,7 +126,7 @@ class TextCard extends Component {
 
     let cardClass = "splash-card";
     if (["profile_stat", "topic_stat"].includes(type)) cardClass = "stat-card";
-    const displaySort = ["title", "value", "subtitle"];
+    const displaySort = ["title", "value", "subtitle", "description"];
     const displays = Object.keys(displayData)
       .filter(k => typeof displayData[k] === "string" && !["id", "image", "profile_id", "allowed", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
@@ -98,22 +134,36 @@ class TextCard extends Component {
     return (
       <div className={`cms-card cms-${cardClass}`}>
 
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          iconName="pt-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+          inline="true"
+        >
+          {alertObj.message}
+        </Alert>
+
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
-          <button className="cms-button" onClick={() => this.setState({isOpen: true})}>
+          <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="pt-icon pt-icon-cog" />
           </button>
         </h5>
 
-        { type === "story_footnote" || type === "profile_footnote" &&
+        { displays.map((k, i) =>
+          <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}} />
+        )}
+
+        { (type === "story_footnote" || type === "profile_footnote") &&
           <div>
             Use Footnote Reference: <strong>{`Foot{{${ordering + 1}}}`}</strong>
           </div>
         }
-
-        { displays.map((k, i) =>
-          <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}} />
-        )}
 
         {/* reorder buttons */}
         { parentArray &&
@@ -127,7 +177,7 @@ class TextCard extends Component {
 
         <Dialog
           isOpen={isOpen}
-          onClose={() => this.setState({isOpen: false})}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Text Editor"
           inline="true"
         >
@@ -136,8 +186,7 @@ class TextCard extends Component {
             <TextEditor data={minData} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />
           </div>
           <FooterButtons
-            onDelete={["profile", "section", "topic"].includes(type) ? false : this.delete.bind(this)}
-            onCancel={() => this.setState({isOpen: false})}
+            onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>

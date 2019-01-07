@@ -1,6 +1,6 @@
-import {Client} from "mondrian-rest-client";
+import {MultiClient} from "mondrian-rest-client";
 
-/** @type {Client} */
+/** @type {MultiClient} */
 let client;
 
 /**
@@ -9,7 +9,7 @@ let client;
  * @returns {void}
  */
 export function resetClient(src) {
-  client = new Client(src);
+  client = new MultiClient(src);
 }
 
 /**

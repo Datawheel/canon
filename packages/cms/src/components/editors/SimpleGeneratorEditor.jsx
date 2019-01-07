@@ -120,7 +120,10 @@ export default class SimpleGeneratorEditor extends Component {
 
   rebuild() {
     const {payload} = this.props;
-    if (payload.error) return;
+    if (payload.error) {
+      this.setState({rebuildAlertOpen: false});
+      return;
+    }
     let pl = payload;
     if (payload.results) pl = payload.results;
     if (payload.data) pl = payload.data;

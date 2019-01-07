@@ -7,6 +7,7 @@ import Grouping from "../components/Sidebar/GroupingManager/Grouping";
 import {findFirstNumber} from "./formatting";
 import {
   areKindaNumeric,
+  isGeoDimension,
   isNumeric,
   isTimeDimension,
   isValidDimension,
@@ -86,9 +87,8 @@ export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
  * @param {Cube[]} cubes An array of the cubes to be reduced.
  */
 export function classifyMeasures(cubes) {
-  cubes = [].concat(cubes);
   const measures = [];
-  const otherMeasures = [];
+  const otherMeasures = []; // measures without `annotations.topic`
   const multiMeasures = {};
 
   let nCbs = cubes.length;
@@ -202,6 +202,11 @@ export function getTimeLevel(cube) {
     }
   }
   return undefined;
+}
+
+export function getGeoLevel(query) {
+  const geoGroup = query.groups.find(grp => grp.level && isGeoDimension(grp.level.hierarchy.dimension));
+  return geoGroup && geoGroup.level;
 }
 
 /**

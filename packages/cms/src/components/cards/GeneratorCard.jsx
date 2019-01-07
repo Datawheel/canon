@@ -1,10 +1,11 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Alert, Intent} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
+import deepClone from "../../utils/deepClone";
 import "./GeneratorCard.css";
 
 import ConsoleVariable from "../ConsoleVariable";
@@ -15,7 +16,9 @@ class GeneratorCard extends Component {
     super(props);
     this.state = {
       minData: null,
-      displayData: null
+      initialData: null,
+      displayData: null,
+      alertObj: false
     };
   }
 
@@ -50,6 +53,15 @@ class GeneratorCard extends Component {
     this.setState({displayData});
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
@@ -72,9 +84,33 @@ class GeneratorCard extends Component {
     });
   }
 
+  openEditor() {
+    const {minData} = this.state;
+    const initialData = deepClone(minData);
+    const isOpen = true;
+    this.setState({initialData, isOpen});
+  }
+
+  maybeCloseEditorWithoutSaving() {
+    const alertObj = {
+      callback: this.closeEditorWithoutSaving.bind(this),
+      message: "Are you sure you want to abandon changes?",
+      confirm: "Yes, Abandon changes."
+    };
+    this.setState({alertObj});
+  }
+
+  closeEditorWithoutSaving() {
+    const {initialData} = this.state;
+    const minData = deepClone(initialData);
+    const isOpen = false;
+    const alertObj = false;
+    this.setState({minData, isOpen, alertObj});
+  }
+
   render() {
     const {type, variables, item, parentArray, preview} = this.props;
-    const {displayData, minData, isOpen} = this.state;
+    const {displayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
     let showDesc = false;
@@ -90,11 +126,25 @@ class GeneratorCard extends Component {
     return (
       <div className="cms-card">
 
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          iconName="pt-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+          inline="true"
+        >
+          {alertObj.message}
+        </Alert>
+
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
           <span className={`cms-card-header-icon pt-icon-standard pt-icon-th ${type}`} />
           {minData.name}
-          <button className="cms-button" onClick={() => this.setState({isOpen: true})}>
+          <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="pt-icon pt-icon-cog" />
           </button>
         </h5>
@@ -154,7 +204,7 @@ class GeneratorCard extends Component {
         <Dialog
           className="generator-editor-dialog"
           isOpen={isOpen}
-          onClose={() => this.setState({isOpen: false})}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Variable Editor"
           inline="true"
           icon="false"
@@ -164,8 +214,7 @@ class GeneratorCard extends Component {
             <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
           </div>
           <FooterButtons
-            onDelete={this.delete.bind(this)}
-            onCancel={() => this.setState({isOpen: false})}
+            onDelete={this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>
