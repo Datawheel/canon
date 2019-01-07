@@ -53,6 +53,7 @@ const storyReq = {
   include: [
     {association: "authors", separate: true},
     {association: "descriptions", separate: true},
+    {association: "subtitles", separate: true},
     {association: "footnotes", separate: true},
     {
       association: "storytopics", separate: true,
@@ -106,7 +107,7 @@ const sortProfile = profile => {
 
 const sortStory = story => {
   story = story.toJSON();
-  ["descriptions", "footnotes", "authors", "storytopics"].forEach(type => story[type].sort(sorter));
+  ["descriptions", "footnotes", "authors", "subtitles", "storytopics"].forEach(type => story[type].sort(sorter));
   story.storytopics.forEach(storytopic => {
     ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storytopic[type].sort(sorter));
   });

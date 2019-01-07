@@ -9,6 +9,7 @@ import "@blueprintjs/datetime/dist/blueprint-datetime.css";
 const propMap = {
   author: "authors",
   story_description: "descriptions",
+  story_subtitle: "subtitles",
   story_footnote: "footnotes"
 };
 
@@ -103,6 +104,27 @@ class StoryEditor extends Component {
             onSave={this.onSave.bind(this)}
             variables={{}}
           />
+        </div>
+
+        {/* subtitles */}
+        <h2 className="cms-section-heading">
+          Subtitles
+          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "story_subtitle")}>
+            <span className="pt-icon pt-icon-plus" />
+          </button>
+        </h2>
+        <div className="cms-card-list">
+          { minData.subtitles && minData.subtitles.map(d =>
+            <TextCard key={d.id}
+              item={d}
+              onDelete={this.onDelete.bind(this)}
+              fields={["subtitle"]}
+              type="story_subtitle"
+              variables={{}}
+              parentArray={minData.subtitles}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
         </div>
 
         <h2 className="cms-section-heading">
