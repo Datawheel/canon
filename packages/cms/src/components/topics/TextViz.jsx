@@ -1,17 +1,17 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
 import {AnchorLink} from "@datawheel/canon-core";
 import {nest} from "d3-collection";
 import {NonIdealState, Spinner} from "@blueprintjs/core";
 import Viz from "../Viz/index";
 import SourceGroup from "../Viz/SourceGroup";
 import StatGroup from "../Viz/StatGroup";
+import Selector from "./Components/Selector";
 import "./topic.css";
 
-class TextViz extends Component {
+export default class TextViz extends Component {
 
   render() {
-    const {onSelector, variables} = this.context;
+
     const {contents, loading, sources} = this.props;
     const {descriptions, selectors, slug, stats, subtitles, title, visualizations} = contents;
 
@@ -28,11 +28,7 @@ class TextViz extends Component {
           </h3>
         }
         { subtitles.map((content, i) => <div key={i} className="topic-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
-        { selectors.map(selector => <div className="pt-select pt-fill" key={selector.name}>
-          <select onChange={d => onSelector(selector.name, d.target.value)} disabled={loading} defaultValue={selector.default}>
-            { selector.options.map(({option}) => <option value={option} key={option}>{variables[option]}</option>) }
-          </select>
-        </div>) }
+        { selectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
         { stats.length > 0
           ? <div className="topic-stats">
             { statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
@@ -46,13 +42,7 @@ class TextViz extends Component {
       </div>
       { mainviz.map((visualization, ii) => <Viz config={visualization} key={ii} className="topic-visualization" title={ title } slug={ `${slug}_${ii}` } />) }
     </div>;
+
   }
 
 }
-
-TextViz.contextTypes = {
-  onSelector: PropTypes.func,
-  variables: PropTypes.object
-};
-
-export default TextViz;

@@ -1,9 +1,9 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
 import Viz from "../Viz/index";
 import {AnchorLink} from "@datawheel/canon-core";
 import {nest} from "d3-collection";
 import StatGroup from "../Viz/StatGroup";
+import Selector from "./Components/Selector";
 import "./topic.css";
 
 /** */
@@ -16,7 +16,7 @@ function findKey(str, key) {
 
 const titleKeys = ["tab", "type"];
 
-class Tabs extends Component {
+export default class Tabs extends Component {
 
   constructor(props) {
     super(props);
@@ -31,7 +31,6 @@ class Tabs extends Component {
 
   render() {
     const {contents, loading} = this.props;
-    const {onSelector, variables} = this.context;
     const {descriptions, selectors, slug, stats, subtitles, title, visualizations} = contents;
     const {tabIndex} = this.state;
 
@@ -86,21 +85,10 @@ class Tabs extends Component {
       <div className="topic-flex">
         { <Viz config={visualization} key={tabIndex} className="topic-visualization" title={ title } slug={ `${slug}_${tabIndex}` } /> }
         { tabSelectors.length > 0 && <div className="topic-selectors">
-          { tabSelectors.map(selector => <div className="pt-select pt-fill" key={selector.name}>
-            <select onChange={d => onSelector(selector.name, d.target.value)} disabled={loading} defaultValue={selector.default}>
-              { selector.options.map(({option}) => <option value={option} key={option}>{variables[option]}</option>) }
-            </select>
-          </div>) }
+          { tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
         </div> }
       </div>
     </div>;
   }
 
 }
-
-Tabs.contextTypes = {
-  onSelector: PropTypes.func,
-  variables: PropTypes.object
-};
-
-export default Tabs;
