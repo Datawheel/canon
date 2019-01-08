@@ -1,12 +1,12 @@
 import React, {Component} from "react";
-import Viz from "../Viz/index";
 import {AnchorLink} from "@datawheel/canon-core";
 import {nest} from "d3-collection";
 import StatGroup from "../Viz/StatGroup";
+import Viz from "../Viz/index";
 import Selector from "./Components/Selector";
 import "./topic.css";
 
-export default class Column extends Component {
+export default class Card extends Component {
 
   render() {
 
@@ -15,7 +15,7 @@ export default class Column extends Component {
 
     const statGroups = nest().key(d => d.title).entries(stats);
 
-    return <div className={ `topic ${slug} Column` }>
+    return <div className={ `topic pt-card pt-elevation-0 ${slug} Card` }>
       <div className="topic-content">
         { title &&
           <h3 className="topic-title">

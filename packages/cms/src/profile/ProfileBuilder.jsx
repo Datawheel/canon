@@ -17,8 +17,10 @@ import deepClone from "../utils/deepClone.js";
 import "./ProfileBuilder.css";
 
 const topicIcons = {
-  TextViz: "list-detail-view",
-  Column: "list"
+  Card: "square",
+  Column: "list",
+  Tabs: "folder-close",
+  TextViz: "list-detail-view"
 };
 
 class ProfileBuilder extends Component {

@@ -1,6 +1,9 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
 import Viz from "../Viz/index";
+import {AnchorLink} from "@datawheel/canon-core";
+import {nest} from "d3-collection";
+import StatGroup from "../Viz/StatGroup";
+import Selector from "./Components/Selector";
 import "./topic.css";
 
 /** */
@@ -11,7 +14,9 @@ function findKey(str, key) {
   else return match;
 }
 
-class Tabs extends Component {
+const titleKeys = ["tab", "type"];
+
+export default class Tabs extends Component {
 
   constructor(props) {
     super(props);
@@ -26,17 +31,26 @@ class Tabs extends Component {
 
   render() {
     const {contents, loading} = this.props;
-    const {onSelector, variables} = this.context;
-    const {descriptions, selectors, slug, subtitles, title, visualizations} = contents;
+    const {descriptions, selectors, slug, stats, subtitles, title, visualizations} = contents;
     const {tabIndex} = this.state;
 
+    const statGroups = nest().key(d => d.title).entries(stats);
+
     const visualization = visualizations[tabIndex];
-    const selectorsPerViz = Math.ceil(selectors.length / visualizations.length);
-    const tabSelectors = selectors.slice(selectorsPerViz * tabIndex, selectorsPerViz * (tabIndex + 1));
+    const selectorConfig = visualization.logic.match(/selectors\:[\s]*(\[[^\]]+\])/);
+    let tabSelectors;
+    if (selectorConfig) {
+      const selectorArray = JSON.parse(selectorConfig[1]);
+      tabSelectors = selectors
+        .filter(selector => selectorArray.includes(selector.name))
+        .sort((a, b) => selectorArray.indexOf(a.name) - selectorArray.indexOf(b.name));
+    }
+    else {
+      const selectorsPerViz = Math.ceil(selectors.length / visualizations.length);
+      tabSelectors = selectors.slice(selectorsPerViz * tabIndex, selectorsPerViz * (tabIndex + 1));
+    }
 
     const tabDescriptions = descriptions.length === visualizations.length ? [descriptions[tabIndex]] : descriptions;
-
-    const titleKeys = ["tab", "type"];
 
     const tabs = visualizations.map((d, i) => {
       let title;
@@ -51,10 +65,14 @@ class Tabs extends Component {
       <div className="topic-content">
         { title &&
           <h3 className="topic-title">
-            <a href={ `#${ slug }`} id={ slug } className="anchor" dangerouslySetInnerHTML={{__html: title}}></a>
+            <AnchorLink to={ slug } id={ slug } className="anchor" dangerouslySetInnerHTML={{__html: title}}></AnchorLink>
           </h3>
         }
         { subtitles.map((content, i) => <div key={i} className="topic-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
+        { stats.length > 0
+          ? <div className="topic-stats">
+            { statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
+          </div> : null }
         { tabDescriptions.map((content, i) => <div key={i} className="topic-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
         { tabs.length > 1 && <div className={`tab-group tab-${tabIndex}`}>
           { tabs.map((title, key) =>
@@ -67,21 +85,10 @@ class Tabs extends Component {
       <div className="topic-flex">
         { <Viz config={visualization} key={tabIndex} className="topic-visualization" title={ title } slug={ `${slug}_${tabIndex}` } /> }
         { tabSelectors.length > 0 && <div className="topic-selectors">
-          { tabSelectors.map(selector => <div className="pt-select pt-fill" key={selector.name}>
-            <select onChange={d => onSelector(selector.name, d.target.value)} disabled={loading} defaultValue={selector.default}>
-              { selector.options.map(({option}) => <option value={option} key={option}>{variables[option]}</option>) }
-            </select>
-          </div>) }
+          { tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
         </div> }
       </div>
     </div>;
   }
 
 }
-
-Tabs.contextTypes = {
-  onSelector: PropTypes.func,
-  variables: PropTypes.object
-};
-
-export default Tabs;

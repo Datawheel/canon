@@ -7,8 +7,10 @@ import StoryEditor from "./StoryEditor";
 import StoryTopicEditor from "./StoryTopicEditor";
 
 const topicIcons = {
-  TextViz: "list-detail-view",
-  Column: "list"
+  Card: "square",
+  Column: "list",
+  Tabs: "folder-close",
+  TextViz: "list-detail-view"
 };
 
 class StoryBuilder extends Component {
