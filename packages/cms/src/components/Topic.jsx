@@ -15,19 +15,27 @@ class Topic extends Component {
     this.state = {
       contents: props.contents,
       loading: false,
+      selectors: {},
       sources: []
     };
   }
 
   onSelector(name, value) {
+
     const {pid, pslug} = this.context.router.params;
     const {id} = this.state.contents;
-    this.setState({loading: true});
+    const {selectors} = this.state;
+
+    if (value instanceof Array && !value.length) delete selectors[name];
+    else selectors[name] = value;
+
+    this.setState({loading: true, selectors});
     this.updateSource.bind(this)(false);
-    axios.get(`/api/topic/${pslug}/${pid}/${id}?${name}=${value}`)
+    axios.get(`/api/topic/${pslug}/${pid}/${id}?${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`)
       .then(resp => {
         this.setState({contents: resp.data, loading: false});
       });
+
   }
 
   updateSource(newSources) {
