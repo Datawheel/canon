@@ -320,7 +320,11 @@ module.exports = function(app) {
     let topic = await db.topic.findOne(reqObj);
     const topicTypes = [];
     shell.ls(`${topicTypeDir}*.jsx`).forEach(file => {
-      const compName = file.replace(topicTypeDir, "").replace(".jsx", "");
+      // In Windows, the shell.ls command returns forward-slash separated directories,
+      // but the node "path" command returns backslash separated directories. Flip the slashes
+      // so the ensuing replace operation works (this should be a no-op for *nix/osx systems)
+      const topicTypeDirFixed = topicTypeDir.replace(/\\/g, "/");
+      const compName = file.replace(topicTypeDirFixed, "").replace(".jsx", "");
       topicTypes.push(compName);
     });
     topic = sortTopic(db, topic);
