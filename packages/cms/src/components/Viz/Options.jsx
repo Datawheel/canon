@@ -57,7 +57,7 @@ class Options extends Component {
     return <div className="Options">
 
       <div className="option save-image" onClick={this.toggleDialog.bind(this, "save-image")}>
-        <span className="option-label">Save Image</span>
+        <Icon iconName="export" /><span className="option-label">Save Image</span>
       </div>
       <Dialog className="options-dialog" isOpen={openDialog === "save-image"} onClose={this.toggleDialog.bind(this, false)}>
         <DialogHeader slug="save-image" title="Save Image" />
