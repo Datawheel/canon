@@ -1,5 +1,5 @@
 .loading {
-  background-color: var(--dark);
+  background-color: var(--background);
   color: var(--foreground);
   height: 100vh;
   left: 0;
@@ -12,7 +12,7 @@
     max-width: 200px;
     width: 100%;
     & .pt-progress-meter {
-      background-color: var(--light);
+      background-color: var(--accent);
     }
   }
   & .pt-non-ideal-state-title {
