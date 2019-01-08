@@ -5,7 +5,7 @@ import {NonIdealState, Spinner} from "@blueprintjs/core";
 import Viz from "../Viz/index";
 import SourceGroup from "../Viz/SourceGroup";
 import StatGroup from "../Viz/StatGroup";
-import Selector from "./Components/Selector";
+import Selector from "./components/Selector";
 import "./topic.css";
 
 export default class TextViz extends Component {
