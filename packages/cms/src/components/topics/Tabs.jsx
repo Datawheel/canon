@@ -14,6 +14,8 @@ function findKey(str, key) {
   else return match;
 }
 
+const titleKeys = ["tab", "type"];
+
 class Tabs extends Component {
 
   constructor(props) {
@@ -36,12 +38,20 @@ class Tabs extends Component {
     const statGroups = nest().key(d => d.title).entries(stats);
 
     const visualization = visualizations[tabIndex];
-    const selectorsPerViz = Math.ceil(selectors.length / visualizations.length);
-    const tabSelectors = selectors.slice(selectorsPerViz * tabIndex, selectorsPerViz * (tabIndex + 1));
+    const selectorConfig = visualization.logic.match(/selectors\:[\s]*(\[[^\]]+\])/);
+    let tabSelectors;
+    if (selectorConfig) {
+      const selectorArray = JSON.parse(selectorConfig[1]);
+      tabSelectors = selectors
+        .filter(selector => selectorArray.includes(selector.name))
+        .sort((a, b) => selectorArray.indexOf(a.name) - selectorArray.indexOf(b.name));
+    }
+    else {
+      const selectorsPerViz = Math.ceil(selectors.length / visualizations.length);
+      tabSelectors = selectors.slice(selectorsPerViz * tabIndex, selectorsPerViz * (tabIndex + 1));
+    }
 
     const tabDescriptions = descriptions.length === visualizations.length ? [descriptions[tabIndex]] : descriptions;
-
-    const titleKeys = ["tab", "type"];
 
     const tabs = visualizations.map((d, i) => {
       let title;
