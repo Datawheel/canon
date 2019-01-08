@@ -2,10 +2,11 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 
+import Card from "./topics/Card";
 import TextViz from "./topics/TextViz";
 import Column from "./topics/Column";
 import Tabs from "./topics/Tabs";
-const topicTypes = {Column, Tabs, TextViz};
+const topicTypes = {Card, Column, Tabs, TextViz};
 
 class Topic extends Component {
 
