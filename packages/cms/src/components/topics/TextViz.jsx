@@ -33,9 +33,10 @@ class TextViz extends Component {
             { selector.options.map(({option}) => <option value={option} key={option}>{variables[option]}</option>) }
           </select>
         </div>) }
-        <div className="topic-stats">
-          { statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
-        </div>
+        { stats.length > 0
+          ? <div className="topic-stats">
+            { statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
+          </div> : null }
         <div className="topic-descriptions">
           { descriptions.map((content, i) => <div key={i} className="topic-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
           { loading && <NonIdealState visual={<Spinner />} /> }

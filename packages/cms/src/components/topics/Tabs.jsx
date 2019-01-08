@@ -1,6 +1,9 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import Viz from "../Viz/index";
+import {AnchorLink} from "@datawheel/canon-core";
+import {nest} from "d3-collection";
+import StatGroup from "../Viz/StatGroup";
 import "./topic.css";
 
 /** */
@@ -27,8 +30,10 @@ class Tabs extends Component {
   render() {
     const {contents, loading} = this.props;
     const {onSelector, variables} = this.context;
-    const {descriptions, selectors, slug, subtitles, title, visualizations} = contents;
+    const {descriptions, selectors, slug, stats, subtitles, title, visualizations} = contents;
     const {tabIndex} = this.state;
+
+    const statGroups = nest().key(d => d.title).entries(stats);
 
     const visualization = visualizations[tabIndex];
     const selectorsPerViz = Math.ceil(selectors.length / visualizations.length);
@@ -51,10 +56,14 @@ class Tabs extends Component {
       <div className="topic-content">
         { title &&
           <h3 className="topic-title">
-            <a href={ `#${ slug }`} id={ slug } className="anchor" dangerouslySetInnerHTML={{__html: title}}></a>
+            <AnchorLink to={ slug } id={ slug } className="anchor" dangerouslySetInnerHTML={{__html: title}}></AnchorLink>
           </h3>
         }
         { subtitles.map((content, i) => <div key={i} className="topic-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
+        { stats.length > 0
+          ? <div className="topic-stats">
+            { statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
+          </div> : null }
         { tabDescriptions.map((content, i) => <div key={i} className="topic-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
         { tabs.length > 1 && <div className={`tab-group tab-${tabIndex}`}>
           { tabs.map((title, key) =>
