@@ -9,6 +9,11 @@ const client = new Client(process.env.CANON_LOGICLAYER_CUBE);
 
 const topicTypeDir = path.join(__dirname, "../components/topics/");
 
+const isDev = (req, res, next) => {
+  if (process.env.NODE_ENV === "development") return next();
+  return res.status(401).send("Not Authorized");
+};
+
 const profileReqTreeOnly = {
   attributes: ["id", "title", "slug", "dimension", "ordering"],
   include: [
@@ -350,12 +355,12 @@ module.exports = function(app) {
   // For now, all "create" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.
   const newList = cmsTables;
   newList.forEach(ref => {
-    app.post(`/api/cms/${ref}/new`, (req, res) => {
+    app.post(`/api/cms/${ref}/new`, isDev, (req, res) => {
       db[ref].create(req.body).then(u => res.json(u));
     });
   });
 
-  app.post("/api/cms/profile/newScaffold", (req, res) => {
+  app.post("/api/cms/profile/newScaffold", isDev, (req, res) => {
     const profileData = req.body;
     db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName}).then(profile => {
       db.section.create({ordering: 0, profile_id: profile.id}).then(section => {
@@ -374,7 +379,7 @@ module.exports = function(app) {
   // For now, all "update" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.
   const updateList = cmsTables;
   updateList.forEach(ref => {
-    app.post(`/api/cms/${ref}/update`, (req, res) => {
+    app.post(`/api/cms/${ref}/update`, isDev, (req, res) => {
       db[ref].update(req.body, {where: {id: req.body.id}}).then(u => res.json(u));
     });
   });
@@ -393,7 +398,7 @@ module.exports = function(app) {
 
   deleteList.forEach(list => {
     list.elements.forEach(ref => {
-      app.delete(`/api/cms/${ref}/delete`, (req, res) => {
+      app.delete(`/api/cms/${ref}/delete`, isDev, (req, res) => {
         db[ref].findOne({where: {id: req.query.id}}).then(row => {
           // Construct a where clause that looks someting like: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}
           // except "profile_id" is the "parent" in the array above
@@ -414,7 +419,7 @@ module.exports = function(app) {
   });
 
   // Other (More Complex) Elements
-  app.delete("/api/cms/generator/delete", (req, res) => {
+  app.delete("/api/cms/generator/delete", isDev, (req, res) => {
     db.generator.findOne({where: {id: req.query.id}}).then(row => {
       db.generator.destroy({where: {id: req.query.id}}).then(() => {
         db.generator.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "name"]}).then(rows => {
@@ -424,7 +429,7 @@ module.exports = function(app) {
     });
   });
 
-  app.delete("/api/cms/materializer/delete", (req, res) => {
+  app.delete("/api/cms/materializer/delete", isDev, (req, res) => {
     db.materializer.findOne({where: {id: req.query.id}}).then(row => {
       db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.materializer.destroy({where: {id: req.query.id}}).then(() => {
@@ -436,7 +441,7 @@ module.exports = function(app) {
     });
   });
 
-  app.delete("/api/cms/profile/delete", (req, res) => {
+  app.delete("/api/cms/profile/delete", isDev, (req, res) => {
     db.profile.findOne({where: {id: req.query.id}}).then(row => {
       db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.profile.destroy({where: {id: req.query.id}}).then(() => {
@@ -450,7 +455,7 @@ module.exports = function(app) {
     });
   });
 
-  app.delete("/api/cms/story/delete", (req, res) => {
+  app.delete("/api/cms/story/delete", isDev, (req, res) => {
     db.story.findOne({where: {id: req.query.id}}).then(row => {
       db.story.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.story.destroy({where: {id: req.query.id}}).then(() => {
@@ -463,7 +468,7 @@ module.exports = function(app) {
     });
   });
 
-  app.delete("/api/cms/formatter/delete", (req, res) => {
+  app.delete("/api/cms/formatter/delete", isDev, (req, res) => {
     db.formatter.destroy({where: {id: req.query.id}}).then(() => {
       db.formatter.findAll({attributes: ["id", "name", "description"]}).then(rows => {
         res.json(rows).end();
@@ -471,7 +476,7 @@ module.exports = function(app) {
     });
   });
 
-  app.delete("/api/cms/section/delete", (req, res) => {
+  app.delete("/api/cms/section/delete", isDev, (req, res) => {
     db.section.findOne({where: {id: req.query.id}}).then(row => {
       db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.section.destroy({where: {id: req.query.id}}).then(() => {
@@ -490,7 +495,7 @@ module.exports = function(app) {
     });
   });
 
-  app.delete("/api/cms/topic/delete", (req, res) => {
+  app.delete("/api/cms/topic/delete", isDev, (req, res) => {
     db.topic.findOne({where: {id: req.query.id}}).then(row => {
       db.topic.update({ordering: sequelize.literal("ordering -1")}, {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.topic.destroy({where: {id: req.query.id}}).then(() => {
@@ -502,7 +507,7 @@ module.exports = function(app) {
     });
   });
 
-  app.delete("/api/cms/storytopic/delete", (req, res) => {
+  app.delete("/api/cms/storytopic/delete", isDev, (req, res) => {
     db.storytopic.findOne({where: {id: req.query.id}}).then(row => {
       db.storytopic.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.storytopic.destroy({where: {id: req.query.id}}).then(() => {
@@ -514,7 +519,7 @@ module.exports = function(app) {
     });
   });
 
-  app.delete("/api/cms/selector/delete", (req, res) => {
+  app.delete("/api/cms/selector/delete", isDev, (req, res) => {
     db.selector.findOne({where: {id: req.query.id}}).then(row => {
       db.selector.update({ordering: sequelize.literal("ordering -1")}, {where: {topic_id: row.topic_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.selector.destroy({where: {id: req.query.id}}).then(() => {

@@ -30,6 +30,12 @@ class Builder extends Component {
     };
   }
 
+  componentDidMount() {
+    const {NODE_ENV} = this.props.env;
+    // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
+    if (NODE_ENV !== "development" && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
+  }
+
   getChildContext() {
     const {formatters} = this.state;
     return {formatters};
@@ -49,6 +55,8 @@ class Builder extends Component {
   render() {
     const {currentTab, theme} = this.state;
     const navLinks = ["profiles", "stories", "formatters"];
+
+    if (this.props.env.NODE_ENV !== "development") return null;
 
     return (
       <div className={`cms ${theme}`}>
@@ -89,4 +97,7 @@ Builder.need = [
   fetchData("formatters", "/api/formatters")
 ];
 
-export default connect(state => ({formatters: state.data.formatters}))(Builder);
+export default connect(state => ({
+  formatters: state.data.formatters,
+  env: state.env
+}))(Builder);
