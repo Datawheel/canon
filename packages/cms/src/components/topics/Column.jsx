@@ -11,7 +11,8 @@ export default class Column extends Component {
   render() {
 
     const {contents, loading} = this.props;
-    const {descriptions, selectors, slug, stats, subtitles, title, visualizations} = contents;
+    const {descriptions, slug, stats, subtitles, title, visualizations} = contents;
+    const selectors = contents.selectors || [];
 
     const statGroups = nest().key(d => d.title).entries(stats);
 

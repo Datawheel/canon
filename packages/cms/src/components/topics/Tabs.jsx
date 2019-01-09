@@ -31,7 +31,8 @@ export default class Tabs extends Component {
 
   render() {
     const {contents, loading} = this.props;
-    const {descriptions, selectors, slug, stats, subtitles, title, visualizations} = contents;
+    const {descriptions, slug, stats, subtitles, title, visualizations} = contents;
+    const selectors = contents.selectors || [];
     const {tabIndex} = this.state;
 
     const statGroups = nest().key(d => d.title).entries(stats);
@@ -71,11 +72,11 @@ export default class Tabs extends Component {
         { subtitles.map((content, i) => <div key={i} className="topic-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
         { stats.length > 0
           ? <div className="topic-stats">
-            { statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
+            { statGroups && statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
           </div> : null }
-        { tabDescriptions.map((content, i) => <div key={i} className="topic-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
+        { tabDescriptions && tabDescriptions.map((content, i) => <div key={i} className="topic-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
         { tabs.length > 1 && <div className={`tab-group tab-${tabIndex}`}>
-          { tabs.map((title, key) =>
+          { tabs && tabs.map((title, key) =>
             <button className={tabIndex === key ? "tab selected" : "tab"} key={key} onClick={this.updateTabs.bind(this, key)}>
               {title}
             </button>
@@ -85,7 +86,7 @@ export default class Tabs extends Component {
       <div className="topic-flex">
         { <Viz config={visualization} key={tabIndex} className="topic-visualization" title={ title } slug={ `${slug}_${tabIndex}` } /> }
         { tabSelectors.length > 0 && <div className="topic-selectors">
-          { tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
+          { tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
         </div> }
       </div>
     </div>;

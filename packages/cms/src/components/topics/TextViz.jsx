@@ -13,7 +13,8 @@ export default class TextViz extends Component {
   render() {
 
     const {contents, loading, sources} = this.props;
-    const {descriptions, selectors, slug, stats, subtitles, title, visualizations} = contents;
+    const {descriptions, slug, stats, subtitles, title, visualizations} = contents;
+    const selectors = contents.selectors || [];
 
     const miniviz = visualizations.length > 1 ? visualizations[0] : false;
     const mainviz = visualizations.length > 1 ? visualizations.slice(1) : visualizations;
