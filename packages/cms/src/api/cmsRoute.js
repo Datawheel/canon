@@ -51,7 +51,6 @@ const profileReqProfileOnly = {
 const storyReqStoryOnly = {
   include: [
     {association: "authors", attributes: ["id", "ordering"]},
-    {association: "subtitles", attributes: ["id", "ordering"]},
     {association: "descriptions", attributes: ["id", "ordering"]},
     {association: "footnotes", attributes: ["id", "ordering"]}
   ]
@@ -91,7 +90,7 @@ const storyTopicReqStoryTopicOnly = {
 const cmsTables = [
   "author", "formatter", "generator", "materializer", "profile",
   "profile_footnote", "profile_stat", "section", "section_description",
-  "section_subtitle", "selector", "story", "story_subtitle", "story_description", "story_footnote", "storytopic",
+  "section_subtitle", "selector", "story", "story_description", "story_footnote", "storytopic",
   "storytopic_description", "storytopic_stat", "storytopic_subtitle", "storytopic_visualization",
   "topic", "topic_description", "topic_stat", "topic_subtitle", "topic_visualization"
 ];
@@ -150,7 +149,6 @@ const sortProfile = (db, profile) => {
 const sortStory = (db, story) => {
   story = story.toJSON();
   story.descriptions = flatSort(db.story_description, story.descriptions);
-  story.subtitles = flatSort(db.story_subtitle, story.subtitles);
   story.footnotes = flatSort(db.story_footnote, story.footnotes);
   story.authors = flatSort(db.author, story.authors);
   return story;
@@ -398,7 +396,7 @@ module.exports = function(app) {
   const deleteList = [
     {elements: ["profile_footnote", "profile_stat"], parent: "profile_id"},
     {elements: ["section_description", "section_subtitle"], parent: "section_id"},
-    {elements: ["author", "story_description", "story_subtitle", "story_footnote"], parent: "story_id"},
+    {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
     {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"}
   ];
 
