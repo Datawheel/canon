@@ -54,7 +54,6 @@ const storyReq = {
   include: [
     {association: "authors", separate: true},
     {association: "descriptions", separate: true},
-    {association: "subtitles", separate: true},
     {association: "footnotes", separate: true},
     {
       association: "storytopics", separate: true,
@@ -108,7 +107,7 @@ const sortProfile = profile => {
 
 const sortStory = story => {
   story = story.toJSON();
-  ["descriptions", "footnotes", "authors", "subtitles", "storytopics"].forEach(type => story[type].sort(sorter));
+  ["descriptions", "footnotes", "authors", "storytopics"].forEach(type => story[type].sort(sorter));
   story.storytopics.forEach(storytopic => {
     ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storytopic[type].sort(sorter));
   });
@@ -308,7 +307,6 @@ module.exports = function(app) {
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
     db.story.findOne(reqObj).then(story => {
       story = sortStory(story);
-      story.date = new Date(story.slug.substr(0, 10));
       res.json(story).end();
     });
   });
@@ -316,11 +314,6 @@ module.exports = function(app) {
   // Endpoint for getting all stories
   app.get("/api/story", (req, res) => {
     db.story.findAll({include: [{association: "authors", attributes: ["name", "image"]}]}).then(stories => {
-      stories = stories.map(s => {
-        s = s.toJSON();
-        s.date = new Date(s.slug.substr(0, 10));
-        return s;
-      });
       res.json(stories.sort(sorter)).end();
     });
   });

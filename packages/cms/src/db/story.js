@@ -10,7 +10,11 @@ module.exports = function(sequelize, db) {
       title: {
         type: db.STRING,
         defaultValue: "New Story"
-      },       
+      },
+      subtitle: {
+        type: db.TEXT,
+        defaultValue: "New Subtitle"
+      },
       image: {
         type: db.STRING,
         defaultValue: "New Image"
@@ -36,7 +40,6 @@ module.exports = function(sequelize, db) {
     s.hasMany(models.author, {foreignKey: "story_id", sourceKey: "id", as: "authors"});
     s.hasMany(models.story_footnote, {foreignKey: "story_id", sourceKey: "id", as: "footnotes"});
     s.hasMany(models.story_description, {foreignKey: "story_id", sourceKey: "id", as: "descriptions"});
-    s.hasMany(models.story_subtitle, {foreignKey: "story_id", sourceKey: "id", as: "subtitles"});
     s.hasMany(models.storytopic, {foreignKey: "story_id", sourceKey: "id", as: "storytopics"});
   };  
 
