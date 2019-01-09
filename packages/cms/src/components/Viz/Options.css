@@ -15,17 +15,6 @@
     &.disabled {
       opacity: 0.5;
     }
-    &:before {
-      background-position: center;
-      background-repeat: no-repeat;
-      content: "";
-      display: inline-block;
-      height: 20px;
-      margin-bottom: 4px;
-      margin-right: 5px;
-      vertical-align: middle;
-      width: 20px;
-    }
     &:hover {
       opacity: 1;
     }

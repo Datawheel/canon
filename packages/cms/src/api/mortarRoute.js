@@ -21,6 +21,7 @@ const searchMap = {
 const profileReq = {
   include: [
     {association: "stats", separate: true},
+    {association: "footnotes", separate: true},
     {
       association: "sections", separate: true,
       include: [

@@ -3,7 +3,7 @@ import Viz from "../Viz/index";
 import {AnchorLink} from "@datawheel/canon-core";
 import {nest} from "d3-collection";
 import StatGroup from "../Viz/StatGroup";
-import Selector from "./Components/Selector";
+import Selector from "./components/Selector";
 import "./topic.css";
 
 export default class Column extends Component {
