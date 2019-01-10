@@ -153,9 +153,11 @@
   /* input group button overrides */
   & .pt-input-group {
     display: flex;
+    align-items: stretch;
 
     & .pt-input:first-child:not(:last-child) {
       flex: 1 1 auto;
+      margin-top: 5px; /* match blueprint */
       padding: 0 1em;
       width: auto;
       border-top-right-radius: 0;
