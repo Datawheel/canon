@@ -33,6 +33,10 @@
     margin-bottom: 1rem;
   }
 
+  & ul.cms-field-container {
+    padding-left: 0;
+  }
+
   /* 100% width elements by default */
   & .cms-field-container {
 
@@ -79,6 +83,20 @@
   & .cms-field-group + .cms-field-container,
   & .cms-field-group + .cms-field-group {
     margin-top: 1rem;
+  }
+
+  & .inline-radio-group {
+    & > .pt-label,
+    & > .pt-radio {
+      display: inline-block;
+    }
+    & > .pt-radio {
+      padding-left: 20px;
+
+      &:not(:last-of-type) {
+        margin-right: 0.75rem;
+      }
+    }
   }
 
   /* fix search */

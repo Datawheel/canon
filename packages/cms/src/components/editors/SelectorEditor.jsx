@@ -182,48 +182,97 @@ class SelectorEditor extends Component {
       });
 
     return (
-      <div id="selector-editor">
-        <RadioGroup
-          label="Selector Type"
-          onChange={this.handleTypeChange.bind(this)}
-          selectedValue={data.type}
-        >
-          <Radio label="Single" value="single" />
-          <Radio label="Multi" value="multi" />
-        </RadioGroup>
-        <label>
-          Title (on page)
-          <input type="text" value={data.title} onChange={this.editTitle.bind(this)} />
-        </label><br/>
-        <label>
-          Name (in editor)
-          <input type="text" value={data.name} onChange={this.editName.bind(this)} />
-        </label>
-        <ul>
+      <div className="cms-selector-editor">
+
+        <div className="cms-field-group">
+          <label className="cms-field-container">
+            Title (on page)
+            <input className="pt-input" value={data.title} onChange={this.editTitle.bind(this)} />
+          </label>
+          <label className="cms-field-container">
+            Name (in editor)
+            <input className="pt-input" value={data.name} onChange={this.editName.bind(this)} />
+          </label>
+        </div>
+
+        <div className="cms-field-container">
+          <RadioGroup
+            className="inline-radio-group"
+            label="Selector Type: "
+            onChange={this.handleTypeChange.bind(this)}
+            selectedValue={data.type}
+          >
+            <Radio label="Single" value="single" />
+            <Radio label="Multi" value="multi" />
+          </RadioGroup>
+        </div>
+
+        <ul className="cms-field-container cms-selector-editor-list">
           {
             data.options && data.options.map((option, i) =>
-              <li key={i}>
-                <select value={option.option} onChange={this.chooseOption.bind(this, i)}>
-                  {varOptions}
-                </select>
-                <select value={option.allowed} onChange={this.chooseAllowed.bind(this, i)}>
-                  { varOptions }
-                </select>
-                <button className="pt-button" onClick={this.moveUp.bind(this, i)}><span className="pt-icon pt-icon-arrow-up" /></button>
-                <button className="pt-button" onClick={this.moveDown.bind(this, i)}><span className="pt-icon pt-icon-arrow-down" /></button>
-                <button className="pt-button" onClick={this.deleteOption.bind(this, i)}><span className="pt-icon pt-icon-delete" /></button>
-                <input type="checkbox" checked={option.isDefault} onChange={this.setDefault.bind(this, option.option)}/>
+              <li className="cms-selector-editor-item" key={i}>
+
+                {/* option / allowed */}
+                <label className="pt-label">
+                  Option
+                  <div className="pt-select">
+                    <select value={option.option} onChange={this.chooseOption.bind(this, i)}>
+                      { varOptions }
+                    </select>
+                  </div>
+                </label>
+                <label className="pt-label">
+                  Allowed
+                  <div className="pt-select">
+                    <select value={option.allowed} onChange={this.chooseAllowed.bind(this, i)}>
+                      { varOptions }
+                    </select>
+                  </div>
+                </label>
+
+                <ul className="cms-selector-editor-action-list">
+                  <li className="cms-selector-editor-action-item">
+                    <label className="cms-selector-editor-checkbox">
+                      <input type="checkbox" checked={option.isDefault} onChange={this.setDefault.bind(this, option.option)}/> Active
+                    </label>
+                  </li>
+                  <li className="cms-selector-editor-action-item">
+                    <button className="cms-button" onClick={this.moveUp.bind(this, i)}>
+                      <span className="pt-icon pt-icon-arrow-up" />
+                    </button>
+                  </li>
+                  <li className="cms-selector-editor-action-item">
+                    <button className="cms-button" onClick={this.moveDown.bind(this, i)}>
+                      <span className="pt-icon pt-icon-arrow-down" />
+                    </button>
+                  </li>
+                  <li className="cms-selector-editor-action-item">
+                    <button className="cms-button" onClick={this.deleteOption.bind(this, i)}>
+                      <span className="pt-icon pt-icon-trash" /> delete</button>
+                  </li>
+                </ul>
               </li>
             )
           }
         </ul>
-        <button className="pt-button" onClick={this.addOption.bind(this)}>Add Option <span className="pt-icon pt-icon-plus"/></button><br/>
-        <button className="pt-button" onClick={this.toggleCustom.bind(this)}>Custom Default <span className="pt-icon pt-icon-cog"/></button> 
-        {
-          showCustom && <div>
-            <select value={data.default} onChange={this.chooseCustom.bind(this)}>
-              {customOptions}
-            </select>
+        <div className="cms-selector-editor-button-group">
+          <button className="cms-button" onClick={this.addOption.bind(this)}>
+            Add option <span className="pt-icon pt-icon-plus"/>
+          </button>
+          <button className="cms-button" onClick={this.toggleCustom.bind(this)}>
+            Custom default <span className={`pt-icon ${showCustom ? "pt-icon-cross" : "pt-icon-cog"}`}/>
+          </button>
+        </div>
+
+        {/* custom default */}
+        {showCustom &&
+          <div className="cms-field-container pt-label">
+            Custom default
+            <div className="pt-select">
+              <select value={data.default} onChange={this.chooseCustom.bind(this)}>
+                {customOptions}
+              </select>
+            </div>
           </div>
         }
       </div>

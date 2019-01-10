@@ -1,3 +1,61 @@
-#selector-editor {
-  align-self: flex-start;
+.cms-selector-editor-item {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 0.5rem;
+  padding-bottom: 1rem;
+
+  & > * {
+    flex: 1 1 30%;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--forward-2);
+  }
+}
+
+.cms-selector-editor-action-list {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  min-width: 17rem; /* magic number as hell */
+  /* list reset */
+  margin: 0.5em 0 0 0;
+  padding-left: 0;
+  list-style-type: none;
+
+  & .cms-selector-editor-action-item:not(:first-child) {
+    font-size: 0.75em;
+  }
+
+  & .cms-selector-editor-action-item {
+    margin-right: 0.375em;
+    margin-top: 0.25em;
+  }
+}
+
+.cms-selector-editor-button-group {
+  display: flex;
+
+  & .cms-button:not(:last-of-type) {
+    margin-right: 0.5em;
+  }
+
+  @media (max-width: 599px) {
+    & .cms-button {
+      flex: 1 1 auto;
+    }
+  }
+
+  @media (min-width: 600px) {
+    margin-bottom: -1.5rem;
+  }
+  @media (max-width: 799px) {
+    margin-top: 1.5rem;
+  }
+
+  /* space out rando field */
+  & + .cms-field-container {
+    margin-top: 3rem;
+  }
 }
