@@ -337,17 +337,6 @@ async function start() {
     const webpackDevConfig = require(path.join(canonPath, "webpack/dev-client.js"));
     const compiler = webpack(webpackDevConfig);
 
-    // compiler.hooks.done.tap({
-    //   name: "ClientWebpack",
-    //   context: true
-    // }, (a, b) => {
-    //   console.log(typeof a);
-    //   console.log(typeof b);
-    //   // readline.clearLine(process.stdout, 0);
-    //   // readline.cursorTo(process.stdout, 0);
-    //   // shell.echo(`webpack built ${stats.compilation.hash} in ${stats.endTime - stats.startTime}ms`);
-    // });
-
     app.use(require("webpack-dev-middleware")(compiler, {
       logLevel: "silent",
       publicPath: webpackDevConfig.output.publicPath
