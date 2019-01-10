@@ -126,13 +126,13 @@
     }
   }
   & .pt-dialog-header {
-    padding: 0.75rem 2.5rem;
+    padding: 0.75rem 1.5rem;
     border-radius: 4px 4px 0 0;
     box-shadow: none;
   }
   & .pt-dialog-footer {
     margin: 0;
-    padding: 0.75rem 2.5rem;
+    padding: 0.75rem 1.5rem;
   }
   & .pt-dialog-close-button {
     padding: 0.5rem 0.75rem;
@@ -147,7 +147,7 @@
   }
   & .pt-dialog-body {
     margin: 0;
-    padding: 2.125rem 2.5rem;
+    padding: 2.125rem 1.5rem;
   }
 
   /* input group button overrides */
