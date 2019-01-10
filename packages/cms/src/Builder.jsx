@@ -31,9 +31,9 @@ class Builder extends Component {
   }
 
   componentDidMount() {
-    const {NODE_ENV} = this.props.env;
+    const {isEnabled} = this.props;
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
-    if (NODE_ENV !== "development" && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
+    if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
   }
 
   getChildContext() {
@@ -54,9 +54,10 @@ class Builder extends Component {
 
   render() {
     const {currentTab, theme} = this.state;
+    const {isEnabled} = this.props;
     const navLinks = ["profiles", "stories", "formatters"];
 
-    if (this.props.env.NODE_ENV !== "development") return null;
+    if (!isEnabled) return null;
 
     return (
       <div className={`cms ${theme}`}>
@@ -94,10 +95,12 @@ Builder.childContextTypes = {
 };
 
 Builder.need = [
-  fetchData("formatters", "/api/formatters")
+  fetchData("formatters", "/api/formatters"),
+  fetchData("isEnabled", "/api/cms")
 ];
 
 export default connect(state => ({
   formatters: state.data.formatters,
-  env: state.env
+  env: state.env,
+  isEnabled: state.data.isEnabled
 }))(Builder);
