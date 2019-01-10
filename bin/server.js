@@ -15,7 +15,6 @@ const Sequelize = require("sequelize"),
 
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.CANON_PORT || 3300;
-const ATTRS = process.env.CANON_ATTRS;
 const API = process.env.CANON_API;
 
 const dbName = process.env.CANON_DB_NAME;
@@ -122,7 +121,6 @@ title("Gathering Resources", "📂");
 const store = resolve("store.js") || {};
 store.env = {
   CANON_API: API,
-  CANON_ATTRS: ATTRS,
   CANON_LANGUAGES: LANGUAGES,
   CANON_LANGUAGE_DEFAULT: LANGUAGE_DEFAULT,
   CANON_LOGINS: logins,
