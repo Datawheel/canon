@@ -60,7 +60,7 @@ class TextCard extends Component {
     const {type, fields, plainfields} = this.props;
     const {minData} = this.state;
     const payload = {id: minData.id};
-    // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save 
+    // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
     fields.forEach(field => payload[field] = minData[field] === "<p><br></p>" ? "" : minData[field]);
     if (plainfields) plainfields.forEach(field => payload[field] = minData[field] === "<p><br></p>" ? "" : minData[field]);
@@ -158,12 +158,6 @@ class TextCard extends Component {
         { displays.map((k, i) =>
           <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}} />
         )}
-
-        { (type === "story_footnote" || type === "profile_footnote") &&
-          <div>
-            Use Footnote Reference: <strong>{`Foot{{${ordering + 1}}}`}</strong>
-          </div>
-        }
 
         {/* reorder buttons */}
         { parentArray &&
