@@ -151,13 +151,26 @@
   }
 
   /* input group button overrides */
-  & .pt-input-group .cms-button {
-    padding-left: 1em;
-    padding-right: 1em;
-    border-radius: 0 2px 2px 0;
-    margin: 0;
-    height: 100%;
+  & .pt-input-group {
+    display: flex;
+
+    & .pt-input:first-child:not(:last-child) {
+      flex: 1 1 auto;
+      padding: 0 1em;
+      width: auto;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    & .cms-button {
+      position: relative;
+      padding-left: 1em;
+      padding-right: 1em;
+      border-radius: 0 2px 2px 0;
+      margin: 5px 0 0 0; /* reset & match blueprint */
+    }
   }
+
 
   /* override canon */
   & .loading {
