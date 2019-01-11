@@ -1,5 +1,6 @@
 const selSwap = require("./selSwap");
 const varSwap = require("./varSwap");
+const buble = require("buble");
 
 /* Given an object, a hashtable of formatting functions, and a lookup object full of variables
  * Replace every instance of {{var}} with its true value from the lookup object, and
@@ -37,6 +38,12 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
         obj[skey] = selSwap(obj[skey], selectors);
         // Replace all instances of the following pattern:  FormatterName{{VarToReplace}}
         obj[skey] = varSwap(obj[skey], formatterFunctions, variables);
+        // If the key is named logic, this is javascript. Transpile it for IE.
+        if (skey === "logic") {
+          let code = buble.transform(obj[skey]).code; 
+          if (code.startsWith("!")) code = code.slice(1);
+          obj[skey] = code;
+        }
       }
       // If this property is an array, recursively swap all elements
       else if (Array.isArray(obj[skey])) {
