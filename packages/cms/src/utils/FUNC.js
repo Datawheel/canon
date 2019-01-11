@@ -38,6 +38,9 @@ function objectify(obj) {
 function func2obj(func) {
 
   let s = buble.transform(`${func}`).code;
+  console.log(func);
+  console.log(s);
+  console.log("\n");
   if (s.startsWith("!")) s = s.slice(1);
 
   const vars = s
