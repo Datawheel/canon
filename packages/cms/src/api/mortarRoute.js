@@ -307,6 +307,9 @@ module.exports = function(app) {
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
     db.story.findOne(reqObj).then(story => {
       story = sortStory(story);
+      // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
+      // Do a naive varswap (with no formatters and no variables) just to access the transpile for vizes.
+      story = varSwapRecursive(story, {}, {});
       res.json(story).end();
     });
   });
