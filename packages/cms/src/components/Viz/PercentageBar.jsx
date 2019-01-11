@@ -69,7 +69,7 @@ class PercentageBar extends Component {
     if (sort) displayData = displayData.sort(sort);
   
     return <div className="PercentageBar">
-      <h3 className="pb-title">{title}</h3>
+      <h3 className="pb-title" dangerouslySetInnerHTML={{__html: title}} />
       { 
         displayData.map((d, i) => {
           const percent = d[value] / total * 100;
