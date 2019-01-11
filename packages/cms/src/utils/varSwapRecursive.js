@@ -14,7 +14,8 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
     selectors = obj.selectors.map(s => {
       const selector = {};
       // If the option provided in the query is one of the available options for this selector
-      if (s.options.map(s => s.option).includes(query[s.name])) {
+      const selections = query[s.name] ? query[s.name].split(",") : false;
+      if (selections && selections.every(sel => s.options.map(s => s.option).includes(sel))) {
         // Save that option inside selector object and return it
         selector[s.name] = query[s.name];
         return selector;
