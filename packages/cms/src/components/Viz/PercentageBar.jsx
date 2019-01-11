@@ -13,6 +13,10 @@ class PercentageBar extends Component {
   }
 
   componentDidMount() {
+    this.buildConfig.bind(this)();
+  }
+
+  buildConfig() {
     const propConfig = this.props.config;
     const {dataFormat} = this.props;
 
@@ -41,6 +45,12 @@ class PercentageBar extends Component {
       config.data = dataFormat(config.data);
       if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
       this.setState({config});
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (JSON.stringify(prevProps.config) !== JSON.stringify(this.props.config)) {
+      this.setState({config: null}, this.buildConfig.bind(this));
     }
   }
 
