@@ -11,11 +11,12 @@ module.exports = file => {
 
   try {
     require.resolve(fullPath);
-    if (process.NODE_ENV === "development") shell.echo(`${file} loaded from .app/ directory`);
-    return yaml.safeLoad(fs.readFileSync(fullPath, "utf8"));
+    const contents = fs.readFileSync(fullPath, "utf8");
+    if (process.env.NODE_ENV === "development") shell.echo(`${file} loaded from .app/ directory`);
+    return yaml.safeLoad(contents, {json: true});
   }
   catch (e) {
-    if (process.NODE_ENV === "development") shell.echo(`${file} does not exist in .app/ directory, using default`);
+    if (process.env.NODE_ENV === "development") shell.echo(`${file} does not exist in .app/ directory, using default`);
     return false;
   }
 
