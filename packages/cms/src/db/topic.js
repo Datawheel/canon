@@ -15,11 +15,11 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         defaultValue: "new-topic-slug"
       },
-      section_id: {
+      profile_id: {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "section",
+          model: "profile",
           key: "id"
         }
       },
