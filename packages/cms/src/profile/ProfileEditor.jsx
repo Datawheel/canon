@@ -207,53 +207,6 @@ class ProfileEditor extends Component {
           </div>
         </div>
 
-        {/* splash stats */}
-        <h2 className="cms-section-heading">
-          Stats
-          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_stat")}>
-            <span className="pt-icon pt-icon-plus" />
-          </button>
-        </h2>
-        <div
-          className="cms-splash-wrapper"
-          style={{backgroundImage: `url("/api/profile/${minData.slug}/${preview}/thumb")`}}
-        >
-          <div className="cms-card-list cms-stats-card-list">
-            { minData.stats && minData.stats.map(s =>
-              <TextCard
-                key={s.id}
-                item={s}
-                onDelete={this.onDelete.bind(this)}
-                type="profile_stat"
-                fields={["title", "subtitle", "value", "tooltip"]}
-                variables={variables}
-                parentArray={minData.stats}
-                onMove={this.onMove.bind(this)}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* footnotes */}
-        <h2 className="cms-section-heading">
-          Footnotes
-          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_footnote")}>
-            <span className="pt-icon pt-icon-plus" />
-          </button>
-        </h2>
-        <div className="cms-card-list">
-          { minData.footnotes && minData.footnotes.map(f =>
-            <TextCard key={f.id}
-              item={f}
-              onDelete={this.onDelete.bind(this)}
-              fields={["title", "description"]}
-              type="profile_footnote"
-              variables={variables}
-              parentArray={minData.footnotes}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        </div>
       </div>
     );
   }
