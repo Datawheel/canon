@@ -23,16 +23,13 @@ class Profile extends Component {
   }
 
   render() {
-    const {sections, title} = this.props.profile;
+    const {topics, title} = this.props.profile;
     return (
       <div id="Profile">
         <h1 dangerouslySetInnerHTML={{__html: title}} />
-        {sections.map(section => {
-          const {id, topics} = section;
-          return <div key={id}>
-            <h2 dangerouslySetInnerHTML={{__html: section.title}} />
-            { topics.map(topic => <Topic key={topic.slug} contents={topic} />) }
-          </div>;
+        {topics.map(topic => {
+          const {slug} = topic;
+          return <Topic key={slug} contents={topic} />;
         })}
       </div>
     );
