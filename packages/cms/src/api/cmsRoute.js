@@ -19,14 +19,9 @@ const isEnabled = (req, res, next) => {
 
 const profileReqTreeOnly = {
   attributes: ["id", "title", "slug", "dimension", "ordering"],
-  include: [
-    {
-      association: "sections", attributes: ["id", "title", "slug", "ordering", "profile_id"],
-      include: [
-        {association: "topics", attributes: ["id", "title", "slug", "ordering", "section_id", "type"]}
-      ]
-    }
-  ]
+  include: [{
+    association: "topics", attributes: ["id", "title", "slug", "ordering", "profile_id", "type"]
+  }]
 };
 
 const storyReqTreeOnly = {
@@ -45,9 +40,7 @@ const formatterReqTreeOnly = {
 const profileReqProfileOnly = {
   include: [
     {association: "generators", attributes: ["id", "name"]},
-    {association: "materializers", attributes: ["id", "name", "ordering"]},
-    {association: "stats", attributes: ["id", "ordering"]},
-    {association: "footnotes", attributes: ["id", "ordering"]}
+    {association: "materializers", attributes: ["id", "name", "ordering"]}
   ]
 };
 
@@ -56,13 +49,6 @@ const storyReqStoryOnly = {
     {association: "authors", attributes: ["id", "ordering"]},
     {association: "descriptions", attributes: ["id", "ordering"]},
     {association: "footnotes", attributes: ["id", "ordering"]}
-  ]
-};
-
-const sectionReqSectionOnly = {
-  include: [
-    {association: "subtitles", attributes: ["id", "ordering"]},
-    {association: "descriptions", attributes: ["id", "ordering"]}
   ]
 };
 
@@ -92,8 +78,7 @@ const storyTopicReqStoryTopicOnly = {
  */
 const cmsTables = [
   "author", "formatter", "generator", "materializer", "profile",
-  "profile_footnote", "profile_stat", "section", "section_description",
-  "section_subtitle", "selector", "story", "story_description", "story_footnote", "storytopic",
+  "selector", "story", "story_description", "story_footnote", "storytopic",
   "storytopic_description", "storytopic_stat", "storytopic_subtitle", "storytopic_visualization",
   "topic", "topic_description", "topic_stat", "topic_subtitle", "topic_visualization"
 ];
@@ -124,10 +109,7 @@ const sortProfileTree = (db, profiles) => {
   profiles = profiles.map(p => p.toJSON());
   profiles = flatSort(db.profile, profiles);
   profiles.forEach(p => {
-    p.sections = flatSort(db.section, p.sections);
-    p.sections.forEach(s => {
-      s.topics = flatSort(db.topic, s.topics);
-    });
+    p.topics = flatSort(db.topic, p.topics);
   });
   return profiles;
 };
@@ -144,8 +126,6 @@ const sortStoryTree = (db, stories) => {
 const sortProfile = (db, profile) => {
   profile = profile.toJSON();
   profile.materializers = flatSort(db.materializer, profile.materializers);
-  profile.stats = flatSort(db.profile_stat, profile.stats);
-  profile.footnotes = flatSort(db.profile_footnote, profile.footnotes);
   return profile;
 };
 
@@ -155,13 +135,6 @@ const sortStory = (db, story) => {
   story.footnotes = flatSort(db.story_footnote, story.footnotes);
   story.authors = flatSort(db.author, story.authors);
   return story;
-};
-
-const sortSection = (db, section) => {
-  section = section.toJSON();
-  section.subtitles = flatSort(db.section_subtitle, section.subtitles);
-  section.descriptions = flatSort(db.section_description, section.descriptions);
-  return section;
 };
 
 const sortTopic = (db, topic) => {
@@ -312,13 +285,6 @@ module.exports = function(app) {
     res.json(sortStory(db, story)).end();
   });
 
-  app.get("/api/cms/section/get/:id", async(req, res) => {
-    const {id} = req.params;
-    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id}});
-    const section = await db.section.findOne(reqObj);
-    res.json(sortSection(db, section)).end();
-  });
-
   app.get("/api/cms/topic/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, topicReqTopicOnly, {where: {id}});
@@ -353,7 +319,7 @@ module.exports = function(app) {
 
   // Top-level tables have their own special gets, so exclude them from the "simple" gets
   const getList = cmsTables.filter(tableName =>
-    !["profile", "section", "topic", "story", "storytopic"].includes(tableName)
+    !["profile", "topic", "story", "storytopic"].includes(tableName)
   );
 
   getList.forEach(ref => {
@@ -374,13 +340,11 @@ module.exports = function(app) {
   app.post("/api/cms/profile/newScaffold", isEnabled, (req, res) => {
     const profileData = req.body;
     db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName}).then(profile => {
-      db.section.create({ordering: 0, profile_id: profile.id}).then(section => {
-        db.topic.create({ordering: 0, section_id: section.id}).then(() => {
-          db.profile.findAll(profileReqTreeOnly).then(profiles => {
-            profiles = sortProfileTree(db, profiles);
-            populateSearch(profileData, db);
-            res.json(profiles).end();
-          });
+      db.topic.create({ordering: 0, profile_id: profile.id}).then(() => {
+        db.profile.findAll(profileReqTreeOnly).then(profiles => {
+          profiles = sortProfileTree(db, profiles);
+          populateSearch(profileData, db);
+          res.json(profiles).end();
         });
       });
     });
@@ -401,8 +365,6 @@ module.exports = function(app) {
    * and "parent" refers to the foreign key that need be referenced in the associated where clause.
    */
   const deleteList = [
-    {elements: ["profile_footnote", "profile_stat"], parent: "profile_id"},
-    {elements: ["section_description", "section_subtitle"], parent: "section_id"},
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
     {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"}
   ];
@@ -487,30 +449,11 @@ module.exports = function(app) {
     });
   });
 
-  app.delete("/api/cms/section/delete", isEnabled, (req, res) => {
-    db.section.findOne({where: {id: req.query.id}}).then(row => {
-      db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
-        db.section.destroy({where: {id: req.query.id}}).then(() => {
-          db.section.findAll({
-            where: {profile_id: row.profile_id},
-            attributes: ["id", "title", "slug", "ordering", "profile_id"],
-            order: [["ordering", "ASC"]],
-            include: [
-              {association: "topics", attributes: ["id", "title", "slug", "ordering", "section_id"]}
-            ]
-          }).then(rows => {
-            res.json(rows).end();
-          });
-        });
-      });
-    });
-  });
-
   app.delete("/api/cms/topic/delete", isEnabled, (req, res) => {
     db.topic.findOne({where: {id: req.query.id}}).then(row => {
-      db.topic.update({ordering: sequelize.literal("ordering -1")}, {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
+      db.topic.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.topic.destroy({where: {id: req.query.id}}).then(() => {
-          db.topic.findAll({where: {section_id: row.section_id}, attributes: ["id", "title", "slug", "ordering", "section_id", "type"], order: [["ordering", "ASC"]]}).then(rows => {
+          db.topic.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "title", "slug", "ordering", "profile_id", "type"], order: [["ordering", "ASC"]]}).then(rows => {
             res.json(rows).end();
           });
         });

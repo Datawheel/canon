@@ -19,27 +19,16 @@ const searchMap = {
 };
 
 const profileReq = {
-  include: [
-    {association: "stats", separate: true},
-    {association: "footnotes", separate: true},
-    {
-      association: "sections", separate: true,
-      include: [
-        {association: "subtitles", separate: true},
-        {association: "descriptions", separate: true},
-        {
-          association: "topics", separate: true,
-          include: [
-            {association: "subtitles", separate: true},
-            {association: "descriptions", separate: true},
-            {association: "visualizations", separate: true},
-            {association: "stats", separate: true},
-            {association: "selectors", separate: true}
-          ]
-        }
-      ]
-    }
-  ]
+  include: [{
+    association: "topics", separate: true,
+    include: [
+      {association: "subtitles", separate: true},
+      {association: "descriptions", separate: true},
+      {association: "visualizations", separate: true},
+      {association: "stats", separate: true},
+      {association: "selectors", separate: true}
+    ]
+  }]
 };
 
 const topicReq = [
@@ -84,22 +73,14 @@ const sorter = (a, b) => a.ordering - b.ordering;
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. Eventually move it up to the query.
 const sortProfile = profile => {
   profile = profile.toJSON();
-  if (profile.stats) profile.stats.sort(sorter);
-  if (profile.sections) {
-    profile.sections.sort(sorter);
-    profile.sections.map(section => {
-      if (section.subtitles) section.subtitles.sort(sorter);
-      if (section.descriptions) section.descriptions.sort(sorter);
-      if (section.topics) {
-        section.topics.sort(sorter);
-        section.topics.map(topic => {
-          if (topic.subtitles) topic.subtitles.sort(sorter);
-          if (topic.selectors) topic.selectors.sort(sorter);
-          if (topic.stats) topic.stats.sort(sorter);
-          if (topic.descriptions) topic.descriptions.sort(sorter);
-          if (topic.visualizations) topic.visualizations.sort(sorter);
-        });
-      }
+  if (profile.topics) {
+    profile.topics.sort(sorter);
+    profile.topics.forEach(topic => {
+      if (topic.subtitles) topic.subtitles.sort(sorter);
+      if (topic.selectors) topic.selectors.sort(sorter);
+      if (topic.stats) topic.stats.sort(sorter);
+      if (topic.descriptions) topic.descriptions.sort(sorter);
+      if (topic.visualizations) topic.visualizations.sort(sorter);
     });
   }
   return profile;

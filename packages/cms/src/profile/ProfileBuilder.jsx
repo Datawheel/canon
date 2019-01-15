@@ -4,7 +4,6 @@ import {connect} from "react-redux";
 import {NonIdealState, Tree, Dialog, Intent, Alert} from "@blueprintjs/core";
 import NewProfile from "./NewProfile";
 import ProfileEditor from "./ProfileEditor";
-import SectionEditor from "./SectionEditor";
 import TopicEditor from "./TopicEditor";
 import PropTypes from "prop-types";
 import Search from "../components/Search/Search";
