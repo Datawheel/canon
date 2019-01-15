@@ -66,6 +66,7 @@
     "grizzly": "^2.1.5",
     "hard-source-webpack-plugin": "^0.13.1",
     "helmet": "^3.9.0",
+    "html-webpack-plugin": "^3.2.0",
     "i18next": "^10.0.7",
     "i18next-express-middleware": "^1.7.0",
     "i18next-node-fs-backend": "^2.1.1",

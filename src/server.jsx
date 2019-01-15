@@ -11,6 +11,9 @@ import configureStore from "./storeConfig";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 import pretty from "pretty";
 
+import fs from 'fs';
+import path from 'path';
+
 import CanonProvider from "./CanonProvider";
 
 import serialize from "serialize-javascript";
@@ -70,10 +73,19 @@ const baseTag = process.env.CANON_BASE_URL === undefined ? ""
   : `
     <base href='${ BASE_URL }'>`;
 
+function getGeneratedTags() {
+  const filePath = path.join(process.cwd(), 'static/assets/index.html');
+  const html = fs.readFileSync(filePath).toString();
+  const headLink = html.match(/<link [^>]+>/g) || [];
+  const bodyScripts = html.match(/<script [^>]+><\/script>/g) || [];
+  return {headLink, bodyScripts};
+}
+
 /**
     Returns the default server logic for rendering a page.
 */
 export default function(defaultStore = {}, headerConfig) {
+  const entrypoints = getGeneratedTags();
 
   return function(req, res) {
 
@@ -140,8 +152,7 @@ export default function(defaultStore = {}, headerConfig) {
     ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
 
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/normalize.css'>
-    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css'>
-
+    ${entrypoints.headLink.join("\n")}
   </head>
   <body>
     ${tagManagerBody}
@@ -154,8 +165,7 @@ export default function(defaultStore = {}, headerConfig) {
       window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
     </script>
     ${analtyicsScript}
-    <script type="text/javascript" charset="utf-8" src="${ process.env.CANON_BASE_URL ? "" : "/" }assets/app.js"></script>
-
+    ${entrypoints.bodyScripts.join("\n")}
   </body>
 </html>`);
           })

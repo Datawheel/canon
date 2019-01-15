@@ -1,4 +1,5 @@
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin,
+      HtmlWebpackPlugin = require("html-webpack-plugin"),
       InlineEnviromentVariablesPlugin = require("inline-environment-variables-webpack-plugin"),
       MiniCssExtractPlugin = require("mini-css-extract-plugin"),
       appDir = process.cwd(),
@@ -22,6 +23,17 @@ module.exports = [
       filename: "[name].js",
       publicPath
     },
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors'
+          }
+        }
+      }
+    },
     module: {
       rules: commonLoaders({extract: true})
     },
@@ -44,7 +56,8 @@ module.exports = [
         analyzerMode: "static",
         openAnalyzer: false,
         reportFilename: "../reports/webpack-prod-client.html"
-      })
+      }),
+      new HtmlWebpackPlugin(),
     ],
     stats: {
       entrypoints: false,
