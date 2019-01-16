@@ -43,7 +43,8 @@ module.exports = [
     },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: "styles.css"
+        filename: 'styles.css',
+        chunkFilename: 'styles.[id].css',
       }),
       new webpack.DefinePlugin(Object.keys(process.env)
         .filter(e => e.startsWith("CANON_CONST_"))
@@ -57,7 +58,7 @@ module.exports = [
         openAnalyzer: false,
         reportFilename: "../reports/webpack-prod-client.html"
       }),
-      new HtmlWebpackPlugin(),
+      new HtmlWebpackPlugin()
     ],
     stats: {
       entrypoints: false,
@@ -86,7 +87,7 @@ module.exports = [
     },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: "styles.css"
+        filename: "server.css"
       }),
       // new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: {keep_fnames: true}}),
       new webpack.DefinePlugin(Object.keys(process.env)
