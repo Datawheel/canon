@@ -35,6 +35,7 @@ module.exports = {
   },
   plugins: [
     new webpack.ProgressPlugin(progress),
+    new webpack.optimize.LimitChunkCountPlugin({maxChunks: 1}),
     new MiniCssExtractPlugin({
       filename: "styles.css"
     }),

@@ -27,6 +27,11 @@ module.exports = [
       splitChunks: {
         chunks: 'all',
         cacheGroups: {
+          d3plus: {
+            priority: 10,
+            test: /d3plus|blueprintjs/,
+            name: 'bigvendors'
+          },
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors'
@@ -86,6 +91,7 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
+      new webpack.optimize.LimitChunkCountPlugin({maxChunks: 1}),
       new MiniCssExtractPlugin({
         filename: "server.css"
       }),
