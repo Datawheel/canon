@@ -73,19 +73,27 @@ const baseTag = process.env.CANON_BASE_URL === undefined ? ""
   : `
     <base href='${ BASE_URL }'>`;
 
-function getGeneratedTags() {
-  const filePath = path.join(process.cwd(), 'static/assets/index.html');
-  const html = fs.readFileSync(filePath).toString();
-  const headLink = html.match(/<link [^>]+>/g) || [];
-  const bodyScripts = html.match(/<script [^>]+><\/script>/g) || [];
-  return {headLink, bodyScripts};
+function getGeneratedTags(base) {
+  let headLink = [`<link rel="stylesheet" type="text/css" href="/assets/styles.css" />`];
+  let bodyScripts = [`<script type="text/javascript" src="/assets/app.js"></script>`];
+  if (process.env.NODE_ENV == "production") {
+    const filePath = path.join(process.cwd(), 'static/assets/index.html');
+    const html = fs.readFileSync(filePath).toString();
+    headLink = html.match(/<link [^>]+>/g) || [];
+    bodyScripts = html.match(/<script [^>]+><\/script>/g) || [];
+  }
+  const baseCorrector = token => token.replace(`="/assets/`, `="${base}assets/`);
+  return {
+    headLink: headLink.map(baseCorrector),
+    bodyScripts: bodyScripts.map(baseCorrector)
+  };
 }
 
 /**
     Returns the default server logic for rendering a page.
 */
 export default function(defaultStore = {}, headerConfig) {
-  const entrypoints = getGeneratedTags();
+  const entrypoints = getGeneratedTags(process.env.CANON_BASE_URL ? "" : "/");
 
   return function(req, res) {
 
@@ -152,7 +160,7 @@ export default function(defaultStore = {}, headerConfig) {
     ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
 
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/normalize.css'>
-    ${entrypoints.headLink.join("\n")}
+    ${entrypoints.headLink.join("\n    ")}
   </head>
   <body>
     ${tagManagerBody}
@@ -165,7 +173,7 @@ export default function(defaultStore = {}, headerConfig) {
       window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
     </script>
     ${analtyicsScript}
-    ${entrypoints.bodyScripts.join("\n")}
+    ${entrypoints.bodyScripts.join("\n    ")}
   </body>
 </html>`);
           })
