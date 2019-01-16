@@ -3,13 +3,13 @@ import {Route, IndexRoute} from "react-router";
 
 import App from "App";
 import Home from "pages/Home";
-import Slug from "pages/Slug";
+// import Slug from "pages/Slug";
 import Login from "pages/Login";
 import SignUp from "pages/SignUp";
-import Profile from "profile/Profile";
+// import Profile from "profile/Profile";
 import Error from "pages/NotFound";
 
-import {Reset, UserAdmin} from "../src";
+import {Reset, UserAdmin, loadComponent} from "../src";
 
 /** */
 function checkForId(nextState, replaceState) {
@@ -32,6 +32,9 @@ class Wrapper extends React.Component {
     return <div id="Wrapper">{this.props.children}</div>;
   }
 }
+
+const Slug = loadComponent(() => import("pages/Slug"));
+const Profile = loadComponent(() => import("profile/Profile"));
 
 /** */
 export default function RouteCreate() {

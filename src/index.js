@@ -21,3 +21,4 @@ export {consts};
 
 // Helpers
 export {default as cubeFold} from "./helpers/cubeFold";
+export {default as loadComponent} from "./helpers/loadComponent";
