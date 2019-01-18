@@ -22,7 +22,7 @@
     "d3-array": "^1.2.4",
     "d3plus-common": "^0.6.43",
     "d3plus-format": "^0.1.2",
-    "d3plus-react": "^0.4.2",
+    "d3plus-react": "^0.5.2",
     "fast-sort": "^1.5.3",
     "lodash": "^4.17.10",
     "mondrian-rest-client": "^1.1.0",
