@@ -76,7 +76,7 @@ const baseTag = process.env.CANON_BASE_URL === undefined ? ""
 function getGeneratedTags(base) {
   let headLink = [`<link rel="stylesheet" type="text/css" href="/assets/styles.css" />`];
   let bodyScripts = [`<script type="text/javascript" src="/assets/app.js"></script>`];
-  if (process.env.NODE_ENV == "production") {
+  if (!__DEV__) {
     const filePath = path.join(process.cwd(), 'static/assets/index.html');
     const html = fs.readFileSync(filePath).toString();
     headLink = html.match(/<link [^>]+>/g) || [];

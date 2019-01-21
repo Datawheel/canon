@@ -20,17 +20,23 @@ module.exports = [
     entry: {app: "./client"},
     output: {
       path: assetsPath,
-      filename: "[name].js",
+      filename: "app.js",
+      chunkFilename: "[name].app.js",
       publicPath
     },
     optimization: {
       splitChunks: {
         chunks: 'all',
         cacheGroups: {
-          d3plus: {
+          blueprint: {
             priority: 10,
-            test: /d3plus|blueprintjs/,
-            name: 'bigvendors'
+            test: /blueprintjs/,
+            name: 'bp3'
+          },
+          d3plus: {
+            priority: 9,
+            test: /d3plus/,
+            name: 'd3plus'
           },
           vendor: {
             test: /[\\/]node_modules[\\/]/,
@@ -49,7 +55,7 @@ module.exports = [
     plugins: [
       new MiniCssExtractPlugin({
         filename: 'styles.css',
-        chunkFilename: 'styles.[id].css',
+        chunkFilename: '[name].styles.css',
       }),
       new webpack.DefinePlugin(Object.keys(process.env)
         .filter(e => e.startsWith("CANON_CONST_"))
