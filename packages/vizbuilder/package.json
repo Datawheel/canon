@@ -33,7 +33,7 @@
     "shorthash": "^0.0.2"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "^0.16.19",
+    "@datawheel/canon-core": "~0.16.20",
     "@types/react": "^15.6.2",
     "konami-code": "^0.2.1"
   },
