@@ -43,6 +43,7 @@ class Viz extends Component {
       { options ? <Options
         component={{topic, viz: this}}
         data={ vizProps.config.data }
+        dataFormat={ vizProps.dataFormat }
         slug={ slug }
         title={ title } /> : null }
       <Visualization
