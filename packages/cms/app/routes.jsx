@@ -11,9 +11,9 @@ import Bar from "./pages/Bar";
 export default function RouteCreate() {
   return (
     <Route path="/" component={App} history={browserHistory}>
-      <IndexRoute component={Builder} />
+      <IndexRoute component={Search} />
       <Route path="/profile/:pslug/:pid" component={Profile} />
-      <Route path="/search" component={Search} />
+      <Route path="/cms" component={Builder} />
       <Route path="/bar" component={Bar} />
     </Route>
   );
