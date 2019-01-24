@@ -18,7 +18,7 @@ class Viz extends Component {
   render() {
     const {formatters, variables} = this.context;
 
-    const {config, configOverride, className, options, slug} = this.props;
+    const {config, configOverride, className, options, slug, topic} = this.props;
 
     // clone config object to allow manipulation
     const vizProps = propify(config.logic, formatters, variables);
@@ -36,11 +36,12 @@ class Viz extends Component {
     if (!type) return null;
     const Visualization = vizTypes[type];
 
-    const title = this.props.title || config.title;
+    const title = (this.props.title || config.title)
+      .replace(/^<p>/g, "").replace(/<\/p>$/g, "");
 
     return <div className={ `visualization ${className}` }>
       { options ? <Options
-        component={ this }
+        component={{topic, viz: this}}
         data={ vizProps.config.data }
         slug={ slug }
         title={ title } /> : null }

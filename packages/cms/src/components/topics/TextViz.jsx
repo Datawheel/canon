@@ -21,7 +21,7 @@ export default class TextViz extends Component {
 
     const statGroups = nest().key(d => d.title).entries(stats);
 
-    return <div className={ `topic ${slug || ""} TextViz ${loading ? "topic-loading" : ""}` }>
+    return <div className={ `topic ${slug || ""} TextViz ${loading ? "topic-loading" : ""}` } ref={ comp => this.topic = comp }>
       <div className="topic-content">
         { title &&
           <h3 className="topic-title">
@@ -38,10 +38,10 @@ export default class TextViz extends Component {
           { descriptions.map((content, i) => <div key={i} className="topic-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
           { loading && <NonIdealState visual={<Spinner />} /> }
         </div>
-        { miniviz && <Viz config={miniviz} className="topic-miniviz" title={ title } slug={ `${slug}_miniviz` } /> }
+        { miniviz && <Viz topic={this} config={miniviz} className="topic-miniviz" title={ title } slug={ `${slug}_miniviz` } /> }
         <SourceGroup sources={sources} />
       </div>
-      { mainviz.map((visualization, ii) => <Viz config={visualization} key={ii} className="topic-visualization" title={ title } slug={ `${slug}_${ii}` } />) }
+      { mainviz.map((visualization, ii) => <Viz topic={this} config={visualization} key={ii} className="topic-visualization" title={ title } slug={ `${slug}_${ii}` } />) }
     </div>;
 
   }

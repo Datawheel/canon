@@ -16,7 +16,7 @@ export default class Card extends Component {
 
     const statGroups = nest().key(d => d.title).entries(stats);
 
-    return <div className={ `topic pt-card pt-elevation-0 ${slug} Card` }>
+    return <div className={ `topic pt-card pt-elevation-0 ${slug} Card` } ref={ comp => this.topic = comp }>
       <div className="topic-content">
         { title &&
           <h3 className="topic-title">
@@ -34,7 +34,7 @@ export default class Card extends Component {
         { selectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
       </div> }
       <div className="topic-flex">
-        { visualizations.map((visualization, ii) => <Viz config={visualization} key={ii} className="topic-visualization" title={ title } slug={ `${slug}_${ii}` } />) }
+        { visualizations.map((visualization, ii) => <Viz topic={this} config={visualization} key={ii} className="topic-visualization" title={ title } slug={ `${slug}_${ii}` } />) }
       </div>
     </div>;
 

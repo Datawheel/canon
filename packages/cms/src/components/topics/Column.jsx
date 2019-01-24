@@ -16,7 +16,7 @@ export default class Column extends Component {
 
     const statGroups = nest().key(d => d.title).entries(stats);
 
-    return <div className={ `topic ${slug} Column` }>
+    return <div className={ `topic ${slug} Column` } ref={ comp => this.topic = comp }>
       <div className="topic-content">
         { title &&
           <h3 className="topic-title">
@@ -37,7 +37,7 @@ export default class Column extends Component {
         { visualizations.length === 1 && selectors.length > 0 && <div className="topic-selectors">
           { selectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
         </div> }
-        { visualizations.map((visualization, ii) => <Viz config={visualization} key={ii} className="topic-visualization" title={ title } slug={ `${slug}_${ii}` } />) }
+        { visualizations.map((visualization, ii) => <Viz topic={this} config={visualization} key={ii} className="topic-visualization" title={ title } slug={ `${slug}_${ii}` } />) }
       </div>
     </div>;
 

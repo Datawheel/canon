@@ -62,7 +62,7 @@ export default class Tabs extends Component {
       return title || `Visualization ${i + 1}`;
     });
 
-    return <div className={ `topic ${slug} Tabs` }>
+    return <div className={ `topic ${slug} Tabs` } ref={ comp => this.topic = comp }>
       <div className="topic-content">
         { title &&
           <h3 className="topic-title">
@@ -84,7 +84,7 @@ export default class Tabs extends Component {
         </div> }
       </div>
       <div className="topic-flex">
-        { <Viz config={visualization} key={tabIndex} className="topic-visualization" title={ title } slug={ `${slug}_${tabIndex}` } /> }
+        { <Viz topic={this} config={visualization} key={tabIndex} className="topic-visualization" title={ title } slug={ `${slug}_${tabIndex}` } /> }
         { tabSelectors.length > 0 && <div className="topic-selectors">
           { tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
         </div> }
