@@ -4,8 +4,8 @@
 export default function initialStateFactory() {
   return {
     load: {
-      inProgress: false,
-      total: 0,
+      inProgress: true,
+      total: 1,
       done: 0,
       error: undefined,
       severity: -1
