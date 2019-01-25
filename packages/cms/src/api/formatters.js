@@ -11,9 +11,16 @@ module.exports = function(app) {
         results = results.map(r => {
           r = r.toJSON();
           if (r.logic) {
-            let code = buble.transform(r.logic).code; 
-            if (code.startsWith("!")) code = code.slice(1);
-            r.logic = code;
+            // Formatters may be malformed. Wrap in a try/catch to avoid js crashes.
+            try {
+              let code = buble.transform(r.logic).code; 
+              if (code.startsWith("!")) code = code.slice(1);
+              r.logic = code;
+            }
+            catch (e) {
+              console.log("Error in Formatter Syntax: ", e.message);
+              r.logic = "return \"N/A\";";
+            }
           }
           return r;
         });
