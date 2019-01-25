@@ -91,8 +91,8 @@ export function injectCubeInfoOnMeasure(cubes) {
       msAnnotations._cb_name = cbName;
       msAnnotations._cb_table_id = cbTableId;
       msAnnotations._cb_tagline = cbTagline;
-      msAnnotations._cb_topic = cbTopic;
-      msAnnotations._cb_subtopic = cbSubtopic;
+      msAnnotations._cb_topic = cbTopic || "Other";
+      msAnnotations._cb_subtopic = cbSubtopic || "Other";
       // msAnnotations._cb_sourceName = sourceName;
       msAnnotations._dim_labels =
         cbLevelNameList.length > 5

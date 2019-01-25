@@ -116,7 +116,6 @@ export default function chartCriteria(results, params) {
       uciName: query.uci && query.uci.name,
       xlevelName
     };
-    datagroup.topojson = topojsonConfig;
 
     /**
      * If there's more than 60 lines in a lineplot, only show top ten each year
@@ -155,5 +154,4 @@ export default function chartCriteria(results, params) {
  * @prop {Object<string, string>} names
  * @prop {any} query
  * @prop {string} [quirk]
- * @prop {any} topojson
  */
