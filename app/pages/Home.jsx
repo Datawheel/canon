@@ -3,7 +3,7 @@ import {Link} from "react-router";
 import {translate, Trans} from "react-i18next";
 import "./Home.css";
 import {Button} from "@blueprintjs/core";
-import {Activate} from "../../src/";
+import {Activate, AnchorLink} from "../../src/";
 import Vizbuilder from "@datawheel/canon-vizbuilder";
 
 // import styles from "style.yml";
@@ -21,6 +21,7 @@ class Home extends Component {
     // the Interpolate component for strings with variable replace.
     return (
       <div className="home">
+        <AnchorLink to="anchorTest">Skip</AnchorLink>
         { t("home.title") }<br />
         { t("This is a full sentence used as the translation key") }<br />
         { t("home.body", {name: "Datawheel Canon"}) }<br />
@@ -48,7 +49,7 @@ class Home extends Component {
           <br/><br/><br/><br/><br/>
           <br/><br/><br/><br/><br/>
         </div>
-        <div id="anchorTest" className="anchorTest">
+        <div id="anchorTest" className="anchorTest" tabIndex="0">
           jump here!!!!
         </div>
         <Link to="/login">Click Here to Login</Link>

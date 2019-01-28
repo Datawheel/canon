@@ -1,1 +1,5 @@
-.home {}
+.home {
+  & .anchorTest:focus {
+    color: red;
+  }
+}

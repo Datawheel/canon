@@ -53,7 +53,12 @@ function scrollToHash(hash, wait = true) {
   const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
   if (elem) {
     const offset = elem.getBoundingClientRect().top;
-    if (offset) animateScroll.scrollMore(offset);
+    if (offset) {
+      animateScroll.scrollMore(offset);
+      setTimeout(() => {
+        elem.focus();
+      }, 100);
+    }
   }
   else if (wait) {
     setTimeout(() => {
