@@ -12,7 +12,7 @@ module.exports = function(sequelize, db) {
         defaultValue: "New Stat"
       },
       subtitle: {
-        type: db.STRING,
+        type: db.TEXT,
         defaultValue: "New Subtitle"
       },
       value: {
