@@ -232,8 +232,7 @@ export default function createChartConfig(chart, uiparams) {
     isSingle,
     isUnique,
     selectedTime,
-    onTimeChange,
-    uiheight
+    onTimeChange
   } = uiparams;
 
   const isEnlarged = chart.key === activeChart || isUnique;
@@ -242,7 +241,6 @@ export default function createChartConfig(chart, uiparams) {
   const config = makeConfig[chartType](chart);
 
   config.data = chart.dataset;
-  config.height = isSingle ? uiheight - (isUnique ? 0 : 50) : 400;
 
   if (chart.aggType === "SUM" || chart.aggType === "UNKNOWN") {
     config.total = measureName;
