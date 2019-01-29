@@ -106,7 +106,30 @@ function computeMidP(vx, vN, confLevel) {
   return {lci: T1, uci: T2};
 }
 
+/** transliterated from: https://en.wikipedia.org/wiki/Binomial_coefficient#Binomial_coefficient_in_programming_languages */
+function binomial(n, k) {
+  if (k < 0 || k > n) return 0;
+  if (k > n - k) k = n - k;
+  let res = 1;
+  for (let i = 0; i < k; i++) {
+    res *= (n - k + i + 1) / (i + 1);
+  }
+  return Math.round(res);
+}
+
+/** grabbed from: https://github.com/KenanY/binomial-cdf */
+function cdf(k, n, p) {
+  k = Math.floor(k);
+  let sum = 0;
+  for (let i = 0; i <= k; i++) {
+    sum += binomial(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
+  }
+  return sum;
+}
+
 module.exports = {
+  binomial,
+  cdf,
   computeMidP,
   binP,
   criticalValue
