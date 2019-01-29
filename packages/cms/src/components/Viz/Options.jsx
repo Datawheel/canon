@@ -7,10 +7,15 @@ import {saveAs} from "file-saver";
 import JSZip from "jszip";
 import axios from "axios";
 import {saveElement} from "d3plus-export";
+import {strip} from "d3plus-text";
 
 import {Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab2, Tabs2} from "@blueprintjs/core";
 import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
 import "@blueprintjs/table/dist/table.css";
+
+const filename = str => strip(str.replace(/<[^>]+>/g, ""))
+  .replace(/^\-/g, "")
+  .replace(/\-$/g, "");
 
 class Options extends Component {
 
@@ -47,9 +52,9 @@ class Options extends Component {
     }
 
     const zip = new JSZip();
-    zip.file(`${title}.csv`, csv);
+    zip.file(`${filename(title)}.csv`, csv);
     zip.generateAsync({type: "blob"})
-      .then(content => saveAs(content, `${title}.zip`));
+      .then(content => saveAs(content, `${filename(title)}.zip`));
 
   }
 
@@ -58,7 +63,7 @@ class Options extends Component {
     let node = this.getNode();
     if (node) {
       if (type === "svg") node = select(node).select("svg").node();
-      saveElement(node, {filename: title, type});
+      saveElement(node, {filename: `${filename(title)}.${type}`, type});
     }
   }
 
