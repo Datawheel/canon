@@ -86,7 +86,6 @@ class Options extends Component {
     if (slug === "view-table" && !results && !loading) {
       const {data, dataFormat} = this.props;
       this.setState({loading: true});
-      console.log(data);
       axios.get(data)
         .then(resp => {
           const results = dataFormat(resp.data);
