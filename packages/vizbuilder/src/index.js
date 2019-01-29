@@ -108,7 +108,7 @@ class Vizbuilder extends React.PureComponent {
       <div
         className={classnames("vizbuilder", {
           "mapmode": Boolean(options.geomapLevels),
-          "loading": load.inProgress
+          "fetching": load.inProgress
         })}
       >
         <LoadingScreen total={load.total} progress={load.done} />
