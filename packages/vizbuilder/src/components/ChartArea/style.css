@@ -29,22 +29,24 @@
   & .chart-card {
     flex: 1 0 33%;
     min-width: 500px;
-    min-height: 400px;
 
     & > .wrapper {
       display: flex;
       flex-flow: column nowrap;
       margin: 0 5px 10px;
       padding: 15px;
-      height: 100%;
+      min-height: 400px;
     }
 
+    &:only-child,
     &:only-child > .wrapper {
       margin: 0;
+      height: 100%;
     }
 
     & .viz {
       flex: 1 0;
+      transform: rotateZ(360deg);
 
       & > svg {
         display: block;
