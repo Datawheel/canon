@@ -74,15 +74,19 @@ class ProfileBuilder extends Component {
       masterSlug: p.slug,
       masterDimension: p.dimension,
       data: p,
-      childNodes: p.topics.map(t => ({
-        id: `topic${t.id}`,
-        hasCaret: false,
-        label: this.decode(stripHTML(t.title)),
-        itemType: "topic",
-        masterSlug: p.slug,
-        masterDimension: p.dimension,
-        data: t
-      }))
+      childNodes: p.topics.map(t => {
+        const enCon = t.content.find(c => c.lang === "en");
+        const title = enCon ? enCon.title : t.slug;
+        return {
+          id: `topic${t.id}`,
+          hasCaret: false,
+          label: this.decode(stripHTML(title)),
+          itemType: "topic",
+          masterSlug: p.slug,
+          masterDimension: p.dimension,
+          data: t
+        };
+      })
     }));
     if (!openNode) {
       this.setState({nodes});
@@ -209,7 +213,9 @@ class ProfileBuilder extends Component {
           if (topic.status === 200) {
             obj.id = `topic${topic.data.id}`;
             obj.data = topic.data;
-            obj.label = varSwap(this.decode(stripHTML(obj.data.title)), formatters, variables);
+            const enCon = topic.data.content.find(c => c.lang === "en");
+            const title = enCon ? enCon.title : topic.slug;
+            obj.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
             const parent = this.locateNode("profile", obj.data.profile_id);
             parent.childNodes.push(obj);
             parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
@@ -231,7 +237,9 @@ class ProfileBuilder extends Component {
             if (topic.status === 200) {
               objTopic.id = `topic${topic.data.id}`;
               objTopic.data = topic.data;
-              objTopic.label = varSwap(this.decode(stripHTML(objTopic.data.title)), formatters, variables);
+              const enCon = topic.data.content.find(c => c.lang === "en");
+              const title = enCon ? enCon.title : topic.data.slug;
+              objTopic.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
               const parent = this.locateNode("profile", obj.data.profile_id);
               parent.childNodes.push(obj);
               parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
@@ -261,15 +269,19 @@ class ProfileBuilder extends Component {
     if (n.itemType === "topic") {
       const parent = this.locateNode("profile", n.data.profile_id);
       axios.delete("/api/cms/topic/delete", {params: {id: n.data.id}}).then(resp => {
-        const topics = resp.data.map(topicData => ({
-          id: `topic${topicData.id}`,
-          hasCaret: false,
-          iconName: topicIcons[topicData.type] || "help",
-          label: this.decode(stripHTML(topicData.title)),
-          itemType: "topic",
-          masterSlug: parent.masterSlug,
-          data: topicData
-        }));
+        const topics = resp.data.map(topicData => {
+          const enCon = topicData.content.find(c => c.lang === "en");
+          const title = enCon ? enCon.title : topicData.slug;
+          return {
+            id: `topic${topicData.id}`,
+            hasCaret: false,
+            iconName: topicIcons[topicData.type] || "help",
+            label: this.decode(stripHTML(title)),
+            itemType: "topic",
+            masterSlug: parent.masterSlug,
+            data: topicData
+          };
+        });
         parent.childNodes = topics;
         this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
       });
@@ -421,7 +433,9 @@ class ProfileBuilder extends Component {
     const p = this.locateProfileNodeBySlug(currentSlug);
     p.label = varSwap(p.data.slug, formatters, variables);
     p.childNodes = p.childNodes.map(t => {
-      t.label = varSwap(this.decode(stripHTML(t.data.title)), formatters, variables);
+      const enCon = t.data.content.find(c => c.lang === "en");
+      const title = enCon ? enCon.title : t.slug;
+      t.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
       return t;
     });
     this.setState({nodes});

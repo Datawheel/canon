@@ -24,7 +24,7 @@ module.exports = function(sequelize, db) {
   );
 
   s.associate = models => {
-    s.hasMany(models.storytopic_subtitle_content, {foreignKey: "parent_id", sourceKey: "id", as: "content"});
+    s.hasMany(models.storytopic_subtitle_content, {foreignKey: "id", sourceKey: "id", as: "content"});
   }; 
 
   return s;

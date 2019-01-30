@@ -36,7 +36,7 @@ module.exports = function(sequelize, db) {
   );
 
   t.associate = models => {
-    t.hasMany(models.topic_content, {foreignKey: "parent_id", sourceKey: "id", as: "content"});
+    t.hasMany(models.topic_content, {foreignKey: "id", sourceKey: "id", as: "content"});
     t.hasMany(models.topic_visualization, {foreignKey: "topic_id", sourceKey: "id", as: "visualizations"});
     t.hasMany(models.topic_stat, {foreignKey: "topic_id", sourceKey: "id", as: "stats"});
     t.hasMany(models.topic_subtitle, {foreignKey: "topic_id", sourceKey: "id", as: "subtitles"});

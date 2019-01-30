@@ -20,7 +20,10 @@ const isEnabled = (req, res, next) => {
 const profileReqTreeOnly = {
   attributes: ["id", "slug", "dimension", "ordering"],
   include: [{
-    association: "topics", attributes: ["id", "slug", "ordering", "profile_id", "type"]
+    association: "topics", attributes: ["id", "slug", "ordering", "profile_id", "type"], 
+    include: [
+      {association: "content", attributes: ["id", "lang", "title"]}
+    ]
   }]
 };
 

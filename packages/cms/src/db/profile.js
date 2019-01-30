@@ -21,7 +21,7 @@ module.exports = function(sequelize, db) {
   );
 
   p.associate = models => {
-    p.hasMany(models.profile_content, {foreignKey: "parent_id", sourceKey: "id", as: "content"});
+    p.hasMany(models.profile_content, {foreignKey: "id", sourceKey: "id", as: "content"});
     p.hasMany(models.topic, {foreignKey: "profile_id", sourceKey: "id", as: "topics"});
     p.hasMany(models.generator, {foreignKey: "profile_id", sourceKey: "id", as: "generators"});
     p.hasMany(models.materializer, {foreignKey: "profile_id", sourceKey: "id", as: "materializers"});
