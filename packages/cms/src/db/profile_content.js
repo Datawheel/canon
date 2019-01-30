@@ -4,7 +4,12 @@ module.exports = function(sequelize, db) {
     {
       id: {
         type: db.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        onDelete: "cascade",
+        references: {
+          model: "profile",
+          key: "id"
+        }
       },
       lang: {
         type: db.STRING,
@@ -21,14 +26,6 @@ module.exports = function(sequelize, db) {
       label: {
         type: db.STRING,
         defaultValue: "New Profile Label"
-      },
-      parent_id: {
-        type: db.INTEGER,
-        onDelete: "cascade",
-        references: {
-          model: "profile",
-          key: "id"
-        }
       }
     },
     {

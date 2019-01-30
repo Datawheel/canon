@@ -4,7 +4,12 @@ module.exports = function(sequelize, db) {
     {
       id: {
         type: db.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        onDelete: "cascade",
+        references: {
+          model: "author",
+          key: "id"
+        }
       },
       lang: {
         type: db.STRING,
@@ -25,14 +30,6 @@ module.exports = function(sequelize, db) {
       twitter: {
         type: db.STRING, 
         defaultValue: "New Twitter"
-      },
-      parent_id: {
-        type: db.INTEGER,
-        onDelete: "cascade",
-        references: {
-          model: "author",
-          key: "id"
-        }
       },
       bio: {
         type: db.TEXT, 

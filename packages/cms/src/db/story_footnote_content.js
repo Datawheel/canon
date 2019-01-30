@@ -4,7 +4,12 @@ module.exports = function(sequelize, db) {
     {
       id: {
         type: db.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        onDelete: "cascade",
+        references: {
+          model: "story_footnote",
+          key: "id"
+        }
       },
       lang: {
         type: db.STRING,
@@ -17,14 +22,6 @@ module.exports = function(sequelize, db) {
       description: {
         type: db.TEXT,
         defaultValue: "New Footnote"
-      }, 
-      parent_id: {
-        type: db.INTEGER,
-        onDelete: "cascade",
-        references: {
-          model: "story_footnote",
-          key: "id"
-        }
       }
     }, 
     {

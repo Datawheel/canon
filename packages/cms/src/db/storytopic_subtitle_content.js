@@ -4,7 +4,12 @@ module.exports = function(sequelize, db) {
     {
       id: {
         type: db.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        onDelete: "cascade",
+        references: {
+          model: "storytopic_subtitle",
+          key: "id"
+        }
       },
       lang: {
         type: db.STRING,
@@ -13,14 +18,6 @@ module.exports = function(sequelize, db) {
       subtitle: {
         type: db.TEXT,
         defaultValue: "New Subtitle"
-      },
-      parent_id: {
-        type: db.INTEGER,
-        onDelete: "cascade",
-        references: {
-          model: "storytopic_subtitle",
-          key: "id"
-        }
       }
     }, 
     {

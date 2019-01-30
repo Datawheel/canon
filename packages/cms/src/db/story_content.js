@@ -4,7 +4,12 @@ module.exports = function(sequelize, db) {
     {
       id: {
         type: db.INTEGER,
-        primaryKey: true
+        primaryKey: true,
+        onDelete: "cascade",
+        references: {
+          model: "story",
+          key: "id"
+        }
       },
       lang: {
         type: db.STRING,
@@ -21,14 +26,6 @@ module.exports = function(sequelize, db) {
       image: {
         type: db.STRING,
         defaultValue: "New Image"
-      },
-      parent_id: {
-        type: db.INTEGER,
-        onDelete: "cascade",
-        references: {
-          model: "story",
-          key: "id"
-        }
       }
     }, 
     {
