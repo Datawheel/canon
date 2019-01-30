@@ -52,7 +52,7 @@ class SidebarCRUDManager extends React.Component {
     const index = items.findIndex(obj => obj.uuid === item.uuid);
     if (index === -1) return;
 
-    this.context.loadControl(() => {
+    const getNewPartialState = () => {
       const newItems = items.slice();
       newItems.splice(index, 1);
       return {
@@ -60,7 +60,14 @@ class SidebarCRUDManager extends React.Component {
           [targetLabel]: newItems
         }
       };
-    });
+    };
+
+    if (item.constructor.isValid(item)) {
+      this.context.loadControl(getNewPartialState);
+    }
+    else {
+      this.context.stateUpdate(getNewPartialState());
+    }
   }
 }
 
