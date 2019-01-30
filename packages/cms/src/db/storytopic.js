@@ -6,11 +6,7 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         primaryKey: true,
         autoIncrement: true
-      },
-      title: {
-        type: db.STRING,
-        defaultValue: "New StoryTopic"
-      },       
+      },    
       slug: {
         type: db.STRING,
         defaultValue: "new-storytopic-slug"
@@ -36,6 +32,7 @@ module.exports = function(sequelize, db) {
   );
 
   s.associate = models => {
+    s.hasMany(models.storytopic_content, {foreignKey: "parent_id", sourceKey: "id", as: "content"});
     s.hasMany(models.storytopic_description, {foreignKey: "storytopic_id", sourceKey: "id", as: "descriptions"});
     s.hasMany(models.storytopic_stat, {foreignKey: "storytopic_id", sourceKey: "id", as: "stats"});
     s.hasMany(models.storytopic_subtitle, {foreignKey: "storytopic_id", sourceKey: "id", as: "subtitles"});

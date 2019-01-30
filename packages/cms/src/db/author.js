@@ -7,22 +7,6 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
-      name: {
-        type: db.STRING, 
-        defaultValue: "New Author"
-      },
-      title: {
-        type: db.STRING, 
-        defaultValue: "New Title"
-      },
-      image: {
-        type: db.STRING, 
-        defaultValue: "New Image"
-      },
-      twitter: {
-        type: db.STRING, 
-        defaultValue: "New Twitter"
-      },
       story_id: {
         type: db.INTEGER,
         onDelete: "cascade",
@@ -31,17 +15,17 @@ module.exports = function(sequelize, db) {
           key: "id"
         }
       },
-      ordering: db.INTEGER,
-      bio: {
-        type: db.TEXT, 
-        defaultValue: "New Bio"
-      }
+      ordering: db.INTEGER
     }, 
     {
       freezeTableName: true,
       timestamps: false
     }
   );
+
+  a.associate = models => {
+    a.hasMany(models.author_content, {foreignKey: "parent_id", sourceKey: "id", as: "content"});
+  };
 
   return a;
 

@@ -1,31 +1,33 @@
 module.exports = function(sequelize, db) {
 
-  const s = sequelize.define("storytopic_description",
+  const s = sequelize.define("storytopic_content",
     {
       id: {
         type: db.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+        primaryKey: true
       },
-      storytopic_id: {
+      lang: {
+        type: db.STRING,
+        primaryKey: true
+      },
+      title: {
+        type: db.STRING,
+        defaultValue: "New StoryTopic"
+      },       
+      parent_id: {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
           model: "storytopic",
           key: "id"
         }
-      },
-      ordering: db.INTEGER
+      }
     }, 
     {
       freezeTableName: true,
       timestamps: false
     }
-  );
-
-  s.associate = models => {
-    s.hasMany(models.storytopic_description_content, {foreignKey: "parent_id", sourceKey: "id", as: "content"});
-  }; 
+  );  
 
   return s;
 
