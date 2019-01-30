@@ -21,15 +21,6 @@ module.exports = function(sequelize, db) {
       image: {
         type: db.STRING,
         defaultValue: "New Image"
-      }, 
-      ordering: db.INTEGER,
-      slug: {
-        type: db.STRING,
-        defaultValue: "new-story-slug"
-      },
-      date: {
-        type: db.DATE,
-        defaultValue: "2018-01-01 00:00:00"
       },
       parent_id: {
         type: db.INTEGER,
