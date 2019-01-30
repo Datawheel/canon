@@ -19,37 +19,64 @@ const searchMap = {
 };
 
 const profileReq = {
-  include: [{
-    association: "topics", separate: true,
-    include: [
-      {association: "subtitles", separate: true},
-      {association: "descriptions", separate: true},
-      {association: "visualizations", separate: true},
-      {association: "stats", separate: true},
-      {association: "selectors", separate: true}
-    ]
-  }]
+  include: [
+    {association: "content", separate: true},
+    {association: "topics", separate: true,
+      include: [
+        {association: "content", separate: true},
+        {association: "subtitles", separate: true, 
+          include: [{association: "content", separate: true}]
+        },
+        {association: "descriptions", separate: true, 
+          include: [{association: "content", separate: true}]
+        },
+        {association: "visualizations", separate: true},
+        {association: "stats", separate: true, 
+          include: [{association: "content", separate: true}]
+        },
+        {association: "selectors", separate: true}
+      ]
+    }]
 };
 
 const topicReq = [
-  {association: "subtitles", separate: true},
-  {association: "descriptions", separate: true},
+  {association: "subtitles", separate: true, 
+    include: [{association: "content", separate: true}]
+  },
+  {association: "descriptions", separate: true, 
+    include: [{association: "content", separate: true}]
+  },
   {association: "visualizations", separate: true},
-  {association: "stats", separate: true},
+  {association: "stats", separate: true, 
+    include: [{association: "content", separate: true}]
+  },
   {association: "selectors", separate: true}
 ];
 
 const storyReq = {
   include: [
-    {association: "authors", separate: true},
-    {association: "descriptions", separate: true},
-    {association: "footnotes", separate: true},
+    {association: "authors", separate: true, 
+      include: [{association: "content", separate: true}]
+    },
+    {association: "descriptions", separate: true, 
+      include: [{association: "content", separate: true}]
+    },
+    {association: "footnotes", separate: true, 
+      include: [{association: "content", separate: true}]
+    },
     {
       association: "storytopics", separate: true,
       include: [
-        {association: "descriptions", separate: true},
-        {association: "stats", separate: true},
-        {association: "subtitles", separate: true},
+        {association: "content", separate: true},
+        {association: "descriptions", separate: true,
+          include: [{association: "content", separate: true}]
+        },
+        {association: "stats", separate: true,
+          include: [{association: "content", separate: true}]
+        },
+        {association: "subtitles", separate: true,
+          include: [{association: "content", separate: true}]
+        },
         {association: "visualizations", separate: true}
       ]
     }

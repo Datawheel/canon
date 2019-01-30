@@ -18,17 +18,17 @@ const isEnabled = (req, res, next) => {
 };
 
 const profileReqTreeOnly = {
-  attributes: ["id", "title", "slug", "dimension", "ordering"],
+  attributes: ["id", "slug", "dimension", "ordering"],
   include: [{
-    association: "topics", attributes: ["id", "title", "slug", "ordering", "profile_id", "type"]
+    association: "topics", attributes: ["id", "slug", "ordering", "profile_id", "type"]
   }]
 };
 
 const storyReqTreeOnly = {
-  attributes: ["id", "title", "ordering"],
+  attributes: ["id", "slug", "ordering"],
   include: [
     {
-      association: "storytopics", attributes: ["id", "title", "slug", "ordering", "story_id", "type"]
+      association: "storytopics", attributes: ["id", "slug", "ordering", "story_id", "type"]
     }
   ]
 };
@@ -81,6 +81,18 @@ const cmsTables = [
   "selector", "story", "story_description", "story_footnote", "storytopic",
   "storytopic_description", "storytopic_stat", "storytopic_subtitle", "storytopic_visualization",
   "topic", "topic_description", "topic_stat", "topic_subtitle", "topic_visualization"
+];
+
+/**
+ * Some tables are translated to different languages using a corresponding "content" table, like "profile_content".
+ * As such, some of the following functions need to take compound actions, e.g., insert a metadata record into 
+ * profile, THEN insert the "real" data into "profile_content." This list (subset of cmsTables) represents those
+ * tables that need corresponding _content updates.
+ */
+
+const contentTables = [
+  "author", "profile", "story", "story_description", "story_footnote", "storytopic", "storytopic_description", 
+  "storytopic_stat", "storytopic_subtitle", "topic", "topic_description", "topic_stat", "topic_subtitle"
 ];
 
 const sorter = (a, b) => a.ordering - b.ordering;
@@ -324,7 +336,7 @@ module.exports = function(app) {
 
   getList.forEach(ref => {
     app.get(`/api/cms/${ref}/get/:id`, (req, res) => {
-      db[ref].findOne({where: {id: req.params.id}}).then(u => res.json(u).end());
+      db[ref].findOne({where: {id: req.params.id}, include: {association: "content"}}).then(u => res.json(u).end());
     });
   });
 
@@ -333,18 +345,29 @@ module.exports = function(app) {
   const newList = cmsTables;
   newList.forEach(ref => {
     app.post(`/api/cms/${ref}/new`, isEnabled, (req, res) => {
-      db[ref].create(req.body).then(u => res.json(u));
+      // First, create the metadata object in the top-level table
+      db[ref].create(req.body).then(newObj => {
+        // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
+        if (contentTables.includes(ref)) {
+          const payload = Object.assign({}, req.body, {id: newObj.id, lang: "en"});
+          db[`${ref}_content`].create(payload).then(u => res.json(u).end());
+        }
+      });
     });
   });
 
   app.post("/api/cms/profile/newScaffold", isEnabled, (req, res) => {
     const profileData = req.body;
     db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName}).then(profile => {
-      db.topic.create({ordering: 0, profile_id: profile.id}).then(() => {
-        db.profile.findAll(profileReqTreeOnly).then(profiles => {
-          profiles = sortProfileTree(db, profiles);
-          populateSearch(profileData, db);
-          res.json(profiles).end();
+      db.profile_content.create({id: profile.id, lang: "en"}).then(() => {
+        db.topic.create({ordering: 0, profile_id: profile.id}).then(topic => {
+          db.topic_content.create({id: topic.id, lang: "en"}).then(() => {
+            db.profile.findAll(profileReqTreeOnly).then(profiles => {
+              profiles = sortProfileTree(db, profiles);
+              populateSearch(profileData, db);
+              res.json(profiles).end();
+            });
+          });
         });
       });
     });
@@ -355,7 +378,11 @@ module.exports = function(app) {
   const updateList = cmsTables;
   updateList.forEach(ref => {
     app.post(`/api/cms/${ref}/update`, isEnabled, (req, res) => {
-      db[ref].update(req.body, {where: {id: req.body.id}}).then(u => res.json(u));
+      db[ref].update(req.body, {where: {id: req.body.id}}).then(() => {
+        req.body.content.forEach(content => {
+          db[`${ref}_content`].upsert(content, {where: {id: req.body.id, lang: content.lang}}).then(u => res.json(u).end());
+        });
+      });
     });
   });
 
