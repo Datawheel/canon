@@ -37,34 +37,55 @@ class TextCard extends Component {
   }
 
   hitDB() {
-    const {item, type} = this.props;
+    const {item, type, locale} = this.props;
     const {id} = item;
     axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      this.setState({minData: resp.data}, this.formatDisplay.bind(this));
+      // If this has been opened with a non english locale, and there is NO row for that locale,
+      // create a placeholder row that can be edited in the text boxes (and later saved)
+      const minData = resp.data;
+      if (!minData.content.find(c => c.lang === locale)) {
+        const english = minData.content.find(c => c.lang === "en");
+        const newLangObj = {id: minData.id, lang: locale};
+        Object.keys(english).forEach(k => {
+          if (k !== "id" && k !== "lang") newLangObj[k] = english[k];
+        });
+        minData.content.push(newLangObj);
+      }
+      this.setState({minData}, this.formatDisplay.bind(this));
     });
   }
 
   formatDisplay() {
-    const {variables, selectors} = this.props;
+    const {variables, selectors, locale} = this.props;
     const {formatters} = this.context;
     const {minData} = this.state;
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
     // polluting the object itself
     minData.selectors = selectors;
-    const displayData = varSwapRecursive(minData, formatters, variables);
-    this.setState({displayData});
+    // Swap vars, and extract the actual (multilingual) content
+    const content = varSwapRecursive(minData, formatters, variables).content;
+    const english = content.find(c => c.lang === "en");
+    const currLang = content.find(c => c.lang === locale);
+    // Map over each of the english keys, and fetch its equivalent locale version (or default to english)
+    const displayData = {};
+    Object.keys(english).forEach(k => {
+      displayData[k] = currLang[k] ? currLang[k] : english[k];
+    });
+    this.setState({displayData});  
   }
 
   save() {
-    const {type, fields, plainfields} = this.props;
+    const {type, fields, plainfields, locale} = this.props;
     const {minData} = this.state;
     const payload = {id: minData.id};
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
-    fields.forEach(field => payload[field] = minData[field] === "<p><br></p>" ? "" : minData[field]);
-    if (plainfields) plainfields.forEach(field => payload[field] = minData[field] === "<p><br></p>" ? "" : minData[field]);
+    const thisLocale = minData.content.find(c => c.lang === locale);
+    fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
+    if (plainfields) plainfields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
     payload.allowed = minData.allowed;
+    payload.content = [thisLocale];
     axios.post(`/api/cms/${type}/update`, payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false}, this.formatDisplay.bind(this));
@@ -119,7 +140,7 @@ class TextCard extends Component {
 
   render() {
     const {displayData, minData, isOpen, alertObj} = this.state;
-    const {variables, fields, plainfields, type, parentArray, item} = this.props;
+    const {variables, fields, plainfields, type, parentArray, item, locale} = this.props;
     const {ordering} = item;
 
     if (!minData || !displayData) return <Loading />;
@@ -128,7 +149,7 @@ class TextCard extends Component {
     if (["profile_stat", "topic_stat"].includes(type)) cardClass = "stat-card";
     const displaySort = ["title", "value", "subtitle", "description"];
     const displays = Object.keys(displayData)
-      .filter(k => typeof displayData[k] === "string" && !["id", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
+      .filter(k => typeof displayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
 
     return (
@@ -176,8 +197,8 @@ class TextCard extends Component {
           inline="true"
         >
           <div className="pt-dialog-body">
-            <PlainTextEditor data={minData} fields={plainfields} />
-            <TextEditor data={minData} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />
+            <PlainTextEditor data={minData} locale={locale} fields={plainfields} />
+            <TextEditor data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />
           </div>
           <FooterButtons
             onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}

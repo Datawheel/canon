@@ -24,16 +24,11 @@ class TextEditor extends Component {
     this.setState({data, fields});
   }
 
-  changeField(field, e) {
-    const {data} = this.state;
-    data[field] = e.target.value;
-    this.setState({data});
-  }
-
   handleEditor(field, t) {
     const {data} = this.state;
-    // if (t === "<p><br></p>") t = "";
-    data[field] = t;
+    const {locale} = this.props;
+    const thisLocale = data.content.find(c => c.lang === locale);
+    thisLocale[field] = t;
     this.setState({data});
   }
 
@@ -60,15 +55,17 @@ class TextEditor extends Component {
   render() {
 
     const {data, fields} = this.state;
-    const {variables} = this.props;
+    const {variables, locale} = this.props;
     const {formatters} = this.context;
 
     if (!data || !fields || !variables || !formatters) return null;
 
+    const thisLocale = data.content.find(c => c.lang === locale);
+
     const quills = fields.map(f =>
       <div className="cms-field-container" key={f}>
         <label htmlFor={f}>{f}</label>
-        <QuillWrapper id={f} value={this.state.data[f] || ""} onChange={this.handleEditor.bind(this, f)} />
+        <QuillWrapper id={f} value={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
       </div>
     );
 

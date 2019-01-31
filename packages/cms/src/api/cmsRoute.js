@@ -42,6 +42,7 @@ const formatterReqTreeOnly = {
 
 const profileReqProfileOnly = {
   include: [
+    {association: "content"},
     {association: "generators", attributes: ["id", "name"]},
     {association: "materializers", attributes: ["id", "name", "ordering"]}
   ]
@@ -339,7 +340,12 @@ module.exports = function(app) {
 
   getList.forEach(ref => {
     app.get(`/api/cms/${ref}/get/:id`, (req, res) => {
-      db[ref].findOne({where: {id: req.params.id}, include: {association: "content"}}).then(u => res.json(u).end());
+      if (contentTables.includes(ref)) {
+        db[ref].findOne({where: {id: req.params.id}, include: {association: "content"}}).then(u => res.json(u).end());
+      }
+      else {
+        db[ref].findOne({where: {id: req.params.id}}).then(u => res.json(u).end()); 
+      }
     });
   });
 
@@ -354,6 +360,9 @@ module.exports = function(app) {
         if (contentTables.includes(ref)) {
           const payload = Object.assign({}, req.body, {id: newObj.id, lang: "en"});
           db[`${ref}_content`].create(payload).then(u => res.json(u).end());
+        }
+        else {
+          res.json(newObj).end();
         }
       });
     });
@@ -381,10 +390,15 @@ module.exports = function(app) {
   const updateList = cmsTables;
   updateList.forEach(ref => {
     app.post(`/api/cms/${ref}/update`, isEnabled, (req, res) => {
-      db[ref].update(req.body, {where: {id: req.body.id}}).then(() => {
-        req.body.content.forEach(content => {
-          db[`${ref}_content`].upsert(content, {where: {id: req.body.id, lang: content.lang}}).then(u => res.json(u).end());
-        });
+      db[ref].update(req.body, {where: {id: req.body.id}}).then(o => {
+        if (contentTables.includes(ref)) {
+          req.body.content.forEach(content => {
+            db[`${ref}_content`].upsert(content, {where: {id: req.body.id, lang: content.lang}}).then(u => res.json(u).end());
+          });
+        }
+        else {
+          res.json(o).end();
+        }
       });
     });
   });

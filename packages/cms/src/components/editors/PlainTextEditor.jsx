@@ -18,7 +18,9 @@ class PlainTextEditor extends Component {
 
   changeField(field, e) {
     const {data} = this.state;
-    data[field] = e.target.value;
+    const {locale} = this.props;
+    const thisLocale = data.content.find(c => c.lang === locale);
+    thisLocale[field] = e.target.value;
     this.setState({data});
   }
 

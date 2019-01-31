@@ -12,9 +12,7 @@ import "./ProfileEditor.css";
 
 const propMap = {
   generator: "generators",
-  materializer: "materializers",
-  profile_stat: "stats",
-  profile_footnote: "footnotes"
+  materializer: "materializers"
 };
 
 class ProfileEditor extends Component {
@@ -24,7 +22,8 @@ class ProfileEditor extends Component {
     this.state = {
       minData: null,
       variables: null,
-      recompiling: true
+      recompiling: true,
+      locale: "en"
     };
   }
 
@@ -112,7 +111,7 @@ class ProfileEditor extends Component {
 
   render() {
 
-    const {minData, recompiling} = this.state;
+    const {minData, recompiling, locale} = this.state;
     const {children, variables, preview} = this.props;
 
     if (!minData || !variables) return <Loading />;
@@ -199,6 +198,7 @@ class ProfileEditor extends Component {
         >
           <div className="cms-card-list cms-profile-header">
             <TextCard
+              locale={locale}
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"
