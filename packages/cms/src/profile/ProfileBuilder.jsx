@@ -475,6 +475,7 @@ class ProfileBuilder extends Component {
   render() {
 
     const {nodes, currentNode, variablesHash, currentSlug, preview, profileModalOpen, cubeData, nodeToDelete} = this.state;
+    const {locale} = this.props;
 
     if (!nodes) return <div>Loading</div>;
 
@@ -539,6 +540,7 @@ class ProfileBuilder extends Component {
           { currentNode
             ? <Editor
               id={currentNode.data.id}
+              locale={locale}
               masterSlug={currentNode.masterSlug}
               preview={preview}
               fetchVariables={this.fetchVariables.bind(this)}

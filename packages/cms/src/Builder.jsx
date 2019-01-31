@@ -20,6 +20,7 @@ class Builder extends Component {
       currentTab: "profiles",
       // formatters,
       theme: "cms-light",
+      locale: "pt",
 
       formatters: (props.formatters || []).reduce((acc, d) => {
         const f = Function("n", "libs", "formatters", d.logic);
@@ -52,8 +53,12 @@ class Builder extends Component {
     this.setState({theme: e.target.value});
   }
 
+  handleLocaleSelect(e) {
+    this.setState({locale: e.target.value});
+  }
+
   render() {
-    const {currentTab, theme} = this.state;
+    const {currentTab, theme, locale} = this.state;
     const {isEnabled} = this.props;
     const navLinks = ["profiles", "stories", "formatters"];
 
@@ -69,6 +74,19 @@ class Builder extends Component {
               {navLink}
             </button>
           )}
+          <label className="cms-select-label cms-theme-select">second language: 
+            <select
+              className="cms-select"
+              name="select-theme"
+              id="select-theme"
+              value={locale}
+              onChange={this.handleLocaleSelect.bind(this)}
+            >
+              <option value="pt">pt</option>
+              <option value="es">es</option>
+              <option value="ru">ru</option>
+            </select>
+          </label>
           <label className="cms-select-label cms-theme-select">theme: 
             <select
               className="cms-select"
@@ -82,8 +100,8 @@ class Builder extends Component {
             </select>
           </label>
         </div>
-        {currentTab === "profiles" && <ProfileBuilder />}
-        {currentTab === "stories" && <StoryBuilder />}
+        {currentTab === "profiles" && <ProfileBuilder locale={locale}/>}
+        {currentTab === "stories" && <StoryBuilder locale={locale}/>}
         {currentTab === "formatters" && <FormatterEditor />}
       </div>
     );

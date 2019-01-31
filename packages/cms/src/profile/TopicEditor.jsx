@@ -111,7 +111,7 @@ class TopicEditor extends Component {
   render() {
 
     const {minData, recompiling} = this.state;
-    const {variables, preview, children} = this.props;
+    const {variables, preview, children, locale} = this.props;
 
     if (!minData || !variables) return <Loading />;
 
@@ -180,6 +180,15 @@ class TopicEditor extends Component {
         <div className="cms-card-list">
           <TextCard
             item={minData}
+            locale="en"
+            fields={["title"]}
+            onSave={this.onSave.bind(this)}
+            type="topic"
+            variables={variables}
+          />
+          <TextCard
+            item={minData}
+            locale={locale}
             fields={["title"]}
             onSave={this.onSave.bind(this)}
             type="topic"
@@ -199,6 +208,24 @@ class TopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
+              locale="en"
+              fields={["subtitle"]}
+              type="topic_subtitle"
+              onDelete={this.onDelete.bind(this)}
+              variables={variables}
+              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              parentArray={minData.subtitles}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>
+        <hr />
+        <div className="cms-card-list">
+          { minData.subtitles && minData.subtitles.map(s =>
+            <TextCard
+              key={s.id}
+              item={s}
+              locale={locale}
               fields={["subtitle"]}
               type="topic_subtitle"
               onDelete={this.onDelete.bind(this)}
@@ -245,6 +272,24 @@ class TopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
+              locale="en"
+              fields={["title", "subtitle", "value", "tooltip"]}
+              type="topic_stat"
+              onDelete={this.onDelete.bind(this)}
+              variables={variables}
+              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              parentArray={minData.stats}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>
+        <hr/>
+        <div className="cms-card-list">
+          { minData.stats && minData.stats.map(s =>
+            <TextCard
+              key={s.id}
+              item={s}
+              locale={locale}
               fields={["title", "subtitle", "value", "tooltip"]}
               type="topic_stat"
               onDelete={this.onDelete.bind(this)}
@@ -268,6 +313,24 @@ class TopicEditor extends Component {
             <TextCard
               key={d.id}
               item={d}
+              locale="en"
+              fields={["description"]}
+              type="topic_description"
+              onDelete={this.onDelete.bind(this)}
+              variables={variables}
+              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              parentArray={minData.descriptions}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>
+        <hr/>
+        <div className="cms-card-list">
+          { minData.descriptions && minData.descriptions.map(d =>
+            <TextCard
+              key={d.id}
+              item={d}
+              locale={locale}
               fields={["description"]}
               type="topic_description"
               onDelete={this.onDelete.bind(this)}

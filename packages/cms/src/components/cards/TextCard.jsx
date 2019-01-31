@@ -9,6 +9,7 @@ import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
 import PropTypes from "prop-types";
+import Flag from "./Flag";
 import "./TextCard.css";
 
 class TextCard extends Component {
@@ -28,10 +29,10 @@ class TextCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.minData && (prevProps.variables !== this.props.variables || this.props.selectors !== prevProps.selectors)) {
+    if (this.state.minData && (JSON.stringify(prevProps.variables) !== JSON.stringify(this.props.variables) || JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors))) {
       this.formatDisplay.bind(this)();
     }
-    if (prevProps.item.id !== this.props.item.id) {
+    if (prevProps.item.id !== this.props.item.id || prevProps.locale !== this.props.locale) {
       this.hitDB.bind(this)();
     }
   }
@@ -79,9 +80,9 @@ class TextCard extends Component {
     const {type, fields, plainfields, locale} = this.props;
     const {minData} = this.state;
     const payload = {id: minData.id};
+    const thisLocale = minData.content.find(c => c.lang === locale);
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
-    const thisLocale = minData.content.find(c => c.lang === locale);
     fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
     if (plainfields) plainfields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
     payload.allowed = minData.allowed;
@@ -169,10 +170,12 @@ class TextCard extends Component {
           {alertObj.message}
         </Alert>
 
+        <Flag locale={locale} />
+
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="pt-icon pt-icon-cog" />
+            Edit <span className="pt-icon pt-icon-cog" /> 
           </button>
         </h5>
 

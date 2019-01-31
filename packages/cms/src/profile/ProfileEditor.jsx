@@ -22,8 +22,7 @@ class ProfileEditor extends Component {
     this.state = {
       minData: null,
       variables: null,
-      recompiling: true,
-      locale: "en"
+      recompiling: true
     };
   }
 
@@ -111,8 +110,8 @@ class ProfileEditor extends Component {
 
   render() {
 
-    const {minData, recompiling, locale} = this.state;
-    const {children, variables, preview} = this.props;
+    const {minData, recompiling} = this.state;
+    const {children, variables, preview, locale} = this.props;
 
     if (!minData || !variables) return <Loading />;
 
@@ -197,6 +196,13 @@ class ProfileEditor extends Component {
           style={{backgroundImage: `url("/api/profile/${minData.slug}/${preview}/thumb")`}}
         >
           <div className="cms-card-list cms-profile-header">
+            <TextCard
+              locale="en"
+              item={minData}
+              fields={["title", "subtitle"]}
+              type="profile"
+              variables={variables}
+            />
             <TextCard
               locale={locale}
               item={minData}

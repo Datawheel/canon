@@ -50,6 +50,7 @@ const profileReqProfileOnly = {
 
 const storyReqStoryOnly = {
   include: [
+    {association: "content"},
     {association: "authors", attributes: ["id", "ordering"]},
     {association: "descriptions", attributes: ["id", "ordering"]},
     {association: "footnotes", attributes: ["id", "ordering"]}
@@ -58,6 +59,7 @@ const storyReqStoryOnly = {
 
 const topicReqTopicOnly = {
   include: [
+    {association: "content"},
     {association: "subtitles", attributes: ["id", "ordering"]},
     {association: "descriptions", attributes: ["id", "ordering"]},
     {association: "visualizations", attributes: ["id", "ordering"]},
@@ -68,6 +70,7 @@ const topicReqTopicOnly = {
 
 const storyTopicReqStoryTopicOnly = {
   include: [
+    {association: "content"},
     {association: "subtitles", attributes: ["id", "ordering"]},
     {association: "descriptions", attributes: ["id", "ordering"]},
     {association: "visualizations", attributes: ["id", "ordering"]},

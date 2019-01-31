@@ -21,6 +21,11 @@
   padding: 1rem;
   width: 18rem;
   max-width: calc(100% - 2rem);
+ 
+  /* flag icon */
+  & .cms-flag {
+    position: absolute;
+  }
 }
 
 
@@ -154,3 +159,5 @@
     font-size: 24px;
   }
 }
+
+
