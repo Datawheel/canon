@@ -208,13 +208,13 @@ class ProfileEditor extends Component {
               type="profile"
               variables={variables}
             />
-            <TextCard
+            {locale && <TextCard
               locale={locale}
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"
               variables={variables}
-            />
+            />}
           </div>
         </div>
 

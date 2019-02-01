@@ -20,7 +20,8 @@ class Builder extends Component {
       currentTab: "profiles",
       // formatters,
       theme: "cms-light",
-      locale: "pt",
+      locales: false,
+      locale: false,
 
       formatters: (props.formatters || []).reduce((acc, d) => {
         const f = Function("n", "libs", "formatters", d.logic);
@@ -32,9 +33,17 @@ class Builder extends Component {
   }
 
   componentDidMount() {
-    const {isEnabled} = this.props;
+    const {isEnabled, env} = this.props;
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
+    
+    // env.CANON_LANGUAGES = false;
+    // Retrieve the langs from canon vars, use it to build the second language select dropdown.
+    if (env.CANON_LANGUAGES && env.CANON_LANGUAGES.includes(",")) {
+      const locales = env.CANON_LANGUAGES.split(",").filter(l => l !== "en");
+      const locale = locales[0];
+      this.setState({locales, locale});
+    }
   }
 
   getChildContext() {
@@ -58,7 +67,7 @@ class Builder extends Component {
   }
 
   render() {
-    const {currentTab, theme, locale} = this.state;
+    const {currentTab, theme, locale, locales} = this.state;
     const {isEnabled} = this.props;
     const navLinks = ["profiles", "stories", "formatters"];
 
@@ -69,12 +78,13 @@ class Builder extends Component {
         <div className="cms-nav">
           {navLinks.map(navLink =>
             <button
+              key={navLink}
               className={`cms-nav-link${navLink === currentTab ? " is-active" : ""}`}
               onClick={this.handleTabChange.bind(this, navLink)}>
               {navLink}
             </button>
           )}
-          <label className="cms-select-label cms-theme-select">second language: 
+          {locales && locale && <label className="cms-select-label cms-theme-select">second language: 
             <select
               className="cms-select"
               name="select-theme"
@@ -82,11 +92,9 @@ class Builder extends Component {
               value={locale}
               onChange={this.handleLocaleSelect.bind(this)}
             >
-              <option value="pt">pt</option>
-              <option value="es">es</option>
-              <option value="ru">ru</option>
+              {locales.map(loc => <option key={loc} value={loc}>{loc}</option>)}
             </select>
-          </label>
+          </label>}
           <label className="cms-select-label cms-theme-select">theme: 
             <select
               className="cms-select"

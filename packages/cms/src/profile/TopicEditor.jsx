@@ -44,9 +44,14 @@ class TopicEditor extends Component {
     });
   }
 
+  // Strip leading/trailing spaces and URL-breaking characters
+  urlPrep(str) {
+    return str.replace(/^\s+|\s+$/gm, "").replace(/[^a-zA-ZÀ-ž0-9-\ _]/g, "");
+  }
+
   changeField(field, save, e) {
     const {minData} = this.state;
-    minData[field] = e.target.value;
+    minData[field] = field === "slug" ? this.urlPrep(e.target.value) : e.target.value;
     save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
   }
 
@@ -146,7 +151,7 @@ class TopicEditor extends Component {
         <div className="cms-editor-header">
           {/* change slug */}
           <label className="pt-label cms-slug">
-            Profile slug
+            Topic slug
             <div className="pt-input-group">
               <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
               <button className="cms-button pt-button" onClick={this.save.bind(this)}>Rename</button>
@@ -186,14 +191,14 @@ class TopicEditor extends Component {
             type="topic"
             variables={variables}
           />
-          <TextCard
+          {locale && <TextCard
             item={minData}
             locale={locale}
             fields={["title"]}
             onSave={this.onSave.bind(this)}
             type="topic"
             variables={variables}
-          />
+          />}
         </div>
 
         {/* subtitles */}
@@ -219,8 +224,7 @@ class TopicEditor extends Component {
             />
           )}
         </div>
-        <hr />
-        <div className="cms-card-list">
+        {locale && <div className="cms-card-list">
           { minData.subtitles && minData.subtitles.map(s =>
             <TextCard
               key={s.id}
@@ -235,7 +239,7 @@ class TopicEditor extends Component {
               onMove={this.onMove.bind(this)}
             />
           )}
-        </div>
+        </div> }
 
         {/* subtitles */}
         <h2 className="cms-section-heading">
@@ -283,8 +287,7 @@ class TopicEditor extends Component {
             />
           )}
         </div>
-        <hr/>
-        <div className="cms-card-list">
+        {locale && <div className="cms-card-list">
           { minData.stats && minData.stats.map(s =>
             <TextCard
               key={s.id}
@@ -299,7 +302,7 @@ class TopicEditor extends Component {
               onMove={this.onMove.bind(this)}
             />
           )}
-        </div>
+        </div> }
 
         {/* descriptions */}
         <h2 className="cms-section-heading">
@@ -325,7 +328,7 @@ class TopicEditor extends Component {
           )}
         </div>
         <hr/>
-        <div className="cms-card-list">
+        {locale && <div className="cms-card-list">
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard
               key={d.id}
@@ -340,7 +343,7 @@ class TopicEditor extends Component {
               onMove={this.onMove.bind(this)}
             />
           )}
-        </div>
+        </div> }
 
         {/* visualizations */}
         <h2 className="cms-section-heading">

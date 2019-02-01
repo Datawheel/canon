@@ -136,7 +136,7 @@ class StoryTopicEditor extends Component {
             onSave={this.onSave.bind(this)}
             variables={{}}
           />
-          <TextCard
+          {locale && <TextCard
             item={minData}
             locale={locale}
             fields={["title"]}
@@ -144,7 +144,7 @@ class StoryTopicEditor extends Component {
             type="storytopic"
             onSave={this.onSave.bind(this)}
             variables={{}}
-          />
+          />}
         </div>
 
         {/* subtitles */}
@@ -169,8 +169,7 @@ class StoryTopicEditor extends Component {
             />
           )}
         </div>
-        <hr/>
-        <div className="cms-card-list">
+        {locale && <div className="cms-card-list">
           { minData.subtitles && minData.subtitles.map(s =>
             <TextCard
               key={s.id}
@@ -184,7 +183,7 @@ class StoryTopicEditor extends Component {
               onMove={this.onMove.bind(this)}
             />
           )}
-        </div>
+        </div> } 
 
         {/* stats */}
         <h2 className="cms-section-heading">
@@ -208,8 +207,7 @@ class StoryTopicEditor extends Component {
             />
           )}
         </div>
-        <hr/>
-        <div className="cms-card-list">
+        {locale && <div className="cms-card-list">
           { minData.stats && minData.stats.map(s =>
             <TextCard
               key={s.id}
@@ -223,7 +221,7 @@ class StoryTopicEditor extends Component {
               onMove={this.onMove.bind(this)}
             />
           )}
-        </div>
+        </div> }
 
         {/* descriptions */}
         <h2 className="cms-section-heading">
@@ -247,8 +245,7 @@ class StoryTopicEditor extends Component {
             />
           )}
         </div>
-        <hr/>
-        <div className="cms-card-list">
+        { locale && <div className="cms-card-list">
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard
               key={d.id}
@@ -262,7 +259,8 @@ class StoryTopicEditor extends Component {
               onMove={this.onMove.bind(this)}
             />
           )}
-        </div>
+        </div> }
+        
         {/* visualizations */}
         <h2 className="cms-section-heading">
           Visualizations

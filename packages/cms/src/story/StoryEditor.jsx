@@ -129,7 +129,7 @@ class StoryEditor extends Component {
             onSave={this.onSave.bind(this)}
             variables={{}}
           />
-          <TextCard
+          {locale && <TextCard
             item={minData}
             locale={locale}
             fields={["title", "subtitle"]}
@@ -137,7 +137,7 @@ class StoryEditor extends Component {
             type="story"
             onSave={this.onSave.bind(this)}
             variables={{}}
-          />
+          /> }
         </div>
         <h2 className="cms-section-heading">
           Date
@@ -172,8 +172,7 @@ class StoryEditor extends Component {
             />
           )}
         </div>
-        <hr/>
-        <div className="cms-card-list">
+        {locale && <div className="cms-card-list">
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard key={d.id}
               item={d}
@@ -186,7 +185,7 @@ class StoryEditor extends Component {
               onMove={this.onMove.bind(this)}
             />
           )}
-        </div>
+        </div> }
 
         {/* footnotes */}
         <h2 className="cms-section-heading">
@@ -210,8 +209,7 @@ class StoryEditor extends Component {
             />
           )}
         </div>
-        <hr/>
-        <div className="cms-card-list">
+        {locale && <div className="cms-card-list">
           { minData.footnotes && minData.footnotes.map(d =>
             <TextCard key={d.id}
               item={d}
@@ -225,7 +223,7 @@ class StoryEditor extends Component {
               onMove={this.onMove.bind(this)}
             />
           )}
-        </div>
+        </div> }
 
         {/* descriptions */}
         <h2 className="cms-section-heading">
@@ -249,8 +247,7 @@ class StoryEditor extends Component {
             />
           )}
         </div>
-        <hr/>
-        <div className="cms-card-list">
+        {locale && <div className="cms-card-list">
           { minData.authors && minData.authors.map(d =>
             <TextCard key={d.id}
               item={d}
@@ -264,7 +261,7 @@ class StoryEditor extends Component {
               onMove={this.onMove.bind(this)}
             />
           )}
-        </div>
+        </div> }
       </div>
     );
   }
