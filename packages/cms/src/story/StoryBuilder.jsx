@@ -44,21 +44,29 @@ class StoryBuilder extends Component {
   buildNodes(openNode) {
     const {stories} = this.state;
     const {stripHTML} = this.context.formatters;
-    const nodes = stories.map(s => ({
-      id: `story${s.id}`,
-      hasCaret: true,
-      label: this.decode(stripHTML(s.title)),
-      itemType: "story",
-      data: s,
-      childNodes: s.storytopics.map(t => ({
-        id: `storytopic${t.id}`,
-        hasCaret: false,
-        label: this.decode(stripHTML(t.title)),
-        iconName: topicIcons[t.type] || "help",
-        itemType: "storytopic",
-        data: t
-      }))
-    }));
+    const nodes = stories.map(s => {
+      const enCon = s.content.find(c => c.lang === "en");
+      const title = enCon ? enCon.title : s.slug;
+      return {
+        id: `story${s.id}`,
+        hasCaret: true,
+        label: this.decode(stripHTML(title)),
+        itemType: "story",
+        data: s,
+        childNodes: s.storytopics.map(t => {
+          const enCon = t.content.find(c => c.lang === "en");
+          const title = enCon ? enCon.title : t.slug;
+          return {
+            id: `storytopic${t.id}`,
+            hasCaret: false,
+            label: this.decode(stripHTML(title)),
+            iconName: topicIcons[t.type] || "help",
+            itemType: "storytopic",
+            data: t
+          };
+        })
+      };
+    });
     if (!openNode) {
       this.setState({nodes});
     }
@@ -165,7 +173,9 @@ class StoryBuilder extends Component {
           if (storytopic.status === 200) {
             obj.id = `storytopic${storytopic.data.id}`;
             obj.data = storytopic.data;
-            obj.label = this.decode(stripHTML(storytopic.data.title));
+            const enCon = storytopic.data.content.find(c => c.lang === "en");
+            const title = enCon ? enCon.title : storytopic.data.slug;
+            obj.label = this.decode(stripHTML(title));
             const parent = this.locateNode("story", obj.data.story_id);
             parent.childNodes.push(obj);
             parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
@@ -180,13 +190,17 @@ class StoryBuilder extends Component {
         axios.post(storyPath, obj.data).then(story => {
           obj.id = `story${story.data.id}`;
           obj.data = story.data;
-          obj.label = this.decode(stripHTML(story.data.title));
+          const enCon = story.data.content.find(c => c.lang === "en");
+          const title = enCon ? enCon.title : story.data.slug;
+          obj.label = this.decode(stripHTML(title));
           objStoryTopic.data.story_id = story.data.id;
           axios.post(storyTopicPath, objStoryTopic.data).then(storyTopic => {
             if (storyTopic.status === 200) {
               objStoryTopic.id = `storytopic${storyTopic.data.id}`;
               objStoryTopic.data = storyTopic.data;
-              objStoryTopic.label = this.decode(stripHTML(storyTopic.data.title));
+              const enCon = storyTopic.data.content.find(c => c.lang === "en");
+              const title = enCon ? enCon.title : storyTopic.data.slug;
+              objStoryTopic.label = this.decode(stripHTML(title));
               nodes.push(obj);
               nodes.sort((a, b) => a.data.ordering - b.data.ordering);
               this.setState({nodes}, this.handleNodeClick.bind(this, obj));
@@ -213,14 +227,18 @@ class StoryBuilder extends Component {
     if (n.itemType === "storytopic") {
       const parent = this.locateNode("story", n.data.story_id);
       axios.delete("/api/cms/storytopic/delete", {params: {id: n.data.id}}).then(resp => {
-        const storytopics = resp.data.map(storyTopicData => ({
-          id: `storytopic${storyTopicData.id}`,
-          hasCaret: false,
-          iconName: topicIcons[storyTopicData.type] || "help",
-          label: this.decode(stripHTML(storyTopicData.title)),
-          itemType: "storytopic",
-          data: storyTopicData
-        }));
+        const storytopics = resp.data.map(storyTopicData => {
+          const enCon = storyTopicData.content.find(c => c.lang === "en");
+          const title = enCon ? enCon.title : storyTopicData.slug;
+          return {
+            id: `storytopic${storyTopicData.id}`,
+            hasCaret: false,
+            iconName: topicIcons[storyTopicData.type] || "help",
+            label: this.decode(stripHTML(title)),
+            itemType: "storytopic",
+            data: storyTopicData
+          };
+        });
         parent.childNodes = storytopics;
         this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
       });
@@ -322,6 +340,7 @@ class StoryBuilder extends Component {
   render() {
 
     const {nodes, currentNode, nodeToDelete} = this.state;
+    const {locale} = this.props;
 
     if (!nodes) return <div>Loading</div>;
 
@@ -360,11 +379,13 @@ class StoryBuilder extends Component {
             ? currentNode.itemType === "story"
               ? <StoryEditor
                 id={currentNode.data.id}
+                locale={locale}
                 reportSave={this.reportSave.bind(this)}
               />
               : currentNode.itemType === "storytopic"
                 ? <StoryTopicEditor
                   id={currentNode.data.id}
+                  locale={locale}
                   reportSave={this.reportSave.bind(this)}
                 />
                 : null

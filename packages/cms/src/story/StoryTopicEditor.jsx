@@ -36,9 +36,14 @@ class StoryTopicEditor extends Component {
     });
   }
 
+  // Strip leading/trailing spaces and URL-breaking characters
+  urlPrep(str) {
+    return str.replace(/^\s+|\s+$/gm, "").replace(/[^a-zA-ZÀ-ž0-9-\ _]/g, "");
+  }
+
   changeField(field, save, e) {
     const {minData} = this.state;
-    minData[field] = e.target.value;
+    minData[field] = field === "slug" ? this.urlPrep(e.target.value) : e.target.value;
     save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
   }
 
@@ -81,6 +86,7 @@ class StoryTopicEditor extends Component {
   render() {
 
     const {minData} = this.state;
+    const {locale} = this.props;
 
     if (!minData) return <Loading />;
 
@@ -90,6 +96,18 @@ class StoryTopicEditor extends Component {
 
     return (
       <div className="cms-editor-inner">
+
+        {/* current story options */}
+        <div className="cms-editor-header">
+          {/* change slug */}
+          <label className="pt-label cms-slug">
+            Story slug
+            <div className="pt-input-group">
+              <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", true)}/>
+              <button className="cms-button pt-button" onClick={this.save.bind(this)}>Rename</button>
+            </div>
+          </label>
+        </div>
 
         {/* layout select */}
         <div className="cms-editor-header">
@@ -111,8 +129,18 @@ class StoryTopicEditor extends Component {
         <div className="cms-card-list">
           <TextCard
             item={minData}
+            locale="en"
             fields={["title"]}
-            plainfields={["image", "slug"]}
+            plainfields={["image"]}
+            type="storytopic"
+            onSave={this.onSave.bind(this)}
+            variables={{}}
+          />
+          <TextCard
+            item={minData}
+            locale={locale}
+            fields={["title"]}
+            plainfields={["image"]}
             type="storytopic"
             onSave={this.onSave.bind(this)}
             variables={{}}
@@ -130,6 +158,23 @@ class StoryTopicEditor extends Component {
           { minData.subtitles && minData.subtitles.map(s =>
             <TextCard
               key={s.id}
+              item={s}
+              locale="en"
+              fields={["subtitle"]}
+              type="storytopic_subtitle"
+              onDelete={this.onDelete.bind(this)}
+              variables={{}}
+              parentArray={minData.subtitles}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>
+        <hr/>
+        <div className="cms-card-list">
+          { minData.subtitles && minData.subtitles.map(s =>
+            <TextCard
+              key={s.id}
+              locale={locale}
               item={s}
               fields={["subtitle"]}
               type="storytopic_subtitle"
@@ -153,6 +198,23 @@ class StoryTopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
+              locale="en"
+              fields={["title", "subtitle", "value", "tooltip"]}
+              type="storytopic_stat"
+              onDelete={this.onDelete.bind(this)}
+              variables={{}}
+              parentArray={minData.stats}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>
+        <hr/>
+        <div className="cms-card-list">
+          { minData.stats && minData.stats.map(s =>
+            <TextCard
+              key={s.id}
+              item={s}
+              locale={locale}
               fields={["title", "subtitle", "value", "tooltip"]}
               type="storytopic_stat"
               onDelete={this.onDelete.bind(this)}
@@ -175,6 +237,7 @@ class StoryTopicEditor extends Component {
             <TextCard
               key={d.id}
               item={d}
+              locale="en"
               fields={["description"]}
               type="storytopic_description"
               onDelete={this.onDelete.bind(this)}
@@ -183,7 +246,24 @@ class StoryTopicEditor extends Component {
               onMove={this.onMove.bind(this)}
             />
           )}
-        </div>{/* visualizations */}
+        </div>
+        <hr/>
+        <div className="cms-card-list">
+          { minData.descriptions && minData.descriptions.map(d =>
+            <TextCard
+              key={d.id}
+              item={d}
+              locale={locale}
+              fields={["description"]}
+              type="storytopic_description"
+              onDelete={this.onDelete.bind(this)}
+              variables={{}}
+              parentArray={minData.descriptions}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>
+        {/* visualizations */}
         <h2 className="cms-section-heading">
           Visualizations
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "storytopic_visualization")}>

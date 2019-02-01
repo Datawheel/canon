@@ -48,6 +48,17 @@ class StoryEditor extends Component {
     this.setState({minData, showDate: false}, this.save.bind(this));
   }
 
+  // Strip leading/trailing spaces and URL-breaking characters
+  urlPrep(str) {
+    return str.replace(/^\s+|\s+$/gm, "").replace(/[^a-zA-ZÀ-ž0-9-\ _]/g, "");
+  }
+
+  changeField(field, e) {
+    const {minData} = this.state;
+    minData[field] = field === "slug" ? this.urlPrep(e.target.value) : e.target.value;
+    this.setState({minData});
+  }
+
   save() {
     const {minData} = this.state;
     axios.post("/api/cms/story/update", minData).then(resp => {
@@ -84,11 +95,24 @@ class StoryEditor extends Component {
   render() {
 
     const {minData, showDate} = this.state;
+    const {locale} = this.props;
 
     if (!minData) return <Loading />;
 
     return (
       <div className="cms-editor-inner">
+
+        {/* current story options */}
+        <div className="cms-editor-header">
+          {/* change slug */}
+          <label className="pt-label cms-slug">
+            Story slug
+            <div className="pt-input-group">
+              <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
+              <button className="cms-button pt-button" onClick={this.save.bind(this)}>Rename</button>
+            </div>
+          </label>
+        </div>
 
         {/* story name */}
         {/* TODO: move this to header */}
@@ -98,14 +122,23 @@ class StoryEditor extends Component {
         <div className="cms-card-list">
           <TextCard
             item={minData}
+            locale="en"
             fields={["title", "subtitle"]}
-            plainfields={["image", "slug"]}
+            plainfields={["image"]}
+            type="story"
+            onSave={this.onSave.bind(this)}
+            variables={{}}
+          />
+          <TextCard
+            item={minData}
+            locale={locale}
+            fields={["title", "subtitle"]}
+            plainfields={["image"]}
             type="story"
             onSave={this.onSave.bind(this)}
             variables={{}}
           />
         </div>
-
         <h2 className="cms-section-heading">
           Date
         </h2>
@@ -129,6 +162,22 @@ class StoryEditor extends Component {
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard key={d.id}
               item={d}
+              locale="en"
+              onDelete={this.onDelete.bind(this)}
+              fields={["description"]}
+              type="story_description"
+              variables={{}}
+              parentArray={minData.descriptions}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>
+        <hr/>
+        <div className="cms-card-list">
+          { minData.descriptions && minData.descriptions.map(d =>
+            <TextCard key={d.id}
+              item={d}
+              locale={locale}
               onDelete={this.onDelete.bind(this)}
               fields={["description"]}
               type="story_description"
@@ -150,6 +199,23 @@ class StoryEditor extends Component {
           { minData.footnotes && minData.footnotes.map(d =>
             <TextCard key={d.id}
               item={d}
+              locale="en"
+              ordering={d.ordering}
+              onDelete={this.onDelete.bind(this)}
+              fields={["title", "description"]}
+              type="story_footnote"
+              variables={{}}
+              parentArray={minData.footnotes}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>
+        <hr/>
+        <div className="cms-card-list">
+          { minData.footnotes && minData.footnotes.map(d =>
+            <TextCard key={d.id}
+              item={d}
+              locale={locale}
               ordering={d.ordering}
               onDelete={this.onDelete.bind(this)}
               fields={["title", "description"]}
@@ -172,6 +238,23 @@ class StoryEditor extends Component {
           { minData.authors && minData.authors.map(d =>
             <TextCard key={d.id}
               item={d}
+              locale="en"
+              onDelete={this.onDelete.bind(this)}
+              fields={["bio"]}
+              plainfields={["name", "title", "image", "twitter"]}
+              type="author"
+              variables={{}}
+              parentArray={minData.authors}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>
+        <hr/>
+        <div className="cms-card-list">
+          { minData.authors && minData.authors.map(d =>
+            <TextCard key={d.id}
+              item={d}
+              locale={locale}
               onDelete={this.onDelete.bind(this)}
               fields={["bio"]}
               plainfields={["name", "title", "image", "twitter"]}

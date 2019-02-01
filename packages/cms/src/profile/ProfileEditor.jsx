@@ -53,9 +53,19 @@ class ProfileEditor extends Component {
     }
   }
 
+  // Strip leading/trailing spaces and URL-breaking characters
+  urlPrep(str) {
+    return str.replace(/^\s+|\s+$/gm, "").replace(/[^a-zA-ZÀ-ž0-9-\ _]/g, "");
+  }
+
   changeField(field, e) {
     const {minData} = this.state;
-    minData[field] = e.target.value;
+    if (field === "slug") {
+      minData[field] = this.urlPrep(e.target.value);
+    }
+    else {
+      minData[field] = e.target.value;
+    }
     this.setState({minData});
   }
 

@@ -30,8 +30,9 @@ const profileReqTreeOnly = {
 const storyReqTreeOnly = {
   attributes: ["id", "slug", "ordering"],
   include: [
-    {
-      association: "storytopics", attributes: ["id", "slug", "ordering", "story_id", "type"]
+    {association: "content", attributes: ["id", "lang", "title"]},
+    {association: "storytopics", attributes: ["id", "slug", "ordering", "story_id", "type"],
+      include: [{association: "content", attributes: ["id", "lang", "title"]}]
     }
   ]
 };
@@ -413,7 +414,8 @@ module.exports = function(app) {
    */
   const deleteList = [
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
-    {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"}
+    {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"},
+    {elements: ["storytopic_subtitle", "storytopic_description", "storytopic_stat", "storytopic_visualization"], parent: "storytopic_id"}
   ];
 
   deleteList.forEach(list => {
