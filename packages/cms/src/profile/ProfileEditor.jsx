@@ -60,12 +60,7 @@ class ProfileEditor extends Component {
 
   changeField(field, e) {
     const {minData} = this.state;
-    if (field === "slug") {
-      minData[field] = this.urlPrep(e.target.value);
-    }
-    else {
-      minData[field] = e.target.value;
-    }
+    minData[field] = field === "slug" ? this.urlPrep(e.target.value) : e.target.value;
     this.setState({minData});
   }
 
