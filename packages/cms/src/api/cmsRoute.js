@@ -363,7 +363,7 @@ module.exports = function(app) {
         // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
         if (contentTables.includes(ref)) {
           const payload = Object.assign({}, req.body, {id: newObj.id, lang: "en"});
-          db[`${ref}_content`].create(payload).then(u => res.json(u).end());
+          db[`${ref}_content`].create(payload).then(() => res.json(newObj).end());
         }
         else {
           res.json(newObj).end();

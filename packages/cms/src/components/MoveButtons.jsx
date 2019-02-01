@@ -17,7 +17,7 @@ class MoveButtons extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.item !== this.props.item || prevProps.array !== this.props.array) {
+    if (JSON.stringify(prevProps.item) !== JSON.stringify(this.props.item) || JSON.stringify(prevProps.array) !== JSON.stringify(this.props.array)) {
       this.setState({item: this.props.item, array: this.props.array});
     }
   }
