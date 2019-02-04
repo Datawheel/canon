@@ -55,6 +55,7 @@ const topicReq = [
 
 const storyReq = {
   include: [
+    {association: "content", separate: true},
     {association: "authors", separate: true, 
       include: [{association: "content", separate: true}]
     },
@@ -99,7 +100,6 @@ const sorter = (a, b) => a.ordering - b.ordering;
 
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. Eventually move it up to the query.
 const sortProfile = profile => {
-  profile = profile.toJSON();
   if (profile.topics) {
     profile.topics.sort(sorter);
     profile.topics.forEach(topic => {
@@ -114,7 +114,6 @@ const sortProfile = profile => {
 };
 
 const sortStory = story => {
-  story = story.toJSON();
   ["descriptions", "footnotes", "authors", "storytopics"].forEach(type => story[type].sort(sorter));
   story.storytopics.forEach(storytopic => {
     ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storytopic[type].sort(sorter));
@@ -122,14 +121,56 @@ const sortStory = story => {
   return story;
 };
 
+/**
+ * Lang-specific content is stored in secondary tables, and are part of profiles as an
+ * array called "content," which contains objects of region-specific translated keys.
+ * We don't want the front end to have to even know about this sub-table or sub-array.
+ * Therefore, bubble up the appropriate content to the top-level of the object 
+ */
+
+const bubbleUp = (obj, locale) => {
+  const enCon = obj.content.find(c => c.lang === "en");
+  const thisCon = obj.content.find(c => c.lang === locale);
+  Object.keys(enCon).forEach(k => {
+    if (k !== "id" && k !== "lang") {
+      thisCon && thisCon[k] ? obj[k] = thisCon[k] : obj[k] = enCon[k];
+    }
+  });
+  delete obj.content;
+  return obj;
+};
+
+const extractLocaleContent = (obj, locale, mode) => {
+  obj = obj.toJSON();
+  obj = bubbleUp(obj, locale);
+  if (mode === "story") {
+    ["footnotes", "descriptions", "authors"].forEach(type => {
+      if (obj[type]) obj[type] = obj[type].map(o => bubbleUp(o, locale));
+    });
+  }
+  const children = mode === "story" ? "storytopics" : "topics";
+  if (obj[children]) {
+    obj[children] = obj[children].map(child => {
+      child = bubbleUp(child, locale);
+      ["subtitles", "descriptions", "stats"].forEach(type => {
+        if (child[type]) child[type] = child[type].map(o => bubbleUp(o, locale));
+      });
+      return child;
+    });
+  }
+  return obj;
+}; 
+
+
 module.exports = function(app) {
 
   const {cache, db} = app.settings;
 
   app.get("/api/internalprofile/:slug", (req, res) => {
     const {slug} = req.params;
+    const locale = req.query.locale ? req.query.locale : "en";
     const reqObj = Object.assign({}, profileReq, {where: {slug}});
-    db.profile.findOne(reqObj).then(profile => res.json(sortProfile(profile)).end());
+    db.profile.findOne(reqObj).then(profile => res.json(sortProfile(extractLocaleContent(profile, locale, "profile"))).end());
   });
 
   app.get("/api/variables/:slug/:id", (req, res) => {
@@ -224,7 +265,9 @@ module.exports = function(app) {
   app.get("/api/profile/:slug/:pid", async(req, res) => {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const {slug, pid} = req.params;
+    const {locale} = req.query;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+    const localeString = locale ? `?locale=${locale}` : "";
 
     const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}});
     const {id} = attribute;
@@ -235,7 +278,7 @@ module.exports = function(app) {
      * We must pass that info as one of the arguments of the returned Promise.
     */
 
-    Promise.all([axios.get(`${origin}/api/variables/${slug}/${id}`), db.formatter.findAll()])
+    Promise.all([axios.get(`${origin}/api/variables/${slug}/${id}${localeString}`), db.formatter.findAll()])
 
       // Given the completely built returnVariables and all the formatters (formatters are global)
       // Get the ACTUAL profile itself and all its dependencies and prepare it to be formatted and regex replaced
@@ -246,7 +289,7 @@ module.exports = function(app) {
         delete variables._matStatus;
         const formatters = resp[1];
         const formatterFunctions = formatters4eval(formatters);
-        const request = axios.get(`${origin}/api/internalprofile/${slug}`);
+        const request = axios.get(`${origin}/api/internalprofile/${slug}${localeString}`);
         return Promise.all([variables, formatterFunctions, request]);
       })
       // Given a returnObject with completely built returnVariables, a hash array of formatter functions, and the profile itself
@@ -311,10 +354,11 @@ module.exports = function(app) {
   // Endpoint for getting a story
   app.get("/api/story/:id", (req, res) => {
     const {id} = req.params;
+    const locale = req.query.locale ? req.query.locale : "en";
     // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
     db.story.findOne(reqObj).then(story => {
-      story = sortStory(story);
+      story = sortStory(extractLocaleContent(story, locale, "story")); 
       // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
       // Do a naive varswap (with no formatters and no variables) just to access the transpile for vizes.
       story = varSwapRecursive(story, {}, {});
@@ -324,7 +368,14 @@ module.exports = function(app) {
 
   // Endpoint for getting all stories
   app.get("/api/story", (req, res) => {
-    db.story.findAll({include: [{association: "authors", attributes: ["name", "image"]}]}).then(stories => {
+    const locale = req.query.locale ? req.query.locale : "en";
+    db.story.findAll({include: [
+      {association: "content"},
+      {association: "authors", include: [
+        {association: "content", attributes: ["name", "image", "lang"]}
+      ]}
+    ]}).then(stories => {
+      stories = stories.map(story => extractLocaleContent(story, locale, "story"));
       res.json(stories.sort(sorter)).end();
     });
   });
