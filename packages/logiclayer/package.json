@@ -15,7 +15,7 @@
   "dependencies": {
     "d3-array": "^1.2.1",
     "d3-collection": "^1.0.4",
-    "mondrian-rest-client": "^1.0.4",
+    "mondrian-rest-client": "^1.1.2",
     "promise-throttle": "^1.0.0"
   },
   "devDependencies": {
