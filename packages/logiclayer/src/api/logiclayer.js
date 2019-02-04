@@ -530,7 +530,7 @@ module.exports = function(app) {
                   if (properties.includes(prop)) {
                     const propString = `${dimension}, ${hierarchy}, ${prop}`;
                     if (logging) console.log(`Property: ${propString}`);
-                    query.property(dimension, hierarchy, prop);
+                    query.property(dimension, level, prop);
                   }
                 });
               }
