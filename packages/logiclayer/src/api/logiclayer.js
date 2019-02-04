@@ -528,7 +528,7 @@ module.exports = function(app) {
                 query.drilldown(dimension, hierarchy, level);
                 (properties.length && d.properties ? d.properties : []).forEach(prop => {
                   if (properties.includes(prop)) {
-                    const propString = `${dimension}, ${hierarchy}, ${prop}`;
+                    const propString = `${dimension}, ${level}, ${prop}`;
                     if (logging) console.log(`Property: ${propString}`);
                     query.property(dimension, level, prop);
                   }
