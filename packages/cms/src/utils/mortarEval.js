@@ -1,14 +1,14 @@
 const libs = require("./libs");
 
-module.exports = (varInnerName, varOuterValue, logic, formatterFunctions) => {
+module.exports = (varInnerName, varOuterValue, logic, formatterFunctions, locale = "en") => {
   let vars = {};
   // Because logic is arbitrary javascript, it may be malformed. We need to wrap the
   // entire execution in a try/catch.
   try {
     if (varOuterValue) {
       eval(`
-        let f = (${varInnerName}, libs, formatters) => {${logic}};
-        vars = f(varOuterValue, libs, formatterFunctions);
+        let f = (${varInnerName}, libs, formatters, locale) => {${logic}};
+        vars = f(varOuterValue, libs, formatterFunctions, locale);
       `);
       // A successfully run eval will return the vars generated
       return {vars, error: null};

@@ -175,6 +175,7 @@ module.exports = function(app) {
 
   app.get("/api/variables/:slug/:id", (req, res) => {
   // app.get("/api/variables/:slug/:id", jsonCache, (req, res) => {
+    const locale = req.query.locale ? req.query.locale : "en";
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const {slug, id} = req.params;
 
@@ -226,7 +227,7 @@ module.exports = function(app) {
           const requiredGenerators = generators.filter(g => g.api === requests[i]);
           // Build the return object using a reducer, one generator at a time
           returnVariables = requiredGenerators.reduce((acc, g) => {
-            const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions);
+            const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale);
             const {vars} = evalResults;
             // genStatus is used to track the status of each individual generator
             genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
@@ -316,6 +317,8 @@ module.exports = function(app) {
   app.get("/api/topic/:slug/:pid/:topicId", async(req, res) => {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const {slug, pid, topicId} = req.params;
+    const {locale} = req.query;
+    const localeString = locale ? `?locale=${locale}` : "";
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
 
     const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}});
@@ -323,7 +326,7 @@ module.exports = function(app) {
 
     // As with profiles above, we need formatters, variables, and the topic itself in order to
     // create a "postProcessed" topic that can be returned to the requester.
-    const getVariables = axios.get(`${origin}/api/variables/${slug}/${id}`);
+    const getVariables = axios.get(`${origin}/api/variables/${slug}/${id}${localeString}`);
     const getFormatters = db.formatter.findAll();
 
     const where = {};
