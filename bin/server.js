@@ -69,22 +69,23 @@ function moduleName(path) {
 /**
     Uses require.resolve to detect if a file is present.
 */
-function resolve(file) {
+function resolve(file, prefix = appPath) {
 
-  const fullPath = path.join(appPath, file);
+  const fullPath = path.join(prefix, file);
+  const dir = prefix === appPath ? ".app/ directory" : prefix === canonPath ? "canon-core source" : "custom directory";
 
   try {
     require.resolve(fullPath);
     const contents = shell.cat(fullPath);
     if (contents.includes("module.exports")) {
-      shell.echo(`${file} imported from app directory (Node)`);
+      shell.echo(`${file} imported from ${dir} (Node)`);
       return require(fullPath);
     }
     else if (contents.includes("export default")) {
       const tempPath = path.join(shell.tempdir(), `${file.replace(/\//g, "-")}.js`);
       new shell.ShellString(contents.replace("export default", "module.exports ="))
         .to(tempPath);
-      shell.echo(`${file} imported from app directory (ES6)`);
+      shell.echo(`${file} imported from ${dir} (ES6)`);
       return require(tempPath);
     }
     else {
@@ -93,7 +94,7 @@ function resolve(file) {
     }
   }
   catch (e) {
-    shell.echo(`${file} does not exist in .app/ directory, using defaults`);
+    shell.echo(`${file} does not exist in ${dir}, using defaults`);
     return false;
   }
 
@@ -153,6 +154,7 @@ readFiles(path.join(canonPath, "src/i18n/detection/"))
 
 let namespace = name.split("/");
 namespace = namespace[namespace.length - 1];
+const fallbackResources = resolve("src/i18n/canon.js", canonPath);
 
 i18n
   .use(Backend)
@@ -182,7 +184,9 @@ i18n
 
     detection: {
       order: ["domain", "query", "path", "header"]
-    }
+    },
+
+    resources: {canon: {[namespace]: fallbackResources}}
 
   });
 
