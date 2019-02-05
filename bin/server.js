@@ -115,7 +115,7 @@ function readFiles(folder, fileType = "js") {
 }
 
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
-const LANGUAGES = process.env.CANON_LANGUAGES || "canon";
+const LANGUAGES = process.env.CANON_LANGUAGES || LANGUAGE_DEFAULT;
 
 title("Gathering Resources", "📂");
 
