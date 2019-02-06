@@ -340,7 +340,7 @@ class StoryBuilder extends Component {
   render() {
 
     const {nodes, currentNode, nodeToDelete} = this.state;
-    const {locale} = this.props;
+    const {locale, localeDefault} = this.props;
 
     if (!nodes) return <div>Loading</div>;
 
@@ -380,12 +380,14 @@ class StoryBuilder extends Component {
               ? <StoryEditor
                 id={currentNode.data.id}
                 locale={locale}
+                localeDefault={localeDefault}
                 reportSave={this.reportSave.bind(this)}
               />
               : currentNode.itemType === "storytopic"
                 ? <StoryTopicEditor
                   id={currentNode.data.id}
                   locale={locale}
+                  localeDefault={localeDefault}
                   reportSave={this.reportSave.bind(this)}
                 />
                 : null

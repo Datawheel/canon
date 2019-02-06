@@ -95,7 +95,7 @@ class StoryEditor extends Component {
   render() {
 
     const {minData, showDate} = this.state;
-    const {locale} = this.props;
+    const {locale, localeDefault} = this.props;
 
     if (!minData) return <Loading />;
 

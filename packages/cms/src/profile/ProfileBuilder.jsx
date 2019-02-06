@@ -445,26 +445,24 @@ class ProfileBuilder extends Component {
    */
   fetchVariables(slug, id, force, callback) {
     const {variablesHash} = this.state;
-    const {locale} = this.props;
+    const {locale, localeDefault} = this.props;
     const maybeCallback = () => {
       if (callback) callback();
       this.formatTreeVariables.bind(this)();
     };
     if (force || !variablesHash[slug]) {
       if (id) {
-        axios.get(`/api/variables/${slug}/${id}`).then(en => {
-          const enVars = en.data;
+        axios.get(`/api/variables/${slug}/${id}?locale=${localeDefault}`).then(def => {
+          const defObj = {[localeDefault]: def.data};
           if (!variablesHash[slug]) {
-            variablesHash[slug] = {en: enVars};
+            variablesHash[slug] = defObj;
           }
           else {
-            variablesHash[slug] = Object.assign(variablesHash[slug], {en: enVars});
+            variablesHash[slug] = Object.assign(variablesHash[slug], defObj);
           }
           if (locale) {
             axios.get(`/api/variables/${slug}/${id}?locale=${locale}`).then(loc => {
-              const locVars = loc.data;
-              const locObj = {};
-              locObj[locale] = locVars;
+              const locObj = {[locale]: loc.data};
               variablesHash[slug] = Object.assign(variablesHash[slug], locObj);
               this.setState({variablesHash}, maybeCallback);
             });
@@ -475,7 +473,7 @@ class ProfileBuilder extends Component {
         });
       }
       else {
-        variablesHash[slug].en = {_genStatus: {}, _matStatus: {}};
+        variablesHash[slug][localeDefault] = {_genStatus: {}, _matStatus: {}};
         if (locale) variablesHash[slug][locale] = {_genStatus: {}, _matStatus: {}};
         this.setState({variablesHash}, maybeCallback);
       }
@@ -488,7 +486,7 @@ class ProfileBuilder extends Component {
   render() {
 
     const {nodes, currentNode, variablesHash, currentSlug, preview, profileModalOpen, cubeData, nodeToDelete} = this.state;
-    const {locale} = this.props;
+    const {locale, localeDefault} = this.props;
 
     if (!nodes) return <div>Loading</div>;
 
@@ -554,6 +552,7 @@ class ProfileBuilder extends Component {
             ? <Editor
               id={currentNode.data.id}
               locale={locale}
+              localeDefault={localeDefault}
               masterSlug={currentNode.masterSlug}
               preview={preview}
               fetchVariables={this.fetchVariables.bind(this)}

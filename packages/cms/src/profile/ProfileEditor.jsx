@@ -116,7 +116,7 @@ class ProfileEditor extends Component {
   render() {
 
     const {minData, recompiling} = this.state;
-    const {children, variables, preview, locale} = this.props;
+    const {children, variables, preview, locale, localeDefault} = this.props;
 
     if (!minData || !variables) return <Loading />;
 
@@ -159,12 +159,12 @@ class ProfileEditor extends Component {
             .map(g => <GeneratorCard
               key={g.id}
               item={g}
-              locale="en"
+              locale={localeDefault}
               preview={preview}
               onSave={this.onSave.bind(this)}
               onDelete={this.onDelete.bind(this)}
               type="generator"
-              variables={variables.en}
+              variables={variables[localeDefault]}
             />)
           }
         </div>
@@ -199,11 +199,11 @@ class ProfileEditor extends Component {
               <GeneratorCard
                 key={m.id}
                 item={m}
-                locale="en"
+                locale={localeDefault}
                 onSave={this.onSave.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 type="materializer"
-                variables={variables.en}
+                variables={variables[localeDefault]}
                 parentArray={minData.materializers}
                 onMove={this.onMove.bind(this)}
               />
@@ -237,11 +237,11 @@ class ProfileEditor extends Component {
         >
           <div className="cms-card-list cms-profile-header">
             <TextCard
-              locale="en"
+              locale={localeDefault}
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"
-              variables={variables.en}
+              variables={variables[localeDefault]}
             />
             {locale && <TextCard
               locale={locale}
