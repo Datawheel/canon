@@ -40,8 +40,11 @@ module.exports = {
     }),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
-      info: {level: "warn"}
+      info: {level: "log"}
     }),
+    new HardSourceWebpackPlugin.ExcludeModulePlugin([
+      {test: /mini-css-extract-plugin[\\/]dist[\\/]loader/}
+    ]),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))
       .reduce((d, k) => {
