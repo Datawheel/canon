@@ -13,15 +13,9 @@ class Flag extends Component {
 
     const {locale} = this.props;
 
-    const lookup = {
-      pt: "🇧🇷",
-      es: "🇪🇸",
-      ru: "🇷🇺"
-    };
-
     return (
       <div className="cms-flag">
-        {lookup[locale]}       
+        {locale}       
       </div>
     );
   }

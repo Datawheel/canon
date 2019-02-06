@@ -6,7 +6,6 @@ import StoryBuilder from "./story/StoryBuilder";
 import FormatterEditor from "./formatter/FormatterEditor";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
-// import formatters from "./utils/formatters";
 
 import "./cms.css";
 import "./themes/cms-dark.css";
@@ -18,10 +17,10 @@ class Builder extends Component {
     super(props);
     this.state = {
       currentTab: "profiles",
-      // formatters,
       theme: "cms-light",
       locales: false,
       locale: false,
+      localeDefault: false,
 
       formatters: (props.formatters || []).reduce((acc, d) => {
         const f = Function("n", "libs", "formatters", d.logic);
@@ -39,10 +38,11 @@ class Builder extends Component {
     
     // env.CANON_LANGUAGES = false;
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
+    const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     if (env.CANON_LANGUAGES && env.CANON_LANGUAGES.includes(",")) {
-      const locales = env.CANON_LANGUAGES.split(",").filter(l => l !== "en");
+      const locales = env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault);
       const locale = locales[0];
-      this.setState({locales, locale});
+      this.setState({locales, locale, localeDefault});
     }
   }
 
@@ -67,7 +67,7 @@ class Builder extends Component {
   }
 
   render() {
-    const {currentTab, theme, locale, locales} = this.state;
+    const {currentTab, theme, locale, locales, localeDefault} = this.state;
     const {isEnabled} = this.props;
     const navLinks = ["profiles", "stories", "formatters"];
 
@@ -84,7 +84,7 @@ class Builder extends Component {
               {navLink}
             </button>
           )}
-          {locales && locale && <label className="cms-select-label cms-theme-select">second language: 
+          {locales && locale && <label className="cms-select-label cms-theme-select">default language: {localeDefault}, second language: 
             <select
               className="cms-select"
               name="select-theme"
@@ -108,8 +108,8 @@ class Builder extends Component {
             </select>
           </label>
         </div>
-        {currentTab === "profiles" && <ProfileBuilder locale={locale}/>}
-        {currentTab === "stories" && <StoryBuilder locale={locale}/>}
+        {currentTab === "profiles" && <ProfileBuilder localeDefault={localeDefault} locale={locale}/>}
+        {currentTab === "stories" && <StoryBuilder localeDefault={localeDefault} locale={locale}/>}
         {currentTab === "formatters" && <FormatterEditor />}
       </div>
     );
