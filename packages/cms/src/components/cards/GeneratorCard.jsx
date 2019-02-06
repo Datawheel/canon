@@ -146,10 +146,14 @@ class GeneratorCard extends Component {
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
           <span className={`cms-card-header-icon pt-icon-standard pt-icon-th ${type}`} />
-          {minData.name}
-          <button className="cms-button" onClick={this.openEditor.bind(this)}>
+          {locale === "en" ? minData.name : `${minData.name} (${locale})`}
+          {/* In multi-lang, there are two sets of gens and mats, one for english, and one for the other locale.
+            * If we put an edit button on both, then two visual entities can edit the same db structure, which is confusing
+            * the english gen/mat is the "master/only" one, so only show the edit button if this is english (the one for the 
+            * other locale is essentially for display purposes only)*/}
+          {locale === "en" && <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="pt-icon pt-icon-cog" />
-          </button>
+          </button>}
         </h5>
 
 

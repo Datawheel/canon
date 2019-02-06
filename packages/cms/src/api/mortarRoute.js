@@ -40,6 +40,7 @@ const profileReq = {
 };
 
 const topicReq = [
+  {association: "content", separate: true},
   {association: "subtitles", separate: true, 
     include: [{association: "content", separate: true}]
   },
@@ -148,14 +149,21 @@ const extractLocaleContent = (obj, locale, mode) => {
       if (obj[type]) obj[type] = obj[type].map(o => bubbleUp(o, locale));
     });
   }
-  const children = mode === "story" ? "storytopics" : "topics";
-  if (obj[children]) {
-    obj[children] = obj[children].map(child => {
-      child = bubbleUp(child, locale);
-      ["subtitles", "descriptions", "stats"].forEach(type => {
-        if (child[type]) child[type] = child[type].map(o => bubbleUp(o, locale));
+  if (mode === "profile" || mode === "story") {
+    const children = mode === "story" ? "storytopics" : "topics";
+    if (obj[children]) {
+      obj[children] = obj[children].map(child => {
+        child = bubbleUp(child, locale);
+        ["subtitles", "descriptions", "stats"].forEach(type => {
+          if (child[type]) child[type] = child[type].map(o => bubbleUp(o, locale));
+        });
+        return child;
       });
-      return child;
+    }
+  }
+  if (mode === "topic") {
+    ["subtitles", "descriptions", "stats"].forEach(type => {
+      if (obj[type]) obj[type] = obj[type].map(o => bubbleUp(o, locale));
     });
   }
   return obj;
@@ -341,7 +349,8 @@ module.exports = function(app) {
         delete variables._matStatus;
         const formatters = resp[1];
         const formatterFunctions = formatters4eval(formatters);
-        const topic = varSwapRecursive(resp[2].toJSON(), formatterFunctions, variables, req.query);
+        let topic = extractLocaleContent(resp[2], locale, "topic");
+        topic = varSwapRecursive(topic, formatterFunctions, variables, req.query);
         if (topic.subtitles) topic.subtitles.sort(sorter);
         if (topic.selectors) topic.selectors.sort(sorter);
         if (topic.stats) topic.stats.sort(sorter);
@@ -349,8 +358,8 @@ module.exports = function(app) {
         if (topic.visualizations) topic.visualizations.sort(sorter);
         res.json({variables, ...topic}).end();
       })
-      .catch(() => {
-        res.json({error: "Unable to find topic."}).end();
+      .catch(e => {
+        res.json({error: `Topic error: ${e.message}`}).end();
       });
   });
 
