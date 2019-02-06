@@ -40,7 +40,7 @@ module.exports = {
     }),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
-      info: {level: "log"}
+      info: {level: "error"}
     }),
     new HardSourceWebpackPlugin.ExcludeModulePlugin([
       {test: /mini-css-extract-plugin[\\/]dist[\\/]loader/}
