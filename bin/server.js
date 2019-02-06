@@ -154,41 +154,37 @@ readFiles(path.join(canonPath, "src/i18n/detection/"))
 
 let namespace = name.split("/");
 namespace = namespace[namespace.length - 1];
-const fallbackResources = resolve("src/i18n/canon.js", canonPath);
 
-i18n
-  .use(Backend)
-  .use(lngDetector)
-  .init({
+const i18nConfig = {
+  fallbackLng: LANGUAGE_DEFAULT,
+  lng: LANGUAGE_DEFAULT,
+  preload: LANGUAGES ? LANGUAGES.split(",") : LANGUAGE_DEFAULT,
+  whitelist: LANGUAGES ? LANGUAGES.split(",") : LANGUAGE_DEFAULT,
+  ns: [namespace],
+  defaultNS: namespace,
+  debug: process.env.NODE_ENV !== "production" ? yn(process.env.CANON_LOGLOCALE) : false,
+  react: {
+    wait: true,
+    withRef: true
+  },
+  detection: {
+    order: ["domain", "query", "path", "header"]
+  }
+};
 
-    fallbackLng: LANGUAGE_DEFAULT,
-    lng: LANGUAGE_DEFAULT,
-    preload: LANGUAGES ? LANGUAGES.split(",") : LANGUAGE_DEFAULT,
-    whitelist: LANGUAGES ? LANGUAGES.split(",") : LANGUAGE_DEFAULT,
+if (LANGUAGE_DEFAULT === "canon") {
+  const fallbackResources = resolve("src/i18n/canon.js", canonPath);
+  i18nConfig.resources = {canon: {[namespace]: fallbackResources}};
+}
+else {
+  i18n.use(Backend);
+  i18nConfig.backend = {
+    loadPath: path.join(appDir, "locales/{{lng}}/{{ns}}.json"),
+    jsonIndent: 2
+  };
+}
 
-    // have a common namespace used around the full app
-    ns: [namespace],
-    defaultNS: namespace,
-
-    debug: process.env.NODE_ENV !== "production" ? yn(process.env.CANON_LOGLOCALE) : false,
-
-    backend: {
-      loadPath: path.join(appDir, "locales/{{lng}}/{{ns}}.json"),
-      jsonIndent: 2
-    },
-
-    react: {
-      wait: true,
-      withRef: true
-    },
-
-    detection: {
-      order: ["domain", "query", "path", "header"]
-    },
-
-    resources: {canon: {[namespace]: fallbackResources}}
-
-  });
+i18n.use(lngDetector).init(i18nConfig);
 
 /**
     Main server spinup function.
