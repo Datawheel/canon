@@ -248,7 +248,7 @@ module.exports = function(app) {
         materializers.sort((a, b) => a.ordering - b.ordering);
         const matStatus = {};
         returnVariables = materializers.reduce((acc, m) => {
-          const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions);
+          const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions, locale);
           const {vars} = evalResults;
           matStatus[m.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
           return {...acc, ...vars};

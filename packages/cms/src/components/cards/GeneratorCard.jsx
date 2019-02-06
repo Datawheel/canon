@@ -6,6 +6,7 @@ import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
 import deepClone from "../../utils/deepClone";
+import Flag from "./Flag";
 import "./GeneratorCard.css";
 
 import ConsoleVariable from "../ConsoleVariable";
@@ -109,7 +110,7 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {type, variables, item, parentArray, preview} = this.props;
+    const {type, variables, item, parentArray, preview, locale} = this.props;
     const {displayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
@@ -139,6 +140,8 @@ class GeneratorCard extends Component {
         >
           {alertObj.message}
         </Alert>
+
+        <Flag locale={locale} />
 
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">

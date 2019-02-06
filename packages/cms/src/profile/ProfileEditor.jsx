@@ -159,14 +159,31 @@ class ProfileEditor extends Component {
             .map(g => <GeneratorCard
               key={g.id}
               item={g}
+              locale="en"
               preview={preview}
               onSave={this.onSave.bind(this)}
               onDelete={this.onDelete.bind(this)}
               type="generator"
-              variables={variables}
+              variables={variables.en}
             />)
           }
         </div>
+
+        {locale && <div className="cms-card-list">
+          { minData.generators && minData.generators
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(g => <GeneratorCard
+              key={g.id}
+              item={g}
+              locale={locale}
+              preview={preview}
+              onSave={this.onSave.bind(this)}
+              onDelete={this.onDelete.bind(this)}
+              type="generator"
+              variables={variables[locale]}
+            />)
+          }
+        </div> }
 
         {/* materializers */}
         <h2 className="cms-section-heading">
@@ -182,15 +199,33 @@ class ProfileEditor extends Component {
               <GeneratorCard
                 key={m.id}
                 item={m}
+                locale="en"
                 onSave={this.onSave.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 type="materializer"
-                variables={variables}
+                variables={variables.en}
                 parentArray={minData.materializers}
                 onMove={this.onMove.bind(this)}
               />
             )}
         </div>
+
+        {locale && <div className="cms-card-list materializers">
+          { minData.materializers && minData.materializers
+            .map(m =>
+              <GeneratorCard
+                key={m.id}
+                item={m}
+                locale={locale}
+                onSave={this.onSave.bind(this)}
+                onDelete={this.onDelete.bind(this)}
+                type="materializer"
+                variables={variables[locale]}
+                parentArray={minData.materializers}
+                onMove={this.onMove.bind(this)}
+              />
+            )}
+        </div> }
 
         {/* Top-level Profile */}
         <h2 className="cms-section-heading">
@@ -206,14 +241,14 @@ class ProfileEditor extends Component {
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"
-              variables={variables}
+              variables={variables.en}
             />
             {locale && <TextCard
               locale={locale}
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"
-              variables={variables}
+              variables={variables[locale]}
             />}
           </div>
         </div>

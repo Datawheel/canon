@@ -50,7 +50,9 @@ class ProfileBuilder extends Component {
   getChildContext() {
     const {formatters} = this.context;
     const {variablesHash, currentSlug} = this.state;
-    return {formatters, variables: variablesHash[currentSlug]};
+    const variables = variablesHash[currentSlug] ? variablesHash[currentSlug].en : {};
+    // TODO: how to send down proper lang via context?
+    return {formatters, variables};
   }
 
   /**
@@ -133,7 +135,7 @@ class ProfileBuilder extends Component {
     const {variablesHash, currentSlug} = this.state;
     const {stripHTML} = this.context.formatters;
     const {formatters} = this.context;
-    const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
+    const variables = variablesHash[currentSlug] && variablesHash[currentSlug].en ? deepClone(variablesHash[currentSlug].en) : null;
     n = this.locateNode(n.itemType, n.data.id);
     let parent;
     let parentArray;
@@ -388,7 +390,7 @@ class ProfileBuilder extends Component {
     const {variablesHash, currentSlug} = this.state;
     const {stripHTML} = this.context.formatters;
     const {formatters} = this.context;
-    const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
+    const variables = variablesHash[currentSlug] && variablesHash[currentSlug].en ? deepClone(variablesHash[currentSlug].en) : null;
     const node = this.locateNode.bind(this)(type, id);
     // Update the label based on the new value. If this is a topic, this is the only thing needed
     if (node) {
@@ -429,7 +431,7 @@ class ProfileBuilder extends Component {
     const {variablesHash, currentSlug, nodes} = this.state;
     const {stripHTML} = this.context.formatters;
     const {formatters} = this.context;
-    const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
+    const variables = variablesHash[currentSlug] && variablesHash[currentSlug].en ? deepClone(variablesHash[currentSlug].en) : null;
     const p = this.locateProfileNodeBySlug(currentSlug);
     p.label = varSwap(p.data.slug, formatters, variables);
     p.childNodes = p.childNodes.map(t => {
@@ -451,19 +453,38 @@ class ProfileBuilder extends Component {
    */
   fetchVariables(slug, id, force, callback) {
     const {variablesHash} = this.state;
+    const {locale} = this.props;
     const maybeCallback = () => {
       if (callback) callback();
       this.formatTreeVariables.bind(this)();
     };
     if (force || !variablesHash[slug]) {
       if (id) {
-        axios.get(`/api/variables/${slug}/${id}`).then(resp => {
-          variablesHash[slug] = resp.data;
-          this.setState({variablesHash}, maybeCallback);
+        axios.get(`/api/variables/${slug}/${id}`).then(en => {
+          const enVars = en.data;
+          if (!variablesHash[slug]) {
+            variablesHash[slug] = {en: enVars};
+          }
+          else {
+            variablesHash[slug] = Object.assign(variablesHash[slug], {en: enVars});
+          }
+          if (locale) {
+            axios.get(`/api/variables/${slug}/${id}?locale=${locale}`).then(loc => {
+              const locVars = loc.data;
+              const locObj = {};
+              locObj[locale] = locVars;
+              variablesHash[slug] = Object.assign(variablesHash[slug], locObj);
+              this.setState({variablesHash}, maybeCallback);
+            });
+          }
+          else {
+            this.setState({variablesHash}, maybeCallback);
+          }
         });
       }
       else {
-        variablesHash[slug] = {_genStatus: {}, _matStatus: {}};
+        variablesHash[slug].en = {_genStatus: {}, _matStatus: {}};
+        if (locale) variablesHash[slug][locale] = {_genStatus: {}, _matStatus: {}};
         this.setState({variablesHash}, maybeCallback);
       }
     }
