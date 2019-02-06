@@ -207,7 +207,7 @@ module.exports = function(app) {
         // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
         // The .catch here is to handle malformed API urls, returning an empty object
         const fetches = requests.map(r => {
-          let url = urlSwap(r, {...req.params, ...cache, ...attr});
+          let url = urlSwap(r, {...req.params, ...cache, ...attr, locale});
           if (url.indexOf("http") !== 0) {
             const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
             url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;

@@ -218,7 +218,7 @@ class GeneratorCard extends Component {
         >
 
           <div className="pt-dialog-body">
-            <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
+            <GeneratorEditor preview={preview} locale={locale} data={minData} variables={variables} type={type} />
           </div>
           <FooterButtons
             onDelete={this.maybeDelete.bind(this)}

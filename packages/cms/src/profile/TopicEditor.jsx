@@ -359,6 +359,7 @@ class TopicEditor extends Component {
             <VisualizationCard
               key={v.id}
               item={v}
+              locale="en"
               preview={preview}
               onDelete={this.onDelete.bind(this)}
               type="topic_visualization"
@@ -369,6 +370,22 @@ class TopicEditor extends Component {
             />
           )}
         </div>
+        {locale && <div className="cms-card-list visualizations">
+          { minData.visualizations && minData.visualizations.map(v =>
+            <VisualizationCard
+              key={v.id}
+              item={v}
+              locale={locale}
+              preview={preview}
+              onDelete={this.onDelete.bind(this)}
+              type="topic_visualization"
+              variables={variables[locale]}
+              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              parentArray={minData.visualizations}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>}
       </div>
     );
   }

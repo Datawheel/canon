@@ -47,14 +47,6 @@ class ProfileBuilder extends Component {
     });
   }
 
-  getChildContext() {
-    const {formatters} = this.context;
-    const {variablesHash, currentSlug} = this.state;
-    const variables = variablesHash[currentSlug] ? variablesHash[currentSlug].en : {};
-    // TODO: how to send down proper lang via context?
-    return {formatters, variables};
-  }
-
   /**
    * Decode HTML elements such as &amp;. Taken from:
    * https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
@@ -578,11 +570,6 @@ class ProfileBuilder extends Component {
     );
   }
 }
-
-ProfileBuilder.childContextTypes = {
-  formatters: PropTypes.object,
-  variables: PropTypes.object
-};
 
 ProfileBuilder.contextTypes = {
   formatters: PropTypes.object

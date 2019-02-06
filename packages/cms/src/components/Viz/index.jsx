@@ -16,12 +16,15 @@ class Viz extends Component {
   }
 
   render() {
-    const {formatters, variables} = this.context;
+    const {formatters} = this.context;
+
+    const variables = this.props.variables || this.context.variables;
+    const locale = this.props.locale || this.context.locale;
 
     const {config, configOverride, className, options, slug} = this.props;
 
     // clone config object to allow manipulation
-    const vizProps = propify(config.logic, formatters, variables);
+    const vizProps = propify(config.logic, formatters, variables, locale);
 
     // If the result of propify has an "error" property, then the provided javascript was malformed and propify
     // caught an error. Instead of attempting to render the viz, simply show the error to the user.
@@ -56,6 +59,7 @@ class Viz extends Component {
 
 Viz.contextTypes = {
   formatters: PropTypes.object,
+  locale: PropTypes.string,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };

@@ -8,7 +8,7 @@ import libs from "../../src/utils/libs";
 class Profile extends Component {
 
   getChildContext() {
-    const {formatters, profile, router} = this.props;
+    const {formatters, locale, profile, router} = this.props;
     const {variables} = profile;
     return {
       formatters: formatters.reduce((acc, d) => {
@@ -18,7 +18,8 @@ class Profile extends Component {
         return acc;
       }, {}),
       router,
-      variables
+      variables,
+      locale
     };
   }
 
@@ -39,16 +40,18 @@ class Profile extends Component {
 
 Profile.childContextTypes = {
   formatters: PropTypes.object,
+  locale: PropTypes.string,
   router: PropTypes.object,
   variables: PropTypes.object
 };
 
 Profile.need = [
-  fetchData("profile", "/api/profile/<pslug>/<pid>"),
+  fetchData("profile", "/api/profile/<pslug>/<pid>?locale=<i18n.locale>"),
   fetchData("formatters", "/api/formatters")
 ];
 
 export default connect(state => ({
   formatters: state.data.formatters,
+  locale: state.i18n.locale,
   profile: state.data.profile
 }))(Profile);

@@ -96,7 +96,7 @@ class VisualizationCard extends Component {
     if (!minData) return <Loading />;
 
     const {formatters} = this.context;
-    const {selectors, type, variables, parentArray, item, preview} = this.props;
+    const {selectors, type, variables, parentArray, item, preview, locale} = this.props;
 
     minData.selectors = selectors;
     const {logic} = varSwapRecursive(minData, formatters, variables);
@@ -135,11 +135,11 @@ class VisualizationCard extends Component {
         </Alert>
 
         {/* title & edit toggle button */}
-        <h5 className="cms-card-header">
+        {locale === "en" && <h5 className="cms-card-header">
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="pt-icon pt-icon-cog" />
           </button>
-        </h5>
+        </h5> }
 
         {/* reorder buttons */}
         { parentArray &&
@@ -166,7 +166,7 @@ class VisualizationCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { logic ? <Viz config={{logic}} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
+        { logic ? <Viz config={{logic}} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
       </div>
     );
   }
