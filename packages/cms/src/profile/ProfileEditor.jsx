@@ -160,6 +160,7 @@ class ProfileEditor extends Component {
               key={g.id}
               item={g}
               locale={localeDefault}
+              localeDefault={localeDefault}
               preview={preview}
               onSave={this.onSave.bind(this)}
               onDelete={this.onDelete.bind(this)}
@@ -176,6 +177,7 @@ class ProfileEditor extends Component {
               key={g.id}
               item={g}
               locale={locale}
+              localeDefault={localeDefault}
               preview={preview}
               onSave={this.onSave.bind(this)}
               onDelete={this.onDelete.bind(this)}
@@ -200,6 +202,7 @@ class ProfileEditor extends Component {
                 key={m.id}
                 item={m}
                 locale={localeDefault}
+                localeDefault={localeDefault}
                 onSave={this.onSave.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 type="materializer"
@@ -217,6 +220,7 @@ class ProfileEditor extends Component {
                 key={m.id}
                 item={m}
                 locale={locale}
+                localeDefault={localeDefault}
                 onSave={this.onSave.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 type="materializer"
@@ -238,6 +242,7 @@ class ProfileEditor extends Component {
           <div className="cms-card-list cms-profile-header">
             <TextCard
               locale={localeDefault}
+              localeDefault={localeDefault}
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"
@@ -245,6 +250,7 @@ class ProfileEditor extends Component {
             />
             {locale && <TextCard
               locale={locale}
+              localeDefault={localeDefault}
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"

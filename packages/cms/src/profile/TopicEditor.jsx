@@ -118,16 +118,16 @@ class TopicEditor extends Component {
   render() {
 
     const {minData, recompiling} = this.state;
-    const {variables, preview, children, locale} = this.props;
+    const {variables, preview, children, locale, localeDefault} = this.props;
 
     if (!minData || !variables) return <Loading />;
 
     const varOptions = [<option key="always" value="always">Always</option>]
-      .concat(Object.keys(variables.en)
+      .concat(Object.keys(variables[localeDefault])
         .filter(key => !key.startsWith("_"))
         .sort((a, b) => a.localeCompare(b))
         .map(key => {
-          const value = variables.en[key];
+          const value = variables[localeDefault][key];
           const type = typeof value;
           const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
           return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
@@ -187,15 +187,17 @@ class TopicEditor extends Component {
         <div className="cms-card-list">
           <TextCard
             item={minData}
-            locale="en"
+            locale={localeDefault}
+            localeDefault={localeDefault}
             fields={["title"]}
             onSave={this.onSave.bind(this)}
             type="topic"
-            variables={variables.en}
+            variables={variables[localeDefault]}
           />
           {locale && <TextCard
             item={minData}
             locale={locale}
+            localeDefault={localeDefault}
             fields={["title"]}
             onSave={this.onSave.bind(this)}
             type="topic"
@@ -215,11 +217,12 @@ class TopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
-              locale="en"
+              locale={localeDefault}
+              localeDefault={localeDefault}
               fields={["subtitle"]}
               type="topic_subtitle"
               onDelete={this.onDelete.bind(this)}
-              variables={variables.en}
+              variables={variables[localeDefault]}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
               parentArray={minData.subtitles}
               onMove={this.onMove.bind(this)}
@@ -232,6 +235,7 @@ class TopicEditor extends Component {
               key={s.id}
               item={s}
               locale={locale}
+              localeDefault={localeDefault}
               fields={["subtitle"]}
               type="topic_subtitle"
               onDelete={this.onDelete.bind(this)}
@@ -278,11 +282,12 @@ class TopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
-              locale="en"
+              locale={localeDefault}
+              localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
               type="topic_stat"
               onDelete={this.onDelete.bind(this)}
-              variables={variables.en}
+              variables={variables[localeDefault]}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
               parentArray={minData.stats}
               onMove={this.onMove.bind(this)}
@@ -295,6 +300,7 @@ class TopicEditor extends Component {
               key={s.id}
               item={s}
               locale={locale}
+              localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
               type="topic_stat"
               onDelete={this.onDelete.bind(this)}
@@ -318,11 +324,12 @@ class TopicEditor extends Component {
             <TextCard
               key={d.id}
               item={d}
-              locale="en"
+              locale={localeDefault}
+              localeDefault={localeDefault}
               fields={["description"]}
               type="topic_description"
               onDelete={this.onDelete.bind(this)}
-              variables={variables.en}
+              variables={variables[localeDefault]}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
               parentArray={minData.descriptions}
               onMove={this.onMove.bind(this)}
@@ -336,6 +343,7 @@ class TopicEditor extends Component {
               key={d.id}
               item={d}
               locale={locale}
+              localeDefault={localeDefault}
               fields={["description"]}
               type="topic_description"
               onDelete={this.onDelete.bind(this)}
@@ -359,11 +367,12 @@ class TopicEditor extends Component {
             <VisualizationCard
               key={v.id}
               item={v}
-              locale="en"
+              locale={localeDefault}
+              localeDefault={localeDefault}
               preview={preview}
               onDelete={this.onDelete.bind(this)}
               type="topic_visualization"
-              variables={variables.en}
+              variables={variables[localeDefault]}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
               parentArray={minData.visualizations}
               onMove={this.onMove.bind(this)}
@@ -376,6 +385,7 @@ class TopicEditor extends Component {
               key={v.id}
               item={v}
               locale={locale}
+              localeDefault={localeDefault}
               preview={preview}
               onDelete={this.onDelete.bind(this)}
               type="topic_visualization"
