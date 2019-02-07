@@ -38,7 +38,7 @@ class Builder extends Component {
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
     
-    // env.CANON_LANGUAGES = false;
+    env.CANON_LANGUAGES = false;
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     if (env.CANON_LANGUAGES && env.CANON_LANGUAGES.includes(",")) {

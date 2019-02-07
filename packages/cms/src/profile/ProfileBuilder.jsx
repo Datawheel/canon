@@ -397,7 +397,7 @@ class ProfileBuilder extends Component {
     const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     const node = this.locateNode.bind(this)(type, id);
     // Update the label based on the new value. If this is a topic, this is the only thing needed
-    if (node) {
+    if (type === "topic" && node) {
       const defCon = node.data.content.find(c => c.lang === localeDefault);
       if (defCon) defCon.title = newValue;
       // todo: determine if this could be merged with formatTreeVariables
@@ -405,14 +405,13 @@ class ProfileBuilder extends Component {
     }
     // However, if this is a profile changing its slug, then all children must be informed so their masterSlug is up to date.
     if (type === "profile") {
-      nodes = nodes.map(p => {
-        p.masterSlug = newValue;
-        p.data.slug = newValue;
-        p.childNodes = p.childNodes.map(t => {
-          t.masterSlug = newValue;
-          return t;
-        });
-        return p;
+      node.masterSlug = newValue;
+      node.data.slug = newValue;
+      node.label = newValue;
+      node.childNodes = node.childNodes.map(t => {
+        console.log("setting master slug", newValue, t);
+        t.masterSlug = newValue;
+        return t;
       });
     }
     this.setState({nodes});
