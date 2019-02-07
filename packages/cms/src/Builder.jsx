@@ -6,7 +6,7 @@ import StoryBuilder from "./story/StoryBuilder";
 import FormatterEditor from "./formatter/FormatterEditor";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
-import {Checkbox} from "@blueprintjs/core";
+import {Switch} from "@blueprintjs/core";
 
 import "./cms.css";
 import "./themes/cms-dark.css";
@@ -38,7 +38,7 @@ class Builder extends Component {
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
     
-    env.CANON_LANGUAGES = false;
+    // env.CANON_LANGUAGES = false;
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     if (env.CANON_LANGUAGES && env.CANON_LANGUAGES.includes(",")) {
@@ -64,7 +64,10 @@ class Builder extends Component {
   }
 
   toggleLocale(e) {
-    this.setState({showLocale: e.target.checked});
+    const {locales} = this.state;
+    const locale = e.target.checked ? false : locales[0];
+    const showLocale = e.target.checked;
+    this.setState({showLocale, locale});
   }
 
   handleThemeSelect(e) {
@@ -104,7 +107,7 @@ class Builder extends Component {
               {locales.map(loc => <option key={loc} value={loc}>{loc}</option>)}
             </select>
           </label>}
-          {locales && <Checkbox className="cms-lang-toggle" checked={showLocale} label={showLocale ? "Show Both Locales" : "Show One Locale"} onChange={this.toggleLocale.bind(this)} />}
+          {locales && <Switch className="cms-lang-toggle" checked={showLocale} label={showLocale ? "Show Both Locales" : "Show One Locale"} onChange={this.toggleLocale.bind(this)} />}
           <label className="cms-select-label cms-theme-select">theme: 
             <select
               className="cms-select"
