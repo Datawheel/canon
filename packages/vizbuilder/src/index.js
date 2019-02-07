@@ -111,7 +111,7 @@ class Vizbuilder extends React.PureComponent {
           "fetching": load.inProgress
         })}
       >
-        <LoadingScreen total={load.total} progress={load.done} />
+        {load.inProgress && <LoadingScreen total={load.total} progress={load.done} />}
         <Sidebar options={options} query={query}>
           {this.props.children}
           <Ranking
