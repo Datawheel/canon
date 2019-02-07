@@ -37,53 +37,50 @@ class TextCard extends Component {
     }
   }
 
+  populateLanguageContent(minData) {
+    const {locale, localeDefault, fields, plainfields} = this.props;
+    if (!minData.content.find(c => c.lang === locale)) {
+      const defCon = minData.content.find(c => c.lang === localeDefault);
+      const newCon = {id: minData.id, lang: locale};
+      if (defCon) {
+        Object.keys(defCon).forEach(k => {
+          if (k !== "id" && k !== "lang") newCon[k] = defCon[k];
+        });
+      }
+      // If for any reason the default was missing fields, fill the rest with blanks
+      fields.forEach(k => !newCon[k] ? newCon[k] = "" : null);
+      if (plainfields) plainfields.forEach(k => !newCon[k] ? newCon[k] = "" : null);
+      minData.content.push(newCon);
+    }
+    return minData;
+  }
+
   hitDB() {
-    const {item, type, locale, localeDefault, fields, plainfields} = this.props;
+    const {item, type} = this.props;
     const {id} = item;
     axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      // If this has been opened with a non default locale, and there is NO row for that locale,
-      // create a placeholder row that can be edited in the text boxes (and later saved)
-      const minData = resp.data;
-      if (!minData.content.find(c => c.lang === locale)) {
-        const def = minData.content.find(c => c.lang === localeDefault);
-        const newLangObj = {id: minData.id, lang: locale};
-        // If the default has had any portion filled in, pre-populate the placeholder with those.
-        if (def) {
-          Object.keys(def).forEach(k => {
-            if (k !== "id" && k !== "lang") newLangObj[k] = def[k];
-          });
-        }
-        // If for any reason the default was missing fields, fill the rest with blanks
-        fields.forEach(k => !newLangObj[k] ? newLangObj[k] = "" : null);
-        if (plainfields) plainfields.forEach(k => !newLangObj[k] ? newLangObj[k] = "" : null);
-        minData.content.push(newLangObj);
-      }
+      const minData = this.populateLanguageContent.bind(this)(resp.data);
       this.setState({minData}, this.formatDisplay.bind(this));
     });
   }
 
   formatDisplay() {
-    const {variables, selectors, locale, localeDefault, fields, plainfields} = this.props;
+    const {variables, selectors, locale} = this.props;
     const {formatters} = this.context;
-    const {minData} = this.state;
+
+    const minData = this.populateLanguageContent.bind(this)(this.state.minData);
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
     // polluting the object itself
     minData.selectors = selectors;
     // Swap vars, and extract the actual (multilingual) content
     const content = varSwapRecursive(minData, formatters, variables).content;
-    const def = content.find(c => c.lang === localeDefault);
     const currLang = content.find(c => c.lang === locale);
     // Map over each of the default keys, and fetch its equivalent locale version (or default)
     const displayData = {};
-    if (def) {
-      Object.keys(def).forEach(k => {
-        displayData[k] = currLang[k] ? currLang[k] : def[k];
-      });
-    }
-    // If for any reason the default was missing fields, fill the rest with blanks
-    fields.forEach(k => displayData[k] = currLang[k] ? currLang[k] : "");
-    if (plainfields) plainfields.forEach(k => displayData[k] = currLang[k] ? currLang[k] : "");
+    Object.keys(currLang).forEach(k => {
+      displayData[k] = currLang[k];
+    });
     this.setState({displayData});  
   }
 

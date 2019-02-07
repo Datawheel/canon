@@ -120,7 +120,7 @@ class TopicEditor extends Component {
     const {minData, recompiling} = this.state;
     const {variables, preview, children, locale, localeDefault} = this.props;
 
-    if (!minData || !variables) return <Loading />;
+    if (!minData || !variables || variables && (!variables[localeDefault] || !variables[locale])) return <Loading />;
 
     const varOptions = [<option key="always" value="always">Always</option>]
       .concat(Object.keys(variables[localeDefault])

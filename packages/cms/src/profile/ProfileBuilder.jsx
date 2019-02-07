@@ -47,6 +47,14 @@ class ProfileBuilder extends Component {
     });
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.locale !== this.props.locale) {
+      const {currentSlug, currentNode} = this.state;
+      const id = currentNode ? currentNode.id : null;
+      if (currentSlug) this.fetchVariables.bind(this)(currentSlug, id, true);
+    }
+  }
+
   /**
    * Decode HTML elements such as &amp;. Taken from:
    * https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
@@ -60,6 +68,7 @@ class ProfileBuilder extends Component {
   buildNodes(openNode) {
     const {profiles} = this.state;
     const {stripHTML} = this.context.formatters;
+    const {localeDefault} = this.props;
     const nodes = profiles.map(p => ({
       id: `profile${p.id}`,
       hasCaret: true,
@@ -69,8 +78,8 @@ class ProfileBuilder extends Component {
       masterDimension: p.dimension,
       data: p,
       childNodes: p.topics.map(t => {
-        const enCon = t.content.find(c => c.lang === "en");
-        const title = enCon ? enCon.title : t.slug;
+        const defCon = t.content.find(c => c.lang === localeDefault);
+        const title = defCon && defCon.title ? defCon.title : t.slug;
         return {
           id: `topic${t.id}`,
           hasCaret: false,
@@ -125,9 +134,10 @@ class ProfileBuilder extends Component {
   addItem(n, dir) {
     const {nodes} = this.state;
     const {variablesHash, currentSlug} = this.state;
+    const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters;
     const {formatters} = this.context;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug].en ? deepClone(variablesHash[currentSlug].en) : null;
+    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     n = this.locateNode(n.itemType, n.data.id);
     let parent;
     let parentArray;
@@ -207,8 +217,8 @@ class ProfileBuilder extends Component {
           if (topic.status === 200) {
             obj.id = `topic${topic.data.id}`;
             obj.data = topic.data;
-            const enCon = topic.data.content.find(c => c.lang === "en");
-            const title = enCon ? enCon.title : topic.slug;
+            const defCon = topic.data.content.find(c => c.lang === localeDefault);
+            const title = defCon && defCon.title ? defCon.title : topic.slug;
             obj.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
             const parent = this.locateNode("profile", obj.data.profile_id);
             parent.childNodes.push(obj);
@@ -231,8 +241,8 @@ class ProfileBuilder extends Component {
             if (topic.status === 200) {
               objTopic.id = `topic${topic.data.id}`;
               objTopic.data = topic.data;
-              const enCon = topic.data.content.find(c => c.lang === "en");
-              const title = enCon ? enCon.title : topic.data.slug;
+              const defCon = topic.data.content.find(c => c.lang === localeDefault);
+              const title = defCon && defCon.title ? defCon.title : topic.data.slug;
               objTopic.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
               const parent = this.locateNode("profile", obj.data.profile_id);
               parent.childNodes.push(obj);
@@ -254,6 +264,7 @@ class ProfileBuilder extends Component {
 
   deleteItem(n) {
     const {nodes} = this.state;
+    const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters;
     // If this method is running, then the user has clicked "Confirm" in the Deletion Alert. Setting the state of
     // nodeToDelete back to false will close the Alert popover.
@@ -264,8 +275,8 @@ class ProfileBuilder extends Component {
       const parent = this.locateNode("profile", n.data.profile_id);
       axios.delete("/api/cms/topic/delete", {params: {id: n.data.id}}).then(resp => {
         const topics = resp.data.map(topicData => {
-          const enCon = topicData.content.find(c => c.lang === "en");
-          const title = enCon ? enCon.title : topicData.slug;
+          const defCon = topicData.content.find(c => c.lang === localeDefault);
+          const title = defCon && defCon.title ? defCon.title : topicData.slug;
           return {
             id: `topic${topicData.id}`,
             hasCaret: false,
@@ -380,9 +391,10 @@ class ProfileBuilder extends Component {
   reportSave(type, id, newValue) {
     let {nodes} = this.state;
     const {variablesHash, currentSlug} = this.state;
+    const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters;
     const {formatters} = this.context;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug].en ? deepClone(variablesHash[currentSlug].en) : null;
+    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     const node = this.locateNode.bind(this)(type, id);
     // Update the label based on the new value. If this is a topic, this is the only thing needed
     if (node) {
@@ -421,14 +433,15 @@ class ProfileBuilder extends Component {
    */
   formatTreeVariables() {
     const {variablesHash, currentSlug, nodes} = this.state;
+    const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters;
     const {formatters} = this.context;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug].en ? deepClone(variablesHash[currentSlug].en) : null;
+    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     const p = this.locateProfileNodeBySlug(currentSlug);
     p.label = varSwap(p.data.slug, formatters, variables);
     p.childNodes = p.childNodes.map(t => {
-      const enCon = t.data.content.find(c => c.lang === "en");
-      const title = enCon ? enCon.title : t.slug;
+      const defCon = t.data.content.find(c => c.lang === localeDefault);
+      const title = defCon && defCon.title ? defCon.title : t.slug;
       t.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
       return t;
     });
@@ -450,7 +463,7 @@ class ProfileBuilder extends Component {
       if (callback) callback();
       this.formatTreeVariables.bind(this)();
     };
-    if (force || !variablesHash[slug]) {
+    if (force || !variablesHash[slug] || variablesHash[slug] && locale && !variablesHash[slug][locale]) {
       if (id) {
         axios.get(`/api/variables/${slug}/${id}?locale=${localeDefault}`).then(def => {
           const defObj = {[localeDefault]: def.data};

@@ -118,7 +118,7 @@ class ProfileEditor extends Component {
     const {minData, recompiling} = this.state;
     const {children, variables, preview, locale, localeDefault} = this.props;
 
-    if (!minData || !variables) return <Loading />;
+    if (!minData || !variables || variables && (!variables[localeDefault] || !variables[locale])) return <Loading />;
 
     return (
       <div className="cms-editor-inner">
