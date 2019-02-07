@@ -70,7 +70,10 @@ class StoryTopicEditor extends Component {
   }
 
   onSave(minData) {
-    if (this.props.reportSave) this.props.reportSave("storytopic", minData.id, minData.title);
+    const {localeDefault} = this.props;
+    const defCon = minData.content.find(c => c.lang === localeDefault);
+    const title = defCon && defCon.title ? defCon.title : minData.slug;
+    if (this.props.reportSave) this.props.reportSave("storytopic", minData.id, title);
   }
 
   onMove() {
