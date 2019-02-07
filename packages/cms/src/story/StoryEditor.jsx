@@ -39,7 +39,11 @@ class StoryEditor extends Component {
   }
 
   onSave(minData) {
-    if (this.props.reportSave) this.props.reportSave("story", minData.id, minData.title);
+    console.log(minData);
+    const {localeDefault} = this.props;
+    const defCon = minData.content.find(c => c.lang === localeDefault);
+    const title = defCon && defCon.title ? defCon.title : minData.slug;
+    if (this.props.reportSave) this.props.reportSave("story", minData.id, title);
   }
 
   setDate(date) {
