@@ -4,14 +4,6 @@
   flex-flow: row nowrap;
   align-items: stretch;
 
-  & > .loading {
-    display: none;
-  }
-
-  &.fetching > .loading {
-    display: flex;
-  }
-
   & > .area-sidebar {
     flex: 0 0 300px;
     width: 300px;
