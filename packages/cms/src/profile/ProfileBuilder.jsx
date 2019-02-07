@@ -398,7 +398,8 @@ class ProfileBuilder extends Component {
     const node = this.locateNode.bind(this)(type, id);
     // Update the label based on the new value. If this is a topic, this is the only thing needed
     if (node) {
-      node.data.title = newValue;
+      const defCon = node.data.content.find(c => c.lang === localeDefault);
+      if (defCon) defCon.title = newValue;
       // todo: determine if this could be merged with formatTreeVariables
       node.label = varSwap(this.decode(stripHTML(newValue)), formatters, variables);
     }
