@@ -96,7 +96,7 @@ class VisualizationCard extends Component {
     if (!minData) return <Loading />;
 
     const {formatters} = this.context;
-    const {selectors, type, variables, parentArray, item, preview, locale} = this.props;
+    const {selectors, type, variables, parentArray, item, preview, locale, localeDefault} = this.props;
 
     minData.selectors = selectors;
     const {logic} = varSwapRecursive(minData, formatters, variables);
@@ -135,7 +135,7 @@ class VisualizationCard extends Component {
         </Alert>
 
         {/* title & edit toggle button */}
-        {locale === "en" && <h5 className="cms-card-header">
+        {locale === localeDefault && <h5 className="cms-card-header">
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="pt-icon pt-icon-cog" />
           </button>

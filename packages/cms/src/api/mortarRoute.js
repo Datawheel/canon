@@ -8,6 +8,7 @@ const FUNC = require("../utils/FUNC"),
       yn = require("yn");
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
 const searchMap = {
   cip: "CIP",
@@ -130,11 +131,17 @@ const sortStory = story => {
  */
 
 const bubbleUp = (obj, locale) => {
-  const enCon = obj.content.find(c => c.lang === "en");
+  const fieldSet = [];
+  obj.content.forEach(c => {
+    Object.keys(c).forEach(k => {
+      if (!fieldSet.includes(k)) fieldSet.push(k);
+    });
+  });
+  const defCon = obj.content.find(c => c.lang === envLoc);
   const thisCon = obj.content.find(c => c.lang === locale);
-  Object.keys(enCon).forEach(k => {
+  fieldSet.forEach(k => {
     if (k !== "id" && k !== "lang") {
-      thisCon && thisCon[k] ? obj[k] = thisCon[k] : obj[k] = enCon[k];
+      thisCon && thisCon[k] ? obj[k] = thisCon[k] : obj[k] = defCon ? defCon[k] : "";
     }
   });
   delete obj.content;
@@ -176,14 +183,14 @@ module.exports = function(app) {
 
   app.get("/api/internalprofile/:slug", (req, res) => {
     const {slug} = req.params;
-    const locale = req.query.locale ? req.query.locale : "en";
+    const locale = req.query.locale ? req.query.locale : envLoc;
     const reqObj = Object.assign({}, profileReq, {where: {slug}});
     db.profile.findOne(reqObj).then(profile => res.json(sortProfile(extractLocaleContent(profile, locale, "profile"))).end());
   });
 
   app.get("/api/variables/:slug/:id", (req, res) => {
   // app.get("/api/variables/:slug/:id", jsonCache, (req, res) => {
-    const locale = req.query.locale ? req.query.locale : "en";
+    const locale = req.query.locale ? req.query.locale : envLoc;
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const {slug, id} = req.params;
 
@@ -366,7 +373,7 @@ module.exports = function(app) {
   // Endpoint for getting a story
   app.get("/api/story/:id", (req, res) => {
     const {id} = req.params;
-    const locale = req.query.locale ? req.query.locale : "en";
+    const locale = req.query.locale ? req.query.locale : envLoc;
     // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
     db.story.findOne(reqObj).then(story => {
@@ -380,7 +387,7 @@ module.exports = function(app) {
 
   // Endpoint for getting all stories
   app.get("/api/story", (req, res) => {
-    const locale = req.query.locale ? req.query.locale : "en";
+    const locale = req.query.locale ? req.query.locale : envLoc;
     db.story.findAll({include: [
       {association: "content"},
       {association: "authors", include: [

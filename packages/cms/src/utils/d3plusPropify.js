@@ -1,7 +1,9 @@
 import {assign} from "d3plus-common";
 import {parse} from "./FUNC";
 
-export default (logic, formatters = {}, variables = {}, locale = "en") => {
+const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
+
+export default (logic, formatters = {}, variables = {}, locale = envLoc) => {
 
   let config;
 

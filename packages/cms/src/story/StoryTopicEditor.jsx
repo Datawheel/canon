@@ -86,7 +86,7 @@ class StoryTopicEditor extends Component {
   render() {
 
     const {minData} = this.state;
-    const {locale} = this.props;
+    const {locale, localeDefault} = this.props;
 
     if (!minData) return <Loading />;
 
@@ -129,7 +129,8 @@ class StoryTopicEditor extends Component {
         <div className="cms-card-list">
           <TextCard
             item={minData}
-            locale="en"
+            locale={localeDefault}
+            localeDefault={localeDefault}
             fields={["title"]}
             plainfields={["image"]}
             type="storytopic"
@@ -139,6 +140,7 @@ class StoryTopicEditor extends Component {
           {locale && <TextCard
             item={minData}
             locale={locale}
+            localeDefault={localeDefault}
             fields={["title"]}
             plainfields={["image"]}
             type="storytopic"
@@ -159,7 +161,8 @@ class StoryTopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
-              locale="en"
+              locale={localeDefault}
+              localeDefault={localeDefault}
               fields={["subtitle"]}
               type="storytopic_subtitle"
               onDelete={this.onDelete.bind(this)}
@@ -174,6 +177,7 @@ class StoryTopicEditor extends Component {
             <TextCard
               key={s.id}
               locale={locale}
+              localeDefault={localeDefault}
               item={s}
               fields={["subtitle"]}
               type="storytopic_subtitle"
@@ -197,7 +201,8 @@ class StoryTopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
-              locale="en"
+              locale={localeDefault}
+              localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
               type="storytopic_stat"
               onDelete={this.onDelete.bind(this)}
@@ -213,6 +218,7 @@ class StoryTopicEditor extends Component {
               key={s.id}
               item={s}
               locale={locale}
+              localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
               type="storytopic_stat"
               onDelete={this.onDelete.bind(this)}
@@ -235,7 +241,8 @@ class StoryTopicEditor extends Component {
             <TextCard
               key={d.id}
               item={d}
-              locale="en"
+              locale={localeDefault}
+              localeDefault={localeDefault}
               fields={["description"]}
               type="storytopic_description"
               onDelete={this.onDelete.bind(this)}
@@ -251,6 +258,7 @@ class StoryTopicEditor extends Component {
               key={d.id}
               item={d}
               locale={locale}
+              localeDefault={localeDefault}
               fields={["description"]}
               type="storytopic_description"
               onDelete={this.onDelete.bind(this)}
@@ -273,6 +281,8 @@ class StoryTopicEditor extends Component {
             <VisualizationCard
               key={v.id}
               item={v}
+              locale={locale}
+              localeDefault={localeDefault}
               onDelete={this.onDelete.bind(this)}
               type="storytopic_visualization"
               variables={{}}

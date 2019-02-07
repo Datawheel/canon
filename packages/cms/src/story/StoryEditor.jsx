@@ -122,7 +122,8 @@ class StoryEditor extends Component {
         <div className="cms-card-list">
           <TextCard
             item={minData}
-            locale="en"
+            locale={localeDefault}
+            localeDefault={localeDefault}
             fields={["title", "subtitle"]}
             plainfields={["image"]}
             type="story"
@@ -132,6 +133,7 @@ class StoryEditor extends Component {
           {locale && <TextCard
             item={minData}
             locale={locale}
+            localeDefault={localeDefault}
             fields={["title", "subtitle"]}
             plainfields={["image"]}
             type="story"
@@ -162,7 +164,8 @@ class StoryEditor extends Component {
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard key={d.id}
               item={d}
-              locale="en"
+              locale={localeDefault}
+              localeDefault={localeDefault}
               onDelete={this.onDelete.bind(this)}
               fields={["description"]}
               type="story_description"
@@ -177,6 +180,7 @@ class StoryEditor extends Component {
             <TextCard key={d.id}
               item={d}
               locale={locale}
+              localeDefault={localeDefault}
               onDelete={this.onDelete.bind(this)}
               fields={["description"]}
               type="story_description"
@@ -198,7 +202,8 @@ class StoryEditor extends Component {
           { minData.footnotes && minData.footnotes.map(d =>
             <TextCard key={d.id}
               item={d}
-              locale="en"
+              locale={localeDefault}
+              localeDefault={localeDefault}
               ordering={d.ordering}
               onDelete={this.onDelete.bind(this)}
               fields={["title", "description"]}
@@ -214,6 +219,7 @@ class StoryEditor extends Component {
             <TextCard key={d.id}
               item={d}
               locale={locale}
+              localeDefault={localeDefault}
               ordering={d.ordering}
               onDelete={this.onDelete.bind(this)}
               fields={["title", "description"]}
@@ -236,7 +242,8 @@ class StoryEditor extends Component {
           { minData.authors && minData.authors.map(d =>
             <TextCard key={d.id}
               item={d}
-              locale="en"
+              locale={localeDefault}
+              localeDefault={localeDefault}
               onDelete={this.onDelete.bind(this)}
               fields={["bio"]}
               plainfields={["name", "title", "image", "twitter"]}
@@ -252,6 +259,7 @@ class StoryEditor extends Component {
             <TextCard key={d.id}
               item={d}
               locale={locale}
+              localeDefault={localeDefault}
               onDelete={this.onDelete.bind(this)}
               fields={["bio"]}
               plainfields={["name", "title", "image", "twitter"]}

@@ -7,6 +7,7 @@ const path = require("path");
 const Op = sequelize.Op;
 
 const client = new Client(process.env.CANON_LOGICLAYER_CUBE);
+const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
 const topicTypeDir = path.join(__dirname, "../components/topics/");
 
@@ -362,7 +363,7 @@ module.exports = function(app) {
       db[ref].create(req.body).then(newObj => {
         // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
         if (contentTables.includes(ref)) {
-          const payload = Object.assign({}, req.body, {id: newObj.id, lang: "en"});
+          const payload = Object.assign({}, req.body, {id: newObj.id, lang: envLoc});
           db[`${ref}_content`].create(payload).then(() => res.json(newObj).end());
         }
         else {
@@ -375,9 +376,9 @@ module.exports = function(app) {
   app.post("/api/cms/profile/newScaffold", isEnabled, (req, res) => {
     const profileData = req.body;
     db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName}).then(profile => {
-      db.profile_content.create({id: profile.id, lang: "en"}).then(() => {
+      db.profile_content.create({id: profile.id, lang: envLoc}).then(() => {
         db.topic.create({ordering: 0, profile_id: profile.id}).then(topic => {
-          db.topic_content.create({id: topic.id, lang: "en"}).then(() => {
+          db.topic_content.create({id: topic.id, lang: envLoc}).then(() => {
             db.profile.findAll(profileReqTreeOnly).then(profiles => {
               profiles = sortProfileTree(db, profiles);
               populateSearch(profileData, db);

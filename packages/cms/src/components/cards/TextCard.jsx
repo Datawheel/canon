@@ -38,18 +38,24 @@ class TextCard extends Component {
   }
 
   hitDB() {
-    const {item, type, locale} = this.props;
+    const {item, type, locale, localeDefault, fields, plainfields} = this.props;
     const {id} = item;
     axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      // If this has been opened with a non english locale, and there is NO row for that locale,
+      // If this has been opened with a non default locale, and there is NO row for that locale,
       // create a placeholder row that can be edited in the text boxes (and later saved)
       const minData = resp.data;
       if (!minData.content.find(c => c.lang === locale)) {
-        const english = minData.content.find(c => c.lang === "en");
+        const def = minData.content.find(c => c.lang === localeDefault);
         const newLangObj = {id: minData.id, lang: locale};
-        Object.keys(english).forEach(k => {
-          if (k !== "id" && k !== "lang") newLangObj[k] = english[k];
-        });
+        // If the default has had any portion filled in, pre-populate the placeholder with those.
+        if (def) {
+          Object.keys(def).forEach(k => {
+            if (k !== "id" && k !== "lang") newLangObj[k] = def[k];
+          });
+        }
+        // If for any reason the default was missing fields, fill the rest with blanks
+        fields.forEach(k => !newLangObj[k] ? newLangObj[k] = "" : null);
+        if (plainfields) plainfields.forEach(k => !newLangObj[k] ? newLangObj[k] = "" : null);
         minData.content.push(newLangObj);
       }
       this.setState({minData}, this.formatDisplay.bind(this));
@@ -57,7 +63,7 @@ class TextCard extends Component {
   }
 
   formatDisplay() {
-    const {variables, selectors, locale} = this.props;
+    const {variables, selectors, locale, localeDefault, fields, plainfields} = this.props;
     const {formatters} = this.context;
     const {minData} = this.state;
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
@@ -66,13 +72,18 @@ class TextCard extends Component {
     minData.selectors = selectors;
     // Swap vars, and extract the actual (multilingual) content
     const content = varSwapRecursive(minData, formatters, variables).content;
-    const english = content.find(c => c.lang === "en");
+    const def = content.find(c => c.lang === localeDefault);
     const currLang = content.find(c => c.lang === locale);
-    // Map over each of the english keys, and fetch its equivalent locale version (or default to english)
+    // Map over each of the default keys, and fetch its equivalent locale version (or default)
     const displayData = {};
-    Object.keys(english).forEach(k => {
-      displayData[k] = currLang[k] ? currLang[k] : english[k];
-    });
+    if (def) {
+      Object.keys(def).forEach(k => {
+        displayData[k] = currLang[k] ? currLang[k] : def[k];
+      });
+    }
+    // If for any reason the default was missing fields, fill the rest with blanks
+    fields.forEach(k => displayData[k] = currLang[k] ? currLang[k] : "");
+    if (plainfields) plainfields.forEach(k => displayData[k] = currLang[k] ? currLang[k] : "");
     this.setState({displayData});  
   }
 
@@ -142,7 +153,6 @@ class TextCard extends Component {
   render() {
     const {displayData, minData, isOpen, alertObj} = this.state;
     const {variables, fields, plainfields, type, parentArray, item, locale} = this.props;
-    const {ordering} = item;
 
     if (!minData || !displayData) return <Loading />;
 

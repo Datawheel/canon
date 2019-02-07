@@ -1,6 +1,8 @@
 const libs = require("./libs");
 
-module.exports = (varInnerName, varOuterValue, logic, formatterFunctions, locale = "en") => {
+const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
+
+module.exports = (varInnerName, varOuterValue, logic, formatterFunctions, locale = envLoc) => {
   let vars = {};
   // Because logic is arbitrary javascript, it may be malformed. We need to wrap the
   // entire execution in a try/catch.
