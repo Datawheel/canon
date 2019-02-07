@@ -39,7 +39,6 @@ class StoryEditor extends Component {
   }
 
   onSave(minData) {
-    console.log(minData);
     const {localeDefault} = this.props;
     const defCon = minData.content.find(c => c.lang === localeDefault);
     const title = defCon && defCon.title ? defCon.title : minData.slug;
