@@ -92,8 +92,9 @@ class TopicEditor extends Component {
   }
 
   onSave(minData) {
-    const enCon = minData.content.find(c => c.lang === "en");
-    const title = enCon.title || "Title Error";
+    const {localeDefault} = this.props;
+    const defCon = minData.content.find(c => c.lang === localeDefault);
+    const title = defCon && defCon.title ? defCon.title : minData.slug;
     if (this.props.reportSave) this.props.reportSave("topic", minData.id, title);
   }
 
@@ -120,7 +121,12 @@ class TopicEditor extends Component {
     const {minData, recompiling} = this.state;
     const {variables, preview, children, locale, localeDefault} = this.props;
 
-    if (!minData || !variables || variables && (!variables[localeDefault] || !variables[locale])) return <Loading />;
+    const dataLoaded = minData;
+    const varsLoaded = variables;
+    const defLoaded = variables && !locale && variables[localeDefault];
+    const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
+
+    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <Loading />;
 
     const varOptions = [<option key="always" value="always">Always</option>]
       .concat(Object.keys(variables[localeDefault])

@@ -441,7 +441,7 @@ class ProfileBuilder extends Component {
     p.label = varSwap(p.data.slug, formatters, variables);
     p.childNodes = p.childNodes.map(t => {
       const defCon = t.data.content.find(c => c.lang === localeDefault);
-      const title = defCon && defCon.title ? defCon.title : t.slug;
+      const title = defCon && defCon.title ? defCon.title : t.data.slug;
       t.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
       return t;
     });

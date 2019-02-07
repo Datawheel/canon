@@ -103,6 +103,10 @@
   margin: 10px;
 }
 
+.cms-lang-toggle {
+  margin-top:8px;
+}
+
 /* #Search {
   z-index: 1;
   position: relative;
