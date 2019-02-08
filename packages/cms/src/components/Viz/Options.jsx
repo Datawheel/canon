@@ -48,10 +48,10 @@ class Options extends Component {
     // const {data, slug, title} = this.props;
     const {openDialog} = this.state;
 
-    const DialogHeader = props => <div className="pt-dialog-header">
+    const DialogHeader = props => <div className="bp3-dialog-header">
       <img src={ `/images/viz/${ props.slug }.svg` } />
       <h5>{ props.title }</h5>
-      <button aria-label="Close" className="pt-dialog-close-button pt-icon-small-cross" onClick={this.toggleDialog.bind(this, false)}></button>
+      <button aria-label="Close" className="bp3-dialog-close-button bp3-icon-small-cross" onClick={this.toggleDialog.bind(this, false)}></button>
     </div>;
 
     return <div className="Options">
@@ -61,7 +61,7 @@ class Options extends Component {
       </div>
       <Dialog className="options-dialog" isOpen={openDialog === "save-image"} onClose={this.toggleDialog.bind(this, false)}>
         <DialogHeader slug="save-image" title="Save Image" />
-        <div className="pt-dialog-body">
+        <div className="bp3-dialog-body">
           <div className="save-image-btn" onClick={this.onSave.bind(this, "png")}>
             <Icon iconName="media" />PNG
           </div>

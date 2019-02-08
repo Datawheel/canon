@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-
+import {connect} from "react-redux";
 import Card from "./topics/Card";
 import TextViz from "./topics/TextViz";
 import Column from "./topics/Column";
@@ -25,13 +25,14 @@ class Topic extends Component {
     const {pid, pslug} = this.context.router.params;
     const {id} = this.state.contents;
     const {selectors} = this.state;
+    const {locale} = this.props;
 
     if (value instanceof Array && !value.length) delete selectors[name];
     else selectors[name] = value;
 
     this.setState({loading: true, selectors});
     this.updateSource.bind(this)(false);
-    axios.get(`/api/topic/${pslug}/${pid}/${id}?${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`)
+    axios.get(`/api/topic/${pslug}/${pid}/${id}?${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}&locale=${locale}`)
       .then(resp => {
         this.setState({contents: resp.data, loading: false});
       });
@@ -83,4 +84,6 @@ Topic.childContextTypes = {
   variables: PropTypes.object
 };
 
-export default Topic;
+export default connect(state => ({
+  locale: state.i18n.locale
+}))(Topic);

@@ -13,13 +13,13 @@ class CtxMenu extends Component {
 
     const menu = <Menu>
       <MenuItem
-        iconName="arrow-up"
+        icon="arrow-up"
         onClick={this.props.moveItem.bind(this, node, "up")}
         text={`Move ${node.itemType} Up`}
         disabled={node.data.ordering === 0}
       />
       <MenuItem
-        iconName="arrow-down"
+        icon="arrow-down"
         onClick={this.props.moveItem.bind(this, node, "down")}
         text={`Move ${node.itemType} Down`}
         disabled={node.data.ordering === this.props.parentLength - 1}
@@ -31,30 +31,30 @@ class CtxMenu extends Component {
       */}
       {node.itemType !== "profile" &&
         <MenuItem
-          iconName="add"
+          icon="add"
           onClick={this.props.addItem.bind(this, node, "above")}
           text={`Add ${node.itemType} Above`}
         />
       }
       {node.itemType !== "profile" &&
         <MenuItem
-          iconName="add"
+          icon="add"
           onClick={this.props.addItem.bind(this, node, "below")}
           text={`Add ${node.itemType} Below`}
         />
       }
       {node.itemType !== "profile" && <MenuDivider />}
       <MenuItem
-        className="pt-intent-danger"
+        className="bp3-intent-danger"
         onClick={this.props.deleteItem.bind(this, node)}
         text={`Delete ${node.itemType}`}
-        iconName="delete"
+        icon="delete"
         disabled={this.props.parentLength === 1} />
     </Menu>;
 
     return (
       <Popover content={menu} position={Position.RIGHT_TOP}>
-        <span className="pt-icon-standard pt-icon-cog" />
+        <span className="bp3-icon-standard bp3-icon-cog" />
       </Popover>
     );
   }

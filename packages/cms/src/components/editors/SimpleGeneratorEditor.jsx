@@ -147,7 +147,7 @@ export default class SimpleGeneratorEditor extends Component {
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"
         className="confirm-alert"
-        iconName="pt-icon-warning-sign"
+        iconName="bp3-icon-warning-sign"
         intent={Intent.DANGER}
         isOpen={rebuildAlertOpen}
         onConfirm={this.rebuild.bind(this)}
@@ -157,7 +157,7 @@ export default class SimpleGeneratorEditor extends Component {
       </Alert>
       <div className="cms-label">
         Generated variables <button className="cms-button cms-button-icon-only" onClick={this.maybeRebuild.bind(this)}>
-          <span className="pt-icon pt-icon-undo" />
+          <span className="bp3-icon bp3-icon-undo" />
         </button>
       </div>
 

@@ -508,7 +508,7 @@ class ProfileBuilder extends Component {
     let profileSearch = "";
     if (currentNode && currentSlug) {
       profileSearch =
-        <div className="cms-profile-search pt-label">
+        <div className="cms-profile-search bp3-label">
           {preview ? `Current data ID: ${preview}` : "Preview profile"}
           <Search
             render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
@@ -529,7 +529,7 @@ class ProfileBuilder extends Component {
           {/* new entity */}
           <button className="cms-button"
             onClick={() => this.setState({profileModalOpen: true})}>
-              Add profile <span className="pt-icon pt-icon-plus" />
+              Add profile <span className="bp3-icon bp3-icon-plus" />
           </button>
 
           <Tree

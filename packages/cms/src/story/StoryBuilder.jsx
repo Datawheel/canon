@@ -368,7 +368,7 @@ class StoryBuilder extends Component {
           {/* new entity */}
           {/* TODO: make this act like add profile button */}
           <button className="cms-button" onClick={this.addFirst.bind(this)}>
-            Add story <span className="pt-icon pt-icon-plus" />
+            Add story <span className="bp3-icon bp3-icon-plus" />
           </button>
 
           <Tree
@@ -404,11 +404,6 @@ class StoryBuilder extends Component {
     );
   }
 }
-
-StoryBuilder.childContextTypes = {
-  formatters: PropTypes.object,
-  variables: PropTypes.object
-};
 
 StoryBuilder.contextTypes = {
   formatters: PropTypes.object

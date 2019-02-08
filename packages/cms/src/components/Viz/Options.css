@@ -18,14 +18,14 @@
     &:hover {
       opacity: 1;
     }
-    & .pt-icon-standard {
+    & .bp3-icon-standard {
       margin-right: 5px;
     }
   }
 }
 
 .options-dialog {
-  & .pt-dialog-body {
+  & .bp3-dialog-body {
     & .save-image-btn {
       color: black;
       cursor: pointer;
@@ -36,7 +36,7 @@
       text-align: center;
       transition: opacity 0.1s;
       width: 80px;
-      & .pt-icon-standard {
+      & .bp3-icon-standard {
         display: block;
         font-size: 28px;
         margin-bottom: 7px;

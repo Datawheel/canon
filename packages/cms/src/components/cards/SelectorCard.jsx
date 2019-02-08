@@ -114,7 +114,7 @@ class SelectorCard extends Component {
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
-          iconName="pt-icon-warning-sign"
+          iconName="bp3-icon-warning-sign"
           intent={Intent.DANGER}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
@@ -128,7 +128,7 @@ class SelectorCard extends Component {
         <h5 className="cms-card-header">
           {minData.title}
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="pt-icon pt-icon-cog" />
+            Edit <span className="bp3-icon bp3-icon-cog" />
           </button>
         </h5>
 
@@ -158,7 +158,7 @@ class SelectorCard extends Component {
           icon="false"
           inline="true"
         >
-          <div className="pt-dialog-body">
+          <div className="bp3-dialog-body">
             <SelectorEditor variables={variables} data={minData} />
           </div>
           <FooterButtons

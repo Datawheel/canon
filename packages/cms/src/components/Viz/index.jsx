@@ -43,11 +43,13 @@ class Viz extends Component {
 
     return <div className={ `visualization ${className}` }>
       { options ? <Options
+        key="opt-key"
         component={ this }
         data={ vizProps.config.data }
         slug={ slug }
         title={ title } /> : null }
       <Visualization
+        key="viz-key"
         ref={ comp => this.viz = comp }
         className="d3plus"
         dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}

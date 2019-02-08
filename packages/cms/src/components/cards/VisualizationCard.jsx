@@ -110,7 +110,7 @@ class VisualizationCard extends Component {
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
-          iconName="pt-icon-warning-sign"
+          iconName="bp3-icon-warning-sign"
           intent={Intent.DANGER}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
@@ -124,7 +124,7 @@ class VisualizationCard extends Component {
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
-          iconName="pt-icon-warning-sign"
+          iconName="bp3-icon-warning-sign"
           intent={Intent.DANGER}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
@@ -137,7 +137,7 @@ class VisualizationCard extends Component {
         {/* title & edit toggle button */}
         {locale === localeDefault && <h5 className="cms-card-header">
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="pt-icon pt-icon-cog" />
+            Edit <span className="bp3-icon bp3-icon-cog" />
           </button>
         </h5> }
 
@@ -158,7 +158,7 @@ class VisualizationCard extends Component {
           title="Variable Editor"
           inline="true"
         >
-          <div className="pt-dialog-body">
+          <div className="bp3-dialog-body">
             <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
           </div>
           <FooterButtons

@@ -2,16 +2,16 @@
   width: 100%;
   margin-top: 5px; /* mimic blueprint label margin */
 
-  & > span, & .pt-popover-target, & .pt-input-group, & .pt-overlay-content, & .pt-popover, & .pt-popover-content {
+  & > span, & .bp3-popover-target, & .bp3-input-group, & .bp3-overlay-content, & .bp3-popover, & .bp3-popover-content {
     max-width: none;
     width: 100%;
   }
 
-  & .pt-input {
+  & .bp3-input {
     border-radius: 2px !important;
   }
 
-  & .pt-overlay-content {
+  & .bp3-overlay-content {
     box-shadow:
       0 0 0 1px rgba(16, 22, 26, 0.1),
       0 2px 4px rgba(16, 22, 26, 0.2),

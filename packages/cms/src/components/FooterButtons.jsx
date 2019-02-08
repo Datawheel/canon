@@ -8,15 +8,15 @@ class FooterButtons extends Component {
 
     return (
       <div id="buttons">
-        <div className="pt-dialog-footer">
-          <div className="pt-dialog-footer-actions">
+        <div className="bp3-dialog-footer">
+          <div className="bp3-dialog-footer-actions">
             {this.props.onDelete &&
               <button className="cms-dialog-footer-button" onClick={onDelete}>
-                <span className="cms-dialog-footer-button-icon pt-icon pt-icon-trash" /> Delete
+                <span className="cms-dialog-footer-button-icon bp3-icon bp3-icon-trash" /> Delete
               </button>
             }
             <button className="cms-dialog-footer-button" onClick={onSave}>
-              <span className="cms-dialog-footer-button-icon pt-icon pt-icon-tick-circle" /> Save & close
+              <span className="cms-dialog-footer-button-icon bp3-icon bp3-icon-tick-circle" /> Save & close
             </button>
           </div>
         </div>

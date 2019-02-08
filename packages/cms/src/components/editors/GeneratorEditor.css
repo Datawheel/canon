@@ -3,13 +3,13 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  & .pt-label.pt-inline {
+  & .bp3-label.bp3-inline {
     display: flex;
     & .label-text {
       display: inline-block;
       width: 100px;
     }
-    & .pt-select, & .pt-input {
+    & .bp3-select, & .bp3-input {
       flex: 1;
     }
   }
@@ -17,7 +17,7 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    & .pt-label {
+    & .bp3-label {
       & p:last-child {
         margin-bottom: 0;
       }

@@ -33,7 +33,7 @@ class PlainTextEditor extends Component {
     const inputs = fields.map(f =>
       <div key={f}>
         <label htmlFor={f}>{f}</label>
-        <input id={f} className="pt-input" type="text" value={data[f]} onChange={this.changeField.bind(this, f)}/>
+        <input id={f} className="bp3-input" type="text" value={data[f]} onChange={this.changeField.bind(this, f)}/>
       </div>
     );
 

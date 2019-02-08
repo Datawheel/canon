@@ -141,11 +141,11 @@ class ProfileEditor extends Component {
         {/* current profile options */}
         <div className="cms-editor-header">
           {/* change slug */}
-          <label className="pt-label cms-slug">
+          <label className="bp3-label cms-slug">
             Profile slug
-            <div className="pt-input-group">
-              <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
-              <button className="cms-button pt-button" onClick={this.save.bind(this)}>Rename</button>
+            <div className="bp3-input-group">
+              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
+              <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
             </div>
           </label>
         </div>
@@ -154,10 +154,10 @@ class ProfileEditor extends Component {
         <h2 className="cms-section-heading">
           Generators
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "generator")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
-        <p className="pt-text-muted">Variables constructed from JSON data calls.</p>
+        <p className="bp3-text-muted">Variables constructed from JSON data calls.</p>
         <div className="cms-card-list">
           { minData.generators && minData.generators
             .sort((a, b) => a.name.localeCompare(b.name))
@@ -196,10 +196,10 @@ class ProfileEditor extends Component {
         <h2 className="cms-section-heading">
           Materializers
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "materializer")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
-        <p className="pt-text-muted">Variables constructed from other variables. No API calls needed.</p>
+        <p className="bp3-text-muted">Variables constructed from other variables. No API calls needed.</p>
         <div className="cms-card-list materializers">
           { minData.materializers && minData.materializers
             .map(m =>

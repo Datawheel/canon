@@ -87,7 +87,7 @@ class TextEditor extends Component {
         { showVars &&
           <label className="cms-field-container">
             Allowed?
-            <div className="pt-select">
+            <div className="bp3-select">
               <select value={data.allowed || "always"} onChange={this.chooseVariable.bind(this)}>
                 {varOptions}
               </select>
@@ -95,13 +95,13 @@ class TextEditor extends Component {
           </label>
         }
         {/*
-        <div className="pt-select">
+        <div className="bp3-select">
           <select onChange={this.chooseFormatter.bind(this)}>
             <option key="choose-a-formatter" value="choose-a-formatter">Choose a Formatter</option>
             {Object.keys(formatters).map(f => <option key={f} value={f}>{f}</option>)}
           </select>
         </div>
-        <button className="pt-button pt-intent-success" onClick={this.insertVariable.bind(this)}>Insert</button>
+        <button className="bp3-button bp3-intent-success" onClick={this.insertVariable.bind(this)}>Insert</button>
         */}
 
         {quills}

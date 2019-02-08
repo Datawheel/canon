@@ -150,7 +150,7 @@ export default class SimpleVisualizationEditor extends Component {
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"
         className="confirm-alert"
-        iconName="pt-icon-warning-sign"
+        iconName="bp3-icon-warning-sign"
         intent={Intent.DANGER}
         isOpen={rebuildAlertOpen}
         onConfirm={this.rebuild.bind(this)}
@@ -162,10 +162,10 @@ export default class SimpleVisualizationEditor extends Component {
       {/* data URL */}
       <div className="cms-field-container">
         <label className="label" htmlFor="data">Data</label>
-        <div className="cms-field-container-inline pt-input-group">
-          <input className="pt-input" value={object.data} onChange={this.onChange.bind(this, "data")} id="data"/>
+        <div className="cms-field-container-inline bp3-input-group">
+          <input className="bp3-input" value={object.data} onChange={this.onChange.bind(this, "data")} id="data"/>
           {object.data &&
-            <button className="cms-button pt-button" onClick={this.maybeRebuild.bind(this)}>
+            <button className="cms-button bp3-button" onClick={this.maybeRebuild.bind(this)}>
               {payload.data ? "Rebuild" : "Build"}
             </button>
           }
@@ -174,7 +174,7 @@ export default class SimpleVisualizationEditor extends Component {
 
       <div className="cms-field-container">
         Type
-        <div className="pt-select">
+        <div className="bp3-select">
           <select value={object.type} onChange={this.onChange.bind(this, "type")}>
             {Object.keys(vizLookup).map(type =>
               <option key={type} value={type}>{type}</option>
@@ -193,7 +193,7 @@ export default class SimpleVisualizationEditor extends Component {
                   {prop}:
                   {reservedWords.includes(prop)
                     ? <input key={prop} value={object[prop]} onChange={this.onChange.bind(this, prop)} />
-                    : <div className="pt-select">
+                    : <div className="bp3-select">
                       <select value={object[prop]} onChange={this.onChange.bind(this, prop)}>
                         {Object.keys(firstObj).map(type =>
                           <option key={type} value={type}>{type}</option>

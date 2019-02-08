@@ -22,14 +22,14 @@
 
   /* keep select menus from breaking outside of container */
   & select,
-  & .pt-select {
+  & .bp3-select {
     width: 100%;
     max-width: 100%;
   }
 
   /* override blueprint margin & apply to non label elements  */
   & label,
-  & .pt-label {
+  & .bp3-label {
     margin-bottom: 1rem;
   }
 
@@ -86,11 +86,11 @@
   }
 
   & .inline-radio-group {
-    & > .pt-label,
-    & > .pt-radio {
+    & > .bp3-label,
+    & > .bp3-radio {
       display: inline-block;
     }
-    & > .pt-radio {
+    & > .bp3-radio {
       padding-left: 20px;
 
       &:not(:last-of-type) {
@@ -104,7 +104,7 @@
     z-index: 2;
   }
   /* fix blueprint popover */
-  & .pt-overlay-inline {
+  & .bp3-overlay-inline {
     position: fixed;
     top: 0;
     left: 0;
@@ -116,19 +116,19 @@
     /* hide by default */
     display: none;
 
-    &.pt-overlay-open {
+    &.bp3-overlay-open {
       display: flex;
       position: fixed;
     }
   }
-  & .pt-overlay-inline.pt-overlay-open > span {
+  & .bp3-overlay-inline.bp3-overlay-open > span {
     display: block;
     width: 100%;
     height: 100%;
   }
 
   /* dialogs */
-  & .pt-dialog {
+  & .bp3-dialog {
     width: calc(100vw - 2rem);
     height: auto;
     max-height: calc(100vh - 2rem);
@@ -143,16 +143,16 @@
       width: 56rem;
     }
   }
-  & .pt-dialog-header {
+  & .bp3-dialog-header {
     padding: 0.75rem 1.5rem;
     border-radius: 4px 4px 0 0;
     box-shadow: none;
   }
-  & .pt-dialog-footer {
+  & .bp3-dialog-footer {
     margin: 0;
     padding: 0.75rem 1.5rem;
   }
-  & .pt-dialog-close-button {
+  & .bp3-dialog-close-button {
     padding: 0.5rem 0.75rem;
     margin: -1rem;
     transition:
@@ -163,17 +163,17 @@
       transform: scale(1.25);
     }
   }
-  & .pt-dialog-body {
+  & .bp3-dialog-body {
     margin: 0;
     padding: 2.125rem 1.5rem;
   }
 
   /* input group button overrides */
-  & .pt-input-group {
+  & .bp3-input-group {
     display: flex;
     align-items: stretch;
 
-    & .pt-input:first-child:not(:last-child) {
+    & .bp3-input:first-child:not(:last-child) {
       flex: 1 1 auto;
       margin-top: 5px; /* match blueprint */
       padding: 0 1em;
@@ -216,7 +216,7 @@
     border-color 0.2s ease-out;
 
   /* override blueprint when both classes are in place */
-  &.pt-button {
+  &.bp3-button {
     box-shadow: none;
     background-image: none;
     &:hover {
@@ -224,7 +224,7 @@
     }
   }
 
-  & .pt-icon {
+  & .bp3-icon {
     top: -1px;
   }
 
@@ -269,7 +269,7 @@
 }
 
 /* hacks the stupid multi-select */
-.cms .pt-multi-select.pt-tag-input {
+.cms .bp3-multi-select.bp3-tag-input {
   border: 0;
   margin: 0 0 -0.5rem 0; /* reset & offset inner element margin */
   padding: 0;
@@ -289,12 +289,12 @@
     margin-bottom: 0.5rem;
   }
 
-  & .pt-tag {
+  & .bp3-tag {
     display: flex;
     line-height: 2.25;
     padding-right: 2em;
 
-    & .pt-tag-remove {
+    & .bp3-tag-remove {
       position: absolute;
       width: 100%;
       height: 100%;
@@ -303,13 +303,13 @@
   }
 
   /* the real input */
-  & .pt-input-ghost {
+  & .bp3-input-ghost {
     order: -1;
     border-radius: 3px;
     border: 1px solid var(--middle);
     padding-left: 0.75em;
     padding-right: 0.75em;
-    min-width: 180px; /* match .pt-menu min-width ¯\_(ツ)_/¯ */
+    min-width: 180px; /* match .bp3-menu min-width ¯\_(ツ)_/¯ */
   }
 }
 
@@ -509,7 +509,7 @@
     }
   }
 
-  & .pt-checkbox {
+  & .bp3-checkbox {
     margin-bottom: 0;
   }
 }

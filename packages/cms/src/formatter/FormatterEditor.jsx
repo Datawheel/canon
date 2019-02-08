@@ -52,10 +52,10 @@ class FormatterEditor extends Component {
           <h2 className="cms-section-heading">
             Formatters
             <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this)}>
-              <span className="pt-icon pt-icon-plus" />
+              <span className="bp3-icon bp3-icon-plus" />
             </button>
           </h2>
-          <p className="pt-text-muted">Javascript Formatters for Canon text components.</p>
+          <p className="bp3-text-muted">Javascript Formatters for Canon text components.</p>
           <div className="cms-card-list">
             { formatters && formatters
               .sort((a, b) => a.name.localeCompare(b.name))

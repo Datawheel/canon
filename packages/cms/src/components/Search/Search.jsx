@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Popover2} from "@blueprintjs/labs";
+import {Popover} from "@blueprintjs/core";
 
 import axios from "axios";
 
@@ -150,13 +150,13 @@ class Search extends Component {
     const show = searchEmpty || active && userQuery.length;
 
     return (
-      <div ref={comp => this.container = comp} className={`cms-search pt-control-group canon-search ${className} ${active ? "active" : ""}`}>
+      <div ref={comp => this.container = comp} className={`cms-search bp3-control-group canon-search ${className} ${active ? "active" : ""}`}>
         {InactiveComponent && <InactiveComponent active={active} onClick={this.onToggle.bind(this)} />}
-        <Popover2 minimal={true} inline={true} autoFocus={false} isOpen={show}>
-          <div className={`pt-input-group pt-fill ${active ? "active" : ""}`}>
-            {icon && <span className="pt-icon pt-icon-search"></span>}
-            <input type="text" className="pt-input" ref={input => this.input = input} onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} placeholder={placeholder} value={userQuery} />
-            {buttonLink && <a href={`${buttonLink}?q=${userQuery}`} className="pt-button">{buttonText}</a>}
+        <Popover minimal={true} usePortal={false} autoFocus={false} isOpen={show}>
+          <div className={`bp3-input-group bp3-fill ${active ? "active" : ""}`}>
+            {icon && <span className="bp3-icon bp3-icon-search"></span>}
+            <input type="text" className="bp3-input" ref={input => this.input = input} onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} placeholder={placeholder} value={userQuery} />
+            {buttonLink && <a href={`${buttonLink}?q=${userQuery}`} className="bp3-button">{buttonText}</a>}
           </div>
           <ul className={active ? "results active" : "results"}>
             {results.map(result =>
@@ -167,9 +167,9 @@ class Search extends Component {
               </li>
             )}
             {!results.length && <li className="no-results">No Results Found</li>}
-            {results.length && buttonLink ? <a className="all-results pt-button pt-fill" href={`${buttonLink}?q=${userQuery}`}>Show All Results</a> : null}
+            {results.length && buttonLink ? <a className="all-results bp3-button bp3-fill" href={`${buttonLink}?q=${userQuery}`}>Show All Results</a> : null}
           </ul>
-        </Popover2>
+        </Popover>
       </div>
     );
 

@@ -16,7 +16,7 @@ export default class Card extends Component {
 
     const statGroups = nest().key(d => d.title).entries(stats);
 
-    return <div className={ `topic pt-card pt-elevation-0 ${slug} Card` }>
+    return <div className={ `topic bp3-card bp3-elevation-0 ${slug} Card` }>
       <div className="topic-content">
         { title &&
           <h3 className="topic-title">

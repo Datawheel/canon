@@ -4,7 +4,7 @@ import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import {DatePicker} from "@blueprintjs/datetime";
 
-import "@blueprintjs/datetime/dist/blueprint-datetime.css";
+import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 
 const propMap = {
   author: "authors",
@@ -108,11 +108,11 @@ class StoryEditor extends Component {
         {/* current story options */}
         <div className="cms-editor-header">
           {/* change slug */}
-          <label className="pt-label cms-slug">
+          <label className="bp3-label cms-slug">
             Story slug
-            <div className="pt-input-group">
-              <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
-              <button className="cms-button pt-button" onClick={this.save.bind(this)}>Rename</button>
+            <div className="bp3-input-group">
+              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
+              <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
             </div>
           </label>
         </div>
@@ -160,7 +160,7 @@ class StoryEditor extends Component {
         <h2 className="cms-section-heading">
           Descriptions
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "story_description")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
@@ -198,7 +198,7 @@ class StoryEditor extends Component {
         <h2 className="cms-section-heading">
           Footnotes
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "story_footnote")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
@@ -238,7 +238,7 @@ class StoryEditor extends Component {
         <h2 className="cms-section-heading">
           Authors
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "author")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">

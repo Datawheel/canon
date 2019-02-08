@@ -187,11 +187,11 @@ class SelectorEditor extends Component {
         <div className="cms-field-group">
           <label className="cms-field-container">
             Title (on page)
-            <input className="pt-input" value={data.title} onChange={this.editTitle.bind(this)} />
+            <input className="bp3-input" value={data.title} onChange={this.editTitle.bind(this)} />
           </label>
           <label className="cms-field-container">
             Name (in editor)
-            <input className="pt-input" value={data.name} onChange={this.editName.bind(this)} />
+            <input className="bp3-input" value={data.name} onChange={this.editName.bind(this)} />
           </label>
         </div>
 
@@ -213,17 +213,17 @@ class SelectorEditor extends Component {
               <li className="cms-selector-editor-item" key={i}>
 
                 {/* option / allowed */}
-                <label className="pt-label">
+                <label className="bp3-label">
                   Option
-                  <div className="pt-select">
+                  <div className="bp3-select">
                     <select value={option.option} onChange={this.chooseOption.bind(this, i)}>
                       { varOptions }
                     </select>
                   </div>
                 </label>
-                <label className="pt-label">
+                <label className="bp3-label">
                   Allowed
-                  <div className="pt-select">
+                  <div className="bp3-select">
                     <select value={option.allowed} onChange={this.chooseAllowed.bind(this, i)}>
                       { varOptions }
                     </select>
@@ -238,17 +238,17 @@ class SelectorEditor extends Component {
                   </li>
                   <li className="cms-selector-editor-action-item">
                     <button className="cms-button" onClick={this.moveUp.bind(this, i)}>
-                      <span className="pt-icon pt-icon-arrow-up" />
+                      <span className="bp3-icon bp3-icon-arrow-up" />
                     </button>
                   </li>
                   <li className="cms-selector-editor-action-item">
                     <button className="cms-button" onClick={this.moveDown.bind(this, i)}>
-                      <span className="pt-icon pt-icon-arrow-down" />
+                      <span className="bp3-icon bp3-icon-arrow-down" />
                     </button>
                   </li>
                   <li className="cms-selector-editor-action-item">
                     <button className="cms-button" onClick={this.deleteOption.bind(this, i)}>
-                      <span className="pt-icon pt-icon-trash" /> delete</button>
+                      <span className="bp3-icon bp3-icon-trash" /> delete</button>
                   </li>
                 </ul>
               </li>
@@ -257,18 +257,18 @@ class SelectorEditor extends Component {
         </ul>
         <div className="cms-selector-editor-button-group">
           <button className="cms-button" onClick={this.addOption.bind(this)}>
-            Add option <span className="pt-icon pt-icon-plus"/>
+            Add option <span className="bp3-icon bp3-icon-plus"/>
           </button>
           <button className="cms-button" onClick={this.toggleCustom.bind(this)}>
-            Custom default <span className={`pt-icon ${showCustom ? "pt-icon-cross" : "pt-icon-cog"}`}/>
+            Custom default <span className={`bp3-icon ${showCustom ? "bp3-icon-cross" : "bp3-icon-cog"}`}/>
           </button>
         </div>
 
         {/* custom default */}
         {showCustom &&
-          <div className="cms-field-container pt-label">
+          <div className="cms-field-container bp3-label">
             Custom default
-            <div className="pt-select">
+            <div className="bp3-select">
               <select value={data.default} onChange={this.chooseCustom.bind(this)}>
                 {customOptions}
               </select>

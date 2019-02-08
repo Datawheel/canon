@@ -158,26 +158,26 @@ class TopicEditor extends Component {
         {/* current topic options */}
         <div className="cms-editor-header">
           {/* change slug */}
-          <label className="pt-label cms-slug">
+          <label className="bp3-label cms-slug">
             Topic slug
-            <div className="pt-input-group">
-              <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-              <button className="cms-button pt-button" onClick={this.save.bind(this)}>Rename</button>
+            <div className="bp3-input-group">
+              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
+              <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
             </div>
           </label>
           {/* visibility select */}
-          <label className="pt-label pt-fill">
+          <label className="bp3-label bp3-fill">
             Allowed
-            <div className="pt-select">
+            <div className="bp3-select">
               <select id="visibility-select" value={minData.allowed || "always"} onChange={this.changeField.bind(this, "allowed", true)}>
                 {varOptions}
               </select>
             </div>
           </label>
           {/* layout select */}
-          <label className="pt-label pt-fill">
+          <label className="bp3-label bp3-fill">
             Layout
-            <div className="pt-select">
+            <div className="bp3-select">
               <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
                 {typeOptions}
               </select>
@@ -215,7 +215,7 @@ class TopicEditor extends Component {
         <h2 className="cms-section-heading">
           Subtitles
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "topic_subtitle")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
@@ -257,7 +257,7 @@ class TopicEditor extends Component {
         <h2 className="cms-section-heading">
           Selectors
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "selector")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
@@ -280,7 +280,7 @@ class TopicEditor extends Component {
         <h2 className="cms-section-heading">
           Stats
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "topic_stat")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
@@ -322,7 +322,7 @@ class TopicEditor extends Component {
         <h2 className="cms-section-heading">
           Descriptions
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "topic_description")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
@@ -365,7 +365,7 @@ class TopicEditor extends Component {
         <h2 className="cms-section-heading">
           Visualizations
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "topic_visualization")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list visualizations">

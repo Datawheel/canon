@@ -281,9 +281,9 @@ module.exports = function(app) {
   app.get("/api/profile/:slug/:pid", async(req, res) => {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const {slug, pid} = req.params;
-    const {locale} = req.query;
+    const locale = req.query.locale || envLoc;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
-    const localeString = locale ? `?locale=${locale}` : "";
+    const localeString = `?locale=${locale}`;
 
     const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}});
     const {id} = attribute;
@@ -332,8 +332,8 @@ module.exports = function(app) {
   app.get("/api/topic/:slug/:pid/:topicId", async(req, res) => {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const {slug, pid, topicId} = req.params;
-    const {locale} = req.query;
-    const localeString = locale ? `?locale=${locale}` : "";
+    const locale = req.query.locale || envLoc;
+    const localeString = `?locale=${locale}`;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
 
     const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}});
