@@ -3,6 +3,7 @@
   "description": "Visualization explorer for data retrieved from mondrian-rest.",
   "version": "0.1.26",
   "main": "src/index.js",
+  "types": "src/index.d.ts",
   "author": "Francisco Abarzúa & Carlos Navarrete",
   "license": "MIT",
   "scripts": {
