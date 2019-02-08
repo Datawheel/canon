@@ -5,7 +5,7 @@
       "ACTIVATE_SEND_SUCCESS": "{{email}} has been sent an activation link. Please check your inbox.",
       "ACTIVATE_TOKEN_FAILURE": "Activation token is invalid or has expired."
     },
-    "button": "Send Verification",
+    "button": "Send CUSTOM Verification",
     "email": {
       "body": "Thanks for signing up for {{site}}! Please confirm your email address by clicking on the link below.",
       "button": "Click To Confirm",
@@ -25,7 +25,7 @@
       "greeting": "Hi {{username}},",
       "link": "Or copy and paste the following into your browser: {{confirmLink}}",
       "signature": "The {{site}} Team",
-      "title": "E-mail Verification",
+      "title": "Custom E-mail Verification",
       "welcome": "Welcome to {{site}}!"
     }
   },
