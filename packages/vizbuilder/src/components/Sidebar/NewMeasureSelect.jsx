@@ -1,10 +1,66 @@
 import React from "react";
+import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 
 import BaseSelect from "./CustomSelect/BaseSelect";
 import DeepList from "./DeepList";
+import VirtualList from "./VirtualList";
 
 class NewMeasureSelect extends BaseSelect {
+  constructor(props) {
+    super(props);
+
+    this.headerItems = [];
+    this.makeItemHeader = this.makeItemHeader.bind(this);
+  }
+
+  makeItemHeader(prevMeasure, measure) {
+    const topic = measure.annotations._cb_topic;
+    const subtopic = measure.annotations._cb_subtopic;
+
+    if (
+      topic !== prevMeasure.annotations._cb_topic ||
+      subtopic !== prevMeasure.annotations._cb_subtopic
+    ) {
+      let _key = topic + (subtopic ? `-${subtopic}` : "");
+      const header = this.headerItems[_key] || {topic, subtopic, _key, isHeader: true};
+      this.headerItems[_key] = header;
+      return header;
+    }
+  }
+
+  itemListComposer(items) {
+    const nope = {annotations: {_cb_topic: "", _cb_subtopic: ""}};
+    /**
+     * itemMap: { [x: string]: Measure[] }
+     * x: measure.annotations._cb_table_id + "." + measure.name
+     */
+    const {value, itemMap} = this.props;
+    const hasQuery = Boolean(this.state.query);
+
+    return items.reduce((all, measure, index, array) => {
+      const key = `${measure.annotations._cb_table_id}.${measure.name}`;
+
+      if (hasQuery) {
+        const header = this.makeItemHeader(array[index - 1] || nope, measure);
+        header && all.push(header);
+      }
+
+      const tableMap = itemMap[key];
+      if (tableMap && tableMap.length > 0) {
+        const valueInTableId = tableMap.indexOf(value) > -1;
+        const reprMeasure = valueInTableId ? value : tableMap[0];
+        if (all.indexOf(reprMeasure) === -1) {
+          all.push(reprMeasure);
+        }
+      }
+      else {
+        all.push(measure);
+      }
+      return all;
+    }, []);
+  }
+
   renderTarget(item) {
     return (
       <div
@@ -22,17 +78,54 @@ class NewMeasureSelect extends BaseSelect {
 
   renderPopover(items) {
     const props = this.props;
+    const ListComponent = this.state.query ? VirtualList : DeepList;
 
     return (
       <div className="select-popover-content">
         {props.filterable && this.renderFilterInput()}
-        <DeepList
+        <ListComponent
           items={items}
           value={props.value}
           showDimensions={props.showDimensions}
+          itemRenderer={this.renderListItem.bind(this)}
           onSelect={this.handleItemSelect}
         />
       </div>
+    );
+  }
+
+  renderListItem(item, params) {
+    const props = this.props;
+
+    if (item.isHeader) {
+      return (
+        <li className="virtlist-title" key={item._key} style={params.style}>
+          <span className="topic" title={item.topic}>{item.topic}</span>
+          <span className="subtopic" title={item.subtopic}>{item.subtopic}</span>
+        </li>
+      )
+    }
+
+    return (
+      <li key={item.annotations._key} style={params.style}>
+        <button
+          tabIndex="0"
+          type="button"
+          className={classnames("pt-menu-item select-item", {
+            "pt-active": params.isActive
+          })}
+          onClick={params.handleClick}
+        >
+          <span className="select-label">{item.name}</span>
+          {props.showDimensions && (
+            <span className="select-label dims">
+              {item.annotations._dim_labels.map(label => (
+                <span className="pt-tag">{label}</span>
+              ))}
+            </span>
+          )}
+        </button>
+      </li>
     );
   }
 }
@@ -43,30 +136,6 @@ NewMeasureSelect.defaultProps = {
   ...BaseSelect.defaultProps,
   inputProps: {autoFocus: true},
   itemMinHeight: 10,
-
-  itemListComposer(items) {
-    /**
-     * itemMap: { [x: string]: Measure[] }
-     * x: measure.annotations._cb_table_id + "." + measure.name
-     */
-    const {value, itemMap} = this.props;
-
-    return items.reduce((all, measure) => {
-      const key = `${measure.annotations._cb_table_id}.${measure.name}`;
-      const tableMap = itemMap[key];
-      if (tableMap && tableMap.length > 0) {
-        const valueInTableId = tableMap.indexOf(value) > -1;
-        const reprMeasure = valueInTableId ? value : tableMap[0];
-        if (all.indexOf(reprMeasure) === -1) {
-          all.push(reprMeasure);
-        }
-      }
-      else {
-        all.push(measure);
-      }
-      return all;
-    }, []);
-  },
 
   itemListPredicate(query, items) {
     query = query.trim();
