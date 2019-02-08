@@ -53,7 +53,7 @@ won't have any effect.
 | formatting        | `{[x: string], (d: number) => string}`        |           | `{}`          | An object, whose keys are [`Measure.annotations.units_of_measurement`](https://github.com/Datawheel/company/wiki/Data-Cube-Annotations#suggested-units-of-measurement) names, and their values are functions that accept a number argument and return an string with the formatted value. There's a list of [default formatters](https://github.com/Datawheel/canon/blob/master/packages/vizbuilder/src/helpers/formatting.js#L6), but if there's no match, [`d3plus-format.formatAbbreviate`](https://github.com/d3plus/d3plus-format/blob/master/src/abbreviate.js) is used instead. |
 | measureConfig     | `{[x: string], D3plusConfigObject}`           |           |               | An object, whose keys are Measure names, and their values are d3plus chart config objects. These are specific configurations for each Measure, and take priority over the configurations set in the `config` property. |
 | multipliers       | `{[x: string], number}`                       |           | `{}`          | An object, whose keys are [`Measure.annotations.units_of_measurement`](https://github.com/Datawheel/company/wiki/Data-Cube-Annotations#suggested-units-of-measurement) names, and their values are numbers. These are used in Filters for conversion of the input value to the real value represented and backwards. See [Issue #325](https://github.com/Datawheel/canon/issues/325) for details. |
-| onChange          | `(query: VbQuery, charts: VbChart[]) => void` |           | `() => void`  | A hook function called afted the internal State is modified. Useful to extract the state and prepare features outside of Vizbuilder's scope. This function receives the state directly, and so *IT MUST NOT BE MODIFIED IN ANY WAY.* |
+| onChange          | `(query: VbQuery, charts: VbChart[]) => void` |           | `() => void`  | A hook function called afted the internal State is modified. Useful to extract the state and prepare features outside of Vizbuilder's scope. The parameters this function receives must be considered as READ-ONLY objects; modifying them could have uncertain consequencies. |
 | permalink         | `boolean`                                     |           | `true`        | The switch that enables or disables permalinks on the current instance. See [Using Permalinks](#using-permalinks) for details. |
 | permalinkKeywords | `{[x: string], string}`                       |           |               | An object to configure the parameter names to parse from/to the URL.search string. See [Using Permalinks](#using-permalinks) for details. |
 | toolbar           | `JSX.Element`                                 |           |               | A component to render just above the chart area. Can be used to put a custom toolbar inside the Vizbuilder. See [Styling](#styling) for a reference of the position. |
@@ -64,13 +64,13 @@ Additionally, Vizbuilder accepts childrens. These will be rendered between the F
 
 ### Interfaces referenced
 
-- `D3plusConfigObject`: `{[x: string]: any}`  
+- `D3plusConfigObject`: `{[x: string]: any}`
   For this object, `x` must be a valid key to define a configuration property in a d3plus chart. See the [d3plus documentation](https://d3plus.org/docs/) for further reference.
-- `D3plusTopojsonConfigObject`: `{[x: string]: any}`  
+- `D3plusTopojsonConfigObject`: `{[x: string]: any}`
   The same as with `D3plusConfigObject`, but in this case, `x` should only be topojson-related properties. Some examples are `topojson` (required, the URL to the topojson file), `topojsonId` (the key that relates each topojson shape with the dataset value), and `topojsonKey` (the key in the topojson file for the shapes to use). See the [d3plus documentation on Geomaps](https://d3plus.org/docs/#Geomap.topojson) for further reference.
-- `VbQuery`: `{[x: string]: any}`  
+- `VbQuery`: `{[x: string]: any}`
   The main query state for the Vizbuilder. This is the basic state from where all queries are calculated.
-- `VbChart`: `{[x: string]: any}`  
+- `VbChart`: `{[x: string]: any}`
   The list of charts currently rendered in Vizbuilder. Each object contains the specific query (a specific expansion of the VbQuery object), the dataset shown, and the extra properties used to create each chart.
 
 ## Chart configuration
