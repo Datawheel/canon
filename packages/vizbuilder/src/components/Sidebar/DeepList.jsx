@@ -33,7 +33,7 @@ class DeepList extends React.PureComponent {
     const items = props.itemListComposer.call(this, props.items);
     const renderer = level > 0 ? this.menuRenderer : this.itemRenderer;
     return (
-      <div className="deeplist-wrapper">
+      <div className={classnames("deeplist-wrapper", props.className)}>
         <div className={classnames("deeplist-header", {active: level < 2})}>
           <div className="deeplist-title">
             {level < 2 && <span className="topic">{state.currTopic}</span>}

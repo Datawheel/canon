@@ -43,7 +43,7 @@ class Sidebar extends React.PureComponent {
               items={options.measures}
               itemMap={options.measureMap}
               value={query.measure}
-              showDimensions={Boolean(options.geomapLevels)}
+              showDimensions={!options.geomapLevels}
               onItemSelect={this.setMeasure}
             />
             <p className="details">{measureDetails}</p>

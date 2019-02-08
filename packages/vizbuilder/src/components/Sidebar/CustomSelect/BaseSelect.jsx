@@ -78,11 +78,13 @@ class BaseSelect extends React.Component {
     const {query} = this.state;
     let items = props.items;
 
-    if (query && props.itemListPredicate) {
-      items = props.itemListPredicate.call(this, query, items);
+    const itemListPredicate = props.itemListPredicate || this.itemListPredicate;
+    if (query && itemListPredicate) {
+      items = itemListPredicate.call(this, query, items);
     }
-    if (props.itemListComposer) {
-      items = props.itemListComposer.call(this, items);
+    const itemListComposer = props.itemListComposer || this.itemListComposer;
+    if (itemListComposer) {
+      items = itemListComposer.call(this, items);
     }
 
     return items;

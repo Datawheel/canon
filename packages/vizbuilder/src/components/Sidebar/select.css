@@ -86,8 +86,10 @@
 }
 
 
-.deeplist-wrapper {
+.deeplist-wrapper,
+.virtlist-wrapper {
   margin-top: 5px;
+  max-width: 310px;
 }
 .deeplist-wrapper .pt-menu:not(:first-child) {
   padding-top: 0;
@@ -108,15 +110,22 @@
 .deeplist-spacer {
   min-height: 2.4rem;
 }
-.deeplist-title {
+
+.deeplist-title,
+.virtlist-title {
   padding-left: 0.2rem;
   font-weight: 700;
   line-height: 1.2rem;
-}
-.deeplist-title span {
-  display: block;
-}
-.deeplist-title .subtopic {
-  padding-left: 0.5rem;
-  font-style: italic;
+  background-color: #fff;
+
+  & span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  & .subtopic {
+    padding-left: 0.5rem;
+    font-style: italic;
+  }
 }
