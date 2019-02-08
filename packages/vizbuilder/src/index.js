@@ -143,9 +143,9 @@ class Vizbuilder extends React.PureComponent {
       multipliers: {...DEFAULT_MEASURE_MULTIPLIERS, ...props.multipliers},
       measureConfig: props.measureConfig,
       topojson: props.topojson,
-      visualizations: props.visualizations.filter(viz =>
-        chartComponents.hasOwnProperty(viz)
-      )
+      visualizations: []
+        .concat(props.visualizations)
+        .filter(viz => chartComponents.hasOwnProperty(viz))
     };
   }
 
@@ -192,6 +192,7 @@ Vizbuilder.defaultProps = {
   config: {},
   datacap: 20000,
   formatting: {},
+  measureConfig: {},
   multipliers: {},
   onChange() {},
   permalink: true,
