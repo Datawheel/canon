@@ -27,13 +27,16 @@ class PlainTextEditor extends Component {
   render() {
 
     const {data, fields} = this.state;
+    const {locale} = this.props;
 
     if (!data || !fields) return null;
+
+    const thisLocale = data.content.find(c => c.lang === locale); 
 
     const inputs = fields.map(f =>
       <div key={f}>
         <label htmlFor={f}>{f}</label>
-        <input id={f} className="bp3-input" type="text" value={data[f]} onChange={this.changeField.bind(this, f)}/>
+        <input id={f} className="bp3-input" type="text" value={thisLocale[f]} onChange={this.changeField.bind(this, f)}/>
       </div>
     );
 

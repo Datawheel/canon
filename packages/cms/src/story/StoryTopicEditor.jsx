@@ -135,7 +135,6 @@ class StoryTopicEditor extends Component {
             locale={localeDefault}
             localeDefault={localeDefault}
             fields={["title"]}
-            plainfields={["image"]}
             type="storytopic"
             onSave={this.onSave.bind(this)}
             variables={{}}
@@ -145,7 +144,6 @@ class StoryTopicEditor extends Component {
             locale={locale}
             localeDefault={localeDefault}
             fields={["title"]}
-            plainfields={["image"]}
             type="storytopic"
             onSave={this.onSave.bind(this)}
             variables={{}}

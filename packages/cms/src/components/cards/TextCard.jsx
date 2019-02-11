@@ -207,8 +207,8 @@ class TextCard extends Component {
           inline="true"
         >
           <div className="bp3-dialog-body">
-            <PlainTextEditor data={minData} locale={locale} fields={plainfields} />
-            <TextEditor data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />
+            {plainfields && <PlainTextEditor data={minData} locale={locale} fields={plainfields} />}
+            {fields && <TextEditor data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
           </div>
           <FooterButtons
             onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}

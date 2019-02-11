@@ -120,8 +120,8 @@ class ProfileEditor extends Component {
 
     const dataLoaded = minData;
     const varsLoaded = variables;
-    const defLoaded = locale || (variables && !locale && variables[localeDefault]);
-    const locLoaded = !locale || (variables && locale && variables[localeDefault] && variables[locale]);
+    const defLoaded = locale || variables && !locale && variables[localeDefault];
+    const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
 
     if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <Loading />;
 
