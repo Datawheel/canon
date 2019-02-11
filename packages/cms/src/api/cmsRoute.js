@@ -364,7 +364,11 @@ module.exports = function(app) {
         // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
         if (contentTables.includes(ref)) {
           const payload = Object.assign({}, req.body, {id: newObj.id, lang: envLoc});
-          db[`${ref}_content`].create(payload).then(() => res.json(newObj).end());
+          db[`${ref}_content`].create(payload).then(() => {
+            db[ref].findOne({where: {id: newObj.id}, include: [{association: "content"}]}).then(fullObj => {
+              res.json(fullObj).end();
+            });
+          });
         }
         else {
           res.json(newObj).end();
@@ -503,7 +507,14 @@ module.exports = function(app) {
     db.topic.findOne({where: {id: req.query.id}}).then(row => {
       db.topic.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.topic.destroy({where: {id: req.query.id}}).then(() => {
-          db.topic.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "title", "slug", "ordering", "profile_id", "type"], order: [["ordering", "ASC"]]}).then(rows => {
+          db.topic.findAll({
+            where: {profile_id: row.profile_id}, 
+            attributes: ["id", "slug", "ordering", "profile_id", "type"], 
+            include: [
+              {association: "content", attributes: ["id", "lang", "title"]}
+            ],
+            order: [["ordering", "ASC"]]
+          }).then(rows => {
             res.json(rows).end();
           });
         });
@@ -515,7 +526,14 @@ module.exports = function(app) {
     db.storytopic.findOne({where: {id: req.query.id}}).then(row => {
       db.storytopic.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.storytopic.destroy({where: {id: req.query.id}}).then(() => {
-          db.storytopic.findAll({where: {story_id: row.story_id}, attributes: ["id", "title", "slug", "ordering", "story_id", "type"], order: [["ordering", "ASC"]]}).then(rows => {
+          db.storytopic.findAll({
+            where: {story_id: row.story_id}, 
+            attributes: ["id", "slug", "ordering", "story_id", "type"], 
+            include: [
+              {association: "content", attributes: ["id", "lang", "title"]}
+            ],
+            order: [["ordering", "ASC"]]
+          }).then(rows => {
             res.json(rows).end();
           });
         });

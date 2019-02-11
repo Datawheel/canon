@@ -106,7 +106,7 @@ class StoryTopicEditor extends Component {
           <label className="bp3-label cms-slug">
             Story slug
             <div className="bp3-input-group">
-              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", true)}/>
+              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
               <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
             </div>
           </label>

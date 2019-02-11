@@ -155,7 +155,7 @@ class Search extends Component {
         <Popover minimal={true} usePortal={false} autoFocus={false} isOpen={show}>
           <div className={`bp3-input-group bp3-fill ${active ? "active" : ""}`}>
             {icon && <span className="bp3-icon bp3-icon-search"></span>}
-            <input type="text" className="bp3-input" ref={input => this.input = input} onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} placeholder={placeholder} value={userQuery} />
+            <input type="text" key="input-bar" className="bp3-input" ref={input => this.input = input} onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} placeholder={placeholder} value={userQuery} />
             {buttonLink && <a href={`${buttonLink}?q=${userQuery}`} className="bp3-button">{buttonText}</a>}
           </div>
           <ul className={active ? "results active" : "results"}>
