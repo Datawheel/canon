@@ -172,7 +172,6 @@ class TextCard extends Component {
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
-          inline="true"
         >
           {alertObj.message}
         </Alert>
@@ -204,7 +203,7 @@ class TextCard extends Component {
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Text Editor"
-          inline="true"
+          usePortal={false}
         >
           <div className="bp3-dialog-body">
             {plainfields && <PlainTextEditor data={minData} locale={locale} fields={plainfields} />}

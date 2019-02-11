@@ -543,7 +543,7 @@ class ProfileBuilder extends Component {
         <Dialog
           className="profileModal"
           isOpen={profileModalOpen}
-          inline={true}
+          usePortal={false}
           onClose={() => this.setState({profileModalOpen: false})}
           title="Add New Profile"
         >

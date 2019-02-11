@@ -119,7 +119,6 @@ class SelectorCard extends Component {
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
-          inline="true"
         >
           {alertObj.message}
         </Alert>
@@ -156,7 +155,7 @@ class SelectorCard extends Component {
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Selector Editor"
           icon="false"
-          inline="true"
+          usePortal={false}
         >
           <div className="bp3-dialog-body">
             <SelectorEditor variables={variables} data={minData} />

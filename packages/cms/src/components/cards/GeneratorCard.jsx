@@ -136,7 +136,6 @@ class GeneratorCard extends Component {
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
-          inline="true"
         >
           {alertObj.message}
         </Alert>
@@ -213,7 +212,7 @@ class GeneratorCard extends Component {
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Variable Editor"
-          inline="true"
+          usePortal={false}
           icon="false"
         >
 
