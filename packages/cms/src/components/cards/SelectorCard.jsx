@@ -43,12 +43,6 @@ class SelectorCard extends Component {
   save() {
     const {type} = this.props;
     const {minData} = this.state;
-    // In SelectorEditor, we use an "isDefault" property to assist with managing
-    // checkbox states. Before we save the data to the db, remove that helper prop
-    minData.options = minData.options.map(o => {
-      delete o.isDefault;
-      return o;
-    });
     axios.post(`/api/cms/${type}/update`, minData).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
