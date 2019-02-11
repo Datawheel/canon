@@ -227,11 +227,11 @@ class GeneratorEditor extends Component {
         {/* name & description fields */}
         {(type === "generator" || type === "materializer" || type === "formatter") &&
           <div className="cms-field-group">
-            <div className="cms-field-container">
+            <div key="gen-name" className="cms-field-container">
               <label className="label">Name</label>
               <input className="bp3-input" type="text" value={data.name} onChange={this.changeField.bind(this, "name")}/>
             </div>
-            <div className="cms-field-container">
+            <div key="gen-desc" className="cms-field-container">
               <label className="label">Description</label>
               <input className="bp3-input" type="text" value={data.description} onChange={this.changeField.bind(this, "description")}/>
             </div>
@@ -276,7 +276,6 @@ class GeneratorEditor extends Component {
           </div>
         }
 
-        {/*<div className={`cms-variable-editor-group${type.includes("_visualization") ? " single-column" : ""}`}>*/}
         <div className={`cms-variable-editor-group${!payload ? " single-column" : ""}`}>
           {/* json */}
           {payload &&
@@ -288,12 +287,14 @@ class GeneratorEditor extends Component {
             ? type === "generator"
               ? payload
                 ? <SimpleGeneratorEditor
+                  key="simp-gen"
                   payload={payload}
                   simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null
-              : <SimpleVisualizationEditor preview={preview} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
+              : <SimpleVisualizationEditor key="simp-viz" preview={preview} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
             : <AceWrapper
+              key="ace-wrap"
               className="editor"
               variables={variables}
               ref={ comp => this.editor = comp }
