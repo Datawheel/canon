@@ -389,7 +389,7 @@ class ProfileBuilder extends Component {
    * of a profile use must be recursively updated as well.
    */
   reportSave(type, id, newValue) {
-    let {nodes} = this.state;
+    const {nodes} = this.state;
     const {variablesHash, currentSlug} = this.state;
     const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters;
@@ -409,7 +409,6 @@ class ProfileBuilder extends Component {
       node.data.slug = newValue;
       node.label = newValue;
       node.childNodes = node.childNodes.map(t => {
-        console.log("setting master slug", newValue, t);
         t.masterSlug = newValue;
         return t;
       });
