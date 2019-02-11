@@ -63,6 +63,21 @@ class Builder extends Component {
     }
   }
 
+  /*
+  setPath(node) {
+    const {router} = this.props;
+    const {pslug, tslug} = this.props.params;
+    let path;
+    if (node.itemType === "profile") {
+      path = `/cms-profile/${node.data.slug}`;
+    }
+    else if (node.itemType === "topic") {
+      path = `/cms-profile/${node.masterSlug}/${node.data.slug}`;
+    }
+    router.push(path);
+  }
+  */
+
   toggleLocale(e) {
     const {locales} = this.state;
     const locale = e.target.checked ? false : locales[0];
@@ -82,6 +97,12 @@ class Builder extends Component {
     const {currentTab, theme, locale, locales, localeDefault, showLocale} = this.state;
     const {isEnabled} = this.props;
     const navLinks = ["profiles", "stories", "formatters"];
+
+    /*
+    const {profileSlug, topicSlug} = this.props.params;
+
+    const pathObj = {profileSlug, topicSlug};
+    */
 
     if (!isEnabled) return null;
 
@@ -121,8 +142,8 @@ class Builder extends Component {
             </select>
           </label>
         </div>
-        {currentTab === "profiles" && <ProfileBuilder localeDefault={localeDefault} locale={locale}/>}
-        {currentTab === "stories" && <StoryBuilder localeDefault={localeDefault} locale={locale}/>}
+        {currentTab === "profiles" && <ProfileBuilder /* pathObj={pathObj} setPath={this.setPath.bind(this)} */ localeDefault={localeDefault} locale={locale}/>}
+        {currentTab === "stories" && <StoryBuilder /* pathObj={pathObj} setPath={this.setPath.bind(this)} */ localeDefault={localeDefault} locale={locale}/>}
         {currentTab === "formatters" && <FormatterEditor />}
       </div>
     );

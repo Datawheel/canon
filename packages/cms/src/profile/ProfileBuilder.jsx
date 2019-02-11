@@ -69,6 +69,7 @@ class ProfileBuilder extends Component {
     const {profiles} = this.state;
     const {stripHTML} = this.context.formatters;
     const {localeDefault} = this.props;
+    // const {profileSlug, topicSlug} = this.props.pathObj;
     const nodes = profiles.map(p => ({
       id: `profile${p.id}`,
       hasCaret: true,
@@ -95,7 +96,11 @@ class ProfileBuilder extends Component {
       this.setState({nodes});
     }
     else {
-      this.setState({nodes}, this.handleNodeClick.bind(this, nodes[0]));
+      let nodeToOpen = nodes[0];
+      /*if (profileSlug) {
+        nodeToOpen = nodes.find(p => p.data.slug === profileSlug);
+      }*/
+      this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
     }
   }
 

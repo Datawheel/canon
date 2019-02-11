@@ -342,7 +342,6 @@ class TopicEditor extends Component {
             />
           )}
         </div>
-        <hr/>
         {locale && <div className="cms-card-list">
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard
