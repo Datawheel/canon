@@ -20,7 +20,8 @@ class TextCard extends Component {
       minData: null,
       displayData: null,
       initialData: null,
-      alertObj: false
+      alertObj: false,
+      isDirty: false
     };
   }
 
@@ -53,6 +54,11 @@ class TextCard extends Component {
       minData.content.push(newCon);
     }
     return minData;
+  }
+
+  markAsDirty() {
+    const {isDirty} = this.state;
+    if (!isDirty) this.setState({isDirty: true});
   }
 
   hitDB() {
@@ -131,12 +137,18 @@ class TextCard extends Component {
   }
 
   maybeCloseEditorWithoutSaving() {
-    const alertObj = {
-      callback: this.closeEditorWithoutSaving.bind(this),
-      message: "Are you sure you want to abandon changes?",
-      confirm: "Yes, Abandon changes."
-    };
-    this.setState({alertObj});
+    const {isDirty} = this.state;
+    if (isDirty) {
+      const alertObj = {
+        callback: this.closeEditorWithoutSaving.bind(this),
+        message: "Are you sure you want to abandon changes?",
+        confirm: "Yes, Abandon changes."
+      };
+      this.setState({alertObj});
+    }
+    else {
+      this.closeEditorWithoutSaving.bind(this)();
+    }
   }
 
   closeEditorWithoutSaving() {
@@ -144,7 +156,8 @@ class TextCard extends Component {
     const minData = deepClone(initialData);
     const isOpen = false;
     const alertObj = false;
-    this.setState({minData, isOpen, alertObj});
+    const isDirty = false;
+    this.setState({minData, isOpen, alertObj, isDirty});
   }
 
   render() {
@@ -206,8 +219,8 @@ class TextCard extends Component {
           usePortal={false}
         >
           <div className="bp3-dialog-body">
-            {plainfields && <PlainTextEditor data={minData} locale={locale} fields={plainfields} />}
-            {fields && <TextEditor data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+            {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
+            {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
           </div>
           <FooterButtons
             onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}

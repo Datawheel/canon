@@ -7,7 +7,8 @@ class PlainTextEditor extends Component {
     super(props);
     this.state = {
       data: null,
-      fields: null
+      fields: null,
+      isDirty: false
     };
   }
 
@@ -17,10 +18,17 @@ class PlainTextEditor extends Component {
   }
 
   changeField(field, e) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     const {locale} = this.props;
     const thisLocale = data.content.find(c => c.lang === locale);
     thisLocale[field] = e.target.value;
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
     this.setState({data});
   }
 

@@ -17,7 +17,8 @@ class GeneratorEditor extends Component {
       variables: [],
       payload: null,
       simple: false,
-      alertObj: false
+      alertObj: false,
+      isDirty: false
     };
   }
 
@@ -40,21 +41,39 @@ class GeneratorEditor extends Component {
   }
 
   changeField(field, e) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     data[field] = e.target.value;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   handleEditor(field, t) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     data[field] = t;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   chooseVariable(e) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     data.allowed = e.target.value;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   /**
@@ -168,10 +187,16 @@ class GeneratorEditor extends Component {
   }
 
   onSimpleChange(code, simple) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     data.logic = code;
     data.logic_simple = simple;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   render() {
@@ -288,7 +313,8 @@ class GeneratorEditor extends Component {
                 ? <SimpleGeneratorEditor
                   key="simp-gen"
                   payload={payload}
-                  simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}
+                  simpleConfig={data.logic_simple} 
+                  onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null
               : <SimpleVisualizationEditor key="simp-viz" preview={preview} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>

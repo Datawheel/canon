@@ -10,7 +10,8 @@ class TextEditor extends Component {
     super(props);
     this.state = {
       data: null,
-      fields: null
+      fields: null,
+      isDirty: false
 
       /*
       currentVariable: "choose-a-variable",
@@ -25,17 +26,29 @@ class TextEditor extends Component {
   }
 
   handleEditor(field, t) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     const {locale} = this.props;
     const thisLocale = data.content.find(c => c.lang === locale);
     thisLocale[field] = t;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   chooseVariable(e) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     data.allowed = e.target.value;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   /*

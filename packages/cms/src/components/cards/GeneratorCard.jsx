@@ -19,7 +19,8 @@ class GeneratorCard extends Component {
       minData: null,
       initialData: null,
       displayData: null,
-      alertObj: false
+      alertObj: false,
+      isDirty: false
     };
   }
 
@@ -93,12 +94,18 @@ class GeneratorCard extends Component {
   }
 
   maybeCloseEditorWithoutSaving() {
-    const alertObj = {
-      callback: this.closeEditorWithoutSaving.bind(this),
-      message: "Are you sure you want to abandon changes?",
-      confirm: "Yes, Abandon changes."
-    };
-    this.setState({alertObj});
+    const {isDirty} = this.state;
+    if (isDirty) {
+      const alertObj = {
+        callback: this.closeEditorWithoutSaving.bind(this),
+        message: "Are you sure you want to abandon changes?",
+        confirm: "Yes, Abandon changes."
+      };
+      this.setState({alertObj});
+    }
+    else {
+      this.closeEditorWithoutSaving.bind(this)();
+    }
   }
 
   closeEditorWithoutSaving() {
@@ -106,7 +113,13 @@ class GeneratorCard extends Component {
     const minData = deepClone(initialData);
     const isOpen = false;
     const alertObj = false;
-    this.setState({minData, isOpen, alertObj});
+    const isDirty = false;
+    this.setState({minData, isOpen, alertObj, isDirty});
+  }
+
+  markAsDirty() {
+    const {isDirty} = this.state;
+    if (!isDirty) this.setState({isDirty: true});
   }
 
   render() {
@@ -217,7 +230,14 @@ class GeneratorCard extends Component {
         >
 
           <div className="bp3-dialog-body">
-            <GeneratorEditor preview={preview} locale={locale} data={minData} variables={variables} type={type} />
+            <GeneratorEditor 
+              markAsDirty={this.markAsDirty.bind(this)}
+              preview={preview} 
+              locale={locale} 
+              data={minData} 
+              variables={variables} 
+              type={type} 
+            />
           </div>
           <FooterButtons
             onDelete={this.maybeDelete.bind(this)}

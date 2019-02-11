@@ -20,7 +20,8 @@ class SelectorCard extends Component {
     this.state = {
       minData: null,
       initialData: null,
-      alertObj: false
+      alertObj: false,
+      isDirty: false
     };
   }
 
@@ -38,6 +39,11 @@ class SelectorCard extends Component {
     if (prevProps.minData !== this.props.minData) {
       this.setState({minData: this.props.minData});
     }
+  }
+
+  markAsDirty() {
+    const {isDirty} = this.state;
+    if (!isDirty) this.setState({isDirty: true});
   }
 
   save() {
@@ -79,12 +85,18 @@ class SelectorCard extends Component {
   }
 
   maybeCloseEditorWithoutSaving() {
-    const alertObj = {
-      callback: this.closeEditorWithoutSaving.bind(this),
-      message: "Are you sure you want to abandon changes?",
-      confirm: "Yes, Abandon changes."
-    };
-    this.setState({alertObj});
+    const {isDirty} = this.state;
+    if (isDirty) {
+      const alertObj = {
+        callback: this.closeEditorWithoutSaving.bind(this),
+        message: "Are you sure you want to abandon changes?",
+        confirm: "Yes, Abandon changes."
+      };
+      this.setState({alertObj});
+    }
+    else {
+      this.closeEditorWithoutSaving.bind(this)();
+    }
   }
 
   closeEditorWithoutSaving() {
@@ -92,7 +104,8 @@ class SelectorCard extends Component {
     const minData = deepClone(initialData);
     const isOpen = false;
     const alertObj = false;
-    this.setState({minData, isOpen, alertObj});
+    const isDirty = false;
+    this.setState({minData, isOpen, alertObj, isDirty});
   }
 
   render() {
@@ -152,7 +165,11 @@ class SelectorCard extends Component {
           usePortal={false}
         >
           <div className="bp3-dialog-body">
-            <SelectorEditor variables={variables} data={minData} />
+            <SelectorEditor 
+              markAsDirty={this.markAsDirty.bind(this)}
+              variables={variables} 
+              data={minData} 
+            />
           </div>
           <FooterButtons
             onDelete={this.maybeDelete.bind(this)}

@@ -163,9 +163,9 @@ export default class SimpleVisualizationEditor extends Component {
       <div className="cms-field-container">
         <label className="label" htmlFor="data">Data</label>
         <div className="cms-field-container-inline bp3-input-group">
-          <input className="bp3-input" value={object.data} onChange={this.onChange.bind(this, "data")} id="data"/>
+          <input key="data-url" className="bp3-input" value={object.data || ""} onChange={this.onChange.bind(this, "data")} id="data"/>
           {object.data &&
-            <button className="cms-button bp3-button" onClick={this.maybeRebuild.bind(this)}>
+            <button key="button-build" className="cms-button bp3-button" onClick={this.maybeRebuild.bind(this)}>
               {payload.data ? "Rebuild" : "Build"}
             </button>
           }
