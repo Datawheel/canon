@@ -4,7 +4,7 @@ import "./StatGroup.css";
 const sanitize = html => html
   .replace(/\±/g, "<span class='plus-minus'>±</span>")
   .replace(/&lt;/g, "<")
-  .replace(/&rt;/g, ">");
+  .replace(/&gt;/g, ">");
 
 export default class StatGroup extends Component {
 

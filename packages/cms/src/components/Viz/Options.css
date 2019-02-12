@@ -25,24 +25,70 @@
 }
 
 .options-dialog {
+  max-width: calc(100% - 50px);
+  min-width: 400px;
+  overflow: hidden;
+  padding: 0;
+  width: auto;
+  & .close-button {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+  & .bp3-tab-list {
+    background: none;
+    padding: 10px 20px 0;
+    top: 0;
+  }
   & .bp3-dialog-body {
-    & .save-image-btn {
-      color: black;
-      cursor: pointer;
-      font-family: "Palanquin", sans-serif;
-      font-size: 13px;
-      margin: 90px 20px;
-      opacity: 0.3;
+    margin: 0;
+    &.save-image {
       text-align: center;
-      transition: opacity 0.1s;
-      width: 80px;
-      & .bp3-icon-standard {
-        display: block;
-        font-size: 28px;
-        margin-bottom: 7px;
+      & .save-image-btn {
+        color: black;
+        cursor: pointer;
+        display: inline-block;
+        font-family: "Palanquin", sans-serif;
+        font-size: 13px;
+        margin: 40px 20px;
+        opacity: 0.5;
+        text-align: center;
+        transition: opacity 0.1s;
+        width: 80px;
+        & .bp3-icon-standard {
+          display: block;
+          font-size: 28px;
+          margin-bottom: 7px;
+        }
+        &:hover {
+          opacity: 1;
+        }
       }
-      &:hover {
-        opacity: 0.7;
+      & .image-options {
+        display: flex;
+        justify-content: center;
+        margin: 0 0 10px;
+      }
+    }
+    &.view-table {
+      margin-bottom: 0;
+      & .pt-non-ideal-state {
+        height: 150px;
+        margin-top: 25px;
+      }
+      & .download {
+        display: flex;
+        padding: 0 10px 10px;
+        width: 100%;
+        & input {
+          flex: 1;
+        }
+      }
+      & .table {
+        height: auto;
+        max-height: calc(100vh - 200px);
+        overflow-x: scroll;
+        width: 100%;
       }
     }
   }

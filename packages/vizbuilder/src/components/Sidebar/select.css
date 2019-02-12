@@ -84,3 +84,49 @@
   text-align: center;
   font-style: italic;
 }
+
+
+.deeplist-wrapper,
+.virtlist-wrapper {
+  margin-top: 5px;
+  max-width: 310px;
+}
+.deeplist-wrapper .pt-menu:not(:first-child) {
+  padding-top: 0;
+}
+.deeplist-header {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  max-height: 0;
+  transition: none;
+}
+.deeplist-header.active {
+  max-height: 4rem;
+  transition: all 0.2s ease-in-out;
+}
+.deeplist-spacer {
+  min-height: 2.4rem;
+}
+
+.deeplist-title,
+.virtlist-title {
+  flex: 1 0;
+  padding-left: 0.2rem;
+  font-weight: 700;
+  line-height: 1.2rem;
+  background-color: #fff;
+
+  & span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  & .subtopic {
+    padding-left: 0.5rem;
+    font-style: italic;
+  }
+}

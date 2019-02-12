@@ -17,7 +17,7 @@ import ConditionalAnchor from "./ConditionalAnchor";
 import DatasetSelect from "./DatasetSelect";
 import FilterManager from "./FilterManager";
 import GroupingManager from "./GroupingManager";
-import MeasureSelect from "./MeasureSelect";
+import MeasureSelect from "./NewMeasureSelect";
 
 class Sidebar extends React.PureComponent {
   constructor(props) {
@@ -43,6 +43,7 @@ class Sidebar extends React.PureComponent {
               items={options.measures}
               itemMap={options.measureMap}
               value={query.measure}
+              showDimensions={!options.geomapLevels}
               onItemSelect={this.setMeasure}
             />
             <p className="details">{measureDetails}</p>

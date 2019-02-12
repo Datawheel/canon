@@ -50,7 +50,8 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
         obj[skey] = obj[skey].filter(allowed).map(o => varSwapRecursive(o, formatterFunctions, variables, query, selectors));
       }
       // If this property is an object, recursively do another swap
-      else if (typeof obj[skey] === "object" && obj[skey] !== null) {
+      // For some reason, postgres "DATE" props come through as objects. Exclude them from this object swap.
+      else if (typeof obj[skey] === "object" && obj[skey] !== null && !(obj[skey] instanceof Date)) {
         obj[skey] = varSwapRecursive(obj[skey], formatterFunctions, variables, query, selectors);
       }
     }

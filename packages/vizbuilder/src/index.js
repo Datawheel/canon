@@ -108,10 +108,10 @@ class Vizbuilder extends React.PureComponent {
       <div
         className={classnames("vizbuilder", {
           "mapmode": Boolean(options.geomapLevels),
-          "loading": load.inProgress
+          "fetching": load.inProgress
         })}
       >
-        <LoadingScreen total={load.total} progress={load.done} />
+        {load.inProgress && <LoadingScreen total={load.total} progress={load.done} />}
         <Sidebar options={options} query={query}>
           {this.props.children}
           <Ranking
@@ -143,9 +143,9 @@ class Vizbuilder extends React.PureComponent {
       multipliers: {...DEFAULT_MEASURE_MULTIPLIERS, ...props.multipliers},
       measureConfig: props.measureConfig,
       topojson: props.topojson,
-      visualizations: props.visualizations.filter(viz =>
-        chartComponents.hasOwnProperty(viz)
-      )
+      visualizations: []
+        .concat(props.visualizations)
+        .filter(viz => chartComponents.hasOwnProperty(viz))
     };
   }
 
@@ -192,6 +192,7 @@ Vizbuilder.defaultProps = {
   config: {},
   datacap: 20000,
   formatting: {},
+  measureConfig: {},
   multipliers: {},
   onChange() {},
   permalink: true,

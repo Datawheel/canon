@@ -30,6 +30,9 @@ const {locale, resources} = window.__INITIAL_STATE__.i18n;
 const {CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
 const name = window.__APP_NAME__;
 
+const resourceObj = {canon: {[name]: defaultTranslations}};
+if (locale !== "canon") resourceObj[locale] = {[name]: resources};
+
 i18n
   .init({
     fallbackLng: "canon",
@@ -41,10 +44,7 @@ i18n
       wait: true,
       withRef: true
     },
-    resources: {
-      [locale]: {[name]: resources},
-      canon: {[name]: defaultTranslations}
-    }
+    resources: resourceObj
   });
 
 /**
@@ -54,7 +54,12 @@ function scrollToHash(hash, wait = true) {
   const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
   if (elem) {
     const offset = elem.getBoundingClientRect().top;
-    if (offset) animateScroll.scrollMore(offset);
+    if (offset) {
+      animateScroll.scrollMore(offset);
+      setTimeout(() => {
+        elem.focus();
+      }, 100);
+    }
   }
   else if (wait) {
     setTimeout(() => {

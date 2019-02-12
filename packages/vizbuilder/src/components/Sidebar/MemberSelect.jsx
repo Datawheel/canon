@@ -79,6 +79,10 @@ MemberSelect.defaultProps = {
   },
   resetOnSelect: true,
   sticky: "_header",
+  tagInputProps: {
+    ...BaseMultiSelect.defaultProps.tagInputProps,
+    placeholder: "Filter...",
+  },
   tagRenderer: item => item.caption
 };
 

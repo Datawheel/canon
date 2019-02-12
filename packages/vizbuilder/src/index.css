@@ -4,14 +4,6 @@
   flex-flow: row nowrap;
   align-items: stretch;
 
-  & > .loading {
-    display: none;
-  }
-
-  &.loading > .loading {
-    display: flex;
-  }
-
   & > .area-sidebar {
     flex: 0 0 300px;
     width: 300px;
@@ -32,32 +24,5 @@
 
   & > .wrapper {
     padding: 15px;
-  }
-}
-
-.area-loading {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 200;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-
-  color: var(--white);
-  background-color: rgba(0, 0, 0, 0.75);
-  transform: translate3d(0, 0, 0);
-
-  & .pt-non-ideal-state-visual {
-    width: 100%;
-    max-width: 200px;
-  }
-
-  & .pt-progress-meter {
-    background-color: var(--light);
-  }
-
-  & .pt-non-ideal-state-title {
-    color: var(--white);
   }
 }
