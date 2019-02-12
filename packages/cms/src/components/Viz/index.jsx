@@ -44,7 +44,7 @@ class Viz extends Component {
 
     return <div className={ `visualization ${className}` }>
       { options ? <Options
-        key="opt-key"
+        key="option-key"
         component={{topic, viz: this}}
         data={ vizProps.config.data }
         dataFormat={ vizProps.dataFormat }

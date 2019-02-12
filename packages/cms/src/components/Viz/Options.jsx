@@ -148,9 +148,9 @@ class Options extends Component {
     };
 
     const DataPanel = () => results
-      ? <div className="pt-dialog-body view-table">
+      ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
-          <button type="button" className="pt-button pt-icon-download pt-minimal" onClick={this.onCSV.bind(this)}>
+          <button type="button" className="bp3-button bp3-icon-download bp3-minimal" onClick={this.onCSV.bind(this)}>
             Download as CSV
           </button>
           { typeof data === "string" && <input type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={`${location.origin}${data}`} /> }
@@ -168,7 +168,7 @@ class Options extends Component {
           </Table>
         </div>
       </div>
-      : <div className="pt-dialog-body view-table">
+      : <div className="bp3-dialog-body view-table">
         <NonIdealState title="Loading Data" visual={<Spinner />} />
       </div>;
 
@@ -186,7 +186,7 @@ class Options extends Component {
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
           <Tab id="view-table" title="View Data" panel={<DataPanel />} />
           <Tab id="save-image" title="Save Image" panel={<ImagePanel />} />
-          <button aria-label="Close" className="close-button pt-dialog-close-button pt-icon-small-cross" onClick={this.toggleDialog.bind(this, false)}></button>
+          <button aria-label="Close" className="close-button bp3-dialog-close-button bp3-icon-small-cross" onClick={this.toggleDialog.bind(this, false)}></button>
         </Tabs>
       </Dialog>
 
