@@ -9,9 +9,9 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import {Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab2, Tabs2} from "@blueprintjs/core";
+import {Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
-import "@blueprintjs/table/dist/table.css";
+import "@blueprintjs/table/lib/css/table.css";
 
 const filename = str => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/^\-/g, "")
@@ -183,11 +183,11 @@ class Options extends Component {
       </div>
 
       <Dialog className="options-dialog" isOpen={openDialog} onClose={this.toggleDialog.bind(this, false)}>
-        <Tabs2 onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
-          <Tab2 id="view-table" title="View Data" panel={<DataPanel />} />
-          <Tab2 id="save-image" title="Save Image" panel={<ImagePanel />} />
+        <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
+          <Tab id="view-table" title="View Data" panel={<DataPanel />} />
+          <Tab id="save-image" title="Save Image" panel={<ImagePanel />} />
           <button aria-label="Close" className="close-button pt-dialog-close-button pt-icon-small-cross" onClick={this.toggleDialog.bind(this, false)}></button>
-        </Tabs2>
+        </Tabs>
       </Dialog>
 
     </div>;
