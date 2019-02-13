@@ -2,10 +2,13 @@ import React from "react";
 import classnames from "classnames";
 import TinyVirtualList from "react-tiny-virtual-list";
 
-
 class VirtualList extends React.PureComponent {
   constructor(props) {
     super(props);
+
+    this.state = {
+      forcedUpdate: undefined
+    };
 
     this.calculatedSize = new WeakMap();
     this.height = 400;
@@ -16,23 +19,42 @@ class VirtualList extends React.PureComponent {
       node && node.recomputeSizes();
     };
 
+    this.forceRendering = this.forceRendering.bind(this);
     this.getItemHeight = this.getItemHeight.bind(this);
-    this.getStickyIndices = this.getStickyIndices.bind(this);
     this.renderItem = this.renderItem.bind(this);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.items.length !== nextProps.items.length) {
+      this.calculatedSize = new WeakMap();
+      return true;
+    }
+    if (this.state.forcedUpdate !== nextState.forcedUpdate) {
+      return true;
+    }
+    return false;
   }
 
   selectItemHandler(item) {
     this.props.onSelect && this.props.onSelect(item);
   }
 
+  forceRendering() {
+    this.getItemHeight = this.getItemHeight.bind(this);
+    this.setState({forcedUpdate: !this.state.forcedUpdate});
+  }
+
   updateLocalSize(index, node) {
     if (!node) return;
+
     const props = this.props;
     const item = props.items[index];
     const bounds = node.getBoundingClientRect();
     const size = Math.max(props.itemMinSize, bounds.height);
     this.calculatedSize.set(item, size);
-    this.vlist && this.vlist.recomputeSizes(index);
+
+    cancelAnimationFrame(this.forcedRenderingCall);
+    this.forcedRenderingCall = requestAnimationFrame(this.forceRendering);
   }
 
   getItemHeight(index) {
@@ -59,7 +81,7 @@ class VirtualList extends React.PureComponent {
       handleClick: this.selectItemHandler.bind(this, item),
       style,
       index,
-      isActive: props.findIndex([].concat(props.value), item) > -1,
+      isActive: props.findIndex([].concat(props.value), item) > -1
     });
 
     if (!calculatedSize) {
@@ -103,7 +125,7 @@ class VirtualList extends React.PureComponent {
 VirtualList.defaultProps = {
   sticky: "isHeader",
   findIndex: (haystack, needle) => haystack.indexOf(needle),
-  getItemHeight: item => item.isHeader ? 38.4 : 50,
+  getItemHeight: item => (item.isHeader ? 38.4 : 50),
   itemRenderer: undefined,
   items: [],
   itemMinSize: 38,
