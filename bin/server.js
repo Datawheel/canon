@@ -243,7 +243,18 @@ async function start() {
     }
     if (dbDetect) {
       const {db} = app.settings;
-      await db.sync({alter: true}).catch(() => {});
+      await db.sync({alter: true})
+        .then(({models}) => {
+          const seeds = [];
+          Object.keys(models).forEach(name => {
+            const model = models[name];
+            if (model.seed) {
+              seeds.push(model.bulkCreate(model.seed));
+            }
+          });
+          return Promise.all(seeds);
+        })
+        .catch(() => {});
       Object.keys(db).forEach(modelName => {
         if ("associate" in db[modelName]) db[modelName].associate(db);
       });
