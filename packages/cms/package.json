@@ -28,11 +28,11 @@
     "react-quill": "^1.3.1"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "^0.17.4",
+    "@datawheel/canon-core": "^0.17.6",
     "@datawheel/canon-logiclayer": "^0.2.2"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.17.4"
+    "@datawheel/canon-core": "^0.17.6"
   },
   "repository": {
     "type": "git",
