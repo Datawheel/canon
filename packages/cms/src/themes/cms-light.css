@@ -49,7 +49,7 @@
 
   /* muted text */
   & .cms-status.is-done,
-  & .pt-text-muted {
+  & .bp3-text-muted {
     color: var(--backward-2);
   }
 
@@ -99,7 +99,7 @@
 
   /* search */
   & .cms-search {
-    & .pt-popover-content {
+    & .bp3-popover-content {
       background-color: var(--foreground) !important;
     }
 
@@ -136,13 +136,13 @@
   }
 
   /* dialogs */
-  & .pt-dialog {
+  & .bp3-dialog {
     background-color: var(--foreground);
   }
-  & .pt-dialog-header {
+  & .bp3-dialog-header {
     background-color: var(--forward-2);
   }
-  & .pt-dialog-close-button {
+  & .bp3-dialog-close-button {
     color: var(--backward-2);
 
     &:hover, &:focus {
@@ -196,13 +196,13 @@
     color: var(--backward-3);
     box-shadow: 0 0 1rem var(--forward-2);
 
-    & .pt-tree-node-content:hover,
-    & .pt-tree-node-content .pt-tree-node-caret:hover,
-    & .pt-tree-node-content .pt-tree-node-cog:hover {
+    & .bp3-tree-node-content:hover,
+    & .bp3-tree-node-content .bp3-tree-node-caret:hover,
+    & .bp3-tree-node-content .bp3-tree-node-cog:hover {
       color: var(--accent-black);
     }
 
-    & .pt-tree-node-selected > .pt-tree-node-content {
+    & .bp3-tree-node-selected > .bp3-tree-node-content {
       background-color: var(--accent-black);
       color: var(--foreground);
     }

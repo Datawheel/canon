@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-import {Select} from "@blueprintjs/labs";
+import {Select} from "@blueprintjs/select";
 import {MenuItem, Icon} from "@blueprintjs/core";
 
 class Selector extends Component {
@@ -51,13 +51,13 @@ class Selector extends Component {
 
     return <div className="selector">
       { title && <label htmlFor={slug}>{title}</label> }
-      <div className={ `pt-fill ${type === "multi" ? "" : "pt-select"}` }>
+      <div className={ `bp3-fill ${type === "multi" ? "" : "bp3-select"}` }>
         { type === "multi"
           ? <div>
             <div className="multi-list">
-              { comparisons.map(d => <div key={d} className="multi-item pt-tag pt-tag-removable">
+              { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
                 { variables[d] }
-                <button className="pt-tag-remove" onClick={this.removeComparison.bind(this, d)} />
+                <button className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
               </div>) }
             </div>
             { comparisons.length !== options.length
@@ -67,7 +67,7 @@ class Selector extends Component {
                 onItemSelect={this.addComparison.bind(this)}
                 items={options.map(d => d.option)}
                 itemRenderer={this.renderItem.bind(this)}>
-                <button type="button" className="multi-add pt-button pt-icon-plus">
+                <button type="button" className="multi-add bp3-button bp3-icon-plus">
                   Add a Comparison
                 </button>
               </Select>

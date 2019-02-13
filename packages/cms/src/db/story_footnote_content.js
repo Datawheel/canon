@@ -1,11 +1,19 @@
 module.exports = function(sequelize, db) {
 
-  const p = sequelize.define("profile_footnote",
+  const s = sequelize.define("story_footnote_content",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        onDelete: "cascade",
+        references: {
+          model: "story_footnote",
+          key: "id"
+        }
+      },
+      lang: {
+        type: db.STRING,
+        primaryKey: true
       },
       title: {
         type: db.STRING,
@@ -14,16 +22,7 @@ module.exports = function(sequelize, db) {
       description: {
         type: db.TEXT,
         defaultValue: "New Footnote"
-      }, 
-      profile_id: {
-        type: db.INTEGER,
-        onDelete: "cascade",
-        references: {
-          model: "profile",
-          key: "id"
-        }
-      },
-      ordering: db.INTEGER
+      }
     }, 
     {
       freezeTableName: true,
@@ -31,6 +30,6 @@ module.exports = function(sequelize, db) {
     }
   );
 
-  return p;
+  return s;
 
 };

@@ -20,7 +20,8 @@ class SelectorCard extends Component {
     this.state = {
       minData: null,
       initialData: null,
-      alertObj: false
+      alertObj: false,
+      isDirty: false
     };
   }
 
@@ -40,15 +41,14 @@ class SelectorCard extends Component {
     }
   }
 
+  markAsDirty() {
+    const {isDirty} = this.state;
+    if (!isDirty) this.setState({isDirty: true});
+  }
+
   save() {
     const {type} = this.props;
     const {minData} = this.state;
-    // In SelectorEditor, we use an "isDefault" property to assist with managing
-    // checkbox states. Before we save the data to the db, remove that helper prop
-    minData.options = minData.options.map(o => {
-      delete o.isDefault;
-      return o;
-    });
     axios.post(`/api/cms/${type}/update`, minData).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
@@ -85,12 +85,18 @@ class SelectorCard extends Component {
   }
 
   maybeCloseEditorWithoutSaving() {
-    const alertObj = {
-      callback: this.closeEditorWithoutSaving.bind(this),
-      message: "Are you sure you want to abandon changes?",
-      confirm: "Yes, Abandon changes."
-    };
-    this.setState({alertObj});
+    const {isDirty} = this.state;
+    if (isDirty) {
+      const alertObj = {
+        callback: this.closeEditorWithoutSaving.bind(this),
+        message: "Are you sure you want to abandon changes?",
+        confirm: "Yes, Abandon changes."
+      };
+      this.setState({alertObj});
+    }
+    else {
+      this.closeEditorWithoutSaving.bind(this)();
+    }
   }
 
   closeEditorWithoutSaving() {
@@ -98,7 +104,8 @@ class SelectorCard extends Component {
     const minData = deepClone(initialData);
     const isOpen = false;
     const alertObj = false;
-    this.setState({minData, isOpen, alertObj});
+    const isDirty = false;
+    this.setState({minData, isOpen, alertObj, isDirty});
   }
 
   render() {
@@ -114,12 +121,11 @@ class SelectorCard extends Component {
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
-          iconName="pt-icon-warning-sign"
+          iconName="bp3-icon-warning-sign"
           intent={Intent.DANGER}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
-          inline="true"
         >
           {alertObj.message}
         </Alert>
@@ -128,7 +134,7 @@ class SelectorCard extends Component {
         <h5 className="cms-card-header">
           {minData.title}
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="pt-icon pt-icon-cog" />
+            Edit <span className="bp3-icon bp3-icon-cog" />
           </button>
         </h5>
 
@@ -156,10 +162,14 @@ class SelectorCard extends Component {
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Selector Editor"
           icon="false"
-          inline="true"
+          usePortal={false}
         >
-          <div className="pt-dialog-body">
-            <SelectorEditor variables={variables} data={minData} />
+          <div className="bp3-dialog-body">
+            <SelectorEditor 
+              markAsDirty={this.markAsDirty.bind(this)}
+              variables={variables} 
+              data={minData} 
+            />
           </div>
           <FooterButtons
             onDelete={this.maybeDelete.bind(this)}

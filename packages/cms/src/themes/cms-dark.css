@@ -57,7 +57,7 @@
 
   /* muted text */
   & .cms-status.is-done,
-  & .pt-text-muted {
+  & .bp3-text-muted {
     color: var(--backward-1);
   }
 
@@ -95,7 +95,7 @@
 
   /* search */
   & .cms-search {
-    & .pt-popover-content {
+    & .bp3-popover-content {
       background-color: var(--background) !important;
     }
 
@@ -132,13 +132,13 @@
   }
 
   /* dialogs */
-  & .pt-dialog {
+  & .bp3-dialog {
     background-color: var(--backward-3);
   }
-  & .pt-dialog-header {
+  & .bp3-dialog-header {
     background-color: var(--backward-2);
   }
-  & .pt-dialog-close-button {
+  & .bp3-dialog-close-button {
     color: var(--forward-1);
 
     &:hover, &:focus {
@@ -186,13 +186,13 @@
   & .cms-sidebar {
     background-color: var(--backward-3);
 
-    & .pt-tree-node-content:hover,
-    & .pt-tree-node-content .pt-tree-node-caret:hover,
-    & .pt-tree-node-content .pt-tree-node-cog:hover {
+    & .bp3-tree-node-content:hover,
+    & .bp3-tree-node-content .bp3-tree-node-caret:hover,
+    & .bp3-tree-node-content .bp3-tree-node-cog:hover {
       color: var(--accent-light);
     }
 
-    & .pt-tree-node-selected > .pt-tree-node-content {
+    & .bp3-tree-node-selected > .bp3-tree-node-content {
       background-color: var(--background);
       color: var(--accent-light);
     }

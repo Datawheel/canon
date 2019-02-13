@@ -76,8 +76,8 @@ class PercentageBar extends Component {
           const label = d[groupBy];
           return <div key={`pb-${i}`}className="percent-wrapper">
             <p className="label s-size">{label}</p>
-            <div className="pt-progress-bar pt-intent-primary pt-no-stripes">
-              {!isNaN(percent) && <div className="pt-progress-meter" style={{width: `${percent}%`}}>
+            <div className="bp3-progress-bar bp3-intent-primary bp3-no-stripes">
+              {!isNaN(percent) && <div className="bp3-progress-meter" style={{width: `${percent}%`}}>
               </div>}      
               
             </div>

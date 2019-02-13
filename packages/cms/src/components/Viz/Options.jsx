@@ -9,9 +9,9 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import {Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab2, Tabs2} from "@blueprintjs/core";
+import {Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
-import "@blueprintjs/table/dist/table.css";
+import "@blueprintjs/table/lib/css/table.css";
 
 const filename = str => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/^\-/g, "")
@@ -120,7 +120,7 @@ class Options extends Component {
     const node = this.getNode();
     const svgAvailable = node && select(node).select("svg").size() > 0;
 
-    const ImagePanel = () => <div className="pt-dialog-body save-image">
+    const ImagePanel = () => <div className="bp3-dialog-body save-image">
       <div className="save-image-btn" onClick={this.onSave.bind(this, "png")}>
         <Icon iconName="media" />PNG
       </div>
@@ -148,9 +148,9 @@ class Options extends Component {
     };
 
     const DataPanel = () => results
-      ? <div className="pt-dialog-body view-table">
+      ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
-          <button type="button" className="pt-button pt-icon-download pt-minimal" onClick={this.onCSV.bind(this)}>
+          <button type="button" className="bp3-button bp3-icon-download bp3-minimal" onClick={this.onCSV.bind(this)}>
             Download as CSV
           </button>
           { typeof data === "string" && <input type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={`${location.origin}${data}`} /> }
@@ -168,7 +168,7 @@ class Options extends Component {
           </Table>
         </div>
       </div>
-      : <div className="pt-dialog-body view-table">
+      : <div className="bp3-dialog-body view-table">
         <NonIdealState title="Loading Data" visual={<Spinner />} />
       </div>;
 
@@ -183,11 +183,11 @@ class Options extends Component {
       </div>
 
       <Dialog className="options-dialog" isOpen={openDialog} onClose={this.toggleDialog.bind(this, false)}>
-        <Tabs2 onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
-          <Tab2 id="view-table" title="View Data" panel={<DataPanel />} />
-          <Tab2 id="save-image" title="Save Image" panel={<ImagePanel />} />
-          <button aria-label="Close" className="close-button pt-dialog-close-button pt-icon-small-cross" onClick={this.toggleDialog.bind(this, false)}></button>
-        </Tabs2>
+        <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
+          <Tab id="view-table" title="View Data" panel={<DataPanel />} />
+          <Tab id="save-image" title="Save Image" panel={<ImagePanel />} />
+          <button aria-label="Close" className="close-button bp3-dialog-close-button bp3-icon-small-cross" onClick={this.toggleDialog.bind(this, false)}></button>
+        </Tabs>
       </Dialog>
 
     </div>;

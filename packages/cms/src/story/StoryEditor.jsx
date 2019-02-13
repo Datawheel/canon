@@ -4,7 +4,7 @@ import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import {DatePicker} from "@blueprintjs/datetime";
 
-import "@blueprintjs/datetime/dist/blueprint-datetime.css";
+import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 
 const propMap = {
   author: "authors",
@@ -39,13 +39,27 @@ class StoryEditor extends Component {
   }
 
   onSave(minData) {
-    if (this.props.reportSave) this.props.reportSave("story", minData.id, minData.title);
+    const {localeDefault} = this.props;
+    const defCon = minData.content.find(c => c.lang === localeDefault);
+    const title = defCon && defCon.title ? defCon.title : minData.slug;
+    if (this.props.reportSave) this.props.reportSave("story", minData.id, title);
   }
 
   setDate(date) {
     const {minData} = this.state;
     minData.date = date;
     this.setState({minData, showDate: false}, this.save.bind(this));
+  }
+
+  // Strip leading/trailing spaces and URL-breaking characters
+  urlPrep(str) {
+    return str.replace(/^\s+|\s+$/gm, "").replace(/[^a-zA-ZÀ-ž0-9-\ _]/g, "");
+  }
+
+  changeField(field, e) {
+    const {minData} = this.state;
+    minData[field] = field === "slug" ? this.urlPrep(e.target.value) : e.target.value;
+    this.setState({minData});
   }
 
   save() {
@@ -84,11 +98,24 @@ class StoryEditor extends Component {
   render() {
 
     const {minData, showDate} = this.state;
+    const {locale, localeDefault} = this.props;
 
     if (!minData) return <Loading />;
 
     return (
       <div className="cms-editor-inner">
+
+        {/* current story options */}
+        <div className="cms-editor-header">
+          {/* change slug */}
+          <label className="bp3-label cms-slug">
+            Story slug
+            <div className="bp3-input-group">
+              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
+              <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
+            </div>
+          </label>
+        </div>
 
         {/* story name */}
         {/* TODO: move this to header */}
@@ -98,14 +125,25 @@ class StoryEditor extends Component {
         <div className="cms-card-list">
           <TextCard
             item={minData}
+            locale={localeDefault}
+            localeDefault={localeDefault}
             fields={["title", "subtitle"]}
-            plainfields={["image", "slug"]}
+            plainfields={["image"]}
             type="story"
             onSave={this.onSave.bind(this)}
             variables={{}}
           />
+          {locale && <TextCard
+            item={minData}
+            locale={locale}
+            localeDefault={localeDefault}
+            fields={["title", "subtitle"]}
+            plainfields={["image"]}
+            type="story"
+            onSave={this.onSave.bind(this)}
+            variables={{}}
+          /> }
         </div>
-
         <h2 className="cms-section-heading">
           Date
         </h2>
@@ -122,13 +160,15 @@ class StoryEditor extends Component {
         <h2 className="cms-section-heading">
           Descriptions
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "story_description")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
           { minData.descriptions && minData.descriptions.map(d =>
             <TextCard key={d.id}
               item={d}
+              locale={localeDefault}
+              localeDefault={localeDefault}
               onDelete={this.onDelete.bind(this)}
               fields={["description"]}
               type="story_description"
@@ -138,18 +178,35 @@ class StoryEditor extends Component {
             />
           )}
         </div>
+        {locale && <div className="cms-card-list">
+          { minData.descriptions && minData.descriptions.map(d =>
+            <TextCard key={d.id}
+              item={d}
+              locale={locale}
+              localeDefault={localeDefault}
+              onDelete={this.onDelete.bind(this)}
+              fields={["description"]}
+              type="story_description"
+              variables={{}}
+              parentArray={minData.descriptions}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div> }
 
         {/* footnotes */}
         <h2 className="cms-section-heading">
           Footnotes
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "story_footnote")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
           { minData.footnotes && minData.footnotes.map(d =>
             <TextCard key={d.id}
               item={d}
+              locale={localeDefault}
+              localeDefault={localeDefault}
               ordering={d.ordering}
               onDelete={this.onDelete.bind(this)}
               fields={["title", "description"]}
@@ -160,18 +217,36 @@ class StoryEditor extends Component {
             />
           )}
         </div>
+        {locale && <div className="cms-card-list">
+          { minData.footnotes && minData.footnotes.map(d =>
+            <TextCard key={d.id}
+              item={d}
+              locale={locale}
+              localeDefault={localeDefault}
+              ordering={d.ordering}
+              onDelete={this.onDelete.bind(this)}
+              fields={["title", "description"]}
+              type="story_footnote"
+              variables={{}}
+              parentArray={minData.footnotes}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div> }
 
         {/* descriptions */}
         <h2 className="cms-section-heading">
           Authors
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "author")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
           { minData.authors && minData.authors.map(d =>
             <TextCard key={d.id}
               item={d}
+              locale={localeDefault}
+              localeDefault={localeDefault}
               onDelete={this.onDelete.bind(this)}
               fields={["bio"]}
               plainfields={["name", "title", "image", "twitter"]}
@@ -182,6 +257,22 @@ class StoryEditor extends Component {
             />
           )}
         </div>
+        {locale && <div className="cms-card-list">
+          { minData.authors && minData.authors.map(d =>
+            <TextCard key={d.id}
+              item={d}
+              locale={locale}
+              localeDefault={localeDefault}
+              onDelete={this.onDelete.bind(this)}
+              fields={["bio"]}
+              plainfields={["name", "title", "image", "twitter"]}
+              type="author"
+              variables={{}}
+              parentArray={minData.authors}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div> }
       </div>
     );
   }

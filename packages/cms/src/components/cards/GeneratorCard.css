@@ -7,7 +7,7 @@
   & h5 {
     margin: 7px auto 10px;
     text-align: center;
-    & .pt-icon-standard {
+    & .bp3-icon-standard {
       margin-right: 5px;
       &.generator {
         color: #fdd78e;
@@ -22,7 +22,7 @@
     max-height: 90px;
     overflow-y: scroll;
 
-    & .pt-table {
+    & .bp3-table {
       height: 100%;
       width: 100%;
       & td {

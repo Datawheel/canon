@@ -1,41 +1,36 @@
 module.exports = function(sequelize, db) {
 
-  const s = sequelize.define("profile_stat",
+  const s = sequelize.define("storytopic_stat_content",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        onDelete: "cascade",
+        references: {
+          model: "storytopic_stat",
+          key: "id"
+        }
+      },
+      lang: {
+        type: db.STRING,
+        primaryKey: true
       },
       title: {
         type: db.STRING,
         defaultValue: "New Stat"
       },
       subtitle: {
-        type: db.TEXT,
+        type: db.STRING,
         defaultValue: "New Subtitle"
-      },
+      },      
       value: {
         type: db.STRING,
         defaultValue: "New Value"
-      },
-      profile_id: {
-        type: db.INTEGER,
-        onDelete: "cascade",
-        references: {
-          model: "profile",
-          key: "id"
-        }
-      },
-      tooltip: {
-        type: db.TEXT,
-        defaultValue: "New Tooltip"
-      },
-      allowed: {
-        type: db.STRING,
-        defaultValue: "always"
       },      
-      ordering: db.INTEGER
+      tooltip: {
+        type: db.STRING,
+        defaultValue: "New Tooltip"
+      }
     }, 
     {
       freezeTableName: true,

@@ -6,11 +6,7 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         primaryKey: true,
         autoIncrement: true
-      },
-      subtitle: {
-        type: db.TEXT,
-        defaultValue: "New Subtitle"
-      },      
+      },     
       topic_id: {
         type: db.INTEGER,
         onDelete: "cascade",
@@ -30,6 +26,10 @@ module.exports = function(sequelize, db) {
       timestamps: false
     }
   );
+
+  t.associate = models => {
+    t.hasMany(models.topic_subtitle_content, {foreignKey: "id", sourceKey: "id", as: "content"});
+  };
 
   return t;
 

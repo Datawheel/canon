@@ -7,19 +7,15 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
-      title: {
-        type: db.STRING,
-        defaultValue: "New Topic"
-      },      
       slug: {
         type: db.STRING,
         defaultValue: "new-topic-slug"
       },
-      section_id: {
+      profile_id: {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "section",
+          model: "profile",
           key: "id"
         }
       },
@@ -40,6 +36,7 @@ module.exports = function(sequelize, db) {
   );
 
   t.associate = models => {
+    t.hasMany(models.topic_content, {foreignKey: "id", sourceKey: "id", as: "content"});
     t.hasMany(models.topic_visualization, {foreignKey: "topic_id", sourceKey: "id", as: "visualizations"});
     t.hasMany(models.topic_stat, {foreignKey: "topic_id", sourceKey: "id", as: "stats"});
     t.hasMany(models.topic_subtitle, {foreignKey: "topic_id", sourceKey: "id", as: "subtitles"});

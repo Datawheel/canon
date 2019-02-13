@@ -8,6 +8,7 @@ const FUNC = require("../utils/FUNC"),
       yn = require("yn");
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
 const searchMap = {
   cip: "CIP",
@@ -20,47 +21,65 @@ const searchMap = {
 
 const profileReq = {
   include: [
-    {association: "stats", separate: true},
-    {association: "footnotes", separate: true},
-    {
-      association: "sections", separate: true,
+    {association: "content", separate: true},
+    {association: "topics", separate: true,
       include: [
-        {association: "subtitles", separate: true},
-        {association: "descriptions", separate: true},
-        {
-          association: "topics", separate: true,
-          include: [
-            {association: "subtitles", separate: true},
-            {association: "descriptions", separate: true},
-            {association: "visualizations", separate: true},
-            {association: "stats", separate: true},
-            {association: "selectors", separate: true}
-          ]
-        }
+        {association: "content", separate: true},
+        {association: "subtitles", separate: true, 
+          include: [{association: "content", separate: true}]
+        },
+        {association: "descriptions", separate: true, 
+          include: [{association: "content", separate: true}]
+        },
+        {association: "visualizations", separate: true},
+        {association: "stats", separate: true, 
+          include: [{association: "content", separate: true}]
+        },
+        {association: "selectors", separate: true}
       ]
-    }
-  ]
+    }]
 };
 
 const topicReq = [
-  {association: "subtitles", separate: true},
-  {association: "descriptions", separate: true},
+  {association: "content", separate: true},
+  {association: "subtitles", separate: true, 
+    include: [{association: "content", separate: true}]
+  },
+  {association: "descriptions", separate: true, 
+    include: [{association: "content", separate: true}]
+  },
   {association: "visualizations", separate: true},
-  {association: "stats", separate: true},
+  {association: "stats", separate: true, 
+    include: [{association: "content", separate: true}]
+  },
   {association: "selectors", separate: true}
 ];
 
 const storyReq = {
   include: [
-    {association: "authors", separate: true},
-    {association: "descriptions", separate: true},
-    {association: "footnotes", separate: true},
+    {association: "content", separate: true},
+    {association: "authors", separate: true, 
+      include: [{association: "content", separate: true}]
+    },
+    {association: "descriptions", separate: true, 
+      include: [{association: "content", separate: true}]
+    },
+    {association: "footnotes", separate: true, 
+      include: [{association: "content", separate: true}]
+    },
     {
       association: "storytopics", separate: true,
       include: [
-        {association: "descriptions", separate: true},
-        {association: "stats", separate: true},
-        {association: "subtitles", separate: true},
+        {association: "content", separate: true},
+        {association: "descriptions", separate: true,
+          include: [{association: "content", separate: true}]
+        },
+        {association: "stats", separate: true,
+          include: [{association: "content", separate: true}]
+        },
+        {association: "subtitles", separate: true,
+          include: [{association: "content", separate: true}]
+        },
         {association: "visualizations", separate: true}
       ]
     }
@@ -90,30 +109,20 @@ const sorter = (a, b) => a.ordering - b.ordering;
 
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. Eventually move it up to the query.
 const sortProfile = profile => {
-  profile = profile.toJSON();
-  if (profile.stats) profile.stats.sort(sorter);
-  if (profile.sections) {
-    profile.sections.sort(sorter);
-    profile.sections.map(section => {
-      if (section.subtitles) section.subtitles.sort(sorter);
-      if (section.descriptions) section.descriptions.sort(sorter);
-      if (section.topics) {
-        section.topics.sort(sorter);
-        section.topics.map(topic => {
-          if (topic.subtitles) topic.subtitles.sort(sorter);
-          if (topic.selectors) topic.selectors.sort(sorter);
-          if (topic.stats) topic.stats.sort(sorter);
-          if (topic.descriptions) topic.descriptions.sort(sorter);
-          if (topic.visualizations) topic.visualizations.sort(sorter);
-        });
-      }
+  if (profile.topics) {
+    profile.topics.sort(sorter);
+    profile.topics.forEach(topic => {
+      if (topic.subtitles) topic.subtitles.sort(sorter);
+      if (topic.selectors) topic.selectors.sort(sorter);
+      if (topic.stats) topic.stats.sort(sorter);
+      if (topic.descriptions) topic.descriptions.sort(sorter);
+      if (topic.visualizations) topic.visualizations.sort(sorter);
     });
   }
   return profile;
 };
 
 const sortStory = story => {
-  story = story.toJSON();
   ["descriptions", "footnotes", "authors", "storytopics"].forEach(type => story[type].sort(sorter));
   story.storytopics.forEach(storytopic => {
     ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storytopic[type].sort(sorter));
@@ -121,18 +130,74 @@ const sortStory = story => {
   return story;
 };
 
+/**
+ * Lang-specific content is stored in secondary tables, and are part of profiles as an
+ * array called "content," which contains objects of region-specific translated keys.
+ * We don't want the front end to have to even know about this sub-table or sub-array.
+ * Therefore, bubble up the appropriate content to the top-level of the object 
+ */
+
+const bubbleUp = (obj, locale) => {
+  const fieldSet = [];
+  obj.content.forEach(c => {
+    Object.keys(c).forEach(k => {
+      if (!fieldSet.includes(k)) fieldSet.push(k);
+    });
+  });
+  const defCon = obj.content.find(c => c.lang === envLoc);
+  const thisCon = obj.content.find(c => c.lang === locale);
+  fieldSet.forEach(k => {
+    if (k !== "id" && k !== "lang") {
+      thisCon && thisCon[k] ? obj[k] = thisCon[k] : obj[k] = defCon ? defCon[k] : "";
+    }
+  });
+  delete obj.content;
+  return obj;
+};
+
+const extractLocaleContent = (obj, locale, mode) => {
+  obj = obj.toJSON();
+  obj = bubbleUp(obj, locale);
+  if (mode === "story") {
+    ["footnotes", "descriptions", "authors"].forEach(type => {
+      if (obj[type]) obj[type] = obj[type].map(o => bubbleUp(o, locale));
+    });
+  }
+  if (mode === "profile" || mode === "story") {
+    const children = mode === "story" ? "storytopics" : "topics";
+    if (obj[children]) {
+      obj[children] = obj[children].map(child => {
+        child = bubbleUp(child, locale);
+        ["subtitles", "descriptions", "stats"].forEach(type => {
+          if (child[type]) child[type] = child[type].map(o => bubbleUp(o, locale));
+        });
+        return child;
+      });
+    }
+  }
+  if (mode === "topic") {
+    ["subtitles", "descriptions", "stats"].forEach(type => {
+      if (obj[type]) obj[type] = obj[type].map(o => bubbleUp(o, locale));
+    });
+  }
+  return obj;
+}; 
+
+
 module.exports = function(app) {
 
   const {cache, db} = app.settings;
 
   app.get("/api/internalprofile/:slug", (req, res) => {
     const {slug} = req.params;
+    const locale = req.query.locale ? req.query.locale : envLoc;
     const reqObj = Object.assign({}, profileReq, {where: {slug}});
-    db.profile.findOne(reqObj).then(profile => res.json(sortProfile(profile)).end());
+    db.profile.findOne(reqObj).then(profile => res.json(sortProfile(extractLocaleContent(profile, locale, "profile"))).end());
   });
 
   app.get("/api/variables/:slug/:id", (req, res) => {
   // app.get("/api/variables/:slug/:id", jsonCache, (req, res) => {
+    const locale = req.query.locale ? req.query.locale : envLoc;
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const {slug, id} = req.params;
 
@@ -156,7 +221,7 @@ module.exports = function(app) {
         // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
         // The .catch here is to handle malformed API urls, returning an empty object
         const fetches = requests.map(r => {
-          let url = urlSwap(r, {...req.params, ...cache, ...attr});
+          let url = urlSwap(r, {...req.params, ...cache, ...attr, locale});
           if (url.indexOf("http") !== 0) {
             const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
             url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
@@ -184,7 +249,7 @@ module.exports = function(app) {
           const requiredGenerators = generators.filter(g => g.api === requests[i]);
           // Build the return object using a reducer, one generator at a time
           returnVariables = requiredGenerators.reduce((acc, g) => {
-            const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions);
+            const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale);
             const {vars} = evalResults;
             // genStatus is used to track the status of each individual generator
             genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
@@ -205,7 +270,7 @@ module.exports = function(app) {
         materializers.sort((a, b) => a.ordering - b.ordering);
         const matStatus = {};
         returnVariables = materializers.reduce((acc, m) => {
-          const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions);
+          const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions, locale);
           const {vars} = evalResults;
           matStatus[m.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
           return {...acc, ...vars};
@@ -223,7 +288,9 @@ module.exports = function(app) {
   app.get("/api/profile/:slug/:pid", async(req, res) => {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const {slug, pid} = req.params;
+    const locale = req.query.locale || envLoc;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+    const localeString = `?locale=${locale}`;
 
     const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}});
     const {id} = attribute;
@@ -234,7 +301,7 @@ module.exports = function(app) {
      * We must pass that info as one of the arguments of the returned Promise.
     */
 
-    Promise.all([axios.get(`${origin}/api/variables/${slug}/${id}`), db.formatter.findAll()])
+    Promise.all([axios.get(`${origin}/api/variables/${slug}/${id}${localeString}`), db.formatter.findAll()])
 
       // Given the completely built returnVariables and all the formatters (formatters are global)
       // Get the ACTUAL profile itself and all its dependencies and prepare it to be formatted and regex replaced
@@ -245,7 +312,7 @@ module.exports = function(app) {
         delete variables._matStatus;
         const formatters = resp[1];
         const formatterFunctions = formatters4eval(formatters);
-        const request = axios.get(`${origin}/api/internalprofile/${slug}`);
+        const request = axios.get(`${origin}/api/internalprofile/${slug}${localeString}`);
         return Promise.all([variables, formatterFunctions, request]);
       })
       // Given a returnObject with completely built returnVariables, a hash array of formatter functions, and the profile itself
@@ -272,6 +339,8 @@ module.exports = function(app) {
   app.get("/api/topic/:slug/:pid/:topicId", async(req, res) => {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const {slug, pid, topicId} = req.params;
+    const locale = req.query.locale || envLoc;
+    const localeString = `?locale=${locale}`;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
 
     const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}});
@@ -279,7 +348,7 @@ module.exports = function(app) {
 
     // As with profiles above, we need formatters, variables, and the topic itself in order to
     // create a "postProcessed" topic that can be returned to the requester.
-    const getVariables = axios.get(`${origin}/api/variables/${slug}/${id}`);
+    const getVariables = axios.get(`${origin}/api/variables/${slug}/${id}${localeString}`);
     const getFormatters = db.formatter.findAll();
 
     const where = {};
@@ -294,7 +363,8 @@ module.exports = function(app) {
         delete variables._matStatus;
         const formatters = resp[1];
         const formatterFunctions = formatters4eval(formatters);
-        const topic = varSwapRecursive(resp[2].toJSON(), formatterFunctions, variables, req.query);
+        let topic = extractLocaleContent(resp[2], locale, "topic");
+        topic = varSwapRecursive(topic, formatterFunctions, variables, req.query);
         if (topic.subtitles) topic.subtitles.sort(sorter);
         if (topic.selectors) topic.selectors.sort(sorter);
         if (topic.stats) topic.stats.sort(sorter);
@@ -302,18 +372,19 @@ module.exports = function(app) {
         if (topic.visualizations) topic.visualizations.sort(sorter);
         res.json({variables, ...topic}).end();
       })
-      .catch(() => {
-        res.json({error: "Unable to find topic."}).end();
+      .catch(e => {
+        res.json({error: `Topic error: ${e.message}`}).end();
       });
   });
 
   // Endpoint for getting a story
   app.get("/api/story/:id", (req, res) => {
     const {id} = req.params;
+    const locale = req.query.locale ? req.query.locale : envLoc;
     // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
     db.story.findOne(reqObj).then(story => {
-      story = sortStory(story);
+      story = sortStory(extractLocaleContent(story, locale, "story")); 
       // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
       // Do a naive varswap (with no formatters and no variables) just to access the transpile for vizes.
       story = varSwapRecursive(story, {}, {});
@@ -323,7 +394,14 @@ module.exports = function(app) {
 
   // Endpoint for getting all stories
   app.get("/api/story", (req, res) => {
-    db.story.findAll({include: [{association: "authors", attributes: ["name", "image"]}]}).then(stories => {
+    const locale = req.query.locale ? req.query.locale : envLoc;
+    db.story.findAll({include: [
+      {association: "content"},
+      {association: "authors", include: [
+        {association: "content", attributes: ["name", "image", "lang"]}
+      ]}
+    ]}).then(stories => {
+      stories = stories.map(story => extractLocaleContent(story, locale, "story"));
       res.json(stories.sort(sorter)).end();
     });
   });

@@ -7,7 +7,8 @@ class PlainTextEditor extends Component {
     super(props);
     this.state = {
       data: null,
-      fields: null
+      fields: null,
+      isDirty: false
     };
   }
 
@@ -17,21 +18,33 @@ class PlainTextEditor extends Component {
   }
 
   changeField(field, e) {
-    const {data} = this.state;
-    data[field] = e.target.value;
+    const {isDirty, data} = this.state;
+    const {locale} = this.props;
+    const thisLocale = data.content.find(c => c.lang === locale);
+    thisLocale[field] = e.target.value;
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
     this.setState({data});
   }
 
   render() {
 
     const {data, fields} = this.state;
+    const {locale} = this.props;
 
     if (!data || !fields) return null;
+
+    const thisLocale = data.content.find(c => c.lang === locale); 
 
     const inputs = fields.map(f =>
       <div key={f}>
         <label htmlFor={f}>{f}</label>
-        <input id={f} className="pt-input" type="text" value={data[f]} onChange={this.changeField.bind(this, f)}/>
+        <input id={f} className="bp3-input" type="text" value={thisLocale[f]} onChange={this.changeField.bind(this, f)}/>
       </div>
     );
 

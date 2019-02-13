@@ -44,9 +44,14 @@ class TopicEditor extends Component {
     });
   }
 
+  // Strip leading/trailing spaces and URL-breaking characters
+  urlPrep(str) {
+    return str.replace(/^\s+|\s+$/gm, "").replace(/[^a-zA-ZÀ-ž0-9-\ _]/g, "");
+  }
+
   changeField(field, save, e) {
     const {minData} = this.state;
-    minData[field] = e.target.value;
+    minData[field] = field === "slug" ? this.urlPrep(e.target.value) : e.target.value;
     save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
   }
 
@@ -87,7 +92,10 @@ class TopicEditor extends Component {
   }
 
   onSave(minData) {
-    if (this.props.reportSave) this.props.reportSave("topic", minData.id, minData.title);
+    const {localeDefault} = this.props;
+    const defCon = minData.content.find(c => c.lang === localeDefault);
+    const title = defCon && defCon.title ? defCon.title : minData.slug;
+    if (this.props.reportSave) this.props.reportSave("topic", minData.id, title);
   }
 
   onMove() {
@@ -111,16 +119,21 @@ class TopicEditor extends Component {
   render() {
 
     const {minData, recompiling} = this.state;
-    const {variables, preview, children} = this.props;
+    const {variables, preview, children, locale, localeDefault} = this.props;
 
-    if (!minData || !variables) return <Loading />;
+    const dataLoaded = minData;
+    const varsLoaded = variables;
+    const defLoaded = locale || variables && !locale && variables[localeDefault];
+    const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
+
+    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <Loading />;
 
     const varOptions = [<option key="always" value="always">Always</option>]
-      .concat(Object.keys(variables)
+      .concat(Object.keys(variables[localeDefault])
         .filter(key => !key.startsWith("_"))
         .sort((a, b) => a.localeCompare(b))
         .map(key => {
-          const value = variables[key];
+          const value = variables[localeDefault][key];
           const type = typeof value;
           const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
           return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
@@ -145,26 +158,26 @@ class TopicEditor extends Component {
         {/* current topic options */}
         <div className="cms-editor-header">
           {/* change slug */}
-          <label className="pt-label cms-slug">
-            Profile slug
-            <div className="pt-input-group">
-              <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-              <button className="cms-button pt-button" onClick={this.save.bind(this)}>Rename</button>
+          <label className="bp3-label cms-slug">
+            Topic slug
+            <div className="bp3-input-group">
+              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
+              <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
             </div>
           </label>
           {/* visibility select */}
-          <label className="pt-label pt-fill">
+          <label className="bp3-label bp3-fill">
             Allowed
-            <div className="pt-select">
+            <div className="bp3-select">
               <select id="visibility-select" value={minData.allowed || "always"} onChange={this.changeField.bind(this, "allowed", true)}>
                 {varOptions}
               </select>
             </div>
           </label>
           {/* layout select */}
-          <label className="pt-label pt-fill">
+          <label className="bp3-label bp3-fill">
             Layout
-            <div className="pt-select">
+            <div className="bp3-select">
               <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
                 {typeOptions}
               </select>
@@ -180,18 +193,29 @@ class TopicEditor extends Component {
         <div className="cms-card-list">
           <TextCard
             item={minData}
+            locale={localeDefault}
+            localeDefault={localeDefault}
             fields={["title"]}
             onSave={this.onSave.bind(this)}
             type="topic"
-            variables={variables}
+            variables={variables[localeDefault]}
           />
+          {locale && <TextCard
+            item={minData}
+            locale={locale}
+            localeDefault={localeDefault}
+            fields={["title"]}
+            onSave={this.onSave.bind(this)}
+            type="topic"
+            variables={variables[locale]}
+          />}
         </div>
 
         {/* subtitles */}
         <h2 className="cms-section-heading">
           Subtitles
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "topic_subtitle")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
@@ -199,22 +223,41 @@ class TopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
+              locale={localeDefault}
+              localeDefault={localeDefault}
               fields={["subtitle"]}
               type="topic_subtitle"
               onDelete={this.onDelete.bind(this)}
-              variables={variables}
+              variables={variables[localeDefault]}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
               parentArray={minData.subtitles}
               onMove={this.onMove.bind(this)}
             />
           )}
         </div>
+        {locale && <div className="cms-card-list">
+          { minData.subtitles && minData.subtitles.map(s =>
+            <TextCard
+              key={s.id}
+              item={s}
+              locale={locale}
+              localeDefault={localeDefault}
+              fields={["subtitle"]}
+              type="topic_subtitle"
+              onDelete={this.onDelete.bind(this)}
+              variables={variables[locale]}
+              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              parentArray={minData.subtitles}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div> }
 
         {/* subtitles */}
         <h2 className="cms-section-heading">
           Selectors
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "selector")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
@@ -225,7 +268,7 @@ class TopicEditor extends Component {
               type="selector"
               onSave={() => this.forceUpdate()}
               onDelete={this.onDelete.bind(this)}
-              variables={variables}
+              variables={variables.en}
               parentArray={minData.selectors}
               onMove={this.onMove.bind(this)}
             />
@@ -237,7 +280,7 @@ class TopicEditor extends Component {
         <h2 className="cms-section-heading">
           Stats
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "topic_stat")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
@@ -245,22 +288,41 @@ class TopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
+              locale={localeDefault}
+              localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
               type="topic_stat"
               onDelete={this.onDelete.bind(this)}
-              variables={variables}
+              variables={variables[localeDefault]}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
               parentArray={minData.stats}
               onMove={this.onMove.bind(this)}
             />
           )}
         </div>
+        {locale && <div className="cms-card-list">
+          { minData.stats && minData.stats.map(s =>
+            <TextCard
+              key={s.id}
+              item={s}
+              locale={locale}
+              localeDefault={localeDefault}
+              fields={["title", "subtitle", "value", "tooltip"]}
+              type="topic_stat"
+              onDelete={this.onDelete.bind(this)}
+              variables={variables[locale]}
+              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              parentArray={minData.stats}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div> }
 
         {/* descriptions */}
         <h2 className="cms-section-heading">
           Descriptions
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "topic_description")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list">
@@ -268,22 +330,41 @@ class TopicEditor extends Component {
             <TextCard
               key={d.id}
               item={d}
+              locale={localeDefault}
+              localeDefault={localeDefault}
               fields={["description"]}
               type="topic_description"
               onDelete={this.onDelete.bind(this)}
-              variables={variables}
+              variables={variables[localeDefault]}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
               parentArray={minData.descriptions}
               onMove={this.onMove.bind(this)}
             />
           )}
         </div>
+        {locale && <div className="cms-card-list">
+          { minData.descriptions && minData.descriptions.map(d =>
+            <TextCard
+              key={d.id}
+              item={d}
+              locale={locale}
+              localeDefault={localeDefault}
+              fields={["description"]}
+              type="topic_description"
+              onDelete={this.onDelete.bind(this)}
+              variables={variables[locale]}
+              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              parentArray={minData.descriptions}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div> }
 
         {/* visualizations */}
         <h2 className="cms-section-heading">
           Visualizations
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "topic_visualization")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
         <div className="cms-card-list visualizations">
@@ -291,16 +372,35 @@ class TopicEditor extends Component {
             <VisualizationCard
               key={v.id}
               item={v}
+              locale={localeDefault}
+              localeDefault={localeDefault}
               preview={preview}
               onDelete={this.onDelete.bind(this)}
               type="topic_visualization"
-              variables={variables}
+              variables={variables[localeDefault]}
               selectors={minData.selectors.map(s => Object.assign({}, s))}
               parentArray={minData.visualizations}
               onMove={this.onMove.bind(this)}
             />
           )}
         </div>
+        {locale && <div className="cms-card-list visualizations">
+          { minData.visualizations && minData.visualizations.map(v =>
+            <VisualizationCard
+              key={v.id}
+              item={v}
+              locale={locale}
+              localeDefault={localeDefault}
+              preview={preview}
+              onDelete={this.onDelete.bind(this)}
+              type="topic_visualization"
+              variables={variables[locale]}
+              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              parentArray={minData.visualizations}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        </div>}
       </div>
     );
   }

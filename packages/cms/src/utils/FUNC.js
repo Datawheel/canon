@@ -54,11 +54,12 @@ function func2obj(func) {
 
 }
 
-function parse(config, formatters = {}) {
+function parse(config, formatters = {}, locale = "en") {
 
   const globals = {
     formatters,
-    libs
+    libs,
+    locale
   };
 
   function parseFunction(obj) {

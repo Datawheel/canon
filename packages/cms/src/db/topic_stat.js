@@ -7,18 +7,6 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
-      title: {
-        type: db.STRING,
-        defaultValue: "New Stat"
-      },
-      subtitle: {
-        type: db.TEXT,
-        defaultValue: "New Subtitle"
-      },      
-      value: {
-        type: db.STRING,
-        defaultValue: "New Value"
-      },
       topic_id: {
         type: db.INTEGER,
         onDelete: "cascade",
@@ -26,10 +14,6 @@ module.exports = function(sequelize, db) {
           model: "topic",
           key: "id"
         }
-      },
-      tooltip: {
-        type: db.TEXT,
-        defaultValue: "New Tooltip"
       },
       allowed: {
         type: db.STRING,
@@ -42,6 +26,10 @@ module.exports = function(sequelize, db) {
       timestamps: false
     }
   );
+
+  s.associate = models => {
+    s.hasMany(models.topic_stat_content, {foreignKey: "id", sourceKey: "id", as: "content"});
+  };
 
   return s;
 

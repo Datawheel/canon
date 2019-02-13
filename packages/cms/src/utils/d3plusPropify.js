@@ -1,14 +1,16 @@
 import {assign} from "d3plus-common";
 import {parse} from "./FUNC";
 
-export default (logic, formatters = {}, variables = {}) => {
+const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
+
+export default (logic, formatters = {}, variables = {}, locale = envLoc) => {
 
   let config;
 
   // The logic provided might be malformed. Wrap it in a try/catch to be sure we don't 
   // crash / RSOD whatever page is making use of propify.
   try {
-    config = parse({vars: ["variables"], logic}, formatters)(variables);
+    config = parse({vars: ["variables"], logic}, formatters, locale)(variables);
   }
   // If the javascript fails, return a special error object for the front-end to use.
   catch (e) {

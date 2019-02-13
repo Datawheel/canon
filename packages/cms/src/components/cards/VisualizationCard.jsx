@@ -18,7 +18,8 @@ class VisualizationCard extends Component {
     this.state = {
       minData: null,
       initialData: null,
-      alertObj: false
+      alertObj: false,
+      isDirty: false
     };
   }
 
@@ -73,12 +74,23 @@ class VisualizationCard extends Component {
   }
 
   maybeCloseEditorWithoutSaving() {
-    const alertObj = {
-      callback: this.closeEditorWithoutSaving.bind(this),
-      message: "Are you sure you want to abandon changes?",
-      confirm: "Yes, Abandon changes."
-    };
-    this.setState({alertObj});
+    const {isDirty} = this.state;
+    if (isDirty) {
+      const alertObj = {
+        callback: this.closeEditorWithoutSaving.bind(this),
+        message: "Are you sure you want to abandon changes?",
+        confirm: "Yes, Abandon changes."
+      };
+      this.setState({alertObj});
+    } 
+    else {
+      this.closeEditorWithoutSaving.bind(this)();
+    }
+  }
+
+  markAsDirty() {
+    const {isDirty} = this.state;
+    if (!isDirty) this.setState({isDirty: true});
   }
 
   closeEditorWithoutSaving() {
@@ -86,7 +98,8 @@ class VisualizationCard extends Component {
     const minData = deepClone(initialData);
     const isOpen = false;
     const alertObj = false;
-    this.setState({minData, isOpen, alertObj});
+    const isDirty = false;
+    this.setState({minData, isOpen, alertObj, isDirty});
   }
 
   render() {
@@ -96,7 +109,7 @@ class VisualizationCard extends Component {
     if (!minData) return <Loading />;
 
     const {formatters} = this.context;
-    const {selectors, type, variables, parentArray, item, preview} = this.props;
+    const {selectors, type, variables, parentArray, item, preview, locale, localeDefault} = this.props;
 
     minData.selectors = selectors;
     const {logic} = varSwapRecursive(minData, formatters, variables);
@@ -110,12 +123,11 @@ class VisualizationCard extends Component {
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
-          iconName="pt-icon-warning-sign"
+          iconName="bp3-icon-warning-sign"
           intent={Intent.DANGER}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
-          inline="true"
         >
           {alertObj.message}
         </Alert>
@@ -124,22 +136,21 @@ class VisualizationCard extends Component {
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
-          iconName="pt-icon-warning-sign"
+          iconName="bp3-icon-warning-sign"
           intent={Intent.DANGER}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
-          inline="true"
         >
           {alertObj.message}
         </Alert>
 
         {/* title & edit toggle button */}
-        <h5 className="cms-card-header">
+        {locale === localeDefault && <h5 className="cms-card-header">
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="pt-icon pt-icon-cog" />
+            Edit <span className="bp3-icon bp3-icon-cog" />
           </button>
-        </h5>
+        </h5> }
 
         {/* reorder buttons */}
         { parentArray &&
@@ -156,17 +167,23 @@ class VisualizationCard extends Component {
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Variable Editor"
-          inline="true"
+          usePortal={false}
         >
-          <div className="pt-dialog-body">
-            <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
+          <div className="bp3-dialog-body">
+            <GeneratorEditor 
+              markAsDirty={this.markAsDirty.bind(this)} 
+              preview={preview} 
+              data={minData} 
+              variables={variables} 
+              type={type} 
+            />
           </div>
           <FooterButtons
             onDelete={this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { logic ? <Viz config={{logic}} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
+        { logic ? <Viz config={{logic}} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
       </div>
     );
   }

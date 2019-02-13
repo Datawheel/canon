@@ -12,9 +12,7 @@ import "./ProfileEditor.css";
 
 const propMap = {
   generator: "generators",
-  materializer: "materializers",
-  profile_stat: "stats",
-  profile_footnote: "footnotes"
+  materializer: "materializers"
 };
 
 class ProfileEditor extends Component {
@@ -55,9 +53,14 @@ class ProfileEditor extends Component {
     }
   }
 
+  // Strip leading/trailing spaces and URL-breaking characters
+  urlPrep(str) {
+    return str.replace(/^\s+|\s+$/gm, "").replace(/[^a-zA-ZÀ-ž0-9-\ _]/g, "");
+  }
+
   changeField(field, e) {
     const {minData} = this.state;
-    minData[field] = e.target.value;
+    minData[field] = field === "slug" ? this.urlPrep(e.target.value) : e.target.value;
     this.setState({minData});
   }
 
@@ -113,9 +116,14 @@ class ProfileEditor extends Component {
   render() {
 
     const {minData, recompiling} = this.state;
-    const {children, variables, preview} = this.props;
+    const {children, variables, preview, locale, localeDefault} = this.props;
 
-    if (!minData || !variables) return <Loading />;
+    const dataLoaded = minData;
+    const varsLoaded = variables;
+    const defLoaded = locale || variables && !locale && variables[localeDefault];
+    const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
+
+    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <Loading />;
 
     return (
       <div className="cms-editor-inner">
@@ -133,11 +141,11 @@ class ProfileEditor extends Component {
         {/* current profile options */}
         <div className="cms-editor-header">
           {/* change slug */}
-          <label className="pt-label cms-slug">
+          <label className="bp3-label cms-slug">
             Profile slug
-            <div className="pt-input-group">
-              <input className="pt-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
-              <button className="cms-button pt-button" onClick={this.save.bind(this)}>Rename</button>
+            <div className="bp3-input-group">
+              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
+              <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
             </div>
           </label>
         </div>
@@ -146,48 +154,87 @@ class ProfileEditor extends Component {
         <h2 className="cms-section-heading">
           Generators
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "generator")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
-        <p className="pt-text-muted">Variables constructed from JSON data calls.</p>
+        <p className="bp3-text-muted">Variables constructed from JSON data calls.</p>
         <div className="cms-card-list">
           { minData.generators && minData.generators
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(g => <GeneratorCard
               key={g.id}
               item={g}
+              locale={localeDefault}
+              localeDefault={localeDefault}
               preview={preview}
               onSave={this.onSave.bind(this)}
               onDelete={this.onDelete.bind(this)}
               type="generator"
-              variables={variables}
+              variables={variables[localeDefault]}
             />)
           }
         </div>
+
+        {locale && <div className="cms-card-list">
+          { minData.generators && minData.generators
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(g => <GeneratorCard
+              key={g.id}
+              item={g}
+              locale={locale}
+              localeDefault={localeDefault}
+              preview={preview}
+              onSave={this.onSave.bind(this)}
+              onDelete={this.onDelete.bind(this)}
+              type="generator"
+              variables={variables[locale]}
+            />)
+          }
+        </div> }
 
         {/* materializers */}
         <h2 className="cms-section-heading">
           Materializers
           <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "materializer")}>
-            <span className="pt-icon pt-icon-plus" />
+            <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
-        <p className="pt-text-muted">Variables constructed from other variables. No API calls needed.</p>
+        <p className="bp3-text-muted">Variables constructed from other variables. No API calls needed.</p>
         <div className="cms-card-list materializers">
           { minData.materializers && minData.materializers
             .map(m =>
               <GeneratorCard
                 key={m.id}
                 item={m}
+                locale={localeDefault}
+                localeDefault={localeDefault}
                 onSave={this.onSave.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 type="materializer"
-                variables={variables}
+                variables={variables[localeDefault]}
                 parentArray={minData.materializers}
                 onMove={this.onMove.bind(this)}
               />
             )}
         </div>
+
+        {locale && <div className="cms-card-list materializers">
+          { minData.materializers && minData.materializers
+            .map(m =>
+              <GeneratorCard
+                key={m.id}
+                item={m}
+                locale={locale}
+                localeDefault={localeDefault}
+                onSave={this.onSave.bind(this)}
+                onDelete={this.onDelete.bind(this)}
+                type="materializer"
+                variables={variables[locale]}
+                parentArray={minData.materializers}
+                onMove={this.onMove.bind(this)}
+              />
+            )}
+        </div> }
 
         {/* Top-level Profile */}
         <h2 className="cms-section-heading">
@@ -199,61 +246,24 @@ class ProfileEditor extends Component {
         >
           <div className="cms-card-list cms-profile-header">
             <TextCard
+              locale={localeDefault}
+              localeDefault={localeDefault}
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"
-              variables={variables}
+              variables={variables[localeDefault]}
             />
+            {locale && <TextCard
+              locale={locale}
+              localeDefault={localeDefault}
+              item={minData}
+              fields={["title", "subtitle"]}
+              type="profile"
+              variables={variables[locale]}
+            />}
           </div>
         </div>
 
-        {/* splash stats */}
-        <h2 className="cms-section-heading">
-          Stats
-          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_stat")}>
-            <span className="pt-icon pt-icon-plus" />
-          </button>
-        </h2>
-        <div
-          className="cms-splash-wrapper"
-          style={{backgroundImage: `url("/api/profile/${minData.slug}/${preview}/thumb")`}}
-        >
-          <div className="cms-card-list cms-stats-card-list">
-            { minData.stats && minData.stats.map(s =>
-              <TextCard
-                key={s.id}
-                item={s}
-                onDelete={this.onDelete.bind(this)}
-                type="profile_stat"
-                fields={["title", "subtitle", "value", "tooltip"]}
-                variables={variables}
-                parentArray={minData.stats}
-                onMove={this.onMove.bind(this)}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* footnotes */}
-        <h2 className="cms-section-heading">
-          Footnotes
-          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "profile_footnote")}>
-            <span className="pt-icon pt-icon-plus" />
-          </button>
-        </h2>
-        <div className="cms-card-list">
-          { minData.footnotes && minData.footnotes.map(f =>
-            <TextCard key={f.id}
-              item={f}
-              onDelete={this.onDelete.bind(this)}
-              fields={["title", "description"]}
-              type="profile_footnote"
-              variables={variables}
-              parentArray={minData.footnotes}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        </div>
       </div>
     );
   }

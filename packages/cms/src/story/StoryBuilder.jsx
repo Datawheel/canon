@@ -43,22 +43,31 @@ class StoryBuilder extends Component {
 
   buildNodes(openNode) {
     const {stories} = this.state;
+    const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters;
-    const nodes = stories.map(s => ({
-      id: `story${s.id}`,
-      hasCaret: true,
-      label: this.decode(stripHTML(s.title)),
-      itemType: "story",
-      data: s,
-      childNodes: s.storytopics.map(t => ({
-        id: `storytopic${t.id}`,
-        hasCaret: false,
-        label: this.decode(stripHTML(t.title)),
-        iconName: topicIcons[t.type] || "help",
-        itemType: "storytopic",
-        data: t
-      }))
-    }));
+    const nodes = stories.map(s => {
+      const defCon = s.content.find(c => c.lang === localeDefault);
+      const title = defCon && defCon.title ? defCon.title : s.slug;
+      return {
+        id: `story${s.id}`,
+        hasCaret: true,
+        label: this.decode(stripHTML(title)),
+        itemType: "story",
+        data: s,
+        childNodes: s.storytopics.map(t => {
+          const defCon = t.content.find(c => c.lang === localeDefault);
+          const title = defCon && defCon.title ? defCon.title : t.slug;
+          return {
+            id: `storytopic${t.id}`,
+            hasCaret: false,
+            label: this.decode(stripHTML(title)),
+            iconName: topicIcons[t.type] || "help",
+            itemType: "storytopic",
+            data: t
+          };
+        })
+      };
+    });
     if (!openNode) {
       this.setState({nodes});
     }
@@ -102,6 +111,7 @@ class StoryBuilder extends Component {
   addItem(n, dir) {
     const {nodes} = this.state;
     const {stripHTML} = this.context.formatters;
+    const {localeDefault} = this.props;
     n = this.locateNode(n.itemType, n.data.id);
     let parentArray;
     if (n.itemType === "storytopic") {
@@ -165,7 +175,9 @@ class StoryBuilder extends Component {
           if (storytopic.status === 200) {
             obj.id = `storytopic${storytopic.data.id}`;
             obj.data = storytopic.data;
-            obj.label = this.decode(stripHTML(storytopic.data.title));
+            const defCon = storytopic.data.content.find(c => c.lang === localeDefault);
+            const title = defCon && defCon.title ? defCon.title : storytopic.data.slug;
+            obj.label = this.decode(stripHTML(title));
             const parent = this.locateNode("story", obj.data.story_id);
             parent.childNodes.push(obj);
             parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
@@ -180,13 +192,17 @@ class StoryBuilder extends Component {
         axios.post(storyPath, obj.data).then(story => {
           obj.id = `story${story.data.id}`;
           obj.data = story.data;
-          obj.label = this.decode(stripHTML(story.data.title));
+          const defCon = story.data.content.find(c => c.lang === localeDefault);
+          const title = defCon && defCon.title ? defCon.title : story.data.slug;
+          obj.label = this.decode(stripHTML(title));
           objStoryTopic.data.story_id = story.data.id;
           axios.post(storyTopicPath, objStoryTopic.data).then(storyTopic => {
             if (storyTopic.status === 200) {
               objStoryTopic.id = `storytopic${storyTopic.data.id}`;
               objStoryTopic.data = storyTopic.data;
-              objStoryTopic.label = this.decode(stripHTML(storyTopic.data.title));
+              const defCon = storyTopic.data.content.find(c => c.lang === localeDefault);
+              const title = defCon && defCon.title ? defCon.title : storyTopic.data.slug;
+              objStoryTopic.label = this.decode(stripHTML(title));
               nodes.push(obj);
               nodes.sort((a, b) => a.data.ordering - b.data.ordering);
               this.setState({nodes}, this.handleNodeClick.bind(this, obj));
@@ -207,20 +223,25 @@ class StoryBuilder extends Component {
   deleteItem(n) {
     const {nodes} = this.state;
     const {stripHTML} = this.context.formatters;
+    const {localeDefault} = this.props;
     n = this.locateNode(n.itemType, n.data.id);
     const nodeToDelete = false;
     // todo: instead of the piecemeal refreshes being done for each of these tiers - is it sufficient to run buildNodes again?
     if (n.itemType === "storytopic") {
       const parent = this.locateNode("story", n.data.story_id);
       axios.delete("/api/cms/storytopic/delete", {params: {id: n.data.id}}).then(resp => {
-        const storytopics = resp.data.map(storyTopicData => ({
-          id: `storytopic${storyTopicData.id}`,
-          hasCaret: false,
-          iconName: topicIcons[storyTopicData.type] || "help",
-          label: this.decode(stripHTML(storyTopicData.title)),
-          itemType: "storytopic",
-          data: storyTopicData
-        }));
+        const storytopics = resp.data.map(storyTopicData => {
+          const defCon = storyTopicData.content.find(c => c.lang === localeDefault);
+          const title = defCon && defCon.title ? defCon.title : storyTopicData.slug;
+          return {
+            id: `storytopic${storyTopicData.id}`,
+            hasCaret: false,
+            iconName: topicIcons[storyTopicData.type] || "help",
+            label: this.decode(stripHTML(title)),
+            itemType: "storytopic",
+            data: storyTopicData
+          };
+        });
         parent.childNodes = storytopics;
         this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
       });
@@ -309,10 +330,12 @@ class StoryBuilder extends Component {
   reportSave(type, id, newValue) {
     const {nodes} = this.state;
     const {stripHTML} = this.context.formatters;
+    const {localeDefault} = this.props;
     const node = this.locateNode.bind(this)(type, id);
     // Update the label based on the new value. If this is a section or a topic, this is the only thing needed
     if (node) {
-      node.data.title = newValue;
+      const defCon = node.data.content.find(c => c.lang === localeDefault);
+      if (defCon) defCon.title = newValue;
       node.label = this.decode(stripHTML(newValue));
     }
     this.setState({nodes});
@@ -322,6 +345,7 @@ class StoryBuilder extends Component {
   render() {
 
     const {nodes, currentNode, nodeToDelete} = this.state;
+    const {locale, localeDefault} = this.props;
 
     if (!nodes) return <div>Loading</div>;
 
@@ -344,7 +368,7 @@ class StoryBuilder extends Component {
           {/* new entity */}
           {/* TODO: make this act like add profile button */}
           <button className="cms-button" onClick={this.addFirst.bind(this)}>
-            Add story <span className="pt-icon pt-icon-plus" />
+            Add story <span className="bp3-icon bp3-icon-plus" />
           </button>
 
           <Tree
@@ -360,11 +384,15 @@ class StoryBuilder extends Component {
             ? currentNode.itemType === "story"
               ? <StoryEditor
                 id={currentNode.data.id}
+                locale={locale}
+                localeDefault={localeDefault}
                 reportSave={this.reportSave.bind(this)}
               />
               : currentNode.itemType === "storytopic"
                 ? <StoryTopicEditor
                   id={currentNode.data.id}
+                  locale={locale}
+                  localeDefault={localeDefault}
                   reportSave={this.reportSave.bind(this)}
                 />
                 : null
@@ -376,11 +404,6 @@ class StoryBuilder extends Component {
     );
   }
 }
-
-StoryBuilder.childContextTypes = {
-  formatters: PropTypes.object,
-  variables: PropTypes.object
-};
 
 StoryBuilder.contextTypes = {
   formatters: PropTypes.object

@@ -14,7 +14,7 @@ class SelectorEditor extends Component {
   componentDidMount() {
     const {data} = this.props;
     // Temporarily overload the options list itself as a tracker for checkboxes.
-    // Note that before we ship this to the db, we strip out these isDefault booleans.
+    // Note that we still ship the whole object to the db when we save, but these isDefault switches won't be written.
     data.options = data.options.map(o => {
       if (data.type === "single") {
         o.isDefault = o.option === data.default;
@@ -30,7 +30,7 @@ class SelectorEditor extends Component {
   }
 
   addOption() {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     const {variables} = this.props;
     if (!data.options) data.options = [];
     const varList = Object.keys(variables).filter(v => !v.startsWith("_") && !data.options.map(o => o.option).includes(v));
@@ -40,29 +40,54 @@ class SelectorEditor extends Component {
     else {
       data.options.push({option: "", allowed: "always", isDefault: false});
     }
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   chooseOption(index, e) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     data.options[index].option = e.target.value;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   chooseAllowed(index, e) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     data.options[index].allowed = e.target.value;
     this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   chooseCustom(e) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     data.default = e.target.value;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   setDefault(option, e) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     const {checked} = e.target;
     if (data.type === "single" && checked) {
       data.options = data.options.map(o => {
@@ -76,22 +101,34 @@ class SelectorEditor extends Component {
       if (theOption) theOption.isDefault = checked;
       data.default = data.options.filter(o => o.isDefault).map(o => o.option).join();
     }
-    this.setState({data, showCustom: false});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, showCustom: false, data});
+    }
+    else {
+      this.setState({data, showCustom: false});
+    }
   }
 
   deleteOption(i) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     data.options.splice(i, 1);
     // If the last default was deleted, make the first option the new default
     if (data.options.length > 0 && !data.options.map(o => o.isDefault).includes(true)) {
       data.options[0].isDefault = true;
       data.default = data.options[0].option;
     }
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   handleTypeChange(e) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     data.type = e.target.value;
     if (data.type === "single") {
       let foundDefault = false;
@@ -108,11 +145,17 @@ class SelectorEditor extends Component {
         return o;
       });
     }
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   moveUp(i) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     if (i === 0) {
       return;
     }
@@ -121,11 +164,17 @@ class SelectorEditor extends Component {
       data.options[i - 1] = data.options[i];
       data.options[i] = temp;
     }
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   moveDown(i) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     if (i === data.options.length - 1) {
       return;
     }
@@ -134,19 +183,37 @@ class SelectorEditor extends Component {
       data.options[i + 1] = data.options[i];
       data.options[i] = temp;
     }
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   editName(e) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     data.name = e.target.value;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   editTitle(e) {
-    const {data} = this.state;
+    const {data, isDirty} = this.state;
     data.title = e.target.value;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   toggleCustom() {
@@ -187,11 +254,11 @@ class SelectorEditor extends Component {
         <div className="cms-field-group">
           <label className="cms-field-container">
             Title (on page)
-            <input className="pt-input" value={data.title} onChange={this.editTitle.bind(this)} />
+            <input className="bp3-input" value={data.title} onChange={this.editTitle.bind(this)} />
           </label>
           <label className="cms-field-container">
             Name (in editor)
-            <input className="pt-input" value={data.name} onChange={this.editName.bind(this)} />
+            <input className="bp3-input" value={data.name} onChange={this.editName.bind(this)} />
           </label>
         </div>
 
@@ -213,17 +280,17 @@ class SelectorEditor extends Component {
               <li className="cms-selector-editor-item" key={i}>
 
                 {/* option / allowed */}
-                <label className="pt-label">
+                <label className="bp3-label">
                   Option
-                  <div className="pt-select">
+                  <div className="bp3-select">
                     <select value={option.option} onChange={this.chooseOption.bind(this, i)}>
                       { varOptions }
                     </select>
                   </div>
                 </label>
-                <label className="pt-label">
+                <label className="bp3-label">
                   Allowed
-                  <div className="pt-select">
+                  <div className="bp3-select">
                     <select value={option.allowed} onChange={this.chooseAllowed.bind(this, i)}>
                       { varOptions }
                     </select>
@@ -238,17 +305,17 @@ class SelectorEditor extends Component {
                   </li>
                   <li className="cms-selector-editor-action-item">
                     <button className="cms-button" onClick={this.moveUp.bind(this, i)}>
-                      <span className="pt-icon pt-icon-arrow-up" />
+                      <span className="bp3-icon bp3-icon-arrow-up" />
                     </button>
                   </li>
                   <li className="cms-selector-editor-action-item">
                     <button className="cms-button" onClick={this.moveDown.bind(this, i)}>
-                      <span className="pt-icon pt-icon-arrow-down" />
+                      <span className="bp3-icon bp3-icon-arrow-down" />
                     </button>
                   </li>
                   <li className="cms-selector-editor-action-item">
                     <button className="cms-button" onClick={this.deleteOption.bind(this, i)}>
-                      <span className="pt-icon pt-icon-trash" /> delete</button>
+                      <span className="bp3-icon bp3-icon-trash" /> delete</button>
                   </li>
                 </ul>
               </li>
@@ -257,18 +324,18 @@ class SelectorEditor extends Component {
         </ul>
         <div className="cms-selector-editor-button-group">
           <button className="cms-button" onClick={this.addOption.bind(this)}>
-            Add option <span className="pt-icon pt-icon-plus"/>
+            Add option <span className="bp3-icon bp3-icon-plus"/>
           </button>
           <button className="cms-button" onClick={this.toggleCustom.bind(this)}>
-            Custom default <span className={`pt-icon ${showCustom ? "pt-icon-cross" : "pt-icon-cog"}`}/>
+            Custom default <span className={`bp3-icon ${showCustom ? "bp3-icon-cross" : "bp3-icon-cog"}`}/>
           </button>
         </div>
 
         {/* custom default */}
         {showCustom &&
-          <div className="cms-field-container pt-label">
+          <div className="cms-field-container bp3-label">
             Custom default
-            <div className="pt-select">
+            <div className="bp3-select">
               <select value={data.default} onChange={this.chooseCustom.bind(this)}>
                 {customOptions}
               </select>

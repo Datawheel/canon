@@ -11,9 +11,15 @@ import Bar from "./pages/Bar";
 export default function RouteCreate() {
   return (
     <Route path="/" component={App} history={browserHistory}>
-      <IndexRoute component={Search} />
+      <IndexRoute component={Builder} />
+      {/*
+      <Route path="/cms-profile/:profileSlug" component={Builder} />
+      <Route path="/cms-profile/:profileSlug/:topicSlug" component={Builder} />
+      <Route path="/cms-story/:storySlug" component={Builder} />
+      <Route path="/cms-story/:storySlug/:storytopicSlug" component={Builder} />
+      */}
       <Route path="/profile/:pslug/:pid" component={Profile} />
-      <Route path="/cms" component={Builder} />
+      <Route path="/search" component={Search} />
       <Route path="/bar" component={Bar} />
     </Route>
   );

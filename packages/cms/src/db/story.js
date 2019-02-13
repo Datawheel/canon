@@ -7,18 +7,6 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
-      title: {
-        type: db.STRING,
-        defaultValue: "New Story"
-      },
-      subtitle: {
-        type: db.TEXT,
-        defaultValue: "New Subtitle"
-      },
-      image: {
-        type: db.STRING,
-        defaultValue: "New Image"
-      }, 
       ordering: db.INTEGER,
       slug: {
         type: db.STRING,
@@ -36,7 +24,7 @@ module.exports = function(sequelize, db) {
   );
 
   s.associate = models => {
-    // s.belongsToMany(models.authors, {through: "stories_authors", foreignKey: "story_id", otherKey: "author_id", as: "authors"});
+    s.hasMany(models.story_content, {foreignKey: "id", sourceKey: "id", as: "content"});
     s.hasMany(models.author, {foreignKey: "story_id", sourceKey: "id", as: "authors"});
     s.hasMany(models.story_footnote, {foreignKey: "story_id", sourceKey: "id", as: "footnotes"});
     s.hasMany(models.story_description, {foreignKey: "story_id", sourceKey: "id", as: "descriptions"});

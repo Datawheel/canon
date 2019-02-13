@@ -8,7 +8,7 @@ import libs from "../../src/utils/libs";
 class Profile extends Component {
 
   getChildContext() {
-    const {formatters, profile, router} = this.props;
+    const {formatters, locale, profile, router} = this.props;
     const {variables} = profile;
     return {
       formatters: formatters.reduce((acc, d) => {
@@ -18,21 +18,19 @@ class Profile extends Component {
         return acc;
       }, {}),
       router,
-      variables
+      variables,
+      locale
     };
   }
 
   render() {
-    const {sections, title} = this.props.profile;
+    const {topics, title} = this.props.profile;
     return (
       <div id="Profile">
         <h1 dangerouslySetInnerHTML={{__html: title}} />
-        {sections.map(section => {
-          const {id, topics} = section;
-          return <div key={id}>
-            <h2 dangerouslySetInnerHTML={{__html: section.title}} />
-            { topics.map(topic => <Topic key={topic.slug} contents={topic} />) }
-          </div>;
+        {topics.map(topic => {
+          const {slug} = topic;
+          return <Topic key={slug} contents={topic} />;
         })}
       </div>
     );
@@ -42,16 +40,18 @@ class Profile extends Component {
 
 Profile.childContextTypes = {
   formatters: PropTypes.object,
+  locale: PropTypes.string,
   router: PropTypes.object,
   variables: PropTypes.object
 };
 
 Profile.need = [
-  fetchData("profile", "/api/profile/<pslug>/<pid>"),
+  fetchData("profile", "/api/profile/<pslug>/<pid>?locale=<i18n.locale>"),
   fetchData("formatters", "/api/formatters")
 ];
 
 export default connect(state => ({
   formatters: state.data.formatters,
+  locale: state.i18n.locale,
   profile: state.data.profile
 }))(Profile);

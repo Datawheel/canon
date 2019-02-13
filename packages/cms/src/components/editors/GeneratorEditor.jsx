@@ -17,7 +17,8 @@ class GeneratorEditor extends Component {
       variables: [],
       payload: null,
       simple: false,
-      alertObj: false
+      alertObj: false,
+      isDirty: false
     };
   }
 
@@ -40,21 +41,39 @@ class GeneratorEditor extends Component {
   }
 
   changeField(field, e) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     data[field] = e.target.value;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   handleEditor(field, t) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     data[field] = t;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   chooseVariable(e) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     data.allowed = e.target.value;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   /**
@@ -85,12 +104,12 @@ class GeneratorEditor extends Component {
   previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
-    const {preview, variables} = this.props;
+    const {preview, variables, locale} = this.props;
     if (api) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
-      // With its corresponding value.
-      const url = urlSwap(api, Object.assign({}, variables, {id: preview}));
+      // With its corresponding value. Same goes for locale
+      const url = urlSwap(api, Object.assign({}, variables, {id: preview, locale}));
       axios.get(url).then(resp => {
         const payload = resp.data;
         let {simple} = this.state;
@@ -168,10 +187,16 @@ class GeneratorEditor extends Component {
   }
 
   onSimpleChange(code, simple) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     data.logic = code;
     data.logic_simple = simple;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   render() {
@@ -180,19 +205,19 @@ class GeneratorEditor extends Component {
     const {type, preview} = this.props;
 
     const preMessage = {
-      generator: <p className="pt-text-muted">You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</p>,
-      materializer: <p className="pt-text-muted">You have access to all variables previously created by generators</p>,
-      profile_visualization: <p className="pt-text-muted">You have access to all variables previously created by generators and materializers.</p>,
-      topic_visualization: <p className="pt-text-muted">You have access to all variables previously created by generators and materializers.</p>,
-      formatter: <p className="pt-text-muted">You have access to the variable <code>n</code>, which represents the string to be formatted.</p>
+      generator: <p className="bp3-text-muted">You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</p>,
+      materializer: <p className="bp3-text-muted">You have access to all variables previously created by generators</p>,
+      profile_visualization: <p className="bp3-text-muted">You have access to all variables previously created by generators and materializers.</p>,
+      topic_visualization: <p className="bp3-text-muted">You have access to all variables previously created by generators and materializers.</p>,
+      formatter: <p className="bp3-text-muted">You have access to the variable <code>n</code>, which represents the string to be formatted.</p>
     };
 
     const postMessage = {
-      generator: <p className="pt-text-muted">Be sure to return an <strong>object</strong> with the variables you want stored as keys.</p>,
-      materalizer: <p className="pt-text-muted">Be sure to return an <strong>object</strong> with the variables you want stored as keys.</p>,
-      profile_visualization: <p className="pt-text-muted">Be sure to return a valid config object for a visualization</p>,
-      topic_visualization: <p className="pt-text-muted">Be sure to return a valid config object for a visualization</p>,
-      formatter: <p className="pt-text-muted">Be sure to return a <strong>string</strong> that represents your formatted content.</p>
+      generator: <p className="bp3-text-muted">Be sure to return an <strong>object</strong> with the variables you want stored as keys.</p>,
+      materalizer: <p className="bp3-text-muted">Be sure to return an <strong>object</strong> with the variables you want stored as keys.</p>,
+      profile_visualization: <p className="bp3-text-muted">Be sure to return a valid config object for a visualization</p>,
+      topic_visualization: <p className="bp3-text-muted">Be sure to return a valid config object for a visualization</p>,
+      formatter: <p className="bp3-text-muted">Be sure to return a <strong>string</strong> that represents your formatted content.</p>
     };
 
     const varOptions = [<option key="always" value="always">Always</option>]
@@ -214,12 +239,11 @@ class GeneratorEditor extends Component {
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
-          iconName="pt-icon-warning-sign"
+          iconName="bp3-icon-warning-sign"
           intent={Intent.DANGER}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
-          inline="true"
         >
           {alertObj.message}
         </Alert>
@@ -227,13 +251,13 @@ class GeneratorEditor extends Component {
         {/* name & description fields */}
         {(type === "generator" || type === "materializer" || type === "formatter") &&
           <div className="cms-field-group">
-            <div className="cms-field-container">
+            <div key="gen-name" className="cms-field-container">
               <label className="label">Name</label>
-              <input className="pt-input" type="text" value={data.name} onChange={this.changeField.bind(this, "name")}/>
+              <input className="bp3-input" type="text" value={data.name} onChange={this.changeField.bind(this, "name")}/>
             </div>
-            <div className="cms-field-container">
+            <div key="gen-desc" className="cms-field-container">
               <label className="label">Description</label>
-              <input className="pt-input" type="text" value={data.description} onChange={this.changeField.bind(this, "description")}/>
+              <input className="bp3-input" type="text" value={data.description} onChange={this.changeField.bind(this, "description")}/>
             </div>
           </div>
         }
@@ -241,9 +265,9 @@ class GeneratorEditor extends Component {
         { type === "generator" &&
           <div className="cms-field-container">
             <label className="label" htmlFor="api">API</label>
-            <div className="cms-field-container-inline pt-input-group">
-              <input className="pt-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
-              <button className="cms-button pt-button" onClick={this.maybePreviewPayload.bind(this)}>
+            <div className="cms-field-container-inline bp3-input-group">
+              <input className="bp3-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
+              <button className="cms-button bp3-button" onClick={this.maybePreviewPayload.bind(this)}>
                 {payload && !payload.error ? "Refetch data" : "Fetch data"}
               </button>
             </div>
@@ -257,9 +281,9 @@ class GeneratorEditor extends Component {
         {/* visibility */}
         <div className="cms-field-container">
           { (type === "profile_visualization" || type === "topic_visualization") &&
-            <label className="pt-label pt-inline">
+            <label className="bp3-label bp3-inline">
               <span className="label-text">Allowed</span>
-              <div className="pt-select">
+              <div className="bp3-select">
                 <select value={ data.allowed || "always" } onChange={this.chooseVariable.bind(this)}>
                   {varOptions}
                 </select>
@@ -276,7 +300,6 @@ class GeneratorEditor extends Component {
           </div>
         }
 
-        {/*<div className={`cms-variable-editor-group${type.includes("_visualization") ? " single-column" : ""}`}>*/}
         <div className={`cms-variable-editor-group${!payload ? " single-column" : ""}`}>
           {/* json */}
           {payload &&
@@ -288,12 +311,15 @@ class GeneratorEditor extends Component {
             ? type === "generator"
               ? payload
                 ? <SimpleGeneratorEditor
+                  key="simp-gen"
                   payload={payload}
-                  simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}
+                  simpleConfig={data.logic_simple} 
+                  onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null
-              : <SimpleVisualizationEditor preview={preview} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
+              : <SimpleVisualizationEditor key="simp-viz" preview={preview} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
             : <AceWrapper
+              key="ace-wrap"
               className="editor"
               variables={variables}
               ref={ comp => this.editor = comp }

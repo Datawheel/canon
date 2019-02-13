@@ -4,7 +4,6 @@ import {connect} from "react-redux";
 import {NonIdealState, Tree, Dialog, Intent, Alert} from "@blueprintjs/core";
 import NewProfile from "./NewProfile";
 import ProfileEditor from "./ProfileEditor";
-import SectionEditor from "./SectionEditor";
 import TopicEditor from "./TopicEditor";
 import PropTypes from "prop-types";
 import Search from "../components/Search/Search";
@@ -48,10 +47,12 @@ class ProfileBuilder extends Component {
     });
   }
 
-  getChildContext() {
-    const {formatters} = this.context;
-    const {variablesHash, currentSlug} = this.state;
-    return {formatters, variables: variablesHash[currentSlug]};
+  componentDidUpdate(prevProps) {
+    if (prevProps.locale !== this.props.locale) {
+      const {currentSlug, currentNode} = this.state;
+      const id = currentNode ? currentNode.id : null;
+      if (currentSlug) this.fetchVariables.bind(this)(currentSlug, id, true);
+    }
   }
 
   /**
@@ -67,6 +68,8 @@ class ProfileBuilder extends Component {
   buildNodes(openNode) {
     const {profiles} = this.state;
     const {stripHTML} = this.context.formatters;
+    const {localeDefault} = this.props;
+    // const {profileSlug, topicSlug} = this.props.pathObj;
     const nodes = profiles.map(p => ({
       id: `profile${p.id}`,
       hasCaret: true,
@@ -75,31 +78,29 @@ class ProfileBuilder extends Component {
       masterSlug: p.slug,
       masterDimension: p.dimension,
       data: p,
-      childNodes: p.sections.map(s => ({
-        id: `section${s.id}`,
-        hasCaret: true,
-        label: this.decode(stripHTML(s.title)),
-        itemType: "section",
-        masterSlug: p.slug,
-        masterDimension: p.dimension,
-        data: s,
-        childNodes: s.topics.map(t => ({
+      childNodes: p.topics.map(t => {
+        const defCon = t.content.find(c => c.lang === localeDefault);
+        const title = defCon && defCon.title ? defCon.title : t.slug;
+        return {
           id: `topic${t.id}`,
           hasCaret: false,
-          iconName: topicIcons[t.type] || "help",
-          label: this.decode(stripHTML(t.title)),
+          label: this.decode(stripHTML(title)),
           itemType: "topic",
           masterSlug: p.slug,
           masterDimension: p.dimension,
           data: t
-        }))
-      }))
+        };
+      })
     }));
     if (!openNode) {
       this.setState({nodes});
     }
     else {
-      this.setState({nodes}, this.handleNodeClick.bind(this, nodes[0]));
+      let nodeToOpen = nodes[0];
+      /*if (profileSlug) {
+        nodeToOpen = nodes.find(p => p.data.slug === profileSlug);
+      }*/
+      this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
     }
   }
 
@@ -115,8 +116,7 @@ class ProfileBuilder extends Component {
     const sorter = (a, b) => a.data.ordering - b.data.ordering;
     n = this.locateNode(n.itemType, n.data.id);
     let parentArray;
-    if (n.itemType === "topic") parentArray = this.locateNode("section", n.data.section_id).childNodes;
-    if (n.itemType === "section") parentArray = this.locateNode("profile", n.data.profile_id).childNodes;
+    if (n.itemType === "topic") parentArray = this.locateNode("profile", n.data.profile_id).childNodes;
     if (n.itemType === "profile") parentArray = nodes;
     if (dir === "up") {
       const old = parentArray.find(node => node.data.ordering === n.data.ordering - 1);
@@ -139,25 +139,22 @@ class ProfileBuilder extends Component {
   addItem(n, dir) {
     const {nodes} = this.state;
     const {variablesHash, currentSlug} = this.state;
+    const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters;
     const {formatters} = this.context;
-    const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
+    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     n = this.locateNode(n.itemType, n.data.id);
     let parent;
     let parentArray;
-    // For topics and sections, it is sufficient to find the Actual Parent - this parent will have
+    // For topics, it is sufficient to find the Actual Parent - this parent will have
     // a masterSlug that the newly added item should share
     if (n.itemType === "topic") {
-      parent = this.locateNode("section", n.data.section_id);
-      parentArray = parent.childNodes;
-    }
-    else if (n.itemType === "section") {
       parent = this.locateNode("profile", n.data.profile_id);
       parentArray = parent.childNodes;
     }
     // However, if the user is adding a new profile, there is no top-level profile parent whose slug trickles down,
     // therefore we must make a small fake object whose only prop is masterSlug. This is used only so that when we
-    // build the new Profile Tree Object, we can set the masterSlug of all three new elements (profile, section, topic)
+    // build the new Profile Tree Object, we can set the masterSlug of both new elements (profile, topic)
     // to "parent.masterSlug" and have that correctly reflect the stub object.
     else if (n.itemType === "profile") {
       parent = {masterSlug: "new-profile-slug"};
@@ -182,7 +179,7 @@ class ProfileBuilder extends Component {
       }
     }
 
-    // New Topics and Sections need to inherit their masterDimension from their parent.
+    // New Topics need to inherit their masterDimension from their parent.
     // This is not necessary for profiles, as profiles are now only added through the
     // search scaffold (see onCreateProfile)
 
@@ -191,20 +188,10 @@ class ProfileBuilder extends Component {
       itemType: "topic",
       data: {}
     };
-    objTopic.data.section_id = n.data.section_id;
+    objTopic.data.profile_id = n.data.profile_id;
     objTopic.data.ordering = loc;
     objTopic.masterSlug = parent.masterSlug;
     objTopic.masterDimension = parent.masterDimension;
-
-    const objSection = {
-      hasCaret: true,
-      itemType: "section",
-      data: {}
-    };
-    objSection.data.profile_id = n.data.profile_id;
-    objSection.data.ordering = loc;
-    objSection.masterSlug = parent.masterSlug;
-    objSection.masterDimension = parent.masterDimension;
 
     const objProfile = {
       hasCaret: true,
@@ -219,22 +206,15 @@ class ProfileBuilder extends Component {
     if (n.itemType === "topic") {
       obj = objTopic;
     }
-    if (n.itemType === "section") {
-      obj = objSection;
+    if (n.itemType === "profile") {
+      obj = objProfile;
       objTopic.data.ordering = 0;
       obj.childNodes = [objTopic];
     }
-    if (n.itemType === "profile") {
-      obj = objProfile;
-      objSection.data.ordering = 0;
-      objTopic.data.ordering = 0;
-      objSection.childNodes = [objTopic];
-      obj.childNodes = [objSection];
-    }
+  
     if (obj) {
 
       const profilePath = "/api/cms/profile/new";
-      const sectionPath = "/api/cms/section/new";
       const topicPath = "/api/cms/topic/new";
 
       if (n.itemType === "topic") {
@@ -242,8 +222,10 @@ class ProfileBuilder extends Component {
           if (topic.status === 200) {
             obj.id = `topic${topic.data.id}`;
             obj.data = topic.data;
-            obj.label = varSwap(this.decode(stripHTML(obj.data.title)), formatters, variables);
-            const parent = this.locateNode("section", obj.data.section_id);
+            const defCon = topic.data.content.find(c => c.lang === localeDefault);
+            const title = defCon && defCon.title ? defCon.title : topic.slug;
+            obj.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
+            const parent = this.locateNode("profile", obj.data.profile_id);
             parent.childNodes.push(obj);
             parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
             this.setState({nodes}, this.handleNodeClick.bind(this, obj));
@@ -253,53 +235,28 @@ class ProfileBuilder extends Component {
           }
         });
       }
-      else if (n.itemType === "section") {
-        axios.post(sectionPath, obj.data).then(section => {
-          obj.id = `section${section.data.id}`;
-          obj.data = section.data;
-          obj.label = varSwap(this.decode(stripHTML(obj.data.title)), formatters, variables);
-          objTopic.data.section_id = section.data.id;
+      else if (n.itemType === "profile") {
+        axios.post(profilePath, obj.data).then(profile => {
+          obj.id = `profile${profile.data.id}`;
+          obj.data = profile.data;
+          // obj.label = varSwap(this.decode(stripHTML(obj.data.title)), formatters, variables);
+          obj.label = obj.data.slug;
+          objTopic.data.profile_id = profile.data.id;
           axios.post(topicPath, objTopic.data).then(topic => {
             if (topic.status === 200) {
               objTopic.id = `topic${topic.data.id}`;
               objTopic.data = topic.data;
-              objTopic.label = varSwap(this.decode(stripHTML(objTopic.data.title)), formatters, variables);
+              const defCon = topic.data.content.find(c => c.lang === localeDefault);
+              const title = defCon && defCon.title ? defCon.title : topic.data.slug;
+              objTopic.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
               const parent = this.locateNode("profile", obj.data.profile_id);
               parent.childNodes.push(obj);
               parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
               this.setState({nodes}, this.handleNodeClick.bind(this, obj));
             }
             else {
-              console.log("section error");
+              console.log("profile error");
             }
-          });
-        });
-      }
-
-      else if (n.itemType === "profile") {
-        axios.post(profilePath, obj.data).then(profile => {
-          obj.id = `profile${profile.data.id}`;
-          obj.data = profile.data;
-          obj.label = obj.data.slug;
-          objSection.data.profile_id = profile.data.id;
-          axios.post(sectionPath, objSection.data).then(section => {
-            objSection.id = `section${section.data.id}`;
-            objSection.data = section.data;
-            objSection.label = varSwap(this.decode(stripHTML(objSection.data.title)), formatters, variables);
-            objTopic.data.section_id = section.data.id;
-            axios.post(topicPath, objTopic.data).then(topic => {
-              if (topic.status === 200) {
-                objTopic.id = `topic${topic.data.id}`;
-                objTopic.data = topic.data;
-                objTopic.label = varSwap(this.decode(stripHTML(objTopic.data.title)), formatters, variables);
-                nodes.push(obj);
-                nodes.sort((a, b) => a.data.ordering - b.data.ordering);
-                this.setState({nodes}, this.handleNodeClick.bind(this, obj));
-              }
-              else {
-                console.log("profile error");
-              }
-            });
           });
         });
       }
@@ -312,6 +269,7 @@ class ProfileBuilder extends Component {
 
   deleteItem(n) {
     const {nodes} = this.state;
+    const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters;
     // If this method is running, then the user has clicked "Confirm" in the Deletion Alert. Setting the state of
     // nodeToDelete back to false will close the Alert popover.
@@ -319,42 +277,22 @@ class ProfileBuilder extends Component {
     n = this.locateNode(n.itemType, n.data.id);
     // todo: instead of the piecemeal refreshes being done for each of these tiers - is it sufficient to run buildNodes again?
     if (n.itemType === "topic") {
-      const parent = this.locateNode("section", n.data.section_id);
-      axios.delete("/api/cms/topic/delete", {params: {id: n.data.id}}).then(resp => {
-        const topics = resp.data.map(topicData => ({
-          id: `topic${topicData.id}`,
-          hasCaret: false,
-          iconName: topicIcons[topicData.type] || "help",
-          label: this.decode(stripHTML(topicData.title)),
-          itemType: "topic",
-          masterSlug: parent.masterSlug,
-          data: topicData
-        }));
-        parent.childNodes = topics;
-        this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
-      });
-    }
-    else if (n.itemType === "section") {
       const parent = this.locateNode("profile", n.data.profile_id);
-      axios.delete("/api/cms/section/delete", {params: {id: n.data.id}}).then(resp => {
-        const sections = resp.data.map(sectionData => ({
-          id: `section${sectionData.id}`,
-          hasCaret: true,
-          label: this.decode(stripHTML(sectionData.title)),
-          itemType: "section",
-          masterSlug: parent.masterSlug,
-          data: sectionData,
-          childNodes: sectionData.topics.map(t => ({
-            id: `topic${t.id}`,
+      axios.delete("/api/cms/topic/delete", {params: {id: n.data.id}}).then(resp => {
+        const topics = resp.data.map(topicData => {
+          const defCon = topicData.content.find(c => c.lang === localeDefault);
+          const title = defCon && defCon.title ? defCon.title : topicData.slug;
+          return {
+            id: `topic${topicData.id}`,
             hasCaret: false,
-            iconName: topicIcons[t.type] || "help",
-            label: this.decode(stripHTML(t.title)),
+            iconName: topicIcons[topicData.type] || "help",
+            label: this.decode(stripHTML(title)),
             itemType: "topic",
             masterSlug: parent.masterSlug,
-            data: t
-          }))
-        }));
-        parent.childNodes = sections;
+            data: topicData
+          };
+        });
+        parent.childNodes = topics;
         this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
       });
     }
@@ -370,8 +308,7 @@ class ProfileBuilder extends Component {
     node = this.locateNode(node.itemType, node.data.id);
     const {nodes, currentNode} = this.state;
     let parentLength = 0;
-    if (node.itemType === "topic") parentLength = this.locateNode("section", node.data.section_id).childNodes.length;
-    if (node.itemType === "section") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
+    if (node.itemType === "topic") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
     if (node.itemType === "profile") parentLength = nodes.length;
     if (!currentNode) {
       node.isSelected = true;
@@ -434,7 +371,7 @@ class ProfileBuilder extends Component {
   }
 
   /**
-   * Given a node type (profile, section, topic) and an id, crawl down the tree and fetch a reference to the Tree node with that id
+   * Given a node type (profile, topic) and an id, crawl down the tree and fetch a reference to the Tree node with that id
    */
   locateNode(type, id) {
     const {nodes} = this.state;
@@ -442,18 +379,10 @@ class ProfileBuilder extends Component {
     if (type === "profile") {
       node = nodes.find(p => p.data.id === id);
     }
-    else if (type === "section") {
-      nodes.forEach(p => {
-        const attempt = p.childNodes.find(s => s.data.id === id);
-        if (attempt) node = attempt;
-      });
-    }
     else if (type === "topic") {
       nodes.forEach(p => {
-        p.childNodes.forEach(s => {
-          const attempt = s.childNodes.find(t => t.data.id === id);
-          if (attempt) node = attempt;
-        });
+        const attempt = p.childNodes.find(t => t.data.id === id);
+        if (attempt) node = attempt;
       });
     }
     return node;
@@ -465,32 +394,28 @@ class ProfileBuilder extends Component {
    * of a profile use must be recursively updated as well.
    */
   reportSave(type, id, newValue) {
-    let {nodes} = this.state;
+    const {nodes} = this.state;
     const {variablesHash, currentSlug} = this.state;
+    const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters;
     const {formatters} = this.context;
-    const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
+    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     const node = this.locateNode.bind(this)(type, id);
-    // Update the label based on the new value. If this is a section or a topic, this is the only thing needed
-    if (node) {
-      node.data.title = newValue;
+    // Update the label based on the new value. If this is a topic, this is the only thing needed
+    if (type === "topic" && node) {
+      const defCon = node.data.content.find(c => c.lang === localeDefault);
+      if (defCon) defCon.title = newValue;
       // todo: determine if this could be merged with formatTreeVariables
       node.label = varSwap(this.decode(stripHTML(newValue)), formatters, variables);
     }
     // However, if this is a profile changing its slug, then all children must be informed so their masterSlug is up to date.
     if (type === "profile") {
-      nodes = nodes.map(p => {
-        p.masterSlug = newValue;
-        p.data.slug = newValue;
-        p.childNodes = p.childNodes.map(s => {
-          s.masterSlug = newValue;
-          s.childNodes = s.childNodes.map(t => {
-            t.masterSlug = newValue;
-            return t;
-          });
-          return s;
-        });
-        return p;
+      node.masterSlug = newValue;
+      node.data.slug = newValue;
+      node.label = newValue;
+      node.childNodes = node.childNodes.map(t => {
+        t.masterSlug = newValue;
+        return t;
       });
     }
     this.setState({nodes});
@@ -512,18 +437,17 @@ class ProfileBuilder extends Component {
    */
   formatTreeVariables() {
     const {variablesHash, currentSlug, nodes} = this.state;
+    const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters;
     const {formatters} = this.context;
-    const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
+    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     const p = this.locateProfileNodeBySlug(currentSlug);
     p.label = varSwap(p.data.slug, formatters, variables);
-    p.childNodes = p.childNodes.map(s => {
-      s.label = varSwap(this.decode(stripHTML(s.data.title)), formatters, variables);
-      s.childNodes = s.childNodes.map(t => {
-        t.label = varSwap(this.decode(stripHTML(t.data.title)), formatters, variables);
-        return t;
-      });
-      return s;
+    p.childNodes = p.childNodes.map(t => {
+      const defCon = t.data.content.find(c => c.lang === localeDefault);
+      const title = defCon && defCon.title ? defCon.title : t.data.slug;
+      t.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
+      return t;
     });
     this.setState({nodes});
   }
@@ -538,19 +462,36 @@ class ProfileBuilder extends Component {
    */
   fetchVariables(slug, id, force, callback) {
     const {variablesHash} = this.state;
+    const {locale, localeDefault} = this.props;
     const maybeCallback = () => {
       if (callback) callback();
       this.formatTreeVariables.bind(this)();
     };
-    if (force || !variablesHash[slug]) {
+    if (force || !variablesHash[slug] || variablesHash[slug] && locale && !variablesHash[slug][locale]) {
       if (id) {
-        axios.get(`/api/variables/${slug}/${id}`).then(resp => {
-          variablesHash[slug] = resp.data;
-          this.setState({variablesHash}, maybeCallback);
+        axios.get(`/api/variables/${slug}/${id}?locale=${localeDefault}`).then(def => {
+          const defObj = {[localeDefault]: def.data};
+          if (!variablesHash[slug]) {
+            variablesHash[slug] = defObj;
+          }
+          else {
+            variablesHash[slug] = Object.assign(variablesHash[slug], defObj);
+          }
+          if (locale) {
+            axios.get(`/api/variables/${slug}/${id}?locale=${locale}`).then(loc => {
+              const locObj = {[locale]: loc.data};
+              variablesHash[slug] = Object.assign(variablesHash[slug], locObj);
+              this.setState({variablesHash}, maybeCallback);
+            });
+          }
+          else {
+            this.setState({variablesHash}, maybeCallback);
+          }
         });
       }
       else {
-        variablesHash[slug] = {_genStatus: {}, _matStatus: {}};
+        variablesHash[slug][localeDefault] = {_genStatus: {}, _matStatus: {}};
+        if (locale) variablesHash[slug][locale] = {_genStatus: {}, _matStatus: {}};
         this.setState({variablesHash}, maybeCallback);
       }
     }
@@ -562,6 +503,7 @@ class ProfileBuilder extends Component {
   render() {
 
     const {nodes, currentNode, variablesHash, currentSlug, preview, profileModalOpen, cubeData, nodeToDelete} = this.state;
+    const {locale, localeDefault} = this.props;
 
     if (!nodes) return <div>Loading</div>;
 
@@ -570,7 +512,7 @@ class ProfileBuilder extends Component {
     let profileSearch = "";
     if (currentNode && currentSlug) {
       profileSearch =
-        <div className="cms-profile-search pt-label">
+        <div className="cms-profile-search bp3-label">
           {preview ? `Current data ID: ${preview}` : "Preview profile"}
           <Search
             render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
@@ -580,7 +522,7 @@ class ProfileBuilder extends Component {
         </div>;
     }
 
-    const editorTypes = {profile: ProfileEditor, section: SectionEditor, topic: TopicEditor};
+    const editorTypes = {profile: ProfileEditor, topic: TopicEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
 
     return (
@@ -591,7 +533,7 @@ class ProfileBuilder extends Component {
           {/* new entity */}
           <button className="cms-button"
             onClick={() => this.setState({profileModalOpen: true})}>
-              Add profile <span className="pt-icon pt-icon-plus" />
+              Add profile <span className="bp3-icon bp3-icon-plus" />
           </button>
 
           <Tree
@@ -605,7 +547,7 @@ class ProfileBuilder extends Component {
         <Dialog
           className="profileModal"
           isOpen={profileModalOpen}
-          inline={true}
+          usePortal={false}
           onClose={() => this.setState({profileModalOpen: false})}
           title="Add New Profile"
         >
@@ -626,6 +568,8 @@ class ProfileBuilder extends Component {
           { currentNode
             ? <Editor
               id={currentNode.data.id}
+              locale={locale}
+              localeDefault={localeDefault}
               masterSlug={currentNode.masterSlug}
               preview={preview}
               fetchVariables={this.fetchVariables.bind(this)}
@@ -642,11 +586,6 @@ class ProfileBuilder extends Component {
     );
   }
 }
-
-ProfileBuilder.childContextTypes = {
-  formatters: PropTypes.object,
-  variables: PropTypes.object
-};
 
 ProfileBuilder.contextTypes = {
   formatters: PropTypes.object

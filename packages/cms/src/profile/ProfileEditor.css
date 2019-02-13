@@ -10,16 +10,16 @@
 
 #preview-toggle {
   text-align: center;
-  & .pt-label {
+  & .bp3-label {
     display: inline-block;
     margin-right: 10px;
     vertical-align: middle;
-    & .pt-icon-standard {
+    & .bp3-icon-standard {
       margin-right: 10px;
       opacity: 0.4;
     }
   }
-  & .pt-select {
+  & .bp3-select {
     font-family: monospace;
   }
 }
@@ -29,21 +29,21 @@
 }
 
 .cms-status {
-  & .pt-icon-standard {
+  & .bp3-icon-standard {
     display: inline-block;
     height: 0.75em;
     margin-right: 0.25em;
   }
 }
 
-.pt-card .pt-non-ideal-state {
-  & .pt-non-ideal-state-visual {
+.bp3-card .bp3-non-ideal-state {
+  & .bp3-non-ideal-state-visual {
     margin-bottom: 5px;
-    & .pt-icon {
+    & .bp3-icon {
       font-size: 30px;
     }
   }
-  & .pt-non-ideal-state-title {
+  & .bp3-non-ideal-state-title {
     margin-bottom: 0;
   }
 }

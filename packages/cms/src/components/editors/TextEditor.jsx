@@ -10,7 +10,8 @@ class TextEditor extends Component {
     super(props);
     this.state = {
       data: null,
-      fields: null
+      fields: null,
+      isDirty: false
 
       /*
       currentVariable: "choose-a-variable",
@@ -24,23 +25,30 @@ class TextEditor extends Component {
     this.setState({data, fields});
   }
 
-  changeField(field, e) {
-    const {data} = this.state;
-    data[field] = e.target.value;
-    this.setState({data});
-  }
-
   handleEditor(field, t) {
-    const {data} = this.state;
-    // if (t === "<p><br></p>") t = "";
-    data[field] = t;
-    this.setState({data});
+    const {data, isDirty} = this.state;
+    const {locale} = this.props;
+    const thisLocale = data.content.find(c => c.lang === locale);
+    thisLocale[field] = t;
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   chooseVariable(e) {
-    const {data} = this.state;
+    const {isDirty, data} = this.state;
     data.allowed = e.target.value;
-    this.setState({data});
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
   }
 
   /*
@@ -60,15 +68,17 @@ class TextEditor extends Component {
   render() {
 
     const {data, fields} = this.state;
-    const {variables} = this.props;
+    const {variables, locale} = this.props;
     const {formatters} = this.context;
 
     if (!data || !fields || !variables || !formatters) return null;
 
+    const thisLocale = data.content.find(c => c.lang === locale);
+
     const quills = fields.map(f =>
       <div className="cms-field-container" key={f}>
         <label htmlFor={f}>{f}</label>
-        <QuillWrapper id={f} value={this.state.data[f] || ""} onChange={this.handleEditor.bind(this, f)} />
+        <QuillWrapper id={f} value={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
       </div>
     );
 
@@ -90,7 +100,7 @@ class TextEditor extends Component {
         { showVars &&
           <label className="cms-field-container">
             Allowed?
-            <div className="pt-select">
+            <div className="bp3-select">
               <select value={data.allowed || "always"} onChange={this.chooseVariable.bind(this)}>
                 {varOptions}
               </select>
@@ -98,13 +108,13 @@ class TextEditor extends Component {
           </label>
         }
         {/*
-        <div className="pt-select">
+        <div className="bp3-select">
           <select onChange={this.chooseFormatter.bind(this)}>
             <option key="choose-a-formatter" value="choose-a-formatter">Choose a Formatter</option>
             {Object.keys(formatters).map(f => <option key={f} value={f}>{f}</option>)}
           </select>
         </div>
-        <button className="pt-button pt-intent-success" onClick={this.insertVariable.bind(this)}>Insert</button>
+        <button className="bp3-button bp3-intent-success" onClick={this.insertVariable.bind(this)}>Insert</button>
         */}
 
         {quills}

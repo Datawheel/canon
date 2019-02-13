@@ -18,7 +18,7 @@
     &:hover {
       opacity: 1;
     }
-    & .pt-icon-standard {
+    & .bp3-icon-standard {
       margin-right: 5px;
     }
   }
@@ -35,12 +35,12 @@
     right: 5px;
     top: 5px;
   }
-  & .pt-tab-list {
+  & .bp3-tab-list {
     background: none;
     padding: 10px 20px 0;
     top: 0;
   }
-  & .pt-dialog-body {
+  & .bp3-dialog-body {
     margin: 0;
     &.save-image {
       text-align: center;
@@ -55,7 +55,7 @@
         text-align: center;
         transition: opacity 0.1s;
         width: 80px;
-        & .pt-icon-standard {
+        & .bp3-icon-standard {
           display: block;
           font-size: 28px;
           margin-bottom: 7px;

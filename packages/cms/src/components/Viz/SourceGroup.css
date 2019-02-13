@@ -1,5 +1,5 @@
 .SourceGroup {
-  & .pt-popover-target {
+  & .bp3-popover-target {
     display: inline;
     &.active span {
       text-decoration: underline;

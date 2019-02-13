@@ -17,7 +17,7 @@ class MoveButtons extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.item !== this.props.item || prevProps.array !== this.props.array) {
+    if (JSON.stringify(prevProps.item) !== JSON.stringify(this.props.item) || JSON.stringify(prevProps.array) !== JSON.stringify(this.props.array)) {
       this.setState({item: this.props.item, array: this.props.array});
     }
   }
@@ -75,14 +75,14 @@ class MoveButtons extends Component {
           <button
             className="cms-button cms-reorder-button cms-reorder-button-back"
             onClick={() => this.move("left")}>
-            <span className="pt-icon pt-icon-arrow-left" />
+            <span className="bp3-icon bp3-icon-arrow-left" />
           </button> }
         {item.ordering < array.length - 1 &&
           <button
             className="cms-button cms-reorder-button cms-reorder-button-forward"
             onClick={() => this.move("right")}
           >
-            <span className="pt-icon pt-icon-arrow-right" />
+            <span className="bp3-icon bp3-icon-arrow-right" />
           </button> }
       </div>
     );

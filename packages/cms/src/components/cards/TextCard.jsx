@@ -9,6 +9,7 @@ import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
 import PropTypes from "prop-types";
+import Flag from "./Flag";
 import "./TextCard.css";
 
 class TextCard extends Component {
@@ -19,7 +20,8 @@ class TextCard extends Component {
       minData: null,
       displayData: null,
       initialData: null,
-      alertObj: false
+      alertObj: false,
+      isDirty: false
     };
   }
 
@@ -28,47 +30,82 @@ class TextCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.minData && (prevProps.variables !== this.props.variables || this.props.selectors !== prevProps.selectors)) {
+    if (this.state.minData && (JSON.stringify(prevProps.variables) !== JSON.stringify(this.props.variables) || JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors))) {
       this.formatDisplay.bind(this)();
     }
-    if (prevProps.item.id !== this.props.item.id) {
+    if (prevProps.item.id !== this.props.item.id || prevProps.locale !== this.props.locale) {
       this.hitDB.bind(this)();
     }
+  }
+
+  populateLanguageContent(minData) {
+    const {locale, localeDefault, fields, plainfields} = this.props;
+    if (!minData.content.find(c => c.lang === locale)) {
+      const defCon = minData.content.find(c => c.lang === localeDefault);
+      const newCon = {id: minData.id, lang: locale};
+      if (defCon) {
+        Object.keys(defCon).forEach(k => {
+          if (k !== "id" && k !== "lang") newCon[k] = defCon[k];
+        });
+      }
+      // If for any reason the default was missing fields, fill the rest with blanks
+      fields.forEach(k => !newCon[k] ? newCon[k] = "" : null);
+      if (plainfields) plainfields.forEach(k => !newCon[k] ? newCon[k] = "" : null);
+      minData.content.push(newCon);
+    }
+    return minData;
+  }
+
+  markAsDirty() {
+    const {isDirty} = this.state;
+    if (!isDirty) this.setState({isDirty: true});
   }
 
   hitDB() {
     const {item, type} = this.props;
     const {id} = item;
     axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      this.setState({minData: resp.data}, this.formatDisplay.bind(this));
+      const minData = this.populateLanguageContent.bind(this)(resp.data);
+      this.setState({minData}, this.formatDisplay.bind(this));
     });
   }
 
   formatDisplay() {
-    const {variables, selectors} = this.props;
+    const {variables, selectors, locale} = this.props;
     const {formatters} = this.context;
-    const {minData} = this.state;
+
+    const minData = this.populateLanguageContent.bind(this)(this.state.minData);
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
     // polluting the object itself
     minData.selectors = selectors;
-    const displayData = varSwapRecursive(minData, formatters, variables);
-    this.setState({displayData});
+    // Swap vars, and extract the actual (multilingual) content
+    const content = varSwapRecursive(minData, formatters, variables).content;
+    const currLang = content.find(c => c.lang === locale);
+    // Map over each of the default keys, and fetch its equivalent locale version (or default)
+    const displayData = {};
+    Object.keys(currLang).forEach(k => {
+      displayData[k] = currLang[k];
+    });
+    this.setState({displayData});  
   }
 
   save() {
-    const {type, fields, plainfields} = this.props;
+    const {type, fields, plainfields, locale, localeDefault} = this.props;
     const {minData} = this.state;
     const payload = {id: minData.id};
+    const thisLocale = minData.content.find(c => c.lang === locale);
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
-    fields.forEach(field => payload[field] = minData[field] === "<p><br></p>" ? "" : minData[field]);
-    if (plainfields) plainfields.forEach(field => payload[field] = minData[field] === "<p><br></p>" ? "" : minData[field]);
+    fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
+    if (plainfields) plainfields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
     payload.allowed = minData.allowed;
+    payload.content = [thisLocale];
     axios.post(`/api/cms/${type}/update`, payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false}, this.formatDisplay.bind(this));
-        if (this.props.onSave) this.props.onSave(minData);
+        // Only broadcast the title update out to the tree if we are updating the default locale
+        if (locale === localeDefault && this.props.onSave) this.props.onSave(minData);
       }
     });
   }
@@ -101,12 +138,18 @@ class TextCard extends Component {
   }
 
   maybeCloseEditorWithoutSaving() {
-    const alertObj = {
-      callback: this.closeEditorWithoutSaving.bind(this),
-      message: "Are you sure you want to abandon changes?",
-      confirm: "Yes, Abandon changes."
-    };
-    this.setState({alertObj});
+    const {isDirty} = this.state;
+    if (isDirty) {
+      const alertObj = {
+        callback: this.closeEditorWithoutSaving.bind(this),
+        message: "Are you sure you want to abandon changes?",
+        confirm: "Yes, Abandon changes."
+      };
+      this.setState({alertObj});
+    }
+    else {
+      this.closeEditorWithoutSaving.bind(this)();
+    }
   }
 
   closeEditorWithoutSaving() {
@@ -114,13 +157,13 @@ class TextCard extends Component {
     const minData = deepClone(initialData);
     const isOpen = false;
     const alertObj = false;
-    this.setState({minData, isOpen, alertObj});
+    const isDirty = false;
+    this.setState({minData, isOpen, alertObj, isDirty});
   }
 
   render() {
     const {displayData, minData, isOpen, alertObj} = this.state;
-    const {variables, fields, plainfields, type, parentArray, item} = this.props;
-    const {ordering} = item;
+    const {variables, fields, plainfields, type, parentArray, item, locale} = this.props;
 
     if (!minData || !displayData) return <Loading />;
 
@@ -128,7 +171,7 @@ class TextCard extends Component {
     if (["profile_stat", "topic_stat"].includes(type)) cardClass = "stat-card";
     const displaySort = ["title", "value", "subtitle", "description"];
     const displays = Object.keys(displayData)
-      .filter(k => typeof displayData[k] === "string" && !["id", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
+      .filter(k => typeof displayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
 
     return (
@@ -138,20 +181,21 @@ class TextCard extends Component {
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
-          iconName="pt-icon-warning-sign"
+          iconName="bp3-icon-warning-sign"
           intent={Intent.DANGER}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
-          inline="true"
         >
           {alertObj.message}
         </Alert>
 
+        <Flag locale={locale} />
+
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="pt-icon pt-icon-cog" />
+            Edit <span className="bp3-icon bp3-icon-cog" /> 
           </button>
         </h5>
 
@@ -173,11 +217,11 @@ class TextCard extends Component {
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Text Editor"
-          inline="true"
+          usePortal={false}
         >
-          <div className="pt-dialog-body">
-            <PlainTextEditor data={minData} fields={plainfields} />
-            <TextEditor data={minData} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />
+          <div className="bp3-dialog-body">
+            {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
+            {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
           </div>
           <FooterButtons
             onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}

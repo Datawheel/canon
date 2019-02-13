@@ -6,6 +6,7 @@ import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
 import deepClone from "../../utils/deepClone";
+import Flag from "./Flag";
 import "./GeneratorCard.css";
 
 import ConsoleVariable from "../ConsoleVariable";
@@ -18,7 +19,8 @@ class GeneratorCard extends Component {
       minData: null,
       initialData: null,
       displayData: null,
-      alertObj: false
+      alertObj: false,
+      isDirty: false
     };
   }
 
@@ -92,12 +94,18 @@ class GeneratorCard extends Component {
   }
 
   maybeCloseEditorWithoutSaving() {
-    const alertObj = {
-      callback: this.closeEditorWithoutSaving.bind(this),
-      message: "Are you sure you want to abandon changes?",
-      confirm: "Yes, Abandon changes."
-    };
-    this.setState({alertObj});
+    const {isDirty} = this.state;
+    if (isDirty) {
+      const alertObj = {
+        callback: this.closeEditorWithoutSaving.bind(this),
+        message: "Are you sure you want to abandon changes?",
+        confirm: "Yes, Abandon changes."
+      };
+      this.setState({alertObj});
+    }
+    else {
+      this.closeEditorWithoutSaving.bind(this)();
+    }
   }
 
   closeEditorWithoutSaving() {
@@ -105,11 +113,17 @@ class GeneratorCard extends Component {
     const minData = deepClone(initialData);
     const isOpen = false;
     const alertObj = false;
-    this.setState({minData, isOpen, alertObj});
+    const isDirty = false;
+    this.setState({minData, isOpen, alertObj, isDirty});
+  }
+
+  markAsDirty() {
+    const {isDirty} = this.state;
+    if (!isDirty) this.setState({isDirty: true});
   }
 
   render() {
-    const {type, variables, item, parentArray, preview} = this.props;
+    const {type, variables, item, parentArray, preview, locale, localeDefault} = this.props;
     const {displayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
@@ -130,23 +144,28 @@ class GeneratorCard extends Component {
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
-          iconName="pt-icon-warning-sign"
+          iconName="bp3-icon-warning-sign"
           intent={Intent.DANGER}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
-          inline="true"
         >
           {alertObj.message}
         </Alert>
 
+        <Flag locale={locale} />
+
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
-          <span className={`cms-card-header-icon pt-icon-standard pt-icon-th ${type}`} />
-          {minData.name}
-          <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="pt-icon pt-icon-cog" />
-          </button>
+          <span className={`cms-card-header-icon bp3-icon-standard bp3-icon-th ${type}`} />
+          {locale === localeDefault ? minData.name : `${minData.name} (${locale})`}
+          {/* In multi-lang, there are two sets of gens and mats, one for default, and one for the other locale.
+            * If we put an edit button on both, then two visual entities can edit the same db structure, which is confusing
+            * the default gen/mat is the "master/only" one, so only show the edit button if this is default (the one for the 
+            * other locale is essentially for display purposes only)*/}
+          {locale === localeDefault && <button className="cms-button" onClick={this.openEditor.bind(this)}>
+            Edit <span className="bp3-icon bp3-icon-cog" />
+          </button>}
         </h5>
 
 
@@ -206,12 +225,19 @@ class GeneratorCard extends Component {
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Variable Editor"
-          inline="true"
+          usePortal={false}
           icon="false"
         >
 
-          <div className="pt-dialog-body">
-            <GeneratorEditor preview={preview} data={minData} variables={variables} type={type} />
+          <div className="bp3-dialog-body">
+            <GeneratorEditor 
+              markAsDirty={this.markAsDirty.bind(this)}
+              preview={preview} 
+              locale={locale} 
+              data={minData} 
+              variables={variables} 
+              type={type} 
+            />
           </div>
           <FooterButtons
             onDelete={this.maybeDelete.bind(this)}
