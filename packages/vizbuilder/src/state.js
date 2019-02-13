@@ -7,8 +7,7 @@ export default function initialStateFactory() {
       inProgress: true,
       total: 1,
       done: 0,
-      error: undefined,
-      severity: -1
+      error: undefined
     },
     options: {
       // All cubes retrieved initially

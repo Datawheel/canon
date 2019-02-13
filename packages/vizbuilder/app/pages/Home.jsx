@@ -5,7 +5,7 @@ import Vizbuilder from "../../src/";
 
 import "./Home.css";
 
-const DATAUSA = "https://redwood-api.datausa.io";
+const DATAUSA = "https://theodore-api.datausa.io";
 
 const DEFAULT_TOPOJSON = {
   "Nation": {
@@ -98,6 +98,7 @@ export default class Home extends React.Component {
       src={[this.state.source]}
       config={DEFAULT_CONFIG}
       defaultGroup={["Geography.State"]}
+      defaultMeasure={"Millions Of Dollars"}
       measureConfig={{
         "Millions Of Dollars": {colorScaleConfig: {color: "blue"}},
         "Opioid Overdose Death Rate Per 100,000 Age-Adjusted": {

@@ -216,3 +216,89 @@ export function mergeStates(state, newState) {
 
   return finalState;
 }
+
+export function fetchControl(preQuery, postQuery) {
+  const generalConfig = this.getGeneralConfig();
+  const {datacap, state: initialState} = this.props;
+
+  return this.props.dispatch(dispatch => {
+    let promise = Promise.resolve(null);
+
+    // this accepts preQuery to return a value or a promise
+    if (typeof preQuery === "function") {
+      promise = promise.then(preQuery);
+    }
+
+    promise = promise.then(result => {
+      const vbQuery = {...initialState.query, ...result.query};
+      const queries = generateQueries(vbQuery);
+
+      dispatch({
+        state: result,
+        total: queries.length,
+        type: "FETCH_INIT"
+      });
+
+          const fetchOperations = queries.map(query =>
+            fetchQuery(datacap, query).then(result => {
+              dispatch({type: "FETCH_PROGRESS"});
+              return result;
+            })
+          );
+
+      return Promise.all(fetchOperations).then(results => {
+          const datagroups = chartCriteria(results, generalConfig);
+          const charts = [];
+
+          let selectedTime = Infinity;
+          let i = datagroups.length;
+          while (i--) {
+            const datagroup = datagroups[i];
+
+            const dgTimeList = datagroup.members[datagroup.names.timeLevelName];
+            selectedTime = Math.min(selectedTime, higherTimeLessThanNow(dgTimeList));
+
+            const dgCharts = datagroupToCharts(datagroup, generalConfig);
+            charts.push.apply(charts, dgCharts);
+          }
+
+          // activeChart example: treemap-z9TnC_1cDpEA
+          let activeChart = null;
+          if (charts.length === 1) {
+            activeChart = charts[0].key;
+          }
+          else if (charts.map(ch => ch.key).indexOf(vbQuery.activeChart) > -1) {
+            activeChart = vbQuery.activeChart;
+          }
+
+          return {charts, datagroups, query: {activeChart, selectedTime}};
+        });
+    });
+
+    // this accepts postQuery to return a value or a promise
+    if (typeof postQuery === "function") {
+      promise = promise.then(postQuery);
+    }
+
+    promise = promise
+      .then(result => {
+        return dispatch({type: "FETCH_FINISH", state: result});
+      })
+      .then(null, error =>
+        dispatch({error, state: initialState, type: "FETCH_ERROR"}).then(() => {
+          if (__DEV__) {
+            console.group("STATE UPDATE ERROR");
+            console.error(error.message);
+            console.error(error.stack);
+            console.groupEnd();
+          }
+          UIToaster.show({
+            intent: getSeverityByError(error),
+            message: error.message
+          });
+        })
+      );
+
+    return promise;
+  });
+}

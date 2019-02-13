@@ -17,7 +17,7 @@ import Vizbuilder from "@datawheel/canon-vizbuilder";
 ## Basic setup
 
 The minimal requirement for Vizbuilder is a mondrian-rest server URL.
-To insert Vizbuilder in a page, you just have to import the component and set it inside a page:
+To insert Vizbuilder in a page, you have to import the component and set it inside a page:
 
 ```jsx
 import Vizbuilder from "@datawheel/canon-vizbuilder";
@@ -35,6 +35,21 @@ class MyPage extends React.PureComponent {
 }
 
 export default MyPage
+```
+
+Vizbuilder's state is managed from the site-wide redux state, so is a requirement to setup the Vizbuilder's reducer function.
+In `app/reducers/index.js`, import the reducer function and assign it to the `vizbuilder` key:
+
+```js
+import {vbStateReducer} from "@datawheel/canon-vizbuilder";
+
+...
+
+export default {
+  ...
+  vizbuilder: vbStateReducer,
+  ...
+};
 ```
 
 ## Available properties
