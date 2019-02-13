@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
+import {connect} from "react-redux";
 
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
@@ -19,11 +20,10 @@ import {
   DEFAULT_MEASURE_FORMATTERS,
   DEFAULT_MEASURE_MULTIPLIERS
 } from "./helpers/formatting";
-import {loadControl, mergeStates, setStatePromise} from "./helpers/loadstate";
+import {fetchControl} from "./helpers/loadstate";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
 import {getDefaultGroup} from "./helpers/sorting";
 import {isSameQuery} from "./helpers/validation";
-import initialState from "./state";
 
 class Vizbuilder extends React.PureComponent {
   constructor(props, ctx) {
@@ -31,32 +31,30 @@ class Vizbuilder extends React.PureComponent {
 
     let initialStatePromise = this.initialize(props);
 
-    const location = ctx.router.location;
-    if (props.permalink && location.search) {
-      const permalinkQuery = parsePermalink(this.permalinkKeywords, location);
-      initialStatePromise = initialStatePromise.then(
-        permalinkToState.bind(null, permalinkQuery)
-      );
+    if (initialStatePromise) {
+      const location = ctx.router.location;
+      if (props.permalink && location.search) {
+        const permalinkQuery = parsePermalink(this.permalinkKeywords, location);
+        initialStatePromise = initialStatePromise.then(
+          permalinkToState.bind(null, permalinkQuery)
+        );
+      }
+
+      this.initialStatePromise = initialStatePromise;
     }
 
-    this.initialStatePromise = initialStatePromise;
-
-    this.loadControl = loadControl.bind(this);
+    this.loadControl = fetchControl.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
     this.getGeneralConfig = this.getGeneralConfig.bind(this);
   }
 
   initialize(props) {
-    this.state = initialState();
-
     resetClient(props.src);
 
     Filter.formatters = {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting};
     Filter.multipliers = {...DEFAULT_MEASURE_MULTIPLIERS, ...props.multipliers};
 
     const defaultGroup = [].concat(props.defaultGroup || []);
-    const defaultMeasure = props.defaultMeasure;
-    const defaultQuery = {defaultGroup, defaultMeasure};
 
     this.getDefaultGroup = getDefaultGroup.bind(null, defaultGroup);
     this.permalinkKeywords = {
@@ -67,7 +65,11 @@ class Vizbuilder extends React.PureComponent {
       ...props.permalinkKeywords
     };
 
-    return fetchCubes(defaultQuery, props);
+    if (!props.initialized) {
+      const defaultMeasure = props.defaultMeasure;
+      const defaultQuery = {defaultGroup, defaultMeasure};
+      return fetchCubes(defaultQuery, props);
+    }
   }
 
   getChildContext() {
@@ -82,25 +84,27 @@ class Vizbuilder extends React.PureComponent {
 
   componentDidMount() {
     const initialStatePromise = this.initialStatePromise;
-    delete this.initialStatePromise;
-    this.loadControl(() => initialStatePromise);
+    if (initialStatePromise) {
+      delete this.initialStatePromise;
+      this.loadControl(() => initialStatePromise);
+    }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const {onChange} = this.props;
-    const {query} = this.state;
+  componentDidUpdate(prevProps) {
+    const {onChange, state} = this.props;
+    const {query} = state;
 
     if (!query.cube) return;
 
-    if (!isSameQuery(prevState.query, query)) {
-      onChange(query, this.state.charts);
+    if (!isSameQuery(prevProps.state.query, query)) {
+      onChange(query, state.charts);
     }
   }
 
   render() {
     const {location} = this.context.router;
-    const {permalink, toolbar} = this.props;
-    const {charts, datagroups, load, options, query} = this.state;
+    const {permalink, toolbar, state} = this.props;
+    const {charts, datagroups, load, options, query} = state;
 
     const chartForRanking = datagroups.filter(ch => !ch.quirk).pop();
 
@@ -129,7 +133,7 @@ class Vizbuilder extends React.PureComponent {
         {permalink && <PermalinkManager
           activeChart={query.activeChart}
           href={location.search}
-          state={this.state}
+          state={state}
         />}
       </div>
     );
@@ -150,12 +154,13 @@ class Vizbuilder extends React.PureComponent {
   }
 
   stateUpdate(newState) {
-    return setStatePromise.call(this, state => mergeStates(state, newState));
+    return this.props.dispatch({type: "STATE_UPDATE", state: newState});
   }
 }
 
 Vizbuilder.contextTypes = {
-  router: PropTypes.object
+  router: PropTypes.object,
+  store: PropTypes.object
 };
 
 Vizbuilder.childContextTypes = {
@@ -207,4 +212,10 @@ Vizbuilder.defaultProps = {
   ]
 };
 
-export default Vizbuilder;
+export default connect(state => {
+  const vb = state.vizbuilder;
+  return {
+    initialized: vb.options.cubes.length > 0,
+    state: vb
+  };
+})(Vizbuilder);
