@@ -2,7 +2,7 @@ import React from "react";
 import classnames from "classnames";
 import TinyVirtualList from "react-tiny-virtual-list";
 
-class VirtualList extends React.PureComponent {
+class VirtualList extends React.Component {
   constructor(props) {
     super(props);
 

@@ -24,6 +24,85 @@ class CanonProvider extends Component {
     return {d3plus, data, helmet, locale, router, toast};
   }
 
+  componentDidMount() {
+    // polyfill for IE to support SVG innerHTML
+    if (typeof window !== "undefined") {
+      (function() {
+        function serializeXML(node, output) {
+          const nodeType = node.nodeType;
+          if (nodeType === 3) {
+            output.push(node.textContent.replace(/&/, "&amp;").replace(/</, "&lt;").replace(">", "&gt;"));
+          }
+          else if (nodeType === 1) {
+            output.push("<", node.tagName);
+            if (node.hasAttributes()) {
+              [].forEach.call(node.attributes, attrNode => {
+                output.push(" ", attrNode.item.name, "=\'", attrNode.item.value, "\'");
+              });
+            }
+            if (node.hasChildNodes()) {
+              output.push(">");
+              [].forEach.call(node.childNodes, childNode => {
+                serializeXML(childNode, output);
+              });
+              output.push("</", node.tagName, ">");
+            }
+            else {
+              output.push("/>");
+            }
+          }
+          else if (nodeType === 8) {
+            output.push("<!--", node.nodeValue, "-->");
+          }
+        }
+
+        Object.defineProperty(SVGElement.prototype, "innerHTML", {
+          get() {
+            const output = [];
+            let childNode = this.firstChild;
+            while (childNode) {
+              serializeXML(childNode, output);
+              childNode = childNode.nextSibling;
+            }
+            return output.join("");
+          },
+          set(markupText) {
+            while (this.firstChild) {
+              this.removeChild(this.firstChild);
+            }
+
+            try {
+              const dXML = new DOMParser();
+              dXML.async = false;
+
+              const sXML = `<svg xmlns=\'http://www.w3.org/2000/svg\' xmlns:xlink=\'http://www.w3.org/1999/xlink\'>${markupText}</svg>`;
+              const svgDocElement = dXML.parseFromString(sXML, "text/xml").documentElement;
+
+              let childNode = svgDocElement.firstChild;
+              while (childNode) {
+                this.appendChild(this.ownerDocument.importNode(childNode, true));
+                childNode = childNode.nextSibling;
+              }
+            }
+            catch (e) {
+              console.error(e);
+            }
+          }
+        });
+
+        Object.defineProperty(SVGElement.prototype, "innerSVG", {
+          get() {
+            return this.innerHTML;
+          },
+          set(markup) {
+            this.innerHTML = markup;
+          }
+        });
+
+      }());
+    }
+  }
+
   onClick(e) {
 
     // Ignore canceled events, modified clicks, and right clicks.
