@@ -65,7 +65,7 @@ class GroupingItem extends SidebarCRUDItem {
             onClick={this.handleDelete}
           />
           <Button
-            text={"Edit params"}
+            text="Edit"
             className="pt-small pt-intent-primary action-edit"
             onClick={this.handleEdit}
           />
@@ -104,7 +104,7 @@ class GroupingItem extends SidebarCRUDItem {
             onClick={item.level ? this.handleClose : this.handleDelete}
           />
           <Button
-            text="Apply changes"
+            text="Apply"
             className="pt-small pt-intent-primary action-update"
             onClick={this.handleApply}
           />
