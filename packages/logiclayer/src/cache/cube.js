@@ -6,7 +6,7 @@ const {Client} = require("mondrian-rest-client"),
       readline = require("readline");
 
 const throttle = new PromiseThrottle({
-  requestsPerSecond: 50,
+  requestsPerSecond: 10,
   promiseImplementation: Promise
 });
 
