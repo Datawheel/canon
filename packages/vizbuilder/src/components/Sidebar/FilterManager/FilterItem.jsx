@@ -53,7 +53,7 @@ class FilterItem extends SidebarCRUDItem {
             onClick={this.handleDelete}
           />
           <Button
-            text={"Edit params"}
+            text="Edit"
             className="pt-small pt-intent-primary"
             onClick={this.handleEdit}
           />
@@ -101,7 +101,7 @@ class FilterItem extends SidebarCRUDItem {
             className="pt-small pt-intent-primary"
             disabled={!Filter.isValid(activeItem)}
             onClick={this.handleApply}
-            text="Apply changes"
+            text="Apply"
           />
         </div>
       </div>
