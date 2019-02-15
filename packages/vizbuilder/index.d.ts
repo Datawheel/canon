@@ -1,6 +1,8 @@
 import * as React from "react";
 import {Cube, Level, Measure} from "mondrian-rest-client";
 
+export function vbStateReducer(state: any, action: any): any;
+
 declare class Vizbuilder extends React.Component<VizbuilderProps, any> {}
 
 export interface VizbuilderProps {

@@ -1,7 +1,7 @@
 import React from "react";
 import KonamiCode from "konami-code";
 
-import Vizbuilder from "../../src/";
+import Vizbuilder from "../../index";
 
 import "./Home.css";
 
