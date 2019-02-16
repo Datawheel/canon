@@ -1,6 +1,5 @@
 import {assign} from "d3plus-common";
 
-import {OWN_TIMELINE} from "./chartHelpers";
 import {composeChartTitle} from "./formatting";
 import {relativeStdDev} from "./math";
 import {sortByCustomKey} from "./sorting";
@@ -113,8 +112,7 @@ const makeConfig = {
     );
 
     const levelCut =
-      query.cuts &&
-      query.cuts.find(cut => cut.key.indexOf(`[${levelName}]`) > -1);
+      query.cuts && query.cuts.find(cut => cut.key.indexOf(`[${levelName}]`) > -1);
     if (levelCut && !config.fitFilter) {
       const levelCutMembers = levelCut.values.map(member => member.key);
       config.fitFilter = d => levelCutMembers.indexOf(d.id) > -1;
@@ -208,7 +206,7 @@ const makeConfig = {
 
     if (setup.length > 0) {
       const additionalLevels = setup.map(lvl => lvl.name);
-      config.groupBy.push.apply(config.groupBy, additionalLevels);
+      config.groupBy.push(...additionalLevels);
     }
 
     if (timeLevelName) {
@@ -226,13 +224,7 @@ const makeConfig = {
 export default function createChartConfig(chart, uiparams) {
   const {chartType, names, query} = chart;
   const {measureName, timeLevelName} = names;
-  const {
-    activeChart,
-    isSingle,
-    isUnique,
-    selectedTime,
-    onTimeChange
-  } = uiparams;
+  const {activeChart, isSingle, isUnique, selectedTime, onTimeChange} = uiparams;
 
   const isEnlarged = chart.key === activeChart || isUnique;
   const measureAnn = query.measure.annotations;
@@ -263,9 +255,9 @@ export default function createChartConfig(chart, uiparams) {
 
   if (config.title === undefined) {
     config.title = composeChartTitle(chart, {
-        activeChart,
-        selectedTime,
-        isTimeline: isTimeline || config.timeline
+      activeChart,
+      selectedTime,
+      isTimeline: isTimeline || config.timeline
     });
   }
 
