@@ -262,14 +262,11 @@ export default function createChartConfig(chart, uiparams) {
   config.zoom = chartType === "geomap" && isSingle;
 
   if (config.title === undefined) {
-    config.title =
-      composeChartTitle(chart, {
+    config.title = composeChartTitle(chart, {
         activeChart,
         selectedTime,
         isTimeline: isTimeline || config.timeline
-      }) +
-      "\n" +
-      measureAnn._cb_tagline;
+    });
   }
 
   return config;
