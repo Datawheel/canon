@@ -81,7 +81,7 @@ export default function chartCriteria(results, params) {
     else if (aggregatorType === "MEDIAN") {
       availableCharts.delete("stacked");
     }
-    // @see Issue#327 on {@link https://github.com/Datawheel/canon/issues/327 | GitHub}
+    /** @see Issue#327 on {@link https://github.com/Datawheel/canon/issues/327 | GitHub} */
     else if (aggregatorType === "NONE") {
       availableCharts.delete("stacked");
       availableCharts.delete("barchart");

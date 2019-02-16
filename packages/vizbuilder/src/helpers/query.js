@@ -167,7 +167,6 @@ export function generateQueries(params) {
       queries.push({
         ...params,
         level: grouping1.level,
-        xlevel: grouping2.level,
         levels: [grouping1.level, grouping2.level],
         cuts: [
           grouping1.hasMembers && {

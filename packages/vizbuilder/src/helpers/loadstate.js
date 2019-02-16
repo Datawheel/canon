@@ -95,10 +95,7 @@ export function loadControl(preQuery, postQuery) {
           const datagroup = datagroups[i];
 
           const dgTimeList = datagroup.members[datagroup.names.timeLevelName];
-          selectedTime = Math.min(
-            selectedTime,
-            higherTimeLessThanNow(dgTimeList)
-          );
+          selectedTime = Math.min(selectedTime, higherTimeLessThanNow(dgTimeList));
 
           const dgCharts = datagroupToCharts(datagroup, generalConfig);
           charts.push.apply(charts, dgCharts);
@@ -239,40 +236,40 @@ export function fetchControl(preQuery, postQuery) {
         type: "FETCH_INIT"
       });
 
-          const fetchOperations = queries.map(query =>
-            fetchQuery(datacap, query).then(result => {
-              dispatch({type: "FETCH_PROGRESS"});
-              return result;
-            })
-          );
+      const fetchOperations = queries.map(query =>
+        fetchQuery(datacap, query).then(result => {
+          dispatch({type: "FETCH_PROGRESS"});
+          return result;
+        })
+      );
 
       return Promise.all(fetchOperations).then(results => {
-          const datagroups = chartCriteria(results, generalConfig);
-          const charts = [];
+        const datagroups = chartCriteria(results, generalConfig);
+        const charts = [];
 
-          let selectedTime = Infinity;
-          let i = datagroups.length;
-          while (i--) {
-            const datagroup = datagroups[i];
+        let selectedTime = Infinity;
+        let i = datagroups.length;
+        while (i--) {
+          const datagroup = datagroups[i];
 
-            const dgTimeList = datagroup.members[datagroup.names.timeLevelName];
-            selectedTime = Math.min(selectedTime, higherTimeLessThanNow(dgTimeList));
+          const dgTimeList = datagroup.members[datagroup.names.timeLevelName];
+          selectedTime = Math.min(selectedTime, higherTimeLessThanNow(dgTimeList));
 
-            const dgCharts = datagroupToCharts(datagroup, generalConfig);
-            charts.push.apply(charts, dgCharts);
-          }
+          const dgCharts = datagroupToCharts(datagroup, generalConfig);
+          charts.push.apply(charts, dgCharts);
+        }
 
-          // activeChart example: treemap-z9TnC_1cDpEA
-          let activeChart = null;
-          if (charts.length === 1) {
-            activeChart = charts[0].key;
-          }
-          else if (charts.map(ch => ch.key).indexOf(vbQuery.activeChart) > -1) {
-            activeChart = vbQuery.activeChart;
-          }
+        // activeChart example: treemap-z9TnC_1cDpEA
+        let activeChart = null;
+        if (charts.length === 1) {
+          activeChart = charts[0].key;
+        }
+        else if (charts.map(ch => ch.key).indexOf(vbQuery.activeChart) > -1) {
+          activeChart = vbQuery.activeChart;
+        }
 
-          return {charts, datagroups, query: {activeChart, selectedTime}};
-        });
+        return {charts, datagroups, query: {activeChart, selectedTime}};
+      });
     });
 
     // this accepts postQuery to return a value or a promise
