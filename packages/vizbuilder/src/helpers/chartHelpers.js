@@ -11,6 +11,7 @@ import {
 
 import {getPermutations} from "./sorting";
 import {areMetaMeasuresZero} from "./validation";
+import {joinStringsWithCommaAnd} from "./formatting";
 
 export const chartComponents = {
   barchart: BarChart,
@@ -58,7 +59,7 @@ export function datagroupToCharts(datagroup, generalConfig) {
 
 export function buildBaseConfig(datagroup, params) {
   const {aggType, formatter, names} = datagroup;
-  const {measureName, timeLevelName} = names;
+  const {levelNames, measureName, timeLevelName} = names;
   const getMeasureValue = d => d[measureName];
 
   const config = {
@@ -73,6 +74,7 @@ export function buildBaseConfig(datagroup, params) {
       title: measureName,
       tickFormat: formatter
     },
+    label: labelFunctionGenerator(...levelNames),
 
     sum: getMeasureValue,
     value: getMeasureValue
@@ -99,6 +101,10 @@ export function calcChartSetups(type, query) {
   }
 }
 
+/**
+ * Generates the parameters for the tooltip shown for the current datagroup.
+ * @param {Datagroup} datagroup The chart datagroup
+ */
 export function tooltipGenerator(datagroup) {
   const {formatter, names} = datagroup;
   const {levelName, measureName} = names;
@@ -113,8 +119,7 @@ export function tooltipGenerator(datagroup) {
     const {lciName, uciName} = names;
     tbody.push([
       "Confidence Interval",
-      d =>
-        `${formatter(d[lciName] * 1 || 0)} - ${formatter(d[uciName] * 1 || 0)}`
+      d => `${formatter(d[lciName] * 1 || 0)} - ${formatter(d[uciName] * 1 || 0)}`
     ]);
   }
   else if (shouldShow.moe) {
@@ -138,6 +143,22 @@ export function tooltipGenerator(datagroup) {
   };
 }
 
+/**
+ * Generates the function to render the labels in the shapes of a chart.
+ * @param {string} lvlName1 Name of main level
+ * @param {string} lvlName2 Name of secondary level
+ */
+export function labelFunctionGenerator(lvlName1, lvlName2) {
+  return lvlName2
+    ? d => `${d[lvlName1]} (${joinStringsWithCommaAnd(d[lvlName2])})`
+    : d => d[lvlName1];
+}
+
+/**
+ * Validates if the current query consists of a geographic levels along another
+ * level with 1 cut.
+ * @param {VbQuery} query The current Vizbuilder query object
+ */
 export function isGeoPlusUniqueCutQuery(query) {
   const geoLvl = query.geoLevel;
   const notGeoLvl = query.levels.find(lvl => lvl !== geoLvl);

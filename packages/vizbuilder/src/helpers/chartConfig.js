@@ -15,7 +15,6 @@ const makeConfig = {
       chart.baseConfig,
       {
         discrete: "y",
-        label: d => d[levelName],
         y: levelName,
         yConfig: {title: levelName, ticks: []},
         x: measureName,

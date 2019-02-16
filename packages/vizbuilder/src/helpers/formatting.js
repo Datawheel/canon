@@ -70,13 +70,16 @@ export function findFirstNumber(string, elseValue) {
 /**
  * Joins a list of strings to form an enumeration phrase of type "a, b, c, and d".
  * @param {string[]} list List of strings to join
+ * @param {boolean} [oxford] Flag to enable or disable an Oxford comma in the last element.
  */
-export function joinStringsWithCommaAnd(list, oxford) {
-  const copy = list.slice();
-  const last = copy.pop();
-  return copy.length > 1
-    ? `${copy.join(", ")}, and ${last}`
-    : list.join(`${oxford ? "," : ""} and `);
+export function joinStringsWithCommaAnd(list, oxford = true) {
+  list = [].concat(list).filter(Boolean);
+  const firstPart = list.slice();
+  const lastPart = firstPart.pop();
+  const joint = oxford ? ", and " : " and ";
+  return firstPart.length > 0
+    ? `${firstPart.join(", ")}${joint}${lastPart}`
+    : list.join(joint);
 }
 
 /**
@@ -100,15 +103,15 @@ export function composeChartTitle(chart, uiparams) {
 
   if (levels.length > 0) {
     if (chart.quirk === QUIRKS.TOPTEN) {
-      title += ` for top 10 ${joinStringsWithCommaAnd(levels)}`;
+      title += ` for top 10 ${joinStringsWithCommaAnd(levels, false)}`;
     }
     else {
-      title += ` by ${joinStringsWithCommaAnd(levels)}`;
+      title += ` by ${joinStringsWithCommaAnd(levels, false)}`;
     }
   }
 
   if (cuts.length > 0) {
-    title += ` ${joinStringsWithCommaAnd(cuts, true)}`;
+    title += ` ${joinStringsWithCommaAnd(cuts)}`;
   }
 
   if (timeLevelName) {

@@ -24,7 +24,7 @@ export default function chartCriteria(results, params) {
 
     const measureName = query.measure.name;
     const levelName = query.level.name;
-    const xlevelName = query.xlevel && query.xlevel.name;
+    const levelNames = query.levels.map(lvl => lvl.name);
     const geoLevelName = query.geoLevel && query.geoLevel.name;
     const timeLevelName = query.timeLevel && query.timeLevel.name;
 
@@ -44,7 +44,6 @@ export default function chartCriteria(results, params) {
       query.measure.aggregatorType ||
       "UNKNOWN";
 
-    const availableKeys = Object.keys(members);
     const availableCharts = new Set(params.visualizations);
 
     const hasTimeLvl = timeLevelName && timeLevelMembers.length > 1;
@@ -114,7 +113,7 @@ export default function chartCriteria(results, params) {
       sourceName: query.source && query.source.name,
       timeLevelName,
       uciName: query.uci && query.uci.name,
-      xlevelName
+      levelNames
     };
 
     /**
