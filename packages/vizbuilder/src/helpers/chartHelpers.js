@@ -92,7 +92,19 @@ export function buildBaseConfig(datagroup, params) {
 export function calcChartSetups(type, query) {
   switch (type) {
     case "treemap": {
-      return getPermutations(query.levels);
+      const groupings = query.groups;
+      const permutations = getPermutations(query.levels);
+      /**
+       * We must remove permutations where the first element is being cut by
+       * 1 member, as these look the same in both orders.
+       * @see Issue#434 on {@link https://github.com/Datawheel/canon/issues/434 | GitHub}
+       */
+      return permutations
+        .filter(setup => {
+          const level = setup[0];
+          const grouping = groupings.find(grp => grp.level === level);
+          return grouping.members.length !== 1;
+        });
     }
 
     default: {
