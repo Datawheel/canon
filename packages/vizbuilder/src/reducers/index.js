@@ -27,7 +27,11 @@ function vbStateReducer(state = initialState(), action) {
   let newState;
 
   switch (action.type) {
-    case "FETCH_INIT": {
+    case "VB_RESET": {
+      return initialState();
+    }
+
+    case "VB_FETCH_INIT": {
       newState = mergeStates(state, action.state);
       newState.charts = [];
       newState.datagroups = [];
@@ -40,7 +44,7 @@ function vbStateReducer(state = initialState(), action) {
       return newState;
     }
 
-    case "FETCH_PROGRESS": {
+    case "VB_FETCH_PROGRESS": {
       return {
         ...state,
         load: {
@@ -50,7 +54,7 @@ function vbStateReducer(state = initialState(), action) {
       };
     }
 
-    case "FETCH_FINISH": {
+    case "VB_FETCH_FINISH": {
       newState = mergeStates(state, action.state);
       newState.load = {
         total: 0,
@@ -62,7 +66,7 @@ function vbStateReducer(state = initialState(), action) {
       return newState;
     }
 
-    case "FETCH_ERROR": {
+    case "VB_FETCH_ERROR": {
       newState = action.state;
       newState.load = {
         total: 0,
@@ -74,7 +78,7 @@ function vbStateReducer(state = initialState(), action) {
       return newState;
     }
 
-    case "STATE_UPDATE": {
+    case "VB_STATE_UPDATE": {
       return mergeStates(state, action.state);
     }
 

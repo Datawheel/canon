@@ -233,12 +233,12 @@ export function fetchControl(preQuery, postQuery) {
       dispatch({
         state: result,
         total: queries.length,
-        type: "FETCH_INIT"
+        type: "VB_FETCH_INIT"
       });
 
       const fetchOperations = queries.map(query =>
         fetchQuery(datacap, query).then(result => {
-          dispatch({type: "FETCH_PROGRESS"});
+          dispatch({type: "VB_FETCH_PROGRESS"});
           return result;
         })
       );
@@ -279,22 +279,21 @@ export function fetchControl(preQuery, postQuery) {
 
     promise = promise
       .then(result => {
-        return dispatch({type: "FETCH_FINISH", state: result});
+        return dispatch({type: "VB_FETCH_FINISH", state: result});
       })
-      .then(null, error =>
-        dispatch({error, state: initialState, type: "FETCH_ERROR"}).then(() => {
-          if (__DEV__) {
-            console.group("STATE UPDATE ERROR");
-            console.error(error.message);
-            console.error(error.stack);
-            console.groupEnd();
-          }
-          UIToaster.show({
-            intent: getSeverityByError(error),
-            message: error.message
-          });
-        })
-      );
+      .then(null, error => {
+        dispatch({error, state: initialState, type: "VB_FETCH_ERROR"});
+        if (__DEV__) {
+          console.group("STATE UPDATE ERROR");
+          console.error(error.message);
+          console.error(error.stack);
+          console.groupEnd();
+        }
+        UIToaster.show({
+          intent: getSeverityByError(error),
+          message: error.message
+        });
+      });
 
     return promise;
   });

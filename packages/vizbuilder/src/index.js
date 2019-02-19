@@ -154,7 +154,7 @@ class Vizbuilder extends React.PureComponent {
   }
 
   stateUpdate(newState) {
-    return this.props.dispatch({type: "STATE_UPDATE", state: newState});
+    return this.props.dispatch({type: "VB_STATE_UPDATE", state: newState});
   }
 }
 
