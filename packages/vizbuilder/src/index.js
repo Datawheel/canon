@@ -65,7 +65,11 @@ class Vizbuilder extends React.PureComponent {
       ...props.permalinkKeywords
     };
 
-    if (!props.initialized) {
+    if (
+      props.instanceKey !== props.state.instanceKey ||
+      props.state.options.cubes.length === 0
+    ) {
+      props.dispatch({type: "VB_RESET", key: props.instanceKey});
       const defaultMeasure = props.defaultMeasure;
       const defaultQuery = {defaultGroup, defaultMeasure};
       return fetchCubes(defaultQuery, props);
@@ -197,6 +201,7 @@ Vizbuilder.defaultProps = {
   config: {},
   datacap: 20000,
   formatting: {},
+  instanceKey: "vizbuilder",
   measureConfig: {},
   multipliers: {},
   onChange() {},
@@ -212,10 +217,6 @@ Vizbuilder.defaultProps = {
   ]
 };
 
-export default connect(state => {
-  const vb = state.vizbuilder;
-  return {
-    initialized: vb.options.cubes.length > 0,
-    state: vb
-  };
-})(Vizbuilder);
+const getVbState = state => ({state: state.vizbuilder});
+
+export default connect(getVbState)(Vizbuilder);

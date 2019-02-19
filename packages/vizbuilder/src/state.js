@@ -3,6 +3,7 @@
  */
 export default function initialStateFactory() {
   return {
+    instanceKey: undefined,
     load: {
       inProgress: true,
       total: 1,

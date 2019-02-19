@@ -28,7 +28,9 @@ function vbStateReducer(state = initialState(), action) {
 
   switch (action.type) {
     case "VB_RESET": {
-      return initialState();
+      newState = initialState();
+      newState.instanceKey = action.key;
+      return newState;
     }
 
     case "VB_FETCH_INIT": {
