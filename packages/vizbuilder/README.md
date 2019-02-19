@@ -66,9 +66,10 @@ won't have any effect.
 | defaultGroup      | `string[]`                                    |           |               | An array with names of the Level that should be selected by default after a Measure is selected. The order of the strings determines which Level will be picked first. |
 | defaultMeasure    | `string`                                      |           |               | The name of the measure that should be loaded when Vizbuilder is rendered for the first time. |
 | formatting        | `{[x: string], (d: number) => string}`        |           | `{}`          | An object, whose keys are [`Measure.annotations.units_of_measurement`](https://github.com/Datawheel/company/wiki/Data-Cube-Annotations#suggested-units-of-measurement) names, and their values are functions that accept a number argument and return an string with the formatted value. There's a list of [default formatters](https://github.com/Datawheel/canon/blob/master/packages/vizbuilder/src/helpers/formatting.js#L6), but if there's no match, [`d3plus-format.formatAbbreviate`](https://github.com/d3plus/d3plus-format/blob/master/src/abbreviate.js) is used instead. |
+| instanceKey       | `string`                                      |           | `"vizbuilder"`| In case the site has more than one instance of Vizbuilder (like a full view + a map mode view), the instances must have a `instanceKey` to reset the general state and not have interference between views. See [Multiple instances](#multiple-instances) for details. |
 | measureConfig     | `{[x: string], D3plusConfigObject}`           |           |               | An object, whose keys are Measure names, and their values are d3plus chart config objects. These are specific configurations for each Measure, and take priority over the configurations set in the `config` property. |
 | multipliers       | `{[x: string], number}`                       |           | `{}`          | An object, whose keys are [`Measure.annotations.units_of_measurement`](https://github.com/Datawheel/company/wiki/Data-Cube-Annotations#suggested-units-of-measurement) names, and their values are numbers. These are used in Filters for conversion of the input value to the real value represented and backwards. See [Issue #325](https://github.com/Datawheel/canon/issues/325) for details. |
-| onChange          | `(query: VbQuery, charts: VbChart[]) => void` |           | `() => void`  | A hook function called afted the internal State is modified. Useful to extract the state and prepare features outside of Vizbuilder's scope. The parameters this function receives must be considered as READ-ONLY objects; modifying them could have uncertain consequencies. |
+| onChange          | `(query: VbQuery, charts: VbChart[]) => void` |           | `() => void`  | A hook function called afted the internal State is modified. Useful to work with features outside of Vizbuilder's scope. The parameters this function receives must be considered as READ-ONLY objects; modifying them could have uncertain consequencies. |
 | permalink         | `boolean`                                     |           | `true`        | The switch that enables or disables permalinks on the current instance. See [Using Permalinks](#using-permalinks) for details. |
 | permalinkKeywords | `{[x: string], string}`                       |           |               | An object to configure the parameter names to parse from/to the URL.search string. See [Using Permalinks](#using-permalinks) for details. |
 | toolbar           | `JSX.Element`                                 |           |               | A component to render just above the chart area. Can be used to put a custom toolbar inside the Vizbuilder. See [Styling](#styling) for a reference of the position. |
@@ -151,6 +152,19 @@ Setting the `visualizations` property to `["geomap"]` has the following effects 
 - Hides any non-geographic Level from the list of Groupings, and hides the geographic Levels which don't have a defined `topojson` configuration.
 
 This is also a initialization-dependent property.
+
+## Multiple instances
+
+In case there are more than one instance of Vizbuilder working on the site, they must have an `instanceKey` attribute. This attribute is used to clear the state between changes in navigation, since the state is stored and controlled on redux. Without this, on initialization the instance would see the stored state and express it on the UI.
+
+```jsx
+  <Vizbuilder
+    src={...}
+    ...
+    instanceKey="map"
+    ...
+  />
+```
 
 ## Styling
 
