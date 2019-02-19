@@ -31,14 +31,12 @@ class Vizbuilder extends React.PureComponent {
 
     let initialStatePromise = this.initialize(props);
 
-    if (initialStatePromise) {
       const location = ctx.router.location;
       if (props.permalink && location.search) {
         const permalinkQuery = parsePermalink(this.permalinkKeywords, location);
         initialStatePromise = initialStatePromise.then(
           permalinkToState.bind(null, permalinkQuery)
         );
-      }
 
       this.initialStatePromise = initialStatePromise;
     }
@@ -74,6 +72,8 @@ class Vizbuilder extends React.PureComponent {
       const defaultQuery = {defaultGroup, defaultMeasure};
       return fetchCubes(defaultQuery, props);
     }
+
+    return Promise.resolve(props.state);
   }
 
   getChildContext() {
