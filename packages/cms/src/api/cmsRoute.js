@@ -404,7 +404,8 @@ module.exports = function(app) {
     {elements: ["profile_footnote", "profile_stat"], parent: "profile_id"},
     {elements: ["section_description", "section_subtitle"], parent: "section_id"},
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
-    {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"}
+    {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"},
+    {elements: ["storytopic_subtitle", "storytopic_description", "storytopic_stat", "storytopic_visualization"], parent: "storytopic_id"}
   ];
 
   deleteList.forEach(list => {
