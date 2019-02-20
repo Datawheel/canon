@@ -66,8 +66,10 @@
       }
       & .image-options {
         display: flex;
-        justify-content: center;
-        margin: 0 0 10px;
+        flex-direction: column;
+        & .pt-checkbox {
+          margin: 0 auto 10px;
+        }
       }
     }
     &.view-table {

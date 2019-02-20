@@ -17,11 +17,24 @@ const filename = str => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/^\-/g, "")
   .replace(/\-$/g, "");
 
+const getBackground = elem => {
+
+  // Is current element's background color set?
+  const color = select(elem).style("background-color");
+  if (color !== "rgba(0, 0, 0, 0)" && color !== "transparent") return color;
+
+  // if not: are you at the body element?
+  if (elem === document.body) return "white";
+  else return getBackground(elem.parentNode);
+
+};
+
 class Options extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
+      backgroundColor: true,
       imageContext: "topic",
       loading: false,
       openDialog: false,
@@ -62,8 +75,11 @@ class Options extends Component {
     const {title} = this.props;
     let node = this.getNode();
     if (node) {
+      const {backgroundColor} = this.state;
       if (type === "svg") node = select(node).select("svg").node();
-      saveElement(node, {filename: filename(title), type});
+      let background;
+      if (backgroundColor) background = getBackground(node);
+      saveElement(node, {filename: filename(title), type}, {background});
     }
   }
 
@@ -99,6 +115,10 @@ class Options extends Component {
     }
   }
 
+  toggleBackground() {
+    this.setState({backgroundColor: !this.state.backgroundColor});
+  }
+
   toggleContext() {
     const {imageContext} = this.state;
     this.setState({imageContext: imageContext === "topic" ? "viz" : "topic"});
@@ -114,7 +134,7 @@ class Options extends Component {
 
   render() {
 
-    const {imageContext, openDialog, results} = this.state;
+    const {backgroundColor, imageContext, openDialog, results} = this.state;
     const {data, location} = this.props;
 
     const node = this.getNode();
@@ -129,6 +149,7 @@ class Options extends Component {
       </div>}
       <div className="image-options">
         <Checkbox checked={imageContext === "viz"} label="Only Download Visualization" onChange={this.toggleContext.bind(this)} />
+        <Checkbox checked={!backgroundColor} label="Transparent Background" onChange={this.toggleBackground.bind(this)} />
       </div>
     </div>;
 
