@@ -44,6 +44,10 @@ class Options extends Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.data !== this.props.data) this.setState({results: false});
+  }
+
   onCSV() {
     const {title} = this.props;
     const {results} = this.state;
