@@ -25,7 +25,7 @@ import {parsePermalink, permalinkToState} from "./helpers/permalink";
 import {getDefaultGroup} from "./helpers/sorting";
 import {isSameQuery} from "./helpers/validation";
 
-class Vizbuilder extends React.PureComponent {
+class Vizbuilder extends React.Component {
   constructor(props, ctx) {
     super(props);
 
@@ -37,9 +37,9 @@ class Vizbuilder extends React.PureComponent {
         initialStatePromise = initialStatePromise.then(
           permalinkToState.bind(null, permalinkQuery)
         );
+    }
 
       this.initialStatePromise = initialStatePromise;
-    }
 
     this.loadControl = fetchControl.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
@@ -88,11 +88,9 @@ class Vizbuilder extends React.PureComponent {
 
   componentDidMount() {
     const initialStatePromise = this.initialStatePromise;
-    if (initialStatePromise) {
       delete this.initialStatePromise;
       this.loadControl(() => initialStatePromise);
     }
-  }
 
   componentDidUpdate(prevProps) {
     const {onChange, state} = this.props;
