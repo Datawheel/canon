@@ -63,7 +63,7 @@ class Options extends Component {
     let node = this.getNode();
     if (node) {
       if (type === "svg") node = select(node).select("svg").node();
-      saveElement(node, {filename: `${filename(title)}.${type}`, type});
+      saveElement(node, {filename: filename(title), type});
     }
   }
 
