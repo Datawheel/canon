@@ -43,6 +43,7 @@
   & .bp3-dialog-body {
     margin: 0;
     &.save-image {
+      height: 200px;
       text-align: center;
       & .save-image-btn {
         color: black;
@@ -65,14 +66,17 @@
         }
       }
       & .image-options {
+        align-items: center;
         display: flex;
-        justify-content: center;
-        margin: 0 0 10px;
+        flex-direction: column;
+        & .bp3-checkbox {
+          margin: 0 auto 10px;
+        }
       }
     }
     &.view-table {
       margin-bottom: 0;
-      & .pt-non-ideal-state {
+      & .bp3-non-ideal-state {
         height: 150px;
         margin-top: 25px;
       }
