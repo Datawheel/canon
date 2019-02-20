@@ -43,6 +43,7 @@
   & .pt-dialog-body {
     margin: 0;
     &.save-image {
+      height: 200px;
       text-align: center;
       & .save-image-btn {
         color: black;

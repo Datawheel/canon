@@ -36,6 +36,7 @@ class Options extends Component {
     this.state = {
       backgroundColor: true,
       imageContext: "topic",
+      imageProcessing: false,
       loading: false,
       openDialog: false,
       results: props.data instanceof Array ? props.data : false
@@ -75,11 +76,15 @@ class Options extends Component {
     const {title} = this.props;
     let node = this.getNode();
     if (node) {
+      this.setState({imageProcessing: true});
       const {backgroundColor} = this.state;
       if (type === "svg") node = select(node).select("svg").node();
       let background;
       if (backgroundColor) background = getBackground(node);
-      saveElement(node, {filename: filename(title), type}, {background});
+      saveElement(node,
+        {filename: filename(title), type},
+        {background, callback: () => this.setState({imageProcessing: false})}
+      );
     }
   }
 
@@ -134,24 +139,28 @@ class Options extends Component {
 
   render() {
 
-    const {backgroundColor, imageContext, openDialog, results} = this.state;
+    const {backgroundColor, imageContext, imageProcessing, openDialog, results} = this.state;
     const {data, location} = this.props;
 
     const node = this.getNode();
     const svgAvailable = node && select(node).select("svg").size() > 0;
 
-    const ImagePanel = () => <div className="pt-dialog-body save-image">
-      <div className="save-image-btn" onClick={this.onSave.bind(this, "png")}>
-        <Icon iconName="media" />PNG
+    const ImagePanel = () => imageProcessing
+      ? <div className="pt-dialog-body save-image">
+        <NonIdealState title="Generating Image" visual={<Spinner />} />
       </div>
-      {svgAvailable && <div className="save-image-btn" onClick={this.onSave.bind(this, "svg")}>
-        <Icon iconName="code-block" />SVG
-      </div>}
-      <div className="image-options">
-        <Checkbox checked={imageContext === "viz"} label="Only Download Visualization" onChange={this.toggleContext.bind(this)} />
-        <Checkbox checked={!backgroundColor} label="Transparent Background" onChange={this.toggleBackground.bind(this)} />
-      </div>
-    </div>;
+      : <div className="pt-dialog-body save-image">
+        <div className="save-image-btn" onClick={this.onSave.bind(this, "png")}>
+          <Icon iconName="media" />PNG
+        </div>
+        {svgAvailable && <div className="save-image-btn" onClick={this.onSave.bind(this, "svg")}>
+          <Icon iconName="code-block" />SVG
+        </div>}
+        <div className="image-options">
+          <Checkbox checked={imageContext === "viz"} label="Only Download Visualization" onChange={this.toggleContext.bind(this)} />
+          <Checkbox checked={!backgroundColor} label="Transparent Background" onChange={this.toggleBackground.bind(this)} />
+        </div>
+      </div>;
 
     const columns = results ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
 
