@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
+import {animateScroll} from "react-scroll";
 import "./Options.css";
 
 import {select} from "d3-selection";
@@ -107,6 +108,11 @@ class Options extends Component {
   }
 
   toggleDialog(slug) {
+    const node = this.getNode.bind(this)();
+    if (node && !this.state.openDialog) {
+      const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+      if (node.offsetTop < scrollTop) animateScroll.scrollTo(node.offsetTop);
+    }
     this.setState({openDialog: slug});
     const {results, loading} = this.state;
     if (slug === "view-table" && !results && !loading) {
