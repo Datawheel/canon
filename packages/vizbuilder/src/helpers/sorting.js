@@ -351,14 +351,27 @@ export function higherTimeLessThanNow(timelist) {
 }
 
 export function getTopTenByYear(datagroup) {
-  const timeLevelName =
-    datagroup.query.timeLevel && datagroup.query.timeLevel.name;
+  const {timeLevelName, levelNames} = datagroup.names;
+  const firstLevelName = levelNames[0];
   const groups = groupBy(datagroup.dataset, timeLevelName);
-  const newDataset = Object.keys(groups).reduce((all, time) => {
+
+  let newDataset;
+  const topElements = Object.keys(groups).reduce((all, time) => {
     const top = groups[time].slice(0, 10);
-    all.push.apply(all, top);
+    all.push(...top);
     return all;
   }, []);
+
+  const topElementsDatasets = groupBy(topElements, firstLevelName);
+  if (Object.keys(topElementsDatasets).length > 12) {
+    const time = Object.keys(groups).sort().pop();
+    const timeElements = groupBy(groups[time].slice(0, 10), firstLevelName);
+    newDataset = datagroup.dataset.filter(item => item[firstLevelName] in timeElements);
+  }
+  else {
+    newDataset = topElements;
+  }
+
   const newMembers = getIncludedMembers(datagroup.query, newDataset);
   return {newDataset, newMembers};
 }

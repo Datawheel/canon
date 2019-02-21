@@ -54,6 +54,14 @@ export default function chartCriteria(results, params) {
       availableCharts.delete("barchart");
     }
 
+    if (levelMembers.length > 200) {
+      availableCharts.delete("stacked");
+    }
+
+    if (levelMembers.length > 1000) {
+      availableCharts.delete("treemap");
+    }
+
     // Hide time scale charts if dataset has not time or only one time
     if (!hasTimeLvl) {
       availableCharts.delete("barchartyear");
