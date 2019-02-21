@@ -23,7 +23,7 @@ MemberSelect.defaultProps = {
     const nope = {ancestors: [{}]};
     return items.reduce((all, member, i, array) => {
       const prevMember = array[i - 1] || nope;
-      const prevAncestor = prevMember.ancestors[0];
+      const prevAncestor = prevMember.ancestors[0] || {};
 
       const ancestor = member.ancestors[0];
       if (ancestor && ancestor.key !== prevAncestor.key) {
