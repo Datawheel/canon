@@ -52,13 +52,16 @@ class Options extends Component {
     const {title} = this.props;
     const {results} = this.state;
 
+    const colDelim = ",";
+    const rowDelim = "\r\n";
+
     const columns = Object.keys(results[0]);
-    let csv = columns.join(",");
+    let csv = columns.map(val => `\"${val}\"`).join(colDelim);
 
     for (let i = 0; i < results.length; i++) {
       const data = results[i];
 
-      csv += "\n";
+      csv += rowDelim;
       csv += columns.map(key => {
 
         const val = data[key];
@@ -66,7 +69,7 @@ class Options extends Component {
         return typeof val === "number" ? val
           : val ? `\"${val}\"` : "";
 
-      }).join(",");
+      }).join(colDelim);
 
     }
 
