@@ -192,6 +192,7 @@ export function getMeasureMeta(cube, measure) {
  */
 export function getTimeLevel(cube) {
   const timeDim =
+    cube.dimensions.find(dim => yn(dim.annotations.default_year)) ||
     cube.timeDimension ||
     cube.dimensionsByName.Date ||
     cube.dimensionsByName.Year;
