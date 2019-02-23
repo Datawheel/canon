@@ -85,7 +85,7 @@ export function joinStringsWithCommaAnd(list, oxford = true) {
 /**
  * Returns a common title string from a list of parameters.
  */
-export function composeChartTitle(chart, uiparams) {
+export function composeChartTitle(chart, uiParams) {
   const {query, setup} = chart;
   const {measureName, timeLevelName} = chart.names;
   const levels = setup.map(lvl => lvl.name);
@@ -115,10 +115,8 @@ export function composeChartTitle(chart, uiparams) {
   }
 
   if (timeLevelName) {
-    const {activeChart, isTimeline, selectedTime} = uiparams;
-
-    if (!activeChart && !isTimeline) {
-      title += ` (${selectedTime})`;
+    if (!uiParams.activeChart && !uiParams.isTimeline) {
+      title += ` (${uiParams.selectedTime})`;
     }
     else {
       title = title.replace(measureName, `${measureName} by ${timeLevelName}`);

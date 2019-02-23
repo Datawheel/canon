@@ -29,6 +29,11 @@ export function generateBaseState(cubes, measure, geomapLevels) {
     levels: getValidLevels(cube)
   };
 
+  const uiParams = {
+    activeChart: null,
+    selectedTime: null
+  };
+
   if (geomapLevels) {
     options.levels = options.levels.filter(
       lvl =>
@@ -39,7 +44,7 @@ export function generateBaseState(cubes, measure, geomapLevels) {
 
   removeDuplicateLevels(options.levels);
 
-  return {options, query};
+  return {options, query, uiParams};
 }
 
 export function replaceLevelsInGroupings(groupings, cube) {

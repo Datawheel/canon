@@ -23,7 +23,8 @@ class ChartArea extends React.Component {
     return (
       this.props.activeChart !== nextProps.activeChart ||
       this.props.lastUpdate !== nextProps.lastUpdate ||
-      this.props.selectedTime !== nextProps.selectedTime
+      this.props.selectedTime !== nextProps.selectedTime ||
+      this.props.showConfidenceInt !== nextProps.showConfidenceInt
     );
   }
 
@@ -42,13 +43,13 @@ class ChartArea extends React.Component {
   }
 
   handleChartSelect(type) {
-    const query = {activeChart: this.props.activeChart ? null : type};
-    this.context.stateUpdate({query});
+    const uiParams = {activeChart: this.props.activeChart ? null : type};
+    this.context.stateUpdate({uiParams});
   }
 
   handleTimeChange(date) {
     const selectedTime = date.getFullYear();
-    this.context.stateUpdate({query: {selectedTime}});
+    this.context.stateUpdate({uiParams: {selectedTime}});
   }
 
   scrollEnsure() {
@@ -57,7 +58,7 @@ class ChartArea extends React.Component {
   }
 
   render() {
-    const {activeChart, charts, selectedTime, toolbar} = this.props;
+    const {activeChart, charts} = this.props;
 
     const n = charts.length;
     if (n === 0) {
@@ -75,17 +76,18 @@ class ChartArea extends React.Component {
     const isUniqueChart = n === 1;
     const isSingleChart = chartsToRender.length === 1;
 
-    const uiparams = {
+    const uiParams = {
       activeChart,
       isSingle: isSingleChart,
       isUnique: isUniqueChart,
       onTimeChange: this.handleTimeChange,
-      selectedTime
+      selectedTime: this.props.selectedTime,
+      showConfidenceInt: this.props.showConfidenceInt
     };
 
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
-        {toolbar && <div className="toolbar-wrapper">{toolbar}</div>}
+        <div className="toolbar-wrapper">{this.props.children}</div>
         <div
           className={classNames(
             "wrapper chart-wrapper",
@@ -96,7 +98,7 @@ class ChartArea extends React.Component {
         >
           {chartsToRender.map(chart => {
             const {key} = chart;
-            const config = createChartConfig(chart, uiparams);
+            const config = createChartConfig(chart, uiParams);
             return (
               <ChartCard
                 active={key === activeChart || isSingleChart}

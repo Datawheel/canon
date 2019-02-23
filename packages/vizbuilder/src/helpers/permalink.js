@@ -37,7 +37,7 @@ export function parsePermalink(keywords, location) {
  * @param {PermalinkKeywordMap} keywords Permalink keyword map
  * @param {object} query The `query` element from the Vizbuilder's state.
  */
-export function stateToPermalink(keywords, query) {
+export function stateToPermalink(keywords, query, uiParams) {
   const toString = (item, i) => `${i}-${item}`;
   return {
     [keywords.measure]: query.measure.annotations._key,
@@ -49,7 +49,7 @@ export function stateToPermalink(keywords, query) {
       .filter(isValidFilter)
       .map(toString)
       .sort(),
-    [keywords.enlarged]: query.activeChart || undefined
+    [keywords.enlarged]: uiParams.activeChart || undefined
   };
 }
 
@@ -70,12 +70,13 @@ export function permalinkToState(queryParams, prevState) {
       : prevState;
   const newOptions = newState.options;
   const newQuery = newState.query;
+  const newUiParams = newState.uiParams;
 
   newOptions.cubes = prevOptions.cubes;
   newOptions.measures = prevOptions.measures;
   newOptions.measureMap = prevOptions.measureMap;
 
-  newQuery.activeChart = queryParams.enlarged || null;
+  newUiParams.activeChart = queryParams.enlarged || null;
 
   newQuery.filters = queryParams.filters
     .map(filterHash => {

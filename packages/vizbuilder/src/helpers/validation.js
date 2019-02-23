@@ -100,7 +100,6 @@ export function isSamePermalinkQuery(keywords, query1, query2) {
 export function isSameQuery(query1, query2) {
   return (
     query1.measure === query2.measure &&
-    query1.activeChart === query2.activeChart &&
     areSameObjects(isValidGrouping, query1.groups, query2.groups) &&
     areSameObjects(isValidFilter, query1.filters, query2.filters)
   );
