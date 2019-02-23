@@ -16,6 +16,7 @@ class VisualizePage extends React.Component {
 
   activate() {
     this.props.router.push("/visualize?filters=0-Z1jivMs-4-10000000000&groups=0-HIqzX&measure=Z1jivMs");
+    this.setState({intro: false});
   }
 
   componentDidMount() {

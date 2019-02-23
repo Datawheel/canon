@@ -1,5 +1,5 @@
 
-export const ENDPOINT = "https://theodore-api.datausa.io";
+export const ENDPOINT = "https://ulysses-api.datausa.io";
 
 export const DEFAULT_TOPOJSON = {
   "Nation": {
