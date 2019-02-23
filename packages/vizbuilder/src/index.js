@@ -44,6 +44,7 @@ class Vizbuilder extends React.Component {
     this.loadControl = fetchControl.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
     this.getGeneralConfig = this.getGeneralConfig.bind(this);
+    this.getState = this.getState.bind(this);
   }
 
   initialize(props) {
@@ -64,8 +65,8 @@ class Vizbuilder extends React.Component {
     };
 
     if (
-      props.instanceKey !== props.state.instanceKey ||
-      props.state.options.cubes.length === 0
+      props.instanceKey !== props.reduxInstanceKey ||
+      props.queryOptions.cubes.length === 0
     ) {
       props.dispatch({type: "VB_RESET", key: props.instanceKey});
       const defaultMeasure = props.defaultMeasure;
@@ -73,7 +74,7 @@ class Vizbuilder extends React.Component {
       return fetchCubes(defaultQuery, props);
     }
 
-    return Promise.resolve(props.state);
+    return Promise.resolve(this.getState());
   }
 
   getChildContext() {
@@ -93,20 +94,22 @@ class Vizbuilder extends React.Component {
     }
 
   componentDidUpdate(prevProps) {
-    const {onChange, state} = this.props;
-    const {query} = state;
+    const props = this.props;
+    const {queryParams, uiParams} = props;
 
-    if (!query.cube) return;
+    if (!queryParams.cube) return;
 
-    if (!isSameQuery(prevProps.state.query, query)) {
-      onChange(query, state.charts);
+    if (
+      !isSameQuery(prevProps.queryParams, queryParams) ||
+      prevProps.uiParams.activeChart === uiParams.activeChart
+    ) {
+      props.onChange(queryParams, uiParams, props.charts);
     }
   }
 
   render() {
     const {location} = this.context.router;
-    const {permalink, toolbar, state} = this.props;
-    const {charts, datagroups, load, options, query} = state;
+    const {permalink, toolbar, charts, datagroups, load, queryOptions, queryParams, uiParams} = this.props;
 
     const chartForRanking = datagroups.filter(ch => !ch.quirk).pop();
 
@@ -118,20 +121,13 @@ class Vizbuilder extends React.Component {
         })}
       >
         {load.inProgress && <LoadingScreen total={load.total} progress={load.done} />}
-        <Sidebar options={options} query={query}>
+        <Sidebar options={queryOptions} query={queryParams} uiParams={uiParams}>
           {this.props.children}
-          <Ranking
-            chart={chartForRanking}
-            selectedTime={query.selectedTime}
-          />
+          <Ranking chart={chartForRanking} selectedTime={uiParams.selectedTime} />
         </Sidebar>
-        <ChartArea
-          activeChart={query.activeChart}
-          charts={charts}
-          lastUpdate={load.lastUpdate}
-          selectedTime={query.selectedTime}
-          toolbar={toolbar}
-        />
+        <ChartArea charts={charts} lastUpdate={load.lastUpdate} {...uiParams}>
+          {toolbar}
+        </ChartArea>
         {permalink && <PermalinkManager
           activeChart={query.activeChart}
           href={location.search}
@@ -139,6 +135,18 @@ class Vizbuilder extends React.Component {
         />}
       </div>
     );
+  }
+
+  getState() {
+    const props = this.props;
+    return {
+      charts: props.charts,
+      datagroups: props.datagroups,
+      load: props.load,
+      options: props.queryOptions,
+      query: props.queryParams,
+      uiParams: props.uiParams
+    };
   }
 
   getGeneralConfig() {
@@ -215,6 +223,15 @@ Vizbuilder.defaultProps = {
   ]
 };
 
-const getVbState = state => ({state: state.vizbuilder});
-
-export default connect(getVbState)(Vizbuilder);
+export default connect(state => {
+  const vb = state.vizbuilder;
+  return {
+    charts: vb.charts,
+    datagroups: vb.datagroups,
+    reduxInstanceKey: vb.instanceKey,
+    load: vb.load,
+    queryOptions: vb.options,
+    queryParams: vb.query,
+    uiParams: vb.uiParams
+  };
+})(Vizbuilder);

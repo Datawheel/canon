@@ -69,7 +69,7 @@ won't have any effect.
 | instanceKey       | `string`                                      |           | `"vizbuilder"`| In case the site has more than one instance of Vizbuilder (like a full view + a map mode view), the instances must have a `instanceKey` to reset the general state and not have interference between views. See [Multiple instances](#multiple-instances) for details. |
 | measureConfig     | `{[x: string], D3plusConfigObject}`           |           |               | An object, whose keys are Measure names, and their values are d3plus chart config objects. These are specific configurations for each Measure, and take priority over the configurations set in the `config` property. |
 | multipliers       | `{[x: string], number}`                       |           | `{}`          | An object, whose keys are [`Measure.annotations.units_of_measurement`](https://github.com/Datawheel/company/wiki/Data-Cube-Annotations#suggested-units-of-measurement) names, and their values are numbers. These are used in Filters for conversion of the input value to the real value represented and backwards. See [Issue #325](https://github.com/Datawheel/canon/issues/325) for details. |
-| onChange          | `(query: VbQuery, charts: VbChart[]) => void` |           | `() => void`  | A hook function called afted the internal State is modified. Useful to work with features outside of Vizbuilder's scope. The parameters this function receives must be considered as READ-ONLY objects; modifying them could have uncertain consequencies. |
+| onChange          | `(query: VbQuery, uiParams VbUIParams, charts: VbChart[]) => void` |           | `() => void`  | A hook function called afted the internal State is modified. Useful to work with features outside of Vizbuilder's scope. The parameters this function receives must be considered as READ-ONLY objects; modifying them could have uncertain consequencies. |
 | permalink         | `boolean`                                     |           | `true`        | The switch that enables or disables permalinks on the current instance. See [Using Permalinks](#using-permalinks) for details. |
 | permalinkKeywords | `{[x: string], string}`                       |           |               | An object to configure the parameter names to parse from/to the URL.search string. See [Using Permalinks](#using-permalinks) for details. |
 | toolbar           | `JSX.Element`                                 |           |               | A component to render just above the chart area. Can be used to put a custom toolbar inside the Vizbuilder. See [Styling](#styling) for a reference of the position. |
@@ -86,6 +86,8 @@ Additionally, Vizbuilder accepts childrens. These will be rendered between the F
   The same as with `D3plusConfigObject`, but in this case, `x` should only be topojson-related properties. Some examples are `topojson` (required, the URL to the topojson file), `topojsonId` (the key that relates each topojson shape with the dataset value), and `topojsonKey` (the key in the topojson file for the shapes to use). See the [d3plus documentation on Geomaps](https://d3plus.org/docs/#Geomap.topojson) for further reference.
 - `VbQuery`: `{[x: string]: any}`
   The main query state for the Vizbuilder. This is the basic state from where all queries are calculated.
+- `VbUIParams`: `{[x: string]: any}`
+  User interface parameters on Vizbuilder. Currently contains `activeChart` (the identification key for the currently enlarged chart), `selectedTime` (the currently selected Year for charts that can't show a timespan), and `showConfidenceInt` (a boolean indicating if charts should visually present confidence intervals/margins of error).
 - `VbChart`: `{[x: string]: any}`
   The list of charts currently rendered in Vizbuilder. Each object contains the specific query (a specific expansion of the VbQuery object), the dataset shown, and the extra properties used to create each chart.
 
@@ -187,7 +189,7 @@ useful classnames tied to the structure:
       .control.ranking
       .control.sources
   .area-chart
-    [.wrapper.toolbar, depending if `this.props.toolbar` is set]
+    .wrapper.toolbar
       [`this.props.toolbar` is rendered here]
     .wrapper.chart-wrapper[.multi/.single][.unique]
       [.chart-card for each chart]

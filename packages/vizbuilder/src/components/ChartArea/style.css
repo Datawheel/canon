@@ -12,6 +12,10 @@
   & .toolbar-wrapper {
     flex: 0 0 20px;
     position: sticky;
+
+    &:empty {
+      display: none;
+    }
   }
 
   & .chart-wrapper {

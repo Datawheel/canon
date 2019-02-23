@@ -3,6 +3,8 @@
  */
 export default function initialStateFactory() {
   return {
+    charts: [],
+    datagroups: [],
     instanceKey: undefined,
     load: {
       inProgress: true,
@@ -23,7 +25,6 @@ export default function initialStateFactory() {
       measure: null,
       groups: [],
       filters: [],
-      activeChart: null,
       // These are calculated from the above ones:
       cube: null,
       timeLevel: null,
@@ -31,10 +32,12 @@ export default function initialStateFactory() {
       uci: null,
       moe: null,
       source: null,
-      collection: null,
-      selectedTime: null
+      collection: null
     },
-    charts: [],
-    datagroups: []
+    uiParams: {
+      activeChart: null,
+      selectedTime: null,
+      showConfidenceInt: false
+    }
   };
 }

@@ -5,7 +5,7 @@ import {relativeStdDev} from "./math";
 import {sortByCustomKey} from "./sorting";
 
 const makeConfig = {
-  barchart(chart) {
+  barchart(chart, uiParams) {
     const {timeLevel, level} = chart.query;
     const {levelName, measureName, timeLevelName} = chart.names;
 
@@ -45,7 +45,7 @@ const makeConfig = {
 
     return config;
   },
-  barchartyear(chart) {
+  barchartyear(chart, uiParams) {
     const {levelName, timeLevelName, measureName} = chart.names;
 
     const config = assign(
@@ -67,7 +67,7 @@ const makeConfig = {
 
     return config;
   },
-  donut(chart) {
+  donut(chart, uiParams) {
     const {levelName, measureName, timeLevelName} = chart.names;
 
     const config = assign(
@@ -90,7 +90,7 @@ const makeConfig = {
 
     return config;
   },
-  geomap(chart) {
+  geomap(chart, uiParams) {
     const {names, query} = chart;
     const {levelName, measureName, timeLevelName} = names;
 
@@ -124,8 +124,8 @@ const makeConfig = {
 
     return config;
   },
-  histogram(chart) {
-    const config = this.barchart(chart);
+  histogram(chart, uiParams) {
+    const config = this.barchart(chart, uiParams);
 
     return assign(
       config,
@@ -135,7 +135,7 @@ const makeConfig = {
       chart.userConfig
     );
   },
-  lineplot(chart) {
+  lineplot(chart, uiParams) {
     const {measureName, moeName, lciName, uciName, timeLevelName} = chart.names;
 
     const config = assign(
@@ -143,6 +143,7 @@ const makeConfig = {
       chart.baseConfig,
       {
         discrete: "x",
+        confidence: [],
         groupBy: chart.setup.map(lvl => lvl.name),
         yConfig: {scale: "linear", title: measureName},
         x: timeLevelName,
@@ -157,14 +158,16 @@ const makeConfig = {
       config.yConfig.title += " (Log)";
     }
 
-    if (lciName && uciName) {
-      config.confidence = [d => d[lciName], d => d[uciName]];
-    }
-    else if (moeName) {
-      config.confidence = [
-        d => d[measureName] - d[moeName],
-        d => d[measureName] + d[moeName]
-      ];
+    if (uiParams.showConfidenceInt) {
+      if (lciName && uciName) {
+        config.confidence = [d => d[lciName], d => d[uciName]];
+      }
+      else if (moeName) {
+        config.confidence = [
+          d => d[measureName] - d[moeName],
+          d => d[measureName] + d[moeName]
+        ];
+      }
     }
 
     delete config.time;
@@ -172,13 +175,13 @@ const makeConfig = {
 
     return config;
   },
-  pie(chart) {
-    return this.donut(chart);
+  pie(chart, uiParams) {
+    return this.donut(chart, uiParams);
   },
-  stacked(chart) {
+  stacked(chart, uiParams) {
     const {measureName} = chart.names;
 
-    const config = this.lineplot(chart);
+    const config = this.lineplot(chart, uiParams);
     config.yConfig = {scale: "linear", title: measureName};
 
     if (chart.setup.length > 1) {
@@ -187,7 +190,7 @@ const makeConfig = {
 
     return config;
   },
-  treemap(chart) {
+  treemap(chart, uiParams) {
     const {timeLevelName} = chart.names;
     const setup = chart.setup.slice();
 
@@ -221,15 +224,14 @@ const makeConfig = {
  * Generates an array with valid config objects, depending on the type of data
  * retrieved and the current user defined parameters, to use in d3plus charts.
  */
-export default function createChartConfig(chart, uiparams) {
-  const {chartType, names, query} = chart;
+export default function createChartConfig(chart, uiParams) {
+  const {chartType, names} = chart;
   const {measureName, timeLevelName} = names;
-  const {activeChart, isSingle, isUnique, selectedTime, onTimeChange} = uiparams;
+  const {activeChart, isSingle, isUnique, selectedTime, onTimeChange} = uiParams;
 
   const isEnlarged = chart.key === activeChart || isUnique;
-  const measureAnn = query.measure.annotations;
 
-  const config = makeConfig[chartType](chart);
+  const config = makeConfig[chartType](chart, uiParams);
 
   config.data = chart.dataset;
 

@@ -24,6 +24,9 @@ export interface VizbuilderProps {
   /** An object, whose keys are [`Measure.annotations.units_of_measurement`](https://github.com/Datawheel/company/wiki/Data-Cube-Annotations#suggested-units-of-measurement) names, and their values are functions that accept a number argument and return an string with the formatted value. There's a list of [default formatters](https://github.com/Datawheel/canon/blob/master/packages/vizbuilder/src/helpers/formatting.js#L6), but if there's no match, [`d3plus-format.formatAbbreviate`](https://github.com/d3plus/d3plus-format/blob/master/src/abbreviate.js) is used instead. */
   formatting?: {[key: string]: (d: number) => string};
 
+  /** In case the site has more than one instance of Vizbuilder (like a full view + a map mode view), the instances must have a `instanceKey` to reset the general state and not have interference between views. See [Multiple instances](#multiple-instances) on the Readme for details. */
+  instanceKey?: string;
+
   /** An object, whose keys are Measure names, and their values are d3plus chart config objects. These are specific configurations for each Measure, and take priority over the configurations set in the `config` property. */
   measureConfig?: {[key: string]: D3plusConfigObject};
 
@@ -33,10 +36,10 @@ export interface VizbuilderProps {
   /** A hook function called afted the internal State is modified. Useful to extract the state and prepare features outside of Vizbuilder's scope. The parameters this function receives must be considered as *READ-ONLY* objects; modifying them could have uncertain consequencies. */
   onChange?(query: VbQuery, charts: VbChart[]): void;
 
-  /** The switch that enables or disables permalinks on the current instance. See [Using Permalinks](#using-permalinks) for details. */
+  /** The switch that enables or disables permalinks on the current instance. See [Using Permalinks](#using-permalinks) on the Readme for details. */
   permalink?: boolean;
 
-  /** An object to configure the parameter names to parse from/to the URL.search string. See [Using Permalinks](#using-permalinks) for details. */
+  /** An object to configure the parameter names to parse from/to the URL.search string. See [Using Permalinks](#using-permalinks) on the Readme for details. */
   permalinkKeywords?: {[key: string]: string};
 
   /** A component to render just above the chart area. Can be used to put a custom toolbar inside the Vizbuilder. See [Styling](#styling) for a reference of the position. */
@@ -53,7 +56,6 @@ export interface VbQuery {
   measure: Measure;
   groups: Grouping[];
   filters: Filter[];
-  activeChart: string;
   cube: Cube;
   timeLevel: Level;
   lci?: Measure;
@@ -61,7 +63,12 @@ export interface VbQuery {
   moe?: Measure;
   source: string;
   collection: string;
-  selectedTime: number;
+}
+
+export interface VbUIParams {
+  activeChart: string | null;
+  selectedTime: number | null;
+  showConfidenceInt: boolean;
 }
 
 export interface VbChart {

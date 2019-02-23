@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import {Checkbox} from "@blueprintjs/core";
 
 import "./style.css";
 import "./select.css";
@@ -24,6 +25,7 @@ class Sidebar extends React.PureComponent {
     super(props);
     this.setMeasure = this.setMeasure.bind(this);
     this.setDataset = this.setDataset.bind(this);
+    this.toggleConfidenceInt = this.toggleConfidenceInt.bind(this);
   }
 
   render() {
@@ -47,6 +49,13 @@ class Sidebar extends React.PureComponent {
               onItemSelect={this.setMeasure}
             />
             <p className="details">{measureDetails}</p>
+            <p className="show-ci" hidden={!query.moe && !(query.lci || query.uci)}>
+              <Checkbox
+                checked={query.showConfidenceInt}
+                label="Show Margin of Error"
+                onChange={this.toggleConfidenceInt}
+              />
+            </p>
           </div>
 
           <GroupingManager
@@ -113,7 +122,7 @@ class Sidebar extends React.PureComponent {
 
   setMeasure(measure) {
     const {getDefaultGroup} = this.context;
-    const {options, query} = this.props;
+    const {options, query, uiParams} = this.props;
 
     const areMeasuresFromSameTable = (oldQ, newQ) => {
       const {table_id} = newQ.cube.annotations;
@@ -127,26 +136,31 @@ class Sidebar extends React.PureComponent {
 
     return this.context.loadControl(() => {
       const newState = generateBaseState(options.cubes, measure, options.geomapLevels);
+      const newUiParams = newState.uiParams;
       const newQuery = newState.query;
 
       if (newQuery.cube === query.cube) {
         newQuery.groups = query.groups;
         newQuery.filters = query.filters;
-        newQuery.activeChart = query.activeChart;
+        newUiParams.activeChart = uiParams.activeChart;
       }
       else if (areMeasuresFromSameTable(query, newQuery)) {
         newQuery.filters = replaceMeasureInFilters(query.filters, newQuery.cube);
         return replaceLevelsInGroupings(query.groups, newQuery.cube).then(newGroups => {
           newQuery.groups = newGroups;
           newQuery.geoLevel = getGeoLevel(newQuery);
-          newQuery.activeChart = replaceKeysInString(query.activeChart, query.groups, newQuery.groups);
+          newUiParams.activeChart = replaceKeysInString(
+            uiParams.activeChart,
+            query.groups,
+            newQuery.groups
+          );
           return newState;
         });
       }
       else {
         newQuery.groups = getDefaultGroup(newState.options.levels);
         newQuery.filters = [];
-        newQuery.activeChart = null;
+        newUiParams.activeChart = null;
       }
 
       newQuery.geoLevel = getGeoLevel(newQuery);
@@ -163,11 +177,17 @@ class Sidebar extends React.PureComponent {
     const measure = measureList.find(item => item.annotations._cb_name == cubeName);
     return this.setMeasure(measure);
   }
+
+  toggleConfidenceInt(evt) {
+    const uiParams = {showConfidenceInt: evt.target.checked};
+    this.context.stateUpdate({uiParams});
+  }
 }
 
 Sidebar.contextTypes = {
   getDefaultGroup: PropTypes.func,
-  loadControl: PropTypes.func
+  loadControl: PropTypes.func,
+  stateUpdate: PropTypes.func
 };
 
 export default Sidebar;

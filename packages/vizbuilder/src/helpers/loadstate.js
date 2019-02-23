@@ -216,7 +216,8 @@ export function mergeStates(state, newState) {
 
 export function fetchControl(preQuery, postQuery) {
   const generalConfig = this.getGeneralConfig();
-  const {datacap, state: initialState} = this.props;
+  const {datacap} = this.props;
+  const initialState = this.getState();
 
   return this.props.dispatch(dispatch => {
     let promise = Promise.resolve(null);
@@ -227,8 +228,9 @@ export function fetchControl(preQuery, postQuery) {
     }
 
     promise = promise.then(result => {
-      const vbQuery = {...initialState.query, ...result.query};
-      const queries = generateQueries(vbQuery);
+      let {activeChart} = {...initialState.uiParams, ...result.uiParams};
+      const updatedQuery = {...initialState.query, ...result.query};
+      const queries = generateQueries(updatedQuery);
 
       dispatch({
         state: result,
@@ -260,15 +262,14 @@ export function fetchControl(preQuery, postQuery) {
         }
 
         // activeChart example: treemap-z9TnC_1cDpEA
-        let activeChart = null;
         if (charts.length === 1) {
           activeChart = charts[0].key;
         }
-        else if (charts.map(ch => ch.key).indexOf(vbQuery.activeChart) > -1) {
-          activeChart = vbQuery.activeChart;
+        else if (charts.map(ch => ch.key).indexOf(activeChart) === -1) {
+          activeChart = null;
         }
 
-        return {charts, datagroups, query: {activeChart, selectedTime}};
+        return {charts, datagroups, uiParams: {activeChart, selectedTime}};
       });
     });
 
