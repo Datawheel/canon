@@ -6,10 +6,12 @@ Reusable React environment and components for creating visualization engines.
 #### Contents
 * [Setup and Installation](#setup-and-installation)
 * [Deployment](#deployment)
-* [Localization](#localization)
 * [Header/Meta Information](#header-meta-information)
 * [Page Routing](#page-routing)
 * [Redux Store](#redux-store)
+* [Localization](#localization)
+  * [Language Detection](#language-detection)
+  * [Changing Languages](#changing-languages)
 * [User Management](#user-management)
   * [Loading User Information](#loading-user-information)
   * [Privacy Policy and Terms of Service](#privacy-policy-and-terms-of-service)
@@ -61,6 +63,97 @@ Deploying a site with canon is as easy as these 2 steps:
 
 * `npm run build` to compile the necessary production server and client bundles
 * `npm run start` to start an Express server on the default port
+
+---
+
+## Header/Meta Information
+
+All tags inside of the `<head>` of the rendered page are configured using [Helmet](https://github.com/helmetjs/helmet). If a file is present at `app/helmet.js`, the Object it exports will be used as the configuration. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
+
+Here is an example configuration, as seen in this repo's sample app:
+
+```js
+export default {
+  link: [
+    {rel: "icon", href: "/images/favicon.ico?v=2"},
+    {rel: "stylesheet", href: "https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700,900"}
+  ],
+  meta: [
+    {charset: "utf-8"},
+    {"http-equiv": "X-UA-Compatible", "content": "IE=edge"},
+    {name: "description", content: "Reusable React environment and components for creating visualization engines."},
+    {name: "viewport", content: "width=device-width, initial-scale=1"},
+    {name: "mobile-web-app-capable", content: "yes"},
+    {name: "apple-mobile-web-app-capable", content: "yes"},
+    {name: "apple-mobile-web-app-status-bar-style", content: "black"},
+    {name: "apple-mobile-web-app-title", content: "Datawheel Canon"}
+  ],
+  title: "Datawheel Canonical Design"
+};
+```
+---
+
+## Page Routing
+
+All page routes need to be hooked up in `app/routes.jsx`. This filename and location cannot be changed, as the internals of Canon rely on it's presence. For linking between pages, use the [react-router](https://github.com/ReactTraining/react-router) `<Link>` component:
+
+```jsx
+import {Link} from "react-router";
+...
+<Link to="/about">About Page</Link>
+```
+
+As a fallback (mainly related to CMS content), Canon also intercepts all `<a>` tags and identifies whether or not they are client-side react friendly links or if they are external links that require a full window location change. If you need to trigger a browser reload (like when [changing languages](#changing-languages)), just add the `data-refresh` attribute to your HTML tag:
+
+```jsx
+<a data-refresh="true" href="/?locale=es">Spanish</a>
+```
+
+When linking to an anchor ID on the current page, use the `<AnchorLink>` component exported by canon to enable a silky smooth scrollto animation:
+
+```jsx
+import {AnchorLink} from "react-router";
+...
+<AnchorLink to="economy">Jump to Economy</AnchorLink>
+...
+<a id="economy" href="#economy">Economy Section</a>
+```
+
+If needing to modify the page location with JavaScript, you must use the current active router passed down to any component registered in `app/routes.jsx`. In the past, it was possible to use the `browserHistory` object exported from [react-router](https://github.com/ReactTraining/react-router), but as more advanced routing features have been added to canon, it is now necessary to use the inherited live instance. This live instance is available as `this.props.router`, and can be passed down to any children needing it (either through props or context). Here is an example usage:
+
+```jsx
+import React, {Component} from "react";
+
+class Tile extends Component {
+
+  onChangePage() {
+    const {router} = this.props;
+    router.push("new-route");
+  }
+
+  onChangeQuery() {
+    const {router} = this.props;
+    router.replace("current-route?stuff=here");
+  }
+
+}
+```
+
+Notice the different usage of `push` and `replace`. Pushing a new URL to the router effects the push/pop history of the browser (so back and forward buttons work), which replacing the URL simply updates the value without effecting the browser history.
+
+---
+
+## Redux Store
+
+Default values can be added to the Redux Store by creating a file located at `app/store.js`. This file should export an Object, whose values will be merged with the defaul store. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
+
+Here is an example:
+
+```js
+export default {
+  countries: ["nausa", "sabra", "aschn"]
+};
+```
 
 ---
 
@@ -144,89 +237,28 @@ Additionally, to set the default language used in the site on first visit, set t
 export CANON_LANGUAGE_DEFAULT="es"
 ```
 
----
+### Language Detection
 
-## Header/Meta Information
+A user's language can be determined in multiple ways. Here is the order of the cascading detection. Once a valid language (one that contains translations in a JSON file) has been detected, the process exits:
 
-All tags inside of the `<head>` of the rendered page are configured using [Helmet](https://github.com/helmetjs/helmet). If a file is present at `app/helmet.js`, the Object it exports will be used as the configuration. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
+1. sub-domain (ie. `https://pt.codelife.com`)
+2. `lang` query argument (ie. `https://www.codelife.com?lang=pt`)
+3. `language` query argument (ie. `https://www.codelife.com?language=pt`)
+4. `locale` query argument (ie. `https://www.codelife.com?locale=pt`)
+5. `lng` query argument (ie. `https://www.codelife.com?lng=pt`)
 
-Here is an example configuration, as seen in this repo's sample app:
+### Changing Languages
 
-```js
-export default {
-  link: [
-    {rel: "icon", href: "/images/favicon.ico?v=2"},
-    {rel: "stylesheet", href: "https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700,900"}
-  ],
-  meta: [
-    {charset: "utf-8"},
-    {"http-equiv": "X-UA-Compatible", "content": "IE=edge"},
-    {name: "description", content: "Reusable React environment and components for creating visualization engines."},
-    {name: "viewport", content: "width=device-width, initial-scale=1"},
-    {name: "mobile-web-app-capable", content: "yes"},
-    {name: "apple-mobile-web-app-capable", content: "yes"},
-    {name: "apple-mobile-web-app-status-bar-style", content: "black"},
-    {name: "apple-mobile-web-app-title", content: "Datawheel Canon"}
-  ],
-  title: "Datawheel Canonical Design"
-};
-```
----
-
-## Page Routing
-
-All page routes need to be hooked up in `app/routes.jsx`. This filename and location cannot be changed, as the internals of Canon rely on it's presence. For linking between pages, use the [react-router](https://github.com/ReactTraining/react-router) `<Link>` component:
+In order to change the language of the current page, you must trigger a full browser reload with the new URL. This can be done one of two ways. By using an anchor tag with the `data-refresh` attribute:
 
 ```jsx
-import {Link} from "react-router";
-...
-<Link to="/about">About Page</Link>
+<a data-refresh="true" href="/?locale=es">Spanish</a>
 ```
 
-When linking to an anchor ID on the current page, use the `<AnchorLink>` component exported by canon to enable a silky smooth scrollto animation:
+Or in a JavaScript event handler:
 
 ```jsx
-import {AnchorLink} from "react-router";
-...
-<AnchorLink to="economy">Jump to Economy</AnchorLink>
-...
-<a id="economy" href="#economy">Economy Section</a>
-```
-
-If needing to modify the page location with JavaScript, you must use the current active router passed down to any component registered in `app/routes.jsx`. In the past, it was possible to use the `browserHistory` object exported from [react-router](https://github.com/ReactTraining/react-router), but as more advanced routing features have been added to canon, it is now necessary to use the inherited live instance. This live instance is available as `this.props.router`, and can be passed down to any children needing it (either through props or context). Here is an example usage:
-
-```jsx
-import React, {Component} from "react";
-
-class Tile extends Component {
-
-  onChangePage() {
-    const {router} = this.props;
-    router.push("new-route");
-  }
-
-  onChangeQuery() {
-    const {router} = this.props;
-    router.replace("current-route?stuff=here");
-  }
-
-}
-```
-
-Notice the different usage of `push` and `replace`. Pushing a new URL to the router effects the push/pop history of the browser (so back and forward buttons work), which replacing the URL simply updates the value without effecting the browser history.
-
----
-
-## Redux Store
-
-Default values can be added to the Redux Store by creating a file located at `app/store.js`. This file should export an Object, whose values will be merged with the defaul store. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
-
-Here is an example:
-
-```js
-export default {
-  countries: ["nausa", "sabra", "aschn"]
-};
+window.location = "/?locale=es";
 ```
 
 ---
