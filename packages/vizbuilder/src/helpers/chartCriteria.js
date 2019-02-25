@@ -80,7 +80,7 @@ export default function chartCriteria(results, params) {
     }
 
     // Hide invalid charts according to the type of aggregation in the data
-    if (aggregatorType === "AVERAGE") {
+    if (aggregatorType === "AVG" || aggregatorType === "AVERAGE") {
       availableCharts.delete("donut");
       availableCharts.delete("histogram");
       availableCharts.delete("stacked");
