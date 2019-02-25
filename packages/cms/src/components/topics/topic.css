@@ -28,10 +28,7 @@
       z-index: 2;
       & a {
         display: inline-block;
-        margin-top: calc(calc(var(--subnav-size) + 10px) * -1);
         outline: 0;
-        padding-top: calc(var(--subnav-size) + 10px);
-        position: relative;
       }
     }
 
