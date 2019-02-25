@@ -2,10 +2,10 @@ import React from "react";
 import {Route, IndexRoute, browserHistory} from "react-router";
 
 import App from "./App";
-import Profile from "./pages/Profile";
-import Builder from "../src/Builder";
 import Search from "./pages/Search";
 import Bar from "./pages/Bar";
+
+import {Builder, Profile} from "../src";
 
 /** */
 export default function RouteCreate() {
