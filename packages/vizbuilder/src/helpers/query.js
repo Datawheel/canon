@@ -8,7 +8,7 @@ import {
   getValidLevels,
   removeDuplicateLevels
 } from "./sorting";
-import {isGeoDimension, isValidGrouping} from "./validation";
+import {isGeoDimension, isValidGrouping, isValidCut} from "./validation";
 
 /**
  * Generates a partial state object, whose elements
@@ -37,8 +37,8 @@ export function generateBaseState(cubes, measure, geomapLevels) {
   if (geomapLevels) {
     options.levels = options.levels.filter(
       lvl =>
-      isGeoDimension(lvl.hierarchy.dimension) &&
-      geomapLevels.indexOf(lvl.name) > -1
+        isGeoDimension(lvl.hierarchy.dimension) &&
+        geomapLevels.indexOf(lvl.name) > -1
     );
   }
 
@@ -150,12 +150,10 @@ export function generateQueries(params) {
 
     queries.push({
       ...params,
+      kind: "s",
       level,
       levels: [level],
-      cuts: grouping.hasMembers && [{
-        key: level.fullName,
-        values: grouping.members
-      }]
+      cuts: [grouping].filter(isValidCut)
     });
   }
 
@@ -166,25 +164,40 @@ export function generateQueries(params) {
       const combination = combinations.next();
       if (combination.done) break;
 
-      const grouping1 = combination.value[0];
-      const grouping2 = combination.value[1];
+      const groupings = combination.value;
 
       queries.push({
         ...params,
-        level: grouping1.level,
-        levels: [grouping1.level, grouping2.level],
-        cuts: [
-          grouping1.hasMembers && {
-            key: grouping1.level.fullName,
-            values: grouping1.members
-          },
-          grouping2.hasMembers && {
-            key: grouping2.level.fullName,
-            values: grouping2.members
-          }
-        ].filter(Boolean)
+        kind: "d",
+        level: groupings[0].level,
+        levels: groupings.map(grp => grp.level),
+        cuts: groupings.filter(isValidCut)
       });
     }
+  }
+
+  if (validCuts.length > 0) {
+    let totalValidGroups = validGroups.length;
+    const ddGroups = [];
+    const ctGroups = [];
+
+    for (let i = 0; i < totalValidGroups; i++) {
+      const group = validGroups[i];
+      const target = group.hasMembers ? ctGroups : ddGroups;
+      target.push(group);
+    }
+
+    if (ddGroups.length === 0) {
+      ddGroups.push(validGroups[0]);
+    }
+
+    queries.push({
+      ...params,
+      kind: "c",
+      level: ddGroups[0].level,
+      levels: ddGroups.map(grp => grp.level),
+      cuts: ctGroups
+    });
   }
 
   return queries;
@@ -222,7 +235,7 @@ export function queryConverter(params) {
     lvl.fullName.slice(1, -1).split("].[")
   );
 
-  const cuts = [].concat(params.cuts).filter(Boolean);
+  const cuts = params.cuts.map(group => group.serialize());
 
   const filters = params.filters
     .map(filter => filter.serialize())

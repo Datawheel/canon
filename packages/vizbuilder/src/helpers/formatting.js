@@ -89,13 +89,12 @@ export function composeChartTitle(chart, uiParams) {
   const {query, setup} = chart;
   const {measureName, timeLevelName} = chart.names;
   const levels = setup.map(lvl => lvl.name);
-  const cuts = (query.cuts || []).map(cut => {
-    const levelFullName = cut.key;
-    const level = setup.find(lvl => lvl.fullName === levelFullName);
-    levels.splice(levels.indexOf(level.name), 1);
-    const values = cut.values.map(m => m.name);
+  const cuts = query.cuts.map(grp => {
+    const levelName = grp.level.name;
+    levels.splice(levels.indexOf(levelName), 1);
+    const values = grp.members.map(m => m.name);
     return values.length > 1
-      ? `for the ${values.length} Selected ${pluralize(level.name, values.length)}`
+      ? `for the ${values.length} Selected ${pluralize(levelName, values.length)}`
       : `for ${values[0]}`;
   });
 

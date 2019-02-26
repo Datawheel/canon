@@ -109,15 +109,24 @@ class Vizbuilder extends React.Component {
 
   render() {
     const {location} = this.context.router;
-    const {permalink, toolbar, charts, datagroups, load, queryOptions, queryParams, uiParams} = this.props;
+    const {
+      permalink,
+      toolbar,
+      charts,
+      datagroups,
+      load,
+      queryOptions,
+      queryParams,
+      uiParams
+    } = this.props;
 
     const chartForRanking = datagroups.filter(ch => !ch.quirk).pop();
 
     return (
       <div
         className={classnames("vizbuilder", {
-          "mapmode": Boolean(options.geomapLevels),
-          "fetching": load.inProgress
+          mapmode: Boolean(queryOptions.geomapLevels),
+          fetching: load.inProgress
         })}
       >
         {load.inProgress && <LoadingScreen total={load.total} progress={load.done} />}
@@ -129,9 +138,9 @@ class Vizbuilder extends React.Component {
           {toolbar}
         </ChartArea>
         {permalink && <PermalinkManager
-          activeChart={query.activeChart}
+          activeChart={uiParams.activeChart}
           href={location.search}
-          state={state}
+          state={this.getState()}
         />}
       </div>
     );

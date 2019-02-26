@@ -111,7 +111,7 @@ export default function chartCriteria(results, params) {
 
     datagroup.aggType = aggregatorType;
     datagroup.formatter = measureFormatter;
-    datagroup.key = query.key;
+    datagroup.key = query.kind;
     datagroup.names = {
       collectionName: query.collection && query.collection.name,
       lciName: query.lci && query.lci.name,
