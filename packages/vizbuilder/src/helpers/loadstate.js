@@ -228,7 +228,7 @@ export function fetchControl(preQuery, postQuery) {
     }
 
     promise = promise.then(result => {
-      let {activeChart} = {...initialState.uiParams, ...result.uiParams};
+      let {activeChart, showConfidenceInt} = {...initialState.uiParams, ...result.uiParams};
       const updatedQuery = {...initialState.query, ...result.query};
       const queries = generateQueries(updatedQuery);
 
@@ -253,12 +253,18 @@ export function fetchControl(preQuery, postQuery) {
         let i = datagroups.length;
         while (i--) {
           const datagroup = datagroups[i];
+          const {timeLevelName, levelNames} = datagroup.names;
 
-          const dgTimeList = datagroup.members[datagroup.names.timeLevelName];
+          const dgTimeList = datagroup.members[timeLevelName];
           selectedTime = Math.min(selectedTime, higherTimeLessThanNow(dgTimeList));
 
           const dgCharts = datagroupToCharts(datagroup, generalConfig);
           charts.push.apply(charts, dgCharts);
+
+          const mainLevelName = levelNames[0];
+          if (datagroup.members[mainLevelName].length > 12) {
+            showConfidenceInt = false;
+          }
         }
 
         // activeChart example: treemap-z9TnC_1cDpEA
@@ -269,7 +275,9 @@ export function fetchControl(preQuery, postQuery) {
           activeChart = null;
         }
 
-        return {charts, datagroups, uiParams: {activeChart, selectedTime}};
+        const uiParams = {activeChart, selectedTime, showConfidenceInt};
+
+        return {charts, datagroups, uiParams};
       });
     });
 
