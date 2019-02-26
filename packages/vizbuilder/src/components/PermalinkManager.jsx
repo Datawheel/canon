@@ -20,7 +20,8 @@ class PermalinkManager extends React.PureComponent {
     const currentPermalinkQuery = location.query;
     const statePermalinkQuery = stateToPermalink(
       permalinkKeywords,
-      state.query
+      state.query,
+      state.uiParams
     );
 
     const samePermalinkQuery = isSamePermalinkQuery(

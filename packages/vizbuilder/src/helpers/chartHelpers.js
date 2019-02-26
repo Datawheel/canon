@@ -39,13 +39,19 @@ export function datagroupToCharts(datagroup, generalConfig) {
 
   const charts = datagroup.charts.reduce((sum, chartType) => {
     const setups = calcChartSetups(chartType, datagroup.query).map(setup => {
-      const setupKeys = setup.map(lvl => lvl.annotations._key).join("_");
+      let key =
+        datagroup.key +
+        "-" +
+        chartType +
+        "-" +
+        setup.map(lvl => lvl.annotations._key).join("") +
+        datagroup.query.cuts.map(group => `-${group}`).join("");
       return {
         ...datagroup,
         baseConfig,
         chartType,
         component: chartComponents[chartType],
-        key: `${chartType}-${setupKeys}`,
+        key,
         setup,
         topoConfig,
         userConfig
