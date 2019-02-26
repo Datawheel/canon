@@ -161,9 +161,94 @@ function computeMidP(vx, vN, confLevel) {
   return {lci: T1, uci: T2};
 }
 
+/**
+ * Adapted from JogoShugh's SMR https://github.com/JogoShugh/OpenEpi.com/blob/master/OpenEpi/SMR/SMR.js
+ * @param {*} observedVal
+ * @param {*} expectedVal
+ */
+function smr(observedVal, expectedVal) {
+
+  /* Calculates standard morbidity ratio given observed and expected values */
+  let vx = observedVal;
+  const vN = expectedVal;
+
+  // Byar method approximation;
+  if (vx > vN) {
+    vx = vx;
+  }
+  else {
+    vx += 1;
+  }
+
+  // Fisher's exact test for poisson distribution ;
+  const Obs = vx;
+  const Exp = vN;
+
+  const ci = 95; // currently hard-wired to 95% CI
+
+  // Mid-P exact test;
+  // Lower tail;
+  let v = 0.5;
+  let dv = 0.5;
+  const vTL = (100 - ci) / 2;
+  let p = vTL / 100;
+
+  const vZ = Obs;
+  while (dv > 1e-5) {
+    dv /= 2; if (poisP((1 + vZ) * v / (1 - v), vZ + 1, 1e10) + 0.5 * poisP((1 + vZ) * v / (1 - v), vZ, vZ) > p) {
+      v -= dv;
+    }
+    else {
+      v += dv;
+    }
+  }
+
+  const QL = (1 + vZ) * v / (1 - v) / Exp;
+
+  // Upper tail;
+  v = 0.5;
+  dv = 0.5;
+  const vTU = (100 - ci) / 2;
+  p = vTU / 100;
+
+  while (dv > 1e-5) {
+    dv /= 2; if  (poisP((1 + vZ) * v / (1 - v), 0, vZ - 1)    +  0.5 * poisP((1 + vZ) * v / (1 - v), vZ, vZ) < p) {
+      v -= dv;
+    }
+    else {
+      v += dv;
+    }
+  }
+  const QU = (1 + vZ) * v / (1 - v) / Exp;
+  return {lci: QL, uci: QU};
+}
+
+
+/**
+ * Poisson iteration;
+ * @param {*} Z
+ * @param {*} x1
+ * @param {*} x2
+ */
+function poisP(Z, x1, x2) {
+  let q = 1; let tot = 0; let s = 0; let k = 0;
+  while (k < Z || q > tot * 1e-10) {
+    tot += q;
+    if (k >= x1 & k <= x2) {
+      s += q;
+    }
+    if (tot > 1e30) {
+      s /= 1e30; tot /= 1e30; q /= 1e30;
+    }
+    k += 1; q = q * Z / k;
+  }
+  return s / tot;
+}
+
 module.exports = {
   binomialCdf,
   binP,
   computeMidP,
-  criticalValue
+  criticalValue,
+  smr
 };
