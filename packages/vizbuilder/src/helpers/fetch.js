@@ -142,7 +142,11 @@ export function fetchCubes(params, props) {
     newOptions.geomapLevels = geomapLevels;
 
     const newQuery = newState.query;
-    newQuery.groups = getDefaultGroup(params.defaultGroup, newOptions.levels);
+    newQuery.groups = getDefaultGroup(
+      params.defaultGroup,
+      newOptions.levels,
+      measure.annotations.ui_default_drilldown
+    );
     newQuery.geoLevel = getGeoLevel(newQuery);
 
     return newState;

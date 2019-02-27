@@ -158,7 +158,10 @@ class Sidebar extends React.PureComponent {
         });
       }
       else {
-        newQuery.groups = getDefaultGroup(newState.options.levels);
+        newQuery.groups = getDefaultGroup(
+          newState.options.levels,
+          measure.annotations.ui_default_drilldown
+        );
         newQuery.filters = [];
         newUiParams.activeChart = null;
       }

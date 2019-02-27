@@ -127,8 +127,10 @@ export function classifyMeasures(cubes) {
  * @param {object[]} defaultGroup Array of user-defined default levels
  * @param {Level[]} levels An array with all the available valid levels
  */
-export function getDefaultGroup(defaultGroup, levels) {
-  const level = matchDefault(findByFullName, levels, defaultGroup, true);
+export function getDefaultGroup(defaultGroup, levels, priorityLevel) {
+  const level = priorityLevel
+    ? findByName(priorityLevel, levels, true)
+    : matchDefault(findByFullName, levels, defaultGroup, true);
   return [new Grouping(level)];
 }
 
