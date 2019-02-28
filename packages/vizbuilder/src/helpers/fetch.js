@@ -130,7 +130,7 @@ export function fetchCubes(params, props) {
 
     injectCubeInfoOnMeasure(cubes);
 
-    const {measures, measureMap} = classifyMeasures(cubes);
+    const {measures, measureMap} = classifyMeasures(cubes, isGeomapOnly);
     const measure = findByName(params.defaultMeasure, measures, true);
 
     const newState = generateBaseState(cubes, measure, geomapLevels);
