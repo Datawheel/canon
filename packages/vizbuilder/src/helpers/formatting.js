@@ -27,6 +27,41 @@ export const DEFAULT_MEASURE_MULTIPLIERS = {
   "Billions of Dollars": 1e9
 };
 
+const startAt = value => {
+  return (config, chart, uiParams) => {
+    const {measureName} = chart.names;
+    const minValue = chart.dataset.reduce((limit, item) =>
+      Math.min(limit, item[measureName])
+    );
+    if (minValue < value) {
+      config.baseline = value;
+    }
+  };
+};
+
+const startAtOne = startAt(1);
+
+export const DEFAULT_MEASUREUNIT_CONFIG = {
+  "SAT Score": (config, chart, uiParams) => {
+    const {chartType, names} = chart;
+    if (chartType === "lineplot" && config.y === names.measureName) {
+      config.yConfig = {
+        ...config.yConfig,
+        domain: [0, 800]
+      };
+    }
+    else if (chartType === "barchart" && config.x === names.measureName) {
+      config.xConfig = {
+        ...config.xConfig,
+        domain: [0, 800]
+      };
+    }
+  },
+  Households: startAtOne,
+  People: startAtOne,
+  Years: startAtOne
+};
+
 export const PROPNAMESTYLES = {
   LVL: 1,
   HIE: 2,

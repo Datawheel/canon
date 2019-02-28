@@ -58,7 +58,7 @@ class ChartArea extends React.Component {
   }
 
   render() {
-    const {activeChart, charts} = this.props;
+    const {activeChart, charts, measure} = this.props;
 
     const n = charts.length;
     if (n === 0) {
@@ -85,6 +85,8 @@ class ChartArea extends React.Component {
       showConfidenceInt: this.props.showConfidenceInt
     };
 
+    const unitConfig = this.props.unitsConfig[measure.annotations.units_of_measurement];
+
     return (
       <div className="area-chart" onScroll={this.scrollEnsure}>
         <div className="toolbar-wrapper">{this.props.children}</div>
@@ -99,6 +101,7 @@ class ChartArea extends React.Component {
           {chartsToRender.map(chart => {
             const {key} = chart;
             const config = createChartConfig(chart, uiParams);
+            unitConfig && unitConfig(config, chart, uiParams);
             return (
               <ChartCard
                 active={key === activeChart || isSingleChart}
