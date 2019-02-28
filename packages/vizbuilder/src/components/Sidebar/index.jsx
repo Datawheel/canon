@@ -63,6 +63,7 @@ class Sidebar extends React.PureComponent {
             label="Grouped by"
             items={query.groups}
             itemOptions={options.levels}
+            query={query}
           />
 
           <FilterManager
@@ -146,7 +147,7 @@ class Sidebar extends React.PureComponent {
       }
       else if (areMeasuresFromSameTable(query, newQuery)) {
         newQuery.filters = replaceMeasureInFilters(query.filters, newQuery.cube);
-        return replaceLevelsInGroupings(query.groups, newQuery.cube).then(newGroups => {
+        return replaceLevelsInGroupings(query, newQuery).then(newGroups => {
           newQuery.groups = newGroups;
           newQuery.geoLevel = getGeoLevel(newQuery);
           newUiParams.activeChart = replaceKeysInString(
