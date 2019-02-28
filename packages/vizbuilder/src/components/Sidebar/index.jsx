@@ -29,7 +29,7 @@ class Sidebar extends React.PureComponent {
   }
 
   render() {
-    const {query, options} = this.props;
+    const {query, options, uiParams} = this.props;
     if (!query.cube) return null;
 
     const measureDetails = query.measure.annotations.details || "";
@@ -51,7 +51,7 @@ class Sidebar extends React.PureComponent {
             <p className="details">{measureDetails}</p>
             <p className="show-ci" hidden={!query.moe && !(query.lci || query.uci)}>
               <Checkbox
-                checked={query.showConfidenceInt}
+                checked={uiParams.showConfidenceInt}
                 label="Show Margin of Error"
                 onChange={this.toggleConfidenceInt}
               />
