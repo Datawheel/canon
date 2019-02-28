@@ -86,7 +86,7 @@ export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
  * Reduces a list of cubes to the measures that will be used in the vizbuilder.
  * @param {Cube[]} cubes An array of the cubes to be reduced.
  */
-export function classifyMeasures(cubes) {
+export function classifyMeasures(cubes, mapMode) {
   const measures = [];
   const otherMeasures = []; // measures without `annotations.topic`
   const multiMeasures = {};
@@ -94,14 +94,13 @@ export function classifyMeasures(cubes) {
   let nCbs = cubes.length;
   while (nCbs--) {
     const cube = cubes[nCbs];
-    const cbHasTopic =
-      cube.annotations.topic && cube.annotations.topic !== "Other";
+    const cbHasTopic = cube.annotations.topic && cube.annotations.topic !== "Other";
     const cbTableId = cube.annotations.table_id;
 
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
-      if (isValidMeasure(measure)) {
+      if (isValidMeasure(measure) && !(mapMode && yn(measure.annotations.hide_in_map))) {
         (cbHasTopic ? measures : otherMeasures).push(measure);
         if (cbTableId) {
           const key = `${cbTableId}.${measure.name}`;
