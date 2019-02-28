@@ -18,7 +18,7 @@ MemberSelect.defaultProps = {
   findIndex: (haystack, needle) => {
     return needle ? haystack.findIndex(item => item.key === needle.key) : -1;
   },
-  getItemHeight: () => 24,
+  getItemHeight: () => 26,
   itemListComposer(items) {
     const nope = {ancestors: [{}]};
     return items.reduce((all, member, i, array) => {

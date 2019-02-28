@@ -100,7 +100,7 @@ export function permalinkToState(queryParams, prevState) {
         const memberKeys = parts.join("-").split("~").filter(Boolean);
         let promise;
         if (memberKeys.length > 0) {
-          promise = fetchMembers(level).then(members => {
+          promise = fetchMembers(state.query, level).then(members => {
             const finalMembers = members
               .filter(member => memberKeys.indexOf(`${member.key}`) > -1)
               .sort((a, b) => `${a.key}`.localeCompare(`${b.key}`));
@@ -118,7 +118,7 @@ export function permalinkToState(queryParams, prevState) {
     if (!groupPromises.length) {
       const level = state.options.levels[0];
       groupPromises.push(
-        fetchMembers(level).then(members => new Grouping(level, members))
+        fetchMembers(state.query, level).then(members => new Grouping(level, members))
       );
     }
 

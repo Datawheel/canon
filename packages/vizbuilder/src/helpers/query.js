@@ -47,8 +47,9 @@ export function generateBaseState(cubes, measure, geomapLevels) {
   return {options, query, uiParams};
 }
 
-export function replaceLevelsInGroupings(groupings, cube) {
-  const promises = groupings.map(grouping => {
+export function replaceLevelsInGroupings(query, newQuery) {
+  const newCube = newQuery.cube;
+  const promises = query.groups.map(grouping => {
     const level = grouping.level;
 
     if (!level) {
@@ -56,7 +57,7 @@ export function replaceLevelsInGroupings(groupings, cube) {
     }
 
     const dimensionName = level.hierarchy.dimension.name;
-    const targetDimension = cube.dimensions.find(dim => dim.name === dimensionName);
+    const targetDimension = newCube.dimensions.find(dim => dim.name === dimensionName);
     console.log(targetDimension.cube.name, targetDimension.name);
 
     const hierarchyName = level.hierarchy.name;
@@ -70,7 +71,11 @@ export function replaceLevelsInGroupings(groupings, cube) {
     const memberList = grouping.members;
     let newGrouping = grouping.setLevel(targetLevel);
 
-    return fetchMembers(targetLevel).then(members => {
+    if (memberList.length === 0) {
+      return Promise.resolve(newGrouping);
+    }
+
+    return fetchMembers(newQuery, targetLevel).then(members => {
       const memberKeys = {};
       for (let member, i = 0; member = members[i]; i++) {
         memberKeys[member.key] = member;

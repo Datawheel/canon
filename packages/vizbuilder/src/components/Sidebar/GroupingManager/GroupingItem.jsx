@@ -115,10 +115,11 @@ class GroupingItem extends SidebarCRUDItem {
 
   handleUpdateLevel(level) {
     if (!level) return;
+    const {query} = this.props;
     const activeItem = this.state.newItem || this.props.item;
     const newItem = activeItem.setLevel(level);
     this.setState({loading: true, members: [], newItem}, () =>
-      fetchMembers(level).then(members =>
+      fetchMembers(query, level).then(members =>
         this.setState({loading: false, members})
       )
     );

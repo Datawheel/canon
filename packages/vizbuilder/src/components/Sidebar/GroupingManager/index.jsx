@@ -67,7 +67,8 @@ class GroupingManager extends SidebarCRUDManager {
       item,
       onDelete: this.deleteElement,
       onUpdate: this.updateElement,
-      options: this.getUnusedOptions(this.props.itemOptions, usedDimensions)
+      options: this.getUnusedOptions(this.props.itemOptions, usedDimensions),
+      query: this.props.query
     });
   }
 

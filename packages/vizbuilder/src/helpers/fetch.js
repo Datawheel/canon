@@ -157,8 +157,26 @@ export function fetchCubes(params, props) {
  * Retrieves all the members for a certain Level.
  * @param {Level} level A mondrian-rest-client Level object
  */
-export function fetchMembers(level) {
-  return api.members(level);
+export function fetchMembers(vbQuery, level) {
+  const mondrianQuery = queryBuilder({
+    queryObject: vbQuery.cube.query,
+    measures: [vbQuery.measure.name],
+    drilldowns: [level.fullName.slice(1, -1).split("].[")],
+    cuts: [],
+    filters: [],
+    options: {
+      nonempty: true,
+      distinct: false,
+      parents: true,
+      debug: false,
+      sparse: true
+    }
+  });
+  return api.query(mondrianQuery, "json").then(result => {
+    const members = result.data.axes[1].members;
+    sort(members).asc("full_name");
+    return members;
+  });
 }
 
 /**
