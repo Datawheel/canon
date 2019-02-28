@@ -18,7 +18,8 @@ import {chartComponents} from "./helpers/chartHelpers";
 import {fetchCubes} from "./helpers/fetch";
 import {
   DEFAULT_MEASURE_FORMATTERS,
-  DEFAULT_MEASURE_MULTIPLIERS
+  DEFAULT_MEASURE_MULTIPLIERS,
+  DEFAULT_MEASUREUNIT_CONFIG
 } from "./helpers/formatting";
 import {fetchControl} from "./helpers/loadstate";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
@@ -31,15 +32,15 @@ class Vizbuilder extends React.Component {
 
     let initialStatePromise = this.initialize(props);
 
-      const location = ctx.router.location;
-      if (props.permalink && location.search) {
-        const permalinkQuery = parsePermalink(this.permalinkKeywords, location);
-        initialStatePromise = initialStatePromise.then(
-          permalinkToState.bind(null, permalinkQuery)
-        );
+    const location = ctx.router.location;
+    if (props.permalink && location.search) {
+      const permalinkQuery = parsePermalink(this.permalinkKeywords, location);
+      initialStatePromise = initialStatePromise.then(
+        permalinkToState.bind(null, permalinkQuery)
+      );
     }
 
-      this.initialStatePromise = initialStatePromise;
+    this.initialStatePromise = initialStatePromise;
 
     this.loadControl = fetchControl.bind(this);
     this.stateUpdate = this.stateUpdate.bind(this);
@@ -89,9 +90,9 @@ class Vizbuilder extends React.Component {
 
   componentDidMount() {
     const initialStatePromise = this.initialStatePromise;
-      delete this.initialStatePromise;
-      this.loadControl(() => initialStatePromise);
-    }
+    delete this.initialStatePromise;
+    this.loadControl(() => initialStatePromise);
+  }
 
   componentDidUpdate(prevProps) {
     const props = this.props;
@@ -134,7 +135,13 @@ class Vizbuilder extends React.Component {
           {this.props.children}
           <Ranking chart={chartForRanking} selectedTime={uiParams.selectedTime} />
         </Sidebar>
-        <ChartArea charts={charts} lastUpdate={load.lastUpdate} {...uiParams}>
+        <ChartArea
+          charts={charts}
+          lastUpdate={load.lastUpdate}
+          measure={queryParams.measure}
+          unitsConfig={DEFAULT_MEASUREUNIT_CONFIG}
+          {...uiParams}
+        >
           {toolbar}
         </ChartArea>
         {permalink && <PermalinkManager
