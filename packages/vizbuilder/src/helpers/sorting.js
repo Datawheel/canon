@@ -100,7 +100,8 @@ export function classifyMeasures(cubes, mapMode) {
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
-      if (isValidMeasure(measure) && !(mapMode && yn(measure.annotations.hide_in_map))) {
+      const hideInMap = mapMode && yn(measure.annotations.hide_in_map);
+      if (isValidMeasure(measure) && !hideInMap) {
         (cbHasTopic ? measures : otherMeasures).push(measure);
         if (cbTableId) {
           const key = `${cbTableId}.${measure.name}`;
