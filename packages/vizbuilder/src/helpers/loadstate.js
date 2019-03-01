@@ -5,6 +5,7 @@ import {datagroupToCharts} from "./chartHelpers";
 import {fetchQuery} from "./fetch";
 import {generateQueries} from "./query";
 import {higherTimeLessThanNow} from "./sorting";
+import chartCollision from "./chartCollision";
 
 const UIToaster =
   typeof window !== "undefined"
@@ -87,7 +88,7 @@ export function fetchControl(preQuery, postQuery) {
 
       return Promise.all(fetchOperations).then(results => {
         const datagroups = chartCriteria(results, generalConfig);
-        const charts = [];
+        let charts = [];
 
         let selectedTime = Infinity;
         let i = datagroups.length;
@@ -106,6 +107,8 @@ export function fetchControl(preQuery, postQuery) {
             showConfidenceInt = false;
           }
         }
+
+        charts = chartCollision(charts);
 
         // activeChart example: treemap-z9TnC_1cDpEA
         if (charts.length === 1) {
