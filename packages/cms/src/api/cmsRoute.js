@@ -379,7 +379,8 @@ module.exports = function(app) {
 
   app.post("/api/cms/profile/newScaffold", isEnabled, (req, res) => {
     const profileData = req.body;
-    db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName}).then(profile => {
+    console.log("why tho", profileData);
+    db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName, levels: profileData.levels}).then(profile => {
       db.profile_content.create({id: profile.id, lang: envLoc}).then(() => {
         db.topic.create({ordering: 0, profile_id: profile.id}).then(topic => {
           db.topic_content.create({id: topic.id, lang: envLoc}).then(() => {

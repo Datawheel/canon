@@ -333,7 +333,10 @@ class ProfileBuilder extends Component {
     else {
       // An empty search string will automatically provide the highest z-index results.
       // Use this to auto-populate the preview when the user changes profiles.
-      axios.get(`/api/search?q=&dimension=${node.masterDimension}`).then(resp => {
+      const levels = node.masterLevels ? node.masterLevels.join() : false;
+      const levelString = levels ? `&levels=${levels}` : "";
+      console.log("Searching: ", levelString);
+      axios.get(`/api/search?q=&dimension=${node.masterDimension}${levelString}`).then(resp => {
         const preview = resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "";
         this.setState({currentNode: node, currentSlug: node.masterSlug, preview});
       });
@@ -363,6 +366,7 @@ class ProfileBuilder extends Component {
    */
   onCreateProfile(profileData) {
     profileData.ordering = this.state.nodes.length;
+    console.log(profileData);
     axios.post("/api/cms/profile/newScaffold", profileData).then(resp => {
       const profiles = resp.data;
       const profileModalOpen = false;
@@ -517,6 +521,7 @@ class ProfileBuilder extends Component {
           <Search
             render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
             dimension={currentNode.masterDimension}
+            levels={currentNode.masterLevels}
             limit={20}
           />
         </div>;

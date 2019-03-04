@@ -12,7 +12,8 @@ module.exports = function(sequelize, db) {
         defaultValue: "new-profile-slug"
       },
       ordering: db.INTEGER,
-      dimension: db.STRING
+      dimension: db.STRING,
+      levels: db.ARRAY(db.TEXT)
     },
     {
       freezeTableName: true,
