@@ -77,6 +77,7 @@ class ProfileBuilder extends Component {
       itemType: "profile",
       masterSlug: p.slug,
       masterDimension: p.dimension,
+      masterLevels: p.levels,
       data: p,
       childNodes: p.topics.map(t => {
         const defCon = t.content.find(c => c.lang === localeDefault);
@@ -88,6 +89,7 @@ class ProfileBuilder extends Component {
           itemType: "topic",
           masterSlug: p.slug,
           masterDimension: p.dimension,
+          masterLevels: p.levels,
           data: t
         };
       })
@@ -192,6 +194,7 @@ class ProfileBuilder extends Component {
     objTopic.data.ordering = loc;
     objTopic.masterSlug = parent.masterSlug;
     objTopic.masterDimension = parent.masterDimension;
+    objTopic.masterLevels = parent.masterLevels;
 
     const objProfile = {
       hasCaret: true,
