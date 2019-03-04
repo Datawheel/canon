@@ -29,9 +29,10 @@ class Search extends Component {
       this.setState({active: true, results: [], userQuery});
     }
     else if (url) {
-      const {dimension, limit} = this.props;
+      const {dimension, limit, levels} = this.props;
       let fullUrl = `${url}?q=${userQuery}&limit=${limit}`;
       if (dimension) fullUrl += `&dimension=${dimension}`;
+      if (levels) fullUrl += `&levels=${levels.join()}`;
       this.setState({userQuery});
       axios.get(fullUrl)
         .then(res => res.data)
