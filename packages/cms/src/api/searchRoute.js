@@ -15,7 +15,7 @@ module.exports = function(app) {
     let {limit = "10"} = req.query;
     limit = parseInt(limit, 10);
 
-    const {id, q, dimension} = req.query;
+    const {id, q, dimension, levels} = req.query;
 
     if (q) {
       where[sequelize.Op.or] = [
@@ -26,6 +26,7 @@ module.exports = function(app) {
     }
 
     if (dimension) where.dimension = dimension;
+    if (levels) where.heirarchy = {[sequelize.Op.in]: levels};
     if (id) where.id = id.includes(",") ? id.split(",") : id;
 
     const rows = await db.search.findAll({

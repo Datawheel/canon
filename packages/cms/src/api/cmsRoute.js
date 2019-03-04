@@ -19,7 +19,7 @@ const isEnabled = (req, res, next) => {
 };
 
 const profileReqTreeOnly = {
-  attributes: ["id", "slug", "dimension", "ordering"],
+  attributes: ["id", "slug", "dimension", "levels", "ordering"],
   include: [{
     association: "topics", attributes: ["id", "slug", "ordering", "profile_id", "type"], 
     include: [
@@ -197,11 +197,13 @@ const formatter = (members, data, dimension, level) => {
   return newData;
 };
 
-const pruneSearch = async(dimension, db) => {
+const pruneSearch = async(dimension, levels, db) => {
   const currentProfiles = await db.profile.findAll();
   const currentDimensions = currentProfiles.map(p => p.dimension);
   // To be on the safe side, only clear the search table of dimensions that NO remaining
   // profiles are currently making use of.
+  // Don't need to prune levels - they will be filtered automatically in searches.
+  // If it gets unwieldy in size however, an optimization could be made here
   if (!currentDimensions.includes(dimension)) {
     const resp = await db.search.destroy({where: {dimension}});
     console.log(`Cleaned up search data. Rows affected: ${resp}`);
@@ -473,7 +475,7 @@ module.exports = function(app) {
     db.profile.findOne({where: {id: req.query.id}}).then(row => {
       db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).then(() => {
         db.profile.destroy({where: {id: req.query.id}}).then(() => {
-          pruneSearch(row.dimension, db);
+          pruneSearch(row.dimension, row.levels, db);
           db.profile.findAll(profileReqTreeOnly).then(profiles => {
             profiles = sortProfileTree(db, profiles);
             res.json(profiles).end();
