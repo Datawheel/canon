@@ -338,7 +338,6 @@ class ProfileBuilder extends Component {
       // Use this to auto-populate the preview when the user changes profiles.
       const levels = node.masterLevels ? node.masterLevels.join() : false;
       const levelString = levels ? `&levels=${levels}` : "";
-      console.log("Searching: ", levelString);
       axios.get(`/api/search?q=&dimension=${node.masterDimension}${levelString}`).then(resp => {
         const preview = resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "";
         this.setState({currentNode: node, currentSlug: node.masterSlug, preview});

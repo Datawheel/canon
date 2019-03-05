@@ -26,7 +26,8 @@ module.exports = function(app) {
     }
 
     if (dimension) where.dimension = dimension;
-    if (levels) where.heirarchy = {[sequelize.Op.in]: levels};
+    // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
+    if (levels) where.hierarchy = levels.split(",");
     if (id) where.id = id.includes(",") ? id.split(",") : id;
 
     const rows = await db.search.findAll({
