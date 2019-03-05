@@ -368,7 +368,6 @@ class ProfileBuilder extends Component {
    */
   onCreateProfile(profileData) {
     profileData.ordering = this.state.nodes.length;
-    console.log(profileData);
     axios.post("/api/cms/profile/newScaffold", profileData).then(resp => {
       const profiles = resp.data;
       const profileModalOpen = false;
