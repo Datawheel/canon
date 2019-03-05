@@ -45,7 +45,10 @@ class Options extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.data !== this.props.data) this.setState({results: false});
+    const {data} = this.props;
+    if (prevProps.data !== data) {
+      this.setState({results: data instanceof Array ? data : false});
+    }
   }
 
   onCSV() {
