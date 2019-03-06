@@ -27,19 +27,16 @@ export const DEFAULT_MEASURE_MULTIPLIERS = {
   "Billions of Dollars": 1e9
 };
 
-const startAt = value => {
-  return (config, chart, uiParams) => {
+const integerBaseline = (config, chart, uiParams) => {
     const {measureName} = chart.names;
+  const limitValue = config.yConfig.scale === "log" ? 1 : 0;
     const minValue = chart.dataset.reduce((limit, item) =>
       Math.min(limit, item[measureName])
     );
-    if (minValue < value) {
-      config.baseline = value;
+  if (minValue < limitValue) {
+    config.baseline = limitValue;
     }
   };
-};
-
-const startAtOne = startAt(1);
 
 export const DEFAULT_MEASUREUNIT_CONFIG = {
   "SAT Score": (config, chart, uiParams) => {
@@ -57,9 +54,17 @@ export const DEFAULT_MEASUREUNIT_CONFIG = {
       };
     }
   },
-  Households: startAtOne,
-  People: startAtOne,
-  Years: startAtOne
+  Births: integerBaseline,
+  Crimes: integerBaseline,
+  Degrees: integerBaseline,
+  Establishments: integerBaseline,
+  "Hospital Stays": integerBaseline,
+  Households: integerBaseline,
+  Loans: integerBaseline,
+  People: integerBaseline,
+  Universities: integerBaseline,
+  Visits: integerBaseline,
+  Years: integerBaseline
 };
 
 export const PROPNAMESTYLES = {
