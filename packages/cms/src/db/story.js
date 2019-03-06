@@ -18,6 +18,7 @@ module.exports = function(sequelize, db) {
       }
     }, 
     {
+      tableName: "canon_cms_story",
       freezeTableName: true,
       timestamps: false
     }

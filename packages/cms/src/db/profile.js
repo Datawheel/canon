@@ -16,6 +16,7 @@ module.exports = function(sequelize, db) {
       levels: db.ARRAY(db.TEXT)
     },
     {
+      tableName: "canon_cms_profile",
       freezeTableName: true,
       timestamps: false
     }

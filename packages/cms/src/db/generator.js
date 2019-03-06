@@ -41,6 +41,7 @@ module.exports = function(sequelize, db) {
       }
     },
     {
+      tableName: "canon_cms_generator",
       freezeTableName: true,
       timestamps: false
     }

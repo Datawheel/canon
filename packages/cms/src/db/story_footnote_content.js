@@ -25,6 +25,7 @@ module.exports = function(sequelize, db) {
       }
     }, 
     {
+      tableName: "canon_cms_story_footnote_content",
       freezeTableName: true,
       timestamps: false
     }
