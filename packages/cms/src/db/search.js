@@ -26,6 +26,7 @@ module.exports = function(sequelize, db) {
       imageId: db.INTEGER
     },
     {
+      tableName: "canon_cms_search",
       freezeTableName: true,
       timestamps: false
     }

@@ -30,6 +30,7 @@ module.exports = function(sequelize, db) {
       }
     },
     {
+      tableName: "canon_cms_materializer",
       freezeTableName: true,
       timestamps: false
     }

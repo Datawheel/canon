@@ -21,6 +21,7 @@ module.exports = function(sequelize, db) {
       }
     }, 
     {
+      tableName: "canon_cms_storytopic_description_content",
       freezeTableName: true,
       timestamps: false
     }

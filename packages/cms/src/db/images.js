@@ -16,6 +16,7 @@ module.exports = function(sequelize, db) {
       license: db.INTEGER
     },
     {
+      tableName: "canon_cms_images",
       freezeTableName: true,
       timestamps: false
     }

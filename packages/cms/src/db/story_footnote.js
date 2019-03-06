@@ -18,6 +18,7 @@ module.exports = function(sequelize, db) {
       ordering: db.INTEGER
     }, 
     {
+      tableName: "canon_cms_story_footnote",
       freezeTableName: true,
       timestamps: false
     }

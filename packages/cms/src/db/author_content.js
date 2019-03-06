@@ -37,6 +37,7 @@ module.exports = function(sequelize, db) {
       }
     }, 
     {
+      tableName: "canon_cms_author_content",
       freezeTableName: true,
       timestamps: false
     }
