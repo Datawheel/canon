@@ -7,7 +7,7 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         onDelete: "cascade",
         references: {
-          model: "topic",
+          model: "canon_cms_topic",
           key: "id"
         }
       },

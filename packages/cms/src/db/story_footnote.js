@@ -11,7 +11,7 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "story",
+          model: "canon_cms_story",
           key: "id"
         }
       },
