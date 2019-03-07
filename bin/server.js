@@ -243,7 +243,7 @@ async function start() {
     }
     if (dbDetect) {
       const {db} = app.settings;
-      await db.sync({alter: true})
+      await db.sync()
         .then(({models}) => {
           const seeds = [];
           Object.keys(models).forEach(name => {
