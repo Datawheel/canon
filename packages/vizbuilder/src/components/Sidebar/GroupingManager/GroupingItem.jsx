@@ -5,7 +5,7 @@ import React from "react";
 import {fetchMembers} from "../../../helpers/fetch";
 import {composePropertyName} from "../../../helpers/formatting";
 
-import LevelSelect from "../LevelSelect";
+import LevelSelect from "../NewLevelSelect";
 import MemberSelect from "../MemberSelect";
 import SidebarCRUDItem from "../SidebarCRUDItem";
 
