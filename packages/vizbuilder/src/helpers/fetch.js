@@ -184,10 +184,14 @@ export function fetchMembers(vbQuery, level) {
  * @param {Query} query The Vizbuilder's state query object
  * @returns {Promise<QueryResults>}
  */
-export function fetchQuery(datacap, query) {
-  const mondrianQuery = queryBuilder(queryConverter(query));
+export function fetchQuery(query, params) {
+  const {showConfidenceInt, datacap} = params;
   const measureName = query.measure.name;
   const timeLevelName = query.timeLevel;
+
+  const nameQuery = queryConverter(query, showConfidenceInt);
+  const mondrianQuery = queryBuilder(nameQuery);
+
   return api.query(mondrianQuery).then(result => {
     const dataset = (result.data || {}).data || [];
     sort(dataset).desc(measureName);

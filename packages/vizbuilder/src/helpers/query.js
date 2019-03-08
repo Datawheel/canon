@@ -213,12 +213,12 @@ export function generateQueries(params) {
  * mondrian-rest-client Query object.
  * @param {object} params The current `query` object from the Vizbuilder state.
  */
-export function queryConverter(params) {
+export function queryConverter(params, includeConfidenceInt) {
   const measures = [
     params.measure.name,
-    params.moe && params.moe.name,
-    params.lci && params.lci.name,
-    params.uci && params.uci.name
+    (includeConfidenceInt && params.moe) && params.moe.name,
+    (includeConfidenceInt && params.lci) && params.lci.name,
+    (includeConfidenceInt && params.uci) && params.uci.name
   ].filter(Boolean);
 
   const drilldownList = []
@@ -252,10 +252,10 @@ export function queryConverter(params) {
     drilldowns,
     cuts,
     filters,
-    limit: undefined,
-    offset: undefined,
-    order: undefined,
-    orderDesc: undefined,
+    // limit: undefined,
+    // offset: undefined,
+    // order: undefined,
+    // orderDesc: undefined,
     options: {
       nonempty: true,
       distinct: false,
@@ -263,7 +263,7 @@ export function queryConverter(params) {
       debug: false,
       sparse: true
     },
-    locale: "en"
+    // locale: "en"
   };
 }
 

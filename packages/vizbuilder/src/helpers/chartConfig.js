@@ -136,7 +136,7 @@ const makeConfig = {
     );
   },
   lineplot(chart, uiParams) {
-    const {measureName, moeName, lciName, uciName, timeLevelName} = chart.names;
+    const {levelNames, measureName, timeLevelName} = chart.names;
 
     const config = assign(
       {},
@@ -158,7 +158,9 @@ const makeConfig = {
       config.yConfig.title += " (Log)";
     }
 
-    if (uiParams.showConfidenceInt) {
+    const mainLevelName = levelNames[0];
+    if (chart.members[mainLevelName].length < 13) {
+      const {moeName, lciName, uciName} = chart.names;
       if (lciName && uciName) {
         config.confidence = [d => d[lciName], d => d[uciName]];
       }

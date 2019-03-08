@@ -52,7 +52,7 @@ class Sidebar extends React.PureComponent {
             <p className="show-ci" hidden={!query.moe && !(query.lci || query.uci)}>
               <Checkbox
                 checked={uiParams.showConfidenceInt}
-                label="Show Margin of Error"
+                label="Calculate Margins of Error"
                 onChange={this.toggleConfidenceInt}
               />
             </p>
@@ -184,14 +184,13 @@ class Sidebar extends React.PureComponent {
 
   toggleConfidenceInt(evt) {
     const uiParams = {showConfidenceInt: evt.target.checked};
-    this.context.stateUpdate({uiParams});
+    this.context.loadControl(() => ({uiParams}));
   }
 }
 
 Sidebar.contextTypes = {
   getDefaultGroup: PropTypes.func,
-  loadControl: PropTypes.func,
-  stateUpdate: PropTypes.func
+  loadControl: PropTypes.func
 };
 
 export default Sidebar;
