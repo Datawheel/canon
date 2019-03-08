@@ -102,14 +102,14 @@ class VirtualList extends React.Component {
     const items = props.items;
     if (!items.length) return props.noResults;
 
-    const value = props.value;
-    const valueIndex = items.indexOf(value);
+    const lastValue = [].concat(props.value).pop();
+    const valueIndex = props.findIndex(items, lastValue);
 
     return (
       <TinyVirtualList
         ref={this.vlistRef}
         className={classnames("virtlist-wrapper", props.className)}
-        height={this.height}
+        height={this.props.height || this.height}
         itemCount={items.length}
         itemSize={this.getItemHeight}
         renderItem={this.renderItem}

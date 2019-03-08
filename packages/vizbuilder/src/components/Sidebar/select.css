@@ -130,3 +130,7 @@
     font-style: italic;
   }
 }
+
+.grouping-item .virtlist-title .topic {
+  line-height: 30px;
+}
