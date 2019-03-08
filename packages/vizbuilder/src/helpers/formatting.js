@@ -44,13 +44,13 @@ export const DEFAULT_MEASUREUNIT_CONFIG = {
     if (chartType === "lineplot" && config.y === names.measureName) {
       config.yConfig = {
         ...config.yConfig,
-        domain: [0, 800]
+        domain: [200, 800]
       };
     }
     else if (chartType === "barchart" && config.x === names.measureName) {
       config.xConfig = {
         ...config.xConfig,
-        domain: [0, 800]
+        domain: [200, 800]
       };
     }
   },
