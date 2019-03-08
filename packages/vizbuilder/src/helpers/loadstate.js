@@ -69,7 +69,10 @@ export function fetchControl(preQuery, postQuery) {
     }
 
     promise = promise.then(result => {
-      let {activeChart, showConfidenceInt} = {...initialState.uiParams, ...result.uiParams};
+      let {activeChart = null, showConfidenceInt = false} = {
+        ...initialState.uiParams,
+        ...result.uiParams
+      };
       const updatedQuery = {...initialState.query, ...result.query};
       const queries = generateQueries(updatedQuery);
 
@@ -80,7 +83,7 @@ export function fetchControl(preQuery, postQuery) {
       });
 
       const fetchOperations = queries.map(query =>
-        fetchQuery(datacap, query).then(result => {
+        fetchQuery(query, {showConfidenceInt, datacap}).then(result => {
           dispatch({type: "VB_FETCH_PROGRESS"});
           return result;
         })
@@ -94,18 +97,13 @@ export function fetchControl(preQuery, postQuery) {
         let i = datagroups.length;
         while (i--) {
           const datagroup = datagroups[i];
-          const {timeLevelName, levelNames} = datagroup.names;
+          const {timeLevelName} = datagroup.names;
 
           const dgTimeList = datagroup.members[timeLevelName];
           selectedTime = Math.min(selectedTime, higherTimeLessThanNow(dgTimeList));
 
           const dgCharts = datagroupToCharts(datagroup, generalConfig);
           charts.push.apply(charts, dgCharts);
-
-          const mainLevelName = levelNames[0];
-          if (datagroup.members[mainLevelName].length > 12) {
-            showConfidenceInt = false;
-          }
         }
 
         charts = chartCollision(charts);
