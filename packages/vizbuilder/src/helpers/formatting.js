@@ -28,15 +28,15 @@ export const DEFAULT_MEASURE_MULTIPLIERS = {
 };
 
 const integerBaseline = (config, chart, uiParams) => {
-    const {measureName} = chart.names;
+  const {measureName} = chart.names;
   const limitValue = config.yConfig.scale === "log" ? 1 : 0;
-    const minValue = chart.dataset.reduce((limit, item) =>
-      Math.min(limit, item[measureName])
-    );
+  const minValue = chart.dataset.reduce((limit, item) =>
+    Math.min(limit, item[measureName])
+  );
   if (minValue < limitValue) {
     config.baseline = limitValue;
-    }
-  };
+  }
+};
 
 export const DEFAULT_MEASUREUNIT_CONFIG = {
   "SAT Score": (config, chart, uiParams) => {
@@ -128,15 +128,36 @@ export function joinStringsWithCommaAnd(list, oxford = true) {
 export function composeChartTitle(chart, uiParams) {
   const {query, setup} = chart;
   const {measureName, timeLevelName} = chart.names;
-  const levels = setup.map(lvl => lvl.name);
-  const cuts = query.cuts.map(grp => {
-    const levelName = grp.level.name;
-    levels.splice(levels.indexOf(levelName), 1);
-    const values = grp.members.map(m => m.name);
-    return values.length > 1
-      ? `for the ${values.length} Selected ${pluralize(levelName, values.length)}`
-      : `for ${values[0]}`;
-  });
+
+  const getName = obj => obj.name;
+  const levels = setup.map(getName);
+  const appliedCuts = query.cuts.map(getName);
+
+  const cuts = [];
+
+  let n = query.groups.length;
+  while (n--) {
+    const group = query.groups[n];
+    const values = group.members.map(m => m.name);
+
+    const levelName = group.level.name;
+
+    let label;
+    if (appliedCuts.indexOf(levelName) === -1) {
+      label = `All ${pluralize(levelName, 2)}`;
+    }
+    else if (values.length > 1) {
+      label = `the ${values.length} Selected ${pluralize(levelName, values.length)}`;
+    }
+    else if (values.length === 1) {
+      label = values[0];
+      const levelIndex = levels.indexOf(levelName);
+      if (levelIndex > -1) {
+        levels.splice(levelIndex, 1);
+      }
+    }
+    cuts.unshift(label);
+  }
 
   let title = measureName;
 
@@ -150,7 +171,7 @@ export function composeChartTitle(chart, uiParams) {
   }
 
   if (cuts.length > 0) {
-    title += ` ${joinStringsWithCommaAnd(cuts)}`;
+    title += `, for ${joinStringsWithCommaAnd(cuts)}`;
   }
 
   if (timeLevelName) {
@@ -158,9 +179,15 @@ export function composeChartTitle(chart, uiParams) {
       title += ` (${uiParams.selectedTime})`;
     }
     else {
-      title = title.replace(measureName, `${measureName} by ${timeLevelName}`);
+      title = title
+        .replace(measureName, `${measureName} by ${timeLevelName},`)
+        .replace(",,", ",");
     }
   }
 
   return title;
+}
+
+if (typeof window !== "undefined") {
+  window.composeChartTitle = composeChartTitle;
 }
