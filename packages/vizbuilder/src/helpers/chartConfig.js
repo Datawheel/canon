@@ -237,10 +237,6 @@ export default function createChartConfig(chart, uiParams) {
 
   config.data = chart.dataset;
 
-  if (chart.aggType === "SUM" || chart.aggType === "UNKNOWN") {
-    config.total = measureName;
-  }
-
   if (config.time) {
     config.timeFilter = d => d[timeLevelName] == selectedTime; // eslint-disable-line
     config.timeline = isEnlarged;
