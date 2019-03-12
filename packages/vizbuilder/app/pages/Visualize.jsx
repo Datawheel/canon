@@ -1,7 +1,13 @@
 import React, {PropTypes} from "react";
 
 import Vizbuilder from "../../index";
-import {DEFAULT_CONFIG, DEFAULT_PERMAKEYS, DEFAULT_TOPOJSON, ENDPOINT} from "./params";
+import {
+  DEFAULT_CONFIG,
+  DEFAULT_PERMAKEYS,
+  DEFAULT_TOPOJSON,
+  ENDPOINT,
+  colorScaleConfig
+} from "./params";
 
 class VisualizePage extends React.Component {
   constructor(props) {
@@ -15,7 +21,9 @@ class VisualizePage extends React.Component {
   }
 
   activate() {
-    this.props.router.push("/visualize?filters=0-Z1jivMs-4-10000000000&groups=0-HIqzX&measure=Z1jivMs");
+    this.props.router.push(
+      "/visualize?filters=0-Z1jivMs-4-10000000000&groups=0-HIqzX&measure=Z1jivMs"
+    );
     this.setState({intro: false});
   }
 
@@ -32,7 +40,9 @@ class VisualizePage extends React.Component {
       return (
         <div className="visualize">
           <ul>
-            <li><button onClick={this.activate.bind(this)}>Activate</button></li>
+            <li>
+              <button onClick={this.activate.bind(this)}>Activate</button>
+            </li>
           </ul>
         </div>
       );
@@ -41,15 +51,22 @@ class VisualizePage extends React.Component {
       <div className="visualize">
         <Vizbuilder
           config={DEFAULT_CONFIG}
-          defaultGroup={["Geography.State"]}
-          defaultMeasure={"Millions Of Dollars"}
-          measureConfig={{
-            "Millions Of Dollars": {colorScaleConfig: {color: "blue"}},
-            "Opioid Overdose Death Rate Per 100,000 Age-Adjusted": {
-              colorScaleConfig: {color: "red"}
-            }
+          defaultGroup={[
+            "Geography.State",
+            "Origin State.Origin State",
+            "Gender.Gender",
+            "Age.Age"
+          ]}
+          defaultMeasure="Total Population"
+          config={{
+            colorScaleConfig,
+            colorScalePosition: "bottom",
+            detectResizeDelay: 100,
+            shapeConfig: {
+              hoverOpacity: 1
+            },
+            zoomScroll: true
           }}
-          reduxKey="map"
           src={ENDPOINT}
           topojson={DEFAULT_TOPOJSON}
         />
@@ -58,4 +75,4 @@ class VisualizePage extends React.Component {
   }
 }
 
-export default VisualizePage
+export default VisualizePage;
