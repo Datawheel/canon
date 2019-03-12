@@ -57,6 +57,7 @@ export function datagroupToCharts(datagroup, generalConfig) {
 
 export function buildBaseConfig(datagroup, params) {
   const {aggType, formatter, names} = datagroup;
+  const {measure} = datagroup.query;
   const {levelNames, measureName, timeLevelName} = names;
   const getMeasureValue = d => d[measureName];
 
@@ -64,7 +65,7 @@ export function buildBaseConfig(datagroup, params) {
     legend: false,
     duration: 0,
 
-    total: (aggType === "SUM" || aggType === "UNKNOWN") && getMeasureValue,
+    total: false,
     totalFormat: formatter,
 
     xConfig: {title: null},
@@ -77,6 +78,14 @@ export function buildBaseConfig(datagroup, params) {
     sum: getMeasureValue,
     value: getMeasureValue
   };
+
+  const measureUnit = measure.annotations.units_of_measurement;
+  if (
+    ["Percentage", "Rate"].indexOf(measureUnit) === -1 &&
+    ["SUM", "UNKNOWN"].indexOf(aggType) > -1
+  ) {
+    config.total = getMeasureValue;
+  }
 
   config.tooltipConfig = tooltipGenerator(datagroup);
 
