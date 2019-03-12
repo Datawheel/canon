@@ -1,5 +1,5 @@
 
-export const ENDPOINT = "https://ulysses-api.datausa.io";
+export const ENDPOINT = "https://preview-api.datausa.io/";
 
 export const DEFAULT_TOPOJSON = {
   "Nation": {
@@ -35,6 +35,9 @@ export const DEFAULT_TOPOJSON = {
     topojson: "/topojson/msas.json",
     topojsonId: "id",
     topojsonKey: "msas"
+  },
+  get "MSA"() {
+    return this.Msa;
   }
 };
 
@@ -61,3 +64,15 @@ export const DEFAULT_PERMAKEYS = {
   filters: "fil",
   enlarged: "show"
 };
+
+export const colorScaleConfig = {
+  color: [
+    '#cfdfeb',
+    '#b0cde1',
+    '#90bad8',
+    '#6ea7d2',
+    '#4c96cb',
+    '#3182bd',
+    '#004374'
+  ]
+}
