@@ -144,7 +144,8 @@ export function composeChartTitle(chart, uiParams) {
 
     let label;
     if (appliedCuts.indexOf(levelName) === -1) {
-      label = `All ${pluralize(levelName, 2)}`;
+      // label = `All ${pluralize(levelName, 2)}`;
+      continue;
     }
     else if (values.length > 1) {
       label = `the ${values.length} Selected ${pluralize(levelName, values.length)}`;
