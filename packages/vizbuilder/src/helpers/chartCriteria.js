@@ -32,10 +32,10 @@ export default function chartCriteria(results, params) {
     const timeLevelMembers = members[timeLevelName] || [];
 
     const measureAnn = query.measure.annotations;
+    const measureUnit = measureAnn.units_of_measurement;
 
     const measureFormatter =
-      params.formatting[measureAnn.units_of_measurement] ||
-      params.formatting["default"];
+      params.formatting[measureUnit] || params.formatting["default"];
     const topojsonConfig = params.topojson[levelName];
 
     const aggregatorType =
@@ -77,6 +77,12 @@ export default function chartCriteria(results, params) {
       (query.levels.length === 2 && !isGeoPlusUniqueCutQuery(query))
     ) {
       availableCharts.delete("geomap");
+    }
+
+    if (levelMembers.length > 1 && ["Percentage", "Rate"].indexOf(measureUnit) > -1) {
+      availableCharts.delete("barchartyear");
+      availableCharts.delete("stacked");
+      availableCharts.delete("treemap");
     }
 
     // Hide invalid charts according to the type of aggregation in the data
