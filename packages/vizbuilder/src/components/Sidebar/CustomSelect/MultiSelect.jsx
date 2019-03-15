@@ -22,14 +22,6 @@ class MultiSelect extends BaseSelect {
     const {query} = this.state;
 
     const values = value.map(props.tagRenderer);
-    // const rightElement =
-    //   props.tagInputProps.rightElement ||
-    //   (values.length > 0 && (
-    //     <button
-    //       className="pt-button pt-small pt-minimal pt-icon-cross"
-    //       onClick={this.handleQueryReset}
-    //     />
-    //   ));
 
     const inputProps = {
       placeholder: "Search...",
@@ -39,6 +31,10 @@ class MultiSelect extends BaseSelect {
       ref: this.refHandlers.input,
       value: query
     };
+
+    if (this.rightElement) {
+      inputProps.rightElement = this.rightElement.call(this, value);
+    }
 
     return (
       <TagInput

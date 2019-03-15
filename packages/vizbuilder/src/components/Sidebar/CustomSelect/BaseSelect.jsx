@@ -39,8 +39,21 @@ class BaseSelect extends React.Component {
     typeof props.onItemSelect === "function" && props.onItemSelect(item, event);
   }
 
-  handlePopoverInteraction(isOpen) {
-    this.setState({isOpen});
+  handlePopoverInteraction(nextOpenState) {
+    const {popoverProps = {}, resetOnSelect} = this.props;
+    requestAnimationFrame(() => {
+      // deferring to rAF to get properly updated activeElement
+      if (this.input != null && this.input !== document.activeElement) {
+        // the input is no longer focused so we can close the popover
+        this.setState({
+          activeItem: resetOnSelect ? this.props.items[0] : this.state.activeItem,
+          isOpen: false,
+          query: resetOnSelect ? "" : this.state.query
+        });
+      } else {
+        this.setState({isOpen: true});
+      }
+    });
   }
 
   handlePopoverWillOpen() {
@@ -108,10 +121,7 @@ class BaseSelect extends React.Component {
         minimal={true}
         placement="bottom-start"
         {...props.popoverProps}
-        className={classNames(
-          "pt-fill select-target-wrapper",
-          props.className
-        )}
+        className={classNames("pt-fill select-target-wrapper", props.className)}
         content={this.renderPopover.call(this, options)}
         interactionKind={PopoverInteractionKind.CLICK}
         modifiers={{

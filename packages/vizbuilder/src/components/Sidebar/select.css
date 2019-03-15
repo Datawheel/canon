@@ -88,8 +88,13 @@
 
 .deeplist-wrapper,
 .virtlist-wrapper {
-  margin-top: 5px;
   max-width: 310px;
+}
+.pt-input-group {
+  & + .deeplist-wrapper,
+  & + .virtlist-wrapper {
+    margin-top: 5px;
+  }
 }
 .deeplist-wrapper .pt-menu:not(:first-child) {
   padding-top: 0;

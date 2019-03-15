@@ -6,7 +6,7 @@ import {fetchMembers} from "../../../helpers/fetch";
 import {composePropertyName} from "../../../helpers/formatting";
 
 import LevelSelect from "../NewLevelSelect";
-import MemberSelect from "../MemberSelect";
+import MemberSelect from "../NewMemberSelect";
 import SidebarCRUDItem from "../SidebarCRUDItem";
 
 import Grouping from "./Grouping";
