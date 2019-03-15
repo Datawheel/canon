@@ -118,7 +118,8 @@
 
 .deeplist-title,
 .virtlist-title {
-  flex: 1 0;
+  flex: 1 0 auto;
+  width: 0;
   padding-left: 0.2rem;
   font-weight: 700;
   line-height: 1.2rem;

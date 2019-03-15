@@ -28,16 +28,18 @@ class NewMemberSelect extends BaseMultiSelect {
   }
 
   rightElement() {
-    return this.props.loading ? <Spinner className="pt-small" /> : null
+    return this.props.loading ? <Spinner className="pt-small" /> : null;
   }
 
   renderListItem(item, params) {
     if (!item.ancestors) {
       return (
         <li className="virtlist-title" key={item.key} style={params.style}>
-          <span className="topic" title={item.caption}>{item.caption}</span>
+          <span className="topic" title={item.caption}>
+            {item.caption}
+          </span>
         </li>
-      )
+      );
     }
 
     return (
@@ -95,7 +97,7 @@ NewMemberSelect.defaultProps = {
   sticky: "_header",
   tagInputProps: {
     ...BaseMultiSelect.defaultProps.tagInputProps,
-    placeholder: "Filter...",
+    placeholder: "Filter..."
   },
   tagRenderer: item => item.caption
 };
