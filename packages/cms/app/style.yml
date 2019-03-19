@@ -1,13 +1,13 @@
 # grayscale
-foreground: "#ffffff"
-forward-3:  "#f8f9fa"
-forward-2:  "#e8eef1"
-forward-1:  "#cfdae2"
-middle:     "#aebdcc"
-backward-1: "#8a97ae"
-backward-2: "#596277"
-backward-3: "#3e4455"
-background: "#181a21"
+white:   "#ffffff"
+light-1: "#f8f9fa"
+light-2: "#e8eef1"
+light-3: "#cfdae2"
+gray:    "#aebdcc"
+dark-1:  "#8a97ae"
+dark-2:  "#596277"
+dark-3:  "#3e4455"
+black:   "#181a21"
 
 # accent colors
 accent:       "#FFCD33"

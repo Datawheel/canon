@@ -1,3 +1,20 @@
+/* locale layout */
+.cms-card-container {
+  display: flex;
+
+  & .cms-card-list + .cms-card-list {
+    margin-left: 2rem;
+  }
+
+  @media (max-width: 980px) {
+    flex-wrap: wrap;
+
+    & .cms-card-list + .cms-card-list {
+      margin-left: -1rem;
+    }
+  }
+}
+
 /* card layout */
 .cms-card-list {
   display: flex;
@@ -21,7 +38,7 @@
   padding: 1rem;
   width: 18rem;
   max-width: calc(100% - 2rem);
- 
+
   /* flag icon */
   & .cms-flag {
     position: absolute;
@@ -149,7 +166,7 @@
 }
 
 .cms-profile-header {
-  flex-basis: 100%;
+  flex-basis: calc(100% + 2rem);
 }
 
 /* individual stats */
@@ -161,5 +178,3 @@
     font-size: 24px;
   }
 }
-
-

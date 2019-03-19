@@ -1,16 +1,16 @@
 /* BASE CMS STYLES */
-.cms-light {
-  background-color: var(--forward-3);
-  color: var(--background);
+.cms {
+  background-color: var(--light-1);
+  color: var(--black);
 
   & h1, & h2, & h3, & h4, & h5, & h6 {
-    color: var(--background);
+    color: var(--black);
   }
 
   /* reset loading style */
   & .loading {
     background-color: none;
-    color: var(--background);
+    color: var(--black);
   }
 
 
@@ -22,7 +22,7 @@
   & .cms-button {
     background-color: var(--accent-dark);
     border-color: var(--accent-dark);
-    color: var(--foreground);
+    color: var(--white);
 
     /* interactions */
     &:hover, &:focus {
@@ -50,44 +50,44 @@
   /* muted text */
   & .cms-status.is-done,
   & .bp3-text-muted {
-    color: var(--backward-2);
+    color: var(--dark-2);
   }
 
   /* variables */
   & .cms-variable {
     &.number { color: var(--type-number-dark); }
     &.string { color: var(--type-string-dark); }
-    &.undefined { color: var(--backward-2); }
+    &.undefined { color: var(--dark-2); }
     &.error { color: var(--type-error-dark); }
   }
 
   /* cards */
   & .cms-card {
-    background-color: var(--foreground);
-    box-shadow: 0 5px 1rem 0.25rem var(--forward-2);
+    background-color: var(--white);
+    box-shadow: 0 5px 1rem 0.25rem var(--light-2);
     border-radius: 2px;
 
     /* card table for displaying description, preview profile text, etc */
     & .cms-card-table-cell {
-      color: var(--backward-3);
+      color: var(--dark-3);
     }
 
     /* placeholder */
     & .cms-card-table-body:empty {
-      background-color: var(--forward-3);
+      background-color: var(--light-1);
     }
 
     /* display values */
     & .cms-card-table-body:not(:empty) {
       background-color: transparent;
-      border: 1px solid var(--forward-2);
-      box-shadow: 0 1px 0.125rem 1px inset var(--forward-3);
+      border: 1px solid var(--light-2);
+      box-shadow: 0 1px 0.125rem 1px inset var(--light-1);
     }
 
     /* reorder buttons */
     & .cms-reorder-button {
-      background-color: var(--middle);
-      border-color: var(--middle);
+      background-color: var(--gray);
+      border-color: var(--gray);
 
       /* interactions */
       &:hover, &:focus {
@@ -100,14 +100,14 @@
   /* search */
   & .cms-search {
     & .bp3-popover-content {
-      background-color: var(--foreground) !important;
+      background-color: var(--white) !important;
     }
 
     /* results list */
     & .results {
       /* active state */
       &.active {
-        background-color: var(--backward-1);
+        background-color: var(--dark-1);
       }
     }
     /* individual result item */
@@ -115,15 +115,15 @@
       display: block;
 
       & .result-link {
-        background-color: var(--forward-2);
-        color: var(--backward-3);
+        background-color: var(--light-2);
+        color: var(--dark-3);
       }
 
       /* interactions */
       &:hover, &:focus,
       &.highlighted {
         & .result-link {
-          background-color: var(--forward-3);
+          background-color: var(--light-1);
           color: var(--accent-black);
         }
       }
@@ -131,35 +131,35 @@
 
     /* empty state */
     & .no-results {
-      color: var(--foreground);
+      color: var(--white);
     }
   }
 
   /* dialogs */
   & .bp3-dialog {
-    background-color: var(--foreground);
+    background-color: var(--white);
   }
   & .bp3-dialog-header {
-    background-color: var(--forward-2);
+    background-color: var(--light-2);
   }
   & .bp3-dialog-close-button {
-    color: var(--backward-2);
+    color: var(--dark-2);
 
     &:hover, &:focus {
       color: var(--accent-black);
     }
   }
   & .cms-dialog-footer-button {
-    color: var(--backward-3);
+    color: var(--dark-3);
 
     & .cms-dialog-footer-button-icon {
-      color: var(--backward-1);
+      color: var(--dark-1);
     }
 
     /* interactions */
     &:hover, &:focus {
       & .cms-dialog-footer-button-icon {
-        color: var(--backward-3);
+        color: var(--dark-3);
       }
     }
   }
@@ -171,14 +171,14 @@
 
   /* offset main site nav */
   & .cms-nav {
-    background-color: var(--forward-1);
+    background-color: var(--light-3);
   }
   & .cms-nav-link {
-    color: var(--background);
+    color: var(--black);
 
     &.is-active {
       color: var(--accent-black);
-      background-color: var(--foreground);
+      background-color: var(--white);
 
       &:hover, &:focus {
         color: var(--accent-dark);
@@ -192,9 +192,9 @@
 
   /* sidebar */
   & .cms-sidebar {
-    background-color: var(--foreground);
-    color: var(--backward-3);
-    box-shadow: 0 0 1rem var(--forward-2);
+    background-color: var(--white);
+    color: var(--dark-3);
+    box-shadow: 0 0 1rem var(--light-2);
 
     & .bp3-tree-node-content:hover,
     & .bp3-tree-node-content .bp3-tree-node-caret:hover,
@@ -204,7 +204,7 @@
 
     & .bp3-tree-node-selected > .bp3-tree-node-content {
       background-color: var(--accent-black);
-      color: var(--foreground);
+      color: var(--white);
     }
   }
 }

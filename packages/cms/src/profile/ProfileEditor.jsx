@@ -158,39 +158,46 @@ class ProfileEditor extends Component {
           </button>
         </h2>
         <p className="bp3-text-muted">Variables constructed from JSON data calls.</p>
-        <div className="cms-card-list">
-          { minData.generators && minData.generators
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map(g => <GeneratorCard
-              key={g.id}
-              item={g}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              preview={preview}
-              onSave={this.onSave.bind(this)}
-              onDelete={this.onDelete.bind(this)}
-              type="generator"
-              variables={variables[localeDefault]}
-            />)
+
+        <div className="cms-card-container">
+          {/* primary locale */}
+          <div className="cms-card-list">
+            { minData.generators && minData.generators
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map(g => <GeneratorCard
+                key={g.id}
+                item={g}
+                locale={localeDefault}
+                localeDefault={localeDefault}
+                preview={preview}
+                onSave={this.onSave.bind(this)}
+                onDelete={this.onDelete.bind(this)}
+                type="generator"
+                variables={variables[localeDefault]}
+              />)
+            }
+          </div>
+          {/* secondary locale */}
+          {locale &&
+            <div className="cms-card-list">
+              { minData.generators && minData.generators
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map(g =>
+                  <GeneratorCard
+                    key={g.id}
+                    item={g}
+                    locale={locale}
+                    localeDefault={localeDefault}
+                    preview={preview}
+                    onSave={this.onSave.bind(this)}
+                    onDelete={this.onDelete.bind(this)}
+                    type="generator"
+                    variables={variables[locale]}
+                  />
+                )}
+            </div>
           }
         </div>
-
-        {locale && <div className="cms-card-list">
-          { minData.generators && minData.generators
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map(g => <GeneratorCard
-              key={g.id}
-              item={g}
-              locale={locale}
-              localeDefault={localeDefault}
-              preview={preview}
-              onSave={this.onSave.bind(this)}
-              onDelete={this.onDelete.bind(this)}
-              type="generator"
-              variables={variables[locale]}
-            />)
-          }
-        </div> }
 
         {/* materializers */}
         <h2 className="cms-section-heading">
@@ -200,41 +207,47 @@ class ProfileEditor extends Component {
           </button>
         </h2>
         <p className="bp3-text-muted">Variables constructed from other variables. No API calls needed.</p>
-        <div className="cms-card-list materializers">
-          { minData.materializers && minData.materializers
-            .map(m =>
-              <GeneratorCard
-                key={m.id}
-                item={m}
-                locale={localeDefault}
-                localeDefault={localeDefault}
-                onSave={this.onSave.bind(this)}
-                onDelete={this.onDelete.bind(this)}
-                type="materializer"
-                variables={variables[localeDefault]}
-                parentArray={minData.materializers}
-                onMove={this.onMove.bind(this)}
-              />
-            )}
-        </div>
 
-        {locale && <div className="cms-card-list materializers">
-          { minData.materializers && minData.materializers
-            .map(m =>
-              <GeneratorCard
-                key={m.id}
-                item={m}
-                locale={locale}
-                localeDefault={localeDefault}
-                onSave={this.onSave.bind(this)}
-                onDelete={this.onDelete.bind(this)}
-                type="materializer"
-                variables={variables[locale]}
-                parentArray={minData.materializers}
-                onMove={this.onMove.bind(this)}
-              />
-            )}
-        </div> }
+        <div className="cms-card-container">
+          {/* primary locale */}
+          <div className="cms-card-list materializers">
+            { minData.materializers && minData.materializers
+              .map(m =>
+                <GeneratorCard
+                  key={m.id}
+                  item={m}
+                  locale={localeDefault}
+                  localeDefault={localeDefault}
+                  onSave={this.onSave.bind(this)}
+                  onDelete={this.onDelete.bind(this)}
+                  type="materializer"
+                  variables={variables[localeDefault]}
+                  parentArray={minData.materializers}
+                  onMove={this.onMove.bind(this)}
+                />
+              )}
+          </div>
+          {/* secondary locale */}
+          {locale &&
+            <div className="cms-card-list materializers">
+              { minData.materializers && minData.materializers
+                .map(m =>
+                  <GeneratorCard
+                    key={m.id}
+                    item={m}
+                    locale={locale}
+                    localeDefault={localeDefault}
+                    onSave={this.onSave.bind(this)}
+                    onDelete={this.onDelete.bind(this)}
+                    type="materializer"
+                    variables={variables[locale]}
+                    parentArray={minData.materializers}
+                    onMove={this.onMove.bind(this)}
+                  />
+                )}
+            </div>
+          }
+        </div>
 
         {/* Top-level Profile */}
         <h2 className="cms-section-heading">
@@ -244,26 +257,34 @@ class ProfileEditor extends Component {
           className="cms-splash-wrapper"
           style={{backgroundImage: `url("/api/profile/${minData.slug}/${preview}/thumb")`}}
         >
-          <div className="cms-card-list cms-profile-header">
-            <TextCard
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              item={minData}
-              fields={["title", "subtitle"]}
-              type="profile"
-              variables={variables[localeDefault]}
-            />
-            {locale && <TextCard
-              locale={locale}
-              localeDefault={localeDefault}
-              item={minData}
-              fields={["title", "subtitle"]}
-              type="profile"
-              variables={variables[locale]}
-            />}
+
+          <div className="cms-card-container">
+            {/* primary locale */}
+            <div className="cms-card-list cms-profile-header">
+              <TextCard
+                locale={localeDefault}
+                localeDefault={localeDefault}
+                item={minData}
+                fields={["title", "subtitle"]}
+                type="profile"
+                variables={variables[localeDefault]}
+              />
+            </div>
+            {/* secondary locale */}
+            {locale &&
+              <div className="cms-card-list cms-profile-header">
+                <TextCard
+                  locale={locale}
+                  localeDefault={localeDefault}
+                  item={minData}
+                  fields={["title", "subtitle"]}
+                  type="profile"
+                  variables={variables[locale]}
+                />
+              </div>
+            }
           </div>
         </div>
-
       </div>
     );
   }

@@ -190,26 +190,36 @@ class TopicEditor extends Component {
         <h2 className="cms-section-heading">
           Topic title
         </h2>
-        <div className="cms-card-list">
-          <TextCard
-            item={minData}
-            locale={localeDefault}
-            localeDefault={localeDefault}
-            fields={["title"]}
-            onSave={this.onSave.bind(this)}
-            type="topic"
-            variables={variables[localeDefault]}
-          />
-          {locale && <TextCard
-            item={minData}
-            locale={locale}
-            localeDefault={localeDefault}
-            fields={["title"]}
-            onSave={this.onSave.bind(this)}
-            type="topic"
-            variables={variables[locale]}
-          />}
+
+        <div className="cms-card-container">
+          {/* primary locale */}
+          <div className="cms-card-list">
+            <TextCard
+              item={minData}
+              locale={localeDefault}
+              localeDefault={localeDefault}
+              fields={["title"]}
+              onSave={this.onSave.bind(this)}
+              type="topic"
+              variables={variables[localeDefault]}
+            />
+          </div>
+          {/* secondary locale */}
+          {locale &&
+            <div className="cms-card-list">
+              <TextCard
+                item={minData}
+                locale={locale}
+                localeDefault={localeDefault}
+                fields={["title"]}
+                onSave={this.onSave.bind(this)}
+                type="topic"
+                variables={variables[locale]}
+              />
+            </div>
+          }
         </div>
+
 
         {/* subtitles */}
         <h2 className="cms-section-heading">
@@ -218,40 +228,47 @@ class TopicEditor extends Component {
             <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
-        <div className="cms-card-list">
-          { minData.subtitles && minData.subtitles.map(s =>
-            <TextCard
-              key={s.id}
-              item={s}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              fields={["subtitle"]}
-              type="topic_subtitle"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
-              parentArray={minData.subtitles}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
+
+        <div className="cms-card-container">
+          {/* primary locale */}
+          <div className="cms-card-list">
+            { minData.subtitles && minData.subtitles.map(s =>
+              <TextCard
+                key={s.id}
+                item={s}
+                locale={localeDefault}
+                localeDefault={localeDefault}
+                fields={["subtitle"]}
+                type="topic_subtitle"
+                onDelete={this.onDelete.bind(this)}
+                variables={variables[localeDefault]}
+                selectors={minData.selectors.map(s => Object.assign({}, s))}
+                parentArray={minData.subtitles}
+                onMove={this.onMove.bind(this)}
+              />
+            )}
+          </div>
+          {/* secondary locale */}
+          {locale &&
+            <div className="cms-card-list">
+              { minData.subtitles && minData.subtitles.map(s =>
+                <TextCard
+                  key={s.id}
+                  item={s}
+                  locale={locale}
+                  localeDefault={localeDefault}
+                  fields={["subtitle"]}
+                  type="topic_subtitle"
+                  onDelete={this.onDelete.bind(this)}
+                  variables={variables[locale]}
+                  selectors={minData.selectors.map(s => Object.assign({}, s))}
+                  parentArray={minData.subtitles}
+                  onMove={this.onMove.bind(this)}
+                />
+              )}
+            </div>
+          }
         </div>
-        {locale && <div className="cms-card-list">
-          { minData.subtitles && minData.subtitles.map(s =>
-            <TextCard
-              key={s.id}
-              item={s}
-              locale={locale}
-              localeDefault={localeDefault}
-              fields={["subtitle"]}
-              type="topic_subtitle"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[locale]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
-              parentArray={minData.subtitles}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        </div> }
 
         {/* subtitles */}
         <h2 className="cms-section-heading">
@@ -260,6 +277,7 @@ class TopicEditor extends Component {
             <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
+
         <div className="cms-card-list">
           { minData.selectors && minData.selectors.map(s =>
             <SelectorCard
@@ -275,7 +293,6 @@ class TopicEditor extends Component {
           )}
         </div>
 
-
         {/* stats */}
         <h2 className="cms-section-heading">
           Stats
@@ -283,40 +300,48 @@ class TopicEditor extends Component {
             <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
-        <div className="cms-card-list">
-          { minData.stats && minData.stats.map(s =>
-            <TextCard
-              key={s.id}
-              item={s}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              fields={["title", "subtitle", "value", "tooltip"]}
-              type="topic_stat"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
-              parentArray={minData.stats}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
+
+        <div className="cms-card-container">
+          {/* primary locale */}
+          <div className="cms-card-list">
+            { minData.stats && minData.stats.map(s =>
+              <TextCard
+                key={s.id}
+                item={s}
+                locale={localeDefault}
+                localeDefault={localeDefault}
+                fields={["title", "subtitle", "value", "tooltip"]}
+                type="topic_stat"
+                onDelete={this.onDelete.bind(this)}
+                variables={variables[localeDefault]}
+                selectors={minData.selectors.map(s => Object.assign({}, s))}
+                parentArray={minData.stats}
+                onMove={this.onMove.bind(this)}
+              />
+            )}
+          </div>
+          {/* secondary locale */}
+          {locale &&
+            <div className="cms-card-list">
+              { minData.stats && minData.stats.map(s =>
+                <TextCard
+                  key={s.id}
+                  item={s}
+                  locale={locale}
+                  localeDefault={localeDefault}
+                  fields={["title", "subtitle", "value", "tooltip"]}
+                  type="topic_stat"
+                  onDelete={this.onDelete.bind(this)}
+                  variables={variables[locale]}
+                  selectors={minData.selectors.map(s => Object.assign({}, s))}
+                  parentArray={minData.stats}
+                  onMove={this.onMove.bind(this)}
+                />
+              )}
+            </div>
+          }
         </div>
-        {locale && <div className="cms-card-list">
-          { minData.stats && minData.stats.map(s =>
-            <TextCard
-              key={s.id}
-              item={s}
-              locale={locale}
-              localeDefault={localeDefault}
-              fields={["title", "subtitle", "value", "tooltip"]}
-              type="topic_stat"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[locale]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
-              parentArray={minData.stats}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        </div> }
+
 
         {/* descriptions */}
         <h2 className="cms-section-heading">
@@ -325,40 +350,47 @@ class TopicEditor extends Component {
             <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
-        <div className="cms-card-list">
-          { minData.descriptions && minData.descriptions.map(d =>
-            <TextCard
-              key={d.id}
-              item={d}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              fields={["description"]}
-              type="topic_description"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
-              parentArray={minData.descriptions}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
+
+        <div className="cms-card-container">
+          {/* primary locale */}
+          <div className="cms-card-list">
+            { minData.descriptions && minData.descriptions.map(d =>
+              <TextCard
+                key={d.id}
+                item={d}
+                locale={localeDefault}
+                localeDefault={localeDefault}
+                fields={["description"]}
+                type="topic_description"
+                onDelete={this.onDelete.bind(this)}
+                variables={variables[localeDefault]}
+                selectors={minData.selectors.map(s => Object.assign({}, s))}
+                parentArray={minData.descriptions}
+                onMove={this.onMove.bind(this)}
+              />
+            )}
+          </div>
+          {/* secondary locale */}
+          {locale &&
+            <div className="cms-card-list">
+              { minData.descriptions && minData.descriptions.map(d =>
+                <TextCard
+                  key={d.id}
+                  item={d}
+                  locale={locale}
+                  localeDefault={localeDefault}
+                  fields={["description"]}
+                  type="topic_description"
+                  onDelete={this.onDelete.bind(this)}
+                  variables={variables[locale]}
+                  selectors={minData.selectors.map(s => Object.assign({}, s))}
+                  parentArray={minData.descriptions}
+                  onMove={this.onMove.bind(this)}
+                />
+              )}
+            </div>
+          }
         </div>
-        {locale && <div className="cms-card-list">
-          { minData.descriptions && minData.descriptions.map(d =>
-            <TextCard
-              key={d.id}
-              item={d}
-              locale={locale}
-              localeDefault={localeDefault}
-              fields={["description"]}
-              type="topic_description"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[locale]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
-              parentArray={minData.descriptions}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        </div> }
 
         {/* visualizations */}
         <h2 className="cms-section-heading">
@@ -367,40 +399,47 @@ class TopicEditor extends Component {
             <span className="bp3-icon bp3-icon-plus" />
           </button>
         </h2>
-        <div className="cms-card-list visualizations">
-          { minData.visualizations && minData.visualizations.map(v =>
-            <VisualizationCard
-              key={v.id}
-              item={v}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              preview={preview}
-              onDelete={this.onDelete.bind(this)}
-              type="topic_visualization"
-              variables={variables[localeDefault]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
-              parentArray={minData.visualizations}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
+
+        <div className="cms-card-container">
+          {/* primary locale */}
+          <div className="cms-card-list visualizations">
+            { minData.visualizations && minData.visualizations.map(v =>
+              <VisualizationCard
+                key={v.id}
+                item={v}
+                locale={localeDefault}
+                localeDefault={localeDefault}
+                preview={preview}
+                onDelete={this.onDelete.bind(this)}
+                type="topic_visualization"
+                variables={variables[localeDefault]}
+                selectors={minData.selectors.map(s => Object.assign({}, s))}
+                parentArray={minData.visualizations}
+                onMove={this.onMove.bind(this)}
+              />
+            )}
+          </div>
+          {/* secondary locale */}
+          {locale &&
+            <div className="cms-card-list visualizations">
+              { minData.visualizations && minData.visualizations.map(v =>
+                <VisualizationCard
+                  key={v.id}
+                  item={v}
+                  locale={locale}
+                  localeDefault={localeDefault}
+                  preview={preview}
+                  onDelete={this.onDelete.bind(this)}
+                  type="topic_visualization"
+                  variables={variables[locale]}
+                  selectors={minData.selectors.map(s => Object.assign({}, s))}
+                  parentArray={minData.visualizations}
+                  onMove={this.onMove.bind(this)}
+                />
+              )}
+            </div>
+          }
         </div>
-        {locale && <div className="cms-card-list visualizations">
-          { minData.visualizations && minData.visualizations.map(v =>
-            <VisualizationCard
-              key={v.id}
-              item={v}
-              locale={locale}
-              localeDefault={localeDefault}
-              preview={preview}
-              onDelete={this.onDelete.bind(this)}
-              type="topic_visualization"
-              variables={variables[locale]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
-              parentArray={minData.visualizations}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        </div>}
       </div>
     );
   }

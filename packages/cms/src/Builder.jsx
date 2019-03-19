@@ -18,11 +18,10 @@ class Builder extends Component {
     super(props);
     this.state = {
       currentTab: "profiles",
-      theme: "cms-light",
       locales: false,
-      locale: false,
       localeDefault: false,
-      showLocale: false,
+      secondaryLocale: false,
+      // showLocale: false,
 
       formatters: (props.formatters || []).reduce((acc, d) => {
         const f = Function("n", "libs", "formatters", d.logic);
@@ -37,14 +36,14 @@ class Builder extends Component {
     const {isEnabled, env} = this.props;
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
-    
+
     // env.CANON_LANGUAGES = false;
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     if (env.CANON_LANGUAGES && env.CANON_LANGUAGES.includes(",")) {
       const locales = env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault);
-      const locale = locales[0];
-      this.setState({locales, locale, localeDefault});
+      const secondaryLocale = locales[0];
+      this.setState({locales, secondaryLocale, localeDefault});
     }
     else {
       this.setState({localeDefault});
@@ -78,25 +77,31 @@ class Builder extends Component {
   }
   */
 
-  toggleLocale(e) {
-    const {locales} = this.state;
-    const locale = e.target.checked ? false : locales[0];
-    const showLocale = e.target.checked;
-    this.setState({showLocale, locale});
-  }
+  // toggleLocale(e) {
+  //   const {locales} = this.state;
+  //   const secondaryLocale = e.target.checked ? false : locales[0];
+  //   const showLocale = e.target.checked;
+  //   this.setState({showLocale, secondaryLocale});
+  // }
 
-  handleThemeSelect(e) {
-    this.setState({theme: e.target.value});
-  }
+  // handleThemeSelect(e) {
+  //   this.setState({theme: e.target.value});
+  // }
 
   handleLocaleSelect(e) {
-    this.setState({locale: e.target.value});
+    const val = e.target.value;
+    this.setState({
+      secondaryLocale: val === "none" ? null : val
+      // showLocale: val === "none" ? false : true
+    });
   }
 
   render() {
-    const {currentTab, theme, locale, locales, localeDefault, showLocale} = this.state;
+    const {currentTab, theme, secondaryLocale, locales, localeDefault} = this.state;
     const {isEnabled} = this.props;
     const navLinks = ["profiles", "stories", "formatters"];
+
+    // console.log("showLocale", this.state.showLocale);
 
     /*
     const {profileSlug, topicSlug} = this.props.params;
@@ -107,7 +112,7 @@ class Builder extends Component {
     if (!isEnabled) return null;
 
     return (
-      <div className={`cms ${theme}`}>
+      <div className="cms">
         <div className="cms-nav">
           {navLinks.map(navLink =>
             <button
@@ -117,34 +122,71 @@ class Builder extends Component {
               {navLink}
             </button>
           )}
-          {locales && locale && <label className="cms-select-label cms-theme-select">default language: {localeDefault}, second language: 
-            <select
-              className="cms-select"
-              name="select-theme"
-              id="select-theme"
-              value={locale}
-              onChange={this.handleLocaleSelect.bind(this)}
-            >
-              {locales.map(loc => <option key={loc} value={loc}>{loc}</option>)}
-            </select>
-          </label>}
-          {locales && <Switch className="cms-lang-toggle" checked={showLocale} label={showLocale ? "Show Both Locales" : "Show One Locale"} onChange={this.toggleLocale.bind(this)} />}
-          <label className="cms-select-label cms-theme-select">theme: 
-            <select
-              className="cms-select"
-              name="select-theme"
-              id="select-theme"
-              value={this.state.selectValue}
-              onChange={this.handleThemeSelect.bind(this)}
-            >
-              <option value="cms-light">light</option>
-              <option value="cms-dark">dark</option>
-            </select>
-          </label>
+
+          <div className="cms-nav-options">
+            {/* locale select */}
+            {locales &&
+              <React.Fragment>
+                {/* primary locale */}
+                {/* NOTE: currently just shows the primary locale in a dropdown */}
+                <label className="cms-select-label cms-locale-select">
+                  <strong>languages</strong>: primary
+                  <select className="cms-select">
+                    <option key="current-locale" value={localeDefault}>{localeDefault}</option>
+                  </select>
+                </label>
+                {/* secondary locale */}
+                <label className="cms-select-label cms-locale-select">
+                  secondary
+                  <select
+                    className="cms-select"
+                    value={secondaryLocale}
+                    onChange={this.handleLocaleSelect.bind(this)}
+                  >
+                    {locales.map(loc =>
+                      <option key={loc} value={loc}>{loc}</option>)
+                    }
+                    <option key="no-locale" value="none">none</option>
+                  </select>
+                </label>
+                {/* <span className="cms-nav-options-divider">|</span>*/}
+              </React.Fragment>
+            }
+            {/* theme select */}
+            {/* <label className="cms-select-label cms-theme-select">theme:
+              <select
+                className="cms-select"
+                name="select-theme"
+                id="select-theme"
+                value={this.state.selectValue}
+                onChange={this.handleThemeSelect.bind(this)}
+              >
+                <option value="cms-light">light</option>
+                <option value="cms-dark">dark</option>
+              </select>
+            </label>*/}
+          </div>
         </div>
-        {currentTab === "profiles" && <ProfileBuilder /* pathObj={pathObj} setPath={this.setPath.bind(this)} */ localeDefault={localeDefault} locale={locale}/>}
-        {currentTab === "stories" && <StoryBuilder /* pathObj={pathObj} setPath={this.setPath.bind(this)} */ localeDefault={localeDefault} locale={locale}/>}
-        {currentTab === "formatters" && <FormatterEditor />}
+
+        {currentTab === "profiles" &&
+          <ProfileBuilder
+            // pathObj={pathObj}
+            // setPath={this.setPath.bind(this)}
+            localeDefault={localeDefault}
+            locale={secondaryLocale}
+          />
+        }
+        {currentTab === "stories" &&
+          <StoryBuilder
+            // pathObj={pathObj}
+            // setPath={this.setPath.bind(this)}
+            localeDefault={localeDefault}
+            locale={secondaryLocale}
+          />
+        }
+        {currentTab === "formatters" &&
+          <FormatterEditor />
+        }
       </div>
     );
   }

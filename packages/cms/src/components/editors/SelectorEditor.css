@@ -10,7 +10,7 @@
   }
 
   &:not(:last-child) {
-    border-bottom: 1px solid var(--forward-2);
+    border-bottom: 1px solid var(--light-2);
   }
 }
 

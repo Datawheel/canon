@@ -232,7 +232,7 @@
   &.is-disabled,
   &[disabled] {
     text-align: center;
-    background-color: var(--middle) !important;
+    background-color: var(--gray) !important;
     cursor: not-allowed;
     pointer-events: none;
   }
@@ -306,7 +306,7 @@
   & .bp3-input-ghost {
     order: -1;
     border-radius: 3px;
-    border: 1px solid var(--middle);
+    border: 1px solid var(--gray);
     padding-left: 0.75em;
     padding-right: 0.75em;
     min-width: 180px; /* match .bp3-menu min-width ¯\_(ツ)_/¯ */
@@ -338,15 +338,24 @@
     outline: none;
     cursor: pointer; /* it's not a link, but it acts like one */
   }
-  /* dark side / light side */
-  & .cms-theme-select {
-    padding: 0 1rem;
-    line-height: var(--cms-nav-height);
+  & .cms-nav-options {
     margin-left: auto;
+
+    & .cms-nav-options-divider {
+      opacity: 0.25;
+      margin: 0 0.5rem;
+    }
+  }
+  /* options */
+  & .cms-locale-select,
+  & .cms-theme-select {
+    padding: 0 0.5rem;
+    line-height: var(--cms-nav-height);
     margin-bottom: 0; /* override default */
 
     /* inline select */
     & select {
+      margin-left: 0.25em;
       width: auto;
     }
   }
@@ -428,8 +437,11 @@
   margin-top: 2rem;
 
   /* tighten up spaces between headings and card lists */
-  & ~ .cms-card-list {
+  & ~ .cms-card-container {
     margin-top: -0.25rem;
+  }
+  & ~ .cms-splash-wrapper {
+    margin-top: -1rem;
   }
 }
 .cms-section-heading-button {
@@ -495,7 +507,7 @@
     vertical-align: top;
 
     & + tr {
-      border-top: 1px solid var(--middle);
+      border-top: 1px solid var(--gray);
     }
   }
 
