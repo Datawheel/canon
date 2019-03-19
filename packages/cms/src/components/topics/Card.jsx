@@ -15,10 +15,9 @@ export default class Card extends Component {
     const selectors = contents.selectors || [];
 
     const statGroups = nest().key(d => d.title).entries(stats);
-    const statGroupsMulti = nest().key(d => d.title).entries(stats);
-    statGroupsMulti.shift();
+    const statGroupsMulti = statGroups.slice(1);
 
-    return <div className={ `topic bp3-card bp3-elevation-0 ${slug} Card` }>
+    return <div className={ `topic pt-card pt-elevation-0 ${slug} Card` }>
       <div className="topic-content">
         <div className="title-wrapper">
           { title &&
@@ -33,7 +32,7 @@ export default class Card extends Component {
             </div> : null }
         </div>
         { subtitles.map((content, i) => <div key={i} className="topic-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
-        { stats.length > 0
+        { stats.length > 1
           ? <div className="topic-stats">
             { statGroupsMulti.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
           </div> : null }
