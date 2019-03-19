@@ -10,7 +10,7 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import {Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab2, Tabs2} from "@blueprintjs/core";
+import {Button, Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab2, Tabs2} from "@blueprintjs/core";
 import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
 import "@blueprintjs/table/dist/table.css";
 
@@ -220,13 +220,13 @@ class Options extends Component {
 
     return <div className="Options">
 
-      <div className="option view-table" onClick={this.toggleDialog.bind(this, "view-table")}>
-        <Icon iconName="th" /><span className="option-label">View Data</span>
-      </div>
+      <Button iconName="th" className="option view-table" onClick={this.toggleDialog.bind(this, "view-table")}>
+        View Data
+      </Button>
 
-      <div className="option save-image" onClick={this.toggleDialog.bind(this, "save-image")}>
-        <Icon iconName="export" /><span className="option-label">Save Image</span>
-      </div>
+      <Button iconName="export" className="option save-image" onClick={this.toggleDialog.bind(this, "save-image")}>
+        Save Image
+      </Button>
 
       <Dialog className="options-dialog" isOpen={openDialog} onClose={this.toggleDialog.bind(this, false)}>
         <Tabs2 onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
