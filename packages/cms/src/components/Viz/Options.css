@@ -3,24 +3,8 @@
   justify-content: flex-end;
   margin-bottom: 5px;
   & .option {
-    color: #949494;
-    cursor: pointer;
     display: inline-block;
-    font-family: "Palanquin", sans-serif;
-    font-size: 12px;
-    font-weight: 700;
     margin: 5px 15px 0 0;
-    opacity: 0.9;
-    outline: 0;
-    &.disabled {
-      opacity: 0.5;
-    }
-    &:hover {
-      opacity: 1;
-    }
-    & .bp3-icon-standard {
-      margin-right: 5px;
-    }
   }
 }
 
@@ -49,7 +33,6 @@
         color: black;
         cursor: pointer;
         display: inline-block;
-        font-family: "Palanquin", sans-serif;
         font-size: 13px;
         margin: 40px 20px;
         opacity: 0.5;
