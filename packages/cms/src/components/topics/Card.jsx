@@ -15,9 +15,8 @@ export default class Card extends Component {
     const selectors = contents.selectors || [];
 
     const statGroups = nest().key(d => d.title).entries(stats);
-    const statGroupsMulti = statGroups.slice(1);
 
-    return <div className={ `topic pt-card pt-elevation-0 ${slug} Card` }>
+    return <div className={ `topic pt-card pt-elevation-0 ${slug} Card` } ref={ comp => this.topic = comp }>
       <div className="topic-content">
         <div className="title-wrapper">
           { title &&
@@ -34,7 +33,7 @@ export default class Card extends Component {
         { subtitles.map((content, i) => <div key={i} className="topic-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
         { stats.length > 1
           ? <div className="topic-stats">
-            { statGroupsMulti.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
+            { statGroups.slice(1).map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
           </div> : null }
         { selectors.length > 0 && <div className="topic-selectors">
           { selectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
