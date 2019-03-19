@@ -10,7 +10,7 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import {Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
+import {Button, Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 
@@ -167,10 +167,10 @@ class Options extends Component {
       </div>
       : <div className="bp3-dialog-body save-image">
         <div className="save-image-btn" onClick={this.onSave.bind(this, "png")}>
-          <Icon iconName="media" />PNG
+          <Icon icon="media" />PNG
         </div>
         {svgAvailable && <div className="save-image-btn" onClick={this.onSave.bind(this, "svg")}>
-          <Icon iconName="code-block" />SVG
+          <Icon icon="code-block" />SVG
         </div>}
         <div className="image-options">
           <Checkbox checked={imageContext === "viz"} label="Only Download Visualization" onChange={this.toggleContext.bind(this)} />
@@ -196,9 +196,9 @@ class Options extends Component {
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
-          <button type="button" className="bp3-button bp3-icon-download bp3-minimal" onClick={this.onCSV.bind(this)}>
+          <Button icon="download" className="bp3-minimal" onClick={this.onCSV.bind(this)}>
             Download as CSV
-          </button>
+          </Button>
           { typeof data === "string" && <input type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={`${location.origin}${data}`} /> }
         </div>
         <div className="table">
@@ -220,19 +220,19 @@ class Options extends Component {
 
     return <div className="Options">
 
-      <div className="option view-table" onClick={this.toggleDialog.bind(this, "view-table")}>
-        <Icon iconName="th" /><span className="option-label">View Data</span>
-      </div>
+      <Button icon="th" className="option view-table" onClick={this.toggleDialog.bind(this, "view-table")}>
+        View Data
+      </Button>
 
-      <div className="option save-image" onClick={this.toggleDialog.bind(this, "save-image")}>
-        <Icon iconName="export" /><span className="option-label">Save Image</span>
-      </div>
+      <Button icon="export" className="option save-image" onClick={this.toggleDialog.bind(this, "save-image")}>
+        Save Image
+      </Button>
 
       <Dialog className="options-dialog" isOpen={openDialog} onClose={this.toggleDialog.bind(this, false)}>
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
           <Tab id="view-table" title="View Data" panel={<DataPanel />} />
           <Tab id="save-image" title="Save Image" panel={<ImagePanel />} />
-          <button aria-label="Close" className="close-button bp3-dialog-close-button bp3-icon-small-cross" onClick={this.toggleDialog.bind(this, false)}></button>
+          <Button icon="small-cross" aria-label="Close" className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)} />
         </Tabs>
       </Dialog>
 
