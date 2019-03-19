@@ -16,17 +16,24 @@ export default class Card extends Component {
 
     const statGroups = nest().key(d => d.title).entries(stats);
 
-    return <div className={ `topic bp3-card bp3-elevation-0 ${slug} Card` }>
+    return <div className={ `topic bp3-card bp3-elevation-0 ${slug} Card` } ref={ comp => this.topic = comp }>
       <div className="topic-content">
-        { title &&
-          <h3 className="topic-title">
-            <AnchorLink to={ slug } id={ slug } className="anchor" dangerouslySetInnerHTML={{__html: title}}></AnchorLink>
-          </h3>
-        }
+        <div className="title-wrapper">
+          { title &&
+            <h3 className="topic-title">
+              <AnchorLink to={ slug } id={ slug } className="anchor" dangerouslySetInnerHTML={{__html: title}}></AnchorLink>
+            </h3>
+          }
+
+          { stats.length > 0
+            ? <div className="topic-stats">
+              <StatGroup key={statGroups[0].key} title={statGroups[0].key} stats={statGroups[0].values} />
+            </div> : null }
+        </div>
         { subtitles.map((content, i) => <div key={i} className="topic-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
-        { stats.length > 0
+        { stats.length > 1
           ? <div className="topic-stats">
-            { statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
+            { statGroups.slice(1).map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
           </div> : null }
         { selectors.length > 0 && <div className="topic-selectors">
           { selectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
