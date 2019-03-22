@@ -40,9 +40,17 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
         obj[skey] = varSwap(obj[skey], formatterFunctions, variables);
         // If the key is named logic, this is javascript. Transpile it for IE.
         if (skey === "logic") {
-          let code = buble.transform(obj[skey]).code; 
-          if (code.startsWith("!")) code = code.slice(1);
-          obj[skey] = code;
+          try {
+            let code = buble.transform(obj[skey]).code; 
+            if (code.startsWith("!")) code = code.slice(1);
+            obj[skey] = code;
+          }
+          catch (e) {
+            console.log("Error in ES5 transpiling in varSwapRecursive");
+            // Note: There is no need to do anything special here. In Viz/index.jsx, we will eventually run propify.
+            // Propify handles malformed js and sets an error instead of attempting to render the viz, so we can simply
+            // leave the key as malformed es6, let propify catch it later, and pass the error to the front-end.
+          }
         }
       }
       // If this property is an array, recursively swap all elements
