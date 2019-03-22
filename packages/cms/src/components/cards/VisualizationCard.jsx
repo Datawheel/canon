@@ -112,7 +112,9 @@ class VisualizationCard extends Component {
     const {selectors, type, variables, parentArray, item, preview, locale, localeDefault} = this.props;
 
     minData.selectors = selectors;
-    const {logic} = varSwapRecursive(minData, formatters, variables);
+    let logic = false;
+    // Only perform a viz render if the user is finished editing and has closed the window.
+    if (!isOpen) logic = varSwapRecursive(minData, formatters, variables).logic;
     const re = new RegExp(/height\:[\s]*([0-9]+)/g);
     let height = re.exec(logic);
     height = height ? height[1] : "400";
@@ -183,7 +185,7 @@ class VisualizationCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { logic ? <Viz config={{logic}} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
+        { logic && !isOpen ? <Viz config={{logic}} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
       </div>
     );
   }

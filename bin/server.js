@@ -246,9 +246,12 @@ async function start() {
       await db.sync()
         .then(({models}) => {
           const seeds = [];
-          Object.keys(models).forEach(name => {
+          Object.keys(models).forEach(async name => {
             const model = models[name];
-            if (model.seed) {
+            const count = await model.count();
+            const isEmpty = count === 0;
+            // Only populate a table with seed data if it is empty
+            if (model.seed && isEmpty) {
               seeds.push(model.bulkCreate(model.seed));
             }
           });
