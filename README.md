@@ -711,10 +711,10 @@ export CANON_LANGUAGE_DEFAULT="es"
 |`CANON_STATIC_FOLDER`|Changes the default folder name for static assets.|`"static"`|
 |`NODE_ENV`|The current environment. Setting to `production` will result in the removal of browser development tools and return smaller package sizes.|`development`|
 
-Additional environment variables can also be set for canon plugins:
+Additional environment variables can also be set (and may be required) for canon plugins:
 
-* [canon-cms](https://github.com/Datawheel/canon/tree/master/packages/cms#environment-variables)
-* [canon-cms](https://github.com/Datawheel/canon/tree/master/packages/logiclayer#canon-logic-layer)
+* [cms](https://github.com/Datawheel/canon/tree/master/packages/cms#environment-variables)
+* [logiclayer](https://github.com/Datawheel/canon/tree/master/packages/logiclayer#canon-logic-layer)
 
 ## Custom Environment Variables
 
