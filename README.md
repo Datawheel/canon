@@ -708,4 +708,6 @@ export CANON_LANGUAGE_DEFAULT="es"
 |`CANON_SESSION_SECRET`|A unique secret key to use for cookies.|The "name" field from package.json|
 |`CANON_SESSION_TIMEOUT`|The timeout, in milliseconds, for user authentication cookies.|`60 * 60 * 1000` (one hour)|
 |`CANON_STATIC_FOLDER`|Changes the default folder name for static assets.|`"static"`|
+|`CANON_CMS_ENABLE`|If canon-cms is installed, setting this env var to `true` allows access to the cms in production builds|`false`|
+|`CANON_CONST_*`|A wildcard env var, allowing the user access via the redux store: `env.MY_VAR`.|n/a|
 |`NODE_ENV`|The current environment. Setting to `production` will result in the removal of browser development tools and return smaller package sizes.|`development`|
