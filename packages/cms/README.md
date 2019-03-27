@@ -6,6 +6,7 @@ Content Management System for Canon sites.
 #### Contents
 * [Setup and Installation](#setup-and-installation)
 * [Rendering a Profile](#rendering-a-profile)
+* [Environment Variables](#environment-variables)
 
 ---
 
@@ -24,3 +25,11 @@ import {Profile} from "@datawheel/canon-cms";
 ...
 <Route path="/profile/:pslug/:pid" component={Profile} />
 ```
+
+---
+
+## Environment Variables
+
+|variable|description|default|
+|---|---|---|
+|`CANON_CMS_ENABLE`|Setting this env var to `true` allows access to the cms in production builds.|`false`|
