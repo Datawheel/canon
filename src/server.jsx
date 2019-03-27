@@ -64,6 +64,22 @@ const pixelScript = process.env.CANON_FACEBOOK_PIXEL === undefined ? ""
     <!-- End Facebook Pixel -->
     `;
 
+const hotjarScript = process.env.CANON_HOTJAR === undefined ? ""
+  : `
+    <!-- Hotjar -->
+    <script>
+      (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:${process.env.CANON_HOTJAR},hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+      })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+    </script>
+    <!-- End Hotjar -->
+    `;
+
 const BASE_URL = process.env.CANON_BASE_URL || "/";
 const basename = BASE_URL.replace(/^[A-z]{4,5}\:\/{2}[A-z0-9\.\-]{1,}\:{0,}[0-9]{0,4}/g, "");
 const baseTag = process.env.CANON_BASE_URL === undefined ? ""
@@ -141,7 +157,7 @@ export default function(defaultStore = {}, headerConfig) {
 
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/normalize.css'>
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css'>
-
+    ${hotjarScript}
   </head>
   <body>
     ${tagManagerBody}
