@@ -10,15 +10,6 @@ const FUNC = require("../utils/FUNC"),
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-const searchMap = {
-  cip: "CIP",
-  geo: "Geography",
-  naics: "PUMS Industry",
-  napcs: "NAPCS",
-  soc: "PUMS Occupation",
-  university: "University"
-};
-
 const profileReq = {
   include: [
     {association: "content", separate: true},
@@ -208,8 +199,8 @@ module.exports = function(app) {
      * Maybe refactor this to get them immediately in the profile get using include.
      */
     db.profile.findOne({where: {slug}, raw: true})
-      .then(profile =>
-        Promise.all([profile.id, db.search.findOne({where: {id, dimension: searchMap[slug]}}), db.formatter.findAll(), db.generator.findAll({where: {profile_id: profile.id}})])
+      .then(profile => 
+        Promise.all([profile.id, db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}}), db.formatter.findAll(), db.generator.findAll({where: {profile_id: profile.id}})])
       )
       // Given a profile id and its generators, hit all the API endpoints they provide
       .then(resp => {
