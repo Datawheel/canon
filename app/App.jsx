@@ -5,7 +5,7 @@ import Footer from "components/Footer";
 
 import "./App.css";
 
-import {isAuthenticated} from "../src";
+import {fetchData, isAuthenticated} from "../src";
 
 class App extends Component {
 
@@ -32,6 +32,12 @@ class App extends Component {
   }
 
 }
+
+// App.need = [
+//   fetchData("test404", "https://preview.datausa.io/api/data?measure=Population", () => ({error: 404})),
+//   fetchData("test503", "https://preview.datausa.io/api/data?measure=Population", () => ({error: 503})),
+//   fetchData("test202", "https://preview.datausa.io/api/data?measure=Population", () => ({data: []}))
+// ];
 
 const mapDispatchToProps = dispatch => ({
   isAuthenticated: () => {

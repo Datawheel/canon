@@ -145,7 +145,15 @@ export default function(defaultStore = {}, headerConfig) {
               })
               .join("") : "";
 
-            res.status(200).send(`<!doctype html>
+            let status = 200;
+            for (const key in initialState.data) {
+              if ({}.hasOwnProperty.call(initialState.data, key)) {
+                const error = initialState.data[key].error;
+                if (error && typeof error === "number" && error > status) status = error;
+              }
+            }
+
+            res.status(status).send(`<!doctype html>
 <html dir="${ rtl ? "rtl" : "ltr" }" ${htmlAttrs}${defaultAttrs}>
   <head>
     ${tagManagerHead}${pixelScript}${baseTag}
