@@ -1,5 +1,5 @@
 import React from "react";
-import {Treemap} from "d3plus-react";
+import {Plot, Treemap} from "d3plus-react";
 
 import {fetchData} from "../../src/actions/fetchData";
 import {dataFold} from "d3plus-viz";
@@ -12,13 +12,14 @@ class Viz3 extends SectionColumns {
     const data = this.context.data.harvested_area;
     return (
       <SectionColumns>
-        <Treemap config={{
+        <Plot config={{
           data,
           groupBy: "crop",
           height: 400,
           label: d => d.crop_name,
           legend: false,
-          sum: d => d.harvested_area
+          x: "harvested_area",
+          y: "harvested_area"
         }} />
         <Treemap config={{
           data,
