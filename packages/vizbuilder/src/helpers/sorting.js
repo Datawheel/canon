@@ -123,6 +123,26 @@ export function classifyMeasures(cubes, mapMode) {
 }
 
 /**
+ *
+ * @param {Measure} measure The initial measure to make the selection
+ * @param {Object<string, Measure[]>} measureMap The general tableId map
+ * @param {Cube[]} cubes The general cube list
+ * @param {(cube: Cube) => Cube} userTableIdFunc The cube selector function
+ */
+export function userTableIdMeasure(measure, measureMap, cubes, userTableIdFunc) {
+  const measureTableKey = `${measure.annotations._cb_table_id}.${measure.name}`;
+  const measureArray = measureMap[measureTableKey] || [];
+  const cubeArray = measureArray.map(msr =>
+    cubes.find(cube => cube.name === msr.annotations._cb_name)
+  );
+
+  const pickedCube = userTableIdFunc(cubeArray);
+
+  const pickedCubeIndex = cubeArray.indexOf(pickedCube);
+  return pickedCubeIndex > -1 ? measureArray[pickedCubeIndex] : measure;
+}
+
+/**
  * Finds a valid Level using a user defined parameter list.
  * @param {object[]} defaultGroup Array of user-defined default levels
  * @param {Level[]} levels An array with all the available valid levels
@@ -208,7 +228,9 @@ export function getTimeLevel(cube) {
 }
 
 export function getGeoLevel(query) {
-  const geoGroup = query.groups.find(grp => grp.level && isGeoDimension(grp.level.hierarchy.dimension));
+  const geoGroup = query.groups.find(
+    grp => grp.level && isGeoDimension(grp.level.hierarchy.dimension)
+  );
   return geoGroup && geoGroup.level;
 }
 
@@ -281,9 +303,8 @@ export function reduceLevelsFromDimension(container, dimension) {
 export function joinDrilldownList(array, drilldown) {
   array = array.filter(dd => dd.hierarchy !== drilldown.hierarchy);
   drilldown = [].concat(drilldown || []);
-  return sort(union(array, drilldown)).asc(
-    a => a.hierarchy.dimension.dimensionType
-  );
+  drilldown = union(array, drilldown);
+  return sort(drilldown).asc(a => a.hierarchy.dimension.dimensionType);
 }
 
 /**

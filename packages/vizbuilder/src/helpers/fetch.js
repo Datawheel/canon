@@ -11,7 +11,8 @@ import {
   getDefaultGroup,
   getGeoLevel,
   getIncludedMembers,
-  reduceLevelsFromDimension
+  reduceLevelsFromDimension,
+  userTableIdMeasure
 } from "./sorting";
 import {isGeoDimension, isValidDimension} from "./validation";
 
@@ -135,7 +136,10 @@ export function fetchCubes(params, props) {
     injectCubeInfoOnMeasure(cubes);
 
     const {measures, measureMap} = classifyMeasures(cubes, isGeomapOnly);
-    const measure = findByName(params.defaultMeasure, measures, true);
+    const measureByDefault = findByName(params.defaultMeasure, measures, true);
+    const measure = params.defaultTable
+      ? userTableIdMeasure(measureByDefault, measureMap, cubes, params.defaultTable)
+      : measureByDefault;
 
     const newState = generateBaseState(cubes, measure, geomapLevels);
 
