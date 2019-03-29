@@ -12,7 +12,7 @@ import {
   replaceKeysInString
 } from "../../helpers/query";
 import {isValidMeasure} from "../../helpers/validation";
-import {getGeoLevel} from "../../helpers/sorting";
+import {getGeoLevel, userTableIdMeasure} from "../../helpers/sorting";
 
 import ConditionalAnchor from "./ConditionalAnchor";
 import DatasetSelect from "./DatasetSelect";
@@ -122,8 +122,8 @@ class Sidebar extends React.PureComponent {
     );
   }
 
-  setMeasure(measure) {
-    const {getDefaultGroup} = this.context;
+  setMeasure(measure, useTableDefaults = true) {
+    const {getDefaultGroup, getDefaultTable} = this.context;
     const {options, query, uiParams} = this.props;
 
     const areMeasuresFromSameTable = (oldQ, newQ) => {
@@ -137,6 +137,15 @@ class Sidebar extends React.PureComponent {
     };
 
     return this.context.loadControl(() => {
+      if (getDefaultTable && useTableDefaults) {
+        measure = userTableIdMeasure(
+          measure,
+          options.measureMap,
+          options.cubes,
+          getDefaultTable
+        );
+      }
+
       const newState = generateBaseState(options.cubes, measure, options.geomapLevels);
       const newUiParams = newState.uiParams;
       const newQuery = newState.query;
@@ -180,7 +189,7 @@ class Sidebar extends React.PureComponent {
     const key = `${tableId}.${query.measure.name}`;
     const measureList = options.measureMap[key];
     const measure = measureList.find(item => item.annotations._cb_name == cubeName);
-    return this.setMeasure(measure);
+    return this.setMeasure(measure, false);
   }
 
   toggleConfidenceInt(evt) {
@@ -191,6 +200,7 @@ class Sidebar extends React.PureComponent {
 
 Sidebar.contextTypes = {
   getDefaultGroup: PropTypes.func,
+  getDefaultTable: PropTypes.func,
   loadControl: PropTypes.func
 };
 

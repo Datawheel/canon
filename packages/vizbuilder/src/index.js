@@ -55,8 +55,10 @@ class Vizbuilder extends React.Component {
     Filter.multipliers = {...DEFAULT_MEASURE_MULTIPLIERS, ...props.multipliers};
 
     const defaultGroup = [].concat(props.defaultGroup || []);
+    const defaultTable = props.tableLogic;
 
     this.getDefaultGroup = getDefaultGroup.bind(null, defaultGroup);
+    this.getDefaultTable = defaultTable;
     this.permalinkKeywords = {
       enlarged: "enlarged",
       filters: "filters",
@@ -71,7 +73,7 @@ class Vizbuilder extends React.Component {
     ) {
       props.dispatch({type: "VB_RESET", key: props.instanceKey});
       const defaultMeasure = props.defaultMeasure;
-      const defaultQuery = {defaultGroup, defaultMeasure};
+      const defaultQuery = {defaultGroup, defaultMeasure, defaultTable};
       return fetchCubes(defaultQuery, props);
     }
 
@@ -82,6 +84,7 @@ class Vizbuilder extends React.Component {
     return {
       generalConfig: this.getGeneralConfig(),
       getDefaultGroup: this.getDefaultGroup,
+      getDefaultTable: this.getDefaultTable,
       loadControl: this.loadControl,
       permalinkKeywords: this.permalinkKeywords,
       stateUpdate: this.stateUpdate
@@ -197,6 +200,7 @@ Vizbuilder.contextTypes = {
 Vizbuilder.childContextTypes = {
   generalConfig: PropTypes.object,
   getDefaultGroup: PropTypes.func,
+  getDefaultTable: PropTypes.func,
   loadControl: PropTypes.func,
   permalinkKeywords: PropTypes.object,
   stateUpdate: PropTypes.func
@@ -214,6 +218,7 @@ Vizbuilder.propTypes = {
   permalink: PropTypes.bool,
   permalinkKeywords: PropTypes.objectOf(PropTypes.string),
   src: PropTypes.string.isRequired,
+  tableLogic: PropTypes.func,
   toolbar: PropTypes.element,
   topojson: PropTypes.objectOf(
     PropTypes.shape({
