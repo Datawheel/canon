@@ -60,17 +60,18 @@ class Sidebar extends React.PureComponent {
 
           <GroupingManager
             className="control levels-manager"
-            label="Grouped by"
-            items={query.groups}
+            forcedLimit={this.props.groupLimit}
             itemOptions={options.levels}
+            items={query.groups}
+            label="Grouped by"
             query={query}
           />
 
           <FilterManager
             className="control filters-manager"
-            label="Filter by"
-            items={query.filters}
             itemOptions={cbMeasures}
+            items={query.filters}
+            label="Filter by"
           />
 
           {this.props.children}

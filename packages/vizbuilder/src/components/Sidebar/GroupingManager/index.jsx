@@ -11,7 +11,7 @@ import {
   NoMoreOptions,
   DimensionInUse
 } from "../../../helpers/errors";
-import { getGeoLevel } from "../../../helpers/sorting";
+import {getGeoLevel} from "../../../helpers/sorting";
 
 class GroupingManager extends SidebarCRUDManager {
   constructor(props) {
@@ -34,7 +34,11 @@ class GroupingManager extends SidebarCRUDManager {
   }
 
   render() {
-    const {className, label, items} = this.props;
+    const {className, label, items, forcedLimit} = this.props;
+
+    const disableAdd =
+      this.state.unusedOptions.length === 0 ||
+      (forcedLimit !== undefined && items.length >= forcedLimit);
 
     return (
       <div className={classnames("grouping-manager", className)}>
@@ -46,7 +50,7 @@ class GroupingManager extends SidebarCRUDManager {
           text="Add grouping"
           className="pt-fill"
           iconName="insert"
-          disabled={this.state.unusedOptions.length === 0}
+          disabled={disableAdd}
           onClick={this.createElement}
         />
       </div>
