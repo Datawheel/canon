@@ -49,8 +49,9 @@ module.exports = props => {
         path.join(appDir, "app"),
         path.join(appDir, "src"),
         path.join(appDir, "utils"),
-        path.join(appDir, "node_modules/yn"),
-        path.join(appDir, "node_modules/@datawheel"),
+        path.join(appDir, "node_modules/fast-sort"), // library ships ES6
+        path.join(appDir, "node_modules/yn"), // library ships ES6
+        path.join(appDir, "node_modules/@datawheel"), // library ships ES6
         path.join(__dirname, "../../src")
       ]
     },
