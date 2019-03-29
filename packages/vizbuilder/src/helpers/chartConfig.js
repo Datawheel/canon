@@ -253,13 +253,13 @@ export default function createChartConfig(chart, uiParams) {
 
   config.zoom = chartType === "geomap" && isSingle;
 
-  if (config.title === undefined) {
-    config.title = composeChartTitle(chart, {
-      activeChart,
-      selectedTime,
-      isTimeline: isTimeline || config.timeline
-    });
-  }
+  // if (config.title === undefined) {
+  //   config.title = composeChartTitle(chart, {
+  //     activeChart,
+  //     selectedTime,
+  //     isTimeline: isTimeline || config.timeline
+  //   });
+  // }
 
   return config;
 }
