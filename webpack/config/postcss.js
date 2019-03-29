@@ -29,5 +29,6 @@ module.exports = [
   require("postcss-reporter")({
     filter: msg => msg.type === "warning" || msg.type !== "dependency"
   }),
-  require("postcss-color-function")()
+  require("postcss-color-function")(),
+  require("postcss-flexbugs-fixes")()
 ];
