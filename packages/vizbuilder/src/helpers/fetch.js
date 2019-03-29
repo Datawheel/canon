@@ -122,8 +122,12 @@ export function fetchCubes(params, props) {
     if (geomapLevels) {
       cubes = cubes.filter(cube => {
         const geoDim = cube.dimensions.find(isGeoDimension);
-        return geoDim && reduceLevelsFromDimension([], geoDim).some(
+        return (
+          geoDim &&
+          reduceLevelsFromDimension([], geoDim).some(
           lvl => geomapLevels.indexOf(lvl.name) > -1
+          ) &&
+          !yn(cube.annotations.hide_in_map)
         );
       });
     }
