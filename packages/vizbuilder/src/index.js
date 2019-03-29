@@ -131,7 +131,12 @@ class Vizbuilder extends React.Component {
         })}
       >
         {load.inProgress && <LoadingScreen total={load.total} progress={load.done} />}
-        <Sidebar options={queryOptions} query={queryParams} uiParams={uiParams}>
+        <Sidebar
+          groupLimit={this.props.groupLimit}
+          options={queryOptions}
+          query={queryParams}
+          uiParams={uiParams}
+        >
           {this.props.children}
           <Ranking chart={chartForRanking} selectedTime={uiParams.selectedTime} />
         </Sidebar>
@@ -200,9 +205,10 @@ Vizbuilder.childContextTypes = {
 Vizbuilder.propTypes = {
   config: PropTypes.object,
   datacap: PropTypes.number,
-  defaultMeasure: PropTypes.string,
   defaultGroup: PropTypes.arrayOf(PropTypes.string),
+  defaultMeasure: PropTypes.string,
   formatting: PropTypes.objectOf(PropTypes.func),
+  groupLimit: PropTypes.number,
   measureConfig: PropTypes.objectOf(PropTypes.object),
   onChange: PropTypes.func,
   permalink: PropTypes.bool,
@@ -223,6 +229,7 @@ Vizbuilder.defaultProps = {
   config: {},
   datacap: 20000,
   formatting: {},
+  groupLimit: 3,
   instanceKey: "vizbuilder",
   measureConfig: {},
   multipliers: {},
