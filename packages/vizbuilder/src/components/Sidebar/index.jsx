@@ -74,9 +74,9 @@ class Sidebar extends React.PureComponent {
             label="Filter by"
           />
 
-          {this.props.children}
-
           {this.renderSourceBlock.call(this)}
+
+          {this.props.children}
         </div>
       </div>
     );
@@ -89,20 +89,20 @@ class Sidebar extends React.PureComponent {
 
     let datasetValue;
     if (key in options.measureMap) {
-      datasetValue = (
+      datasetValue = 
         <DatasetSelect
           items={options.measureMap[key]}
           onChange={this.setDataset}
           value={query.measure}
         />
-      );
+      ;
     }
     else {
-      datasetValue = (
+      datasetValue = 
         <ConditionalAnchor className="source-link" href={ann.dataset_link}>
           {ann.dataset_name}
         </ConditionalAnchor>
-      );
+      ;
     }
 
     return (
