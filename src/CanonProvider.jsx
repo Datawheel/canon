@@ -14,48 +14,68 @@ import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 class CanonProvider extends Component {
 
   constructor(props) {
+
     super(props);
     this.toastRef = React.createRef();
-  }
 
-  getChildContext() {
-    const {data, helmet, locale, router} = this.props;
-    const toast = this.toastRef;
-    return {d3plus, data, helmet, locale, router, toast};
-  }
-
-  componentDidMount() {
-    // polyfill for IE to support SVG innerHTML
     if (typeof window !== "undefined") {
-      (function() {
+
+      /**
+       * innerHTML property for SVGElement
+       * Copyright(c) 2010, Jeff Schiller
+       *
+       * Licensed under the Apache License, Version 2
+       *
+       * Minor modifications by Chris Price to only polyfill when required.
+       */
+      (function(SVGElement) {
+
+        if (!SVGElement || "innerHTML" in SVGElement.prototype) {
+          return;
+        }
+
+        /** serializeXML polyfill */
         function serializeXML(node, output) {
           const nodeType = node.nodeType;
-          if (nodeType === 3) {
+          if (nodeType === 3) { // TEXT nodes.
+            // Replace special XML characters with their entities.
             output.push(node.textContent.replace(/&/, "&amp;").replace(/</, "&lt;").replace(">", "&gt;"));
           }
-          else if (nodeType === 1) {
+          else if (nodeType === 1) { // ELEMENT nodes.
+            // Serialize Element nodes.
             output.push("<", node.tagName);
             if (node.hasAttributes()) {
-              [].forEach.call(node.attributes, attrNode => {
-                output.push(" ", attrNode.item.name, "=\'", attrNode.item.value, "\'");
-              });
+              const attrMap = node.attributes;
+              for (let i = 0, len = attrMap.length; i < len; ++i) {
+                const attrNode = attrMap.item(i);
+                output.push(" ", attrNode.name, "='", attrNode.value, "'");
+              }
             }
             if (node.hasChildNodes()) {
               output.push(">");
-              [].forEach.call(node.childNodes, childNode => {
-                serializeXML(childNode, output);
-              });
+              const childNodes = node.childNodes;
+              for (let i = 0, len = childNodes.length; i < len; ++i) {
+                serializeXML(childNodes.item(i), output);
+              }
               output.push("</", node.tagName, ">");
             }
             else {
               output.push("/>");
             }
           }
-          else if (nodeType === 8) {
+          else if (nodeType == 8) {
+            // TODO(codedread): Replace special characters with XML entities?
             output.push("<!--", node.nodeValue, "-->");
+          }
+          else {
+            // TODO: Handle CDATA nodes.
+            // TODO: Handle ENTITY nodes.
+            // TODO: Handle DOCUMENT nodes.
+            throw `Error serializing XML. Unhandled node of type: ${nodeType}`;
           }
         }
 
+        // The innerHTML DOM property for SVGElement.
         Object.defineProperty(SVGElement.prototype, "innerHTML", {
           get() {
             const output = [];
@@ -67,17 +87,20 @@ class CanonProvider extends Component {
             return output.join("");
           },
           set(markupText) {
+            // Wipe out the current contents of the element.
             while (this.firstChild) {
               this.removeChild(this.firstChild);
             }
 
             try {
+              // Parse the markup into valid nodes.
               const dXML = new DOMParser();
               dXML.async = false;
-
-              const sXML = `<svg xmlns=\'http://www.w3.org/2000/svg\' xmlns:xlink=\'http://www.w3.org/1999/xlink\'>${markupText}</svg>`;
+              // Wrap the markup into a SVG node to ensure parsing works.
+              const sXML = `<svg xmlns='http://www.w3.org/2000/svg'>${  markupText  }</svg>`;
               const svgDocElement = dXML.parseFromString(sXML, "text/xml").documentElement;
 
+              // Now take each node, import it and append to this element.
               let childNode = svgDocElement.firstChild;
               while (childNode) {
                 this.appendChild(this.ownerDocument.importNode(childNode, true));
@@ -85,22 +108,20 @@ class CanonProvider extends Component {
               }
             }
             catch (e) {
-              console.error(e);
+              throw new Error("Error parsing XML string");
             }
           }
         });
 
-        Object.defineProperty(SVGElement.prototype, "innerSVG", {
-          get() {
-            return this.innerHTML;
-          },
-          set(markup) {
-            this.innerHTML = markup;
-          }
-        });
-
-      }());
+      }((1, eval)("this").SVGElement));
     }
+
+  }
+
+  getChildContext() {
+    const {data, helmet, locale, router} = this.props;
+    const toast = this.toastRef;
+    return {d3plus, data, helmet, locale, router, toast};
   }
 
   onClick(e) {
