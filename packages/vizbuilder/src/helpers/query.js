@@ -146,7 +146,7 @@ export function generateQueries(params) {
       }
     }
   }
-
+  /*
   const totalValidGroups = validGroups.length;
 
   for (let i = 0; i < totalValidGroups; i++) {
@@ -180,8 +180,8 @@ export function generateQueries(params) {
       });
     }
   }
-
-  if (validCuts.length > 0) {
+*/
+  // if (validCuts.length > 0) {
     let totalValidGroups = validGroups.length;
     const ddGroups = [];
     const ctGroups = [];
@@ -203,7 +203,7 @@ export function generateQueries(params) {
       levels: ddGroups.map(grp => grp.level),
       cuts: ctGroups
     });
-  }
+  // }
 
   return queries;
 }
