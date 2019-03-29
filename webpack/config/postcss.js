@@ -28,5 +28,6 @@ module.exports = [
   }),
   require("postcss-reporter")({
     filter: msg => msg.type === "warning" || msg.type !== "dependency"
-  })
+  }),
+  require("postcss-flexbugs-fixes")()
 ];
