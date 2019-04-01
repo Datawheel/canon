@@ -193,13 +193,17 @@ class Options extends Component {
       return <Cell wrapText={true}>{ val }</Cell>;
     };
 
+    const dataUrl = typeof data === "string"
+      ? data.indexOf("http") === 0 ? data : `${location.origin}${data}`
+      : false;
+
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
           <Button icon="download" className="bp3-minimal" onClick={this.onCSV.bind(this)}>
             Download as CSV
           </Button>
-          { typeof data === "string" && <input type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={`${location.origin}${data}`} /> }
+          { dataUrl && <input type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={dataUrl} /> }
         </div>
         <div className="table">
           <Table allowMultipleSelection={false}
