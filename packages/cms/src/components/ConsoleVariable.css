@@ -9,5 +9,8 @@
 
   &.object, &.array, &.function {
     font-style: italic;
+    & pre {
+      white-space: pre-wrap;
+    }
   }
 }

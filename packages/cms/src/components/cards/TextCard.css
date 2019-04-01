@@ -111,7 +111,7 @@
 /* max height row with overflow */
 .cms-card-table-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: none;
   padding: 0 0.4em;
   overflow-y: auto;
 
