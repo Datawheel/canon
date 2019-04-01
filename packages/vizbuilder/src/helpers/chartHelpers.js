@@ -38,8 +38,7 @@ export function datagroupToCharts(datagroup, generalConfig) {
   );
 
   const charts = datagroup.charts.reduce((sum, chartType) => {
-    const setups = calcChartSetups(chartType, datagroup.query).map(setup => {
-      return {
+    const setups = calcChartSetups(chartType, datagroup.query).map(setup => ({
         ...datagroup,
         baseConfig,
         chartType,
@@ -47,8 +46,7 @@ export function datagroupToCharts(datagroup, generalConfig) {
         setup,
         topoConfig,
         userConfig
-      };
-    });
+      }));
     return sum.concat(setups);
   }, []);
 
@@ -66,7 +64,7 @@ export function buildBaseConfig(datagroup, params) {
     duration: 0,
 
     total: false,
-    totalFormat: formatter,
+    totalFormat: d => `Total: ${formatter(d)}`,
 
     xConfig: {title: null},
     yConfig: {
@@ -101,6 +99,7 @@ export function calcChartSetups(type, query) {
     case "treemap": {
       const groupings = query.groups;
       const permutations = getPermutations(query.levels);
+
       /**
        * We must remove permutations where the first element is being cut by
        * 1 member, as these look the same in both orders.
