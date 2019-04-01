@@ -1,11 +1,12 @@
 import React, {Component} from "react";
+import ISO6391 from "iso-639-1";
 
 class Flag extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      
+
     };
   }
 
@@ -15,7 +16,7 @@ class Flag extends Component {
 
     return (
       <div className="cms-flag">
-        {locale}       
+        { ISO6391.getName(locale) }
       </div>
     );
   }

@@ -40,11 +40,11 @@
   max-width: calc(100% - 2rem);
 
   /* flag icon */
-  & .cms-flag {
+  /* & .cms-flag {
     position: absolute;
     bottom: 5px;
     right: 5px;
-  }
+  } */
 }
 
 

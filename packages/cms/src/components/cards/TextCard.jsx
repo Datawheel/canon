@@ -87,7 +87,7 @@ class TextCard extends Component {
     Object.keys(currLang).forEach(k => {
       displayData[k] = currLang[k];
     });
-    this.setState({displayData});  
+    this.setState({displayData});
   }
 
   save() {
@@ -190,12 +190,11 @@ class TextCard extends Component {
           {alertObj.message}
         </Alert>
 
-        <Flag locale={locale} />
-
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
+          <Flag locale={locale} />
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="bp3-icon bp3-icon-cog" /> 
+            Edit <span className="bp3-icon bp3-icon-cog" />
           </button>
         </h5>
 

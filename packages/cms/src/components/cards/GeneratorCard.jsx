@@ -153,15 +153,14 @@ class GeneratorCard extends Component {
           {alertObj.message}
         </Alert>
 
-        <Flag locale={locale} />
-
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
           <span className={`cms-card-header-icon bp3-icon-standard bp3-icon-th ${type}`} />
-          {locale === localeDefault ? minData.name : `${minData.name} (${locale})`}
+          {locale === localeDefault ? minData.name : minData.name}
+          &nbsp;(<Flag locale={locale} />)
           {/* In multi-lang, there are two sets of gens and mats, one for default, and one for the other locale.
             * If we put an edit button on both, then two visual entities can edit the same db structure, which is confusing
-            * the default gen/mat is the "master/only" one, so only show the edit button if this is default (the one for the 
+            * the default gen/mat is the "master/only" one, so only show the edit button if this is default (the one for the
             * other locale is essentially for display purposes only)*/}
           {locale === localeDefault && <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="bp3-icon bp3-icon-cog" />
@@ -230,13 +229,13 @@ class GeneratorCard extends Component {
         >
 
           <div className="bp3-dialog-body">
-            <GeneratorEditor 
+            <GeneratorEditor
               markAsDirty={this.markAsDirty.bind(this)}
-              preview={preview} 
-              locale={locale} 
-              data={minData} 
-              variables={variables} 
-              type={type} 
+              preview={preview}
+              locale={locale}
+              data={minData}
+              variables={variables}
+              type={type}
             />
           </div>
           <FooterButtons
