@@ -286,7 +286,7 @@ class TopicEditor extends Component {
               type="selector"
               onSave={() => this.forceUpdate()}
               onDelete={this.onDelete.bind(this)}
-              variables={variables.en}
+              variables={variables[localeDefault]}
               parentArray={minData.selectors}
               onMove={this.onMove.bind(this)}
             />

@@ -7,6 +7,7 @@ import MoveButtons from "../MoveButtons";
 import SelectorEditor from "../editors/SelectorEditor";
 import PropTypes from "prop-types";
 import deepClone from "../../utils/deepClone";
+import varSwap from "../../utils/varSwap";
 import "./SelectorCard.css";
 
 /**
@@ -111,6 +112,7 @@ class SelectorCard extends Component {
   render() {
     const {minData, isOpen, alertObj} = this.state;
     const {variables, parentArray, type} = this.props;
+    const {formatters} = this.context;
 
     if (!minData) return <Loading />;
 
@@ -132,7 +134,7 @@ class SelectorCard extends Component {
 
         {/* title & edit toggle button */}
         <h5 className="cms-card-header">
-          {minData.title}
+          {varSwap(minData.title, formatters, variables)}
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="bp3-icon bp3-icon-cog" />
           </button>
