@@ -18,7 +18,11 @@ module.exports = async function() {
 
   const client = new Client(CANON_LOGICLAYER_CUBE);
 
-  const cubes = await client.cubes();
+  const cubes = await client.cubes()
+    .catch(err => {
+      console.error(chalk`{bold.red Error} {bold [logiclayer - year cache]} client.cubes() {italic.green (${err.status ? `${err.status} - ` : ""}${err.message})}`);
+      return [];
+    });
 
   const measures = {};
   cubes.forEach(cube => {
@@ -67,7 +71,7 @@ module.exports = async function() {
 
   });
 
-  let count = 0, total;
+  let count = 0, total = 0;
 
   const cubeQueries = cubes
     .filter(cube => {
@@ -103,6 +107,7 @@ module.exports = async function() {
         })
         .catch(err => {
           console.error(chalk`{bold.red Error} {bold [logiclayer - year cache]} ${cube.name} {italic.green (${err.status ? `${err.status} - ` : ""}${err.message})}`);
+          return false;
         });
 
       return throttle.add(() => query);

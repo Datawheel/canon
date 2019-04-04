@@ -131,6 +131,7 @@ module.exports = function(app) {
         attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("hierarchy")), "hierarchy"], "dimension"],
         where: {}
       })
+      .catch(() => [])
       .reduce((obj, d) => {
         if (!obj[d.dimension]) obj[d.dimension] = [];
         obj[d.dimension].push(d.hierarchy);
@@ -252,8 +253,12 @@ module.exports = function(app) {
       }
     }
 
-    const searchQueries = db && db.search ? dimensions
-      .map(({dimension, id}) => db.search.findAll({where: {dimension, id}})) : [];
+    const searchQueries = db && db.search
+      ? dimensions.map(({dimension, id}) => db.search
+        .findAll({where: {dimension, id}})
+        .catch(() => [])
+      )
+      : [];
     const attributes = await Promise.all(searchQueries);
 
     const queries = {};
@@ -657,7 +662,7 @@ module.exports = function(app) {
               dimension: dim.dimension,
               hierarchy: dim.hierarchy
             });
-            const attrs = await db.search.findAll({where});
+            const attrs = await db.search.findAll({where}).catch(() => []);
             attrs.forEach(d => {
               if (d.slug) slugLookup[dim.dimension][dim.hierarchy][d.id] = d.slug;
             });
