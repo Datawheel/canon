@@ -14,8 +14,8 @@ class Section extends Component {
     const {type} = this.props;
     let {children} = this.props;
     if (!(children instanceof Array)) children = [children];
-    const title = children.filter(c => c.type.name === "SectionTitle");
-    const content = children.filter(c => c.type.name !== "SectionTitle");
+    const title = children.filter(c => c && c.type.name === "SectionTitle");
+    const content = children.filter(c => c && c.type.name !== "SectionTitle");
 
     return (
       <section className="section">

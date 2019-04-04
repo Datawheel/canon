@@ -12,10 +12,16 @@ class Viz1 extends SectionColumns {
   render() {
     const data = this.context.data.harvested_area;
     const {t} = this.props;
+
+    const show = false;
+
     return (
       <SectionColumns>
         <SectionTitle>My Cool Title</SectionTitle>
-        <article>{ t("Some Text") }</article>
+        <article>
+          { t("Some Text") }
+        </article>
+        { show ? <div>Show me!</div> : null }
         <Treemap config={{
           data,
           groupBy: "crop",
