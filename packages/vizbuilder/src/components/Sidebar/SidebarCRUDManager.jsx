@@ -5,11 +5,28 @@ class SidebarCRUDManager extends React.Component {
   constructor(props) {
     super(props);
 
+    this.clearElements = this.clearElements.bind(this);
     this.createElement = this.createElement.bind(this);
     this.updateElement = this.updateElement.bind(this);
     this.deleteElement = this.deleteElement.bind(this);
 
     this.targetLabel = null;
+  }
+
+  clearElements() {
+    const {targetLabel} = this;
+    const {items} = this.props;
+    const newItems = items.slice(0, 1);
+
+    if (items.length != newItems.length) {
+      this.context.loadControl(() => {
+        return {
+          query: {
+            [targetLabel]: newItems
+          }
+        };
+      });
+    }
   }
 
   createElement() {
