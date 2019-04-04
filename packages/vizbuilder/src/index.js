@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
 import {connect} from "react-redux";
+import {Button} from "@blueprintjs/core";
 
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
@@ -30,6 +31,10 @@ class Vizbuilder extends React.Component {
   constructor(props, ctx) {
     super(props);
 
+    this.state = {
+      showSidebar: true
+    };
+
     let initialStatePromise = this.initialize(props);
 
     const location = ctx.router.location;
@@ -46,6 +51,7 @@ class Vizbuilder extends React.Component {
     this.stateUpdate = this.stateUpdate.bind(this);
     this.getGeneralConfig = this.getGeneralConfig.bind(this);
     this.getState = this.getState.bind(this);
+    this.toggleSidebar = this.toggleSidebar.bind(this);
   }
 
   initialize(props) {
@@ -139,10 +145,18 @@ class Vizbuilder extends React.Component {
           options={queryOptions}
           query={queryParams}
           uiParams={uiParams}
+          hidden={!this.state.showSidebar}
         >
           {this.props.children}
           <Ranking chart={chartForRanking} selectedTime={uiParams.selectedTime} />
         </Sidebar>
+        <div className="area-middle">
+          <Button
+            onClick={this.toggleSidebar}
+            className="toggle-sidebar"
+            iconName={this.state.showSidebar ? "menu-closed" : "menu-open"}
+          />
+        </div>
         <ChartArea
           charts={charts}
           lastUpdate={load.lastUpdate}
@@ -190,6 +204,13 @@ class Vizbuilder extends React.Component {
   stateUpdate(newState) {
     return this.props.dispatch({type: "VB_STATE_UPDATE", state: newState});
   }
+
+  toggleSidebar() {
+    this.setState(
+      state => ({showSidebar: !state.showSidebar}),
+      () => window.dispatchEvent(new CustomEvent("resize"))
+    );
+}
 }
 
 Vizbuilder.contextTypes = {
