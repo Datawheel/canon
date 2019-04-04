@@ -39,6 +39,7 @@ class GroupingManager extends SidebarCRUDManager {
     const disableAdd =
       this.state.unusedOptions.length === 0 ||
       (forcedLimit !== undefined && items.length >= forcedLimit);
+    const disableClear = items.length < 2;
 
     return (
       <div className={classnames("grouping-manager", className)}>
@@ -46,13 +47,22 @@ class GroupingManager extends SidebarCRUDManager {
         <div className="grouping-items">
           {items.map(this.renderElement, this)}
         </div>
-        <Button
-          text="Add grouping"
-          className="pt-fill"
-          iconName="insert"
-          disabled={disableAdd}
-          onClick={this.createElement}
-        />
+        <div className="grouping-actions">
+          <Button
+            className="action-add"
+            text="Add grouping"
+            iconName="insert"
+            disabled={disableAdd}
+            onClick={this.createElement}
+          />
+          <Button
+            className="action-clear"
+            text="Clear"
+            iconName="eraser"
+            disabled={disableClear}
+            onClick={this.clearElements}
+          />
+        </div>
       </div>
     );
   }
