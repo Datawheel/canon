@@ -9,8 +9,20 @@
     width: 300px;
   }
 
+  & > .area-sidebar.hidden {
+    display: none;
+  }
+
   & > .area-chart {
     flex: 1 0 560px;
+  }
+
+  & > .area-middle {
+    position: relative;
+
+    & .toggle-sidebar {
+      position: absolute;
+    }
   }
 
   &.mapmode .levels-manager .grouping-items + button {

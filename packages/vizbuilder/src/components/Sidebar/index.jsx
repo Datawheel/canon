@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import classnames from "classnames";
 import {Checkbox} from "@blueprintjs/core";
 
 import "./style.css";
@@ -36,7 +37,7 @@ class Sidebar extends React.PureComponent {
     const cbMeasures = query.cube.measures.filter(isValidMeasure);
 
     return (
-      <div className="area-sidebar">
+      <div className={classnames("area-sidebar", {hidden: this.props.hidden})}>
         <div className="wrapper">
           <div className="control measure-manager">
             <p className="label">Showing</p>
@@ -89,7 +90,7 @@ class Sidebar extends React.PureComponent {
 
     let datasetValue;
     if (key in options.measureMap) {
-      datasetValue = 
+      datasetValue =
         <DatasetSelect
           items={options.measureMap[key]}
           onChange={this.setDataset}
@@ -98,7 +99,7 @@ class Sidebar extends React.PureComponent {
       ;
     }
     else {
-      datasetValue = 
+      datasetValue =
         <ConditionalAnchor className="source-link" href={ann.dataset_link}>
           {ann.dataset_name}
         </ConditionalAnchor>
