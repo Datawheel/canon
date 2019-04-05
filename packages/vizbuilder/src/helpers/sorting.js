@@ -61,20 +61,19 @@ export function findByFullName(needle, haystack, elseFirst = false) {
 }
 
 /**
- * Looks for an element of `defaults` in `haystack`, using the `matchingFunction`.
+ * Looks for an element of `needles` in `haystack`, using the `matchingFunction`.
  * If `elseFirst` is true and there's no match, returns the first element in `haystack`.
  * @param {(needle, haystack) => any} matchingFunction The function to use to find the elements
  * @param {any[]} haystack The array where to search for the object
- * @param {string[]} defaults The array of default names to search for
+ * @param {string[]} needles The array of default names to search for
  * @param {boolean?} elseFirst A flag to return the first element in case of no matching result
  */
-export function matchDefault(matchingFunction, haystack, defaults, elseFirst) {
-  defaults = defaults.slice().reverse();
+export function multiFinder(matchingFunction, needles, haystack, elseFirst) {
+  needles = needles.slice().reverse();
   let matchResult;
-  let n = defaults.length;
+  let n = needles.length;
   while (n--) {
-    const needle = `[${defaults[n]}]`.replace(/\./g, "].[");
-    matchResult = matchingFunction(needle, haystack);
+    matchResult = matchingFunction(needles[n], haystack);
     if (matchResult) {
       break;
     }
@@ -150,7 +149,7 @@ export function userTableIdMeasure(measure, measureMap, cubes, userTableIdFunc) 
 export function getDefaultGroup(defaultGroup, levels, priorityLevel) {
   const level = priorityLevel
     ? findByName(priorityLevel, levels, true)
-    : matchDefault(findByFullName, levels, defaultGroup, true);
+    : multiFinder(findByFullName, levels, defaultGroup, true);
   return [new Grouping(level)];
 }
 

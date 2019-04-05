@@ -118,15 +118,17 @@ export function fetchCubes(params, props) {
   const geomapLevels = isGeomapOnly && Object.keys(props.topojson);
 
   return api.cubes().then(cubes => {
-    // keep only cubes with geographical dimensions, whose levels are in the
-    // list of available geomap configurations
     if (geomapLevels) {
+      /*
+        keep only cubes with geographical dimensions, whose levels
+        are in the list of available geomap configurations
+       */
       cubes = cubes.filter(cube => {
         const geoDim = cube.dimensions.find(isGeoDimension);
         return (
           geoDim &&
           reduceLevelsFromDimension([], geoDim).some(
-          lvl => geomapLevels.indexOf(lvl.name) > -1
+            lvl => geomapLevels.indexOf(lvl.name) > -1
           ) &&
           !yn(cube.annotations.hide_in_map)
         );

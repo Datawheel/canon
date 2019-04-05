@@ -17,7 +17,7 @@ export function isGeoDimension(dimension) {
  * @returns {boolean}
  */
 export function isTimeDimension(dimension) {
-  return dimension.dimensionType === 1 || (/year|date/i).test(dimension.name);
+  return dimension.dimensionType === 1 || /year|date/i.test(dimension.name);
 }
 
 /**
@@ -106,6 +106,28 @@ export function isSameQuery(query1, query2) {
 }
 
 /**
+ * Checks if the current query object is a default state, according to user-defined parameters.
+ * @param {Object<string,any>} defaults An object with the default-related parameters
+ * @param {VbQuery} query The current vizbuilder query object
+ */
+export function isDefaultQuery(defaults, query) {
+  const {groups} = query;
+
+  if (groups.length !== 1 || query.filters.length !== 0 || groups[0].hasMembers) {
+    return false;
+  }
+
+  const level = groups[0].level;
+  const {ui_default_drilldown} = query.measure.annotations;
+
+  if (ui_default_drilldown) {
+    return level.name === ui_default_drilldown;
+  }
+
+  return defaults.defaultGroup.indexOf(level.fullName) > -1;
+}
+
+/**
  * Compares two condition arrays and checks if all its elements are equivalent.
  * @param {obj => boolean} validator A function to validate objects
  * @param {object[]} obj1 An array of serializable objects to compare
@@ -170,14 +192,8 @@ export function isNumeric(n) {
  * @param {string[]} list An array of string to determine
  */
 export function areKindaNumeric(list, tolerance = 0.8) {
-  return (
-    list.reduce(
-      (sum, item) => sum + (isNumeric(findFirstNumber(item)) ? 1 : 0),
-      0
-    ) /
-      list.length >
-    tolerance
-  );
+  const numericReducer = (sum, item) => sum + (isNumeric(findFirstNumber(item)) ? 1 : 0);
+  return list.reduce(numericReducer, 0) / list.length > tolerance;
 }
 
 /**
