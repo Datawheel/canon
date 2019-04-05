@@ -149,7 +149,7 @@ export function userTableIdMeasure(measure, measureMap, cubes, userTableIdFunc) 
 export function getDefaultGroup(defaultGroup, levels, priorityLevel) {
   const level = priorityLevel
     ? findByName(priorityLevel, levels, true)
-    : multiFinder(findByFullName, levels, defaultGroup, true);
+    : multiFinder(findByFullName, defaultGroup, levels, true);
   return [new Grouping(level)];
 }
 
