@@ -20,12 +20,13 @@ import {fetchCubes} from "./helpers/fetch";
 import {
   DEFAULT_MEASURE_FORMATTERS,
   DEFAULT_MEASURE_MULTIPLIERS,
-  DEFAULT_MEASUREUNIT_CONFIG
+  DEFAULT_MEASUREUNIT_CONFIG,
+  normalizeFullNames
 } from "./helpers/formatting";
 import {fetchControl} from "./helpers/loadstate";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
 import {getDefaultGroup} from "./helpers/sorting";
-import {isSameQuery} from "./helpers/validation";
+import {isSameQuery, isDefaultQuery} from "./helpers/validation";
 
 class Vizbuilder extends React.Component {
   constructor(props, ctx) {
@@ -60,11 +61,14 @@ class Vizbuilder extends React.Component {
     Filter.formatters = {...DEFAULT_MEASURE_FORMATTERS, ...props.formatting};
     Filter.multipliers = {...DEFAULT_MEASURE_MULTIPLIERS, ...props.multipliers};
 
-    const defaultGroup = [].concat(props.defaultGroup || []);
+    const defaultGroup = normalizeFullNames(props.defaultGroup);
+    const defaultMeasure = props.defaultMeasure;
     const defaultTable = props.tableLogic;
+    const defaultQuery = {defaultGroup, defaultMeasure, defaultTable};
 
     this.getDefaultGroup = getDefaultGroup.bind(null, defaultGroup);
     this.getDefaultTable = defaultTable;
+    this.isDefaultQuery = isDefaultQuery.bind(this, defaultQuery);
     this.permalinkKeywords = {
       enlarged: "enlarged",
       filters: "filters",
@@ -78,8 +82,6 @@ class Vizbuilder extends React.Component {
       props.queryOptions.cubes.length === 0
     ) {
       props.dispatch({type: "VB_RESET", key: props.instanceKey});
-      const defaultMeasure = props.defaultMeasure;
-      const defaultQuery = {defaultGroup, defaultMeasure, defaultTable};
       return fetchCubes(defaultQuery, props);
     }
 
@@ -143,6 +145,7 @@ class Vizbuilder extends React.Component {
         <Sidebar
           groupLimit={this.props.groupLimit}
           options={queryOptions}
+          isDefaultQuery={this.isDefaultQuery(queryParams)}
           query={queryParams}
           uiParams={uiParams}
           hidden={!this.state.showSidebar}
@@ -210,7 +213,7 @@ class Vizbuilder extends React.Component {
       state => ({showSidebar: !state.showSidebar}),
       () => window.dispatchEvent(new CustomEvent("resize"))
     );
-}
+  }
 }
 
 Vizbuilder.contextTypes = {

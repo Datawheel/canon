@@ -11,18 +11,6 @@
     }
   }
 
-  & .grouping-actions {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-
-    & .action-add {
-      flex: 1 0 auto;
-      width: 0;
-      margin-right: 5px;
-    }
-  }
-
   & .grouping-manager .actions,
   & .filter-manager .actions {
     margin-top: 0.2rem;

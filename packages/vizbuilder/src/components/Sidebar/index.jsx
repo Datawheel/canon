@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
-import {Checkbox} from "@blueprintjs/core";
+import {Button, Checkbox} from "@blueprintjs/core";
 
 import "./style.css";
 import "./select.css";
@@ -24,13 +24,14 @@ import MeasureSelect from "./NewMeasureSelect";
 class Sidebar extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.setMeasure = this.setMeasure.bind(this);
+    this.resetDefaults = this.resetDefaults.bind(this);
     this.setDataset = this.setDataset.bind(this);
+    this.setMeasure = this.setMeasure.bind(this);
     this.toggleConfidenceInt = this.toggleConfidenceInt.bind(this);
   }
 
   render() {
-    const {query, options, uiParams} = this.props;
+    const {query, options, uiParams, isDefaultQuery} = this.props;
     if (!query.cube) return null;
 
     const measureDetails = query.measure.annotations.details || "";
@@ -77,6 +78,16 @@ class Sidebar extends React.PureComponent {
 
           {this.renderSourceBlock.call(this)}
 
+          <div className="control reset-defaults">
+            <Button
+              className="pt-fill action-reset"
+              text="Reset to Defaults"
+              iconName="undo"
+              disabled={isDefaultQuery}
+              onClick={this.resetDefaults}
+            />
+          </div>
+
           {this.props.children}
         </div>
       </div>
@@ -90,20 +101,20 @@ class Sidebar extends React.PureComponent {
 
     let datasetValue;
     if (key in options.measureMap) {
-      datasetValue =
+      datasetValue = (
         <DatasetSelect
           items={options.measureMap[key]}
           onChange={this.setDataset}
           value={query.measure}
         />
-      ;
+      );
     }
     else {
-      datasetValue =
+      datasetValue = (
         <ConditionalAnchor className="source-link" href={ann.dataset_link}>
           {ann.dataset_name}
         </ConditionalAnchor>
-      ;
+      );
     }
 
     return (
@@ -121,6 +132,27 @@ class Sidebar extends React.PureComponent {
         </p>
       </div>
     );
+  }
+
+  resetDefaults() {
+    const {getDefaultGroup} = this.context;
+    const {options} = this.props;
+    const {measure} = this.props.query;
+
+    return this.context.loadControl(() => {
+      const newState = generateBaseState(options.cubes, measure, options.geomapLevels);
+      const newQuery = newState.query;
+
+      newQuery.groups = getDefaultGroup(
+        newState.options.levels,
+        measure.annotations.ui_default_drilldown
+      );
+      newQuery.filters = [];
+      newQuery.geoLevel = getGeoLevel(newQuery);
+      newState.uiParams.activeChart = null;
+
+      return newState;
+    });
   }
 
   setMeasure(measure, useTableDefaults = true) {

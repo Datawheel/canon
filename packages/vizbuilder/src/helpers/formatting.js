@@ -78,6 +78,21 @@ export const PROPNAMESTYLES = {
 };
 
 /**
+ * Normalizes a list of names `Dimension.Level` to `[Dimension].[Level]` format.
+ * @param {any} input The targt object to normalize.
+ */
+export function normalizeFullNames(input) {
+  return [].concat(input).reduce((output, item) => {
+    item = `${item}`.split(".");
+    if (item.length === 2 || item.length === 3) {
+      item = item.map(token => `[${token.replace(/\[\]/g, "")}]`);
+      output.push(item.join("."));
+    }
+    return output;
+  }, []);
+}
+
+/**
  * For a drilldown, generates a standard name format to use in selectors.
  * @param {Level|Measure} item A Level or Measure object
  * @param {number?} style A combination available from the PROPNAMESTYLES enum
