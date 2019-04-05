@@ -60,8 +60,9 @@ module.exports = props => {
         path.join(appDir, "app"),
         path.join(appDir, "src"),
         path.join(appDir, "utils"),
-        path.join(appDir, "node_modules/fast-sort"),
-        path.join(appDir, "node_modules/yn"),
+        path.join(appDir, "node_modules/query-string"), // used in viz-builder
+        path.join(appDir, "node_modules/fast-sort"), // used in viz-builder
+        path.join(appDir, "node_modules/yn"), // used in canon-core
         path.join(appDir, "node_modules/@datawheel"),
         path.join(__dirname, "../../src")
       ]
