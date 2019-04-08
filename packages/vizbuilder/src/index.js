@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import classnames from "classnames";
 import {connect} from "react-redux";
 import {Button} from "@blueprintjs/core";
+import {Tooltip2} from "@blueprintjs/labs";
 
 import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
@@ -131,6 +132,7 @@ class Vizbuilder extends React.Component {
       queryParams,
       uiParams
     } = this.props;
+    const {showSidebar} = this.state;
 
     const chartForRanking = datagroups.filter(ch => !ch.quirk).pop();
 
@@ -148,17 +150,22 @@ class Vizbuilder extends React.Component {
           isDefaultQuery={this.isDefaultQuery(queryParams)}
           query={queryParams}
           uiParams={uiParams}
-          hidden={!this.state.showSidebar}
+          hidden={!showSidebar}
         >
           {this.props.children}
           <Ranking chart={chartForRanking} selectedTime={uiParams.selectedTime} />
         </Sidebar>
         <div className="area-middle">
-          <Button
-            onClick={this.toggleSidebar}
+          <Tooltip2
             className="toggle-sidebar"
-            iconName={this.state.showSidebar ? "menu-closed" : "menu-open"}
-          />
+            content={showSidebar ? "Hide Controls" : "Show Controls"}
+            placement="auto"
+          >
+            <Button
+              onClick={this.toggleSidebar}
+              iconName={showSidebar ? "menu-closed" : "menu-open"}
+            />
+          </Tooltip2>
         </div>
         <ChartArea
           charts={charts}
