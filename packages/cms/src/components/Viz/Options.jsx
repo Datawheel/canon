@@ -118,6 +118,9 @@ class Options extends Component {
   }
 
   toggleDialog(slug) {
+    const {openDialog} = this.state;
+    const {transitionDuration} = this.props;
+
     const node = this.getNode.bind(this)();
     if (node && !this.state.openDialog) {
       const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
@@ -134,6 +137,18 @@ class Options extends Component {
           this.setState({loading: false, results});
         });
     }
+
+    if (slug) {
+      setTimeout(() => {
+        document.getElementById(`pt-tab-title_undefined_${slug}`).focus();
+      }, transitionDuration);
+    }
+    else {
+      setTimeout(() => {
+        document.getElementById(`options-button-${this.props.slug}-${openDialog}`).focus();
+      }, transitionDuration);
+    }
+
   }
 
   toggleBackground() {
@@ -156,7 +171,7 @@ class Options extends Component {
   render() {
 
     const {backgroundColor, imageContext, imageProcessing, openDialog, results} = this.state;
-    const {data, location} = this.props;
+    const {data, location, slug, transitionDuration} = this.props;
 
     const node = this.getNode();
     const svgAvailable = node && select(node).select("svg").size() > 0;
@@ -166,10 +181,10 @@ class Options extends Component {
         <NonIdealState title="Generating Image" visual={<Spinner />} />
       </div>
       : <div className="pt-dialog-body save-image">
-        <div className="save-image-btn" onClick={this.onSave.bind(this, "png")}>
+        <div className="save-image-btn" onClick={this.onSave.bind(this, "png")} tabIndex={0}>
           <Icon iconName="media" />PNG
         </div>
-        {svgAvailable && <div className="save-image-btn" onClick={this.onSave.bind(this, "svg")}>
+        {svgAvailable && <div className="save-image-btn" onClick={this.onSave.bind(this, "svg")} tabIndex={0}>
           <Icon iconName="code-block" />SVG
         </div>}
         <div className="image-options">
@@ -201,15 +216,17 @@ class Options extends Component {
           </button>
           { typeof data === "string" && <input type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={`${location.origin}${data}`} /> }
         </div>
-        <div className="table">
-          <Table allowMultipleSelection={false}
+        <div className="table" tabIndex={0} onFocus={() => document.getElementById("pt-tab-title_undefined_view-table").focus()}>
+          <Table
+            allowMultipleSelection={false}
             columnWidths={columnWidths}
             fillBodyWithGhostCells={false}
             isColumnResizable={false}
             isRowResizable={false}
             numRows={ results.length }
             rowHeights={results.map(() => 40)}
-            selectionModes={SelectionModes.NONE}>
+            selectionModes={SelectionModes.NONE}
+            transitionDuration={transitionDuration}>
             { columns.map(c => <Column id={ c } key={ c } name={ c } renderCell={ renderCell } />) }
           </Table>
         </div>
@@ -220,15 +237,18 @@ class Options extends Component {
 
     return <div className="Options">
 
-      <Button iconName="th" className="option view-table" onClick={this.toggleDialog.bind(this, "view-table")}>
+      <Button iconName="th" className="option view-table" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
         View Data
       </Button>
 
-      <Button iconName="export" className="option save-image" onClick={this.toggleDialog.bind(this, "save-image")}>
+      <Button iconName="export" className="option save-image" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
         Save Image
       </Button>
 
-      <Dialog className="options-dialog" isOpen={openDialog} onClose={this.toggleDialog.bind(this, false)}>
+      <Dialog className="options-dialog"
+        autoFocus={false}
+        isOpen={openDialog}
+        onClose={this.toggleDialog.bind(this, false)}>
         <Tabs2 onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
           <Tab2 id="view-table" title="View Data" panel={<DataPanel />} />
           <Tab2 id="save-image" title="Save Image" panel={<ImagePanel />} />
@@ -240,6 +260,10 @@ class Options extends Component {
 
   }
 }
+
+Options.defaultProps = {
+  transitionDuration: 100
+};
 
 export default connect(state => ({
   location: state.location
