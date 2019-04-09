@@ -118,6 +118,9 @@ class Options extends Component {
   }
 
   toggleDialog(slug) {
+    const {openDialog} = this.state;
+    const {transitionDuration} = this.props;
+
     const node = this.getNode.bind(this)();
     if (node && !this.state.openDialog) {
       const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
@@ -134,6 +137,18 @@ class Options extends Component {
           this.setState({loading: false, results});
         });
     }
+
+    if (slug) {
+      setTimeout(() => {
+        document.getElementById(`bp3-tab-title_undefined_${slug}`).focus();
+      }, transitionDuration);
+    }
+    else {
+      setTimeout(() => {
+        document.getElementById(`options-button-${this.props.slug}-${openDialog}`).focus();
+      }, transitionDuration);
+    }
+
   }
 
   toggleBackground() {
@@ -156,7 +171,7 @@ class Options extends Component {
   render() {
 
     const {backgroundColor, imageContext, imageProcessing, openDialog, results} = this.state;
-    const {data, location} = this.props;
+    const {data, location, slug, transitionDuration} = this.props;
 
     const node = this.getNode();
     const svgAvailable = node && select(node).select("svg").size() > 0;
@@ -166,11 +181,11 @@ class Options extends Component {
         <NonIdealState title="Generating Image" visual={<Spinner />} />
       </div>
       : <div className="bp3-dialog-body save-image">
-        <div className="save-image-btn" onClick={this.onSave.bind(this, "png")}>
-          <Icon icon="media" />PNG
+        <div className="save-image-btn" onClick={this.onSave.bind(this, "png")} tabIndex={0}>
+          <Icon icon="media" iconSize={28} />PNG
         </div>
-        {svgAvailable && <div className="save-image-btn" onClick={this.onSave.bind(this, "svg")}>
-          <Icon icon="code-block" />SVG
+        {svgAvailable && <div className="save-image-btn" onClick={this.onSave.bind(this, "svg")} tabIndex={0}>
+          <Icon icon="code-block" iconSize={28} />SVG
         </div>}
         <div className="image-options">
           <Checkbox checked={imageContext === "viz"} label="Only Download Visualization" onChange={this.toggleContext.bind(this)} />
@@ -187,7 +202,7 @@ class Options extends Component {
       else return 150;
     });
 
-    const renderCell = (rowIndex, columnIndex) => {
+    const cellRenderer = (rowIndex, columnIndex) => {
       const key = columns[columnIndex];
       const val = results[rowIndex][key];
       return <Cell wrapText={true}>{ val }</Cell>;
@@ -200,21 +215,24 @@ class Options extends Component {
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
-          <Button icon="download" className="bp3-minimal" onClick={this.onCSV.bind(this)}>
+          <Button key="data-download" icon="download" className="bp3-minimal" onClick={this.onCSV.bind(this)}>
             Download as CSV
           </Button>
-          { dataUrl && <input type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={dataUrl} /> }
+          { dataUrl && <input key="data-url" type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={dataUrl} /> }
         </div>
-        <div className="table">
-          <Table allowMultipleSelection={false}
+        <div
+          className="table"
+          tabIndex={0}
+          onFocus={() => document.getElementById("bp3-tab-title_undefined_view-table").focus()}>
+          <Table
             columnWidths={columnWidths}
-            fillBodyWithGhostCells={false}
-            isColumnResizable={false}
-            isRowResizable={false}
+            enableColumnResizing={false}
+            enableMultipleSelection={false}
+            enableRowResizing={false}
             numRows={ results.length }
             rowHeights={results.map(() => 40)}
             selectionModes={SelectionModes.NONE}>
-            { columns.map(c => <Column id={ c } key={ c } name={ c } renderCell={ renderCell } />) }
+            { columns.map(c => <Column id={ c } key={ c } name={ c } cellRenderer={ cellRenderer } />) }
           </Table>
         </div>
       </div>
@@ -224,15 +242,19 @@ class Options extends Component {
 
     return <div className="Options">
 
-      <Button icon="th" className="option view-table" onClick={this.toggleDialog.bind(this, "view-table")}>
+      <Button icon="th" className="bp3-button option view-table" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
         View Data
       </Button>
 
-      <Button icon="export" className="option save-image" onClick={this.toggleDialog.bind(this, "save-image")}>
+      <Button icon="export" className="bp3-button option save-image" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
         Save Image
       </Button>
 
-      <Dialog className="options-dialog" isOpen={openDialog} onClose={this.toggleDialog.bind(this, false)}>
+      <Dialog className="options-dialog"
+        autoFocus={false}
+        isOpen={openDialog}
+        onClose={this.toggleDialog.bind(this, false)}
+        transitionDuration={transitionDuration}>
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
           <Tab id="view-table" title="View Data" panel={<DataPanel />} />
           <Tab id="save-image" title="Save Image" panel={<ImagePanel />} />
@@ -244,6 +266,10 @@ class Options extends Component {
 
   }
 }
+
+Options.defaultProps = {
+  transitionDuration: 100
+};
 
 export default connect(state => ({
   location: state.location

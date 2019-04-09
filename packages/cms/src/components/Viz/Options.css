@@ -11,9 +11,9 @@
 .options-dialog {
   max-width: calc(100% - 50px);
   min-width: 400px;
-  overflow: hidden;
-  padding: 0;
-  width: auto;
+  overflow: hidden !important;
+  padding: 0 !important;
+  width: auto !important;
   & .close-button {
     position: absolute;
     right: 5px;
@@ -39,10 +39,12 @@
         text-align: center;
         transition: opacity 0.1s;
         width: 80px;
-        & .bp3-icon-standard {
+        & .bp3-icon {
           display: block;
-          font-size: 28px;
           margin-bottom: 7px;
+          & svg {
+            margin: 0 auto;
+          }
         }
         &:hover {
           opacity: 1;
