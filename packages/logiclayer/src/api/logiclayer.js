@@ -93,657 +93,661 @@ module.exports = function(app) {
   });
 
   app.get("/api/data/", async(req, res) => {
-    req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-
-    let reserved = ["captions", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year"];
-    reserved = reserved.concat(d3Array.merge(reserved.map(r => {
-      let alts = aliases[r] || [];
-      if (typeof alts === "string") alts = [alts];
-      return alts;
-    })));
 
     const measures = findKey(req.query, "measures", []);
     if (!measures.length) res.json({error: "Query must contain at least one measure."});
+    else {
 
-    const drilldowns = findKey(req.query, "drilldowns", []);
-    const properties = findKey(req.query, "properties", []);
-    const order = findKey(req.query, "order", ["Year"]);
-    const year = findKey(req.query, "Year", "all");
-    const captions = findKey(req.query, "captions", false);
+      req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
 
-    const {
-      parents = "false",
-      sort = "desc"
-    } = req.query;
+      let reserved = ["captions", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year"];
+      reserved = reserved.concat(d3Array.merge(reserved.map(r => {
+        let alts = aliases[r] || [];
+        if (typeof alts === "string") alts = [alts];
+        return alts;
+      })));
 
-    let {limit} = req.query,
-        perValue = false;
-    if (limit) {
-      if (limit.includes(":")) {
-        [limit, perValue] = limit.split(":");
-      }
-      limit = parseInt(limit, 10);
-    }
+      const drilldowns = findKey(req.query, "drilldowns", []);
+      const properties = findKey(req.query, "properties", []);
+      const order = findKey(req.query, "order", ["Year"]);
+      const year = findKey(req.query, "Year", "all");
+      const captions = findKey(req.query, "captions", false);
 
-    const searchDims = db && db.search ? await db.search
-      .findAll({
-        group: ["dimension", "hierarchy"],
-        attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("hierarchy")), "hierarchy"], "dimension"],
-        where: {}
-      })
-      .catch(() => [])
-      .reduce((obj, d) => {
-        if (!obj[d.dimension]) obj[d.dimension] = [];
-        obj[d.dimension].push(d.hierarchy);
-        return obj;
-      }, {}) : [];
+      const {
+        parents = "false",
+        sort = "desc"
+      } = req.query;
 
-    const cuts = [],
-          dimensions = [],
-          filters = [],
-          renames = [],
-          yearDims = [];
-
-    /** */
-    function analyzeRelation(key, searchDim, obj) {
-
-      if (obj instanceof Array) return obj;
-      else if (obj.cut && obj.drilldown) {
-        drilldowns.push(obj.drilldown);
-        const cuts = obj.cut instanceof Array ? obj.cut : [obj.cut];
-        for (let i = 0; i < cuts.length; i++) {
-          const cut = cuts[i];
-          if (searchDim in searchDims) {
-            dimensions.push({
-              alternate: key,
-              dimension: searchDim,
-              id: cut,
-              relation: obj.drilldown
-            });
-          }
-          else {
-            cuts.push([key, cut]);
-          }
+      let {limit} = req.query,
+          perValue = false;
+      if (limit) {
+        if (limit.includes(":")) {
+          [limit, perValue] = limit.split(":");
         }
+        limit = parseInt(limit, 10);
       }
-      else if (obj.drilldown) {
-        drilldowns.push(obj.drilldown);
-      }
-      return [];
 
-    }
+      const searchDims = db && db.search ? await db.search
+        .findAll({
+          group: ["dimension", "hierarchy"],
+          attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("hierarchy")), "hierarchy"], "dimension"],
+          where: {}
+        })
+        .catch(() => [])
+        .reduce((obj, d) => {
+          if (!obj[d.dimension]) obj[d.dimension] = [];
+          obj[d.dimension].push(d.hierarchy);
+          return obj;
+        }, {}) : [];
 
-    for (let key in req.query) {
-      if (!reserved.includes(key)) {
+      const cuts = [],
+            dimensions = [],
+            filters = [],
+            renames = [],
+            yearDims = [];
 
-        let ids = req.query[key];
+      /** */
+      function analyzeRelation(key, searchDim, obj) {
 
-        for (const alias in aliases) {
-          if (Object.prototype.hasOwnProperty.call(aliases, alias)) {
-            const list = aliases[alias] instanceof Array ? aliases[alias] : [aliases[alias]];
-            if (list.includes(key)) key = alias;
-          }
-        }
-
-        const searchDim = key in dimensionMap ? dimensionMap[key] : key;
-
-        ids = await Promise.all(d3Array.merge(ids
-          .split(",")
-          .map(id => {
-            if (id.includes(":") && key in relations) {
-              const rels = Object.keys(relations[key]);
-              id = id.split(":");
-              const root = id[0];
-              return id.slice(1)
-                .map(v => {
-
-                  if (rels.includes(v)) {
-
-                    const rel = relations[key][v];
-
-                    if (typeof rel === "function") {
-                      return analyzeRelation(key, searchDim, rel(root));
-                    }
-                    else if (rel.url) {
-                      return axios.get(rel.url(root))
-                        .then(resp => resp.data)
-                        .then(resp => rel.callback ? rel.callback(resp) : resp)
-                        .then(obj => analyzeRelation(key, searchDim, obj))
-                        .catch(() => []);
-                    }
-                    else {
-                      return [root];
-                    }
-
-                  }
-                  else return [v];
-
-                })
-                .filter(v => v);
+        if (obj instanceof Array) return obj;
+        else if (obj.cut && obj.drilldown) {
+          drilldowns.push(obj.drilldown);
+          const cuts = obj.cut instanceof Array ? obj.cut : [obj.cut];
+          for (let i = 0; i < cuts.length; i++) {
+            const cut = cuts[i];
+            if (searchDim in searchDims) {
+              dimensions.push({
+                alternate: key,
+                dimension: searchDim,
+                id: cut,
+                relation: obj.drilldown
+              });
             }
             else {
-              return [[id]];
-            }
-          })));
-
-        ids = d3Array.merge(ids);
-
-        if (ids.length) {
-          const strippedKey = key.replace(/\<|\>/g, "");
-          if (strippedKey in cubeMeasures) {
-            const value = parseFloat(ids[0], 10);
-            if (ids.length === 1 && !isNaN(value)) {
-              const operation = key.indexOf("<") === key.length - 1 ? "<="
-                : key.indexOf(">") === key.length - 1 ? ">="
-                  : "=";
-              filters.push([strippedKey, operation, value]);
+              cuts.push([key, cut]);
             }
           }
-          else if (searchDim in searchDims) {
-            dimensions.push({
-              alternate: key,
-              dimension: searchDim,
-              id: ids
-            });
+        }
+        else if (obj.drilldown) {
+          drilldowns.push(obj.drilldown);
+        }
+        return [];
+
+      }
+
+      for (let key in req.query) {
+        if (!reserved.includes(key)) {
+
+          let ids = req.query[key];
+
+          for (const alias in aliases) {
+            if (Object.prototype.hasOwnProperty.call(aliases, alias)) {
+              const list = aliases[alias] instanceof Array ? aliases[alias] : [aliases[alias]];
+              if (list.includes(key)) key = alias;
+            }
           }
-          else {
-            cuts.push([key, ids]);
+
+          const searchDim = key in dimensionMap ? dimensionMap[key] : key;
+
+          ids = await Promise.all(d3Array.merge(ids
+            .split(",")
+            .map(id => {
+              if (id.includes(":") && key in relations) {
+                const rels = Object.keys(relations[key]);
+                id = id.split(":");
+                const root = id[0];
+                return id.slice(1)
+                  .map(v => {
+
+                    if (rels.includes(v)) {
+
+                      const rel = relations[key][v];
+
+                      if (typeof rel === "function") {
+                        return analyzeRelation(key, searchDim, rel(root));
+                      }
+                      else if (rel.url) {
+                        return axios.get(rel.url(root))
+                          .then(resp => resp.data)
+                          .then(resp => rel.callback ? rel.callback(resp) : resp)
+                          .then(obj => analyzeRelation(key, searchDim, obj))
+                          .catch(() => []);
+                      }
+                      else {
+                        return [root];
+                      }
+
+                    }
+                    else return [v];
+
+                  })
+                  .filter(v => v);
+              }
+              else {
+                return [[id]];
+              }
+            })));
+
+          ids = d3Array.merge(ids);
+
+          if (ids.length) {
+            const strippedKey = key.replace(/\<|\>/g, "");
+            if (strippedKey in cubeMeasures) {
+              const value = parseFloat(ids[0], 10);
+              if (ids.length === 1 && !isNaN(value)) {
+                const operation = key.indexOf("<") === key.length - 1 ? "<="
+                  : key.indexOf(">") === key.length - 1 ? ">="
+                    : "=";
+                filters.push([strippedKey, operation, value]);
+              }
+            }
+            else if (searchDim in searchDims) {
+              dimensions.push({
+                alternate: key,
+                dimension: searchDim,
+                id: ids
+              });
+            }
+            else {
+              cuts.push([key, ids]);
+            }
           }
         }
       }
-    }
 
-    const searchQueries = db && db.search
-      ? dimensions.map(({dimension, id}) => db.search
-        .findAll({where: {dimension, id}})
-        .catch(() => [])
-      )
-      : [];
-    const attributes = await Promise.all(searchQueries);
+      const searchQueries = db && db.search
+        ? dimensions.map(({dimension, id}) => db.search
+          .findAll({where: {dimension, id}})
+          .catch(() => [])
+        )
+        : [];
+      const attributes = await Promise.all(searchQueries);
 
-    const queries = {};
-    const dimCuts = d3Array.merge(attributes).reduce((obj, d) => {
-      const {hierarchy} = d;
-      const dim = dimensions.find(dim => dim.dimension === d.dimension);
-      const dimension = dim.alternate;
-      if (dim.relation) {
-        cuts.push([{dimension, level: hierarchy, hierarchy: dim.relation}, d.id]);
-        renames.push({[dimension]: dim.relation});
-      }
-      else {
-        if (!obj[dimension]) obj[dimension] = {};
-        if (!obj[dimension][hierarchy]) obj[dimension][hierarchy] = [];
-        obj[dimension][hierarchy].push(d);
-      }
-      return obj;
-    }, {});
+      const queries = {};
+      const dimCuts = d3Array.merge(attributes).reduce((obj, d) => {
+        const {hierarchy} = d;
+        const dim = dimensions.find(dim => dim.dimension === d.dimension);
+        const dimension = dim.alternate;
+        if (dim.relation) {
+          cuts.push([{dimension, level: hierarchy, hierarchy: dim.relation}, d.id]);
+          renames.push({[dimension]: dim.relation});
+        }
+        else {
+          if (!obj[dimension]) obj[dimension] = {};
+          if (!obj[dimension][hierarchy]) obj[dimension][hierarchy] = [];
+          obj[dimension][hierarchy].push(d);
+        }
+        return obj;
+      }, {});
 
-    for (let i = 0; i < measures.length; i++) {
-      const measure = measures[i];
+      for (let i = 0; i < measures.length; i++) {
+        const measure = measures[i];
 
-      // filter out cubes that don't match cuts and dimensions
-      let cubes = (cubeMeasures[measure] ? cubeMeasures[measure].cubes : [])
-        .filter(cube => {
+        // filter out cubes that don't match cuts and dimensions
+        let cubes = (cubeMeasures[measure] ? cubeMeasures[measure].cubes : [])
+          .filter(cube => {
 
-          const flatDims = cube.flatDims = d3Array.merge(Object.values(cube.dimensions));
-          cube.subs = {};
-          let allowed = true;
+            const flatDims = cube.flatDims = d3Array.merge(Object.values(cube.dimensions));
+            cube.subs = {};
+            let allowed = true;
 
-          for (const dim in dimCuts) {
-            if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
-              for (const level in dimCuts[dim]) {
-                if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
-                  const dimension = dim in dimensionMap ? dimensionMap[dim] : dim;
-                  const drilldownDim = findDimension(flatDims, level);
-                  if (!drilldownDim) {
+            for (const dim in dimCuts) {
+              if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
+                for (const level in dimCuts[dim]) {
+                  if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
+                    const dimension = dim in dimensionMap ? dimensionMap[dim] : dim;
+                    const drilldownDim = findDimension(flatDims, level);
+                    if (!drilldownDim) {
 
-                    if (substitutions[dimension] && substitutions[dimension].levels[level]) {
-                      let potentialSubs = substitutions[dimension].levels[level];
-                      if (potentialSubs.includes(dim)) potentialSubs = [dim];
-                      let sub;
-                      for (let i = 0; i < potentialSubs.length; i++) {
-                        const p = potentialSubs[i];
-                        const subDim = findDimension(flatDims, p);
-                        if (subDim) {
-                          sub = subDim.level;
+                      if (substitutions[dimension] && substitutions[dimension].levels[level]) {
+                        let potentialSubs = substitutions[dimension].levels[level];
+                        if (potentialSubs.includes(dim)) potentialSubs = [dim];
+                        let sub;
+                        for (let i = 0; i < potentialSubs.length; i++) {
+                          const p = potentialSubs[i];
+                          const subDim = findDimension(flatDims, p);
+                          if (subDim) {
+                            sub = subDim.level;
+                            break;
+                          }
+                        }
+                        if (sub) {
+                          cube.subs[level] = sub;
                           break;
                         }
-                      }
-                      if (sub) {
-                        cube.subs[level] = sub;
-                        break;
+                        else {
+                          allowed = false;
+                          break;
+                        }
                       }
                       else {
                         allowed = false;
                         break;
                       }
                     }
-                    else {
-                      allowed = false;
-                      break;
+                  }
+                }
+                if (!allowed) break;
+              }
+            }
+
+            if (allowed) {
+              for (let i = 0; i < drilldowns.length; i++) {
+                const drilldownDim = findDimension(flatDims, drilldowns[i]);
+                if (!drilldownDim) {
+                  allowed = false;
+                  break;
+                }
+              }
+            }
+
+            if (allowed) {
+              for (let i = 0; i < cuts.length; i++) {
+                const cutDim = findDimension(flatDims, cuts[i][0]);
+                if (!cutDim) {
+                  allowed = false;
+                  break;
+                }
+              }
+            }
+
+            return allowed;
+          });
+
+        // runs user-defined cube filters from canon.js
+        cubeFilters.forEach(filter => {
+          cubes = d3Collection.nest()
+            .key(filter.key)
+            .entries(cubes)
+            .map(d => {
+              if (d.values.length > 1) {
+                const matching = d.values.filter(cube => cube.name.match(filter.regex));
+                d.values = filter.filter(matching, {dimensions, measures}, cache);
+              }
+              return d.values[0];
+            });
+        });
+
+        // filter out cubes with additional unused dimensions
+        if (cubes.length > 1) {
+          const minDims = d3Array.min(cubes.map(c => Object.keys(c.dimensions).length));
+          cubes = cubes.filter(c => Object.keys(c.dimensions).length === minDims);
+        }
+
+
+        if (cubes.length === 0) {
+          console.log("\nNo cubes matched.");
+          console.log(req.query);
+        }
+        else {
+          const cube = cubes[0];
+          if (!queries[cube.name]) {
+            queries[cube.name] = {measures: [], ...cube};
+          }
+          queries[cube.name].measures.push(measure);
+        }
+
+      }
+
+      let queryCrosses = [];
+      const queryPromises = [];
+      const names = Object.keys(queries);
+      for (let ii = 0; ii < names.length; ii++) {
+        const name = names[ii];
+
+        const cube = queries[name];
+        const flatDims = cube.flatDims;
+
+        const cubeDimCuts = {};
+        cube.substitutions = [];
+        for (const dim in dimCuts) {
+          if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
+            let fullDim = flatDims.find(d => d.dimension === dim || d.level === dim) || {dimension: dim};
+            const realDim = fullDim.dimension;
+            cubeDimCuts[realDim] = {};
+            for (const level in dimCuts[dim]) {
+              if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
+                fullDim = flatDims.find(d => (d.dimension === dim || d.level === dim) && d.level === level) || flatDims.find(d => (d.dimension === dim || d.level === dim) && d.level.includes(level)) || {dimension: dim, level};
+                const masterDims = dimCuts[dim][level];
+                let subLevel = cube.subs[level];
+
+                if (subLevel) {
+                  for (let d = 0; d < masterDims.length; d++) {
+                    const oldId = masterDims[d].id;
+                    const dimension = dim in dimensionMap ? dimensionMap[dim] : dim;
+                    const rawLevel = subLevel.includes(realDim) ? subLevel.replace(`${realDim} `, "") : subLevel;
+                    const subUrl = substitutions[dimension].url(oldId, rawLevel);
+
+                    let subIds = await axios.get(subUrl)
+                      .then(resp => resp.data)
+                      .then(substitutions[dimension].callback ? substitutions[dimension].callback : d => d)
+                      .catch(() => []);
+
+                    if (d3plusCommon.isObject(subIds) && subIds.id && subIds.level) {
+                      subLevel = subIds.level;
+                      subIds = subIds.id;
+                    }
+
+                    if (!(subIds instanceof Array)) subIds = [subIds];
+
+                    if (!(subLevel in cubeDimCuts[realDim])) cubeDimCuts[realDim][subLevel] = [];
+                    if (subIds.length) {
+                      subIds.forEach(subId => {
+                        const subAttr = {id: subId, dimension, hierarchy: subLevel};
+                        cube.substitutions.push(subAttr);
+                        cubeDimCuts[realDim][subLevel].push(subAttr);
+                      });
                     }
                   }
                 }
-              }
-              if (!allowed) break;
-            }
-          }
-
-          if (allowed) {
-            for (let i = 0; i < drilldowns.length; i++) {
-              const drilldownDim = findDimension(flatDims, drilldowns[i]);
-              if (!drilldownDim) {
-                allowed = false;
-                break;
-              }
-            }
-          }
-
-          if (allowed) {
-            for (let i = 0; i < cuts.length; i++) {
-              const cutDim = findDimension(flatDims, cuts[i][0]);
-              if (!cutDim) {
-                allowed = false;
-                break;
-              }
-            }
-          }
-
-          return allowed;
-        });
-
-      // runs user-defined cube filters from canon.js
-      cubeFilters.forEach(filter => {
-        cubes = d3Collection.nest()
-          .key(filter.key)
-          .entries(cubes)
-          .map(d => {
-            if (d.values.length > 1) {
-              const matching = d.values.filter(cube => cube.name.match(filter.regex));
-              d.values = filter.filter(matching, {dimensions, measures}, cache);
-            }
-            return d.values[0];
-          });
-      });
-
-      // filter out cubes with additional unused dimensions
-      if (cubes.length > 1) {
-        const minDims = d3Array.min(cubes.map(c => Object.keys(c.dimensions).length));
-        cubes = cubes.filter(c => Object.keys(c.dimensions).length === minDims);
-      }
-
-
-      if (cubes.length === 0) {
-        console.log("\nNo cubes matched.");
-        console.log(req.query);
-      }
-      else {
-        const cube = cubes[0];
-        if (!queries[cube.name]) {
-          queries[cube.name] = {measures: [], ...cube};
-        }
-        queries[cube.name].measures.push(measure);
-      }
-
-    }
-
-    let queryCrosses = [];
-    const queryPromises = [];
-    const names = Object.keys(queries);
-    for (let ii = 0; ii < names.length; ii++) {
-      const name = names[ii];
-
-      const cube = queries[name];
-      const flatDims = cube.flatDims;
-
-      const cubeDimCuts = {};
-      cube.substitutions = [];
-      for (const dim in dimCuts) {
-        if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
-          let fullDim = flatDims.find(d => d.dimension === dim || d.level === dim) || {dimension: dim};
-          const realDim = fullDim.dimension;
-          cubeDimCuts[realDim] = {};
-          for (const level in dimCuts[dim]) {
-            if (Object.prototype.hasOwnProperty.call(dimCuts[dim], level)) {
-              fullDim = flatDims.find(d => (d.dimension === dim || d.level === dim) && d.level === level) || flatDims.find(d => (d.dimension === dim || d.level === dim) && d.level.includes(level)) || {dimension: dim, level};
-              const masterDims = dimCuts[dim][level];
-              let subLevel = cube.subs[level];
-
-              if (subLevel) {
-                for (let d = 0; d < masterDims.length; d++) {
-                  const oldId = masterDims[d].id;
-                  const dimension = dim in dimensionMap ? dimensionMap[dim] : dim;
-                  const rawLevel = subLevel.includes(realDim) ? subLevel.replace(`${realDim} `, "") : subLevel;
-                  const subUrl = substitutions[dimension].url(oldId, rawLevel);
-
-                  let subIds = await axios.get(subUrl)
-                    .then(resp => resp.data)
-                    .then(substitutions[dimension].callback ? substitutions[dimension].callback : d => d)
-                    .catch(() => []);
-
-                  if (d3plusCommon.isObject(subIds) && subIds.id && subIds.level) {
-                    subLevel = subIds.level;
-                    subIds = subIds.id;
-                  }
-
-                  if (!(subIds instanceof Array)) subIds = [subIds];
-
-                  if (!(subLevel in cubeDimCuts[realDim])) cubeDimCuts[realDim][subLevel] = [];
-                  if (subIds.length) {
-                    subIds.forEach(subId => {
-                      const subAttr = {id: subId, dimension, hierarchy: subLevel};
-                      cube.substitutions.push(subAttr);
-                      cubeDimCuts[realDim][subLevel].push(subAttr);
-                    });
-                  }
+                else {
+                  cubeDimCuts[realDim][fullDim.level] = masterDims;
                 }
               }
-              else {
-                cubeDimCuts[realDim][fullDim.level] = masterDims;
-              }
             }
           }
         }
-      }
 
-      const dims = Object.keys(cube.dimensions)
-        .filter(dim => dim in cubeDimCuts)
-        .map(dim => {
-          const cubeLevels = cube.dimensions[dim].map(d => d.level);
-          const cutLevels = Object.keys(cubeDimCuts[dim]);
-          const i = intersect(cubeLevels, cutLevels);
-          return i.map(d => ({[dim]: d}));
-        });
+        const dims = Object.keys(cube.dimensions)
+          .filter(dim => dim in cubeDimCuts)
+          .map(dim => {
+            const cubeLevels = cube.dimensions[dim].map(d => d.level);
+            const cutLevels = Object.keys(cubeDimCuts[dim]);
+            const i = intersect(cubeLevels, cutLevels);
+            return i.map(d => ({[dim]: d}));
+          });
 
-      const crosses = cartesian(...dims);
-      if (!crosses.length) crosses.push([]);
+        const crosses = cartesian(...dims);
+        if (!crosses.length) crosses.push([]);
 
-      const queryYears = years[name] ? Array.from(new Set(d3Array.merge(year
-        .split(",")
-        .map(y => {
-          if (y === "latest") return [years[name].latest];
-          if (y === "previous") return [years[name].previous];
-          if (y === "oldest") return [years[name].oldest];
-          if (y === "all") return years[name].years;
-          return [y];
-        })
-      ))) : [];
+        const queryYears = years[name] ? Array.from(new Set(d3Array.merge(year
+          .split(",")
+          .map(y => {
+            if (y === "latest") return [years[name].latest];
+            if (y === "previous") return [years[name].previous];
+            if (y === "oldest") return [years[name].oldest];
+            if (y === "all") return years[name].years;
+            return [y];
+          })
+        ))) : [];
 
-      queryCrosses = queryCrosses.concat(crosses);
+        queryCrosses = queryCrosses.concat(crosses);
 
-      for (let iii = 0; iii < crosses.length; iii++) {
-        const dimSet = crosses[iii];
+        for (let iii = 0; iii < crosses.length; iii++) {
+          const dimSet = crosses[iii];
 
-        const q = client.cube(name)
-          .then(c => {
+          const q = client.cube(name)
+            .then(c => {
 
-            const query = c.query;
+              const query = c.query;
 
-            const queryDrilldowns = drilldowns.map(d => findDimension(flatDims, d));
-            const queryCuts = cuts.map(([level, value]) => [findDimension(flatDims, level), value]);
+              const queryDrilldowns = drilldowns.map(d => findDimension(flatDims, d));
+              const queryCuts = cuts.map(([level, value]) => [findDimension(flatDims, level), value]);
 
-            if (logging) console.log(`\nLogic Layer Query: ${name}`);
-            if (years[name] && queryYears.length) {
-              const {preferred} = findYears(flatDims);
-              if (!queryDrilldowns.find(d => d.dimension === preferred.dimension)) {
-                queryDrilldowns.push(preferred);
-                yearDims.push(preferred.level);
-                if (year !== "all") queryCuts.push([preferred, queryYears]);
-                if (order.includes("Year")) order[order.indexOf("Year")] = preferred.level;
+              if (logging) console.log(`\nLogic Layer Query: ${name}`);
+              if (years[name] && queryYears.length) {
+                const {preferred} = findYears(flatDims);
+                if (!queryDrilldowns.find(d => d.dimension === preferred.dimension)) {
+                  queryDrilldowns.push(preferred);
+                  yearDims.push(preferred.level);
+                  if (year !== "all") queryCuts.push([preferred, queryYears]);
+                  if (order.includes("Year")) order[order.indexOf("Year")] = preferred.level;
+                }
               }
-            }
 
-            dimSet.forEach(dim => {
-              const dimension = Object.keys(dim)[0];
-              const level = dim[dimension];
-              if (dimension in cubeDimCuts) {
-                const drill = findDimension(flatDims, level, dimension);
-                queryCuts.push([drill, cubeDimCuts[dimension][level].map(d => d.id)]);
-                queryDrilldowns.push(drill);
-              }
-              else if (level.cut) {
-                const {level: l, cut: cutValue} = level;
-                const drill = findDimension(flatDims, l);
-                if (!dimension.includes("Year") && !drilldowns.includes(drill.level)) queryDrilldowns.push(drill);
-                queryCuts.push([drill, cutValue]);
-              }
-            });
+              dimSet.forEach(dim => {
+                const dimension = Object.keys(dim)[0];
+                const level = dim[dimension];
+                if (dimension in cubeDimCuts) {
+                  const drill = findDimension(flatDims, level, dimension);
+                  queryCuts.push([drill, cubeDimCuts[dimension][level].map(d => d.id)]);
+                  queryDrilldowns.push(drill);
+                }
+                else if (level.cut) {
+                  const {level: l, cut: cutValue} = level;
+                  const drill = findDimension(flatDims, l);
+                  if (!dimension.includes("Year") && !drilldowns.includes(drill.level)) queryDrilldowns.push(drill);
+                  queryCuts.push([drill, cutValue]);
+                }
+              });
 
-            cube.measures.forEach(measure => {
-              if (logging) console.log(`Measure: ${measure}`);
-              query.measure(measure);
-            });
+              cube.measures.forEach(measure => {
+                if (logging) console.log(`Measure: ${measure}`);
+                query.measure(measure);
+              });
 
-            queryCuts.forEach(arr => {
-              const [drill, value] = arr;
-              const {dimension, hierarchy, level} = drill;
-              if (!drilldowns.includes(hierarchy)) queryDrilldowns.push(drill);
-              const cut = (value instanceof Array ? value : [value]).map(v => `[${dimension}].[${hierarchy}].[${level}].&[${v}]`).join(",");
-              if (logging) console.log(`Cut: ${cut}`);
-              query.cut(`{${cut}}`);
-            });
+              queryCuts.forEach(arr => {
+                const [drill, value] = arr;
+                const {dimension, hierarchy, level} = drill;
+                if (!drilldowns.includes(hierarchy)) queryDrilldowns.push(drill);
+                const cut = (value instanceof Array ? value : [value]).map(v => `[${dimension}].[${hierarchy}].[${level}].&[${v}]`).join(",");
+                if (logging) console.log(`Cut: ${cut}`);
+                query.cut(`{${cut}}`);
+              });
 
-            const completedDrilldowns = [];
-            queryDrilldowns.forEach(d => {
-              const {dimension, hierarchy, level} = d;
-              const dimString = `${dimension}, ${hierarchy}, ${level}`;
-              if (!completedDrilldowns.includes(dimString)) {
-                completedDrilldowns.push(dimString);
-                if (logging) console.log(`Drilldown: ${dimString}`);
-                query.drilldown(dimension, hierarchy, level);
-                (properties.length && d.properties ? d.properties : []).forEach(prop => {
-                  if (properties.includes(prop)) {
-                    const propString = `${dimension}, ${level}, ${prop}`;
-                    if (logging) console.log(`Property: ${propString}`);
-                    query.property(dimension, level, prop);
-                  }
-                });
-              }
-            });
-
-            const p = yn(parents);
-            query.option("parents", p);
-            if (p && logging) console.log("Parents: true");
-
-            filters
-              .filter(f => cube.measures.includes(f[0]))
-              .forEach(filter => query.filter(...filter));
-
-            // TODO add this once mondrian-rest ordering works
-            // if (limit) {
-            //   query.pagination(limit);
-            //   if (logging) console.log(`Limit: ${limit}`);
-            // }
-            //
-            // if (order.length === 1 && cube.measures.includes(order[0])) {
-            //   query.sorting(order[0], sort === "desc");
-            //   if (logging) console.log(`Order: ${order[0]} (${sort})`);
-            // }
-
-            if (captions) {
-              const drilldowns = query.getDrilldowns();
-              (drilldowns || []).forEach(level => {
-                const ann = level.annotations[`${captions}_caption`];
-                if (ann) query.caption(level.hierarchy.dimension.name, level.name, ann);
-
-                // when parents requested, also get their i18n'd captions
-                if (p) {
-                  d3Array.range(1, level.depth).reverse().forEach(d => {
-                    const ancestor = level.hierarchy.levels.find(l => l.depth === d);
-                    const ann = ancestor.annotations[`${captions}_caption`];
-                    if (ann) query.caption(ancestor.hierarchy.dimension.name, ancestor.name, ann);
+              const completedDrilldowns = [];
+              queryDrilldowns.forEach(d => {
+                const {dimension, hierarchy, level} = d;
+                const dimString = `${dimension}, ${hierarchy}, ${level}`;
+                if (!completedDrilldowns.includes(dimString)) {
+                  completedDrilldowns.push(dimString);
+                  if (logging) console.log(`Drilldown: ${dimString}`);
+                  query.drilldown(dimension, hierarchy, level);
+                  (properties.length && d.properties ? d.properties : []).forEach(prop => {
+                    if (properties.includes(prop)) {
+                      const propString = `${dimension}, ${level}, ${prop}`;
+                      if (logging) console.log(`Property: ${propString}`);
+                      query.property(dimension, level, prop);
+                    }
                   });
                 }
               });
-            }
 
-            return client.query(query, "jsonrecords");
+              const p = yn(parents);
+              query.option("parents", p);
+              if (p && logging) console.log("Parents: true");
 
-          })
-          .catch(d => {
-            if (d.response) {
-              console.log("\nCube Error", d.response.status, d.response.statusText);
-              console.log(d.response.data);
-            }
-            else {
-              console.log("\nCube Error", d);
-            }
-            return {error: d};
-          });
+              filters
+                .filter(f => cube.measures.includes(f[0]))
+                .forEach(filter => query.filter(...filter));
 
-        queryPromises.push(q);
+              // TODO add this once mondrian-rest ordering works
+              // if (limit) {
+              //   query.pagination(limit);
+              //   if (logging) console.log(`Limit: ${limit}`);
+              // }
+              //
+              // if (order.length === 1 && cube.measures.includes(order[0])) {
+              //   query.sorting(order[0], sort === "desc");
+              //   if (logging) console.log(`Order: ${order[0]} (${sort})`);
+              // }
 
-      }
+              if (captions) {
+                const drilldowns = query.getDrilldowns();
+                (drilldowns || []).forEach(level => {
+                  const ann = level.annotations[`${captions}_caption`];
+                  if (ann) query.caption(level.hierarchy.dimension.name, level.name, ann);
 
-    }
+                  // when parents requested, also get their i18n'd captions
+                  if (p) {
+                    d3Array.range(1, level.depth).reverse().forEach(d => {
+                      const ancestor = level.hierarchy.levels.find(l => l.depth === d);
+                      const ann = ancestor.annotations[`${captions}_caption`];
+                      if (ann) query.caption(ancestor.hierarchy.dimension.name, ancestor.name, ann);
+                    });
+                  }
+                });
+              }
 
-    const data = await Promise.all(queryPromises);
-    const levels = d3Array.merge(Object.values(searchDims));
+              return client.query(query, "jsonrecords");
 
-    const slugLookup = {};
-    for (const dim in dimCuts) {
-      if ({}.hasOwnProperty.call(dimCuts, dim)) {
-        slugLookup[dim] = {};
-        for (const level in dimCuts[dim]) {
-          if ({}.hasOwnProperty.call(dimCuts[dim], level)) {
-            if (!slugLookup[dim][level]) slugLookup[dim][level] = {};
-            dimCuts[dim][level].forEach(d => {
-              if (d.slug) slugLookup[dim][level][d.id] = d.slug;
+            })
+            .catch(d => {
+              if (d.response) {
+                console.log("\nCube Error", d.response.status, d.response.statusText);
+                console.log(d.response.data);
+              }
+              else {
+                console.log("\nCube Error", d);
+              }
+              return {error: d};
             });
-          }
+
+          queryPromises.push(q);
+
         }
-      }
-    }
 
-    const searchLookups = [];
-    for (let i = 0; i < drilldowns.length; i++) {
-      const level = drilldowns[i];
-      if (levels.includes(level)) {
-        let dim;
-        for (const d in searchDims) {
-          if ({}.hasOwnProperty.call(searchDims, d) && searchDims[d].includes(level)) {
-            dim = d;
-            break;
-          }
-        }
-        searchLookups.push({dimension: dim, hierarchy: level});
-      }
-    }
-
-    const flatArray = await data.reduce(async(prom, d, i) => {
-
-      let arr = await prom;
-
-      let data = d.error || !d.data.data ? [] : d.data.data;
-
-      // TODO remove this once mondrian-rest ordering works
-      if (perValue) {
-        let newData = [];
-        d3Collection.nest()
-          .key(d => d[perValue])
-          .entries(data)
-          .forEach(group => {
-            const top = multiSort(group.values, order, sort).slice(0, limit);
-            newData = newData.concat(top);
-          });
-        data = newData;
       }
 
-      if (db && db.search) {
-        const lookupKeys = data.length ? intersect(levels, Object.keys(data[0])) : [];
-        for (let x = 0; x < lookupKeys.length; x++) {
-          const level = lookupKeys[x];
-          const dim = searchLookups.find(d => d.hierarchy === level);
-          if (dim) {
-            if (!slugLookup[dim.dimension]) slugLookup[dim.dimension] = {};
-            if (!slugLookup[dim.dimension][dim.hierarchy]) slugLookup[dim.dimension][dim.hierarchy] = {};
-            const where = Object.assign({
-              id: data.map(d => `${d[`ID ${level}`]}`),
-              dimension: dim.dimension,
-              hierarchy: dim.hierarchy
-            });
-            const attrs = await db.search.findAll({where}).catch(() => []);
-            attrs.forEach(d => {
-              if (d.slug) slugLookup[dim.dimension][dim.hierarchy][d.id] = d.slug;
-            });
+      const data = await Promise.all(queryPromises);
+      const levels = d3Array.merge(Object.values(searchDims));
+
+      const slugLookup = {};
+      for (const dim in dimCuts) {
+        if ({}.hasOwnProperty.call(dimCuts, dim)) {
+          slugLookup[dim] = {};
+          for (const level in dimCuts[dim]) {
+            if ({}.hasOwnProperty.call(dimCuts[dim], level)) {
+              if (!slugLookup[dim][level]) slugLookup[dim][level] = {};
+              dimCuts[dim][level].forEach(d => {
+                if (d.slug) slugLookup[dim][level][d.id] = d.slug;
+              });
+            }
           }
         }
       }
 
-      const cross = queryCrosses[i].concat(renames);
+      const searchLookups = [];
+      for (let i = 0; i < drilldowns.length; i++) {
+        const level = drilldowns[i];
+        if (levels.includes(level)) {
+          let dim;
+          for (const d in searchDims) {
+            if ({}.hasOwnProperty.call(searchDims, d) && searchDims[d].includes(level)) {
+              dim = d;
+              break;
+            }
+          }
+          searchLookups.push({dimension: dim, hierarchy: level});
+        }
+      }
 
-      const newArray = data.map(row => {
-        for (const dimension in slugLookup) {
-          if ({}.hasOwnProperty.call(slugLookup, dimension)) {
-            const obj = slugLookup[dimension];
-            for (const level in obj) {
-              if ({}.hasOwnProperty.call(obj, level)) {
-                const slug = obj[level][row[`ID ${level}`]];
-                if (row[level] && slug) row[`Slug ${level}`] = slug;
+      const flatArray = await data.reduce(async(prom, d, i) => {
+
+        let arr = await prom;
+
+        let data = d.error || !d.data.data ? [] : d.data.data;
+
+        // TODO remove this once mondrian-rest ordering works
+        if (perValue) {
+          let newData = [];
+          d3Collection.nest()
+            .key(d => d[perValue])
+            .entries(data)
+            .forEach(group => {
+              const top = multiSort(group.values, order, sort).slice(0, limit);
+              newData = newData.concat(top);
+            });
+          data = newData;
+        }
+
+        if (db && db.search) {
+          const lookupKeys = data.length ? intersect(levels, Object.keys(data[0])) : [];
+          for (let x = 0; x < lookupKeys.length; x++) {
+            const level = lookupKeys[x];
+            const dim = searchLookups.find(d => d.hierarchy === level);
+            if (dim) {
+              if (!slugLookup[dim.dimension]) slugLookup[dim.dimension] = {};
+              if (!slugLookup[dim.dimension][dim.hierarchy]) slugLookup[dim.dimension][dim.hierarchy] = {};
+              const where = Object.assign({
+                id: data.map(d => `${d[`ID ${level}`]}`),
+                dimension: dim.dimension,
+                hierarchy: dim.hierarchy
+              });
+              const attrs = await db.search.findAll({where}).catch(() => []);
+              attrs.forEach(d => {
+                if (d.slug) slugLookup[dim.dimension][dim.hierarchy][d.id] = d.slug;
+              });
+            }
+          }
+        }
+
+        const cross = queryCrosses[i].concat(renames);
+
+        const newArray = data.map(row => {
+          for (const dimension in slugLookup) {
+            if ({}.hasOwnProperty.call(slugLookup, dimension)) {
+              const obj = slugLookup[dimension];
+              for (const level in obj) {
+                if ({}.hasOwnProperty.call(obj, level)) {
+                  const slug = obj[level][row[`ID ${level}`]];
+                  if (row[level] && slug) row[`Slug ${level}`] = slug;
+                }
               }
             }
           }
-        }
-        cross.forEach(c => {
-          const type = Object.keys(c)[0];
-          const level = c[type];
-          if (level in row && type !== level) {
-            row[type] = row[level];
-            delete row[level];
-            row[`ID ${type}`] = row[`ID ${level}`];
-            delete row[`ID ${level}`];
-            if (row[`Slug ${level}`]) {
-              row[`Slug ${type}`] = row[`Slug ${level}`];
-              delete row[`Slug ${level}`];
+          cross.forEach(c => {
+            const type = Object.keys(c)[0];
+            const level = c[type];
+            if (level in row && type !== level) {
+              row[type] = row[level];
+              delete row[level];
+              row[`ID ${type}`] = row[`ID ${level}`];
+              delete row[`ID ${level}`];
+              if (row[`Slug ${level}`]) {
+                row[`Slug ${type}`] = row[`Slug ${level}`];
+                delete row[`Slug ${level}`];
+              }
             }
-          }
+          });
+          return row;
         });
-        return row;
+
+        arr = arr.concat(newArray);
+
+        return arr;
+
+      }, Promise.resolve([]));
+
+      const crossKeys = d3Array.merge(queryCrosses)
+        .concat(renames)
+        .map(d => Object.keys(d)[0]);
+
+      const keys = d3Array
+        .merge([
+          crossKeys,
+          drilldowns,
+          cuts.map(d => d[0]),
+          yearDims
+        ])
+        .filter((x, i, a) => a.indexOf(x) === i);
+
+      let mergedData = d3Collection.nest()
+        .key(d => keys.map(key => d[key]).join("_"))
+        .entries(flatArray)
+        .map(d => Object.assign(...d.values));
+
+      // TODO add this once mondrian-rest ordering works
+      // const sourceMeasures = d3Array.merge(Object.values(queries).map(d => d.measures));
+      // if (order.length > 1 || !sourceMeasures.includes(order[0])) {
+      //   mergedData = multiSort(mergedData, order, sort);
+      //   if (logging) console.log(`Order: ${order.join(", ")} (${sort})`);
+      // }
+
+      // TODO remove this once mondrian-rest ordering works
+      mergedData = multiSort(mergedData, order, sort);
+      if (limit && !perValue) mergedData = mergedData.slice(0, limit);
+
+      const source = Object.values(queries).map(d => {
+        delete d.flatDims;
+        delete d.dimensions;
+        delete d.subs;
+        return d;
       });
 
-      arr = arr.concat(newArray);
+      res.json({data: mergedData, source});
 
-      return arr;
-
-    }, Promise.resolve([]));
-
-    const crossKeys = d3Array.merge(queryCrosses)
-      .concat(renames)
-      .map(d => Object.keys(d)[0]);
-
-    const keys = d3Array
-      .merge([
-        crossKeys,
-        drilldowns,
-        cuts.map(d => d[0]),
-        yearDims
-      ])
-      .filter((x, i, a) => a.indexOf(x) === i);
-
-    let mergedData = d3Collection.nest()
-      .key(d => keys.map(key => d[key]).join("_"))
-      .entries(flatArray)
-      .map(d => Object.assign(...d.values));
-
-    // TODO add this once mondrian-rest ordering works
-    // const sourceMeasures = d3Array.merge(Object.values(queries).map(d => d.measures));
-    // if (order.length > 1 || !sourceMeasures.includes(order[0])) {
-    //   mergedData = multiSort(mergedData, order, sort);
-    //   if (logging) console.log(`Order: ${order.join(", ")} (${sort})`);
-    // }
-
-    // TODO remove this once mondrian-rest ordering works
-    mergedData = multiSort(mergedData, order, sort);
-    if (limit && !perValue) mergedData = mergedData.slice(0, limit);
-
-    const source = Object.values(queries).map(d => {
-      delete d.flatDims;
-      delete d.dimensions;
-      delete d.subs;
-      return d;
-    });
-
-    res.json({data: mergedData, source});
+    }
 
   });
 
