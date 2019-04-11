@@ -378,7 +378,7 @@ module.exports = function(app) {
 
 
         if (cubes.length === 0) {
-          if (error) {
+          if (errors) {
             console.log("\nNo cubes matched.");
             console.log(req.query);
           }
@@ -595,6 +595,7 @@ module.exports = function(app) {
                 else {
                   console.log("\nCube Error", d);
                 }
+                console.log(req.query);
               }
               return {error: d};
             });
