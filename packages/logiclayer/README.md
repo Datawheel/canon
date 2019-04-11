@@ -30,6 +30,12 @@ Additionally, logging can be enabled with the following variable:
 export CANON_LOGICLAYER_LOGGING=true
 ```
 
+If you would like to only log errors, use the following:
+
+```bash
+export CANON_LOGICLAYER_LOGGING='error'
+```
+
 ___
 
 Once the package has been installed on any site using `@datawheel/canon-core`, and the `CANON_LOGICLAYER_CUBE` environment variable has been set, the canon core server will automatically hook up the necessary cache and api routes for the logic layer.

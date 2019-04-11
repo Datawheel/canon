@@ -8,7 +8,9 @@ const Sequelize = require("sequelize"),
       path = require("path"),
       yn = require("yn");
 
-const logging = yn(process.env.CANON_LOGICLAYER_LOGGING);
+const logging = process.env.CANON_LOGICLAYER_LOGGING;
+const verbose = yn(logging);
+const errors = logging === "error";
 
 const canonConfig = require(path.join(process.cwd(), "canon.js")).logiclayer || {};
 const aliases = canonConfig.aliases || {};
@@ -376,7 +378,7 @@ module.exports = function(app) {
 
 
         if (cubes.length === 0) {
-          if (logging) {
+          if (error) {
             console.log("\nNo cubes matched.");
             console.log(req.query);
           }
@@ -486,7 +488,7 @@ module.exports = function(app) {
               const queryDrilldowns = drilldowns.map(d => findDimension(flatDims, d));
               const queryCuts = cuts.map(([level, value]) => [findDimension(flatDims, level), value]);
 
-              if (logging) console.log(`\nLogic Layer Query: ${name}`);
+              if (verbose) console.log(`\nLogic Layer Query: ${name}`);
               if (years[name] && queryYears.length) {
                 const {preferred} = findYears(flatDims);
                 if (!queryDrilldowns.find(d => d.dimension === preferred.dimension)) {
@@ -514,7 +516,7 @@ module.exports = function(app) {
               });
 
               cube.measures.forEach(measure => {
-                if (logging) console.log(`Measure: ${measure}`);
+                if (verbose) console.log(`Measure: ${measure}`);
                 query.measure(measure);
               });
 
@@ -523,7 +525,7 @@ module.exports = function(app) {
                 const {dimension, hierarchy, level} = drill;
                 if (!drilldowns.includes(hierarchy)) queryDrilldowns.push(drill);
                 const cut = (value instanceof Array ? value : [value]).map(v => `[${dimension}].[${hierarchy}].[${level}].&[${v}]`).join(",");
-                if (logging) console.log(`Cut: ${cut}`);
+                if (verbose) console.log(`Cut: ${cut}`);
                 query.cut(`{${cut}}`);
               });
 
@@ -533,12 +535,12 @@ module.exports = function(app) {
                 const dimString = `${dimension}, ${hierarchy}, ${level}`;
                 if (!completedDrilldowns.includes(dimString)) {
                   completedDrilldowns.push(dimString);
-                  if (logging) console.log(`Drilldown: ${dimString}`);
+                  if (verbose) console.log(`Drilldown: ${dimString}`);
                   query.drilldown(dimension, hierarchy, level);
                   (properties.length && d.properties ? d.properties : []).forEach(prop => {
                     if (properties.includes(prop)) {
                       const propString = `${dimension}, ${level}, ${prop}`;
-                      if (logging) console.log(`Property: ${propString}`);
+                      if (verbose) console.log(`Property: ${propString}`);
                       query.property(dimension, level, prop);
                     }
                   });
@@ -547,7 +549,7 @@ module.exports = function(app) {
 
               const p = yn(parents);
               query.option("parents", p);
-              if (p && logging) console.log("Parents: true");
+              if (p && verbose) console.log("Parents: true");
 
               filters
                 .filter(f => cube.measures.includes(f[0]))
@@ -556,12 +558,12 @@ module.exports = function(app) {
               // TODO add this once mondrian-rest ordering works
               // if (limit) {
               //   query.pagination(limit);
-              //   if (logging) console.log(`Limit: ${limit}`);
+              //   if (verbose) console.log(`Limit: ${limit}`);
               // }
               //
               // if (order.length === 1 && cube.measures.includes(order[0])) {
               //   query.sorting(order[0], sort === "desc");
-              //   if (logging) console.log(`Order: ${order[0]} (${sort})`);
+              //   if (verbose) console.log(`Order: ${order[0]} (${sort})`);
               // }
 
               if (captions) {
@@ -585,7 +587,7 @@ module.exports = function(app) {
 
             })
             .catch(d => {
-              if (logging) {
+              if (errors) {
                 if (d.response) {
                   console.log("\nCube Error", d.response.status, d.response.statusText);
                   console.log(d.response.data);
@@ -735,7 +737,7 @@ module.exports = function(app) {
       // const sourceMeasures = d3Array.merge(Object.values(queries).map(d => d.measures));
       // if (order.length > 1 || !sourceMeasures.includes(order[0])) {
       //   mergedData = multiSort(mergedData, order, sort);
-      //   if (logging) console.log(`Order: ${order.join(", ")} (${sort})`);
+      //   if (verbose) console.log(`Order: ${order.join(", ")} (${sort})`);
       // }
 
       // TODO remove this once mondrian-rest ordering works
