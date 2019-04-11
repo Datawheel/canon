@@ -376,8 +376,10 @@ module.exports = function(app) {
 
 
         if (cubes.length === 0) {
-          console.log("\nNo cubes matched.");
-          console.log(req.query);
+          if (logging) {
+            console.log("\nNo cubes matched.");
+            console.log(req.query);
+          }
         }
         else {
           const cube = cubes[0];
@@ -583,12 +585,14 @@ module.exports = function(app) {
 
             })
             .catch(d => {
-              if (d.response) {
-                console.log("\nCube Error", d.response.status, d.response.statusText);
-                console.log(d.response.data);
-              }
-              else {
-                console.log("\nCube Error", d);
+              if (logging) {
+                if (d.response) {
+                  console.log("\nCube Error", d.response.status, d.response.statusText);
+                  console.log(d.response.data);
+                }
+                else {
+                  console.log("\nCube Error", d);
+                }
               }
               return {error: d};
             });
