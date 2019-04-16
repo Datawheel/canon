@@ -1,5 +1,5 @@
-const {Client} = require("mondrian-rest-client");
 const d3Array = require("d3-array");
+const axios = require("axios");
 
 const {CANON_LOGICLAYER_CUBE} = process.env;
 
@@ -11,26 +11,29 @@ const s = (a, b) => {
 
 module.exports = async function() {
 
-  const client = new Client(CANON_LOGICLAYER_CUBE);
+  const client = axios.get(`${CANON_LOGICLAYER_CUBE}cubes`);
+  const resp = await client;
+  const cubes = resp.data.cubes;
 
-  const cubes = await client.cubes();
-  
   const dimensions = [];
 
   cubes.forEach(cube => {
 
     cube.dimensions.forEach(d => {
-      const dimension = {};    
+      const dimension = {};
       dimension.name = `${d.name} (${cube.name})`;
       dimension.cubeName = cube.name;
       dimension.dimName = d.name;
       dimension.measures = cube.measures.map(m => m.name.replace(/'/g, "\'"));
       const hierarchies = d.hierarchies.map(h => {
-        
+
         const levels = h.levels.filter(l => l.name !== "(All)").map(l => {
           const parts = l.fullName
-            .split(".")
-            .map(p => p.replace(/^\[|\]$/g, ""));
+            ? l.fullName
+                .split(".")
+                .map(p => p.replace(/^\[|\]$/g, ""))
+            : [d.name, h.name, l.name];
+
           if (parts.length === 2) parts.unshift(parts[0]);
           return {
             dimension: parts[0],
