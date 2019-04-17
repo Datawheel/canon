@@ -100,8 +100,6 @@ module.exports = function(app) {
     if (!measures.length) res.json({error: "Query must contain at least one measure."});
     else {
 
-      req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-
       let reserved = ["captions", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year"];
       reserved = reserved.concat(d3Array.merge(reserved.map(r => {
         let alts = aliases[r] || [];
