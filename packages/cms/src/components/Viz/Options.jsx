@@ -121,6 +121,26 @@ class Options extends Component {
     const {openDialog} = this.state;
     const {transitionDuration} = this.props;
 
+    if (slug && !this.state.openDialog) {
+      setTimeout(() => {
+
+        /* IE is the wurst with CSSTransitionGroup */
+        document.getElementsByClassName("options-dialog")[0].style.opacity = 1;
+
+        /* give focus to the correct tab */
+        document.getElementById(`bp3-tab-title_undefined_${slug}`).focus();
+
+      }, transitionDuration + 1000);
+    }
+    else if (!slug) {
+      setTimeout(() => {
+
+        /* give focus back to the original button */
+        document.getElementById(`options-button-${this.props.slug}-${openDialog}`).focus();
+
+      }, transitionDuration + 1000);
+    }
+
     const node = this.getNode.bind(this)();
     if (node && !this.state.openDialog) {
       const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
@@ -136,17 +156,6 @@ class Options extends Component {
           const results = dataFormat(resp.data);
           this.setState({loading: false, results});
         });
-    }
-
-    if (slug) {
-      setTimeout(() => {
-        document.getElementById(`bp3-tab-title_undefined_${slug}`).focus();
-      }, transitionDuration);
-    }
-    else {
-      setTimeout(() => {
-        document.getElementById(`options-button-${this.props.slug}-${openDialog}`).focus();
-      }, transitionDuration);
     }
 
   }
