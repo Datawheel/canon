@@ -1,4 +1,5 @@
 const FUNC = require("../utils/FUNC"),
+      PromiseThrottle = require("promise-throttle"),
       axios = require("axios"),
       libs = require("../utils/libs"), // leave this! needed for the variable functions
       mortarEval = require("../utils/mortarEval"),
@@ -10,20 +11,25 @@ const FUNC = require("../utils/FUNC"),
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
+const throttle = new PromiseThrottle({
+  requestsPerSecond: 10,
+  promiseImplementation: Promise
+});
+
 const profileReq = {
   include: [
     {association: "content", separate: true},
     {association: "topics", separate: true,
       include: [
         {association: "content", separate: true},
-        {association: "subtitles", separate: true, 
+        {association: "subtitles", separate: true,
           include: [{association: "content", separate: true}]
         },
-        {association: "descriptions", separate: true, 
+        {association: "descriptions", separate: true,
           include: [{association: "content", separate: true}]
         },
         {association: "visualizations", separate: true},
-        {association: "stats", separate: true, 
+        {association: "stats", separate: true,
           include: [{association: "content", separate: true}]
         },
         {association: "selectors", separate: true}
@@ -33,14 +39,14 @@ const profileReq = {
 
 const topicReq = [
   {association: "content", separate: true},
-  {association: "subtitles", separate: true, 
+  {association: "subtitles", separate: true,
     include: [{association: "content", separate: true}]
   },
-  {association: "descriptions", separate: true, 
+  {association: "descriptions", separate: true,
     include: [{association: "content", separate: true}]
   },
   {association: "visualizations", separate: true},
-  {association: "stats", separate: true, 
+  {association: "stats", separate: true,
     include: [{association: "content", separate: true}]
   },
   {association: "selectors", separate: true}
@@ -49,13 +55,13 @@ const topicReq = [
 const storyReq = {
   include: [
     {association: "content", separate: true},
-    {association: "authors", separate: true, 
+    {association: "authors", separate: true,
       include: [{association: "content", separate: true}]
     },
-    {association: "descriptions", separate: true, 
+    {association: "descriptions", separate: true,
       include: [{association: "content", separate: true}]
     },
-    {association: "footnotes", separate: true, 
+    {association: "footnotes", separate: true,
       include: [{association: "content", separate: true}]
     },
     {
@@ -125,7 +131,7 @@ const sortStory = story => {
  * Lang-specific content is stored in secondary tables, and are part of profiles as an
  * array called "content," which contains objects of region-specific translated keys.
  * We don't want the front end to have to even know about this sub-table or sub-array.
- * Therefore, bubble up the appropriate content to the top-level of the object 
+ * Therefore, bubble up the appropriate content to the top-level of the object
  */
 
 const bubbleUp = (obj, locale) => {
@@ -172,7 +178,7 @@ const extractLocaleContent = (obj, locale, mode) => {
     });
   }
   return obj;
-}; 
+};
 
 
 module.exports = function(app) {
@@ -194,12 +200,30 @@ module.exports = function(app) {
 
     if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${slug}/${id}`);
 
+    /** */
+    function createGeneratorFetch(r, attr) {
+      let url = urlSwap(r, {...req.params, ...cache, ...attr, locale});
+      if (url.indexOf("http") !== 0) {
+        const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+        url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
+      }
+      return axios.get(url)
+        .then(resp => {
+          if (verbose) console.log("Variable Loaded:", url);
+          return resp;
+        })
+        .catch(() => {
+          if (verbose) console.log("Variable Error:", url);
+          return {};
+        });
+    }
+
     // Begin by fetching the profile by slug, and all the generators that belong to that profile
     /* Potential TODO here: Later in this function we manually get generators and materializers.
      * Maybe refactor this to get them immediately in the profile get using include.
      */
     db.profile.findOne({where: {slug}, raw: true})
-      .then(profile => 
+      .then(profile =>
         Promise.all([profile.id, db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}}), db.formatter.findAll(), db.generator.findAll({where: {profile_id: profile.id}})])
       )
       // Given a profile id and its generators, hit all the API endpoints they provide
@@ -211,22 +235,7 @@ module.exports = function(app) {
         const requests = Array.from(new Set(generators.map(g => g.api)));
         // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
         // The .catch here is to handle malformed API urls, returning an empty object
-        const fetches = requests.map(r => {
-          let url = urlSwap(r, {...req.params, ...cache, ...attr, locale});
-          if (url.indexOf("http") !== 0) {
-            const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
-            url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
-          }
-          return axios.get(url)
-            .then(resp => {
-              if (verbose) console.log("Variable Loaded:", url);
-              return resp;
-            })
-            .catch(() => {
-              if (verbose) console.log("Variable Error:", url);
-              return {};
-            });
-        });
+        const fetches = requests.map(r => throttle.add(createGeneratorFetch.bind(this, r, attr)));
         return Promise.all([pid, generators, requests, formatterFunctions, Promise.all(fetches)]);
       })
       // Given a profile id, its generators, their API endpoints, and the responses of those endpoints,
@@ -375,7 +384,7 @@ module.exports = function(app) {
     // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
     db.story.findOne(reqObj).then(story => {
-      story = sortStory(extractLocaleContent(story, locale, "story")); 
+      story = sortStory(extractLocaleContent(story, locale, "story"));
       // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
       // Do a naive varswap (with no formatters and no variables) just to access the transpile for vizes.
       story = varSwapRecursive(story, {}, {});
