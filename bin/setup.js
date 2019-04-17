@@ -11,8 +11,7 @@ pkg.main = "src/index.js";
 Object.keys(canon.bin).forEach(script => {
   pkg.scripts[script.split("-")[1]] = script;
 });
-pkg.scripts.start = "pm2 start index.js -i max";
-pkg.scripts.stop = "pm2 delete all";
+pkg.scripts.start = "node index.js";
 
 new shell.ShellString(JSON.stringify(pkg, null, 2)).to("package.json");
 
