@@ -1,4 +1,10 @@
 import axios from "axios";
+import PromiseThrottle from "promise-throttle";
+
+const throttle = new PromiseThrottle({
+  requestsPerSecond: 10,
+  promiseImplementation: Promise
+});
 
 /**
  * @function fetchData
@@ -25,7 +31,7 @@ function fetchData(key, url, format = d => d, config = {}) {
 
     return {
       type: "GET_DATA",
-      promise: axios.get(encodeURI(u), config).then(res => ({key, data: format(res.data)})),
+      promise: throttle.add(() => axios.get(encodeURI(u), config).then(res => ({key, data: format(res.data)}))),
       description: u
     };
 

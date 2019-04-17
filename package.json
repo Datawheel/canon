@@ -103,6 +103,7 @@
     "postcss-preset-env": "^6.5.0",
     "postcss-reporter": "^5.0.0",
     "pretty": "^2.0.0",
+    "promise-throttle": "^1.0.0",
     "prop-types": "^15.6.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
@@ -131,7 +132,7 @@
     "yn": "^3.0.0"
   },
   "devDependencies": {
-    "@datawheel/canon-logiclayer": "0.3.12",
+    "@datawheel/canon-logiclayer": "0.3.18",
     "@datawheel/canon-vizbuilder": "^0.2.7"
   }
 }
