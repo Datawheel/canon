@@ -121,6 +121,26 @@ class Options extends Component {
     const {openDialog} = this.state;
     const {transitionDuration} = this.props;
 
+    if (slug && !this.state.openDialog) {
+      setTimeout(() => {
+
+        /* IE is the wurst with CSSTransitionGroup */
+        document.getElementsByClassName("options-dialog")[0].style.opacity = 1;
+
+        /* give focus to the correct tab */
+        document.getElementById(`pt-tab-title_undefined_${slug}`).focus();
+
+      }, transitionDuration + 1000);
+    }
+    else if (!slug) {
+      setTimeout(() => {
+
+        /* give focus back to the original button */
+        document.getElementById(`options-button-${this.props.slug}-${openDialog}`).focus();
+
+      }, transitionDuration + 1000);
+    }
+
     const node = this.getNode.bind(this)();
     if (node && !this.state.openDialog) {
       const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
@@ -136,17 +156,6 @@ class Options extends Component {
           const results = dataFormat(resp.data);
           this.setState({loading: false, results});
         });
-    }
-
-    if (slug) {
-      setTimeout(() => {
-        document.getElementById(`pt-tab-title_undefined_${slug}`).focus();
-      }, transitionDuration);
-    }
-    else {
-      setTimeout(() => {
-        document.getElementById(`options-button-${this.props.slug}-${openDialog}`).focus();
-      }, transitionDuration);
     }
 
   }
@@ -225,8 +234,7 @@ class Options extends Component {
             isRowResizable={false}
             numRows={ results.length }
             rowHeights={results.map(() => 40)}
-            selectionModes={SelectionModes.NONE}
-            transitionDuration={transitionDuration}>
+            selectionModes={SelectionModes.NONE}>
             { columns.map(c => <Column id={ c } key={ c } name={ c } renderCell={ renderCell } />) }
           </Table>
         </div>
@@ -246,9 +254,10 @@ class Options extends Component {
       </Button>
 
       <Dialog className="options-dialog"
-        autoFocus={false}
+        autoFocus={true}
         isOpen={openDialog}
-        onClose={this.toggleDialog.bind(this, false)}>
+        onClose={this.toggleDialog.bind(this, false)}
+        transitionDuration={transitionDuration}>
         <Tabs2 onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
           <Tab2 id="view-table" title="View Data" panel={<DataPanel />} />
           <Tab2 id="save-image" title="Save Image" panel={<ImagePanel />} />
