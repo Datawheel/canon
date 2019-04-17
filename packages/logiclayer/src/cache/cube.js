@@ -17,6 +17,40 @@ const {CANON_LOGICLAYER_CUBE} = process.env;
 module.exports = async function() {
 
   const client = new Client(CANON_LOGICLAYER_CUBE);
+  let count = 0, total = 0;
+
+  /** */
+  function memberQuery(cube) {
+
+    const {preferred} = cube.yearDims;
+    const levels = preferred.hierarchies[0].levels;
+
+    return client.members(levels.find(d => d.name.includes("Year")))
+      .then(members => {
+        count++;
+        readline.clearLine(process.stdout, 0);
+        readline.cursorTo(process.stdout, 0);
+        const years = members
+          .map(d => (d.name = parseInt(d.name, 10), d))
+          .filter(d => !isNaN(d.name))
+          .sort((a, b) => a.name - b.name);
+        const current = years.filter(d => d.name <= currentYear);
+        const obj = {
+          cube: cube.name,
+          latest: current[current.length - 1].key,
+          oldest: current[0].key,
+          previous: current.length > 1 ? current[current.length - 2].key : current[current.length - 1].key,
+          years: years.map(d => d.key)
+        };
+        process.stdout.write(`logiclayer: cube (${count} of ${total} year queries complete)`);
+        return obj;
+      })
+      .catch(err => {
+        console.error(chalk`{bold.red Error} {bold [logiclayer - year cache]} ${cube.name} {italic.green (${err.status ? `${err.status} - ` : ""}${err.message})}`);
+        return false;
+      });
+
+  }
 
   const cubes = await client.cubes()
     .catch(err => {
@@ -71,8 +105,6 @@ module.exports = async function() {
 
   });
 
-  let count = 0, total = 0;
-
   const cubeQueries = cubes
     .filter(cube => {
       const dims = findYears(cube.dimensions);
@@ -80,39 +112,7 @@ module.exports = async function() {
       cube.yearDims = dims;
       return cube;
     })
-    .map(cube => {
-
-      const {preferred} = cube.yearDims;
-      const levels = preferred.hierarchies[0].levels;
-
-      const query = client.members(levels.find(d => d.name.includes("Year")))
-        .then(members => {
-          count++;
-          readline.clearLine(process.stdout, 0);
-          readline.cursorTo(process.stdout, 0);
-          const years = members
-            .map(d => (d.name = parseInt(d.name, 10), d))
-            .filter(d => !isNaN(d.name))
-            .sort((a, b) => a.name - b.name);
-          const current = years.filter(d => d.name <= currentYear);
-          const obj = {
-            cube: cube.name,
-            latest: current[current.length - 1].key,
-            oldest: current[0].key,
-            previous: current.length > 1 ? current[current.length - 2].key : current[current.length - 1].key,
-            years: years.map(d => d.key)
-          };
-          process.stdout.write(`logiclayer: cube (${count} of ${total} year queries complete)`);
-          return obj;
-        })
-        .catch(err => {
-          console.error(chalk`{bold.red Error} {bold [logiclayer - year cache]} ${cube.name} {italic.green (${err.status ? `${err.status} - ` : ""}${err.message})}`);
-          return false;
-        });
-
-      return throttle.add(() => query);
-
-    });
+    .map(cube => throttle.add(memberQuery.bind(this, cube)));
 
   total = cubeQueries.length;
 
