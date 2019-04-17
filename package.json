@@ -16,8 +16,7 @@
     "locales": "canon-locales",
     "release": "canon-release",
     "setup": "canon-setup",
-    "start": "pm2 start index.js -i max",
-    "stop": "pm2 delete all"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -90,7 +89,6 @@
     "passport-twitter": "^1.0.4",
     "pg": "^6.4.2",
     "pixrem": "^4.0.1",
-    "pm2": "^3.5.0",
     "postcss-conditionals": "^2.1.0",
     "postcss-cssnext": "^3.1.0",
     "postcss-custom-properties": "^6.2.0",
