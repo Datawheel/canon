@@ -1,6 +1,6 @@
 {
   "name": "@datawheel/canon-core",
-  "version": "0.17.16",
+  "version": "0.17.17",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "src/index.js",
   "bin": {
