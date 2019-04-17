@@ -14,6 +14,10 @@ Content Management System for Canon sites.
 
 Coming "Soon" by @jhmullen :grimacing:
 
+```sh
+export CANON_CMS_CUBES=https://data-dev.stat.ee/cubes
+```
+
 ---
 
 ## Rendering a Profile

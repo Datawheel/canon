@@ -1,7 +1,7 @@
 const d3Array = require("d3-array");
 const axios = require("axios");
 
-const {CANON_LOGICLAYER_CUBE} = process.env;
+const {CANON_CMS_CUBES} = process.env;
 
 const s = (a, b) => {
   const ta = a.name.toUpperCase();
@@ -11,7 +11,7 @@ const s = (a, b) => {
 
 module.exports = async function() {
 
-  const client = axios.get(`${CANON_LOGICLAYER_CUBE}cubes`);
+  const client = axios.get(CANON_CMS_CUBES);
   const resp = await client;
   const cubes = resp.data.cubes;
 
@@ -30,8 +30,8 @@ module.exports = async function() {
         const levels = h.levels.filter(l => l.name !== "(All)").map(l => {
           const parts = l.fullName
             ? l.fullName
-                .split(".")
-                .map(p => p.replace(/^\[|\]$/g, ""))
+              .split(".")
+              .map(p => p.replace(/^\[|\]$/g, ""))
             : [d.name, h.name, l.name];
 
           if (parts.length === 2) parts.unshift(parts[0]);
