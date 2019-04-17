@@ -5,8 +5,10 @@ const {Client} = require("mondrian-rest-client"),
       findYears = require("../utils/findYears"),
       readline = require("readline");
 
+const requestsPerSecond = process.env.NODE_ENV === "production" ? 1 : 10;
+
 const throttle = new PromiseThrottle({
-  requestsPerSecond: 10,
+  requestsPerSecond,
   promiseImplementation: Promise
 });
 
