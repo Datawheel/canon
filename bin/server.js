@@ -359,7 +359,7 @@ async function start() {
 
   app.listen(PORT);
 
-  process.send("ready");
+  if (process.send) process.send("ready");
 
 }
 
