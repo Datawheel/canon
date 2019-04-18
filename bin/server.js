@@ -369,6 +369,8 @@ async function start() {
 
   app.listen(PORT);
 
+  process.send("ready");
+
 }
 
 start();
