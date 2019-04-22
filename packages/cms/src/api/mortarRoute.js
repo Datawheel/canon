@@ -83,7 +83,7 @@ const storyReq = {
   ]
 };
 
-const formatters4eval = formatters => formatters.reduce((acc, f) => {
+const formatters4eval = (formatters, locale) => formatters.reduce((acc, f) => {
 
   const name = f.name === f.name.toUpperCase()
     ? f.name.toLowerCase()
@@ -91,11 +91,11 @@ const formatters4eval = formatters => formatters.reduce((acc, f) => {
 
   // Formatters may be malformed. Wrap in a try/catch to avoid js crashes.
   try {
-    acc[name] = FUNC.parse({logic: f.logic, vars: ["n"]}, acc);
+    acc[name] = FUNC.parse({logic: f.logic, vars: ["n"]}, acc, locale);
   }
   catch (e) {
     console.log("Server-side Malformed Formatter encountered: ", e.message);
-    acc[name] = FUNC.parse({logic: "return \"N/A\";", vars: ["n"]}, acc);
+    acc[name] = FUNC.parse({logic: "return \"N/A\";", vars: ["n"]}, acc, locale);
   }
 
   return acc;
@@ -230,7 +230,7 @@ module.exports = function(app) {
       .then(resp => {
         const [pid, attr, formatters, generators] = resp;
         // Create a hash table so the formatters are directly accessible by name
-        const formatterFunctions = formatters4eval(formatters);
+        const formatterFunctions = formatters4eval(formatters, locale);
         // Deduplicate generators that share an API endpoint
         const requests = Array.from(new Set(generators.map(g => g.api)));
         // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
@@ -311,7 +311,7 @@ module.exports = function(app) {
         delete variables._genStatus;
         delete variables._matStatus;
         const formatters = resp[1];
-        const formatterFunctions = formatters4eval(formatters);
+        const formatterFunctions = formatters4eval(formatters, locale);
         const request = axios.get(`${origin}/api/internalprofile/${slug}${localeString}`);
         return Promise.all([variables, formatterFunctions, request]);
       })
@@ -362,7 +362,7 @@ module.exports = function(app) {
         delete variables._genStatus;
         delete variables._matStatus;
         const formatters = resp[1];
-        const formatterFunctions = formatters4eval(formatters);
+        const formatterFunctions = formatters4eval(formatters, locale);
         let topic = extractLocaleContent(resp[2], locale, "topic");
         topic = varSwapRecursive(topic, formatterFunctions, variables, req.query);
         if (topic.subtitles) topic.subtitles.sort(sorter);
