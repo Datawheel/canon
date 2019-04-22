@@ -140,13 +140,16 @@ export default function chartCriteria(results, params) {
       availableCharts.delete("lineplot");
 
       const {newDataset, newMembers} = getTopTenByYear(datagroup);
-      datagroups.push({
-        ...datagroup,
-        charts: ["lineplot"],
-        dataset: newDataset,
-        members: newMembers,
-        quirk: QUIRKS.TOPTEN
-      });
+      const newTimeLevelMembers = newMembers[timeLevelName] || [];
+      if (timeLevelName && newTimeLevelMembers.length > 1) {
+        datagroups.push({
+          ...datagroup,
+          charts: ["lineplot"],
+          dataset: newDataset,
+          members: newMembers,
+          quirk: QUIRKS.TOPTEN
+        });
+      }
     }
 
     datagroup.charts = Array.from(availableCharts);
