@@ -9,6 +9,10 @@ import {
   colorScaleConfig
 } from "./params";
 
+function tableLogic(cubes, query) {
+  return cubes.find(d => d.name.includes("_5")) || cubes[0];
+}
+
 class VisualizePage extends React.Component {
   constructor(props) {
     super(props);
@@ -22,7 +26,7 @@ class VisualizePage extends React.Component {
 
   activate() {
     this.props.router.push(
-      "/visualize?filters=0-Z1jivMs-4-10000000000&groups=0-HIqzX&measure=Z1jivMs"
+      "/visualize"
     );
     this.setState({intro: false});
   }
@@ -68,6 +72,7 @@ class VisualizePage extends React.Component {
             zoomScroll: true
           }}
           src={ENDPOINT}
+          tableLogic={tableLogic}
           topojson={DEFAULT_TOPOJSON}
         />
       </div>
