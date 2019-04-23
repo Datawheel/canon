@@ -284,6 +284,7 @@ class TopicEditor extends Component {
               key={s.id}
               minData={s}
               type="selector"
+              locale={localeDefault}
               onSave={() => this.forceUpdate()}
               onDelete={this.onDelete.bind(this)}
               variables={variables[localeDefault]}

@@ -67,8 +67,8 @@ class ProfileBuilder extends Component {
 
   buildNodes(openNode) {
     const {profiles} = this.state;
-    const {stripHTML} = this.context.formatters;
     const {localeDefault} = this.props;
+    const {stripHTML} = this.context.formatters[localeDefault];
     // const {profileSlug, topicSlug} = this.props.pathObj;
     const nodes = profiles.map(p => ({
       id: `profile${p.id}`,
@@ -142,8 +142,8 @@ class ProfileBuilder extends Component {
     const {nodes} = this.state;
     const {variablesHash, currentSlug} = this.state;
     const {localeDefault} = this.props;
-    const {stripHTML} = this.context.formatters;
-    const {formatters} = this.context;
+    const formatters = this.context.formatters[localeDefault];
+    const {stripHTML} = formatters;
     const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     n = this.locateNode(n.itemType, n.data.id);
     let parent;
@@ -273,7 +273,7 @@ class ProfileBuilder extends Component {
   deleteItem(n) {
     const {nodes} = this.state;
     const {localeDefault} = this.props;
-    const {stripHTML} = this.context.formatters;
+    const {stripHTML} = this.context.formatters[localeDefault];
     // If this method is running, then the user has clicked "Confirm" in the Deletion Alert. Setting the state of
     // nodeToDelete back to false will close the Alert popover.
     const nodeToDelete = false;
@@ -402,8 +402,8 @@ class ProfileBuilder extends Component {
     const {nodes} = this.state;
     const {variablesHash, currentSlug} = this.state;
     const {localeDefault} = this.props;
-    const {stripHTML} = this.context.formatters;
-    const {formatters} = this.context;
+    const formatters = this.context.formatters[localeDefault];
+    const {stripHTML} = formatters;
     const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     const node = this.locateNode.bind(this)(type, id);
     // Update the label based on the new value. If this is a topic, this is the only thing needed
@@ -443,8 +443,8 @@ class ProfileBuilder extends Component {
   formatTreeVariables() {
     const {variablesHash, currentSlug, nodes} = this.state;
     const {localeDefault} = this.props;
-    const {stripHTML} = this.context.formatters;
-    const {formatters} = this.context;
+    const formatters = this.context.formatters[localeDefault];
+    const {stripHTML} = formatters;
     const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     const p = this.locateProfileNodeBySlug(currentSlug);
     p.label = varSwap(p.data.slug, formatters, variables);

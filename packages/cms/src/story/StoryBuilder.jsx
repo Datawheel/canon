@@ -44,7 +44,7 @@ class StoryBuilder extends Component {
   buildNodes(openNode) {
     const {stories} = this.state;
     const {localeDefault} = this.props;
-    const {stripHTML} = this.context.formatters;
+    const {stripHTML} = this.context.formatters[localeDefault];
     const nodes = stories.map(s => {
       const defCon = s.content.find(c => c.lang === localeDefault);
       const title = defCon && defCon.title ? defCon.title : s.slug;
@@ -110,8 +110,8 @@ class StoryBuilder extends Component {
 
   addItem(n, dir) {
     const {nodes} = this.state;
-    const {stripHTML} = this.context.formatters;
     const {localeDefault} = this.props;
+    const {stripHTML} = this.context.formatters[localeDefault];
     n = this.locateNode(n.itemType, n.data.id);
     let parentArray;
     if (n.itemType === "storytopic") {
@@ -222,8 +222,8 @@ class StoryBuilder extends Component {
 
   deleteItem(n) {
     const {nodes} = this.state;
-    const {stripHTML} = this.context.formatters;
     const {localeDefault} = this.props;
+    const {stripHTML} = this.context.formatters[localeDefault];
     n = this.locateNode(n.itemType, n.data.id);
     const nodeToDelete = false;
     // todo: instead of the piecemeal refreshes being done for each of these tiers - is it sufficient to run buildNodes again?
@@ -329,8 +329,8 @@ class StoryBuilder extends Component {
    */
   reportSave(type, id, newValue) {
     const {nodes} = this.state;
-    const {stripHTML} = this.context.formatters;
     const {localeDefault} = this.props;
+    const {stripHTML} = this.context.formatters[localeDefault];
     const node = this.locateNode.bind(this)(type, id);
     // Update the label based on the new value. If this is a section or a topic, this is the only thing needed
     if (node) {

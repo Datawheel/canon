@@ -16,10 +16,11 @@ class Viz extends Component {
   }
 
   render() {
-    const {formatters} = this.context;
 
     const variables = this.props.variables || this.context.variables;
     const locale = this.props.locale || this.context.locale;
+
+    const formatters = this.context.formatters[locale];
 
     const {config, configOverride, className, options, slug, topic} = this.props;
 
