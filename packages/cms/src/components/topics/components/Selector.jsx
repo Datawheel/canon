@@ -57,7 +57,7 @@ class Selector extends Component {
             <div className="multi-list">
               { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
                 { variables[d] }
-                <button className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
+                <button aria-label={`${variables[d]} (remove)`} className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
               </div>) }
             </div>
             { comparisons.length !== options.length
