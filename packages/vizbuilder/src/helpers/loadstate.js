@@ -109,7 +109,14 @@ export function fetchControl(preQuery, postQuery) {
         charts = chartCollision(charts);
 
         // activeChart example: treemap-z9TnC_1cDpEA
-        if (charts.length === 1) {
+        if (
+          initialState.uiParams.activeChart &&
+          initialState.charts.length === 1 &&
+          charts.length > 1
+        ) {
+          activeChart = null;
+        }
+        else if (charts.length === 1) {
           activeChart = charts[0].key;
         }
         else if (charts.map(ch => ch.key).indexOf(activeChart) === -1) {
