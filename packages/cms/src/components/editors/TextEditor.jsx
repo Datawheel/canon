@@ -69,7 +69,7 @@ class TextEditor extends Component {
 
     const {data, fields} = this.state;
     const {variables, locale} = this.props;
-    const {formatters} = this.context;
+    const formatters = this.context.formatters[locale];
 
     if (!data || !fields || !variables || !formatters) return null;
 

@@ -72,7 +72,7 @@ class TextCard extends Component {
 
   formatDisplay() {
     const {variables, selectors, locale} = this.props;
-    const {formatters} = this.context;
+    const formatters = this.context.formatters[locale];
 
     const minData = this.populateLanguageContent.bind(this)(this.state.minData);
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order

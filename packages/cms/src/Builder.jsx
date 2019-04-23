@@ -1,4 +1,4 @@
-import libs from "./utils/libs";
+import funcifyFormatterByLocale from "./utils/funcifyFormatterByLocale";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import ProfileBuilder from "./profile/ProfileBuilder";
@@ -22,13 +22,7 @@ class Builder extends Component {
       localeDefault: false,
       secondaryLocale: false,
       // showLocale: false,
-
-      formatters: (props.formatters || []).reduce((acc, d) => {
-        const f = Function("n", "libs", "formatters", d.logic);
-        const fName = d.name.replace(/^\w/g, chr => chr.toLowerCase());
-        acc[fName] = n => f(n, libs, acc);
-        return acc;
-      }, {})
+      formatters: {}
     };
   }
 
@@ -40,14 +34,20 @@ class Builder extends Component {
     // env.CANON_LANGUAGES = false;
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
+    const formatters = {};
+    formatters[localeDefault] = funcifyFormatterByLocale(this.props.formatters, localeDefault);
     if (env.CANON_LANGUAGES && env.CANON_LANGUAGES.includes(",")) {
       const locales = env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault);
       const secondaryLocale = locales[0];
-      this.setState({locales, secondaryLocale, localeDefault});
+      locales.forEach(locale => {
+        formatters[locale] = funcifyFormatterByLocale(this.props.formatters, locale);
+      });
+      this.setState({locales, formatters, secondaryLocale, localeDefault});
     }
     else {
-      this.setState({localeDefault});
+      this.setState({localeDefault, formatters});
     }
+    console.log(formatters);
   }
 
   getChildContext() {

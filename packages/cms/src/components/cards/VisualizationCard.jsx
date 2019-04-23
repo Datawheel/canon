@@ -108,8 +108,8 @@ class VisualizationCard extends Component {
 
     if (!minData) return <Loading />;
 
-    const {formatters} = this.context;
     const {selectors, type, variables, parentArray, item, preview, locale, localeDefault} = this.props;
+    const formatters = this.context.formatters[locale];
 
     minData.selectors = selectors;
     let logic = false;

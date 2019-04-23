@@ -111,8 +111,8 @@ class SelectorCard extends Component {
 
   render() {
     const {minData, isOpen, alertObj} = this.state;
-    const {variables, parentArray, type} = this.props;
-    const {formatters} = this.context;
+    const {variables, parentArray, type, locale} = this.props;
+    const formatters = this.context.formatters[locale];
 
     if (!minData) return <Loading />;
 
