@@ -109,7 +109,7 @@ export default function chartCriteria(results, params) {
 
     // Hide charts that would show a single shape only
     // (that is, if any drilldown, besides Year, only has 1 member)
-    if (query.levels.map(lvl => lvl.name).every(d => members[d].length === 1)) {
+    if (query.levels.every(lvl => members[lvl.name].length === 1)) {
       availableCharts.delete("barchart");
       availableCharts.delete("stacked");
       availableCharts.delete("treemap");
