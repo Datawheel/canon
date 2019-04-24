@@ -20,7 +20,13 @@ class Viz extends Component {
     const variables = this.props.variables || this.context.variables;
     const locale = this.props.locale || this.context.locale;
 
-    const formatters = this.context.formatters[locale];
+    // This Viz component may be embedded in two ways - as a VisualizationCard in the
+    // CMS, or as an actual Viz on a front-end site. In the former case, formatters
+    // is a lookup object of languages, so we must fetch the appropriate formatter set.
+    // In the latter, the locale is passed in based on params and then used in propify.
+    // Thus, we use a flat formatter list, passed down by Profile.jsx, not needing a 
+    // locale-nested format.    
+    const formatters = this.context.formatters[locale] || this.context.formatters;
 
     const {config, configOverride, className, options, slug, topic} = this.props;
 
