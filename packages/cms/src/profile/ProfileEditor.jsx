@@ -6,7 +6,6 @@ import Loading from "components/Loading";
 
 import GeneratorCard from "../components/cards/GeneratorCard";
 import TextCard from "../components/cards/TextCard";
-import MoveButtons from "../components/MoveButtons";
 
 import "./ProfileEditor.css";
 
@@ -167,6 +166,7 @@ class ProfileEditor extends Component {
               .map(g => <GeneratorCard
                 key={g.id}
                 item={g}
+                attr={minData.attr || {}}
                 locale={localeDefault}
                 localeDefault={localeDefault}
                 preview={preview}
@@ -186,6 +186,7 @@ class ProfileEditor extends Component {
                   <GeneratorCard
                     key={g.id}
                     item={g}
+                    attr={minData.attr || {}}
                     locale={locale}
                     localeDefault={localeDefault}
                     preview={preview}

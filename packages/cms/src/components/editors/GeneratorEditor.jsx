@@ -104,12 +104,12 @@ class GeneratorEditor extends Component {
   previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
-    const {preview, variables, locale} = this.props;
+    const {attr, preview, variables, locale} = this.props;
     if (api) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value. Same goes for locale
-      const url = urlSwap(api, Object.assign({}, variables, {id: preview, locale}));
+      const url = urlSwap(api, Object.assign({}, attr, variables, {id: preview, locale}));
       axios.get(url).then(resp => {
         const payload = resp.data;
         let {simple} = this.state;

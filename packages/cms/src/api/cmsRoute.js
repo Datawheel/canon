@@ -144,8 +144,9 @@ const sortStoryTree = (db, stories) => {
   return stories;
 };
 
-const sortProfile = (db, profile) => {
+const sortProfile = (db, profile, attr) => {
   profile = profile.toJSON();
+  profile.attr = attr ? attr.toJSON() : {};
   profile.materializers = flatSort(db.materializer, profile.materializers);
   return profile;
 };
@@ -298,7 +299,10 @@ module.exports = function(app) {
     const {id} = req.params;
     const reqObj = Object.assign({}, profileReqProfileOnly, {where: {id}});
     const profile = await db.profile.findOne(reqObj);
-    res.json(sortProfile(db, profile)).end();
+    const attr = await db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}});
+    // Simpler version of search for cms versions that precede use of levels in profiles
+    // const attr = await db.search.findOne({where: {id}});
+    res.json(sortProfile(db, profile, attr)).end();
   });
 
   app.get("/api/cms/story/get/:id", async(req, res) => {
@@ -381,7 +385,6 @@ module.exports = function(app) {
 
   app.post("/api/cms/profile/newScaffold", isEnabled, (req, res) => {
     const profileData = req.body;
-    console.log("why tho", profileData);
     db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName, levels: profileData.levels}).then(profile => {
       db.profile_content.create({id: profile.id, lang: envLoc}).then(() => {
         db.topic.create({ordering: 0, profile_id: profile.id}).then(topic => {
