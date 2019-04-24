@@ -6,7 +6,6 @@ import StoryBuilder from "./story/StoryBuilder";
 import FormatterEditor from "./formatter/FormatterEditor";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
-import {Switch} from "@blueprintjs/core";
 
 import "./cms.css";
 import "./themes/cms-dark.css";
@@ -47,7 +46,6 @@ class Builder extends Component {
     else {
       this.setState({localeDefault, formatters});
     }
-    console.log(formatters);
   }
 
   getChildContext() {

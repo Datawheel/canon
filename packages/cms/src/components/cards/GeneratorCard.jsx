@@ -123,7 +123,7 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {type, variables, item, parentArray, preview, locale, localeDefault} = this.props;
+    const {attr, type, variables, item, parentArray, preview, locale, localeDefault} = this.props;
     const {displayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
@@ -232,6 +232,7 @@ class GeneratorCard extends Component {
             <GeneratorEditor
               markAsDirty={this.markAsDirty.bind(this)}
               preview={preview}
+              attr={attr}
               locale={locale}
               data={minData}
               variables={variables}
