@@ -12,9 +12,9 @@ class Profile extends Component {
     const {variables} = profile;
     return {
       formatters: formatters.reduce((acc, d) => {
-        const f = Function("n", "libs", "formatters", d.logic);
+        const f = Function("n", "libs", "locale", "formatters", d.logic);
         const fName = d.name.replace(/^\w/g, chr => chr.toLowerCase());
-        acc[fName] = n => f(n, libs, acc);
+        acc[fName] = n => f(n, libs, locale, acc);
         return acc;
       }, {}),
       router,
