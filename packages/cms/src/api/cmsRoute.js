@@ -271,28 +271,25 @@ module.exports = function(app) {
 
   const {db} = app.settings;
 
-  app.get("/api/cms", (req, res) => {
-    res.json(cmsCheck()).end();
-  });
+  app.get("/api/cms", (req, res) => res.json(cmsCheck()));
 
   /* GETS */
 
   app.get("/api/cms/tree", async(req, res) => {
     let profiles = await db.profile.findAll(profileReqTreeOnly);
     profiles = sortProfileTree(db, profiles);
-    res.json(profiles).end();
+    return res.json(profiles);
   });
 
   app.get("/api/cms/storytree", async(req, res) => {
     let stories = await db.story.findAll(storyReqTreeOnly);
     stories = sortStoryTree(db, stories);
-    res.json(stories).end();
+    return res.json(stories);
   });
 
-  app.get("/api/cms/formattertree", (req, res) => {
-    db.formatter.findAll(formatterReqTreeOnly).then(formatters => {
-      res.json(formatters).end();
-    });
+  app.get("/api/cms/formattertree", async(req, res) => {
+    const formatters = await db.formatter.findAll(formatterReqTreeOnly);
+    return res.json(formatters);
   });
 
   app.get("/api/cms/profile/get/:id", async(req, res) => {
@@ -302,14 +299,14 @@ module.exports = function(app) {
     const attr = await db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}});
     // Simpler version of search for cms versions that precede use of levels in profiles
     // const attr = await db.search.findOne({where: {id}});
-    res.json(sortProfile(db, profile, attr)).end();
+    return res.json(sortProfile(db, profile, attr));
   });
 
   app.get("/api/cms/story/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, storyReqStoryOnly, {where: {id}});
     const story = await db.story.findOne(reqObj);
-    res.json(sortStory(db, story)).end();
+    return res.json(sortStory(db, story));
   });
 
   app.get("/api/cms/topic/get/:id", async(req, res) => {
@@ -327,7 +324,7 @@ module.exports = function(app) {
     });
     topic = sortTopic(db, topic);
     topic.types = topicTypes;
-    res.json(topic).end();
+    return res.json(topic);
   });
 
   app.get("/api/cms/storytopic/get/:id", async(req, res) => {
@@ -341,7 +338,7 @@ module.exports = function(app) {
     });
     storytopic = sortStoryTopic(db, storytopic);
     storytopic.types = topicTypes;
-    res.json(storytopic).end();
+    return res.json(storytopic);
   });
 
   // Top-level tables have their own special gets, so exclude them from the "simple" gets
@@ -350,12 +347,14 @@ module.exports = function(app) {
   );
 
   getList.forEach(ref => {
-    app.get(`/api/cms/${ref}/get/:id`, (req, res) => {
+    app.get(`/api/cms/${ref}/get/:id`, async(req, res) => {
       if (contentTables.includes(ref)) {
-        db[ref].findOne({where: {id: req.params.id}, include: {association: "content"}}).then(u => res.json(u).end());
+        const u = await db[ref].findOne({where: {id: req.params.id}, include: {association: "content"}});
+        return res.json(u);
       }
       else {
-        db[ref].findOne({where: {id: req.params.id}}).then(u => res.json(u).end()); 
+        const u = await db[ref].findOne({where: {id: req.params.id}});
+        return res.json(u);
       }
     });
   });
@@ -364,57 +363,46 @@ module.exports = function(app) {
   // For now, all "create" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.
   const newList = cmsTables;
   newList.forEach(ref => {
-    app.post(`/api/cms/${ref}/new`, isEnabled, (req, res) => {
+    app.post(`/api/cms/${ref}/new`, isEnabled, async(req, res) => {
       // First, create the metadata object in the top-level table
-      db[ref].create(req.body).then(newObj => {
-        // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
-        if (contentTables.includes(ref)) {
-          const payload = Object.assign({}, req.body, {id: newObj.id, lang: envLoc});
-          db[`${ref}_content`].create(payload).then(() => {
-            db[ref].findOne({where: {id: newObj.id}, include: [{association: "content"}]}).then(fullObj => {
-              res.json(fullObj).end();
-            });
-          });
-        }
-        else {
-          res.json(newObj).end();
-        }
-      });
+      const newObj = await db[ref].create(req.body);
+      // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
+      if (contentTables.includes(ref)) {
+        const payload = Object.assign({}, req.body, {id: newObj.id, lang: envLoc});
+        await db[`${ref}_content`].create(payload);
+        const fullObj = await db[ref].findOne({where: {id: newObj.id}, include: [{association: "content"}]});
+        return res.json(fullObj);
+      }
+      else {
+        return res.json(newObj);
+      }
     });
   });
 
-  app.post("/api/cms/profile/newScaffold", isEnabled, (req, res) => {
+  app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
     const profileData = req.body;
-    db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName, levels: profileData.levels}).then(profile => {
-      db.profile_content.create({id: profile.id, lang: envLoc}).then(() => {
-        db.topic.create({ordering: 0, profile_id: profile.id}).then(topic => {
-          db.topic_content.create({id: topic.id, lang: envLoc}).then(() => {
-            db.profile.findAll(profileReqTreeOnly).then(profiles => {
-              profiles = sortProfileTree(db, profiles);
-              populateSearch(profileData, db);
-              res.json(profiles).end();
-            });
-          });
-        });
-      });
-    });
+    const profile = await db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName, levels: profileData.levels});
+    await db.profile_content.create({id: profile.id, lang: envLoc});
+    const topic = await db.topic.create({ordering: 0, profile_id: profile.id});
+    await db.topic_content.create({id: topic.id, lang: envLoc});
+    let profiles = await db.profile.findAll(profileReqTreeOnly);
+    profiles = sortProfileTree(db, profiles);
+    populateSearch(profileData, db);
+    return res.json(profiles);
   });
 
   /* UPDATES */
   // For now, all "update" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.
   const updateList = cmsTables;
   updateList.forEach(ref => {
-    app.post(`/api/cms/${ref}/update`, isEnabled, (req, res) => {
-      db[ref].update(req.body, {where: {id: req.body.id}}).then(o => {
-        if (contentTables.includes(ref) && req.body.content) {
-          req.body.content.forEach(content => {
-            db[`${ref}_content`].upsert(content, {where: {id: req.body.id, lang: content.lang}}).then(u => res.json(u).end());
-          });
-        }
-        else {
-          res.json(o).end();
-        }
-      });
+    app.post(`/api/cms/${ref}/update`, isEnabled, async(req, res) => {
+      const o = await db[ref].update(req.body, {where: {id: req.body.id}});
+      if (contentTables.includes(ref) && req.body.content) {
+        req.body.content.forEach(async content => {
+          await db[`${ref}_content`].upsert(content, {where: {id: req.body.id, lang: content.lang}});
+        });
+      }
+      return res.json(o);
     });
   });
 
@@ -431,132 +419,99 @@ module.exports = function(app) {
 
   deleteList.forEach(list => {
     list.elements.forEach(ref => {
-      app.delete(`/api/cms/${ref}/delete`, isEnabled, (req, res) => {
-        db[ref].findOne({where: {id: req.query.id}}).then(row => {
-          // Construct a where clause that looks someting like: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}
-          // except "profile_id" is the "parent" in the array above
-          const where1 = {ordering: {[Op.gt]: row.ordering}};
-          where1[list.parent] = row[list.parent];
-          db[ref].update({ordering: sequelize.literal("ordering -1")}, {where: where1}).then(() => {
-            db[ref].destroy({where: {id: req.query.id}}).then(() => {
-              const where2 = {};
-              where2[list.parent] = row[list.parent];
-              db[ref].findAll({where: where2, attributes: ["id", "ordering"], order: [["ordering", "ASC"]]}).then(rows => {
-                res.json(rows).end();
-              });
-            });
-          });
-        });
-      });
+      app.delete(`/api/cms/${ref}/delete`, isEnabled, async(req, res) => {
+        const row = await db[ref].findOne({where: {id: req.query.id}});
+        // Construct a where clause that looks someting like: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}
+        // except "profile_id" is the "parent" in the array above
+        const where1 = {ordering: {[Op.gt]: row.ordering}};
+        where1[list.parent] = row[list.parent];
+        await db[ref].update({ordering: sequelize.literal("ordering -1")}, {where: where1});
+        await db[ref].destroy({where: {id: req.query.id}});
+        const where2 = {};
+        where2[list.parent] = row[list.parent];
+        const rows = await db[ref].findAll({where: where2, attributes: ["id", "ordering"], order: [["ordering", "ASC"]]});
+        return res.json(rows);
+      });      
     });
   });
 
   // Other (More Complex) Elements
-  app.delete("/api/cms/generator/delete", isEnabled, (req, res) => {
-    db.generator.findOne({where: {id: req.query.id}}).then(row => {
-      db.generator.destroy({where: {id: req.query.id}}).then(() => {
-        db.generator.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "name"]}).then(rows => {
-          res.json(rows).end();
-        });
-      });
-    });
+  app.delete("/api/cms/generator/delete", isEnabled, async(req, res) => {
+    const row = await db.generator.findOne({where: {id: req.query.id}});
+    await db.generator.destroy({where: {id: req.query.id}});
+    const rows = await db.generator.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "name"]});
+    return res.json(rows);
   });
 
-  app.delete("/api/cms/materializer/delete", isEnabled, (req, res) => {
-    db.materializer.findOne({where: {id: req.query.id}}).then(row => {
-      db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
-        db.materializer.destroy({where: {id: req.query.id}}).then(() => {
-          db.materializer.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "ordering", "name"], order: [["ordering", "ASC"]]}).then(rows => {
-            res.json(rows).end();
-          });
-        });
-      });
-    });
+  app.delete("/api/cms/materializer/delete", isEnabled, async(req, res) => {
+    const row = await db.materializer.findOne({where: {id: req.query.id}});
+    await db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}});
+    await db.materializer.destroy({where: {id: req.query.id}});
+    const rows = await db.materializer.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "ordering", "name"], order: [["ordering", "ASC"]]});
+    return res.json(rows);
   });
 
-  app.delete("/api/cms/profile/delete", isEnabled, (req, res) => {
-    db.profile.findOne({where: {id: req.query.id}}).then(row => {
-      db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).then(() => {
-        db.profile.destroy({where: {id: req.query.id}}).then(() => {
-          pruneSearch(row.dimension, row.levels, db);
-          db.profile.findAll(profileReqTreeOnly).then(profiles => {
-            profiles = sortProfileTree(db, profiles);
-            res.json(profiles).end();
-          });
-        });
-      });
-    });
+  app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {
+    const row = await db.profile.findOne({where: {id: req.query.id}});
+    await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}});
+    await db.profile.destroy({where: {id: req.query.id}});
+    pruneSearch(row.dimension, row.levels, db);
+    let profiles = await db.profile.findAll(profileReqTreeOnly);
+    profiles = sortProfileTree(db, profiles);
+    return res.json(profiles);
   });
 
-  app.delete("/api/cms/story/delete", isEnabled, (req, res) => {
-    db.story.findOne({where: {id: req.query.id}}).then(row => {
-      db.story.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).then(() => {
-        db.story.destroy({where: {id: req.query.id}}).then(() => {
-          db.story.findAll(storyReqTreeOnly).then(stories => {
-            stories = sortStoryTree(db, stories);
-            res.json(stories).end();
-          });
-        });
-      });
-    });
+  app.delete("/api/cms/story/delete", isEnabled, async(req, res) => {
+    const row = await db.story.findOne({where: {id: req.query.id}});
+    await db.story.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}});
+    await db.story.destroy({where: {id: req.query.id}});
+    let stories = await db.story.findAll(storyReqTreeOnly);
+    stories = sortStoryTree(db, stories);
+    return res.json(stories);
   });
 
-  app.delete("/api/cms/formatter/delete", isEnabled, (req, res) => {
-    db.formatter.destroy({where: {id: req.query.id}}).then(() => {
-      db.formatter.findAll({attributes: ["id", "name", "description"]}).then(rows => {
-        res.json(rows).end();
-      });
-    });
+  app.delete("/api/cms/formatter/delete", isEnabled, async(req, res) => {
+    await db.formatter.destroy({where: {id: req.query.id}});
+    const rows = await db.formatter.findAll({attributes: ["id", "name", "description"]});
+    return res.json(rows);
   });
 
-  app.delete("/api/cms/topic/delete", isEnabled, (req, res) => {
-    db.topic.findOne({where: {id: req.query.id}}).then(row => {
-      db.topic.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
-        db.topic.destroy({where: {id: req.query.id}}).then(() => {
-          db.topic.findAll({
-            where: {profile_id: row.profile_id}, 
-            attributes: ["id", "slug", "ordering", "profile_id", "type"], 
-            include: [
-              {association: "content", attributes: ["id", "lang", "title"]}
-            ],
-            order: [["ordering", "ASC"]]
-          }).then(rows => {
-            res.json(rows).end();
-          });
-        });
-      });
+  app.delete("/api/cms/topic/delete", isEnabled, async(req, res) => {
+    const row = await db.topic.findOne({where: {id: req.query.id}});
+    await db.topic.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}});
+    await db.topic.destroy({where: {id: req.query.id}});
+    const rows = await db.topic.findAll({
+      where: {profile_id: row.profile_id}, 
+      attributes: ["id", "slug", "ordering", "profile_id", "type"], 
+      include: [
+        {association: "content", attributes: ["id", "lang", "title"]}
+      ],
+      order: [["ordering", "ASC"]]
     });
+    return res.json(rows);
   });
 
-  app.delete("/api/cms/storytopic/delete", isEnabled, (req, res) => {
-    db.storytopic.findOne({where: {id: req.query.id}}).then(row => {
-      db.storytopic.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
-        db.storytopic.destroy({where: {id: req.query.id}}).then(() => {
-          db.storytopic.findAll({
-            where: {story_id: row.story_id}, 
-            attributes: ["id", "slug", "ordering", "story_id", "type"], 
-            include: [
-              {association: "content", attributes: ["id", "lang", "title"]}
-            ],
-            order: [["ordering", "ASC"]]
-          }).then(rows => {
-            res.json(rows).end();
-          });
-        });
-      });
+  app.delete("/api/cms/storytopic/delete", isEnabled, async(req, res) => {
+    const row = await db.storytopic.findOne({where: {id: req.query.id}});
+    await db.storytopic.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}});
+    await db.storytopic.destroy({where: {id: req.query.id}});
+    const rows = await db.storytopic.findAll({
+      where: {story_id: row.story_id}, 
+      attributes: ["id", "slug", "ordering", "story_id", "type"], 
+      include: [
+        {association: "content", attributes: ["id", "lang", "title"]}
+      ],
+      order: [["ordering", "ASC"]]
     });
+    return res.json(rows);
   });
 
-  app.delete("/api/cms/selector/delete", isEnabled, (req, res) => {
-    db.selector.findOne({where: {id: req.query.id}}).then(row => {
-      db.selector.update({ordering: sequelize.literal("ordering -1")}, {where: {topic_id: row.topic_id, ordering: {[Op.gt]: row.ordering}}}).then(() => {
-        db.selector.destroy({where: {id: req.query.id}}).then(() => {
-          db.selector.findAll({where: {topic_id: row.topic_id}, order: [["ordering", "ASC"]]}).then(rows => {
-            res.json(rows).end();
-          });
-        });
-      });
-    });
+  app.delete("/api/cms/selector/delete", isEnabled, async(req, res) => {
+    const row = await db.selector.findOne({where: {id: req.query.id}});
+    await db.selector.update({ordering: sequelize.literal("ordering -1")}, {where: {topic_id: row.topic_id, ordering: {[Op.gt]: row.ordering}}});
+    await db.selector.destroy({where: {id: req.query.id}});
+    const rows = await db.selector.findAll({where: {topic_id: row.topic_id}, order: [["ordering", "ASC"]]});
+    return res.json(rows);
   });
 
 };
