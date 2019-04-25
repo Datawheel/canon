@@ -11,6 +11,13 @@ const FUNC = require("../utils/FUNC"),
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
+const catcher = e => {
+  if (verbose) {
+    console.log("Error in mortarRoute: ", e);
+  }
+  return [];
+};
+
 const throttle = new PromiseThrottle({
   requestsPerSecond: 10,
   promiseImplementation: Promise
@@ -189,7 +196,7 @@ module.exports = function(app) {
     const {slug} = req.params;
     const locale = req.query.locale ? req.query.locale : envLoc;
     const reqObj = Object.assign({}, profileReq, {where: {slug}});
-    const profile = await db.profile.findOne(reqObj);
+    const profile = await db.profile.findOne(reqObj).catch(catcher);
     return res.json(sortProfile(extractLocaleContent(profile, locale, "profile")));
   });
 
@@ -224,18 +231,18 @@ module.exports = function(app) {
     /* Potential TODO here: Later in this function we manually get generators and materializers.
      * Maybe refactor this to get them immediately in the profile get using include.
      */
-    const profile = await db.profile.findOne({where: {slug}, raw: true});
+    const profile = await db.profile.findOne({where: {slug}, raw: true}).catch(catcher);
     const pid = profile.id;
-    const attr = await db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}});
-    const formatters = await db.formatter.findAll();
-    const generators = await db.generator.findAll({where: {profile_id: profile.id}});
+    const attr = await db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}}).catch(catcher);
+    const formatters = await db.formatter.findAll().catch(catcher);
+    const generators = await db.generator.findAll({where: {profile_id: profile.id}}).catch(catcher);
     // Given a profile id and its generators, hit all the API endpoints they provide
     // Create a hash table so the formatters are directly accessible by name
     const formatterFunctions = formatters4eval(formatters, locale);
     // Deduplicate generators that share an API endpoint
     const requests = Array.from(new Set(generators.map(g => g.api)));
     const fetches = requests.map(r => throttle.add(createGeneratorFetch.bind(this, r, attr)));
-    const results = await Promise.all(fetches);
+    const results = await Promise.all(fetches).catch(catcher);
     // Given a profile id, its generators, their API endpoints, and the responses of those endpoints,
     // start to build a returnVariables object by executing the javascript of each generator on its data
     let returnVariables = {};
@@ -254,7 +261,7 @@ module.exports = function(app) {
       }, returnVariables);
     });
     returnVariables._genStatus = genStatus;
-    const materializers = await db.materializer.findAll({where: {profile_id: pid}, raw: true});
+    const materializers = await db.materializer.findAll({where: {profile_id: pid}, raw: true}).catch(catcher);
     // Given the partially built returnVariables and all the materializers for this profile id,
     // Run the materializers and fold their generated variables into returnVariables     
     // The order of materializers matter because input to later materializers depends on output from earlier materializers
@@ -282,20 +289,20 @@ module.exports = function(app) {
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
     const localeString = `?locale=${locale}`;
 
-    const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}});
+    const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}}).catch(catcher);
     const {id} = attribute;
 
-    const variablesResp = await axios.get(`${origin}/api/variables/${slug}/${id}${localeString}`);
+    const variablesResp = await axios.get(`${origin}/api/variables/${slug}/${id}${localeString}`).catch(catcher);
     const variables = variablesResp.data;
     delete variables._genStatus;
     delete variables._matStatus;
-    const formatters = await db.formatter.findAll();
+    const formatters = await db.formatter.findAll().catch(catcher);
     const formatterFunctions = formatters4eval(formatters, locale);
     // Given the completely built returnVariables and all the formatters (formatters are global)
     // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare 
     // it to be formatted and regex replaced.
     // See profileReq above to see the sequelize formatting for fetching the entire profile
-    const request = await axios.get(`${origin}/api/internalprofile/${slug}${localeString}`);    
+    const request = await axios.get(`${origin}/api/internalprofile/${slug}${localeString}`).catch(catcher);    
     // Given an object with completely built returnVariables, a hash array of formatter functions, and the profile itself
     // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
     let returnObject = {};
@@ -317,22 +324,22 @@ module.exports = function(app) {
     const localeString = `?locale=${locale}`;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
 
-    const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}});
+    const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}}).catch(catcher);
     const {id} = attribute;
 
     // As with profiles above, we need formatters, variables, and the topic itself in order to
     // create a "postProcessed" topic that can be returned to the requester.
-    const variablesResp = await axios.get(`${origin}/api/variables/${slug}/${id}${localeString}`);
+    const variablesResp = await axios.get(`${origin}/api/variables/${slug}/${id}${localeString}`).catch(catcher);
     const variables = variablesResp.data;
     delete variables._genStatus;
     delete variables._matStatus;
-    const formatters = await db.formatter.findAll();
+    const formatters = await db.formatter.findAll().catch(catcher);
     const formatterFunctions = formatters4eval(formatters, locale);
 
     const where = {};
     if (isNaN(parseInt(topicId, 10))) where.slug = topicId;
     else where.id = topicId;
-    let topic = await db.topic.findOne({where, include: topicReq});      
+    let topic = await db.topic.findOne({where, include: topicReq}).catch(catcher);      
     topic = extractLocaleContent(topic, locale, "topic");
     topic = varSwapRecursive(topic, formatterFunctions, variables, req.query);
     if (topic.subtitles) topic.subtitles.sort(sorter);
@@ -349,7 +356,7 @@ module.exports = function(app) {
     const locale = req.query.locale ? req.query.locale : envLoc;
     // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
-    let story = await db.story.findOne(reqObj);
+    let story = await db.story.findOne(reqObj).catch(catcher);
     story = sortStory(extractLocaleContent(story, locale, "story"));
     // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
     // Do a naive varswap (with no formatters and no variables) just to access the transpile for vizes.
@@ -365,7 +372,7 @@ module.exports = function(app) {
       {association: "authors", include: [
         {association: "content", attributes: ["name", "image", "lang"]}
       ]}
-    ]});
+    ]}).catch(catcher);
     stories = stories.map(story => extractLocaleContent(story, locale, "story"));
     return res.json(stories.sort(sorter));
   });
