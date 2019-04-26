@@ -10,7 +10,8 @@
     "locales": "canon-locales",
     "release": "canon-release",
     "setup": "canon-setup",
-    "start": "canon-start"
+    "start": "canon-start",
+    "migrate-db": "node scripts/migrate-db.js"
   },
   "dependencies": {
     "@blueprintjs/datetime": "^3.7.1",
