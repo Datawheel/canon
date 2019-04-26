@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-
+ 
 const Sequelize = require("sequelize");
 const fs = require("fs");
 const path = require("path");
@@ -46,9 +46,9 @@ const migrate = async() => {
 
   const tableLookup = {
     descriptions: "topic_description",
-    subtitles: "topic_description",
-    visualizations: "topic_description",
-    stats: "topic_stats"
+    subtitles: "topic_subtitle",
+    visualizations: "topic_visualization",
+    stats: "topic_stat"
   };
   
   // Copy the non-cms tables wholesale
@@ -62,6 +62,9 @@ const migrate = async() => {
   let profiles = await dbold.profiles.findAll({include: [
     {association: "generators"},
     {association: "materializers"},
+    {association: "descriptions"},
+    {association: "stats"},
+    {association: "visualizations"},
     {association: "sections", include: [{association: "topics"}]}
   ]});
   profiles = profiles.map(profile => profile.toJSON());
@@ -88,6 +91,22 @@ const migrate = async() => {
       await dbnew.materializer.create({profile_id: newprofile.id, name, description, logic, ordering}).catch(catcher);
     });
 
+    // make a topic to replace the profile about/stats/viz
+    let profiletopic = await dbnew.topic.create({ordering: nextTopicLoc, profile_id: newprofile.id, type: "About", slug: "about"}).catch(catcher);
+    profiletopic = profiletopic.toJSON();
+    // create its associated english language content
+    await dbnew.topic_content.create({title: "About", lang: "en", id: profiletopic.id});
+    ["descriptions", "stats", "visualizations"].forEach(list => {
+      oldprofile[list].forEach(async entity => {
+        // migrate the array of profile entities to the new "profiletopic"
+        const {ordering, allowed} = entity;
+        let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: profiletopic.id, ordering, allowed});
+        newTopicEntity = newTopicEntity.toJSON();
+        // create associated english content
+        const {description} = entity;
+        await dbnew[`${tableLookup[list]}_content`].create({id: newTopicEntity.id, lang: "en", description});
+      });
+    });
   });
 };
 

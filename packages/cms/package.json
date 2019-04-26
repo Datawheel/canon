@@ -11,7 +11,7 @@
     "release": "canon-release",
     "setup": "canon-setup",
     "start": "canon-start",
-    "migrate-db": "node scripts/migrate-db.js"
+    "migrate-db": "node --max-old-space-size=4096 scripts/migrate-db.js"
   },
   "dependencies": {
     "@blueprintjs/datetime": "^3.7.1",
