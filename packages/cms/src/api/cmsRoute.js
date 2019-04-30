@@ -21,7 +21,7 @@ const isEnabled = (req, res, next) => {
 
 const catcher = e => {
   if (verbose) {
-    console.log("Error in cmsRoute: ", e);
+    console.error("Error in cmsRoute: ", e);
   }
   return [];
 };
@@ -215,7 +215,7 @@ const pruneSearch = async(dimension, levels, db) => {
   // If it gets unwieldy in size however, an optimization could be made here
   if (!currentDimensions.includes(dimension)) {
     const resp = await db.search.destroy({where: {dimension}}).catch(catcher);
-    console.log(`Cleaned up search data. Rows affected: ${resp}`);
+    if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
   }
 };
 
@@ -262,10 +262,10 @@ const populateSearch = (profileData, db) => {
         where: {id, dimension, hierarchy},
         defaults: obj
       }).catch(catcher);
-      if (created) console.log(`Created: ${row.id} ${row.display}`);
+      if (verbose && created) console.log(`Created: ${row.id} ${row.display}`);
       else {
         await row.updateAttributes(obj).catch(catcher);
-        console.log(`Updated: ${row.id} ${row.display}`);
+        if (verbose) console.log(`Updated: ${row.id} ${row.display}`);
       }
     }
 
