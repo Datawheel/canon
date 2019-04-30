@@ -1,5 +1,6 @@
 import axios from "axios";
 import PromiseThrottle from "promise-throttle";
+import {encodeChars} from "../helpers/fixChars.js";
 
 const throttle = new PromiseThrottle({
   requestsPerSecond: 10,
@@ -26,7 +27,7 @@ function fetchData(key, url, format = d => d, config = {}) {
       else if (store.data && store.data[x[0]]) x = x.reduce((o, i) => o[i], store.data);
       else if (store[x[0]]) x = x.reduce((o, i) => o[i], store);
       else x = false;
-      if (x && typeof x !== "object") u = u.replace(variable, x);
+      if (x && typeof x !== "object") u = u.replace(variable, encodeChars(x));
     });
 
     return {
