@@ -12,9 +12,7 @@ const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
 const catcher = e => {
-  if (verbose) {
-    console.log("Error in mortarRoute: ", e);
-  }
+  if (verbose) console.error("Error in mortarRoute: ", e);
   return [];
 };
 
@@ -101,7 +99,7 @@ const formatters4eval = (formatters, locale) => formatters.reduce((acc, f) => {
     acc[name] = FUNC.parse({logic: f.logic, vars: ["n"]}, acc, locale);
   }
   catch (e) {
-    console.log("Server-side Malformed Formatter encountered: ", e.message);
+    if (verbose) console.error("Server-side Malformed Formatter encountered: ", e.message);
     acc[name] = FUNC.parse({logic: "return \"N/A\";", vars: ["n"]}, acc, locale);
   }
 
