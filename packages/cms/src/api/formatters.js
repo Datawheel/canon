@@ -18,7 +18,7 @@ module.exports = function(app) {
               r.logic = code;
             }
             catch (e) {
-              console.log("Error in Formatter Syntax: ", e.message);
+              console.log("Error in Formatter Syntax: ", e.message, `Formatter Name: ${r.name}`);
               r.logic = "return \"N/A\";";
             }
           }

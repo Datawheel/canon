@@ -1,6 +1,9 @@
 const selSwap = require("./selSwap");
 const varSwap = require("./varSwap");
 const buble = require("buble");
+const yn = require("yn");
+
+const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 /* Given an object, a hashtable of formatting functions, and a lookup object full of variables
  * Replace every instance of {{var}} with its true value from the lookup object, and
@@ -46,7 +49,9 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
             obj[skey] = code;
           }
           catch (e) {
-            console.log("Error in ES5 transpiling in varSwapRecursive");
+            if (verbose) {
+              console.error(`Error in ES5 transpiling in varSwapRecursive.\nID was: ${obj.id}\nLogic attempted was: ${obj[skey]}`);
+            }
             // Note: There is no need to do anything special here. In Viz/index.jsx, we will eventually run propify.
             // Propify handles malformed js and sets an error instead of attempting to render the viz, so we can simply
             // leave the key as malformed es6, let propify catch it later, and pass the error to the front-end.

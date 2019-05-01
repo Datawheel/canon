@@ -14,7 +14,7 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc) => {
   }
   // If the javascript fails, return a special error object for the front-end to use.
   catch (e) {
-    console.log(`Parsing Error in propify: ${e}`);
+    console.error(`Parsing Error in propify: ${e}, Logic attempted was: ${logic}`);
     return {error: `${e}`};
   }
 
