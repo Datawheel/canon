@@ -304,9 +304,13 @@ module.exports = function(app) {
     const {id} = req.params;
     const reqObj = Object.assign({}, profileReqProfileOnly, {where: {id}});
     const profile = await db.profile.findOne(reqObj).catch(catcher);
-    const attr = await db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}}).catch(catcher);
-    // Simpler version of search for cms versions that precede use of levels in profiles
-    // const attr = await db.search.findOne({where: {id}});
+    const rawprofile = profile.toJSON();
+    let where = {id};
+    // Only include levels in the attr search if this application makes use of them.
+    if (rawprofile.levels && rawprofile.levels.length > 0) {
+      where = {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: rawprofile.levels}}]};
+    }
+    const attr = await db.search.findOne({where}).catch(catcher);
     return res.json(sortProfile(db, profile, attr));
   });
 

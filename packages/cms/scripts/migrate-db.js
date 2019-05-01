@@ -103,7 +103,8 @@ const migrate = async() => {
     let nextTopicLoc = 0;
     // make the top-level profile itself
     const {slug, ordering, dimension} = oldprofile;
-    let newprofile = await dbnew.profile.create({slug, ordering, dimension}).catch(catcher);
+    const levels = [];
+    let newprofile = await dbnew.profile.create({slug, ordering, dimension, levels}).catch(catcher);
     newprofile = newprofile.toJSON();
     // create its associated english language content
     const {title, subtitle, label} = oldprofile;

@@ -231,7 +231,12 @@ module.exports = function(app) {
      */
     const profile = await db.profile.findOne({where: {slug}, raw: true}).catch(catcher);
     const pid = profile.id;
-    const attr = await db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}}).catch(catcher);
+    let where = {id};
+    // Only include levels in the attr search if this application makes use of them.
+    if (profile.levels && profile.levels.length > 0) {
+      where = {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]};
+    }
+    const attr = await db.search.findOne({where}).catch(catcher);
     const formatters = await db.formatter.findAll().catch(catcher);
     const generators = await db.generator.findAll({where: {profile_id: profile.id}}).catch(catcher);
     // Given a profile id and its generators, hit all the API endpoints they provide
