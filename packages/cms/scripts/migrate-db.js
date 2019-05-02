@@ -149,7 +149,7 @@ const migrate = async() => {
       // increment the topic head
       nextTopicLoc++;
       // create its associated english language content
-      const {title} = sectiontopic;
+      const {title} = oldsection;
       await dbnew.topic_content.create({title, lang: "en", id: sectiontopic.id}).catch(catcher);
       for (const list of ["descriptions", "subtitles"]) {
         for (const entity of oldsection[list]) {
