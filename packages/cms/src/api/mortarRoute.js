@@ -99,7 +99,8 @@ const formatters4eval = (formatters, locale) => formatters.reduce((acc, f) => {
     acc[name] = FUNC.parse({logic: f.logic, vars: ["n"]}, acc, locale);
   }
   catch (e) {
-    if (verbose) console.error("Server-side Malformed Formatter encountered: ", e.message, `Formatter name: ${name}`);
+    console.error(`Server-side Malformed Formatter encountered: ${name}`);
+    console.error(`Error message: ${e.message}`);
     acc[name] = FUNC.parse({logic: "return \"N/A\";", vars: ["n"]}, acc, locale);
   }
 
