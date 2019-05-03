@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import QuillWrapper from "./QuillWrapper";
+import DraftWrapper from "./DraftWrapper";
 import PropTypes from "prop-types";
 
 import "./TextEditor.css";
@@ -78,7 +79,8 @@ class TextEditor extends Component {
     const quills = fields.map(f =>
       <div className="cms-field-container" key={f}>
         <label htmlFor={f}>{f}</label>
-        <QuillWrapper id={f} value={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
+        {/*<QuillWrapper id={f} value={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />*/}
+        <DraftWrapper id={f} defaultValue={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
       </div>
     );
 
