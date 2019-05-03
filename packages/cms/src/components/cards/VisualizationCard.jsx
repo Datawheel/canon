@@ -185,7 +185,7 @@ class VisualizationCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { logic && !isOpen ? <Viz config={{logic}} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
+        { logic && !isOpen ? <Viz id={minData.id} config={{logic}} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
       </div>
     );
   }

@@ -3,7 +3,7 @@ import {parse} from "./FUNC";
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-export default (logic, formatters = {}, variables = {}, locale = envLoc) => {
+export default (logic, formatters = {}, variables = {}, locale = envLoc, id = null) => {
 
   let config;
 
@@ -14,7 +14,8 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc) => {
   }
   // If the javascript fails, return a special error object for the front-end to use.
   catch (e) {
-    console.error(`Parsing Error in propify: ${e}, Logic attempted was: ${logic}`);
+    console.error(`Parsing Error in propify (ID: ${id})`);
+    console.error(`Error message: ${e.message}`);
     return {error: `${e}`};
   }
 

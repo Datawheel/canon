@@ -1,7 +1,4 @@
 const libs = require("./libs");
-const yn = require("yn");
-
-const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 /* Given an object, a hashtable of formatting functions, and a lookup object full of variables
  * Replace every instance of {{var}} with its true value from the lookup object, and
@@ -30,7 +27,8 @@ module.exports = (sourceString, formatterFunctions, variables) => {
         return formatter(value, libs, formatterFunctions);
       }
       catch (e) {
-        if (verbose) console.error("Formatter error: ", e.message, formatter);
+        console.error(`Error using formatter ${formatter.name}`);
+        console.error(`Error message: ${e.message}`);
         return "N/A";
       }
     }
