@@ -30,12 +30,13 @@ class TextEditor extends Component {
     const {data, isDirty} = this.state;
     const {locale} = this.props;
     const thisLocale = data.content.find(c => c.lang === locale);
-    thisLocale[field] = t;
-    if (!isDirty) {
+    if (!isDirty && thisLocale[field] !== t) {
+      thisLocale[field] = t;
       if (this.props.markAsDirty) this.props.markAsDirty();
       this.setState({isDirty: true, data});
     }
     else {
+      thisLocale[field] = t;
       this.setState({data});
     }
   }
@@ -79,8 +80,7 @@ class TextEditor extends Component {
     const quills = fields.map(f =>
       <div className="cms-field-container" key={f}>
         <label htmlFor={f}>{f}</label>
-        {/*<QuillWrapper id={f} value={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />*/}
-        <DraftWrapper id={f} defaultValue={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
+        <DraftWrapper id={f} variables={variables} defaultValue={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
       </div>
     );
 

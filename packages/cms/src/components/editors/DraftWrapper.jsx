@@ -7,52 +7,55 @@ import "./DraftWrapper.css";
 
 import "draft-js-mention-plugin/lib/plugin.css";
 
-const mentions = [
-  {
-    name: "Matthew Russell",
-    link: "https://twitter.com/mrussell247",
-    avatar: "https://pbs.twimg.com/profile_images/517863945/mattsailing_400x400.jpg"
-  },
-  {
-    name: "Julian Krispel-Samsel",
-    link: "https://twitter.com/juliandoesstuff",
-    avatar: "https://avatars2.githubusercontent.com/u/1188186?v=3&s=400"
-  },
-  {
-    name: "Jyoti Puri",
-    link: "https://twitter.com/jyopur",
-    avatar: "https://avatars0.githubusercontent.com/u/2182307?v=3&s=400"
-  },
-  {
-    name: "Max Stoiber",
-    link: "https://twitter.com/mxstbr",
-    avatar: "https://pbs.twimg.com/profile_images/763033229993574400/6frGyDyA_400x400.jpg"
-  },
-  {
-    name: "Nik Graf",
-    link: "https://twitter.com/nikgraf",
-    avatar: "https://avatars0.githubusercontent.com/u/223045?v=3&s=400"
-  },
-  {
-    name: "Pascal Brandt",
-    link: "https://twitter.com/psbrandt",
-    avatar: "https://pbs.twimg.com/profile_images/688487813025640448/E6O6I011_400x400.png"
-  }
-];
+const Entry = props => {
+  const {
+    mention,
+    theme,
+    searchValue, // eslint-disable-line no-unused-vars
+    isFocused, // eslint-disable-line no-unused-vars
+    ...parentProps
+  } = props;
+
+  return (
+    <div {...parentProps}>
+      <div className={theme.mentionSuggestionsEntryContainer}>
+        <div className={theme.mentionSuggestionsEntryContainerLeft}>
+          <div className={theme.mentionSuggestionsEntryText}>
+            {`${mention.name.replace(/[{}]/g, "")}: ${mention.value}`}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 class DraftWrapper extends Component {
 
   constructor(props) {
     super(props);
-    this.mentionPlugin = createMentionPlugin();
+    this.mentionPlugin = createMentionPlugin({
+      mentionTrigger: "{",
+      mentionComponent: mentionProps => 
+        <span
+          className={mentionProps.className}
+          // eslint-disable-next-line no-alert
+          onClick={() => alert("Clicked on the Mention!")}
+        >
+          {mentionProps.mention.value}
+        </span>
+    });
     let editorState = EditorState.createEmpty();
     if (this.props.defaultValue && this.props.defaultValue !== "") {
       const blocks = convertFromHTML(this.props.defaultValue);
       editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
     }
+    const suggestions = Object.keys(this.props.variables).map(k => ({
+      name: `{{${k}}}`,
+      value: this.props.variables[k]
+    }));
     this.state = {
       editorState,
-      suggestions: mentions
+      suggestions
     };
     this.onChange = editorState => {
       this.setState({editorState});
@@ -61,14 +64,11 @@ class DraftWrapper extends Component {
     }; 
     this.onSearchChange = ({value}) => {
       this.setState({
-        suggestions: defaultSuggestionsFilter(value, mentions)
+        suggestions: defaultSuggestionsFilter(value, suggestions)
       });
     };
-    this.onAddMention = () => {
-    // get the mention object selected
-    };
-    this.focus = () => {
-      this.editor.focus();
+    this.onAddMention = obj => {
+      console.log(obj);
     };
   }
 
@@ -87,7 +87,7 @@ class DraftWrapper extends Component {
     const plugins = [this.mentionPlugin];
 
     return <div>
-      <div className="draft-editor" onClick={this.focus}>
+      <div className="draft-editor">
         <Editor 
           key="draft-editor"
           editorState={this.state.editorState} 
@@ -101,38 +101,12 @@ class DraftWrapper extends Component {
           onSearchChange={this.onSearchChange}
           suggestions={this.state.suggestions}
           onAddMention={this.onAddMention}
+          entryComponent={Entry}
         />
       </div>
     </div>;
   }
 
-
-  /*
-  render() {
-    if (typeof window !== "undefined") {
-      const Quill = require("react-quill");
-      require("react-quill/dist/quill.snow.css");
-      const modules = {
-        toolbar: [
-          ["bold", "italic", "underline", "code", "blockquote", "code-block", "link"],
-          [{list: "ordered"}, {list: "bullet"}],
-          ["clean"]
-        ],
-        clipboard: {
-          matchVisual: false
-        }
-      };
-      return <Quill
-        theme="snow"
-        modules={modules}
-        onChangeSelection={range => range ? this.setState({currentRange: range}) : null}
-        ref={c => this.quillRef = c}
-        {...this.props}
-      />;
-    }
-    return null;
-  }
-  */
 }
 
 export default DraftWrapper;
