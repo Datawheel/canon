@@ -110,6 +110,7 @@ class VisualizationCard extends Component {
 
     const {selectors, type, variables, parentArray, item, preview, locale, localeDefault} = this.props;
     const formatters = this.context.formatters[locale];
+    const {id} = minData;
 
     minData.selectors = selectors;
     let logic = false;
@@ -185,7 +186,7 @@ class VisualizationCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { logic && !isOpen ? <Viz id={minData.id} config={{logic}} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
+        { logic && !isOpen ? <Viz config={{id, logic}} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
       </div>
     );
   }

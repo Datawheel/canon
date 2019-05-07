@@ -19,8 +19,6 @@ class Viz extends Component {
 
     const variables = this.props.variables || this.context.variables;
     const locale = this.props.locale || this.context.locale;
-    const id = this.props.id || "No ID Provided to Viz Component";
-
 
     // This Viz component may be embedded in two ways - as a VisualizationCard in the
     // CMS, or as an actual Viz on a front-end site. In the former case, formatters
@@ -31,6 +29,7 @@ class Viz extends Component {
     const formatters = this.context.formatters[locale] || this.context.formatters;
 
     const {config, configOverride, className, options, slug, topic} = this.props;
+    const {id} = config;
 
     // clone config object to allow manipulation
     const vizProps = propify(config.logic, formatters, variables, locale, id);

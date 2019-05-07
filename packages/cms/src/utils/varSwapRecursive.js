@@ -1,9 +1,6 @@
 const selSwap = require("./selSwap");
 const varSwap = require("./varSwap");
 const buble = require("buble");
-const yn = require("yn");
-
-const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 /* Given an object, a hashtable of formatting functions, and a lookup object full of variables
  * Replace every instance of {{var}} with its true value from the lookup object, and
