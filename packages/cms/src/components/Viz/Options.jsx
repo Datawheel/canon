@@ -226,7 +226,7 @@ class Options extends Component {
       ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
           <Button key="data-download" icon="download" className="bp3-minimal" onClick={this.onCSV.bind(this)}>
-            {t("Download as CSV")}
+            {t("CMS.Options.Download as CSV")}
           </Button>
           { dataUrl && <input key="data-url" type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={dataUrl} /> }
         </div>
@@ -247,17 +247,17 @@ class Options extends Component {
         </div>
       </div>
       : <div className="bp3-dialog-body view-table">
-        <NonIdealState title={t("Loading Data")} visual={<Spinner />} />
+        <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
       </div>;
 
     return <div className="Options">
 
       <Button icon="th" className="bp3-button option view-table" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
-        {t("View Data")}
+        {t("CMS.Options.View Data")}
       </Button>
 
       <Button icon="export" className="bp3-button option save-image" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
-        {t("Save Image")}
+        {t("CMS.Options.Save Image")}
       </Button>
 
       <Dialog className="options-dialog"
@@ -266,8 +266,8 @@ class Options extends Component {
         onClose={this.toggleDialog.bind(this, false)}
         transitionDuration={transitionDuration}>
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
-          <Tab id="view-table" title={t("View Data")} panel={<DataPanel />} />
-          <Tab id="save-image" title={t("Save Image")} panel={<ImagePanel />} />
+          <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
+          <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={<ImagePanel />} />
           <Button icon="small-cross" aria-label="Close" className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)} />
         </Tabs>
       </Dialog>

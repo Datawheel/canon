@@ -10,7 +10,7 @@ class SourceGroup extends Component {
     if (!sources || !sources.length) return null;
 
     return <div className="SourceGroup">
-      {t("Data provided by")}
+      {t("CMS.SourceGroup.Data provided by")}
       { sources.map((source, i) => {
 
         const {
@@ -26,7 +26,7 @@ class SourceGroup extends Component {
         const datasetName = dataset && `${dataset}`;
 
         return <span key={i} className="source">
-          { i && i === sources.length - 1 ? <span> {t("and")}</span> : null }
+          { i && i === sources.length - 1 ? <span> {t("CMS.SourceGroup.and")}</span> : null }
           { org && <span>&nbsp;</span> }
           { org && <Tooltip content={orgDesc} className={orgDesc ? "active" : ""} disabled={!orgDesc}>
             { orgLink ? <a href={orgLink} target="_blank" rel="noopener noreferrer" dangerouslySetInnerHTML={{__html: orgName}} /> : <span dangerouslySetInnerHTML={{__html: orgName}} /> }
