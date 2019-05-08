@@ -21,6 +21,18 @@ export default {
       "welcome": "Welcome to {{site}}!"
     }
   },
+  "CMS": {
+    "Options": {
+      "Download as CSV": "Download as CSV",
+      "Loading Data": "Loading Data",
+      "Save Image": "Save Image",
+      "View Data": "View Data"
+    },
+    "SourceGroup": {
+      "and": "and",
+      "Data provided by": "Data provided by"
+    }
+  },
   "Loading": {
     "description": "Loading {{progress}} of {{total}} datasets",
     "title": "Please Wait"
