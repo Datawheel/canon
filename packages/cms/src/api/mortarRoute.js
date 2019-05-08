@@ -240,7 +240,7 @@ module.exports = function(app) {
     const formatterFunctions = formatters4eval(formatters, locale);
     // Deduplicate generators that share an API endpoint
     const requests = Array.from(new Set(generators.map(g => g.api)));
-    const fetches = requests.map(r => throttle.add(createGeneratorFetch.bind(this, r, attr)));
+    const fetches = requests.map(r => throttle.add(createGeneratorFetch.bind(this, r, attr.toJSON())));
     const results = await Promise.all(fetches).catch(catcher);
     // Given a profile id, its generators, their API endpoints, and the responses of those endpoints,
     // start to build a returnVariables object by executing the javascript of each generator on its data
