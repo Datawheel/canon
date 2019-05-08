@@ -110,15 +110,17 @@ class VisualizationCard extends Component {
 
     const {selectors, type, variables, parentArray, item, preview, locale, localeDefault} = this.props;
     const formatters = this.context.formatters[locale];
-    const {id} = minData;
 
     minData.selectors = selectors;
-    let logic = false;
-    // Only perform a viz render if the user is finished editing and has closed the window.
+    let logic = "return {}";
+    // Only calculate the viz render if the user is finished editing and has closed the window.
     if (!isOpen) logic = varSwapRecursive(minData, formatters, variables).logic;
     const re = new RegExp(/height\:[\s]*([0-9]+)/g);
     let height = re.exec(logic);
     height = height ? height[1] : "400";
+
+    // Create the config object to pass to the viz, but replace its es6 logic with transpiled es5
+    const config = Object.assign({}, minData, {logic});
 
     return (
       <div className="cms-card" style={{minHeight: `calc(${height}px + 2.25rem)`}}>
@@ -186,7 +188,7 @@ class VisualizationCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { logic && !isOpen ? <Viz config={{id, logic}} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
+        { !isOpen ? <Viz config={config} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
       </div>
     );
   }
