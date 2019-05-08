@@ -90,7 +90,7 @@ class Options extends Component {
     if (node) {
       this.setState({imageProcessing: true});
       const {backgroundColor} = this.state;
-      if (type === "svg") node = select(node).select("svg").node();
+      if (type === "svg") node = select(node).select(".d3plus-viz").node();
       let background;
       if (backgroundColor) background = getBackground(node);
       saveElement(node,
@@ -184,7 +184,7 @@ class Options extends Component {
     const {data, location, slug, t, transitionDuration} = this.props;
 
     const node = this.getNode();
-    const svgAvailable = node && select(node).select("svg").size() > 0;
+    const svgAvailable = node && select(node).select(".d3plus-viz").size() > 0;
 
     const ImagePanel = () => imageProcessing
       ? <div className="bp3-dialog-body save-image">
