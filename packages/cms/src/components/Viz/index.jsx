@@ -29,9 +29,10 @@ class Viz extends Component {
     const formatters = this.context.formatters[locale] || this.context.formatters;
 
     const {config, configOverride, className, options, slug, topic} = this.props;
+    const {id} = config;
 
     // clone config object to allow manipulation
-    const vizProps = propify(config.logic, formatters, variables, locale);
+    const vizProps = propify(config.logic, formatters, variables, locale, id);
 
     // If the result of propify has an "error" property, then the provided javascript was malformed and propify
     // caught an error. Instead of attempting to render the viz, simply show the error to the user.
