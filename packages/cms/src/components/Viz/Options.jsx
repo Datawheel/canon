@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import {animateScroll} from "react-scroll";
 import "./Options.css";
@@ -180,7 +181,7 @@ class Options extends Component {
   render() {
 
     const {backgroundColor, imageContext, imageProcessing, openDialog, results} = this.state;
-    const {data, location, slug, transitionDuration} = this.props;
+    const {data, location, slug, t, transitionDuration} = this.props;
 
     const node = this.getNode();
     const svgAvailable = node && select(node).select("svg").size() > 0;
@@ -225,7 +226,7 @@ class Options extends Component {
       ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
           <Button key="data-download" icon="download" className="bp3-minimal" onClick={this.onCSV.bind(this)}>
-            Download as CSV
+            {t("CMS.Options.Download as CSV")}
           </Button>
           { dataUrl && <input key="data-url" type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={dataUrl} /> }
         </div>
@@ -246,17 +247,17 @@ class Options extends Component {
         </div>
       </div>
       : <div className="bp3-dialog-body view-table">
-        <NonIdealState title="Loading Data" visual={<Spinner />} />
+        <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
       </div>;
 
     return <div className="Options">
 
       <Button icon="th" className="bp3-button option view-table" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
-        View Data
+        {t("CMS.Options.View Data")}
       </Button>
 
       <Button icon="export" className="bp3-button option save-image" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
-        Save Image
+        {t("CMS.Options.Save Image")}
       </Button>
 
       <Dialog className="options-dialog"
@@ -265,8 +266,8 @@ class Options extends Component {
         onClose={this.toggleDialog.bind(this, false)}
         transitionDuration={transitionDuration}>
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
-          <Tab id="view-table" title="View Data" panel={<DataPanel />} />
-          <Tab id="save-image" title="Save Image" panel={<ImagePanel />} />
+          <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
+          <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={<ImagePanel />} />
           <Button icon="small-cross" aria-label="Close" className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)} />
         </Tabs>
       </Dialog>
@@ -280,6 +281,6 @@ Options.defaultProps = {
   transitionDuration: 100
 };
 
-export default connect(state => ({
+export default withNamespaces()(connect(state => ({
   location: state.location
-}))(Options);
+}))(Options));

@@ -1,15 +1,16 @@
 import React, {Component} from "react";
+import {withNamespaces} from "react-i18next";
 import {Tooltip} from "@blueprintjs/core";
 import "./SourceGroup.css";
 
-export default class SourceGroup extends Component {
+class SourceGroup extends Component {
 
   render() {
-    const {sources} = this.props;
+    const {sources, t} = this.props;
     if (!sources || !sources.length) return null;
 
     return <div className="SourceGroup">
-      Data provided by
+      {t("CMS.SourceGroup.Data provided by")}
       { sources.map((source, i) => {
 
         const {
@@ -25,7 +26,7 @@ export default class SourceGroup extends Component {
         const datasetName = dataset && `${dataset}`;
 
         return <span key={i} className="source">
-          { i && i === sources.length - 1 ? <span> and</span> : null }
+          { i && i === sources.length - 1 ? <span> {t("CMS.SourceGroup.and")}</span> : null }
           { org && <span>&nbsp;</span> }
           { org && <Tooltip content={orgDesc} className={orgDesc ? "active" : ""} disabled={!orgDesc}>
             { orgLink ? <a href={orgLink} target="_blank" rel="noopener noreferrer" dangerouslySetInnerHTML={{__html: orgName}} /> : <span dangerouslySetInnerHTML={{__html: orgName}} /> }
@@ -42,3 +43,5 @@ export default class SourceGroup extends Component {
   }
 
 }
+
+export default withNamespaces()(SourceGroup);

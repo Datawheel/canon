@@ -2,7 +2,7 @@ const selSwap = require("./selSwap");
 const varSwap = require("./varSwap");
 const buble = require("buble");
 
-const strSwap = (str, formatterFunctions, variables, selectors, isLogic) => {
+const strSwap = (str, formatterFunctions, variables, selectors, isLogic = false, id = null) => {
   // First, do a selector replace of the pattern [[Selector]]
   str = selSwap(str, selectors);
   // Replace all instances of the following pattern:  FormatterName{{VarToReplace}}
@@ -15,7 +15,8 @@ const strSwap = (str, formatterFunctions, variables, selectors, isLogic) => {
       str = code;
     }
     catch (e) {
-      console.log("Error in ES5 transpiling in varSwapRecursive");
+      console.error(`Error in ES5 transpiling in varSwapRecursive (ID: ${id})`);
+      console.error(`Error message: ${e.message}`);
       // Note: There is no need to do anything special here. In Viz/index.jsx, we will eventually run propify.
       // Propify handles malformed js and sets an error instead of attempting to render the viz, so we can simply
       // leave the key as malformed es6, let propify catch it later, and pass the error to the front-end.
@@ -56,7 +57,7 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
     if (obj.hasOwnProperty(skey)) {
       // If this property is a string, replace all the vars
       if (typeof obj[skey] === "string") {
-        obj[skey] = strSwap(obj[skey], formatterFunctions, variables, selectors, skey === "logic");
+        obj[skey] = strSwap(obj[skey], formatterFunctions, variables, selectors, skey === "logic", obj.id);
       }
       // If this property is an array, recursively swap all elements
       else if (Array.isArray(obj[skey])) {
@@ -66,7 +67,7 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
           }
           // If this is a string, we've "hit bottom" and can swap it out with strSwap
           else if (typeof o === "string") {
-            return strSwap(o, formatterFunctions, variables, selectors, false);
+            return strSwap(o, formatterFunctions, variables, selectors);
           }
           else {
             return o;
