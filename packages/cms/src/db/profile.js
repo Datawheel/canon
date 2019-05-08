@@ -7,13 +7,7 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
-      slug: {
-        type: db.STRING,
-        defaultValue: "new-profile-slug"
-      },
-      ordering: db.INTEGER,
-      dimension: db.STRING,
-      levels: db.ARRAY(db.TEXT)
+      ordering: db.INTEGER
     },
     {
       tableName: "canon_cms_profile",
@@ -23,6 +17,7 @@ module.exports = function(sequelize, db) {
   );
 
   p.associate = models => {
+    p.hasMany(models.profile_meta, {foreignKey: "profile_id", sourceKey: "id", as: "meta"});
     p.hasMany(models.profile_content, {foreignKey: "id", sourceKey: "id", as: "content"});
     p.hasMany(models.topic, {foreignKey: "profile_id", sourceKey: "id", as: "topics"});
     p.hasMany(models.generator, {foreignKey: "profile_id", sourceKey: "id", as: "generators"});
