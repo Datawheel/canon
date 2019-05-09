@@ -23,6 +23,7 @@ const throttle = new PromiseThrottle({
 
 const profileReq = {
   include: [
+    {association: "meta", separate: true},
     {association: "content", separate: true},
     {association: "topics", separate: true,
       include: [
@@ -110,8 +111,26 @@ const formatters4eval = (formatters, locale) => formatters.reduce((acc, f) => {
 
 const sorter = (a, b) => a.ordering - b.ordering;
 
+// Profiles receive arbitrary query params of type ?slug1=geo&id1=mass&slug2=geo&id2=nyc
+// Extract and collate these into an object.
+const collate = obj => {
+  const dims = [];
+  Object.keys(obj).forEach(key => {
+    ["slug", "id"].forEach(param => {
+      if (key.startsWith(param)) {
+        // get the trailing number identifier, or make it first if not provided (slug = slug1)
+        let num = key.replace(/^\D+/g, "");
+        num === "" ? num = 0 : num = Number(num) - 1;
+        dims[num] ? dims[num][param] = obj[key] : dims[num] = {[param]: obj[key]};
+      }
+    });
+  });
+  return dims;
+};
+
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. Eventually move it up to the query.
 const sortProfile = profile => {
+  profile.meta.sort(sorter);
   if (profile.topics) {
     profile.topics.sort(sorter);
     profile.topics.forEach(topic => {
@@ -191,21 +210,21 @@ module.exports = function(app) {
 
   const {cache, db} = app.settings;
 
-  app.get("/api/internalprofile/:slug", async(req, res) => {
-    const {slug} = req.params;
+  app.get("/api/internalprofile/:pid", async(req, res) => {
+    const id = req.params.pid;
     const locale = req.query.locale ? req.query.locale : envLoc;
-    const reqObj = Object.assign({}, profileReq, {where: {slug}});
+    const reqObj = Object.assign({}, profileReq, {where: {id}});
     const profile = await db.profile.findOne(reqObj).catch(catcher);
     return res.json(sortProfile(extractLocaleContent(profile, locale, "profile")));
   });
 
-  app.get("/api/variables/:slug/:id", async(req, res) => {
-  // app.get("/api/variables/:slug/:id", jsonCache, (req, res) => {
+  app.get("/api/variables/:pid", async(req, res) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
+    const dims = collate(req.query);
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-    const {slug, id} = req.params;
+    const {pid} = req.params;
 
-    if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${slug}/${id}`);
+    if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${pid}`);
 
     /** */
     function createGeneratorFetch(r, attr) {
@@ -226,13 +245,26 @@ module.exports = function(app) {
         });
     }
 
-    // Begin by fetching the profile by slug, and all the generators that belong to that profile
-    /* Potential TODO here: Later in this function we manually get generators and materializers.
-     * Maybe refactor this to get them immediately in the profile get using include.
-     */
-    const profile = await db.profile.findOne({where: {slug}, raw: true}).catch(catcher);
-    const pid = profile.id;
-    const attr = await db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}}).catch(catcher);
+    // Fetch the profile itself, along with its meta content. The meta content will be used
+    // to determine which levels should be used to filter the search results
+    let profile = await db.profile.findOne({where: {id: pid}, include: [{association: "meta"}]}).catch(catcher);
+    profile = profile.toJSON();
+    // The attr object is used in createGeneratorFetch to swap things like <id> into the 
+    // id that is passed to the fetch. Create a lookup object of the search rows, of the
+    // pattern (id/id1),id2,id3, so that unary profiles can access it without an integer.
+    let attr = {};
+    for (let i = 0; i < dims.length; i++) {
+      const dim = dims[i];
+      const thisSlug = profile.meta.find(d => d.slug === dim.slug);
+      const levels = thisSlug ? thisSlug.levels : [];
+      let thisAttr = await db.search.findOne({where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}}).catch(catcher);
+      thisAttr = thisAttr ? thisAttr.toJSON() : {};
+      if (i === 0) attr = Object.assign(attr, thisAttr);
+      Object.keys(thisAttr).forEach(key => {
+        attr[`${key}${i + 1}`] = thisAttr[key];
+      });
+    }
+    
     const formatters = await db.formatter.findAll().catch(catcher);
     const generators = await db.generator.findAll({where: {profile_id: profile.id}}).catch(catcher);
     // Given a profile id and its generators, hit all the API endpoints they provide
@@ -240,7 +272,7 @@ module.exports = function(app) {
     const formatterFunctions = formatters4eval(formatters, locale);
     // Deduplicate generators that share an API endpoint
     const requests = Array.from(new Set(generators.map(g => g.api)));
-    const fetches = requests.map(r => throttle.add(createGeneratorFetch.bind(this, r, attr.toJSON())));
+    const fetches = requests.map(r => throttle.add(createGeneratorFetch.bind(this, r, attr)));
     const results = await Promise.all(fetches).catch(catcher);
     // Given a profile id, its generators, their API endpoints, and the responses of those endpoints,
     // start to build a returnVariables object by executing the javascript of each generator on its data
@@ -276,22 +308,52 @@ module.exports = function(app) {
     return res.json(returnVariables);
   });
 
-  /* Main API Route to fetch a profile, given a slug and an id
+  /* Main API Route to fetch a profile, given a list of slug/id pairs
    * slugs represent the type of page (geo, naics, soc, cip, university)
    * ids represent actual entities / locations (nyc, bu)
   */
 
-  app.get("/api/profile/:slug/:pid", async(req, res) => {
+  app.get("/api/profile", async(req, res) => {
+    // take an arbitrary-length query of slugs and ids and turn them into objects
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-    const {slug, pid} = req.params;
+    const dims = collate(req.query);
     const locale = req.query.locale || envLoc;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
     const localeString = `?locale=${locale}`;
 
-    const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}}).catch(catcher);
-    const {id} = attribute;
+    // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
+    // Replace that slug with the actual real id from the search table. 
+    for (let i = 0; i < dims.length; i++) {
+      const dim = dims[0];
+      const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
+      if (attribute.id) dim.id = attribute.id;
+    }
 
-    const variablesResp = await axios.get(`${origin}/api/variables/${slug}/${id}${localeString}`).catch(catcher);
+    // Given a list of dimension slugs, use the meta table to reverse-lookup which profile this is
+    // TODO: In good-dooby land, this should be a massive, complicated sequelize Op.AND lookup. 
+    // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
+    let meta = await db.profile_meta.findAll(); 
+    meta = meta.map(d => d.toJSON());
+    const pids = [...new Set(meta.map(d => d.profile_id))];
+    const match = dims.map(d => d.slug).join();
+    let pid = null;
+    pids.forEach(id => {
+      const rows = meta.filter(d => d.profile_id === id).sort((a, b) => a.ordering - b.ordering);
+      const str = rows.map(d => d.slug).join();
+      if (str === match) pid = rows[0].profile_id;
+    });
+    if (!pid) { 
+      if (verbose) console.error(`Profile not found for slugs: ${match}`);
+      return res.json(`Profile not found for slugs: ${match}`);
+    }
+
+    // Get the variables for this profile by passing the profile id and the content ids
+    let url = `${origin}/api/variables/${pid}${localeString}`;
+    dims.forEach((dim, i) => {
+      url += `&slug${i + 1}=${dim.slug}&id${i + 1}=${dim.id}`;
+    });
+
+    const variablesResp = await axios.get(url).catch(catcher);
     const variables = variablesResp.data;
     delete variables._genStatus;
     delete variables._matStatus;
@@ -301,7 +363,7 @@ module.exports = function(app) {
     // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare 
     // it to be formatted and regex replaced.
     // See profileReq above to see the sequelize formatting for fetching the entire profile
-    const request = await axios.get(`${origin}/api/internalprofile/${slug}${localeString}`).catch(catcher);    
+    const request = await axios.get(`${origin}/api/internalprofile/${pid}${localeString}`).catch(catcher);
     // Given an object with completely built returnVariables, a hash array of formatter functions, and the profile itself
     // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
     let returnObject = {};
@@ -309,7 +371,7 @@ module.exports = function(app) {
     if (verbose) console.log("Variables Loaded, starting varSwap...");
     const profile = varSwapRecursive(request.data, formatterFunctions, variables, req.query);
     returnObject = Object.assign({}, returnObject, profile);
-    returnObject.id = id;
+    returnObject.ids = dims.map(d => d.id).join();
     returnObject.variables = variables;
     if (verbose) console.log("varSwap complete, sending json...");
     return res.json(returnObject);
