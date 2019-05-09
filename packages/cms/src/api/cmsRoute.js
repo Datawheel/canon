@@ -482,10 +482,24 @@ module.exports = function(app) {
     const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
-    pruneSearch(row.dimension, row.levels, db);
+    // disabling prunesearch for now during refactor
+    // pruneSearch(row.dimension, row.levels, db);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     return res.json(profiles);
+  });
+
+  app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
+    const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
+    const pid = row.profile_id;
+    await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
+    // disabling prunesearch for now during refactor
+    // pruneSearch(row.dimension, row.levels, db);
+    let meta = await db.profile_meta.findAll({where: {profile_id: pid}}).catch(catcher);
+    meta = meta.map(m => m.toJSON());
+    meta.sort(sorter);
+    return res.json(meta);
   });
 
   app.delete("/api/cms/story/delete", isEnabled, async(req, res) => {
