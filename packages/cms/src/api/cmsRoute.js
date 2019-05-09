@@ -1,4 +1,5 @@
 const {Client} = require("mondrian-rest-client");
+const collate = require("../utils/collate");
 const d3Array = require("d3-array");
 const sequelize = require("sequelize");
 const shell = require("shelljs");
@@ -27,13 +28,16 @@ const catcher = e => {
 };
 
 const profileReqTreeOnly = {
-  attributes: ["id", "slug", "dimension", "levels", "ordering"],
-  include: [{
-    association: "topics", attributes: ["id", "slug", "ordering", "profile_id", "type"], 
-    include: [
-      {association: "content", attributes: ["id", "lang", "title"]}
-    ]
-  }]
+  attributes: ["id", "ordering"],
+  include: [
+    {association: "meta"},
+    {   
+      association: "topics", attributes: ["id", "slug", "ordering", "profile_id", "type"], 
+      include: [
+        {association: "content", attributes: ["id", "lang", "title"]}
+      ]
+    }
+  ]
 };
 
 const storyReqTreeOnly = {
@@ -52,6 +56,7 @@ const formatterReqTreeOnly = {
 
 const profileReqProfileOnly = {
   include: [
+    {association: "meta"},
     {association: "content"},
     {association: "generators", attributes: ["id", "name"]},
     {association: "materializers", attributes: ["id", "name", "ordering"]}
@@ -94,7 +99,7 @@ const storyTopicReqStoryTopicOnly = {
  * automatically generate Create, Update, and Delete Routes (as specified later in the get/post methods)
  */
 const cmsTables = [
-  "author", "formatter", "generator", "materializer", "profile",
+  "author", "formatter", "generator", "materializer", "profile", "profile_meta",
   "selector", "story", "story_description", "story_footnote", "storytopic",
   "storytopic_description", "storytopic_stat", "storytopic_subtitle", "storytopic_visualization",
   "topic", "topic_description", "topic_stat", "topic_subtitle", "topic_visualization"
@@ -138,6 +143,7 @@ const sortProfileTree = (db, profiles) => {
   profiles = profiles.map(p => p.toJSON());
   profiles = flatSort(db.profile, profiles);
   profiles.forEach(p => {
+    p.meta = flatSort(db.profile_meta, p.meta);
     p.topics = flatSort(db.topic, p.topics);
   });
   return profiles;
@@ -152,9 +158,8 @@ const sortStoryTree = (db, stories) => {
   return stories;
 };
 
-const sortProfile = (db, profile, attr) => {
-  profile = profile.toJSON();
-  profile.attr = attr ? attr.toJSON() : {};
+const sortProfile = (db, profile) => {
+  profile.meta = flatSort(db.profile_meta, profile.meta);
   profile.materializers = flatSort(db.materializer, profile.materializers);
   return profile;
 };
@@ -302,12 +307,26 @@ module.exports = function(app) {
 
   app.get("/api/cms/profile/get/:id", async(req, res) => {
     const {id} = req.params;
+    const dims = collate(req.query);
     const reqObj = Object.assign({}, profileReqProfileOnly, {where: {id}});
-    const profile = await db.profile.findOne(reqObj).catch(catcher);
-    const attr = await db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}}).catch(catcher);
-    // Simpler version of search for cms versions that precede use of levels in profiles
-    // const attr = await db.search.findOne({where: {id}});
-    return res.json(sortProfile(db, profile, attr));
+    let profile = await db.profile.findOne(reqObj).catch(catcher);
+    profile = profile.toJSON();
+    // Create a lookup object of the search rows, of the
+    // pattern (id/id1),id2,id3, so that unary profiles can access it without an integer.
+    let attr = {};
+    for (let i = 0; i < dims.length; i++) {
+      const dim = dims[i];
+      const thisSlug = profile.meta.find(d => d.slug === dim.slug);
+      const levels = thisSlug ? thisSlug.levels : [];
+      let thisAttr = await db.search.findOne({where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}}).catch(catcher);
+      thisAttr = thisAttr ? thisAttr.toJSON() : {};
+      if (i === 0) attr = Object.assign(attr, thisAttr);
+      Object.keys(thisAttr).forEach(key => {
+        attr[`${key}${i + 1}`] = thisAttr[key];
+      });
+    }
+    profile.attr = attr;
+    return res.json(sortProfile(db, profile));
   });
 
   app.get("/api/cms/story/get/:id", async(req, res) => {
