@@ -34,7 +34,7 @@
     "shorthash": "^0.0.2"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "~0.16.20",
+    "@datawheel/canon-core": "0.16.32",
     "@types/react": "^15.6.2"
   },
   "repository": {

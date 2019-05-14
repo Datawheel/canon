@@ -159,16 +159,6 @@ class Sidebar extends React.PureComponent {
     const {getDefaultGroup, getDefaultTable} = this.context;
     const {options, query, uiParams} = this.props;
 
-    const areMeasuresFromSameTable = (oldQ, newQ) => {
-      const {table_id} = newQ.cube.annotations;
-      if (!table_id) {
-        return false;
-      }
-      const key = `${table_id}.${newQ.measure.name}`;
-      const measures = options.measureMap[key];
-      return measures.indexOf(oldQ.measure) > -1 && measures.indexOf(newQ.measure) > -1;
-    };
-
     return this.context.loadControl(() => {
       if (getDefaultTable && useTableDefaults) {
         measure = userTableIdMeasure(
@@ -187,31 +177,33 @@ class Sidebar extends React.PureComponent {
         newQuery.groups = query.groups;
         newQuery.filters = query.filters;
         newUiParams.activeChart = uiParams.activeChart;
+        newQuery.geoLevel = getGeoLevel(newQuery);
+        return newState;
       }
-      else if (areMeasuresFromSameTable(query, newQuery)) {
-        newQuery.filters = replaceMeasureInFilters(query.filters, newQuery.cube);
+      else {
         return replaceLevelsInGroupings(query, newQuery).then(newGroups => {
-          newQuery.groups = newGroups;
+          if (newGroups.length === 0) {
+            newQuery.groups = getDefaultGroup(
+              newState.options.levels,
+              measure.annotations.ui_default_drilldown
+            );
+            newQuery.filters = [];
+            newUiParams.activeChart = null;
+          }
+          else {
+            newQuery.groups = newGroups;
+            newQuery.filters = replaceMeasureInFilters(query.filters, newQuery.cube);
+            newUiParams.activeChart = replaceKeysInString(
+              uiParams.activeChart,
+              query.groups,
+              newQuery.groups
+            );
+          }
+
           newQuery.geoLevel = getGeoLevel(newQuery);
-          newUiParams.activeChart = replaceKeysInString(
-            uiParams.activeChart,
-            query.groups,
-            newQuery.groups
-          );
           return newState;
         });
       }
-      else {
-        newQuery.groups = getDefaultGroup(
-          newState.options.levels,
-          measure.annotations.ui_default_drilldown
-        );
-        newQuery.filters = [];
-        newUiParams.activeChart = null;
-      }
-
-      newQuery.geoLevel = getGeoLevel(newQuery);
-      return newState;
     });
   }
 
