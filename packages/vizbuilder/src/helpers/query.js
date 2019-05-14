@@ -2,13 +2,13 @@ import yn from "yn";
 
 import {fetchMembers} from "./fetch";
 import {
-  getCombinationsChoose2,
+  findByName,
   getMeasureMeta,
   getTimeLevel,
   getValidLevels,
   removeDuplicateLevels
 } from "./sorting";
-import {isGeoDimension, isValidGrouping, isValidCut} from "./validation";
+import {isGeoDimension, isValidGrouping} from "./validation";
 
 /**
  * Generates a partial state object, whose elements
@@ -68,7 +68,9 @@ export function replaceLevelsInGroupings(query, newQuery) {
     try {
       const dimensionName = level.hierarchy.dimension.name;
       targetDimension = newCube.dimensionsByName[dimensionName];
-      targetHierarchy = targetDimension.getHierarchy(level.hierarchy.name);
+      targetHierarchy =
+        findByName(level.hierarchy.name, targetDimension.hierarchies) ||
+        findByName(level.name, targetDimension.hierarchies);
       targetLevel = targetHierarchy.getLevel(level.name);
     } catch (e) {
       return Promise.resolve(null);
