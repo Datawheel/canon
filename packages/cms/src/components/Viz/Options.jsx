@@ -188,7 +188,7 @@ class Options extends Component {
 
     const ImagePanel = () => imageProcessing
       ? <div className="bp3-dialog-body save-image">
-        <NonIdealState title="Generating Image" visual={<Spinner />} />
+        <NonIdealState title={t("CMS.Options.Generating Image")} visual={<Spinner />} />
       </div>
       : <div className="bp3-dialog-body save-image">
         <div className="save-image-btn" onClick={this.onSave.bind(this, "png")} tabIndex={0}>
@@ -198,8 +198,8 @@ class Options extends Component {
           <Icon icon="code-block" iconSize={28} />SVG
         </div>}
         <div className="image-options">
-          <Checkbox checked={imageContext === "viz"} label="Only Download Visualization" onChange={this.toggleContext.bind(this)} />
-          <Checkbox checked={!backgroundColor} label="Transparent Background" onChange={this.toggleBackground.bind(this)} />
+          <Checkbox checked={imageContext === "viz"} label={t("CMS.Options.Only Download Visualization")} onChange={this.toggleContext.bind(this)} />
+          <Checkbox checked={!backgroundColor} label={t("CMS.Options.Transparent Background")} onChange={this.toggleBackground.bind(this)} />
         </div>
       </div>;
 
