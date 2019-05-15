@@ -24,8 +24,11 @@ export default {
   "CMS": {
     "Options": {
       "Download as CSV": "Download as CSV",
+      "Generating Image": "Generating Image",
       "Loading Data": "Loading Data",
+      "Only Download Visualization": "Only Download Visualization",
       "Save Image": "Save Image",
+      "Transparent Background": "Transparent Background",
       "View Data": "View Data"
     },
     "SourceGroup": {
