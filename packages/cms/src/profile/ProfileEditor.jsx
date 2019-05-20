@@ -33,7 +33,7 @@ class ProfileEditor extends Component {
     if (prevProps.id !== this.props.id) {
       this.hitDB.bind(this)(false);
     }
-    if (prevProps.preview !== this.props.preview) {
+    if (prevProps.previews !== this.props.previews) {
       this.hitDB.bind(this)(true);
     }
   }
@@ -45,10 +45,8 @@ class ProfileEditor extends Component {
   }
 
   fetchVariables(force) {
-    const slug = this.props.masterSlug;
-    const id = this.props.preview;
     if (this.props.fetchVariables) {
-      this.props.fetchVariables(slug, id, force, () => this.setState({recompiling: false}));
+      this.props.fetchVariables(force, () => this.setState({recompiling: false}));
     }
   }
 
@@ -115,7 +113,7 @@ class ProfileEditor extends Component {
   render() {
 
     const {minData, recompiling} = this.state;
-    const {children, variables, preview, locale, localeDefault} = this.props;
+    const {children, variables, previews, locale, localeDefault} = this.props;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
@@ -169,7 +167,7 @@ class ProfileEditor extends Component {
                 attr={minData.attr || {}}
                 locale={localeDefault}
                 localeDefault={localeDefault}
-                preview={preview}
+                previews={previews}
                 onSave={this.onSave.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 type="generator"
@@ -189,7 +187,7 @@ class ProfileEditor extends Component {
                     attr={minData.attr || {}}
                     locale={locale}
                     localeDefault={localeDefault}
-                    preview={preview}
+                    previews={previews}
                     onSave={this.onSave.bind(this)}
                     onDelete={this.onDelete.bind(this)}
                     type="generator"
@@ -254,10 +252,7 @@ class ProfileEditor extends Component {
         <h2 className="cms-section-heading">
           Profile
         </h2>
-        <div
-          className="cms-splash-wrapper"
-          style={{backgroundImage: `url("/api/profile/${minData.slug}/${preview}/thumb")`}}
-        >
+        <div className="cms-splash-wrapper">
 
           <div className="cms-card-container">
             {/* primary locale */}

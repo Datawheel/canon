@@ -123,7 +123,7 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {attr, type, variables, item, parentArray, preview, locale, localeDefault} = this.props;
+    const {attr, type, variables, item, parentArray, previews, locale, localeDefault} = this.props;
     const {displayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
@@ -231,7 +231,7 @@ class GeneratorCard extends Component {
           <div className="bp3-dialog-body">
             <GeneratorEditor
               markAsDirty={this.markAsDirty.bind(this)}
-              preview={preview}
+              previews={previews}
               attr={attr}
               locale={locale}
               data={minData}

@@ -108,7 +108,7 @@ class VisualizationCard extends Component {
 
     if (!minData) return <Loading />;
 
-    const {selectors, type, variables, parentArray, item, preview, locale, localeDefault} = this.props;
+    const {selectors, type, variables, parentArray, item, previews, locale, localeDefault} = this.props;
     const formatters = this.context.formatters[locale];
 
     minData.selectors = selectors;
@@ -177,7 +177,7 @@ class VisualizationCard extends Component {
           <div className="bp3-dialog-body">
             <GeneratorEditor 
               markAsDirty={this.markAsDirty.bind(this)} 
-              preview={preview} 
+              previews={previews} 
               data={minData} 
               variables={variables} 
               type={type} 

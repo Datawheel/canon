@@ -30,9 +30,9 @@ class ProfileBuilder extends Component {
       nodes: null,
       profiles: null,
       currentNode: null,
-      currentSlug: null,
+      currentPid: null,
       variablesHash: {},
-      preview: "",
+      previews: [],
       cubeData: {}
     };
   }
@@ -49,9 +49,9 @@ class ProfileBuilder extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.locale !== this.props.locale) {
-      const {currentSlug, currentNode} = this.state;
+      const {currentPid, currentNode} = this.state;
       const id = currentNode ? currentNode.id : null;
-      if (currentSlug) this.fetchVariables.bind(this)(currentSlug, id, true);
+      if (currentPid) this.fetchVariables.bind(this)(currentPid, id, true);
     }
   }
 
@@ -69,15 +69,15 @@ class ProfileBuilder extends Component {
     const {profiles} = this.state;
     const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters[localeDefault];
+    console.log("profiles:", profiles);
     // const {profileSlug, topicSlug} = this.props.pathObj;
     const nodes = profiles.map(p => ({
       id: `profile${p.id}`,
       hasCaret: true,
-      label: p.slug,
+      label: p.meta.map(d => d.slug).join("_"),
       itemType: "profile",
-      masterSlug: p.slug,
-      masterDimension: p.dimension,
-      masterLevels: p.levels,
+      masterPid: p.id,
+      masterMeta: p.meta,
       data: p,
       childNodes: p.topics.map(t => {
         const defCon = t.content.find(c => c.lang === localeDefault);
@@ -87,9 +87,8 @@ class ProfileBuilder extends Component {
           hasCaret: false,
           label: this.decode(stripHTML(title)),
           itemType: "topic",
-          masterSlug: p.slug,
-          masterDimension: p.dimension,
-          masterLevels: p.levels,
+          masterPid: p.id,
+          masterMeta: p.meta,
           data: t
         };
       })
@@ -138,6 +137,8 @@ class ProfileBuilder extends Component {
     this.setState({nodes});
   }
 
+  // TODO bivariate: This can possibly be refactored to assume topics, because only the scaffold 
+  // creates new profiles
   addItem(n, dir) {
     const {nodes} = this.state;
     const {variablesHash, currentSlug} = this.state;
@@ -329,18 +330,28 @@ class ProfileBuilder extends Component {
     }
     if (this.props.setPath) this.props.setPath(node);
     // If the slugs match, the master profile is the same, so keep the same preview
-    if (this.state.currentSlug === node.masterSlug) {
+    if (this.state.currentPid === node.masterPid) {
       this.setState({currentNode: node});
     }
-    // If they don't match, update the currentSlug and reset the preview
+    // If they don't match, update the currentPid and reset the preview
     else {
       // An empty search string will automatically provide the highest z-index results.
       // Use this to auto-populate the preview when the user changes profiles.
-      const levels = node.masterLevels ? node.masterLevels.join() : false;
-      const levelString = levels ? `&levels=${levels}` : "";
-      axios.get(`/api/search?q=&dimension=${node.masterDimension}${levelString}`).then(resp => {
-        const preview = resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "";
-        this.setState({currentNode: node, currentSlug: node.masterSlug, preview});
+      const requests = node.masterMeta.map(meta => {
+        const levels = meta.levels ? meta.levels.join() : false;  
+        const levelString = levels ? `&levels=${levels}` : "";
+        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
+        return axios.get(url);
+      });
+      const previews = [];
+      Promise.all(requests).then(resps => {
+        resps.forEach((resp, i) => {
+          previews.push({
+            slug: node.masterMeta[i].slug,
+            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+          });
+        });
+        this.setState({currentNode: node, currentPid: node.masterPid, previews});
       });
     }
   }
@@ -358,8 +369,8 @@ class ProfileBuilder extends Component {
   /**
    *
    */
-  locateProfileNodeBySlug(slug) {
-    return this.state.nodes.find(p => p.data.slug === slug);
+  locateProfileNodeByPid(pid) {
+    return this.state.nodes.find(p => p.data.id === pid);
   }
 
   /**
@@ -400,11 +411,11 @@ class ProfileBuilder extends Component {
    */
   reportSave(type, id, newValue) {
     const {nodes} = this.state;
-    const {variablesHash, currentSlug} = this.state;
+    const {variablesHash, currentPid} = this.state;
     const {localeDefault} = this.props;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
+    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
     const node = this.locateNode.bind(this)(type, id);
     // Update the label based on the new value. If this is a topic, this is the only thing needed
     if (type === "topic" && node) {
@@ -414,7 +425,10 @@ class ProfileBuilder extends Component {
       node.label = varSwap(this.decode(stripHTML(newValue)), formatters, variables);
     }
     // However, if this is a profile changing its slug, then all children must be informed so their masterSlug is up to date.
+    // TODO bivariate: when a save comes from the dimensionEditor, this will have to do something special
     if (type === "profile") {
+      console.log("bivariate: handle this better!");
+      /*
       node.masterSlug = newValue;
       node.data.slug = newValue;
       node.label = newValue;
@@ -422,6 +436,7 @@ class ProfileBuilder extends Component {
         t.masterSlug = newValue;
         return t;
       });
+      */
     }
     this.setState({nodes});
   }
@@ -429,8 +444,11 @@ class ProfileBuilder extends Component {
   /*
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
-  onSelectPreview(preview) {
-    this.setState({preview: preview.id});
+  onSelectPreview(slug, id) {
+    const {previews} = this.state;
+    const preview = previews.find(p => p.slug === slug);
+    if (preview) preview.id = id;
+    this.setState({previews});
   }
 
   /*
@@ -441,13 +459,14 @@ class ProfileBuilder extends Component {
    * in the sidebar.
    */
   formatTreeVariables() {
-    const {variablesHash, currentSlug, nodes} = this.state;
+    const {variablesHash, currentPid, nodes} = this.state;
     const {localeDefault} = this.props;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
-    const p = this.locateProfileNodeBySlug(currentSlug);
-    p.label = varSwap(p.data.slug, formatters, variables);
+    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
+    const p = this.locateProfileNodeByPid(currentPid);
+    p.label = p.masterMeta.map(d => d.slug).join("_"),
+    // p.label = varSwap(p.data.slug, formatters, variables);
     p.childNodes = p.childNodes.map(t => {
       const defCon = t.data.content.find(c => c.lang === localeDefault);
       const title = defCon && defCon.title ? defCon.title : t.data.slug;
@@ -461,31 +480,39 @@ class ProfileBuilder extends Component {
    * Certain events in the Editors, such as saving a generator, can change the resulting
    * variables object. In order to ensure that this new variables object is passed down to
    * all the editors, each editor has a callback that accesses this function. We store the
-   * variables object in a hash that is keyed by the slug, so we don't re-run the get if
+   * variables object in a hash that is keyed by the profile id, so we don't re-run the get if
    * the variables are already there. However, we provide a "force" option, which editors
-   * can use to say "trust me, I've changed something, you need to re-get the variables get"
+   * can use to say "trust me, I've changed something, you need to re-do the variables get"
    */
-  fetchVariables(slug, id, force, callback) {
-    const {variablesHash} = this.state;
+  fetchVariables(force, callback) {
+    const {variablesHash, currentPid, previews} = this.state;
     const {locale, localeDefault} = this.props;
     const maybeCallback = () => {
       if (callback) callback();
       this.formatTreeVariables.bind(this)();
     };
-    if (force || !variablesHash[slug] || variablesHash[slug] && locale && !variablesHash[slug][locale]) {
-      if (id) {
-        axios.get(`/api/variables/${slug}/${id}?locale=${localeDefault}`).then(def => {
+    if (force || !variablesHash[currentPid] || variablesHash[currentPid] && locale && !variablesHash[currentPid][locale]) {
+      if (previews.length > 0) {
+        let url = `/api/variables/${currentPid}/?locale=${localeDefault}`;
+        previews.forEach((p, i) => {
+          url += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+        });
+        axios.get(url).then(def => {
           const defObj = {[localeDefault]: def.data};
-          if (!variablesHash[slug]) {
-            variablesHash[slug] = defObj;
+          if (!variablesHash[currentPid]) {
+            variablesHash[currentPid] = defObj;
           }
           else {
-            variablesHash[slug] = Object.assign(variablesHash[slug], defObj);
+            variablesHash[currentPid] = Object.assign(variablesHash[currentPid], defObj);
           }
           if (locale) {
-            axios.get(`/api/variables/${slug}/${id}?locale=${locale}`).then(loc => {
+            let lurl = `/api/variables/${currentPid}/?locale=${locale}`;
+            previews.forEach((p, i) => {
+              lurl += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+            });
+            axios.get(lurl).then(loc => {
               const locObj = {[locale]: loc.data};
-              variablesHash[slug] = Object.assign(variablesHash[slug], locObj);
+              variablesHash[currentPid] = Object.assign(variablesHash[currentPid], locObj);
               this.setState({variablesHash}, maybeCallback);
             });
           }
@@ -495,8 +522,8 @@ class ProfileBuilder extends Component {
         });
       }
       else {
-        variablesHash[slug][localeDefault] = {_genStatus: {}, _matStatus: {}};
-        if (locale) variablesHash[slug][locale] = {_genStatus: {}, _matStatus: {}};
+        variablesHash[currentPid][localeDefault] = {_genStatus: {}, _matStatus: {}};
+        if (locale) variablesHash[currentPid][locale] = {_genStatus: {}, _matStatus: {}};
         this.setState({variablesHash}, maybeCallback);
       }
     }
@@ -507,15 +534,16 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode, variablesHash, currentSlug, preview, profileModalOpen, cubeData, nodeToDelete} = this.state;
+    const {nodes, currentNode, variablesHash, currentPid, previews, profileModalOpen, cubeData, nodeToDelete} = this.state;
     const {locale, localeDefault} = this.props;
 
     if (!nodes) return <div>Loading</div>;
 
-    const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
+    const variables = variablesHash[currentPid] ? deepClone(variablesHash[currentPid]) : null;
 
+    /*
     let profileSearch = "";
-    if (currentNode && currentSlug) {
+    if (currentNode && currentPid) {
       profileSearch =
         <div className="cms-profile-search bp3-label">
           {preview ? `Current data ID: ${preview}` : "Preview profile"}
@@ -527,6 +555,15 @@ class ProfileBuilder extends Component {
           />
         </div>;
     }
+    */
+    const profileSearch = <div>
+      This will be a Dimension Searcher <br/>
+      {previews.map(p => 
+        <span key={p.slug}>
+          <strong>slug:</strong> {p.slug} ------ <strong>id:</strong> {p.id}<br/>
+        </span>
+      )}
+    </div>;
 
     const editorTypes = {profile: ProfileEditor, topic: TopicEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
@@ -577,7 +614,7 @@ class ProfileBuilder extends Component {
               locale={locale}
               localeDefault={localeDefault}
               masterSlug={currentNode.masterSlug}
-              preview={preview}
+              previews={previews}
               fetchVariables={this.fetchVariables.bind(this)}
               variables={variables}
               reportSave={this.reportSave.bind(this)}
