@@ -104,12 +104,19 @@ class GeneratorEditor extends Component {
   previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
-    const {attr, preview, variables, locale} = this.props;
+    const {attr, previews, variables, locale} = this.props;
     if (api) {
-      // The API will have an <id> in it that needs to be replaced with the current preview.
+      // The API will have <ids> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value. Same goes for locale
-      const url = urlSwap(api, Object.assign({}, attr, variables, {id: preview, locale}));
+      const lookup = {locale};
+      previews.forEach((p, i) => {
+        if (i === 0) {
+          lookup.id = p.id;
+        }
+        lookup[`id${i + 1}`] = p.id;
+      });
+      const url = urlSwap(api, Object.assign({}, attr, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
         let {simple} = this.state;
@@ -202,7 +209,7 @@ class GeneratorEditor extends Component {
   render() {
 
     const {data, variables, payload, simple, alertObj} = this.state;
-    const {type, preview} = this.props;
+    const {type, previews} = this.props;
 
     const preMessage = {
       generator: <p className="bp3-text-muted">You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</p>,
@@ -317,7 +324,7 @@ class GeneratorEditor extends Component {
                   onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null
-              : <SimpleVisualizationEditor key="simp-viz" preview={preview} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
+              : <SimpleVisualizationEditor key="simp-viz" previews={previews} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
             : <AceWrapper
               key="ace-wrap"
               className="editor"
