@@ -76,16 +76,6 @@ class ProfileEditor extends Component {
     }
   }
 
-  save() {
-    const {minData} = this.state;
-    axios.post("/api/cms/profile/update", minData).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false});
-        if (this.props.reportSave) this.props.reportSave("profile", minData.id, minData.slug);
-      }
-    });
-  }
-
   addItem(type) {
     const {minData} = this.state;
     const payload = {};
@@ -133,18 +123,6 @@ class ProfileEditor extends Component {
             <Icon iconName={ recompiling ? "more" : "tick"} />
             { recompiling ? "Updating Variables" : "Variables Loaded" }
           </div>
-        </div>
-
-        {/* current profile options */}
-        <div className="cms-editor-header">
-          {/* change slug */}
-          <label className="bp3-label cms-slug">
-            Profile slug
-            <div className="bp3-input-group">
-              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
-              <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
-            </div>
-          </label>
         </div>
 
         {/* generators */}
