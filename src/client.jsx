@@ -91,13 +91,13 @@ function renderMiddleware() {
               window.ga("send", "pageview");
             }, 0);
           }
-          selectAll(".d3plus-tooltip").remove();
         }
         if (hash) scrollToHash(hash);
         else window.scrollTo(0, 0);
       };
 
       if (action !== "REPLACE" || !Object.keys(query).length) {
+        selectAll(".d3plus-tooltip").remove();
         if (window.__SSR__ || state === "HASH" || !needs.length) {
           postRender();
           window.__SSR__ = false;
