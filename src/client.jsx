@@ -78,13 +78,24 @@ function renderMiddleware() {
     renderRouterContext: (child, props) => {
 
       const needs = props.components.filter(comp => comp && (comp.need || comp.preneed || comp.postneed));
-      const {action, hash, query, state} = props.location;
+      const {action, hash, pathname, query, search, state} = props.location;
+
+      const postRender = function() {
+        if (!window.__SSR__ && typeof window.ga === "function") {
+          setTimeout(() => {
+            window.ga("set", "title", document.title);
+            window.ga("set", "page", pathname + search);
+            window.ga("send", "pageview");
+          }, 0);
+        }
+        if (hash) scrollToHash(hash);
+        else window.scrollTo(0, 0);
+      };
 
       if (action !== "REPLACE" || !Object.keys(query).length) {
         if (window.__SSR__ || state === "HASH" || !needs.length) {
+          postRender();
           window.__SSR__ = false;
-          if (hash) scrollToHash(hash);
-          else window.scrollTo(0, 0);
         }
         else {
           store.dispatch({type: LOADING_START});
@@ -92,8 +103,7 @@ function renderMiddleware() {
           preRenderMiddleware(store, props)
             .then(() => {
               store.dispatch({type: LOADING_END});
-              if (hash) scrollToHash(hash);
-              else window.scrollTo(0, 0);
+              postRender();
             });
         }
       }
