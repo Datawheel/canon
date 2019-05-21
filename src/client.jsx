@@ -127,7 +127,7 @@ const helmet = window.__HELMET_DEFAULT__;
 function createElement(Component, props) {
 
   if (props.children && props.route.path === "/") {
-    return <CanonProvider router={props.router} helmet={helmet} i18n={i18n}>
+    return <CanonProvider router={props.router} helmet={helmet} locale={locale}>
       <Component {...props} />
     </CanonProvider>;
   }
