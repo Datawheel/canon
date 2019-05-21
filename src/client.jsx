@@ -9,6 +9,7 @@ import {syncHistoryWithStore} from "react-router-redux";
 import {animateScroll} from "react-scroll";
 import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
+import {selectAll} from "d3-selection";
 import createRoutes from "routes";
 import configureStore from "./storeConfig";
 import {LOADING_END, LOADING_START} from "./consts";
@@ -82,12 +83,15 @@ function renderMiddleware() {
       const {action, hash, pathname, query, search, state} = props.location;
 
       const postRender = function() {
-        if (!window.__SSR__ && typeof window.ga === "function") {
-          setTimeout(() => {
-            window.ga("set", "title", document.title);
-            window.ga("set", "page", pathname + search);
-            window.ga("send", "pageview");
-          }, 0);
+        if (!window.__SSR__) {
+          if (typeof window.ga === "function") {
+            setTimeout(() => {
+              window.ga("set", "title", document.title);
+              window.ga("set", "page", pathname + search);
+              window.ga("send", "pageview");
+            }, 0);
+          }
+          selectAll(".d3plus-tooltip").remove();
         }
         if (hash) scrollToHash(hash);
         else window.scrollTo(0, 0);

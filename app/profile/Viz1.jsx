@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {withNamespaces} from "react-i18next";
 import {Treemap} from "d3plus-react";
 import {dataFold} from "d3plus-viz";
@@ -10,8 +11,11 @@ import {SectionColumns, SectionTitle} from "../../src";
 class Viz1 extends SectionColumns {
 
   render() {
+
     const data = this.context.data.harvested_area;
     const {t} = this.props;
+    const {router} = this.context;
+
     return (
       <SectionColumns>
         <SectionTitle>My Cool Title</SectionTitle>
@@ -22,6 +26,11 @@ class Viz1 extends SectionColumns {
           height: 400,
           label: d => d.crop_name,
           legend: false,
+          on: {
+            click: () => {
+              router.push("/");
+            }
+          },
           sum: d => d.harvested_area
         }} />
       </SectionColumns>
@@ -31,6 +40,11 @@ class Viz1 extends SectionColumns {
 
 Viz1.defaultProps = {
   slug: "Viz1"
+};
+
+Viz1.contextTypes = {
+  data: PropTypes.object,
+  router: PropTypes.object
 };
 
 Viz1.need = [
