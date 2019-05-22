@@ -23,6 +23,8 @@ export default class DimensionCard extends Component {
   render() {
     const {meta, preview} = this.props;
 
+    if (!preview) return <div>test</div>;
+
     return (
       <div className="cms-card">
         slug: <strong>{meta.slug}</strong>
