@@ -440,6 +440,17 @@ class ProfileBuilder extends Component {
     this.setState({nodes});
   }
 
+  onAddDimension(data) {
+    const {currentPid, currentNode} = this.state;
+    const ordering = currentNode.masterMeta.length;
+    const payload = Object.assign({}, data, {profile_id: currentPid, ordering});
+    axios.post("/api/cms/profile/addDimension", payload).then(resp => {
+      // todo bivariate, this entire profile refresh may be overkill
+      const profiles = resp.data;
+      this.setState({profiles}, this.buildNodes.bind(this));
+    });
+  }
+
   /*
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
@@ -563,9 +574,11 @@ class ProfileBuilder extends Component {
     if (currentNode && currentPid) {
       profileSearch = <div>
         <DimensionBuilder
+          cubeData={cubeData}
           meta={currentNode.masterMeta}
           previews={previews}
           onSelectPreview={this.onSelectPreview.bind(this)}
+          onAddDimension={this.onAddDimension.bind(this)}
         />
       </div>;
     }

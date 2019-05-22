@@ -418,6 +418,22 @@ module.exports = function(app) {
     return res.json(profiles);
   });
 
+  app.post("/api/cms/profile/addDimension", isEnabled, async(req, res) => {
+    const profileData = req.body;
+    await db.profile_meta.create({
+      profile_id: profileData.profile_id,
+      slug: profileData.slug, 
+      ordering: profileData.ordering, 
+      dimension: profileData.dimName, 
+      levels: profileData.levels,
+      measure: profileData.measure
+    });
+    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
+    profiles = sortProfileTree(db, profiles);
+    populateSearch(profileData, db);
+    return res.json(profiles);
+  });
+
   /* UPDATES */
   // For now, all "update" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.
   const updateList = cmsTables;
