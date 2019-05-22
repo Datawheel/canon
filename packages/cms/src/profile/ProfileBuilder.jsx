@@ -139,32 +139,23 @@ class ProfileBuilder extends Component {
     this.setState({nodes});
   }
 
-  // TODO bivariate: This can possibly be refactored to assume topics, because only the scaffold 
-  // creates new profiles
+  /** 
+   * addItem is only ever used for topics, so lots of topic-based assumptions are 
+   * made here. if this is ever expanded out again to be a generic "item" adder
+   * then this will need to be generalized.
+   */
   addItem(n, dir) {
     const {nodes} = this.state;
-    const {variablesHash, currentSlug} = this.state;
+    const {variablesHash, currentPid} = this.state;
     const {localeDefault} = this.props;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
+    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
     n = this.locateNode(n.itemType, n.data.id);
-    let parent;
-    let parentArray;
-    // For topics, it is sufficient to find the Actual Parent - this parent will have
-    // a masterSlug that the newly added item should share
-    if (n.itemType === "topic") {
-      parent = this.locateNode("profile", n.data.profile_id);
-      parentArray = parent.childNodes;
-    }
-    // However, if the user is adding a new profile, there is no top-level profile parent whose slug trickles down,
-    // therefore we must make a small fake object whose only prop is masterSlug. This is used only so that when we
-    // build the new Profile Tree Object, we can set the masterSlug of both new elements (profile, topic)
-    // to "parent.masterSlug" and have that correctly reflect the stub object.
-    else if (n.itemType === "profile") {
-      parent = {masterSlug: "new-profile-slug"};
-      parentArray = nodes;
-    }
+    
+    const parent = this.locateNode("profile", n.data.profile_id);
+    const parentArray = parent.childNodes;
+
     let loc = n.data.ordering;
     if (dir === "above") {
       for (const node of parentArray) {
@@ -185,88 +176,34 @@ class ProfileBuilder extends Component {
     }
 
     // New Topics need to inherit their masterDimension from their parent.
-    // This is not necessary for profiles, as profiles are now only added through the
-    // search scaffold (see onCreateProfile)
-
-    const objTopic = {
+    
+    const obj = {
       hasCaret: false,
       itemType: "topic",
       data: {}
     };
-    objTopic.data.profile_id = n.data.profile_id;
-    objTopic.data.ordering = loc;
-    objTopic.masterSlug = parent.masterSlug;
-    objTopic.masterDimension = parent.masterDimension;
-    objTopic.masterLevels = parent.masterLevels;
+    obj.data.profile_id = n.data.profile_id;
+    obj.data.ordering = loc;
+    obj.masterPid = parent.masterPid;
+    obj.masterMeta = parent.masterMeta;
 
-    const objProfile = {
-      hasCaret: true,
-      itemType: "profile",
-      data: {}
-    };
-    objProfile.data.ordering = loc;
-    objProfile.masterSlug = parent.masterSlug;
-
-    let obj = null;
-
-    if (n.itemType === "topic") {
-      obj = objTopic;
-    }
-    if (n.itemType === "profile") {
-      obj = objProfile;
-      objTopic.data.ordering = 0;
-      obj.childNodes = [objTopic];
-    }
-  
-    if (obj) {
-
-      const profilePath = "/api/cms/profile/new";
-      const topicPath = "/api/cms/topic/new";
-
-      if (n.itemType === "topic") {
-        axios.post(topicPath, obj.data).then(topic => {
-          if (topic.status === 200) {
-            obj.id = `topic${topic.data.id}`;
-            obj.data = topic.data;
-            const defCon = topic.data.content.find(c => c.lang === localeDefault);
-            const title = defCon && defCon.title ? defCon.title : topic.slug;
-            obj.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
-            const parent = this.locateNode("profile", obj.data.profile_id);
-            parent.childNodes.push(obj);
-            parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
-            this.setState({nodes}, this.handleNodeClick.bind(this, obj));
-          }
-          else {
-            console.log("topic error");
-          }
-        });
+    const topicPath = "/api/cms/topic/new";
+    axios.post(topicPath, obj.data).then(topic => {
+      if (topic.status === 200) {
+        obj.id = `topic${topic.data.id}`;
+        obj.data = topic.data;
+        const defCon = topic.data.content.find(c => c.lang === localeDefault);
+        const title = defCon && defCon.title ? defCon.title : topic.slug;
+        obj.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
+        const parent = this.locateNode("profile", obj.data.profile_id);
+        parent.childNodes.push(obj);
+        parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
+        this.setState({nodes}, this.handleNodeClick.bind(this, obj));
       }
-      else if (n.itemType === "profile") {
-        axios.post(profilePath, obj.data).then(profile => {
-          obj.id = `profile${profile.data.id}`;
-          obj.data = profile.data;
-          // obj.label = varSwap(this.decode(stripHTML(obj.data.title)), formatters, variables);
-          obj.label = obj.data.slug;
-          objTopic.data.profile_id = profile.data.id;
-          axios.post(topicPath, objTopic.data).then(topic => {
-            if (topic.status === 200) {
-              objTopic.id = `topic${topic.data.id}`;
-              objTopic.data = topic.data;
-              const defCon = topic.data.content.find(c => c.lang === localeDefault);
-              const title = defCon && defCon.title ? defCon.title : topic.data.slug;
-              objTopic.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
-              const parent = this.locateNode("profile", obj.data.profile_id);
-              parent.childNodes.push(obj);
-              parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
-              this.setState({nodes}, this.handleNodeClick.bind(this, obj));
-            }
-            else {
-              console.log("profile error");
-            }
-          });
-        });
+      else {
+        console.log("topic error");
       }
-    }
+    });
   }
 
   confirmDelete(n) {
@@ -557,35 +494,6 @@ class ProfileBuilder extends Component {
 
     const variables = variablesHash[currentPid] ? deepClone(variablesHash[currentPid]) : null;
 
-    /*
-    let profileSearch = "";
-    if (currentNode && currentPid) {
-      profileSearch =
-        <div className="cms-profile-search bp3-label">
-          {preview ? `Current data ID: ${preview}` : "Preview profile"}
-          <Search
-            render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
-            dimension={currentNode.masterDimension}
-            levels={currentNode.masterLevels}
-            limit={20}
-          />
-        </div>;
-    }
-    */
-
-    let profileSearch = "";
-    if (currentNode && currentPid) {
-      profileSearch = <div>
-        <DimensionBuilder
-          cubeData={cubeData}
-          meta={currentNode.masterMeta}
-          previews={previews}
-          onSelectPreview={this.onSelectPreview.bind(this)}
-          onAddDimension={this.onAddDimension.bind(this)}
-        />
-      </div>;
-    }
-
     const editorTypes = {profile: ProfileEditor, topic: TopicEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
 
@@ -631,7 +539,15 @@ class ProfileBuilder extends Component {
               variables={variables}
               reportSave={this.reportSave.bind(this)}
             >
-              {profileSearch}
+              {currentNode && 
+                <DimensionBuilder
+                  cubeData={cubeData}
+                  meta={currentNode.masterMeta}
+                  previews={previews}
+                  onSelectPreview={this.onSelectPreview.bind(this)}
+                  onAddDimension={this.onAddDimension.bind(this)}
+                /> 
+              }
             </Editor>
             : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
           }
