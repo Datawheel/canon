@@ -6,7 +6,7 @@ import NewProfile from "./NewProfile";
 import ProfileEditor from "./ProfileEditor";
 import TopicEditor from "./TopicEditor";
 import PropTypes from "prop-types";
-import Search from "../components/Search/Search";
+import DimensionBuilder from "../profile/DimensionBuilder";
 import CtxMenu from "../components/CtxMenu";
 
 import varSwap from "../utils/varSwap";
@@ -69,7 +69,6 @@ class ProfileBuilder extends Component {
     const {profiles} = this.state;
     const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters[localeDefault];
-    console.log("profiles:", profiles);
     // const {profileSlug, topicSlug} = this.props.pathObj;
     const nodes = profiles.map(p => ({
       id: `profile${p.id}`,
@@ -445,9 +444,13 @@ class ProfileBuilder extends Component {
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
   onSelectPreview(slug, id) {
-    const {previews} = this.state;
-    const preview = previews.find(p => p.slug === slug);
-    if (preview) preview.id = id;
+    const previews = this.state.previews.map(p => {
+      const newId = p.slug === slug ? id : p.id;
+      return {
+        id: newId,
+        slug: p.slug
+      };
+    });
     this.setState({previews});
   }
 
@@ -556,14 +559,16 @@ class ProfileBuilder extends Component {
         </div>;
     }
     */
-    const profileSearch = <div>
-      This will be a Dimension Searcher <br/>
-      {previews.map(p => 
-        <span key={p.slug}>
-          <strong>slug:</strong> {p.slug} ------ <strong>id:</strong> {p.id}<br/>
-        </span>
-      )}
-    </div>;
+    let profileSearch = "";
+    if (currentNode && currentPid) {
+      profileSearch = <div>
+        <DimensionBuilder
+          meta={currentNode.masterMeta}
+          previews={previews}
+          onSelectPreview={this.onSelectPreview.bind(this)}
+        />
+      </div>;
+    }
 
     const editorTypes = {profile: ProfileEditor, topic: TopicEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
