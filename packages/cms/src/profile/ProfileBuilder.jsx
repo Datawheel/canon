@@ -96,11 +96,15 @@ class ProfileBuilder extends Component {
       this.setState({nodes});
     }
     else {
-      let nodeToOpen = nodes[0];
-      /*if (profileSlug) {
-        nodeToOpen = nodes.find(p => p.data.slug === profileSlug);
-      }*/
-      this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      if (typeof openNode !== "boolean") {
+        const nodeToOpen = this.locateProfileNodeByPid(openNode);
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen, true));
+      }
+      else {
+        const nodeToOpen = nodes[0];
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+      
     }
   }
 
@@ -307,7 +311,7 @@ class ProfileBuilder extends Component {
     }
   }
 
-  handleNodeClick(node) {
+  handleNodeClick(node, force) {
     node = this.locateNode(node.itemType, node.data.id);
     const {nodes, currentNode} = this.state;
     let parentLength = 0;
@@ -329,7 +333,7 @@ class ProfileBuilder extends Component {
     }
     if (this.props.setPath) this.props.setPath(node);
     // If the slugs match, the master profile is the same, so keep the same preview
-    if (this.state.currentPid === node.masterPid) {
+    if (this.state.currentPid === node.masterPid && !force) {
       this.setState({currentNode: node});
     }
     // If they don't match, update the currentPid and reset the preview
@@ -447,7 +451,7 @@ class ProfileBuilder extends Component {
     axios.post("/api/cms/profile/addDimension", payload).then(resp => {
       // todo bivariate, this entire profile refresh may be overkill
       const profiles = resp.data;
-      this.setState({profiles}, this.buildNodes.bind(this));
+      this.setState({profiles}, this.buildNodes.bind(this, currentPid));
     });
   }
 
@@ -570,6 +574,7 @@ class ProfileBuilder extends Component {
         </div>;
     }
     */
+
     let profileSearch = "";
     if (currentNode && currentPid) {
       profileSearch = <div>

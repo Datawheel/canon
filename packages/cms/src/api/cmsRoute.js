@@ -420,14 +420,8 @@ module.exports = function(app) {
 
   app.post("/api/cms/profile/addDimension", isEnabled, async(req, res) => {
     const profileData = req.body;
-    await db.profile_meta.create({
-      profile_id: profileData.profile_id,
-      slug: profileData.slug, 
-      ordering: profileData.ordering, 
-      dimension: profileData.dimName, 
-      levels: profileData.levels,
-      measure: profileData.measure
-    });
+    profileData.dimension = profileData.dimName;
+    await db.profile_meta.create(profileData);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     populateSearch(profileData, db);
@@ -455,6 +449,7 @@ module.exports = function(app) {
    * and "parent" refers to the foreign key that need be referenced in the associated where clause.
    */
   const deleteList = [
+    {elements: ["profile_meta"], parent: "profile_id"},
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
     {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"},
     {elements: ["storytopic_subtitle", "storytopic_description", "storytopic_stat", "storytopic_visualization"], parent: "storytopic_id"}
