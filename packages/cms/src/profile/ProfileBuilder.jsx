@@ -73,7 +73,7 @@ class ProfileBuilder extends Component {
     const nodes = profiles.map(p => ({
       id: `profile${p.id}`,
       hasCaret: true,
-      label: p.meta.map(d => d.slug).join("_"),
+      label: p.meta.length > 0 ? p.meta.map(d => d.slug).join("_") : "Add Dimensions",
       itemType: "profile",
       masterPid: p.id,
       masterMeta: p.meta,
@@ -376,16 +376,13 @@ class ProfileBuilder extends Component {
     return this.state.nodes.find(p => p.data.id === pid);
   }
 
-  /**
-   * Called by the NewProfile Modal Popover. profileData contains special metadata that will need to be passed to
-   * a script that will populate the search table with the appropriate entities.
-   */
-  onCreateProfile(profileData) {
-    profileData.ordering = this.state.nodes.length;
+  createProfile() {
+    const profileData = {
+      ordering: this.state.nodes.length
+    };
     axios.post("/api/cms/profile/newScaffold", profileData).then(resp => {
       const profiles = resp.data;
-      const profileModalOpen = false;
-      this.setState({profiles, profileModalOpen}, this.buildNodes.bind(this));
+      this.setState({profiles}, this.buildNodes.bind(this));
     });
   }
 
@@ -449,7 +446,6 @@ class ProfileBuilder extends Component {
     const ordering = currentNode.masterMeta.length;
     const payload = Object.assign({}, data, {profile_id: currentPid, ordering});
     axios.post("/api/cms/profile/addDimension", payload).then(resp => {
-      // todo bivariate, this entire profile refresh may be overkill
       const profiles = resp.data;
       this.setState({profiles}, this.buildNodes.bind(this, currentPid));
     });
@@ -483,7 +479,7 @@ class ProfileBuilder extends Component {
     const {stripHTML} = formatters;
     const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
     const p = this.locateProfileNodeByPid(currentPid);
-    p.label = p.masterMeta.map(d => d.slug).join("_"),
+    p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions"
     // p.label = varSwap(p.data.slug, formatters, variables);
     p.childNodes = p.childNodes.map(t => {
       const defCon = t.data.content.find(c => c.lang === localeDefault);
@@ -540,6 +536,9 @@ class ProfileBuilder extends Component {
         });
       }
       else {
+        if (!variablesHash[currentPid]) {
+          variablesHash[currentPid] = {};
+        }
         variablesHash[currentPid][localeDefault] = {_genStatus: {}, _matStatus: {}};
         if (locale) variablesHash[currentPid][locale] = {_genStatus: {}, _matStatus: {}};
         this.setState({variablesHash}, maybeCallback);
@@ -552,7 +551,7 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode, variablesHash, currentPid, previews, profileModalOpen, cubeData, nodeToDelete} = this.state;
+    const {nodes, currentNode, variablesHash, currentPid, previews, cubeData, nodeToDelete} = this.state;
     const {locale, localeDefault} = this.props;
 
     if (!nodes) return <div>Loading</div>;
@@ -598,7 +597,7 @@ class ProfileBuilder extends Component {
 
           {/* new entity */}
           <button className="cms-button"
-            onClick={() => this.setState({profileModalOpen: true})}>
+            onClick={this.createProfile.bind(this)}>
               Add profile <span className="bp3-icon bp3-icon-plus" />
           </button>
 
@@ -610,15 +609,6 @@ class ProfileBuilder extends Component {
           />
 
         </div>
-        <Dialog
-          className="profileModal"
-          isOpen={profileModalOpen}
-          usePortal={false}
-          onClose={() => this.setState({profileModalOpen: false})}
-          title="Add New Profile"
-        >
-          <NewProfile cubeData={cubeData} onCreateProfile={this.onCreateProfile.bind(this)}/>
-        </Dialog>
         <Alert
           isOpen={nodeToDelete}
           cancelButtonText="Cancel"

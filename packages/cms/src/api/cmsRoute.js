@@ -407,14 +407,12 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
-    const profileData = req.body;
-    const profile = await db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName, levels: profileData.levels}).catch(catcher);
+    const profile = await db.profile.create(req.body).catch(catcher);
     await db.profile_content.create({id: profile.id, lang: envLoc}).catch(catcher);
     const topic = await db.topic.create({ordering: 0, profile_id: profile.id});
     await db.topic_content.create({id: topic.id, lang: envLoc}).catch(catcher);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
-    populateSearch(profileData, db);
     return res.json(profiles);
   });
 
