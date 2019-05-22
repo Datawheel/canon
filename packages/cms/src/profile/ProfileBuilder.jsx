@@ -1,8 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {NonIdealState, Tree, Dialog, Intent, Alert} from "@blueprintjs/core";
-import NewProfile from "./NewProfile";
+import {NonIdealState, Tree, Intent, Alert} from "@blueprintjs/core";
 import ProfileEditor from "./ProfileEditor";
 import TopicEditor from "./TopicEditor";
 import PropTypes from "prop-types";
