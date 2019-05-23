@@ -48,9 +48,8 @@ class ProfileBuilder extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.locale !== this.props.locale) {
-      const {currentPid, currentNode} = this.state;
-      const id = currentNode ? currentNode.id : null;
-      if (currentPid) this.fetchVariables.bind(this)(currentPid, id, true);
+      const {currentPid} = this.state;
+      if (currentPid) this.fetchVariables.bind(this)(true);
     }
   }
 
@@ -97,7 +96,7 @@ class ProfileBuilder extends Component {
     else {
       if (typeof openNode !== "boolean") {
         const nodeToOpen = this.locateProfileNodeByPid(openNode);
-        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen, true));
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
       }
       else {
         const nodeToOpen = nodes[0];
@@ -231,7 +230,8 @@ class ProfileBuilder extends Component {
             iconName: topicIcons[topicData.type] || "help",
             label: this.decode(stripHTML(title)),
             itemType: "topic",
-            masterSlug: parent.masterSlug,
+            masterPid: parent.masterPid,
+            masterMeta: parent.masterMeta,
             data: topicData
           };
         });
@@ -247,7 +247,7 @@ class ProfileBuilder extends Component {
     }
   }
 
-  handleNodeClick(node, force) {
+  handleNodeClick(node) {
     node = this.locateNode(node.itemType, node.data.id);
     const {nodes, currentNode} = this.state;
     let parentLength = 0;
@@ -268,8 +268,8 @@ class ProfileBuilder extends Component {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
     if (this.props.setPath) this.props.setPath(node);
-    // If the slugs match, the master profile is the same, so keep the same preview
-    if (this.state.currentPid === node.masterPid && !force) {
+    // If the pids match, the master profile is the same, so keep the same preview
+    if (this.state.currentPid === node.masterPid) {
       this.setState({currentNode: node});
     }
     // If they don't match, update the currentPid and reset the preview
@@ -402,7 +402,7 @@ class ProfileBuilder extends Component {
   }
 
   /*
-   * When the function "fetchVariables" is called (below), it means that something has
+   * When the "fetch Variables" function is called (below), it means that something has
    * happened in one of the editors that requires re-running the generators and storing
    * a new set of variables in the hash. When this happens, it is an opportunity to update
    * all the labels in the tree by varSwapping them, allowing them to appear properly
@@ -415,7 +415,7 @@ class ProfileBuilder extends Component {
     const {stripHTML} = formatters;
     const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
     const p = this.locateProfileNodeByPid(currentPid);
-    p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions"
+    p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions";
     // p.label = varSwap(p.data.slug, formatters, variables);
     p.childNodes = p.childNodes.map(t => {
       const defCon = t.data.content.find(c => c.lang === localeDefault);
@@ -442,43 +442,33 @@ class ProfileBuilder extends Component {
       this.formatTreeVariables.bind(this)();
     };
     if (force || !variablesHash[currentPid] || variablesHash[currentPid] && locale && !variablesHash[currentPid][locale]) {
-      if (previews.length > 0) {
-        let url = `/api/variables/${currentPid}/?locale=${localeDefault}`;
-        previews.forEach((p, i) => {
-          url += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
-        });
-        axios.get(url).then(def => {
-          const defObj = {[localeDefault]: def.data};
-          if (!variablesHash[currentPid]) {
-            variablesHash[currentPid] = defObj;
-          }
-          else {
-            variablesHash[currentPid] = Object.assign(variablesHash[currentPid], defObj);
-          }
-          if (locale) {
-            let lurl = `/api/variables/${currentPid}/?locale=${locale}`;
-            previews.forEach((p, i) => {
-              lurl += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
-            });
-            axios.get(lurl).then(loc => {
-              const locObj = {[locale]: loc.data};
-              variablesHash[currentPid] = Object.assign(variablesHash[currentPid], locObj);
-              this.setState({variablesHash}, maybeCallback);
-            });
-          }
-          else {
-            this.setState({variablesHash}, maybeCallback);
-          }
-        });
-      }
-      else {
+      let url = `/api/variables/${currentPid}/?locale=${localeDefault}`;
+      previews.forEach((p, i) => {
+        url += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+      });
+      axios.get(url).then(def => {
+        const defObj = {[localeDefault]: def.data};
         if (!variablesHash[currentPid]) {
-          variablesHash[currentPid] = {};
+          variablesHash[currentPid] = defObj;
         }
-        variablesHash[currentPid][localeDefault] = {_genStatus: {}, _matStatus: {}};
-        if (locale) variablesHash[currentPid][locale] = {_genStatus: {}, _matStatus: {}};
-        this.setState({variablesHash}, maybeCallback);
-      }
+        else {
+          variablesHash[currentPid] = Object.assign(variablesHash[currentPid], defObj);
+        }
+        if (locale) {
+          let lurl = `/api/variables/${currentPid}/?locale=${locale}`;
+          previews.forEach((p, i) => {
+            lurl += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+          });
+          axios.get(lurl).then(loc => {
+            const locObj = {[locale]: loc.data};
+            variablesHash[currentPid] = Object.assign(variablesHash[currentPid], locObj);
+            this.setState({variablesHash}, maybeCallback);
+          });
+        }
+        else {
+          this.setState({variablesHash}, maybeCallback);
+        }
+      });
     }
     else {
       this.setState({variablesHash}, maybeCallback);
