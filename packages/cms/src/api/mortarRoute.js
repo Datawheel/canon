@@ -362,19 +362,28 @@ module.exports = function(app) {
   });
 
   // Endpoint for when a user selects a new dropdown for a topic, requiring new variables
-  app.get("/api/topic/:slug/:pid/:topicId", async(req, res) => {
+  app.get("/api/topic/:pid/:topicId", async(req, res) => {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-    const {slug, pid, topicId} = req.params;
+    const {pid, topicId} = req.params;
     const locale = req.query.locale || envLoc;
     const localeString = `?locale=${locale}`;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
 
-    const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: pid, slug: pid}}}).catch(catcher);
-    const {id} = attribute;
+    const dims = collate(req.query);
+    for (let i = 0; i < dims.length; i++) {
+      const dim = dims[i];
+      const attr = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
+      dim.id = attr.id;
+    }
+
+    const url = `${origin}/api/variables/${pid}${localeString}`;
+    dims.forEach((dim, i) => {
+      url += `&slug${i + 1}=${dim.slug}&id${i + 1}=${dim.id}`;
+    });
 
     // As with profiles above, we need formatters, variables, and the topic itself in order to
     // create a "postProcessed" topic that can be returned to the requester.
-    const variablesResp = await axios.get(`${origin}/api/variables/${slug}/${id}${localeString}`).catch(catcher);
+    const variablesResp = await axios.get(url).catch(catcher);
     const variables = variablesResp.data;
     delete variables._genStatus;
     delete variables._matStatus;
