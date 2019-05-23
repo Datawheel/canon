@@ -1,6 +1,6 @@
 .loading {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--white);
+  color: var(--black);
   height: 100vh;
   left: 0;
   max-width: none;
@@ -16,6 +16,6 @@
     }
   }
   & .bp3-non-ideal-state-title {
-    color: var(--foreground);
+    color: var(--black);
   }
 }
