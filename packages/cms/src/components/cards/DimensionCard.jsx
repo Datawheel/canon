@@ -1,5 +1,7 @@
+import axios from "axios";
 import React, {Component} from "react";
 import Search from "../Search/Search.jsx";
+import {Button} from "@blueprintjs/core";
 
 export default class DimensionCard extends Component {
 
@@ -20,6 +22,15 @@ export default class DimensionCard extends Component {
     if (this.props.onSelectPreview) this.props.onSelectPreview(slug, id);
   }
 
+  rebuildSearch() {
+    const {meta} = this.props;
+    const url = "/api/cms/repopulateSearch";
+
+    const payload = {
+    };
+    
+  }
+
   render() {
     const {meta, preview} = this.props;
 
@@ -27,6 +38,7 @@ export default class DimensionCard extends Component {
 
     return (
       <div className="cms-card">
+        <Button icon="refresh" onClick={this.rebuildSearch.bind(this)}>Rebuild Search Data</Button>
         slug: <strong>{meta.slug}</strong>
         Dimension: <strong>{meta.dimension}</strong>
         Levels: <strong>{meta.levels.join()}</strong>
