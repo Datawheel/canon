@@ -383,7 +383,24 @@ class ProfileBuilder extends Component {
     const payload = Object.assign({}, data, {profile_id: currentPid, ordering});
     axios.post("/api/cms/profile/addDimension", payload).then(resp => {
       const profiles = resp.data;
-      this.setState({profiles}, this.buildNodes.bind(this, currentPid));
+      const thisProfile = profiles.find(p => p.id === currentPid);
+      const masterMeta = thisProfile.meta;
+      const requests = masterMeta.map(meta => {
+        const levels = meta.levels ? meta.levels.join() : false;  
+        const levelString = levels ? `&levels=${levels}` : "";
+        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
+        return axios.get(url);
+      });
+      const previews = [];
+      Promise.all(requests).then(resps => {
+        resps.forEach((resp, i) => {
+          previews.push({
+            slug: masterMeta[i].slug,
+            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+          });
+        });
+        this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
+      });
     });
   }
 

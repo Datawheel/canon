@@ -23,7 +23,7 @@ export default class DimensionCard extends Component {
   render() {
     const {meta, preview} = this.props;
 
-    if (!preview) return <div>test</div>;
+    if (!preview) return null;
 
     return (
       <div className="cms-card">
