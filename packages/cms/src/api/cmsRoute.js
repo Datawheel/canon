@@ -426,6 +426,14 @@ module.exports = function(app) {
     return res.json(profiles);
   });
 
+  app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
+    const profileData = req.body;
+    populateSearch(profileData, db);
+    return res.json({});
+  });
+
+
+
   /* UPDATES */
   // For now, all "update" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.
   const updateList = cmsTables;
