@@ -23,11 +23,17 @@ export default {
   },
   "CMS": {
     "Options": {
+      "Direct link": "Direct link",
       "Download as CSV": "Download as CSV",
       "Generating Image": "Generating Image",
       "Loading Data": "Loading Data",
       "Only Download Visualization": "Only Download Visualization",
       "Save Image": "Save Image",
+      "Share": "Share",
+      "Share on Facebook": "Share on Facebook",
+      "Share on Twitter": "Share on Twitter",
+      "Social": "Social",
+      "Scroll to section": "Scroll to section",
       "Transparent Background": "Transparent Background",
       "View Data": "View Data"
     },
