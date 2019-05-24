@@ -99,7 +99,7 @@ class TopicEditor extends Component {
     const {localeDefault} = this.props;
     const defCon = minData.content.find(c => c.lang === localeDefault);
     const title = defCon && defCon.title ? defCon.title : minData.slug;
-    if (this.props.reportSave) this.props.reportSave("topic", minData.id, title);
+    if (this.props.reportSave) this.props.reportSave(minData.id, title);
   }
 
   onMove() {
