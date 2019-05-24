@@ -23,7 +23,6 @@
 .clipboard-label {
   /* sizing */
   line-height: 2.5em;
-  margin-bottom: 20px;
   /* position children */
   display: flex;
   align-items: center;

@@ -11,7 +11,7 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import {Button, ButtonGroup, Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
+import {Button, ButtonGroup, Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 
@@ -183,9 +183,14 @@ class Options extends Component {
     this[ref].select();
   }
 
+  // add the slug, or not
+  handleSectionCheck() {
+    this.setState({includeSlug: !this.state.includeSlug});
+  }
+
   render() {
 
-    const {backgroundColor, imageContext, imageProcessing, includeSlug, openDialog, results} = this.state;
+    const {backgroundColor, imageContext, imageProcessing, includeSlug, openDialog, results, title} = this.state;
     const {data, location, slug, t, transitionDuration} = this.props;
 
     const node = this.getNode();
@@ -258,12 +263,27 @@ class Options extends Component {
     const shareLink = `${ location.href }${ includeSlug && slug ? `#${slug}` : "" }`;
 
     const SharePanel = () =>
-      <div className="bp3-dialog-body share">
+      <div className="bp3-dialog-body share-dialog">
+
+        {/* to slug or not to slug */}
+        <Checkbox
+          small
+          checked={this.state.includeSlug}
+          label={t("CMS.Options.Scroll to section")}
+          onChange={this.handleSectionCheck.bind(this)}
+        />
+
+        {/* direct link */}
         <ShareDirectLink link={shareLink} />
-        <ButtonGroup fill={true}>
-          <ShareFacebookLink link={shareLink} />
-          <ShareTwitterLink link={shareLink} />
-        </ButtonGroup>
+
+        {/* direct link */}
+        <Label>
+          <span className="options-label-text">{t("CMS.Options.Social")}</span>
+          <ButtonGroup fill={true}>
+            <ShareFacebookLink link={shareLink} />
+            <ShareTwitterLink link={shareLink} />
+          </ButtonGroup>
+        </Label>
       </div>;
 
 
@@ -278,7 +298,7 @@ class Options extends Component {
           {t("CMS.Options.Save Image")}
         </Button>
 
-        <Button icon="share" className="bp3-button option share" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
+        <Button icon="share" className="bp3-button option share-button" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
           {t("CMS.Options.Share")}
         </Button>
       </ButtonGroup>
