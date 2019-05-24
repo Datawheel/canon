@@ -11,7 +11,7 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import {Button, Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
+import {Button, ButtonGroup, Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 
@@ -250,15 +250,26 @@ class Options extends Component {
         <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
       </div>;
 
+    const SharePanel = () =>
+      <div className="bp3-dialog-body share">
+        share
+      </div>;
+
     return <div className="Options">
 
-      <Button icon="th" className="bp3-button option view-table" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
-        {t("CMS.Options.View Data")}
-      </Button>
+      <ButtonGroup>
+        <Button icon="th" className="bp3-button option view-table" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
+          {t("CMS.Options.View Data")}
+        </Button>
 
-      <Button icon="export" className="bp3-button option save-image" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
-        {t("CMS.Options.Save Image")}
-      </Button>
+        <Button icon="export" className="bp3-button option save-image" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
+          {t("CMS.Options.Save Image")}
+        </Button>
+
+        <Button icon="share" className="bp3-button option share" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
+          {t("CMS.Options.Share")}
+        </Button>
+      </ButtonGroup>
 
       <Dialog className="options-dialog"
         autoFocus={false}
@@ -268,6 +279,7 @@ class Options extends Component {
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
           <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
           <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={<ImagePanel />} />
+          <Tab id="share" title={t("CMS.Options.Share")} panel={<SharePanel />} />
           <Button icon="small-cross" aria-label="Close" className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)} />
         </Tabs>
       </Dialog>

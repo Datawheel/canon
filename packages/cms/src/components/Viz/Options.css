@@ -3,8 +3,11 @@
   justify-content: flex-end;
   margin-bottom: 5px;
   & .option {
-    display: inline-block;
-    margin: 5px 15px 0 0;
+    margin-bottom: 5px;
+    /* fix tooltips */
+    &.bp3-button {
+      z-index: 0;
+    }
   }
 }
 
@@ -79,6 +82,9 @@
         overflow-x: scroll;
         width: 100%;
       }
+    }
+    &.share {
+      padding: 10px 20px;
     }
   }
 }
