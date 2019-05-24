@@ -341,38 +341,23 @@ class ProfileBuilder extends Component {
   }
 
   /**
-   * If a save occurred in one of the editors, the user may have changed the slug/title. This callback is responsible for
-   * updating the tree labels accordingly. If the user has changed a slug, the "masterSlug" reference that ALL children
-   * of a profile use must be recursively updated as well.
+   * If a save occurred in the TopicEditor, the user may have changed the slug/title. This callback is responsible for
+   * updating the tree labels accordingly. 
    */
-  reportSave(type, id, newValue) {
+  reportSave(id, newValue) {
     const {nodes} = this.state;
     const {variablesHash, currentPid} = this.state;
     const {localeDefault} = this.props;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
     const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
-    const node = this.locateNode.bind(this)(type, id);
-    // Update the label based on the new value. If this is a topic, this is the only thing needed
-    if (type === "topic" && node) {
+    const node = this.locateNode.bind(this)("topic", id);
+    // Update the label based on the new value. 
+    if (node) {
       const defCon = node.data.content.find(c => c.lang === localeDefault);
       if (defCon) defCon.title = newValue;
       // todo: determine if this could be merged with formatTreeVariables
       node.label = varSwap(this.decode(stripHTML(newValue)), formatters, variables);
-    }
-    // However, if this is a profile changing its slug, then all children must be informed so their masterSlug is up to date.
-    // TODO bivariate: when a save comes from the dimensionEditor, this will have to do something special
-    if (type === "profile") {
-      console.log("bivariate: handle this better!");
-      /*
-      node.masterSlug = newValue;
-      node.data.slug = newValue;
-      node.label = newValue;
-      node.childNodes = node.childNodes.map(t => {
-        t.masterSlug = newValue;
-        return t;
-      });
-      */
     }
     this.setState({nodes});
   }
