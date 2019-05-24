@@ -362,13 +362,23 @@ module.exports = function(app) {
   });
 
   // Endpoint for when a user selects a new dropdown for a topic, requiring new variables
-  app.get("/api/topic/:pid/:topicId", async(req, res) => {
+  app.get("/api/topic/:topicId", async(req, res) => {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-    const {pid, topicId} = req.params;
+    const {topicId} = req.params;
     const locale = req.query.locale || envLoc;
     const localeString = `?locale=${locale}`;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
 
+    // Fetch the topic via the topicId
+    const where = {};
+    if (isNaN(parseInt(topicId, 10))) where.slug = topicId;
+    else where.id = topicId;
+    let topic = await db.topic.findOne({where, include: topicReq}).catch(catcher);      
+
+    // Extract its parent profile id
+    const pid = topic.profile_id;
+
+    // Build the params query so we can make a variables request
     const dims = collate(req.query);
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
@@ -376,7 +386,7 @@ module.exports = function(app) {
       dim.id = attr.id;
     }
 
-    const url = `${origin}/api/variables/${pid}${localeString}`;
+    let url = `${origin}/api/variables/${pid}${localeString}`;
     dims.forEach((dim, i) => {
       url += `&slug${i + 1}=${dim.slug}&id${i + 1}=${dim.id}`;
     });
@@ -390,10 +400,7 @@ module.exports = function(app) {
     const formatters = await db.formatter.findAll().catch(catcher);
     const formatterFunctions = formatters4eval(formatters, locale);
 
-    const where = {};
-    if (isNaN(parseInt(topicId, 10))) where.slug = topicId;
-    else where.id = topicId;
-    let topic = await db.topic.findOne({where, include: topicReq}).catch(catcher);      
+    // Prepare the topic for use by extracting its language content and swapping vars
     topic = extractLocaleContent(topic, locale, "topic");
     topic = varSwapRecursive(topic, formatterFunctions, variables, req.query);
     if (topic.subtitles) topic.subtitles.sort(sorter);
