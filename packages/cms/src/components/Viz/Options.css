@@ -88,8 +88,8 @@
 }
 
 /* share dialog */
-.share {
-  padding: 0 20px 20px 20px;
+.share-dialog {
+  padding: 10px 20px; /* line up with tabs */
 
   /* facebook & twitter buttons */
   & .bp3-button[href*="facebook"] {
@@ -98,7 +98,7 @@
   & .bp3-button[href*="twitter"] {
     color: #00ACED;
   }
-  /* space out icon */
+  /* space out icon from text */
   & .bp3-button > svg {
     margin-right: 0.125em;
 
@@ -106,5 +106,16 @@
     & path {
       fill: currentColor;
     }
+  }
+
+  /* spae out adjacent fields */
+  & > *:not(:last-child) {
+    margin-bottom: 20px;
+  }
+
+  /* space out label text */
+  & .options-label-text {
+    display: block;
+    margin-bottom: 0.25em;
   }
 }

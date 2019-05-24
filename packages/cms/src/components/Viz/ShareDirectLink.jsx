@@ -1,12 +1,13 @@
 import React, {Component} from "react";
+import {withNamespaces} from "react-i18next";
 import Clipboard from "react-clipboard.js";
 
-import {Icon} from "@blueprintjs/core";
+import {Icon, Label} from "@blueprintjs/core";
 
 import "./ShareDirectLink.css";
 
 // displays share link and copies it to clipboard
-export default class ShareDirectLink extends Component {
+class ShareDirectLink extends Component {
 
   constructor(props) {
     super(props);
@@ -22,7 +23,7 @@ export default class ShareDirectLink extends Component {
   }
 
   render() {
-    const {link, slug} = this.props;
+    const {label, link, slug, t} = this.props;
     const {copied} = this.state;
     // convert the link into a link that works
     // const linkUrl = link.replace(/%3A/g, ":").replace(/%2F/g, "/");
@@ -35,32 +36,41 @@ export default class ShareDirectLink extends Component {
     // chop off http:// for display purposes
     const displayText = link.replace("http://", "");
     // copy "button" text
-    const buttonText = !copied ? "copy" : "copied";
+    const buttonText = !copied ? t("Share.copy") : t("Share.copied");
 
     // use label as Clipboard wrapper so that clicking anything within triggers the copy event
     return (
-      <Clipboard
-        className={`clipboard-label ${copied ? " is-copied" : ""}`}
-        data-clipboard-text={ copyText }
-        component="label"
-        onSuccess={ this.onSuccess }>
-
-        {/* accessibility label */}
-        <span className="u-visually-hidden">Direct link</span>
-
-        {/* link icon */}
-        <Icon icon="clipboard" className="clipboard-icon" />
-
-        {/* input with text */}
-        <input className="bp3-input clipboard-input" value={ displayText } readOnly />
-
-        {/* fake button */}
-        <span className="clipboard-button bp3-button font-sm">
-          <span className="clipboard-button-text button-text">
-            { buttonText }
-          </span>
+      <div className="bp3-label share-direct-link-wrapper">
+        <span className="options-label-text">
+          {label || t("CMS.Options.Direct link")}
         </span>
-      </Clipboard>
+
+        <Clipboard
+          className={`clipboard-label ${copied ? " is-copied" : ""}`}
+          data-clipboard-text={ copyText }
+          component="label"
+          onSuccess={ this.onSuccess }>
+
+          <span className="u-visually-hidden">
+            {label || t("CMS.Options.Direct link")}
+          </span>
+
+          {/* link icon */}
+          <Icon icon="clipboard" className="clipboard-icon" />
+
+          {/* input with text */}
+          <input className="bp3-input clipboard-input" value={ displayText } readOnly />
+
+          {/* fake button */}
+          <span className="clipboard-button bp3-button font-sm">
+            <span className="clipboard-button-text button-text">
+              { buttonText }
+            </span>
+          </span>
+        </Clipboard>
+      </div>
     );
   }
 }
+
+export default withNamespaces()(ShareDirectLink);
