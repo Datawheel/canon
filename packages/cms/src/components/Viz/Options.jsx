@@ -16,6 +16,8 @@ import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 
 import ShareDirectLink from "./ShareDirectLink";
+import ShareFacebookLink from "./ShareFacebookLink";
+import ShareTwitterLink from "./ShareTwitterLink";
 
 const filename = str => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/^\-/g, "")
@@ -41,6 +43,7 @@ class Options extends Component {
       backgroundColor: true,
       imageContext: "topic",
       imageProcessing: false,
+      includeSlug: true,
       loading: false,
       openDialog: false,
       results: props.data instanceof Array ? props.data : false
@@ -182,7 +185,7 @@ class Options extends Component {
 
   render() {
 
-    const {backgroundColor, imageContext, imageProcessing, openDialog, results} = this.state;
+    const {backgroundColor, imageContext, imageProcessing, includeSlug, openDialog, results} = this.state;
     const {data, location, slug, t, transitionDuration} = this.props;
 
     const node = this.getNode();
@@ -252,11 +255,17 @@ class Options extends Component {
         <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
       </div>;
 
+    const shareLink = `${ location.href }${ includeSlug && slug ? `#${slug}` : "" }`;
+
     const SharePanel = () =>
       <div className="bp3-dialog-body share">
-        <ShareDirectLink link={location.href} />
-        {console.log(location)}
+        <ShareDirectLink link={shareLink} />
+        <ButtonGroup fill={true}>
+          <ShareFacebookLink link={shareLink} />
+          <ShareTwitterLink link={shareLink} />
+        </ButtonGroup>
       </div>;
+
 
     return <div className="Options">
 
