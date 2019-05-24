@@ -15,6 +15,8 @@ import {Button, ButtonGroup, Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab
 import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 
+import ShareDirectLink from "./ShareDirectLink";
+
 const filename = str => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/^\-/g, "")
   .replace(/\-$/g, "");
@@ -252,7 +254,8 @@ class Options extends Component {
 
     const SharePanel = () =>
       <div className="bp3-dialog-body share">
-        share
+        <ShareDirectLink link={location.href} />
+        {console.log(location)}
       </div>;
 
     return <div className="Options">
