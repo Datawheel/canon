@@ -3,8 +3,12 @@
   justify-content: flex-end;
   margin-bottom: 5px;
   & .option {
-    display: inline-block;
-    margin: 5px 15px 0 0;
+    margin-bottom: 5px;
+    /* keep tooltips above button (blueprint override) */
+    &.bp3-button,
+    &.bp3-button:focus {
+      z-index: 0;
+    }
   }
 }
 
@@ -80,5 +84,38 @@
         width: 100%;
       }
     }
+  }
+}
+
+/* share dialog */
+.share-dialog {
+  padding: 10px 20px; /* line up with tabs */
+
+  /* facebook & twitter buttons */
+  & .bp3-button[href*="facebook"] {
+    color: #3B5998;
+  }
+  & .bp3-button[href*="twitter"] {
+    color: #00ACED;
+  }
+  /* space out icon from text */
+  & .bp3-button > svg {
+    margin-right: 0.125em;
+
+    /* let the color of the button define the color of the icon */
+    & path {
+      fill: currentColor;
+    }
+  }
+
+  /* spae out adjacent fields */
+  & > *:not(:last-child) {
+    margin-bottom: 20px;
+  }
+
+  /* space out label text */
+  & .options-label-text {
+    display: block;
+    margin-bottom: 0.25em;
   }
 }

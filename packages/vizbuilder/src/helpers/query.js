@@ -2,13 +2,13 @@ import yn from "yn";
 
 import {fetchMembers} from "./fetch";
 import {
-  getCombinationsChoose2,
+  findByName,
   getMeasureMeta,
   getTimeLevel,
   getValidLevels,
   removeDuplicateLevels
 } from "./sorting";
-import {isGeoDimension, isValidGrouping, isValidCut} from "./validation";
+import {isGeoDimension, isValidGrouping} from "./validation";
 
 /**
  * Generates a partial state object, whose elements
@@ -47,6 +47,14 @@ export function generateBaseState(cubes, measure, geomapLevels) {
   return {options, query, uiParams};
 }
 
+/**
+ * Updates the levels in the groupings of the current query with their namesake
+ * from the cube in newQuery. It also loads and updates the members in the
+ * respective groupings. If there's no level with the same name in the new cube,
+ * deletes the grouping.
+ * @param {VbQuery} query The old query to get the groupings from
+ * @param {VbQuery} newQuery The new query to get the new levels from
+ */
 export function replaceLevelsInGroupings(query, newQuery) {
   const newCube = newQuery.cube;
   const promises = query.groups.map(grouping => {
@@ -56,17 +64,17 @@ export function replaceLevelsInGroupings(query, newQuery) {
       return Promise.resolve(grouping);
     }
 
-    const dimensionName = level.hierarchy.dimension.name;
-    const targetDimension = newCube.dimensions.find(dim => dim.name === dimensionName);
-    console.log(targetDimension.cube.name, targetDimension.name);
-
-    const hierarchyName = level.hierarchy.name;
-    const targetHierarchy = targetDimension.hierarchies.find(hie => hie.name === hierarchyName);
-    console.log(targetHierarchy.dimension.cube.name, targetHierarchy.name);
-
-    const levelName = level.name;
-    const targetLevel = targetHierarchy.levels.find(lvl => lvl.name === levelName);
-    console.log(targetLevel.hierarchy.dimension.cube.name, targetLevel.name);
+    let targetDimension, targetHierarchy, targetLevel;
+    try {
+      const dimensionName = level.hierarchy.dimension.name;
+      targetDimension = newCube.dimensionsByName[dimensionName];
+      targetHierarchy =
+        findByName(level.hierarchy.name, targetDimension.hierarchies) ||
+        findByName(level.name, targetDimension.hierarchies);
+      targetLevel = targetHierarchy.getLevel(level.name);
+    } catch (e) {
+      return Promise.resolve(null);
+    }
 
     const memberList = grouping.members;
     let newGrouping = grouping.setLevel(targetLevel);
@@ -77,19 +85,18 @@ export function replaceLevelsInGroupings(query, newQuery) {
 
     return fetchMembers(newQuery, targetLevel).then(members => {
       const memberKeys = {};
-      for (let member, i = 0; member = members[i]; i++) {
+      for (let member, i = 0; (member = members[i]); i++) {
         memberKeys[member.key] = member;
       }
-      for (let member, i = 0; member = memberList[i]; i++) {
+      for (let member, i = 0; (member = memberList[i]); i++) {
         const newMember = memberKeys[member.key];
         newGrouping = newGrouping.addMember(newMember);
       }
-      console.log(newGrouping.level.hierarchy.dimension.cube.name, newGrouping.level.name)
       return newGrouping;
     });
   });
 
-  return Promise.all(promises);
+  return Promise.all(promises).then(newGroups => newGroups.filter(Boolean));
 }
 
 export function replaceMeasureInFilters(filters, cube) {

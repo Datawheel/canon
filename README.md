@@ -113,7 +113,7 @@ As a fallback (mainly related to CMS content), Canon also intercepts all `<a>` t
 When linking to an anchor ID on the current page, use the `<AnchorLink>` component exported by canon to enable a silky smooth scrollto animation:
 
 ```jsx
-import {AnchorLink} from "react-router";
+import {AnchorLink} from "@datawheel/canon-core";
 ...
 <AnchorLink to="economy">Jump to Economy</AnchorLink>
 ...

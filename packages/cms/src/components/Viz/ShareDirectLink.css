@@ -1,0 +1,89 @@
+/* @import '../css/mixins'; */
+
+/* accessibly hidden text and elements */
+@define-mixin visually-hidden {
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+/* ellipsis */
+/* NOTE: works best with defined width & height, 1 line of text */
+@define-mixin overflow-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.u-visually-hidden {
+  @mixin visually-hidden;
+}
+
+.clipboard-label {
+  /* sizing */
+  line-height: 2.5em;
+  /* position children */
+  display: flex;
+  align-items: center;
+  position: relative;
+  /* theming */
+  overflow: hidden;
+  /* transitions */
+  transition: border-color 0.2s ease-out;
+
+  /* text input with link text */
+  & .clipboard-input {
+    @add-mixin overflow-ellipsis;
+    /* take up all the space */
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    /* offset icon (left) and button (right) */
+    padding-left: 40px;
+    padding-right: 6em;
+    /* sizing */
+    display: inline-block;
+    width: 100%;
+    /* theming */
+    color: var(--dark-3);
+  }
+
+  /* position label next to link */
+  & .clipboard-icon {
+    /* sizing */
+    min-width: 20px;
+    /* IE fixes */
+    width: 20px;
+    height: 20px;
+    /* positioning */
+    margin-left: 10px;
+    margin-right: 10px;
+    z-index: 1;
+    /* theming */
+    opacity: 0.5;
+
+    & svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    & path {
+      fill: var(--dark-3);
+    }
+  }
+
+  & .clipboard-button {
+    margin-left: auto;
+    min-width: 5em;
+    text-align: center;
+    z-index: 1;
+  }
+
+  /* interactions */
+  &:hover .clipboard-icon,
+  &:focus .clipboard-icon {
+    opacity: 1;
+  }
+}
