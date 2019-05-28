@@ -149,8 +149,6 @@ class TopicEditor extends Component {
       <div className="cms-editor-inner">
         {/* profile preview & variable status */}
         <div className="cms-profile-picker">
-          {/* search profiles */}
-          {children}
           {/* loading status */}
           <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
             <Icon iconName={ recompiling ? "more" : "tick"} />
@@ -186,6 +184,8 @@ class TopicEditor extends Component {
             </div>
           </label>
         </div>
+
+        {children}
 
         {/* topic name */}
         {/* TODO: move this to header */}

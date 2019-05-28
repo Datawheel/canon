@@ -1,3 +1,7 @@
-.dimension-editor {
-  display: flex;
+.dimension-builder-label {
+  margin-top: 0.25rem;
+}
+
+.dimension-card-list {
+  margin-top: -1.25rem;
 }

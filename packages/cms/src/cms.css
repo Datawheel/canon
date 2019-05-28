@@ -177,7 +177,8 @@
       flex: 1 1 auto;
       margin-top: 5px; /* match blueprint */
       padding: 0 1em;
-      width: auto;
+      width: 100%;
+      max-width: 100%;
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
     }
@@ -244,6 +245,11 @@
     padding-left: 0;
     padding-right: 0;
     transform: scale(0.75);
+  }
+
+  &.is-block {
+    display: block;
+    width: 100%;
   }
 }
 .cms-button-naked {
@@ -409,9 +415,8 @@
 
 /* pin status to upper right */
 .cms-profile-picker > .cms-status {
-  position: absolute;
-  top: 0;
-  right: 0;
+  display: block;
+  text-align: right;
 }
 
 .cms-editor-header {
