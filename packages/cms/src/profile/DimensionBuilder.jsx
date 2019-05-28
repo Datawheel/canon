@@ -31,15 +31,26 @@ export default class DimensionBuilder extends Component {
     const {isOpen} = this.state;
 
     return (
-      <div className="dimension-editor">
-        {meta.map((m, i) => 
-          <DimensionCard
-            key={`dc-${i}`}
-            meta={meta[i]}
-            preview={previews[i]}
-            onSelectPreview={this.onSelectPreview.bind(this)}
-          />
-        )}
+      <div className="dimension-builder">
+        <p className="dimension-builder-label pt-label">Dimensions</p>
+        <div className="cms-card-list dimension-card-list">
+          {meta.map((m, i) =>
+            <DimensionCard
+              key={`dc-${i}`}
+              meta={meta[i]}
+              preview={previews[i]}
+              onSelectPreview={this.onSelectPreview.bind(this)}
+            />
+          )}
+        </div>
+
+        <button
+          className="cms-button is-block"
+          onClick={() => this.setState({isOpen: !this.state.isOpen})}
+        >
+          Add Dimension
+        </button>
+
         <Dialog
           className="dimension-editor-dialog"
           isOpen={isOpen}
@@ -50,18 +61,12 @@ export default class DimensionBuilder extends Component {
         >
 
           <div className="bp3-dialog-body">
-            <DimensionCreator 
+            <DimensionCreator
               cubeData={this.props.cubeData}
               onAddDimension={this.onAddDimension.bind(this)}
             />
           </div>
         </Dialog>
-        <Button 
-          icon="add" 
-          onClick={() => this.setState({isOpen: !this.state.isOpen})}
-        >
-          Add New Dimension
-        </Button>
       </div>
     );
   }

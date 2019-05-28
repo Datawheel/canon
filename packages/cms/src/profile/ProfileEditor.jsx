@@ -120,13 +120,13 @@ class ProfileEditor extends Component {
       <div className="cms-editor-inner">
         {/* profile preview & variable status */}
         <div className="cms-profile-picker">
-          {/* search profiles*/}
-          {children}
           {/* loading status */}
           <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
             <Icon iconName={ recompiling ? "more" : "tick"} />
             { recompiling ? "Updating Variables" : "Variables Loaded" }
           </div>
+          {/* search profiles */}
+          {children}
         </div>
 
         {/* generators */}

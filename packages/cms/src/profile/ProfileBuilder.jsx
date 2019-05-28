@@ -102,7 +102,7 @@ class ProfileBuilder extends Component {
         const nodeToOpen = nodes[0];
         this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
       }
-      
+
     }
   }
 
@@ -138,8 +138,8 @@ class ProfileBuilder extends Component {
     this.setState({nodes});
   }
 
-  /** 
-   * addItem is only ever used for topics, so lots of topic-based assumptions are 
+  /**
+   * addItem is only ever used for topics, so lots of topic-based assumptions are
    * made here. if this is ever expanded out again to be a generic "item" adder
    * then this will need to be generalized.
    */
@@ -151,7 +151,7 @@ class ProfileBuilder extends Component {
     const {stripHTML} = formatters;
     const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
     n = this.locateNode(n.itemType, n.data.id);
-    
+
     const parent = this.locateNode("profile", n.data.profile_id);
     const parentArray = parent.childNodes;
 
@@ -175,7 +175,7 @@ class ProfileBuilder extends Component {
     }
 
     // New Topics need to inherit their masterDimension from their parent.
-    
+
     const obj = {
       hasCaret: false,
       itemType: "topic",
@@ -277,7 +277,7 @@ class ProfileBuilder extends Component {
       // An empty search string will automatically provide the highest z-index results.
       // Use this to auto-populate the preview when the user changes profiles.
       const requests = node.masterMeta.map(meta => {
-        const levels = meta.levels ? meta.levels.join() : false;  
+        const levels = meta.levels ? meta.levels.join() : false;
         const levelString = levels ? `&levels=${levels}` : "";
         const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
         return axios.get(url);
@@ -342,7 +342,7 @@ class ProfileBuilder extends Component {
 
   /**
    * If a save occurred in the TopicEditor, the user may have changed the slug/title. This callback is responsible for
-   * updating the tree labels accordingly. 
+   * updating the tree labels accordingly.
    */
   reportSave(id, newValue) {
     const {nodes} = this.state;
@@ -352,7 +352,7 @@ class ProfileBuilder extends Component {
     const {stripHTML} = formatters;
     const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
     const node = this.locateNode.bind(this)("topic", id);
-    // Update the label based on the new value. 
+    // Update the label based on the new value.
     if (node) {
       const defCon = node.data.content.find(c => c.lang === localeDefault);
       if (defCon) defCon.title = newValue;
@@ -371,7 +371,7 @@ class ProfileBuilder extends Component {
       const thisProfile = profiles.find(p => p.id === currentPid);
       const masterMeta = thisProfile.meta;
       const requests = masterMeta.map(meta => {
-        const levels = meta.levels ? meta.levels.join() : false;  
+        const levels = meta.levels ? meta.levels.join() : false;
         const levelString = levels ? `&levels=${levels}` : "";
         const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
         return axios.get(url);
@@ -531,14 +531,14 @@ class ProfileBuilder extends Component {
               variables={variables}
               reportSave={this.reportSave.bind(this)}
             >
-              {currentNode && 
+              {currentNode &&
                 <DimensionBuilder
                   cubeData={cubeData}
                   meta={currentNode.masterMeta}
                   previews={previews}
                   onSelectPreview={this.onSelectPreview.bind(this)}
                   onAddDimension={this.onAddDimension.bind(this)}
-                /> 
+                />
               }
             </Editor>
             : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
