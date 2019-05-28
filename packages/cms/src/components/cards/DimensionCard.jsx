@@ -2,6 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import Search from "../Search/Search.jsx";
 import {Button} from "@blueprintjs/core";
+import "./DimensionCard.css";
 
 export default class DimensionCard extends Component {
 
@@ -28,7 +29,7 @@ export default class DimensionCard extends Component {
 
     const payload = {
     };
-    
+
   }
 
   render() {
@@ -37,19 +38,46 @@ export default class DimensionCard extends Component {
     if (!preview) return null;
 
     return (
-      <div className="cms-card">
-        <Button icon="refresh" onClick={this.rebuildSearch.bind(this)}>Rebuild Search Data</Button>
-        slug: <strong>{meta.slug}</strong>
-        Dimension: <strong>{meta.dimension}</strong>
-        Levels: <strong>{meta.levels.join()}</strong>
-        Measure: <strong>{meta.measure}</strong>
-        Preview ID: <strong>{preview.id}</strong>
-        <Search
-          render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
-          dimension={meta.dimension}
-          levels={meta.levels}
-          limit={20}
-        />
+      <div className="cms-card cms-dimension-card">
+        <table className="cms-dimension-card-table">
+          <tr className="cms-dimension-card-table-row">
+            <th className="cms-dimension-card-table-cell">slug</th>
+            <th className="cms-dimension-card-table-cell">Dimension</th>
+            <th className="cms-dimension-card-table-cell">Levels</th>
+            <th className="cms-dimension-card-table-cell">Measure</th>
+            <th className="cms-dimension-card-table-cell">Preview ID</th>
+          </tr>
+          <tr className="cms-dimension-card-table-row">
+            <td className="cms-dimension-card-table-cell">{meta.slug}</td>
+            <td className="cms-dimension-card-table-cell">{meta.dimension}</td>
+            <td className="cms-dimension-card-table-cell">
+              {meta.levels.length === 1
+                ? meta.levels
+                : <ul className="cms-dimension-card-table-list">
+                  {meta.levels.map(level =>
+                    <li className="cms-dimension-card-table-item" key={level}>{level}</li>
+                  )}
+                </ul>
+              }
+            </td>
+            <td className="cms-dimension-card-table-cell">{meta.measure}</td>
+            <td className="cms-dimension-card-table-cell">{preview.id}</td>
+          </tr>
+        </table>
+        <div className="dimension-card-controls">
+          <label>
+            Preview profile
+            <Search
+              render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
+              dimension={meta.dimension}
+              levels={meta.levels}
+              limit={20}
+            />
+          </label>
+          <button className="cms-button" onClick={this.rebuildSearch.bind(this)}>
+            Rebuild
+          </button>
+        </div>
       </div>
     );
   }
