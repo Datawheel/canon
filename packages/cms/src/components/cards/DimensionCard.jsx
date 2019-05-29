@@ -42,29 +42,33 @@ export default class DimensionCard extends Component {
     return (
       <div className="cms-card cms-dimension-card">
         <table className="cms-dimension-card-table">
-          <tr className="cms-dimension-card-table-row">
-            <th className="cms-dimension-card-table-cell">slug</th>
-            <th className="cms-dimension-card-table-cell">Dimension</th>
-            <th className="cms-dimension-card-table-cell">Levels</th>
-            <th className="cms-dimension-card-table-cell">Measure</th>
-            <th className="cms-dimension-card-table-cell">Preview ID</th>
-          </tr>
-          <tr className="cms-dimension-card-table-row">
-            <td className="cms-dimension-card-table-cell">{meta.slug}</td>
-            <td className="cms-dimension-card-table-cell">{meta.dimension}</td>
-            <td className="cms-dimension-card-table-cell">
-              {meta.levels.length === 1
-                ? meta.levels
-                : <ul className="cms-dimension-card-table-list">
-                  {meta.levels.map(level =>
-                    <li className="cms-dimension-card-table-item" key={level}>{level}</li>
-                  )}
-                </ul>
-              }
-            </td>
-            <td className="cms-dimension-card-table-cell">{meta.measure}</td>
-            <td className="cms-dimension-card-table-cell">{preview.id}</td>
-          </tr>
+          <tbody>
+            <tr className="cms-dimension-card-table-row">
+              <th className="cms-dimension-card-table-cell">slug</th>
+              <th className="cms-dimension-card-table-cell">Dimension</th>
+              <th className="cms-dimension-card-table-cell">Levels</th>
+              <th className="cms-dimension-card-table-cell">Measure</th>
+              <th className="cms-dimension-card-table-cell">Preview ID</th>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr className="cms-dimension-card-table-row">
+              <td className="cms-dimension-card-table-cell">{meta.slug}</td>
+              <td className="cms-dimension-card-table-cell">{meta.dimension}</td>
+              <td className="cms-dimension-card-table-cell">
+                {meta.levels.length === 1
+                  ? meta.levels
+                  : <ul className="cms-dimension-card-table-list">
+                    {meta.levels.map(level =>
+                      <li className="cms-dimension-card-table-item" key={level}>{level}</li>
+                    )}
+                  </ul>
+                }
+              </td>
+              <td className="cms-dimension-card-table-cell">{meta.measure}</td>
+              <td className="cms-dimension-card-table-cell">{preview.id}</td>
+            </tr>
+          </tbody>
         </table>
         <div className="dimension-card-controls">
           <label>
