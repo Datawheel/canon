@@ -225,7 +225,7 @@ class GeneratorCard extends Component {
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Variable Editor"
           usePortal={false}
-          icon="false"
+          icon={false}
         >
 
           <div className="bp3-dialog-body">
