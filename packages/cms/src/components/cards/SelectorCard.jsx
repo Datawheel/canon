@@ -163,7 +163,7 @@ class SelectorCard extends Component {
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Selector Editor"
-          icon="false"
+          icon={false}
           usePortal={false}
         >
           <div className="bp3-dialog-body">

@@ -57,7 +57,7 @@ export default class DimensionBuilder extends Component {
           onClose={() => this.setState({isOpen: false})}
           title="Dimension Creator"
           usePortal={false}
-          icon="false"
+          icon={false}
         >
 
           <div className="bp3-dialog-body">
