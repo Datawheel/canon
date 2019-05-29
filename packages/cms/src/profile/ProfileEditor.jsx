@@ -145,39 +145,20 @@ class ProfileEditor extends Component {
               .sort((a, b) => a.name.localeCompare(b.name))
               .map(g => <GeneratorCard
                 key={g.id}
+                context="generator"
                 item={g}
                 attr={minData.attr || {}}
                 locale={localeDefault}
-                localeDefault={localeDefault}
+                secondaryLocale={locale}
                 previews={previews}
                 onSave={this.onSave.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 type="generator"
                 variables={variables[localeDefault]}
+                secondaryVariables={variables[locale]}
               />)
             }
           </div>
-          {/* secondary locale */}
-          {locale &&
-            <div className="cms-card-list">
-              { minData.generators && minData.generators
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map(g =>
-                  <GeneratorCard
-                    key={g.id}
-                    item={g}
-                    attr={minData.attr || {}}
-                    locale={locale}
-                    localeDefault={localeDefault}
-                    previews={previews}
-                    onSave={this.onSave.bind(this)}
-                    onDelete={this.onDelete.bind(this)}
-                    type="generator"
-                    variables={variables[locale]}
-                  />
-                )}
-            </div>
-          }
         </div>
 
         {/* materializers */}
@@ -196,38 +177,20 @@ class ProfileEditor extends Component {
               .map(m =>
                 <GeneratorCard
                   key={m.id}
+                  context="materializer"
                   item={m}
                   locale={localeDefault}
-                  localeDefault={localeDefault}
+                  secondaryLocale={locale}
                   onSave={this.onSave.bind(this)}
                   onDelete={this.onDelete.bind(this)}
                   type="materializer"
                   variables={variables[localeDefault]}
+                  secondaryVariables={variables[locale]}
                   parentArray={minData.materializers}
                   onMove={this.onMove.bind(this)}
                 />
               )}
           </div>
-          {/* secondary locale */}
-          {locale &&
-            <div className="cms-card-list materializers">
-              { minData.materializers && minData.materializers
-                .map(m =>
-                  <GeneratorCard
-                    key={m.id}
-                    item={m}
-                    locale={locale}
-                    localeDefault={localeDefault}
-                    onSave={this.onSave.bind(this)}
-                    onDelete={this.onDelete.bind(this)}
-                    type="materializer"
-                    variables={variables[locale]}
-                    parentArray={minData.materializers}
-                    onMove={this.onMove.bind(this)}
-                  />
-                )}
-            </div>
-          }
         </div>
 
         {/* Top-level Profile */}

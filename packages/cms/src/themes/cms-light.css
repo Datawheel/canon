@@ -67,23 +67,6 @@
     box-shadow: 0 5px 1rem 0.25rem var(--light-2);
     border-radius: 2px;
 
-    /* card table for displaying description, preview profile text, etc */
-    & .cms-card-table-cell {
-      color: var(--dark-3);
-    }
-
-    /* placeholder */
-    & .cms-card-table-body:empty {
-      background-color: var(--light-1);
-    }
-
-    /* display values */
-    & .cms-card-table-body:not(:empty) {
-      background-color: transparent;
-      border: 1px solid var(--light-2);
-      box-shadow: 0 1px 0.125rem 1px inset var(--light-1);
-    }
-
     /* reorder buttons */
     & .cms-reorder-button {
       background-color: var(--gray);

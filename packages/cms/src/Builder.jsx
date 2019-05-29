@@ -8,8 +8,8 @@ import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
 
 import "./cms.css";
-import "./themes/cms-dark.css";
 import "./themes/cms-light.css";
+import "./themes/cms-dark.css";
 
 class Builder extends Component {
 
