@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Search from "../Search/Search.jsx";
-import {Button} from "@blueprintjs/core";
 import "./DimensionCard.css";
 
 export default class DimensionCard extends Component {
@@ -9,6 +8,7 @@ export default class DimensionCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      rebuilding: false
     };
   }
 
@@ -25,15 +25,17 @@ export default class DimensionCard extends Component {
 
   rebuildSearch() {
     const {meta} = this.props;
-    const url = "/api/cms/repopulateSearch";
-
-    const payload = {
-    };
-
+    const {id} = meta;
+    const url = "/api/cms/repopulateSearch/";
+    this.setState({rebuilding: true});
+    axios.post(url, {id}).then(() => {
+      this.setState({rebuilding: false});
+    });
   }
 
   render() {
     const {meta, preview} = this.props;
+    const {rebuilding} = this.state;
 
     if (!preview) return null;
 
@@ -74,8 +76,8 @@ export default class DimensionCard extends Component {
               limit={20}
             />
           </label>
-          <button className="cms-button" onClick={this.rebuildSearch.bind(this)}>
-            Rebuild
+          <button className="cms-button" disabled={rebuilding} onClick={this.rebuildSearch.bind(this)}>
+            {rebuilding ? "Rebuilding..." : "Rebuild"}
           </button>
         </div>
       </div>

@@ -22,7 +22,8 @@ module.exports = function(sequelize, db) {
       dimension: db.STRING,
       levels: db.ARRAY(db.TEXT),
       measure: db.STRING,
-      ordering: db.INTEGER
+      ordering: db.INTEGER,
+      cubeName: db.STRING
     },
     {
       tableName: "canon_cms_profile_meta",
