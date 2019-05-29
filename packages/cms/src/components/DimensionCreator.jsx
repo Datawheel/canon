@@ -15,8 +15,7 @@ class DimensionCreator extends Component {
         hierarchies: [],
         levels: []
       },
-      selectedDimension: {},
-      selectedLevels: new Map()
+      selectedDimension: {}
     };
   }
 
@@ -37,8 +36,7 @@ class DimensionCreator extends Component {
     profileData.levels = selectedDimension.hierarchies.map(h => h.level);
     this.setState({
       profileData,
-      selectedDimension,
-      selectedLevels: profileData.levels // all levels selected by default
+      selectedDimension
     });
 
   }
@@ -63,12 +61,9 @@ class DimensionCreator extends Component {
     this.setState({profileData});
   }
 
-  // placeholder function
-  toggleLevel(level) {
-    const {selectedLevels} = this.state;
-
-    console.log("level", level);
-    console.log("selectedLevels", selectedLevels);
+  toggleLevel(level, e) {
+    const {checked} = e.target;
+    checked ? this.addLevel.bind(this)(level) : this.removeLevel.bind(this)(level);
   }
 
   createProfile() {
@@ -110,39 +105,18 @@ class DimensionCreator extends Component {
 
             {/* new hotness */}
             <fieldset className="cms-fieldset">
-              {profileData.levels.map(level =>
+              { levelList.map(level =>
                 <label className="cms-checkbox-label" key={level}>
                   <input
                     className="cms-checkbox"
                     type="checkbox"
-                    checked={ this.state.selectedLevels.filter(l => l === level) }
+                    checked={ profileData.levels.includes(level) }
                     onChange={ this.toggleLevel.bind(this, level) }
                   /> {level}
                 </label>
               )}
             </fieldset>
-
-            {/* old and busted */}
-            <MultiSelect
-              items={levelList}
-              itemPredicate={(q, o) => `${o.toLowerCase()}`.indexOf(q.toLowerCase()) >= 0}
-              itemRenderer={(i, {handleClick, modifiers, query}) =>
-                <MenuItem
-                  key={i}
-                  onClick={handleClick}
-                  text={i}
-                />
-              }
-              noResults={<MenuItem disabled={true} text="No results." />}
-              onItemSelect={o => profileData.levels.includes(o) ? this.removeLevel.bind(this)(o) : this.addLevel.bind(this)(o)}
-              tagRenderer={o => o}
-              tagInputProps={{onRemove: o => this.removeLevel.bind(this)(o)}}
-              selectedItems={profileData.levels}
-              popoverProps={{
-                popoverClassName: "bp3-minimal",
-                useSmartArrowPositioning: false
-              }}
-            />
+            
           </div>
         }
         { profileData.dimension && profileData.levels.length > 0 &&
