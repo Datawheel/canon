@@ -65,22 +65,8 @@
     /* cards */
     & .cms-card {
       background-color: var(--dark-3);
+      box-shadow: 0 5px 1rem 0.25rem var(--black);
       border-radius: 2px;
-
-      /* card table for displaying description, preview profile text, etc */
-      & .cms-card-table-cell {
-        color: var(--light-3);
-      }
-
-      /* placeholder */
-      & .cms-card-table-body:empty {
-        background-color: rgba(0, 0, 0, 0.25);
-      }
-
-      /* display values */
-      & .cms-card-table-body:not(:empty) {
-        background-color: rgba(0, 0, 0, 0.5);
-      }
 
       /* reorder buttons */
       & .cms-reorder-button {
@@ -186,6 +172,8 @@
     /* sidebar */
     & .cms-sidebar {
       background-color: var(--dark-3);
+      color: var(--light-1);
+      box-shadow: 0 0 1rem var(--black);
 
       & .bp3-tree-node-content:hover,
       & .bp3-tree-node-content .bp3-tree-node-caret:hover,

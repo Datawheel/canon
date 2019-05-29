@@ -33,16 +33,18 @@ export default class DimensionBuilder extends Component {
     return (
       <div className="dimension-builder">
         <p className="dimension-builder-label pt-label">Dimensions</p>
-        <div className="cms-card-list dimension-card-list">
-          {meta.map((m, i) =>
-            <DimensionCard
-              key={`dc-${i}`}
-              meta={meta[i]}
-              preview={previews[i]}
-              onSelectPreview={this.onSelectPreview.bind(this)}
-            />
-          )}
-        </div>
+        {meta.length
+          ? <div className="cms-card-list dimension-card-list">
+            {meta.map((m, i) =>
+              <DimensionCard
+                key={`dc-${i}`}
+                meta={meta[i]}
+                preview={previews[i]}
+                onSelectPreview={this.onSelectPreview.bind(this)}
+              />
+            )}
+          </div> : null
+        }
 
         <button
           className="cms-button is-block"

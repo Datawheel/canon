@@ -7,6 +7,7 @@ import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
 import deepClone from "../../utils/deepClone";
 import Flag from "./Flag";
+import VarTable from "../VarTable";
 import "./GeneratorCard.css";
 
 import ConsoleVariable from "../ConsoleVariable";
@@ -19,6 +20,7 @@ class GeneratorCard extends Component {
       minData: null,
       initialData: null,
       displayData: null,
+      secondaryDisplayData: null,
       alertObj: false,
       isDirty: false
     };
@@ -43,16 +45,22 @@ class GeneratorCard extends Component {
   }
 
   formatDisplay() {
-    const {variables, type} = this.props;
+    const {variables, secondaryVariables, secondaryLocale, type} = this.props;
     const {id} = this.state.minData;
-    let displayData = {};
+    let displayData, secondaryDisplayData = {};
     if (type === "generator") {
       displayData = variables._genStatus[id];
+      if (secondaryLocale) {
+        secondaryDisplayData = secondaryVariables._genStatus[id];
+      }
     }
     else if (type === "materializer") {
       displayData = variables._matStatus[id];
+      if (secondaryLocale) {
+        secondaryDisplayData = secondaryVariables._matStatus[id];
+      }
     }
-    this.setState({displayData});
+    this.setState({displayData, secondaryDisplayData});
   }
 
   maybeDelete() {
@@ -123,8 +131,8 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {attr, type, variables, item, parentArray, previews, locale, localeDefault} = this.props;
-    const {displayData, minData, isOpen, alertObj} = this.state;
+    const {attr, context, type, variables, item, parentArray, previews, locale, secondaryLocale} = this.props;
+    const {displayData, secondaryDisplayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
     let showDesc = false;
@@ -135,119 +143,110 @@ class GeneratorCard extends Component {
       }
     }
 
-    if (!minData || !variables) return <Loading />;
-
     return (
-      <div className="cms-card">
+      <div className={`cms-card cms-${ context }-card ${ secondaryLocale ? " is-wide" : "" }`}>
 
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
+        {!minData || !variables
+          // loading
+          ? <h3 className="cms-card-header">•••</h3>
 
-        {/* title & edit toggle button */}
-        <h5 className="cms-card-header">
-          <span className={`cms-card-header-icon bp3-icon-standard bp3-icon-th ${type}`} />
-          {locale === localeDefault ? minData.name : minData.name}
-          &nbsp;(<Flag locale={locale} />)
-          {/* In multi-lang, there are two sets of gens and mats, one for default, and one for the other locale.
-            * If we put an edit button on both, then two visual entities can edit the same db structure, which is confusing
-            * the default gen/mat is the "master/only" one, so only show the edit button if this is default (the one for the
-            * other locale is essentially for display purposes only)*/}
-          {locale === localeDefault && <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="bp3-icon bp3-icon-cog" />
-          </button>}
-        </h5>
+          // loaded
+          : <React.Fragment>
+            {/* title & edit toggle button */}
+            <h3 className="cms-card-header">
+              {minData.name}
 
+              <button className="cms-button" onClick={this.openEditor.bind(this)}>
+                Edit <span className="bp3-icon bp3-icon-cog" />
+              </button>
+            </h3>
 
-        {/* if there's a useful description or display data, print a table */}
-        <table className="cms-card-table">
-          <tbody className="cms-card-table-body">
-
-            {/* if there's a description, print it */}
             {showDesc &&
-              <tr className="cms-card-table-row">
-                <td className="cms-card-table-cell">
-                  description
-                </td>
-                <td className="cms-card-table-cell">
-                  <ConsoleVariable value={ description } />
-                </td>
-              </tr>
+              <p className="cms-card-description">{description}</p>
             }
 
-            {/* check for display data */}
-            {displayData && (
-              // error
-              displayData.error
-                ? <tr className="cms-card-table-row">
-                  <td className="cms-card-table-cell cms-error">
-                    { displayData.error ? displayData.error : "error" }
-                  </td>
-                </tr>
-                // loop through data
-                : Object.keys(displayData).map(k =>
-                  <tr className="cms-card-table-row" key={ k }>
-                    <td className="cms-card-table-cell">
-                      { k }:
-                    </td>
-                    <td className="cms-card-table-cell">
-                      <ConsoleVariable value={ displayData[k] } />
-                    </td>
-                  </tr>
-                )
-            )}
-          </tbody>
-        </table>
+            {/* show variables, but not for formatter cards */}
+            {context !== "formatter" &&
+              <div className="cms-card-locale-group">
+                <div className="cms-card-locale-container">
+                  {secondaryLocale &&
+                    <h4 className="cms-card-locale">
+                      <Flag>{locale}</Flag>
+                    </h4>
+                  }
+                  <VarTable dataset={displayData} />
+                </div>
 
-        {/* reorder buttons */}
-        { parentArray &&
-          <MoveButtons
-            item={item}
-            array={parentArray}
-            type={type}
-            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
-          />
+                {secondaryLocale &&
+                  <div className="cms-card-locale-container">
+                    <h4 className="cms-card-locale">
+                      <Flag>{secondaryLocale}</Flag>
+                    </h4>
+                    <VarTable dataset={secondaryDisplayData} />
+                  </div>
+                }
+              </div>
+            }
+
+            {/* reorder buttons */}
+            {parentArray &&
+              <MoveButtons
+                item={item}
+                array={parentArray}
+                type={type}
+                onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
+              />
+            }
+
+            {/* are you suuuuuuuuuuuuuure */}
+            <Alert
+              cancelButtonText="Cancel"
+              confirmButtonText={alertObj.confirm}
+              className="cms-confirm-alert"
+              iconName="bp3-icon-warning-sign"
+              intent={Intent.DANGER}
+              isOpen={alertObj}
+              onConfirm={alertObj.callback}
+              onCancel={() => this.setState({alertObj: false})}
+            >
+              {alertObj.message}
+            </Alert>
+
+            {/* open state */}
+            <Dialog
+              className="generator-editor-dialog"
+              isOpen={isOpen}
+              onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
+              title="Variable Editor"
+              usePortal={false}
+              icon={false}
+            >
+
+              <div className="bp3-dialog-body">
+                <GeneratorEditor
+                  markAsDirty={this.markAsDirty.bind(this)}
+                  previews={previews}
+                  attr={attr}
+                  locale={locale}
+                  data={minData}
+                  variables={variables}
+                  type={type}
+                />
+              </div>
+              <FooterButtons
+                onDelete={this.maybeDelete.bind(this)}
+                onSave={this.save.bind(this)}
+              />
+            </Dialog>
+          </React.Fragment>
         }
-
-        {/* open state */}
-        <Dialog
-          className="generator-editor-dialog"
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Variable Editor"
-          usePortal={false}
-          icon={false}
-        >
-
-          <div className="bp3-dialog-body">
-            <GeneratorEditor
-              markAsDirty={this.markAsDirty.bind(this)}
-              previews={previews}
-              attr={attr}
-              locale={locale}
-              data={minData}
-              variables={variables}
-              type={type}
-            />
-          </div>
-          <FooterButtons
-            onDelete={this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
-        </Dialog>
       </div>
     );
   }
-
 }
+
+GeneratorCard.defaultProps = {
+  context: "generator" // mostly a styling hook used for formatter cards
+};
 
 export default GeneratorCard;

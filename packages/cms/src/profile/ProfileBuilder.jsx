@@ -482,7 +482,7 @@ class ProfileBuilder extends Component {
     const {nodes, currentNode, variablesHash, currentPid, previews, cubeData, nodeToDelete} = this.state;
     const {locale, localeDefault} = this.props;
 
-    if (!nodes) return <div>Loading</div>;
+    if (!nodes) return null;
 
     const variables = variablesHash[currentPid] ? deepClone(variablesHash[currentPid]) : null;
 
