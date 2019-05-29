@@ -224,59 +224,50 @@ const pruneSearch = async(dimension, levels, db) => {
   }
 };
 
-const populateSearch = (profileData, db) => {
+const populateSearch = async(profileData, db) => {
 
-  /**
-   *
-   */
-  async function start() {
+  const cubeName = profileData.cubeName;
+  const measure = profileData.measure;
+  const dimension = profileData.dimName || profileData.dimension;
+  const dimLevels = profileData.levels;
 
-    const cubeName = profileData.cubeName;
-    const measure = profileData.measure;
-    const dimension = profileData.dimName;
-    const dimLevels = profileData.levels;
+  const cube = await client.cube(cubeName).catch(catcher);
 
-    const cube = await client.cube(cubeName).catch(catcher);
+  const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
+    .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
 
-    const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
-      .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
+  let fullList = [];
+  for (let i = 0; i < levels.length; i++) {
 
-    let fullList = [];
-    for (let i = 0; i < levels.length; i++) {
+    const level = levels[i];
+    const members = await client.members(level).catch(catcher);
 
-      const level = levels[i];
-      const members = await client.members(level).catch(catcher);
+    const data = await client.query(cube.query
+      .drilldown(dimension, level.hierarchy.name, level.name)
+      .measure(measure), "jsonrecords")
+      .then(resp => resp.data.data)
+      .then(data => data.reduce((obj, d) => {
+        obj[d[`ID ${level.name}`]] = d[measure];
+        return obj;
+      }, {})).catch(catcher);
 
-      const data = await client.query(cube.query
-        .drilldown(dimension, level.hierarchy.name, level.name)
-        .measure(measure), "jsonrecords")
-        .then(resp => resp.data.data)
-        .then(data => data.reduce((obj, d) => {
-          obj[d[`ID ${level.name}`]] = d[measure];
-          return obj;
-        }, {})).catch(catcher);
-
-      fullList = fullList.concat(formatter(members, data, dimension, level.name));
-
-    }
-
-    for (let i = 0; i < fullList.length; i++) {
-      const obj = fullList[i];
-      const {id, dimension, hierarchy} = obj;
-      const [row, created] = await db.search.findOrCreate({
-        where: {id, dimension, hierarchy},
-        defaults: obj
-      }).catch(catcher);
-      if (verbose && created) console.log(`Created: ${row.id} ${row.display}`);
-      else {
-        await row.updateAttributes(obj).catch(catcher);
-        if (verbose) console.log(`Updated: ${row.id} ${row.display}`);
-      }
-    }
+    fullList = fullList.concat(formatter(members, data, dimension, level.name));
 
   }
 
-  start();
+  for (let i = 0; i < fullList.length; i++) {
+    const obj = fullList[i];
+    const {id, dimension, hierarchy} = obj;
+    const [row, created] = await db.search.findOrCreate({
+      where: {id, dimension, hierarchy},
+      defaults: obj
+    }).catch(catcher);
+    if (verbose && created) console.log(`Created: ${row.id} ${row.display}`);
+    else {
+      await row.updateAttributes(obj).catch(catcher);
+      if (verbose) console.log(`Updated: ${row.id} ${row.display}`);
+    }
+  }
 
 };
 
@@ -427,8 +418,10 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
-    const profileData = req.body;
-    populateSearch(profileData, db);
+    const {id} = req.body;
+    let profileData = await db.profile_meta.findOne({where: {id}});
+    profileData = profileData.toJSON();
+    await populateSearch(profileData, db);
     return res.json({});
   });
 
