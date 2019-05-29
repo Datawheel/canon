@@ -172,14 +172,6 @@ function smr(observedVal, expectedVal) {
   let vx = observedVal;
   const vN = expectedVal;
 
-  // Byar method approximation;
-  if (vx > vN) {
-    vx = vx;
-  }
-  else {
-    vx += 1;
-  }
-
   // Fisher's exact test for poisson distribution ;
   const Obs = vx;
   const Exp = vN;
