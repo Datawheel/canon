@@ -15,7 +15,8 @@ class DimensionCreator extends Component {
         hierarchies: [],
         levels: []
       },
-      selectedDimension: {}
+      selectedDimension: {},
+      selectedLevels: new Map()
     };
   }
 
@@ -34,7 +35,11 @@ class DimensionCreator extends Component {
     profileData.dimName = selectedDimension.dimName;
     profileData.hierarchies = selectedDimension.hierarchies;
     profileData.levels = selectedDimension.hierarchies.map(h => h.level);
-    this.setState({profileData, selectedDimension});
+    this.setState({
+      profileData,
+      selectedDimension,
+      selectedLevels: profileData.levels // all levels selected by default
+    });
 
   }
 
@@ -56,6 +61,14 @@ class DimensionCreator extends Component {
       profileData.hierarchies.push(selectedDimension.hierarchies.find(h => h.level === level));
     });
     this.setState({profileData});
+  }
+
+  // placeholder function
+  toggleLevel(level) {
+    const {selectedLevels} = this.state;
+
+    console.log("level", level);
+    console.log("selectedLevels", selectedLevels);
   }
 
   createProfile() {
@@ -94,10 +107,26 @@ class DimensionCreator extends Component {
         { profileData.dimension &&
           <div className="cms-field-container">
             Levels:
+
+            {/* new hotness */}
+            <fieldset className="cms-fieldset">
+              {profileData.levels.map(level =>
+                <label className="cms-checkbox-label" key={level}>
+                  <input
+                    className="cms-checkbox"
+                    type="checkbox"
+                    checked={ this.state.selectedLevels.filter(l => l === level) }
+                    onChange={ this.toggleLevel.bind(this, level) }
+                  /> {level}
+                </label>
+              )}
+            </fieldset>
+
+            {/* old and busted */}
             <MultiSelect
               items={levelList}
               itemPredicate={(q, o) => `${o.toLowerCase()}`.indexOf(q.toLowerCase()) >= 0}
-              itemRenderer={(i, {handleClick, modifiers, query}) => 
+              itemRenderer={(i, {handleClick, modifiers, query}) =>
                 <MenuItem
                   key={i}
                   onClick={handleClick}
