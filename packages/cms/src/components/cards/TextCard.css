@@ -20,17 +20,13 @@
   display: flex;
   flex-wrap: wrap;
   margin: 1rem -1rem;
+  width: calc(50% - 2rem);
+  flex-basis: calc(100% + 2rem); /* needed because reasons */
 
   &:only-child {
     width: calc(100% + 2rem);
   }
-
-  /* offset spacing at the bottom of the page */
-  &:last-child {
-    margin-bottom: -0.75rem;
-  }
 }
-
 
 /* individual cards */
 .cms-card {

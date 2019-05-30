@@ -15,7 +15,6 @@ import "./css/shame.css";
 
 // TODO: convert to components
 import "./components/Button.css";
-import "./components/SectionHeading.css";
 
 class Builder extends Component {
 

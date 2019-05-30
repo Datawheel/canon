@@ -71,7 +71,7 @@ export default class DimensionCard extends Component {
           </tbody>
         </table>
         <div className="dimension-card-controls">
-          <label>
+          <div>
             Preview profile
             <Search
               render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
@@ -79,7 +79,7 @@ export default class DimensionCard extends Component {
               levels={meta.levels}
               limit={20}
             />
-          </label>
+          </div>
           <button className="cms-button" disabled={rebuilding} onClick={this.rebuildSearch.bind(this)}>
             {rebuilding ? "Rebuilding..." : "Rebuild"}
           </button>
