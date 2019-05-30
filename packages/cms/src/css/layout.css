@@ -13,6 +13,13 @@
   z-index: 1;
   width: 100%;
   padding: 0 1rem;
+  /* theming */
+  background-color: var(--light-3);
+
+  @mixin dark-mode {
+    background-color: var(--dark-2);
+  }
+
 
   /* main nav "links" (they're actually buttons) */
   & .cms-nav-link {
@@ -23,6 +30,30 @@
     margin-right: 0;
     outline: none;
     cursor: pointer; /* it's not a link, but it acts like one */
+    /* theming */
+    color: var(--black);
+
+    @mixin dark-mode {
+      color: var(--light-1);
+    }
+
+    &.is-active {
+      color: var(--accent-black);
+      background-color: var(--white);
+
+      @mixin dark-mode {
+        color: var(--accent);
+        background-color: var(--dark-3);
+      }
+
+      &:hover, &:focus {
+        color: var(--accent-dark);
+
+        @mixin dark-mode {
+          color: var(--accent-light);
+        }
+      }
+    }
   }
   & .cms-nav-options {
     margin-left: auto;
@@ -69,6 +100,16 @@
   /* overflow container */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  /* theming */
+  background-color: var(--white);
+  color: var(--dark-3);
+  box-shadow: 0 0 1rem var(--light-2);
+
+  @mixin dark-mode {
+    background-color: var(--dark-3);
+    color: var(--light-1);
+    box-shadow: 0 0 1rem var(--black);
+  }
 
   /* big add profile button */
   & > .cms-button {
@@ -85,6 +126,29 @@
     /* overflow container */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  }
+}
+
+/* specificity increase needed to override blueprint */
+.cms .cms-sidebar {
+  & .bp3-tree-node-content:hover,
+  & .bp3-tree-node-content .bp3-tree-node-caret:hover,
+  & .bp3-tree-node-content .bp3-tree-node-cog:hover {
+    color: var(--accent-black);
+
+    @mixin dark-mode {
+      color: var(--accent-light);
+    }
+  }
+
+  & .bp3-tree-node-selected > .bp3-tree-node-content {
+    background-color: var(--accent-black);
+    color: var(--white);
+
+    @mixin dark-mode {
+      background-color: var(--black);
+      color: var(--accent-light);
+    }
   }
 }
 

@@ -43,6 +43,34 @@
   min-width: 18rem;
   width: 100%;
   max-width: calc(100% - 2rem);
+  /* theming */
+  background-color: var(--white);
+  box-shadow: 0 5px 1rem 0.25rem var(--light-2);
+  border-radius: 2px;
+
+  /* reorder buttons */
+  & .cms-reorder-button {
+    background-color: var(--gray);
+    border-color: var(--gray);
+
+    /* interactions */
+    &:hover, &:focus {
+      background-color: var(--accent-black);
+      border-color: var(--accent-black);
+    }
+  }
+
+  @mixin dark-mode {
+    background-color: var(--dark-3);
+    box-shadow: 0 5px 1rem 0.25rem var(--black);
+    border-radius: 2px;
+
+    /* reorder buttons */
+    & .cms-reorder-button {
+      background-color: var(--black);
+      border-color: var(--black);
+    }
+  }
 
   & .cms-card-description {
     font-size: 0.75em;

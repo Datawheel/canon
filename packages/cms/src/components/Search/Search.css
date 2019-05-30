@@ -1,10 +1,19 @@
 .cms-search {
   width: 100%;
   margin-top: 5px; /* mimic blueprint label margin */
+  z-index: 2; /* fix search */
 
   & > span, & .bp3-popover-target, & .bp3-input-group, & .bp3-overlay-content, & .bp3-popover, & .bp3-popover-content {
     max-width: none;
     width: 100%;
+  }
+
+  & .bp3-popover-content {
+    background-color: var(--white) !important;
+
+    @mixin dark-mode {
+      background-color: var(--black) !important;
+    }
   }
 
   & .bp3-input {
@@ -32,6 +41,12 @@
       display: block;
       width: 100%;
       padding: 0;
+      /* theming */
+      background-color: var(--dark-1);
+
+      @mixin dark-mode {
+        background-color: var(--light-3);
+      }
     }
 
     /* individual result item */
@@ -42,6 +57,28 @@
         cursor: pointer; /* it's not a link, but it should be */
         display: block;
         padding: 0.5em 1.75rem;
+        /* theming */
+        background-color: var(--light-2);
+        color: var(--dark-3);
+
+        @mixin dark-mode {
+          background-color: var(--dark-1);
+          color: var(--black);
+        }
+
+        /* interactions */
+        &:hover, &:focus,
+        &.highlighted {
+          & .result-link {
+            background-color: var(--light-1);
+            color: var(--accent-black);
+
+            @mixin dark-mode {
+              background-color: var(--dark-3);
+              color: var(--accent);
+            }
+          }
+        }
       }
     }
 
@@ -49,6 +86,12 @@
     & .no-results {
       margin-bottom: 0;
       padding: 1em 1.75rem;
+      /* theming */
+      color: var(--white);
+
+      @mixin dark-mode {
+        color: var(--black);
+      }
     }
   }
 }

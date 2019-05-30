@@ -12,6 +12,17 @@
     color 0.2s ease-out,
     background-color 0.2s ease-out,
     border-color 0.2s ease-out;
+  /* theming */
+  background-color: var(--accent-dark);
+  border-color: var(--accent-dark);
+  color: var(--white);
+
+  /* interactions */
+  &:hover, &:focus {
+    background-color: var(--accent-black);
+    border-color: var(--accent-black);
+  }
+
 
   /* override blueprint when both classes are in place */
   &.bp3-button {
@@ -49,7 +60,24 @@
     width: 100%;
   }
 }
+
+/* naked / ghost button theming */
 .cms-button-naked {
   background-color: transparent;
   border: none;
+  color: var(--accent-dark);
+
+  /* interactions */
+  &:hover, &:focus {
+    color: var(--accent-black);
+  }
+
+  @mixin dark-mode {
+    color: var(--accent-light);
+
+    /* interactions */
+    &:hover, &:focus {
+      color: var(--accent);
+    }
+  }
 }

@@ -19,15 +19,42 @@
   }
 
   /* CANON OVERRIDES */
-  & .search {
-    z-index: 2; /* fix search */
-  }
   & .loading {
     z-index: auto;
     background: none;
 
     @media (prefers-dark-interface), (prefers-color-scheme: dark) {
       color: var(--light-3);
+    }
+  }
+}
+
+
+/* THEMING */
+.cms {
+  background-color: var(--light-1);
+  color: var(--black);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+    color: var(--light-1);
+  }
+
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    color: var(--black);
+
+    @mixin dark-mode {
+      color: var(--white);
+    }
+  }
+
+  /* reset loading style */
+  & .loading {
+    background-color: none;
+    color: var(--black);
+
+    @mixin dark-mode {
+      color: var(--light-1);
     }
   }
 
@@ -40,27 +67,102 @@
 }
 
 
+
+
+
+
+/* TODO: find a better home for these styles */
 .cms-dialog-footer-button {
   background-color: transparent;
   border: none;
   padding: 0;
   /* TODO: adjust the container margin, not button margin */
   margin-top: -2.25rem;
+  /* theming */
+  color: var(--dark-3);
+
+  @mixin dark-mode {
+    color: var(--light-1);
+  }
+
+  & .cms-dialog-footer-button-icon {
+    color: var(--dark-1);
+
+    @mixin dark-mode {
+      color: var(--gray);
+    }
+  }
+
+  /* interactions */
+  &:hover, &:focus {
+    & .cms-dialog-footer-button-icon {
+      color: var(--dark-3);
+
+      @mixin dark-mode {
+        color: var(--light-1);
+      }
+    }
+  }
 
   &:not(:last-of-type) {
     margin-right: 1.5em;
   }
 }
 
+
+
 /* alerts */
 .cms-alert {
   padding: 0.5em 1em;
   margin-bottom: 0;
+  /* theming */
+  background-color: var(--alert);
+}
+
+.cms-alert-color {
+  color: var(--alert-light);
+}
+
+
+/* variables */
+.cms-variable {
+  &.number {
+    color: var(--type-number-dark);
+    @mixin dark-mode {
+      color: var(--type-number);
+    }
+  }
+  &.string {
+    color: var(--type-string-dark);
+    @mixin dark-mode {
+      color: var(--type-string);
+    }
+  }
+  &.undefined {
+    color: var(--dark-2);
+    @mixin dark-mode {
+      color: var(--gray);
+    }
+  }
+    &.error {
+    color: var(--type-error-dark);
+    @mixin dark-mode {
+      color: var(--type-error);
+    }
+  }
 }
 
 
 
+/* muted text */
+.cms-status.is-done,
+.bp3-text-muted {
+  color: var(--dark-2);
 
+  @mixin dark-mode {
+    color: var(--dark-1);
+  }
+}
 
 
 .cms-variable-editor-group {

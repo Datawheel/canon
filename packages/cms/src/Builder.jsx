@@ -12,8 +12,6 @@ import "./css/blueprint-overrides.css";
 import "./css/form-fields.css";
 import "./css/layout.css";
 import "./css/shame.css";
-import "./css/cms-light.css";
-import "./css/cms-dark.css";
 
 // TODO: convert to components
 import "./components/Button.css";

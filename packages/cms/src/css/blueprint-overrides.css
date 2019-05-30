@@ -35,6 +35,12 @@
     margin: 1rem;
     margin-bottom: 2rem;
     border-radius: 4px;
+    /* theming */
+    background-color: var(--white);
+
+    @mixin dark-mode {
+      background-color: var(--dark-3);
+    }
 
     /* adjust width on big screens */
     @media (min-width: 54rem) {
@@ -45,6 +51,12 @@
     padding: 0.75rem 1.5rem;
     border-radius: 4px 4px 0 0;
     box-shadow: none;
+    /* theming */
+    background-color: var(--light-2);
+
+    @mixin dark-mode {
+      background-color: var(--dark-2);
+    }
   }
   & .bp3-dialog-footer {
     margin: 0;
@@ -56,9 +68,21 @@
     transition:
       color 0.1s ease-out,
       transform 0.1s ease-out;
+    /* theming */
+    color: var(--dark-2);
 
+    @mixin dark-mode {
+      color: var(--light-3);
+    }
+
+    /* interactions */
     &:hover, &:focus {
       transform: scale(1.25);
+      color: var(--accent-black);
+
+      @mixin dark-mode {
+        color: var(--white);
+      }
     }
   }
   & .bp3-dialog-body {
