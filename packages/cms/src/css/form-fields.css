@@ -1,0 +1,89 @@
+@import "./mixins.css";
+
+.cms {
+
+  /* these aren't links */
+  & select, & button {
+    cursor: default;
+  }
+
+  /* keep select menus from breaking outside of container */
+  & select,
+  & .bp3-select {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* override blueprint margin & apply to non label elements  */
+  & label,
+  & .bp3-label {
+    margin-bottom: 1rem;
+  }
+
+  & ul.cms-field-container {
+    padding-left: 0;
+  }
+
+  /* 100% width elements by default */
+  & .cms-field-container {
+
+    /* reset label margin */
+    & label {
+      margin: 0 0.5em 0 0;
+    }
+
+    & > * {
+      display: block;
+      width: 100%; /* shouldn't be necessary, but it is */
+    }
+  }
+
+  /* expects a label and an input */
+  & .cms-field-container-inline {
+    display: flex;
+    align-items: center;
+
+    /* override .cms-field-container defaults above */
+    & > * {
+      width: auto;
+    }
+
+    /* take up all the remaining space */
+    & input {
+      flex: 1 0 auto;
+
+      & + button {
+        margin-left: 0.5em;
+      }
+    }
+  }
+
+  /* grouped inputs */
+  & .cms-field-group {
+    columns: 2;
+    column-width: 18rem;
+    column-gap: 2rem;
+  }
+
+  /* space out adjacent fields & field groups */
+  & .cms-field-container + .cms-field-container,
+  & .cms-field-group + .cms-field-container,
+  & .cms-field-group + .cms-field-group {
+    margin-top: 1rem;
+  }
+}
+
+/* currently used only for grouping radio buttons & checkboxes */
+.cms-fieldset {
+  /* override browser defaults */
+  border: none;
+  padding: 0.25rem 0 0 0;
+
+  & > .cms-checkbox-label {
+    display: inline-block;
+
+    &:not(:last-child) {
+      margin-right: 1.5em;
+    }
+  }
+}

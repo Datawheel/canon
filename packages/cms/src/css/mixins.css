@@ -1,0 +1,194 @@
+/* -----------------------------------
+breakpoints
+----------------------------------- */
+
+/* mobile first */
+@define-mixin min-xxl { @media (min-width: 1640px) { @mixin-content; } }
+@define-mixin min-xl  { @media (min-width: 1400px) { @mixin-content; } }
+@define-mixin min-lg  { @media (min-width: 1200px) { @mixin-content; } }
+@define-mixin min-md  { @media (min-width: 992px)  { @mixin-content; } }
+@define-mixin min-sm  { @media (min-width: 768px)  { @mixin-content; } }
+@define-mixin min-xs  { @media (min-width: 480px)  { @mixin-content; } }
+@define-mixin min-xxs { @media (min-width: 400px)  { @mixin-content; } }
+
+/* max-width first */
+@define-mixin max-xl  { @media (max-width: 1399px) { @mixin-content; } }
+@define-mixin max-lg  { @media (max-width: 1199px) { @mixin-content; } }
+@define-mixin max-md  { @media (max-width: 991px)  { @mixin-content; } }
+@define-mixin max-sm  { @media (max-width: 767px)  { @mixin-content; } }
+@define-mixin max-xs  { @media (max-width: 479px)  { @mixin-content; } }
+@define-mixin max-xxs { @media (max-width: 399px)  { @mixin-content; } }
+
+/* target IE 11+ */
+/* NOTE: since this is a media query, it can't be nested in a traaditional media query */
+@define-mixin ie-only {
+  @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    @mixin-content;
+  }
+}
+
+
+/* -----------------------------------
+typography
+----------------------------------- */
+
+/* type scaling */
+/* NOTE: using 20px as 1rem, because easy math */
+@define-mixin font-xxl {
+  font-size: 1.6rem; /* 32px */
+  line-height: 1;
+
+  @mixin min-xs {
+    font-size: 2rem; /* 40px */
+  }
+}
+@define-mixin font-xl {
+  font-size: 1.4rem; /* 28px */
+  line-height: 1;
+}
+@define-mixin font-lg {
+  font-size: 1.2rem; /* 24px */
+  line-height: 1.25;
+}
+@define-mixin font-md {
+  font-size: 1rem; /* 20px */
+  line-height: 1.5; /* 30px */
+}
+@define-mixin font-sm {
+  font-size: 0.8rem; /* 16px */
+  line-height: 1.625; /* 26px */
+}
+@define-mixin font-xs {
+  font-size: 0.6rem; /* 12px */
+  line-height: 1.666; /* 20px */
+}
+
+/* font smoothing */
+@define-mixin font-smoothing {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* uppercase */
+@define-mixin font-uppercase {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* italic */
+@define-mixin font-italic {
+  font-style: italic;
+  letter-spacing: 0.025em;
+}
+
+/* ellipsis */
+/* NOTE: works best with defined width & height, 1 line of text */
+@define-mixin overflow-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* -----------------------------------
+accessibility
+----------------------------------- */
+
+/* accessibly hidden text and elements */
+@define-mixin visually-hidden {
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+
+/* reset visually-hidden properties */
+@define-mixin reset-visually-hidden {
+  clip: auto;
+  position: relative !important;
+  height: auto;
+  width: 100%;
+  overflow: auto;
+}
+
+
+/* -----------------------------------
+theming
+----------------------------------- */
+
+/* media query for dark mode */
+/* NOTE: place immediately after default (light theme) css */
+@define-mixin dark-mode {
+  @media (prefers-dark-interface), (prefers-color-scheme: dark) {
+    @mixin-content;
+  }
+}
+
+
+/* -----------------------------------
+layout
+----------------------------------- */
+
+@define-mixin clearfix {
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+/* fill up all the space — make sure the parent has pos:rel */
+@define-mixin absolute-expand {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* center elements the dumb but sometimes useful way */
+@define-mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+@define-mixin absolute-vertical-center {
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+@define-mixin absolute-horizontal-center {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+
+/* -----------------------------------
+resets
+----------------------------------- */
+
+/* list reset */
+@define-mixin list-reset {
+  list-style-type: none; /* remove bullets */
+  padding-left: 0; /* thanks blueprint */
+  margin-top: 0; /* thanks blueprint */
+  margin-bottom: 0; /* thanks blueprint */
+}
+
+
+/* -----------------------------------
+print stylesheet helpers
+----------------------------------- */
+
+/* display an html attr as a pseudo element */
+@define-mixin print-attr {
+  display: inline-block; /* needed to make content display */
+  /* positioning */
+  position: relative;
+  padding-left: 0.5em;
+  /* theming */
+  font-size: 0.5em;
+  text-decoration: none; /* but it's small, so don't underline it */
+}

@@ -7,9 +7,17 @@ import FormatterEditor from "./formatter/FormatterEditor";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
 
-import "./cms.css";
-import "./themes/cms-light.css";
-import "./themes/cms-dark.css";
+import "./css/base.css";
+import "./css/blueprint-overrides.css";
+import "./css/form-fields.css";
+import "./css/layout.css";
+import "./css/shame.css";
+import "./css/cms-light.css";
+import "./css/cms-dark.css";
+
+// TODO: convert to components
+import "./components/Button.css";
+import "./components/SectionHeading.css";
 
 class Builder extends Component {
 

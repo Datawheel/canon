@@ -347,7 +347,7 @@ class StoryBuilder extends Component {
     const {nodes, currentNode, nodeToDelete} = this.state;
     const {locale, localeDefault} = this.props;
 
-    if (!nodes) return <div>Loading</div>;
+    if (!nodes) return false;
 
     return (
       <div className="cms-panel story-panel" id="profile-builder">

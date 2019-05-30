@@ -1,0 +1,152 @@
+@import "./mixins.css";
+
+.cms {
+  /* fix blueprint popover */
+  & .bp3-overlay-inline {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20; /* move to front */
+    /* override container alignment */
+    text-align: left;
+    /* hide by default */
+    display: none;
+
+    &.bp3-overlay-open {
+      display: flex;
+      position: fixed;
+    }
+  }
+  & .bp3-overlay-inline.bp3-overlay-open > span {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* dialogs */
+  & .bp3-dialog {
+    width: calc(100vw - 2rem);
+    height: auto;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    padding-bottom: 0;
+    margin: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+
+    /* adjust width on big screens */
+    @media (min-width: 54rem) {
+      width: 56rem;
+    }
+  }
+  & .bp3-dialog-header {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px 4px 0 0;
+    box-shadow: none;
+  }
+  & .bp3-dialog-footer {
+    margin: 0;
+    padding: 0.75rem 1.5rem;
+  }
+  & .bp3-dialog-close-button {
+    padding: 0.5rem 0.75rem;
+    margin: -1rem;
+    transition:
+      color 0.1s ease-out,
+      transform 0.1s ease-out;
+
+    &:hover, &:focus {
+      transform: scale(1.25);
+    }
+  }
+  & .bp3-dialog-body {
+    margin: 0;
+    padding: 2.125rem 1.5rem;
+  }
+
+  & .inline-radio-group {
+    & > .bp3-label,
+    & > .bp3-radio {
+      display: inline-block;
+    }
+    & > .bp3-radio {
+      padding-left: 20px;
+
+      &:not(:last-of-type) {
+        margin-right: 0.75rem;
+      }
+    }
+  }
+
+  /* input group button overrides */
+  & .bp3-input-group {
+    display: flex;
+    align-items: stretch;
+
+    & .bp3-input:first-child:not(:last-child) {
+      flex: 1 1 auto;
+      margin-top: 5px; /* match blueprint */
+      padding: 0 1em;
+      width: 100%;
+      max-width: 100%;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    & .cms-button {
+      position: relative;
+      padding-left: 1em;
+      padding-right: 1em;
+      border-radius: 0 2px 2px 0;
+      margin: 5px 0 0 0; /* reset & match blueprint */
+    }
+  }
+
+  /* hacks the stupid multi-select */
+  /* TODO: verify that this is no longer being used and remove */
+  & .bp3-multi-select.bp3-tag-input {
+    border: 0;
+    margin: 0 0 -0.5rem 0; /* reset & offset inner element margin */
+    padding: 0;
+    height: auto; /* override blueprint forever */
+    /* theming */
+    background: none;
+    box-shadow: none;
+    outline: none;
+    display: inline-flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+
+    /* default sizing & spacing */
+    & > * {
+      margin-right: 0.5em;
+      min-height: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    & .bp3-tag {
+      display: flex;
+      line-height: 2.25;
+      padding-right: 2em;
+
+      & .bp3-tag-remove {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        text-align: right;
+      }
+    }
+
+    /* the real input */
+    & .bp3-input-ghost {
+      order: -1;
+      border-radius: 3px;
+      border: 1px solid var(--gray);
+      padding-left: 0.75em;
+      padding-right: 0.75em;
+      min-width: 180px; /* match .bp3-menu min-width ¯\_(ツ)_/¯ */
+    }
+  }
+}

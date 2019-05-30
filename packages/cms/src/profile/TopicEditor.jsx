@@ -128,7 +128,7 @@ class TopicEditor extends Component {
     const defLoaded = locale || variables && !locale && variables[localeDefault];
     const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
 
-    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return "<Loading />";
+    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return false;
 
     const varOptions = [<option key="always" value="always">Always</option>]
       .concat(Object.keys(variables[localeDefault])

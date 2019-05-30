@@ -1,3 +1,5 @@
+@import "../../css/mixins.css";
+
 /* show variables side by side with language labels */
 .cms-generator-card.is-wide {
   min-width: 400px; /* need more space */
@@ -30,4 +32,8 @@
 /* minimize repaints as cards load in */
 .cms-formatter-card {
   min-height: 83px;
+}
+
+.cms-card {
+
 }
