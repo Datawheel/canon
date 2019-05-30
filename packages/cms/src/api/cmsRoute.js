@@ -212,8 +212,8 @@ const formatter = (members, data, dimension, level) => {
 };
 
 const pruneSearch = async(dimension, levels, db) => {
-  const currentProfiles = await db.profile.findAll().catch(catcher);
-  const currentDimensions = currentProfiles.map(p => p.dimension);
+  const currentMeta = await db.profile_meta.findAll().catch(catcher);
+  const currentDimensions = currentMeta.map(m => m.dimension);
   // To be on the safe side, only clear the search table of dimensions that NO remaining
   // profiles are currently making use of.
   // Don't need to prune levels - they will be filtered automatically in searches.
@@ -221,6 +221,9 @@ const pruneSearch = async(dimension, levels, db) => {
   if (!currentDimensions.includes(dimension)) {
     const resp = await db.search.destroy({where: {dimension}}).catch(catcher);
     if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
+  }
+  else {
+    if (verbose) console.log(`Skipped search cleanup - ${dimension} is still in use`);
   }
 };
 
@@ -448,7 +451,6 @@ module.exports = function(app) {
    * and "parent" refers to the foreign key that need be referenced in the associated where clause.
    */
   const deleteList = [
-    {elements: ["profile_meta"], parent: "profile_id"},
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
     {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"},
     {elements: ["storytopic_subtitle", "storytopic_description", "storytopic_stat", "storytopic_visualization"], parent: "storytopic_id"}
@@ -492,8 +494,7 @@ module.exports = function(app) {
     const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
-    // disabling prunesearch for now during refactor
-    // pruneSearch(row.dimension, row.levels, db);
+    pruneSearch(row.dimension, row.levels, db);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     return res.json(profiles);
@@ -501,15 +502,12 @@ module.exports = function(app) {
 
   app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
     const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
-    const pid = row.profile_id;
     await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
-    // disabling prunesearch for now during refactor
-    // pruneSearch(row.dimension, row.levels, db);
-    let meta = await db.profile_meta.findAll({where: {profile_id: pid}}).catch(catcher);
-    meta = meta.map(m => m.toJSON());
-    meta.sort(sorter);
-    return res.json(meta);
+    pruneSearch(row.dimension, row.levels, db);
+    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
+    profiles = sortProfileTree(db, profiles);
+    return res.json(profiles);
   });
 
   app.delete("/api/cms/story/delete", isEnabled, async(req, res) => {

@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Search from "../Search/Search.jsx";
+import {Alert, Intent} from "@blueprintjs/core";
 import "./DimensionCard.css";
 
 export default class DimensionCard extends Component {
@@ -8,7 +9,8 @@ export default class DimensionCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      rebuilding: false
+      rebuilding: false,
+      alertObj: false
     };
   }
 
@@ -33,14 +35,47 @@ export default class DimensionCard extends Component {
     });
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this Dimension?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
+  delete() {
+    const {meta} = this.props;
+    const {id} = meta;
+    axios.delete("/api/cms/profile_meta/delete", {params: {id}}).then(resp => {
+      if (resp.status === 200) {
+        this.setState({alertObj: false});
+        const profiles = resp.data;
+        if (this.props.onDeleteDimension) this.props.onDeleteDimension(profiles);
+      }
+    });
+  } 
+
   render() {
     const {meta, preview} = this.props;
-    const {rebuilding} = this.state;
+    const {rebuilding, alertObj} = this.state;
 
     if (!preview) return null;
 
     return (
       <div className="cms-card cms-dimension-card">
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          iconName="bp3-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+        >
+          {alertObj.message}
+        </Alert>
         <table className="cms-dimension-card-table">
           <tbody>
             <tr className="cms-dimension-card-table-row">
@@ -82,6 +117,9 @@ export default class DimensionCard extends Component {
           </label>
           <button className="cms-button" disabled={rebuilding} onClick={this.rebuildSearch.bind(this)}>
             {rebuilding ? "Rebuilding..." : "Rebuild"}
+          </button>
+          <button className="cms-button" disabled={rebuilding} onClick={this.maybeDelete.bind(this)}>
+            Delete
           </button>
         </div>
       </div>
