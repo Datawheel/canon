@@ -1,8 +1,7 @@
 import React, {Component} from "react";
 import DimensionCard from "../components/cards/DimensionCard";
 import DimensionCreator from "../components/DimensionCreator";
-import FooterButtons from "../components/FooterButtons";
-import {Button, Dialog} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 
 import "./DimensionBuilder.css";
 
@@ -26,6 +25,11 @@ export default class DimensionBuilder extends Component {
     this.setState({isOpen: false});
   }
 
+  onDeleteDimension(profiles) {
+    if (this.props.onDeleteDimension) this.props.onDeleteDimension(profiles);
+    this.setState({isOpen: false});
+  }
+
   render() {
     const {meta, previews} = this.props;
     const {isOpen} = this.state;
@@ -41,11 +45,11 @@ export default class DimensionBuilder extends Component {
                 meta={meta[i]}
                 preview={previews[i]}
                 onSelectPreview={this.onSelectPreview.bind(this)}
+                onDeleteDimension={this.onDeleteDimension.bind(this)}
               />
             )}
           </div> : null
         }
-
         <button
           className="cms-button is-block"
           onClick={() => this.setState({isOpen: !this.state.isOpen})}
