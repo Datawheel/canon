@@ -1,7 +1,7 @@
 @import "../../css/mixins.css";
 
 /* show variables side by side with language labels */
-.cms-generator-card.is-wide {
+[class*="-card"].is-wide {
   min-width: 400px; /* need more space */
 
   & .cms-card-header {

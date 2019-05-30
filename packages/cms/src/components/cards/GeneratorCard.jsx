@@ -144,7 +144,7 @@ class GeneratorCard extends Component {
     }
 
     return (
-      <div className={`cms-card cms-${ context }-card ${ secondaryLocale ? " is-wide" : "" }`}>
+      <div className={`cms-card cms-${ context }-card ${ secondaryLocale ? "is-wide" : "" }`}>
 
         {!minData || !variables
           // loading
