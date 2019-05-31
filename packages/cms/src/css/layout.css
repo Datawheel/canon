@@ -141,13 +141,24 @@
     }
   }
 
+  /* theming */
   & .bp3-tree-node-selected > .bp3-tree-node-content {
     background-color: var(--accent-black);
     color: var(--white);
 
+    /* keep icon visible on hover */
+    & > .bp3-tree-node-caret:hover {
+      color: var(--white);
+    }
+
     @mixin dark-mode {
       background-color: var(--black);
       color: var(--accent-light);
+
+      /* keep icon visible on hover */
+      & > .bp3-tree-node-caret:hover {
+        color: var(--accent-light);
+      }
     }
   }
 }
