@@ -119,6 +119,17 @@
   z-index: 1;
 }
 
+/* truncate long card titles */
+.cms-card-header-text {
+  @mixin overflow-ellipsis;
+  max-width: calc(100% - 6.5rem);
+}
+
+.cms-card-header,
+.cms-card .visualization {
+  max-width: 100%; /* easy there, flex */
+}
+
 /* reorder buttons layout */
 .cms-card .cms-reorder {
   /* cover the whole thing */

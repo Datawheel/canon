@@ -179,16 +179,19 @@ export default class SimpleVisualizationEditor extends Component {
         </div>
       </div>
 
-      <div className="cms-field-container">
-        Type
-        <div className="bp3-select">
-          <select value={object.type} onChange={this.onChange.bind(this, "type")}>
-            {Object.keys(vizLookup).map(type =>
-              <option key={type} value={type}>{type}</option>
-            )}
-          </select>
+      {object.data &&
+        <div className="cms-field-container">
+          Type
+          <div className="bp3-select">
+            <select value={object.type} onChange={this.onChange.bind(this, "type")}>
+              <option value="undefined">Select visualization type</option>
+              {Object.keys(vizLookup).map(type =>
+                <option key={type} value={type}>{type}</option>
+              )}
+            </select>
+          </div>
         </div>
-      </div>
+      }
 
 
       {payload.data &&

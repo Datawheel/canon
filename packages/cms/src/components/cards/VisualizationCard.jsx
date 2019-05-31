@@ -82,7 +82,7 @@ class VisualizationCard extends Component {
         confirm: "Yes, Abandon changes."
       };
       this.setState({alertObj});
-    } 
+    }
     else {
       this.closeEditorWithoutSaving.bind(this)();
     }
@@ -108,8 +108,10 @@ class VisualizationCard extends Component {
 
     if (!minData) return <Loading />;
 
-    const {selectors, type, variables, parentArray, item, previews, locale, localeDefault} = this.props;
+    const {selectors, type, variables, secondaryVariables, parentArray, item, previews, locale, secondaryLocale} = this.props;
     const formatters = this.context.formatters[locale];
+
+    // TODO: add formatters toggle for secondaryLocale & secondaryVariables
 
     minData.selectors = selectors;
     let logic = "return {}";
@@ -124,38 +126,23 @@ class VisualizationCard extends Component {
 
     return (
       <div className="cms-card" style={{minHeight: `calc(${height}px + 2.25rem)`}}>
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
-
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
-
         {/* title & edit toggle button */}
-        {locale === localeDefault && <h5 className="cms-card-header">
+        <h5 className="cms-card-header">
+          <span className="cms-card-header-text">
+            {config && config.logic_simple && config.logic_simple.data
+              ? `${
+                config.logic_simple.type}${
+                config.logic_simple.type && config.logic_simple.data && ": "}${
+                config.logic_simple.data}`
+              : config.simple
+                ? "No configuration defined"
+                : config.logic.replace("return ", "")
+            }
+          </span>
           <button className="cms-button" onClick={this.openEditor.bind(this)}>
             Edit <span className="bp3-icon bp3-icon-cog" />
           </button>
-        </h5> }
+        </h5>
 
         {/* reorder buttons */}
         { parentArray &&
@@ -175,12 +162,12 @@ class VisualizationCard extends Component {
           usePortal={false}
         >
           <div className="bp3-dialog-body">
-            <GeneratorEditor 
-              markAsDirty={this.markAsDirty.bind(this)} 
-              previews={previews} 
-              data={minData} 
-              variables={variables} 
-              type={type} 
+            <GeneratorEditor
+              markAsDirty={this.markAsDirty.bind(this)}
+              previews={previews}
+              data={minData}
+              variables={variables}
+              type={type}
             />
           </div>
           <FooterButtons
@@ -188,7 +175,21 @@ class VisualizationCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { !isOpen ? <Viz config={config} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
+
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          iconName="bp3-icon-warning-sign"
+          intent={Intent.DANGER}
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+        >
+          {alertObj.message}
+        </Alert>
+
+        { !isOpen ? <Viz config={config} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : null }
       </div>
     );
   }
