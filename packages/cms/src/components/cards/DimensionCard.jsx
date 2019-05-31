@@ -54,7 +54,7 @@ export default class DimensionCard extends Component {
         if (this.props.onDeleteDimension) this.props.onDeleteDimension(profiles);
       }
     });
-  } 
+  }
 
   render() {
     const {meta, preview} = this.props;
@@ -106,7 +106,7 @@ export default class DimensionCard extends Component {
           </tbody>
         </table>
         <div className="dimension-card-controls">
-          <label>
+          <div>{/* <label> causes dropdown to stay open; TODO: revisit */}
             Preview profile
             <Search
               render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
@@ -114,7 +114,7 @@ export default class DimensionCard extends Component {
               levels={meta.levels}
               limit={20}
             />
-          </label>
+          </div>
           <button className="cms-button" disabled={rebuilding} onClick={this.rebuildSearch.bind(this)}>
             {rebuilding ? "Rebuilding..." : "Rebuild"}
           </button>
