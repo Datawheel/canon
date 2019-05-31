@@ -1,6 +1,12 @@
 @import "./mixins.css";
 
 .cms {
+
+  /* muted text */
+  & .bp3-text-muted {
+    @mixin description-color;
+  }
+
   /* fix blueprint popover */
   & .bp3-overlay-inline {
     position: fixed !important;
@@ -127,55 +133,4 @@
       margin: 5px 0 0 0; /* reset & match blueprint */
     }
   }
-
-  /* hacks the stupid multi-select */
-  /* TODO: verify that this is no longer being used and remove */
-  & .bp3-multi-select.bp3-tag-input {
-    border: 0;
-    margin: 0 0 -0.5rem 0; /* reset & offset inner element margin */
-    padding: 0;
-    height: auto; /* override blueprint forever */
-    /* theming */
-    background: none;
-    box-shadow: none;
-    outline: none;
-    display: inline-flex;
-    align-items: stretch;
-    flex-wrap: wrap;
-
-    /* default sizing & spacing */
-    & > * {
-      margin-right: 0.5em;
-      min-height: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    & .bp3-tag {
-      display: flex;
-      line-height: 2.25;
-      padding-right: 2em;
-
-      & .bp3-tag-remove {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        text-align: right;
-      }
-    }
-
-    /* the real input */
-    & .bp3-input-ghost {
-      order: -1;
-      border-radius: 3px;
-      border: 1px solid var(--gray);
-      padding-left: 0.75em;
-      padding-right: 0.75em;
-      min-width: 180px; /* match .bp3-menu min-width ¯\_(ツ)_/¯ */
-    }
-  }
-}
-
-/* muted text */
-.cms .bp3-text-muted {
-  @mixin description-color;
 }
