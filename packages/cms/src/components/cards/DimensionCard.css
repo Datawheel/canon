@@ -29,7 +29,7 @@
   grid-template-columns: 50% 1fr 1fr;
   grid-gap: 2rem;
   padding-top: 2rem;
-  width: 600px;
+  width: 700px;
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -38,7 +38,6 @@
   & .cms-button {
     height: 30px;
     /* positioning */
-    align-self: center;
-    top: 3px;
+    align-self: flex-end;
   }
 }
