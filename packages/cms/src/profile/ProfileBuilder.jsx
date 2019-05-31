@@ -320,6 +320,14 @@ class ProfileBuilder extends Component {
       const profiles = resp.data;
       this.setState({profiles}, this.buildNodes.bind(this));
     });
+
+    // wait for the new node to be created
+    setTimeout(() => {
+      const {nodes} = this.state;
+      const latestNode = nodes[nodes.length - 1];
+      // switch to the new node
+      this.handleNodeClick(latestNode);
+    }, 60);
   }
 
   /**
