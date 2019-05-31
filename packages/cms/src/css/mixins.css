@@ -125,6 +125,15 @@ theming
   }
 }
 
+/* light gray text */
+@define-mixin description-color {
+  color: var(--dark-2);
+
+  @mixin dark-mode {
+    color: var(--dark-1);
+  }
+}
+
 
 /* -----------------------------------
 layout

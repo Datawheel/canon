@@ -1,0 +1,28 @@
+@import "../css/mixins.css";
+
+.cms-status {
+  /* positioning */
+  display: block;
+  margin-top: -1em;
+  text-align: right;
+  /* theming */
+  @mixin description-color;
+
+  &.is-recompiling {
+    color: var(--alert-light);
+  }
+
+  /* adjust adjacent section positioning */
+  & + .cms-section {
+    margin-top: -2rem;
+  }
+}
+
+/* ✅ || ⋯ */
+.cms-status-icon {
+  /* sizing */
+  display: inline-block;
+  height: auto;
+  /* positioning */
+  margin-right: 0.25em;
+}

@@ -46,7 +46,8 @@
     pointer-events: none;
   }
 
-  /* TODO: move / redo this 💩 */
+  /* TODO: generalize icon-only style as mixin, move additional overrides to SimpleGeneratorEditor.css */
+  /* used by "generated variables" button in generator UI mode */
   &.cms-button-icon-only {
     width: 2.375em;
     min-width: none;

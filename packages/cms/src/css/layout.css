@@ -274,12 +274,6 @@
   padding: 2rem;
 }
 
-/* pin status to upper right */
-.cms-profile-picker > .cms-status {
-  display: block;
-  text-align: right;
-}
-
 .cms-editor-header {
   display: flex;
   justify-content: space-between;

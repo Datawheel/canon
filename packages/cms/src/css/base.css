@@ -71,7 +71,7 @@
 
 
 
-/* TODO: find a better home for these styles */
+/* TODO: move to Dialog wrapper component */
 .cms-dialog-footer-button {
   background-color: transparent;
   border: none;
@@ -106,89 +106,5 @@
 
   &:not(:last-of-type) {
     margin-right: 1.5em;
-  }
-}
-
-
-
-/* alerts */
-.cms-alert {
-  padding: 0.5em 1em;
-  margin-bottom: 0;
-  /* theming */
-  background-color: var(--alert);
-}
-
-.cms-alert-color {
-  color: var(--alert-light);
-}
-
-
-/* variables */
-.cms-variable {
-  &.number {
-    color: var(--type-number-dark);
-    @mixin dark-mode {
-      color: var(--type-number);
-    }
-  }
-  &.string {
-    color: var(--type-string-dark);
-    @mixin dark-mode {
-      color: var(--type-string);
-    }
-  }
-  &.undefined {
-    color: var(--dark-2);
-    @mixin dark-mode {
-      color: var(--gray);
-    }
-  }
-    &.error {
-    color: var(--type-error-dark);
-    @mixin dark-mode {
-      color: var(--type-error);
-    }
-  }
-}
-
-
-
-/* muted text */
-.cms-status.is-done,
-.bp3-text-muted {
-  color: var(--dark-2);
-
-  @mixin dark-mode {
-    color: var(--dark-1);
-  }
-}
-
-
-.cms-variable-editor-group {
-  display: flex;
-
-  /* make the editor visible when for visualizations */
-  &.single-column {
-    display: block;
-  }
-
-  & > * {
-    height: 50vh;
-    overflow: auto;
-  }
-
-  & .cms-variable-editor-json {
-    margin: 0 2.5rem 0 0;
-    width: 15.5rem;
-
-    & + * {
-      width: calc(100% - 15.5rem - 2.5rem);
-    }
-  }
-
-  /* get code editor height from parent */
-  & .editor {
-    height: 100% !important;
   }
 }

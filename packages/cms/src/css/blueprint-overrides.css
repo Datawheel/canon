@@ -174,3 +174,8 @@
     }
   }
 }
+
+/* muted text */
+.cms .bp3-text-muted {
+  @mixin description-color;
+}

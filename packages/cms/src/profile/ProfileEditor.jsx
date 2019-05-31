@@ -1,9 +1,9 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Icon} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import Loading from "components/Loading";
 import Section from "../components/Section";
+import Status from "../components/Status";
 
 import GeneratorCard from "../components/cards/GeneratorCard";
 import TextCard from "../components/cards/TextCard";
@@ -119,16 +119,11 @@ class ProfileEditor extends Component {
 
     return (
       <div className="cms-editor-inner">
-        {/* profile preview & variable status */}
-        <div className="cms-profile-picker">
-          {/* loading status */}
-          <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
-            <Icon iconName={ recompiling ? "more" : "tick"} />
-            { recompiling ? "Updating Variables" : "Variables Loaded" }
-          </div>
-          {/* search profiles */}
-          {children}
-        </div>
+        {/* loading status */}
+        <Status recompiling={recompiling} />
+
+        {/* search profiles */}
+        {children}
 
         {/* generators */}
         <Section

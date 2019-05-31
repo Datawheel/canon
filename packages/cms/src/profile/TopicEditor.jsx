@@ -1,10 +1,9 @@
 import axios from "axios";
 import React, {Component} from "react";
-import Loading from "components/Loading";
-import {Icon} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 
 import Section from "../components/Section";
+import Status from "../components/Status";
 import TextCard from "../components/cards/TextCard";
 import SelectorCard from "../components/cards/SelectorCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
@@ -149,14 +148,8 @@ class TopicEditor extends Component {
 
     return (
       <div className="cms-editor-inner">
-        {/* profile preview & variable status */}
-        <div className="cms-profile-picker">
-          {/* loading status */}
-          <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
-            <Icon iconName={ recompiling ? "more" : "tick"} />
-            { recompiling ? "Updating Variables" : "Variables Loaded" }
-          </div>
-        </div>
+        {/* loading status */}
+        <Status recompiling={recompiling} />
 
         {/* topic name */}
         {/* TODO: convert to fields */}
