@@ -14,11 +14,12 @@ export default class Section extends Component {
         {/* section title */}
         <h2 className="cms-section-heading" id={entity}>
           {title}
-          {cards && cards.length > 0 && addItem &&
-            <button className="cms-button cms-section-heading-button" onClick={addItem}>
+          {cards && cards.length > 0 && addItem || entity === "formatter"
+            ? <button className="cms-button cms-section-heading-button" onClick={addItem}>
               <span className="bp3-icon bp3-icon-plus" />
               <span className="u-visually-hidden">add {entity}</span>
             </button>
+            : null
           }
         </h2>
 
@@ -30,7 +31,7 @@ export default class Section extends Component {
         {/* cards */}
         <div className="cms-card-container">
           <div className="cms-card-list">
-            {cards || "missing `cards` prop in Section.jsx — array of card components expected"}
+            {cards || "missing `cards` prop in Section.jsx — card component or array of card components expected"}
           </div>
 
           {/* TODO: remove once all cards display both languages */}
@@ -41,8 +42,8 @@ export default class Section extends Component {
           }
         </div>
 
-        {cards && cards.length === 0 && addItem &&
-          <button className="cms-button is-block" onClick={addItem}>
+        {cards && cards.length === 0 && addItem && entity !== "formatter" &&
+          <button className="cms-button cms-section-big-button is-block" onClick={addItem}>
             add {entity}
           </button>
         }

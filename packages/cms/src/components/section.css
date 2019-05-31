@@ -1,10 +1,9 @@
 @import "../css/mixins.css";
 
-/* TODO: make into component with props */
-
 /* section headings */
 .cms-section-heading {
   margin-top: 2rem;
+  margin-bottom: 0;
 
   /* tighten up spaces between headings and card lists */
   & ~ .cms-card-container {
