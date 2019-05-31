@@ -1,7 +1,10 @@
+@import "../../css/mixins.css";
+
 .cms-dimension-card {
   min-width: 560px;
   max-width: 100%;
 }
+
 .cms-dimension-card-table {
   table-layout: fixed;
   border-collapse: collapse;
@@ -9,6 +12,7 @@
   /* space out controls */
   margin-bottom: auto;
 }
+
 .cms-dimension-card-table-cell {
   vertical-align: baseline;
 
@@ -17,6 +21,7 @@
     border-right: 5px solid transparent;
   }
 }
+
 .cms-dimension-card-table-list {
   /* reset blueprint */
   margin-top: 0;

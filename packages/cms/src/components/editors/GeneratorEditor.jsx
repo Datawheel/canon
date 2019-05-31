@@ -241,7 +241,7 @@ class GeneratorEditor extends Component {
     if (!data) return null;
 
     return (
-      <div id="generator-editor">
+      <div className="generator-editor">
         <Alert
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
@@ -274,7 +274,7 @@ class GeneratorEditor extends Component {
             <label className="label" htmlFor="api">API</label>
             <div className="cms-field-container-inline bp3-input-group">
               <input className="bp3-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
-              <button className="cms-button bp3-button" onClick={this.maybePreviewPayload.bind(this)}>
+              <button className="cms-button" onClick={this.maybePreviewPayload.bind(this)}>
                 {payload && !payload.error ? "Refetch data" : "Fetch data"}
               </button>
             </div>
@@ -320,7 +320,7 @@ class GeneratorEditor extends Component {
                 ? <SimpleGeneratorEditor
                   key="simp-gen"
                   payload={payload}
-                  simpleConfig={data.logic_simple} 
+                  simpleConfig={data.logic_simple}
                   onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null

@@ -1,4 +1,1 @@
-.visualization-card {
-  overflow: hidden;
-  padding: 0;
-}
+@import "../../css/mixins.css";

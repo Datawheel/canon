@@ -7,12 +7,27 @@
   }
 }
 
+.cms-splash-section .cms-card {
+  text-align: center;
+}
+
+.cms-status {
+  margin-top: -1em;
+
+  & .bp3-icon-standard {
+    display: inline-block;
+    height: 0.75em;
+    margin-right: 0.25em;
+  }
+}
+
 .cms-label {
   top: -0.25rem;
 }
 
 /* tables */
 .cms-table {
+  width: 100%;
   border-collapse: collapse;
 
   /* fake margin, because tables */

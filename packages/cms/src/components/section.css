@@ -10,6 +10,8 @@
     margin-top: -0.25rem;
   }
 }
+
+/* add button */
 .cms-section-heading-button {
   font-size: 0.5em;
   vertical-align: top;
@@ -20,9 +22,11 @@
   margin-left: 0.5em;
 }
 
-/* TODO: replace bp3-text-muted */
-/* See base.css */
+/* descriptions */
 .cms-section-description {
+  top: 0.5em; /* adjust spacing */
+  /* theming */
+  /* TODO: replace bp3-text-muted (base.css) */
   color: var(--dark-2);
 
   @mixin dark-mode {

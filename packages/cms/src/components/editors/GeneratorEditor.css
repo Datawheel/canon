@@ -1,15 +1,21 @@
-#generator-editor {
+@import "../../css/mixins.css";
+
+.generator-editor {
   align-self: stretch;
   display: flex;
   flex-direction: column;
   width: 100%;
+
   & .bp3-label.bp3-inline {
     display: flex;
+
     & .label-text {
       display: inline-block;
       width: 100px;
     }
-    & .bp3-select, & .bp3-input {
+
+    & .bp3-select,
+    & .bp3-input {
       flex: 1;
     }
   }
@@ -17,10 +23,9 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    & .bp3-label {
-      & p:last-child {
-        margin-bottom: 0;
-      }
+
+    & .bp3-label p:last-child {
+      margin-bottom: 0;
     }
     & .editor {
       flex: 1;

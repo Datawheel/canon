@@ -1,5 +1,7 @@
 @import "../../css/mixins.css";
 
+/* TODO: genericize Card as a wrapper component */
+
 /* locale layout */
 .cms-card-container {
   display: flex;
@@ -105,11 +107,9 @@
     min-width: 7.5em;
   }
 
-  /* space out paragraph */
-  /* TODO: write better markup and replace */
-  & + p,
-  & ~ .visualization {
-    margin-top: 1rem;
+  /* space out following elements */
+  & ~ * {
+    margin-top: 0.5rem;
   }
 }
 

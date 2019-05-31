@@ -128,11 +128,11 @@ class SelectorCard extends Component {
               </button>
             </h3>
 
-            <p>{minData.name}</p>
+            <p>{minData.name === "newselector" ? "New selector" : minData.name}</p>
 
             <ul>
               {minData.options && minData.options.map(o =>
-                <li key={o.option} className={minData.default === o.option ? "is-default" : ""}>{o.option}</li>
+                <li key={o.option}>{o.option}</li>
               )}
             </ul>
 
