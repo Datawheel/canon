@@ -134,7 +134,7 @@ class VisualizationCard extends Component {
                 config.logic_simple.type}${
                 config.logic_simple.type && config.logic_simple.data && ": "}${
                 config.logic_simple.data}`
-              : config.simple
+              : config.simple || config.logic && config.logic === "return {}"
                 ? "No configuration defined"
                 : config.logic.replace("return ", "")
             }
