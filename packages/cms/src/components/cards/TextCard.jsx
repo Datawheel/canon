@@ -161,6 +161,17 @@ class TextCard extends Component {
     this.setState({minData, isOpen, alertObj, isDirty});
   }
 
+  upperCaseFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  prettifyType(type) {
+    return this.upperCaseFirst(type
+      .replace("story_", "")
+      .replace("topic_", "")
+    );
+  }
+
   render() {
     const {displayData, minData, isOpen, alertObj} = this.state;
     const {variables, fields, plainfields, type, parentArray, item, locale} = this.props;
@@ -215,7 +226,7 @@ class TextCard extends Component {
         <Dialog
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Text Editor"
+          title={type ? `${this.prettifyType(type)} editor` : "Text editor"}
           usePortal={false}
         >
           <div className="bp3-dialog-body">
