@@ -1,7 +1,5 @@
 @import "../css/mixins.css";
 
-/* TODO: make into component with props */
-
 /* buttons */
 .cms-button {
   display: inline-block;
@@ -70,11 +68,12 @@
   /* ghost button theming */
   &.cms-ghost-button {
     background-color: color(var(--white) a(0.333));
-    border: 1px solid var(--accent-dark);
+    border-color: var(--accent-dark);
     color: var(--accent-dark);
 
     @mixin dark-mode {
       background-color: color(var(--black) a(0.333));
+      border-color: var(--accent);
       color: var(--accent-light);
     }
   }
@@ -93,6 +92,11 @@
 
     & > .cms-button-icon {
       transform: scale(1.125);
+
+      /* gears keep on turning */
+      &[class*="cog"] {
+         transform: scale(1.125) rotate(-30deg);
+      }
     }
   }
 
