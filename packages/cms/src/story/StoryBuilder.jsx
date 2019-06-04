@@ -295,14 +295,15 @@ class StoryBuilder extends Component {
       });
     });
 
-    // wait for the new node to be created
-    setTimeout(() => {
-      // get the last node
-      const {nodes} = this.state;
-      const latestNode = nodes[nodes.length - 1];
-      // switch to the new node
-      this.handleNodeClick(latestNode);
-    }, 70);
+    // NOTE: ordering seems reversed compared to profiles, commenting this out for now
+    // // wait for the new node to be created
+    // setTimeout(() => {
+    //   // get the last node
+    //   const {nodes} = this.state;
+    //   const latestNode = nodes[nodes.length - 1];
+    //   // switch to the new node
+    //   this.handleNodeClick(latestNode);
+    // }, 70);
   }
 
   handleNodeCollapse(node) {
