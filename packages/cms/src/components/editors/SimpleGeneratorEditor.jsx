@@ -170,11 +170,11 @@ export default class SimpleGeneratorEditor extends Component {
             <Checkbox checked={objArr.every(r => r.use)} onChange={this.changeAll.bind(this, i)}/>
           </td>
       </tr>*/}
-      <table className="cms-table">
+      <table className="cms-generator-table">
         {objects.map((objArr, i) =>
-          <tbody className="cms-table-group" key={objArr.i}>
+          <tbody key={objArr.i}>
             {objArr.map(row =>
-              <tr key={row.pKey} className="cms-field-row">
+              <tr key={row.pKey}>
                 <td>
                   <Checkbox checked={row.use} onChange={this.changeUse.bind(this, i, row.pKey)}/>
                 </td>

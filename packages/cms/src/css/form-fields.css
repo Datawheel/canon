@@ -1,7 +1,6 @@
 @import "./mixins.css";
 
 .cms {
-
   /* these aren't links */
   & select, & button {
     cursor: default;
@@ -36,6 +35,12 @@
       display: block;
       width: 100%; /* shouldn't be necessary, but it is */
     }
+
+    /* reset above */
+    & > .bp3-switch {
+      display: inline-block;
+      width: auto;
+    }
   }
 
   /* expects a label and an input */
@@ -52,9 +57,8 @@
     & input {
       flex: 1 0 auto;
 
-      & + button {
+      & + .cms-button {
         min-width: 8rem;
-        margin-left: 0.5em;
       }
     }
   }

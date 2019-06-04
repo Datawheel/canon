@@ -11,7 +11,6 @@ import "./css/base.css";
 import "./css/blueprint-overrides.css";
 import "./css/form-fields.css";
 import "./css/layout.css";
-import "./css/shame.css";
 
 class Builder extends Component {
 

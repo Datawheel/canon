@@ -180,3 +180,8 @@
     font-size: 24px;
   }
 }
+
+/* splash card */
+.cms-splash-card {
+  text-align: center;
+}
