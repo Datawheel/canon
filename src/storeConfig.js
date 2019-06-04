@@ -21,8 +21,11 @@ import loadingProgress from "./reducers/loadingProgress";
 */
 export default function storeConfig(initialState, history, initialMiddleware) {
 
+  // console.log("initialMiddleware", initialMiddleware);
+
   // Installs hooks that always keep react-router and redux store in sync
   const middleware = [thunk, promiseMiddleware, routerMiddleware(history)].concat(initialMiddleware);
+  // console.log("middleware", middleware);
   let store;
 
   const canonReducer = combineReducers(Object.assign({

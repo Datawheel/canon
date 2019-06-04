@@ -14,7 +14,6 @@ import pretty from "pretty";
 import CanonProvider from "./CanonProvider";
 
 import serialize from "serialize-javascript";
-import middleware from "../bin/scaffold/app/middleware";
 
 const tagManagerHead = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
   : `
@@ -177,6 +176,7 @@ export default function(defaultStore = {}, headerConfig, defaultMiddleware = [])
       window.__APP_NAME__ = "${ req.i18n.options.defaultNS }";
       window.__HELMET_DEFAULT__ = ${ serialize(headerConfig, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
       window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
+      window.__MIDDLEWARE_STATE__ = ${ serialize(defaultMiddleware, {isJSON: false, space: 2}).replace(/\n/g, "\n      ") };
     </script>
     ${analtyicsScript}
     <script type="text/javascript" charset="utf-8" src="${ process.env.CANON_BASE_URL ? "" : "/" }assets/app.js"></script>

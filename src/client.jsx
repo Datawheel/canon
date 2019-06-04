@@ -17,7 +17,7 @@ import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
 const {basename} = window.__INITIAL_STATE__.location;
 const browserHistory = useRouterHistory(createHistory)({basename});
-const store = configureStore(window.__INITIAL_STATE__, browserHistory);
+const store = configureStore(window.__INITIAL_STATE__, browserHistory, window.__MIDDLEWARE_STATE__);
 const history = syncHistoryWithStore(browserHistory, store);
 const routes = createRoutes(store);
 
