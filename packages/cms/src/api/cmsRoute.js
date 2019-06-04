@@ -218,7 +218,7 @@ const formatter = (members, data, dimension, level) => {
     const obj = {};
     obj.id = `${d.key}`;
     obj.name = d.name;
-    obj.display = d.caption;
+    obj.display = d.caption || d.name;
     obj.zvalue = data[obj.id] || 0;
     obj.dimension = dimension;
     obj.hierarchy = level;
@@ -274,7 +274,7 @@ const populateSearch = async(profileData, db) => {
         .addMeasure(measure), "jsonrecords")
         .then(resp => resp.data)
         .then(data => data.reduce((obj, d) => {
-          obj[d[`ID ${level.name}`]] = d[measure];
+          obj[d[`${level.name} ID`]] = d[measure];
           return obj;
         }, {})).catch(catcher);
     }
@@ -288,8 +288,6 @@ const populateSearch = async(profileData, db) => {
           return obj;
         }, {})).catch(catcher);
     }
-
-    
 
     fullList = fullList.concat(formatter(members, data, dimension, level.name));
 
