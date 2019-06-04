@@ -2,6 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
+import Button from "../components/Button";
 import Section from "../components/Section";
 import Status from "../components/Status";
 import TextCard from "../components/cards/TextCard";
@@ -193,7 +194,7 @@ class TopicEditor extends Component {
             Topic slug
             <div className="bp3-input-group">
               <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-              <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
+              <Button onClick={this.save.bind(this)}>Rename</Button>
             </div>
           </label>
           {/* visibility select */}

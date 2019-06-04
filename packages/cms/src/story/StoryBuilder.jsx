@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import {NonIdealState, Tree, Alert, Intent} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import CtxMenu from "../components/CtxMenu";
+import Button from "../components/Button";
 import StoryEditor from "./StoryEditor";
 import StoryTopicEditor from "./StoryTopicEditor";
 
@@ -293,6 +294,15 @@ class StoryBuilder extends Component {
         }
       });
     });
+
+    // wait for the new node to be created
+    setTimeout(() => {
+      // get the last node
+      const {nodes} = this.state;
+      const latestNode = nodes[nodes.length - 1];
+      // switch to the new node
+      this.handleNodeClick(latestNode);
+    }, 70);
   }
 
   handleNodeCollapse(node) {
@@ -366,10 +376,9 @@ class StoryBuilder extends Component {
         <div className="cms-sidebar" id="tree">
 
           {/* new entity */}
-          {/* TODO: make this act like add profile button */}
-          <button className="cms-button" onClick={this.addFirst.bind(this)}>
-            Add story <span className="bp3-icon bp3-icon-plus" />
-          </button>
+          <Button onClick={this.addFirst.bind(this)} icon="plus" iconPosition="right" ghost>
+            Add story
+          </Button>
 
           <Tree
             onNodeClick={this.handleNodeClick.bind(this)}

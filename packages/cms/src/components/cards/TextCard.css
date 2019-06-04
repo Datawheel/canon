@@ -90,10 +90,17 @@
 .cms-card-header {
   display: flex;
   align-items: baseline;
-  font-size: 1rem;
-  line-height: 1.125;
-  margin-top: -0.5em;
-  margin-bottom: -0.5em;
+  margin-top: -0.875em;
+  margin-bottom: 0;
+
+  /* TODO: add font-sm utility class to card headers */
+  &.cms-card-header { /* specifity increased needed */
+    @mixin font-sm;
+
+    & ~ p {
+      @mixin font-xs;
+    }
+  }
 
   /* space out icon */
   & .cms-card-header-icon {
@@ -102,14 +109,10 @@
 
   /* size and position button */
   & .cms-button {
-    font-size: 0.75em;
+    @mixin font-xs;
     margin-left: auto;
-    min-width: 7.5em;
-  }
-
-  /* space out following elements */
-  & ~ * {
-    margin-top: 0.5rem;
+    margin-right: -1em;
+    padding: 0.5em 1em;
   }
 }
 
@@ -122,7 +125,7 @@
 /* truncate long card titles */
 .cms-card-header-text {
   @mixin overflow-ellipsis;
-  max-width: calc(100% - 6.5rem);
+  max-width: calc(100% - 3.5rem);
 }
 
 .cms-card-header,

@@ -2,6 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
+import Button from "../Button";
 
 import "./SimpleVisualizationEditor.css";
 
@@ -172,9 +173,9 @@ export default class SimpleVisualizationEditor extends Component {
         <div className="cms-field-container-inline bp3-input-group">
           <input key="data-url" className="bp3-input" value={object.data || ""} onChange={this.onChange.bind(this, "data")} id="data"/>
           {object.data &&
-            <button key="button-build" className="cms-button bp3-button" onClick={this.maybeRebuild.bind(this)}>
+            <Button key="button-build" onClick={this.maybeRebuild.bind(this)}>
               {payload.data ? "Rebuild" : "Build"}
-            </button>
+            </Button>
           }
         </div>
       </div>

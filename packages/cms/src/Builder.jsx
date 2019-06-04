@@ -13,9 +13,6 @@ import "./css/form-fields.css";
 import "./css/layout.css";
 import "./css/shame.css";
 
-// TODO: convert to components
-import "./components/Button.css";
-
 class Builder extends Component {
 
   constructor(props) {

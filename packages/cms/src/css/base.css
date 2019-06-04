@@ -29,6 +29,34 @@
   }
 }
 
+/* TYPOGRAPHY */
+.cms {
+  & h1,
+  & .font-xl {
+    @mixin font-xl;
+  }
+  & h2,
+  & .font-lg {
+    @mixin font-lg;
+  }
+  & h3,
+  & .font-md {
+    @mixin font-md;
+  }
+  & h4, & p, & li, & label, & input,
+  & .font-sm {
+    @mixin font-sm;
+  }
+  & h5,
+  & .font-xs {
+    @mixin font-xs;
+  }
+  & h6,
+  & .font-xxs {
+    @mixin font-xxs;
+  }
+}
+
 
 /* THEMING */
 .cms {

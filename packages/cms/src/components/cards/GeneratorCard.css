@@ -3,11 +3,7 @@
 /* show variables side by side with language labels */
 .cms-card.is-wide {
   min-width: 400px; /* need more space */
-
-  & .cms-card-header {
-    margin: 0;
-  }
-
+  
   & .cms-card-locale-group {
     display: flex;
     justify-content: space-between;

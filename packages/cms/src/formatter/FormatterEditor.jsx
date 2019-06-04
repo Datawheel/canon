@@ -1,9 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Button, NonIdealState} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import Section from "../components/Section";
-import Loading from "components/Loading";
 
 import GeneratorCard from "../components/cards/GeneratorCard";
 

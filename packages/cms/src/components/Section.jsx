@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import Button from "./Button";
 import "./Section.css";
 
 export default class Section extends Component {
@@ -13,12 +14,10 @@ export default class Section extends Component {
 
         {/* section title */}
         <h2 className="cms-section-heading" id={entity}>
-          {title}
-          {cards && cards.length > 0 && addItem || entity === "formatter"
-            ? <button className="cms-button cms-section-heading-button" onClick={addItem}>
-              <span className="bp3-icon bp3-icon-plus" />
-              <span className="u-visually-hidden">add {entity}</span>
-            </button>
+          {title} {cards && cards.length > 0 && addItem || entity === "formatter"
+            ? <Button onClick={addItem} className="cms-section-heading-button" icon="plus" iconOnly ghost>
+              Add {entity}
+            </Button>
             : null
           }
         </h2>
@@ -30,22 +29,32 @@ export default class Section extends Component {
 
         {/* cards */}
         <div className="cms-card-container">
-          <div className="cms-card-list">
-            {cards || "missing `cards` prop in Section.jsx — card component or array of card components expected"}
-          </div>
+          {cards && (cards.length || entity === "splash")
+            ? <div className="cms-card-list">
+              {cards || "missing `cards` prop in Section.jsx — card component or array of card components expected"}
+            </div>
+            : null
+          }
 
           {/* TODO: remove once all cards display both languages */}
-          {secondaryCards &&
-            <div className="cms-card-list">
+          {secondaryCards && (secondaryCards.length || entity === "splash")
+            ? <div className="cms-card-list">
               {secondaryCards}
             </div>
+            : null
           }
         </div>
 
         {cards && cards.length === 0 && addItem && entity !== "formatter" &&
-          <button className="cms-button cms-section-big-button is-block" onClick={addItem}>
-            add {entity}
-          </button>
+          <Button
+            className="cms-section-big-button"
+            onClick={addItem}
+            icon="plus"
+            iconPosition="right"
+            ghost
+          >
+            Add {entity}
+          </Button>
         }
       </section>
     );

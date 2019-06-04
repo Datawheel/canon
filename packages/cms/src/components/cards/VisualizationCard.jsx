@@ -6,6 +6,7 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import Viz from "../Viz";
+import Button from "../Button";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
 import deepClone from "../../utils/deepClone";
@@ -127,7 +128,7 @@ class VisualizationCard extends Component {
     return (
       <div className="cms-card" style={{minHeight: `calc(${height}px + 2.25rem)`}}>
         {/* title & edit toggle button */}
-        <h5 className="cms-card-header">
+        <h3 className="cms-card-header">
           <span className="cms-card-header-text">
             {config && config.logic_simple && config.logic_simple.data
               ? `${
@@ -139,10 +140,10 @@ class VisualizationCard extends Component {
                 : config.logic.replace("return ", "")
             }
           </span>
-          <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="bp3-icon bp3-icon-cog" />
-          </button>
-        </h5>
+          <Button onClick={this.openEditor.bind(this)} icon="cog" naked>
+            Edit
+          </Button>
+        </h3>
 
         {/* reorder buttons */}
         { parentArray &&

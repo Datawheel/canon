@@ -7,6 +7,7 @@ import TopicEditor from "./TopicEditor";
 import PropTypes from "prop-types";
 import DimensionBuilder from "../profile/DimensionBuilder";
 import CtxMenu from "../components/CtxMenu";
+import Button from "../components/Button";
 
 import varSwap from "../utils/varSwap";
 
@@ -323,11 +324,12 @@ class ProfileBuilder extends Component {
 
     // wait for the new node to be created
     setTimeout(() => {
+      // get the last node
       const {nodes} = this.state;
       const latestNode = nodes[nodes.length - 1];
       // switch to the new node
       this.handleNodeClick(latestNode);
-    }, 60);
+    }, 70);
   }
 
   /**
@@ -503,10 +505,9 @@ class ProfileBuilder extends Component {
         <div className="cms-sidebar" id="tree">
 
           {/* new entity */}
-          <button className="cms-button"
-            onClick={this.createProfile.bind(this)}>
-              Add profile <span className="bp3-icon bp3-icon-plus" />
-          </button>
+          <Button onClick={this.createProfile.bind(this)} icon="plus" iconPosition="right" ghost>
+            Add profile
+          </Button>
 
           <Tree
             onNodeClick={this.handleNodeClick.bind(this)}

@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {EditableText, Checkbox, Alert, Intent} from "@blueprintjs/core";
+import Button from "../Button";
 
 import "./SimpleGeneratorEditor.css";
 
@@ -142,7 +143,7 @@ export default class SimpleGeneratorEditor extends Component {
 
     const {objects, rebuildAlertOpen} = this.state;
 
-    return <div className="simplemode">
+    return <div className="simple-generator-editor">
       <Alert
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"
@@ -156,9 +157,9 @@ export default class SimpleGeneratorEditor extends Component {
         Are you sure you want to rebuild your variables from the current payload?
       </Alert>
       <div className="cms-label">
-        Generated variables <button className="cms-button cms-button-icon-only" onClick={this.maybeRebuild.bind(this)}>
-          <span className="bp3-icon bp3-icon-undo" />
-        </button>
+        Generated variables <Button className="font-xxs" onClick={this.maybeRebuild.bind(this)} icon="undo" iconOnly>
+          Rebuild variables
+        </Button>
       </div>
 
       {/* <tr key={i} className="obj">

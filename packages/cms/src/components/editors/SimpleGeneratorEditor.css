@@ -1,1 +1,6 @@
 @import "../../css/mixins.css";
+
+.simple-generator-editor {
+  padding-top: 0.5em;
+  margin-top: -0.5em;
+}

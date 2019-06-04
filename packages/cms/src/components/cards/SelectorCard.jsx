@@ -4,6 +4,7 @@ import {Dialog, Alert, Intent} from "@blueprintjs/core";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
+import Button from "../Button";
 import SelectorEditor from "../editors/SelectorEditor";
 import PropTypes from "prop-types";
 import deepClone from "../../utils/deepClone";
@@ -123,9 +124,10 @@ class SelectorCard extends Component {
           : <React.Fragment>
             <h3 className="cms-card-header">
               {varSwap(minData.title, formatters, variables)}
-              <button className="cms-button" onClick={this.openEditor.bind(this)}>
-                Edit <span className="bp3-icon bp3-icon-cog" />
-              </button>
+
+              <Button onClick={this.openEditor.bind(this)} icon="cog" naked>
+                Edit
+              </Button>
             </h3>
 
             <p>{minData.name === "newselector" ? "New selector" : minData.name}</p>

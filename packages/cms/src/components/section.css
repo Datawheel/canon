@@ -15,11 +15,22 @@
 .cms-section-heading-button {
   font-size: 0.5em;
   vertical-align: top;
-  padding: 0 !important; /* override default button styles */
-  width: 1.9em;
-  height: 1.9em;
-  line-height: 1.9;
-  margin-left: 0.5em;
+  /* override default interactions */
+  transition-property: color, background-color, border-color, transform;
+
+  &:hover, &:focus {
+    transform: scale(1.125);
+
+    & .cms-button-icon {
+      transform: none;
+    }
+  }
+}
+
+/* other add button */
+.cms-section-big-button {
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
 /* descriptions */

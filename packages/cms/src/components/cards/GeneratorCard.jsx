@@ -4,9 +4,10 @@ import {Dialog, Alert, Intent} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
+import Button from "../Button";
 import MoveButtons from "../MoveButtons";
 import deepClone from "../../utils/deepClone";
-import Flag from "./Flag";
+import LocaleName from "./LocaleName";
 import VarTable from "../VarTable";
 import "./GeneratorCard.css";
 
@@ -156,9 +157,9 @@ class GeneratorCard extends Component {
             <h3 className="cms-card-header">
               {minData.name}
 
-              <button className="cms-button" onClick={this.openEditor.bind(this)}>
-                Edit <span className="bp3-icon bp3-icon-cog" />
-              </button>
+              <Button onClick={this.openEditor.bind(this)} icon="cog" naked>
+                Edit
+              </Button>
             </h3>
 
             {showDesc &&
@@ -171,7 +172,7 @@ class GeneratorCard extends Component {
                 <div className="cms-card-locale-container">
                   {secondaryLocale &&
                     <h4 className="cms-card-locale">
-                      <Flag>{locale}</Flag>
+                      <LocaleName>{locale}</LocaleName>
                     </h4>
                   }
                   <VarTable dataset={displayData} />
@@ -180,7 +181,7 @@ class GeneratorCard extends Component {
                 {secondaryLocale &&
                   <div className="cms-card-locale-container">
                     <h4 className="cms-card-locale">
-                      <Flag>{secondaryLocale}</Flag>
+                      <LocaleName>{secondaryLocale}</LocaleName>
                     </h4>
                     <VarTable dataset={secondaryDisplayData} />
                   </div>

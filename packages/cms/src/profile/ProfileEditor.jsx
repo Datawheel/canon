@@ -125,6 +125,34 @@ class ProfileEditor extends Component {
         {/* search profiles */}
         {children}
 
+        {/* profile meta */}
+        {/* TODO: move to header */}
+        <Section
+          title="Profile meta"
+          entity="splash"
+          wrapperClassName="cms-splash-wrapper"
+          cards={
+            <TextCard
+              locale={localeDefault}
+              localeDefault={localeDefault}
+              item={minData}
+              fields={["title", "subtitle"]}
+              type="profile"
+              variables={variables[localeDefault]}
+            />
+          }
+          secondaryCards={locale &&
+            <TextCard
+              locale={locale}
+              localeDefault={localeDefault}
+              item={minData}
+              fields={["title", "subtitle"]}
+              type="profile"
+              variables={variables[locale]}
+            />
+          }
+        />
+
         {/* generators */}
         <Section
           title="Generators"
@@ -170,33 +198,6 @@ class ProfileEditor extends Component {
               parentArray={minData.materializers}
               onMove={this.onMove.bind(this)}
             />)}
-        />
-
-        {/* profile meta */}
-        <Section
-          title="Profile meta"
-          entity="splash"
-          wrapperClassName="cms-splash-wrapper"
-          cards={
-            <TextCard
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              item={minData}
-              fields={["title", "subtitle"]}
-              type="profile"
-              variables={variables[localeDefault]}
-            />
-          }
-          secondaryCards={locale &&
-            <TextCard
-              locale={locale}
-              localeDefault={localeDefault}
-              item={minData}
-              fields={["title", "subtitle"]}
-              type="profile"
-              variables={variables[locale]}
-            />
-          }
         />
       </div>
     );

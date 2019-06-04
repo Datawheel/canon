@@ -2,8 +2,7 @@ import React, {Component} from "react";
 import DimensionCard from "../components/cards/DimensionCard";
 import DimensionCreator from "../components/DimensionCreator";
 import Section from "../components/Section";
-import FooterButtons from "../components/FooterButtons";
-import {Button, Dialog} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 
 import "./DimensionBuilder.css";
 

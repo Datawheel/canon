@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
+import Button from "../components/Button";
 import Section from "../components/Section";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
@@ -113,7 +114,7 @@ class StoryEditor extends Component {
             Story slug
             <div className="bp3-input-group">
               <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
-              <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
+              <Button onClick={this.save.bind(this)}>Rename</Button>
             </div>
           </label>
 

@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Search from "../Search/Search.jsx";
+import Button from "../../components/Button";
 import "./DimensionCard.css";
 
 export default class DimensionCard extends Component {
@@ -41,7 +42,7 @@ export default class DimensionCard extends Component {
 
     return (
       <div className="cms-card cms-dimension-card">
-        <table className="cms-dimension-card-table">
+        <table className="cms-dimension-card-table font-xs">
           <tbody>
             <tr className="cms-dimension-card-table-row">
               <th className="cms-dimension-card-table-cell">slug</th>
@@ -60,7 +61,7 @@ export default class DimensionCard extends Component {
                   ? meta.levels
                   : <ul className="cms-dimension-card-table-list">
                     {meta.levels.map(level =>
-                      <li className="cms-dimension-card-table-item" key={level}>{level}</li>
+                      <li className="cms-dimension-card-table-item font-xs" key={level}>{level}</li>
                     )}
                   </ul>
                 }
@@ -80,9 +81,9 @@ export default class DimensionCard extends Component {
               limit={20}
             />
           </div>
-          <button className="cms-button" disabled={rebuilding} onClick={this.rebuildSearch.bind(this)}>
+          <Button disabled={rebuilding} onClick={this.rebuildSearch.bind(this)} ghost>
             {rebuilding ? "Rebuilding..." : "Rebuild"}
-          </button>
+          </Button>
         </div>
       </div>
     );

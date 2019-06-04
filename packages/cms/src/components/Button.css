@@ -4,81 +4,117 @@
 
 /* buttons */
 .cms-button {
+  display: inline-block;
   padding: 0.5em 2em;
-  border-radius: 10em;
-  border: none !important;
   /* transitions */
   transition:
     color 0.2s ease-out,
     background-color 0.2s ease-out,
     border-color 0.2s ease-out;
   /* theming */
+  border-radius: 10em;
   background-color: var(--accent-dark);
-  border-color: var(--accent-dark);
+  border: 1px solid var(--accent-dark);
   color: var(--white);
+
+  /* align icons & text */
+  & > * {
+    display: inline-block;
+
+    &:not(:last-child) {
+      margin-right: 0.25em;
+    }
+  }
+
+  /* hidden text */
+  &.cms-icon-only-button {
+    padding: 0;
+    width: 2em;
+    height: 2em;
+
+    /* override default margin */
+    & > * {
+      margin-right: 0;
+    }
+  }
+
+  /* icon positioning */
+  & > .cms-button-icon {
+    top: -1px;
+    transition: transform 0.1s ease-out;
+
+    /* icon sized by button font-size */
+    &, & > svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  /* cover the whole container width */
+  &.is-block {
+    display: block;
+    width: 100%;
+  }
+
+  /* naked button theming */
+  &.cms-naked-button {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--accent-dark);
+
+    @mixin dark-mode {
+      color: var(--accent-light);
+    }
+  }
+
+  /* ghost button theming */
+  &.cms-ghost-button {
+    background-color: color(var(--white) a(0.333));
+    border: 1px solid var(--accent-dark);
+    color: var(--accent-dark);
+
+    @mixin dark-mode {
+      background-color: color(var(--black) a(0.333));
+      color: var(--accent-light);
+    }
+  }
 
   /* interactions */
   &:hover, &:focus {
     background-color: var(--accent-black);
     border-color: var(--accent-black);
-  }
+    color: var(--white);
 
+    @mixin dark-mode {
+      background-color: var(--accent-black);
+      border-color: var(--accent-black);
+      color: var(--white);
+    }
 
-  /* override blueprint when both classes are in place */
-  &.bp3-button {
-    box-shadow: none;
-    background-image: none;
-    &:hover {
-      box-shadow: none;
+    & > .cms-button-icon {
+      transform: scale(1.125);
     }
   }
 
-  & .bp3-icon {
-    top: -1px;
-  }
-
-  /* disabled state */
-  &.is-disabled,
+  /* disabled state overrides all styles */
   &[disabled] {
-    text-align: center;
     background-color: var(--gray) !important;
+    border-color: var(--gray) !important;
+    color: var(--white) !important;
     cursor: not-allowed;
     pointer-events: none;
   }
-
-  /* TODO: generalize icon-only style as mixin, move additional overrides to SimpleGeneratorEditor.css */
-  /* used by "generated variables" button in generator UI mode */
-  &.cms-button-icon-only {
-    width: 2.375em;
-    min-width: none;
-    padding-left: 0;
-    padding-right: 0;
-    transform: scale(0.75);
-  }
-
-  &.is-block {
-    display: block;
-    width: 100%;
-  }
 }
 
-/* naked / ghost button theming */
-.cms-button-naked {
-  background-color: transparent;
-  border: none;
-  color: var(--accent-dark);
 
-  /* interactions */
-  &:hover, &:focus {
-    color: var(--accent-black);
-  }
-
-  @mixin dark-mode {
-    color: var(--accent-light);
-
-    /* interactions */
-    &:hover, &:focus {
-      color: var(--accent);
-    }
-  }
-}
+/* depreciation warning */
+/* .cms .bp3-button:after {
+  content: "please use the non-Blueprint <Button> component";
+  display: block;
+  position: absolute;
+  width: max-content;
+  z-index: 1;
+  background: var(--alert);
+  color: var(--white);
+  padding: 1em;
+} */

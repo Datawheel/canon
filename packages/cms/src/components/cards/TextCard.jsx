@@ -3,13 +3,14 @@ import React, {Component} from "react";
 import {Dialog, Alert, Intent} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
+import Button from "../Button";
 import FooterButtons from "../FooterButtons";
 import MoveButtons from "../MoveButtons";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
 import PropTypes from "prop-types";
-import Flag from "./Flag";
+import LocaleName from "./LocaleName";
 import "./TextCard.css";
 
 class TextCard extends Component {
@@ -202,12 +203,12 @@ class TextCard extends Component {
         </Alert>
 
         {/* title & edit toggle button */}
-        <h5 className="cms-card-header">
-          <Flag locale={locale} />
-          <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="bp3-icon bp3-icon-cog" />
-          </button>
-        </h5>
+        <h3 className="cms-card-header">
+          <LocaleName locale={locale} />
+          <Button onClick={this.openEditor.bind(this)} icon="cog" naked>
+            Edit
+          </Button>
+        </h3>
 
         { displays.map((k, i) =>
           <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}} />

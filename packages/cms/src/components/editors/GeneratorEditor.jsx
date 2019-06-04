@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import AceWrapper from "./AceWrapper";
 import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
+import Button from "../Button";
 import {Switch, Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
 
@@ -274,9 +275,9 @@ class GeneratorEditor extends Component {
             <label className="label" htmlFor="api">API</label>
             <div className="cms-field-container-inline bp3-input-group">
               <input className="bp3-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
-              <button className="cms-button" onClick={this.maybePreviewPayload.bind(this)}>
+              <Button onClick={this.maybePreviewPayload.bind(this)} icon={payload && !payload.error ? "refresh" : "download"}>
                 {payload && !payload.error ? "Refetch data" : "Fetch data"}
-              </button>
+              </Button>
             </div>
           </div>
         }
