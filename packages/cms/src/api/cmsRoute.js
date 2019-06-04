@@ -11,22 +11,24 @@ const Op = sequelize.Op;
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
-const {CANON_LOGICLAYER_CUBE} = process.env;
+const {CANON_CMS_CUBES} = process.env;
 
-let client = new TesseractClient(CANON_LOGICLAYER_CUBE);
+let isTesseract = false;
+let client = new TesseractClient(CANON_CMS_CUBES);
 client.checkStatus().then(resp => {
   if (resp && resp.status === "ok") {
-    if (verbose) console.log(`Initializing Tesseract at ${CANON_LOGICLAYER_CUBE}`);
+    isTesseract = true;
+    if (verbose) console.log(`Initializing Tesseract at ${CANON_CMS_CUBES}`);
   }
   else {
-    if (verbose) console.log(`Initializing Mondrian at ${CANON_LOGICLAYER_CUBE}`);
-    client = new MondrianClient(CANON_LOGICLAYER_CUBE);  
+    if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
+    client = new MondrianClient(CANON_CMS_CUBES);  
   }
 }, e => {
   // On tesseract status failure, assume mondrian.
   if (verbose) console.error(`Tesseract Failed to connect with error: ${e}`);
-  if (verbose) console.log(`Initializing Mondrian at ${CANON_LOGICLAYER_CUBE}`);
-  client = new MondrianClient(CANON_LOGICLAYER_CUBE);  
+  if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
+  client = new MondrianClient(CANON_CMS_CUBES);  
 }
 );
 
@@ -264,14 +266,30 @@ const populateSearch = async(profileData, db) => {
     const level = levels[i];
     const members = await client.members(level).catch(catcher);
 
-    const data = await client.query(cube.query
-      .drilldown(dimension, level.hierarchy.name, level.name)
-      .measure(measure), "jsonrecords")
-      .then(resp => resp.data.data)
-      .then(data => data.reduce((obj, d) => {
-        obj[d[`ID ${level.name}`]] = d[measure];
-        return obj;
-      }, {})).catch(catcher);
+    let data = [];
+
+    if (isTesseract) {
+      data = await client.execQuery(cube.query
+        .addDrilldown(`${dimension}.${level.hierarchy.name}.${level.name}`)
+        .addMeasure(measure), "jsonrecords")
+        .then(resp => resp.data)
+        .then(data => data.reduce((obj, d) => {
+          obj[d[`ID ${level.name}`]] = d[measure];
+          return obj;
+        }, {})).catch(catcher);
+    }
+    else {
+      data = await client.query(cube.query
+        .drilldown(dimension, level.hierarchy.name, level.name)
+        .measure(measure), "jsonrecords")
+        .then(resp => resp.data.data)
+        .then(data => data.reduce((obj, d) => {
+          obj[d[`ID ${level.name}`]] = d[measure];
+          return obj;
+        }, {})).catch(catcher);
+    }
+
+    
 
     fullList = fullList.concat(formatter(members, data, dimension, level.name));
 
