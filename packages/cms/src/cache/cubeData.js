@@ -1,7 +1,15 @@
 const d3Array = require("d3-array");
 const axios = require("axios");
 
-const {CANON_CMS_CUBES} = process.env;
+let url = process.env.CANON_CMS_CUBES;
+
+// Older version of CANON_CMS_CUBES had a full path to the cube (path.com/cubes)
+// CANON_CMS_CUBES was changed to be root only, so fix it here so we can handle
+// both the new style and the old style
+url = url.replace("/cubes/", "");
+url = url.replace("/cubes", "");
+if (url.substr(-1) === "/") url = url.slice(0, -1);
+url = `${url}/cubes`;
 
 const s = (a, b) => {
   const ta = a.name.toUpperCase();
@@ -11,7 +19,8 @@ const s = (a, b) => {
 
 module.exports = async function() {
 
-  const client = axios.get(CANON_CMS_CUBES);
+  
+  const client = axios.get(url);
   const resp = await client;
   const cubes = resp.data.cubes;
 
