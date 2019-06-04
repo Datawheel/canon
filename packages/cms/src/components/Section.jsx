@@ -29,7 +29,7 @@ export default class Section extends Component {
 
         {/* cards */}
         <div className="cms-card-container">
-          {cards && (cards.length || entity === "splash")
+          {cards && (cards.length || entity === "splash" || entity === "story" || entity === "title")
             ? <div className="cms-card-list">
               {cards || "missing `cards` prop in Section.jsx — card component or array of card components expected"}
             </div>
@@ -37,7 +37,7 @@ export default class Section extends Component {
           }
 
           {/* TODO: remove once all cards display both languages */}
-          {secondaryCards && (secondaryCards.length || entity === "splash")
+          {secondaryCards && (secondaryCards.length || entity === "splash" || entity === "story" || entity === "title")
             ? <div className="cms-card-list">
               {secondaryCards}
             </div>
