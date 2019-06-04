@@ -1,4 +1,5 @@
-const {Client} = require("mondrian-rest-client");
+const MondrianClient = require("mondrian-rest-client").Client;
+const TesseractClient = require("@datawheel/tesseract-client").Client;
 const collate = require("../utils/collate");
 const d3Array = require("d3-array");
 const sequelize = require("sequelize");
@@ -7,9 +8,27 @@ const yn = require("yn");
 const path = require("path");
 const Op = sequelize.Op;
 
-const client = new Client(process.env.CANON_LOGICLAYER_CUBE);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+
+const {CANON_LOGICLAYER_CUBE} = process.env;
+
+let client = new TesseractClient(CANON_LOGICLAYER_CUBE);
+client.checkStatus().then(resp => {
+  if (resp && resp.status === "ok") {
+    if (verbose) console.log(`Initializing Tesseract at ${CANON_LOGICLAYER_CUBE}`);
+  }
+  else {
+    if (verbose) console.log(`Initializing Mondrian at ${CANON_LOGICLAYER_CUBE}`);
+    client = new MondrianClient(CANON_LOGICLAYER_CUBE);  
+  }
+}, e => {
+  // On tesseract status failure, assume mondrian.
+  if (verbose) console.error(`Tesseract Failed to connect with error: ${e}`);
+  if (verbose) console.log(`Initializing Mondrian at ${CANON_LOGICLAYER_CUBE}`);
+  client = new MondrianClient(CANON_LOGICLAYER_CUBE);  
+}
+);
 
 const topicTypeDir = path.join(__dirname, "../components/topics/");
 
