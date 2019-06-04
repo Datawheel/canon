@@ -1,13 +1,14 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {NonIdealState, Tree, Intent, Alert} from "@blueprintjs/core";
+import {NonIdealState, Intent, Alert} from "@blueprintjs/core";
 import ProfileEditor from "./ProfileEditor";
 import TopicEditor from "./TopicEditor";
 import PropTypes from "prop-types";
 import DimensionBuilder from "../profile/DimensionBuilder";
 import CtxMenu from "../components/CtxMenu";
 import Button from "../components/Button";
+import SidebarTree from "../components/SidebarTree";
 
 import varSwap from "../utils/varSwap";
 
@@ -509,7 +510,7 @@ class ProfileBuilder extends Component {
             Add profile
           </Button>
 
-          <Tree
+          <SidebarTree
             onNodeClick={this.handleNodeClick.bind(this)}
             onNodeCollapse={this.handleNodeCollapse.bind(this)}
             onNodeExpand={this.handleNodeExpand.bind(this)}

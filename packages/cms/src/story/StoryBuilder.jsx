@@ -1,9 +1,10 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {NonIdealState, Tree, Alert, Intent} from "@blueprintjs/core";
+import {NonIdealState, Alert, Intent} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import CtxMenu from "../components/CtxMenu";
 import Button from "../components/Button";
+import SidebarTree from "../components/SidebarTree";
 import StoryEditor from "./StoryEditor";
 import StoryTopicEditor from "./StoryTopicEditor";
 
@@ -381,7 +382,7 @@ class StoryBuilder extends Component {
             Add story
           </Button>
 
-          <Tree
+          <SidebarTree
             onNodeClick={this.handleNodeClick.bind(this)}
             onNodeCollapse={this.handleNodeCollapse.bind(this)}
             onNodeExpand={this.handleNodeExpand.bind(this)}
