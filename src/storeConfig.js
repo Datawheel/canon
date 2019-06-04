@@ -19,10 +19,10 @@ import loadingProgress from "./reducers/loadingProgress";
     @param {Object} initialState initial state to bootstrap our stores with for server-side rendering
     @param {Object} history a history object. We use `createMemoryHistory` for server-side rendering, while using browserHistory for client-side rendering.
 */
-export default function storeConfig(initialState, history) {
+export default function storeConfig(initialState, history, initialMiddleware) {
 
   // Installs hooks that always keep react-router and redux store in sync
-  const middleware = [thunk, promiseMiddleware, routerMiddleware(history)];
+  const middleware = [thunk, promiseMiddleware, routerMiddleware(history)].concat(initialMiddleware);
   let store;
 
   const canonReducer = combineReducers(Object.assign({

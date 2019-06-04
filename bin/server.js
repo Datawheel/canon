@@ -119,6 +119,8 @@ const LANGUAGES = process.env.CANON_LANGUAGES || LANGUAGE_DEFAULT;
 
 title("Gathering Resources", "📂");
 
+const middleware = resolve("middleware.js") || [];
+
 const store = resolve("store.js") || {};
 store.env = {
   CANON_API: API,
@@ -365,7 +367,7 @@ async function start() {
     app.use(helmet({frameguard: FRAMEGUARD === void 0 ? false : FRAMEGUARD}));
   }
 
-  app.get("*", App.default(store, headerConfig));
+  app.get("*", App.default(store, headerConfig, middleware));
 
   app.listen(PORT);
 

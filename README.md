@@ -156,6 +156,19 @@ export default {
 };
 ```
 
+--
+
+## Redux Middleware
+
+Custom middleware can be added to the Redux Store by creating a file located at `app/middleware.js`. This file should export an Array, whose values will be concat with the default middleware. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
+
+Here is an example:
+
+```js
+const CustomMiddleware = require('CustomLibrary');
+export default [CustomMiddleware];
+```
+
 ---
 
 ## Localization

@@ -14,6 +14,7 @@ import pretty from "pretty";
 import CanonProvider from "./CanonProvider";
 
 import serialize from "serialize-javascript";
+import middleware from "../bin/scaffold/app/middleware";
 
 const tagManagerHead = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
   : `
@@ -89,7 +90,7 @@ const baseTag = process.env.CANON_BASE_URL === undefined ? ""
 /**
     Returns the default server logic for rendering a page.
 */
-export default function(defaultStore = {}, headerConfig) {
+export default function(defaultStore = {}, headerConfig, defaultMiddleware = []) {
 
   return function(req, res) {
 
@@ -111,7 +112,7 @@ export default function(defaultStore = {}, headerConfig) {
 
     const location = req.url.replace(BASE_URL, "");
     const history = createMemoryHistory({basename, entries: [location]});
-    const store = configureStore({i18n: {locale, resources}, location: windowLocation, ...defaultStore}, history);
+    const store = configureStore({i18n: {locale, resources}, location: windowLocation, ...defaultStore}, history, defaultMiddleware);
     const routes = createRoutes(store);
     const rtl = ["ar", "he"].includes(locale);
 
