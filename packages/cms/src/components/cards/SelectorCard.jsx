@@ -114,70 +114,73 @@ class SelectorCard extends Component {
     const {variables, parentArray, type, locale} = this.props;
     const formatters = this.context.formatters[locale];
 
-    if (!minData) return <Loading />;
-
     return (
       <div className="cms-card">
 
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
-
         {/* title & edit toggle button */}
-        <h5 className="cms-card-header">
-          {varSwap(minData.title, formatters, variables)}
-          <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="bp3-icon bp3-icon-cog" />
-          </button>
-        </h5>
+        {!minData
+          ? <h3 className="cms-card-header">•••</h3>
+          : <React.Fragment>
+            <h3 className="cms-card-header">
+              {varSwap(minData.title, formatters, variables)}
+              <button className="cms-button" onClick={this.openEditor.bind(this)}>
+                Edit <span className="bp3-icon bp3-icon-cog" />
+              </button>
+            </h3>
 
-        <p>{minData.name}</p>
+            <p>{minData.name}</p>
 
-        <ul>
-          {minData.options && minData.options.map(o =>
-            <li key={o.option} className={minData.default === o.option ? "is-default" : ""}>{o.option}</li>
-          )}
-        </ul>
+            <ul>
+              {minData.options && minData.options.map(o =>
+                <li key={o.option} className={minData.default === o.option ? "is-default" : ""}>{o.option}</li>
+              )}
+            </ul>
 
-        {/* reorder buttons */}
-        { parentArray &&
-          <MoveButtons
-            item={minData}
-            array={parentArray}
-            type={type}
-            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
-          />
+            {/* reorder buttons */}
+            { parentArray &&
+              <MoveButtons
+                item={minData}
+                array={parentArray}
+                type={type}
+                onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
+              />
+            }
+
+            <Alert
+              cancelButtonText="Cancel"
+              confirmButtonText={alertObj.confirm}
+              className="cms-confirm-alert"
+              iconName="bp3-icon-warning-sign"
+              intent={Intent.DANGER}
+              isOpen={alertObj}
+              onConfirm={alertObj.callback}
+              onCancel={() => this.setState({alertObj: false})}
+            >
+              {alertObj.message}
+            </Alert>
+
+            <Dialog
+              className="generator-editor-dialog"
+              isOpen={isOpen}
+              onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
+              title="Selector Editor"
+              icon={false}
+              usePortal={false}
+            >
+              <div className="bp3-dialog-body">
+                <SelectorEditor
+                  markAsDirty={this.markAsDirty.bind(this)}
+                  variables={variables}
+                  data={minData}
+                />
+              </div>
+              <FooterButtons
+                onDelete={this.maybeDelete.bind(this)}
+                onSave={this.save.bind(this)}
+              />
+            </Dialog>
+          </React.Fragment>
         }
-
-        <Dialog
-          className="generator-editor-dialog"
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Selector Editor"
-          icon="false"
-          usePortal={false}
-        >
-          <div className="bp3-dialog-body">
-            <SelectorEditor 
-              markAsDirty={this.markAsDirty.bind(this)}
-              variables={variables} 
-              data={minData} 
-            />
-          </div>
-          <FooterButtons
-            onDelete={this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
-        </Dialog>
       </div>
     );
   }

@@ -21,6 +21,10 @@
   flex-wrap: wrap;
   margin: 1rem -1rem;
 
+  &:only-child {
+    width: calc(100% + 2rem);
+  }
+
   /* offset spacing at the bottom of the page */
   &:last-child {
     margin-bottom: -0.75rem;
@@ -36,8 +40,14 @@
   flex-direction: column;
   margin: 1rem;
   padding: 1rem;
-  width: 18rem;
+  min-width: 18rem;
+  width: 100%;
   max-width: calc(100% - 2rem);
+
+  & .cms-card-description {
+    font-size: 0.75em;
+    margin: 1rem 0 0 0;
+  }
 
   /* flag icon */
   /* & .cms-flag {
@@ -78,56 +88,8 @@
 }
 
 
-/* card table for displaying description, preview profile text, etc */
-.cms-card-table {
-  /* positioning */
-  margin-top: 1rem;
-  padding: 0;
-  border-collapse: collapse;
-  /* equal height tables */
-  display: flex;
-  flex-grow: 1;
-  justify-content: stretch;
-  min-height: 1.5rem;
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.cms-card-table-body {
-  display: block;
-  width: 100%;
-  max-height: 6rem;
-  overflow-y: auto;
-
-  /* placeholder */
-  &:empty {
-    display: block;
-    position: absolute;
-    height: 100%;
-    width: 100%;
-  }
-}
-
-/* max height row with overflow */
-.cms-card-table-row {
-  display: flex;
-  flex-wrap: none;
-  padding: 0 0.4em;
-  overflow-y: auto;
-
-  &:first-child { padding-top: 0.25em; }
-  &:last-child { padding-bottom: 0.25em; }
-}
-
-/* cell style */
-.cms-card-table-cell {
-  font-size: 0.625rem;
-  padding: 0.25em;
-}
-
-
-/* prevent reorder buttons from obscuring header */
-.cms-card > * {
+/* prevent buttons from obscuring header */
+.cms-card > .cms-card-header {
   z-index: 1;
 }
 

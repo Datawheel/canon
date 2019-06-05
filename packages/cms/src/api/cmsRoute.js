@@ -1,4 +1,6 @@
-const {Client} = require("mondrian-rest-client");
+const MondrianClient = require("mondrian-rest-client").Client;
+const TesseractClient = require("@datawheel/tesseract-client").Client;
+const collate = require("../utils/collate");
 const d3Array = require("d3-array");
 const sequelize = require("sequelize");
 const shell = require("shelljs");
@@ -6,9 +8,29 @@ const yn = require("yn");
 const path = require("path");
 const Op = sequelize.Op;
 
-const client = new Client(process.env.CANON_LOGICLAYER_CUBE);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+
+const {CANON_CMS_CUBES} = process.env;
+
+let isTesseract = false;
+let client = new TesseractClient(CANON_CMS_CUBES);
+client.checkStatus().then(resp => {
+  if (resp && resp.status === "ok") {
+    isTesseract = true;
+    if (verbose) console.log(`Initializing Tesseract at ${CANON_CMS_CUBES}`);
+  }
+  else {
+    if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
+    client = new MondrianClient(CANON_CMS_CUBES);  
+  }
+}, e => {
+  // On tesseract status failure, assume mondrian.
+  if (verbose) console.error(`Tesseract Failed to connect with error: ${e}`);
+  if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
+  client = new MondrianClient(CANON_CMS_CUBES);  
+}
+);
 
 const topicTypeDir = path.join(__dirname, "../components/topics/");
 
@@ -27,13 +49,16 @@ const catcher = e => {
 };
 
 const profileReqTreeOnly = {
-  attributes: ["id", "slug", "dimension", "levels", "ordering"],
-  include: [{
-    association: "topics", attributes: ["id", "slug", "ordering", "profile_id", "type"], 
-    include: [
-      {association: "content", attributes: ["id", "lang", "title"]}
-    ]
-  }]
+  attributes: ["id", "ordering"],
+  include: [
+    {association: "meta"},
+    {   
+      association: "topics", attributes: ["id", "slug", "ordering", "profile_id", "type"], 
+      include: [
+        {association: "content", attributes: ["id", "lang", "title"]}
+      ]
+    }
+  ]
 };
 
 const storyReqTreeOnly = {
@@ -52,6 +77,7 @@ const formatterReqTreeOnly = {
 
 const profileReqProfileOnly = {
   include: [
+    {association: "meta"},
     {association: "content"},
     {association: "generators", attributes: ["id", "name"]},
     {association: "materializers", attributes: ["id", "name", "ordering"]}
@@ -94,7 +120,7 @@ const storyTopicReqStoryTopicOnly = {
  * automatically generate Create, Update, and Delete Routes (as specified later in the get/post methods)
  */
 const cmsTables = [
-  "author", "formatter", "generator", "materializer", "profile",
+  "author", "formatter", "generator", "materializer", "profile", "profile_meta",
   "selector", "story", "story_description", "story_footnote", "storytopic",
   "storytopic_description", "storytopic_stat", "storytopic_subtitle", "storytopic_visualization",
   "topic", "topic_description", "topic_stat", "topic_subtitle", "topic_visualization"
@@ -138,6 +164,7 @@ const sortProfileTree = (db, profiles) => {
   profiles = profiles.map(p => p.toJSON());
   profiles = flatSort(db.profile, profiles);
   profiles.forEach(p => {
+    p.meta = flatSort(db.profile_meta, p.meta);
     p.topics = flatSort(db.topic, p.topics);
   });
   return profiles;
@@ -152,9 +179,8 @@ const sortStoryTree = (db, stories) => {
   return stories;
 };
 
-const sortProfile = (db, profile, attr) => {
-  profile = profile.toJSON();
-  profile.attr = attr ? attr.toJSON() : {};
+const sortProfile = (db, profile) => {
+  profile.meta = flatSort(db.profile_meta, profile.meta);
   profile.materializers = flatSort(db.materializer, profile.materializers);
   return profile;
 };
@@ -192,7 +218,7 @@ const formatter = (members, data, dimension, level) => {
     const obj = {};
     obj.id = `${d.key}`;
     obj.name = d.name;
-    obj.display = d.caption;
+    obj.display = d.caption || d.name;
     obj.zvalue = data[obj.id] || 0;
     obj.dimension = dimension;
     obj.hierarchy = level;
@@ -207,8 +233,8 @@ const formatter = (members, data, dimension, level) => {
 };
 
 const pruneSearch = async(dimension, levels, db) => {
-  const currentProfiles = await db.profile.findAll().catch(catcher);
-  const currentDimensions = currentProfiles.map(p => p.dimension);
+  const currentMeta = await db.profile_meta.findAll().catch(catcher);
+  const currentDimensions = currentMeta.map(m => m.dimension);
   // To be on the safe side, only clear the search table of dimensions that NO remaining
   // profiles are currently making use of.
   // Don't need to prune levels - they will be filtered automatically in searches.
@@ -217,32 +243,43 @@ const pruneSearch = async(dimension, levels, db) => {
     const resp = await db.search.destroy({where: {dimension}}).catch(catcher);
     if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
   }
+  else {
+    if (verbose) console.log(`Skipped search cleanup - ${dimension} is still in use`);
+  }
 };
 
-const populateSearch = (profileData, db) => {
+const populateSearch = async(profileData, db) => {
 
-  /**
-   *
-   */
-  async function start() {
+  const cubeName = profileData.cubeName;
+  const measure = profileData.measure;
+  const dimension = profileData.dimName || profileData.dimension;
+  const dimLevels = profileData.levels;
 
-    const cubeName = profileData.cubeName;
-    const measure = profileData.measure;
-    const dimension = profileData.dimName;
-    const dimLevels = profileData.levels;
+  const cube = await client.cube(cubeName).catch(catcher);
 
-    const cube = await client.cube(cubeName).catch(catcher);
+  const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
+    .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
 
-    const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
-      .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
+  let fullList = [];
+  for (let i = 0; i < levels.length; i++) {
 
-    let fullList = [];
-    for (let i = 0; i < levels.length; i++) {
+    const level = levels[i];
+    const members = await client.members(level).catch(catcher);
 
-      const level = levels[i];
-      const members = await client.members(level).catch(catcher);
+    let data = [];
 
-      const data = await client.query(cube.query
+    if (isTesseract) {
+      data = await client.execQuery(cube.query
+        .addDrilldown(`${dimension}.${level.hierarchy.name}.${level.name}`)
+        .addMeasure(measure), "jsonrecords")
+        .then(resp => resp.data)
+        .then(data => data.reduce((obj, d) => {
+          obj[d[`${level.name} ID`]] = d[measure];
+          return obj;
+        }, {})).catch(catcher);
+    }
+    else {
+      data = await client.query(cube.query
         .drilldown(dimension, level.hierarchy.name, level.name)
         .measure(measure), "jsonrecords")
         .then(resp => resp.data.data)
@@ -250,28 +287,25 @@ const populateSearch = (profileData, db) => {
           obj[d[`ID ${level.name}`]] = d[measure];
           return obj;
         }, {})).catch(catcher);
-
-      fullList = fullList.concat(formatter(members, data, dimension, level.name));
-
     }
 
-    for (let i = 0; i < fullList.length; i++) {
-      const obj = fullList[i];
-      const {id, dimension, hierarchy} = obj;
-      const [row, created] = await db.search.findOrCreate({
-        where: {id, dimension, hierarchy},
-        defaults: obj
-      }).catch(catcher);
-      if (verbose && created) console.log(`Created: ${row.id} ${row.display}`);
-      else {
-        await row.updateAttributes(obj).catch(catcher);
-        if (verbose) console.log(`Updated: ${row.id} ${row.display}`);
-      }
-    }
+    fullList = fullList.concat(formatter(members, data, dimension, level.name));
 
   }
 
-  start();
+  for (let i = 0; i < fullList.length; i++) {
+    const obj = fullList[i];
+    const {id, dimension, hierarchy} = obj;
+    const [row, created] = await db.search.findOrCreate({
+      where: {id, dimension, hierarchy},
+      defaults: obj
+    }).catch(catcher);
+    if (verbose && created) console.log(`Created: ${row.id} ${row.display}`);
+    else {
+      await row.updateAttributes(obj).catch(catcher);
+      if (verbose) console.log(`Updated: ${row.id} ${row.display}`);
+    }
+  }
 
 };
 
@@ -302,16 +336,26 @@ module.exports = function(app) {
 
   app.get("/api/cms/profile/get/:id", async(req, res) => {
     const {id} = req.params;
+    const dims = collate(req.query);
     const reqObj = Object.assign({}, profileReqProfileOnly, {where: {id}});
-    const profile = await db.profile.findOne(reqObj).catch(catcher);
-    const rawprofile = profile.toJSON();
-    let where = {id};
-    // Only include levels in the attr search if this application makes use of them.
-    if (rawprofile.levels && rawprofile.levels.length > 0) {
-      where = {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: rawprofile.levels}}]};
+    let profile = await db.profile.findOne(reqObj).catch(catcher);
+    profile = profile.toJSON();
+    // Create a lookup object of the search rows, of the
+    // pattern (id/id1),id2,id3, so that unary profiles can access it without an integer.
+    let attr = {};
+    for (let i = 0; i < dims.length; i++) {
+      const dim = dims[i];
+      const thisSlug = profile.meta.find(d => d.slug === dim.slug);
+      const levels = thisSlug && thisSlug.levels && thisSlug.levels.length > 0 ? thisSlug.levels : [];
+      let thisAttr = await db.search.findOne({where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}}).catch(catcher);
+      thisAttr = thisAttr ? thisAttr.toJSON() : {};
+      if (i === 0) attr = Object.assign(attr, thisAttr);
+      Object.keys(thisAttr).forEach(key => {
+        attr[`${key}${i + 1}`] = thisAttr[key];
+      });
     }
-    const attr = await db.search.findOne({where}).catch(catcher);
-    return res.json(sortProfile(db, profile, attr));
+    profile.attr = attr;
+    return res.json(sortProfile(db, profile));
   });
 
   app.get("/api/cms/story/get/:id", async(req, res) => {
@@ -392,16 +436,34 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
-    const profileData = req.body;
-    const profile = await db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName, levels: profileData.levels}).catch(catcher);
+    const profile = await db.profile.create(req.body).catch(catcher);
     await db.profile_content.create({id: profile.id, lang: envLoc}).catch(catcher);
     const topic = await db.topic.create({ordering: 0, profile_id: profile.id});
     await db.topic_content.create({id: topic.id, lang: envLoc}).catch(catcher);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
+    return res.json(profiles);
+  });
+
+  app.post("/api/cms/profile/addDimension", isEnabled, async(req, res) => {
+    const profileData = req.body;
+    profileData.dimension = profileData.dimName;
+    await db.profile_meta.create(profileData);
+    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
+    profiles = sortProfileTree(db, profiles);
     populateSearch(profileData, db);
     return res.json(profiles);
   });
+
+  app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
+    const {id} = req.body;
+    let profileData = await db.profile_meta.findOne({where: {id}});
+    profileData = profileData.toJSON();
+    await populateSearch(profileData, db);
+    return res.json({});
+  });
+
+
 
   /* UPDATES */
   // For now, all "update" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.
@@ -467,6 +529,16 @@ module.exports = function(app) {
     const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
+    pruneSearch(row.dimension, row.levels, db);
+    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
+    profiles = sortProfileTree(db, profiles);
+    return res.json(profiles);
+  });
+
+  app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
+    const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
     pruneSearch(row.dimension, row.levels, db);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);

@@ -18,7 +18,9 @@ export default function RouteCreate() {
       <Route path="/cms-story/:storySlug" component={Builder} />
       <Route path="/cms-story/:storySlug/:storytopicSlug" component={Builder} />
       */}
-      <Route path="/profile/:pslug/:pid" component={Profile} />
+      <Route path="/profile/:slug/:id" component={Profile} />
+      <Route path="/profile/:slug/:id/:slug2/:id2" component={Profile} />
+      <Route path="/profile/:slug/:id/:slug2/:id2/:slug3/:id3" component={Profile} />
       <Route path="/search" component={Search} />
       <Route path="/bar" component={Bar} />
     </Route>

@@ -29,6 +29,8 @@
 }
 
 .cms-status {
+  margin-top: -1em;
+
   & .bp3-icon-standard {
     display: inline-block;
     height: 0.75em;

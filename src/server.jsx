@@ -148,7 +148,7 @@ export default function(defaultStore = {}, headerConfig) {
             let status = 200;
             for (const key in initialState.data) {
               if ({}.hasOwnProperty.call(initialState.data, key)) {
-                const error = initialState.data[key].error;
+                const error = initialState.data[key] ? initialState.data[key].error : null;
                 if (error && typeof error === "number" && error > status) status = error;
               }
             }

@@ -30,6 +30,15 @@
         min-width: 0; /* override blueprint */
         font-size: 0.875rem;
       }
+      /* offset nonexistant icon */
+      & .bp3-tree-node-caret-none {
+        margin-right: -18px;
+      }
+      /* scale down the text on nested nodes */
+      &.bp3-tree-node-content-1 .bp3-tree-node-label {
+        font-weight: 300;
+        font-size: 0.875em;
+      }
       & .bp3-tree-node-label {
         white-space: normal;
       }

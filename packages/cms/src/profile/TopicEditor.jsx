@@ -33,7 +33,11 @@ class TopicEditor extends Component {
     if (prevProps.id !== this.props.id) {
       this.hitDB.bind(this)(false);
     }
-    if (prevProps.preview !== this.props.preview) {
+    const prevSlugs = prevProps.previews.map(d => d.slug).join();
+    const prevIDs = prevProps.previews.map(d => d.id).join();
+    const newSlugs = this.props.previews.map(d => d.slug).join();
+    const newIDs = this.props.previews.map(d => d.id).join();
+    if (prevSlugs !== newSlugs || prevIDs !== newIDs) {
       this.hitDB.bind(this)(true);
     }
   }
@@ -95,7 +99,7 @@ class TopicEditor extends Component {
     const {localeDefault} = this.props;
     const defCon = minData.content.find(c => c.lang === localeDefault);
     const title = defCon && defCon.title ? defCon.title : minData.slug;
-    if (this.props.reportSave) this.props.reportSave("topic", minData.id, title);
+    if (this.props.reportSave) this.props.reportSave(minData.id, title);
   }
 
   onMove() {
@@ -109,24 +113,22 @@ class TopicEditor extends Component {
   }
 
   fetchVariables(force) {
-    const slug = this.props.masterSlug;
-    const id = this.props.preview;
     if (this.props.fetchVariables) {
-      this.props.fetchVariables(slug, id, force, () => this.setState({recompiling: false}));
+      this.props.fetchVariables(force, () => this.setState({recompiling: false}));
     }
   }
 
   render() {
 
     const {minData, recompiling} = this.state;
-    const {variables, preview, children, locale, localeDefault} = this.props;
+    const {variables, previews, children, locale, localeDefault} = this.props;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
     const defLoaded = locale || variables && !locale && variables[localeDefault];
     const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
 
-    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <Loading />;
+    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return "<Loading />";
 
     const varOptions = [<option key="always" value="always">Always</option>]
       .concat(Object.keys(variables[localeDefault])
@@ -147,8 +149,6 @@ class TopicEditor extends Component {
       <div className="cms-editor-inner">
         {/* profile preview & variable status */}
         <div className="cms-profile-picker">
-          {/* search profiles */}
-          {children}
           {/* loading status */}
           <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
             <Icon iconName={ recompiling ? "more" : "tick"} />
@@ -184,6 +184,8 @@ class TopicEditor extends Component {
             </div>
           </label>
         </div>
+
+        {children}
 
         {/* topic name */}
         {/* TODO: move this to header */}
@@ -410,7 +412,7 @@ class TopicEditor extends Component {
                 item={v}
                 locale={localeDefault}
                 localeDefault={localeDefault}
-                preview={preview}
+                previews={previews}
                 onDelete={this.onDelete.bind(this)}
                 type="topic_visualization"
                 variables={variables[localeDefault]}
@@ -429,7 +431,7 @@ class TopicEditor extends Component {
                   item={v}
                   locale={locale}
                   localeDefault={localeDefault}
-                  preview={preview}
+                  previews={previews}
                   onDelete={this.onDelete.bind(this)}
                   type="topic_visualization"
                   variables={variables[locale]}

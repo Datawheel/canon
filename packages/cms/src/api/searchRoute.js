@@ -37,9 +37,25 @@ module.exports = function(app) {
       where
     });
 
-    const dimensions = Array.from(new Set(rows.map(d => d.dimension)));
+    // TODO bivariate: re-enable this slug lookup
+
+    // const dimensions = Array.from(new Set(rows.map(d => d.dimension)));
+
+    /*
+    profiles = await db.profile.findAll({include: {association: "meta"}});
+    const slugs = {};
+    profiles.forEach(p => {
+      if (!slugs[p.meta.dimension]) {
+        slugs[p.meta.dimension] = [p]
+      }
+    })
+    profiles = profiles.filter(p => p.meta.map(d => d.dimension).includes
+    */
+
+    /*
     const slugs = await db.profile.findAll({where: {dimension: dimensions}})
       .reduce((obj, d) => (obj[d.dimension] = d.slug, obj), {});
+    */
 
     const results = rows.map(d => ({
       dimension: d.dimension,
@@ -48,7 +64,7 @@ module.exports = function(app) {
       image: d.image,
       keywords: d.keywords,
       name: d.display,
-      profile: slugs[d.dimension],
+      // profile: slugs[d.dimension],
       slug: d.slug,
       stem: d.stem === 1
     }));

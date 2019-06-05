@@ -55,13 +55,20 @@ export default class SimpleVisualizationEditor extends Component {
 
   firstBuild() {
     const {object} = this.state;
-    const {preview, variables} = this.props;
+    const {previews, variables} = this.props;
     const {data} = object;
     if (data) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value.
-      const url = urlSwap(data, Object.assign({}, variables, {id: preview}));
+      const lookup = {};
+      previews.forEach((p, i) => {
+        if (i === 0) {
+          lookup.id = p.id;
+        }
+        lookup[`id${i + 1}`] = p.id;
+      });
+      const url = urlSwap(data, Object.assign({}, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
         this.setState({payload}, this.compileCode.bind(this));

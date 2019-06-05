@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {MenuItem} from "@blueprintjs/core";
 import {MultiSelect} from "@blueprintjs/select";
 
-class NewProfile extends Component {
+class DimensionCreator extends Component {
 
   constructor(props) {
     super(props);
@@ -34,7 +34,10 @@ class NewProfile extends Component {
     profileData.dimName = selectedDimension.dimName;
     profileData.hierarchies = selectedDimension.hierarchies;
     profileData.levels = selectedDimension.hierarchies.map(h => h.level);
-    this.setState({profileData, selectedDimension});
+    this.setState({
+      profileData,
+      selectedDimension
+    });
 
   }
 
@@ -58,9 +61,14 @@ class NewProfile extends Component {
     this.setState({profileData});
   }
 
+  toggleLevel(level, e) {
+    const {checked} = e.target;
+    checked ? this.addLevel.bind(this)(level) : this.removeLevel.bind(this)(level);
+  }
+
   createProfile() {
     const {profileData} = this.state;
-    if (this.props.onCreateProfile) this.props.onCreateProfile(profileData);
+    if (this.props.onAddDimension) this.props.onAddDimension(profileData);
   }
 
   render() {
@@ -94,26 +102,21 @@ class NewProfile extends Component {
         { profileData.dimension &&
           <div className="cms-field-container">
             Levels:
-            <MultiSelect
-              items={levelList}
-              itemPredicate={(q, o) => `${o.toLowerCase()}`.indexOf(q.toLowerCase()) >= 0}
-              itemRenderer={(i, {handleClick, modifiers, query}) => 
-                <MenuItem
-                  key={i}
-                  onClick={handleClick}
-                  text={i}
-                />
-              }
-              noResults={<MenuItem disabled={true} text="No results." />}
-              onItemSelect={o => profileData.levels.includes(o) ? this.removeLevel.bind(this)(o) : this.addLevel.bind(this)(o)}
-              tagRenderer={o => o}
-              tagInputProps={{onRemove: o => this.removeLevel.bind(this)(o)}}
-              selectedItems={profileData.levels}
-              popoverProps={{
-                popoverClassName: "bp3-minimal",
-                useSmartArrowPositioning: false
-              }}
-            />
+
+            {/* new hotness */}
+            <fieldset className="cms-fieldset">
+              { levelList.map(level =>
+                <label className="cms-checkbox-label" key={level}>
+                  <input
+                    className="cms-checkbox"
+                    type="checkbox"
+                    checked={ profileData.levels.includes(level) }
+                    onChange={ this.toggleLevel.bind(this, level) }
+                  /> {level}
+                </label>
+              )}
+            </fieldset>
+            
           </div>
         }
         { profileData.dimension && profileData.levels.length > 0 &&
@@ -129,8 +132,8 @@ class NewProfile extends Component {
         }
         <div className="cms-field-container">
           { profileData.dimension && profileData.levels.length > 0 && profileData.measure
-            ? <button className="cms-button" onClick={this.createProfile.bind(this)}>Create profile</button>
-            : <div className="cms-button is-disabled" disabled>Create profile</div>
+            ? <button className="cms-button" onClick={this.createProfile.bind(this)}>Add Dimension</button>
+            : <div className="cms-button is-disabled" disabled>Add Dimension</div>
           }
         </div>
 
@@ -140,4 +143,4 @@ class NewProfile extends Component {
   }
 }
 
-export default NewProfile;
+export default DimensionCreator;

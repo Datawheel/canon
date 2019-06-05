@@ -24,9 +24,14 @@ class Profile extends Component {
   }
 
   render() {
-    const {topics} = this.props.profile;
+    const {profile} = this.props;
+    const {topics} = profile;
+    
+
     return (
       <div id="Profile">
+        <h1 dangerouslySetInnerHTML={{__html: profile.title}} />
+        <h3 dangerouslySetInnerHTML={{__html: profile.subtitle}} />
         {topics.map(topic => <Topic key={topic.slug} contents={topic} />)}
       </div>
     );
@@ -42,7 +47,7 @@ Profile.childContextTypes = {
 };
 
 Profile.need = [
-  fetchData("profile", "/api/profile/<pslug>/<pid>?locale=<i18n.locale>"),
+  fetchData("profile", "/api/profile/?slug=<slug>&id=<id>&slug2=<slug2>&id2=<id2>&slug3=<slug3>&id3=<id3>&locale=<i18n.locale>"),
   fetchData("formatters", "/api/formatters")
 ];
 

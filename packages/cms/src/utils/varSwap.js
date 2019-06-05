@@ -27,7 +27,8 @@ module.exports = (sourceString, formatterFunctions, variables) => {
         return formatter(value, libs, formatterFunctions);
       }
       catch (e) {
-        console.log("Formatter error: ", e.message);
+        console.error(`Error using formatter ${formatter.name}`);
+        console.error(`Error message: ${e.message}`);
         return "N/A";
       }
     }

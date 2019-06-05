@@ -33,7 +33,11 @@ class ProfileEditor extends Component {
     if (prevProps.id !== this.props.id) {
       this.hitDB.bind(this)(false);
     }
-    if (prevProps.preview !== this.props.preview) {
+    const prevSlugs = prevProps.previews.map(d => d.slug).join();
+    const prevIDs = prevProps.previews.map(d => d.id).join();
+    const newSlugs = this.props.previews.map(d => d.slug).join();
+    const newIDs = this.props.previews.map(d => d.id).join();
+    if (prevSlugs !== newSlugs || prevIDs !== newIDs) {
       this.hitDB.bind(this)(true);
     }
   }
@@ -45,10 +49,8 @@ class ProfileEditor extends Component {
   }
 
   fetchVariables(force) {
-    const slug = this.props.masterSlug;
-    const id = this.props.preview;
     if (this.props.fetchVariables) {
-      this.props.fetchVariables(slug, id, force, () => this.setState({recompiling: false}));
+      this.props.fetchVariables(force, () => this.setState({recompiling: false}));
     }
   }
 
@@ -78,16 +80,6 @@ class ProfileEditor extends Component {
     }
   }
 
-  save() {
-    const {minData} = this.state;
-    axios.post("/api/cms/profile/update", minData).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false});
-        if (this.props.reportSave) this.props.reportSave("profile", minData.id, minData.slug);
-      }
-    });
-  }
-
   addItem(type) {
     const {minData} = this.state;
     const payload = {};
@@ -115,7 +107,7 @@ class ProfileEditor extends Component {
   render() {
 
     const {minData, recompiling} = this.state;
-    const {children, variables, preview, locale, localeDefault} = this.props;
+    const {children, variables, previews, locale, localeDefault} = this.props;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
@@ -128,25 +120,13 @@ class ProfileEditor extends Component {
       <div className="cms-editor-inner">
         {/* profile preview & variable status */}
         <div className="cms-profile-picker">
-          {/* search profiles*/}
-          {children}
           {/* loading status */}
           <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
             <Icon iconName={ recompiling ? "more" : "tick"} />
             { recompiling ? "Updating Variables" : "Variables Loaded" }
           </div>
-        </div>
-
-        {/* current profile options */}
-        <div className="cms-editor-header">
-          {/* change slug */}
-          <label className="bp3-label cms-slug">
-            Profile slug
-            <div className="bp3-input-group">
-              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
-              <button className="cms-button bp3-button" onClick={this.save.bind(this)}>Rename</button>
-            </div>
-          </label>
+          {/* search profiles */}
+          {children}
         </div>
 
         {/* generators */}
@@ -165,39 +145,20 @@ class ProfileEditor extends Component {
               .sort((a, b) => a.name.localeCompare(b.name))
               .map(g => <GeneratorCard
                 key={g.id}
+                context="generator"
                 item={g}
                 attr={minData.attr || {}}
                 locale={localeDefault}
-                localeDefault={localeDefault}
-                preview={preview}
+                secondaryLocale={locale}
+                previews={previews}
                 onSave={this.onSave.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 type="generator"
                 variables={variables[localeDefault]}
+                secondaryVariables={variables[locale]}
               />)
             }
           </div>
-          {/* secondary locale */}
-          {locale &&
-            <div className="cms-card-list">
-              { minData.generators && minData.generators
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map(g =>
-                  <GeneratorCard
-                    key={g.id}
-                    item={g}
-                    attr={minData.attr || {}}
-                    locale={locale}
-                    localeDefault={localeDefault}
-                    preview={preview}
-                    onSave={this.onSave.bind(this)}
-                    onDelete={this.onDelete.bind(this)}
-                    type="generator"
-                    variables={variables[locale]}
-                  />
-                )}
-            </div>
-          }
         </div>
 
         {/* materializers */}
@@ -216,48 +177,27 @@ class ProfileEditor extends Component {
               .map(m =>
                 <GeneratorCard
                   key={m.id}
+                  context="materializer"
                   item={m}
                   locale={localeDefault}
-                  localeDefault={localeDefault}
+                  secondaryLocale={locale}
                   onSave={this.onSave.bind(this)}
                   onDelete={this.onDelete.bind(this)}
                   type="materializer"
                   variables={variables[localeDefault]}
+                  secondaryVariables={variables[locale]}
                   parentArray={minData.materializers}
                   onMove={this.onMove.bind(this)}
                 />
               )}
           </div>
-          {/* secondary locale */}
-          {locale &&
-            <div className="cms-card-list materializers">
-              { minData.materializers && minData.materializers
-                .map(m =>
-                  <GeneratorCard
-                    key={m.id}
-                    item={m}
-                    locale={locale}
-                    localeDefault={localeDefault}
-                    onSave={this.onSave.bind(this)}
-                    onDelete={this.onDelete.bind(this)}
-                    type="materializer"
-                    variables={variables[locale]}
-                    parentArray={minData.materializers}
-                    onMove={this.onMove.bind(this)}
-                  />
-                )}
-            </div>
-          }
         </div>
 
         {/* Top-level Profile */}
         <h2 className="cms-section-heading">
           Profile
         </h2>
-        <div
-          className="cms-splash-wrapper"
-          style={{backgroundImage: `url("/api/profile/${minData.slug}/${preview}/thumb")`}}
-        >
+        <div className="cms-splash-wrapper">
 
           <div className="cms-card-container">
             {/* primary locale */}

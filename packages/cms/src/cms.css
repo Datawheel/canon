@@ -177,7 +177,8 @@
       flex: 1 1 auto;
       margin-top: 5px; /* match blueprint */
       padding: 0 1em;
-      width: auto;
+      width: 100%;
+      max-width: 100%;
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
     }
@@ -191,10 +192,14 @@
     }
   }
 
-
   /* override canon */
   & .loading {
     z-index: auto;
+    background: none;
+
+    @media (prefers-dark-interface), (prefers-color-scheme: dark) {
+      color: var(--light-3);
+    }
   }
 
   /* use blueprint theming for quill editor for now */
@@ -245,6 +250,11 @@
     padding-right: 0;
     transform: scale(0.75);
   }
+
+  &.is-block {
+    display: block;
+    width: 100%;
+  }
 }
 .cms-button-naked {
   background-color: transparent;
@@ -259,6 +269,19 @@
 
   &:not(:last-of-type) {
     margin-right: 1.5em;
+  }
+}
+
+.cms-fieldset {
+  border: none;
+  padding: 0.25rem 0 0 0;
+
+  & > .cms-checkbox-label {
+    display: inline-block;
+
+    &:not(:last-child) {
+      margin-right: 1.5em;
+    }
   }
 }
 
@@ -409,9 +432,8 @@
 
 /* pin status to upper right */
 .cms-profile-picker > .cms-status {
-  position: absolute;
-  top: 0;
-  right: 0;
+  display: block;
+  text-align: right;
 }
 
 .cms-editor-header {

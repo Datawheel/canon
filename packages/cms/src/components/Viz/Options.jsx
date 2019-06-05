@@ -1,6 +1,8 @@
 import React, {Component} from "react";
+import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import {animateScroll} from "react-scroll";
+import PropTypes from "prop-types";
 import "./Options.css";
 
 import {select} from "d3-selection";
@@ -10,9 +12,13 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import {Button, Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
+import {Button, ButtonGroup, Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
+
+import ShareDirectLink from "./ShareDirectLink";
+import ShareFacebookLink from "./ShareFacebookLink";
+import ShareTwitterLink from "./ShareTwitterLink";
 
 const filename = str => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/^\-/g, "")
@@ -38,6 +44,7 @@ class Options extends Component {
       backgroundColor: true,
       imageContext: "topic",
       imageProcessing: false,
+      includeSlug: true,
       loading: false,
       openDialog: false,
       results: props.data instanceof Array ? props.data : false
@@ -89,7 +96,7 @@ class Options extends Component {
     if (node) {
       this.setState({imageProcessing: true});
       const {backgroundColor} = this.state;
-      if (type === "svg") node = select(node).select("svg").node();
+      if (type === "svg") node = select(node).select(".d3plus-viz").node();
       let background;
       if (backgroundColor) background = getBackground(node);
       saveElement(node,
@@ -177,17 +184,27 @@ class Options extends Component {
     this[ref].select();
   }
 
+  // add the slug, or not
+  handleSectionCheck() {
+    this.setState({includeSlug: !this.state.includeSlug});
+  }
+
   render() {
 
-    const {backgroundColor, imageContext, imageProcessing, openDialog, results} = this.state;
-    const {data, location, slug, transitionDuration} = this.props;
+    const {backgroundColor, imageContext, imageProcessing, includeSlug, openDialog, results, title} = this.state;
+    const {data, slug, t, transitionDuration} = this.props;
+
+    // construct URL from a combination of redux & context (#537)
+    const domain = this.props.location.origin;
+    const path = this.context.router.location.pathname;
+    const shareURL = `${domain}/${path}`;
 
     const node = this.getNode();
-    const svgAvailable = node && select(node).select("svg").size() > 0;
+    const svgAvailable = node && select(node).select(".d3plus-viz").size() > 0;
 
     const ImagePanel = () => imageProcessing
       ? <div className="bp3-dialog-body save-image">
-        <NonIdealState title="Generating Image" visual={<Spinner />} />
+        <NonIdealState title={t("CMS.Options.Generating Image")} visual={<Spinner />} />
       </div>
       : <div className="bp3-dialog-body save-image">
         <div className="save-image-btn" onClick={this.onSave.bind(this, "png")} tabIndex={0}>
@@ -197,8 +214,8 @@ class Options extends Component {
           <Icon icon="code-block" iconSize={28} />SVG
         </div>}
         <div className="image-options">
-          <Checkbox checked={imageContext === "viz"} label="Only Download Visualization" onChange={this.toggleContext.bind(this)} />
-          <Checkbox checked={!backgroundColor} label="Transparent Background" onChange={this.toggleBackground.bind(this)} />
+          <Checkbox checked={imageContext === "viz"} label={t("CMS.Options.Only Download Visualization")} onChange={this.toggleContext.bind(this)} />
+          <Checkbox checked={!backgroundColor} label={t("CMS.Options.Transparent Background")} onChange={this.toggleBackground.bind(this)} />
         </div>
       </div>;
 
@@ -218,14 +235,14 @@ class Options extends Component {
     };
 
     const dataUrl = typeof data === "string"
-      ? data.indexOf("http") === 0 ? data : `${location.origin}${data}`
+      ? data.indexOf("http") === 0 ? data : `${ domain }${ data }`
       : false;
 
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
           <Button key="data-download" icon="download" className="bp3-minimal" onClick={this.onCSV.bind(this)}>
-            Download as CSV
+            {t("CMS.Options.Download as CSV")}
           </Button>
           { dataUrl && <input key="data-url" type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={dataUrl} /> }
         </div>
@@ -246,18 +263,51 @@ class Options extends Component {
         </div>
       </div>
       : <div className="bp3-dialog-body view-table">
-        <NonIdealState title="Loading Data" visual={<Spinner />} />
+        <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
       </div>;
+
+    const shareLink = `${ shareURL }${ includeSlug && slug ? `#${slug}` : "" }`;
+
+    const SharePanel = () =>
+      <div className="bp3-dialog-body share-dialog">
+
+        {/* to slug or not to slug */}
+        <Checkbox
+          small
+          checked={this.state.includeSlug}
+          label={t("CMS.Options.Scroll to section")}
+          onChange={this.handleSectionCheck.bind(this)}
+        />
+
+        {/* direct link */}
+        <ShareDirectLink link={shareLink} />
+
+        {/* direct link */}
+        <Label>
+          <span className="options-label-text">{t("CMS.Options.Social")}</span>
+          <ButtonGroup fill={true}>
+            <ShareFacebookLink link={shareLink} />
+            <ShareTwitterLink link={shareLink} />
+          </ButtonGroup>
+        </Label>
+      </div>;
+
 
     return <div className="Options">
 
-      <Button icon="th" className="bp3-button option view-table" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
-        View Data
-      </Button>
+      <ButtonGroup>
+        <Button icon="th" className="bp3-button option view-table" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
+          {t("CMS.Options.View Data")}
+        </Button>
 
-      <Button icon="export" className="bp3-button option save-image" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
-        Save Image
-      </Button>
+        <Button icon="export" className="bp3-button option save-image" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
+          {t("CMS.Options.Save Image")}
+        </Button>
+
+        <Button icon="share" className="bp3-button option share-button" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
+          {t("CMS.Options.Share")}
+        </Button>
+      </ButtonGroup>
 
       <Dialog className="options-dialog"
         autoFocus={false}
@@ -265,8 +315,9 @@ class Options extends Component {
         onClose={this.toggleDialog.bind(this, false)}
         transitionDuration={transitionDuration}>
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
-          <Tab id="view-table" title="View Data" panel={<DataPanel />} />
-          <Tab id="save-image" title="Save Image" panel={<ImagePanel />} />
+          <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
+          <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={<ImagePanel />} />
+          <Tab id="share" title={t("CMS.Options.Share")} panel={<SharePanel />} />
           <Button icon="small-cross" aria-label="Close" className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)} />
         </Tabs>
       </Dialog>
@@ -279,7 +330,10 @@ class Options extends Component {
 Options.defaultProps = {
   transitionDuration: 100
 };
+Options.contextTypes = {
+  router: PropTypes.object
+};
 
-export default connect(state => ({
+export default withNamespaces()(connect(state => ({
   location: state.location
-}))(Options);
+}))(Options));

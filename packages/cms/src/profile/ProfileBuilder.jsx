@@ -1,12 +1,11 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {NonIdealState, Tree, Dialog, Intent, Alert} from "@blueprintjs/core";
-import NewProfile from "./NewProfile";
+import {NonIdealState, Tree, Intent, Alert} from "@blueprintjs/core";
 import ProfileEditor from "./ProfileEditor";
 import TopicEditor from "./TopicEditor";
 import PropTypes from "prop-types";
-import Search from "../components/Search/Search";
+import DimensionBuilder from "../profile/DimensionBuilder";
 import CtxMenu from "../components/CtxMenu";
 
 import varSwap from "../utils/varSwap";
@@ -30,9 +29,9 @@ class ProfileBuilder extends Component {
       nodes: null,
       profiles: null,
       currentNode: null,
-      currentSlug: null,
+      currentPid: null,
       variablesHash: {},
-      preview: "",
+      previews: [],
       cubeData: {}
     };
   }
@@ -49,9 +48,8 @@ class ProfileBuilder extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.locale !== this.props.locale) {
-      const {currentSlug, currentNode} = this.state;
-      const id = currentNode ? currentNode.id : null;
-      if (currentSlug) this.fetchVariables.bind(this)(currentSlug, id, true);
+      const {currentPid} = this.state;
+      if (currentPid) this.fetchVariables.bind(this)(true);
     }
   }
 
@@ -73,11 +71,10 @@ class ProfileBuilder extends Component {
     const nodes = profiles.map(p => ({
       id: `profile${p.id}`,
       hasCaret: true,
-      label: p.slug,
+      label: p.meta.length > 0 ? p.meta.map(d => d.slug).join("_") : "Add Dimensions",
       itemType: "profile",
-      masterSlug: p.slug,
-      masterDimension: p.dimension,
-      masterLevels: p.levels,
+      masterPid: p.id,
+      masterMeta: p.meta,
       data: p,
       childNodes: p.topics.map(t => {
         const defCon = t.content.find(c => c.lang === localeDefault);
@@ -87,9 +84,8 @@ class ProfileBuilder extends Component {
           hasCaret: false,
           label: this.decode(stripHTML(title)),
           itemType: "topic",
-          masterSlug: p.slug,
-          masterDimension: p.dimension,
-          masterLevels: p.levels,
+          masterPid: p.id,
+          masterMeta: p.meta,
           data: t
         };
       })
@@ -98,11 +94,15 @@ class ProfileBuilder extends Component {
       this.setState({nodes});
     }
     else {
-      let nodeToOpen = nodes[0];
-      /*if (profileSlug) {
-        nodeToOpen = nodes.find(p => p.data.slug === profileSlug);
-      }*/
-      this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      if (typeof openNode !== "boolean") {
+        const nodeToOpen = this.locateProfileNodeByPid(openNode);
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+      else {
+        const nodeToOpen = nodes[0];
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+
     }
   }
 
@@ -138,30 +138,23 @@ class ProfileBuilder extends Component {
     this.setState({nodes});
   }
 
+  /**
+   * addItem is only ever used for topics, so lots of topic-based assumptions are
+   * made here. if this is ever expanded out again to be a generic "item" adder
+   * then this will need to be generalized.
+   */
   addItem(n, dir) {
     const {nodes} = this.state;
-    const {variablesHash, currentSlug} = this.state;
+    const {variablesHash, currentPid} = this.state;
     const {localeDefault} = this.props;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
+    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
     n = this.locateNode(n.itemType, n.data.id);
-    let parent;
-    let parentArray;
-    // For topics, it is sufficient to find the Actual Parent - this parent will have
-    // a masterSlug that the newly added item should share
-    if (n.itemType === "topic") {
-      parent = this.locateNode("profile", n.data.profile_id);
-      parentArray = parent.childNodes;
-    }
-    // However, if the user is adding a new profile, there is no top-level profile parent whose slug trickles down,
-    // therefore we must make a small fake object whose only prop is masterSlug. This is used only so that when we
-    // build the new Profile Tree Object, we can set the masterSlug of both new elements (profile, topic)
-    // to "parent.masterSlug" and have that correctly reflect the stub object.
-    else if (n.itemType === "profile") {
-      parent = {masterSlug: "new-profile-slug"};
-      parentArray = nodes;
-    }
+
+    const parent = this.locateNode("profile", n.data.profile_id);
+    const parentArray = parent.childNodes;
+
     let loc = n.data.ordering;
     if (dir === "above") {
       for (const node of parentArray) {
@@ -182,88 +175,34 @@ class ProfileBuilder extends Component {
     }
 
     // New Topics need to inherit their masterDimension from their parent.
-    // This is not necessary for profiles, as profiles are now only added through the
-    // search scaffold (see onCreateProfile)
 
-    const objTopic = {
+    const obj = {
       hasCaret: false,
       itemType: "topic",
       data: {}
     };
-    objTopic.data.profile_id = n.data.profile_id;
-    objTopic.data.ordering = loc;
-    objTopic.masterSlug = parent.masterSlug;
-    objTopic.masterDimension = parent.masterDimension;
-    objTopic.masterLevels = parent.masterLevels;
+    obj.data.profile_id = n.data.profile_id;
+    obj.data.ordering = loc;
+    obj.masterPid = parent.masterPid;
+    obj.masterMeta = parent.masterMeta;
 
-    const objProfile = {
-      hasCaret: true,
-      itemType: "profile",
-      data: {}
-    };
-    objProfile.data.ordering = loc;
-    objProfile.masterSlug = parent.masterSlug;
-
-    let obj = null;
-
-    if (n.itemType === "topic") {
-      obj = objTopic;
-    }
-    if (n.itemType === "profile") {
-      obj = objProfile;
-      objTopic.data.ordering = 0;
-      obj.childNodes = [objTopic];
-    }
-  
-    if (obj) {
-
-      const profilePath = "/api/cms/profile/new";
-      const topicPath = "/api/cms/topic/new";
-
-      if (n.itemType === "topic") {
-        axios.post(topicPath, obj.data).then(topic => {
-          if (topic.status === 200) {
-            obj.id = `topic${topic.data.id}`;
-            obj.data = topic.data;
-            const defCon = topic.data.content.find(c => c.lang === localeDefault);
-            const title = defCon && defCon.title ? defCon.title : topic.slug;
-            obj.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
-            const parent = this.locateNode("profile", obj.data.profile_id);
-            parent.childNodes.push(obj);
-            parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
-            this.setState({nodes}, this.handleNodeClick.bind(this, obj));
-          }
-          else {
-            console.log("topic error");
-          }
-        });
+    const topicPath = "/api/cms/topic/new";
+    axios.post(topicPath, obj.data).then(topic => {
+      if (topic.status === 200) {
+        obj.id = `topic${topic.data.id}`;
+        obj.data = topic.data;
+        const defCon = topic.data.content.find(c => c.lang === localeDefault);
+        const title = defCon && defCon.title ? defCon.title : topic.slug;
+        obj.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
+        const parent = this.locateNode("profile", obj.data.profile_id);
+        parent.childNodes.push(obj);
+        parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
+        this.setState({nodes}, this.handleNodeClick.bind(this, obj));
       }
-      else if (n.itemType === "profile") {
-        axios.post(profilePath, obj.data).then(profile => {
-          obj.id = `profile${profile.data.id}`;
-          obj.data = profile.data;
-          // obj.label = varSwap(this.decode(stripHTML(obj.data.title)), formatters, variables);
-          obj.label = obj.data.slug;
-          objTopic.data.profile_id = profile.data.id;
-          axios.post(topicPath, objTopic.data).then(topic => {
-            if (topic.status === 200) {
-              objTopic.id = `topic${topic.data.id}`;
-              objTopic.data = topic.data;
-              const defCon = topic.data.content.find(c => c.lang === localeDefault);
-              const title = defCon && defCon.title ? defCon.title : topic.data.slug;
-              objTopic.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
-              const parent = this.locateNode("profile", obj.data.profile_id);
-              parent.childNodes.push(obj);
-              parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
-              this.setState({nodes}, this.handleNodeClick.bind(this, obj));
-            }
-            else {
-              console.log("profile error");
-            }
-          });
-        });
+      else {
+        console.log("topic error");
       }
-    }
+    });
   }
 
   confirmDelete(n) {
@@ -291,7 +230,8 @@ class ProfileBuilder extends Component {
             iconName: topicIcons[topicData.type] || "help",
             label: this.decode(stripHTML(title)),
             itemType: "topic",
-            masterSlug: parent.masterSlug,
+            masterPid: parent.masterPid,
+            masterMeta: parent.masterMeta,
             data: topicData
           };
         });
@@ -328,19 +268,29 @@ class ProfileBuilder extends Component {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
     if (this.props.setPath) this.props.setPath(node);
-    // If the slugs match, the master profile is the same, so keep the same preview
-    if (this.state.currentSlug === node.masterSlug) {
+    // If the pids match, the master profile is the same, so keep the same preview
+    if (this.state.currentPid === node.masterPid) {
       this.setState({currentNode: node});
     }
-    // If they don't match, update the currentSlug and reset the preview
+    // If they don't match, update the currentPid and reset the preview
     else {
       // An empty search string will automatically provide the highest z-index results.
       // Use this to auto-populate the preview when the user changes profiles.
-      const levels = node.masterLevels ? node.masterLevels.join() : false;
-      const levelString = levels ? `&levels=${levels}` : "";
-      axios.get(`/api/search?q=&dimension=${node.masterDimension}${levelString}`).then(resp => {
-        const preview = resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "";
-        this.setState({currentNode: node, currentSlug: node.masterSlug, preview});
+      const requests = node.masterMeta.map(meta => {
+        const levels = meta.levels ? meta.levels.join() : false;
+        const levelString = levels ? `&levels=${levels}` : "";
+        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
+        return axios.get(url);
+      });
+      const previews = [];
+      Promise.all(requests).then(resps => {
+        resps.forEach((resp, i) => {
+          previews.push({
+            slug: node.masterMeta[i].slug,
+            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+          });
+        });
+        this.setState({currentNode: node, currentPid: node.masterPid, previews});
       });
     }
   }
@@ -358,20 +308,17 @@ class ProfileBuilder extends Component {
   /**
    *
    */
-  locateProfileNodeBySlug(slug) {
-    return this.state.nodes.find(p => p.data.slug === slug);
+  locateProfileNodeByPid(pid) {
+    return this.state.nodes.find(p => p.data.id === pid);
   }
 
-  /**
-   * Called by the NewProfile Modal Popover. profileData contains special metadata that will need to be passed to
-   * a script that will populate the search table with the appropriate entities.
-   */
-  onCreateProfile(profileData) {
-    profileData.ordering = this.state.nodes.length;
+  createProfile() {
+    const profileData = {
+      ordering: this.state.nodes.length
+    };
     axios.post("/api/cms/profile/newScaffold", profileData).then(resp => {
       const profiles = resp.data;
-      const profileModalOpen = false;
-      this.setState({profiles, profileModalOpen}, this.buildNodes.bind(this));
+      this.setState({profiles}, this.buildNodes.bind(this));
     });
   }
 
@@ -394,60 +341,106 @@ class ProfileBuilder extends Component {
   }
 
   /**
-   * If a save occurred in one of the editors, the user may have changed the slug/title. This callback is responsible for
-   * updating the tree labels accordingly. If the user has changed a slug, the "masterSlug" reference that ALL children
-   * of a profile use must be recursively updated as well.
+   * If a save occurred in the TopicEditor, the user may have changed the slug/title. This callback is responsible for
+   * updating the tree labels accordingly.
    */
-  reportSave(type, id, newValue) {
+  reportSave(id, newValue) {
     const {nodes} = this.state;
-    const {variablesHash, currentSlug} = this.state;
+    const {variablesHash, currentPid} = this.state;
     const {localeDefault} = this.props;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
-    const node = this.locateNode.bind(this)(type, id);
-    // Update the label based on the new value. If this is a topic, this is the only thing needed
-    if (type === "topic" && node) {
+    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
+    const node = this.locateNode.bind(this)("topic", id);
+    // Update the label based on the new value.
+    if (node) {
       const defCon = node.data.content.find(c => c.lang === localeDefault);
       if (defCon) defCon.title = newValue;
       // todo: determine if this could be merged with formatTreeVariables
       node.label = varSwap(this.decode(stripHTML(newValue)), formatters, variables);
     }
-    // However, if this is a profile changing its slug, then all children must be informed so their masterSlug is up to date.
-    if (type === "profile") {
-      node.masterSlug = newValue;
-      node.data.slug = newValue;
-      node.label = newValue;
-      node.childNodes = node.childNodes.map(t => {
-        t.masterSlug = newValue;
-        return t;
-      });
-    }
     this.setState({nodes});
+  }
+
+  onAddDimension(data) {
+    const {currentPid, currentNode} = this.state;
+    const ordering = currentNode.masterMeta.length;
+    const payload = Object.assign({}, data, {profile_id: currentPid, ordering});
+    axios.post("/api/cms/profile/addDimension", payload).then(resp => {
+      const profiles = resp.data;
+      const thisProfile = profiles.find(p => p.id === currentPid);
+      const masterMeta = thisProfile.meta;
+      const requests = masterMeta.map(meta => {
+        const levels = meta.levels ? meta.levels.join() : false;
+        const levelString = levels ? `&levels=${levels}` : "";
+        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
+        return axios.get(url);
+      });
+      const previews = [];
+      Promise.all(requests).then(resps => {
+        resps.forEach((resp, i) => {
+          previews.push({
+            slug: masterMeta[i].slug,
+            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+          });
+        });
+        this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
+      });
+    });
+  }
+
+  onDeleteDimension(profiles) {
+    const {currentPid} = this.state;
+    const thisProfile = profiles.find(p => p.id === currentPid);
+    const masterMeta = thisProfile.meta;
+    const requests = masterMeta.map(meta => {
+      const levels = meta.levels ? meta.levels.join() : false;
+      const levelString = levels ? `&levels=${levels}` : "";
+      const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
+      return axios.get(url);
+    });
+    const previews = [];
+    Promise.all(requests).then(resps => {
+      resps.forEach((resp, i) => {
+        previews.push({
+          slug: masterMeta[i].slug,
+          id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+        });
+      });
+      this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
+    });
   }
 
   /*
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
-  onSelectPreview(preview) {
-    this.setState({preview: preview.id});
+  onSelectPreview(slug, id) {
+    const previews = this.state.previews.map(p => {
+      const newId = p.slug === slug ? id : p.id;
+      return {
+        id: newId,
+        slug: p.slug
+      };
+    });
+    this.setState({previews});
   }
 
   /*
-   * When the function "fetchVariables" is called (below), it means that something has
+   * When the "fetch Variables" function is called (below), it means that something has
    * happened in one of the editors that requires re-running the generators and storing
    * a new set of variables in the hash. When this happens, it is an opportunity to update
    * all the labels in the tree by varSwapping them, allowing them to appear properly
    * in the sidebar.
    */
   formatTreeVariables() {
-    const {variablesHash, currentSlug, nodes} = this.state;
+    const {variablesHash, currentPid, nodes} = this.state;
     const {localeDefault} = this.props;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
-    const p = this.locateProfileNodeBySlug(currentSlug);
-    p.label = varSwap(p.data.slug, formatters, variables);
+    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
+    const p = this.locateProfileNodeByPid(currentPid);
+    p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions";
+    // p.label = varSwap(p.data.slug, formatters, variables);
     p.childNodes = p.childNodes.map(t => {
       const defCon = t.data.content.find(c => c.lang === localeDefault);
       const title = defCon && defCon.title ? defCon.title : t.data.slug;
@@ -461,44 +454,45 @@ class ProfileBuilder extends Component {
    * Certain events in the Editors, such as saving a generator, can change the resulting
    * variables object. In order to ensure that this new variables object is passed down to
    * all the editors, each editor has a callback that accesses this function. We store the
-   * variables object in a hash that is keyed by the slug, so we don't re-run the get if
+   * variables object in a hash that is keyed by the profile id, so we don't re-run the get if
    * the variables are already there. However, we provide a "force" option, which editors
-   * can use to say "trust me, I've changed something, you need to re-get the variables get"
+   * can use to say "trust me, I've changed something, you need to re-do the variables get"
    */
-  fetchVariables(slug, id, force, callback) {
-    const {variablesHash} = this.state;
+  fetchVariables(force, callback) {
+    const {variablesHash, currentPid, previews} = this.state;
     const {locale, localeDefault} = this.props;
     const maybeCallback = () => {
       if (callback) callback();
       this.formatTreeVariables.bind(this)();
     };
-    if (force || !variablesHash[slug] || variablesHash[slug] && locale && !variablesHash[slug][locale]) {
-      if (id) {
-        axios.get(`/api/variables/${slug}/${id}?locale=${localeDefault}`).then(def => {
-          const defObj = {[localeDefault]: def.data};
-          if (!variablesHash[slug]) {
-            variablesHash[slug] = defObj;
-          }
-          else {
-            variablesHash[slug] = Object.assign(variablesHash[slug], defObj);
-          }
-          if (locale) {
-            axios.get(`/api/variables/${slug}/${id}?locale=${locale}`).then(loc => {
-              const locObj = {[locale]: loc.data};
-              variablesHash[slug] = Object.assign(variablesHash[slug], locObj);
-              this.setState({variablesHash}, maybeCallback);
-            });
-          }
-          else {
+    if (force || !variablesHash[currentPid] || variablesHash[currentPid] && locale && !variablesHash[currentPid][locale]) {
+      let url = `/api/variables/${currentPid}/?locale=${localeDefault}`;
+      previews.forEach((p, i) => {
+        url += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+      });
+      axios.get(url).then(def => {
+        const defObj = {[localeDefault]: def.data};
+        if (!variablesHash[currentPid]) {
+          variablesHash[currentPid] = defObj;
+        }
+        else {
+          variablesHash[currentPid] = Object.assign(variablesHash[currentPid], defObj);
+        }
+        if (locale) {
+          let lurl = `/api/variables/${currentPid}/?locale=${locale}`;
+          previews.forEach((p, i) => {
+            lurl += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+          });
+          axios.get(lurl).then(loc => {
+            const locObj = {[locale]: loc.data};
+            variablesHash[currentPid] = Object.assign(variablesHash[currentPid], locObj);
             this.setState({variablesHash}, maybeCallback);
-          }
-        });
-      }
-      else {
-        variablesHash[slug][localeDefault] = {_genStatus: {}, _matStatus: {}};
-        if (locale) variablesHash[slug][locale] = {_genStatus: {}, _matStatus: {}};
-        this.setState({variablesHash}, maybeCallback);
-      }
+          });
+        }
+        else {
+          this.setState({variablesHash}, maybeCallback);
+        }
+      });
     }
     else {
       this.setState({variablesHash}, maybeCallback);
@@ -507,26 +501,12 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode, variablesHash, currentSlug, preview, profileModalOpen, cubeData, nodeToDelete} = this.state;
+    const {nodes, currentNode, variablesHash, currentPid, previews, cubeData, nodeToDelete} = this.state;
     const {locale, localeDefault} = this.props;
 
-    if (!nodes) return <div>Loading</div>;
+    if (!nodes) return null;
 
-    const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
-
-    let profileSearch = "";
-    if (currentNode && currentSlug) {
-      profileSearch =
-        <div className="cms-profile-search bp3-label">
-          {preview ? `Current data ID: ${preview}` : "Preview profile"}
-          <Search
-            render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
-            dimension={currentNode.masterDimension}
-            levels={currentNode.masterLevels}
-            limit={20}
-          />
-        </div>;
-    }
+    const variables = variablesHash[currentPid] ? deepClone(variablesHash[currentPid]) : null;
 
     const editorTypes = {profile: ProfileEditor, topic: TopicEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
@@ -538,7 +518,7 @@ class ProfileBuilder extends Component {
 
           {/* new entity */}
           <button className="cms-button"
-            onClick={() => this.setState({profileModalOpen: true})}>
+            onClick={this.createProfile.bind(this)}>
               Add profile <span className="bp3-icon bp3-icon-plus" />
           </button>
 
@@ -550,15 +530,6 @@ class ProfileBuilder extends Component {
           />
 
         </div>
-        <Dialog
-          className="profileModal"
-          isOpen={profileModalOpen}
-          usePortal={false}
-          onClose={() => this.setState({profileModalOpen: false})}
-          title="Add New Profile"
-        >
-          <NewProfile cubeData={cubeData} onCreateProfile={this.onCreateProfile.bind(this)}/>
-        </Dialog>
         <Alert
           isOpen={nodeToDelete}
           cancelButtonText="Cancel"
@@ -577,12 +548,21 @@ class ProfileBuilder extends Component {
               locale={locale}
               localeDefault={localeDefault}
               masterSlug={currentNode.masterSlug}
-              preview={preview}
+              previews={previews}
               fetchVariables={this.fetchVariables.bind(this)}
               variables={variables}
               reportSave={this.reportSave.bind(this)}
             >
-              {profileSearch}
+              {currentNode &&
+                <DimensionBuilder
+                  cubeData={cubeData}
+                  meta={currentNode.masterMeta}
+                  previews={previews}
+                  onSelectPreview={this.onSelectPreview.bind(this)}
+                  onAddDimension={this.onAddDimension.bind(this)}
+                  onDeleteDimension={this.onDeleteDimension.bind(this)}
+                />
+              }
             </Editor>
             : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
           }

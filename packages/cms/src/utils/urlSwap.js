@@ -6,7 +6,7 @@ const env = {
 
 module.exports = function(url, params) {
 
-  const lookup = Object.assign(env, params);
+  const lookup = Object.assign({}, env, params);
 
   (url.match(/<[^\&\=\/>]+>/g) || []).forEach(variable => {
     let x = variable.slice(1, -1).split(".");
