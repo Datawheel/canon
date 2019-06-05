@@ -131,6 +131,9 @@ store.env = {
   NODE_ENV
 };
 
+const canonConfig = require(path.join(process.cwd(), "canon.js"));
+const reduxMiddleware = canonConfig.reduxMiddleware || false;
+
 Object.keys(process.env)
   .forEach(key => {
     if (key.startsWith("CANON_CONST_")) {
@@ -365,7 +368,7 @@ async function start() {
     app.use(helmet({frameguard: FRAMEGUARD === void 0 ? false : FRAMEGUARD}));
   }
 
-  app.get("*", App.default(store, headerConfig));
+  app.get("*", App.default(store, headerConfig, reduxMiddleware));
 
   app.listen(PORT);
 
