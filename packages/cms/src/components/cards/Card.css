@@ -1,0 +1,87 @@
+@import "../../css/mixins.css";
+
+/* individual cards */
+.cms-card {
+  /* layout */
+  display: inline-flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  /* sizing */
+  flex: 1 0 18rem;
+  min-width: 18rem;
+  width: 100%;
+  max-width: calc(100% - 2rem);
+  padding: 1rem;
+  /* positioning */
+  margin: 1rem;
+  /* theming */
+  background-color: var(--white);
+  box-shadow: 0 5px 1rem 0.25rem var(--light-2);
+  border-radius: 2px;
+
+  @mixin dark-mode {
+    background-color: var(--dark-3);
+    box-shadow: 0 5px 1rem 0.25rem var(--black);
+    border-radius: 2px;
+  }
+
+  /* keep content in front of reorder buttons */
+  & > *:not(.cms-reorder) {
+    z-index: 1;
+  }
+
+  & .cms-card-description {
+    font-size: 0.75em;
+    margin: 1rem 0 0 0;
+  }
+}
+
+
+/* card title & edit button */
+.cms-card-heading {
+  /* layout */
+  display: flex;
+  align-items: baseline;
+  /* alignment */
+  margin-top: -0.875em;
+  /* keep from breaking outside of container */
+  width: 100%;
+
+  /* truncate long card titles */
+  & > .cms-card-heading-text {
+    @mixin overflow-ellipsis;
+    max-width: calc(100% - 3.5rem);
+    margin: 0;
+  }
+
+
+  /* adjacent preview content */
+  & ~ *:not(.cms-reorder) {
+    @mixin font-xs; /* default font size */
+  }
+}
+
+/* heading button */
+.cms-card-heading-button {
+  /* sizing */
+  padding: 0.5em 1em;
+  min-width: 4rem;
+  /* positioning */
+  margin-left: auto; /* justify */
+  margin-right: -1em; /* offset padding */
+}
+
+/* individual stats */
+.cms-stat-card {
+  & p:not(:last-child) {
+    margin-bottom: 0.125em;
+  }
+  & .value {
+    font-size: 24px;
+  }
+}
+
+/* splash card */
+.cms-splash-card {
+  text-align: center;
+}

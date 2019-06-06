@@ -8,8 +8,9 @@ import Loading from "components/Loading";
 import Viz from "../Viz";
 import Button from "../Button";
 import FooterButtons from "../FooterButtons";
-import MoveButtons from "../MoveButtons";
+import ReorderButtons from "../ReorderButtons";
 import deepClone from "../../utils/deepClone";
+import CardWrapper from "./CardWrapper";
 import "./VisualizationCard.css";
 
 class VisualizationCard extends Component {
@@ -109,7 +110,7 @@ class VisualizationCard extends Component {
 
     if (!minData) return <Loading />;
 
-    const {selectors, type, variables, secondaryVariables, parentArray, item, previews, locale, secondaryLocale} = this.props;
+    const {selectors, type, variables, secondaryVariables, parentArray, item, previews, locale, onMove, secondaryLocale} = this.props;
     const formatters = this.context.formatters[locale];
 
     // TODO: add formatters toggle for secondaryLocale & secondaryVariables
@@ -125,36 +126,45 @@ class VisualizationCard extends Component {
     // Create the config object to pass to the viz, but replace its es6 logic with transpiled es5
     const config = Object.assign({}, minData, {logic});
 
-    return (
-      <div className="cms-card" style={{minHeight: `calc(${height}px + 2.25rem)`}}>
-        {/* title & edit toggle button */}
-        <h3 className="cms-card-header">
-          <span className="cms-card-header-text">
-            {config && config.logic_simple && config.logic_simple.data
-              ? `${
-                config.logic_simple.type}${
-                config.logic_simple.type && config.logic_simple.data && ": "}${
-                config.logic_simple.data}`
-              : config.simple || config.logic && config.logic === "return {}"
-                ? "No configuration defined"
-                : config.logic.replace("return ", "")
-            }
-          </span>
-          <Button onClick={this.openEditor.bind(this)} icon="cog" naked>
-            Edit
-          </Button>
-        </h3>
+    const cardProps = {
+      cardClass: "visualization",
+      style: {minHeight: `calc(${height}px + 2.25rem)`},
+      title: config && config.logic_simple && config.logic_simple.data
+        ? `${
+          config.logic_simple.type}${
+          config.logic_simple.type && config.logic_simple.data && ": "}${
+          config.logic_simple.data}`
+        : config.simple || config.logic && config.logic === "return {}"
+          ? "No configuration defined"
+          : config.logic.replace("return ", ""),
+      onEdit: this.openEditor.bind(this),
+      // reorder
+      reorderProps: parentArray ? {
+        array: parentArray,
+        item,
+        type
+      } : null,
+      onReorder: onMove ? onMove.bind(this) : null,
+      // alert
+      alertObj,
+      onAlertCancel: () => this.setState({alertObj: false})
+    };
 
-        {/* reorder buttons */}
-        { parentArray &&
-          <MoveButtons
-            item={item}
-            array={parentArray}
-            type={type}
-            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
+    return (
+      <CardWrapper {...cardProps}>
+
+        {/* viz preview */}
+        {!isOpen &&
+          <Viz
+            config={config}
+            locale={locale}
+            variables={variables}
+            configOverride={{height, scrollContainer: "#item-editor"}}
+            options={false}
           />
         }
 
+        {/* edit mode */}
         <Dialog
           className="generator-editor-dialog"
           isOpen={isOpen}
@@ -176,22 +186,7 @@ class VisualizationCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
-
-        { !isOpen ? <Viz config={config} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : null }
-      </div>
+      </CardWrapper>
     );
   }
 

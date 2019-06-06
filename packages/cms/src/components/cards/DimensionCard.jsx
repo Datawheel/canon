@@ -2,6 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import Search from "../Search/Search.jsx";
 import Button from "../../components/Button";
+import CardWrapper from "./CardWrapper";
 import "./DimensionCard.css";
 
 export default class DimensionCard extends Component {
@@ -40,8 +41,19 @@ export default class DimensionCard extends Component {
 
     if (!preview) return null;
 
+    // define props for CardWrapper
+    const cardProps = {
+      cardClass: "dimension",
+      title: meta.dimension
+      // onEdit: this.openEditor.bind(this),
+      // onReorder: this.props.onMove ? this.props.onMove.bind(this) : null,
+      // // alert
+      // alertObj: this.state.alertObj,
+      // onAlertCancel: () => this.setState({alertObj: false})
+    };
+
     return (
-      <div className="cms-card cms-dimension-card">
+      <CardWrapper {...cardProps}>
         <table className="cms-dimension-card-table font-xs">
           <tbody>
             <tr className="cms-dimension-card-table-row">
@@ -85,7 +97,7 @@ export default class DimensionCard extends Component {
             {rebuilding ? "Rebuilding..." : "Rebuild"}
           </Button>
         </div>
-      </div>
+      </CardWrapper>
     );
   }
 

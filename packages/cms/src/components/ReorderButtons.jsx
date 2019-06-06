@@ -1,8 +1,9 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Button from "./Button";
+import "./ReorderButtons.css";
 
-class MoveButtons extends Component {
+class ReorderButtons extends Component {
 
   constructor(props) {
     super(props);
@@ -71,7 +72,7 @@ class MoveButtons extends Component {
     if (!item || !array) return null;
 
     return (
-      <div className="cms-reorder" id="move-buttons">
+      <div className="cms-reorder">
         {item.ordering > 0 &&
           <Button
             onClick={() => this.move("left")}
@@ -97,4 +98,4 @@ class MoveButtons extends Component {
   }
 }
 
-export default MoveButtons;
+export default ReorderButtons;

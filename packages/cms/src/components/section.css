@@ -27,14 +27,50 @@
   }
 }
 
+/* descriptions */
+.cms-section-description {
+  top: 0.5em; /* adjust spacing */
+  @mixin description-color; /* theming */
+}
+
 /* other add button */
 .cms-section-big-button {
   margin-top: 1em;
   margin-bottom: 1em;
 }
 
-/* descriptions */
-.cms-section-description {
-  top: 0.5em; /* adjust spacing */
-  @mixin description-color; /* theming */
+
+/* ------------------------------------- */
+/* section card layout */
+/* ------------------------------------- */
+/* TODO: redo/rethink */
+
+.cms-card-container {
+  display: flex;
+
+  /* awkward locale double list */
+  & .cms-card-list + .cms-card-list {
+    margin-left: 2rem;
+  }
+
+  @media (max-width: 980px) {
+    flex-wrap: wrap;
+
+    & .cms-card-list + .cms-card-list {
+      margin-left: -1rem;
+    }
+  }
+}
+
+/* card layout */
+.cms-card-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -1rem;
+  width: calc(50% - 2rem);
+  flex-basis: calc(100% + 2rem); /* needed because reasons */
+
+  &:only-child {
+    width: calc(100% + 2rem);
+  }
 }

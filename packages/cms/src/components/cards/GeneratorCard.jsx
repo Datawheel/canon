@@ -5,13 +5,14 @@ import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
 import Button from "../Button";
-import MoveButtons from "../MoveButtons";
+import ReorderButtons from "../ReorderButtons";
 import deepClone from "../../utils/deepClone";
 import LocaleName from "./LocaleName";
 import VarTable from "../VarTable";
+import ConsoleVariable from "../ConsoleVariable";
+import CardWrapper from "./CardWrapper";
 import "./GeneratorCard.css";
 
-import ConsoleVariable from "../ConsoleVariable";
 
 class GeneratorCard extends Component {
 
@@ -132,7 +133,7 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {attr, context, type, variables, item, parentArray, previews, locale, secondaryLocale} = this.props;
+    const {attr, context, type, variables, item, onMove, parentArray, previews, locale, secondaryLocale} = this.props;
     const {displayData, secondaryDisplayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
@@ -144,104 +145,88 @@ class GeneratorCard extends Component {
       }
     }
 
+    // define initial/loading props for CardWrapper
+    const cardProps = {
+      cardClass: context,
+      secondaryLocale,
+      title: "•••" // placeholder
+    };
+
+    // add additional props once the data is available
+    if (minData && variables) {
+      Object.assign(cardProps, {
+        title: minData.name, // overwrites placeholder
+        onEdit: this.openEditor.bind(this),
+        // reorder
+        reorderProps: parentArray ? {
+          array: parentArray,
+          item,
+          type
+        } : null,
+        onReorder: onMove ? onMove.bind(this) : null,
+        // alert
+        alertObj,
+        onAlertCancel: () => this.setState({alertObj: false})
+      });
+    }
+
     return (
-      <div className={`cms-card cms-${ context }-card ${ secondaryLocale ? "is-wide" : "" }`}>
+      <CardWrapper {...cardProps}>
 
-        {!minData || !variables
-          // loading
-          ? <h3 className="cms-card-header">•••</h3>
-
-          // loaded
-          : <React.Fragment>
-            {/* title & edit toggle button */}
-            <h3 className="cms-card-header">
-              {minData.name}
-
-              <Button onClick={this.openEditor.bind(this)} icon="cog" naked>
-                Edit
-              </Button>
-            </h3>
-
-            {showDesc &&
-              <p className="cms-card-description">{description}</p>
-            }
-
-            {/* show variables, but not for formatter cards */}
-            {context !== "formatter" &&
-              <div className="cms-card-locale-group">
-                <div className="cms-card-locale-container">
-                  {secondaryLocale &&
-                    <h4 className="cms-card-locale">
-                      <LocaleName>{locale}</LocaleName>
-                    </h4>
-                  }
-                  <VarTable dataset={displayData} />
-                </div>
-
-                {secondaryLocale &&
-                  <div className="cms-card-locale-container">
-                    <h4 className="cms-card-locale">
-                      <LocaleName>{secondaryLocale}</LocaleName>
-                    </h4>
-                    <VarTable dataset={secondaryDisplayData} />
-                  </div>
-                }
-              </div>
-            }
-
-            {/* reorder buttons */}
-            {parentArray &&
-              <MoveButtons
-                item={item}
-                array={parentArray}
-                type={type}
-                onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
-              />
-            }
-
-            {/* are you suuuuuuuuuuuuuure */}
-            <Alert
-              cancelButtonText="Cancel"
-              confirmButtonText={alertObj.confirm}
-              className="cms-confirm-alert"
-              iconName="bp3-icon-warning-sign"
-              intent={Intent.DANGER}
-              isOpen={alertObj}
-              onConfirm={alertObj.callback}
-              onCancel={() => this.setState({alertObj: false})}
-            >
-              {alertObj.message}
-            </Alert>
-
-            {/* open state */}
-            <Dialog
-              className="generator-editor-dialog"
-              isOpen={isOpen}
-              onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-              title="Variable Editor"
-              usePortal={false}
-              icon={false}
-            >
-
-              <div className="bp3-dialog-body">
-                <GeneratorEditor
-                  markAsDirty={this.markAsDirty.bind(this)}
-                  previews={previews}
-                  attr={attr}
-                  locale={locale}
-                  data={minData}
-                  variables={variables}
-                  type={type}
-                />
-              </div>
-              <FooterButtons
-                onDelete={this.maybeDelete.bind(this)}
-                onSave={this.save.bind(this)}
-              />
-            </Dialog>
-          </React.Fragment>
+        {showDesc &&
+          <p className="cms-card-description">{description}</p>
         }
-      </div>
+
+        {/* show variables, but not for formatter cards */}
+        {context !== "formatter" &&
+          <div className="cms-card-locale-group">
+            <div className="cms-card-locale-container">
+              {secondaryLocale &&
+                <h4 className="cms-card-locale">
+                  <LocaleName>{locale}</LocaleName>
+                </h4>
+              }
+              <VarTable dataset={displayData} />
+            </div>
+
+            {secondaryLocale &&
+              <div className="cms-card-locale-container">
+                <h4 className="cms-card-locale">
+                  <LocaleName>{secondaryLocale}</LocaleName>
+                </h4>
+                <VarTable dataset={secondaryDisplayData} />
+              </div>
+            }
+          </div>
+        }
+
+        {/* open state */}
+        <Dialog
+          className="generator-editor-dialog"
+          isOpen={isOpen}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
+          title="Variable Editor"
+          usePortal={false}
+          icon={false}
+        >
+
+          <div className="bp3-dialog-body">
+            <GeneratorEditor
+              markAsDirty={this.markAsDirty.bind(this)}
+              previews={previews}
+              attr={attr}
+              locale={locale}
+              data={minData}
+              variables={variables}
+              type={type}
+            />
+          </div>
+          <FooterButtons
+            onDelete={this.maybeDelete.bind(this)}
+            onSave={this.save.bind(this)}
+          />
+        </Dialog>
+      </CardWrapper>
     );
   }
 }

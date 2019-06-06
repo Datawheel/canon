@@ -1,14 +1,14 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {Dialog, Alert, Intent} from "@blueprintjs/core";
-import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
-import MoveButtons from "../MoveButtons";
+import ReorderButtons from "../ReorderButtons";
 import Button from "../Button";
 import SelectorEditor from "../editors/SelectorEditor";
 import PropTypes from "prop-types";
 import deepClone from "../../utils/deepClone";
 import varSwap from "../../utils/varSwap";
+import CardWrapper from "./CardWrapper";
 import "./SelectorCard.css";
 
 /**
@@ -112,24 +112,39 @@ class SelectorCard extends Component {
 
   render() {
     const {minData, isOpen, alertObj} = this.state;
-    const {variables, parentArray, type, locale} = this.props;
+    const {locale, onMove, parentArray, type, variables} = this.props;
     const formatters = this.context.formatters[locale];
 
+    // define initial card props
+    const cardProps = {
+      cardClass: "selector",
+      title: "•••"
+    };
+
+    // fill in real card props
+    if (minData) {
+      Object.assign(cardProps, {
+        title: varSwap(minData.title, formatters, variables),
+        onEdit: this.openEditor.bind(this),
+        // reorder
+        reorderProps: parentArray ? {
+          item: minData,
+          array: parentArray,
+          type
+        } : null,
+        onReorder: onMove ? onMove.bind(this) : null,
+        // alert
+        alertObj,
+        onAlertCancel: () => this.setState({alertObj: false})
+      });
+    }
+
     return (
-      <div className="cms-card">
+      <CardWrapper {...cardProps}>
 
-        {/* title & edit toggle button */}
-        {!minData
-          ? <h3 className="cms-card-header">•••</h3>
-          : <React.Fragment>
-            <h3 className="cms-card-header">
-              {varSwap(minData.title, formatters, variables)}
-
-              <Button onClick={this.openEditor.bind(this)} icon="cog" naked>
-                Edit
-              </Button>
-            </h3>
-
+        {minData &&
+          <React.Fragment>
+            {/* content preview */}
             <p>{minData.name === "newselector" ? "New selector" : minData.name}</p>
 
             <ul>
@@ -138,29 +153,7 @@ class SelectorCard extends Component {
               )}
             </ul>
 
-            {/* reorder buttons */}
-            { parentArray &&
-              <MoveButtons
-                item={minData}
-                array={parentArray}
-                type={type}
-                onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
-              />
-            }
-
-            <Alert
-              cancelButtonText="Cancel"
-              confirmButtonText={alertObj.confirm}
-              className="cms-confirm-alert"
-              iconName="bp3-icon-warning-sign"
-              intent={Intent.DANGER}
-              isOpen={alertObj}
-              onConfirm={alertObj.callback}
-              onCancel={() => this.setState({alertObj: false})}
-            >
-              {alertObj.message}
-            </Alert>
-
+            {/* edit mode */}
             <Dialog
               className="generator-editor-dialog"
               isOpen={isOpen}
@@ -183,7 +176,7 @@ class SelectorCard extends Component {
             </Dialog>
           </React.Fragment>
         }
-      </div>
+      </CardWrapper>
     );
   }
 
