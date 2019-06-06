@@ -37,25 +37,23 @@ module.exports = function(app) {
       where
     });
 
-    // TODO bivariate: re-enable this slug lookup
-
-    // const dimensions = Array.from(new Set(rows.map(d => d.dimension)));
-
-    /*
-    profiles = await db.profile.findAll({include: {association: "meta"}});
+    /**
+     * Note: The purpose of this slugs lookup object is so that in traditional, 1:1 cms sites,
+     * We can translate a Dimension found in search results (like "Geography") into a slug 
+     * (like "geo"). This is then passed along in the search result under the key "profile"
+     * so that the search bar (in DataUSA, for example) can create a link out of it like
+     * /profile/geo/Massachusetts. However, This will be insufficient for bivariate profiles, where
+     * there will no longer be ONE single profile to which a search result pertains - a search
+     * for "mass" could apply to both a geo and a geo_jobs (or wherever a geo Dimension is invoked)
+     * Longer term, the "results" row below may need some new keys to more accurately depict the 
+     * profiles to which each particular result may apply.
+     */
+    let meta = await db.profile_meta.findAll();
+    meta = meta.map(m => m.toJSON());
     const slugs = {};
-    profiles.forEach(p => {
-      if (!slugs[p.meta.dimension]) {
-        slugs[p.meta.dimension] = [p]
-      }
-    })
-    profiles = profiles.filter(p => p.meta.map(d => d.dimension).includes
-    */
-
-    /*
-    const slugs = await db.profile.findAll({where: {dimension: dimensions}})
-      .reduce((obj, d) => (obj[d.dimension] = d.slug, obj), {});
-    */
+    meta.forEach(m => {
+      if (!slugs[m.dimension]) slugs[m.dimension] = m.slug;
+    });
 
     const results = rows.map(d => ({
       dimension: d.dimension,
@@ -64,7 +62,7 @@ module.exports = function(app) {
       image: d.image,
       keywords: d.keywords,
       name: d.display,
-      // profile: slugs[d.dimension],
+      profile: slugs[d.dimension],
       slug: d.slug,
       stem: d.stem === 1
     }));
