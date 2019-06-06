@@ -102,10 +102,13 @@ const migrate = async() => {
     // initiate the topic ordering head counter
     let nextTopicLoc = 0;
     // make the top-level profile itself
-    const {slug, ordering, dimension} = oldprofile;
+    // slug, dimension
+    const {dimension, ordering, slug} = oldprofile;
     const levels = [];
-    let newprofile = await dbnew.profile.create({slug, ordering, dimension, levels}).catch(catcher);
+    let newprofile = await dbnew.profile.create({ordering}).catch(catcher);
     newprofile = newprofile.toJSON();
+    // create its associated meta content
+    await dbnew.profile_meta.create({profile_id: newprofile.id, slug, dimension, levels});
     // create its associated english language content
     const {title, subtitle, label} = oldprofile;
     await dbnew.profile_content.create({id: newprofile.id, lang: "en", title, subtitle, label}).catch(catcher);
@@ -133,7 +136,8 @@ const migrate = async() => {
       for (const entity of oldprofile[list]) {
         // migrate the array of profile entities to the new "profiletopic"
         const {ordering, allowed, logic} = entity;
-        let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: profiletopic.id, ordering, allowed, logic}).catch(catcher);
+        const simple = entity.simple || false;
+        let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: profiletopic.id, ordering, allowed, logic, simple}).catch(catcher);
         newTopicEntity = newTopicEntity.toJSON();
         // create associated english content
         const {description, title, subtitle, value, tooltip} = entity;
@@ -177,7 +181,8 @@ const migrate = async() => {
         for (const list of ["descriptions", "stats", "subtitles", "visualizations", "selectors"]) {
           for (const entity of oldtopic[list]) {
             const {ordering, allowed, logic, options, name, type} = entity;
-            let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: newtopic.id, ordering, allowed, logic, options, name, type, default: entity.default}).catch(catcher);
+            const simple = entity.simple || false;
+            let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: newtopic.id, ordering, allowed, logic, options, name, type, default: entity.default, simple}).catch(catcher);
             newTopicEntity = newTopicEntity.toJSON();     
             // create associated english content
             const {description, title, subtitle, value, tooltip} = entity;
