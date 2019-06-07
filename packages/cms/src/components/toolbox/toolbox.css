@@ -1,0 +1,26 @@
+.cms-panel:not(:last-child) {
+  width: calc(100% - var(--toolbox-width));
+  max-width: calc(100% - var(--toolbox-width));
+}
+
+/* TODO: dark theme */
+.cms .cms-toolbox {
+  /* sizing */
+  display: block;
+  position: absolute;
+  width: var(--toolbox-width);
+  height: 100%;
+  /* positioning */
+  top: var(--nav-height);
+  right: 0;
+  bottom: 0;
+  left: auto;
+  margin-top: var(--cms-nav-height);
+  /* layout */
+  padding: 1rem;
+  /* theming */
+  background-color: var(--light-2);
+  & .card {
+    max-width: 100%;
+  }
+}

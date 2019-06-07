@@ -9,6 +9,7 @@ import DimensionBuilder from "../profile/DimensionBuilder";
 import CtxMenu from "../components/CtxMenu";
 import Button from "../components/Button";
 import SidebarTree from "../components/SidebarTree";
+import Toolbox from "../components/toolbox/Toolbox";
 
 import varSwap from "../utils/varSwap";
 
@@ -524,61 +525,70 @@ class ProfileBuilder extends Component {
 
     return (
 
-      <div className="cms-panel profile-panel" id="profile-builder">
-        <div className="cms-sidebar" id="tree">
+      <React.Fragment>
+        <div className="cms-panel profile-panel" id="profile-builder">
+          <div className="cms-sidebar" id="tree">
 
-          {/* new entity */}
-          <Button onClick={this.createProfile.bind(this)} icon="plus" iconPosition="right" ghost>
-            Add profile
-          </Button>
+            {/* new entity */}
+            <Button onClick={this.createProfile.bind(this)} icon="plus" iconPosition="right" ghost>
+              Add profile
+            </Button>
 
-          <SidebarTree
-            onNodeClick={this.handleNodeClick.bind(this)}
-            onNodeCollapse={this.handleNodeCollapse.bind(this)}
-            onNodeExpand={this.handleNodeExpand.bind(this)}
-            contents={nodes}
-          />
+            <SidebarTree
+              onNodeClick={this.handleNodeClick.bind(this)}
+              onNodeCollapse={this.handleNodeCollapse.bind(this)}
+              onNodeExpand={this.handleNodeExpand.bind(this)}
+              contents={nodes}
+            />
 
+          </div>
+          <Alert
+            isOpen={nodeToDelete}
+            cancelButtonText="Cancel"
+            confirmButtonText="Delete"
+            iconName="trash"
+            intent={Intent.DANGER}
+            onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
+            onCancel={() => this.setState({nodeToDelete: false})}
+          >
+            {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
+          </Alert>
+          <div className="cms-editor" id="item-editor">
+            { currentNode
+              ? <Editor
+                id={currentNode.data.id}
+                locale={locale}
+                localeDefault={localeDefault}
+                previews={previews}
+                fetchVariables={this.fetchVariables.bind(this)}
+                variables={variables}
+                reportSave={this.reportSave.bind(this)}
+              >
+                {currentNode &&
+                  <DimensionBuilder
+                    cubeData={cubeData}
+                    meta={currentNode.masterMeta}
+                    previews={previews}
+                    onSelectPreview={this.onSelectPreview.bind(this)}
+                    onAddDimension={this.onAddDimension.bind(this)}
+                    onDeleteDimension={this.onDeleteDimension.bind(this)}
+                  />
+                }
+              </Editor>
+              : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
+            }
+          </div>
         </div>
-        <Alert
-          isOpen={nodeToDelete}
-          cancelButtonText="Cancel"
-          confirmButtonText="Delete"
-          iconName="trash"
-          intent={Intent.DANGER}
-          onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
-          onCancel={() => this.setState({nodeToDelete: false})}
-        >
-          {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
-        </Alert>
-        <div className="cms-editor" id="item-editor">
-          { currentNode
-            ? <Editor
-              id={currentNode.data.id}
-              locale={locale}
-              localeDefault={localeDefault}
-              masterSlug={currentNode.masterSlug}
-              previews={previews}
-              fetchVariables={this.fetchVariables.bind(this)}
-              variables={variables}
-              reportSave={this.reportSave.bind(this)}
-            >
-              {currentNode &&
-                <DimensionBuilder
-                  cubeData={cubeData}
-                  meta={currentNode.masterMeta}
-                  previews={previews}
-                  onSelectPreview={this.onSelectPreview.bind(this)}
-                  onAddDimension={this.onAddDimension.bind(this)}
-                  onDeleteDimension={this.onDeleteDimension.bind(this)}
-                />
-              }
-            </Editor>
-            : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
-          }
-        </div>
+        <Toolbox 
+          id={currentPid}
+          variables={variables} 
+          locale={locale}
+          localeDefault={localeDefault}
+          fetchVariables={this.fetchVariables.bind(this)}
+          previews={previews}
+        />
+      </React.Fragment>
 
-      </div>
     );
   }
 }

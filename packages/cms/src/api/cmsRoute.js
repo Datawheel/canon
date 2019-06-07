@@ -84,6 +84,15 @@ const profileReqProfileOnly = {
   ]
 };
 
+const profileReqToolbox = {
+  include: [
+    {association: "meta"},
+    {association: "content"},
+    {association: "generators", attributes: ["id", "name"]},
+    {association: "materializers", attributes: ["id", "name", "ordering"]}
+  ]
+};
+
 const storyReqStoryOnly = {
   include: [
     {association: "content"},
@@ -321,6 +330,15 @@ module.exports = function(app) {
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     return res.json(profiles);
+  });
+
+  app.get("/api/cms/toolbox/:id", async(req, res) => {
+    const {id} = req.params;
+    const reqObj = Object.assign({}, profileReqToolbox, {where: {id}});
+    let profile = await db.profile.findOne(reqObj).catch(catcher);
+    profile = profile.toJSON();
+    profile.formatters = await db.formatter.findAll(formatterReqTreeOnly);
+    res.json(profile);
   });
 
   app.get("/api/cms/storytree", async(req, res) => {
