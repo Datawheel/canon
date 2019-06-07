@@ -4,3 +4,4 @@ cache/
 db/
 locales/
 static/
+.envrc

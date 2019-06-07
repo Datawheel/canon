@@ -1,18 +1,13 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog, Alert, Intent} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
-import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
-import Button from "../Button";
-import ReorderButtons from "../ReorderButtons";
 import deepClone from "../../utils/deepClone";
 import LocaleName from "./LocaleName";
 import VarTable from "../VarTable";
-import ConsoleVariable from "../ConsoleVariable";
 import CardWrapper from "./CardWrapper";
 import "./GeneratorCard.css";
-
 
 class GeneratorCard extends Component {
 

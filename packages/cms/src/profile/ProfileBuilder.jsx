@@ -400,6 +400,28 @@ class ProfileBuilder extends Component {
     });
   }
 
+  onDeleteDimension(profiles) {
+    const {currentPid} = this.state;
+    const thisProfile = profiles.find(p => p.id === currentPid);
+    const masterMeta = thisProfile.meta;
+    const requests = masterMeta.map(meta => {
+      const levels = meta.levels ? meta.levels.join() : false;
+      const levelString = levels ? `&levels=${levels}` : "";
+      const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
+      return axios.get(url);
+    });
+    const previews = [];
+    Promise.all(requests).then(resps => {
+      resps.forEach((resp, i) => {
+        previews.push({
+          slug: masterMeta[i].slug,
+          id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+        });
+      });
+      this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
+    });
+  }
+
   /*
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
@@ -548,6 +570,7 @@ class ProfileBuilder extends Component {
                   previews={previews}
                   onSelectPreview={this.onSelectPreview.bind(this)}
                   onAddDimension={this.onAddDimension.bind(this)}
+                  onDeleteDimension={this.onDeleteDimension.bind(this)}
                 />
               }
             </Editor>

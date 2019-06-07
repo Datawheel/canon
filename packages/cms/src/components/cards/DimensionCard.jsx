@@ -10,7 +10,8 @@ export default class DimensionCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      rebuilding: false
+      rebuilding: false,
+      alertObj: false
     };
   }
 
@@ -35,21 +36,42 @@ export default class DimensionCard extends Component {
     });
   }
 
+  maybeDelete() {
+    const alertObj = {
+      callback: this.delete.bind(this),
+      message: "Are you sure you want to delete this Dimension?",
+      confirm: "Delete"
+    };
+    this.setState({alertObj});
+  }
+
+  delete() {
+    const {meta} = this.props;
+    const {id} = meta;
+    axios.delete("/api/cms/profile_meta/delete", {params: {id}}).then(resp => {
+      if (resp.status === 200) {
+        this.setState({alertObj: false});
+        const profiles = resp.data;
+        if (this.props.onDeleteDimension) this.props.onDeleteDimension(profiles);
+      }
+    });
+  }
+
   render() {
     const {meta, preview} = this.props;
-    const {rebuilding} = this.state;
+    const {rebuilding, alertObj} = this.state;
 
     if (!preview) return null;
 
     // define props for CardWrapper
     const cardProps = {
       cardClass: "dimension",
-      title: meta.dimension
+      title: meta.dimension,
       // onEdit: this.openEditor.bind(this),
       // onReorder: this.props.onMove ? this.props.onMove.bind(this) : null,
-      // // alert
-      // alertObj: this.state.alertObj,
-      // onAlertCancel: () => this.setState({alertObj: false})
+      // alert
+      alertObj,
+      onAlertCancel: () => this.setState({alertObj: false})
     };
 
     return (
@@ -84,7 +106,7 @@ export default class DimensionCard extends Component {
           </tbody>
         </table>
         <div className="dimension-card-controls">
-          <div>
+          <div>{/* <label> causes dropdown to stay open; TODO: revisit */}
             Preview profile
             <Search
               render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
@@ -95,6 +117,9 @@ export default class DimensionCard extends Component {
           </div>
           <Button disabled={rebuilding} onClick={this.rebuildSearch.bind(this)} ghost>
             {rebuilding ? "Rebuilding..." : "Rebuild"}
+          </Button>
+          <Button disabled={rebuilding} onClick={this.maybeDelete.bind(this)} ghost>
+            Delete
           </Button>
         </div>
       </CardWrapper>

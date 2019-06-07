@@ -26,6 +26,11 @@ export default class DimensionBuilder extends Component {
     this.setState({isOpen: false});
   }
 
+  onDeleteDimension(profiles) {
+    if (this.props.onDeleteDimension) this.props.onDeleteDimension(profiles);
+    this.setState({isOpen: false});
+  }
+
   render() {
     const {meta, previews} = this.props;
     const {isOpen} = this.state;
@@ -42,6 +47,7 @@ export default class DimensionBuilder extends Component {
               meta={meta[i]}
               preview={previews[i]}
               onSelectPreview={this.onSelectPreview.bind(this)}
+              onDeleteDimension={this.onDeleteDimension.bind(this)}
             />
           )}
         />

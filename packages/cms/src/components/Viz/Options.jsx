@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import {animateScroll} from "react-scroll";
+import PropTypes from "prop-types";
 import "./Options.css";
 
 import {select} from "d3-selection";
@@ -191,7 +192,12 @@ class Options extends Component {
   render() {
 
     const {backgroundColor, imageContext, imageProcessing, includeSlug, openDialog, results, title} = this.state;
-    const {data, location, slug, t, transitionDuration} = this.props;
+    const {data, slug, t, transitionDuration} = this.props;
+
+    // construct URL from a combination of redux & context (#537)
+    const domain = this.props.location.origin;
+    const path = this.context.router.location.pathname;
+    const shareURL = `${domain}/${path}`;
 
     const node = this.getNode();
     const svgAvailable = node && select(node).select(".d3plus-viz").size() > 0;
@@ -229,7 +235,7 @@ class Options extends Component {
     };
 
     const dataUrl = typeof data === "string"
-      ? data.indexOf("http") === 0 ? data : `${location.origin}${data}`
+      ? data.indexOf("http") === 0 ? data : `${ domain }${ data }`
       : false;
 
     const DataPanel = () => results
@@ -260,7 +266,7 @@ class Options extends Component {
         <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
       </div>;
 
-    const shareLink = `${ location.href }${ includeSlug && slug ? `#${slug}` : "" }`;
+    const shareLink = `${ shareURL }${ includeSlug && slug ? `#${slug}` : "" }`;
 
     const SharePanel = () =>
       <div className="bp3-dialog-body share-dialog">
@@ -323,6 +329,9 @@ class Options extends Component {
 
 Options.defaultProps = {
   transitionDuration: 100
+};
+Options.contextTypes = {
+  router: PropTypes.object
 };
 
 export default withNamespaces()(connect(state => ({

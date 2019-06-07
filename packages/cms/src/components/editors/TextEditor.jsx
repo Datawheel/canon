@@ -29,8 +29,13 @@ class TextEditor extends Component {
     const {data, isDirty} = this.state;
     const {locale} = this.props;
     const thisLocale = data.content.find(c => c.lang === locale);
+    // When an editor loads a raw string from the DB (like "new title") then the first
+    // thing it does is surround it in p tags, which counts as an "edit" and marks the 
+    // editor as dirty. Don't mark dirty in this case.
+    const isFirstLoad = t === `<p>${thisLocale[field]}</p>`;
+    const isSame = t === thisLocale[field];
     thisLocale[field] = t;
-    if (!isDirty) {
+    if (!isDirty && !isFirstLoad && !isSame) {
       if (this.props.markAsDirty) this.props.markAsDirty();
       this.setState({isDirty: true, data});
     }

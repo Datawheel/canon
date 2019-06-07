@@ -1,4 +1,5 @@
-const {Client} = require("mondrian-rest-client");
+const MondrianClient = require("mondrian-rest-client").Client;
+const TesseractClient = require("@datawheel/tesseract-client").Client;
 const collate = require("../utils/collate");
 const d3Array = require("d3-array");
 const sequelize = require("sequelize");
@@ -7,9 +8,29 @@ const yn = require("yn");
 const path = require("path");
 const Op = sequelize.Op;
 
-const client = new Client(process.env.CANON_LOGICLAYER_CUBE);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+
+const {CANON_CMS_CUBES} = process.env;
+
+let isTesseract = false;
+let client = new TesseractClient(CANON_CMS_CUBES);
+client.checkStatus().then(resp => {
+  if (resp && resp.status === "ok") {
+    isTesseract = true;
+    if (verbose) console.log(`Initializing Tesseract at ${CANON_CMS_CUBES}`);
+  }
+  else {
+    if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
+    client = new MondrianClient(CANON_CMS_CUBES);  
+  }
+}, e => {
+  // On tesseract status failure, assume mondrian.
+  if (verbose) console.error(`Tesseract Failed to connect with error: ${e}`);
+  if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
+  client = new MondrianClient(CANON_CMS_CUBES);  
+}
+);
 
 const topicTypeDir = path.join(__dirname, "../components/topics/");
 
@@ -197,7 +218,7 @@ const formatter = (members, data, dimension, level) => {
     const obj = {};
     obj.id = `${d.key}`;
     obj.name = d.name;
-    obj.display = d.caption;
+    obj.display = d.caption || d.name;
     obj.zvalue = data[obj.id] || 0;
     obj.dimension = dimension;
     obj.hierarchy = level;
@@ -212,8 +233,8 @@ const formatter = (members, data, dimension, level) => {
 };
 
 const pruneSearch = async(dimension, levels, db) => {
-  const currentProfiles = await db.profile.findAll().catch(catcher);
-  const currentDimensions = currentProfiles.map(p => p.dimension);
+  const currentMeta = await db.profile_meta.findAll().catch(catcher);
+  const currentDimensions = currentMeta.map(m => m.dimension);
   // To be on the safe side, only clear the search table of dimensions that NO remaining
   // profiles are currently making use of.
   // Don't need to prune levels - they will be filtered automatically in searches.
@@ -221,6 +242,9 @@ const pruneSearch = async(dimension, levels, db) => {
   if (!currentDimensions.includes(dimension)) {
     const resp = await db.search.destroy({where: {dimension}}).catch(catcher);
     if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
+  }
+  else {
+    if (verbose) console.log(`Skipped search cleanup - ${dimension} is still in use`);
   }
 };
 
@@ -242,14 +266,28 @@ const populateSearch = async(profileData, db) => {
     const level = levels[i];
     const members = await client.members(level).catch(catcher);
 
-    const data = await client.query(cube.query
-      .drilldown(dimension, level.hierarchy.name, level.name)
-      .measure(measure), "jsonrecords")
-      .then(resp => resp.data.data)
-      .then(data => data.reduce((obj, d) => {
-        obj[d[`ID ${level.name}`]] = d[measure];
-        return obj;
-      }, {})).catch(catcher);
+    let data = [];
+
+    if (isTesseract) {
+      data = await client.execQuery(cube.query
+        .addDrilldown(`${dimension}.${level.hierarchy.name}.${level.name}`)
+        .addMeasure(measure), "jsonrecords")
+        .then(resp => resp.data)
+        .then(data => data.reduce((obj, d) => {
+          obj[d[`${level.name} ID`]] = d[measure];
+          return obj;
+        }, {})).catch(catcher);
+    }
+    else {
+      data = await client.query(cube.query
+        .drilldown(dimension, level.hierarchy.name, level.name)
+        .measure(measure), "jsonrecords")
+        .then(resp => resp.data.data)
+        .then(data => data.reduce((obj, d) => {
+          obj[d[`ID ${level.name}`]] = d[measure];
+          return obj;
+        }, {})).catch(catcher);
+    }
 
     fullList = fullList.concat(formatter(members, data, dimension, level.name));
 
@@ -448,7 +486,6 @@ module.exports = function(app) {
    * and "parent" refers to the foreign key that need be referenced in the associated where clause.
    */
   const deleteList = [
-    {elements: ["profile_meta"], parent: "profile_id"},
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
     {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"},
     {elements: ["storytopic_subtitle", "storytopic_description", "storytopic_stat", "storytopic_visualization"], parent: "storytopic_id"}
@@ -492,8 +529,7 @@ module.exports = function(app) {
     const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
-    // disabling prunesearch for now during refactor
-    // pruneSearch(row.dimension, row.levels, db);
+    pruneSearch(row.dimension, row.levels, db);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     return res.json(profiles);
@@ -501,15 +537,12 @@ module.exports = function(app) {
 
   app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
     const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
-    const pid = row.profile_id;
     await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
-    // disabling prunesearch for now during refactor
-    // pruneSearch(row.dimension, row.levels, db);
-    let meta = await db.profile_meta.findAll({where: {profile_id: pid}}).catch(catcher);
-    meta = meta.map(m => m.toJSON());
-    meta.sort(sorter);
-    return res.json(meta);
+    pruneSearch(row.dimension, row.levels, db);
+    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
+    profiles = sortProfileTree(db, profiles);
+    return res.json(profiles);
   });
 
   app.delete("/api/cms/story/delete", isEnabled, async(req, res) => {

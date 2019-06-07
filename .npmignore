@@ -7,3 +7,4 @@ locales/
 packages/
 src/node_modules/
 static/
+.envrc

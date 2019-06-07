@@ -1,9 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog, Alert, Intent} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 import FooterButtons from "../FooterButtons";
-import ReorderButtons from "../ReorderButtons";
-import Button from "../Button";
 import SelectorEditor from "../editors/SelectorEditor";
 import PropTypes from "prop-types";
 import deepClone from "../../utils/deepClone";
