@@ -61,28 +61,6 @@ class Builder extends Component {
     }
   }
 
-  /*
-  setPath(node) {
-    const {router} = this.props;
-    const {pslug, tslug} = this.props.params;
-    let path;
-    if (node.itemType === "profile") {
-      path = `/cms-profile/${node.data.slug}`;
-    }
-    else if (node.itemType === "topic") {
-      path = `/cms-profile/${node.masterSlug}/${node.data.slug}`;
-    }
-    router.push(path);
-  }
-  */
-
-  // toggleLocale(e) {
-  //   const {locales} = this.state;
-  //   const secondaryLocale = e.target.checked ? false : locales[0];
-  //   const showLocale = e.target.checked;
-  //   this.setState({showLocale, secondaryLocale});
-  // }
-
   handleLocaleSelect(e) {
     const val = e.target.value;
     this.setState({
@@ -95,14 +73,6 @@ class Builder extends Component {
     const {currentTab, secondaryLocale, locales, localeDefault} = this.state;
     const {isEnabled} = this.props;
     const navLinks = ["profiles", "stories", "formatters"];
-
-    // console.log("showLocale", this.state.showLocale);
-
-    /*
-    const {profileSlug, topicSlug} = this.props.params;
-
-    const pathObj = {profileSlug, topicSlug};
-    */
 
     if (!isEnabled) return null;
 
