@@ -1,3 +1,5 @@
+@import "../../css/mixins";
+
 .cms-panel:not(:last-child) {
   width: calc(100% - var(--toolbox-width));
   max-width: calc(100% - var(--toolbox-width));
@@ -23,4 +25,16 @@
   & .card {
     max-width: 100%;
   }
+}
+
+.cms-list-var {
+  cursor: pointer;
+}
+
+.cms-list-var:hover {
+  background-color: var(--accent-light);
+}
+
+.cms-hidden {
+  @mixin visually-hidden; 
 }

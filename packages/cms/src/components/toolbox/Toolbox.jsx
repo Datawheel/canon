@@ -74,7 +74,11 @@ export default class Toolbox extends Component {
   }
 
   onSave() {
-    this.setState({recompiling: true}, this.fetchVariables.bind(this, true));
+    const forceGenID = null;
+    const forceMatID = null;
+    const forceKey = null;
+    const recompiling = true;
+    this.setState({forceGenID, forceMatID, forceKey, recompiling}, this.fetchVariables.bind(this, true));
   }
 
   onDelete(type, newArray) {
@@ -96,9 +100,28 @@ export default class Toolbox extends Component {
     this.setState({currentView: e.target.value});
   }
 
+  openGenerator(key) {
+    const {localeDefault, variables} = this.props;
+    const vars = variables[localeDefault];
+
+    const gens = Object.keys(vars._genStatus);
+    gens.forEach(id => {
+      if (vars._genStatus[id][key]) {
+        this.setState({forceGenID: id, forceKey: key});
+      }
+    });
+
+    const mats = Object.keys(vars._matStatus);
+    mats.forEach(id => {
+      if (vars._matStatus[id][key]) {
+        this.setState({forceMatID: id, forceKey: key});
+      }
+    });
+  }
+
   render() {
 
-    const {currentView, grouped, minData, recompiling} = this.state;
+    const {currentView, grouped, minData, recompiling, forceGenID, forceMatID, forceKey} = this.state;
     const {variables, locale, localeDefault, previews} = this.props;
 
     if (!minData) {
@@ -134,52 +157,69 @@ export default class Toolbox extends Component {
           Group By Generator
         </Checkbox> 
       }
-      {/* generators */}
-      <Section
-        title="Generators"
-        entity="generator"
-        description="Variables constructed from JSON data calls."
-        addItem={this.addItem.bind(this, "generator")}
-        cards={minData.generators && minData.generators
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .map(g => <GeneratorCard
-            key={g.id}
-            context="generator"
-            item={g}
-            attr={minData.attr || {}}
-            locale={localeDefault}
-            secondaryLocale={locale}
-            previews={previews}
-            onSave={this.onSave.bind(this)}
-            onDelete={this.onDelete.bind(this)}
-            type="generator"
-            variables={variables[localeDefault]}
-            secondaryVariables={variables[locale]}
-          />)}
-      />
+      { !grouped && <div className="cms-variables-list">
+        <ul>
+          {Object.keys(variables[localeDefault])
+            .sort((a, b) => a.localeCompare(b))
+            .filter(key => key !== "_genStatus" && key !== "_matStatus")
+            .map(key => 
+              <li key={key} className="cms-list-var" onClick={this.openGenerator.bind(this, key)}>
+                <strong>{key}</strong>: {variables[localeDefault][key]}
+              </li>
+            )}
+        </ul>
+      </div> }
+      <div className={grouped ? "" : "cms-hidden"}> 
+        {/* generators */}
+        <Section
+          title="Generators"
+          entity="generator"
+          description="Variables constructed from JSON data calls."
+          addItem={this.addItem.bind(this, "generator")}
+          cards={minData.generators && minData.generators
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(g => <GeneratorCard
+              key={g.id}
+              context="generator"
+              item={g}
+              attr={minData.attr || {}}
+              locale={localeDefault}
+              secondaryLocale={locale}
+              previews={previews}
+              onSave={this.onSave.bind(this)}
+              onDelete={this.onDelete.bind(this)}
+              type="generator"
+              variables={variables[localeDefault]}
+              secondaryVariables={variables[locale]}
+              forceKey={String(forceGenID) === String(g.id) ? forceKey : null}
+            />)}
+        />
 
-      {/* materializers */}
-      <Section
-        title="Materializers"
-        entity="materializer"
-        description="Variables constructed from other variables. No API calls needed."
-        addItem={this.addItem.bind(this, "materializer")}
-        cards={minData.materializers && minData.materializers
-          .map(m => <GeneratorCard
-            key={m.id}
-            context="materializer"
-            item={m}
-            locale={localeDefault}
-            secondaryLocale={locale}
-            onSave={this.onSave.bind(this)}
-            onDelete={this.onDelete.bind(this)}
-            type="materializer"
-            variables={variables[localeDefault]}
-            secondaryVariables={variables[locale]}
-            parentArray={minData.materializers}
-            onMove={this.onMove.bind(this)}
-          />)}
-      />
+        {/* materializers */}
+        <Section
+          title="Materializers"
+          entity="materializer"
+          description="Variables constructed from other variables. No API calls needed."
+          addItem={this.addItem.bind(this, "materializer")}
+          cards={minData.materializers && minData.materializers
+            .map(m => <GeneratorCard
+              key={m.id}
+              context="materializer"
+              item={m}
+              locale={localeDefault}
+              secondaryLocale={locale}
+              onSave={this.onSave.bind(this)}
+              onDelete={this.onDelete.bind(this)}
+              type="materializer"
+              variables={variables[localeDefault]}
+              secondaryVariables={variables[locale]}
+              parentArray={minData.materializers}
+              onMove={this.onMove.bind(this)}
+              forceKey={String(forceMatID) === String(m.id) ? forceKey : null}
+            />)}
+        />
+      </div>
+      
     </div>;
 
   }

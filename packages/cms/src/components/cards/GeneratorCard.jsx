@@ -31,6 +31,9 @@ class GeneratorCard extends Component {
     if (this.state.minData && prevProps.variables !== this.props.variables) {
       this.formatDisplay.bind(this)();
     }
+    if (prevProps.forceKey !== this.props.forceKey && this.props.forceKey) {
+      this.setState({isOpen: true});
+    }
   }
 
   hitDB() {
