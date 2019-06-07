@@ -4,6 +4,7 @@ import {Checkbox} from "@blueprintjs/core";
 import Section from "../Section";
 import Loading from "components/Loading";
 import GeneratorCard from "../cards/GeneratorCard";
+import Status from "../Status";
 import "./toolbox.css";
 
 const propMap = {
@@ -18,7 +19,8 @@ export default class Toolbox extends Component {
     this.state = {
       minData: false,
       currentView: "generators",
-      grouped: true
+      grouped: true,
+      recompiling: true
     };
   }
 
@@ -37,7 +39,7 @@ export default class Toolbox extends Component {
     if (id) {
       axios.get(`/api/cms/toolbox/${id}`).then(resp => {
         const minData = resp.data;
-        this.setState({minData});
+        this.setState({minData, recompiling: true}, this.fetchVariables.bind(this, true));
       });
     }
     else {
@@ -47,7 +49,7 @@ export default class Toolbox extends Component {
 
   fetchVariables(force) {
     if (this.props.fetchVariables) {
-      this.props.fetchVariables(force);
+      this.props.fetchVariables(force, () => this.setState({recompiling: false}));
     }
   }
 
@@ -72,14 +74,14 @@ export default class Toolbox extends Component {
   }
 
   onSave() {
-    this.fetchVariables.bind(this)(true);
+    this.setState({recompiling: true}, this.fetchVariables.bind(this, true));
   }
 
   onDelete(type, newArray) {
     const {minData} = this.state;
     minData[propMap[type]] = newArray;
     if (type === "generator" || type === "materializer") {
-      this.fetchVariables.bind(this)(true);
+      this.setState({recompiling: true}, this.fetchVariables.bind(this, true));
     }
     else {
       this.setState({minData});
@@ -96,7 +98,7 @@ export default class Toolbox extends Component {
 
   render() {
 
-    const {currentView, grouped, minData} = this.state;
+    const {currentView, grouped, minData, recompiling} = this.state;
     const {variables, locale, localeDefault, previews} = this.props;
 
     if (!minData) {
@@ -113,6 +115,8 @@ export default class Toolbox extends Component {
     if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <Loading />;
 
     return <div className="cms-toolbox">
+      {/* loading status */}
+      <Status recompiling={recompiling} />
       <h3>Toolbox</h3>
       <label className="cms-select-label">
         <strong>View:</strong>
