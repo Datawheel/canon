@@ -29,3 +29,7 @@
 .cms-formatter-card {
   min-height: 83px;
 }
+
+.cms-hidden {
+  @mixin visually-hidden; 
+}
