@@ -317,7 +317,7 @@ module.exports = function(app) {
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[0];
       const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
-      if (attribute.id) dim.id = attribute.id;
+      if (attribute && attribute.id) dim.id = attribute.id;
     }
 
     // Given a list of dimension slugs, use the meta table to reverse-lookup which profile this is
