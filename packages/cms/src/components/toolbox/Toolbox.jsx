@@ -20,7 +20,8 @@ export default class Toolbox extends Component {
       minData: false,
       currentView: "generators",
       grouped: true,
-      recompiling: true
+      recompiling: true,
+      query: ""
     };
   }
 
@@ -107,6 +108,10 @@ export default class Toolbox extends Component {
     this.setState({currentView: e.target.value});
   }
 
+  filterVariables(e) {
+    this.setState({query: e.target.value});
+  }
+
   openGenerator(key) {
     const {localeDefault, variables} = this.props;
     const vars = variables[localeDefault];
@@ -128,7 +133,7 @@ export default class Toolbox extends Component {
 
   render() {
 
-    const {currentView, grouped, minData, recompiling, forceGenID, forceMatID, forceKey} = this.state;
+    const {currentView, grouped, minData, recompiling, query, forceGenID, forceMatID, forceKey} = this.state;
     const {variables, locale, localeDefault, previews} = this.props;
 
     if (!minData) {
@@ -165,10 +170,16 @@ export default class Toolbox extends Component {
         </Checkbox> 
       }
       { !grouped && <div className="cms-variables-list">
+        <input 
+          type="search"
+          value={query} 
+          onChange={this.filterVariables.bind(this)}
+        />
         <ul>
           {Object.keys(variables[localeDefault])
             .sort((a, b) => a.localeCompare(b))
             .filter(key => key !== "_genStatus" && key !== "_matStatus")
+            .filter(key => key.includes(query) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].includes(query))
             .map(key => 
               <li key={key} className="cms-list-var" onClick={this.openGenerator.bind(this, key)}>
                 <strong>{key}</strong>: {variables[localeDefault][key]}
