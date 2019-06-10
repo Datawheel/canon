@@ -32,7 +32,7 @@ class GeneratorCard extends Component {
       this.formatDisplay.bind(this)();
     }
     if (prevProps.forceKey !== this.props.forceKey && this.props.forceKey) {
-      this.setState({isOpen: true});
+      this.openEditor.bind(this)();
     }
   }
 
@@ -122,6 +122,7 @@ class GeneratorCard extends Component {
     const isOpen = false;
     const alertObj = false;
     const isDirty = false;
+    if (this.props.onClose) this.props.onClose();
     this.setState({minData, isOpen, alertObj, isDirty});
   }
 
@@ -131,7 +132,7 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {attr, context, type, variables, item, onMove, parentArray, previews, locale, secondaryLocale} = this.props;
+    const {attr, context, type, variables, item, hidden, onMove, parentArray, previews, locale, secondaryLocale} = this.props;
     const {displayData, secondaryDisplayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
@@ -149,6 +150,8 @@ class GeneratorCard extends Component {
       secondaryLocale,
       title: "•••" // placeholder
     };
+
+    if (hidden && !isOpen) cardProps.style = {display: "none"};
 
     // add additional props once the data is available
     if (minData && variables) {

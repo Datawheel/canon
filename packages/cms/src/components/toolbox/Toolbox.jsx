@@ -96,6 +96,13 @@ export default class Toolbox extends Component {
     this.forceUpdate();
   }
 
+  onClose() {
+    const forceGenID = null;
+    const forceMatID = null;
+    const forceKey = null;
+    this.setState({forceGenID, forceMatID, forceKey});
+  }
+
   changeView(e) {
     this.setState({currentView: e.target.value});
   }
@@ -169,7 +176,10 @@ export default class Toolbox extends Component {
             )}
         </ul>
       </div> }
-      <div className={grouped ? "" : "cms-hidden"}> 
+      {/* Hide the sections if not grouped - but SHOW them if forceKey is set, which means
+        * that someone has clicked an individual variable and wants to view its editor
+        */}
+      <div style={grouped || forceKey ? {} : {display: "none"}}> 
         {/* generators */}
         <Section
           title="Generators"
@@ -181,6 +191,7 @@ export default class Toolbox extends Component {
             .map(g => <GeneratorCard
               key={g.id}
               context="generator"
+              hidden={!grouped}
               item={g}
               attr={minData.attr || {}}
               locale={localeDefault}
@@ -188,6 +199,7 @@ export default class Toolbox extends Component {
               previews={previews}
               onSave={this.onSave.bind(this)}
               onDelete={this.onDelete.bind(this)}
+              onClose={this.onClose.bind(this)}
               type="generator"
               variables={variables[localeDefault]}
               secondaryVariables={variables[locale]}
@@ -205,11 +217,13 @@ export default class Toolbox extends Component {
             .map(m => <GeneratorCard
               key={m.id}
               context="materializer"
+              hidden={!grouped}
               item={m}
               locale={localeDefault}
               secondaryLocale={locale}
               onSave={this.onSave.bind(this)}
               onDelete={this.onDelete.bind(this)}
+              onClose={this.onClose.bind(this)}
               type="materializer"
               variables={variables[localeDefault]}
               secondaryVariables={variables[locale]}
