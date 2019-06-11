@@ -1,0 +1,124 @@
+@import "../css/mixins.css";
+
+/* buttons */
+.cms-button {
+  display: inline-block;
+  padding: 0.5em 2em;
+  /* transitions */
+  transition:
+    color 0.2s ease-out,
+    background-color 0.2s ease-out,
+    border-color 0.2s ease-out;
+  /* theming */
+  border-radius: 10em;
+  background-color: var(--accent-dark);
+  border: 1px solid var(--accent-dark);
+  color: var(--white);
+
+  /* align icons & text */
+  & > * {
+    display: inline-block;
+
+    &:not(:last-child) {
+      margin-right: 0.25em;
+    }
+  }
+
+  /* hidden text */
+  &.cms-icon-only-button {
+    padding: 0;
+    width: 2em;
+    height: 2em;
+
+    /* override default margin */
+    & > * {
+      margin-right: 0;
+    }
+  }
+
+  /* icon positioning */
+  & > .cms-button-icon {
+    top: -1px;
+    transition: transform 0.1s ease-out;
+
+    /* icon sized by button font-size */
+    &, & > svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  /* cover the whole container width */
+  &.is-block {
+    display: block;
+    width: 100%;
+  }
+
+  /* naked button theming */
+  &.cms-naked-button {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--accent-dark);
+
+    @mixin dark-mode {
+      color: var(--accent-light);
+    }
+  }
+
+  /* ghost button theming */
+  &.cms-ghost-button {
+    background-color: color(var(--white) a(0.333));
+    border-color: var(--accent-dark);
+    color: var(--accent-dark);
+
+    @mixin dark-mode {
+      background-color: color(var(--black) a(0.333));
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+  }
+
+  /* interactions */
+  &:hover, &:focus {
+    background-color: var(--accent-black);
+    border-color: var(--accent-black);
+    color: var(--white);
+
+    @mixin dark-mode {
+      background-color: var(--accent-black);
+      border-color: var(--accent-black);
+      color: var(--white);
+    }
+
+    & > .cms-button-icon {
+      transform: scale(1.125);
+
+      /* gears keep on turning */
+      &[class*="cog"] {
+         transform: scale(1.125) rotate(-30deg);
+      }
+    }
+  }
+
+  /* disabled state overrides all styles */
+  &[disabled] {
+    background-color: var(--gray) !important;
+    border-color: var(--gray) !important;
+    color: var(--white) !important;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+
+/* depreciation warning */
+/* .cms .bp3-button:after {
+  content: "please use the non-Blueprint <Button> component";
+  display: block;
+  position: absolute;
+  width: max-content;
+  z-index: 1;
+  background: var(--alert);
+  color: var(--white);
+  padding: 1em;
+} */

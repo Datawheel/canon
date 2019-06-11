@@ -7,9 +7,10 @@ import FormatterEditor from "./formatter/FormatterEditor";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
 
-import "./cms.css";
-import "./themes/cms-light.css";
-import "./themes/cms-dark.css";
+import "./css/base.css";
+import "./css/blueprint-overrides.css";
+import "./css/form-fields.css";
+import "./css/layout.css";
 
 class Builder extends Component {
 
@@ -82,10 +83,6 @@ class Builder extends Component {
   //   this.setState({showLocale, secondaryLocale});
   // }
 
-  // handleThemeSelect(e) {
-  //   this.setState({theme: e.target.value});
-  // }
-
   handleLocaleSelect(e) {
     const val = e.target.value;
     this.setState({
@@ -95,7 +92,7 @@ class Builder extends Component {
   }
 
   render() {
-    const {currentTab, theme, secondaryLocale, locales, localeDefault} = this.state;
+    const {currentTab, secondaryLocale, locales, localeDefault} = this.state;
     const {isEnabled} = this.props;
     const navLinks = ["profiles", "stories", "formatters"];
 
@@ -150,19 +147,6 @@ class Builder extends Component {
                 {/* <span className="cms-nav-options-divider">|</span>*/}
               </React.Fragment>
             }
-            {/* theme select */}
-            {/* <label className="cms-select-label cms-theme-select">theme:
-              <select
-                className="cms-select"
-                name="select-theme"
-                id="select-theme"
-                value={this.state.selectValue}
-                onChange={this.handleThemeSelect.bind(this)}
-              >
-                <option value="cms-light">light</option>
-                <option value="cms-dark">dark</option>
-              </select>
-            </label>*/}
           </div>
         </div>
 

@@ -6,9 +6,11 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import Viz from "../Viz";
+import Button from "../Button";
 import FooterButtons from "../FooterButtons";
-import MoveButtons from "../MoveButtons";
+import ReorderButtons from "../ReorderButtons";
 import deepClone from "../../utils/deepClone";
+import CardWrapper from "./CardWrapper";
 import "./VisualizationCard.css";
 
 class VisualizationCard extends Component {
@@ -82,7 +84,7 @@ class VisualizationCard extends Component {
         confirm: "Yes, Abandon changes."
       };
       this.setState({alertObj});
-    } 
+    }
     else {
       this.closeEditorWithoutSaving.bind(this)();
     }
@@ -108,8 +110,10 @@ class VisualizationCard extends Component {
 
     if (!minData) return <Loading />;
 
-    const {selectors, type, variables, parentArray, item, previews, locale, localeDefault} = this.props;
+    const {selectors, type, variables, secondaryVariables, parentArray, item, previews, locale, onMove, secondaryLocale} = this.props;
     const formatters = this.context.formatters[locale];
+
+    // TODO: add formatters toggle for secondaryLocale & secondaryVariables
 
     minData.selectors = selectors;
     let logic = "return {}";
@@ -122,51 +126,45 @@ class VisualizationCard extends Component {
     // Create the config object to pass to the viz, but replace its es6 logic with transpiled es5
     const config = Object.assign({}, minData, {logic});
 
+    const cardProps = {
+      cardClass: "visualization",
+      style: {minHeight: `calc(${height}px + 2.25rem)`},
+      title: config && config.logic_simple && config.logic_simple.data
+        ? `${
+          config.logic_simple.type}${
+          config.logic_simple.type && config.logic_simple.data && ": "}${
+          config.logic_simple.data}`
+        : config.simple || config.logic && config.logic === "return {}"
+          ? "No configuration defined"
+          : config.logic.replace("return ", ""),
+      onEdit: this.openEditor.bind(this),
+      // reorder
+      reorderProps: parentArray ? {
+        array: parentArray,
+        item,
+        type
+      } : null,
+      onReorder: onMove ? onMove.bind(this) : null,
+      // alert
+      alertObj,
+      onAlertCancel: () => this.setState({alertObj: false})
+    };
+
     return (
-      <div className="cms-card" style={{minHeight: `calc(${height}px + 2.25rem)`}}>
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
+      <CardWrapper {...cardProps}>
 
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
-
-        {/* title & edit toggle button */}
-        {locale === localeDefault && <h5 className="cms-card-header">
-          <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="bp3-icon bp3-icon-cog" />
-          </button>
-        </h5> }
-
-        {/* reorder buttons */}
-        { parentArray &&
-          <MoveButtons
-            item={item}
-            array={parentArray}
-            type={type}
-            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
+        {/* viz preview */}
+        {!isOpen &&
+          <Viz
+            config={config}
+            locale={locale}
+            variables={variables}
+            configOverride={{height, scrollContainer: "#item-editor"}}
+            options={false}
           />
         }
 
+        {/* edit mode */}
         <Dialog
           className="generator-editor-dialog"
           isOpen={isOpen}
@@ -175,12 +173,12 @@ class VisualizationCard extends Component {
           usePortal={false}
         >
           <div className="bp3-dialog-body">
-            <GeneratorEditor 
-              markAsDirty={this.markAsDirty.bind(this)} 
-              previews={previews} 
-              data={minData} 
-              variables={variables} 
-              type={type} 
+            <GeneratorEditor
+              markAsDirty={this.markAsDirty.bind(this)}
+              previews={previews}
+              data={minData}
+              variables={variables}
+              type={type}
             />
           </div>
           <FooterButtons
@@ -188,8 +186,7 @@ class VisualizationCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { !isOpen ? <Viz config={config} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
-      </div>
+      </CardWrapper>
     );
   }
 

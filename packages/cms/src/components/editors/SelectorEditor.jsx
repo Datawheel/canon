@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {RadioGroup, Radio} from "@blueprintjs/core";
+import Button from "../Button";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -304,18 +305,19 @@ class SelectorEditor extends Component {
                     </label>
                   </li>
                   <li className="cms-selector-editor-action-item">
-                    <button className="cms-button" onClick={this.moveUp.bind(this, i)}>
-                      <span className="bp3-icon bp3-icon-arrow-up" />
-                    </button>
+                    <Button onClick={this.moveUp.bind(this, i)} icon="arrow-up" iconOnly naked>
+                      Bring entry forward
+                    </Button>
                   </li>
                   <li className="cms-selector-editor-action-item">
-                    <button className="cms-button" onClick={this.moveDown.bind(this, i)}>
-                      <span className="bp3-icon bp3-icon-arrow-down" />
-                    </button>
+                    <Button onClick={this.moveDown.bind(this, i)} icon="arrow-down" iconOnly naked>
+                      Send entry backward
+                    </Button>
                   </li>
                   <li className="cms-selector-editor-action-item">
-                    <button className="cms-button" onClick={this.deleteOption.bind(this, i)}>
-                      <span className="bp3-icon bp3-icon-trash" /> delete</button>
+                    <Button onClick={this.deleteOption.bind(this, i)} icon="trash" iconOnly naked>
+                      Delete entry
+                    </Button>
                   </li>
                 </ul>
               </li>
@@ -323,12 +325,12 @@ class SelectorEditor extends Component {
           }
         </ul>
         <div className="cms-selector-editor-button-group">
-          <button className="cms-button" onClick={this.addOption.bind(this)}>
-            Add option <span className="bp3-icon bp3-icon-plus"/>
-          </button>
-          <button className="cms-button" onClick={this.toggleCustom.bind(this)}>
-            Custom default <span className={`bp3-icon ${showCustom ? "bp3-icon-cross" : "bp3-icon-cog"}`}/>
-          </button>
+          <Button onClick={this.addOption.bind(this)} icon="plus" ghost>
+            Add option
+          </Button>
+          <Button onClick={this.toggleCustom.bind(this)} icon={showCustom ? "cross" : "cog"} ghost>
+            Custom default
+          </Button>
         </div>
 
         {/* custom default */}

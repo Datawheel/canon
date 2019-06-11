@@ -1,7 +1,9 @@
 import axios from "axios";
 import React, {Component} from "react";
+import Button from "./Button";
+import "./ReorderButtons.css";
 
-class MoveButtons extends Component {
+class ReorderButtons extends Component {
 
   constructor(props) {
     super(props);
@@ -70,23 +72,30 @@ class MoveButtons extends Component {
     if (!item || !array) return null;
 
     return (
-      <div className="cms-reorder" id="move-buttons">
+      <div className="cms-reorder">
         {item.ordering > 0 &&
-          <button
-            className="cms-button cms-reorder-button cms-reorder-button-back"
-            onClick={() => this.move("left")}>
-            <span className="bp3-icon bp3-icon-arrow-left" />
-          </button> }
-        {item.ordering < array.length - 1 &&
-          <button
-            className="cms-button cms-reorder-button cms-reorder-button-forward"
-            onClick={() => this.move("right")}
+          <Button
+            onClick={() => this.move("left")}
+            className="cms-reorder-button cms-reorder-button-back"
+            icon="arrow-left"
+            iconOnly
           >
-            <span className="bp3-icon bp3-icon-arrow-right" />
-          </button> }
+            Move entity forward
+          </Button>
+        }
+        {item.ordering < array.length - 1 &&
+          <Button
+            onClick={() => this.move("right")}
+            className="cms-reorder-button cms-reorder-button-forward"
+            icon="arrow-right"
+            iconOnly
+          >
+            Send entity backward
+          </Button>
+        }
       </div>
     );
   }
 }
 
-export default MoveButtons;
+export default ReorderButtons;

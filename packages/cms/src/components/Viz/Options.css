@@ -1,3 +1,5 @@
+@import "../../css/mixins.css";
+
 .Options {
   display: flex;
   justify-content: flex-end;

@@ -1,8 +1,9 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Icon} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import Loading from "components/Loading";
+import Section from "../components/Section";
+import Status from "../components/Status";
 
 import GeneratorCard from "../components/cards/GeneratorCard";
 import TextCard from "../components/cards/TextCard";
@@ -118,114 +119,86 @@ class ProfileEditor extends Component {
 
     return (
       <div className="cms-editor-inner">
-        {/* profile preview & variable status */}
-        <div className="cms-profile-picker">
-          {/* loading status */}
-          <div className={recompiling ? "cms-status is-loading cms-alert-color" : "cms-status is-done"}>
-            <Icon iconName={ recompiling ? "more" : "tick"} />
-            { recompiling ? "Updating Variables" : "Variables Loaded" }
-          </div>
-          {/* search profiles */}
-          {children}
-        </div>
+        {/* loading status */}
+        <Status recompiling={recompiling} />
+
+        {/* search profiles */}
+        {children}
+
+        {/* profile meta */}
+        {/* TODO: move to header */}
+        <Section
+          title="Profile meta"
+          entity="splash"
+          wrapperClassName="cms-splash-wrapper"
+          cards={
+            <TextCard
+              locale={localeDefault}
+              localeDefault={localeDefault}
+              item={minData}
+              fields={["title", "subtitle"]}
+              type="profile"
+              variables={variables[localeDefault]}
+            />
+          }
+          secondaryCards={locale &&
+            <TextCard
+              locale={locale}
+              localeDefault={localeDefault}
+              item={minData}
+              fields={["title", "subtitle"]}
+              type="profile"
+              variables={variables[locale]}
+            />
+          }
+        />
 
         {/* generators */}
-        <h2 className="cms-section-heading">
-          Generators
-          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "generator")}>
-            <span className="bp3-icon bp3-icon-plus" />
-          </button>
-        </h2>
-        <p className="bp3-text-muted">Variables constructed from JSON data calls.</p>
-
-        <div className="cms-card-container">
-          {/* primary locale */}
-          <div className="cms-card-list">
-            { minData.generators && minData.generators
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map(g => <GeneratorCard
-                key={g.id}
-                context="generator"
-                item={g}
-                attr={minData.attr || {}}
-                locale={localeDefault}
-                secondaryLocale={locale}
-                previews={previews}
-                onSave={this.onSave.bind(this)}
-                onDelete={this.onDelete.bind(this)}
-                type="generator"
-                variables={variables[localeDefault]}
-                secondaryVariables={variables[locale]}
-              />)
-            }
-          </div>
-        </div>
+        <Section
+          title="Generators"
+          entity="generator"
+          description="Variables constructed from JSON data calls."
+          addItem={this.addItem.bind(this, "generator")}
+          cards={minData.generators && minData.generators
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(g => <GeneratorCard
+              key={g.id}
+              context="generator"
+              item={g}
+              attr={minData.attr || {}}
+              locale={localeDefault}
+              secondaryLocale={locale}
+              previews={previews}
+              onSave={this.onSave.bind(this)}
+              onDelete={this.onDelete.bind(this)}
+              type="generator"
+              variables={variables[localeDefault]}
+              secondaryVariables={variables[locale]}
+            />)}
+        />
 
         {/* materializers */}
-        <h2 className="cms-section-heading">
-          Materializers
-          <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this, "materializer")}>
-            <span className="bp3-icon bp3-icon-plus" />
-          </button>
-        </h2>
-        <p className="bp3-text-muted">Variables constructed from other variables. No API calls needed.</p>
-
-        <div className="cms-card-container">
-          {/* primary locale */}
-          <div className="cms-card-list materializers">
-            { minData.materializers && minData.materializers
-              .map(m =>
-                <GeneratorCard
-                  key={m.id}
-                  context="materializer"
-                  item={m}
-                  locale={localeDefault}
-                  secondaryLocale={locale}
-                  onSave={this.onSave.bind(this)}
-                  onDelete={this.onDelete.bind(this)}
-                  type="materializer"
-                  variables={variables[localeDefault]}
-                  secondaryVariables={variables[locale]}
-                  parentArray={minData.materializers}
-                  onMove={this.onMove.bind(this)}
-                />
-              )}
-          </div>
-        </div>
-
-        {/* Top-level Profile */}
-        <h2 className="cms-section-heading">
-          Profile
-        </h2>
-        <div className="cms-splash-wrapper">
-
-          <div className="cms-card-container">
-            {/* primary locale */}
-            <div className="cms-card-list cms-profile-header">
-              <TextCard
-                locale={localeDefault}
-                localeDefault={localeDefault}
-                item={minData}
-                fields={["title", "subtitle"]}
-                type="profile"
-                variables={variables[localeDefault]}
-              />
-            </div>
-            {/* secondary locale */}
-            {locale &&
-              <div className="cms-card-list cms-profile-header">
-                <TextCard
-                  locale={locale}
-                  localeDefault={localeDefault}
-                  item={minData}
-                  fields={["title", "subtitle"]}
-                  type="profile"
-                  variables={variables[locale]}
-                />
-              </div>
-            }
-          </div>
-        </div>
+        <Section
+          title="Materializers"
+          entity="materializer"
+          description="Variables constructed from other variables. No API calls needed."
+          addItem={this.addItem.bind(this, "materializer")}
+          cards={minData.materializers && minData.materializers
+            .map(m => <GeneratorCard
+              key={m.id}
+              context="materializer"
+              item={m}
+              locale={localeDefault}
+              secondaryLocale={locale}
+              onSave={this.onSave.bind(this)}
+              onDelete={this.onDelete.bind(this)}
+              type="materializer"
+              variables={variables[localeDefault]}
+              secondaryVariables={variables[locale]}
+              parentArray={minData.materializers}
+              onMove={this.onMove.bind(this)}
+            />)}
+        />
       </div>
     );
   }
