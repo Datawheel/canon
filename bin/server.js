@@ -168,7 +168,7 @@ const i18nConfig = {
     withRef: true
   },
   detection: {
-    order: ["domain", "query", "path", "header"]
+    order: ["domain", "query", "path"]
   }
 };
 
