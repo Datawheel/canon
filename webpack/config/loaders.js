@@ -57,7 +57,7 @@ module.exports = props => {
       ]
     },
     {
-      test: /\.(png|jpeg|jpg|gif|bmp|tif|tiff|svg|woff|woff2|eot|ttf)$/,
+      test: /\.(png|jpeg|jpg|gif|bmp|tif|tiff|svg|woff|woff2|eot|ttf|JPG)$/,
       loader: "url-loader?limit=100000"
     },
     {
