@@ -5,13 +5,15 @@
   max-width: calc(100% - var(--toolbox-width));
 }
 
-/* TODO: dark theme */
 .cms .cms-toolbox {
   /* sizing */
   display: block;
   position: absolute;
   width: var(--toolbox-width);
   height: 100%;
+  max-height: calc(100vh - (var(--nav-height) + var(--cms-nav-height)));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
   /* positioning */
   top: var(--nav-height);
   right: 0;
@@ -22,6 +24,8 @@
   padding: 1rem;
   /* theming */
   background-color: var(--light-2);
+  /* TODO: dark theme */
+
   & .card {
     max-width: 100%;
   }
@@ -36,5 +40,5 @@
 }
 
 .cms-hidden {
-  @mixin visually-hidden; 
+  @mixin visually-hidden;
 }

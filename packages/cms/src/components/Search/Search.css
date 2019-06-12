@@ -36,6 +36,7 @@
     max-height: 10rem;
     margin: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
     border-radius: 2px !important;
 
     /* active state */
