@@ -37,6 +37,7 @@
     height: auto;
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
     padding-bottom: 0;
     margin: 1rem;
     margin-bottom: 2rem;
