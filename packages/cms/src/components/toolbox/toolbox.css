@@ -24,7 +24,10 @@
   padding: 1rem;
   /* theming */
   background-color: var(--light-2);
-  /* TODO: dark theme */
+
+  @mixin dark-mode {
+    background-color: color(var(--dark-3) a(0.25));
+  }
 
   & .card {
     max-width: 100%;
