@@ -1,6 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-import {TagInput} from "@blueprintjs/labs";
+import {TagInput} from "@blueprintjs/core";
 
 import BaseSelect from "./BaseSelect";
 import VirtualListWrapper from "./VirtualListWrapper";

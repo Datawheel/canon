@@ -1,6 +1,5 @@
 import React from "react";
 import classNames from "classnames";
-import {Popover2} from "@blueprintjs/labs";
 
 import BaseSelect from "./BaseSelect";
 import VirtualListWrapper from "./VirtualListWrapper";

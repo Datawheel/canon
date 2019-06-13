@@ -1,6 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-import {Popover2} from "@blueprintjs/labs";
+import {Popover} from "@blueprintjs/core";
 
 import VirtualListWrapper from "./VirtualListWrapper";
 
@@ -154,7 +154,7 @@ class MultiLevelSelect extends React.Component {
     const item = props.value || props.defaultOption;
 
     return (
-      <Popover2
+      <Popover
         isOpen={this.state.isOpen}
         inline={true}
         placement="bottom-start"
@@ -168,7 +168,7 @@ class MultiLevelSelect extends React.Component {
         popoverWillClose={this.handlePopoverWillClose}
       >
         {this.renderTarget(item)}
-      </Popover2>
+      </Popover>
     );
   }
 }

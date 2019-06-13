@@ -2,7 +2,7 @@ import React from "react";
 import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 import {Icon} from "@blueprintjs/core";
-import {Select} from "@blueprintjs/labs";
+import {Select} from "@blueprintjs/select";
 
 import {composePropertyName} from "../../helpers/formatting";
 

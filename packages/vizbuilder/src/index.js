@@ -2,10 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
 import {connect} from "react-redux";
-import {Button} from "@blueprintjs/core";
-import {Tooltip2} from "@blueprintjs/labs";
+import {Button, Tooltip} from "@blueprintjs/core";
 
-import "@blueprintjs/labs/dist/blueprint-labs.css";
+// import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
 
 import LoadingScreen from "components/Loading";
@@ -156,7 +155,7 @@ class Vizbuilder extends React.Component {
           <Ranking chart={chartForRanking} selectedTime={uiParams.selectedTime} />
         </Sidebar>
         <div className="area-middle">
-          <Tooltip2
+          <Tooltip
             className="toggle-sidebar"
             content={showSidebar ? "Hide Controls" : "Show Controls"}
             placement="auto"
@@ -165,7 +164,7 @@ class Vizbuilder extends React.Component {
               onClick={this.toggleSidebar}
               iconName={showSidebar ? "menu-closed" : "menu-open"}
             />
-          </Tooltip2>
+          </Tooltip>
         </div>
         <ChartArea
           charts={charts}

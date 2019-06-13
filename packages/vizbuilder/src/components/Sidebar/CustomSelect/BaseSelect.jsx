@@ -1,7 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-import {PopoverInteractionKind} from "@blueprintjs/core";
-import {Popover2} from "@blueprintjs/labs";
+import {PopoverInteractionKind, Popover} from "@blueprintjs/core";
 
 class BaseSelect extends React.Component {
   constructor(props) {
@@ -113,7 +112,7 @@ class BaseSelect extends React.Component {
         : props.value;
 
     return (
-      <Popover2
+      <Popover
         autoFocus={false}
         disabled={props.disabled}
         inline={true}
@@ -142,7 +141,7 @@ class BaseSelect extends React.Component {
         popoverWillOpen={this.handlePopoverWillOpen}
       >
         {this.renderTarget.call(this, value)}
-      </Popover2>
+      </Popover>
     );
   }
 
