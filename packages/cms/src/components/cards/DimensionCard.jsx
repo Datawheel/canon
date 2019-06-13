@@ -1,7 +1,8 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Search from "../Search/Search.jsx";
-import {Alert, Intent} from "@blueprintjs/core";
+import Button from "../../components/Button";
+import CardWrapper from "./CardWrapper";
 import "./DimensionCard.css";
 
 export default class DimensionCard extends Component {
@@ -62,21 +63,20 @@ export default class DimensionCard extends Component {
 
     if (!preview) return null;
 
+    // define props for CardWrapper
+    const cardProps = {
+      cardClass: "dimension",
+      title: meta.dimension,
+      // onEdit: this.openEditor.bind(this),
+      // onReorder: this.props.onMove ? this.props.onMove.bind(this) : null,
+      // alert
+      alertObj,
+      onAlertCancel: () => this.setState({alertObj: false})
+    };
+
     return (
-      <div className="cms-card cms-dimension-card">
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
-        <table className="cms-dimension-card-table">
+      <CardWrapper {...cardProps}>
+        <table className="cms-dimension-card-table font-xs">
           <tbody>
             <tr className="cms-dimension-card-table-row">
               <th className="cms-dimension-card-table-cell">slug</th>
@@ -95,7 +95,7 @@ export default class DimensionCard extends Component {
                   ? meta.levels
                   : <ul className="cms-dimension-card-table-list">
                     {meta.levels.map(level =>
-                      <li className="cms-dimension-card-table-item" key={level}>{level}</li>
+                      <li className="cms-dimension-card-table-item font-xs" key={level}>{level}</li>
                     )}
                   </ul>
                 }
@@ -115,14 +115,14 @@ export default class DimensionCard extends Component {
               limit={20}
             />
           </div>
-          <button className="cms-button" disabled={rebuilding} onClick={this.rebuildSearch.bind(this)}>
+          <Button disabled={rebuilding} onClick={this.rebuildSearch.bind(this)} ghost>
             {rebuilding ? "Rebuilding..." : "Rebuild"}
-          </button>
-          <button className="cms-button" disabled={rebuilding} onClick={this.maybeDelete.bind(this)}>
+          </Button>
+          <Button disabled={rebuilding} onClick={this.maybeDelete.bind(this)} ghost>
             Delete
-          </button>
+          </Button>
         </div>
-      </div>
+      </CardWrapper>
     );
   }
 

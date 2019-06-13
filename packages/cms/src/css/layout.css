@@ -1,0 +1,173 @@
+@import "./mixins.css";
+
+/* --------------------------------------- */
+/* NAV BAR */
+/* --------------------------------------- */
+
+/* offset main site nav */
+.cms-nav {
+  top: var(--nav-height);
+  height: var(--cms-nav-height);
+  overflow-x: auto;
+  display: flex;
+  z-index: 1;
+  width: 100%;
+  padding: 0 1rem;
+  /* theming */
+  background-color: var(--light-3);
+
+  @mixin dark-mode {
+    background-color: var(--dark-2);
+  }
+
+  /* main nav "links" (they're actually buttons) */
+  & .cms-nav-link {
+    background: none;
+    border: none;
+    line-height: var(--cms-nav-height);
+    padding: 0 1rem;
+    margin-right: 0;
+    outline: none;
+    cursor: pointer; /* it's not a link, but it acts like one */
+    /* theming */
+    color: var(--black);
+
+    @mixin dark-mode {
+      color: var(--light-1);
+    }
+
+    /* current page */
+    &.is-active {
+      color: var(--accent-black);
+      background-color: var(--white);
+
+      @mixin dark-mode {
+        color: var(--accent);
+        background-color: var(--dark-3);
+      }
+
+      /* interaction overrides */
+      &:hover, &:focus {
+        color: var(--accent-dark);
+
+        @mixin dark-mode {
+          color: var(--accent-light);
+        }
+      }
+    }
+  }
+
+  /* languages */
+  & .cms-nav-options {
+    margin-left: auto;
+  }
+
+  /* options */
+  & .cms-locale-select,
+  & .cms-theme-select {
+    padding: 0 0.5rem;
+    line-height: var(--cms-nav-height);
+    margin-bottom: 0; /* override default */
+
+    /* inline select */
+    & select {
+      margin-left: 0.25em;
+      width: auto;
+    }
+  }
+}
+
+
+/* --------------------------------------- */
+/* PANEL MACRO LAYOUT */
+/* --------------------------------------- */
+
+/* main panel wrapper */
+.cms-panel {
+  max-height: calc(100vh - var(--nav-height) - var(--cms-nav-height));
+  top: var(--nav-height);
+  /* overflow container */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+}
+
+
+/* sidebar */
+.cms-sidebar {
+  /* sizing */
+  width: 100%;
+  padding-top: 0.75rem;
+  /* theming */
+  background-color: var(--white);
+  color: var(--dark-3);
+  box-shadow: 0 0 1rem var(--light-2);
+
+  @mixin dark-mode {
+    background-color: var(--dark-3);
+    color: var(--light-1);
+    box-shadow: 0 0 1rem var(--black);
+  }
+
+  /* big add profile button */
+  & > .cms-button {
+    width: calc(100% - 1.5rem);
+    left: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* editor */
+.cms-editor {
+  padding: 2rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* 2 col layout */
+@mixin min-sm {
+  .cms-sidebar {
+    width: var(--sidebar-width);
+    padding-bottom: 0.75rem;
+    /* positioning */
+    position: fixed;
+    top: calc(var(--nav-height) + var(--cms-nav-height));
+    left: 0;
+    bottom: 0;
+    /* overflow container */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  }
+  /* adjacent editor */
+  .cms-sidebar ~ .cms-editor {
+    width: calc(100% - var(--sidebar-width));
+    height: calc(100vh - var(--nav-height) - var(--cms-nav-height));
+    /* offset sidebar */
+    left: var(--sidebar-width);
+    /* overflow container */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  }
+}
+
+
+/* --------------------------------------- */
+/* EDITOR */
+/* --------------------------------------- */
+
+/* meta fields */
+.cms-editor-header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  /* one child */
+  & > * {
+    width: 100%;
+
+    /* 2+ children */
+    &:not(:only-child) {
+      min-width: 10rem;
+      width: calc(50% - 1rem);
+    }
+  }
+}

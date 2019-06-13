@@ -1,3 +1,5 @@
+@import "../css/mixins.css";
+
 .cms-variable {
   color: inherit;
   display: block;
@@ -12,5 +14,61 @@
     & pre {
       white-space: pre-wrap;
     }
+  }
+
+  /* theming */
+  &.number {
+    color: var(--type-number-dark);
+    @mixin dark-mode {
+      color: var(--type-number);
+    }
+  }
+  &.string {
+    color: var(--type-string-dark);
+    @mixin dark-mode {
+      color: var(--type-string);
+    }
+  }
+  &.undefined {
+    color: var(--dark-2);
+    @mixin dark-mode {
+      color: var(--gray);
+    }
+  }
+    &.error {
+    color: var(--type-error-dark);
+    @mixin dark-mode {
+      color: var(--type-error);
+    }
+  }
+}
+
+
+/* layout */
+.cms-variable-editor-group {
+  display: flex;
+
+  /* make the editor visible when for visualizations */
+  &.single-column {
+    display: block;
+  }
+
+  & > * {
+    height: 50vh;
+    overflow: auto;
+  }
+
+  & .cms-variable-editor-json {
+    margin: 0 2.5rem 0 0;
+    width: 15.5rem;
+
+    & + * {
+      width: calc(100% - 15.5rem - 2.5rem);
+    }
+  }
+
+  /* get code editor height from parent */
+  & .editor {
+    height: 100% !important;
   }
 }

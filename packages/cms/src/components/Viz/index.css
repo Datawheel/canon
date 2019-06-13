@@ -1,3 +1,5 @@
+@import "../../css/mixins.css";
+
 .visualization {
   display: flex;
   flex-direction: column;

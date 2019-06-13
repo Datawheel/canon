@@ -1,0 +1,15 @@
+@import "../../css/mixins.css";
+
+.cms-viz-editor {
+  margin-top: 1em;
+  height: auto; /* override vh */
+
+  /* groupBy, x, y, etc. (hidden until a Data & Type are entered) */
+  & .viz-dropdown-list {
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
+    columns: 3;
+    column-gap: 1.25rem;
+  }
+}

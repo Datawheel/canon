@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import AceWrapper from "./AceWrapper";
 import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
+import Button from "../Button";
 import {Switch, Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
 
@@ -212,19 +213,19 @@ class GeneratorEditor extends Component {
     const {type, previews} = this.props;
 
     const preMessage = {
-      generator: <p className="bp3-text-muted">You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</p>,
-      materializer: <p className="bp3-text-muted">You have access to all variables previously created by generators</p>,
-      profile_visualization: <p className="bp3-text-muted">You have access to all variables previously created by generators and materializers.</p>,
-      topic_visualization: <p className="bp3-text-muted">You have access to all variables previously created by generators and materializers.</p>,
-      formatter: <p className="bp3-text-muted">You have access to the variable <code>n</code>, which represents the string to be formatted.</p>
+      generator: <React.Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</React.Fragment>,
+      materializer: <React.Fragment>You have access to all variables previously created by generators</React.Fragment>,
+      profile_visualization: <React.Fragment>You have access to all variables previously created by generators and materializers.</React.Fragment>,
+      topic_visualization: <React.Fragment>You have access to all variables previously created by generators and materializers.</React.Fragment>,
+      formatter: <React.Fragment>You have access to the variable <code>n</code>, which represents the string to be formatted.</React.Fragment>
     };
 
     const postMessage = {
-      generator: <p className="bp3-text-muted">Be sure to return an <strong>object</strong> with the variables you want stored as keys.</p>,
-      materalizer: <p className="bp3-text-muted">Be sure to return an <strong>object</strong> with the variables you want stored as keys.</p>,
-      profile_visualization: <p className="bp3-text-muted">Be sure to return a valid config object for a visualization</p>,
-      topic_visualization: <p className="bp3-text-muted">Be sure to return a valid config object for a visualization</p>,
-      formatter: <p className="bp3-text-muted">Be sure to return a <strong>string</strong> that represents your formatted content.</p>
+      generator: <React.Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</React.Fragment>,
+      materalizer: <React.Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</React.Fragment>,
+      profile_visualization: <React.Fragment>Be sure to return a valid config object for a visualization</React.Fragment>,
+      topic_visualization: <React.Fragment>Be sure to return a valid config object for a visualization</React.Fragment>,
+      formatter: <React.Fragment>Be sure to return a <strong>string</strong> that represents your formatted content.</React.Fragment>
     };
 
     const varOptions = [<option key="always" value="always">Always</option>]
@@ -241,7 +242,7 @@ class GeneratorEditor extends Component {
     if (!data) return null;
 
     return (
-      <div id="generator-editor">
+      <div className="generator-editor">
         <Alert
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
@@ -274,9 +275,9 @@ class GeneratorEditor extends Component {
             <label className="label" htmlFor="api">API</label>
             <div className="cms-field-container-inline bp3-input-group">
               <input className="bp3-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
-              <button className="cms-button bp3-button" onClick={this.maybePreviewPayload.bind(this)}>
+              <Button onClick={this.maybePreviewPayload.bind(this)} icon={payload && !payload.error ? "refresh" : "download"}>
                 {payload && !payload.error ? "Refetch data" : "Fetch data"}
-              </button>
+              </Button>
             </div>
           </div>
         }
@@ -300,11 +301,11 @@ class GeneratorEditor extends Component {
         </div>
         {/* callback instructions */}
         {!simple &&
-          <div className="cms-paragraphs">
-            Callback
-            {preMessage[type]}
-            {postMessage[type]}
-          </div>
+          <section className="generator-editor-help">
+            <h3 className="font-sm">Callback</h3>
+            <p className="font-xs">{preMessage[type]}</p>
+            <p className="font-xs">{postMessage[type]}</p>
+          </section>
         }
 
         <div className={`cms-variable-editor-group${!payload ? " single-column" : ""}`}>
@@ -320,7 +321,7 @@ class GeneratorEditor extends Component {
                 ? <SimpleGeneratorEditor
                   key="simp-gen"
                   payload={payload}
-                  simpleConfig={data.logic_simple} 
+                  simpleConfig={data.logic_simple}
                   onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null

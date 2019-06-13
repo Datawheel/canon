@@ -1,0 +1,138 @@
+@import "./mixins.css";
+
+/* BASE CMS STYLES */
+.cms {
+  min-height: 100vh; /* extend background on short pages */
+  text-align: left; /* override canon */
+
+  /* RESETS */
+  & * {
+    position: relative;
+  }
+
+  & svg, & img {
+    max-width: 100%;
+  }
+
+  & code {
+    padding: 0.125em 0.5em;
+  }
+
+  /* CANON OVERRIDES */
+  & .loading {
+    z-index: auto;
+    background: none;
+
+    @media (prefers-dark-interface), (prefers-color-scheme: dark) {
+      color: var(--light-3);
+    }
+  }
+}
+
+/* TYPOGRAPHY */
+.cms {
+  & h1,
+  & .font-xl {
+    @mixin font-xl;
+  }
+  & h2,
+  & .font-lg {
+    @mixin font-lg;
+  }
+  & h3,
+  & .font-md {
+    @mixin font-md;
+  }
+  & h4, & p, & li, & label, & input,
+  & .font-sm {
+    @mixin font-sm;
+  }
+  & h5,
+  & .font-xs {
+    @mixin font-xs;
+  }
+  & h6,
+  & .font-xxs {
+    @mixin font-xxs;
+  }
+}
+
+
+/* THEMING */
+.cms {
+  background-color: var(--light-1);
+  color: var(--black);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+    color: var(--light-1);
+  }
+
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    color: var(--black);
+
+    @mixin dark-mode {
+      color: var(--white);
+    }
+  }
+
+  /* reset loading style */
+  & .loading {
+    background-color: none;
+    color: var(--black);
+
+    @mixin dark-mode {
+      color: var(--light-1);
+    }
+  }
+
+  /* use blueprint theming for quill editor for now */
+  /* TODO: dark theme */
+  & .quill {
+    background-color: #f5f8fa;
+    color: #182026;
+  }
+}
+
+
+
+
+
+
+/* TODO: move to Dialog wrapper component */
+.cms-dialog-footer-button {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  /* TODO: adjust the container margin, not button margin */
+  margin-top: -2.25rem;
+  /* theming */
+  color: var(--dark-3);
+
+  @mixin dark-mode {
+    color: var(--light-1);
+  }
+
+  & .cms-dialog-footer-button-icon {
+    color: var(--dark-1);
+
+    @mixin dark-mode {
+      color: var(--gray);
+    }
+  }
+
+  /* interactions */
+  &:hover, &:focus {
+    & .cms-dialog-footer-button-icon {
+      color: var(--dark-3);
+
+      @mixin dark-mode {
+        color: var(--light-1);
+      }
+    }
+  }
+
+  &:not(:last-of-type) {
+    margin-right: 1.5em;
+  }
+}

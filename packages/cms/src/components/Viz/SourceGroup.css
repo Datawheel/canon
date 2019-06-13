@@ -1,3 +1,5 @@
+@import "../../css/mixins.css";
+
 .SourceGroup {
   & .bp3-popover-target {
     display: inline;

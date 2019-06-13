@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import DimensionCard from "../components/cards/DimensionCard";
 import DimensionCreator from "../components/DimensionCreator";
+import Section from "../components/Section";
 import {Dialog} from "@blueprintjs/core";
 
 import "./DimensionBuilder.css";
@@ -35,27 +36,21 @@ export default class DimensionBuilder extends Component {
     const {isOpen} = this.state;
 
     return (
-      <div className="dimension-builder">
-        <p className="dimension-builder-label pt-label">Dimensions</p>
-        {meta.length
-          ? <div className="cms-card-list dimension-card-list">
-            {meta.map((m, i) =>
-              <DimensionCard
-                key={`dc-${i}`}
-                meta={meta[i]}
-                preview={previews[i]}
-                onSelectPreview={this.onSelectPreview.bind(this)}
-                onDeleteDimension={this.onDeleteDimension.bind(this)}
-              />
-            )}
-          </div> : null
-        }
-        <button
-          className="cms-button is-block"
-          onClick={() => this.setState({isOpen: !this.state.isOpen})}
-        >
-          Add Dimension
-        </button>
+      <React.Fragment>
+        <Section
+          title="Dimensions"
+          entity="dimension"
+          addItem={() => this.setState({isOpen: !this.state.isOpen})}
+          cards={meta.map((m, i) =>
+            <DimensionCard
+              key={`dc-${i}`}
+              meta={meta[i]}
+              preview={previews[i]}
+              onSelectPreview={this.onSelectPreview.bind(this)}
+              onDeleteDimension={this.onDeleteDimension.bind(this)}
+            />
+          )}
+        />
 
         <Dialog
           className="dimension-editor-dialog"
@@ -73,7 +68,7 @@ export default class DimensionBuilder extends Component {
             />
           </div>
         </Dialog>
-      </div>
+      </React.Fragment>
     );
   }
 

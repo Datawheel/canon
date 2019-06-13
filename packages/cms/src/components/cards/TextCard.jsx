@@ -1,15 +1,15 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog, Alert, Intent} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
-import MoveButtons from "../MoveButtons";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
 import PropTypes from "prop-types";
-import Flag from "./Flag";
+import LocaleName from "./LocaleName";
+import CardWrapper from "./CardWrapper";
 import "./TextCard.css";
 
 class TextCard extends Component {
@@ -161,61 +161,60 @@ class TextCard extends Component {
     this.setState({minData, isOpen, alertObj, isDirty});
   }
 
+  upperCaseFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  prettifyType(type) {
+    return this.upperCaseFirst(type
+      .replace("story_", "")
+      .replace("topic_", "")
+    );
+  }
+
   render() {
-    const {displayData, minData, isOpen, alertObj} = this.state;
-    const {variables, fields, plainfields, type, parentArray, item, locale} = this.props;
+    const {alertObj, displayData, minData, isOpen} = this.state;
+    const {variables, fields, onMove, plainfields, type, parentArray, item, locale} = this.props;
 
     if (!minData || !displayData) return <Loading />;
 
     let cardClass = "splash-card";
-    if (["profile_stat", "topic_stat"].includes(type)) cardClass = "stat-card";
+    if (["profile_stat", "topic_stat"].includes(type)) cardClass = "cms-stat-card";
     const displaySort = ["title", "value", "subtitle", "description"];
     const displays = Object.keys(displayData)
       .filter(k => typeof displayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
 
+    // define props for CardWrapper
+    const cardProps = {
+      cardClass,
+      title: <LocaleName locale={locale} />,
+      onEdit: this.openEditor.bind(this),
+      // reorder
+      reorderProps: parentArray ? {
+        array: parentArray,
+        item,
+        type
+      } : null,
+      onReorder: onMove ? onMove.bind(this) : null,
+      // alert
+      alertObj,
+      onAlertCancel: () => this.setState({alertObj: false})
+    };
+
     return (
-      <div className={`cms-card cms-${cardClass}`}>
+      <CardWrapper {...cardProps}>
 
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
-
-        {/* title & edit toggle button */}
-        <h5 className="cms-card-header">
-          <Flag locale={locale} />
-          <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="bp3-icon bp3-icon-cog" />
-          </button>
-        </h5>
-
+        {/* preview content */}
         { displays.map((k, i) =>
           <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}} />
         )}
 
-        {/* reorder buttons */}
-        { parentArray &&
-          <MoveButtons
-            item={item}
-            array={parentArray}
-            type={type}
-            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
-          />
-        }
-
+        {/* edit content */}
         <Dialog
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Text Editor"
+          title={type ? `${this.prettifyType(type)} editor` : "Text editor"}
           usePortal={false}
         >
           <div className="bp3-dialog-body">
@@ -227,10 +226,9 @@ class TextCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-      </div>
+      </CardWrapper>
     );
   }
-
 }
 
 TextCard.contextTypes = {

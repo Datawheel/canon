@@ -1,0 +1,137 @@
+@import "./mixins.css";
+
+.cms {
+
+  /* muted text */
+  & .bp3-text-muted {
+    @mixin description-color;
+  }
+
+  /* fix blueprint popover */
+  & .bp3-overlay-inline {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20; /* move to front */
+    /* override container alignment */
+    text-align: left;
+    /* hide by default */
+    display: none;
+
+    &.bp3-overlay-open {
+      display: flex;
+      position: fixed;
+    }
+  }
+  & .bp3-overlay-inline.bp3-overlay-open > span {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* dialogs */
+  & .bp3-dialog {
+    width: calc(100vw - 2rem);
+    height: auto;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    padding-bottom: 0;
+    margin: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+    /* theming */
+    background-color: var(--white);
+
+    @mixin dark-mode {
+      background-color: var(--dark-3);
+    }
+
+    /* adjust width on big screens */
+    @media (min-width: 54rem) {
+      width: 56rem;
+    }
+  }
+  & .bp3-dialog-header {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px 4px 0 0;
+    box-shadow: none;
+    /* theming */
+    background-color: var(--light-2);
+
+    @mixin dark-mode {
+      background-color: var(--dark-2);
+    }
+  }
+  & .bp3-dialog-footer {
+    margin: 0;
+    padding: 0.75rem 1.5rem;
+  }
+  & .bp3-dialog-close-button {
+    padding: 0.5rem 0.75rem;
+    margin: -1rem;
+    transition:
+      color 0.1s ease-out,
+      transform 0.1s ease-out;
+    /* theming */
+    color: var(--dark-2);
+
+    @mixin dark-mode {
+      color: var(--light-3);
+    }
+
+    /* interactions */
+    &:hover, &:focus {
+      transform: scale(1.25);
+      color: var(--accent-black);
+
+      @mixin dark-mode {
+        color: var(--white);
+      }
+    }
+  }
+  & .bp3-dialog-body {
+    margin: 0;
+    padding: 2.125rem 1.5rem;
+  }
+
+  & .inline-radio-group {
+    & > .bp3-label,
+    & > .bp3-radio {
+      display: inline-block;
+    }
+    & > .bp3-radio {
+      padding-left: 20px;
+
+      &:not(:last-of-type) {
+        margin-right: 0.75rem;
+      }
+    }
+  }
+
+  /* input group button overrides */
+  & .bp3-input-group {
+    display: flex;
+    align-items: stretch;
+
+    & .bp3-input:first-child:not(:last-child) {
+      flex: 1 1 auto;
+      margin-top: 5px; /* match blueprint */
+      padding: 0 1em;
+      width: 100%;
+      max-width: 100%;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    & .cms-button {
+      position: relative;
+      padding-left: 1em;
+      padding-right: 1em;
+      border-radius: 0 2px 2px 0;
+      line-height: 1;
+      margin: 5px 0 0 0; /* reset & match blueprint */
+    }
+  }
+}

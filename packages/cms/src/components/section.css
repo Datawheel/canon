@@ -1,0 +1,76 @@
+@import "../css/mixins.css";
+
+/* section headings */
+.cms-section-heading {
+  margin-top: 2rem;
+  margin-bottom: 0;
+
+  /* tighten up spaces between headings and card lists */
+  & ~ .cms-card-container {
+    margin-top: -0.25rem;
+  }
+}
+
+/* add button */
+.cms-section-heading-button {
+  font-size: 0.5em;
+  vertical-align: top;
+  /* override default interactions */
+  transition-property: color, background-color, border-color, transform;
+
+  &:hover, &:focus {
+    transform: scale(1.125);
+
+    & .cms-button-icon {
+      transform: none;
+    }
+  }
+}
+
+/* descriptions */
+.cms-section-description {
+  top: 0.5em; /* adjust spacing */
+  @mixin description-color; /* theming */
+}
+
+/* other add button */
+.cms-section-big-button {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+
+/* ------------------------------------- */
+/* section card layout */
+/* ------------------------------------- */
+/* TODO: redo/rethink */
+
+.cms-card-container {
+  display: flex;
+
+  /* awkward locale double list */
+  & .cms-card-list + .cms-card-list {
+    margin-left: 2rem;
+  }
+
+  @media (max-width: 980px) {
+    flex-wrap: wrap;
+
+    & .cms-card-list + .cms-card-list {
+      margin-left: -1rem;
+    }
+  }
+}
+
+/* card layout */
+.cms-card-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -1rem;
+  width: calc(50% - 2rem);
+  flex-basis: calc(100% + 2rem); /* needed because reasons */
+
+  &:only-child {
+    width: calc(100% + 2rem);
+  }
+}

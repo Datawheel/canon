@@ -1,20 +1,4 @@
-/* @import '../css/mixins'; */
-
-/* accessibly hidden text and elements */
-@define-mixin visually-hidden {
-  clip: rect(1px, 1px, 1px, 1px);
-  position: absolute !important;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-}
-/* ellipsis */
-/* NOTE: works best with defined width & height, 1 line of text */
-@define-mixin overflow-ellipsis {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+@import "../../css/mixins.css";
 
 .u-visually-hidden {
   @mixin visually-hidden;
