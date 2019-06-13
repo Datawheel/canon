@@ -28,7 +28,7 @@ class NewMemberSelect extends BaseMultiSelect {
   }
 
   rightElement() {
-    return this.props.loading ? <Spinner className="pt-small" /> : null;
+    return this.props.loading ? <Spinner className="bp3-small" /> : null;
   }
 
   renderListItem(item, params) {
@@ -47,8 +47,8 @@ class NewMemberSelect extends BaseMultiSelect {
         <button
           tabIndex="0"
           type="button"
-          className={classnames("pt-menu-item select-item", {
-            "pt-active": params.isActive
+          className={classnames("bp3-menu-item select-item", {
+            "bp3-active": params.isActive
           })}
           onClick={params.handleClick}
         >

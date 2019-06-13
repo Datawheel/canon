@@ -5,7 +5,7 @@ import escapeRegExp from "lodash/escapeRegExp";
 import {Spinner} from "@blueprintjs/core";
 import {BaseMultiSelect} from "./CustomSelect";
 
-const spinner = <Spinner className="pt-small" />;
+const spinner = <Spinner className="bp3-small" />;
 
 function MemberSelect(props) {
   props.className = classNames("select-member", props.className);

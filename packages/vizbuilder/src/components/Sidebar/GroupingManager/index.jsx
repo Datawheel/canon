@@ -47,7 +47,7 @@ class GroupingManager extends SidebarCRUDManager {
           {items.map(this.renderElement, this)}
         </div>
         <Button
-          className="pt-fill action-add"
+          className="bp3-fill action-add"
           text="Add grouping"
           iconName="insert"
           disabled={disableAdd}

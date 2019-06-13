@@ -1,5 +1,5 @@
 .select-target-wrapper {
-  &.pt-popover-target {
+  &.bp3-popover-target {
     display: block;
   }
 
@@ -48,7 +48,7 @@
     flex-direction: row;
     align-items: center;
 
-    & .pt-icon-standard {
+    & .bp3-icon-standard {
       flex: 0 0;
       min-width: 1em;
     }
@@ -90,13 +90,13 @@
 .virtlist-wrapper {
   max-width: 310px;
 }
-.pt-input-group {
+.bp3-input-group {
   & + .deeplist-wrapper,
   & + .virtlist-wrapper {
     margin-top: 5px;
   }
 }
-.deeplist-wrapper .pt-menu:not(:first-child) {
+.deeplist-wrapper .bp3-menu:not(:first-child) {
   padding-top: 0;
 }
 .deeplist-header {

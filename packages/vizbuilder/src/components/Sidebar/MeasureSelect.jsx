@@ -17,7 +17,7 @@ class MeasureSelect extends BaseMonoSelect {
             {item.annotations._cb_tagline}
           </span>
         </div>
-        <span className="pt-icon-standard pt-icon-double-caret-vertical" />
+        <span className="bp3-icon-standard bp3-icon-double-caret-vertical" />
       </div>
     );
   }
@@ -116,7 +116,7 @@ MeasureSelect.defaultProps = {
         </span>,
         <span className="select-label dims">
           {item.annotations._dim_labels.map(label => (
-            <span className="pt-tag">{label}</span>
+            <span className="bp3-tag">{label}</span>
           ))}
         </span>
       );

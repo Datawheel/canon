@@ -61,12 +61,12 @@ class GroupingItem extends SidebarCRUDItem {
         <div className="group actions">
           <Button
             text="Delete"
-            className="pt-small action-delete"
+            className="bp3-small action-delete"
             onClick={this.handleDelete}
           />
           <Button
             text="Edit"
-            className="pt-small pt-intent-primary action-edit"
+            className="bp3-small bp3-intent-primary action-edit"
             onClick={this.handleEdit}
           />
         </div>
@@ -100,12 +100,12 @@ class GroupingItem extends SidebarCRUDItem {
         <div className="group actions">
           <Button
             text={item.level ? "Cancel" : "Delete"}
-            className="pt-small action-reset"
+            className="bp3-small action-reset"
             onClick={item.level ? this.handleClose : this.handleDelete}
           />
           <Button
             text="Apply"
-            className="pt-small pt-intent-primary action-update"
+            className="bp3-small bp3-intent-primary action-update"
             onClick={this.handleApply}
           />
         </div>

@@ -3,7 +3,7 @@ import React from "react";
 function DatasetSelect(props) {
   const cubeName = props.value.annotations._cb_name;
   return (
-    <span className="pt-select pt-fill">
+    <span className="bp3-select bp3-fill">
       <select
         className={props.className}
         name="dataset"

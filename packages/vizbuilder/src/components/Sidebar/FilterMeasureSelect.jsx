@@ -17,7 +17,7 @@ class FilterMeasureSelect extends BaseMonoSelect {
         <span className="select-value">
           <span className="select-label">{name}</span>
         </span>
-        <span className="pt-icon-standard pt-icon-double-caret-vertical" />
+        <span className="bp3-icon-standard bp3-icon-double-caret-vertical" />
       </div>
     );
   }

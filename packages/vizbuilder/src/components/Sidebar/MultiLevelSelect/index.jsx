@@ -80,7 +80,7 @@ class MultiLevelSelect extends React.Component {
   maybeRenderResetButton() {
     return this.state.query.length
       ? <button
-        className="pt-button pt-minimal pt-icon-cross mlsel-filter-reset"
+        className="bp3-button bp3-minimal bp3-icon-cross mlsel-filter-reset"
         onClick={this.handleQueryReset}
       />
       : null;
@@ -118,11 +118,11 @@ class MultiLevelSelect extends React.Component {
     return (
       <div className="mlsel-popover-content">
         {filterable &&
-          <div className="pt-input-group mlsel-filter-group">
-            <span className="pt-icon pt-icon-search" />
+          <div className="bp3-input-group mlsel-filter-group">
+            <span className="bp3-icon bp3-icon-search" />
             <input
               ref={this.refHandlers.input}
-              className="pt-input pt-fill mlsel-filter-input"
+              className="bp3-input bp3-fill mlsel-filter-input"
               type="text"
               placeholder="Type to filter elements..."
               dir="auto"
@@ -161,7 +161,7 @@ class MultiLevelSelect extends React.Component {
         disabled={props.disabled}
         {...props.popoverProps}
         content={popContent}
-        className={classNames("select-target-wrapper mlsel-target-wrapper pt-fill", props.className)}
+        className={classNames("select-target-wrapper mlsel-target-wrapper bp3-fill", props.className)}
         onInteraction={this.handlePopoverInteraction}
         popoverWillOpen={this.handlePopoverWillOpen}
         popoverDidOpen={this.handlePopoverDidOpen}
@@ -197,7 +197,7 @@ MultiLevelSelect.defaultProps = {
         boundariesElement: "viewport"
       }
     },
-    popoverClassName: "pt-select-popover base-select mlsel-popover pt-minimal"
+    popoverClassName: "bp3-select-popover base-select mlsel-popover bp3-minimal"
   },
   noResults: <span className="select-noresults">No results</span>,
   value: []

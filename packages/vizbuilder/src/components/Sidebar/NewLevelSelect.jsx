@@ -34,7 +34,7 @@ class NewLevelSelect extends BaseSelect {
         <span className="select-value">
           <span className="select-label">{valueLabel}</span>
         </span>
-        <span className="pt-icon-standard pt-icon-double-caret-vertical" />
+        <span className="bp3-icon-standard bp3-icon-double-caret-vertical" />
       </div>
     );
   }
@@ -77,8 +77,8 @@ class NewLevelSelect extends BaseSelect {
         <button
           tabIndex="0"
           type="button"
-          className={classnames("pt-menu-item select-item", {
-            "pt-active": params.isActive
+          className={classnames("bp3-menu-item select-item", {
+            "bp3-active": params.isActive
           })}
           onClick={params.handleClick}
         >

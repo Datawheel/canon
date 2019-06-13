@@ -39,13 +39,13 @@ class DeepList extends React.PureComponent {
           <span className="deeplist-spacer" />
           <button
             type="button"
-            className="pt-button pt-small pt-icon-circle-arrow-left"
+            className="bp3-button bp3-small bp3-icon-circle-arrow-left"
             onClick={this.backHandler}
           >
             Back
           </button>
         </div>
-        <ul className="pt-menu">{items.map(renderer, this)}</ul>
+        <ul className="bp3-menu">{items.map(renderer, this)}</ul>
       </div>
     );
   }
@@ -56,12 +56,12 @@ class DeepList extends React.PureComponent {
     const isActive = value && value.name === item;
 
     return (
-      <li key={item} className="pt-submenu">
-        <span className="pt-popover-target">
+      <li key={item} className="bp3-submenu">
+        <span className="bp3-popover-target">
           <button
             tabIndex="0"
             type="button"
-            className={classnames("pt-menu-item", {"pt-active": isActive})}
+            className={classnames("bp3-menu-item", {"bp3-active": isActive})}
             onClick={this.selectMenuHandler.bind(this, item)}
           >
             {item}
@@ -79,7 +79,7 @@ class DeepList extends React.PureComponent {
         <button
           tabIndex="0"
           type="button"
-          className={classnames("pt-menu-item select-item", {"pt-active": isActive})}
+          className={classnames("bp3-menu-item select-item", {"bp3-active": isActive})}
           onClick={this.selectItemHandler.bind(this, item)}
         >
           <span className="select-label">{item.name}</span>

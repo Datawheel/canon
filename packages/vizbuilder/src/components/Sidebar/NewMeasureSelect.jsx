@@ -71,7 +71,7 @@ class NewMeasureSelect extends BaseSelect {
           <span className="select-label name">{item.caption || item.name}</span>
           <span className="select-label source">{item.annotations._cb_tagline}</span>
         </div>
-        <span className="pt-icon-standard pt-icon-double-caret-vertical" />
+        <span className="bp3-icon-standard bp3-icon-double-caret-vertical" />
       </div>
     );
   }
@@ -111,8 +111,8 @@ class NewMeasureSelect extends BaseSelect {
         <button
           tabIndex="0"
           type="button"
-          className={classnames("pt-menu-item select-item", {
-            "pt-active": params.isActive
+          className={classnames("bp3-menu-item select-item", {
+            "bp3-active": params.isActive
           })}
           onClick={params.handleClick}
         >
@@ -120,7 +120,7 @@ class NewMeasureSelect extends BaseSelect {
           {props.showDimensions && (
             <span className="select-label dims">
               {item.annotations._dim_labels.map(label => (
-                <span className="pt-tag">{label}</span>
+                <span className="bp3-tag">{label}</span>
               ))}
             </span>
           )}

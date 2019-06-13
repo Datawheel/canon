@@ -68,7 +68,7 @@ FilterMeasureSelect.defaultProps = {
         boundariesElement: "viewport"
       }
     },
-    popoverClassName: "select-popover pt-minimal"
+    popoverClassName: "select-popover bp3-minimal"
   }
 };
 

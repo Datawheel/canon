@@ -121,7 +121,7 @@ class BaseSelect extends React.Component {
         minimal={true}
         placement="bottom-start"
         {...props.popoverProps}
-        className={classNames("pt-fill select-target-wrapper", props.className)}
+        className={classNames("bp3-fill select-target-wrapper", props.className)}
         content={this.renderPopover.call(this, options)}
         interactionKind={PopoverInteractionKind.CLICK}
         modifiers={{
@@ -133,7 +133,7 @@ class BaseSelect extends React.Component {
         }}
         onInteraction={this.handlePopoverInteraction}
         popoverClassName={classNames(
-          "pt-select-popover select-popover-wrapper",
+          "bp3-select-popover select-popover-wrapper",
           props.popoverProps.popoverClassName,
           props.className
         )}
@@ -158,11 +158,11 @@ class BaseSelect extends React.Component {
     const {query} = this.state;
 
     return (
-      <div className="pt-input-group">
-        <span className="pt-icon pt-icon-search" />
+      <div className="bp3-input-group">
+        <span className="bp3-icon bp3-icon-search" />
         <input
           ref={this.refHandlers.input}
-          className="pt-input pt-fill"
+          className="bp3-input bp3-fill"
           type="text"
           placeholder="Type to filter elements..."
           dir="auto"
@@ -171,7 +171,7 @@ class BaseSelect extends React.Component {
         />
         {query.length > 0 && (
           <button
-            className="pt-button pt-minimal pt-icon-cross"
+            className="bp3-button bp3-minimal bp3-icon-cross"
             onClick={this.handleQueryReset}
           />
         )}

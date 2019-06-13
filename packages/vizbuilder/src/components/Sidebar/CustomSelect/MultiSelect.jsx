@@ -40,7 +40,7 @@ class MultiSelect extends BaseSelect {
       <TagInput
         {...props.tagInputProps}
         className={classNames(
-          "select-taginput pt-fill",
+          "select-taginput bp3-fill",
           props.tagInputProps.className
         )}
         onAdd={props.onItemSelect}
