@@ -241,7 +241,14 @@ module.exports = function(app) {
       const dim = dims[i];
       const thisSlug = profile.meta.find(d => d.slug === dim.slug);
       const levels = thisSlug ? thisSlug.levels : [];
-      let thisAttr = await db.search.findOne({where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}}).catch(catcher);
+      let searchReq;
+      if (levels.length === 0) {
+        searchReq = {where: {id: dim.id}};
+      }
+      else {
+        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
+      }
+      let thisAttr = await db.search.findOne(searchReq).catch(catcher);
       thisAttr = thisAttr ? thisAttr.toJSON() : {};
       if (i === 0) attr = Object.assign(attr, thisAttr);
       Object.keys(thisAttr).forEach(key => {
@@ -310,7 +317,7 @@ module.exports = function(app) {
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[0];
       const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
-      if (attribute.id) dim.id = attribute.id;
+      if (attribute && attribute.id) dim.id = attribute.id;
     }
 
     // Given a list of dimension slugs, use the meta table to reverse-lookup which profile this is
