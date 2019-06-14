@@ -115,7 +115,7 @@ class BaseSelect extends React.Component {
       <Popover
         autoFocus={false}
         disabled={props.disabled}
-        inline={true}
+        usePortal={true}
         isOpen={this.state.isOpen}
         minimal={true}
         placement="bottom-start"
@@ -136,9 +136,9 @@ class BaseSelect extends React.Component {
           props.popoverProps.popoverClassName,
           props.className
         )}
-        popoverDidOpen={this.handlePopoverDidOpen}
-        popoverWillClose={this.handlePopoverWillClose}
-        popoverWillOpen={this.handlePopoverWillOpen}
+        onOpened={this.handlePopoverDidOpen}
+        onClose={this.handlePopoverWillClose}
+        onOpen={this.handlePopoverWillOpen}
       >
         {this.renderTarget.call(this, value)}
       </Popover>

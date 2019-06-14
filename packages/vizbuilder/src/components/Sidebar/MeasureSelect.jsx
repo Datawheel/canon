@@ -115,9 +115,9 @@ MeasureSelect.defaultProps = {
           {item.annotations._cb_tagline}
         </span>,
         <span className="select-label dims">
-          {item.annotations._dim_labels.map(label => (
-            <span className="bp3-tag">{label}</span>
-          ))}
+          {item.annotations._dim_labels.map(label => 
+            <span key={label} className="bp3-tag">{label}</span>
+          )}
         </span>
       );
     }
