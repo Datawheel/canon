@@ -162,11 +162,12 @@ class Vizbuilder extends React.Component {
           >
             <Button
               onClick={this.toggleSidebar}
-              iconName={showSidebar ? "menu-closed" : "menu-open"}
+              icon={showSidebar ? "menu-closed" : "menu-open"}
             />
           </Tooltip>
         </div>
         <ChartArea
+          key="chart-area"
           charts={charts}
           lastUpdate={load.lastUpdate}
           measure={queryParams.measure}

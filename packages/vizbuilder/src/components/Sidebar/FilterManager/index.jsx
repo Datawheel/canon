@@ -25,7 +25,7 @@ class FilterManager extends SidebarCRUDManager {
         <Button
           text="Add filter"
           className="bp3-fill"
-          iconName="insert"
+          icon="insert"
           onClick={this.createElement}
         />
       </div>

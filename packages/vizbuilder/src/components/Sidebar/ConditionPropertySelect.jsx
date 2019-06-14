@@ -30,7 +30,7 @@ function FilterMeasureSelect(props) {
       <span className="select-value">
         <span className="select-label">{name}</span>
       </span>
-      <Icon iconName="double-caret-vertical" />
+      <Icon icon="double-caret-vertical" />
     </div>
   );
 }

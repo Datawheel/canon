@@ -49,7 +49,7 @@ class GroupingManager extends SidebarCRUDManager {
         <Button
           className="bp3-fill action-add"
           text="Add grouping"
-          iconName="insert"
+          icon="insert"
           disabled={disableAdd}
           onClick={this.createElement}
         />

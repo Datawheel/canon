@@ -22,7 +22,7 @@ class ChartCard extends React.PureComponent {
             <footer>
               <Button
                 className="bp3-minimal"
-                iconName={active ? "cross" : "zoom-in"}
+                icon={active ? "cross" : "zoom-in"}
                 text={active ? "CLOSE" : "ENLARGE"}
                 onClick={this.handleToggleSelect}
               />

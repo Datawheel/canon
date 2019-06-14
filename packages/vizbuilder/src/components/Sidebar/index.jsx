@@ -82,7 +82,7 @@ class Sidebar extends React.PureComponent {
             <Button
               className="bp3-fill action-reset"
               text="Reset to Defaults"
-              iconName="undo"
+              icon="undo"
               disabled={isDefaultQuery}
               onClick={this.resetDefaults}
             />
