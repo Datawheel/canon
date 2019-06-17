@@ -64,7 +64,7 @@ class NewMeasureSelect extends BaseSelect {
   renderTarget(item) {
     return (
       <div
-        className="select-item select-option option-measure current"
+        className="select-item select-option option-measure"
         title={item.caption || item.name}
       >
         <div className="select-value">

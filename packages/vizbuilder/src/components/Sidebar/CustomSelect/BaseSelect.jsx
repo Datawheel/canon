@@ -160,6 +160,7 @@ class BaseSelect extends React.Component {
       <div className="bp3-input-group">
         <span className="bp3-icon bp3-icon-search" />
         <input
+          key="rf-input"
           ref={this.refHandlers.input}
           className="bp3-input bp3-fill"
           type="text"
