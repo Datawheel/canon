@@ -108,7 +108,7 @@ export default class Toolbox extends Component {
     this.setState({currentView: e.target.value});
   }
 
-  filterVariables(e) {
+  filter(e) {
     this.setState({query: e.target.value});
   }
 
@@ -153,6 +153,14 @@ export default class Toolbox extends Component {
       {/* loading status */}
       <Status recompiling={recompiling} />
       <h3>Toolbox</h3>
+      <strong>Filter:</strong>
+      <div> 
+        <input 
+          type="search"
+          value={query} 
+          onChange={this.filter.bind(this)}
+        />
+      </div>
       <label className="cms-select-label">
         <strong>View:</strong>
         <select
@@ -170,11 +178,6 @@ export default class Toolbox extends Component {
         </Checkbox> 
       }
       { !grouped && <div className="cms-variables-list">
-        <input 
-          type="search"
-          value={query} 
-          onChange={this.filterVariables.bind(this)}
-        />
         <ul>
           {Object.keys(variables[localeDefault])
             .sort((a, b) => a.localeCompare(b))
@@ -190,7 +193,7 @@ export default class Toolbox extends Component {
       {/* Hide the sections if not grouped - but SHOW them if forceKey is set, which means
         * that someone has clicked an individual variable and wants to view its editor
         */}
-      <div style={grouped || forceKey ? {} : {display: "none"}}> 
+      {currentView === "generators" && <div style={grouped || forceKey ? {} : {display: "none"}}> 
         {/* generators */}
         <Section
           title="Generators"
@@ -243,7 +246,10 @@ export default class Toolbox extends Component {
               forceKey={String(forceMatID) === String(m.id) ? forceKey : null}
             />)}
         />
-      </div>
+      </div>}
+      { currentView === "formatters" && <div>
+        formatters
+      </div>}
       
     </div>;
 
