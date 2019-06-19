@@ -23,25 +23,6 @@
     height: 20px;
     line-height: 20px;
     padding: 0;
-    /* theming */
-    background-color: var(--gray);
-    border-color: var(--gray);
-
-    @mixin dark-mode {
-      background-color: var(--black);
-      border-color: var(--black);
-    }
-
-    /* interactions */
-    &:hover, &:focus {
-      background-color: var(--accent-black);
-      border-color: var(--accent-black);
-
-      @mixin dark-mode {
-        background-color: var(--black);
-        border-color: var(--black);
-      }
-    }
 
     /* back button positioning */
     &.cms-reorder-button-back {

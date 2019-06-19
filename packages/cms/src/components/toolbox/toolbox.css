@@ -1,18 +1,20 @@
 @import "../../css/mixins";
 
-/* layout */
-.cms-panel:not(:last-child) {
-  @mixin min-md {
+/* quick and dirty layout */
+@mixin min-md {
+  .cms-panel:not(:last-child) {
     width: calc(100% - var(--toolbox-width));
     max-width: calc(100% - var(--toolbox-width));
 
     & ~ .cms-toolbox {
       position: absolute;
       width: var(--toolbox-width);
+      padding: 1.25rem;
       height: 100%;
       max-height: calc(100vh - (var(--nav-height) + var(--cms-nav-height)));
       overflow-y: auto;
       -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+      box-shadow: -1px 0 0 var(--light-2); /* left "border" */
       /* positioning */
       top: var(--nav-height);
       right: 0;
@@ -22,17 +24,19 @@
   }
 }
 
-.cms .cms-toolbox {
+.cms-toolbox {
   /* sizing */
   display: block;
   /* layout */
   margin-top: var(--cms-nav-height);
   padding: 2rem;
   /* theming */
-  background-color: var(--light-2);
+  background-color: var(--light-1);
+  box-shadow: 0 -1px 0 var(--light-2); /* top "border" */
 
   @mixin dark-mode {
-    background-color: color(var(--dark-3) a(0.25));
+    background-color: var(--dark-2);
+    box-shadow: none !important;
   }
 
   & .cms-card {
