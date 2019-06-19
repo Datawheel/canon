@@ -30,7 +30,7 @@ export default class CardWrapper extends Component {
 
           {/* switch to edit mode */}
           {onEdit &&
-            <Button className="cms-card-heading-button font-xs" onClick={onEdit} icon="cog" naked>
+            <Button className="cms-card-heading-button font-xs" onClick={onEdit} icon="cog">
               Edit
             </Button>
           }

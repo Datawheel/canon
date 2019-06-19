@@ -378,7 +378,7 @@ class StoryBuilder extends Component {
         <div className="cms-sidebar" id="tree">
 
           {/* new entity */}
-          <Button onClick={this.addFirst.bind(this)} icon="plus" iconPosition="right" ghost>
+          <Button onClick={this.addFirst.bind(this)} icon="plus" iconPosition="right">
             Add story
           </Button>
 

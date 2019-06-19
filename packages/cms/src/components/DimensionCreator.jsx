@@ -133,8 +133,8 @@ class DimensionCreator extends Component {
         }
         <div className="cms-field-container">
           { profileData.dimension && profileData.levels.length > 0 && profileData.measure
-            ? <Button onClick={this.createProfile.bind(this)} icon="plus" ghost>Add dimension</Button>
-            : <Button icon="plus" ghost disabled>Add dimension</Button>
+            ? <Button onClick={this.createProfile.bind(this)} icon="plus">Add dimension</Button>
+            : <Button icon="plus" disabled>Add dimension</Button>
           }
         </div>
 

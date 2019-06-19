@@ -305,17 +305,17 @@ class SelectorEditor extends Component {
                     </label>
                   </li>
                   <li className="cms-selector-editor-action-item">
-                    <Button onClick={this.moveUp.bind(this, i)} icon="arrow-up" iconOnly naked>
+                    <Button onClick={this.moveUp.bind(this, i)} icon="arrow-up" iconOnly>
                       Bring entry forward
                     </Button>
                   </li>
                   <li className="cms-selector-editor-action-item">
-                    <Button onClick={this.moveDown.bind(this, i)} icon="arrow-down" iconOnly naked>
+                    <Button onClick={this.moveDown.bind(this, i)} icon="arrow-down" iconOnly>
                       Send entry backward
                     </Button>
                   </li>
                   <li className="cms-selector-editor-action-item">
-                    <Button onClick={this.deleteOption.bind(this, i)} icon="trash" iconOnly naked>
+                    <Button onClick={this.deleteOption.bind(this, i)} icon="trash" iconOnly>
                       Delete entry
                     </Button>
                   </li>
@@ -325,10 +325,10 @@ class SelectorEditor extends Component {
           }
         </ul>
         <div className="cms-selector-editor-button-group">
-          <Button onClick={this.addOption.bind(this)} icon="plus" ghost>
+          <Button onClick={this.addOption.bind(this)} icon="plus">
             Add option
           </Button>
-          <Button onClick={this.toggleCustom.bind(this)} icon={showCustom ? "cross" : "cog"} ghost>
+          <Button onClick={this.toggleCustom.bind(this)} icon={showCustom ? "cross" : "cog"}>
             Custom default
           </Button>
         </div>

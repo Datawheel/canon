@@ -54,30 +54,6 @@
     width: 100%;
   }
 
-  /* naked button theming */
-  &.cms-naked-button {
-    background-color: transparent;
-    border-color: transparent;
-    color: var(--accent-dark);
-
-    @mixin dark-mode {
-      color: var(--accent-light);
-    }
-  }
-
-  /* ghost button theming */
-  &.cms-ghost-button {
-    background-color: color(var(--white) a(0.333));
-    border-color: var(--accent-dark);
-    color: var(--accent-dark);
-
-    @mixin dark-mode {
-      background-color: color(var(--black) a(0.333));
-      border-color: var(--accent);
-      color: var(--accent-light);
-    }
-  }
-
   /* interactions */
   &:hover, &:focus {
     background-color: var(--accent-black);

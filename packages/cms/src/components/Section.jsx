@@ -15,7 +15,7 @@ export default class Section extends Component {
         {/* section title */}
         <h2 className="cms-section-heading" id={entity}>
           {title} {cards && cards.length > 0 && addItem || entity === "formatter"
-            ? <Button onClick={addItem} className="cms-section-heading-button" icon="plus" iconOnly ghost>
+            ? <Button onClick={addItem} className="cms-section-heading-button" icon="plus" iconOnly>
               Add {entity}
             </Button>
             : null
@@ -51,7 +51,7 @@ export default class Section extends Component {
             onClick={addItem}
             icon="plus"
             iconPosition="right"
-            ghost
+           
           >
             Add {entity}
           </Button>
