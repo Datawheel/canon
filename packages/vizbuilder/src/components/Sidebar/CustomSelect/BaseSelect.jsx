@@ -116,7 +116,7 @@ class BaseSelect extends React.Component {
         autoFocus={false}
         disabled={props.disabled}
         usePortal={true}
-        isOpen={this.state.isOpen}
+        // isOpen={this.state.isOpen}
         minimal={true}
         placement="bottom-start"
         {...props.popoverProps}
@@ -130,7 +130,7 @@ class BaseSelect extends React.Component {
           },
           ...props.popoverProps.modifiers
         }}
-        onInteraction={this.handlePopoverInteraction}
+        // onInteraction={this.handlePopoverInteraction}
         popoverClassName={classNames(
           "bp3-select-popover select-popover-wrapper",
           props.popoverProps.popoverClassName,
