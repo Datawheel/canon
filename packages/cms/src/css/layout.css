@@ -120,12 +120,12 @@
   width: 100%;
   padding-top: 0.75rem;
   /* theming */
-  background-color: var(--white);
+  background-color: var(--light-1);
   color: var(--dark-3);
-  box-shadow: 0 0 1rem var(--light-2);
+  box-shadow: 1px 0 0 var(--light-2);
 
   @mixin dark-mode {
-    background-color: var(--dark-3);
+    background-color: var(--dark-2);
     color: var(--light-1);
     box-shadow: 0 0 1rem var(--black);
   }
