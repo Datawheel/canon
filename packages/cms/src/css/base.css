@@ -23,7 +23,7 @@
     z-index: auto;
     background: none;
 
-    @media (prefers-dark-interface), (prefers-color-scheme: dark) {
+    @mixin dark-mode {
       color: var(--light-3);
     }
   }
