@@ -5,6 +5,6 @@ import "./SidebarTree.css";
 // just a wrapper for the blueprint component for now
 export default class SidebarTree extends Component {
   render() {
-    return <Tree {...this.props} />;
+    return <Tree className="cms-tree" {...this.props} />;
   }
 }
