@@ -30,6 +30,6 @@ type-error-dark:  "#75224D"
 
 # measurements
 nav-height: "50px"
-cms-nav-height: "2rem"
+cms-nav-height: "3.125rem"
 sidebar-width: "17rem"
 toolbox-width: "22.5rem"

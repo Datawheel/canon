@@ -4,55 +4,77 @@
 /* NAV BAR */
 /* --------------------------------------- */
 
-/* offset main site nav */
 .cms-nav {
+  /* offset main site nav */
   top: var(--nav-height);
+  /* sizing */
+  width: 100%;
   height: var(--cms-nav-height);
+  /* layout */
+  padding-left: 0.25rem;
+  padding-right: 1rem;
   overflow-x: auto;
   display: flex;
+  /* positioning */
   z-index: 1;
-  width: 100%;
-  padding: 0 1rem;
   /* theming */
-  background-color: var(--light-3);
+  background-color: var(--light-1);
+  box-shadow: 0 1px 0 var(--light-2);
 
   @mixin dark-mode {
-    background-color: var(--dark-2);
+    background-color: var(--dark-3);
+    box-shadow: none;
   }
 
   /* main nav "links" (they're actually buttons) */
   & .cms-nav-link {
+    /* reset button style */
     background: none;
     border: none;
-    line-height: var(--cms-nav-height);
-    padding: 0 1rem;
-    margin-right: 0;
-    outline: none;
     cursor: pointer; /* it's not a link, but it acts like one */
+    /* sizing */
+    line-height: var(--cms-nav-height);
+    padding: 0 0.75rem;
+    /* title case */
+    text-transform: capitalize;
     /* theming */
-    color: var(--black);
+    outline: none;
+    color: var(--dark-1);
 
-    @mixin dark-mode {
-      color: var(--light-1);
+    &:not(.is-active):hover,
+    &:not(.is-active):focus {
+      color: var(--dark-2);
+
+      @mixin dark-mode {
+        color: var(--gray);
+      }
+    }
+
+    /* divider */
+    &:not(:last-of-type):after {
+      content: "";
+      display: block;
+      /* sizing */
+      width: 1px;
+      height: 1.375em;
+      /* positioning */
+      position: absolute;
+      top: 1rem;
+      right: 0;
+      /* theming */
+      background: var(--light-3);
+
+      @mixin dark-mode {
+        background-color: var(--dark-2);
+      }
     }
 
     /* current page */
     &.is-active {
-      color: var(--accent-black);
-      background-color: var(--white);
+      color: var(--dark-3);
 
       @mixin dark-mode {
-        color: var(--accent);
-        background-color: var(--dark-3);
-      }
-
-      /* interaction overrides */
-      &:hover, &:focus {
-        color: var(--accent-dark);
-
-        @mixin dark-mode {
-          color: var(--accent-light);
-        }
+        color: var(--white);
       }
     }
   }
