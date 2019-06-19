@@ -1,13 +1,13 @@
 # grayscale
-white:   "#ffffff"
-light-1: "#f8f9fa"
-light-2: "#e8eef1"
-light-3: "#cfdae2"
-gray:    "#aebdcc"
-dark-1:  "#8a97ae"
-dark-2:  "#596277"
-dark-3:  "#3e4455"
-black:   "#181a21"
+white:   "#FFFFFF"
+light-1: "#F8F9FA"
+light-2: "#ECEFF1"
+light-3: "#CFDAE2"
+gray:    "#AEBDCC"
+dark-1:  "#8A97AE"
+dark-2:  "#2A2F3B"
+dark-3:  "#20242E"
+black:   "#181A21"
 
 # accent colors
 accent:       "#FFCD33"
