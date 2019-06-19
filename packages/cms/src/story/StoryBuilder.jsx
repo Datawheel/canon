@@ -362,7 +362,50 @@ class StoryBuilder extends Component {
     if (!nodes) return false;
 
     return (
-      <div className="cms-panel story-panel" id="profile-builder">
+      <React.Fragment>
+        {/* new entity */}
+        <Button
+          onClick={this.addFirst.bind(this)}
+          className="cms-add-story-button font-xxs"
+          icon="plus"
+          iconPosition="right"
+        >
+          add story
+        </Button>
+
+        <div className="cms-panel story-panel" id="profile-builder">
+          <div className="cms-sidebar" id="tree">
+
+            <SidebarTree
+              onNodeClick={this.handleNodeClick.bind(this)}
+              onNodeCollapse={this.handleNodeCollapse.bind(this)}
+              onNodeExpand={this.handleNodeExpand.bind(this)}
+              contents={nodes}
+            />
+
+          </div>
+          <div className="cms-editor" id="item-editor">
+            { currentNode
+              ? currentNode.itemType === "story"
+                ? <StoryEditor
+                  id={currentNode.data.id}
+                  locale={locale}
+                  localeDefault={localeDefault}
+                  reportSave={this.reportSave.bind(this)}
+                />
+                : currentNode.itemType === "storytopic"
+                  ? <StoryTopicEditor
+                    id={currentNode.data.id}
+                    locale={locale}
+                    localeDefault={localeDefault}
+                    reportSave={this.reportSave.bind(this)}
+                  />
+                  : null
+              : <NonIdealState title="No Story Selected" description="Please select a Story from the menu on the left." visual="path-search" />
+            }
+          </div>
+        </div>
+
         <Alert
           isOpen={nodeToDelete}
           cancelButtonText="Cancel"
@@ -374,44 +417,7 @@ class StoryBuilder extends Component {
         >
           {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
         </Alert>
-
-        <div className="cms-sidebar" id="tree">
-
-          {/* new entity */}
-          <Button onClick={this.addFirst.bind(this)} icon="plus" iconPosition="right">
-            Add story
-          </Button>
-
-          <SidebarTree
-            onNodeClick={this.handleNodeClick.bind(this)}
-            onNodeCollapse={this.handleNodeCollapse.bind(this)}
-            onNodeExpand={this.handleNodeExpand.bind(this)}
-            contents={nodes}
-          />
-
-        </div>
-        <div className="cms-editor" id="item-editor">
-          { currentNode
-            ? currentNode.itemType === "story"
-              ? <StoryEditor
-                id={currentNode.data.id}
-                locale={locale}
-                localeDefault={localeDefault}
-                reportSave={this.reportSave.bind(this)}
-              />
-              : currentNode.itemType === "storytopic"
-                ? <StoryTopicEditor
-                  id={currentNode.data.id}
-                  locale={locale}
-                  localeDefault={localeDefault}
-                  reportSave={this.reportSave.bind(this)}
-                />
-                : null
-            : <NonIdealState title="No Story Selected" description="Please select a Story from the menu on the left." visual="path-search" />
-          }
-        </div>
-
-      </div>
+      </React.Fragment>
     );
   }
 }

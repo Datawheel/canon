@@ -3,7 +3,7 @@
 /* buttons */
 .cms-button {
   display: inline-block;
-  padding: 0.5em 2em;
+  padding: 0.5em 1.25em;
   /* transitions */
   transition:
     color 0.2s ease-out,
