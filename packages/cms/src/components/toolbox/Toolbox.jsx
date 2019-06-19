@@ -75,12 +75,20 @@ export default class Toolbox extends Component {
     });
   }
 
+  /**
+   * When a user saves a generator or materializer, we need to clear out the "force" vars. "Force" vars
+   * are what force a gen/mat to open when the user clicks a variable directly - aka "I want to edit the
+   * gen/mat this variable came from." However, something else need be done here. If the user has changed
+   * the name (title) of the gen/mat, then that change is only reflected inside the state of the card - 
+   * not out here, where it need be searchable. Though it's slightly overkill, the easiest thing to do 
+   * is just hit the DB again on save to reload everything.
+   */ 
   onSave() {
     const forceGenID = null;
     const forceMatID = null;
     const forceKey = null;
     const recompiling = true;
-    this.setState({forceGenID, forceMatID, forceKey, recompiling}, this.fetchVariables.bind(this, true));
+    this.setState({forceGenID, forceMatID, forceKey, recompiling}, this.hitDB.bind(this));
   }
 
   onDelete(type, newArray) {
@@ -178,12 +186,12 @@ export default class Toolbox extends Component {
           Group By Generator
         </Checkbox> 
       }
-      { !grouped && <div className="cms-variables-list">
+      { currentView === "generators" && !grouped && <div className="cms-variables-list">
         <ul>
           {Object.keys(variables[localeDefault])
             .sort((a, b) => a.localeCompare(b))
             .filter(key => key !== "_genStatus" && key !== "_matStatus")
-            .filter(key => key.includes(query) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].includes(query))
+            .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
             .map(key => 
               <li key={key} className="cms-list-var" onClick={this.openGenerator.bind(this, key)}>
                 <strong>{key}</strong>: {variables[localeDefault][key]}
@@ -203,6 +211,7 @@ export default class Toolbox extends Component {
           addItem={this.addItem.bind(this, "generator")}
           cards={minData.generators && minData.generators
             .sort((a, b) => a.name.localeCompare(b.name))
+            .filter(g => g.name.toLowerCase().includes(query.toLowerCase()))
             .map(g => <GeneratorCard
               key={g.id}
               context="generator"
@@ -229,6 +238,7 @@ export default class Toolbox extends Component {
           description="Variables constructed from other variables. No API calls needed."
           addItem={this.addItem.bind(this, "materializer")}
           cards={minData.materializers && minData.materializers
+            .filter(m => m.name.toLowerCase().includes(query.toLowerCase()))
             .map(m => <GeneratorCard
               key={m.id}
               context="materializer"
