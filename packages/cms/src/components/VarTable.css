@@ -33,7 +33,7 @@
   }
 
   /* DARK THEME */
-  @media (prefers-dark-interface), (prefers-color-scheme: dark) {
+  @mixin dark-mode {
     /* card table for displaying description, preview profile text, etc */
     & .cms-var-table-cell {
       color: var(--light-3);
