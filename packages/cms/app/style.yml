@@ -31,5 +31,5 @@ type-error-dark:  "#75224D"
 # measurements
 nav-height: "50px"
 cms-nav-height: "2rem"
-sidebar-width: "18rem"
-toolbox-width: "28rem"
+sidebar-width: "17rem"
+toolbox-width: "22.5rem"
