@@ -11,7 +11,7 @@
   width: 100%;
   height: var(--cms-nav-height);
   /* layout */
-  padding-left: 0.25rem;
+  padding-left: 0.5rem;
   padding-right: 1rem;
   overflow-x: auto;
   display: flex;

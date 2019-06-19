@@ -60,7 +60,7 @@
 
 /* THEMING */
 .cms {
-  background-color: var(--light-1);
+  background-color: var(--white);
   color: var(--black);
 
   @mixin dark-mode {

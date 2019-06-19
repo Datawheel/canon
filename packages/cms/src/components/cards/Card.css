@@ -16,13 +16,12 @@
   margin: 1rem;
   /* theming */
   background-color: var(--white);
-  box-shadow: 0 5px 1rem 0.25rem var(--light-2);
+  border: 1px solid var(--light-2);
   border-radius: 2px;
 
   @mixin dark-mode {
     background-color: var(--dark-3);
-    box-shadow: 0 5px 1rem 0.25rem var(--black);
-    border-radius: 2px;
+    border-color: transparent;
   }
 
   /* keep content in front of reorder buttons */
