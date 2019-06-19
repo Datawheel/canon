@@ -4,16 +4,22 @@
 /* TREE */
 /* --------------------------------------- */
 
-.cms .bp3-tree-node {
-  cursor: pointer; /* it's not a link, but probably should be */
+/* "border" */
+.cms-tree > [class*="tree-node-list"] > [class*="tree-node"]:not(:last-of-type) {
+  box-shadow: 0 1px 0 var(--light-2);
 
-  &:not(:last-of-type) {
-    border-bottom: 1px solid var(--light-2);
+  @mixin dark-mode {
+    box-shadow: 0 1px 0 var(--dark-3);
 
-    @mixin dark-mode {
-      border-bottom-color: var(--dark-3);
-    }
   }
+}
+
+.cms-tree [class*="tree-node-content-0"] {
+  min-height: 2.5rem;
+}
+
+.cms-tree .bp3-tree-node {
+  cursor: pointer; /* it's not a link, but probably should be */
 
   /* -------------------------- */
   /* base node styles */
@@ -41,6 +47,19 @@
       top: -1px;
     }
 
+    /* fudge chevron sizing and alignment */
+    & [class*="chevron"] {
+      width: 28px;
+      height: 28px;
+      left: -4px;
+      margin-right: -8px;
+
+      &[class*="open"]{
+        left: -7px;
+        top: -1px;
+      }
+    }
+
     /* chevron, cog icons */
     & [class*="bp3-icon"] {
       /* typograhpy */
@@ -58,7 +77,7 @@
 
     /* offset nonexistant icon ¯\_(ツ)_/¯ */
     & .bp3-tree-node-caret-none {
-      margin-right: -18px;
+      margin-right: -30px;
     }
 
     /* settings "button" */
@@ -79,6 +98,7 @@
       padding-left: 1.25rem;
       font-weight: 300;
       background-color: var(--light-2);
+      min-height: 1.875rem;
 
       @mixin dark-mode {
         background-color: var(--dark-3);
