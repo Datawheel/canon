@@ -4,6 +4,7 @@ import {Checkbox} from "@blueprintjs/core";
 import Section from "../Section";
 import Loading from "components/Loading";
 import GeneratorCard from "../cards/GeneratorCard";
+import FormatterEditor from "../../formatter/FormatterEditor";
 import Status from "../Status";
 import "./toolbox.css";
 
@@ -248,7 +249,8 @@ export default class Toolbox extends Component {
         />
       </div>}
       { currentView === "formatters" && <div>
-        formatters
+        {/* formatters */}
+        <FormatterEditor />
       </div>}
       
     </div>;

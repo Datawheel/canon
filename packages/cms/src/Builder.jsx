@@ -3,7 +3,6 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
-import FormatterEditor from "./formatter/FormatterEditor";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
 
@@ -72,7 +71,7 @@ class Builder extends Component {
   render() {
     const {currentTab, secondaryLocale, locales, localeDefault} = this.state;
     const {isEnabled} = this.props;
-    const navLinks = ["profiles", "stories", "formatters"];
+    const navLinks = ["profiles", "stories"];
 
     if (!isEnabled) return null;
 
@@ -135,9 +134,6 @@ class Builder extends Component {
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
-        }
-        {currentTab === "formatters" &&
-          <FormatterEditor />
         }
       </div>
     );
