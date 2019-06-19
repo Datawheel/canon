@@ -79,10 +79,10 @@ export default class Toolbox extends Component {
    * When a user saves a generator or materializer, we need to clear out the "force" vars. "Force" vars
    * are what force a gen/mat to open when the user clicks a variable directly - aka "I want to edit the
    * gen/mat this variable came from." However, something else need be done here. If the user has changed
-   * the name (title) of the gen/mat, then that change is only reflected inside the state of the card - 
-   * not out here, where it need be searchable. Though it's slightly overkill, the easiest thing to do 
+   * the name (title) of the gen/mat, then that change is only reflected inside the state of the card -
+   * not out here, where it need be searchable. Though it's slightly overkill, the easiest thing to do
    * is just hit the DB again on save to reload everything.
-   */ 
+   */
   onSave() {
     const forceGenID = null;
     const forceMatID = null;
@@ -146,9 +146,7 @@ export default class Toolbox extends Component {
     const {variables, locale, localeDefault, previews} = this.props;
 
     if (!minData) {
-      return <div className="cms-toolbox">
-        Choose a Profile
-      </div>;
+      return null;
     }
 
     const dataLoaded = minData;
@@ -156,17 +154,17 @@ export default class Toolbox extends Component {
     const defLoaded = locale || variables && !locale && variables[localeDefault];
     const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
 
-    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <Loading />;
+    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <div className="cms-toolbox"><h3>Loading...</h3></div>;
 
     return <div className="cms-toolbox">
       {/* loading status */}
       <Status recompiling={recompiling} />
       <h3>Toolbox</h3>
       <strong>Filter:</strong>
-      <div> 
-        <input 
+      <div>
+        <input
           type="search"
-          value={query} 
+          value={query}
           onChange={this.filter.bind(this)}
         />
       </div>
@@ -181,10 +179,10 @@ export default class Toolbox extends Component {
           <option value="formatters">Formatters</option>
         </select>
       </label>
-      { currentView === "generators" && 
+      { currentView === "generators" &&
         <Checkbox checked={grouped} onChange={() => this.setState({grouped: !this.state.grouped})}>
           Group By Generator
-        </Checkbox> 
+        </Checkbox>
       }
       { currentView === "generators" && !grouped && <div className="cms-variables-list">
         <ul>
@@ -192,7 +190,7 @@ export default class Toolbox extends Component {
             .sort((a, b) => a.localeCompare(b))
             .filter(key => key !== "_genStatus" && key !== "_matStatus")
             .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
-            .map(key => 
+            .map(key =>
               <li key={key} className="cms-list-var" onClick={this.openGenerator.bind(this, key)}>
                 <strong>{key}</strong>: {variables[localeDefault][key]}
               </li>
@@ -202,7 +200,7 @@ export default class Toolbox extends Component {
       {/* Hide the sections if not grouped - but SHOW them if forceKey is set, which means
         * that someone has clicked an individual variable and wants to view its editor
         */}
-      {currentView === "generators" && <div style={grouped || forceKey ? {} : {display: "none"}}> 
+      {currentView === "generators" && <div style={grouped || forceKey ? {} : {display: "none"}}>
         {/* generators */}
         <Section
           title="Generators"
@@ -262,7 +260,7 @@ export default class Toolbox extends Component {
         {/* formatters */}
         <FormatterEditor />
       </div>}
-      
+
     </div>;
 
   }
