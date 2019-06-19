@@ -530,7 +530,7 @@ class ProfileBuilder extends Component {
           <div className="cms-sidebar" id="tree">
 
             {/* new entity */}
-            <Button onClick={this.createProfile.bind(this)} icon="plus" iconPosition="right" ghost>
+            <Button onClick={this.createProfile.bind(this)} icon="plus" iconPosition="right">
               Add profile
             </Button>
 

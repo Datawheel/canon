@@ -115,10 +115,10 @@ export default class DimensionCard extends Component {
               limit={20}
             />
           </div>
-          <Button disabled={rebuilding} onClick={this.rebuildSearch.bind(this)} ghost>
+          <Button disabled={rebuilding} onClick={this.rebuildSearch.bind(this)}>
             {rebuilding ? "Rebuilding..." : "Rebuild"}
           </Button>
-          <Button disabled={rebuilding} onClick={this.maybeDelete.bind(this)} ghost>
+          <Button disabled={rebuilding} onClick={this.maybeDelete.bind(this)}>
             Delete
           </Button>
         </div>
