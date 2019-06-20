@@ -268,8 +268,7 @@ class StoryBuilder extends Component {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
     else if (node.id !== currentNode.id) {
-      nodes.forEach(node => node.isExpanded = false); // collapse all nodes
-      node.isExpanded = true; // expand selected node
+      node.isExpanded = true;
       node.isSelected = true;
       currentNode.isSelected = false;
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
