@@ -39,6 +39,11 @@
     box-shadow: none !important;
   }
 
+  & > *:not(:last-child) {
+    margin-bottom: 0.625rem;
+  }
+
+  /* reset card widths */
   & .cms-card {
     min-width: 0;
     max-width: 100%;
