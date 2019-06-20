@@ -45,28 +45,24 @@ class FormatterEditor extends Component {
     const {formatters} = this.state;
 
     return (
-      <div className="cms-panel formatter-panel" id="formatter-editor">
-        <div className="cms-editor">
-          <Section
-            title="Formatters"
-            entity="formatter"
-            addItem={this.addItem.bind(this)}
-            description="Javascript Formatters for Canon text components"
-            cards={formatters && formatters
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map(g => <GeneratorCard
-                context="formatter"
-                key={g.id}
-                item={g}
-                onSave={this.onSave.bind(this)}
-                onDelete={this.onDelete.bind(this)}
-                type="formatter"
-                variables={{}}
-              />)
-            }
-          />
-        </div>
-      </div>
+      <Section
+        title="Formatters"
+        entity="formatter"
+        addItem={this.addItem.bind(this)}
+        description="Javascript Formatters for Canon text components"
+        cards={formatters && formatters
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(g => <GeneratorCard
+            context="formatter"
+            key={g.id}
+            item={g}
+            onSave={this.onSave.bind(this)}
+            onDelete={this.onDelete.bind(this)}
+            type="formatter"
+            variables={{}}
+          />)
+        }
+      />
     );
   }
 }
