@@ -39,38 +39,24 @@
   margin-bottom: 1em;
 }
 
-
-/* ------------------------------------- */
-/* section card layout */
-/* ------------------------------------- */
-/* TODO: redo/rethink */
-
 .cms-card-container {
   display: flex;
-
-  /* awkward locale double list */
-  & .cms-card-list + .cms-card-list {
-    margin-left: 2rem;
-  }
-
-  @media (max-width: 980px) {
-    flex-wrap: wrap;
-
-    & .cms-card-list + .cms-card-list {
-      margin-left: -1rem;
-    }
-  }
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 /* card layout */
 .cms-card-list {
   display: flex;
+  width: calc(50% - 1rem);
+  flex-basis: calc(50% - 1rem); /* needed because reasons */
   flex-wrap: wrap;
-  margin: 0 -1rem;
-  width: calc(50% - 2rem);
-  flex-basis: calc(100% + 2rem); /* needed because reasons */
+  /* space out from adjacent elements */
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 
   &:only-child {
-    width: calc(100% + 2rem);
+    width: 100%;
+    flex-basis: 100%; /* needed because reasons */
   }
 }

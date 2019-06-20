@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {Alert} from "@blueprintjs/core";
 import Button from "../Button";
+import ButtonGroup from "../ButtonGroup";
 import ReorderButtons from "../ReorderButtons";
 import "./Card.css";
 
@@ -13,7 +14,7 @@ export default class CardWrapper extends Component {
       title,           // card title
       onEdit,          // edit button onClick
       children,        // main card content
-      secondaryLocale, // we're gonna need a bigger card
+      secondaryLocale, // two columns
 
       reorderProps,    // object with {item, array, type} used to configure ReorderButtons
       onReorder,       // callback for when you reorder
@@ -22,17 +23,43 @@ export default class CardWrapper extends Component {
       onAlertCancel    // wipe alert state
     } = this.props;
 
+    const buttonProps = {
+      className: "cms-card-heading-button font-xs",
+      iconOnly: true
+    };
+
+    const buttons = [];
+    let deleteButton, editButton;
+
+    // TODO: add onDelete logic
+    const onDelete = onEdit;
+    if (onDelete) {
+      deleteButton = Object.assign({}, {
+        children: "delete entry",
+        icon: "trash",
+        ...buttonProps
+      });
+      buttons.push(deleteButton);
+    }
+
+    if (onEdit) {
+      editButton = Object.assign({}, {
+        children: "edit entry",
+        icon: "cog",
+        onClick: onEdit,
+        ...buttonProps
+      });
+      buttons.push(editButton);
+    }
+
     return (
-      <div className={`cms-card cms-${ cardClass }-card${ secondaryLocale ? " is-wide" : "" }`} style={style}>
+      <div className={`cms-card cms-${ cardClass }-card${ secondaryLocale ? " is-multilingual" : "" }`} style={style}>
         {/* header */}
         <div className="cms-card-heading">
           <h3 className="cms-card-heading-text font-sm">{title || "missing `title` prop in CardWrapper.jsx"}</h3>
-
-          {/* switch to edit mode */}
-          {onEdit &&
-            <Button className="cms-card-heading-button font-xs" onClick={onEdit} icon="cog">
-              Edit
-            </Button>
+          {buttons.length
+            ? <ButtonGroup buttons={buttons} />
+            : ""
           }
         </div>
 

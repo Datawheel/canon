@@ -73,24 +73,14 @@ class ReorderButtons extends Component {
 
     return (
       <div className="cms-reorder">
-        {item.ordering > 0 &&
-          <Button
-            onClick={() => this.move("left")}
-            className="cms-reorder-button cms-reorder-button-back"
-            icon="arrow-left"
-            iconOnly
-          >
-            Move entity forward
-          </Button>
-        }
         {item.ordering < array.length - 1 &&
           <Button
             onClick={() => this.move("right")}
-            className="cms-reorder-button cms-reorder-button-forward"
-            icon="arrow-right"
+            className="cms-reorder-button"
+            icon="swap-vertical"
             iconOnly
           >
-            Send entity backward
+            Swap positioning of current and next cards
           </Button>
         }
       </div>

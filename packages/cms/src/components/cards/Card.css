@@ -7,13 +7,9 @@
   flex-wrap: wrap;
   flex-direction: column;
   /* sizing */
-  flex: 1 0 18rem;
-  min-width: 18rem;
   width: 100%;
-  max-width: calc(100% - 2rem);
+  max-width: 100%;
   padding: 1rem;
-  /* positioning */
-  margin: 1rem;
   /* theming */
   background-color: var(--white);
   border: 1px solid var(--light-2);
@@ -21,12 +17,18 @@
 
   @mixin dark-mode {
     background-color: var(--dark-3);
-    border-color: transparent;
+    border-color: var(--dark-2);
   }
 
-  /* keep content in front of reorder buttons */
-  & > *:not(.cms-reorder) {
-    z-index: 1;
+  &:not(:first-child) {
+    margin-top: -1px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  &:not(:last-child) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
   }
 
   & .cms-card-description {
@@ -60,14 +62,17 @@
   }
 }
 
-/* heading button */
+/* heading buttons */
+.cms-card-heading > .cms-button-group {
+  width: auto;
+  margin-left: auto;
+  margin-right: -0.5em;
+}
 .cms-card-heading-button {
   /* sizing */
-  padding: 0.5em 1em;
-  min-width: 4rem;
+  padding: 0;
+  min-width: 1em;
   /* positioning */
-  margin-left: auto; /* justify */
-  margin-right: -1em; /* offset padding */
 }
 
 /* individual stats */
