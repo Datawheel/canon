@@ -258,9 +258,12 @@ class ProfileBuilder extends Component {
     if (node.itemType === "profile") parentLength = nodes.length;
     if (!currentNode) {
       node.isSelected = true;
+      node.isExpanded = true;
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
     else if (node.id !== currentNode.id) {
+      nodes.forEach(node => node.isExpanded = false); // collapse all nodes
+      node.isExpanded = true; // expand selected node
       node.isSelected = true;
       currentNode.isSelected = false;
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
