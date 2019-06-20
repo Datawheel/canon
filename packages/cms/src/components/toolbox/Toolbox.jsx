@@ -64,7 +64,11 @@ export default class Toolbox extends Component {
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
       if (resp.status === 200) {
         const maybeFetch = type === "formatter" ? null : this.fetchVariables.bind(this, true);
-        minData[propMap[type]].push({id: resp.data.id, name: resp.data.name, ordering: resp.data.ordering || null});
+        minData[propMap[type]].push({
+          id: resp.data.id, 
+          name: resp.data.name, 
+          description: resp.data.description,
+          ordering: resp.data.ordering || null});
         this.setState({minData}, maybeFetch);
       }
     });
@@ -107,6 +111,12 @@ export default class Toolbox extends Component {
 
   filter(e) {
     this.setState({query: e.target.value});
+  }
+
+  filterFunc(d) {
+    const {query} = this.state;
+    const fields = ["name", "description"];
+    return fields.map(f => d[f] ? d[f].toLowerCase().includes(query) : false).some(d => d);
   }
 
   openGenerator(key) {
@@ -199,7 +209,7 @@ export default class Toolbox extends Component {
           addItem={this.addItem.bind(this, "generator")}
           cards={minData.generators && minData.generators
             .sort((a, b) => a.name.localeCompare(b.name))
-            .filter(g => g.name.toLowerCase().includes(query.toLowerCase()))
+            .filter(this.filterFunc.bind(this))
             .map(g => <GeneratorCard
               key={g.id}
               context="generator"
@@ -226,7 +236,7 @@ export default class Toolbox extends Component {
           description="Variables constructed from other variables. No API calls needed."
           addItem={this.addItem.bind(this, "materializer")}
           cards={minData.materializers && minData.materializers
-            .filter(m => m.name.toLowerCase().includes(query.toLowerCase()))
+            .filter(this.filterFunc.bind(this))
             .map(m => <GeneratorCard
               key={m.id}
               context="materializer"
@@ -255,7 +265,7 @@ export default class Toolbox extends Component {
           description="Javascript Formatters for Canon text components"
           cards={minData.formatters && minData.formatters
             .sort((a, b) => a.name.localeCompare(b.name))
-            .filter(g => g.name.toLowerCase().includes(query.toLowerCase()))
+            .filter(this.filterFunc.bind(this))
             .map(g => <GeneratorCard
               context="formatter"
               key={g.id}

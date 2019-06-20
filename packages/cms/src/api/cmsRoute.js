@@ -72,7 +72,7 @@ const storyReqTreeOnly = {
 };
 
 const formatterReqTreeOnly = {
-  attributes: ["id", "name"]
+  attributes: ["id", "name", "description"]
 };
 
 const profileReqProfileOnly = {
@@ -88,8 +88,8 @@ const profileReqToolbox = {
   include: [
     {association: "meta"},
     {association: "content"},
-    {association: "generators", attributes: ["id", "name"]},
-    {association: "materializers", attributes: ["id", "name", "ordering"]}
+    {association: "generators", attributes: ["id", "name", "description"]},
+    {association: "materializers", attributes: ["id", "name", "ordering", "description"]}
   ]
 };
 
