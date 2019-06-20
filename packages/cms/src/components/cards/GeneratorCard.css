@@ -1,8 +1,7 @@
 @import "../../css/mixins.css";
 
 /* show variables side by side with language labels */
-.cms-card.is-wide {
-  min-width: 400px; /* need more space */
+.cms-card.is-multilingual {
   
   & .cms-card-locale-group {
     display: flex;
@@ -31,5 +30,5 @@
 }
 
 .cms-hidden {
-  @mixin visually-hidden; 
+  @mixin visually-hidden;
 }

@@ -1,10 +1,5 @@
 @import "../../css/mixins.css";
 
-.cms-dimension-card {
-  min-width: 560px;
-  max-width: 100%;
-}
-
 .cms-dimension-card-table {
   table-layout: fixed;
   border-collapse: collapse;
