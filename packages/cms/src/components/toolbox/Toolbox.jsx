@@ -4,13 +4,13 @@ import {Checkbox} from "@blueprintjs/core";
 import Section from "../Section";
 import Button from "../Button";
 import GeneratorCard from "../cards/GeneratorCard";
-import FormatterEditor from "../../formatter/FormatterEditor";
 import Status from "../Status";
 import "./toolbox.css";
 
 const propMap = {
   generator: "generators",
-  materializer: "materializers"
+  materializer: "materializers",
+  formatter: "formatters"
 };
 
 export default class Toolbox extends Component {
@@ -63,14 +63,9 @@ export default class Toolbox extends Component {
     payload.ordering = minData[propMap[type]].length;
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
       if (resp.status === 200) {
-        if (type === "generator" || type === "materializer") {
-          minData[propMap[type]].push({id: resp.data.id, name: resp.data.name, ordering: resp.data.ordering || null});
-          this.setState({minData}, this.fetchVariables.bind(this, true));
-        }
-        else {
-          minData[propMap[type]].push({id: resp.data.id, ordering: resp.data.ordering});
-          this.setState({minData});
-        }
+        const maybeFetch = type === "formatter" ? null : this.fetchVariables.bind(this, true);
+        minData[propMap[type]].push({id: resp.data.id, name: resp.data.name, ordering: resp.data.ordering || null});
+        this.setState({minData}, maybeFetch);
       }
     });
   }
@@ -94,12 +89,9 @@ export default class Toolbox extends Component {
   onDelete(type, newArray) {
     const {minData} = this.state;
     minData[propMap[type]] = newArray;
-    if (type === "generator" || type === "materializer") {
-      this.setState({recompiling: true}, this.fetchVariables.bind(this, true));
-    }
-    else {
-      this.setState({minData});
-    }
+    const recompiling = type === "formatter" ? false : true;
+    const maybeFetch = type === "formatter" ? null : this.fetchVariables.bind(this, true);
+    this.setState({minData, recompiling}, maybeFetch);
   }
 
   onMove() {
@@ -254,11 +246,28 @@ export default class Toolbox extends Component {
             />)}
         />
       </div>
-
-      {/* formatters */}
-      {detailView &&
-        <FormatterEditor />
-      }
+      { detailView && <div>
+        {/* formatters */}
+        <Section
+          title="Formatters"
+          entity="formatter"
+          addItem={this.addItem.bind(this, "formatter")}
+          description="Javascript Formatters for Canon text components"
+          cards={minData.formatters && minData.formatters
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .filter(g => g.name.toLowerCase().includes(query.toLowerCase()))
+            .map(g => <GeneratorCard
+              context="formatter"
+              key={g.id}
+              item={g}
+              onSave={this.onSave.bind(this)}
+              onDelete={this.onDelete.bind(this)}
+              type="formatter"
+              variables={{}}
+            />)
+          }
+        />
+      </div>}
 
       {/* loading status */}
       <Status recompiling={recompiling} />
