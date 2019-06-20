@@ -347,11 +347,6 @@ module.exports = function(app) {
     return res.json(stories);
   });
 
-  app.get("/api/cms/formattertree", async(req, res) => {
-    const formatters = await db.formatter.findAll(formatterReqTreeOnly).catch(catcher);
-    return res.json(formatters);
-  });
-
   app.get("/api/cms/profile/get/:id", async(req, res) => {
     const {id} = req.params;
     const dims = collate(req.query);
