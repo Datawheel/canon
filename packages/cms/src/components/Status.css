@@ -1,20 +1,56 @@
 @import "../css/mixins.css";
 
+.cms .cms-status {
+  position: fixed; /* override default of relative */
+}
+
 .cms-status {
-  /* positioning */
+  /* sizing */
   display: block;
-  margin-top: -1em;
-  text-align: right;
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  /* positioning */
+  top: auto;
+  bottom: 0;
+  margin-bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  text-align: center;
+  /* transitions */
+  transition:
+    color 0.1s ease-out,
+    opacity 0.1s ease-out;
   /* theming */
   @mixin description-color;
+  background-color: color(var(--white) a(0.9));
 
-  &.is-recompiling {
-    color: var(--alert-light);
+  @mixin dark-mode {
+    background-color: color(var(--dark-2) a(0.9));
   }
 
-  /* adjust adjacent section positioning */
-  & + .cms-section {
-    margin-top: -2rem;
+  &.is-done {
+    /* prevent from obscuring content */
+    pointer-events: none;
+    z-index: -1;
+    /* transitions */
+    opacity: 0;
+    transition:
+      color 0.1s ease-out,
+      opacity 0.5s ease-out 0.5s,
+      z-index 0.1s 1s; /* position behind content after animation finishes */
+  }
+
+  &.is-recompiling {
+    color: var(--alert-dark);
+
+    & .cms-status-icon {
+      animation: rotate 0.75s infinite ease-in-out;
+    }
+
+    @mixin dark-mode {
+      color: var(--alert-light);
+    }
   }
 }
 
@@ -25,4 +61,13 @@
   height: auto;
   /* positioning */
   margin-right: 0.25em;
+}
+
+@keyframes rotate {
+  0% {
+    transform: none;
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
