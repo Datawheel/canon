@@ -4,6 +4,7 @@ import {Checkbox} from "@blueprintjs/core";
 import Section from "../Section";
 import Button from "../Button";
 import ButtonGroup from "../ButtonGroup";
+import FilterSearch from "../FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
 import Status from "../Status";
 import "./toolbox.css";
@@ -66,8 +67,8 @@ export default class Toolbox extends Component {
       if (resp.status === 200) {
         const maybeFetch = type === "formatter" ? null : this.fetchVariables.bind(this, true);
         minData[propMap[type]].push({
-          id: resp.data.id, 
-          name: resp.data.name, 
+          id: resp.data.id,
+          name: resp.data.name,
           description: resp.data.description,
           ordering: resp.data.ordering || null});
         this.setState({minData}, maybeFetch);
@@ -112,6 +113,13 @@ export default class Toolbox extends Component {
 
   filter(e) {
     this.setState({query: e.target.value});
+  }
+
+  onReset() {
+    this.setState({query: ""});
+    setTimeout(
+      document.querySelector(".cms-filter-search-input").focus()
+    ), 0;
   }
 
   filterFunc(d) {
@@ -174,15 +182,12 @@ export default class Toolbox extends Component {
     const showFormatters = minData.formatters.length === 0 || formatters.length > 0;
 
     return <div className="cms-toolbox">
-      <label className="cms-field-container">
-        <span className="u-visually-hidden">filter by name, output, description...</span>
-        <input
-          type="search"
-          placeholder="filter by name, output, description..."
-          value={query}
-          onChange={this.filter.bind(this)}
-        />
-      </label>
+      <FilterSearch
+        label="filter by name, output, description..."
+        value={query}
+        onChange={this.filter.bind(this)}
+        onReset={this.onReset.bind(this)}
+      />
 
       <ButtonGroup buttons={[
         {
@@ -226,7 +231,7 @@ export default class Toolbox extends Component {
           entity="generator"
           description="Variables constructed from JSON data calls."
           addItem={this.addItem.bind(this, "generator")}
-          cards={generators.map(g => 
+          cards={generators.map(g =>
             <GeneratorCard
               key={g.id}
               context="generator"
@@ -252,7 +257,7 @@ export default class Toolbox extends Component {
           entity="materializer"
           description="Variables constructed from other variables. No API calls needed."
           addItem={this.addItem.bind(this, "materializer")}
-          cards={materializers.map(m => 
+          cards={materializers.map(m =>
             <GeneratorCard
               key={m.id}
               context="materializer"
@@ -279,7 +284,7 @@ export default class Toolbox extends Component {
           entity="formatter"
           addItem={this.addItem.bind(this, "formatter")}
           description="Javascript Formatters for Canon text components"
-          cards={formatters.map(g => 
+          cards={formatters.map(g =>
             <GeneratorCard
               context="formatter"
               key={g.id}
