@@ -53,10 +53,11 @@
       height: 28px;
       left: -4px;
       margin-right: -8px;
+      top: 2px;
 
       &[class*="open"]{
         left: -7px;
-        top: -1px;
+        top: 0;
       }
     }
 
