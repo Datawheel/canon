@@ -154,6 +154,24 @@ export default class Toolbox extends Component {
 
     if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <div className="cms-toolbox"><h3>Loading...</h3></div>;
 
+    const generators = minData.generators
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .filter(this.filterFunc.bind(this));
+
+    const materializers = minData.materializers
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .filter(this.filterFunc.bind(this));
+
+    const formatters = minData.formatters
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .filter(this.filterFunc.bind(this));
+
+    // If a search filter causes no results, hide the entire section. However, if
+    // the ORIGINAL data has length 0, always show it, so the user can add the first one.
+    const showGenerators = minData.generators.length === 0 || generators.length > 0;
+    const showMaterializers = minData.materializers.length === 0 || materializers.length > 0;
+    const showFormatters = minData.formatters.length === 0 || formatters.length > 0;
+
     return <div className="cms-toolbox">
       <label className="cms-field-container">
         <span className="u-visually-hidden">filter by name, output, description...</span>
@@ -202,15 +220,13 @@ export default class Toolbox extends Component {
         */}
       <div style={detailView || forceKey ? {} : {display: "none"}}>
         {/* generators */}
-        <Section
+        {showGenerators && <Section
           title="Generators"
           entity="generator"
           description="Variables constructed from JSON data calls."
           addItem={this.addItem.bind(this, "generator")}
-          cards={minData.generators && minData.generators
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .filter(this.filterFunc.bind(this))
-            .map(g => <GeneratorCard
+          cards={generators.map(g => 
+            <GeneratorCard
               key={g.id}
               context="generator"
               hidden={!detailView}
@@ -227,17 +243,16 @@ export default class Toolbox extends Component {
               secondaryVariables={variables[locale]}
               forceKey={String(forceGenID) === String(g.id) ? forceKey : null}
             />)}
-        />
+        />}
 
         {/* materializers */}
-        <Section
+        {showMaterializers && <Section
           title="Materializers"
           entity="materializer"
           description="Variables constructed from other variables. No API calls needed."
           addItem={this.addItem.bind(this, "materializer")}
-          cards={minData.materializers && minData.materializers
-            .filter(this.filterFunc.bind(this))
-            .map(m => <GeneratorCard
+          cards={materializers.map(m => 
+            <GeneratorCard
               key={m.id}
               context="materializer"
               hidden={!detailView}
@@ -254,19 +269,17 @@ export default class Toolbox extends Component {
               onMove={this.onMove.bind(this)}
               forceKey={String(forceMatID) === String(m.id) ? forceKey : null}
             />)}
-        />
+        />}
       </div>
       { detailView && <div>
         {/* formatters */}
-        <Section
+        {showFormatters && <Section
           title="Formatters"
           entity="formatter"
           addItem={this.addItem.bind(this, "formatter")}
           description="Javascript Formatters for Canon text components"
-          cards={minData.formatters && minData.formatters
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .filter(this.filterFunc.bind(this))
-            .map(g => <GeneratorCard
+          cards={formatters.map(g => 
+            <GeneratorCard
               context="formatter"
               key={g.id}
               item={g}
@@ -276,7 +289,7 @@ export default class Toolbox extends Component {
               variables={{}}
             />)
           }
-        />
+        />}
       </div>}
 
       {/* loading status */}
