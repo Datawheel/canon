@@ -2,7 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import {Checkbox} from "@blueprintjs/core";
 import Section from "../Section";
-import Loading from "components/Loading";
+import Button from "../Button";
 import GeneratorCard from "../cards/GeneratorCard";
 import FormatterEditor from "../../formatter/FormatterEditor";
 import Status from "../Status";
@@ -20,7 +20,7 @@ export default class Toolbox extends Component {
     this.state = {
       minData: false,
       currentView: "generators",
-      grouped: true,
+      detailView: true,
       recompiling: true,
       query: ""
     };
@@ -113,10 +113,6 @@ export default class Toolbox extends Component {
     this.setState({forceGenID, forceMatID, forceKey});
   }
 
-  changeView(e) {
-    this.setState({currentView: e.target.value});
-  }
-
   filter(e) {
     this.setState({query: e.target.value});
   }
@@ -142,7 +138,7 @@ export default class Toolbox extends Component {
 
   render() {
 
-    const {currentView, grouped, minData, recompiling, query, forceGenID, forceMatID, forceKey} = this.state;
+    const {currentView, detailView, minData, recompiling, query, forceGenID, forceMatID, forceKey} = this.state;
     const {variables, locale, localeDefault, previews} = this.props;
 
     if (!minData) {
@@ -157,50 +153,52 @@ export default class Toolbox extends Component {
     if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <div className="cms-toolbox"><h3>Loading...</h3></div>;
 
     return <div className="cms-toolbox">
-      {/* loading status */}
-      <Status recompiling={recompiling} />
-      <h3>Toolbox</h3>
-      <strong>Filter:</strong>
-      <div>
+      <label className="cms-field-container">
+        <span className="u-visually-hidden">filter by name, output, description...</span>
         <input
           type="search"
+          placeholder="filter by name, output, description..."
           value={query}
           onChange={this.filter.bind(this)}
         />
-      </div>
-      <label className="cms-select-label">
-        <strong>View:</strong>
-        <select
-          className="cms-select"
-          value={currentView}
-          onChange={this.changeView.bind(this)}
-        >
-          <option value="generators">Generators</option>
-          <option value="formatters">Formatters</option>
-        </select>
       </label>
-      { currentView === "generators" &&
-        <Checkbox checked={grouped} onChange={() => this.setState({grouped: !this.state.grouped})}>
-          Group By Generator
-        </Checkbox>
+
+      <div className="button-group">
+        <Button
+          onClick={() => this.setState({detailView: true})}
+          icon="th-list"
+          iconPosition="left"
+        >
+          detail view
+        </Button>
+        <Button
+          onClick={() => this.setState({detailView: false})}
+          icon="list"
+          iconPosition="left"
+        >
+          output view
+        </Button>
+      </div>
+
+      {!detailView &&
+        <div className="cms-variables-list">
+          <ul>
+            {Object.keys(variables[localeDefault])
+              .sort((a, b) => a.localeCompare(b))
+              .filter(key => key !== "_genStatus" && key !== "_matStatus")
+              .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
+              .map(key =>
+                <li key={key} className="cms-list-var" onClick={this.openGenerator.bind(this, key)}>
+                  <strong>{key}</strong>: {variables[localeDefault][key]}
+                </li>
+              )}
+          </ul>
+        </div>
       }
-      { currentView === "generators" && !grouped && <div className="cms-variables-list">
-        <ul>
-          {Object.keys(variables[localeDefault])
-            .sort((a, b) => a.localeCompare(b))
-            .filter(key => key !== "_genStatus" && key !== "_matStatus")
-            .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
-            .map(key =>
-              <li key={key} className="cms-list-var" onClick={this.openGenerator.bind(this, key)}>
-                <strong>{key}</strong>: {variables[localeDefault][key]}
-              </li>
-            )}
-        </ul>
-      </div> }
-      {/* Hide the sections if not grouped - but SHOW them if forceKey is set, which means
+      {/* Hide the sections if not detailView - but SHOW them if forceKey is set, which means
         * that someone has clicked an individual variable and wants to view its editor
         */}
-      {currentView === "generators" && <div style={grouped || forceKey ? {} : {display: "none"}}>
+      <div style={detailView || forceKey ? {} : {display: "none"}}>
         {/* generators */}
         <Section
           title="Generators"
@@ -213,7 +211,7 @@ export default class Toolbox extends Component {
             .map(g => <GeneratorCard
               key={g.id}
               context="generator"
-              hidden={!grouped}
+              hidden={!detailView}
               item={g}
               attr={minData.attr || {}}
               locale={localeDefault}
@@ -240,7 +238,7 @@ export default class Toolbox extends Component {
             .map(m => <GeneratorCard
               key={m.id}
               context="materializer"
-              hidden={!grouped}
+              hidden={!detailView}
               item={m}
               locale={localeDefault}
               secondaryLocale={locale}
@@ -255,12 +253,15 @@ export default class Toolbox extends Component {
               forceKey={String(forceMatID) === String(m.id) ? forceKey : null}
             />)}
         />
-      </div>}
-      { currentView === "formatters" && <div>
-        {/* formatters */}
-        <FormatterEditor />
-      </div>}
+      </div>
 
+      {/* formatters */}
+      {detailView &&
+        <FormatterEditor />
+      }
+
+      {/* loading status */}
+      <Status recompiling={recompiling} />
     </div>;
 
   }
