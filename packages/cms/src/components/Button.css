@@ -95,6 +95,10 @@
       width: 1em;
       height: 1em;
     }
+
+    & + .cms-button-text {
+      margin-left: 0.25em;
+    }
   }
 
   /* cover the whole container width */

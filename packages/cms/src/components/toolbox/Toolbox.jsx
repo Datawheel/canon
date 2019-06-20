@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import {Checkbox} from "@blueprintjs/core";
 import Section from "../Section";
 import Button from "../Button";
+import ButtonGroup from "../ButtonGroup";
 import GeneratorCard from "../cards/GeneratorCard";
 import Status from "../Status";
 import "./toolbox.css";
@@ -183,22 +184,22 @@ export default class Toolbox extends Component {
         />
       </label>
 
-      <div className="button-group">
-        <Button
-          onClick={() => this.setState({detailView: true})}
-          icon="th-list"
-          iconPosition="left"
-        >
-          detail view
-        </Button>
-        <Button
-          onClick={() => this.setState({detailView: false})}
-          icon="list"
-          iconPosition="left"
-        >
-          output view
-        </Button>
-      </div>
+      <ButtonGroup buttons={[
+        {
+          onClick: () => this.setState({detailView: true}),
+          active: detailView,
+          icon: "th-list",
+          iconPosition: "left",
+          children: "detail view"
+        },
+        {
+          onClick: () => this.setState({detailView: false}),
+          active: !detailView,
+          icon: "list",
+          iconPosition: "left",
+          children: "output view"
+        }
+      ]} />
 
       {!detailView &&
         <div className="cms-variables-list">

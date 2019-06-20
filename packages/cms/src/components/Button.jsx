@@ -5,6 +5,7 @@ import "./Button.css";
 export default class Button extends Component {
   render() {
     const {
+      active,       // button is currently pressed; useful for button groups
       block,        // set `true` to completely fill container width
       children,
       className,
@@ -19,6 +20,8 @@ export default class Button extends Component {
       <button
         className={`cms-button${
           className ? ` ${className}` : ""
+        }${
+          active ? " is-active" : " is-inactive"
         }${
           iconOnly && children !== "Missing `children` prop in Button.jsx" ? " cms-icon-only-button" : ""
         }${
