@@ -1,0 +1,47 @@
+@import "../css/mixins.css";
+
+.cms-button-group {
+  width: 100%;
+  display: flex;
+
+  & > .cms-button {
+    flex: 1 1 auto;
+
+    /* selectively remove border radius */
+    &:not(:last-child) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    &:not(:first-child) {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    /* inactive state defaults */
+    &.is-inactive {
+      color: var(--dark-1);
+
+      &:hover, &:focus {
+        color: var(--accent-black);
+      }
+    }
+
+    &.is-active:hover,
+    &.is-active:focus {
+      color: var(--dark-2);
+    }
+
+    /* dark mode overrides */
+    @mixin dark-mode {
+      &.is-inactive:hover,
+      &.is-inactive:focus {
+        color: var(--accent-light);
+      }
+      &.is-active {
+        &, &:hover, &:focus {
+          color: var(--white);
+        }
+      }
+    }
+  }
+}
