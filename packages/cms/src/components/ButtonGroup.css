@@ -1,20 +1,51 @@
 @import "../css/mixins.css";
 
 .cms-button-group {
+  /* layout */
   width: 100%;
   display: flex;
+  /* theming */
+  @mixin button-shadow;
+  border-radius: 10em;
 
   & > .cms-button {
     flex: 1 1 auto;
+    box-shadow: none;
 
-    /* selectively remove border radius */
+    /* selectively remove border radius and adjust padding */
     &:not(:last-child) {
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
+
+      &.cms-icon-only-button {
+        padding-left: 0.125em;
+        margin-right: -0.125em;
+      }
+
+      &:not(.cms-icon-only-button) {
+        padding-right: 0.5em;
+
+        &:last-child {
+          padding-left: 1.75em;
+        }
+      }
     }
     &:not(:first-child) {
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
+
+      &.cms-icon-only-button {
+        padding-right: 0.125em;
+        margin-left: -0.125em;
+      }
+
+      &:not(.cms-icon-only-button) {
+        padding-left: 0.5em;
+
+        &:last-child {
+          padding-right: 1.75em;
+        }
+      }
     }
 
     /* inactive state defaults */
