@@ -2,9 +2,13 @@ module.exports = function(sequelize, db) {
 
   const s = sequelize.define("topic_selector",
     {
-      topic_id: {
+      id: {
         type: db.INTEGER,
         primaryKey: true,
+        autoIncrement: true
+      },
+      topic_id: {
+        type: db.INTEGER,
         onDelete: "cascade",
         references: {
           model: "canon_cms_topic",
@@ -13,7 +17,6 @@ module.exports = function(sequelize, db) {
       },
       selector_id: {
         type: db.INTEGER,
-        primaryKey: true,
         onDelete: "cascade",
         references: {
           model: "canon_cms_selector",
