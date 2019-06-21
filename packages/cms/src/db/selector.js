@@ -15,11 +15,11 @@ module.exports = function(sequelize, db) {
         type: db.TEXT,
         defaultValue: ""
       },          
-      topic_id: {
+      profile_id: {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_topic",
+          model: "canon_cms_profile",
           key: "id"
         }
       },
@@ -34,8 +34,7 @@ module.exports = function(sequelize, db) {
       type: {
         type: db.STRING,
         defaultValue: "single"
-      },
-      ordering: db.INTEGER
+      }
     }, 
     {
       tableName: "canon_cms_selector",

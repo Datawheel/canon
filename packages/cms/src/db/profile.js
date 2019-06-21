@@ -22,6 +22,7 @@ module.exports = function(sequelize, db) {
     p.hasMany(models.topic, {foreignKey: "profile_id", sourceKey: "id", as: "topics"});
     p.hasMany(models.generator, {foreignKey: "profile_id", sourceKey: "id", as: "generators"});
     p.hasMany(models.materializer, {foreignKey: "profile_id", sourceKey: "id", as: "materializers"});
+    p.hasMany(models.selector, {foreignKey: "profile_id", sourceKey: "id", as: "selectors"});
   };
 
   return p;
