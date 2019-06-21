@@ -15,7 +15,7 @@ const propMap = {
   topic_description: "descriptions",
   topic_subtitle: "subtitles",
   topic_visualization: "visualizations",
-  topic_selector: "selectors"
+  selectors: "selectors"
 };
 
 class TopicEditor extends Component {
@@ -169,6 +169,7 @@ class TopicEditor extends Component {
               fields={["title"]}
               onSave={this.onSave.bind(this)}
               type="topic"
+              selectors={minData.selectors.map(s => Object.assign({}, s))}
               variables={variables[localeDefault]}
             />
           ]}
@@ -181,6 +182,7 @@ class TopicEditor extends Component {
               fields={["title"]}
               onSave={this.onSave.bind(this)}
               type="topic"
+              selectors={minData.selectors.map(s => Object.assign({}, s))}
               variables={variables[locale]}
             />
           ]}
