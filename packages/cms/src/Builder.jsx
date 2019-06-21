@@ -6,6 +6,8 @@ import StoryBuilder from "./story/StoryBuilder";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
 
+import Button from "./components/Button";
+
 import "./css/base.css";
 import "./css/blueprint-overrides.css";
 import "./css/form-fields.css";
@@ -68,8 +70,12 @@ class Builder extends Component {
     });
   }
 
+  toggleSettings() {
+    this.setState({settingsOpen: !this.state.settingsOpen});
+  }
+
   render() {
-    const {currentTab, secondaryLocale, locales, localeDefault} = this.state;
+    const {currentTab, secondaryLocale, locales, localeDefault, settingsOpen} = this.state;
     const {isEnabled} = this.props;
     const navLinks = ["profiles", "stories"];
 
@@ -87,21 +93,30 @@ class Builder extends Component {
             </button>
           )}
 
-          <div className="cms-nav-options">
+          <div className="cms-nav-settings-button-container">
+            <Button className="cms-nav-settings-button" icon="cog" onClick={this.toggleSettings.bind(this)}>
+              settings
+            </Button>
+          </div>
+
+          <div className={`cms-nav-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
             {/* locale select */}
             {locales &&
               <React.Fragment>
+                <h2 className="cms-nav-settings-heading font-sm">
+                  Languages
+                </h2>
                 {/* primary locale */}
                 {/* NOTE: currently just shows the primary locale in a dropdown */}
-                <label className="cms-select-label cms-locale-select">
-                  <strong>languages</strong>: primary
+                <label className="cms-select-label cms-locale-select font-xs">
+                  Primary
                   <select className="cms-select">
                     <option key="current-locale" value={localeDefault}>{localeDefault}</option>
                   </select>
                 </label>
                 {/* secondary locale */}
-                <label className="cms-select-label cms-locale-select">
-                  secondary
+                <label className="cms-select-label cms-locale-select font-xs">
+                  Secondary
                   <select
                     className="cms-select"
                     value={secondaryLocale}
