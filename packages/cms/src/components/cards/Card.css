@@ -9,11 +9,14 @@
   /* sizing */
   width: 100%;
   max-width: 100%;
-  padding: 1.25rem;
+  padding: 1.125rem 1.25rem 1.25rem 1.25rem;
   /* theming */
   background-color: var(--white);
   border: 1px solid var(--light-2);
-  border-radius: 2px;
+
+  &:first-child {
+    border-top: 0;
+  }
 
   & > * {
     max-width: 100%;
@@ -26,13 +29,11 @@
 
   &:not(:first-child) {
     margin-top: -1px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
   }
 
-  &:not(:last-child) {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+  &:last-child {
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
   }
 
   & .cms-card-description[class] {

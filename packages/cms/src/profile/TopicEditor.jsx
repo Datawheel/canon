@@ -149,19 +149,19 @@ class TopicEditor extends Component {
 
     return (
       <div className="cms-editor-inner">
-        {/* loading status */}
-        <Status recompiling={recompiling} />
+
+        {/* dimensions */}
+        {children}
 
         {/* topic name */}
         {/* TODO: convert to fields */}
-        <h2 className="cms-section-heading">
-          Topic title
-        </h2>
-
-        <div className="cms-card-container">
-          {/* primary locale */}
-          <div className="cms-card-list">
+        <Section
+          title="Topic metadata"
+          subtitle="Title"
+          entity="meta"
+          cards={[
             <TextCard
+              key="title-card"
               item={minData}
               locale={localeDefault}
               localeDefault={localeDefault}
@@ -170,55 +170,50 @@ class TopicEditor extends Component {
               type="topic"
               variables={variables[localeDefault]}
             />
+          ]}
+          secondaryCards={locale && [
+            <TextCard
+              key={`title-card-${locale}`}
+              item={minData}
+              locale={locale}
+              localeDefault={localeDefault}
+              fields={["title"]}
+              onSave={this.onSave.bind(this)}
+              type="topic"
+              variables={variables[locale]}
+            />
+          ]}
+        >
+          {/* current topic options */}
+          <div className="cms-editor-header">
+            {/* change slug */}
+            <label className="bp3-label cms-slug">
+              Topic slug
+              <div className="bp3-input-group">
+                <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
+                <Button onClick={this.save.bind(this)}>Rename</Button>
+              </div>
+            </label>
+            {/* visibility select */}
+            <label className="bp3-label bp3-fill">
+              Allowed
+              <div className="bp3-select">
+                <select id="visibility-select" value={minData.allowed || "always"} onChange={this.changeField.bind(this, "allowed", true)}>
+                  {varOptions}
+                </select>
+              </div>
+            </label>
+            {/* layout select */}
+            <label className="bp3-label bp3-fill">
+              Layout
+              <div className="bp3-select">
+                <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
+                  {typeOptions}
+                </select>
+              </div>
+            </label>
           </div>
-          {/* secondary locale */}
-          {locale &&
-            <div className="cms-card-list">
-              <TextCard
-                item={minData}
-                locale={locale}
-                localeDefault={localeDefault}
-                fields={["title"]}
-                onSave={this.onSave.bind(this)}
-                type="topic"
-                variables={variables[locale]}
-              />
-            </div>
-          }
-        </div>
-
-        {/* current topic options */}
-        <div className="cms-editor-header">
-          {/* change slug */}
-          <label className="bp3-label cms-slug">
-            Topic slug
-            <div className="bp3-input-group">
-              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-              <Button onClick={this.save.bind(this)}>Rename</Button>
-            </div>
-          </label>
-          {/* visibility select */}
-          <label className="bp3-label bp3-fill">
-            Allowed
-            <div className="bp3-select">
-              <select id="visibility-select" value={minData.allowed || "always"} onChange={this.changeField.bind(this, "allowed", true)}>
-                {varOptions}
-              </select>
-            </div>
-          </label>
-          {/* layout select */}
-          <label className="bp3-label bp3-fill">
-            Layout
-            <div className="bp3-select">
-              <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
-                {typeOptions}
-              </select>
-            </div>
-          </label>
-        </div>
-
-        {/* dimensions */}
-        {children}
+        </Section>
 
         {/* subtitles */}
         <Section
@@ -374,6 +369,9 @@ class TopicEditor extends Component {
             />
           )}
         />
+
+        {/* loading status */}
+        <Status recompiling={recompiling} />
       </div>
     );
   }
