@@ -51,6 +51,10 @@
     min-width: 0;
     max-width: 100%;
   }
+
+  & .cms-section-big-button {
+    margin-top: 0.75rem;
+  }
 }
 
 /* TODO: revisit & remove */
