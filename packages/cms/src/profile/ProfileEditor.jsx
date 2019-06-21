@@ -74,6 +74,7 @@ class ProfileEditor extends Component {
         {/* TODO: move to header */}
         <Section
           title="Profile meta"
+          subtitle="Profile title"
           entity="splash"
           wrapperClassName="cms-splash-wrapper"
           cards={
