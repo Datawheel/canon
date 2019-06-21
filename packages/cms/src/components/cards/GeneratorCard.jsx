@@ -183,18 +183,14 @@ class GeneratorCard extends Component {
           <div className="cms-card-locale-group">
             <div className="cms-card-locale-container">
               {secondaryLocale &&
-                <h4 className="cms-card-locale">
-                  <LocaleName>{locale}</LocaleName>
-                </h4>
+                <LocaleName>{locale}</LocaleName>
               }
               <VarTable dataset={displayData} />
             </div>
 
             {secondaryLocale &&
               <div className="cms-card-locale-container">
-                <h4 className="cms-card-locale">
-                  <LocaleName>{secondaryLocale}</LocaleName>
-                </h4>
+                <LocaleName>{secondaryLocale}</LocaleName>
                 <VarTable dataset={secondaryDisplayData} />
               </div>
             }

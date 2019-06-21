@@ -1,0 +1,16 @@
+@import "../../css/mixins.css";
+
+/* override heading style */
+.cms .cms-locale-name {
+  @mixin label-color;
+  font-weight: 400;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.cms .cms-locale-name-icon {
+  width: 1em;
+  top: -1px;
+  margin-right: 0.125em;
+  vertical-align: middle;
+}

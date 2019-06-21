@@ -3,7 +3,7 @@
 /* card table for displaying description, preview profile text, etc */
 .cms-var-table {
   /* positioning */
-  margin-top: 1rem;
+  margin-top: 0.125rem;
   padding: 0;
   border-collapse: collapse;
   /* equal height tables */
@@ -75,6 +75,13 @@
   padding: 0 0.4em;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  /* typography */
+  font-size: 0.625rem;
+  line-height: 1.25;
+  /* fix wierd space below table */
+  &:last-child {
+    margin-bottom: -0.75rem;
+  }
 
   &:first-child { padding-top: 0.25em; }
   &:last-child { padding-bottom: 0.25em; }
@@ -82,6 +89,5 @@
 
 /* cell style */
 .cms-var-table-cell {
-  font-size: 0.625rem;
   padding: 0.25em;
 }

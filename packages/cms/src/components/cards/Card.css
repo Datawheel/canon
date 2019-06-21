@@ -9,11 +9,15 @@
   /* sizing */
   width: 100%;
   max-width: 100%;
-  padding: 1rem;
+  padding: 1.25rem;
   /* theming */
   background-color: var(--white);
   border: 1px solid var(--light-2);
   border-radius: 2px;
+
+  & > * {
+    max-width: 100%;
+  }
 
   @mixin dark-mode {
     background-color: var(--dark-3);
@@ -31,9 +35,9 @@
     border-bottom-right-radius: 0;
   }
 
-  & .cms-card-description {
-    font-size: 0.75em;
-    margin: 1rem 0 0 0;
+  & .cms-card-description[class] {
+    @mixin font-xxs;
+    margin-top: 0.5em;
   }
 }
 
@@ -44,14 +48,14 @@
   display: flex;
   align-items: baseline;
   /* alignment */
-  margin-top: -0.875em;
+  margin-top: -0.5em;
   /* keep from breaking outside of container */
   width: 100%;
 
   /* truncate long card titles */
   & > .cms-card-heading-text {
     @mixin overflow-ellipsis;
-    max-width: calc(100% - 3.5rem);
+    padding-right: 0.5em;
     margin: 0;
   }
 
@@ -72,7 +76,6 @@
   /* sizing */
   padding: 0;
   min-width: 1em;
-  /* positioning */
 }
 
 /* individual stats */
@@ -83,6 +86,13 @@
   & .value {
     font-size: 24px;
   }
+}
+
+.cms-card ul:empty {
+  display: none;
+}
+.cms-card-heading ~ p:last-of-type {
+  margin-bottom: 0;
 }
 
 /* splash card */

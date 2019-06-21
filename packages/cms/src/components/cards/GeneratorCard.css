@@ -1,32 +1,19 @@
 @import "../../css/mixins.css";
 
 /* show variables side by side with language labels */
-.cms-card.is-multilingual {
-  
-  & .cms-card-locale-group {
-    display: flex;
-    justify-content: space-between;
+.cms-card.is-multilingual .cms-card-locale-group {
+  display: flex;
+  justify-content: space-between;
+  line-height: 0.001px; /* fix empty space under var tables */
 
-    & .cms-card-locale {
-      font-size: 0.75em;
-      margin-top: 0.5em;
-      margin-bottom: -1em;
-    }
-
-    & > * {
-      width: calc(50% - 0.5rem);
-    }
+  & > * {
+    width: calc(50% - 0.5rem);
   }
 }
 
-.cms-generator-card [class].cms-card-description {
+.cms .cms-generator-card .cms-card-description {
   margin-top: 0.25em;
   margin-bottom: 0.25em;
-}
-
-/* minimize repaints as cards load in */
-.cms-formatter-card {
-  min-height: 83px;
 }
 
 .cms-hidden {
