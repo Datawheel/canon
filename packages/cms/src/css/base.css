@@ -55,6 +55,9 @@
   & .font-xxs {
     @mixin font-xxs;
   }
+  & .font-xxxs {
+    @mixin font-xxxs;
+  }
 }
 
 

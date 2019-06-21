@@ -57,6 +57,11 @@ typography
   font-size: 0.625rem; /* 10px */
   line-height: 1.5; /* ~20px */
 }
+/* use sparingly */
+@define-mixin font-xxxs {
+  font-size: 0.5rem; /* 8px */
+  line-height: 1.5; /* 12px */
+}
 
 /* font smoothing */
 @define-mixin font-smoothing {
@@ -118,6 +123,10 @@ theming
   @media (prefers-dark-interface), (prefers-color-scheme: dark) {
     @mixin-content;
   }
+}
+
+@define-mixin label-color {
+  color: var(--dark-1);
 }
 
 /* light gray text */
