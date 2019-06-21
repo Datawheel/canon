@@ -12,7 +12,6 @@ export default class FilterSearch extends Component {
         <input
           key="filter-input"
           className="cms-filter-search-input"
-          type="search"
           placeholder={label}
           value={value}
           onChange={onChange}
