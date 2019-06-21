@@ -6,7 +6,6 @@ import Button from "../components/Button";
 import Section from "../components/Section";
 import Status from "../components/Status";
 import TextCard from "../components/cards/TextCard";
-import SelectorCard from "../components/cards/SelectorCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import "./TopicEditor.css";
 
@@ -71,6 +70,7 @@ class TopicEditor extends Component {
       if (resp.status === 200) {
         // Selectors, unlike the rest of the elements, actually do pass down their entire
         // content to the Card (the others are simply given an id and load the data themselves)
+        // New selector will behave differently here
         if (type === "selector") {
           minData[propMap[type]].push(resp.data);
         }
@@ -252,25 +252,9 @@ class TopicEditor extends Component {
           )}
         />
 
-        {/* selectors */}
-        <Section
-          title="Selectors"
-          entity="selector"
-          addItem={this.addItem.bind(this, "selector")}
-          cards={minData.selectors && minData.selectors.map(s =>
-            <SelectorCard
-              key={s.id}
-              minData={s}
-              type="selector"
-              locale={localeDefault}
-              onSave={() => this.forceUpdate()}
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              parentArray={minData.selectors}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        />
+        {/*
+          New selector chooser will go here
+        */}
 
         {/* stats */}
         <Section

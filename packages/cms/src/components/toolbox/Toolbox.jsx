@@ -6,13 +6,15 @@ import Button from "../Button";
 import ButtonGroup from "../ButtonGroup";
 import FilterSearch from "../FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
+import SelectorCard from "../cards/SelectorCard";
 import Status from "../Status";
 import "./toolbox.css";
 
 const propMap = {
   generator: "generators",
   materializer: "materializers",
-  formatter: "formatters"
+  formatter: "formatters",
+  selector: "selectors"
 };
 
 export default class Toolbox extends Component {
@@ -66,11 +68,19 @@ export default class Toolbox extends Component {
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
       if (resp.status === 200) {
         const maybeFetch = type === "formatter" ? null : this.fetchVariables.bind(this, true);
-        minData[propMap[type]].push({
-          id: resp.data.id,
-          name: resp.data.name,
-          description: resp.data.description,
-          ordering: resp.data.ordering || null});
+        // Selectors, unlike the rest of the elements, actually do pass down their entire
+        // content to the Card (the others are simply given an id and load the data themselves)
+        if (type === "selector") {
+          minData[propMap[type]].push(resp.data);
+        }
+        else {
+          minData[propMap[type]].push({
+            id: resp.data.id, 
+            name: resp.data.name, 
+            description: resp.data.description,
+            ordering: resp.data.ordering || null
+          });
+        }
         this.setState({minData}, maybeFetch);
       }
     });
@@ -124,7 +134,7 @@ export default class Toolbox extends Component {
 
   filterFunc(d) {
     const {query} = this.state;
-    const fields = ["name", "description"];
+    const fields = ["name", "description", "title"];
     return fields.map(f => d[f] ? d[f].toLowerCase().includes(query) : false).some(d => d);
   }
 
@@ -175,11 +185,16 @@ export default class Toolbox extends Component {
       .sort((a, b) => a.name.localeCompare(b.name))
       .filter(this.filterFunc.bind(this));
 
+    const selectors = minData.selectors
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .filter(this.filterFunc.bind(this));
+
     // If a search filter causes no results, hide the entire section. However, if
     // the ORIGINAL data has length 0, always show it, so the user can add the first one.
     const showGenerators = minData.generators.length === 0 || generators.length > 0;
     const showMaterializers = minData.materializers.length === 0 || materializers.length > 0;
     const showFormatters = minData.formatters.length === 0 || formatters.length > 0;
+    const showSelectors = minData.selectors.length === 0 || selectors.length > 0;
 
     return <div className="cms-toolbox">
       <FilterSearch
@@ -277,7 +292,27 @@ export default class Toolbox extends Component {
             />)}
         />}
       </div>
-      { detailView && <React.Fragment>
+      { detailView && <div>
+        {/* selectors */}
+        {showSelectors && <Section
+          title="Selectors"
+          entity="selector"
+          description="Profile-wide Selectors."
+          addItem={this.addItem.bind(this, "selector")}
+          cards={selectors.map(s =>
+            <SelectorCard
+              key={s.id}
+              minData={s}
+              type="selector"
+              locale={localeDefault}
+              onSave={() => this.forceUpdate()}
+              onDelete={this.onDelete.bind(this)}
+              variables={variables[localeDefault]}
+            />
+          )}
+        />}
+      </div>}
+      { detailView && <div>
         {/* formatters */}
         {showFormatters && <Section
           title="Formatters"
