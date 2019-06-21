@@ -39,7 +39,7 @@ const profileReq = {
         {association: "stats", separate: true,
           include: [{association: "content", separate: true}]
         },
-        {association: "selectors", separate: true}
+        {association: "selectors"}
       ]
     }]
 };
@@ -56,7 +56,7 @@ const topicReq = [
   {association: "stats", separate: true,
     include: [{association: "content", separate: true}]
   },
-  {association: "selectors", separate: true}
+  {association: "selectors"}
 ];
 
 const storyReq = {

@@ -8,10 +8,11 @@ export default class LocaleName extends Component {
   render() {
     const {locale, children} = this.props;
     return (
-      <h4 className="cms-locale-name font-xxxs">
+      // Todo james: this was an h4, should probably be a label. I've changed it to div for now
+      <div className="cms-locale-name font-xxxs">
         <Icon className="cms-locale-name-icon" icon="translate" />
         {ISO6391.getName(locale || children)}
-      </h4>
+      </div>
     );
   }
 }
