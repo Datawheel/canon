@@ -42,7 +42,7 @@ module.exports = function(sequelize, db) {
     t.hasMany(models.topic_stat, {foreignKey: "topic_id", sourceKey: "id", as: "stats"});
     t.hasMany(models.topic_subtitle, {foreignKey: "topic_id", sourceKey: "id", as: "subtitles"});
     t.hasMany(models.topic_description, {foreignKey: "topic_id", sourceKey: "id", as: "descriptions"});
-    t.hasMany(models.selector, {foreignKey: "topic_id", sourceKey: "id", as: "selectors"});
+    t.belongsToMany(models.selector, {through: "topic_selector", foreignKey: "topic_id", otherKey: "selector_id", as: "selectors"});
   };
 
   return t;

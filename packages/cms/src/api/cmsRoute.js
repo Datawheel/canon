@@ -78,9 +78,12 @@ const formatterReqTreeOnly = {
 const profileReqProfileOnly = {
   include: [
     {association: "meta"},
-    {association: "content"},
+    {association: "content"}
+    // Todo: Can these two be removed, now that gen/mats are in the toolbox?
+    /*
     {association: "generators", attributes: ["id", "name"]},
     {association: "materializers", attributes: ["id", "name", "ordering"]}
+    */
   ]
 };
 
@@ -89,7 +92,8 @@ const profileReqToolbox = {
     {association: "meta"},
     {association: "content"},
     {association: "generators", attributes: ["id", "name", "description"]},
-    {association: "materializers", attributes: ["id", "name", "ordering", "description"]}
+    {association: "materializers", attributes: ["id", "name", "ordering", "description"]},
+    {association: "selectors"} 
   ]
 };
 
@@ -109,7 +113,7 @@ const topicReqTopicOnly = {
     {association: "descriptions", attributes: ["id", "ordering"]},
     {association: "visualizations", attributes: ["id", "ordering"]},
     {association: "stats", attributes: ["id", "ordering"]},
-    {association: "selectors"}
+    {association: "selectors"} 
   ]
 };
 
@@ -132,7 +136,7 @@ const cmsTables = [
   "author", "formatter", "generator", "materializer", "profile", "profile_meta",
   "selector", "story", "story_description", "story_footnote", "storytopic",
   "storytopic_description", "storytopic_stat", "storytopic_subtitle", "storytopic_visualization",
-  "topic", "topic_description", "topic_stat", "topic_subtitle", "topic_visualization"
+  "topic", "topic_description", "topic_stat", "topic_subtitle", "topic_visualization", "topic_selector"
 ];
 
 /**
@@ -500,7 +504,7 @@ module.exports = function(app) {
    */
   const deleteList = [
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
-    {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"},
+    {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization", "topic_selector"], parent: "topic_id"},
     {elements: ["storytopic_subtitle", "storytopic_description", "storytopic_stat", "storytopic_visualization"], parent: "storytopic_id"}
   ];
 
@@ -535,6 +539,13 @@ module.exports = function(app) {
     await db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.materializer.destroy({where: {id: req.query.id}}).catch(catcher);
     const rows = await db.materializer.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "ordering", "name"], order: [["ordering", "ASC"]]}).catch(catcher);
+    return res.json(rows);
+  });
+
+  app.delete("/api/cms/selector/delete", isEnabled, async(req, res) => {
+    const row = await db.selector.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.selector.destroy({where: {id: req.query.id}});
+    const rows = await db.selector.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
     return res.json(rows);
   });
 
