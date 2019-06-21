@@ -22,6 +22,11 @@ export default class Section extends Component {
     const title = this.props.title || "missing `title` prop in Section.jsx";
     const entity = this.props.entity || title.toLowerCase();
 
+    let inToolbox = false;
+    if (entity === "generator" || entity === "materializer" || entity === "formatter") {
+      inToolbox = true;
+    }
+
     return (
       <section className={`cms-section cms-${entity}-section ${isOpen ? "is-open" : "is-collapsed"}`}>
 
@@ -32,7 +37,7 @@ export default class Section extends Component {
             <span className="u-visually-hidden"> ({isOpen ? "collapse" : "open"} section)</span>
             <Icon className="cms-accordion-button-icon" icon="caret-down" />
           </button>
-          {cards && cards.length > 0 && addItem || entity === "formatter"
+          {(cards && cards.length > 0 && addItem) || inToolbox === true
             ? <Button onClick={addItem} className="cms-section-heading-add-button font-xxs" icon="plus">
               add {entity}
             </Button>
@@ -58,7 +63,7 @@ export default class Section extends Component {
             ? <div className="cms-card-list">
               {cards || "missing `cards` prop in Section.jsx — card component or array of card components expected"}
             </div>
-            : addItem && entity !== "formatter" &&
+            : addItem && !inToolbox &&
               <Button
                 className="cms-section-big-button"
                 onClick={addItem}
