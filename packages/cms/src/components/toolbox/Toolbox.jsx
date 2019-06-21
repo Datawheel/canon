@@ -292,9 +292,9 @@ export default class Toolbox extends Component {
             />)}
         />}
       </div>
-      { detailView && <div>
-        {/* selectors */}
-        {showSelectors && <Section
+      {/* selectors */}
+      { detailView && showSelectors && 
+        <Section
           title="Selectors"
           entity="selector"
           description="Profile-wide Selectors."
@@ -311,10 +311,9 @@ export default class Toolbox extends Component {
             />
           )}
         />}
-      </div>}
-      { detailView && <div>
-        {/* formatters */}
-        {showFormatters && <Section
+      {/* formatters */}
+      { detailView && showFormatters &&
+        <Section
           title="Formatters"
           entity="formatter"
           addItem={this.addItem.bind(this, "formatter")}
@@ -331,7 +330,6 @@ export default class Toolbox extends Component {
             />)
           }
         />}
-      </React.Fragment>}
 
       {/* loading status */}
       <Status recompiling={recompiling} />
