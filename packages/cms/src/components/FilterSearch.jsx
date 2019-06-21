@@ -10,6 +10,7 @@ export default class FilterSearch extends Component {
       <label className="cms-filter-search">
         <span className="u-visually-hidden cms-filter-search-text">{label}</span>
         <input
+          key="filter-input"
           className="cms-filter-search-input"
           type="search"
           placeholder={label}
