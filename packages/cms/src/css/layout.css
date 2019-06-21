@@ -187,6 +187,18 @@
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+  background-color: var(--light-1);
+  margin-top: -2px;
+  padding: 1rem 1.25rem 0.5rem 1.25rem;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border: 1px solid var(--light-2);
+
+  @mixin dark-mode {
+    background-color: var(--dark-2);
+    border-color: transparent;
+    border-top-color: var(--dark-3);
+  }
 
   /* one child */
   & > * {
