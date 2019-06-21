@@ -24,7 +24,7 @@ export default class CardWrapper extends Component {
     } = this.props;
 
     const buttonProps = {
-      className: "cms-card-heading-button font-xs",
+      className: "cms-card-heading-button font-xxs",
       iconOnly: true
     };
 

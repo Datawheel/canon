@@ -129,6 +129,35 @@ theming
   }
 }
 
+/* shadows */
+@define-mixin button-shadow {
+  box-shadow:
+    0 1px 2px color(var(--black) a(0.1)),
+    0 1px 8px color(var(--black) a(0.1)),
+    inset 0 1px 0 color(var(--white) a(0.33));
+
+  @mixin dark-mode {
+    box-shadow:
+      0 1px 4px color(var(--black) a(0.333)),
+      0 4px 8px color(var(--black) a(0.2)),
+      inset 0 1px 0 color(var(--dark-2) a(0.333));
+  }
+
+  &:hover, &:focus {
+    box-shadow:
+      0 1px 2px color(var(--black) a(0.1)),
+      0 2px 8px color(var(--black) a(0.2)),
+      inset 0 1px 0 color(var(--white) a(0.33));
+
+    @mixin dark-mode {
+      box-shadow:
+        0 2px 4px color(var(--black) a(0.5)),
+        0 2px 12px color(var(--black) a(0.333)),
+        inset 0 1px 0 color(var(--dark-2) a(0.333));
+    }
+  }
+}
+
 
 /* -----------------------------------
 layout
