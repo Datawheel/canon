@@ -4,18 +4,30 @@ import Button from "./Button";
 import "./Section.css";
 
 export default class Section extends Component {
+  constructor() {
+    super();
+    this.state = {
+      isOpen: true
+    };
+  }
+
+  toggleAccordion() {
+    this.setState({isOpen: !this.state.isOpen});
+  }
+
   render() {
     const {addItem, cards, children, description, secondaryCards, subtitle} = this.props;
+    const {isOpen} = this.state;
 
     const title = this.props.title || "missing `title` prop in Section.jsx";
     const entity = this.props.entity || title.toLowerCase();
 
     return (
-      <section className={`cms-section cms-${entity}-section`}>
+      <section className={`cms-section cms-${entity}-section ${isOpen ? "is-open" : "is-collapsed"}`}>
 
         {/* section title */}
         <h2 className="cms-section-heading font-md" id={entity}>
-          <button className="cms-accordion-button" onClick={cards && cards.length > 0}>
+          <button className="cms-accordion-button" onClick={this.toggleAccordion.bind(this)}>
             {title}
             <span className="u-visually-hidden"> (collapse section)</span>
             <Icon className="cms-accordion-button-icon" icon="caret-down" />

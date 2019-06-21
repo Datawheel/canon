@@ -39,8 +39,11 @@
     box-shadow: none !important;
   }
 
-  & > *:not(:last-child) {
+  & > .cms-filter-search {
     margin-bottom: 0.625rem;
+  }
+  & > .cms-button-group {
+    margin-bottom: 1.25rem;
   }
 
   /* reset card widths */
@@ -48,6 +51,11 @@
     min-width: 0;
     max-width: 100%;
   }
+}
+
+/* TODO: revisit & remove */
+.cms-toolbox-section-wrapper {
+  margin-bottom: 1.25rem;
 }
 
 .cms-list-var {
