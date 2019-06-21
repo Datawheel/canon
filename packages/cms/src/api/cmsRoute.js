@@ -212,7 +212,6 @@ const sortTopic = (db, topic) => {
   topic.visualizations = flatSort(db.topic_visualization, topic.visualizations);
   topic.stats = flatSort(db.topic_stat, topic.stats);
   topic.descriptions = flatSort(db.topic_description, topic.descriptions);
-  topic.selectors = flatSort(db.selector, topic.selectors);
   return topic;
 };
 
@@ -416,6 +415,7 @@ module.exports = function(app) {
         s.id = s.topic_selector.id;
         s.ordering = s.topic_selector.ordering;
       });
+      topic.selectors = flatSort(db.topic_selector, topic.selectors);
     }
     return res.json(topic);
   });

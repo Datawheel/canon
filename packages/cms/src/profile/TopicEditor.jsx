@@ -257,7 +257,6 @@ class TopicEditor extends Component {
         <Section
           title="Selectors"
           entity="selector"
-          addItem={this.addItem.bind(this, "topic_selector")}
           cards={minData.selectors && minData.selectors.map(s =>
             <SelectorCard
               key={s.id}
