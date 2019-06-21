@@ -404,6 +404,19 @@ module.exports = function(app) {
     });
     topic = sortTopic(db, topic);
     topic.types = topicTypes;
+    // This is a bit of a hack. There are two ids at play here - the id of the selector itself
+    // (the one that belongs to the profile) and the id of the many-to-many topic_selector
+    // table. All the front end code assumes that we can use "object.id" for reads/writes.
+    // But because the selectors here have SELECTOR ids, not TOPIC_SELECTOR ids, they are wrong.
+    // So, we (somewhat counter-intuitively) "bubble up" the topic_selector id to be the 
+    // "first party" id of this selector, even though it's not it's "true" id. This allows
+    // The front-end operations to assume "object.id" and have it point to the correct id.
+    if (topic.selectors) {
+      topic.selectors.forEach(s => {
+        s.id = s.topic_selector.id;
+        s.ordering = s.topic_selector.ordering;
+      });
+    }
     return res.json(topic);
   });
 

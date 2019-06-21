@@ -7,6 +7,7 @@ import Section from "../components/Section";
 import Status from "../components/Status";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
+import SelectorCard from "../components/cards/SelectorCard";
 import "./TopicEditor.css";
 
 const propMap = {
@@ -14,7 +15,7 @@ const propMap = {
   topic_description: "descriptions",
   topic_subtitle: "subtitles",
   topic_visualization: "visualizations",
-  selector: "selectors"
+  topic_selector: "selectors"
 };
 
 class TopicEditor extends Component {
@@ -252,9 +253,24 @@ class TopicEditor extends Component {
           )}
         />
 
-        {/*
-          New selector chooser will go here
-        */}
+        {/* selectors */}
+        <Section
+          title="Selectors"
+          entity="selector"
+          addItem={this.addItem.bind(this, "topic_selector")}
+          cards={minData.selectors && minData.selectors.map(s =>
+            <SelectorCard
+              key={s.id}
+              minData={s}
+              type="topic_selector"
+              locale={localeDefault}
+              onDelete={this.onDelete.bind(this)}
+              variables={variables[localeDefault]}
+              parentArray={minData.selectors}
+              onMove={this.onMove.bind(this)}
+            />
+          )}
+        />
 
         {/* stats */}
         <Section

@@ -110,7 +110,7 @@ class SelectorCard extends Component {
 
   render() {
     const {minData, isOpen, alertObj} = this.state;
-    const {locale, onMove, parentArray, type, variables} = this.props;
+    const {locale, onMove, onSave, parentArray, type, variables} = this.props;
     const formatters = this.context.formatters[locale];
 
     // define initial card props
@@ -123,7 +123,7 @@ class SelectorCard extends Component {
     if (minData) {
       Object.assign(cardProps, {
         title: varSwap(minData.title, formatters, variables),
-        onEdit: this.openEditor.bind(this),
+        onEdit: onSave ? this.openEditor.bind(this) : null,
         // reorder
         reorderProps: parentArray ? {
           item: minData,
@@ -145,11 +145,13 @@ class SelectorCard extends Component {
             {/* content preview */}
             <p>{minData.name === "newselector" ? "New selector" : minData.name}</p>
 
-            <ul>
-              {minData.options && minData.options.map(o =>
-                <li key={o.option}>{o.option}</li>
-              )}
-            </ul>
+            {minData.options.length > 0 &&
+              <select className="cms-select">
+                {minData.options && minData.options.map(o =>
+                  <option key={o.option}>{`${o.option} ${o.isDefault ? "(default)" : ""}`}</option>
+                )}
+              </select>
+            }
 
             {/* edit mode */}
             <Dialog
