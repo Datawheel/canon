@@ -27,9 +27,9 @@ export default class Section extends Component {
 
         {/* section title */}
         <h2 className="cms-section-heading font-md" id={entity}>
-          <button className="cms-accordion-button" onClick={this.toggleAccordion.bind(this)}>
+          <button className="cms-accordion-button font-sm" onClick={this.toggleAccordion.bind(this)}>
             {title}
-            <span className="u-visually-hidden"> (collapse section)</span>
+            <span className="u-visually-hidden"> ({isOpen ? "collapse" : "open"} section)</span>
             <Icon className="cms-accordion-button-icon" icon="caret-down" />
           </button>
           {cards && cards.length > 0 && addItem || entity === "formatter"
@@ -51,7 +51,7 @@ export default class Section extends Component {
 
         {/* cards */}
         {subtitle &&
-          <h3 className="cms-section-subtitle">{subtitle}</h3>
+          <h3 className="cms-section-subtitle font-sm">{subtitle}</h3>
         }
         <div className={`cms-card-container${secondaryCards ? " two-columns" : ""}`}>
           {cards && (cards.length || entity === "splash" || entity === "story" || entity === "title")

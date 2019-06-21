@@ -108,36 +108,9 @@ class StoryEditor extends Component {
       <div className="cms-editor-inner">
 
         {/* current story options */}
-        <div className="cms-editor-header">
-          {/* change slug */}
-          <label className="bp3-label cms-slug">
-            Story slug
-            <div className="bp3-input-group">
-              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
-              <Button onClick={this.save.bind(this)}>Rename</Button>
-            </div>
-          </label>
-
-          {/* publication date */}
-          <div className="cms-date">
-            <label htmlFor="date-picker" className="bp3-label">Date</label>
-            <div className="data-picker-container">
-              {new Date(minData.date).toDateString()} {!showDate &&
-                <button id="date-picker" onClick={() => this.setState({showDate: true})}>
-                  Choose Date...
-                </button>
-              }
-              {showDate &&
-                <DatePicker value={new Date(minData.date)} onChange={this.setDate.bind(this)} />
-              }
-            </div>
-          </div>
-        </div>
-
-        {/* story name */}
-        {/* TODO: move this to header */}
         <Section
-          title="Story"
+          title="Story metadata"
+          subtitle="Story title"
           entity="story"
           cards={<TextCard
             item={minData}
@@ -161,8 +134,33 @@ class StoryEditor extends Component {
               variables={{}}
             />
           }
-        />
+        >
+          <div className="cms-editor-header">
+            {/* change slug */}
+            <label className="bp3-label cms-slug">
+              Story slug
+              <div className="bp3-input-group">
+                <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
+                <Button onClick={this.save.bind(this)}>Rename</Button>
+              </div>
+            </label>
 
+            {/* publication date */}
+            <div className="cms-date">
+              <label htmlFor="date-picker" className="bp3-label">Date</label>
+              <div className="data-picker-container">
+                {new Date(minData.date).toDateString()} {!showDate &&
+                  <button id="date-picker" onClick={() => this.setState({showDate: true})}>
+                    Choose Date...
+                  </button>
+                }
+                {showDate &&
+                  <DatePicker value={new Date(minData.date)} onChange={this.setDate.bind(this)} />
+                }
+              </div>
+            </div>
+          </div>
+        </Section>
 
         {/* descriptions */}
         <Section

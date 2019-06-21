@@ -104,33 +104,9 @@ class StoryTopicEditor extends Component {
       <div className="cms-editor-inner">
 
         {/* current story options */}
-        <div className="cms-editor-header">
-          {/* change slug */}
-          <label className="bp3-label cms-slug">
-            Story slug
-            <div className="bp3-input-group">
-              <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-              <Button onClick={this.save.bind(this)}>Rename</Button>
-            </div>
-          </label>
-        </div>
-
-        {/* layout select */}
-        <div className="cms-editor-header">
-          <label className="bp3-label bp3-fill">
-            Layout
-            <div className="bp3-select">
-              <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
-                {typeOptions}
-              </select>
-            </div>
-          </label>
-        </div>
-
-        {/* topic name */}
-        {/* TODO: move this to header */}
         <Section
-          title="Topic title"
+          title="Story section metadata"
+          subtitle="Section title"
           entity="title"
           cards={<TextCard
             item={minData}
@@ -152,7 +128,26 @@ class StoryTopicEditor extends Component {
               variables={{}}
             />
           }
-        />
+        >
+          <div className="cms-editor-header">
+            {/* change slug */}
+            <label className="bp3-label cms-slug">
+              Story slug
+              <div className="bp3-input-group">
+                <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
+                <Button onClick={this.save.bind(this)}>Rename</Button>
+              </div>
+            </label>
+            <label className="bp3-label bp3-fill">
+              Layout
+              <div className="bp3-select">
+                <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
+                  {typeOptions}
+                </select>
+              </div>
+            </label>
+          </div>
+        </Section>
 
         {/* subtitles */}
         <Section
