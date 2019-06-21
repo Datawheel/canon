@@ -1,8 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Checkbox} from "@blueprintjs/core";
 import Section from "../Section";
-import Button from "../Button";
 import ButtonGroup from "../ButtonGroup";
 import FilterSearch from "../FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
