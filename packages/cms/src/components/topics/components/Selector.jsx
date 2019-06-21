@@ -53,7 +53,7 @@ class Selector extends Component {
       { title && <label htmlFor={slug}>{title}</label> }
       <div className={ `bp3-fill ${type === "multi" ? "" : "bp3-select"}` }>
         { type === "multi"
-          ? <div>
+          ? <React.Fragment>
             <div className="multi-list">
               { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
                 { variables[d] }
@@ -72,7 +72,7 @@ class Selector extends Component {
                 </button>
               </Select>
               : null }
-          </div>
+          </React.Fragment>
           : <select id={slug} name={name} onChange={d => onSelector(name, d.target.value)} disabled={loading} defaultValue={defaultValue}>
             { options.map(({option}) => <option value={option} key={option}>{variables[option]}</option>) }
           </select> }

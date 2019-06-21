@@ -224,7 +224,7 @@ export default class Toolbox extends Component {
       {/* Hide the sections if not detailView - but SHOW them if forceKey is set, which means
         * that someone has clicked an individual variable and wants to view its editor
         */}
-      <div style={detailView || forceKey ? {} : {display: "none"}}>
+      <div className="cms-toolbox-section-wrapper" style={detailView || forceKey ? {} : {display: "none"}}>
         {/* generators */}
         {showGenerators && <Section
           title="Generators"
@@ -277,7 +277,7 @@ export default class Toolbox extends Component {
             />)}
         />}
       </div>
-      { detailView && <div>
+      { detailView && <React.Fragment>
         {/* formatters */}
         {showFormatters && <Section
           title="Formatters"
@@ -296,7 +296,7 @@ export default class Toolbox extends Component {
             />)
           }
         />}
-      </div>}
+      </React.Fragment>}
 
       {/* loading status */}
       <Status recompiling={recompiling} />
