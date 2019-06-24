@@ -7,7 +7,7 @@ class SelectorPreview extends Component {
     super(props);
     this.state = {
       minData: null,
-      currentValue: ""
+      currentValues: {}
     };
   }
 
@@ -44,14 +44,16 @@ class SelectorPreview extends Component {
   }
 
   onChange(name, e) {
-    this.setState({currentValue: e.target.value});
+    const {currentValues} = this.state;
+    currentValues[name] = e.target.value;
+    this.setState({currentValues});
     const selectionObj = {[name]: e.target.value};
     if (this.props.onSelect) this.props.onSelect(selectionObj);
   }
 
   render() {
 
-    const {minData, currentValue} = this.state;
+    const {minData, currentValues} = this.state;
     const {variables} = this.props;
 
     if (!minData) return null;
@@ -69,7 +71,7 @@ class SelectorPreview extends Component {
             <li key={s.id}>
               <label>{s.name}</label>
               {s.options.length > 0 &&
-              <select className="cms-select" value={currentValue} onChange={this.onChange.bind(this, s.name)}>
+              <select className="cms-select" value={currentValues[s.name]} onChange={this.onChange.bind(this, s.name)}>
                 {s.options && s.options.map(o =>
                   <option key={o.option} value={o.option}>
                     {`${variables[o.option]} ${o.isDefault ? "(default)" : ""}`}
