@@ -45,6 +45,13 @@
       &[class*="cog"] {
          transform: scale(1.125) rotate(-30deg);
       }
+      &[class*="trash"] {
+        color: var(--alert);
+
+        @mixin dark-mode {
+          color: var(--alert-light);
+        }
+      }
     }
   }
 

@@ -93,14 +93,12 @@
   /* positioning */
   @mixin absolute-vertical-center;
   right: 0.425rem;
-  /* reset button */
-  background: none;
-  border: none;
   /* transitions */
   transition:
     color 0.1s ease-out,
     transform 0.1s ease-out;
   /* theming */
+  @mixin button-reset;
   color: var(--dark-1);
 
   /* hidden state */
