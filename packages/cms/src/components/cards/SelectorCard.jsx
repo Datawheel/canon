@@ -148,7 +148,7 @@ class SelectorCard extends Component {
             {minData.options.length > 0 &&
               <select className="cms-select">
                 {minData.options && minData.options.map(o =>
-                  <option key={o.option}>{`${o.option} ${o.isDefault ? "(default)" : ""}`}</option>
+                  <option key={o.option}>{`${variables[o.option]} ${o.isDefault ? "(default)" : ""}`}</option>
                 )}
               </select>
             }
