@@ -277,29 +277,10 @@ class TopicEditor extends Component {
           />]}
         />
 
-        {/* selectors
-        <Section
-          title="Selectors"
-          entity="selector"
-          cards={minData.selectors && minData.selectors.map(s =>
-            <SelectorCard
-              key={s.id}
-              minData={s}
-              type="topic_selector"
-              locale={localeDefault}
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              parentArray={minData.selectors}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        />
-        */}
-
         {/* stats */}
         <Section
           title="Stats"
-          entity="state"
+          entity="stat"
           addItem={this.addItem.bind(this, "topic_stat")}
           cards={minData.stats && minData.stats.map(s =>
             <TextCard

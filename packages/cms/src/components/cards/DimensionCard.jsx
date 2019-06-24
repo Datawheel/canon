@@ -67,6 +67,7 @@ export default class DimensionCard extends Component {
     const cardProps = {
       cardClass: "dimension",
       title: meta.dimension,
+      onDelete: this.maybeDelete.bind(this),
       // onEdit: this.openEditor.bind(this),
       // onReorder: this.props.onMove ? this.props.onMove.bind(this) : null,
       // alert

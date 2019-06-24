@@ -139,6 +139,7 @@ class VisualizationCard extends Component {
           ? "No configuration defined"
           : config.logic.replace("return ", ""),
       onEdit: this.openEditor.bind(this),
+      onDelete: this.maybeDelete.bind(this),
       // reorder
       reorderProps: parentArray ? {
         array: parentArray,

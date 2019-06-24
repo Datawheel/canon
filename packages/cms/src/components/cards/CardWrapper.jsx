@@ -13,6 +13,7 @@ export default class CardWrapper extends Component {
       style,           // pretty much just for visualization card height
       title,           // card title
       onEdit,          // edit button onClick
+      onDelete,        // delete button onClick
       children,        // main card content
       secondaryLocale, // two columns
 
@@ -31,12 +32,11 @@ export default class CardWrapper extends Component {
     const buttons = [];
     let deleteButton, editButton;
 
-    // TODO: add onDelete logic
-    const onDelete = onEdit;
     if (onDelete) {
       deleteButton = Object.assign({}, {
         children: "delete entry",
         icon: "trash",
+        onClick: onDelete,
         ...buttonProps
       });
       buttons.push(deleteButton);
