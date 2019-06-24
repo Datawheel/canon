@@ -58,6 +58,7 @@
     @mixin overflow-ellipsis;
     padding-right: 0.5em;
     margin: 0;
+    transition: color 0.2s ease-out;
   }
 
 
@@ -72,11 +73,55 @@
   width: auto;
   margin-left: auto;
   margin-right: -0.5em;
+  z-index: 2; /* above cover button */
 }
-.cms-card-heading-button {
+/* edit button (initially hidden) */
+.cms-card-heading > .cms-card-heading-icon {
   /* sizing */
-  padding: 0;
-  min-width: 1em;
+  width: 0.75rem;
+  /* positioning */
+  position: absolute;
+  left: -1rem;
+  top: 0.25rem;
+  /* theming */
+  color: var(--dark-1);
+  /* transitions */
+  opacity: 0;
+  transform: scale(0);
+  transition:
+    opacity 0.2s ease-out,
+    transform 0.2s ease-out;
+}
+
+/* cover button */
+.cms-card > .cms-card-cover-button {
+  @mixin button-reset;
+  @mixin absolute-expand;
+  z-index: 1; /* above most stuff */
+  transition:
+    box-shadow 0.3s ease-out,
+    background-color 0.1s ease-out;
+
+  &:hover, &:focus {
+    box-shadow: 0 0 0 1px var(--light-3);
+
+    & ~ .cms-card-heading > .cms-card-heading-text {
+      color: var(--accent-dark);
+    }
+    & ~ .cms-card-heading > .cms-card-heading-icon {
+      opacity: 1;
+      transform: scale(1) rotate(-45deg);
+    }
+
+    @mixin dark-mode {
+      box-shadow: none;
+      background-color: color(var(--gray) a(0.01));
+
+      & ~ .cms-card-heading > [class*="cms-card-heading-"] {
+        color: var(--accent);
+      }
+    }
+  }
 }
 
 /* individual stats */

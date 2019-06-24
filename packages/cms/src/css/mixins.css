@@ -219,6 +219,13 @@ resets
   margin-bottom: 0; /* thanks blueprint */
 }
 
+/* remove background & border from buttons */
+/* NOTE: there's also border radius, padding, and box shadow */
+@define-mixin button-reset {
+  background: none;
+  border: none;
+}
+
 
 /* -----------------------------------
 print stylesheet helpers

@@ -28,8 +28,7 @@
   /* main nav "links" (they're actually buttons) */
   & .cms-nav-link {
     /* reset button style */
-    background: none;
-    border: none;
+    @mixin button-reset;
     cursor: pointer; /* it's not a link, but it acts like one */
     /* sizing */
     line-height: var(--cms-nav-height);

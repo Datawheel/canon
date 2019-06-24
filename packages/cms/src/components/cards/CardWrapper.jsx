@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Alert} from "@blueprintjs/core";
+import {Alert, Icon} from "@blueprintjs/core";
 import Button from "../Button";
 import ButtonGroup from "../ButtonGroup";
 import ReorderButtons from "../ReorderButtons";
@@ -49,13 +49,23 @@ export default class CardWrapper extends Component {
         onClick: onEdit,
         ...buttonProps
       });
-      buttons.push(editButton);
     }
 
     return (
       <div className={`cms-card cms-${ cardClass }-card${ secondaryLocale ? " is-multilingual" : "" }`} style={style}>
+
+        {/* cover button */}
+        {onEdit && title &&
+          <button className="cms-card-cover-button" onClick={ onEdit }>
+            <span className="u-visually-hidden">edit {title}</span>
+          </button>
+        }
+
         {/* header */}
         <div className="cms-card-heading">
+          {onEdit &&
+            <Icon className="cms-card-heading-icon" icon="cog" />
+          }
           <h3 className="cms-card-heading-text font-sm">{title || "missing `title` prop in CardWrapper.jsx"}</h3>
           {buttons.length
             ? <ButtonGroup buttons={buttons} />
