@@ -301,7 +301,11 @@ class SelectorEditor extends Component {
                 <ul className="cms-selector-editor-action-list">
                   <li className="cms-selector-editor-action-item">
                     <label className="cms-selector-editor-checkbox">
-                      <input type="checkbox" checked={option.isDefault} onChange={this.setDefault.bind(this, option.option)}/> Active
+                      <input
+                        type={data.type === "multi" ? "checkbox" : "radio"}
+                        checked={option.isDefault}
+                        onChange={this.setDefault.bind(this, option.option)}
+                      /> default option
                     </label>
                   </li>
                   <li className="cms-selector-editor-action-item">
