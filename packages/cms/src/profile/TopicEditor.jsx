@@ -24,7 +24,8 @@ class TopicEditor extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      minData: null
+      minData: null,
+      query: {}
     };
   }
 
@@ -110,6 +111,11 @@ class TopicEditor extends Component {
     this.forceUpdate();
   }
 
+  onSelect(selectionObj) {
+    const {query} = this.state;
+    this.setState({query: Object.assign({}, query, selectionObj)});
+  }
+
   onDelete(type, newArray) {
     const {minData} = this.state;
     minData[propMap[type]] = newArray;
@@ -124,7 +130,7 @@ class TopicEditor extends Component {
 
   render() {
 
-    const {minData, recompiling} = this.state;
+    const {minData, recompiling, query} = this.state;
     const {variables, previews, children, locale, localeDefault} = this.props;
 
     const dataLoaded = minData;
@@ -168,6 +174,7 @@ class TopicEditor extends Component {
               locale={localeDefault}
               localeDefault={localeDefault}
               fields={["title"]}
+              query={query}
               onSave={this.onSave.bind(this)}
               type="topic"
               selectors={minData.selectors.map(s => Object.assign({}, s))}
@@ -181,6 +188,7 @@ class TopicEditor extends Component {
               locale={locale}
               localeDefault={localeDefault}
               fields={["title"]}
+              query={query}
               onSave={this.onSave.bind(this)}
               type="topic"
               selectors={minData.selectors.map(s => Object.assign({}, s))}
@@ -231,6 +239,7 @@ class TopicEditor extends Component {
               locale={localeDefault}
               localeDefault={localeDefault}
               fields={["subtitle"]}
+              query={query}
               type="topic_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={variables[localeDefault]}
@@ -246,6 +255,7 @@ class TopicEditor extends Component {
               locale={locale}
               localeDefault={localeDefault}
               fields={["subtitle"]}
+              query={query}
               type="topic_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={variables[locale]}
@@ -262,6 +272,8 @@ class TopicEditor extends Component {
           cards={[<SelectorPreview
             key="selector-preview"
             minData={minData}
+            variables={variables[localeDefault]}
+            onSelect={this.onSelect.bind(this)}
           />]}
         />
 
@@ -296,6 +308,7 @@ class TopicEditor extends Component {
               locale={localeDefault}
               localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
+              query={query}
               type="topic_stat"
               onDelete={this.onDelete.bind(this)}
               variables={variables[localeDefault]}
@@ -311,6 +324,7 @@ class TopicEditor extends Component {
               locale={locale}
               localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
+              query={query}
               type="topic_stat"
               onDelete={this.onDelete.bind(this)}
               variables={variables[locale]}
@@ -333,6 +347,7 @@ class TopicEditor extends Component {
               locale={localeDefault}
               localeDefault={localeDefault}
               fields={["description"]}
+              query={query}
               type="topic_description"
               onDelete={this.onDelete.bind(this)}
               variables={variables[localeDefault]}
@@ -348,6 +363,7 @@ class TopicEditor extends Component {
               locale={locale}
               localeDefault={localeDefault}
               fields={["description"]}
+              query={query}
               type="topic_description"
               onDelete={this.onDelete.bind(this)}
               variables={variables[locale]}
@@ -370,6 +386,7 @@ class TopicEditor extends Component {
               locale={localeDefault}
               localeDefault={localeDefault}
               secondaryLocale={locale}
+              query={query}
               previews={previews}
               onDelete={this.onDelete.bind(this)}
               type="topic_visualization"

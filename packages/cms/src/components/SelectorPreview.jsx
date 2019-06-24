@@ -6,7 +6,8 @@ class SelectorPreview extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      minData: null
+      minData: null,
+      currentValue: ""
     };
   }
 
@@ -19,7 +20,6 @@ class SelectorPreview extends Component {
     axios.delete("/api/cms/topic_selector/delete", {params: {id}}).then(resp => {
       if (resp.status === 200) {
         minData.selectors = resp.data;
-        console.log(minData.selectors);
         this.setState({minData});
       }
     });
@@ -43,9 +43,16 @@ class SelectorPreview extends Component {
     });
   }
 
+  onChange(name, e) {
+    this.setState({currentValue: e.target.value});
+    const selectionObj = {[name]: e.target.value};
+    if (this.props.onSelect) this.props.onSelect(selectionObj);
+  }
+
   render() {
 
-    const {minData} = this.state;
+    const {minData, currentValue} = this.state;
+    const {variables} = this.props;
 
     if (!minData) return null;
 
@@ -62,9 +69,11 @@ class SelectorPreview extends Component {
             <li key={s.id}>
               <label>{s.name}</label>
               {s.options.length > 0 &&
-              <select className="cms-select">
+              <select className="cms-select" value={currentValue} onChange={this.onChange.bind(this, s.name)}>
                 {s.options && s.options.map(o =>
-                  <option key={o.option}>{`${o.option} ${o.isDefault ? "(default)" : ""}`}</option>
+                  <option key={o.option} value={o.option}>
+                    {`${variables[o.option]} ${o.isDefault ? "(default)" : ""}`}
+                  </option>
                 )}
               </select>
               }

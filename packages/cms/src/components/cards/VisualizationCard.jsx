@@ -107,6 +107,7 @@ class VisualizationCard extends Component {
   render() {
 
     const {minData, isOpen, alertObj} = this.state;
+    const {query} = this.props;
 
     if (!minData) return <Loading />;
 
@@ -118,7 +119,7 @@ class VisualizationCard extends Component {
     minData.selectors = selectors;
     let logic = "return {}";
     // Only calculate the viz render if the user is finished editing and has closed the window.
-    if (!isOpen) logic = varSwapRecursive(minData, formatters, variables).logic;
+    if (!isOpen) logic = varSwapRecursive(minData, formatters, variables, query).logic;
     const re = new RegExp(/height\:[\s]*([0-9]+)/g);
     let height = re.exec(logic);
     height = height ? height[1] : "400";
