@@ -258,14 +258,14 @@ class TopicEditor extends Component {
 
         <Section
           title="Selectors"
-          entity="selector"
-          cards={[<SelectorPreview 
+          entity="selectorSelector"
+          cards={[<SelectorPreview
             key="selector-preview"
             minData={minData}
           />]}
         />
 
-        {/* selectors 
+        {/* selectors
         <Section
           title="Selectors"
           entity="selector"
