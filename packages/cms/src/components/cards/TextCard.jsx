@@ -78,8 +78,6 @@ class TextCard extends Component {
     const {variables, selectors, locale, query} = this.props;
     const formatters = this.context.formatters[locale];
 
-    console.log(query);
-
     const minData = this.populateLanguageContent.bind(this)(this.state.minData);
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
