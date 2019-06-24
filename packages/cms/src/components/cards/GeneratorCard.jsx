@@ -158,6 +158,7 @@ class GeneratorCard extends Component {
       Object.assign(cardProps, {
         title: minData.name, // overwrites placeholder
         onEdit: this.openEditor.bind(this),
+        onDelete: this.maybeDelete.bind(this),
         // reorder
         reorderProps: parentArray ? {
           array: parentArray,

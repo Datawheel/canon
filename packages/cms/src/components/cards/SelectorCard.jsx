@@ -124,6 +124,7 @@ class SelectorCard extends Component {
       Object.assign(cardProps, {
         title: varSwap(minData.title, formatters, variables),
         onEdit: onSave ? this.openEditor.bind(this) : null,
+        onDelete: this.maybeDelete.bind(this),
         // reorder
         reorderProps: parentArray ? {
           item: minData,

@@ -194,6 +194,7 @@ class TextCard extends Component {
       cardClass,
       title: <LocaleName locale={locale} />,
       onEdit: this.openEditor.bind(this),
+      onDelete: this.maybeDelete.bind(this),
       // reorder
       reorderProps: parentArray ? {
         array: parentArray,
