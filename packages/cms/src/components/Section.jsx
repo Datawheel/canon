@@ -23,7 +23,7 @@ export default class Section extends Component {
     const entity = this.props.entity || title.toLowerCase();
 
     let inToolbox = false;
-    if (entity === "generator" || entity === "materializer" || entity === "formatter") {
+    if (entity === "generator" || entity === "materializer" || entity === "formatter" || entity === "selector") {
       inToolbox = true;
     }
 
