@@ -15,6 +15,13 @@
     }
   }
 
+  & .cms-section-heading-add-button {
+    @mixin visually-hidden;
+    opacity: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
   & ~ * {
     display: none;
   }
@@ -87,6 +94,7 @@
   @mixin absolute-vertical-center;
   right: 0.375rem;
   left: auto;
+  transition: opacity 0.075s ease-out 0.05s;
 }
 
 /* descriptions */
