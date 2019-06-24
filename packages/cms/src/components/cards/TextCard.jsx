@@ -30,7 +30,11 @@ class TextCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.minData && (JSON.stringify(prevProps.variables) !== JSON.stringify(this.props.variables) || JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors))) {
+    if (this.state.minData && (
+      JSON.stringify(prevProps.variables) !== JSON.stringify(this.props.variables) || 
+      JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors) || 
+      JSON.stringify(this.props.query) !== JSON.stringify(prevProps.query)
+    )) {
       this.formatDisplay.bind(this)();
     }
     if (prevProps.item.id !== this.props.item.id || prevProps.locale !== this.props.locale) {
@@ -71,8 +75,10 @@ class TextCard extends Component {
   }
 
   formatDisplay() {
-    const {variables, selectors, locale} = this.props;
+    const {variables, selectors, locale, query} = this.props;
     const formatters = this.context.formatters[locale];
+
+    console.log(query);
 
     const minData = this.populateLanguageContent.bind(this)(this.state.minData);
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
@@ -80,7 +86,7 @@ class TextCard extends Component {
     // polluting the object itself
     minData.selectors = selectors;
     // Swap vars, and extract the actual (multilingual) content
-    const content = varSwapRecursive(minData, formatters, variables).content;
+    const content = varSwapRecursive(minData, formatters, variables, query).content;
     const currLang = content.find(c => c.lang === locale);
     // Map over each of the default keys, and fetch its equivalent locale version (or default)
     const displayData = {};
