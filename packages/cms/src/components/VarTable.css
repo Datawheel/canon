@@ -65,6 +65,10 @@
 
 /* error */
 .cms-var-table-error {
+  display: block;
+  padding-left: 1em; /* room for icon */
+  line-height: 1.125 !important;
+  /* theming */
   color: var(--alert);
 
   @mixin dark-mode {
@@ -72,8 +76,11 @@
   }
 
   & > .cms-var-table-error-icon {
-    width: 1em;
-    vertical-align: middle;
-    top: -1px;
+    /* sizing */
+    width: 0.875em;
+    /* positioning */
+    position: absolute;
+    left: -1px;
+    top: -3px;
   }
 }
