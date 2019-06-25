@@ -260,3 +260,45 @@ print stylesheet helpers
   font-size: 0.5em;
   text-decoration: none; /* but it's small, so don't underline it */
 }
+
+/* -----------------------------------
+VarTable & VarList
+----------------------------------- */
+@define-mixin var-overflow {
+  width: 100%;
+  min-height: 1em;
+  border-radius: 2px;
+  /* handle overflow */
+  display: block; /* needed to honor overflow */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  z-index: 1;
+  /* theming */
+  background-color: transparent;
+  border: 1px solid var(--light-2);
+  box-shadow: 0 1px 0.125rem 1px inset var(--light-1);
+  color: var(--dark-3);
+
+  /* DARK THEME */
+  @mixin dark-mode {
+    background-color: color(var(--black) a(0.75));
+    border: 1px solid var(--dark-3);
+    color: var(--light-3);
+  }
+}
+
+@define-mixin var-row {
+  padding: 0.25em 0.625em;
+  /* typography */
+  font-size: 0.625rem;
+  line-height: 1.25;
+  vertical-align: baseline;
+}
+
+@define-mixin error-text {
+  color: var(--alert);
+
+  @mixin dark-mode {
+    color: var(--alert-light);
+  }
+}

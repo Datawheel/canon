@@ -1,0 +1,20 @@
+@import "../css/mixins.css";
+
+/* card table for displaying description, preview profile text, etc */
+.cms-var-list {
+  @mixin list-reset;
+  @mixin var-overflow;
+  max-height: 6rem;
+
+  & .cms-var-item {
+    @mixin var-row;
+
+    &.cms-error-var-item {
+      @mixin error-text;
+    }
+
+    &.cms-default-var-item {
+      font-weight: 600;
+    }
+  }
+}

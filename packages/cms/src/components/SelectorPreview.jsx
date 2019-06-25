@@ -66,7 +66,7 @@ class SelectorPreview extends Component {
 
     return (
       <div className="cms-card">
-        
+
         <h3>Inactive Selectors</h3>
         <ul>
           {remainingSelectors.map(s =>
@@ -89,7 +89,8 @@ class SelectorPreview extends Component {
                   value={currentValues[s.name]}
                   onChange={this.onChange.bind(this, s.name)}
                   options={s.options && s.options.map(o =>
-                    o.isDefault ? `${variables[o.option]} (default)` : variables[o.option]
+                    o.isDefault
+                      ? `${o.option && variables[o.option].toString()} (default)` : o.option && variables[o.option].toString()
                   )}
                 />
               }

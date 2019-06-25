@@ -2,30 +2,10 @@
 
 /* card table for displaying description, preview profile text, etc */
 .cms-var-table {
+  @mixin var-overflow;
   /* positioning */
   margin-top: 0.25rem;
   border-collapse: collapse;
-  /* equal height tables */
-  width: 100%;
-  min-height: 1em;
-  border-radius: 2px;
-  /* handle overflow */
-  display: block; /* needed to honor overflow */
-  overflow: auto;
-  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
-  z-index: 1;
-  /* theming */
-  background-color: transparent;
-  border: 1px solid var(--light-2);
-  box-shadow: 0 1px 0.125rem 1px inset var(--light-1);
-  color: var(--dark-3);
-
-  /* DARK THEME */
-  @mixin dark-mode {
-    background-color: color(var(--black) a(0.75));
-    border: 1px solid var(--dark-3);
-    color: var(--light-3);
-  }
 }
 
 .cms-var-table-body {
@@ -39,41 +19,19 @@
     min-width: max-content;
     overflow-x: hidden;
   }
-
-  /* placeholder */
-  &:empty {
-    display: block;
-    position: absolute;
-    height: 100%;
-    width: 100%;
-  }
 }
 
 /* max height row with overflow */
 .cms-var-table-row {
-  padding: 0 0.4em;
-  /* typography */
-  font-size: 0.625rem;
-  line-height: 1.25;
-  vertical-align: baseline;
-}
-
-/* cell style */
-.cms-var-table-cell {
-  padding: 0.25em;
+  @mixin var-row;
 }
 
 /* error */
 .cms-var-table-error {
+  @mixin error-text;
   display: block;
   padding-left: 1em; /* room for icon */
   line-height: 1.125 !important;
-  /* theming */
-  color: var(--alert);
-
-  @mixin dark-mode {
-    color: var(--alert-light);
-  }
 
   & > .cms-var-table-error-icon {
     /* sizing */
