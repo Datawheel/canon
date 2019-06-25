@@ -1,6 +1,7 @@
 import funcifyFormatterByLocale from "./utils/funcifyFormatterByLocale";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
+import Select from "./components/Select";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
 import {fetchData} from "@datawheel/canon-core";
@@ -108,27 +109,23 @@ class Builder extends Component {
                 </h2>
                 {/* primary locale */}
                 {/* NOTE: currently just shows the primary locale in a dropdown */}
-                <label className="cms-select-label cms-locale-select font-xs">
-                  Primary
-                  <select className="cms-select">
-                    <option key="current-locale" value={localeDefault}>{localeDefault}</option>
-                  </select>
-                </label>
+                <Select
+                  label="Primary"
+                  fontSize="xs"
+                  inline
+                  options={[localeDefault]}
+                />
                 {/* secondary locale */}
-                <label className="cms-select-label cms-locale-select font-xs">
-                  Secondary
-                  <select
-                    className="cms-select"
-                    value={secondaryLocale}
-                    onChange={this.handleLocaleSelect.bind(this)}
-                  >
-                    {locales.map(loc =>
-                      <option key={loc} value={loc}>{loc}</option>)
-                    }
-                    <option key="no-locale" value="none">none</option>
-                  </select>
-                </label>
-                {/* <span className="cms-nav-options-divider">|</span>*/}
+                <Select
+                  label="Secondary"
+                  fontSize="xs"
+                  inline
+                  value={secondaryLocale}
+                  options={locales.map(loc => loc)}
+                  onChange={this.handleLocaleSelect.bind(this)}
+                >
+                  <option value="none">none</option>
+                </Select>
               </React.Fragment>
             }
           </div>
