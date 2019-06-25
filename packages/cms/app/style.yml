@@ -26,6 +26,9 @@ type-number-dark: "#2D4A7F"
 type-string:      "#B9E28C"
 type-string-dark: "#62873B"
 
+type-boolean:      "#FFD65B"
+type-boolean-dark: "#7F6516"
+
 type-error:       "#DB64A6"
 type-error-dark:  "#75224D"
 

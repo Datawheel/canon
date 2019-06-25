@@ -3,52 +3,29 @@
 /* card table for displaying description, preview profile text, etc */
 .cms-var-table {
   /* positioning */
-  margin-top: 0.125rem;
-  padding: 0;
+  margin-top: 0.25rem;
+  padding: 0.125rem 0.25rem;
   border-collapse: collapse;
   /* equal height tables */
-  display: flex;
-  flex-grow: 1;
-  justify-content: stretch;
-  min-height: 1.5rem;
+  width: 100%;
+  min-height: 1em;
   border-radius: 2px;
-  overflow: hidden;
-
-  /* LIGHT THEME */
-  /* card table for displaying description, preview profile text, etc */
-  & .cms-var-table-cell {
-    color: var(--dark-3);
-  }
-
-  /* placeholder */
-  & .cms-var-table-body:empty {
-    background-color: var(--light-1);
-  }
-
-  /* display values */
-  & .cms-var-table-body:not(:empty) {
-    background-color: transparent;
-    border: 1px solid var(--light-2);
-    box-shadow: 0 1px 0.125rem 1px inset var(--light-1);
-  }
+  /* handle overflow */
+  display: block; /* needed to honor overflow */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  z-index: 1;
+  /* theming */
+  background-color: transparent;
+  border: 1px solid var(--light-2);
+  box-shadow: 0 1px 0.125rem 1px inset var(--light-1);
+  color: var(--dark-3);
 
   /* DARK THEME */
   @mixin dark-mode {
-    /* card table for displaying description, preview profile text, etc */
-    & .cms-var-table-cell {
-      color: var(--light-3);
-    }
-
-    /* placeholder */
-    & .cms-var-table-body:empty {
-      background-color: rgba(0, 0, 0, 0.25);
-    }
-
-    /* display values */
-    & .cms-var-table-body:not(:empty) {
-      background-color: rgba(0, 0, 0, 0.5);
-      border: 1px solid var(--dark-3);
-    }
+    background-color: color(var(--black) a(0.75));
+    border: 1px solid var(--dark-3);
+    color: var(--light-3);
   }
 }
 
@@ -56,8 +33,12 @@
   display: block;
   width: 100%;
   max-height: 6rem;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  white-space: nowrap;
+
+  @supports (min-width: max-content) {
+    min-width: max-content;
+    overflow-x: hidden;
+  }
 
   /* placeholder */
   &:empty {
@@ -70,24 +51,29 @@
 
 /* max height row with overflow */
 .cms-var-table-row {
-  display: flex;
-  flex-wrap: none;
   padding: 0 0.4em;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
   /* typography */
   font-size: 0.625rem;
   line-height: 1.25;
-  /* fix wierd space below table */
-  &:last-child {
-    margin-bottom: -0.75rem;
-  }
-
-  &:first-child { padding-top: 0.25em; }
-  &:last-child { padding-bottom: 0.25em; }
+  vertical-align: baseline;
 }
 
 /* cell style */
 .cms-var-table-cell {
   padding: 0.25em;
+}
+
+/* error */
+.cms-var-table-error {
+  color: var(--alert);
+
+  @mixin dark-mode {
+    color: var(--alert-light);
+  }
+
+  & > .cms-var-table-error-icon {
+    width: 1em;
+    vertical-align: middle;
+    top: -1px;
+  }
 }
