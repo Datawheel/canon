@@ -2,10 +2,6 @@
 
 /* individual cards */
 .cms-card {
-  /* layout */
-  display: inline-flex;
-  flex-wrap: wrap;
-  flex-direction: column;
   /* sizing */
   width: 100%;
   max-width: 100%;

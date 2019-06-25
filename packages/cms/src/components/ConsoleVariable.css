@@ -13,6 +13,7 @@
     font-style: italic;
     & pre {
       white-space: pre-wrap;
+      margin: 0; /* reset browser default */
     }
   }
 
@@ -29,13 +30,19 @@
       color: var(--type-string);
     }
   }
+  &.boolean {
+    color: var(--type-boolean-dark);
+    @mixin dark-mode {
+      color: var(--type-boolean);
+    }
+  }
   &.undefined {
     color: var(--dark-2);
     @mixin dark-mode {
       color: var(--gray);
     }
   }
-    &.error {
+  &.error {
     color: var(--type-error-dark);
     @mixin dark-mode {
       color: var(--type-error);

@@ -4,9 +4,8 @@
 .cms-card.is-multilingual .cms-card-locale-group {
   display: flex;
   justify-content: space-between;
-  line-height: 0.001px; /* fix empty space under var tables */
 
-  & > * {
+  & > *:not(:only-child) {
     width: calc(50% - 0.5rem);
   }
 }
