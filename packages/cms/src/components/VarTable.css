@@ -4,7 +4,6 @@
 .cms-var-table {
   /* positioning */
   margin-top: 0.25rem;
-  padding: 0.125rem 0.25rem;
   border-collapse: collapse;
   /* equal height tables */
   width: 100%;
@@ -33,6 +32,7 @@
   display: block;
   width: 100%;
   max-height: 6rem;
+  padding: 0.125rem 0.25rem; /* padding directly on table messes with overflow */
   white-space: nowrap;
 
   @supports (min-width: max-content) {
