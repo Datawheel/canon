@@ -1,11 +1,12 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
+import DefinitionList from "../DefinitionList";
 import FooterButtons from "../FooterButtons";
 import SelectorEditor from "../editors/SelectorEditor";
 import PropTypes from "prop-types";
 import deepClone from "../../utils/deepClone";
-import varSwap from "../../utils/varSwap";
+// import varSwap from "../../utils/varSwap";
 import CardWrapper from "./CardWrapper";
 import "./SelectorCard.css";
 
@@ -122,7 +123,8 @@ class SelectorCard extends Component {
     // fill in real card props
     if (minData) {
       Object.assign(cardProps, {
-        title: varSwap(minData.title, formatters, variables),
+        // title: varSwap(minData.title, formatters, variables),
+        title: minData.name,
         onEdit: onSave ? this.openEditor.bind(this) : null,
         onDelete: this.maybeDelete.bind(this),
         // reorder
@@ -144,7 +146,13 @@ class SelectorCard extends Component {
         {minData &&
           <React.Fragment>
             {/* content preview */}
-            <p>{minData.name === "newselector" ? "New selector" : minData.name}</p>
+            <DefinitionList definitions={[
+              {
+                label: "label",
+                text: minData.title === "newselector" ? "New selector" : minData.title
+              }
+            ]}
+            />
 
             {minData.options.length > 0 &&
               <select className="cms-select">

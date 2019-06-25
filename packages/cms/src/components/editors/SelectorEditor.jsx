@@ -205,7 +205,7 @@ class SelectorEditor extends Component {
     }
   }
 
-  editTitle(e) {
+  editLabel(e) {
     const {data, isDirty} = this.state;
     data.title = e.target.value;
     if (!isDirty) {
@@ -254,12 +254,12 @@ class SelectorEditor extends Component {
 
         <div className="cms-field-group">
           <label className="cms-field-container">
-            Title (on page)
-            <input className="bp3-input" value={data.title} onChange={this.editTitle.bind(this)} />
+            Selector name
+            <input className="bp3-input" value={data.name} onChange={this.editName.bind(this)} />
           </label>
           <label className="cms-field-container">
-            Name (in editor)
-            <input className="bp3-input" value={data.name} onChange={this.editName.bind(this)} />
+            Input label
+            <input className="bp3-input" value={data.title} onChange={this.editLabel.bind(this)} />
           </label>
         </div>
 
