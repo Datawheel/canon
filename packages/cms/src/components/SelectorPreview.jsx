@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
+import Select from "./Select";
 
 class SelectorPreview extends Component {
 
@@ -64,35 +65,38 @@ class SelectorPreview extends Component {
       .filter(d => !selectors.map(s => s.topic_selector.selector_id).includes(d.id));
 
     return (
-      <div>
-        <h3>Active Selectors</h3>
-        <ul>
-          {selectors.map(s => 
-            <li key={s.id}>
-              <label>{s.name}</label>
-              {s.options.length > 0 &&
-              <select className="cms-select" value={currentValues[s.name]} onChange={this.onChange.bind(this, s.name)}>
-                {s.options && s.options.map(o =>
-                  <option key={o.option} value={o.option}>
-                    {`${variables[o.option]} ${o.isDefault ? "(default)" : ""}`}
-                  </option>
-                )}
-              </select>
-              }
-              <button onClick={this.removeItem.bind(this, s.topic_selector.id)}>Remove</button>
-            </li>
-          )}
-        </ul>
+      <div className="cms-card">
+        
         <h3>Inactive Selectors</h3>
         <ul>
-          {remainingSelectors.map(s => 
+          {remainingSelectors.map(s =>
             <li key={s.id}>
               <label>{s.name}</label>
               <button onClick={this.addItem.bind(this, s.id)}>Add</button>
             </li>
           )}
         </ul>
-        
+
+        <h3>Active Selectors</h3>
+        <ol>
+          {selectors.map(s =>
+            <li key={s.id}>
+              <label>{s.name}</label>
+              {s.options.length > 0 &&
+                <Select
+                  label={s.title}
+                  fontSize="xs"
+                  value={currentValues[s.name]}
+                  onChange={this.onChange.bind(this, s.name)}
+                  options={s.options && s.options.map(o =>
+                    o.isDefault ? `${variables[o.option]} (default)` : variables[o.option]
+                  )}
+                />
+              }
+              <button onClick={this.removeItem.bind(this, s.topic_selector.id)}>Remove</button>
+            </li>
+          )}
+        </ol>
       </div>
     );
   }
