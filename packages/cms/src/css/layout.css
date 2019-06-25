@@ -15,7 +15,7 @@
   padding-right: 1rem;
   display: flex;
   /* positioning */
-  z-index: 1;
+  z-index: 3;
   /* theming */
   background-color: var(--light-1);
   box-shadow: 0 1px 0 var(--light-2);
@@ -85,12 +85,12 @@
 
   & .cms-nav-settings-button {
     margin: auto;
-    z-index: 1;
+    z-index: 2;
   }
 
   & .cms-nav-settings {
     position: absolute;
-    padding: var(--cms-nav-height) 1.25rem 0.5rem 1.25rem;
+    padding: 1.25rem 1.25rem 0.5rem 1.25rem;
     top: 0;
     right: 0.375rem;
     width: 18.75rem;
@@ -105,41 +105,8 @@
       border-color: var(--dark-3);
     }
 
-
-    /* divider */
-    & .cms-nav-settings-heading:before {
-      content: "";
-      /* sizing */
-      display: block;
-      height: 1px;
-      /* positioning */
-      position: absolute;
-      top: -0.75rem;
-      margin-top: -1px;
-      left: -1.25rem;
-      right: -1.25rem;
-      /* theming */
-      background-color: var(--light-2);
-
-      @mixin dark-mode {
-        background-color: var(--dark-3);
-      }
-    }
-
     &.is-hidden {
       display: none;
-    }
-  }
-
-  /* options */
-  & .cms-locale-select,
-  & .cms-theme-select {
-    display: block;
-
-    /* inline select */
-    & select {
-      margin-left: 0.25em;
-      width: auto;
     }
   }
 
