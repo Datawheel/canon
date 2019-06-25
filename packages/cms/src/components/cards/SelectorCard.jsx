@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 import deepClone from "../../utils/deepClone";
 // import varSwap from "../../utils/varSwap";
 import CardWrapper from "./CardWrapper";
+import VarList from "../VarList";
 import "./SelectorCard.css";
 
 /**
@@ -140,6 +141,15 @@ class SelectorCard extends Component {
       });
     }
 
+    const varList = [];
+    if (minData && minData.options.length > 0) {
+      minData.options.forEach(o =>
+        varList.push(o.isDefault
+          ? `${variables[o.option]} (default)`
+          : variables[o.option]
+        ));
+    }
+
     return (
       <CardWrapper {...cardProps}>
 
@@ -150,16 +160,19 @@ class SelectorCard extends Component {
               {
                 label: "label",
                 text: minData.title === "newselector" ? "New selector" : minData.title
+              },
+              {
+                label: "selections",
+                text: minData.type === "single" ? "one" : "multiple"
               }
             ]}
             />
 
-            {minData.options.length > 0 &&
-              <select className="cms-select">
-                {minData.options && minData.options.map(o =>
-                  <option key={o.option}>{`${variables[o.option]} ${o.isDefault ? "(default)" : ""}`}</option>
-                )}
-              </select>
+            {varList.length &&
+              <React.Fragment>
+                <div className="cms-definition-label font-xxxs">options:</div>
+                <VarList vars={varList} />
+              </React.Fragment>
             }
 
             {/* edit mode */}

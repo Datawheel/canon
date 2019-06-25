@@ -15,6 +15,9 @@ export default class Select extends Component {
       onChange
     } = this.props;
 
+    // remove stringified nulls
+    const filteredOptions = options.filter(option => option !== "");
+
     return options && options.length
       ? <label
         className={`cms-select-label font-${fontSize}${inline ? " cms-inline-select-label" : ""}`}
@@ -27,7 +30,7 @@ export default class Select extends Component {
         <Icon className="cms-select-icon" icon="caret-down" />
 
         <select className="cms-select" onChange={onChange}>
-          {options.map(option =>
+          {filteredOptions.map(option =>
             <option value={option} key={`select-option-${option}`}>
               {option}
             </option>
