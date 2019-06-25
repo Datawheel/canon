@@ -9,26 +9,10 @@
     color 0.2s ease-out,
     box-shadow 0.2s ease-out;
   /* theming */
+  @mixin button-theming;
   @mixin button-shadow;
   border: none; /* reset browser default */
   border-radius: 10em;
-  background: var(--light-1); /* base */
-  background-image: linear-gradient(
-    180deg,
-    color(var(--light-3) a(0.02)) 0%,
-    color(var(--black) a(0.02)) 100%
-  );
-  color: var(--dark-2);
-
-  @mixin dark-mode {
-    background: var(--dark-2); /* base */
-    background-image: linear-gradient(
-      180deg,
-      color(var(--light-3) a(0.02)) 0%,
-      color(var(--black) a(0.02)) 100%
-    );
-    color: var(--dark-1);
-  }
 
   /* interactions */
   &:hover, &:focus {

@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {Icon} from "@blueprintjs/core";
 import "./Select.css";
 
 export default class Select extends Component {
@@ -22,6 +23,8 @@ export default class Select extends Component {
         <span className={`cms-select-text${label && labelHidden ? " u-visually-hidden" : "" }`}>
           {label || "missing `label` prop in Select.jsx"}
         </span>
+
+        <Icon className="cms-select-icon" icon="caret-down" />
 
         <select className="cms-select" onChange={onChange}>
           {options.map(option =>
