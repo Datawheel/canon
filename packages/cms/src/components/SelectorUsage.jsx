@@ -18,12 +18,6 @@ class SelectorUsage extends Component {
     this.setState({minData: this.props.minData});
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.state.minData && prevProps.minData.id !== this.props.minData.id) {
-      this.setState({minData: this.props.minData});
-    }
-  }
-
   removeItem(id) {
     const {minData} = this.state;
     axios.delete("/api/cms/topic_selector/delete", {params: {id}}).then(resp => {
@@ -98,10 +92,26 @@ class SelectorUsage extends Component {
 
         <div className="cms-selector-usage-column">
           <h3 className="cms-selector-usage-heading font-sm">Active selectors</h3>
-          <ol>
-            {selectors.map(s =>
-              <li key={s.id}>
-                <label>{s.name}</label>
+          <ol className="cms-selector-usage-list">
+
+            {selectors.map((s, i) =>
+              <li className="cms-card cms-selector-card" key={`${s.id}-usage-card`}>
+
+                {/* header */}
+                <div className="cms-card-heading">
+                  <h3 className="cms-card-heading-text font-sm">{s.name}</h3>
+                  <div className="cms-button-group">
+                    <Button
+                      className="cms-card-heading-button font-xxs"
+                      onClick={this.removeItem.bind(this, s.topic_selector.id)}
+                      icon="cross"
+                      iconOnly
+                    >
+                      remove {s.name} from active selectors
+                    </Button>
+                  </div>
+                </div>
+
                 {s.options.length > 0 &&
                   <Select
                     label={s.title}
@@ -121,7 +131,19 @@ class SelectorUsage extends Component {
                     )}
                   </Select>
                 }
-                <button onClick={this.removeItem.bind(this, s.topic_selector.id)}>Remove</button>
+
+                {i !== selectors.length - 1 &&
+                  <div className="cms-reorder">
+                    <Button
+                      onClick={() => console.log("set me up jimmyyyy")}
+                      className="cms-reorder-button"
+                      icon="swap-vertical"
+                      iconOnly
+                    >
+                      Swap positioning of current and next selector
+                    </Button>
+                  </div>
+                }
               </li>
             )}
           </ol>
