@@ -1,9 +1,7 @@
 import React, {Component} from "react";
-import {RadioGroup, Radio} from "@blueprintjs/core";
 import Button from "../Button";
 import ButtonGroup from "../ButtonGroup";
 import Select from "../Select";
-import Reorderbuttons from "../Reorderbuttons";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
