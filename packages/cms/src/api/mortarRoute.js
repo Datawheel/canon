@@ -297,21 +297,21 @@ module.exports = function(app) {
     }, returnVariables);
     returnVariables._matStatus = matStatus;
     return res.json(returnVariables);
-  });
+  });  
 
   /* Main API Route to fetch a profile, given a list of slug/id pairs
    * slugs represent the type of page (geo, naics, soc, cip, university)
    * ids represent actual entities / locations (nyc, bu)
   */
 
-  app.get("/api/profile", async(req, res) => {
+  const fetchProfile = async(req, res) => {
     // take an arbitrary-length query of slugs and ids and turn them into objects
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-    const dims = collate(req.query);
     const locale = req.query.locale || envLoc;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
     const localeString = `?locale=${locale}`;
-
+    
+    const dims = collate(req.query);
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
     // Replace that slug with the actual real id from the search table. 
     for (let i = 0; i < dims.length; i++) {
@@ -338,16 +338,26 @@ module.exports = function(app) {
       return res.json(`Profile not found for slugs: ${match}`);
     }
 
-    // Get the variables for this profile by passing the profile id and the content ids
-    let url = `${origin}/api/variables/${pid}${localeString}`;
-    dims.forEach((dim, i) => {
-      url += `&slug${i + 1}=${dim.slug}&id${i + 1}=${dim.id}`;
-    });
+    let variables = {};
+    // If the user has provided variables, this is a POST request. Use those variables,
+    // And skip the entire variable fetching process.
+    if (req.body.variables) {
+      variables = req.body.variables;
+    }
+    // If the user has not provided variables, this is a GET request. Run Generators.
+    else {
+      // Get the variables for this profile by passing the profile id and the content ids
+      let url = `${origin}/api/variables/${pid}${localeString}`;
+      dims.forEach((dim, i) => {
+        url += `&slug${i + 1}=${dim.slug}&id${i + 1}=${dim.id}`;
+      });
 
-    const variablesResp = await axios.get(url).catch(catcher);
-    const variables = variablesResp.data;
-    delete variables._genStatus;
-    delete variables._matStatus;
+      const variablesResp = await axios.get(url).catch(catcher);
+      variables = variablesResp.data;
+      delete variables._genStatus;
+      delete variables._matStatus;
+    }
+
     const formatters = await db.formatter.findAll().catch(catcher);
     const formatterFunctions = formatters4eval(formatters, locale);
     // Given the completely built returnVariables and all the formatters (formatters are global)
@@ -366,7 +376,17 @@ module.exports = function(app) {
     returnObject.variables = variables;
     if (verbose) console.log("varSwap complete, sending json...");
     return res.json(returnObject);
-  });
+  };
+
+  /* There are two ways to fetch a profile:
+   * GET - the initial GET operation on pageload, performed by a need
+   * POST - a subsequent reload, caused by a dropdown change, requiring the user
+   *        to provide the variables object previous received in the GET
+   * The following two endpoints route those two option to the same code.
+  */
+
+  app.get("/api/profile", async(req, res) => await fetchProfile(req, res));
+  app.post("/api/profile", async(req, res) => await fetchProfile(req, res));
 
   // Endpoint for when a user selects a new dropdown for a topic, requiring new variables
   app.get("/api/topic/:topicId", async(req, res) => {
