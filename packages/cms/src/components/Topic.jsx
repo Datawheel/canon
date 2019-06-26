@@ -22,17 +22,19 @@ class Topic extends Component {
 
   onSelector(name, value) {
 
-    const {pid, pslug} = this.context.router.params;
     const {id} = this.state.contents;
     const {selectors} = this.state;
     const {locale} = this.props;
+    const {variables} = this.context;
 
     if (value instanceof Array && !value.length) delete selectors[name];
     else selectors[name] = value;
 
     this.setState({loading: true, selectors});
     this.updateSource.bind(this)(false);
-    axios.get(`/api/topic/${pslug}/${pid}/${id}?${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}&locale=${locale}`)
+    const url = `/api/profile?topic=${id}&locale=${locale}&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
+    const payload = {variables};
+    axios.post(url, payload)
       .then(resp => {
         this.setState({contents: resp.data, loading: false});
       });
