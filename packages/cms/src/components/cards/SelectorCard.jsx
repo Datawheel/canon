@@ -125,7 +125,7 @@ class SelectorCard extends Component {
     if (minData) {
       Object.assign(cardProps, {
         // title: varSwap(minData.title, formatters, variables),
-        title: minData.name,
+        title: minData.name === "newselector" ? "New selector" : minData.name,
         onEdit: onSave ? this.openEditor.bind(this) : null,
         onDelete: this.maybeDelete.bind(this),
         // reorder
@@ -159,7 +159,7 @@ class SelectorCard extends Component {
             <DefinitionList definitions={[
               {
                 label: "label",
-                text: minData.title === "newselector" ? "New selector" : minData.title
+                text: minData.title
               },
               {
                 label: "selections",

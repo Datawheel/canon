@@ -1,0 +1,32 @@
+@import "../css/mixins.css";
+
+.cms-selector-usage.cms-card-container {
+  padding-top: 0;
+  padding-bottom: 0;
+  display: block;
+  columns: 2;
+  column-width: 12rem;
+  column-gap: 2.5rem;
+  column-rule: 1px solid var(--light-2);
+}
+.cms-selector-usage-column {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  break-inside: avoid;
+}
+.cms-selector-usage-heading {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+.cms-selector-usage-list {
+  @mixin list-reset;
+}
+.cms-selector-usage-item-button {
+  margin-left: 0.5em;
+  top: -1px;
+}
+
+.cms-selector-usage-item:not(:last-child) {
+  margin-bottom: 0.25em;
+}
