@@ -1,63 +1,81 @@
 @import "../../css/mixins.css";
 
-.cms-selector-editor-item {
-  display: flex !important;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 0.5rem;
-  padding-bottom: 1rem;
-
-  & > * {
-    flex: 1 1 30%;
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--light-2);
-  }
-}
-
-.cms-selector-editor-action-list {
-  display: flex;
-  justify-content: flex-end;
-  align-items: baseline;
-  min-width: 17rem; /* magic number as hell */
-  /* list reset */
-  margin: 0.5em 0 0 0;
-  padding-left: 0;
-  list-style-type: none;
-
-  & .cms-selector-editor-action-item:not(:first-child) {
-    font-size: 0.75em;
-  }
-
-  & .cms-selector-editor-action-item {
-    margin-right: 0.375em;
-    margin-top: 0.25em;
-  }
-}
-
 .cms-selector-editor-button-group {
-  display: flex;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+}
 
-  & .cms-button:not(:last-of-type) {
-    margin-right: 0.5em;
+/* TABLE */
+.cms-selector-editor-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.5rem;
+}
+
+/* labels */
+.cms-selector-editor-thead {
+  @mixin label-color;
+  @mixin font-xxs;
+}
+
+/* space out cells */
+.cms-selector-editor-row:not(:last-child) > *:not(.cms-reorder) {
+  padding-bottom: 0.5rem;
+}
+
+.cms-selector-editor-cell {
+  vertical-align: baseline;
+
+  &:first-child,
+  &:nth-child(4) {
+    width: 4em;
+  }
+  &:nth-child(2) {
+    padding-right: 1rem;
+  }
+  &:nth-child(3) {
+    padding-left: 1rem;
+  }
+  &:nth-child(4) {
+    text-align: right;
   }
 
-  @media (max-width: 599px) {
-    & .cms-button {
-      flex: 1 1 auto;
+  &.cms-delete-selector-editor-cell {
+    vertical-align: top;
+    top: 0.25rem;
+  }
+
+  /* display: table-row & position: relative don't play nicely together */
+  &.cms-reorder {
+    bottom: auto;
+    transform: translateY(1.5rem);
+    border-bottom: 1px solid var(--light-2);
+
+    @mixin dark-mode {
+      border-color: var(--dark-2);
+    }
+
+    & .cms-reorder-button {
+      transform: translateY(calc(50% + 1px));
     }
   }
+}
 
-  @media (min-width: 600px) {
-    margin-bottom: -1.5rem;
-  }
-  @media (max-width: 799px) {
-    margin-top: 1.5rem;
+/* custom default */
+.cms-selector-editor-custom {
+  display: flex;
+  align-items: baseline;
+  margin-top: 3rem;
+
+  & .cms-selector-editor-custom-checkbox {
+    margin-right: 0.5rem;
+    top: 1px;
   }
 
-  /* space out rando field */
-  & + .cms-field-container {
-    margin-top: 3rem;
+  /* nested label */
+  & > .cms-select-label {
+    flex: 1 0 auto; /* fill up all the space */
+    /* offset select padding */
+    margin-bottom: -0.3em;
   }
 }

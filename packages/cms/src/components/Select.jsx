@@ -16,9 +16,9 @@ export default class Select extends Component {
     } = this.props;
 
     // remove stringified nulls
-    const filteredOptions = options.filter(option => option !== "");
+    const filteredOptions = options && options.filter(option => option !== "");
 
-    return options && options.length
+    return (options && options.length) || children
       ? <label
         className={`cms-select-label font-${fontSize}${inline ? " cms-inline-select-label" : ""}`}
         value={value}
@@ -29,8 +29,8 @@ export default class Select extends Component {
 
         <Icon className="cms-select-icon" icon="caret-down" />
 
-        <select className="cms-select" onChange={onChange}>
-          {filteredOptions.map(option =>
+        <select className="cms-select" onChange={onChange} value={value}>
+          {options && filteredOptions.map(option =>
             <option value={option} key={`select-option-${option}`}>
               {option}
             </option>
@@ -38,7 +38,7 @@ export default class Select extends Component {
           {children}
         </select>
       </label>
-      : "missing or malformed `options` prop in Select.jsx (array expected)";
+      : "missing or malformed `options` or `children` prop in Select.jsx";
   }
 }
 
