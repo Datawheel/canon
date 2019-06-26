@@ -1,14 +1,12 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import {Dialog, Alert, Intent} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import Viz from "../Viz";
-import Button from "../Button";
 import FooterButtons from "../FooterButtons";
-import ReorderButtons from "../ReorderButtons";
 import deepClone from "../../utils/deepClone";
 import CardWrapper from "./CardWrapper";
 import "./VisualizationCard.css";

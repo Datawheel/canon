@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {Alert, Icon} from "@blueprintjs/core";
-import Button from "../Button";
 import ButtonGroup from "../ButtonGroup";
 import ReorderButtons from "../ReorderButtons";
 import "./Card.css";
