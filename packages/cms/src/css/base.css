@@ -117,6 +117,7 @@
   }
 
   & .cms-dialog-footer-button-icon {
+    top: -2px;
     color: var(--dark-1);
 
     @mixin dark-mode {

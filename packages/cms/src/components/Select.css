@@ -14,6 +14,7 @@
   align-items: baseline;
 
   & > .cms-select-text {
+    white-space: nowrap;
     margin-right: 0.75em;
   }
 }
@@ -35,7 +36,7 @@
   color: var(--dark-2);
 
   @mixin dark-mode {
-    border-color: var(--black);
+    border-color: color(var(--black) a(0.75));
     box-shadow:
       0 1px 4px color(var(--black) a(0.333)),
       0 4px 8px color(var(--black) a(0.2)),
