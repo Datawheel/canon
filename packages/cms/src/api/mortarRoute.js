@@ -313,22 +313,43 @@ module.exports = function(app) {
       if (attribute.id) dim.id = attribute.id;
     }
 
-    // Given a list of dimension slugs, use the meta table to reverse-lookup which profile this is
-    // TODO: In good-dooby land, this should be a massive, complicated sequelize Op.AND lookup. 
-    // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
-    let meta = await db.profile_meta.findAll(); 
-    meta = meta.map(d => d.toJSON());
-    const pids = [...new Set(meta.map(d => d.profile_id))];
-    const match = dims.map(d => d.slug).join();
     let pid = null;
-    pids.forEach(id => {
-      const rows = meta.filter(d => d.profile_id === id).sort((a, b) => a.ordering - b.ordering);
-      const str = rows.map(d => d.slug).join();
-      if (str === match) pid = rows[0].profile_id;
-    });
-    if (!pid) { 
-      if (verbose) console.error(`Profile not found for slugs: ${match}`);
-      return res.json(`Profile not found for slugs: ${match}`);
+    // If the user gave us a topic or a profile id, use that to fetch the pid.
+    const topicID = req.query.topic;
+    const profileID = req.query.profile;
+    if (topicID) {
+      const where = isNaN(parseInt(topicID, 10)) ? {slug: topicID} : {id: topicID};
+      const t = await db.topic.findOne({where}).catch(catcher);
+      if (t) {
+        pid = t.profile_id;
+      } 
+      else {
+        if (verbose) console.error(`Profile not found for topic: ${topicID}`);
+        return res.json(`Profile not found for topic: ${topicID}`);
+      }
+    }
+    else if (profileID) {
+      pid = profileID;
+    }
+    // Otherwise, we need to reverse lookup the profile id, using the slug combinations
+    else {
+      // Given a list of dimension slugs, use the meta table to reverse-lookup which profile this is
+      // TODO: In good-dooby land, this should be a massive, complicated sequelize Op.AND lookup. 
+      // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
+      let meta = await db.profile_meta.findAll(); 
+      meta = meta.map(d => d.toJSON());
+      const pids = [...new Set(meta.map(d => d.profile_id))];
+      const match = dims.map(d => d.slug).join();
+      
+      pids.forEach(id => {
+        const rows = meta.filter(d => d.profile_id === id).sort((a, b) => a.ordering - b.ordering);
+        const str = rows.map(d => d.slug).join();
+        if (str === match) pid = rows[0].profile_id;
+      });
+      if (!pid) { 
+        if (verbose) console.error(`Profile not found for slugs: ${match}`);
+        return res.json(`Profile not found for slugs: ${match}`);
+      }
     }
 
     let variables = {};
@@ -364,7 +385,15 @@ module.exports = function(app) {
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
     const profile = varSwapRecursive(request.data, formatterFunctions, variables, req.query);
-    returnObject = Object.assign({}, returnObject, profile);
+    // If the user provided a topic ID in the query, that's all they want. Return just that.
+    if (topicID) {
+      const topic = profile.topics.find(t => Number(t.id) === Number(topicID) || t.slug === topicID);
+      returnObject = Object.assign({}, returnObject, topic);
+    }
+    // Otherwise, it's just a top-level profile request
+    else {
+      returnObject = Object.assign({}, returnObject, profile);
+    }
     returnObject.ids = dims.map(d => d.id).join();
     returnObject.variables = variables;
     if (verbose) console.log("varSwap complete, sending json...");
@@ -380,56 +409,6 @@ module.exports = function(app) {
 
   app.get("/api/profile", async(req, res) => await fetchProfile(req, res));
   app.post("/api/profile", async(req, res) => await fetchProfile(req, res));
-
-  // Endpoint for when a user selects a new dropdown for a topic, requiring new variables
-  app.get("/api/topic/:topicId", async(req, res) => {
-    req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-    const {topicId} = req.params;
-    const locale = req.query.locale || envLoc;
-    const localeString = `?locale=${locale}`;
-    const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
-
-    // Fetch the topic via the topicId
-    const where = {};
-    if (isNaN(parseInt(topicId, 10))) where.slug = topicId;
-    else where.id = topicId;
-    let topic = await db.topic.findOne({where, include: topicReq}).catch(catcher);      
-
-    // Extract its parent profile id
-    const pid = topic.profile_id;
-
-    // Build the params query so we can make a variables request
-    const dims = collate(req.query);
-    for (let i = 0; i < dims.length; i++) {
-      const dim = dims[i];
-      const attr = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
-      dim.id = attr.id;
-    }
-
-    let url = `${origin}/api/variables/${pid}${localeString}`;
-    dims.forEach((dim, i) => {
-      url += `&slug${i + 1}=${dim.slug}&id${i + 1}=${dim.id}`;
-    });
-
-    // As with profiles above, we need formatters, variables, and the topic itself in order to
-    // create a "postProcessed" topic that can be returned to the requester.
-    const variablesResp = await axios.get(url).catch(catcher);
-    const variables = variablesResp.data;
-    delete variables._genStatus;
-    delete variables._matStatus;
-    const formatters = await db.formatter.findAll().catch(catcher);
-    const formatterFunctions = formatters4eval(formatters, locale);
-
-    // Prepare the topic for use by extracting its language content and swapping vars
-    topic = extractLocaleContent(topic, locale, "topic");
-    topic = varSwapRecursive(topic, formatterFunctions, variables, req.query);
-    if (topic.subtitles) topic.subtitles.sort(sorter);
-    if (topic.selectors) topic.selectors.sort(sorter);
-    if (topic.stats) topic.stats.sort(sorter);
-    if (topic.descriptions) topic.descriptions.sort(sorter);
-    if (topic.visualizations) topic.visualizations.sort(sorter);
-    return res.json({variables, ...topic});
-  });
 
   // Endpoint for getting a story
   app.get("/api/story/:id", async(req, res) => {
