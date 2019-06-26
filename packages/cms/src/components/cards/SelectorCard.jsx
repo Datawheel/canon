@@ -144,10 +144,12 @@ class SelectorCard extends Component {
     const varList = [];
     if (minData && minData.options.length > 0) {
       minData.options.forEach(o =>
-        varList.push(o.isDefault
-          ? `${variables[o.option]} (default)`
-          : variables[o.option]
-        ));
+        typeof variables[o.option] !== "object"
+          ? varList.push(o.isDefault
+            ? `${variables[o.option]} (default)`
+            : variables[o.option]
+          ) : null
+      );
     }
 
     return (

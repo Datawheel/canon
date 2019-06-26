@@ -114,7 +114,9 @@ class SelectorUsage extends Component {
                         key={`select-option-${option.option}`}
                         value={option.option}
                       >
-                        {variables[option.option]}
+                        {typeof variables[option.option] === "object"
+                          ? JSON.stringify(variables[option.option])
+                          : variables[option.option]}
                       </option>
                     )}
                   </Select>

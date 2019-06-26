@@ -213,6 +213,7 @@ class SelectorEditor extends Component {
     const varOptions = [<option key="always" value="always">Always</option>]
       .concat(Object.keys(variables)
         .filter(key => !key.startsWith("_"))
+        .filter(key => typeof variables[key] !== "object")
         .sort((a, b) => a.localeCompare(b))
         .map(key => {
           const value = variables[key];
@@ -223,6 +224,7 @@ class SelectorEditor extends Component {
 
     const customOptions = Object.keys(variables)
       .filter(key => !key.startsWith("_"))
+      .filter(key => typeof variables[key] !== "object")
       .sort((a, b) => a.localeCompare(b))
       .map(key => {
         const value = variables[key];
