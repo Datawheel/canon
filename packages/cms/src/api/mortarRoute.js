@@ -298,23 +298,27 @@ module.exports = function(app) {
       if (attribute.id) dim.id = attribute.id;
     }
 
-    let pid = null;
-    // If the user gave us a topic or a profile id, use that to fetch the pid.
     const topicID = req.query.topic;
     const profileID = req.query.profile;
-    if (topicID) {
-      const where = isNaN(parseInt(topicID, 10)) ? {slug: topicID} : {id: topicID};
-      const t = await db.topic.findOne({where}).catch(catcher);
-      if (t) {
-        pid = t.profile_id;
-      } 
-      else {
-        if (verbose) console.error(`Profile not found for topic: ${topicID}`);
-        return res.json(`Profile not found for topic: ${topicID}`);
+
+    let pid = null;
+    // If the user provided variables, this is a POST request.
+    if (req.body.variables) {
+      // If the user gave us a topic or a profile id, use that to fetch the pid.
+      if (topicID) {
+        const where = isNaN(parseInt(topicID, 10)) ? {slug: topicID} : {id: topicID};
+        const t = await db.topic.findOne({where}).catch(catcher);
+        if (t) {
+          pid = t.profile_id;
+        } 
+        else {
+          if (verbose) console.error(`Profile not found for topic: ${topicID}`);
+          return res.json(`Profile not found for topic: ${topicID}`);
+        }
       }
-    }
-    else if (profileID) {
-      pid = profileID;
+      else if (profileID) {
+        pid = profileID;
+      }
     }
     // Otherwise, we need to reverse lookup the profile id, using the slug combinations
     else {
@@ -364,6 +368,10 @@ module.exports = function(app) {
     // it to be formatted and regex replaced.
     // See profileReq above to see the sequelize formatting for fetching the entire profile
     const request = await axios.get(`${origin}/api/internalprofile/${pid}${localeString}`).catch(catcher);
+    if (!request) {
+      if (verbose) console.error(`Profile not found for id: ${pid}`);
+      return res.json(`Profile not found for id: ${pid}`);
+    }
     // Given an object with completely built returnVariables, a hash array of formatter functions, and the profile itself
     // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
     let returnObject = {};
