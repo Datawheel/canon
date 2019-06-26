@@ -20,25 +20,11 @@ class Topic extends Component {
     };
   }
 
-  onSelector(name, value) {
-
-    const {id} = this.state.contents;
-    const {selectors} = this.state;
-    const {locale} = this.props;
-    const {variables} = this.context;
-
-    if (value instanceof Array && !value.length) delete selectors[name];
-    else selectors[name] = value;
-
-    this.setState({loading: true, selectors});
-    this.updateSource.bind(this)(false);
-    const url = `/api/profile?topic=${id}&locale=${locale}&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
-    const payload = {variables};
-    axios.post(url, payload)
-      .then(resp => {
-        this.setState({contents: resp.data, loading: false});
-      });
-
+  componentDidUpdate(prevProps) {
+    if (JSON.stringify(prevProps.contents) !== JSON.stringify(this.props.contents)) {
+      this.setState({contents: this.props.contents});
+      this.updateSource.bind(this)(false);
+    }
   }
 
   updateSource(newSources) {
@@ -58,14 +44,14 @@ class Topic extends Component {
     const {formatters, variables} = this.context;
     return {
       formatters,
-      onSelector: this.onSelector.bind(this),
       variables: this.props.variables || variables
     };
   }
 
   render() {
 
-    const {contents, loading, sources} = this.state;
+    const {contents, sources} = this.state;
+    const {loading} = this.props;
     const Comp = topicTypes[contents.type] || TextViz;
 
     return <Comp contents={contents} loading={loading} sources={sources} />;
@@ -82,7 +68,6 @@ Topic.contextTypes = {
 
 Topic.childContextTypes = {
   formatters: PropTypes.object,
-  onSelector: PropTypes.func,
   variables: PropTypes.object
 };
 

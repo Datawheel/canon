@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
@@ -7,8 +8,18 @@ import libs from "../utils/libs";
 
 class Profile extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      profile: props.profile,
+      selectors: {},
+      loading: false
+    };
+  }
+
   getChildContext() {
-    const {formatters, locale, profile, router} = this.props;
+    const {formatters, locale, router} = this.props;
+    const {profile} = this.state;
     const {variables} = profile;
     return {
       formatters: formatters.reduce((acc, d) => {
@@ -18,21 +29,40 @@ class Profile extends Component {
         return acc;
       }, {}),
       router,
+      onSelector: this.onSelector.bind(this),
       variables,
       locale
     };
   }
 
+  onSelector(name, value) {
+
+    const {profile, selectors} = this.state;
+    const {id, variables} = profile;
+    const {locale} = this.props;
+
+    if (value instanceof Array && !value.length) delete selectors[name];
+    else selectors[name] = value;
+
+    this.setState({loading: true, selectors});
+    const url = `/api/profile?profile=${id}&locale=${locale}&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
+    const payload = {variables};
+    axios.post(url, payload)
+      .then(resp => {
+        this.setState({profile: resp.data, loading: false});
+      });
+
+  }
+
   render() {
-    const {profile} = this.props;
+    const {profile, loading} = this.state;
     const {topics} = profile;
-    
 
     return (
       <div id="Profile">
         <h1 dangerouslySetInnerHTML={{__html: profile.title}} />
         <h3 dangerouslySetInnerHTML={{__html: profile.subtitle}} />
-        {topics.map(topic => <Topic key={topic.slug} contents={topic} />)}
+        {topics.map(topic => <Topic key={topic.slug} loading={loading} contents={topic} />)}
       </div>
     );
   }
@@ -43,7 +73,8 @@ Profile.childContextTypes = {
   formatters: PropTypes.object,
   locale: PropTypes.string,
   router: PropTypes.object,
-  variables: PropTypes.object
+  variables: PropTypes.object,
+  onSelector: PropTypes.func
 };
 
 Profile.need = [

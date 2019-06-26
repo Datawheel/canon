@@ -377,7 +377,20 @@ module.exports = function(app) {
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
     const profile = varSwapRecursive(request.data, formatterFunctions, variables, req.query);
-    // If the user provided a topic ID in the query, that's all they want. Return just that.
+    // If the user provided selectors in the query, then the user has changed a dropdown.
+    // This means that OTHER dropdowns on the page need to be set to match. To accomplish 
+    // this, hijack the "default" property on any matching selector so the dropdowns "start"
+    // where we want them to.
+    profile.topics.forEach(topic => {
+      topic.selectors.forEach(selector => {
+        const {name} = selector;
+        // If the user provided a selector in the query, AND if it's actually an option
+        if (req.query[name] && selector.options.map(o => o.option).includes(req.query[name])) {
+          selector.default = req.query[name];
+        }
+      });
+    });
+    // If the user provided a topic ID in the query, that's all they want. Find & Return just that.
     if (topicID) {
       const topic = profile.topics.find(t => Number(t.id) === Number(topicID) || t.slug === topicID);
       returnObject = Object.assign({}, returnObject, topic);

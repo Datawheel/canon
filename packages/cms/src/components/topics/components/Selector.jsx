@@ -73,7 +73,7 @@ class Selector extends Component {
               </Select>
               : null }
           </React.Fragment>
-          : <select id={slug} name={name} onChange={d => onSelector(name, d.target.value)} disabled={loading} defaultValue={defaultValue}>
+          : <select id={slug} name={name} onChange={d => onSelector(name, d.target.value)} disabled={loading} value={defaultValue}>
             { options.map(({option}) => <option value={option} key={option}>{variables[option]}</option>) }
           </select> }
       </div>
