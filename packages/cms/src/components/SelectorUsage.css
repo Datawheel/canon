@@ -8,10 +8,14 @@
   column-width: 12rem;
   column-gap: 2.5rem;
   column-rule: 1px solid var(--light-2);
+
+  @mixin dark-mode {
+    column-rule-color: var(--dark-3);
+  }
 }
 .cms-selector-usage-column {
   padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+  padding-bottom: 1.25rem;
   break-inside: avoid;
 }
 .cms-selector-usage-heading {
@@ -29,4 +33,33 @@
 
 .cms-selector-usage-item:not(:last-child) {
   margin-bottom: 0.25em;
+}
+
+
+/* fake selector cards */
+.cms-selector-usage .cms-card:first-child {
+  border-top: 1px solid var(--light-2);
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+
+  @mixin dark-mode {
+    border-top-color: var(--dark-2);
+  }
+}
+
+.cms-selector-usage .cms-select-label {
+  margin-top: 0.125em;
+  margin-bottom: 0; /* override default */
+
+  & > .cms-select-text {
+    display: block;
+    line-height: 1.25;
+    margin-bottom: 0.25rem;
+  }
+}
+
+/* fix disappearing reorder button icon */
+.cms-selector-usage .cms-reorder-button:hover > .cms-button-icon,
+.cms-selector-usage .cms-reorder-button:focus > .cms-button-icon {
+  backface-visibility: hidden;
 }
