@@ -46,6 +46,9 @@ class Viz extends Component {
     delete vizProps.config.type;
     if (!type) return null;
     const Visualization = vizTypes[type];
+    if (!Visualization) {
+      return <div>{`${type} is not a valid Visualization Type`}</div>;
+    }
 
     const title = (this.props.title || config.title || slug || "")
       .replace(/^<p>/g, "").replace(/<\/p>$/g, "");
