@@ -44,21 +44,6 @@ const profileReq = {
     }]
 };
 
-const topicReq = [
-  {association: "content", separate: true},
-  {association: "subtitles", separate: true,
-    include: [{association: "content", separate: true}]
-  },
-  {association: "descriptions", separate: true,
-    include: [{association: "content", separate: true}]
-  },
-  {association: "visualizations", separate: true},
-  {association: "stats", separate: true,
-    include: [{association: "content", separate: true}]
-  },
-  {association: "selectors"}
-];
-
 const storyReq = {
   include: [
     {association: "content", separate: true},
