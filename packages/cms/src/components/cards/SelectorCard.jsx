@@ -168,11 +168,11 @@ class SelectorCard extends Component {
             ]}
             />
 
-            {varList.length > 0 &&
-              <React.Fragment>
+            {varList.length
+              ? <React.Fragment>
                 <div className="cms-definition-label font-xxxs">options:</div>
                 <VarList vars={varList} />
-              </React.Fragment>
+              </React.Fragment> : ""
             }
 
             {/* edit mode */}
