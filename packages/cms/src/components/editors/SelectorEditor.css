@@ -76,6 +76,7 @@
   & > .cms-select-label {
     flex: 1 0 auto; /* fill up all the space */
     /* offset select padding */
+    margin-top: -0.3em;
     margin-bottom: -0.3em;
   }
 }

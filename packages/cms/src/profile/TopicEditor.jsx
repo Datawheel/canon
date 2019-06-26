@@ -8,7 +8,7 @@ import Status from "../components/Status";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 // import SelectorCard from "../components/cards/SelectorCard";
-import SelectorPreview from "../components/SelectorPreview";
+import SelectorUsage from "../components/SelectorUsage";
 import "./TopicEditor.css";
 
 const propMap = {
@@ -266,16 +266,14 @@ class TopicEditor extends Component {
           )}
         />
 
-        <Section
-          title="Selectors"
-          entity="selectorSelector"
-          cards={[<SelectorPreview
-            key="selector-preview"
+        <Section title="Selector usage" entity="selectorUsage">
+          <SelectorUsage
+            key="selector-usage"
             minData={minData}
             variables={variables[localeDefault]}
             onSelect={this.onSelect.bind(this)}
-          />]}
-        />
+          />
+        </Section>
 
         {/* stats */}
         <Section

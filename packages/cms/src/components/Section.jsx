@@ -58,30 +58,32 @@ export default class Section extends Component {
         {subtitle &&
           <h3 className="cms-section-subtitle font-sm">{subtitle}</h3>
         }
-        <div className={`cms-card-container${secondaryCards ? " two-columns" : ""}`}>
-          {cards && (cards.length || entity === "splash" || entity === "story" || entity === "title")
-            ? <div className="cms-card-list">
-              {cards || "missing `cards` prop in Section.jsx — card component or array of card components expected"}
-            </div>
-            : addItem && !inToolbox &&
-              <Button
-                className="cms-section-big-button"
-                onClick={addItem}
-                icon="plus"
-                iconPosition="right"
-              >
-                Add first {entity}
-              </Button>
-          }
+        {cards &&
+          <div className={`cms-card-container${secondaryCards ? " two-columns" : ""}`}>
+            {cards && (cards.length || entity === "splash" || entity === "story" || entity === "title")
+              ? <div className="cms-card-list">
+                {cards || "missing `cards` prop in Section.jsx — card component or array of card components expected"}
+              </div>
+              : addItem && !inToolbox &&
+                <Button
+                  className="cms-section-big-button"
+                  onClick={addItem}
+                  icon="plus"
+                  iconPosition="right"
+                >
+                  Add first {entity}
+                </Button>
+            }
 
-          {/* TODO: remove once all cards display both languages */}
-          {secondaryCards && (secondaryCards.length || entity === "splash" || entity === "story" || entity === "title")
-            ? <div className="cms-card-list">
-              {secondaryCards}
-            </div>
-            : null
-          }
-        </div>
+            {/* TODO: remove once all cards display both languages */}
+            {secondaryCards && (secondaryCards.length || entity === "splash" || entity === "story" || entity === "title")
+              ? <div className="cms-card-list">
+                {secondaryCards}
+              </div>
+              : null
+            }
+          </div>
+        }
         {children}
       </section>
     );
