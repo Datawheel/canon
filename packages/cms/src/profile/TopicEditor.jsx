@@ -177,7 +177,7 @@ class TopicEditor extends Component {
               query={query}
               onSave={this.onSave.bind(this)}
               type="topic"
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               variables={variables[localeDefault]}
             />
           ]}
@@ -191,7 +191,7 @@ class TopicEditor extends Component {
               query={query}
               onSave={this.onSave.bind(this)}
               type="topic"
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               variables={variables[locale]}
             />
           ]}
@@ -243,7 +243,7 @@ class TopicEditor extends Component {
               type="topic_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={variables[localeDefault]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               parentArray={minData.subtitles}
               onMove={this.onMove.bind(this)}
             />
@@ -259,7 +259,7 @@ class TopicEditor extends Component {
               type="topic_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={variables[locale]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               parentArray={minData.subtitles}
               onMove={this.onMove.bind(this)}
             />
@@ -291,7 +291,7 @@ class TopicEditor extends Component {
               type="topic_stat"
               onDelete={this.onDelete.bind(this)}
               variables={variables[localeDefault]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               parentArray={minData.stats}
               onMove={this.onMove.bind(this)}
             />
@@ -307,7 +307,7 @@ class TopicEditor extends Component {
               type="topic_stat"
               onDelete={this.onDelete.bind(this)}
               variables={variables[locale]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               parentArray={minData.stats}
               onMove={this.onMove.bind(this)}
             />
@@ -330,7 +330,7 @@ class TopicEditor extends Component {
               type="topic_description"
               onDelete={this.onDelete.bind(this)}
               variables={variables[localeDefault]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               parentArray={minData.descriptions}
               onMove={this.onMove.bind(this)}
             />
@@ -346,7 +346,7 @@ class TopicEditor extends Component {
               type="topic_description"
               onDelete={this.onDelete.bind(this)}
               variables={variables[locale]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               parentArray={minData.descriptions}
               onMove={this.onMove.bind(this)}
             />
@@ -371,7 +371,7 @@ class TopicEditor extends Component {
               type="topic_visualization"
               variables={variables[localeDefault]}
               secondaryVariables={variables[locale]}
-              selectors={minData.selectors.map(s => Object.assign({}, s))}
+              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               parentArray={minData.visualizations}
               onMove={this.onMove.bind(this)}
             />
