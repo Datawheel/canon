@@ -62,7 +62,7 @@ class Profile extends Component {
       <div id="Profile">
         <h1 dangerouslySetInnerHTML={{__html: profile.title}} />
         <h3 dangerouslySetInnerHTML={{__html: profile.subtitle}} />
-        {topics.map(topic => <Topic key={topic.slug} loading={loading} contents={topic} />)}
+        {topics.map((topic, i) => <Topic key={`${topic.slug}-${i}`} loading={loading} contents={topic} />)}
       </div>
     );
   }
