@@ -1,15 +1,12 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
-import {Popover} from "@blueprintjs/core";
-
 import axios from "axios";
-
+import PropTypes from "prop-types";
+import {Icon} from "@blueprintjs/core";
 import {event, select} from "d3-selection";
 import {uuid} from "d3plus-common";
-import "./Search.css";
+import "./PreviewSearch.css";
 
-class Search extends Component {
-
+class PreviewSearch extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -41,7 +38,6 @@ class Search extends Component {
           this.setState({active: true, results});
         });
     }
-
   }
 
   onFocus() {
@@ -49,22 +45,21 @@ class Search extends Component {
   }
 
   onSelect(result) {
-    this.input.blur();
-    this.setState({active: false, userQuery: result.name});
+    setTimeout(() => {
+      this.input.blur();
+      this.setState({active: false, userQuery: result.name});
+    }, 10);
   }
 
   onToggle() {
-
     if (this.state.active) {
       this.input.blur();
       this.setState({active: false});
     }
     else this.input.focus();
-
   }
 
   componentDidMount() {
-
     const {primary, searchEmpty} = this.props;
     const {id} = this.state;
 
@@ -75,7 +70,6 @@ class Search extends Component {
     });
 
     select(document).on(`keydown.${id}`, () => {
-
       const {router} = this.context;
       const {active, results} = this.state;
       const key = event.keyCode;
@@ -96,8 +90,8 @@ class Search extends Component {
       }
       else if (active && event.target === this.input) {
 
-        const highlighted = document.querySelector(".highlighted");
-        const listItems = document.querySelectorAll(".results > li");
+        const highlighted = document.querySelector(".is-highlighted");
+        const listItems = document.querySelectorAll(".cms-search-result-item");
         const currentIndex = [].indexOf.call(listItems, highlighted);
         const d = results[currentIndex];
 
@@ -108,90 +102,93 @@ class Search extends Component {
           if (anchor) router.push(anchor.href);
         }
         else if (key === DOWN || key === UP) {
-
           if (!highlighted) {
-            if (key === DOWN) document.querySelector(".results > li:first-child").classList.add("highlighted");
+            if (key === DOWN) document.querySelector(".cms-search-result-item:first-child").classList.add("is-highlighted");
           }
-          else {
 
+          else {
             if (key === DOWN && currentIndex < listItems.length - 1) {
-              listItems[currentIndex + 1].classList.add("highlighted");
-              highlighted.classList.remove("highlighted");
+              listItems[currentIndex + 1].classList.add("is-highlighted");
+              highlighted.classList.remove("is-highlighted");
             }
             else if (key === UP) {
-              if (currentIndex > 0) listItems[currentIndex - 1].classList.add("highlighted");
-              highlighted.classList.remove("highlighted");
+              if (currentIndex > 0) listItems[currentIndex - 1].classList.add("is-highlighted");
+              highlighted.classList.remove("is-highlighted");
             }
           }
         }
-
       }
-
     }, false);
 
     if (searchEmpty) this.onChange.bind(this)();
-
   }
 
   render() {
-
     const {
-      buttonLink,
-      buttonText,
-      className,
-      icon,
-      inactiveComponent: InactiveComponent,
-      placeholder,
+      fontSize,
+      label,
+      previewing,
       renderResults,
       searchEmpty
     } = this.props;
+
     const {active, results, userQuery} = this.state;
 
-    const show = searchEmpty || active && userQuery.length;
+    const showResults = searchEmpty || active && userQuery.length;
 
     return (
-      <div ref={comp => this.container = comp} className={`cms-search bp3-control-group canon-search ${className} ${active ? "active" : ""}`}>
-        {InactiveComponent && <InactiveComponent active={active} onClick={this.onToggle.bind(this)} />}
-        <Popover minimal={true} usePortal={false} autoFocus={false} isOpen={show}>
+      <div
+        className={`cms-preview-search font-${fontSize} ${previewing ? "is-value" : "is-placeholder"}`}
+        ref={comp => this.container = comp}
+      >
+        <label className="u-visually-hidden cms-preview-search-text" htmlFor={`${label}-search-label`}>{label}</label>
+        <input
+          id={`${label}-search-label`}
+          key="input-bar"
+          className="cms-preview-search-input"
+          placeholder={label}
+          value={userQuery}
+          onChange={this.onChange.bind(this)}
+          onFocus={this.onFocus.bind(this)}
+          ref={input => this.input = input}
+        />
 
-          <div className={`bp3-input-group bp3-fill ${active ? "active" : ""}`}>
-            {icon && <span className="bp3-icon bp3-icon-search"></span>}
+        {/* search icon */}
+        <Icon className="cms-preview-search-icon" icon="search" />
 
-            <input
-              type="text"
-              key="input-bar"
-              className="bp3-input"
-              ref={input => this.input = input}
-              onChange={this.onChange.bind(this)}
-              onFocus={this.onFocus.bind(this)}
-              placeholder={placeholder} value={userQuery}
-            />
-            {buttonLink && <a href={`${buttonLink}?q=${userQuery}`} className="bp3-button">{buttonText}</a>}
-          </div>
-
-          <ul className={active ? "results active" : "results"}>
+        {showResults
+          ? <ul className={`cms-search-result-list ${active ? "is-visible" : "is-hidden"}`}>
             {results.map(result =>
-              <li key={result.id} className="result" onClick={this.onSelect.bind(this, result)}>
-                <span className="result-link" role="link">
-                  {renderResults(result, this.props)}
-                </span>
+              <li
+                className="cms-search-result-item font-xs"
+                onClick={this.onSelect.bind(this, result)}
+                key={result.id}
+              >
+                {renderResults(result, this.props)}
               </li>
             )}
-            {!results.length && <li className="no-results">No Results Found</li>}
-            {results.length && buttonLink ? <a className="all-results bp3-button bp3-fill" href={`${buttonLink}?q=${userQuery}`}>Show All Results</a> : null}
-          </ul>
-        </Popover>
+            {!results.length &&
+              <li className="cms-search-error-message font-sm">No results found</li>
+            }
+          </ul> : null
+        }
+
+        {/* close button */}
+        {/*  <button className="cms-preview-search-close-button" tabIndex={ value && value.length ? 0 : -1 } onClick={onReset}>
+          <span className="u-visually-hidden">reset search</span>
+          <Icon className="cms-preview-search-close-button-icon" icon="cross" />
+        </button>*/}
       </div>
     );
-
   }
 }
 
-Search.contextTypes = {
+PreviewSearch.contextTypes = {
   router: PropTypes.object
 };
 
-Search.defaultProps = {
+PreviewSearch.defaultProps = {
+  fontSize: "md",
   buttonLink: false,
   buttonText: "Search",
   className: "search",
@@ -202,9 +199,9 @@ Search.defaultProps = {
   limit: 10,
   placeholder: "Search",
   primary: false,
-  renderResults: d => <span>{d.name}</span>,
+  renderResults: d => d.name,
   searchEmpty: false,
   url: "/api/search"
 };
 
-export default Search;
+export default PreviewSearch;

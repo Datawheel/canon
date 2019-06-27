@@ -1,7 +1,8 @@
 import axios from "axios";
 import React, {Component} from "react";
-import Search from "../Search/Search.jsx";
-import Button from "../../components/Button";
+import Button from "../Button";
+import DefinitionList from "../DefinitionList";
+import PreviewSearch from "../PreviewSearch";
 import CardWrapper from "./CardWrapper";
 import "./DimensionCard.css";
 
@@ -68,6 +69,8 @@ export default class DimensionCard extends Component {
       cardClass: "dimension",
       title: meta.dimension,
       onDelete: this.maybeDelete.bind(this),
+      onRefresh: this.rebuildSearch.bind(this),
+      rebuilding,
       // onEdit: this.openEditor.bind(this),
       // onReorder: this.props.onMove ? this.props.onMove.bind(this) : null,
       // alert
@@ -77,52 +80,29 @@ export default class DimensionCard extends Component {
 
     return (
       <CardWrapper {...cardProps}>
-        <table className="cms-dimension-card-table font-xs">
-          <tbody>
-            <tr className="cms-dimension-card-table-row">
-              <th className="cms-dimension-card-table-cell">slug</th>
-              <th className="cms-dimension-card-table-cell">Dimension</th>
-              <th className="cms-dimension-card-table-cell">Levels</th>
-              <th className="cms-dimension-card-table-cell">Measure</th>
-              <th className="cms-dimension-card-table-cell">Preview ID</th>
-            </tr>
-          </tbody>
-          <tbody>
-            <tr className="cms-dimension-card-table-row">
-              <td className="cms-dimension-card-table-cell">{meta.slug}</td>
-              <td className="cms-dimension-card-table-cell">{meta.dimension}</td>
-              <td className="cms-dimension-card-table-cell">
-                {meta.levels.length === 1
-                  ? meta.levels
-                  : <ul className="cms-dimension-card-table-list">
-                    {meta.levels.map(level =>
-                      <li className="cms-dimension-card-table-item font-xs" key={level}>{level}</li>
-                    )}
-                  </ul>
-                }
-              </td>
-              <td className="cms-dimension-card-table-cell">{meta.measure}</td>
-              <td className="cms-dimension-card-table-cell">{preview.id}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div className="dimension-card-controls">
-          <div>{/* <label> causes dropdown to stay open; TODO: revisit */}
-            Preview profile
-            <Search
-              render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
+
+        <DefinitionList definitions={[
+          {label: "slug", text: meta.slug},
+          {label: "levels", text: Array.join(meta.levels, ", ")},
+          {label: "measure", text: meta.measure},
+          {label: "preview ID", text:
+            <PreviewSearch
+              label={preview.id || "search profiles..."}
+              previewing={preview.id}
+              fontSize="xxs"
+              renderResults={d =>
+                <Button className="cms-search-result-button" onClick={this.onSelectPreview.bind(this, d)}>
+                  {d.name}
+                </Button>
+              }
               dimension={meta.dimension}
               levels={meta.levels}
               limit={20}
             />
-          </div>
-          <Button disabled={rebuilding} onClick={this.rebuildSearch.bind(this)}>
-            {rebuilding ? "Rebuilding..." : "Rebuild"}
-          </Button>
-          <Button disabled={rebuilding} onClick={this.maybeDelete.bind(this)}>
-            Delete
-          </Button>
-        </div>
+          }
+        ]}/>
+
+        {/* TODO: edit mode */}
       </CardWrapper>
     );
   }

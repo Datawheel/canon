@@ -10,6 +10,7 @@ export default class Button extends Component {
       children,
       className,
       disabled,
+      rebuilding,   // add a spinning animation
       icon,         // blueprint icon name (https://blueprintjs.com/docs/#icons)
       iconOnly,     // set `true` to hide the text (NOTE: `children` is still required for accessibility)
       iconPosition, // "left" || "right" (default)
@@ -22,6 +23,8 @@ export default class Button extends Component {
           className ? ` ${className}` : ""
         }${
           active ? " is-active" : " is-inactive"
+        }${
+          rebuilding ? " is-rebuilding" : ""
         }${
           iconOnly && children !== "Missing `children` prop in Button.jsx" ? " cms-icon-only-button" : ""
         }${

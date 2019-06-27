@@ -1,43 +1,10 @@
 @import "../../css/mixins.css";
 
-.cms-dimension-card-table {
-  table-layout: fixed;
-  border-collapse: collapse;
-  width: 100%;
-  /* space out controls */
-  margin-bottom: auto;
-}
+.cms-dimension-card .cms-definition-item:last-child {
+  display: flex;
+  align-items: baseline;
 
-.cms-dimension-card-table-cell {
-  vertical-align: baseline;
-
-  /* fake padding */
-  &:not(:last-child) {
-    border-right: 5px solid transparent;
-  }
-}
-
-.cms-dimension-card-table-list {
-  /* reset blueprint */
-  margin-top: 0;
-  padding-left: 0;
-  list-style-position: inside;
-}
-
-.dimension-card-controls {
-  display: grid;
-  grid-template-columns: 50% 1fr 1fr;
-  grid-gap: 2rem;
-  padding-top: 2rem;
-  width: 600px;
-  max-width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-
-  /* fudge button size */
-  & .cms-button {
-    height: 30px;
-    /* positioning */
-    align-self: flex-end;
+  & > .cms-definition-text {
+    flex: 1 1 auto;
   }
 }

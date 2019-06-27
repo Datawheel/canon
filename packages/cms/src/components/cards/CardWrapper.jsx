@@ -13,6 +13,8 @@ export default class CardWrapper extends Component {
       title,           // card title
       onEdit,          // edit button onClick
       onDelete,        // delete button onClick
+      onRefresh,       // rebuilding and/or refreshing
+      rebuilding,      // disable all buttons when true
       children,        // main card content
       secondaryLocale, // two columns
 
@@ -29,13 +31,26 @@ export default class CardWrapper extends Component {
     };
 
     const buttons = [];
-    let deleteButton, editButton;
+    let deleteButton, editButton, refreshButton;
+
+    if (onRefresh) {
+      refreshButton = Object.assign({}, {
+        children: "refresh",
+        icon: "refresh",
+        onClick: onRefresh,
+        disabled: rebuilding,
+        rebuilding,
+        ...buttonProps
+      });
+      buttons.push(refreshButton);
+    }
 
     if (onDelete) {
       deleteButton = Object.assign({}, {
         children: "delete entry",
         icon: "trash",
         onClick: onDelete,
+        disabled: rebuilding,
         ...buttonProps
       });
       buttons.push(deleteButton);
@@ -46,6 +61,7 @@ export default class CardWrapper extends Component {
         children: "edit entry",
         icon: "cog",
         onClick: onEdit,
+        disabled: rebuilding,
         ...buttonProps
       });
     }
