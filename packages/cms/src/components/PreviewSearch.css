@@ -151,7 +151,7 @@
   /* positioning */
   left: -0.25rem;
   right: -0.25rem;
-  top: -1.5rem;
+  margin-top: -1.5rem;
   /* theming */
   background-color: var(--white);
 
