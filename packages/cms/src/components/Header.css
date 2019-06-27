@@ -1,0 +1,32 @@
+@import "../css/mixins.css";
+
+.cms-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  & .cms-header-title {
+    margin-top: 0;
+    font-weight: 500;
+
+    & > .cms-header-title-parent {
+      font-weight: 300;
+      color: var(--dark-1);
+    }
+
+    & > .cms-header-title-main {
+      color: var(--accent-black);
+      display: inline-block; /* keep with icon */
+    }
+
+    & .cms-button {
+      /* sizing */
+      @mixin font-xs;
+      /* positioning */
+      margin-left: 0.5em; /* space out from title */
+      margin-right: 1.25rem; /* space out from link */
+      top: -1px;
+    }
+  }
+}
