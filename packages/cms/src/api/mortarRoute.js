@@ -242,7 +242,10 @@ module.exports = function(app) {
     }
     
     const formatters = await db.formatter.findAll().catch(catcher);
-    const generators = await db.generator.findAll({where: {profile_id: profile.id}}).catch(catcher);
+    // Allow the user to specify a specific generator only via a query param
+    const gid = req.query.generator;
+    const genObj = gid ? {where: {id: gid}} : {where: {profile_id: profile.id}};
+    const generators = await db.generator.findAll(genObj).catch(catcher);
     // Given a profile id and its generators, hit all the API endpoints they provide
     // Create a hash table so the formatters are directly accessible by name
     const formatterFunctions = formatters4eval(formatters, locale);
