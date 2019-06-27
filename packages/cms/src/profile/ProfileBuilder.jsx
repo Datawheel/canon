@@ -9,6 +9,7 @@ import DimensionBuilder from "../profile/DimensionBuilder";
 import CtxMenu from "../components/CtxMenu";
 import Button from "../components/Button";
 import SidebarTree from "../components/SidebarTree";
+import Header from "../components/Header";
 import Toolbox from "../components/toolbox/Toolbox";
 import nestedObjectAssign from "../utils/nestedObjectAssign";
 
@@ -349,7 +350,10 @@ class ProfileBuilder extends Component {
     else if (type === "topic") {
       nodes.forEach(p => {
         const attempt = p.childNodes.find(t => t.data.id === id);
-        if (attempt) node = attempt;
+        if (attempt) {
+          node = attempt;
+          node.parent = nodes.find(p => p.data.id === node.masterPid); // add parent to node
+        }
       });
     }
     return node;
@@ -496,10 +500,10 @@ class ProfileBuilder extends Component {
           variablesHash[currentPid] = defObj;
         }
         else {
-          // If query.generator was specified, then we are here because an 
+          // If query.generator was specified, then we are here because an
           // onSave event Fired. Though we eventually do a nestedObjectAssign
           // (See below) this is not sufficient if the user DELETED any keys.
-          // Compare the gen status and "pre-delete" the missing keys before 
+          // Compare the gen status and "pre-delete" the missing keys before
           // the nestedObjectAssign runs.
           if (query && query.generator) {
             const theseVars = variablesHash[currentPid][localeDefault];
@@ -608,16 +612,22 @@ class ProfileBuilder extends Component {
                 variables={variables}
                 reportSave={this.reportSave.bind(this)}
               >
-                {currentNode &&
-                  <DimensionBuilder
-                    cubeData={cubeData}
-                    meta={currentNode.masterMeta}
-                    previews={previews}
-                    onSelectPreview={this.onSelectPreview.bind(this)}
-                    onAddDimension={this.onAddDimension.bind(this)}
-                    onDeleteDimension={this.onDeleteDimension.bind(this)}
-                  />
-                }
+                <Header
+                  title={currentNode.secondaryLabel.props.node.label}
+                  parentTitle={currentNode.itemType !== "profile" &&
+                    currentNode.parent.label
+                  }
+                  dimensions={previews}
+                />
+
+                <DimensionBuilder
+                  cubeData={cubeData}
+                  meta={currentNode.masterMeta}
+                  previews={previews}
+                  onSelectPreview={this.onSelectPreview.bind(this)}
+                  onAddDimension={this.onAddDimension.bind(this)}
+                  onDeleteDimension={this.onDeleteDimension.bind(this)}
+                />
               </Editor>
               : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
             }
