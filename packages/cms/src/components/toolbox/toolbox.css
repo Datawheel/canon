@@ -53,19 +53,14 @@
   }
 }
 
-/* TODO: revisit & remove */
+/* wrapper for all sections */
 .cms-toolbox-section-wrapper {
   margin-bottom: 1.25rem;
-}
 
-.cms-list-var {
-  cursor: pointer;
-}
-
-.cms-list-var:hover {
-  background-color: var(--accent-light);
-}
-
-.cms-hidden {
-  @mixin visually-hidden;
+  /* in output view, hide everything except for edit dialogs */
+  &.is-hidden .cms-section-heading,
+  &.is-hidden .cms-section-description,
+  &.is-hidden .cms-card {
+    display: none;
+  }
 }

@@ -147,54 +147,56 @@ class SelectorCard extends Component {
     }
 
     return (
-      <CardWrapper {...cardProps}>
+      <React.Fragment>
+        <CardWrapper {...cardProps}>
 
-        {minData &&
-          <React.Fragment>
-            {/* content preview */}
-            <DefinitionList definitions={[
-              {
-                label: "label",
-                text: minData.title
-              },
-              {
-                label: "selections",
-                text: minData.type === "single" ? "one" : "multiple"
-              }
-            ]}
-            />
-
-            {varList.length
-              ? <React.Fragment>
-                <div className="cms-definition-label font-xxxs">options:</div>
-                <VarList vars={varList} />
-              </React.Fragment> : ""
-            }
-
-            {/* edit mode */}
-            <Dialog
-              className="generator-editor-dialog"
-              isOpen={isOpen}
-              onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-              title="Selector Editor"
-              icon={false}
-              usePortal={false}
-            >
-              <div className="bp3-dialog-body">
-                <SelectorEditor
-                  markAsDirty={this.markAsDirty.bind(this)}
-                  variables={variables}
-                  data={minData}
-                />
-              </div>
-              <FooterButtons
-                onDelete={this.maybeDelete.bind(this)}
-                onSave={this.save.bind(this)}
+          {minData &&
+            <React.Fragment>
+              {/* content preview */}
+              <DefinitionList definitions={[
+                {
+                  label: "label",
+                  text: minData.title
+                },
+                {
+                  label: "selections",
+                  text: minData.type === "single" ? "one" : "multiple"
+                }
+              ]}
               />
-            </Dialog>
-          </React.Fragment>
-        }
-      </CardWrapper>
+
+              {varList.length
+                ? <React.Fragment>
+                  <div className="cms-definition-label font-xxxs">options:</div>
+                  <VarList vars={varList} />
+                </React.Fragment> : ""
+              }
+            </React.Fragment>
+          }
+        </CardWrapper>
+
+        {/* edit mode */}
+        <Dialog
+          className="generator-editor-dialog"
+          isOpen={isOpen}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
+          title="Selector Editor"
+          icon={false}
+          usePortal={false}
+        >
+          <div className="bp3-dialog-body">
+            <SelectorEditor
+              markAsDirty={this.markAsDirty.bind(this)}
+              variables={variables}
+              data={minData}
+            />
+          </div>
+          <FooterButtons
+            onDelete={this.maybeDelete.bind(this)}
+            onSave={this.save.bind(this)}
+          />
+        </Dialog>
+      </React.Fragment>
     );
   }
 

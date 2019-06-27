@@ -174,30 +174,32 @@ class GeneratorCard extends Component {
     }
 
     return (
-      <CardWrapper {...cardProps}>
+      <React.Fragment>
+        <CardWrapper {...cardProps}>
 
-        {showDesc &&
-          <p className="cms-card-description">{description}</p>
-        }
+          {showDesc &&
+            <p className="cms-card-description">{description}</p>
+          }
 
-        {/* show variables, but not for formatter cards */}
-        {context !== "formatter" &&
-          <div className="cms-card-locale-group">
-            <div className="cms-card-locale-container">
-              {secondaryLocale &&
-                <LocaleName>{locale}</LocaleName>
-              }
-              <VarTable dataset={displayData} />
-            </div>
-
-            {secondaryLocale &&
+          {/* show variables, but not for formatter cards */}
+          {context !== "formatter" &&
+            <div className="cms-card-locale-group">
               <div className="cms-card-locale-container">
-                <LocaleName>{secondaryLocale}</LocaleName>
-                <VarTable dataset={secondaryDisplayData} />
+                {secondaryLocale &&
+                  <LocaleName>{locale}</LocaleName>
+                }
+                <VarTable dataset={displayData} />
               </div>
-            }
-          </div>
-        }
+
+              {secondaryLocale &&
+                <div className="cms-card-locale-container">
+                  <LocaleName>{secondaryLocale}</LocaleName>
+                  <VarTable dataset={secondaryDisplayData} />
+                </div>
+              }
+            </div>
+          }
+        </CardWrapper>
 
         {/* open state */}
         <Dialog
@@ -225,7 +227,7 @@ class GeneratorCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-      </CardWrapper>
+      </React.Fragment>
     );
   }
 }
