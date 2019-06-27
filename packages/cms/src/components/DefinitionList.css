@@ -1,19 +1,33 @@
 @import "../css/mixins.css";
 
 .cms-definition-list {
+  @mixin list-reset;
   /* alignment */
   margin-top: 0.25rem;
   margin-bottom: 0;
 
   &:not(:last-child) {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  & > .cms-definition-item {
+    display: block;
+    line-height: 1.125; /* override li default */
+
+    &:not(:last-child) {
+      margin-bottom: 0.125rem;
+    }
+
+    & > * {
+      display: inline-block;
+    }
   }
 }
 
 .cms-definition-label {
   @mixin label-color;
   font-weight: 400;
-  padding-right: 0.5em;
+  margin-right: 0.25em;
 }
 .cms-definition-text {
   margin-left: 0; /* reset default */

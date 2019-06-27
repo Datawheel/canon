@@ -4,17 +4,17 @@ import "./DefinitionList.css";
 export default class DefinitionList extends Component {
   render() {
     const {definitions} = this.props;
-    // defintions: [{ label: "term", text: "definition" }]
+    // definitions: [{ label: "term", text: "definition" }]
 
-    return definitions && definitions.length &&
-      <dl className="cms-definition-list">
+    return definitions && definitions.length
+      ? <ul className="cms-definition-list">
         {definitions.map(d =>
-          <React.Fragment key={`dl-${d.label}`}>
-            <dt className="cms-definition-label font-xxxs">{d.label}:</dt>
-            <dd className="cms-definition-text font-xxs">{d.text}</dd>
-          </React.Fragment>
+          <li className="cms-definition-item" key={`dl-${d.label}`}>
+            <span className="cms-definition-label font-xxxs">{d.label}: </span>
+            <span className="cms-definition-text font-xxs">{d.text}</span>
+          </li>
         )}
-      </dl>
+      </ul> : null
     ;
   }
 }
