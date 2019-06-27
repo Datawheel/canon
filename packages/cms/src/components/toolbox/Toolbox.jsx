@@ -38,12 +38,12 @@ export default class Toolbox extends Component {
     }
   }
 
-  hitDB() {
+  hitDB(query) {
     const {id} = this.props;
     if (id) {
       axios.get(`/api/cms/toolbox/${id}`).then(resp => {
         const minData = resp.data;
-        this.setState({minData, recompiling: true}, this.fetchVariables.bind(this, true));
+        this.setState({minData, recompiling: true}, this.fetchVariables.bind(this, true, query));
       });
     }
     else {
@@ -51,9 +51,10 @@ export default class Toolbox extends Component {
     }
   }
 
-  fetchVariables(force) {
+  fetchVariables(force, query) {
     if (this.props.fetchVariables) {
-      this.props.fetchVariables(force, () => this.setState({recompiling: false}));
+      const callback = () => this.setState({recompiling: false});
+      this.props.fetchVariables(force, callback, query);
     }
   }
 
@@ -92,12 +93,12 @@ export default class Toolbox extends Component {
    * not out here, where it need be searchable. Though it's slightly overkill, the easiest thing to do
    * is just hit the DB again on save to reload everything.
    */
-  onSave() {
+  onSave(query) {
     const forceGenID = null;
     const forceMatID = null;
     const forceKey = null;
     const recompiling = true;
-    this.setState({forceGenID, forceMatID, forceKey, recompiling}, this.hitDB.bind(this));
+    this.setState({forceGenID, forceMatID, forceKey, recompiling}, this.hitDB.bind(this, query));
   }
 
   onDelete(type, newArray) {

@@ -10,6 +10,7 @@ import CtxMenu from "../components/CtxMenu";
 import Button from "../components/Button";
 import SidebarTree from "../components/SidebarTree";
 import Toolbox from "../components/toolbox/Toolbox";
+import nestedObjectAssign from "../utils/nestedObjectAssign";
 
 import varSwap from "../utils/varSwap";
 
@@ -472,7 +473,7 @@ class ProfileBuilder extends Component {
    * the variables are already there. However, we provide a "force" option, which editors
    * can use to say "trust me, I've changed something, you need to re-do the variables get"
    */
-  fetchVariables(force, callback) {
+  fetchVariables(force, callback, query) {
     const {variablesHash, currentPid, previews} = this.state;
     const {locale, localeDefault} = this.props;
     const maybeCallback = () => {
@@ -484,22 +485,59 @@ class ProfileBuilder extends Component {
       previews.forEach((p, i) => {
         url += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
       });
+      if (query) {
+        Object.keys(query).forEach(k => {
+          url += `&${k}=${query[k]}`;
+        });
+      }
       axios.get(url).then(def => {
         const defObj = {[localeDefault]: def.data};
         if (!variablesHash[currentPid]) {
           variablesHash[currentPid] = defObj;
         }
         else {
-          variablesHash[currentPid] = Object.assign(variablesHash[currentPid], defObj);
+          // If query.generator was specified, then we are here because an 
+          // onSave event Fired. Though we eventually do a nestedObjectAssign
+          // (See below) this is not sufficient if the user DELETED any keys.
+          // Compare the gen status and "pre-delete" the missing keys before 
+          // the nestedObjectAssign runs.
+          if (query && query.generator) {
+            const theseVars = variablesHash[currentPid][localeDefault];
+            const current = theseVars._genStatus[query.generator];
+            const incoming = defObj[localeDefault]._genStatus[query.generator];
+            Object.keys(current).forEach(key => {
+              if (current[key] && !incoming.key) {
+                delete theseVars[key];
+                delete current[key];
+              }
+            });
+          }
+          variablesHash[currentPid] = nestedObjectAssign(variablesHash[currentPid], defObj);
         }
         if (locale) {
           let lurl = `/api/variables/${currentPid}/?locale=${locale}`;
           previews.forEach((p, i) => {
             lurl += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
           });
+          if (query) {
+            Object.keys(query).forEach(k => {
+              lurl += `&${k}=${query[k]}`;
+            });
+          }
           axios.get(lurl).then(loc => {
             const locObj = {[locale]: loc.data};
-            variablesHash[currentPid] = Object.assign(variablesHash[currentPid], locObj);
+            if (query && query.generator) {
+              const theseVars = variablesHash[currentPid][locale];
+              const current = theseVars._genStatus[query.generator];
+              const incoming = locObj[locale]._genStatus[query.generator];
+              Object.keys(current).forEach(key => {
+                if (current[key] && !incoming.key) {
+                  delete theseVars[key];
+                  delete current[key];
+                }
+              });
+            }
+            variablesHash[currentPid] = nestedObjectAssign(variablesHash[currentPid], locObj);
             this.setState({variablesHash}, maybeCallback);
           });
         }
