@@ -437,7 +437,7 @@ class ProfileBuilder extends Component {
         slug: p.slug
       };
     });
-    this.setState({previews});
+    this.setState({previews}, this.fetchVariables.bind(this, true));
   }
 
   /*
@@ -605,7 +605,6 @@ class ProfileBuilder extends Component {
                 locale={locale}
                 localeDefault={localeDefault}
                 previews={previews}
-                fetchVariables={this.fetchVariables.bind(this)}
                 variables={variables}
                 reportSave={this.reportSave.bind(this)}
               >

@@ -30,25 +30,18 @@ class TopicEditor extends Component {
   }
 
   componentDidMount() {
-    this.hitDB.bind(this)(false);
+    this.hitDB.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id) {
-      this.hitDB.bind(this)(false);
-    }
-    const prevSlugs = prevProps.previews.map(d => d.slug).join();
-    const prevIDs = prevProps.previews.map(d => d.id).join();
-    const newSlugs = this.props.previews.map(d => d.slug).join();
-    const newIDs = this.props.previews.map(d => d.id).join();
-    if (prevSlugs !== newSlugs || prevIDs !== newIDs) {
-      this.hitDB.bind(this)(true);
+      this.hitDB.bind(this)();
     }
   }
 
-  hitDB(force) {
+  hitDB() {
     axios.get(`/api/cms/topic/get/${this.props.id}`).then(resp => {
-      this.setState({minData: resp.data}, this.fetchVariables.bind(this, force));
+      this.setState({minData: resp.data});
     });
   }
 
@@ -120,12 +113,6 @@ class TopicEditor extends Component {
     const {minData} = this.state;
     minData[propMap[type]] = newArray;
     this.setState({minData});
-  }
-
-  fetchVariables(force) {
-    if (this.props.fetchVariables) {
-      this.props.fetchVariables(force, () => this.setState({recompiling: false}));
-    }
   }
 
   render() {
