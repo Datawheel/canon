@@ -1,10 +1,16 @@
 @import "../../css/mixins.css";
 
-.cms-dimension-card .cms-definition-item:last-child {
-  display: flex;
-  align-items: baseline;
+/* up to three columns */
+.cms-dimension-card {
+  flex: 1 1 33.333%;
 
-  & > .cms-definition-text {
-    flex: 1 1 auto;
+  /* let filter search grow */
+  & .cms-definition-item:last-child {
+    display: flex;
+    align-items: baseline;
+
+    & > .cms-definition-text {
+      flex: 1 1 auto;
+    }
   }
 }
