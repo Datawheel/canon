@@ -27,7 +27,7 @@
 .cms-definition-label {
   @mixin label-color;
   font-weight: 400;
-  margin-right: 0.25em;
+  margin-right: 0.5em;
 }
 .cms-definition-text {
   margin-left: 0; /* reset default */

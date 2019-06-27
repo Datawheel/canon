@@ -97,17 +97,9 @@
       color: var(--dark-2) !important;
     }
   }
+
+  /* rebuilding */
+  &.is-rebuilding > .cms-button-icon {
+    animation: rotate 0.75s infinite ease-in-out;
+  }
 }
-
-
-/* depreciation warning */
-/* .cms .bp3-button:after {
-  content: "please use the non-Blueprint <Button> component";
-  display: block;
-  position: absolute;
-  width: max-content;
-  z-index: 1;
-  background: var(--alert);
-  color: var(--white);
-  padding: 1em;
-} */
