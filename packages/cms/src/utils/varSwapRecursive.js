@@ -35,7 +35,7 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
   const obj = Object.assign({}, sourceObj);
   // If I'm a topic and have selectors, extract and prep them for use
   if (obj.selectors) {
-    selectors = obj.selectors.map(s => {
+    const newSelectors = obj.selectors.map(s => {
       const selector = {};
       // If the option provided in the query is one of the available options for this selector
       const selections = query[s.name] ? query[s.name].split(",") : false;
@@ -52,7 +52,16 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
         return selector;
       }
     });
+    // The selectors object "grows" as we crawl down the tree, so fold in new entries
+    // if any objects have selectors in them. TODO: Now that selectors are profile-wide,
+    // could this nesting be removed, with some sort of top-level assumption?
+    newSelectors.forEach(ns => {
+      if (!selectors.map(s => JSON.stringify(s)).includes(JSON.stringify(ns))) {
+        selectors.push(ns);
+      }
+    });
   }
+
   for (const skey in obj) {
     if (obj.hasOwnProperty(skey)) {
       // If this property is a string, replace all the vars

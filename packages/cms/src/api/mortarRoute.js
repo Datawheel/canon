@@ -380,7 +380,12 @@ module.exports = function(app) {
     let returnObject = {};
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
-    const profile = varSwapRecursive(request.data, formatterFunctions, variables, req.query);
+    let profile = request.data;
+    // Each topic will require references to all selectors
+    let allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
+    allSelectors = allSelectors.map(as => as.toJSON());
+    profile.selectors = allSelectors;
+    profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
     // If the user provided selectors in the query, then the user has changed a dropdown.
     // This means that OTHER dropdowns on the page need to be set to match. To accomplish 
     // this, hijack the "default" property on any matching selector so the dropdowns "start"
