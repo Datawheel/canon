@@ -18,6 +18,12 @@ class SelectorUsage extends Component {
     this.setState({minData: this.props.minData});
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.state.minData && prevProps.minData.id !== this.props.minData.id) {
+      this.setState({minData: this.props.minData});
+    }
+  }
+
   removeItem(id) {
     const {minData} = this.state;
     axios.delete("/api/cms/topic_selector/delete", {params: {id}}).then(resp => {

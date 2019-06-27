@@ -37,12 +37,6 @@ class SelectorCard extends Component {
     this.setState({minData: this.props.minData});
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.minData !== this.props.minData) {
-      this.setState({minData: this.props.minData});
-    }
-  }
-
   markAsDirty() {
     const {isDirty} = this.state;
     if (!isDirty) this.setState({isDirty: true});
