@@ -160,20 +160,6 @@ class TopicEditor extends Component {
             <TextCard
               key="title-card"
               item={minData}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              fields={["title"]}
-              query={query}
-              onSave={this.onSave.bind(this)}
-              type="topic"
-              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              variables={variables[localeDefault]}
-            />
-          ]}
-          secondaryCards={locale && [
-            <TextCard
-              key={`title-card-${locale}`}
-              item={minData}
               locale={locale}
               localeDefault={localeDefault}
               fields={["title"]}
@@ -181,7 +167,7 @@ class TopicEditor extends Component {
               onSave={this.onSave.bind(this)}
               type="topic"
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              variables={variables[locale]}
+              variables={variables[localeDefault]}
             />
           ]}
         >
@@ -225,29 +211,13 @@ class TopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              fields={["subtitle"]}
-              query={query}
-              type="topic_subtitle"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              parentArray={minData.subtitles}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.subtitles && minData.subtitles.map(s =>
-            <TextCard
-              key={s.id}
-              item={s}
               locale={locale}
               localeDefault={localeDefault}
               fields={["subtitle"]}
               query={query}
               type="topic_subtitle"
               onDelete={this.onDelete.bind(this)}
-              variables={variables[locale]}
+              variables={variables[localeDefault]}
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               parentArray={minData.subtitles}
               onMove={this.onMove.bind(this)}
@@ -274,29 +244,13 @@ class TopicEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              fields={["title", "subtitle", "value", "tooltip"]}
-              query={query}
-              type="topic_stat"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              parentArray={minData.stats}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.stats && minData.stats.map(s =>
-            <TextCard
-              key={s.id}
-              item={s}
               locale={locale}
               localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
               query={query}
               type="topic_stat"
               onDelete={this.onDelete.bind(this)}
-              variables={variables[locale]}
+              variables={variables[localeDefault]}
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               parentArray={minData.stats}
               onMove={this.onMove.bind(this)}
@@ -313,29 +267,13 @@ class TopicEditor extends Component {
             <TextCard
               key={d.id}
               item={d}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              fields={["description"]}
-              query={query}
-              type="topic_description"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              parentArray={minData.descriptions}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.descriptions && minData.descriptions.map(d =>
-            <TextCard
-              key={d.id}
-              item={d}
               locale={locale}
               localeDefault={localeDefault}
               fields={["description"]}
               query={query}
               type="topic_description"
               onDelete={this.onDelete.bind(this)}
-              variables={variables[locale]}
+              variables={variables[localeDefault]}
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               parentArray={minData.descriptions}
               onMove={this.onMove.bind(this)}
