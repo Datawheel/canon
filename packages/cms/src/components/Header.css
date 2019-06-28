@@ -65,12 +65,25 @@
   }
 
   /* highlight preview id */
-  & .cms-header-link-id {
+  & .cms-header-link-id,
+  & .cms-header-link-slug {
     font-weight: 600;
     color: var(--dark-3);
 
     @mixin dark-mode {
       color: var(--light-1);
     }
+  }
+
+  /* position slug rename button */
+  & .cms-header-link-slug + .cms-button {
+    @mixin font-xs;
+    position: absolute;
+    right: -2.5em;
+  }
+
+  /* not actually a link */
+  & span.cms-header-link {
+    border-bottom-color: transparent !important;
   }
 }
