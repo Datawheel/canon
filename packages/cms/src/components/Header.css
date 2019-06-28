@@ -6,20 +6,28 @@
   justify-content: space-between;
   flex-wrap: wrap;
 
+  /* main title */
   & .cms-header-title {
     margin-top: 0;
     font-weight: 500;
 
+    /* preceeds section title */
     & > .cms-header-title-parent {
       font-weight: 300;
       color: var(--dark-1);
     }
 
+    /* main title text */
     & > .cms-header-title-main {
       color: var(--accent-black);
       display: inline-block; /* keep with icon */
+
+      @mixin dark-mode {
+        color: var(--accent-light);
+      }
     }
 
+    /* edit title button */
     & .cms-button {
       /* sizing */
       @mixin font-xs;
@@ -27,6 +35,42 @@
       margin-left: 0.5em; /* space out from title */
       margin-right: 1.25rem; /* space out from link */
       top: -1px;
+    }
+  }
+
+
+  /* link to profile */
+  & .cms-header-link {
+    margin-bottom: 1.25rem;
+    /* transitions */
+    transition: border 0.2s ease-out;
+    /* theming */
+    text-decoration: none;
+    border-bottom: 2px solid var(--light-3);
+    color: var(--dark-2);
+
+    @mixin dark-mode {
+      border-color: var(--dark-2);
+      color: var(--gray);
+    }
+
+    /* interactions */
+    &:hover, &:focus {
+      border-color: var(--accent-dark);
+
+      @mixin dark-mode {
+        border-color: var(--accent);
+      }
+    }
+  }
+
+  /* highlight preview id */
+  & .cms-header-link-id {
+    font-weight: 600;
+    color: var(--dark-3);
+
+    @mixin dark-mode {
+      color: var(--light-1);
     }
   }
 }
