@@ -4,6 +4,7 @@ import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import FooterButtons from "../FooterButtons";
+import Select from "./../Select";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
@@ -32,8 +33,8 @@ class TextCard extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.state.minData && (
-      JSON.stringify(prevProps.variables) !== JSON.stringify(this.props.variables) || 
-      JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors) || 
+      JSON.stringify(prevProps.variables) !== JSON.stringify(this.props.variables) ||
+      JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors) ||
       JSON.stringify(this.props.query) !== JSON.stringify(prevProps.query)
     )) {
       this.formatDisplay.bind(this)();
@@ -97,7 +98,7 @@ class TextCard extends Component {
     Object.keys(thatLang).forEach(k => {
       thatDisplayData[k] = thatLang[k];
     });
-    
+
     this.setState({thisDisplayData, thatDisplayData});
   }
 
@@ -105,7 +106,7 @@ class TextCard extends Component {
     const {type, fields, plainfields, locale, localeDefault} = this.props;
     const {minData} = this.state;
     const payload = {id: minData.id};
-    
+
     const thisLocale = minData.content.find(c => c.lang === localeDefault);
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
@@ -206,7 +207,7 @@ class TextCard extends Component {
     let cardClass = "splash-card";
     if (["profile_stat", "topic_stat"].includes(type)) cardClass = "cms-stat-card";
     const displaySort = ["title", "value", "subtitle", "description"];
-    
+
     const thisDisplay = Object.keys(thisDisplayData)
       .filter(k => typeof thisDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
@@ -254,6 +255,8 @@ class TextCard extends Component {
           <p key={i} className={k} dangerouslySetInnerHTML={{__html: thisDisplayData[k]}} />
         )}
 
+        {console.log(thisDisplayData)}
+
         {/* preview content */}
         { thatDisplay.map((k, i) =>
           <p key={i} className={k} dangerouslySetInnerHTML={{__html: thatDisplayData[k]}} />
@@ -267,24 +270,33 @@ class TextCard extends Component {
           usePortal={false}
         >
           <div className="bp3-dialog-body">
+
+            <div className="cms-dialog-locale-group">
+              <div className="cms-dialog-locale">
+                <LocaleName locale={localeDefault} />
+                {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={plainfields} />}
+                {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+              </div>
+
+              <div className="cms-dialog-locale">
+                <LocaleName locale={locale} />
+                {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
+                {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+              </div>
+            </div>
+
             { showVars &&
-              <label className="cms-field-container">
-                Allowed?
-                <div className="bp3-select">
-                  <select value={minData.allowed || "always"} onChange={this.chooseVariable.bind(this)}>
-                    {varOptions}
-                  </select>
-                </div>
-              </label>
+              <Select
+                label="Visible"
+                value={minData.allowed || "always"}
+                onChange={this.chooseVariable.bind(this)}
+                inline
+              >
+                {varOptions}
+              </Select>
             }
-            {localeDefault}
-            {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={plainfields} />}
-            {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
-            <hr/>
-            {locale}
-            {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
-            {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
           </div>
+
           <FooterButtons
             onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}

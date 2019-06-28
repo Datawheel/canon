@@ -1,1 +1,15 @@
 @import "../../css/mixins.css";
+
+/* TODO: refactor in dialog */
+/* dialog */
+.cms-dialog-locale-group {
+  /* layout */
+  margin-bottom: 2.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  & > .cms-dialog-locale {
+    flex-basis: calc(50% - 1.25rem);
+  }
+}
