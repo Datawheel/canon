@@ -11,5 +11,9 @@
 
   & > .cms-dialog-locale {
     flex-basis: calc(50% - 1.25rem);
+
+    &:only-child {
+      flex-basis: 100%;
+    }
   }
 }

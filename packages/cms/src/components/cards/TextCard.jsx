@@ -78,7 +78,7 @@ class TextCard extends Component {
 
   formatDisplay() {
     const {variables, selectors, locale, query, localeDefault} = this.props;
-    
+
     const minData = this.populateLanguageContent.bind(this)(this.state.minData);
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
@@ -87,7 +87,7 @@ class TextCard extends Component {
 
     const thisFormatters = this.context.formatters[localeDefault];
     // Swap vars, and extract the actual (multilingual) content
-    const content = varSwapRecursive(minData, thisFormatters, variables, query).content;    
+    const content = varSwapRecursive(minData, thisFormatters, variables, query).content;
     const thisLang = content.find(c => c.lang === localeDefault);
     // Map over each of the default keys, and fetch its equivalent locale version (or default)
     const thisDisplayData = {};
@@ -96,18 +96,18 @@ class TextCard extends Component {
     });
 
     let thatDisplayData = null;
-    
+
     if (locale) {
       thatDisplayData = {};
       const thatFormatters = this.context.formatters[locale];
-      const content = varSwapRecursive(minData, thatFormatters, variables, query).content;    
+      const content = varSwapRecursive(minData, thatFormatters, variables, query).content;
       const thatLang = content.find(c => c.lang === locale);
 
       Object.keys(thatLang).forEach(k => {
         thatDisplayData[k] = thatLang[k];
       });
-    }    
-    
+    }
+
     this.setState({thisDisplayData, thatDisplayData});
   }
 
@@ -282,16 +282,20 @@ class TextCard extends Component {
 
             <div className="cms-dialog-locale-group">
               <div className="cms-dialog-locale">
-                <LocaleName locale={localeDefault} />
+                {locale &&
+                  <LocaleName locale={localeDefault} />
+                }
                 {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={plainfields} />}
                 {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
               </div>
 
-              <div className="cms-dialog-locale">
-                <LocaleName locale={locale} />
-                {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
-                {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
-              </div>
+              {locale &&
+                <div className="cms-dialog-locale">
+                  <LocaleName locale={locale} />
+                  {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
+                  {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                </div>
+              }
             </div>
 
             { showVars &&
