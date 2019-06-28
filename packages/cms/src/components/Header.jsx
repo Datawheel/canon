@@ -16,6 +16,8 @@ export default class Header extends Component {
       domain = window.document.location.origin;
     }
 
+    const prettyDomain = domain.replace("http://", "").replace("https://", "");
+
     // construct URL from domain and dimensions
     const previewURL = `${domain}/profile/${
       dimensions.map(dim => Object.values(dim)).flat().join("/")
@@ -35,18 +37,23 @@ export default class Header extends Component {
           </span>
         </h1>
 
-        <a href={previewURL} className="cms-header-link">
-          {domain}/profile{dimensions && dimensions.map(dim =>
-            <React.Fragment key={dim.slug}>
-              /<span className="cms-header-link-dimension">
-                {dim.slug}
-              </span>/
-              <span className="cms-header-link-id">
-                {dim.id}
-              </span>
-            </React.Fragment>
-          )}
-        </a>
+        {dimensions && dimensions.length
+          ? <a href={previewURL} className="cms-header-link">
+            {prettyDomain}/profile{dimensions && dimensions.map(dim =>
+              <React.Fragment key={dim.slug}>
+                /<span className="cms-header-link-dimension">
+                  {dim.slug}
+                </span>/
+                <span className="cms-header-link-id">
+                  {dim.id}
+                </span>
+              </React.Fragment>
+            )}
+          </a>
+          : <span className="cms-header-link">
+            {prettyDomain}/profile/
+          </span>
+        }
       </header>
     );
   }
