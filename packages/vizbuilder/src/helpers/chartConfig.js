@@ -17,6 +17,7 @@ const makeConfig = {
         y: levelName,
         yConfig: {title: levelName, ticks: []},
         x: measureName,
+        xConfig: {tickFormat: chart.formatter},
         stacked: level.depth > 1,
         shapeConfig: {
           Bar: {
