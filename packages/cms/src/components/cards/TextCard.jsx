@@ -221,9 +221,9 @@ class TextCard extends Component {
       .filter(k => typeof thisDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
 
-    const thatDisplay = Object.keys(thatDisplayData)
+    const thatDisplay = thatDisplayData ? Object.keys(thatDisplayData)
       .filter(k => typeof thatDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
-      .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
+      .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b)) : [];
 
     // define props for CardWrapper
     const cardProps = {
