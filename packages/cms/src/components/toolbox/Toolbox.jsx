@@ -7,7 +7,7 @@ import GeneratorCard from "../cards/GeneratorCard";
 import SelectorCard from "../cards/SelectorCard";
 import Status from "../Status";
 import ConsoleVariable from "../ConsoleVariable";
-import "./toolbox.css";
+import "./Toolbox.css";
 
 const propMap = {
   generator: "generators",
