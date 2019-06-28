@@ -3,11 +3,13 @@ import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
+import DefinitionList from "../DefinitionList";
 import FooterButtons from "../FooterButtons";
 import Select from "./../Select";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
+import stripHTML from "../../utils/formatters/stripHTML";
 import PropTypes from "prop-types";
 import LocaleName from "./LocaleName";
 import CardWrapper from "./CardWrapper";
@@ -219,16 +221,24 @@ class TextCard extends Component {
 
     const thisDisplay = Object.keys(thisDisplayData)
       .filter(k => typeof thisDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
-      .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
+      .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
+      .map(k => ({
+        label: k,
+        text: stripHTML(thisDisplayData[k])
+      }));
 
     const thatDisplay = thatDisplayData ? Object.keys(thatDisplayData)
       .filter(k => typeof thatDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
-      .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b)) : [];
+      .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
+      .map(k => ({
+        label: k,
+        text: stripHTML(thatDisplayData[k])
+      })) : [];
 
     // define props for CardWrapper
     const cardProps = {
       cardClass,
-      title: <LocaleName locale={locale} />,
+      title: thisDisplay[0].text,
       onEdit: this.openEditor.bind(this),
       onDelete: ["profile", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this),
       // reorder
@@ -260,16 +270,21 @@ class TextCard extends Component {
       <CardWrapper {...cardProps}>
 
         {/* preview content */}
-        { thisDisplay.map((k, i) =>
-          <p key={i} className={k} dangerouslySetInnerHTML={{__html: thisDisplayData[k]}} />
-        )}
+        <div className="cms-locale-group">
+          <div className="cms-locale-container">
+            {locale &&
+              <LocaleName locale={localeDefault} />
+            }
+            <DefinitionList definitions={thisDisplay} />
+          </div>
 
-        {console.log(thisDisplayData)}
-
-        {/* preview content */}
-        { thatDisplay.map((k, i) =>
-          <p key={i} className={k} dangerouslySetInnerHTML={{__html: thatDisplayData[k]}} />
-        )}
+          {locale &&
+            <div className="cms-locale-container">
+              <LocaleName locale={locale} />
+              <DefinitionList definitions={thatDisplay} />
+            </div>
+          }
+        </div>
 
         {/* edit content */}
         <Dialog
@@ -281,7 +296,7 @@ class TextCard extends Component {
           <div className="bp3-dialog-body">
 
             <div className="cms-dialog-locale-group">
-              <div className="cms-dialog-locale">
+              <div className="cms-dialog-locale-container">
                 {locale &&
                   <LocaleName locale={localeDefault} />
                 }
@@ -290,7 +305,7 @@ class TextCard extends Component {
               </div>
 
               {locale &&
-                <div className="cms-dialog-locale">
+                <div className="cms-dialog-locale-container">
                   <LocaleName locale={locale} />
                   {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
                   {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
