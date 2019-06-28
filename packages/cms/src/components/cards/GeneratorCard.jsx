@@ -171,9 +171,11 @@ class GeneratorCard extends Component {
       });
     }
 
+    const {id} = this.props.item;
+
     return (
       <React.Fragment>
-        <CardWrapper {...cardProps} key={`${cardProps.title}-${Math.random()}`}>
+        <CardWrapper {...cardProps} key={`${cardProps.title}-${id}`}>
 
           {showDesc &&
             <p className="cms-card-description">{description}</p>
