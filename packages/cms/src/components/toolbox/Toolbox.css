@@ -54,13 +54,11 @@
 }
 
 /* wrapper for all sections */
-.cms-toolbox-section-wrapper {
-  margin-bottom: 1.25rem;
-
+.cms-toolbox-section-wrapper.is-hidden {
   /* in output view, hide everything except for edit dialogs */
-  &.is-hidden .cms-section-heading,
-  &.is-hidden .cms-section-description,
-  &.is-hidden .cms-card {
+  & .cms-section-heading,
+  & .cms-section-description,
+  & .cms-card {
     display: none;
   }
 }
