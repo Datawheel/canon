@@ -265,6 +265,11 @@ class ProfileBuilder extends Component {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
     else if (node.id !== currentNode.id) {
+      // close all profile nodes
+      if (node.itemType === "profile") {
+        nodes.filter(n => n.id !== node.id).forEach(node => node.isExpanded = false);
+      }
+      // select & expand the current node
       node.isExpanded = true;
       node.isSelected = true;
       currentNode.isSelected = false;
