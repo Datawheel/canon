@@ -112,6 +112,10 @@
   }
 }
 
+.bp3-multi-select .bp3-spinner {
+  align-self: center;
+}
+
 .select-measure {
   & .select-item.current .select-label {
     white-space: normal;
@@ -120,5 +124,26 @@
   & .select-list-wrapper .select-item {
     padding-top: 3px;
     padding-bottom: 3px;
+  }
+}
+
+.measure-label {
+  & > span {
+    display: block;
+    line-height: 1.2em;
+  }
+
+  & span.source {
+    font-size: 0.8em;
+    line-height: 1.2em;
+  }
+
+  & span.subtopic {
+    font-style: italic;
+    font-size: 0.9em;
+  }
+
+  & span.dimensions {
+    white-space: normal;
   }
 }

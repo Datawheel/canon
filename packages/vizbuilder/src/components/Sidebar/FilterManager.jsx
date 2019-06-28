@@ -1,11 +1,10 @@
 import React from "react";
-import PropTypes from "prop-types";
-import classnames from "classnames";
+import classNames from "classnames";
 import {Button} from "@blueprintjs/core";
 
-import Filter from "./Filter";
+import Filter from "../../helpers/Filter";
 import FilterItem from "./FilterItem";
-import SidebarCRUDManager from "../SidebarCRUDManager";
+import SidebarCRUDManager from "./SidebarCRUDManager";
 
 class FilterManager extends SidebarCRUDManager {
   constructor(props) {
@@ -17,7 +16,7 @@ class FilterManager extends SidebarCRUDManager {
     const {className, label, items} = this.props;
 
     return (
-      <div className={classnames("filter-manager", className)}>
+      <div className={classNames("filter-manager", className)}>
         <p className="label">{label}</p>
         <div className="filter-items">
           {items.map(this.renderElement, this)}

@@ -1,89 +1,182 @@
-import React from "react";
+import {Button, Intent, MenuDivider, MenuItem, Spinner} from "@blueprintjs/core";
+import {MultiSelect} from "@blueprintjs/select";
 import classNames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
+import memoizeOne from "memoize-one";
+import React from "react";
 
-import {Spinner} from "@blueprintjs/core";
-import {BaseMultiSelect} from "./CustomSelect";
+import CategoryListRenderer from "./CategoryListRenderer";
+import VirtualListRenderer from "./VirtualListRenderer";
 
-const spinner = <Spinner className="bp3-small" />;
+const getAncestor = (member, maxDepth, depth) => {
+  const ancestors = member.ancestors || [];
+  return ancestors[maxDepth - 1 - depth] || {};
+};
 
-function MemberSelect(props) {
-  props.className = classNames("select-member", props.className);
-  props.tagInputProps.rightElement = props.loading ? spinner : null;
-  return React.createElement(BaseMultiSelect, props);
-}
+class UpdatedMemberSelect extends React.Component {
+  constructor(props) {
+    super(props);
 
-MemberSelect.defaultProps = {
-  ...BaseMultiSelect.defaultProps,
-  findIndex: (haystack, needle) => {
-    return needle ? haystack.findIndex(item => item.key === needle.key) : -1;
-  },
-  getItemHeight: () => 26,
-  itemListComposer(items) {
-    const nope = {ancestors: [{}]};
-    return items.reduce((all, member, i, array) => {
-      const prevMember = array[i - 1] || nope;
-      const prevAncestor = prevMember.ancestors[0] || {};
+    this.clearHandler = this.clearHandler.bind(this);
+    this.itemSelectHandler = this.itemSelectHandler.bind(this);
+    this.renderItem = this.renderItem.bind(this);
+    this.renderItemList = this.renderItemList.bind(this);
+    this.tagRemoveHandler = this.tagRemoveHandler.bind(this);
 
-      const ancestor = member.ancestors[0];
-      if (ancestor && ancestor.key !== prevAncestor.key) {
-        all.push({
-          key: ancestor.key,
-          _header: true,
-          caption: ancestor.caption
-        });
+    this.baseListComposer = memoizeOne(items => {
+      let lastParentCaption;
+      return items.reduce((output, item) => {
+        const {caption} = item.ancestors[0];
+        if (lastParentCaption !== caption) {
+          lastParentCaption = caption;
+          output.push({isOptgroup: true, caption});
+        }
+        output.push(item);
+        return output;
+      }, []);
+    });
+
+    this.categoryListComposer = memoizeOne((stack, items, maxDepth) => {
+      const depth = stack.length;
+      const isCategoryMember = member =>
+        !member.isOptgroup &&
+        stack.every(
+          (parent, index) => getAncestor(member, maxDepth, index).caption === parent
+        );
+
+      if (depth < maxDepth) {
+        const parentMap = {};
+        let n = items.length;
+        while (n--) {
+          const member = items[n];
+          if (!isCategoryMember(member)) continue;
+          const {caption} = getAncestor(member, maxDepth, depth);
+          parentMap[caption] = true;
+        }
+        return Object.keys(parentMap).sort();
       }
 
-      all.push(member);
+      return items.filter(isCategoryMember);
+    });
+  }
 
-      return all;
-    }, []);
-  },
   itemListPredicate(query, items) {
     query = query.trim();
-    query = escapeRegExp(query);
-    query = query.replace(/\s+/g, ".+");
-    const tester = RegExp(query || ".", "i");
-    return items.filter(item => tester.test(item.caption || item.name));
-  },
-  itemRenderer({handleClick, isActive, item, style}) {
-    const props = {key: item.key, style};
-    const className = ["select-item", "option-filtermeasure"];
-    let child;
+    query = escapeRegExp(query).replace(/\s+/g, "[^_]+");
+    const queryTester = RegExp(query || ".", "i");
+    return items
+      .filter(item => item.isOptgroup || queryTester.test(item.caption))
+      .filter(
+        (item, index, array) =>
+          !item.isOptgroup || (array[index + 1] && !array[index + 1].isOptgroup)
+      );
+  }
 
-    if (item._header) {
-      className.push("select-optgroup");
-      props.key = `h1~${props.key}`;
-      child = (
-        <span className="select-value">
-          <span className="select-label h1" title={item.caption}>
-            {item.caption}
-          </span>
-        </span>
+  render() {
+    const {activeItem, disabled, items, loading, selectedItems} = this.props;
+    const itemsToDisplay = this.baseListComposer(items);
+
+    const popoverProps = {
+      boundary: "viewport",
+      minimal: true,
+      targetTagName: "div",
+      wrapperTagName: "div"
+    };
+    const tagInputProps = {
+      onRemove: this.tagRemoveHandler,
+      rightElement: loading ? (
+        <Spinner size={Spinner.SIZE_SMALL} intent={Intent.PRIMARY} />
+      ) : selectedItems.length > 0 ? (
+        <Button icon="cross" minimal={true} onClick={this.clearHandler} />
+      ) : (
+        undefined
+      ),
+      tagProps: {minimal: true}
+    };
+
+    return (
+      <MultiSelect
+        activeItem={activeItem}
+        disabled={disabled}
+        itemDisabled="isOptgroup"
+        itemListPredicate={this.itemListPredicate}
+        itemListRenderer={this.renderItemList}
+        itemRenderer={this.renderItem}
+        items={itemsToDisplay}
+        onItemSelect={this.itemSelectHandler}
+        popoverProps={popoverProps}
+        resetOnSelect={true}
+        selectedItems={selectedItems}
+        tagInputProps={tagInputProps}
+        tagRenderer={this.renderTag}
+      />
+    );
+  }
+
+  /** @param {import("@blueprintjs/select").IItemListRendererProps} itemListProps */
+  renderItemList(itemListProps) {
+    const {maxDepth} = this.props;
+
+    if (itemListProps.query) {
+      return (
+        <VirtualListRenderer
+          {...itemListProps}
+          itemRenderer={this.renderItem}
+          onItemSelect={this.itemSelectHandler}
+        />
       );
     }
     else {
-      className.push("select-option", "padded");
-      props.onClick = handleClick;
-      child = (
-        <span className="select-value">
-          <span className="select-label" title={item.caption}>
-            {item.caption}
-          </span>
-        </span>
+      return (
+        <CategoryListRenderer
+          {...itemListProps}
+          itemListComposer={this.categoryListComposer}
+          maxDepth={maxDepth}
+        />
+      );
+    }
+  }
+
+  renderItem(item, {handleClick, index, modifiers, query}) {
+    if (item.isOptgroup) {
+      return (
+        <MenuDivider
+          className="member-select optgroup"
+          key={item.caption}
+          title={item.caption}
+        />
       );
     }
 
-    props.className = classNames(className, {active: isActive});
-    return React.createElement("div", props, child);
-  },
-  resetOnSelect: true,
-  sticky: "_header",
-  tagInputProps: {
-    ...BaseMultiSelect.defaultProps.tagInputProps,
-    placeholder: "Filter...",
-  },
-  tagRenderer: item => item.caption
-};
+    return (
+      <MenuItem
+        className={classNames("member-select option", {active: modifiers.active})}
+        disabled={modifiers.disabled}
+        key={item.key}
+        onClick={handleClick}
+        text={item.caption}
+      />
+    );
+  }
 
-export default MemberSelect;
+  renderTag(item) {
+    return item.caption;
+  }
+
+  clearHandler() {
+    const {onClear} = this.props;
+    onClear && onClear();
+  }
+
+  itemSelectHandler(item, evt) {
+    const {onItemSelect} = this.props;
+    onItemSelect && onItemSelect(item, evt);
+  }
+
+  tagRemoveHandler(_, index) {
+    const {onItemRemove, selectedItems} = this.props;
+    onItemRemove && onItemRemove(selectedItems[index], index);
+  }
+}
+
+export default UpdatedMemberSelect;

@@ -3,7 +3,7 @@ import groupBy from "lodash/groupBy";
 import union from "lodash/union";
 import yn from "yn";
 
-import Grouping from "../components/Sidebar/GroupingManager/Grouping";
+import Grouping from "./Grouping";
 import {findFirstNumber} from "./formatting";
 import {
   areKindaNumeric,

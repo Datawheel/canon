@@ -27,15 +27,17 @@
     "d3plus-react": "^0.5.2",
     "fast-sort": "^1.5.3",
     "lodash": "^4.17.10",
+    "memoize-one": "^5.0.4",
     "mondrian-rest-client": "^1.1.0",
     "pluralize": "^8.0.0",
     "prop-types": "^15.6.0",
     "query-string": "^6.1.0",
-    "react-tiny-virtual-list": "^2.1.4",
+    "react": "^16.8.6",
+    "react-windowed-list": "^3.0.2",
     "shorthash": "^0.0.2"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "0.17.28",
+    "@datawheel/canon-core": "^0.17.29",
     "@types/react": "^16.8.20"
   },
   "repository": {

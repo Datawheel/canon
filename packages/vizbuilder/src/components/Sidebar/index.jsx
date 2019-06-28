@@ -1,27 +1,26 @@
-import React from "react";
-import PropTypes from "prop-types";
-import classnames from "classnames";
 import {Button, Checkbox} from "@blueprintjs/core";
+import classnames from "classnames";
+import PropTypes from "prop-types";
+import React, {PureComponent} from "react";
 
 import "./style.css";
-import "./select.css";
 
 import {
   generateBaseState,
+  replaceKeysInString,
   replaceLevelsInGroupings,
-  replaceMeasureInFilters,
-  replaceKeysInString
+  replaceMeasureInFilters
 } from "../../helpers/query";
-import {isValidMeasure} from "../../helpers/validation";
 import {getGeoLevel, userTableIdMeasure} from "../../helpers/sorting";
+import {isValidMeasure} from "../../helpers/validation";
 
+import MeasureSelect from "./AllMeasureSelect";
 import ConditionalAnchor from "./ConditionalAnchor";
 import DatasetSelect from "./DatasetSelect";
 import FilterManager from "./FilterManager";
 import GroupingManager from "./GroupingManager";
-import MeasureSelect from "./NewMeasureSelect";
 
-class Sidebar extends React.PureComponent {
+class Sidebar extends PureComponent {
   constructor(props) {
     super(props);
     this.resetDefaults = this.resetDefaults.bind(this);
@@ -44,10 +43,9 @@ class Sidebar extends React.PureComponent {
             <p className="label">Showing</p>
             <MeasureSelect
               className="select-measure"
+              // itemMap={options.measureMap}
               items={options.measures}
-              itemMap={options.measureMap}
-              value={query.measure}
-              showDimensions={!options.geomapLevels}
+              activeItem={query.measure}
               onItemSelect={this.setMeasure}
             />
             <p className="details">{measureDetails}</p>

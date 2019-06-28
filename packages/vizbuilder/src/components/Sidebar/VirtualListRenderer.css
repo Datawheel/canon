@@ -1,0 +1,12 @@
+.virlist-content {
+  max-height: 310px;
+  overflow: auto;
+  position: relative;
+
+  & > .optgroup {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+  }
+}
