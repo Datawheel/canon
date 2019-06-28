@@ -79,22 +79,12 @@ class ProfileEditor extends Component {
           wrapperClassName="cms-splash-wrapper"
           cards={
             <TextCard
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              item={minData}
-              fields={["title", "subtitle"]}
-              type="profile"
-              variables={variables[localeDefault]}
-            />
-          }
-          secondaryCards={locale &&
-            <TextCard
               locale={locale}
               localeDefault={localeDefault}
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"
-              variables={variables[locale]}
+              variables={variables[localeDefault]}
             />
           }
         />
