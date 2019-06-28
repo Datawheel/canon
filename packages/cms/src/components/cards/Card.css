@@ -57,6 +57,10 @@
     transition: color 0.2s ease-out;
   }
 
+  /* even out spacing when the card heading appears by itself */
+  &:last-child {
+    margin-bottom: -0.5em;
+  }
 
   /* adjacent preview content */
   & ~ *:not(.cms-reorder) {
