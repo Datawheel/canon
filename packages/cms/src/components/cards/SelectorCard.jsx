@@ -148,7 +148,7 @@ class SelectorCard extends Component {
 
     return (
       <React.Fragment>
-        <CardWrapper {...cardProps}>
+        <CardWrapper {...cardProps} key={`${cardProps.title}-${Math.random()}`}>
 
           {minData &&
             <React.Fragment>

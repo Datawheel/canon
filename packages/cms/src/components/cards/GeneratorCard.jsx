@@ -152,8 +152,6 @@ class GeneratorCard extends Component {
       title: "•••" // placeholder
     };
 
-    if (hidden && !isOpen) cardProps.style = {display: "none"};
-
     // add additional props once the data is available
     if (minData && variables) {
       Object.assign(cardProps, {
@@ -175,7 +173,7 @@ class GeneratorCard extends Component {
 
     return (
       <React.Fragment>
-        <CardWrapper {...cardProps}>
+        <CardWrapper {...cardProps} key={`${cardProps.title}-${Math.random()}`}>
 
           {showDesc &&
             <p className="cms-card-description">{description}</p>
