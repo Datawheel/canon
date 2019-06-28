@@ -33,38 +33,41 @@ export default class Header extends Component {
           }
           <span className="cms-header-title-main">
             {title}
-            <Button onClick={onRenameTitle} icon="edit" iconOnly>
-              rename
+            <Button className="cms-header-title-button font-xs" onClick={onRenameTitle} icon="edit" iconOnly>
+              rename profile
             </Button>
           </span>
         </h1>
 
-        {dimensions && dimensions.length
-          ? <a href={previewURL} className="cms-header-link">
-            {prettyDomain}/profile{dimensions && dimensions.map(dim =>
-              <React.Fragment key={dim.slug}>
-                /<span className="cms-header-link-dimension">
-                  {dim.slug}
-                </span>/
-                <span className="cms-header-link-id">
-                  {dim.id}
-                </span>
-              </React.Fragment>
-            )}{slug &&
-              <React.Fragment>
-                #<span className="cms-header-link-slug">
-                  {slug}
-                </span>
-                <Button onClick={onRenameSlug} icon="edit" iconOnly>
-                  rename
-                </Button>
-              </React.Fragment>
-            }
-          </a>
-          : <span className="cms-header-link">
-            {prettyDomain}/profile/
-          </span>
-        }
+        <span className="cms-header-link-container">
+          {dimensions && dimensions.length
+            // proper URL can be constructed
+            ? <a href={previewURL} className="cms-header-link">
+              {/* dimensions & ids */}
+              {prettyDomain}/profile{dimensions && dimensions.map(dim =>
+                <React.Fragment key={dim.slug}>/
+                  <span className="cms-header-link-dimension">{dim.slug}</span>/
+                  <span className="cms-header-link-id">{dim.id}</span>
+                </React.Fragment>
+              )}
+              {/* append slug */}
+              {slug &&
+                <React.Fragment>#
+                  <span className="cms-header-link-slug">{slug}</span>
+                </React.Fragment>
+              }
+            </a>
+            // show the domain, but that's it
+            : `${prettyDomain}/profile/`
+          }
+
+          {/* edit slug button can't be part of link */}
+          {slug && dimensions && dimensions.length
+            ? <Button className="cms-header-slug-button font-xs" onClick={onRenameSlug} icon="edit" iconOnly>
+              rename slug
+            </Button> : ""
+          }
+        </span>
       </header>
     );
   }
