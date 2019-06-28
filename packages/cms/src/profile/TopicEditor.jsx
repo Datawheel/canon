@@ -106,7 +106,9 @@ class TopicEditor extends Component {
 
   onSelect(selectionObj) {
     const {query} = this.state;
-    this.setState({query: Object.assign({}, query, selectionObj)});
+    const newQuery = Object.assign({}, query, selectionObj);
+    this.setState({query: newQuery});
+    if (this.props.onSelect) this.props.onSelect(newQuery);
   }
 
   onDelete(type, newArray) {

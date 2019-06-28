@@ -13,7 +13,7 @@ import Header from "../components/Header";
 import Toolbox from "../components/toolbox/Toolbox";
 import nestedObjectAssign from "../utils/nestedObjectAssign";
 
-import varSwap from "../utils/varSwap";
+import varSwapRecursive from "../utils/varSwapRecursive";
 
 import deepClone from "../utils/deepClone.js";
 
@@ -38,7 +38,8 @@ class ProfileBuilder extends Component {
       variablesHash: {},
       selectors: [],
       previews: [],
-      cubeData: {}
+      cubeData: {},
+      query: {}
     };
   }
 
@@ -151,11 +152,7 @@ class ProfileBuilder extends Component {
    */
   addItem(n, dir) {
     const {nodes} = this.state;
-    const {variablesHash, currentPid} = this.state;
     const {localeDefault} = this.props;
-    const formatters = this.context.formatters[localeDefault];
-    const {stripHTML} = formatters;
-    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
     n = this.locateNode(n.itemType, n.data.id);
 
     const parent = this.locateNode("profile", n.data.profile_id);
@@ -199,7 +196,7 @@ class ProfileBuilder extends Component {
         obj.data = topic.data;
         const defCon = topic.data.content.find(c => c.lang === localeDefault);
         const title = defCon && defCon.title ? defCon.title : topic.slug;
-        obj.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
+        obj.label = this.formatLabel.bind(this)(title);
         const parent = this.locateNode("profile", obj.data.profile_id);
         parent.childNodes.push(obj);
         parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
@@ -371,18 +368,14 @@ class ProfileBuilder extends Component {
    */
   reportSave(id, newValue) {
     const {nodes} = this.state;
-    const {variablesHash, currentPid} = this.state;
     const {localeDefault} = this.props;
-    const formatters = this.context.formatters[localeDefault];
-    const {stripHTML} = formatters;
-    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
     const node = this.locateNode.bind(this)("topic", id);
     // Update the label based on the new value.
     if (node) {
       const defCon = node.data.content.find(c => c.lang === localeDefault);
       if (defCon) defCon.title = newValue;
       // todo: determine if this could be merged with formatTreeVariables
-      node.label = varSwap(this.decode(stripHTML(newValue)), formatters, variables);
+      node.label = this.formatLabel.bind(this)(newValue);
     }
     this.setState({nodes});
   }
@@ -436,6 +429,17 @@ class ProfileBuilder extends Component {
     });
   }
 
+  formatLabel(str) {
+    const {variablesHash, currentPid, query, selectors} = this.state;
+    const {localeDefault} = this.props;
+    const formatters = this.context.formatters[localeDefault];
+    const {stripHTML} = formatters;
+    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
+    str = this.decode(stripHTML(str));
+    str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
+    return str;
+  }
+
   /*
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
@@ -448,6 +452,13 @@ class ProfileBuilder extends Component {
       };
     });
     this.setState({previews}, this.fetchVariables.bind(this, true));
+  }
+
+  /*
+   * Callback for TopicEditor.jsx, when the user selects a dropdown in SelectorUsage.
+   */
+  onSelect(query) {
+    this.setState({query}, this.formatTreeVariables.bind(this));
   }
 
   /*
@@ -465,18 +476,14 @@ class ProfileBuilder extends Component {
    * in the sidebar.
    */
   formatTreeVariables() {
-    const {variablesHash, currentPid, nodes} = this.state;
+    const {currentPid, nodes} = this.state;
     const {localeDefault} = this.props;
-    const formatters = this.context.formatters[localeDefault];
-    const {stripHTML} = formatters;
-    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : null;
     const p = this.locateProfileNodeByPid(currentPid);
     p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions";
-    // p.label = varSwap(p.data.slug, formatters, variables);
     p.childNodes = p.childNodes.map(t => {
       const defCon = t.data.content.find(c => c.lang === localeDefault);
       const title = defCon && defCon.title ? defCon.title : t.data.slug;
-      t.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
+      t.label = this.formatLabel.bind(this)(title);
       return t;
     });
     this.setState({nodes});
@@ -624,6 +631,7 @@ class ProfileBuilder extends Component {
                 previews={previews}
                 variables={variables}
                 selectors={selectors}
+                onSelect={this.onSelect.bind(this)}
                 reportSave={this.reportSave.bind(this)}
               >
                 <Header
