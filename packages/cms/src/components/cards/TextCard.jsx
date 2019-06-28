@@ -94,7 +94,7 @@ class TextCard extends Component {
       thisDisplayData[k] = thisLang[k];
     });
     const thatDisplayData = {};
-    Object.keys(thisLang).forEach(k => {
+    Object.keys(thatLang).forEach(k => {
       thatDisplayData[k] = thatLang[k];
     });
     
