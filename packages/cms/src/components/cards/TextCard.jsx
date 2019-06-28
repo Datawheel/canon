@@ -18,7 +18,8 @@ class TextCard extends Component {
     super(props);
     this.state = {
       minData: null,
-      displayData: null,
+      thisDisplayData: null,
+      thatDisplayData: null,
       initialData: null,
       alertObj: false,
       isDirty: false
@@ -75,7 +76,7 @@ class TextCard extends Component {
   }
 
   formatDisplay() {
-    const {variables, selectors, locale, query} = this.props;
+    const {variables, selectors, locale, query, localeDefault} = this.props;
     const formatters = this.context.formatters[locale];
 
     const minData = this.populateLanguageContent.bind(this)(this.state.minData);
@@ -85,26 +86,40 @@ class TextCard extends Component {
     minData.selectors = selectors;
     // Swap vars, and extract the actual (multilingual) content
     const content = varSwapRecursive(minData, formatters, variables, query).content;
-    const currLang = content.find(c => c.lang === locale);
+    const thisLang = content.find(c => c.lang === localeDefault);
+    const thatLang = content.find(c => c.lang === locale);
     // Map over each of the default keys, and fetch its equivalent locale version (or default)
-    const displayData = {};
-    Object.keys(currLang).forEach(k => {
-      displayData[k] = currLang[k];
+    const thisDisplayData = {};
+    Object.keys(thisLang).forEach(k => {
+      thisDisplayData[k] = thisLang[k];
     });
-    this.setState({displayData});
+    const thatDisplayData = {};
+    Object.keys(thisLang).forEach(k => {
+      thatDisplayData[k] = thatLang[k];
+    });
+    
+    this.setState({thisDisplayData, thatDisplayData});
   }
 
   save() {
     const {type, fields, plainfields, locale, localeDefault} = this.props;
     const {minData} = this.state;
     const payload = {id: minData.id};
-    const thisLocale = minData.content.find(c => c.lang === locale);
+    
+    const thisLocale = minData.content.find(c => c.lang === localeDefault);
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
     fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
     if (plainfields) plainfields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
+
+    const thatLocale = minData.content.find(c => c.lang === locale);
+    // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
+    // this to the database - save an empty string instead.
+    fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
+    if (plainfields) plainfields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
+
     payload.allowed = minData.allowed;
-    payload.content = [thisLocale];
+    payload.content = [thisLocale, thatLocale];
     axios.post(`/api/cms/${type}/update`, payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false, isDirty: false}, this.formatDisplay.bind(this));
@@ -176,17 +191,28 @@ class TextCard extends Component {
     );
   }
 
-  render() {
-    const {alertObj, displayData, minData, isOpen} = this.state;
-    const {variables, fields, onMove, plainfields, type, parentArray, item, locale} = this.props;
+  chooseVariable(e) {
+    const {minData} = this.state;
+    minData.allowed = e.target.value;
+    this.setState({minData}, this.markAsDirty.bind(this));
+  }
 
-    if (!minData || !displayData) return <Loading />;
+  render() {
+    const {alertObj, thisDisplayData, thatDisplayData, minData, isOpen} = this.state;
+    const {variables, fields, onMove, plainfields, type, parentArray, item, locale, localeDefault} = this.props;
+
+    if (!minData || !thisDisplayData) return <Loading />;
 
     let cardClass = "splash-card";
     if (["profile_stat", "topic_stat"].includes(type)) cardClass = "cms-stat-card";
     const displaySort = ["title", "value", "subtitle", "description"];
-    const displays = Object.keys(displayData)
-      .filter(k => typeof displayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
+    
+    const thisDisplay = Object.keys(thisDisplayData)
+      .filter(k => typeof thisDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
+      .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
+
+    const thatDisplay = Object.keys(thatDisplayData)
+      .filter(k => typeof thatDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
 
     // define props for CardWrapper
@@ -194,7 +220,7 @@ class TextCard extends Component {
       cardClass,
       title: <LocaleName locale={locale} />,
       onEdit: this.openEditor.bind(this),
-      onDelete: ["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this),
+      onDelete: ["profile", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this),
       // reorder
       reorderProps: parentArray ? {
         array: parentArray,
@@ -207,12 +233,30 @@ class TextCard extends Component {
       onAlertCancel: () => this.setState({alertObj: false})
     };
 
+    const varOptions = [<option key="always" value="always">Always</option>]
+      .concat(Object.keys(variables)
+        .filter(key => !key.startsWith("_"))
+        .sort((a, b) => a.localeCompare(b))
+        .map(key => {
+          const value = variables[key];
+          const type = typeof value;
+          const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
+          return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
+        }));
+
+    const showVars = Object.keys(variables).length > 0;
+
     return (
       <CardWrapper {...cardProps}>
 
         {/* preview content */}
-        { displays.map((k, i) =>
-          <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}} />
+        { thisDisplay.map((k, i) =>
+          <p key={i} className={k} dangerouslySetInnerHTML={{__html: thisDisplayData[k]}} />
+        )}
+
+        {/* preview content */}
+        { thatDisplay.map((k, i) =>
+          <p key={i} className={k} dangerouslySetInnerHTML={{__html: thatDisplayData[k]}} />
         )}
 
         {/* edit content */}
@@ -223,6 +267,21 @@ class TextCard extends Component {
           usePortal={false}
         >
           <div className="bp3-dialog-body">
+            { showVars &&
+              <label className="cms-field-container">
+                Allowed?
+                <div className="bp3-select">
+                  <select value={minData.allowed || "always"} onChange={this.chooseVariable.bind(this)}>
+                    {varOptions}
+                  </select>
+                </div>
+              </label>
+            }
+            {localeDefault}
+            {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={plainfields} />}
+            {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+            <hr/>
+            {locale}
             {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
             {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
           </div>
