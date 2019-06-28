@@ -118,7 +118,7 @@ class TopicEditor extends Component {
   render() {
 
     const {minData, recompiling, query} = this.state;
-    const {variables, previews, children, locale, localeDefault} = this.props;
+    const {variables, previews, selectors, children, locale, localeDefault} = this.props;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
@@ -258,6 +258,7 @@ class TopicEditor extends Component {
             key="selector-usage"
             minData={minData}
             variables={variables[localeDefault]}
+            selectors={selectors}
             onSelect={this.onSelect.bind(this)}
           />
         </Section>

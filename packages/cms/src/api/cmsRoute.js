@@ -554,8 +554,9 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/topic_selector/delete", isEnabled, async(req, res) => {
-    const row = await db.topic_selector.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.topic_selector.destroy({where: {id: req.query.id}});
+    const {selector_id, topic_id} = req.query; // eslint-disable-line camelcase
+    const row = await db.topic_selector.findOne({where: {selector_id, topic_id}}).catch(catcher);
+    await db.topic_selector.destroy({where: {selector_id, topic_id}});
     const reqObj = Object.assign({}, topicReqTopicOnly, {where: {id: row.topic_id}});
     let topic = await db.topic.findOne(reqObj).catch(catcher);
     let rows = [];

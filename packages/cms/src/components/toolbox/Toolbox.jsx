@@ -44,7 +44,11 @@ export default class Toolbox extends Component {
     if (id) {
       axios.get(`/api/cms/toolbox/${id}`).then(resp => {
         const minData = resp.data;
-        this.setState({minData, recompiling: true}, this.fetchVariables.bind(this, true, query));
+        const callback = () => {
+          this.updateSelectors.bind(this)();
+          this.fetchVariables.bind(this)(true, query);
+        };
+        this.setState({minData, recompiling: true}, callback);
       });
     }
     else {
@@ -72,6 +76,7 @@ export default class Toolbox extends Component {
         // content to the Card (the others are simply given an id and load the data themselves)
         if (type === "selector") {
           minData[propMap[type]].push(resp.data);
+          // updateselector?
         }
         else {
           minData[propMap[type]].push({
@@ -102,12 +107,24 @@ export default class Toolbox extends Component {
     this.setState({forceGenID, forceMatID, forceKey, recompiling}, this.hitDB.bind(this, query));
   }
 
+  updateSelectors() {
+    const {minData} = this.state;
+    if (minData) {
+      const {selectors} = minData;
+      if (this.props.updateSelectors) this.props.updateSelectors(selectors);
+    }
+  }
+
   onDelete(type, newArray) {
     const {minData} = this.state;
     minData[propMap[type]] = newArray;
     const recompiling = type === "formatter" ? false : true;
     const maybeFetch = type === "formatter" ? null : this.fetchVariables.bind(this, true);
     this.setState({minData, recompiling}, maybeFetch);
+    if (type === "selector") {
+      const {selectors} = minData;
+      if (this.props.updateSelectors) this.props.updateSelectors(selectors); 
+    }
   }
 
   onMove() {
@@ -159,7 +176,7 @@ export default class Toolbox extends Component {
 
   render() {
 
-    const {currentView, detailView, minData, recompiling, query, forceGenID, forceMatID, forceKey} = this.state;
+    const {detailView, minData, recompiling, query, forceGenID, forceMatID, forceKey} = this.state;
     const {variables, locale, localeDefault, previews} = this.props;
 
     if (!minData) {
@@ -311,7 +328,7 @@ export default class Toolbox extends Component {
                 minData={s}
                 type="selector"
                 locale={localeDefault}
-                onSave={() => this.forceUpdate()}
+                onSave={this.updateSelectors.bind(this)}
                 onDelete={this.onDelete.bind(this)}
                 variables={variables[localeDefault]}
               />

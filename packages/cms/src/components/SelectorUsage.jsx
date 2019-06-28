@@ -26,7 +26,8 @@ class SelectorUsage extends Component {
 
   removeItem(id) {
     const {minData} = this.state;
-    axios.delete("/api/cms/topic_selector/delete", {params: {id}}).then(resp => {
+    const payload = {params: {topic_id: minData.id, selector_id: id}};
+    axios.delete("/api/cms/topic_selector/delete", payload).then(resp => {
       if (resp.status === 200) {
         minData.selectors = resp.data;
         this.setState({minData});
@@ -37,13 +38,14 @@ class SelectorUsage extends Component {
   addItem(id) {
     const {minData} = this.state;
     const {selectors} = minData;
+    const allSelectors = this.props.selectors;
     const payload = {
       topic_id: minData.id,
       selector_id: id,
       ordering: selectors.length
     };
     axios.post("/api/cms/topic_selector/new", payload).then(resp => {
-      const toMove = minData.allSelectors.find(d => d.id === id);
+      const toMove = allSelectors.find(d => d.id === id);
       if (toMove) {
         toMove.topic_selector = resp.data;
         minData.selectors.push(toMove);
@@ -64,13 +66,23 @@ class SelectorUsage extends Component {
 
     const {minData, currentValues} = this.state;
     const {variables} = this.props;
+    const allSelectors = this.props.selectors;
 
     if (!minData) return null;
 
-    const {selectors, allSelectors} = minData;
+    const {selectors} = minData;
 
-    const remainingSelectors = allSelectors
-      .filter(d => !selectors.map(s => s.topic_selector.selector_id).includes(d.id));
+    const activeSelectors = [];
+    const inactiveSelectors = [];
+
+    allSelectors.forEach(selector => {
+      if (selectors.map(s => s.id).includes(selector.id)) {
+        activeSelectors.push(selector);
+      }
+      else {
+        inactiveSelectors.push(selector);
+      }
+    });
 
     return (
       <div className="cms-selector-usage cms-card-container">
@@ -78,7 +90,7 @@ class SelectorUsage extends Component {
         <div className="cms-selector-usage-column">
           <h3 className="cms-selector-usage-heading font-sm">Inactive selectors</h3>
           <ul className="cms-selector-usage-list">
-            {remainingSelectors.map(s =>
+            {inactiveSelectors.map(s =>
               <li className="cms-selector-usage-item" key={s.id}>
                 <label className="cms-selector-usage-item-label font-xs">
                   {s.name}
@@ -100,7 +112,7 @@ class SelectorUsage extends Component {
           <h3 className="cms-selector-usage-heading font-sm">Active selectors</h3>
           <ol className="cms-selector-usage-list">
 
-            {selectors.map((s, i) =>
+            {activeSelectors.map((s, i) =>
               <li className="cms-card cms-selector-card" key={`${s.id}-usage-card`}>
 
                 {/* header */}
@@ -109,7 +121,7 @@ class SelectorUsage extends Component {
                   <div className="cms-button-group">
                     <Button
                       className="cms-card-heading-button font-xxs"
-                      onClick={this.removeItem.bind(this, s.topic_selector.id)}
+                      onClick={this.removeItem.bind(this, s.id)}
                       icon="cross"
                       iconOnly
                     >
@@ -138,7 +150,7 @@ class SelectorUsage extends Component {
                   </Select>
                 }
 
-                {i !== selectors.length - 1 &&
+                {i !== activeSelectors.length - 1 &&
                   <div className="cms-reorder">
                     <Button
                       onClick={() => console.log("set me up jimmyyyy")}
