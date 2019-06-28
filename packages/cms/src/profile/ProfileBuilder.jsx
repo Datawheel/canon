@@ -36,6 +36,7 @@ class ProfileBuilder extends Component {
       currentNode: null,
       currentPid: null,
       variablesHash: {},
+      selectors: [],
       previews: [],
       cubeData: {}
     };
@@ -445,6 +446,13 @@ class ProfileBuilder extends Component {
   }
 
   /*
+   * Callback for updating selectors inside Toolbox
+   */
+  updateSelectors(selectors) {
+    this.setState({selectors});
+  }
+
+  /*
    * When the "fetch Variables" function is called (below), it means that something has
    * happened in one of the editors that requires re-running the generators and storing
    * a new set of variables in the hash. When this happens, it is an opportunity to update
@@ -557,7 +565,7 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode, variablesHash, currentPid, previews, cubeData, nodeToDelete} = this.state;
+    const {nodes, currentNode, variablesHash, currentPid, previews, cubeData, nodeToDelete, selectors} = this.state;
     const {locale, localeDefault} = this.props;
 
     if (!nodes) return null;
@@ -610,6 +618,7 @@ class ProfileBuilder extends Component {
                 localeDefault={localeDefault}
                 previews={previews}
                 variables={variables}
+                selectors={selectors}
                 reportSave={this.reportSave.bind(this)}
               >
                 <Header
@@ -636,9 +645,10 @@ class ProfileBuilder extends Component {
         </div>
         <Toolbox
           id={currentPid}
-          variables={variables}
           locale={locale}
           localeDefault={localeDefault}
+          updateSelectors={this.updateSelectors.bind(this)}
+          variables={variables}
           fetchVariables={this.fetchVariables.bind(this)}
           previews={previews}
         />
