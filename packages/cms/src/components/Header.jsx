@@ -5,10 +5,12 @@ import "./Header.css";
 export default class Header extends Component {
   render() {
     const {
-      onRename,
+      onRenameTitle,
+      onRenameSlug,
       parentTitle,
       dimensions,
-      title
+      title,
+      slug
     } = this.props;
 
     let domain = this.props;
@@ -21,7 +23,7 @@ export default class Header extends Component {
     // construct URL from domain and dimensions
     const previewURL = `${domain}/profile/${
       dimensions.map(dim => Object.values(dim)).flat().join("/")
-    }`;
+    }${slug && `#${slug}`}`;
 
     return (
       <header className="cms-header">
@@ -31,7 +33,7 @@ export default class Header extends Component {
           }
           <span className="cms-header-title-main">
             {title}
-            <Button onClick={onRename} icon="edit" iconOnly>
+            <Button onClick={onRenameTitle} icon="edit" iconOnly>
               rename
             </Button>
           </span>
@@ -48,7 +50,16 @@ export default class Header extends Component {
                   {dim.id}
                 </span>
               </React.Fragment>
-            )}
+            )}{slug &&
+              <React.Fragment>
+                #<span className="cms-header-link-slug">
+                  {slug}
+                </span>
+                <Button onClick={onRenameSlug} icon="edit" iconOnly>
+                  rename
+                </Button>
+              </React.Fragment>
+            }
           </a>
           : <span className="cms-header-link">
             {prettyDomain}/profile/

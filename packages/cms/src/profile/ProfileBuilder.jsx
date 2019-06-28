@@ -618,6 +618,7 @@ class ProfileBuilder extends Component {
                     currentNode.parent.label
                   }
                   dimensions={previews}
+                  slug={currentNode.data.slug}
                 />
 
                 <DimensionBuilder
