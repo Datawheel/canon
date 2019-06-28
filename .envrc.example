@@ -1,0 +1,3 @@
+export CANON_LOGICLAYER_CUBE=https://cdc-dragonfly.datawheel.us/
+export CANON_CONST_TESTCONST="23"
+export CANON_API=https://api.dataafrica.io/

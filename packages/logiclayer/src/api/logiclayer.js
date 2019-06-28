@@ -190,7 +190,7 @@ module.exports = function(app) {
           const searchDim = key in dimensionMap ? dimensionMap[key] : key;
 
           ids = await Promise.all(d3Array.merge(ids
-            .split(",")
+            .split(/,(?=[^\s])/g)
             .map(id => {
               if (id.includes(":") && key in relations) {
                 const rels = Object.keys(relations[key]);
