@@ -78,27 +78,36 @@ class TextCard extends Component {
 
   formatDisplay() {
     const {variables, selectors, locale, query, localeDefault} = this.props;
-    const formatters = this.context.formatters[locale];
-
+    
     const minData = this.populateLanguageContent.bind(this)(this.state.minData);
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
     // polluting the object itself
     minData.selectors = selectors;
+
+    const thisFormatters = this.context.formatters[localeDefault];
     // Swap vars, and extract the actual (multilingual) content
-    const content = varSwapRecursive(minData, formatters, variables, query).content;
+    const content = varSwapRecursive(minData, thisFormatters, variables, query).content;    
     const thisLang = content.find(c => c.lang === localeDefault);
-    const thatLang = content.find(c => c.lang === locale);
     // Map over each of the default keys, and fetch its equivalent locale version (or default)
     const thisDisplayData = {};
     Object.keys(thisLang).forEach(k => {
       thisDisplayData[k] = thisLang[k];
     });
-    const thatDisplayData = {};
-    Object.keys(thatLang).forEach(k => {
-      thatDisplayData[k] = thatLang[k];
-    });
 
+    let thatDisplayData = null;
+    
+    if (locale) {
+      thatDisplayData = {};
+      const thatFormatters = this.context.formatters[locale];
+      const content = varSwapRecursive(minData, thatFormatters, variables, query).content;    
+      const thatLang = content.find(c => c.lang === locale);
+
+      Object.keys(thatLang).forEach(k => {
+        thatDisplayData[k] = thatLang[k];
+      });
+    }    
+    
     this.setState({thisDisplayData, thatDisplayData});
   }
 
