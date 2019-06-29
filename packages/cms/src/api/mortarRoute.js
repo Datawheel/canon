@@ -271,7 +271,10 @@ module.exports = function(app) {
       }, returnVariables);
     });
     returnVariables._genStatus = genStatus;
-    const materializers = await db.materializer.findAll({where: {profile_id: pid}, raw: true}).catch(catcher);
+    const mid = req.query.materializer;
+    const matObj = mid ? {where: {id: mid}} : {where: {profile_id: profile.id}};
+    let materializers = await db.materializer.findAll(matObj).catch(catcher);
+    materializers = materializers.map(m => m.toJSON());
     // Given the partially built returnVariables and all the materializers for this profile id,
     // Run the materializers and fold their generated variables into returnVariables     
     // The order of materializers matter because input to later materializers depends on output from earlier materializers
