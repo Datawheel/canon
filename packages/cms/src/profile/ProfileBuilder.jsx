@@ -74,7 +74,6 @@ class ProfileBuilder extends Component {
     const {profiles} = this.state;
     const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters[localeDefault];
-    // const {profileSlug, topicSlug} = this.props.pathObj;
     const nodes = profiles.map(p => ({
       id: `profile${p.id}`,
       hasCaret: true,
@@ -98,7 +97,18 @@ class ProfileBuilder extends Component {
       })
     }));
     if (!openNode) {
-      this.setState({nodes});
+      const {profile, topic} = this.props.pathObj;
+      if (topic) {
+        const nodeToOpen = this.locateNode("topic", topic, nodes);
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+      else if (profile) {
+        const nodeToOpen = this.locateNode("profile", profile, nodes);
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+      else {
+        this.setState({nodes});
+      }
     }
     else {
       if (typeof openNode !== "boolean") {
@@ -258,6 +268,8 @@ class ProfileBuilder extends Component {
     if (node.itemType === "profile") parentLength = nodes.length;
     if (!currentNode) {
       node.isSelected = true;
+      // If the node has a parent, it's a topic. Expand its parent profile so we can see it.
+      if (node.parent) node.parent.isExpanded = true;
       node.isExpanded = true;
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
@@ -277,7 +289,11 @@ class ProfileBuilder extends Component {
     else if (currentNode && node.id === currentNode.id) {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
-    if (this.props.setPath) this.props.setPath(node);
+    const pathObj = {
+      profile: node.itemType === "profile" ? node.data.id : node.parent.data.id,
+      topic: node.itemType === "topic" ? node.data.id : undefined
+    };
+    if (this.props.setPath) this.props.setPath(pathObj);
     // If the pids match, the master profile is the same, so keep the same preview
     if (this.state.currentPid === node.masterPid) {
       this.setState({currentNode: node});
@@ -344,18 +360,18 @@ class ProfileBuilder extends Component {
   /**
    * Given a node type (profile, topic) and an id, crawl down the tree and fetch a reference to the Tree node with that id
    */
-  locateNode(type, id) {
-    const {nodes} = this.state;
+  locateNode(type, id, pnodes) {
+    const nodes = pnodes || this.state.nodes;
     let node = null;
     if (type === "profile") {
-      node = nodes.find(p => p.data.id === id);
+      node = nodes.find(p => Number(p.data.id) === Number(id));
     }
     else if (type === "topic") {
       nodes.forEach(p => {
-        const attempt = p.childNodes.find(t => t.data.id === id);
+        const attempt = p.childNodes.find(t => Number(t.data.id) === Number(id));
         if (attempt) {
           node = attempt;
-          node.parent = nodes.find(p => p.data.id === node.masterPid); // add parent to node
+          node.parent = nodes.find(p => Number(p.data.id) === Number(node.masterPid)); // add parent to node
         }
       });
     }

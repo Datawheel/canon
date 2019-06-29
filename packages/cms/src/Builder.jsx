@@ -23,17 +23,21 @@ class Builder extends Component {
       locales: false,
       localeDefault: false,
       secondaryLocale: false,
-      // showLocale: false,
+      pathObj: {},
       formatters: {}
     };
   }
 
   componentDidMount() {
-    const {isEnabled, env} = this.props;
+    const {isEnabled, env, params} = this.props;
+    const {pid, tid} = params;
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
-
-    // env.CANON_LANGUAGES = false;
+    const pathObj = {
+      profile: pid,
+      topic: tid
+    };
+    
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     const formatters = {};
@@ -44,11 +48,12 @@ class Builder extends Component {
       locales.forEach(locale => {
         formatters[locale] = funcifyFormatterByLocale(this.props.formatters, locale);
       });
-      this.setState({locales, formatters, secondaryLocale, localeDefault});
+      this.setState({locales, formatters, secondaryLocale, localeDefault, pathObj});
     }
     else {
-      this.setState({localeDefault, formatters});
+      this.setState({localeDefault, formatters, pathObj});
     }
+
   }
 
   getChildContext() {
@@ -75,8 +80,20 @@ class Builder extends Component {
     this.setState({settingsOpen: !this.state.settingsOpen});
   }
 
+  setPath(pathObj) {
+    const diffProfile = String(pathObj.profile) !== String(this.state.pathObj.profile);
+    const diffTopic = String(pathObj.topic) !== String(this.state.pathObj.topic);
+    if (diffProfile || diffTopic) {
+      const {router} = this.props;
+      let url = `/${pathObj.profile}`;
+      if (pathObj.topic) url += `/${pathObj.topic}`;
+      router.push(url);
+      this.setState({pathObj});
+    }
+  }
+
   render() {
-    const {currentTab, secondaryLocale, locales, localeDefault, settingsOpen} = this.state;
+    const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen} = this.state;
     const {isEnabled} = this.props;
     const navLinks = ["profiles", "stories"];
 
@@ -133,8 +150,8 @@ class Builder extends Component {
 
         {currentTab === "profiles" &&
           <ProfileBuilder
-            // pathObj={pathObj}
-            // setPath={this.setPath.bind(this)}
+            pathObj={pathObj}
+            setPath={this.setPath.bind(this)}
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
