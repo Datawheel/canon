@@ -7,7 +7,6 @@ import Section from "../components/Section";
 import Status from "../components/Status";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
-// import SelectorCard from "../components/cards/SelectorCard";
 import SelectorUsage from "../components/SelectorUsage";
 import "./TopicEditor.css";
 

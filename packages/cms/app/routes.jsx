@@ -12,6 +12,9 @@ export default function RouteCreate() {
   return (
     <Route path="/" component={App} history={browserHistory}>
       <IndexRoute component={Builder} />
+      <Route path="/:pid/:tid" component={Builder} />
+      <Route path="/:pid" component={Builder} />
+
       {/*
       <Route path="/cms-profile/:profileSlug" component={Builder} />
       <Route path="/cms-profile/:profileSlug/:topicSlug" component={Builder} />
