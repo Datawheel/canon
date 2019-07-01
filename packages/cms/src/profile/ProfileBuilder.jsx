@@ -603,6 +603,18 @@ class ProfileBuilder extends Component {
     const editorTypes = {profile: ProfileEditor, topic: TopicEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
 
+    let title = "";
+    if (currentNode) {
+      if (currentNode.itemType === "topic") {
+        const thisLang = currentNode.data.content.find(d => d.lang === localeDefault);
+        if (thisLang) title = thisLang.title;
+        title = this.formatLabel.bind(this)(title);  
+      }
+      else if (currentNode.itemType === "profile") {
+        title = currentNode.data.meta.map(d => d.slug).join("_");
+      }
+    }
+    
     return (
 
       <React.Fragment>
@@ -651,7 +663,7 @@ class ProfileBuilder extends Component {
                 reportSave={this.reportSave.bind(this)}
               >
                 <Header
-                  title={currentNode.secondaryLabel.props.node.label}
+                  title={title}
                   parentTitle={currentNode.itemType !== "profile" &&
                     currentNode.parent.label
                   }

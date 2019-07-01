@@ -87,7 +87,7 @@ class Builder extends Component {
       const {router} = this.props;
       let url = `/${pathObj.profile}`;
       if (pathObj.topic) url += `/${pathObj.topic}`;
-      router.push(url);
+      // router.replace(url);
       this.setState({pathObj});
     }
   }
