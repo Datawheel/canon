@@ -24,11 +24,11 @@ class Viz extends Component {
     // CMS, or as an actual Viz on a front-end site. In the former case, formatters
     // is a lookup object of languages, so we must fetch the appropriate formatter set.
     // In the latter, the locale is passed in based on params and then used in propify.
-    // Thus, we use a flat formatter list, passed down by Profile.jsx, not needing a 
+    // Thus, we use a flat formatter list, passed down by Profile.jsx, not needing a
     // locale-nested format.    
     const formatters = this.context.formatters[locale] || this.context.formatters;
 
-    const {config, configOverride, className, options, slug, topic} = this.props;
+    const {config, configOverride, className, options, slug, section} = this.props;
     const {id} = config;
 
     // clone config object to allow manipulation
@@ -56,7 +56,7 @@ class Viz extends Component {
     return <div className={ `visualization ${className}` }>
       { options ? <Options
         key="option-key"
-        component={{topic, viz: this}}
+        component={{section, viz: this}}
         data={ vizProps.config.data }
         dataFormat={ vizProps.dataFormat }
         slug={ slug }
