@@ -53,7 +53,7 @@ const profileReqTreeOnly = {
   include: [
     {association: "meta"},
     {   
-      association: "sections", attributes: ["id", "slug", "ordering", "profile_id", "type"], 
+      association: "sections", attributes: ["id", "slug", "ordering", "profile_id", "type", "sticky"], 
       include: [
         {association: "content", attributes: ["id", "lang", "title"]}
       ]
