@@ -86,7 +86,13 @@ export default class Toolbox extends Component {
             ordering: resp.data.ordering || null
           });
         }
-        this.setState({minData}, maybeFetch);
+        let forceID, forceOpen, forceType = null;
+        if (type === "generator" || type === "materializer") {
+          forceID = resp.data.id;
+          forceType = type;
+          forceOpen = true;
+        }
+        this.setState({minData, forceID, forceType, forceOpen}, maybeFetch);
       }
     });
   }
