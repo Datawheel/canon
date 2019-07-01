@@ -48,6 +48,16 @@ class TextCard extends Component {
 
   populateLanguageContent(minData) {
     const {locale, localeDefault, fields, plainfields} = this.props;
+    if (!minData.content.find(c => c.lang === localeDefault)) {
+      // This is a rare edge case, but in some cases, the DEFAULT
+      // Language is not populated. We must scaffold out a fake
+      // Starting point with empty strings to base everything on.
+      const defCon = {id: minData.id, lang: localeDefault};
+      // If for any reason the default was missing fields, set it to a scaffold warning
+      fields.forEach(k => !defCon[k] ? defCon[k] = "Missing Default Language Content!" : null);
+      if (plainfields) plainfields.forEach(k => !defCon[k] ? defCon[k] = "" : null);
+      minData.content.push(defCon);
+    }
     if (!minData.content.find(c => c.lang === locale)) {
       const defCon = minData.content.find(c => c.lang === localeDefault);
       const newCon = {id: minData.id, lang: locale};
@@ -93,9 +103,11 @@ class TextCard extends Component {
     const thisLang = content.find(c => c.lang === localeDefault);
     // Map over each of the default keys, and fetch its equivalent locale version (or default)
     const thisDisplayData = {};
-    Object.keys(thisLang).forEach(k => {
-      thisDisplayData[k] = thisLang[k];
-    });
+    if (thisLang) {
+      Object.keys(thisLang).forEach(k => {
+        thisDisplayData[k] = thisLang[k];
+      });
+    }
 
     let thatDisplayData = null;
 
@@ -105,9 +117,11 @@ class TextCard extends Component {
       const content = varSwapRecursive(minData, thatFormatters, variables, query).content;
       const thatLang = content.find(c => c.lang === locale);
 
-      Object.keys(thatLang).forEach(k => {
-        thatDisplayData[k] = thatLang[k];
-      });
+      if (thatLang) {
+        Object.keys(thatLang).forEach(k => {
+          thatDisplayData[k] = thatLang[k];
+        });
+      }
     }
 
     this.setState({thisDisplayData, thatDisplayData});
