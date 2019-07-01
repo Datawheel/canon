@@ -55,6 +55,12 @@ class SectionEditor extends Component {
     save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
   }
 
+  checkField(field, save, e) {
+    const {minData} = this.state;
+    minData[field] = e.target.checked;
+    save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
+  }
+
   addItem(type) {
     const {minData} = this.state;
     const payload = {};
@@ -83,7 +89,8 @@ class SectionEditor extends Component {
       id: minData.id,
       slug: minData.slug,
       type: minData.type,
-      allowed: minData.allowed
+      allowed: minData.allowed,
+      sticky: minData.sticky
     };
     axios.post("/api/cms/section/update", payload).then(resp => {
       if (resp.status === 200) {
@@ -187,6 +194,13 @@ class SectionEditor extends Component {
                 <select id="visibility-select" value={minData.allowed || "always"} onChange={this.changeField.bind(this, "allowed", true)}>
                   {varOptions}
                 </select>
+              </div>
+            </label>
+            {/* sticky select */}
+            <label className="bp3-label bp3-fill">
+              Sticky
+              <div className="bp3-checkbox">
+                <input type="checkbox" value={minData.sticky} onChange={this.checkField.bind(this, "sticky", true)} />
               </div>
             </label>
             {/* layout select */}
