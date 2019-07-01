@@ -106,10 +106,7 @@ export default class Toolbox extends Component {
    * is just hit the DB again on save to reload everything.
    */
   onSave(query) {
-    const forceOpen = null;
-    const forceID = null;
-    const forceType = null;
-    const recompiling = true;
+    const forceID = null, forceOpen = null, forceType = null, recompiling = true;
     this.setState({forceID, forceType, forceOpen, recompiling}, this.hitDB.bind(this, query));
   }
 
@@ -138,9 +135,7 @@ export default class Toolbox extends Component {
   }
 
   onClose() {
-    const forceID = null;
-    const forceType = null;
-    const forceOpen = null;
+    const forceID = null, forceOpen = null, forceType = null;
     this.setState({forceID, forceType, forceOpen});
   }
 
