@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import Button from "../fields/Button";
 import DefinitionList from "../DefinitionList";
 import PreviewSearch from "../fields/PreviewSearch";
-import CardWrapper from "./CardWrapper";
+import Card from "./Card";
 import "./DimensionCard.css";
 
 export default class DimensionCard extends Component {
@@ -64,7 +64,7 @@ export default class DimensionCard extends Component {
 
     if (!preview) return null;
 
-    // define props for CardWrapper
+    // define props for Card
     const cardProps = {
       cardClass: "dimension",
       title: meta.dimension,
@@ -79,7 +79,7 @@ export default class DimensionCard extends Component {
     };
 
     return (
-      <CardWrapper {...cardProps}>
+      <Card {...cardProps}>
 
         <DefinitionList definitions={[
           {label: "slug", text: meta.slug},
@@ -103,7 +103,7 @@ export default class DimensionCard extends Component {
         ]}/>
 
         {/* TODO: edit mode */}
-      </CardWrapper>
+      </Card>
     );
   }
 

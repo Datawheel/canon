@@ -2,12 +2,12 @@ import axios from "axios";
 import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
 import DefinitionList from "../DefinitionList";
-import FooterButtons from "../FooterButtons";
+import FooterButtons from "../editors/components/FooterButtons";
 import SelectorEditor from "../editors/SelectorEditor";
 import PropTypes from "prop-types";
 import deepClone from "../../utils/deepClone";
 // import varSwap from "../../utils/varSwap";
-import CardWrapper from "./CardWrapper";
+import Card from "./Card";
 import VarList from "../VarList";
 import "./SelectorCard.css";
 
@@ -150,7 +150,7 @@ class SelectorCard extends Component {
 
     return (
       <React.Fragment>
-        <CardWrapper {...cardProps} key={`${cardProps.title}-${id}`}>
+        <Card {...cardProps} key={`${cardProps.title}-${id}`}>
 
           {minData &&
             <React.Fragment>
@@ -175,7 +175,7 @@ class SelectorCard extends Component {
               }
             </React.Fragment>
           }
-        </CardWrapper>
+        </Card>
 
         {/* edit mode */}
         <Dialog

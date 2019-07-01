@@ -6,9 +6,9 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
 import Viz from "../Viz";
-import FooterButtons from "../FooterButtons";
+import FooterButtons from "../editors/components/FooterButtons";
 import deepClone from "../../utils/deepClone";
-import CardWrapper from "./CardWrapper";
+import Card from "./Card";
 import "./VisualizationCard.css";
 
 class VisualizationCard extends Component {
@@ -151,7 +151,7 @@ class VisualizationCard extends Component {
     };
 
     return (
-      <CardWrapper {...cardProps}>
+      <Card {...cardProps}>
 
         {/* viz preview */}
         {!isOpen &&
@@ -186,7 +186,7 @@ class VisualizationCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-      </CardWrapper>
+      </Card>
     );
   }
 

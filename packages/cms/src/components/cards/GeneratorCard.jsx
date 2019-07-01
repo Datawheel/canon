@@ -2,11 +2,11 @@ import axios from "axios";
 import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
-import FooterButtons from "../FooterButtons";
+import FooterButtons from "../editors/components/FooterButtons";
 import deepClone from "../../utils/deepClone";
 import LocaleName from "./LocaleName";
 import VarTable from "../VarTable";
-import CardWrapper from "./CardWrapper";
+import Card from "./Card";
 import "./GeneratorCard.css";
 
 class GeneratorCard extends Component {
@@ -145,7 +145,7 @@ class GeneratorCard extends Component {
       }
     }
 
-    // define initial/loading props for CardWrapper
+    // define initial/loading props for Card
     const cardProps = {
       cardClass: context,
       secondaryLocale,
@@ -175,7 +175,7 @@ class GeneratorCard extends Component {
 
     return (
       <React.Fragment>
-        <CardWrapper {...cardProps} key={`${cardProps.title}-${id}`}>
+        <Card {...cardProps} key={`${cardProps.title}-${id}`}>
 
           {showDesc &&
             <p className="cms-card-description">{description}</p>
@@ -199,7 +199,7 @@ class GeneratorCard extends Component {
               }
             </div>
           }
-        </CardWrapper>
+        </Card>
 
         {/* open state */}
         <Dialog
