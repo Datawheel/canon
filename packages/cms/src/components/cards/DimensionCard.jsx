@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Button from "../fields/Button";
-import DefinitionList from "../DefinitionList";
+import DefinitionList from "../variables/DefinitionList";
 import PreviewSearch from "../fields/PreviewSearch";
 import Card from "./Card";
 import "./DimensionCard.css";

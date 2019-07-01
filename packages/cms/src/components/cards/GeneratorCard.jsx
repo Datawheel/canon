@@ -5,7 +5,7 @@ import GeneratorEditor from "../editors/GeneratorEditor";
 import FooterButtons from "../editors/components/FooterButtons";
 import deepClone from "../../utils/deepClone";
 import LocaleName from "./LocaleName";
-import VarTable from "../VarTable";
+import VarTable from "../variables/VarTable";
 import Card from "./Card";
 import "./GeneratorCard.css";
 

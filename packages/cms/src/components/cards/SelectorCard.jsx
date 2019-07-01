@@ -1,14 +1,14 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
-import DefinitionList from "../DefinitionList";
+import PropTypes from "prop-types";
 import FooterButtons from "../editors/components/FooterButtons";
 import SelectorEditor from "../editors/SelectorEditor";
-import PropTypes from "prop-types";
+import DefinitionList from "../variables/DefinitionList";
+import VarList from "../variables/VarList";
 import deepClone from "../../utils/deepClone";
 // import varSwap from "../../utils/varSwap";
 import Card from "./Card";
-import VarList from "../VarList";
 import "./SelectorCard.css";
 
 /**

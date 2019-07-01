@@ -605,7 +605,7 @@ class ProfileBuilder extends Component {
 
     const editorTypes = {profile: ProfileEditor, topic: SectionEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
-    
+
     return (
 
       <React.Fragment>

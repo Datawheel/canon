@@ -1,4 +1,4 @@
-@import "../css/mixins.css";
+@import "../../css/mixins.css";
 
 /* card table for displaying description, preview profile text, etc */
 .cms-var-list {
