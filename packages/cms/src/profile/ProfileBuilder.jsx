@@ -225,7 +225,6 @@ class ProfileBuilder extends Component {
   deleteItem(n) {
     const {nodes} = this.state;
     const {localeDefault} = this.props;
-    const {stripHTML} = this.context.formatters[localeDefault];
     // If this method is running, then the user has clicked "Confirm" in the Deletion Alert. Setting the state of
     // nodeToDelete back to false will close the Alert popover.
     const nodeToDelete = false;
@@ -241,7 +240,7 @@ class ProfileBuilder extends Component {
             id: `section${sectionData.id}`,
             hasCaret: false,
             iconName: sectionIcons[sectionData.type] || "help",
-            label: this.decode(stripHTML(title)),
+            label: this.formatLabel.bind(this)(title),
             itemType: "section",
             masterPid: parent.masterPid,
             masterMeta: parent.masterMeta,

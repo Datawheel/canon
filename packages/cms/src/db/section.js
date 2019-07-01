@@ -27,6 +27,10 @@ module.exports = function(sequelize, db) {
       allowed: {
         type: db.STRING,
         defaultValue: "always"
+      },
+      sticky: {
+        type: db.BOOLEAN,
+        defaultValue: false
       }
     }, 
     {
