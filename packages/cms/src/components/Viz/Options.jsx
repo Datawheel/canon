@@ -42,7 +42,7 @@ class Options extends Component {
     super(props);
     this.state = {
       backgroundColor: true,
-      imageContext: "topic",
+      imageContext: "section",
       imageProcessing: false,
       includeSlug: true,
       loading: false,
@@ -173,7 +173,7 @@ class Options extends Component {
 
   toggleContext() {
     const {imageContext} = this.state;
-    this.setState({imageContext: imageContext === "topic" ? "viz" : "topic"});
+    this.setState({imageContext: imageContext === "section" ? "viz" : "section"});
   }
 
   onBlur(ref) {

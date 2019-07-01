@@ -1,6 +1,6 @@
 @import "../../css/mixins.css";
 
-.topic {
+.section {
   color: white;
   display: flex;
   flex-direction: row;
@@ -8,7 +8,7 @@
   padding: 25px 25px;
   width: 100%;
 
-  & .topic-content {
+  & .section-content {
     align-self: flex-start;
     flex: 1;
 
@@ -25,7 +25,7 @@
       width: 100%;
     }
 
-    & .topic-title {
+    & .section-title {
       margin: 0 auto;
       z-index: 2;
       & a {
@@ -34,19 +34,19 @@
       }
     }
 
-    & .topic-stats {
+    & .section-stats {
       display: flex;
       flex-wrap: wrap;
       width: 100%;
     }
 
-    & .topic-descriptions {
+    & .section-descriptions {
       position: relative;
     }
 
   }
 
-  & .topic-visualization {
+  & .section-visualization {
     flex: 1;
     margin-left: 50px;
     min-height: 400px;
@@ -54,8 +54,8 @@
     position: relative;
   }
 
-  &.topic-loading {
-    & .topic-description, & .topic-stats, & .topic-visualization {
+  &.section-loading {
+    & .section-description, & .section-stats, & .section-visualization {
       opacity: 0.25;
     }
   }
@@ -67,17 +67,17 @@
   }
 
   &.compare {
-    & .topic-body {
+    & .section-body {
       flex-wrap: wrap;
-      & .topic-content {
+      & .section-content {
         max-width: none !important;
         width: 100%;
-        & .topic-text {
+        & .section-text {
           &:not(:first-child) {
             margin-left: 50px;
           }
         }
-        & .topic-visualization {
+        & .section-visualization {
           margin-left: 0;
           &:not(:first-child) {
             margin-left: 50px;
@@ -91,11 +91,11 @@
     flex: 1;
     flex-direction: column;
     width: auto;
-    & .topic-content {
+    & .section-content {
       max-width: none;
       width: 100%;
     }
-    & .topic-visualization {
+    & .section-visualization {
       margin: 0;
       min-height: 200px;
     }
@@ -109,9 +109,9 @@
 
 }
 
-.topic-flex {
+.section-flex {
   display: flex;
-  & .topic-selectors {
+  & .section-selectors {
     max-width: 300px;
   }
 }
