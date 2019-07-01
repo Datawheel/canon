@@ -15,9 +15,12 @@ const UIToaster =
 /**
  * Returns a severity level (based on blueprint's Intent scale) depending
  * on the type of error passed.
- * @param {Error} error An Error object
+ * @param {import("./errors").VizbuilderError} error An Error object
  */
 function getSeverityByError(error) {
+  if ("severity" in error) {
+    return error.severity;
+  }
   if ("response" in error) {
     return Intent.WARNING;
   }

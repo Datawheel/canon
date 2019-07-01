@@ -15,7 +15,7 @@ class Loading extends Component {
       className="loading"
       title={t("Loading.title")}
       description={t("Loading.description", {progress, total})}
-      visual={<ProgressBar value={progress / total} />} />;
+      action={<ProgressBar value={progress / total} />} />;
   }
 }
 
