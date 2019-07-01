@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {fetchData} from "@datawheel/canon-core";
-import Section from "./Section";
+import Section from "./sections/Section";
 import libs from "../utils/libs";
 
 class Profile extends Component {

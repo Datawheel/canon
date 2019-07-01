@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {Icon} from "@blueprintjs/core";
-import Button from "./Button";
+import Button from "./fields/Button";
 import "./Panel.css";
 
 export default class Panel extends Component {

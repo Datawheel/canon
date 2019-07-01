@@ -1,7 +1,7 @@
 import React, {Component} from "react";
-import Button from "../Button";
-import ButtonGroup from "../ButtonGroup";
-import Select from "../Select";
+import Button from "../fields/Button";
+import ButtonGroup from "../fields/ButtonGroup";
+import Select from "../fields/Select";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {

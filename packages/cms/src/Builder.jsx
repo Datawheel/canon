@@ -1,13 +1,13 @@
 import funcifyFormatterByLocale from "./utils/funcifyFormatterByLocale";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import Select from "./components/Select";
+import Select from "./components/fields/Select";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
 
-import Button from "./components/Button";
+import Button from "./components/fields/Button";
 
 import "./css/base.css";
 import "./css/blueprint-overrides.css";
@@ -34,7 +34,7 @@ class Builder extends Component {
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
     const pathObj = {profile, topic, previews};
-    
+
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     const formatters = {};

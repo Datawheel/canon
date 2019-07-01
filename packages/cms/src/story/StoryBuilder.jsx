@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import {NonIdealState, Alert, Intent} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import CtxMenu from "../components/CtxMenu";
-import Button from "../components/Button";
+import Button from "../components/fields/Button";
 import SidebarTree from "../components/SidebarTree";
 import StoryEditor from "./StoryEditor";
 import StorySectionEditor from "./StorySectionEditor";

@@ -7,7 +7,7 @@ import SectionEditor from "./SectionEditor";
 import PropTypes from "prop-types";
 import DimensionBuilder from "../profile/DimensionBuilder";
 import CtxMenu from "../components/CtxMenu";
-import Button from "../components/Button";
+import Button from "../components/fields/Button";
 import SidebarTree from "../components/SidebarTree";
 import Header from "../components/Header";
 import Toolbox from "../components/toolbox/Toolbox";

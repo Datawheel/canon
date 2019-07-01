@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import Button from "./Button";
+import Button from "./fields/Button";
 import "./ReorderButtons.css";
 
 class ReorderButtons extends Component {

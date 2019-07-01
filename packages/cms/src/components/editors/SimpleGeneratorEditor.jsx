@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {EditableText, Checkbox, Alert, Intent} from "@blueprintjs/core";
-import Button from "../Button";
+import Button from "../fields/Button";
 
 import "./SimpleGeneratorEditor.css";
 

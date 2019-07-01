@@ -2,7 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-import Button from "../components/Button";
+import Button from "../components/fields/Button";
 import Panel from "../components/Panel";
 import Status from "../components/Status";
 import TextCard from "../components/cards/TextCard";

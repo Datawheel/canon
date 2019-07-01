@@ -1,8 +1,8 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Panel from "../Panel";
-import ButtonGroup from "../ButtonGroup";
-import FilterSearch from "../FilterSearch";
+import ButtonGroup from "../fields/ButtonGroup";
+import FilterSearch from "../fields/FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
 import SelectorCard from "../cards/SelectorCard";
 import Status from "../Status";
@@ -123,7 +123,7 @@ export default class Toolbox extends Component {
     this.setState({minData, recompiling}, maybeFetch);
     if (type === "selector") {
       const {selectors} = minData;
-      if (this.props.updateSelectors) this.props.updateSelectors(selectors); 
+      if (this.props.updateSelectors) this.props.updateSelectors(selectors);
     }
   }
 
