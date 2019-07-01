@@ -64,7 +64,7 @@ class UpdatedMeasureSelect extends React.Component {
       const [topic, subtopic] = stack;
       return items.filter(
         measure =>
-          measure.isOptgroup ||
+          !measure.isOptgroup &&
           (measure.annotations._cb_topic === topic &&
             measure.annotations._cb_subtopic === subtopic)
       );
@@ -151,7 +151,10 @@ class UpdatedMeasureSelect extends React.Component {
           key={`${item.topic} ${item.subtopic}`}
           className={classNames(Classes.MENU_HEADER, "measure-select optgroup")}
         >
-          <MeasureHeader {...item} />
+          <h4 className="measure-label">
+            <span className="topic">{item.topic}</span>
+            <span className="subtopic">{item.subtopic}</span>
+          </h4>
         </li>
       );
     }
@@ -172,15 +175,6 @@ class UpdatedMeasureSelect extends React.Component {
     const {onItemSelect} = this.props;
     onItemSelect && onItemSelect(item, evt);
   }
-}
-
-function MeasureHeader(props) {
-  return (
-    <h4 className="measure-label">
-      <span className="topic">{props.topic}</span>
-      <span className="subtopic">{props.subtopic}</span>
-    </h4>
-  );
 }
 
 function MeasureItem(props) {
