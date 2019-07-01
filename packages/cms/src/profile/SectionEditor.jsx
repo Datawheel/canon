@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import Button from "../components/fields/Button";
-import Panel from "../components/Panel";
+import Accardion from "../components/Accardion";
 import Status from "../components/Status";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
@@ -151,7 +151,7 @@ class SectionEditor extends Component {
 
         {/* topic name */}
         {/* TODO: convert to fields */}
-        <Panel
+        <Accardion
           title="Topic metadata"
           subtitle="Title"
           entity="meta"
@@ -199,10 +199,10 @@ class SectionEditor extends Component {
               </div>
             </label>
           </div>
-        </Panel>
+        </Accardion>
 
         {/* subtitles */}
-        <Panel
+        <Accardion
           title="Subtitles"
           entity="subtitle"
           addItem={this.addItem.bind(this, "topic_subtitle")}
@@ -224,7 +224,7 @@ class SectionEditor extends Component {
           )}
         />
 
-        <Panel title="Selector usage" entity="selectorUsage">
+        <Accardion title="Selector usage" entity="selectorUsage">
           <SelectorUsage
             key="selector-usage"
             minData={minData}
@@ -232,10 +232,10 @@ class SectionEditor extends Component {
             selectors={selectors}
             onSelect={this.onSelect.bind(this)}
           />
-        </Panel>
+        </Accardion>
 
         {/* stats */}
-        <Panel
+        <Accardion
           title="Stats"
           entity="stat"
           addItem={this.addItem.bind(this, "topic_stat")}
@@ -258,7 +258,7 @@ class SectionEditor extends Component {
         />
 
         {/* descriptions */}
-        <Panel
+        <Accardion
           title="Descriptions"
           entity="description"
           addItem={this.addItem.bind(this, "topic_description")}
@@ -281,7 +281,7 @@ class SectionEditor extends Component {
         />
 
         {/* visualizations */}
-        <Panel
+        <Accardion
           title="Visualizations"
           entity="visualization"
           addItem={this.addItem.bind(this, "topic_visualization")}

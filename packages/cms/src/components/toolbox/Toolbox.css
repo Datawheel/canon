@@ -53,11 +53,11 @@
   }
 }
 
-/* wrapper for all sections */
-.cms-toolbox-section-wrapper.is-hidden {
+/* wrapper for all accardions */
+.cms-toolbox-accardion-wrapper.is-hidden {
   /* in output view, hide everything except for edit dialogs */
-  & .cms-section-heading,
-  & .cms-section-description,
+  & .cms-accardion-heading,
+  & .cms-accardion-description,
   & .cms-card {
     display: none;
   }

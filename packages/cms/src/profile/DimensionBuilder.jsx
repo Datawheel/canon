@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import DimensionCard from "../components/cards/DimensionCard";
 import DimensionCreator from "../components/DimensionCreator";
-import Panel from "../components/Panel";
+import Accardion from "../components/Accardion";
 import {Dialog} from "@blueprintjs/core";
 
 import "./DimensionBuilder.css";
@@ -37,7 +37,7 @@ export default class DimensionBuilder extends Component {
 
     return (
       <React.Fragment>
-        <Panel
+        <Accardion
           title="Dimensions"
           entity="dimension"
           addItem={() => this.setState({isOpen: !this.state.isOpen})}

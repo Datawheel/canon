@@ -2,7 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 
 import Button from "../components/fields/Button";
-import Panel from "../components/Panel";
+import Accardion from "../components/Accardion";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import VisualizationCard from "../components/cards/VisualizationCard";
@@ -104,9 +104,9 @@ class StorySectionEditor extends Component {
       <div className="cms-editor-inner">
 
         {/* current story options */}
-        <Panel
+        <Accardion
           title="Story section metadata"
-          subtitle="Panel title"
+          subtitle="Section title"
           entity="title"
           cards={<TextCard
             item={minData}
@@ -147,10 +147,10 @@ class StorySectionEditor extends Component {
               </div>
             </label>
           </div>
-        </Panel>
+        </Accardion>
 
         {/* subtitles */}
-        <Panel
+        <Accardion
           title="Subtitles"
           entity="subtitle"
           addItem={this.addItem.bind(this, "storytopic_subtitle")}
@@ -185,7 +185,7 @@ class StorySectionEditor extends Component {
         />
 
         {/* Stats */}
-        <Panel
+        <Accardion
           title="Stats"
           entity="stat"
           addItem={this.addItem.bind(this, "storytopic_stat")}
@@ -220,7 +220,7 @@ class StorySectionEditor extends Component {
         />
 
         {/* Descriptions */}
-        <Panel
+        <Accardion
           title="Descriptions"
           entity="description"
           addItem={this.addItem.bind(this, "storytopic_description")}
@@ -256,7 +256,7 @@ class StorySectionEditor extends Component {
 
         {/* visualizations */}
 
-        <Panel
+        <Accardion
           title="Visualizations"
           entity="visualization"
           addItem={this.addItem.bind(this, "storytopic_visualization")}
