@@ -29,8 +29,8 @@ class Builder extends Component {
   }
 
   componentDidMount() {
-    const {isEnabled, env, params} = this.props;
-    const {pid, tid} = params;
+    const {isEnabled, env, location} = this.props;
+    const {pid, tid} = location.query;
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
     const pathObj = {
@@ -85,9 +85,9 @@ class Builder extends Component {
     const diffTopic = String(pathObj.topic) !== String(this.state.pathObj.topic);
     if (diffProfile || diffTopic) {
       const {router} = this.props;
-      let url = `/${pathObj.profile}`;
-      if (pathObj.topic) url += `/${pathObj.topic}`;
-      // router.replace(url);
+      let url = `?profile=${pathObj.profile}`;
+      if (pathObj.topic) url += `&topic=${pathObj.topic}`;
+      router.replace(url);
       this.setState({pathObj});
     }
   }
