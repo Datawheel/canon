@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {Alert, Icon} from "@blueprintjs/core";
 import ButtonGroup from "../fields/ButtonGroup";
-import ReorderButtons from "../ReorderButtons";
+import ReorderButton from "./components/ReorderButton";
 import "./Card.css";
 
 // TODO: rename existing Card.jsx (profile section layout?)
@@ -93,7 +93,7 @@ export default class CardWrapper extends Component {
 
         {/* reorder buttons */}
         {reorderProps && onReorder &&
-          <ReorderButtons
+          <ReorderButton
             item={reorderProps.item}
             array={reorderProps.array}
             type={reorderProps.type}

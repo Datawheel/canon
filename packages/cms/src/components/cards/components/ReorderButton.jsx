@@ -1,9 +1,9 @@
 import axios from "axios";
 import React, {Component} from "react";
-import Button from "./fields/Button";
-import "./ReorderButtons.css";
+import Button from "../../fields/Button";
+import "./ReorderButton.css";
 
-class ReorderButtons extends Component {
+export default class ReorderButton extends Component {
 
   constructor(props) {
     super(props);
@@ -87,5 +87,3 @@ class ReorderButtons extends Component {
     );
   }
 }
-
-export default ReorderButtons;
