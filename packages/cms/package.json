@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-cms",
   "description": "Content Management System for Canon sites.",
-  "version": "0.6.1",
+  "version": "0.6.3",
   "author": "James Mullen",
   "license": "MIT",
   "scripts": {
@@ -10,7 +10,8 @@
     "locales": "canon-locales",
     "release": "canon-release",
     "setup": "canon-setup",
-    "start": "canon-start"
+    "start": "canon-start",
+    "migrate-db": "node scripts/migrate-db.js"
   },
   "dependencies": {
     "@blueprintjs/datetime": "^3.7.1",

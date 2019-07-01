@@ -24,7 +24,7 @@ module.exports = [
   require("postcss-nesting")(),
   require("postcss-conditionals")(),
   require("postcss-preset-env")({
-    browsers: ["> 1%", "last 2 versions"]
+    browserslist: ["> 1%", "last 2 versions"]
   }),
   require("postcss-reporter")({
     filter: msg => msg.type === "warning" || msg.type !== "dependency"

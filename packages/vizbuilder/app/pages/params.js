@@ -67,12 +67,12 @@ export const DEFAULT_PERMAKEYS = {
 
 export const colorScaleConfig = {
   color: [
-    '#cfdfeb',
-    '#b0cde1',
-    '#90bad8',
-    '#6ea7d2',
-    '#4c96cb',
-    '#3182bd',
-    '#004374'
+    "#cfdfeb",
+    "#b0cde1",
+    "#90bad8",
+    "#6ea7d2",
+    "#4c96cb",
+    "#3182bd",
+    "#004374"
   ]
-}
+};

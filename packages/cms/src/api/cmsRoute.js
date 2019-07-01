@@ -347,7 +347,14 @@ module.exports = function(app) {
       const dim = dims[i];
       const thisSlug = profile.meta.find(d => d.slug === dim.slug);
       const levels = thisSlug ? thisSlug.levels : [];
-      let thisAttr = await db.search.findOne({where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}}).catch(catcher);
+      let searchReq;
+      if (levels.length === 0) {
+        searchReq = {where: {id: dim.id}};
+      }
+      else {
+        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
+      }
+      let thisAttr = await db.search.findOne(searchReq).catch(catcher);
       thisAttr = thisAttr ? thisAttr.toJSON() : {};
       if (i === 0) attr = Object.assign(attr, thisAttr);
       Object.keys(thisAttr).forEach(key => {
