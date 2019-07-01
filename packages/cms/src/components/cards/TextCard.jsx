@@ -199,7 +199,7 @@ class TextCard extends Component {
   prettifyType(type) {
     return this.upperCaseFirst(type
       .replace("story_", "")
-      .replace("topic_", "")
+      .replace("section_", "")
     );
   }
 
@@ -216,7 +216,7 @@ class TextCard extends Component {
     if (!minData || !thisDisplayData) return <Loading />;
 
     let cardClass = "splash-card";
-    if (["profile_stat", "topic_stat"].includes(type)) cardClass = "cms-stat-card";
+    if (["profile_stat", "section_stat"].includes(type)) cardClass = "cms-stat-card";
     const displaySort = ["title", "value", "subtitle", "description"];
 
     const thisDisplay = Object.keys(thisDisplayData)
@@ -240,7 +240,7 @@ class TextCard extends Component {
       cardClass,
       title: thisDisplay[0].text,
       onEdit: this.openEditor.bind(this),
-      onDelete: ["profile", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this),
+      onDelete: ["profile", "section", "story", "storysection"].includes(type) ? false : this.maybeDelete.bind(this),
       // reorder
       reorderProps: parentArray ? {
         array: parentArray,
@@ -326,7 +326,7 @@ class TextCard extends Component {
           </div>
 
           <FooterButtons
-            onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}
+            onDelete={["profile", "section", "section", "story", "storysection"].includes(type) ? false : this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>

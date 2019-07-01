@@ -8,7 +8,7 @@ import SidebarTree from "../components/interface/SidebarTree";
 import StoryEditor from "./StoryEditor";
 import StorySectionEditor from "./StorySectionEditor";
 
-const topicIcons = {
+const sectionIcons = {
   Card: "square",
   Column: "list",
   Tabs: "folder-close",
@@ -56,15 +56,15 @@ class StoryBuilder extends Component {
         label: this.decode(stripHTML(title)),
         itemType: "story",
         data: s,
-        childNodes: s.storytopics.map(t => {
+        childNodes: s.storysections.map(t => {
           const defCon = t.content.find(c => c.lang === localeDefault);
           const title = defCon && defCon.title ? defCon.title : t.slug;
           return {
-            id: `storytopic${t.id}`,
+            id: `storysection${t.id}`,
             hasCaret: false,
             label: this.decode(stripHTML(title)),
-            iconName: topicIcons[t.type] || "help",
-            itemType: "storytopic",
+            iconName: sectionIcons[t.type] || "help",
+            itemType: "storysection",
             data: t
           };
         })
@@ -90,7 +90,7 @@ class StoryBuilder extends Component {
     const sorter = (a, b) => a.data.ordering - b.data.ordering;
     n = this.locateNode(n.itemType, n.data.id);
     let parentArray;
-    if (n.itemType === "storytopic") parentArray = this.locateNode("story", n.data.story_id).childNodes;
+    if (n.itemType === "storysection") parentArray = this.locateNode("story", n.data.story_id).childNodes;
     if (n.itemType === "story") parentArray = nodes;
     if (dir === "up") {
       const old = parentArray.find(node => node.data.ordering === n.data.ordering - 1);
@@ -116,7 +116,7 @@ class StoryBuilder extends Component {
     const {stripHTML} = this.context.formatters[localeDefault];
     n = this.locateNode(n.itemType, n.data.id);
     let parentArray;
-    if (n.itemType === "storytopic") {
+    if (n.itemType === "storysection") {
       parentArray = this.locateNode("story", n.data.story_id).childNodes;
     }
     else if (n.itemType === "story") {
@@ -141,13 +141,13 @@ class StoryBuilder extends Component {
       }
     }
 
-    const objStoryTopic = {
+    const objStorySection = {
       hasCaret: false,
-      itemType: "storytopic",
+      itemType: "storysection",
       data: {}
     };
-    objStoryTopic.data.story_id = n.data.story_id;
-    objStoryTopic.data.ordering = loc;
+    objStorySection.data.story_id = n.data.story_id;
+    objStorySection.data.ordering = loc;
 
     const objStory = {
       hasCaret: true,
@@ -158,27 +158,27 @@ class StoryBuilder extends Component {
 
     let obj = null;
 
-    if (n.itemType === "storytopic") {
-      obj = objStoryTopic;
+    if (n.itemType === "storysection") {
+      obj = objStorySection;
     }
     if (n.itemType === "story") {
       obj = objStory;
-      objStoryTopic.data.ordering = 0;
-      obj.childNodes = [objStoryTopic];
+      objStorySection.data.ordering = 0;
+      obj.childNodes = [objStorySection];
     }
 
     if (obj) {
 
       const storyPath = "/api/cms/story/new";
-      const storyTopicPath = "/api/cms/storytopic/new";
+      const storySectionPath = "/api/cms/storysection/new";
 
-      if (n.itemType === "storytopic") {
-        axios.post(storyTopicPath, obj.data).then(storytopic => {
-          if (storytopic.status === 200) {
-            obj.id = `storytopic${storytopic.data.id}`;
-            obj.data = storytopic.data;
-            const defCon = storytopic.data.content.find(c => c.lang === localeDefault);
-            const title = defCon && defCon.title ? defCon.title : storytopic.data.slug;
+      if (n.itemType === "storysection") {
+        axios.post(storySectionPath, obj.data).then(storysection => {
+          if (storysection.status === 200) {
+            obj.id = `storysection${storysection.data.id}`;
+            obj.data = storysection.data;
+            const defCon = storysection.data.content.find(c => c.lang === localeDefault);
+            const title = defCon && defCon.title ? defCon.title : storysection.data.slug;
             obj.label = this.decode(stripHTML(title));
             const parent = this.locateNode("story", obj.data.story_id);
             parent.childNodes.push(obj);
@@ -186,7 +186,7 @@ class StoryBuilder extends Component {
             this.setState({nodes}, this.handleNodeClick.bind(this, obj));
           }
           else {
-            console.log("storytopic error");
+            console.log("storysection error");
           }
         });
       }
@@ -197,14 +197,14 @@ class StoryBuilder extends Component {
           const defCon = story.data.content.find(c => c.lang === localeDefault);
           const title = defCon && defCon.title ? defCon.title : story.data.slug;
           obj.label = this.decode(stripHTML(title));
-          objStoryTopic.data.story_id = story.data.id;
-          axios.post(storyTopicPath, objStoryTopic.data).then(storyTopic => {
-            if (storyTopic.status === 200) {
-              objStoryTopic.id = `storytopic${storyTopic.data.id}`;
-              objStoryTopic.data = storyTopic.data;
-              const defCon = storyTopic.data.content.find(c => c.lang === localeDefault);
-              const title = defCon && defCon.title ? defCon.title : storyTopic.data.slug;
-              objStoryTopic.label = this.decode(stripHTML(title));
+          objStorySection.data.story_id = story.data.id;
+          axios.post(storySectionPath, objStorySection.data).then(storySection => {
+            if (storySection.status === 200) {
+              objStorySection.id = `storysection${storySection.data.id}`;
+              objStorySection.data = storySection.data;
+              const defCon = storySection.data.content.find(c => c.lang === localeDefault);
+              const title = defCon && defCon.title ? defCon.title : storySection.data.slug;
+              objStorySection.label = this.decode(stripHTML(title));
               nodes.push(obj);
               nodes.sort((a, b) => a.data.ordering - b.data.ordering);
               this.setState({nodes}, this.handleNodeClick.bind(this, obj));
@@ -229,22 +229,22 @@ class StoryBuilder extends Component {
     n = this.locateNode(n.itemType, n.data.id);
     const nodeToDelete = false;
     // todo: instead of the piecemeal refreshes being done for each of these tiers - is it sufficient to run buildNodes again?
-    if (n.itemType === "storytopic") {
+    if (n.itemType === "storysection") {
       const parent = this.locateNode("story", n.data.story_id);
-      axios.delete("/api/cms/storytopic/delete", {params: {id: n.data.id}}).then(resp => {
-        const storytopics = resp.data.map(storyTopicData => {
-          const defCon = storyTopicData.content.find(c => c.lang === localeDefault);
-          const title = defCon && defCon.title ? defCon.title : storyTopicData.slug;
+      axios.delete("/api/cms/storysection/delete", {params: {id: n.data.id}}).then(resp => {
+        const storysections = resp.data.map(storySectionData => {
+          const defCon = storySectionData.content.find(c => c.lang === localeDefault);
+          const title = defCon && defCon.title ? defCon.title : storySectionData.slug;
           return {
-            id: `storytopic${storyTopicData.id}`,
+            id: `storysection${storySectionData.id}`,
             hasCaret: false,
-            iconName: topicIcons[storyTopicData.type] || "help",
+            iconName: sectionIcons[storySectionData.type] || "help",
             label: this.decode(stripHTML(title)),
-            itemType: "storytopic",
-            data: storyTopicData
+            itemType: "storysection",
+            data: storySectionData
           };
         });
-        parent.childNodes = storytopics;
+        parent.childNodes = storysections;
         this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
       });
     }
@@ -260,7 +260,7 @@ class StoryBuilder extends Component {
     node = this.locateNode(node.itemType, node.data.id);
     const {nodes, currentNode} = this.state;
     let parentLength = 0;
-    if (node.itemType === "storytopic") parentLength = this.locateNode("story", node.data.story_id).childNodes.length;
+    if (node.itemType === "storysection") parentLength = this.locateNode("story", node.data.story_id).childNodes.length;
     if (node.itemType === "story") parentLength = nodes.length;
     if (!currentNode) {
       node.isSelected = true;
@@ -284,11 +284,11 @@ class StoryBuilder extends Component {
 
   addFirst() {
     const storyStub = {ordering: 0};
-    const storytopicStub = {ordering: 0};
+    const storysectionStub = {ordering: 0};
 
     axios.post("/api/cms/story/new", storyStub).then(s => {
-      storytopicStub.story_id = s.data.id;
-      axios.post("/api/cms/storytopic/new", storytopicStub).then(t => {
+      storysectionStub.story_id = s.data.id;
+      axios.post("/api/cms/storysection/new", storysectionStub).then(t => {
         if (t.status === 200) {
           axios.get("/api/cms/storytree").then(resp => {
             const stories = resp.data;
@@ -320,7 +320,7 @@ class StoryBuilder extends Component {
   }
 
   /**
-   * Given a node type (story, storytopic) and an id, crawl down the tree and fetch a reference to the Tree node with that id
+   * Given a node type (story, storysection) and an id, crawl down the tree and fetch a reference to the Tree node with that id
    */
   locateNode(type, id) {
     const {nodes} = this.state;
@@ -328,7 +328,7 @@ class StoryBuilder extends Component {
     if (type === "story") {
       node = nodes.find(s => s.data.id === id);
     }
-    else if (type === "storytopic") {
+    else if (type === "storysection") {
       nodes.forEach(s => {
         const attempt = s.childNodes.find(t => t.data.id === id);
         if (attempt) node = attempt;
@@ -346,7 +346,6 @@ class StoryBuilder extends Component {
     const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters[localeDefault];
     const node = this.locateNode.bind(this)(type, id);
-    // Update the label based on the new value. If this is a section or a topic, this is the only thing needed
     if (node) {
       const defCon = node.data.content.find(c => c.lang === localeDefault);
       if (defCon) defCon.title = newValue;
@@ -395,7 +394,7 @@ class StoryBuilder extends Component {
                   localeDefault={localeDefault}
                   reportSave={this.reportSave.bind(this)}
                 />
-                : currentNode.itemType === "storytopic"
+                : currentNode.itemType === "storysection"
                   ? <StorySectionEditor
                     id={currentNode.data.id}
                     locale={locale}

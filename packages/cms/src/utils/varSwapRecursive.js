@@ -33,7 +33,7 @@ const strSwap = (str, formatterFunctions, variables, selectors, isLogic = false,
 const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, selectors = []) => {
   const allowed = obj => variables[obj.allowed] || obj.allowed === null || obj.allowed === undefined || obj.allowed === "always";
   const obj = Object.assign({}, sourceObj);
-  // If I'm a topic and have selectors, extract and prep them for use
+  // If I'm a section and have selectors, extract and prep them for use
   if (obj.selectors) {
     const newSelectors = obj.selectors.map(s => {
       const selector = {};

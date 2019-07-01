@@ -49,7 +49,7 @@ const profileReq = {
   include: [
     {association: "meta", separate: true},
     {association: "content", separate: true},
-    {association: "topics", separate: true,
+    {association: "sections", separate: true,
       include: [
         {association: "content", separate: true},
         {association: "subtitles", separate: true,
@@ -80,7 +80,7 @@ const storyReq = {
       include: [{association: "content", separate: true}]
     },
     {
-      association: "storytopics", separate: true,
+      association: "storysections", separate: true,
       include: [
         {association: "content", separate: true},
         {association: "descriptions", separate: true,
@@ -123,23 +123,23 @@ const sorter = (a, b) => a.ordering - b.ordering;
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. Eventually move it up to the query.
 const sortProfile = profile => {
   profile.meta.sort(sorter);
-  if (profile.topics) {
-    profile.topics.sort(sorter);
-    profile.topics.forEach(topic => {
-      if (topic.subtitles) topic.subtitles.sort(sorter);
-      if (topic.selectors) topic.selectors.sort(sorter);
-      if (topic.stats) topic.stats.sort(sorter);
-      if (topic.descriptions) topic.descriptions.sort(sorter);
-      if (topic.visualizations) topic.visualizations.sort(sorter);
+  if (profile.sections) {
+    profile.sections.sort(sorter);
+    profile.sections.forEach(section => {
+      if (section.subtitles) section.subtitles.sort(sorter);
+      if (section.selectors) section.selectors.sort(sorter);
+      if (section.stats) section.stats.sort(sorter);
+      if (section.descriptions) section.descriptions.sort(sorter);
+      if (section.visualizations) section.visualizations.sort(sorter);
     });
   }
   return profile;
 };
 
 const sortStory = story => {
-  ["descriptions", "footnotes", "authors", "storytopics"].forEach(type => story[type].sort(sorter));
-  story.storytopics.forEach(storytopic => {
-    ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storytopic[type].sort(sorter));
+  ["descriptions", "footnotes", "authors", "storysections"].forEach(type => story[type].sort(sorter));
+  story.storysections.forEach(storysection => {
+    ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storysection[type].sort(sorter));
   });
   return story;
 };
@@ -178,7 +178,7 @@ const extractLocaleContent = (obj, locale, mode) => {
     });
   }
   if (mode === "profile" || mode === "story") {
-    const children = mode === "story" ? "storytopics" : "topics";
+    const children = mode === "story" ? "storysections" : "sections";
     if (obj[children]) {
       obj[children] = obj[children].map(child => {
         child = bubbleUp(child, locale);
@@ -189,7 +189,7 @@ const extractLocaleContent = (obj, locale, mode) => {
       });
     }
   }
-  if (mode === "topic") {
+  if (mode === "section") {
     ["subtitles", "descriptions", "stats"].forEach(type => {
       if (obj[type]) obj[type] = obj[type].map(o => bubbleUp(o, locale));
     });
@@ -334,22 +334,22 @@ module.exports = function(app) {
       if (attribute && attribute.id) dim.id = attribute.id;
     }
 
-    const topicID = req.query.topic;
+    const sectionID = req.query.section;
     const profileID = req.query.profile;
 
     let pid = null;
     // If the user provided variables, this is a POST request.
     if (req.body.variables) {
-      // If the user gave us a topic or a profile id, use that to fetch the pid.
-      if (topicID) {
-        const where = isNaN(parseInt(topicID, 10)) ? {slug: topicID} : {id: topicID};
-        const t = await db.topic.findOne({where}).catch(catcher);
+      // If the user gave us a section or a profile id, use that to fetch the pid.
+      if (sectionID) {
+        const where = isNaN(parseInt(sectionID, 10)) ? {slug: sectionID} : {id: sectionID};
+        const t = await db.section.findOne({where}).catch(catcher);
         if (t) {
           pid = t.profile_id;
         } 
         else {
-          if (verbose) console.error(`Profile not found for topic: ${topicID}`);
-          return res.json(`Profile not found for topic: ${topicID}`);
+          if (verbose) console.error(`Profile not found for section: ${sectionID}`);
+          return res.json(`Profile not found for section: ${sectionID}`);
         }
       }
       else if (profileID) {
@@ -414,7 +414,7 @@ module.exports = function(app) {
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
     let profile = request.data;
-    // Each topic will require references to all selectors
+    // Each section will require references to all selectors
     let allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
     allSelectors = allSelectors.map(as => as.toJSON());
     profile.selectors = allSelectors;
@@ -423,8 +423,8 @@ module.exports = function(app) {
     // This means that OTHER dropdowns on the page need to be set to match. To accomplish 
     // this, hijack the "default" property on any matching selector so the dropdowns "start"
     // where we want them to.
-    profile.topics.forEach(topic => {
-      topic.selectors.forEach(selector => {
+    profile.sections.forEach(section => {
+      section.selectors.forEach(selector => {
         const {name} = selector;
         // If the user provided a selector in the query, AND if it's actually an option
         if (req.query[name] && selector.options.map(o => o.option).includes(req.query[name])) {
@@ -432,10 +432,10 @@ module.exports = function(app) {
         }
       });
     });
-    // If the user provided a topic ID in the query, that's all they want. Find & Return just that.
-    if (topicID) {
-      const topic = profile.topics.find(t => Number(t.id) === Number(topicID) || t.slug === topicID);
-      returnObject = Object.assign({}, returnObject, topic);
+    // If the user provided a section ID in the query, that's all they want. Find & Return just that.
+    if (sectionID) {
+      const section = profile.sections.find(t => Number(t.id) === Number(sectionID) || t.slug === sectionID);
+      returnObject = Object.assign({}, returnObject, section);
     }
     // Otherwise, it's just a top-level profile request
     else {

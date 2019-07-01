@@ -56,13 +56,13 @@ class Profile extends Component {
 
   render() {
     const {profile, loading} = this.state;
-    const {topics} = profile;
+    const {sections} = profile;
 
     return (
       <div id="Profile">
         <h1 dangerouslySetInnerHTML={{__html: profile.title}} />
         <h3 dangerouslySetInnerHTML={{__html: profile.subtitle}} />
-        {topics.map((topic, i) => <Section key={`${topic.slug}-${i}`} loading={loading} contents={topic} />)}
+        {sections.map((section, i) => <Section key={`${section.slug}-${i}`} loading={loading} contents={section} />)}
       </div>
     );
   }

@@ -32,7 +32,7 @@ client.checkStatus().then(resp => {
 }
 );
 
-const topicTypeDir = path.join(__dirname, "../components/sections/");
+const sectionTypeDir = path.join(__dirname, "../components/sections/");
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
 
@@ -53,7 +53,7 @@ const profileReqTreeOnly = {
   include: [
     {association: "meta"},
     {   
-      association: "topics", attributes: ["id", "slug", "ordering", "profile_id", "type"], 
+      association: "sections", attributes: ["id", "slug", "ordering", "profile_id", "type"], 
       include: [
         {association: "content", attributes: ["id", "lang", "title"]}
       ]
@@ -65,7 +65,7 @@ const storyReqTreeOnly = {
   attributes: ["id", "slug", "ordering"],
   include: [
     {association: "content", attributes: ["id", "lang", "title"]},
-    {association: "storytopics", attributes: ["id", "slug", "ordering", "story_id", "type"],
+    {association: "storysections", attributes: ["id", "slug", "ordering", "story_id", "type"],
       include: [{association: "content", attributes: ["id", "lang", "title"]}]
     }
   ]
@@ -101,7 +101,7 @@ const storyReqStoryOnly = {
   ]
 };
 
-const topicReqTopicOnly = {
+const sectionReqSectionOnly = {
   include: [
     {association: "content"},
     {association: "subtitles", attributes: ["id", "ordering"]},
@@ -112,7 +112,7 @@ const topicReqTopicOnly = {
   ]
 };
 
-const storyTopicReqStoryTopicOnly = {
+const storysectionReqStorysectionOnly = {
   include: [
     {association: "content"},
     {association: "subtitles", attributes: ["id", "ordering"]},
@@ -129,9 +129,9 @@ const storyTopicReqStoryTopicOnly = {
  */
 const cmsTables = [
   "author", "formatter", "generator", "materializer", "profile", "profile_meta",
-  "selector", "story", "story_description", "story_footnote", "storytopic",
-  "storytopic_description", "storytopic_stat", "storytopic_subtitle", "storytopic_visualization",
-  "topic", "topic_description", "topic_stat", "topic_subtitle", "topic_visualization", "topic_selector"
+  "selector", "story", "story_description", "story_footnote", "storysection",
+  "storysection_description", "storysection_stat", "storysection_subtitle", "storysection_visualization",
+  "section", "section_description", "section_stat", "section_subtitle", "section_visualization", "section_selector"
 ];
 
 /**
@@ -142,8 +142,8 @@ const cmsTables = [
  */
 
 const contentTables = [
-  "author", "profile", "story", "story_description", "story_footnote", "storytopic", "storytopic_description", 
-  "storytopic_stat", "storytopic_subtitle", "topic", "topic_description", "topic_stat", "topic_subtitle"
+  "author", "profile", "story", "story_description", "story_footnote", "storysection", "storysection_description", 
+  "storysection_stat", "storysection_subtitle", "section", "section_description", "section_stat", "section_subtitle"
 ];
 
 const sorter = (a, b) => a.ordering - b.ordering;
@@ -173,7 +173,7 @@ const sortProfileTree = (db, profiles) => {
   profiles = flatSort(db.profile, profiles);
   profiles.forEach(p => {
     p.meta = flatSort(db.profile_meta, p.meta);
-    p.topics = flatSort(db.topic, p.topics);
+    p.sections = flatSort(db.section, p.sections);
   });
   return profiles;
 };
@@ -182,7 +182,7 @@ const sortStoryTree = (db, stories) => {
   stories = stories.map(s => s.toJSON());
   stories = flatSort(db.story, stories);
   stories.forEach(s => {
-    s.storytopics = flatSort(db.storytopic, s.storytopics);
+    s.storysections = flatSort(db.storysection, s.storysections);
   });
   return stories;
 };
@@ -201,22 +201,22 @@ const sortStory = (db, story) => {
   return story;
 };
 
-const sortTopic = (db, topic) => {
-  topic = topic.toJSON();
-  topic.subtitles = flatSort(db.topic_subtitle, topic.subtitles);
-  topic.visualizations = flatSort(db.topic_visualization, topic.visualizations);
-  topic.stats = flatSort(db.topic_stat, topic.stats);
-  topic.descriptions = flatSort(db.topic_description, topic.descriptions);
-  return topic;
+const sortSection = (db, section) => {
+  section = section.toJSON();
+  section.subtitles = flatSort(db.section_subtitle, section.subtitles);
+  section.visualizations = flatSort(db.section_visualization, section.visualizations);
+  section.stats = flatSort(db.section_stat, section.stats);
+  section.descriptions = flatSort(db.section_description, section.descriptions);
+  return section;
 };
 
-const sortStoryTopic = (db, storytopic) => {
-  storytopic = storytopic.toJSON();
-  storytopic.subtitles = flatSort(db.storytopic_subtitle, storytopic.subtitles);
-  storytopic.visualizations = flatSort(db.storytopic_visualization, storytopic.visualizations);
-  storytopic.stats = flatSort(db.storytopic_stat, storytopic.stats);
-  storytopic.descriptions = flatSort(db.storytopic_description, storytopic.descriptions);
-  return storytopic;
+const sortStorySection = (db, storysection) => {
+  storysection = storysection.toJSON();
+  storysection.subtitles = flatSort(db.storysection_subtitle, storysection.subtitles);
+  storysection.visualizations = flatSort(db.storysection_visualization, storysection.visualizations);
+  storysection.stats = flatSort(db.storysection_stat, storysection.stats);
+  storysection.descriptions = flatSort(db.storysection_description, storysection.descriptions);
+  return storysection;
 };
 
 const formatter = (members, data, dimension, level) => {
@@ -383,44 +383,44 @@ module.exports = function(app) {
     return res.json(sortStory(db, story));
   });
 
-  app.get("/api/cms/topic/get/:id", async(req, res) => {
+  app.get("/api/cms/section/get/:id", async(req, res) => {
     const {id} = req.params;
-    const reqObj = Object.assign({}, topicReqTopicOnly, {where: {id}});
-    let topic = await db.topic.findOne(reqObj).catch(catcher);
-    const topicTypes = [];
-    shell.ls(`${topicTypeDir}*.jsx`).forEach(file => {
+    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id}});
+    let section = await db.section.findOne(reqObj).catch(catcher);
+    const sectionTypes = [];
+    shell.ls(`${sectionTypeDir}*.jsx`).forEach(file => {
       // In Windows, the shell.ls command returns forward-slash separated directories,
       // but the node "path" command returns backslash separated directories. Flip the slashes
       // so the ensuing replace operation works (this should be a no-op for *nix/osx systems)
-      const topicTypeDirFixed = topicTypeDir.replace(/\\/g, "/");
-      const compName = file.replace(topicTypeDirFixed, "").replace(".jsx", "");
-      topicTypes.push(compName);
+      const sectionTypeDirFixed = sectionTypeDir.replace(/\\/g, "/");
+      const compName = file.replace(sectionTypeDirFixed, "").replace(".jsx", "");
+      sectionTypes.push(compName);
     });
-    topic = sortTopic(db, topic);
-    topic.types = topicTypes;
-    // Topics need to know all available selectors so it can choose which to subscribe to
-    const allSelectors = await db.selector.findAll({where: {profile_id: topic.profile_id}}).catch(catcher);
-    if (allSelectors) topic.allSelectors = allSelectors.map(d => d.toJSON());
-    return res.json(topic);
+    section = sortSection(db, section);
+    section.types = sectionTypes;
+    // sections need to know all available selectors so it can choose which to subscribe to
+    const allSelectors = await db.selector.findAll({where: {profile_id: section.profile_id}}).catch(catcher);
+    if (allSelectors) section.allSelectors = allSelectors.map(d => d.toJSON());
+    return res.json(section);
   });
 
-  app.get("/api/cms/storytopic/get/:id", async(req, res) => {
+  app.get("/api/cms/storysection/get/:id", async(req, res) => {
     const {id} = req.params;
-    const reqObj = Object.assign({}, storyTopicReqStoryTopicOnly, {where: {id}});
-    let storytopic = await db.storytopic.findOne(reqObj).catch(catcher);
-    const topicTypes = [];
-    shell.ls(`${topicTypeDir}*.jsx`).forEach(file => {
-      const compName = file.replace(topicTypeDir, "").replace(".jsx", "");
-      topicTypes.push(compName);
+    const reqObj = Object.assign({}, storysectionReqStorysectionOnly, {where: {id}});
+    let storysection = await db.storysection.findOne(reqObj).catch(catcher);
+    const sectionTypes = [];
+    shell.ls(`${sectionTypeDir}*.jsx`).forEach(file => {
+      const compName = file.replace(sectionTypeDir, "").replace(".jsx", "");
+      sectionTypes.push(compName);
     });
-    storytopic = sortStoryTopic(db, storytopic);
-    storytopic.types = topicTypes;
-    return res.json(storytopic);
+    storysection = sortStorySection(db, storysection);
+    storysection.types = sectionTypes;
+    return res.json(storysection);
   });
 
   // Top-level tables have their own special gets, so exclude them from the "simple" gets
   const getList = cmsTables.filter(tableName =>
-    !["profile", "topic", "story", "storytopic"].includes(tableName)
+    !["profile", "section", "story", "storysection"].includes(tableName)
   );
 
   getList.forEach(ref => {
@@ -459,8 +459,8 @@ module.exports = function(app) {
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
     const profile = await db.profile.create(req.body).catch(catcher);
     await db.profile_content.create({id: profile.id, lang: envLoc}).catch(catcher);
-    const topic = await db.topic.create({ordering: 0, profile_id: profile.id});
-    await db.topic_content.create({id: topic.id, lang: envLoc}).catch(catcher);
+    const section = await db.section.create({ordering: 0, profile_id: profile.id});
+    await db.section_content.create({id: section.id, lang: envLoc}).catch(catcher);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     return res.json(profiles);
@@ -508,8 +508,8 @@ module.exports = function(app) {
    */
   const deleteList = [
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
-    {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"},
-    {elements: ["storytopic_subtitle", "storytopic_description", "storytopic_stat", "storytopic_visualization"], parent: "storytopic_id"}
+    {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
+    {elements: ["storysection_subtitle", "storysection_description", "storysection_stat", "storysection_visualization"], parent: "storysection_id"}
   ];
 
   deleteList.forEach(list => {
@@ -553,16 +553,16 @@ module.exports = function(app) {
     return res.json(rows);
   });
 
-  app.delete("/api/cms/topic_selector/delete", isEnabled, async(req, res) => {
-    const {selector_id, topic_id} = req.query; // eslint-disable-line camelcase
-    const row = await db.topic_selector.findOne({where: {selector_id, topic_id}}).catch(catcher);
-    await db.topic_selector.destroy({where: {selector_id, topic_id}});
-    const reqObj = Object.assign({}, topicReqTopicOnly, {where: {id: row.topic_id}});
-    let topic = await db.topic.findOne(reqObj).catch(catcher);
+  app.delete("/api/cms/section_selector/delete", isEnabled, async(req, res) => {
+    const {selector_id, section_id} = req.query; // eslint-disable-line camelcase
+    const row = await db.section_selector.findOne({where: {selector_id, section_id}}).catch(catcher);
+    await db.section_selector.destroy({where: {selector_id, section_id}});
+    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id: row.section_id}});
+    let section = await db.section.findOne(reqObj).catch(catcher);
     let rows = [];
-    if (topic) {
-      topic = topic.toJSON();
-      rows = topic.selectors;
+    if (section) {
+      section = section.toJSON();
+      rows = section.selectors;
     }
     return res.json(rows);
   });  
@@ -602,11 +602,11 @@ module.exports = function(app) {
     return res.json(rows);
   });
 
-  app.delete("/api/cms/topic/delete", isEnabled, async(req, res) => {
-    const row = await db.topic.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.topic.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.topic.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.topic.findAll({
+  app.delete("/api/cms/section/delete", isEnabled, async(req, res) => {
+    const row = await db.section.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.section.destroy({where: {id: req.query.id}}).catch(catcher);
+    const rows = await db.section.findAll({
       where: {profile_id: row.profile_id}, 
       attributes: ["id", "slug", "ordering", "profile_id", "type"], 
       include: [
@@ -617,11 +617,11 @@ module.exports = function(app) {
     return res.json(rows);
   });
 
-  app.delete("/api/cms/storytopic/delete", isEnabled, async(req, res) => {
-    const row = await db.storytopic.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.storytopic.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.storytopic.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.storytopic.findAll({
+  app.delete("/api/cms/storysection/delete", isEnabled, async(req, res) => {
+    const row = await db.storysection.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.storysection.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.storysection.destroy({where: {id: req.query.id}}).catch(catcher);
+    const rows = await db.storysection.findAll({
       where: {story_id: row.story_id}, 
       attributes: ["id", "slug", "ordering", "story_id", "type"], 
       include: [
@@ -634,9 +634,9 @@ module.exports = function(app) {
 
   app.delete("/api/cms/selector/delete", isEnabled, async(req, res) => {
     const row = await db.selector.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.selector.update({ordering: sequelize.literal("ordering -1")}, {where: {topic_id: row.topic_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.selector.update({ordering: sequelize.literal("ordering -1")}, {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.selector.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.selector.findAll({where: {topic_id: row.topic_id}, order: [["ordering", "ASC"]]}).catch(catcher);
+    const rows = await db.selector.findAll({where: {section_id: row.section_id}, order: [["ordering", "ASC"]]}).catch(catcher);
     return res.json(rows);
   });
 
