@@ -1,9 +1,10 @@
 import React, {Component} from "react";
 import {Icon} from "@blueprintjs/core";
 import Button from "./fields/Button";
-import "./Panel.css";
+import "./Accardion.css";
 
-export default class Panel extends Component {
+/** Accordion + Cards = Accardion */
+export default class Accardion extends Component {
   constructor() {
     super();
     this.state = {
@@ -19,7 +20,7 @@ export default class Panel extends Component {
     const {addItem, cards, children, description, secondaryCards, subtitle} = this.props;
     const {isOpen} = this.state;
 
-    const title = this.props.title || "missing `title` prop in Panel.jsx";
+    const title = this.props.title || "missing `title` prop in Accardion.jsx";
     const entity = this.props.entity || title.toLowerCase();
 
     let inToolbox = false;
@@ -28,17 +29,17 @@ export default class Panel extends Component {
     }
 
     return (
-      <section className={`cms-section cms-${entity}-section ${isOpen ? "is-open" : "is-collapsed"}`}>
+      <section className={`cms-accardion cms-${entity}-accardion ${isOpen ? "is-open" : "is-collapsed"}`}>
 
-        {/* section title */}
-        <h2 className="cms-section-heading font-md" id={entity}>
-          <button className="cms-accordion-button font-sm" onClick={this.toggleAccordion.bind(this)}>
+        {/* accardion title */}
+        <h2 className="cms-accardion-heading font-md" id={entity}>
+          <button className="cms-accardion-button font-sm" onClick={this.toggleAccordion.bind(this)}>
             {title}
             <span className="u-visually-hidden"> ({isOpen ? "collapse" : "open"} section)</span>
-            <Icon className="cms-accordion-button-icon" icon="caret-down" />
+            <Icon className="cms-accardion-button-icon" icon="caret-down" />
           </button>
           {(cards && cards.length > 0 && addItem) || inToolbox === true
-            ? <Button onClick={addItem} className="cms-section-heading-add-button font-xxs" icon="plus">
+            ? <Button onClick={addItem} className="cms-accardion-heading-add-button font-xxs" icon="plus">
               add {entity}
             </Button>
             : null
@@ -48,7 +49,7 @@ export default class Panel extends Component {
         {/* optional description */}
         {description &&
           <div className="cms-card-container">
-            <p className="cms-card cms-section-description font-xs">
+            <p className="cms-card cms-accardion-description font-xs">
               {description}
             </p>
           </div>
@@ -56,7 +57,7 @@ export default class Panel extends Component {
 
         {/* cards */}
         {subtitle &&
-          <h3 className="cms-section-subtitle font-sm">{subtitle}</h3>
+          <h3 className="cms-accardion-subtitle font-sm">{subtitle}</h3>
         }
         {cards &&
           <div className={`cms-card-container${secondaryCards ? " two-columns" : ""}`}>
@@ -66,7 +67,7 @@ export default class Panel extends Component {
               </div>
               : addItem && !inToolbox &&
                 <Button
-                  className="cms-section-big-button"
+                  className="cms-accardion-big-button"
                   onClick={addItem}
                   icon="plus"
                   iconPosition="right"
