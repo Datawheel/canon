@@ -5,7 +5,7 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import DefinitionList from "../DefinitionList";
 import FooterButtons from "../FooterButtons";
-import Select from "./../Select";
+import Select from "./../fields/Select";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";

@@ -1,10 +1,10 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
-import Card from "./sections/Card";
-import TextViz from "./sections/TextViz";
-import Column from "./sections/Column";
-import Tabs from "./sections/Tabs";
+import Card from "./Card";
+import TextViz from "./TextViz";
+import Column from "./Column";
+import Tabs from "./Tabs";
 const sectionTypes = {Card, Column, Tabs, TextViz};
 
 class Section extends Component {

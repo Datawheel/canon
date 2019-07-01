@@ -1,8 +1,8 @@
 import axios from "axios";
 import React, {Component} from "react";
-import Button from "../Button";
+import Button from "../fields/Button";
 import DefinitionList from "../DefinitionList";
-import PreviewSearch from "../PreviewSearch";
+import PreviewSearch from "../fields/PreviewSearch";
 import CardWrapper from "./CardWrapper";
 import "./DimensionCard.css";
 

@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import AceWrapper from "./AceWrapper";
 import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
-import Button from "../Button";
+import Button from "../fields/Button";
 import {Switch, Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
 

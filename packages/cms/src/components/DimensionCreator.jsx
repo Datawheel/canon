@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {MenuItem} from "@blueprintjs/core";
 import {MultiSelect} from "@blueprintjs/select";
-import Button from "./Button";
+import Button from "./fields/Button";
 
 class DimensionCreator extends Component {
 

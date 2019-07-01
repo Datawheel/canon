@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 
-import Button from "../components/Button";
+import Button from "../components/fields/Button";
 import Panel from "../components/Panel";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";

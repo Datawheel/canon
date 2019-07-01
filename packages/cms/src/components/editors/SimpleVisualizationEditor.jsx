@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
-import Button from "../Button";
+import Button from "../fields/Button";
 
 import "./SimpleVisualizationEditor.css";
 
