@@ -30,13 +30,10 @@ class Builder extends Component {
 
   componentDidMount() {
     const {isEnabled, env, location} = this.props;
-    const {pid, tid} = location.query;
+    const {profile, topic} = location.query;
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
-    const pathObj = {
-      profile: pid,
-      topic: tid
-    };
+    const pathObj = {profile, topic};
     
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
