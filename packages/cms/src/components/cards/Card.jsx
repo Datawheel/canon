@@ -5,7 +5,7 @@ import ReorderButton from "./components/ReorderButton";
 import "./Card.css";
 
 // TODO: rename existing Card.jsx (profile section layout?)
-export default class CardWrapper extends Component {
+export default class Card extends Component {
   render() {
     const {
       cardClass,       // purely for styling purposes (so far)
@@ -81,7 +81,7 @@ export default class CardWrapper extends Component {
           {onEdit &&
             <Icon className="cms-card-heading-icon" icon="cog" />
           }
-          <h3 className="cms-card-heading-text font-sm">{title || "missing `title` prop in CardWrapper.jsx"}</h3>
+          <h3 className="cms-card-heading-text font-sm">{title || "missing `title` prop in Card.jsx"}</h3>
           {buttons.length
             ? <ButtonGroup buttons={buttons} />
             : ""

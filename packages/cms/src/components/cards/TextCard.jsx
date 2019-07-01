@@ -4,7 +4,7 @@ import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import DefinitionList from "../DefinitionList";
-import FooterButtons from "../FooterButtons";
+import FooterButtons from "../editors/components/FooterButtons";
 import Select from "./../fields/Select";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
@@ -12,7 +12,7 @@ import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import PropTypes from "prop-types";
 import LocaleName from "./LocaleName";
-import CardWrapper from "./CardWrapper";
+import Card from "./Card";
 import "./TextCard.css";
 
 class TextCard extends Component {
@@ -235,7 +235,7 @@ class TextCard extends Component {
         text: stripHTML(thatDisplayData[k])
       })) : [];
 
-    // define props for CardWrapper
+    // define props for Card
     const cardProps = {
       cardClass,
       title: thisDisplay[0].text,
@@ -267,7 +267,7 @@ class TextCard extends Component {
     const showVars = Object.keys(variables).length > 0;
 
     return (
-      <CardWrapper {...cardProps}>
+      <Card {...cardProps}>
 
         {/* preview content */}
         <div className="cms-locale-group">
@@ -330,7 +330,7 @@ class TextCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-      </CardWrapper>
+      </Card>
     );
   }
 }
