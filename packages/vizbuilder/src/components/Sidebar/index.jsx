@@ -43,10 +43,10 @@ class Sidebar extends PureComponent {
             <p className="label">Showing</p>
             <MeasureSelect
               className="select-measure"
-              // itemMap={options.measureMap}
+              itemMap={options.measureMap}
               items={options.measures}
-              activeItem={query.measure}
               onItemSelect={this.setMeasure}
+              selectedItem={query.measure}
             />
             <p className="details">{measureDetails}</p>
             <p className="show-ci" hidden={!query.moe && !(query.lci || query.uci)}>

@@ -1,5 +1,5 @@
 import {Button, Classes, Icon, Menu, Text} from "@blueprintjs/core";
-import classnames from "classnames";
+import classNames from "classnames";
 import React from "react";
 
 import "./CategoryListRenderer.css";
@@ -56,7 +56,7 @@ class CategoryListRenderer extends React.Component {
     }
 
     return (
-      <div className={classnames("catlist-wrapper", `depth-${depth}`, className)}>
+      <div className={classNames("catlist-wrapper", `depth-${depth}`, className)}>
         {headerRenderer && headerRenderer(stack, this.stackPop)}
         <Menu className="catlist-content" ulRef={itemsParentRef}>
           {itemsToDisplay.map(itemRenderer, this)}

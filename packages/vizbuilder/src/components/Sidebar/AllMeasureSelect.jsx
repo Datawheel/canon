@@ -17,8 +17,12 @@ class UpdatedMeasureSelect extends React.Component {
     this.itemSelectHandler = this.itemSelectHandler.bind(this);
 
     this.baseListComposer = memoizeOne(items => {
+      // This function supposes the list was previously sorted by headers
+      const {selectedItem, itemMap} = this.props;
       let lastTopic, lastSubtopic;
+
       return items.reduce((output, item) => {
+        // Compose headers by category
         const topic = item.annotations._cb_topic;
         const subtopic = item.annotations._cb_subtopic;
         if (topic !== lastTopic || subtopic !== lastSubtopic) {
@@ -26,7 +30,20 @@ class UpdatedMeasureSelect extends React.Component {
           lastSubtopic = subtopic;
           output.push({isOptgroup: true, topic, subtopic});
         }
-        output.push(item);
+        // Adds the item only if it wasn't added from another dataset previously
+        const key = `${item.annotations._cb_table_id}.${item.name}`;
+        const tableMap = itemMap[key];
+        if (tableMap && tableMap.length > 0) {
+          // if selectedItem is from the current tableMap, use it, else use first
+          const isSelectedInTable = tableMap.indexOf(selectedItem) > -1;
+          const representativeItem = isSelectedInTable ? selectedItem : tableMap[0];
+          if (output.indexOf(representativeItem) === -1) {
+            output.push(representativeItem);
+          }
+        }
+        else {
+          output.push(item);
+        }
         return output;
       }, []);
     });
@@ -84,9 +101,9 @@ class UpdatedMeasureSelect extends React.Component {
   }
 
   render() {
-    const {items, activeItem, disabled} = this.props;
+    const {items, selectedItem, disabled} = this.props;
 
-    if (!activeItem) {
+    if (!selectedItem) {
       return <Button disabled={true} text="Loading measures..." />;
     }
 
@@ -99,7 +116,6 @@ class UpdatedMeasureSelect extends React.Component {
     };
     return (
       <Select
-        activeItem={activeItem}
         disabled={disabled}
         itemDisabled="isOptgroup"
         itemListPredicate={this.itemListPredicate}
@@ -115,8 +131,8 @@ class UpdatedMeasureSelect extends React.Component {
           className="measure-select select-option active"
           fill={true}
           rightIcon="double-caret-vertical"
-          text={<MeasureItem {...activeItem} showSource />}
-          title={activeItem.name}
+          text={<MeasureItem {...selectedItem} showSource />}
+          title={selectedItem.name}
         />
       </Select>
     );
@@ -161,6 +177,7 @@ class UpdatedMeasureSelect extends React.Component {
 
     return (
       <MenuItem
+        active={modifiers.active}
         className="measure-select option"
         disabled={modifiers.disabled}
         key={`${item.annotations._cb_name} ${item.name}`}
