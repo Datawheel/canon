@@ -1,11 +1,11 @@
 import axios from "axios";
 import React, {Component} from "react";
-import Accardion from "../Accardion";
+import Accardion from "./Accardion";
 import ButtonGroup from "../fields/ButtonGroup";
 import FilterSearch from "../fields/FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
 import SelectorCard from "../cards/SelectorCard";
-import Status from "../Status";
+import Status from "./Status";
 import ConsoleVariable from "../variables/ConsoleVariable";
 import "./Toolbox.css";
 

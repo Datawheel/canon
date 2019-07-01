@@ -1,4 +1,4 @@
-@import "../css/mixins.css";
+@import "../../css/mixins.css";
 
 .cms-accardion:not(:last-of-type) {
   margin-bottom: 1.25rem;

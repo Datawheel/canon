@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import DimensionCard from "../components/cards/DimensionCard";
 import DimensionCreator from "../components/DimensionCreator";
-import Accardion from "../components/Accardion";
+import Accardion from "../components/interface/Accardion";
 import {Dialog} from "@blueprintjs/core";
 
 import "./DimensionBuilder.css";

@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {Icon} from "@blueprintjs/core";
-import Button from "./fields/Button";
+import Button from "../fields/Button";
 import "./Accardion.css";
 
 /** Accordion + Cards = Accardion */

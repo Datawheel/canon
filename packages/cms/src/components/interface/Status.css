@@ -1,4 +1,4 @@
-@import "../css/mixins.css";
+@import "../../css/mixins.css";
 
 .cms .cms-status {
   position: fixed; /* override default of relative */

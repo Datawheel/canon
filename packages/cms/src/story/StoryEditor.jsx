@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Button from "../components/fields/Button";
-import Accardion from "../components/Accardion";
+import Accardion from "../components/interface/Accardion";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import {DatePicker} from "@blueprintjs/datetime";

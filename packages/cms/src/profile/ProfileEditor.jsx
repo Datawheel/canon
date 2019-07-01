@@ -2,7 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import Loading from "components/Loading";
-import Accardion from "../components/Accardion";
+import Accardion from "../components/interface/Accardion";
 
 import TextCard from "../components/cards/TextCard";
 

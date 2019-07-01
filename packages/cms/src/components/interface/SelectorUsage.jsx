@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
-import Select from "./fields/Select";
-import Button from "./fields/Button";
+import Select from "../fields/Select";
+import Button from "../fields/Button";
 import "./SelectorUsage.css";
 
 class SelectorUsage extends Component {
