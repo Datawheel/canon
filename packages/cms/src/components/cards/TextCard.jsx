@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
-import DefinitionList from "../DefinitionList";
+import DefinitionList from "../variables/DefinitionList";
 import FooterButtons from "../editors/components/FooterButtons";
 import Select from "./../fields/Select";
 import TextEditor from "../editors/TextEditor";

@@ -6,7 +6,7 @@ import FilterSearch from "../fields/FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
 import SelectorCard from "../cards/SelectorCard";
 import Status from "../Status";
-import ConsoleVariable from "../ConsoleVariable";
+import ConsoleVariable from "../variables/ConsoleVariable";
 import "./Toolbox.css";
 
 const propMap = {

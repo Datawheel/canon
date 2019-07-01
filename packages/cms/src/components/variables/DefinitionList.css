@@ -1,4 +1,4 @@
-@import "../css/mixins.css";
+@import "../../css/mixins.css";
 
 .cms-definition-list {
   @mixin list-reset;
