@@ -37,10 +37,16 @@ class GeneratorCard extends Component {
   }
 
   hitDB() {
-    const {item, type} = this.props;
+    const {item, type, forceOpen} = this.props;
     const {id} = item;
     axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      this.setState({minData: resp.data}, this.formatDisplay.bind(this));
+      // If this card Mounted at the same time that forceOpen was set, that means
+      // the user created a new card, and we should open it immediately.
+      const callback = () => {
+        this.formatDisplay.bind(this)();
+        if (forceOpen) this.openEditor.bind(this)();
+      };
+      this.setState({minData: resp.data}, callback);
     });
   }
 
