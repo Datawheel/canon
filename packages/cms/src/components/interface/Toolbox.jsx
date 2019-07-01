@@ -100,11 +100,11 @@ export default class Toolbox extends Component {
    * is just hit the DB again on save to reload everything.
    */
   onSave(query) {
-    const forceGenID = null;
-    const forceMatID = null;
-    const forceKey = null;
+    const forceOpen = null;
+    const forceID = null;
+    const forceType = null;
     const recompiling = true;
-    this.setState({forceGenID, forceMatID, forceKey, recompiling}, this.hitDB.bind(this, query));
+    this.setState({forceID, forceType, forceOpen, recompiling}, this.hitDB.bind(this, query));
   }
 
   updateSelectors() {
@@ -132,10 +132,10 @@ export default class Toolbox extends Component {
   }
 
   onClose() {
-    const forceGenID = null;
-    const forceMatID = null;
-    const forceKey = null;
-    this.setState({forceGenID, forceMatID, forceKey});
+    const forceID = null;
+    const forceType = null;
+    const forceOpen = null;
+    this.setState({forceID, forceType, forceOpen});
   }
 
   filter(e) {
@@ -162,21 +162,21 @@ export default class Toolbox extends Component {
     const gens = Object.keys(vars._genStatus);
     gens.forEach(id => {
       if (vars._genStatus[id][key]) {
-        this.setState({forceGenID: id, forceKey: key});
+        this.setState({forceID: id, forceType: "generator", forceOpen: true});
       }
     });
 
     const mats = Object.keys(vars._matStatus);
     mats.forEach(id => {
       if (vars._matStatus[id][key]) {
-        this.setState({forceMatID: id, forceKey: key});
+        this.setState({forceID: id, forceType: "materializer", forceOpen: true});
       }
     });
   }
 
   render() {
 
-    const {detailView, minData, recompiling, query, forceGenID, forceMatID, forceKey} = this.state;
+    const {detailView, minData, recompiling, query, forceID, forceType, forceOpen} = this.state;
     const {variables, locale, localeDefault, previews} = this.props;
 
     if (!minData) {
@@ -255,7 +255,7 @@ export default class Toolbox extends Component {
         </ul>
       }
 
-      {/* Hide the panels if not detailView - but SHOW them if forceKey is set, which means
+      {/* Hide the panels if not detailView - but SHOW them if forceOpen is set, which means
         * that someone has clicked an individual variable and wants to view its editor
         */}
       <div className={`cms-toolbox-accardion-wrapper${detailView ? "" : " is-hidden"}`}>
@@ -282,7 +282,7 @@ export default class Toolbox extends Component {
                 type="generator"
                 variables={variables[localeDefault]}
                 secondaryVariables={variables[locale]}
-                forceKey={String(forceGenID) === String(g.id) ? forceKey : null}
+                forceOpen={forceType === "generator" && String(forceID) === String(g.id) ? forceOpen : null}
               />
             )}
           />
@@ -310,7 +310,7 @@ export default class Toolbox extends Component {
                 secondaryVariables={variables[locale]}
                 parentArray={minData.materializers}
                 onMove={this.onMove.bind(this)}
-                forceKey={String(forceMatID) === String(m.id) ? forceKey : null}
+                forceOpen={forceType === "materializer" && String(forceID) === String(m.id) ? forceOpen : null}
               />
             )}
           />
