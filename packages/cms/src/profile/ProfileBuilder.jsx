@@ -262,7 +262,7 @@ class ProfileBuilder extends Component {
 
   handleNodeClick(node) {
     node = this.locateNode(node.itemType, node.data.id);
-    const {nodes, currentNode} = this.state;
+    const {nodes, currentNode, previews} = this.state;
     let parentLength = 0;
     if (node.itemType === "topic") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
     if (node.itemType === "profile") parentLength = nodes.length;
@@ -291,11 +291,12 @@ class ProfileBuilder extends Component {
     }
     const pathObj = {
       profile: node.itemType === "profile" ? node.data.id : node.parent.data.id,
-      topic: node.itemType === "topic" ? node.data.id : undefined
+      topic: node.itemType === "topic" ? node.data.id : undefined,
     };
-    if (this.props.setPath) this.props.setPath(pathObj);
     // If the pids match, the master profile is the same, so keep the same preview
     if (this.state.currentPid === node.masterPid) {
+      pathObj.previews = previews.map(d => d.id).join();
+      if (this.props.setPath) this.props.setPath(pathObj);
       this.setState({currentNode: node});
     }
     // If they don't match, update the currentPid and reset the preview
@@ -316,6 +317,8 @@ class ProfileBuilder extends Component {
             id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
           });
         });
+        pathObj.previews = previews.map(d => d.id).join();
+        if (this.props.setPath) this.props.setPath(pathObj);
         this.setState({currentNode: node, currentPid: node.masterPid, previews});
       });
     }
