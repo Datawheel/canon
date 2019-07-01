@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import AceWrapper from "./AceWrapper";
 import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
@@ -105,7 +106,7 @@ class GeneratorEditor extends Component {
   previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
-    const {attr, previews, variables, locale} = this.props;
+    const {attr, previews, variables, locale, env} = this.props;
     if (api) {
       // The API will have <ids> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
@@ -117,7 +118,7 @@ class GeneratorEditor extends Component {
         }
         lookup[`id${i + 1}`] = p.id;
       });
-      const url = urlSwap(api, Object.assign({}, attr, variables, lookup));
+      const url = urlSwap(api, Object.assign({}, attr, env, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
         let {simple} = this.state;
@@ -342,4 +343,4 @@ class GeneratorEditor extends Component {
   }
 }
 
-export default GeneratorEditor;
+export default connect(state => ({env: state.env}))(GeneratorEditor);

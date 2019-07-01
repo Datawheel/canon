@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
 import Button from "../Button";
@@ -21,7 +22,7 @@ const vizLookup = {
 
 const reservedWords = ["topojson"];
 
-export default class SimpleVisualizationEditor extends Component {
+class SimpleVisualizationEditor extends Component {
 
   constructor(props) {
     super(props);
@@ -56,7 +57,7 @@ export default class SimpleVisualizationEditor extends Component {
 
   firstBuild() {
     const {object} = this.state;
-    const {previews, variables} = this.props;
+    const {previews, variables, env} = this.props;
     const {data} = object;
     if (data) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
@@ -69,7 +70,7 @@ export default class SimpleVisualizationEditor extends Component {
         }
         lookup[`id${i + 1}`] = p.id;
       });
-      const url = urlSwap(data, Object.assign({}, variables, lookup));
+      const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
         this.setState({payload}, this.compileCode.bind(this));
@@ -221,3 +222,5 @@ export default class SimpleVisualizationEditor extends Component {
 
   }
 }
+
+export default connect(state => ({env: state.env}))(SimpleVisualizationEditor);

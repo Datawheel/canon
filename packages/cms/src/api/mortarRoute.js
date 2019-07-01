@@ -17,6 +17,29 @@ const catcher = e => {
   return [];
 };
 
+const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
+const LANGUAGES = process.env.CANON_LANGUAGES || LANGUAGE_DEFAULT;
+const LOGINS = process.env.CANON_LOGINS || false;
+const PORT = process.env.CANON_PORT || 3300;
+const NODE_ENV = process.env.NODE_ENV || "development";
+
+const canonVars = {
+  CANON_API: process.env.CANON_API,
+  CANON_LANGUAGES: LANGUAGES,
+  CANON_LANGUAGE_DEFAULT: LANGUAGE_DEFAULT,
+  CANON_LOGINS: LOGINS,
+  CANON_LOGLOCALE: process.env.CANON_LOGLOCALE,
+  CANON_LOGREDUX: process.env.CANON_LOGREDUX,
+  CANON_PORT: PORT,
+  NODE_ENV
+};
+
+Object.keys(process.env).forEach(k => {
+  if (k.startsWith("CANON_CONST_")) {
+    canonVars[k.replace("CANON_CONST_", "")] = process.env[k];
+  }
+});
+
 const throttle = new PromiseThrottle({
   requestsPerSecond: 10,
   promiseImplementation: Promise
@@ -198,7 +221,7 @@ module.exports = function(app) {
     /** */
     function createGeneratorFetch(r, attr) {
       // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
-      let url = urlSwap(r, {...req.params, ...cache, ...attr, locale});
+      let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
       if (url.indexOf("http") !== 0) {
         const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
         url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
