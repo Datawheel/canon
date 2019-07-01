@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import Button from "./fields/Button";
+import Button from "../fields/Button";
 import "./Header.css";
 
 export default class Header extends Component {

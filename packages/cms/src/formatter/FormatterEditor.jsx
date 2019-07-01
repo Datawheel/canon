@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import Accardion from "../components/Accardion";
+import Accardion from "../components/interface/Accardion";
 
 import GeneratorCard from "../components/cards/GeneratorCard";
 

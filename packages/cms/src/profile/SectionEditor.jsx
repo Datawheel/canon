@@ -3,11 +3,11 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import Button from "../components/fields/Button";
-import Accardion from "../components/Accardion";
-import Status from "../components/Status";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
-import SelectorUsage from "../components/SelectorUsage";
+import Status from "../components/interface/Status";
+import Accardion from "../components/interface/Accardion";
+import SelectorUsage from "../components/interface/SelectorUsage";
 import "./SectionEditor.css";
 
 const propMap = {
