@@ -3,12 +3,12 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import Button from "../components/Button";
-import Section from "../components/Section";
+import Panel from "../components/Panel";
 import Status from "../components/Status";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import SelectorUsage from "../components/SelectorUsage";
-import "./TopicEditor.css";
+import "./SectionEditor.css";
 
 const propMap = {
   topic_stat: "stats",
@@ -18,7 +18,7 @@ const propMap = {
   selectors: "selectors"
 };
 
-class TopicEditor extends Component {
+class SectionEditor extends Component {
 
   constructor(props) {
     super(props);
@@ -151,7 +151,7 @@ class TopicEditor extends Component {
 
         {/* topic name */}
         {/* TODO: convert to fields */}
-        <Section
+        <Panel
           title="Topic metadata"
           subtitle="Title"
           entity="meta"
@@ -199,10 +199,10 @@ class TopicEditor extends Component {
               </div>
             </label>
           </div>
-        </Section>
+        </Panel>
 
         {/* subtitles */}
-        <Section
+        <Panel
           title="Subtitles"
           entity="subtitle"
           addItem={this.addItem.bind(this, "topic_subtitle")}
@@ -224,7 +224,7 @@ class TopicEditor extends Component {
           )}
         />
 
-        <Section title="Selector usage" entity="selectorUsage">
+        <Panel title="Selector usage" entity="selectorUsage">
           <SelectorUsage
             key="selector-usage"
             minData={minData}
@@ -232,10 +232,10 @@ class TopicEditor extends Component {
             selectors={selectors}
             onSelect={this.onSelect.bind(this)}
           />
-        </Section>
+        </Panel>
 
         {/* stats */}
-        <Section
+        <Panel
           title="Stats"
           entity="stat"
           addItem={this.addItem.bind(this, "topic_stat")}
@@ -258,7 +258,7 @@ class TopicEditor extends Component {
         />
 
         {/* descriptions */}
-        <Section
+        <Panel
           title="Descriptions"
           entity="description"
           addItem={this.addItem.bind(this, "topic_description")}
@@ -281,7 +281,7 @@ class TopicEditor extends Component {
         />
 
         {/* visualizations */}
-        <Section
+        <Panel
           title="Visualizations"
           entity="visualization"
           addItem={this.addItem.bind(this, "topic_visualization")}
@@ -312,8 +312,8 @@ class TopicEditor extends Component {
   }
 }
 
-TopicEditor.contextTypes = {
+SectionEditor.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default TopicEditor;
+export default SectionEditor;

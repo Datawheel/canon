@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import Section from "../Section";
+import Panel from "../Panel";
 import ButtonGroup from "../ButtonGroup";
 import FilterSearch from "../FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
@@ -206,7 +206,7 @@ export default class Toolbox extends Component {
       .sort((a, b) => a.title.localeCompare(b.title))
       .filter(this.filterFunc.bind(this));
 
-    // If a search filter causes no results, hide the entire section. However, if
+    // If a search filter causes no results, hide the entire grouping. However, if
     // the ORIGINAL data has length 0, always show it, so the user can add the first one.
     const showGenerators = minData.generators.length === 0 || generators.length > 0;
     const showMaterializers = minData.materializers.length === 0 || materializers.length > 0;
@@ -255,13 +255,13 @@ export default class Toolbox extends Component {
         </ul>
       }
 
-      {/* Hide the sections if not detailView - but SHOW them if forceKey is set, which means
+      {/* Hide the panels if not detailView - but SHOW them if forceKey is set, which means
         * that someone has clicked an individual variable and wants to view its editor
         */}
       <div className={`cms-toolbox-section-wrapper${detailView ? "" : " is-hidden"}`}>
 
         {showGenerators &&
-          <Section
+          <Panel
             title="Generators"
             entity="generator"
             description="Variables constructed from JSON data calls."
@@ -289,7 +289,7 @@ export default class Toolbox extends Component {
         }
 
         {showMaterializers &&
-          <Section
+          <Panel
             title="Materializers"
             entity="materializer"
             description="Variables constructed from other variables. No API calls needed."
@@ -317,7 +317,7 @@ export default class Toolbox extends Component {
         }
 
         { detailView && showSelectors &&
-          <Section
+          <Panel
             title="Selectors"
             entity="selector"
             description="Profile-wide Selectors."
@@ -337,7 +337,7 @@ export default class Toolbox extends Component {
         }
 
         { detailView && showFormatters &&
-          <Section
+          <Panel
             title="Formatters"
             entity="formatter"
             addItem={this.addItem.bind(this, "formatter")}

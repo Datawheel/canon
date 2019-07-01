@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {NonIdealState, Intent, Alert} from "@blueprintjs/core";
 import ProfileEditor from "./ProfileEditor";
-import TopicEditor from "./TopicEditor";
+import SectionEditor from "./SectionEditor";
 import PropTypes from "prop-types";
 import DimensionBuilder from "../profile/DimensionBuilder";
 import CtxMenu from "../components/CtxMenu";
@@ -379,7 +379,7 @@ class ProfileBuilder extends Component {
   }
 
   /**
-   * If a save occurred in the TopicEditor, the user may have changed the slug/title. This callback is responsible for
+   * If a save occurred in the SectionEditor, the user may have changed the slug/title. This callback is responsible for
    * updating the tree labels accordingly.
    */
   reportSave(id, newValue) {
@@ -471,7 +471,7 @@ class ProfileBuilder extends Component {
   }
 
   /*
-   * Callback for TopicEditor.jsx, when the user selects a dropdown in SelectorUsage.
+   * Callback for SectionEditor.jsx, when the user selects a dropdown in SelectorUsage.
    */
   onSelect(query) {
     this.setState({query}, this.formatTreeVariables.bind(this));
@@ -600,7 +600,7 @@ class ProfileBuilder extends Component {
 
     const variables = variablesHash[currentPid] ? deepClone(variablesHash[currentPid]) : null;
 
-    const editorTypes = {profile: ProfileEditor, topic: TopicEditor};
+    const editorTypes = {profile: ProfileEditor, topic: SectionEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
 
     let title = "";

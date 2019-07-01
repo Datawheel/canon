@@ -32,7 +32,7 @@ client.checkStatus().then(resp => {
 }
 );
 
-const topicTypeDir = path.join(__dirname, "../components/topics/");
+const topicTypeDir = path.join(__dirname, "../components/sections/");
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
 

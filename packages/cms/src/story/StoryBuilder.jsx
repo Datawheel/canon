@@ -6,7 +6,7 @@ import CtxMenu from "../components/CtxMenu";
 import Button from "../components/Button";
 import SidebarTree from "../components/SidebarTree";
 import StoryEditor from "./StoryEditor";
-import StoryTopicEditor from "./StoryTopicEditor";
+import StorySectionEditor from "./StorySectionEditor";
 
 const topicIcons = {
   Card: "square",
@@ -396,7 +396,7 @@ class StoryBuilder extends Component {
                   reportSave={this.reportSave.bind(this)}
                 />
                 : currentNode.itemType === "storytopic"
-                  ? <StoryTopicEditor
+                  ? <StorySectionEditor
                     id={currentNode.data.id}
                     locale={locale}
                     localeDefault={localeDefault}
