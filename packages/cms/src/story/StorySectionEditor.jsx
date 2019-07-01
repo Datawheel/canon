@@ -2,7 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 
 import Button from "../components/Button";
-import Section from "../components/Section";
+import Panel from "../components/Panel";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import VisualizationCard from "../components/cards/VisualizationCard";
@@ -14,7 +14,7 @@ const propMap = {
   storytopic_visualization: "visualizations"
 };
 
-class StoryTopicEditor extends Component {
+class StorySectionEditor extends Component {
 
   constructor(props) {
     super(props);
@@ -104,9 +104,9 @@ class StoryTopicEditor extends Component {
       <div className="cms-editor-inner">
 
         {/* current story options */}
-        <Section
+        <Panel
           title="Story section metadata"
-          subtitle="Section title"
+          subtitle="Panel title"
           entity="title"
           cards={<TextCard
             item={minData}
@@ -147,10 +147,10 @@ class StoryTopicEditor extends Component {
               </div>
             </label>
           </div>
-        </Section>
+        </Panel>
 
         {/* subtitles */}
-        <Section
+        <Panel
           title="Subtitles"
           entity="subtitle"
           addItem={this.addItem.bind(this, "storytopic_subtitle")}
@@ -185,7 +185,7 @@ class StoryTopicEditor extends Component {
         />
 
         {/* Stats */}
-        <Section
+        <Panel
           title="Stats"
           entity="stat"
           addItem={this.addItem.bind(this, "storytopic_stat")}
@@ -220,7 +220,7 @@ class StoryTopicEditor extends Component {
         />
 
         {/* Descriptions */}
-        <Section
+        <Panel
           title="Descriptions"
           entity="description"
           addItem={this.addItem.bind(this, "storytopic_description")}
@@ -256,7 +256,7 @@ class StoryTopicEditor extends Component {
 
         {/* visualizations */}
 
-        <Section
+        <Panel
           title="Visualizations"
           entity="visualization"
           addItem={this.addItem.bind(this, "storytopic_visualization")}
@@ -279,4 +279,4 @@ class StoryTopicEditor extends Component {
   }
 }
 
-export default StoryTopicEditor;
+export default StorySectionEditor;

@@ -2,7 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import Loading from "components/Loading";
-import Section from "../components/Section";
+import Panel from "../components/Panel";
 
 import TextCard from "../components/cards/TextCard";
 
@@ -72,7 +72,7 @@ class ProfileEditor extends Component {
 
         {/* profile meta */}
         {/* TODO: move to header */}
-        <Section
+        <Panel
           title="Profile meta"
           subtitle="Profile title"
           entity="splash"

@@ -1,91 +1,75 @@
 import React, {Component} from "react";
-import {Icon} from "@blueprintjs/core";
-import Button from "./Button";
-import "./Section.css";
+import PropTypes from "prop-types";
+import {connect} from "react-redux";
+import Card from "./sections/Card";
+import TextViz from "./sections/TextViz";
+import Column from "./sections/Column";
+import Tabs from "./sections/Tabs";
+const sectionTypes = {Card, Column, Tabs, TextViz};
 
-export default class Section extends Component {
-  constructor() {
-    super();
+class Section extends Component {
+
+  constructor(props) {
+    super(props);
     this.state = {
-      isOpen: true
+      contents: props.contents,
+      loading: false,
+      selectors: {},
+      sources: []
     };
   }
 
-  toggleAccordion() {
-    this.setState({isOpen: !this.state.isOpen});
+  componentDidUpdate(prevProps) {
+    if (JSON.stringify(prevProps.contents) !== JSON.stringify(this.props.contents)) {
+      this.setState({contents: this.props.contents});
+      this.updateSource.bind(this)(false);
+    }
+  }
+
+  updateSource(newSources) {
+    if (!newSources) this.setState({sources: []});
+    else {
+      const {sources} = this.state;
+      newSources
+        .map(s => s.annotations)
+        .forEach(source => {
+          if (source.source_name && !sources.find(s => s.source_name === source.source_name)) sources.push(source);
+        });
+      this.setState({sources});
+    }
+  }
+
+  getChildContext() {
+    const {formatters, variables} = this.context;
+    return {
+      formatters,
+      variables: this.props.variables || variables
+    };
   }
 
   render() {
-    const {addItem, cards, children, description, secondaryCards, subtitle} = this.props;
-    const {isOpen} = this.state;
 
-    const title = this.props.title || "missing `title` prop in Section.jsx";
-    const entity = this.props.entity || title.toLowerCase();
+    const {contents, sources} = this.state;
+    const {loading} = this.props;
+    const Comp = sectionTypes[contents.type] || TextViz;
 
-    let inToolbox = false;
-    if (entity === "generator" || entity === "materializer" || entity === "formatter" || entity === "selector") {
-      inToolbox = true;
-    }
+    return <Comp contents={contents} loading={loading} sources={sources} />;
 
-    return (
-      <section className={`cms-section cms-${entity}-section ${isOpen ? "is-open" : "is-collapsed"}`}>
-
-        {/* section title */}
-        <h2 className="cms-section-heading font-md" id={entity}>
-          <button className="cms-accordion-button font-sm" onClick={this.toggleAccordion.bind(this)}>
-            {title}
-            <span className="u-visually-hidden"> ({isOpen ? "collapse" : "open"} section)</span>
-            <Icon className="cms-accordion-button-icon" icon="caret-down" />
-          </button>
-          {(cards && cards.length > 0 && addItem) || inToolbox === true
-            ? <Button onClick={addItem} className="cms-section-heading-add-button font-xxs" icon="plus">
-              add {entity}
-            </Button>
-            : null
-          }
-        </h2>
-
-        {/* optional description */}
-        {description &&
-          <div className="cms-card-container">
-            <p className="cms-card cms-section-description font-xs">
-              {description}
-            </p>
-          </div>
-        }
-
-        {/* cards */}
-        {subtitle &&
-          <h3 className="cms-section-subtitle font-sm">{subtitle}</h3>
-        }
-        {cards &&
-          <div className={`cms-card-container${secondaryCards ? " two-columns" : ""}`}>
-            {cards && (cards.length || entity === "splash" || entity === "story" || entity === "title")
-              ? <div className="cms-card-list">
-                {cards || "missing `cards` prop in Section.jsx — card component or array of card components expected"}
-              </div>
-              : addItem && !inToolbox &&
-                <Button
-                  className="cms-section-big-button"
-                  onClick={addItem}
-                  icon="plus"
-                  iconPosition="right"
-                >
-                  Add first {entity}
-                </Button>
-            }
-
-            {/* TODO: remove once all cards display both languages */}
-            {secondaryCards && (secondaryCards.length || entity === "splash" || entity === "story" || entity === "title")
-              ? <div className="cms-card-list">
-                {secondaryCards}
-              </div>
-              : null
-            }
-          </div>
-        }
-        {children}
-      </section>
-    );
   }
+
 }
+
+Section.contextTypes = {
+  formatters: PropTypes.object,
+  router: PropTypes.object,
+  variables: PropTypes.object
+};
+
+Section.childContextTypes = {
+  formatters: PropTypes.object,
+  variables: PropTypes.object
+};
+
+export default connect(state => ({
+  locale: state.i18n.locale
+}))(Section);

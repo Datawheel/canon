@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {fetchData} from "@datawheel/canon-core";
-import Topic from "./Topic";
+import Section from "./Section";
 import libs from "../utils/libs";
 
 class Profile extends Component {
@@ -62,7 +62,7 @@ class Profile extends Component {
       <div id="Profile">
         <h1 dangerouslySetInnerHTML={{__html: profile.title}} />
         <h3 dangerouslySetInnerHTML={{__html: profile.subtitle}} />
-        {topics.map((topic, i) => <Topic key={`${topic.slug}-${i}`} loading={loading} contents={topic} />)}
+        {topics.map((topic, i) => <Section key={`${topic.slug}-${i}`} loading={loading} contents={topic} />)}
       </div>
     );
   }
