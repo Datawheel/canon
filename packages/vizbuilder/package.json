@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^3.15.1",
-    "@blueprintjs/labs": "^0.16.3",
     "@blueprintjs/select": "^3.8.1",
     "classnames": "^2.2.6",
     "d3-array": "^1.2.4",
@@ -31,14 +30,12 @@
     "mondrian-rest-client": "^1.1.0",
     "pluralize": "^8.0.0",
     "prop-types": "^15.6.0",
-    "query-string": "^6.1.0",
-    "react": "^16.8.6",
     "react-windowed-list": "^3.0.2",
     "shorthash": "^0.0.2"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "^0.17.29",
-    "@types/react": "^16.8.20"
+    "@datawheel/canon-core": "^0.17.30",
+    "react": "^16.8.6"
   },
   "repository": {
     "type": "git",
