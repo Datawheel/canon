@@ -26,8 +26,8 @@ class SelectorUsage extends Component {
 
   removeItem(id) {
     const {minData} = this.state;
-    const payload = {params: {topic_id: minData.id, selector_id: id}};
-    axios.delete("/api/cms/topic_selector/delete", payload).then(resp => {
+    const payload = {params: {section_id: minData.id, selector_id: id}};
+    axios.delete("/api/cms/section_selector/delete", payload).then(resp => {
       if (resp.status === 200) {
         minData.selectors = resp.data;
         this.setState({minData});
@@ -40,14 +40,14 @@ class SelectorUsage extends Component {
     const {selectors} = minData;
     const allSelectors = this.props.selectors;
     const payload = {
-      topic_id: minData.id,
+      section_id: minData.id,
       selector_id: id,
       ordering: selectors.length
     };
-    axios.post("/api/cms/topic_selector/new", payload).then(resp => {
+    axios.post("/api/cms/section_selector/new", payload).then(resp => {
       const toMove = allSelectors.find(d => d.id === id);
       if (toMove) {
-        toMove.topic_selector = resp.data;
+        toMove.section_selector = resp.data;
         minData.selectors.push(toMove);
         this.setState({minData});
       }

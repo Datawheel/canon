@@ -11,10 +11,10 @@ import SelectorUsage from "../components/interface/SelectorUsage";
 import "./SectionEditor.css";
 
 const propMap = {
-  topic_stat: "stats",
-  topic_description: "descriptions",
-  topic_subtitle: "subtitles",
-  topic_visualization: "visualizations",
+  section_stat: "stats",
+  section_description: "descriptions",
+  section_subtitle: "subtitles",
+  section_visualization: "visualizations",
   selectors: "selectors"
 };
 
@@ -39,7 +39,7 @@ class SectionEditor extends Component {
   }
 
   hitDB() {
-    axios.get(`/api/cms/topic/get/${this.props.id}`).then(resp => {
+    axios.get(`/api/cms/section/get/${this.props.id}`).then(resp => {
       this.setState({minData: resp.data});
     });
   }
@@ -58,7 +58,7 @@ class SectionEditor extends Component {
   addItem(type) {
     const {minData} = this.state;
     const payload = {};
-    payload.topic_id = minData.id;
+    payload.section_id = minData.id;
     // todo: move this ordering out to axios (let the server concat it to the end)
     payload.ordering = minData[propMap[type]].length;
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
@@ -85,7 +85,7 @@ class SectionEditor extends Component {
       type: minData.type,
       allowed: minData.allowed
     };
-    axios.post("/api/cms/topic/update", payload).then(resp => {
+    axios.post("/api/cms/section/update", payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
       }
@@ -149,10 +149,10 @@ class SectionEditor extends Component {
         {/* dimensions */}
         {children}
 
-        {/* topic name */}
+        {/* section name */}
         {/* TODO: convert to fields */}
         <Accardion
-          title="Topic metadata"
+          title="Section metadata"
           subtitle="Title"
           entity="meta"
           cards={[
@@ -164,17 +164,17 @@ class SectionEditor extends Component {
               fields={["title"]}
               query={query}
               onSave={this.onSave.bind(this)}
-              type="topic"
+              type="section"
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               variables={variables[localeDefault]}
             />
           ]}
         >
-          {/* current topic options */}
+          {/* current section options */}
           <div className="cms-editor-header">
             {/* change slug */}
             <label className="bp3-label cms-slug">
-              Topic slug
+              Section slug
               <div className="bp3-input-group">
                 <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
                 <Button onClick={this.save.bind(this)}>Rename</Button>
@@ -205,7 +205,7 @@ class SectionEditor extends Component {
         <Accardion
           title="Subtitles"
           entity="subtitle"
-          addItem={this.addItem.bind(this, "topic_subtitle")}
+          addItem={this.addItem.bind(this, "section_subtitle")}
           cards={minData.subtitles && minData.subtitles.map(s =>
             <TextCard
               key={s.id}
@@ -214,7 +214,7 @@ class SectionEditor extends Component {
               localeDefault={localeDefault}
               fields={["subtitle"]}
               query={query}
-              type="topic_subtitle"
+              type="section_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={variables[localeDefault]}
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
@@ -238,7 +238,7 @@ class SectionEditor extends Component {
         <Accardion
           title="Stats"
           entity="stat"
-          addItem={this.addItem.bind(this, "topic_stat")}
+          addItem={this.addItem.bind(this, "section_stat")}
           cards={minData.stats && minData.stats.map(s =>
             <TextCard
               key={s.id}
@@ -247,7 +247,7 @@ class SectionEditor extends Component {
               localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
               query={query}
-              type="topic_stat"
+              type="section_stat"
               onDelete={this.onDelete.bind(this)}
               variables={variables[localeDefault]}
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
@@ -261,7 +261,7 @@ class SectionEditor extends Component {
         <Accardion
           title="Descriptions"
           entity="description"
-          addItem={this.addItem.bind(this, "topic_description")}
+          addItem={this.addItem.bind(this, "section_description")}
           cards={minData.descriptions && minData.descriptions.map(d =>
             <TextCard
               key={d.id}
@@ -270,7 +270,7 @@ class SectionEditor extends Component {
               localeDefault={localeDefault}
               fields={["description"]}
               query={query}
-              type="topic_description"
+              type="section_description"
               onDelete={this.onDelete.bind(this)}
               variables={variables[localeDefault]}
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
@@ -284,7 +284,7 @@ class SectionEditor extends Component {
         <Accardion
           title="Visualizations"
           entity="visualization"
-          addItem={this.addItem.bind(this, "topic_visualization")}
+          addItem={this.addItem.bind(this, "section_visualization")}
           cards={minData.visualizations && minData.visualizations.map(v =>
             <VisualizationCard
               key={v.id}
@@ -295,7 +295,7 @@ class SectionEditor extends Component {
               query={query}
               previews={previews}
               onDelete={this.onDelete.bind(this)}
-              type="topic_visualization"
+              type="section_visualization"
               variables={variables[localeDefault]}
               secondaryVariables={variables[locale]}
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}

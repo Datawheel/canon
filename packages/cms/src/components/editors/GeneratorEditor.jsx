@@ -217,7 +217,7 @@ class GeneratorEditor extends Component {
       generator: <React.Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</React.Fragment>,
       materializer: <React.Fragment>You have access to all variables previously created by generators</React.Fragment>,
       profile_visualization: <React.Fragment>You have access to all variables previously created by generators and materializers.</React.Fragment>,
-      topic_visualization: <React.Fragment>You have access to all variables previously created by generators and materializers.</React.Fragment>,
+      section_visualization: <React.Fragment>You have access to all variables previously created by generators and materializers.</React.Fragment>,
       formatter: <React.Fragment>You have access to the variable <code>n</code>, which represents the string to be formatted.</React.Fragment>
     };
 
@@ -225,7 +225,7 @@ class GeneratorEditor extends Component {
       generator: <React.Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</React.Fragment>,
       materalizer: <React.Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</React.Fragment>,
       profile_visualization: <React.Fragment>Be sure to return a valid config object for a visualization</React.Fragment>,
-      topic_visualization: <React.Fragment>Be sure to return a valid config object for a visualization</React.Fragment>,
+      section_visualization: <React.Fragment>Be sure to return a valid config object for a visualization</React.Fragment>,
       formatter: <React.Fragment>Be sure to return a <strong>string</strong> that represents your formatted content.</React.Fragment>
     };
 
@@ -289,7 +289,7 @@ class GeneratorEditor extends Component {
         }
         {/* visibility */}
         <div className="cms-field-container">
-          { (type === "profile_visualization" || type === "topic_visualization") &&
+          { (type === "profile_visualization" || type === "section_visualization") &&
             <label className="bp3-label bp3-inline">
               <span className="label-text">Allowed</span>
               <div className="bp3-select">

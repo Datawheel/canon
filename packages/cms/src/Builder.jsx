@@ -30,10 +30,10 @@ class Builder extends Component {
 
   componentDidMount() {
     const {isEnabled, env, location} = this.props;
-    const {profile, topic, previews} = location.query;
+    const {profile, section, previews} = location.query;
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
-    const pathObj = {profile, topic, previews};
+    const pathObj = {profile, section, previews};
 
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
@@ -79,11 +79,11 @@ class Builder extends Component {
 
   setPath(pathObj) {
     const diffProfile = String(pathObj.profile) !== String(this.state.pathObj.profile);
-    const diffTopic = String(pathObj.topic) !== String(this.state.pathObj.topic);
-    if (diffProfile || diffTopic) {
+    const diffSection = String(pathObj.section) !== String(this.state.pathObj.section);
+    if (diffProfile || diffSection) {
       const {router} = this.props;
       let url = `?profile=${pathObj.profile}`;
-      if (pathObj.topic) url += `&topic=${pathObj.topic}`;
+      if (pathObj.section) url += `&section=${pathObj.section}`;
       // if (pathObj.previews) url += `&previews=${pathObj.previews}`;
       router.replace(url);
       this.setState({pathObj});

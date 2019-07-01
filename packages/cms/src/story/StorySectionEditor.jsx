@@ -8,10 +8,10 @@ import Loading from "components/Loading";
 import VisualizationCard from "../components/cards/VisualizationCard";
 
 const propMap = {
-  storytopic_stat: "stats",
-  storytopic_description: "descriptions",
-  storytopic_subtitle: "subtitles",
-  storytopic_visualization: "visualizations"
+  storysection_stat: "stats",
+  storysection_description: "descriptions",
+  storysection_subtitle: "subtitles",
+  storysection_visualization: "visualizations"
 };
 
 class StorySectionEditor extends Component {
@@ -34,7 +34,7 @@ class StorySectionEditor extends Component {
   }
 
   hitDB() {
-    axios.get(`/api/cms/storytopic/get/${this.props.id}`).then(resp => {
+    axios.get(`/api/cms/storysection/get/${this.props.id}`).then(resp => {
       this.setState({minData: resp.data});
     });
   }
@@ -53,7 +53,7 @@ class StorySectionEditor extends Component {
   addItem(type) {
     const {minData} = this.state;
     const payload = {};
-    payload.storytopic_id = minData.id;
+    payload.storysection_id = minData.id;
     // todo: move this ordering out to axios (let the server concat it to the end)
     payload.ordering = minData[propMap[type]].length;
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
@@ -67,7 +67,7 @@ class StorySectionEditor extends Component {
   save() {
     const {minData} = this.state;
     const payload = {id: minData.id, slug: minData.slug, type: minData.type};
-    axios.post("/api/cms/storytopic/update", payload).then(() => {
+    axios.post("/api/cms/storysection/update", payload).then(() => {
       console.log("saved");
     });
   }
@@ -76,7 +76,7 @@ class StorySectionEditor extends Component {
     const {localeDefault} = this.props;
     const defCon = minData.content.find(c => c.lang === localeDefault);
     const title = defCon && defCon.title ? defCon.title : minData.slug;
-    if (this.props.reportSave) this.props.reportSave("storytopic", minData.id, title);
+    if (this.props.reportSave) this.props.reportSave("storysection", minData.id, title);
   }
 
   onMove() {
@@ -113,7 +113,7 @@ class StorySectionEditor extends Component {
             locale={localeDefault}
             localeDefault={localeDefault}
             fields={["title"]}
-            type="storytopic"
+            type="storysection"
             onSave={this.onSave.bind(this)}
             variables={{}}
           />}
@@ -123,7 +123,7 @@ class StorySectionEditor extends Component {
               locale={locale}
               localeDefault={localeDefault}
               fields={["title"]}
-              type="storytopic"
+              type="storysection"
               onSave={this.onSave.bind(this)}
               variables={{}}
             />
@@ -153,7 +153,7 @@ class StorySectionEditor extends Component {
         <Accardion
           title="Subtitles"
           entity="subtitle"
-          addItem={this.addItem.bind(this, "storytopic_subtitle")}
+          addItem={this.addItem.bind(this, "storysection_subtitle")}
           cards={minData.subtitles && minData.subtitles.map(s =>
             <TextCard
               key={s.id}
@@ -161,7 +161,7 @@ class StorySectionEditor extends Component {
               locale={localeDefault}
               localeDefault={localeDefault}
               fields={["subtitle"]}
-              type="storytopic_subtitle"
+              type="storysection_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
               parentArray={minData.subtitles}
@@ -175,7 +175,7 @@ class StorySectionEditor extends Component {
               localeDefault={localeDefault}
               item={s}
               fields={["subtitle"]}
-              type="storytopic_subtitle"
+              type="storysection_subtitle"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
               parentArray={minData.subtitles}
@@ -188,7 +188,7 @@ class StorySectionEditor extends Component {
         <Accardion
           title="Stats"
           entity="stat"
-          addItem={this.addItem.bind(this, "storytopic_stat")}
+          addItem={this.addItem.bind(this, "storysection_stat")}
           cards={ minData.stats && minData.stats.map(s =>
             <TextCard
               key={s.id}
@@ -196,7 +196,7 @@ class StorySectionEditor extends Component {
               locale={localeDefault}
               localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
-              type="storytopic_stat"
+              type="storysection_stat"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
               parentArray={minData.stats}
@@ -210,7 +210,7 @@ class StorySectionEditor extends Component {
               locale={locale}
               localeDefault={localeDefault}
               fields={["title", "subtitle", "value", "tooltip"]}
-              type="storytopic_stat"
+              type="storysection_stat"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
               parentArray={minData.stats}
@@ -223,7 +223,7 @@ class StorySectionEditor extends Component {
         <Accardion
           title="Descriptions"
           entity="description"
-          addItem={this.addItem.bind(this, "storytopic_description")}
+          addItem={this.addItem.bind(this, "storysection_description")}
           cards={minData.descriptions && minData.descriptions.map(d =>
             <TextCard
               key={d.id}
@@ -231,7 +231,7 @@ class StorySectionEditor extends Component {
               locale={localeDefault}
               localeDefault={localeDefault}
               fields={["description"]}
-              type="storytopic_description"
+              type="storysection_description"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
               parentArray={minData.descriptions}
@@ -245,7 +245,7 @@ class StorySectionEditor extends Component {
               locale={locale}
               localeDefault={localeDefault}
               fields={["description"]}
-              type="storytopic_description"
+              type="storysection_description"
               onDelete={this.onDelete.bind(this)}
               variables={{}}
               parentArray={minData.descriptions}
@@ -259,7 +259,7 @@ class StorySectionEditor extends Component {
         <Accardion
           title="Visualizations"
           entity="visualization"
-          addItem={this.addItem.bind(this, "storytopic_visualization")}
+          addItem={this.addItem.bind(this, "storysection_visualization")}
           cards={minData.visualizations && minData.visualizations.map(v =>
             <VisualizationCard
               key={v.id}
@@ -267,7 +267,7 @@ class StorySectionEditor extends Component {
               locale={locale}
               localeDefault={localeDefault}
               onDelete={this.onDelete.bind(this)}
-              type="storytopic_visualization"
+              type="storysection_visualization"
               variables={{}}
               parentArray={minData.visualizations}
               onMove={this.onMove.bind(this)}

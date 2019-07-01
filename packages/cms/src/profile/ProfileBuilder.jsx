@@ -19,7 +19,7 @@ import deepClone from "../utils/deepClone.js";
 
 import "./ProfileBuilder.css";
 
-const topicIcons = {
+const sectionIcons = {
   Card: "square",
   Column: "list",
   Tabs: "folder-close",
@@ -82,14 +82,14 @@ class ProfileBuilder extends Component {
       masterPid: p.id,
       masterMeta: p.meta,
       data: p,
-      childNodes: p.topics.map(t => {
+      childNodes: p.sections.map(t => {
         const defCon = t.content.find(c => c.lang === localeDefault);
         const title = defCon && defCon.title ? defCon.title : t.slug;
         return {
-          id: `topic${t.id}`,
+          id: `section${t.id}`,
           hasCaret: false,
           label: this.decode(stripHTML(title)),
-          itemType: "topic",
+          itemType: "section",
           masterPid: p.id,
           masterMeta: p.meta,
           data: t
@@ -97,9 +97,9 @@ class ProfileBuilder extends Component {
       })
     }));
     if (!openNode) {
-      const {profile, topic} = this.props.pathObj;
-      if (topic) {
-        const nodeToOpen = this.locateNode("topic", topic, nodes);
+      const {profile, section} = this.props.pathObj;
+      if (section) {
+        const nodeToOpen = this.locateNode("section", section, nodes);
         this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
       }
       else if (profile) {
@@ -135,7 +135,7 @@ class ProfileBuilder extends Component {
     const sorter = (a, b) => a.data.ordering - b.data.ordering;
     n = this.locateNode(n.itemType, n.data.id);
     let parentArray;
-    if (n.itemType === "topic") parentArray = this.locateNode("profile", n.data.profile_id).childNodes;
+    if (n.itemType === "section") parentArray = this.locateNode("profile", n.data.profile_id).childNodes;
     if (n.itemType === "profile") parentArray = nodes;
     if (dir === "up") {
       const old = parentArray.find(node => node.data.ordering === n.data.ordering - 1);
@@ -156,7 +156,7 @@ class ProfileBuilder extends Component {
   }
 
   /**
-   * addItem is only ever used for topics, so lots of topic-based assumptions are
+   * addItem is only ever used for sections, so lots of section-based assumptions are
    * made here. if this is ever expanded out again to be a generic "item" adder
    * then this will need to be generalized.
    */
@@ -187,11 +187,11 @@ class ProfileBuilder extends Component {
       }
     }
 
-    // New Topics need to inherit their masterDimension from their parent.
+    // New sections need to inherit their masterDimension from their parent.
 
     const obj = {
       hasCaret: false,
-      itemType: "topic",
+      itemType: "section",
       data: {}
     };
     obj.data.profile_id = n.data.profile_id;
@@ -199,13 +199,13 @@ class ProfileBuilder extends Component {
     obj.masterPid = parent.masterPid;
     obj.masterMeta = parent.masterMeta;
 
-    const topicPath = "/api/cms/topic/new";
-    axios.post(topicPath, obj.data).then(topic => {
-      if (topic.status === 200) {
-        obj.id = `topic${topic.data.id}`;
-        obj.data = topic.data;
-        const defCon = topic.data.content.find(c => c.lang === localeDefault);
-        const title = defCon && defCon.title ? defCon.title : topic.slug;
+    const sectionPath = "/api/cms/section/new";
+    axios.post(sectionPath, obj.data).then(section => {
+      if (section.status === 200) {
+        obj.id = `section${section.data.id}`;
+        obj.data = section.data;
+        const defCon = section.data.content.find(c => c.lang === localeDefault);
+        const title = defCon && defCon.title ? defCon.title : section.slug;
         obj.label = this.formatLabel.bind(this)(title);
         const parent = this.locateNode("profile", obj.data.profile_id);
         parent.childNodes.push(obj);
@@ -213,7 +213,7 @@ class ProfileBuilder extends Component {
         this.setState({nodes}, this.handleNodeClick.bind(this, obj));
       }
       else {
-        console.log("topic error");
+        console.log("section error");
       }
     });
   }
@@ -231,24 +231,24 @@ class ProfileBuilder extends Component {
     const nodeToDelete = false;
     n = this.locateNode(n.itemType, n.data.id);
     // todo: instead of the piecemeal refreshes being done for each of these tiers - is it sufficient to run buildNodes again?
-    if (n.itemType === "topic") {
+    if (n.itemType === "section") {
       const parent = this.locateNode("profile", n.data.profile_id);
-      axios.delete("/api/cms/topic/delete", {params: {id: n.data.id}}).then(resp => {
-        const topics = resp.data.map(topicData => {
-          const defCon = topicData.content.find(c => c.lang === localeDefault);
-          const title = defCon && defCon.title ? defCon.title : topicData.slug;
+      axios.delete("/api/cms/section/delete", {params: {id: n.data.id}}).then(resp => {
+        const sections = resp.data.map(sectionData => {
+          const defCon = sectionData.content.find(c => c.lang === localeDefault);
+          const title = defCon && defCon.title ? defCon.title : sectionData.slug;
           return {
-            id: `topic${topicData.id}`,
+            id: `section${sectionData.id}`,
             hasCaret: false,
-            iconName: topicIcons[topicData.type] || "help",
+            iconName: sectionIcons[sectionData.type] || "help",
             label: this.decode(stripHTML(title)),
-            itemType: "topic",
+            itemType: "section",
             masterPid: parent.masterPid,
             masterMeta: parent.masterMeta,
-            data: topicData
+            data: sectionData
           };
         });
-        parent.childNodes = topics;
+        parent.childNodes = sections;
         this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
       });
     }
@@ -264,11 +264,11 @@ class ProfileBuilder extends Component {
     node = this.locateNode(node.itemType, node.data.id);
     const {nodes, currentNode, previews} = this.state;
     let parentLength = 0;
-    if (node.itemType === "topic") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
+    if (node.itemType === "section") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
     if (node.itemType === "profile") parentLength = nodes.length;
     if (!currentNode) {
       node.isSelected = true;
-      // If the node has a parent, it's a topic. Expand its parent profile so we can see it.
+      // If the node has a parent, it's a section. Expand its parent profile so we can see it.
       if (node.parent) node.parent.isExpanded = true;
       node.isExpanded = true;
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
@@ -291,7 +291,7 @@ class ProfileBuilder extends Component {
     }
     const pathObj = {
       profile: node.itemType === "profile" ? node.data.id : node.parent.data.id,
-      topic: node.itemType === "topic" ? node.data.id : undefined,
+      section: node.itemType === "section" ? node.data.id : undefined
     };
     // If the pids match, the master profile is the same, so keep the same preview
     if (this.state.currentPid === node.masterPid) {
@@ -361,7 +361,7 @@ class ProfileBuilder extends Component {
   }
 
   /**
-   * Given a node type (profile, topic) and an id, crawl down the tree and fetch a reference to the Tree node with that id
+   * Given a node type (profile, section) and an id, crawl down the tree and fetch a reference to the Tree node with that id
    */
   locateNode(type, id, pnodes) {
     const nodes = pnodes || this.state.nodes;
@@ -369,7 +369,7 @@ class ProfileBuilder extends Component {
     if (type === "profile") {
       node = nodes.find(p => Number(p.data.id) === Number(id));
     }
-    else if (type === "topic") {
+    else if (type === "section") {
       nodes.forEach(p => {
         const attempt = p.childNodes.find(t => Number(t.data.id) === Number(id));
         if (attempt) {
@@ -388,7 +388,7 @@ class ProfileBuilder extends Component {
   reportSave(id, newValue) {
     const {nodes} = this.state;
     const {localeDefault} = this.props;
-    const node = this.locateNode.bind(this)("topic", id);
+    const node = this.locateNode.bind(this)("section", id);
     // Update the label based on the new value.
     if (node) {
       const defCon = node.data.content.find(c => c.lang === localeDefault);
@@ -603,7 +603,7 @@ class ProfileBuilder extends Component {
 
     const variables = variablesHash[currentPid] ? deepClone(variablesHash[currentPid]) : null;
 
-    const editorTypes = {profile: ProfileEditor, topic: SectionEditor};
+    const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
 
     return (
