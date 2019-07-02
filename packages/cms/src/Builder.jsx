@@ -81,8 +81,9 @@ class Builder extends Component {
     const diffProfile = String(pathObj.profile) !== String(this.state.pathObj.profile);
     const diffSection = String(pathObj.section) !== String(this.state.pathObj.section);
     if (diffProfile || diffSection) {
-      const {router} = this.props;
-      let url = `?profile=${pathObj.profile}`;
+      const {router, cmsPath} = this.props;
+      let url = cmsPath === "/" ? "" : "/";
+      url += `${cmsPath}?profile=${pathObj.profile}`;
       if (pathObj.section) url += `&section=${pathObj.section}`;
       // if (pathObj.previews) url += `&previews=${pathObj.previews}`;
       router.replace(url);
@@ -179,5 +180,6 @@ Builder.need = [
 export default connect(state => ({
   formatters: state.data.formatters,
   env: state.env,
-  isEnabled: state.data.isEnabled
+  isEnabled: state.data.isEnabled,
+  cmsPath: state.routing.locationBeforeTransitions ? state.routing.locationBeforeTransitions.pathname : state.location.pathname.substring(1)
 }))(Builder);
