@@ -260,15 +260,17 @@ class SectionEditor extends Component {
           )}
         />
 
-        <Accardion title="Selector usage" entity="selectorUsage">
-          <SelectorUsage
-            key="selector-usage"
-            minData={minData}
-            variables={variables[localeDefault]}
-            selectors={selectors}
-            onSelect={this.onSelect.bind(this)}
-          />
-        </Accardion>
+        {selectors && selectors.length > 0 &&
+          <Accardion title="Selector activation" entity="selectorUsage">
+            <SelectorUsage
+              key="selector-usage"
+              minData={minData}
+              variables={variables[localeDefault]}
+              selectors={selectors}
+              onSelect={this.onSelect.bind(this)}
+            />
+          </Accardion>
+        }
 
         {/* stats */}
         <Accardion
