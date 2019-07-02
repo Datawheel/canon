@@ -85,6 +85,7 @@ class ProfileEditor extends Component {
               fields={["title", "subtitle"]}
               type="profile"
               variables={variables[localeDefault]}
+              hideAllowed={true}
             />
           }
         />

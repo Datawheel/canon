@@ -181,6 +181,7 @@ class SectionEditor extends Component {
               type="section"
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               variables={variables[localeDefault]}
+              hideAllowed={true}
             />
           ]}
         >
