@@ -19,6 +19,11 @@
     margin-bottom: 1rem;
   }
 
+  /* mimic blueprint style for now */
+  & .bp3-label > .cms-button-group {
+    margin-top: 5px;
+  }
+
   & ul.cms-field-container {
     padding-left: 0;
   }
