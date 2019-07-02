@@ -1,7 +1,6 @@
 @import "../../css/mixins.css";
 
 .section {
-  color: white;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;

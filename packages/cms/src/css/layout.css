@@ -115,7 +115,7 @@
     position: absolute;
     top: var(--nav-height);
     margin-top: 0.75rem;
-    z-index: 1; /* above nav */
+    z-index: 3; /* above nav */
     left: 11.75rem;
 
     /* needs a different magic number because it has a different width */
