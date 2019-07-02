@@ -28,6 +28,7 @@
   @mixin label-color;
   font-weight: 400;
   margin-right: 0.5em;
+  white-space: nowrap;
 }
 .cms-definition-text {
   margin-left: 0; /* reset default */
