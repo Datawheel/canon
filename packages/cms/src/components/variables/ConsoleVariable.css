@@ -79,3 +79,12 @@
     height: 100% !important;
   }
 }
+
+/* vars printed by varSwap helper function */
+.cms-var-highlight {
+  background-color: color(var(--type-string) a(0.125));
+  outline: 1px dotted color(var(--type-string) a(0.333));
+  /* reset <var> */
+  font-weight: inherit;
+  font-style: inherit;
+}

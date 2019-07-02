@@ -5,7 +5,7 @@ const libs = require("./libs");
  * apply the appropriate formatter
  */
 
-module.exports = (sourceString, formatterFunctions, variables) => {  
+module.exports = (sourceString, formatterFunctions, variables) => {
   // Find all instances of the following type:  FormatterName{{VarToReplace}}
   sourceString = sourceString.replace(/([A-z0-9]*)\{\{([^\}]+)\}\}/g, (match, g1, keyMatch) => {
 
@@ -13,13 +13,13 @@ module.exports = (sourceString, formatterFunctions, variables) => {
     let formatter = d => d;
     if (g1) {
       const formatTitle = g1.replace(/^\w/g, chr => chr.toLowerCase());
-      if (formatTitle in formatterFunctions) formatter = formatterFunctions[formatTitle];
+      if (formatTitle in formatterFunctions) formatter = `<var class="cms-var-highlight">${formatterFunctions[formatTitle]}</var>`;
     }
 
-    const value = variables[keyMatch];
+    const value = `<var class="cms-var-highlight">${variables[keyMatch]}</var>`;
     if (value === undefined) {
       return "N/A";
-    } 
+    }
     // The user-created formatter may be malformed. Wrap in a try/catch so bad js in a
     // formatter doesn't cause the CMS to crash.
     else {
