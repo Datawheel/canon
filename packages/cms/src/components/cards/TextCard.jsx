@@ -9,7 +9,8 @@ import Select from "./../fields/Select";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
-import stripP from "../../utils/formatters/stripP";
+import stripHTML from "../../utils/formatters/stripHTML";
+// import stripP from "../../utils/formatters/stripP";
 import PropTypes from "prop-types";
 import LocaleName from "./LocaleName";
 import Card from "./Card";
@@ -238,7 +239,8 @@ class TextCard extends Component {
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
       .map(k => ({
         label: k,
-        text: <span dangerouslySetInnerHTML={{__html: stripP(thisDisplayData[k])}} />
+        text: stripHTML(thisDisplayData[k])
+        // text: <span dangerouslySetInnerHTML={{__html: stripP(thisDisplayData[k])}} />
       }));
 
     const thatDisplay = thatDisplayData ? Object.keys(thatDisplayData)
@@ -246,7 +248,8 @@ class TextCard extends Component {
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
       .map(k => ({
         label: k,
-        text: <span dangerouslySetInnerHTML={{__html: stripP(thatDisplayData[k])}} />
+        text: stripHTML(thatDisplayData[k])
+        // text: <span dangerouslySetInnerHTML={{__html: stripP(thatDisplayData[k])}} />
       })) : [];
 
     // define props for Card

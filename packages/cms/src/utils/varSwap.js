@@ -13,10 +13,12 @@ module.exports = (sourceString, formatterFunctions, variables) => {
     let formatter = d => d;
     if (g1) {
       const formatTitle = g1.replace(/^\w/g, chr => chr.toLowerCase());
-      if (formatTitle in formatterFunctions) formatter = `<var class="cms-var-highlight">${formatterFunctions[formatTitle]}</var>`;
+      if (formatTitle in formatterFunctions) formatter = formatterFunctions[formatTitle];
+      // if (formatTitle in formatterFunctions) formatter = `<var class="cms-var-highlight">${formatterFunctions[formatTitle]}</var>`;
     }
 
-    const value = `<var class="cms-var-highlight">${variables[keyMatch]}</var>`;
+    const value = variables[keyMatch];
+    // const value = `<var class="cms-var-highlight">${variables[keyMatch]}</var>`;
     if (value === undefined) {
       return "N/A";
     }
