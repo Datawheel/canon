@@ -148,7 +148,6 @@ class TextCard extends Component {
     // allowed is controlled elsewhere. Don't accidentally pave it here.
     if (!hideAllowed) payload.allowed = minData.allowed;
     payload.content = [thisLocale, thatLocale];
-    console.log(payload);
     axios.post(`/api/cms/${type}/update`, payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false, isDirty: false}, this.formatDisplay.bind(this));
