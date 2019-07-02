@@ -454,7 +454,7 @@ class ProfileBuilder extends Component {
     const {stripHTML} = formatters;
     const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : {};
     str = this.decode(stripHTML(str));
-    str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
+    str =  <span dangerouslySetInnerHTML={{__html: varSwapRecursive({str, selectors}, formatters, variables, query).str}} />;
     return str;
   }
 
