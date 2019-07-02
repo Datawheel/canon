@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import Button from "../components/fields/Button";
+import ButtonGroup from "../components/fields/ButtonGroup";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Status from "../components/interface/Status";
@@ -55,9 +56,15 @@ class SectionEditor extends Component {
     save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
   }
 
-  checkField(field, save, e) {
+  // checkField(field, save, e) {
+  //   const {minData} = this.state;
+  //   minData[field] = e.target.checked;
+  //   save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
+  // }
+
+  selectButton(field, save, val) {
     const {minData} = this.state;
-    minData[field] = e.target.checked;
+    minData[field] = val;
     save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
   }
 
@@ -196,13 +203,7 @@ class SectionEditor extends Component {
                 </select>
               </div>
             </label>
-            {/* sticky select */}
-            <label className="bp3-label bp3-fill">
-              Sticky
-              <div className="bp3-checkbox">
-                <input type="checkbox" value={minData.sticky} onChange={this.checkField.bind(this, "sticky", true)} />
-              </div>
-            </label>
+
             {/* layout select */}
             <label className="bp3-label bp3-fill">
               Layout
@@ -211,6 +212,27 @@ class SectionEditor extends Component {
                   {typeOptions}
                 </select>
               </div>
+            </label>
+
+            {/* sticky select */}
+            <label className="bp3-label">
+              Positioning
+              <ButtonGroup buttons={[
+                {
+                  onClick: this.selectButton.bind(this, "sticky", true, false),
+                  active: !minData.sticky,
+                  icon: "alignment-left",
+                  iconPosition: "left",
+                  children: "default"
+                },
+                {
+                  onClick: this.selectButton.bind(this, "sticky", true, true),
+                  active: minData.sticky,
+                  icon: "alignment-top",
+                  iconPosition: "left",
+                  children: "sticky"
+                }
+              ]} />
             </label>
           </div>
         </Accardion>
