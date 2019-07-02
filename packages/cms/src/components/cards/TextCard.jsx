@@ -129,7 +129,7 @@ class TextCard extends Component {
   }
 
   save() {
-    const {type, fields, plainfields, locale, localeDefault} = this.props;
+    const {type, fields, plainfields, locale, localeDefault, hideAllowed} = this.props;
     const {minData} = this.state;
     const payload = {id: minData.id};
 
@@ -144,9 +144,11 @@ class TextCard extends Component {
     // this to the database - save an empty string instead.
     fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
     if (plainfields) plainfields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
-
-    payload.allowed = minData.allowed;
+    // If hideAllowed is true, this TextCard is being used by a top-level Section, whose
+    // allowed is controlled elsewhere. Don't accidentally pave it here.
+    if (!hideAllowed) payload.allowed = minData.allowed;
     payload.content = [thisLocale, thatLocale];
+    console.log(payload);
     axios.post(`/api/cms/${type}/update`, payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false, isDirty: false}, this.formatDisplay.bind(this));
@@ -226,7 +228,7 @@ class TextCard extends Component {
 
   render() {
     const {alertObj, thisDisplayData, thatDisplayData, minData, isOpen} = this.state;
-    const {variables, fields, onMove, plainfields, type, parentArray, item, locale, localeDefault} = this.props;
+    const {variables, fields, onMove, hideAllowed, plainfields, type, parentArray, item, locale, localeDefault} = this.props;
 
     if (!minData || !thisDisplayData) return <Loading />;
 
@@ -281,7 +283,7 @@ class TextCard extends Component {
           return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
         }));
 
-    const showVars = Object.keys(variables).length > 0;
+    const showVars = Object.keys(variables).length > 0 && !hideAllowed;
 
     return (
       <Card {...cardProps}>
