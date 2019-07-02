@@ -1,7 +1,7 @@
-import React from "react";
-import PropTypes from "prop-types";
-import classNames from "classnames";
 import {NonIdealState} from "@blueprintjs/core";
+import classNames from "classnames";
+import PropTypes from "prop-types";
+import React from "react";
 
 import createChartConfig from "../../helpers/chartConfig";
 import ChartCard from "./ChartCard";

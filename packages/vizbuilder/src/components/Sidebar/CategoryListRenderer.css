@@ -1,0 +1,37 @@
+.catlist-wrapper {
+}
+
+.catlist-header {
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  overflow: hidden;
+  transition-duration: 100ms;
+  transition-property: height, opacity;
+  transition-timing-function: linear;
+}
+.depth-0 .catlist-header {
+  height: 0;
+  opacity: 0;
+}
+.depth-1 .catlist-header {
+  height: 2em;
+}
+.depth-2 .catlist-header {
+  height: 3em;
+}
+.depth-3 .catlist-header {
+  height: 60px;
+}
+
+.catlist-title {
+  & .title-token {
+    display: block;
+  }
+}
+
+.catlist-content {
+  max-height: 310px;
+  overflow: auto;
+}

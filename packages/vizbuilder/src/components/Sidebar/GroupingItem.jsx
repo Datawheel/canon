@@ -2,17 +2,17 @@ import {Button} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import React from "react";
 
-import {fetchMembers} from "../../../helpers/fetch";
-import {composePropertyName} from "../../../helpers/formatting";
+import {fetchMembers} from "../../helpers/fetch";
+import {composePropertyName} from "../../helpers/formatting";
 
-import LevelSelect from "../NewLevelSelect";
-import MemberSelect from "../NewMemberSelect";
-import SidebarCRUDItem from "../SidebarCRUDItem";
+import LevelSelect from "./LevelSelect";
+import MemberSelect from "./MemberSelect";
+import SidebarCRUDItem from "./SidebarCRUDItem";
 
-import Grouping from "./Grouping";
+import Grouping from "../../helpers/Grouping";
 
 /**
- * @augments React.Component<IProps,IState>
+ * @augments SidebarCRUDItem
  */
 class GroupingItem extends SidebarCRUDItem {
   constructor(props) {
@@ -24,11 +24,13 @@ class GroupingItem extends SidebarCRUDItem {
       isOpen: item.new,
       loading: true,
       members: [],
+      ancestry: [],
       newItem: !item.level ? item.setLevel(props.options[0]) : null
     };
 
     this.handleUpdateLevel = this.handleUpdateLevel.bind(this);
     this.handleAddMember = this.handleUpdate.bind(this, "addMember");
+    this.handleClearMembers = this.handleUpdate.bind(this, "clearMembers");
     this.handleRemoveMember = this.handleUpdate.bind(this, "removeMember");
   }
 
@@ -41,7 +43,7 @@ class GroupingItem extends SidebarCRUDItem {
     const {item = {}} = this.props;
     return !item.level || this.state.isOpen
       ? this.renderEditable.call(this)
-      : this.renderClosed.call(this)
+      : this.renderClosed.call(this);
   }
 
   renderClosed() {
@@ -52,21 +54,19 @@ class GroupingItem extends SidebarCRUDItem {
           <div className="grouping-name">{composePropertyName(item.level)}</div>
           {item.hasMembers && (
             <div className="group grouping-members">
-              {item.members.map(member => (
-                <span key={member.key}>{member.name}</span>
-              ))}
+              {item.members.map(member => <span key={member.key}>{member.name}</span>)}
             </div>
           )}
         </div>
         <div className="group actions">
           <Button
             text="Delete"
-            className="pt-small action-delete"
+            className="bp3-small action-delete"
             onClick={this.handleDelete}
           />
           <Button
             text="Edit"
-            className="pt-small pt-intent-primary action-edit"
+            className="bp3-small bp3-intent-primary action-edit"
             onClick={this.handleEdit}
           />
         </div>
@@ -76,7 +76,7 @@ class GroupingItem extends SidebarCRUDItem {
 
   renderEditable() {
     const {item, options} = this.props;
-    const {loading, members, newItem} = this.state;
+    const {ancestry, loading, members, newItem} = this.state;
     const activeItem = newItem || item;
     return (
       <div className="grouping-item editing">
@@ -84,15 +84,18 @@ class GroupingItem extends SidebarCRUDItem {
           <LevelSelect
             className="select-level"
             items={options}
-            value={activeItem.level}
+            activeItem={activeItem.level}
             onItemSelect={this.handleUpdateLevel}
           />
         </div>
         <div className="group grouping-members">
           <MemberSelect
-            loading={loading}
+            // activeItem
             items={members}
-            value={activeItem.members}
+            loading={loading}
+            selectedItems={activeItem.members}
+            maxDepth={ancestry.length}
+            onClear={this.handleClearMembers}
             onItemSelect={this.handleAddMember}
             onItemRemove={this.handleRemoveMember}
           />
@@ -100,12 +103,12 @@ class GroupingItem extends SidebarCRUDItem {
         <div className="group actions">
           <Button
             text={item.level ? "Cancel" : "Delete"}
-            className="pt-small action-reset"
+            className="bp3-small action-reset"
             onClick={item.level ? this.handleClose : this.handleDelete}
           />
           <Button
             text="Apply"
-            className="pt-small pt-intent-primary action-update"
+            className="bp3-small bp3-intent-primary action-update"
             onClick={this.handleApply}
           />
         </div>
@@ -119,9 +122,16 @@ class GroupingItem extends SidebarCRUDItem {
     const activeItem = this.state.newItem || this.props.item;
     const newItem = activeItem.setLevel(level);
     this.setState({loading: true, members: [], newItem}, () =>
-      fetchMembers(query, level).then(members =>
-        this.setState({loading: false, members})
-      )
+      fetchMembers(query, level).then(members => {
+        if (members.length === 0) {
+          throw new Error(`Level "${level.name}" doesn't have members.`);
+        }
+        const {ancestors = []} = members[0] || {};
+        const ancestry = ancestors
+          .filter(parent => parent.depth > 0)
+          .map(parent => parent.level_name);
+        this.setState({loading: false, members, ancestry});
+      })
     );
   }
 }

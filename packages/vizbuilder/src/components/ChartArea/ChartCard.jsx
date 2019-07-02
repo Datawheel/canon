@@ -21,8 +21,8 @@ class ChartCard extends React.PureComponent {
           {!this.props.hideFooter && (
             <footer>
               <Button
-                className="pt-minimal"
-                iconName={active ? "cross" : "zoom-in"}
+                className="bp3-minimal"
+                icon={active ? "cross" : "zoom-in"}
                 text={active ? "CLOSE" : "ENLARGE"}
                 onClick={this.handleToggleSelect}
               />

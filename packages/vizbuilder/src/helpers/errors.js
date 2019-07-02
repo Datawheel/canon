@@ -20,6 +20,12 @@ export class NoMoreOptions extends VizbuilderError {
   }
 }
 
+export class EmptyDataset extends VizbuilderError {
+  constructor() {
+    super(Intent.WARNING, "No data available at that granularity.");
+  }
+}
+
 export class TooMuchData extends VizbuilderError {
   constructor(query, length) {
     super(
