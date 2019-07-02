@@ -42,7 +42,7 @@ export default class Header extends Component {
         <span className="cms-header-link-container">
           {dimensions && dimensions.length
             // proper URL can be constructed
-            ? <a href={previewURL} className="cms-header-link">
+            ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "font-xs" : ""}`}>
               {/* dimensions & ids */}
               {prettyDomain}/profile{dimensions && dimensions.map(dim =>
                 <React.Fragment key={dim.slug}>/
@@ -63,7 +63,12 @@ export default class Header extends Component {
 
           {/* edit slug button can't be part of link */}
           {slug && dimensions && dimensions.length
-            ? <Button className="cms-header-slug-button font-xs" onClick={onRenameSlug} icon="edit" iconOnly>
+            ? <Button
+              className={`cms-header-slug-button ${previewURL.length > 60 ? "font-xxs" : "font-xs"}`}
+              onClick={onRenameSlug}
+              icon="edit"
+              iconOnly
+            >
               rename slug
             </Button> : ""
           }
