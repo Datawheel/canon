@@ -2,12 +2,12 @@ import {Button, NumericInput} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import React from "react";
 
-import {composePropertyName} from "../../../helpers/formatting";
-import OPERATORS, {KIND_NUMBER as NUMBER_OPERATORS, LABELS as OPERATOR_LABELS} from "../../../helpers/operators";
+import {composePropertyName} from "../../helpers/formatting";
+import OPERATORS, {KIND_NUMBER as NUMBER_OPERATORS, LABELS as OPERATOR_LABELS} from "../../helpers/operators";
+import Filter from "../../helpers/Filter";
 
-import FilterMeasureSelect from "../FilterMeasureSelect";
-import SidebarCRUDItem from "../SidebarCRUDItem";
-import Filter from "./Filter";
+import FilterMeasureSelect from "./CubeMeasureSelect";
+import SidebarCRUDItem from "./SidebarCRUDItem";
 
 /**
  * @augments React.Component<IProps,IState>
@@ -49,12 +49,12 @@ class FilterItem extends SidebarCRUDItem {
         <div className="group actions">
           <Button
             text="Delete"
-            className="pt-small"
+            className="bp3-small"
             onClick={this.handleDelete}
           />
           <Button
             text="Edit"
-            className="pt-small pt-intent-primary"
+            className="bp3-small bp3-intent-primary"
             onClick={this.handleEdit}
           />
         </div>
@@ -69,13 +69,13 @@ class FilterItem extends SidebarCRUDItem {
       <div className="filter-item editing">
         <div className="group filter-measure">
           <FilterMeasureSelect
-            value={activeItem.measure}
+            activeItem={activeItem.measure}
             items={options}
             onItemSelect={this.handleSetMeasure}
           />
         </div>
-        <div className="group filter-values pt-control-group">
-          <div className="pt-select pt-fill">
+        <div className="group filter-values bp3-control-group">
+          <div className="bp3-select bp3-fill">
             <select value={activeItem.operator} onChange={this.handleSetOperator}>
               {NUMBER_OPERATORS.map(ms => (
                 <option key={ms} value={OPERATORS[ms]}>
@@ -85,7 +85,7 @@ class FilterItem extends SidebarCRUDItem {
             </select>
           </div>
           <NumericInput
-            className="pt-fill"
+            className="bp3-fill"
             value={activeItem.visibleValue}
             onValueChange={this.handleSetValue}
             allowNumericCharactersOnly={true}
@@ -93,12 +93,12 @@ class FilterItem extends SidebarCRUDItem {
         </div>
         <div className="group actions">
           <Button
-            className="pt-small"
+            className="bp3-small"
             onClick={activeItem.measure ? this.handleClose : this.handleDelete}
             text={activeItem.measure ? "Cancel" : "Delete"}
           />
           <Button
-            className="pt-small pt-intent-primary"
+            className="bp3-small bp3-intent-primary"
             disabled={!Filter.isValid(activeItem)}
             onClick={this.handleApply}
             text="Apply"

@@ -1,33 +1,31 @@
-import React from "react";
-import PropTypes from "prop-types";
+import {Button, Tooltip} from "@blueprintjs/core";
 import classnames from "classnames";
+import LoadingScreen from "components/Loading";
+import PropTypes from "prop-types";
+import React from "react";
 import {connect} from "react-redux";
-import {Button} from "@blueprintjs/core";
-import {Tooltip2} from "@blueprintjs/labs";
 
-import "@blueprintjs/labs/dist/blueprint-labs.css";
 import "./index.css";
 
-import LoadingScreen from "components/Loading";
 import ChartArea from "./components/ChartArea";
 import PermalinkManager from "./components/PermalinkManager";
 import Sidebar from "./components/Sidebar";
-import Filter from "./components/Sidebar/FilterManager/Filter";
 import Ranking from "./components/Sidebar/Ranking";
 
 import {resetClient} from "./helpers/api";
 import {chartComponents} from "./helpers/chartHelpers";
 import {fetchCubes} from "./helpers/fetch";
+import Filter from "./helpers/Filter";
 import {
+  DEFAULT_MEASUREUNIT_CONFIG,
   DEFAULT_MEASURE_FORMATTERS,
   DEFAULT_MEASURE_MULTIPLIERS,
-  DEFAULT_MEASUREUNIT_CONFIG,
   normalizeFullNames
 } from "./helpers/formatting";
 import {fetchControl} from "./helpers/loadstate";
 import {parsePermalink, permalinkToState} from "./helpers/permalink";
 import {getDefaultGroup} from "./helpers/sorting";
-import {isSameQuery, isDefaultQuery} from "./helpers/validation";
+import {isDefaultQuery, isSameQuery} from "./helpers/validation";
 
 class Vizbuilder extends React.Component {
   constructor(props, ctx) {
@@ -156,18 +154,19 @@ class Vizbuilder extends React.Component {
           <Ranking chart={chartForRanking} selectedTime={uiParams.selectedTime} />
         </Sidebar>
         <div className="area-middle">
-          <Tooltip2
+          <Tooltip
             className="toggle-sidebar"
             content={showSidebar ? "Hide Controls" : "Show Controls"}
             placement="auto"
           >
             <Button
               onClick={this.toggleSidebar}
-              iconName={showSidebar ? "menu-closed" : "menu-open"}
+              icon={showSidebar ? "menu-closed" : "menu-open"}
             />
-          </Tooltip2>
+          </Tooltip>
         </div>
         <ChartArea
+          key="chart-area"
           charts={charts}
           lastUpdate={load.lastUpdate}
           measure={queryParams.measure}
@@ -176,11 +175,13 @@ class Vizbuilder extends React.Component {
         >
           {toolbar}
         </ChartArea>
-        {permalink && <PermalinkManager
-          activeChart={uiParams.activeChart}
-          href={location.search}
-          state={this.getState()}
-        />}
+        {permalink && (
+          <PermalinkManager
+            activeChart={uiParams.activeChart}
+            href={location.search}
+            state={this.getState()}
+          />
+        )}
       </div>
     );
   }
@@ -272,16 +273,10 @@ Vizbuilder.defaultProps = {
   onChange() {},
   permalink: true,
   topojson: {},
-  visualizations: [
-    "geomap",
-    "treemap",
-    "barchart",
-    "lineplot",
-    "barchartyear",
-    "stacked"
-  ]
+  visualizations: ["geomap", "treemap", "barchart", "lineplot", "barchartyear", "stacked"]
 };
 
+export const defaultProps = Vizbuilder.defaultProps;
 export default connect(state => {
   const vb = state.vizbuilder;
   return {

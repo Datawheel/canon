@@ -2,16 +2,16 @@ import {Button} from "@blueprintjs/core";
 import classnames from "classnames";
 import React from "react";
 
-import SidebarCRUDManager from "../SidebarCRUDManager";
+import SidebarCRUDManager from "./SidebarCRUDManager";
 
-import Grouping from "./Grouping";
+import Grouping from "../../helpers/Grouping";
 import GroupingItem from "./GroupingItem";
 import {
   IncompleteParameter,
   NoMoreOptions,
   DimensionInUse
-} from "../../../helpers/errors";
-import {getGeoLevel} from "../../../helpers/sorting";
+} from "../../helpers/errors";
+import {getGeoLevel} from "../../helpers/sorting";
 
 class GroupingManager extends SidebarCRUDManager {
   constructor(props) {
@@ -47,9 +47,9 @@ class GroupingManager extends SidebarCRUDManager {
           {items.map(this.renderElement, this)}
         </div>
         <Button
-          className="pt-fill action-add"
+          className="bp3-fill action-add"
           text="Add grouping"
-          iconName="insert"
+          icon="insert"
           disabled={disableAdd}
           onClick={this.createElement}
         />

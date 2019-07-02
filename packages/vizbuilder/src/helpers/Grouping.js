@@ -1,16 +1,25 @@
 import {uuid} from "d3plus-common";
 
-import {isValidCut, isValidGrouping} from "../../../helpers/validation";
+import {isValidCut, isValidGrouping} from "./validation";
 
 class Grouping {
   constructor(level, members) {
-    /** @type {string} A unique id for the grouping element */
+    /**
+     * A unique id for the grouping element
+     * @type {string}
+     */
     this.uuid = uuid();
 
-    /** @type {Level} A mondrian-rest-client Level instance */
+    /**
+     * A mondrian-rest-client Level instance
+     * @type {import("mondrian-rest-client").Level}
+     */
     this.level = level;
 
-    /** @type {Member[]} A mondrian-rest-client Member list for the current level */
+    /**
+     * A mondrian-rest-client Member list for the current level
+     * @type {import("mondrian-rest-client").Member[]}
+     */
     this.members = members || [];
   }
 
@@ -72,8 +81,16 @@ class Grouping {
     return clone;
   }
 
-  removeMember(member) {
-    const index = this.members.findIndex(obj => obj.key === member.key);
+  clearMembers() {
+    const clone = this.getClone();
+    clone.members = [];
+    return clone;
+  }
+
+  removeMember(member, index) {
+    if (index == null) {
+      index = this.members.findIndex(obj => obj.key === member.key);
+    }
     if (index === -1) {
       return this;
     }

@@ -5,6 +5,11 @@ class SidebarCRUDItem extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      isOpen: false,
+      newItem: null
+    };
+
     this.handleApply = this.handleApply.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleDelete = this.handleDelete.bind(this);

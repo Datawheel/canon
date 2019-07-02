@@ -1,7 +1,7 @@
 import {uuid} from "d3plus-common";
 
-import OPERATORS, {LABELS, SYMBOLS} from "../../../helpers/operators";
-import {isValidFilter, isNumeric} from "../../../helpers/validation";
+import OPERATORS, {LABELS, SYMBOLS} from "./operators";
+import {isValidFilter, isNumeric} from "./validation";
 
 class Filter {
   constructor(measure, operator, value) {
