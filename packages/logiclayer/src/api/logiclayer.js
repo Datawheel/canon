@@ -100,7 +100,7 @@ module.exports = function(app) {
     if (!measures.length) res.json({error: "Query must contain at least one measure."});
     else {
 
-      let reserved = ["captions", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year"];
+      let reserved = ["captions", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year", "debug"];
       reserved = reserved.concat(d3Array.merge(reserved.map(r => {
         let alts = aliases[r] || [];
         if (typeof alts === "string") alts = [alts];
@@ -114,6 +114,7 @@ module.exports = function(app) {
       const captions = findKey(req.query, "captions", false);
 
       const {
+        debug = "false",
         parents = "false",
         sort = "desc"
       } = req.query;
@@ -547,7 +548,11 @@ module.exports = function(app) {
 
               const p = yn(parents);
               query.option("parents", p);
-              if (p && verbose) console.log("Parents: true");
+              if (verbose) console.log(`Parents: ${p}`);
+
+              const d = yn(debug);
+              query.option("debug", d);
+              if (verbose) console.log(`Debug: ${d}`);
 
               filters
                 .filter(f => cube.measures.includes(f[0]))
