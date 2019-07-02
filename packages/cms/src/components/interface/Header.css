@@ -40,13 +40,9 @@
   & .cms-header-link-container {
     margin-bottom: 1.25rem;
     color: var(--dark-1);
-  }
-
-  & .cms-header-link {
     /* transitions */
     transition: border 0.2s ease-out;
     /* theming */
-    text-decoration: none;
     border-bottom: 2px solid var(--light-3);
     color: var(--dark-2);
 
@@ -56,13 +52,19 @@
     }
 
     /* interactions */
-    &:hover, &:focus {
+    &:hover, &:focus-within {
       border-color: var(--accent-dark);
 
       @mixin dark-mode {
         border-color: var(--accent);
       }
     }
+  }
+
+  /* reset actual link */
+  & .cms-header-link {
+    text-decoration: none;
+    color: inherit;
   }
 
   /* highlight preview id */
@@ -76,8 +78,21 @@
     }
   }
 
-  /* position slug rename button */
-  & .cms-header-slug-button {
-    margin-left: 0.5em;
+  /* position non-button icons */
+  & .bp3-editable-text + [class*="icon"] {
+    @mixin absolute-vertical-center;
+    left: auto;
+    right: -0.625em;
+    margin-top: 1px;
+    width: 0.75em;
+  }
+
+  /* hide icon when editing */
+  & [class*="-editing"] + [class*="icon"]{
+    opacity: 0;
+  }
+  /* reset font size */
+  & [class*="-editing"] > * {
+    font-size: inherit;
   }
 }
