@@ -151,9 +151,11 @@ export default class Toolbox extends Component {
   }
 
   filterFunc(d) {
-    const {query} = this.state;
+    const {query, forceOpen, forceID, forceType} = this.state;
     const fields = ["name", "description", "title"];
-    return fields.map(f => d[f] ? d[f].toLowerCase().includes(query) : false).some(d => d);
+    const matched = fields.map(f => d[f] ? d[f].toLowerCase().includes(query) : false).some(d => d);
+    const opened = d.type === forceType && d.id === forceID && forceOpen;
+    return matched || opened;
   }
 
   openGenerator(key) {
@@ -163,14 +165,14 @@ export default class Toolbox extends Component {
     const gens = Object.keys(vars._genStatus);
     gens.forEach(id => {
       if (vars._genStatus[id][key]) {
-        this.setState({forceID: id, forceType: "generator", forceOpen: true});
+        this.setState({forceID: Number(id), forceType: "generator", forceOpen: true});
       }
     });
 
     const mats = Object.keys(vars._matStatus);
     mats.forEach(id => {
       if (vars._matStatus[id][key]) {
-        this.setState({forceID: id, forceType: "materializer", forceOpen: true});
+        this.setState({forceID: Number(id), forceType: "materializer", forceOpen: true});
       }
     });
   }
@@ -193,10 +195,12 @@ export default class Toolbox extends Component {
 
     const generators = minData.generators
       .sort((a, b) => a.name.localeCompare(b.name))
+      .map(d => Object.assign({}, {type: "generator"}, d))
       .filter(this.filterFunc.bind(this));
 
     const materializers = minData.materializers
       .sort((a, b) => a.name.localeCompare(b.name))
+      .map(d => Object.assign({}, {type: "materializer"}, d))
       .filter(this.filterFunc.bind(this));
 
     const formatters = minData.formatters
@@ -259,9 +263,9 @@ export default class Toolbox extends Component {
       {/* Hide the panels if not detailView - but SHOW them if forceOpen is set, which means
         * that someone has clicked an individual variable and wants to view its editor
         */}
-      <div className={`cms-toolbox-accardion-wrapper${detailView ? "" : " is-hidden"}`}>
+      <div className={`cms-toolbox-accardion-wrapper${detailView || forceOpen ? "" : " is-hidden"}`}>
 
-        {showGenerators &&
+        {(showGenerators || forceOpen) &&
           <Accardion
             title="Generators"
             entity="generator"
@@ -283,13 +287,13 @@ export default class Toolbox extends Component {
                 type="generator"
                 variables={variables[localeDefault]}
                 secondaryVariables={variables[locale]}
-                forceOpen={forceType === "generator" && String(forceID) === String(g.id) ? forceOpen : null}
+                forceOpen={forceType === "generator" && forceID === g.id ? forceOpen : null}
               />
             )}
           />
         }
 
-        {showMaterializers &&
+        {(showMaterializers  || forceOpen) &&
           <Accardion
             title="Materializers"
             entity="materializer"
@@ -311,7 +315,7 @@ export default class Toolbox extends Component {
                 secondaryVariables={variables[locale]}
                 parentArray={minData.materializers}
                 onMove={this.onMove.bind(this)}
-                forceOpen={forceType === "materializer" && String(forceID) === String(m.id) ? forceOpen : null}
+                forceOpen={forceType === "materializer" && forceID === m.id ? forceOpen : null}
               />
             )}
           />
