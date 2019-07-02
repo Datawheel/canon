@@ -1,12 +1,24 @@
 import React, {Component} from "react";
+import {EditableText, Icon} from "@blueprintjs/core";
 import Button from "../fields/Button";
 import "./Header.css";
 
 export default class Header extends Component {
+
+  nicknameProfile(value) {
+    console.log(value);
+  }
+
+  renameSectionSlug(value) {
+    console.log(value);
+  }
+
+  renameSection() {
+    console.log("button clicked");
+  }
+
   render() {
     const {
-      onRenameTitle,
-      onRenameSlug,
       parentTitle,
       dimensions,
       title,
@@ -28,15 +40,29 @@ export default class Header extends Component {
     return (
       <header className="cms-header">
         <h1 className="cms-header-title font-lg">
-          {parentTitle &&
-            <span className="cms-header-title-parent">{parentTitle} </span>
+          {!parentTitle
+
+            // profile
+            ? <span className="cms-header-title-main">
+              <EditableText
+                defaultValue={title}
+                confirmOnEnterKey={true}
+                onConfirm={this.nicknameProfile.bind(this)}
+              />
+              <Icon icon="edit" />
+            </span>
+
+            // section
+            : <React.Fragment>
+              <span className="cms-header-title-parent">{parentTitle} </span>
+              <span className="cms-header-title-main">
+                {title}
+                <Button className="cms-header-title-button font-xs" onClick={this.renameSection.bind(this)} icon="cog" iconOnly>
+                  rename section
+                </Button>
+              </span>
+            </React.Fragment>
           }
-          <span className="cms-header-title-main">
-            {title}
-            <Button className="cms-header-title-button font-xs" onClick={onRenameTitle} icon="edit" iconOnly>
-              rename profile
-            </Button>
-          </span>
         </h1>
 
         <span className="cms-header-link-container">
@@ -50,12 +76,6 @@ export default class Header extends Component {
                   <span className="cms-header-link-id">{dim.id}</span>
                 </React.Fragment>
               )}
-              {/* append slug */}
-              {slug &&
-                <React.Fragment>#
-                  <span className="cms-header-link-slug">{slug}</span>
-                </React.Fragment>
-              }
             </a>
             // show the domain, but that's it
             : `${prettyDomain}/profile/`
@@ -63,14 +83,16 @@ export default class Header extends Component {
 
           {/* edit slug button can't be part of link */}
           {slug && dimensions && dimensions.length
-            ? <Button
-              className={`cms-header-slug-button ${previewURL.length > 60 ? "font-xxs" : "font-xs"}`}
-              onClick={onRenameSlug}
-              icon="edit"
-              iconOnly
-            >
-              rename slug
-            </Button> : ""
+            ? <React.Fragment>#
+              <span className="cms-header-link-slug">
+                <EditableText
+                  defaultValue={slug}
+                  confirmOnEnterKey={true}
+                  onConfirm={this.renameSectionSlug.bind(this)}
+                />
+                <Icon icon="edit" />
+              </span>
+            </React.Fragment> : ""
           }
         </span>
       </header>
