@@ -35,7 +35,7 @@ export default class Header extends Component {
     // construct URL from domain and dimensions
     const previewURL = `${domain}/profile/${
       dimensions.map(dim => Object.values(dim)).flat().join("/")
-    }${slug && `#${slug}`}`;
+    }${typeof slug !== "undefined" ? `#${slug}` : ""}`;
 
     return (
       <header className="cms-header">
