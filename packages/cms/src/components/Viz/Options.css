@@ -9,7 +9,7 @@
     /* keep tooltips above button (blueprint override) */
     &.bp3-button,
     &.bp3-button:focus {
-      z-index: 0;
+      z-index: auto;
     }
   }
 }

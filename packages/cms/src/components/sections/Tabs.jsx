@@ -1,7 +1,10 @@
 import React, {Component} from "react";
 import Viz from "../Viz/index";
-import {AnchorLink} from "@datawheel/canon-core";
+// import {AnchorLink} from "@datawheel/canon-core";
 import {nest} from "d3-collection";
+import stripP from "../../utils/formatters/stripP";
+
+
 import StatGroup from "../Viz/StatGroup";
 import Selector from "./components/Selector";
 import "./Section.css";
@@ -62,19 +65,17 @@ export default class Tabs extends Component {
       return title || `Visualization ${i + 1}`;
     });
 
-    return <div className={ `section ${slug} Tabs` } ref={ comp => this.section = comp }>
-      <div className="section-content">
+    return <div className={ `cp-section-inner cp-${slug}-section-inner` } ref={ comp => this.section = comp }>
+      <div className="cp-section-content">
         { title &&
-          <h3 className="section-title">
-            <AnchorLink to={ slug } id={ slug } className="anchor" dangerouslySetInnerHTML={{__html: title}}></AnchorLink>
-          </h3>
+          <h2 id={ slug } className="cp-section-title" dangerouslySetInnerHTML={{__html: stripP(title)}} />
         }
-        { subtitles.map((content, i) => <div key={i} className="section-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
+        { subtitles.map((content, i) => <div key={i} className="cp-section-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
         { stats.length > 0
-          ? <div className="section-stats">
+          ? <div className="cp-section-stats">
             { statGroups && statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
           </div> : null }
-        { tabDescriptions && tabDescriptions.map((content, i) => <div key={i} className="section-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
+        { tabDescriptions && tabDescriptions.map((content, i) => <div key={i} className="cp-section-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
         { tabs.length > 1 && <div className={`tab-group tab-${tabIndex}`}>
           { tabs && tabs.map((title, key) =>
             <button className={tabIndex === key ? "tab selected" : "tab"} key={key} onClick={this.updateTabs.bind(this, key)}>
@@ -83,9 +84,9 @@ export default class Tabs extends Component {
           )}
         </div> }
       </div>
-      <div className="section-flex">
-        { <Viz section={this} config={visualization} key={tabIndex} className="section-visualization" title={ title } slug={ `${slug}_${tabIndex}` } /> }
-        { tabSelectors.length > 0 && <div className="section-selectors">
+      <div className="cp-section-flex">
+        { <Viz section={this} config={visualization} key={tabIndex} className="cp-section-visualization" title={ title } slug={ `${slug}_${tabIndex}` } /> }
+        { tabSelectors.length > 0 && <div className="cp-section-selectors">
           { tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
         </div> }
       </div>

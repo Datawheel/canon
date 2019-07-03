@@ -1,12 +1,18 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import toKebabCase from "../../utils/formatters/toKebabCase";
+
 import Card from "./Card";
 import TextViz from "./TextViz";
 import Column from "./Column";
 import Tabs from "./Tabs";
+
+// used to construct component
+// NOTE: should be every Component in `components/sections/` except for Section (i.e., this component)
 const sectionTypes = {Card, Column, Tabs, TextViz};
 
+/** wrapper for all sections */
 class Section extends Component {
 
   constructor(props) {
@@ -48,15 +54,16 @@ class Section extends Component {
   }
 
   render() {
-
     const {contents, sources} = this.state;
     const {loading} = this.props;
     const Comp = sectionTypes[contents.type] || TextViz;
 
-    return <Comp contents={contents} loading={loading} sources={sources} />;
-
+    return (
+      <section className={`cp-section cp-${toKebabCase(contents.type)}-section${ contents.sticky ? " is-sticky" : "" }`}>
+        <Comp contents={contents} loading={loading} sources={sources} />
+      </section>
+    );
   }
-
 }
 
 Section.contextTypes = {

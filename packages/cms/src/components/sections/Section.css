@@ -1,13 +1,21 @@
 @import "../../css/mixins.css";
 
-.section {
+.cp-section {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  padding: 25px 25px;
+  padding: 25px;
   width: 100%;
+  /* theming */
+  background-color: var(--section-bg);
 
-  & .section-content {
+  &.is-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  & .cp-section-content {
     align-self: flex-start;
     flex: 1;
 
@@ -24,28 +32,23 @@
       width: 100%;
     }
 
-    & .section-title {
+    & .cp-section-title {
       margin: 0 auto;
-      z-index: 2;
-      & a {
-        display: inline-block;
-        outline: 0;
-      }
     }
 
-    & .section-stats {
+    & .cp-section-stats {
       display: flex;
       flex-wrap: wrap;
       width: 100%;
     }
 
-    & .section-descriptions {
+    & .cp-section-descriptions {
       position: relative;
     }
 
   }
 
-  & .section-visualization {
+  & .cp-section-visualization {
     flex: 1;
     margin-left: 50px;
     min-height: 400px;
@@ -53,8 +56,8 @@
     position: relative;
   }
 
-  &.section-loading {
-    & .section-description, & .section-stats, & .section-visualization {
+  &.is-loading {
+    & .cp-section-description, & .cp-section-stats, & .cp-section-visualization {
       opacity: 0.25;
     }
   }
@@ -66,17 +69,17 @@
   }
 
   &.compare {
-    & .section-body {
+    & .cp-section-body {
       flex-wrap: wrap;
-      & .section-content {
+      & .cp-section-content {
         max-width: none !important;
         width: 100%;
-        & .section-text {
+        & .cp-section-text {
           &:not(:first-child) {
             margin-left: 50px;
           }
         }
-        & .section-visualization {
+        & .cp-section-visualization {
           margin-left: 0;
           &:not(:first-child) {
             margin-left: 50px;
@@ -86,21 +89,29 @@
     }
   }
 
-  &.Column, &.Tabs, &.Card {
+  &.cp-text-viz-section > .cp-section-inner {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  &.cp-column-section,
+  &.cp-tabs-section,
+  &.cp-card-section {
     flex: 1;
     flex-direction: column;
     width: auto;
-    & .section-content {
+    & .cp-section-content {
       max-width: none;
       width: 100%;
     }
-    & .section-visualization {
+    & .cp-section-visualization {
       margin: 0;
       min-height: 200px;
     }
   }
 
-  &.Card {
+  &.cp-card-section {
     display: inline-block;
     width: 50%;
     vertical-align: top;
@@ -108,9 +119,9 @@
 
 }
 
-.section-flex {
+.cp-section-flex {
   display: flex;
-  & .section-selectors {
+  & .cp-section-selectors {
     max-width: 300px;
   }
 }

@@ -1,0 +1,16 @@
+@import "../../../css/mixins.css";
+
+.cp-section-grouping-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  & > .cp-section {
+    flex: 1 0 calc(33.333% - 25px);
+
+    /* grouped sections should never be sticky, probably */
+    &.is-sticky {
+      position: relative;
+    }
+  }
+}

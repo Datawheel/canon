@@ -37,3 +37,6 @@ nav-height: "50px"
 cms-nav-height: "3.125rem"
 sidebar-width: "17rem"
 toolbox-width: "22.5rem"
+
+# profile colors
+section-bg: "var(--white)"

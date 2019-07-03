@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import "./SectionGrouping.css";
 
 export default class SectionGrouping extends Component {
   render() {
