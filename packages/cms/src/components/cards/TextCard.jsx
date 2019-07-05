@@ -12,7 +12,7 @@ import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 // import stripP from "../../utils/formatters/stripP";
 import PropTypes from "prop-types";
-import LocaleName from "./LocaleName";
+import LocaleName from "./components/LocaleName";
 import Card from "./Card";
 import "./TextCard.css";
 
