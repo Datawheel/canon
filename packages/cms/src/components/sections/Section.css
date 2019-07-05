@@ -9,32 +9,23 @@
   /* theming */
   background-color: var(--section-bg);
 
+  /* sticky section */
   &.is-sticky {
+    position: relative; /* IE fallback */
     position: sticky;
     top: 0;
+    z-index: 2;
+  }
+  /* make it work in IE */
+  &.ie-is-stuck {
+    position: fixed;
+    top: var(--nav-height);
     z-index: 1;
   }
 
   & .cp-section-content {
     align-self: flex-start;
     flex: 1;
-
-    &:first-child {
-      flex: none;
-      margin: 3px 0 12px;
-      max-width: 415px;
-      width: 50%;
-    }
-
-    &:only-child {
-      margin: 3px auto 12px;
-      max-width: 600px;
-      width: 100%;
-    }
-
-    & .cp-section-title {
-      margin: 0 auto;
-    }
 
     & .cp-section-stats {
       display: flex;

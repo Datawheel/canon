@@ -4,7 +4,7 @@ import ButtonGroup from "../fields/ButtonGroup";
 import ReorderButton from "./components/ReorderButton";
 import "./Card.css";
 
-// TODO: rename existing Card.jsx (profile section layout?)
+/** Wrapper to generate markup for all admin cards */
 export default class Card extends Component {
   render() {
     const {
