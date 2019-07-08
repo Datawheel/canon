@@ -612,6 +612,7 @@ class ProfileBuilder extends Component {
         {/* new entity */}
         <Button
           onClick={this.createProfile.bind(this)}
+          context="cms"
           className="cms-add-profile-button font-xxs"
           icon="plus"
           iconPosition="right"

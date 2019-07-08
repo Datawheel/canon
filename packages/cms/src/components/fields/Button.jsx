@@ -9,6 +9,7 @@ export default class Button extends Component {
       block,        // set `true` to completely fill container width
       children,
       className,
+      context,      // "cp" (default) or "cms"
       disabled,
       rebuilding,   // add a spinning animation
       icon,         // blueprint icon name (https://blueprintjs.com/docs/#icons)
@@ -19,7 +20,7 @@ export default class Button extends Component {
 
     return (
       <button
-        className={`cms-button${
+        className={`${context}-button${
           className ? ` ${className}` : ""
         }${
           active ? " is-active" : " is-inactive"
@@ -36,11 +37,11 @@ export default class Button extends Component {
       >
         {/* left icon (default) */}
         {icon && iconPosition === "left" &&
-          <Icon className="cms-button-icon" icon={icon} />
+          <Icon className={`${context}-button-icon`} icon={icon} />
         }
 
         {/* button text */}
-        <span className={`cms-button-text${
+        <span className={`${context}-button-text${
           icon && iconOnly && children !== "Missing `children` prop in Button.jsx" ? " u-visually-hidden" : ""}`
         }>
           {children}
@@ -48,7 +49,7 @@ export default class Button extends Component {
 
         {/* right icon */}
         {icon && iconPosition === "right" &&
-          <Icon className="cms-button-icon" icon={icon} />
+          <Icon className={`${context}-button-icon`} icon={icon} />
         }
       </button>
     );
@@ -58,5 +59,6 @@ export default class Button extends Component {
 Button.defaultProps = {
   iconOnly: false,
   iconPosition: "right",
-  children: "Missing `children` prop in Button.jsx"
+  children: "Missing `children` prop in Button.jsx",
+  context: "cp"
 };

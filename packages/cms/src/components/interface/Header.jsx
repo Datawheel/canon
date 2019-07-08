@@ -57,7 +57,7 @@ export default class Header extends Component {
               <span className="cms-header-title-parent">{parentTitle} </span>
               <span className="cms-header-title-main">
                 {title}
-                <Button className="cms-header-title-button font-xs" onClick={this.renameSection.bind(this)} icon="cog" iconOnly>
+                <Button className="cms-header-title-button font-xs" context="cms" onClick={this.renameSection.bind(this)} icon="cog" iconOnly>
                   rename section
                 </Button>
               </span>

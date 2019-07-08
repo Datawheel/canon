@@ -226,10 +226,11 @@ export default class Toolbox extends Component {
         onReset={this.onReset.bind(this)}
       />
 
-      <ButtonGroup buttons={[
+      <ButtonGroup context="cms" buttons={[
         {
           onClick: () => this.setState({detailView: true}),
           active: detailView,
+          context: "cms",
           icon: "th-list",
           iconPosition: "left",
           children: "detail view"
@@ -237,6 +238,7 @@ export default class Toolbox extends Component {
         {
           onClick: () => this.setState({detailView: false}),
           active: !detailView,
+          context: "cms",
           icon: "list",
           iconPosition: "left",
           children: "output view"

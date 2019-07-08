@@ -276,7 +276,7 @@ class GeneratorEditor extends Component {
             <label className="label" htmlFor="api">API</label>
             <div className="cms-field-container-inline bp3-input-group">
               <input className="bp3-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
-              <Button onClick={this.maybePreviewPayload.bind(this)} icon={payload && !payload.error ? "refresh" : "download"}>
+              <Button onClick={this.maybePreviewPayload.bind(this)} context="cms" icon={payload && !payload.error ? "refresh" : "download"}>
                 {payload && !payload.error ? "Refetch data" : "Fetch data"}
               </Button>
             </div>
