@@ -221,6 +221,7 @@ export default class Toolbox extends Component {
     return <div className="cms-toolbox">
       <FilterSearch
         label="filter by name, output, description..."
+        context="cms"
         value={query}
         onChange={this.filter.bind(this)}
         onReset={this.onReset.bind(this)}
