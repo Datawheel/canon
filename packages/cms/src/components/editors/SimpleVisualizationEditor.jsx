@@ -174,7 +174,7 @@ class SimpleVisualizationEditor extends Component {
         <div className="cms-field-container-inline bp3-input-group">
           <input key="data-url" className="bp3-input" value={object.data || ""} onChange={this.onChange.bind(this, "data")} id="data"/>
           {object.data &&
-            <Button key="button-build" onClick={this.maybeRebuild.bind(this)}>
+            <Button context="cms" onClick={this.maybeRebuild.bind(this)} key="button-build">
               {payload.data ? "Rebuild" : "Build"}
             </Button>
           }

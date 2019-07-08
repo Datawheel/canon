@@ -27,6 +27,7 @@ export default class Card extends Component {
 
     const buttonProps = {
       className: "cms-card-heading-button font-xxs",
+      context: "cms",
       iconOnly: true
     };
 
@@ -83,7 +84,7 @@ export default class Card extends Component {
           }
           <h3 className="cms-card-heading-text font-sm">{title || "missing `title` prop in Card.jsx"}</h3>
           {buttons.length
-            ? <ButtonGroup buttons={buttons} />
+            ? <ButtonGroup context="cms" buttons={buttons} />
             : ""
           }
         </div>

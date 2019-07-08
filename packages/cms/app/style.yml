@@ -1,3 +1,7 @@
+########################################
+# admin panel
+########################################
+
 # grayscale
 white:   "#FFFFFF"
 light-1: "#F8F9FA"
@@ -33,10 +37,30 @@ type-error:       "#DB64A6"
 type-error-dark:  "#75224D"
 
 # measurements
-nav-height: "50px"
 cms-nav-height: "3.125rem"
 sidebar-width: "17rem"
 toolbox-width: "22.5rem"
 
-# profile colors
-section-bg: "var(--white)"
+
+########################################
+# profile
+########################################
+
+# measurements
+nav-height:      "50px"
+container-width: "80rem" # 1280px
+
+# sections
+section-bg:    "var(--white)"
+section-color: "var(--dark-3)"
+
+# buttons
+button-border-radius:          "2px"
+button-border-width:           "2px"
+button-border-color:           "var(--accent-black)"
+button-background-color:       "var(--accent-dark)"
+button-color:                  "var(--white)"
+button-padding:                "0.5em 1.25em"
+button-hover-background-color: "var(--accent-black)"
+button-hover-border-color:     "var(--accent-black)"
+button-hover-color:            "var(--white)"

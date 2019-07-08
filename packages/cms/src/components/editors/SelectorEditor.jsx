@@ -233,6 +233,12 @@ class SelectorEditor extends Component {
         return <option key={`{{${key}}}`} value={`{{${key}}}`} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
       });
 
+    const buttonProps = {
+      className: "font-xs",
+      context: "cms",
+      iconPosition: "left"
+    };
+
     return (
       <div className="cms-selector-editor">
 
@@ -248,22 +254,20 @@ class SelectorEditor extends Component {
           </label>
         </div>
 
-        <ButtonGroup className="cms-selector-editor-button-group" buttons={[
+        <ButtonGroup className="cms-selector-editor-button-group" context="cms" buttons={[
           {
             children: "single selection",
-            className: "font-xs",
             active: data.type === "single",
             onClick: this.handleTypeChange.bind(this, "single"),
             icon: "layer",
-            iconPosition: "left"
+            ...buttonProps
           },
           {
             children: "multiple selections",
-            className: "font-xs",
             active: data.type === "multi",
             onClick: this.handleTypeChange.bind(this, "multi"),
             icon: "layers",
-            iconPosition: "left"
+            ...buttonProps
           }
         ]} />
 
@@ -319,6 +323,7 @@ class SelectorEditor extends Component {
                   <td className="cms-selector-editor-cell cms-delete-selector-editor-cell">
                     <Button
                       onClick={this.deleteOption.bind(this, i)}
+                      context="cms"
                       icon="trash"
                       iconOnly
                     >
@@ -331,6 +336,7 @@ class SelectorEditor extends Component {
                     <td className="cms-selector-editor-cell cms-reorder">
                       <Button
                         onClick={this.moveDown.bind(this, i)}
+                        context="cms"
                         className="cms-reorder-button"
                         icon="swap-vertical"
                         iconOnly
@@ -350,6 +356,7 @@ class SelectorEditor extends Component {
         <Button
           onClick={this.addOption.bind(this)}
           className={!data.options.length ? "font-md" : null}
+          context="cms"
           icon="plus"
           block
         >

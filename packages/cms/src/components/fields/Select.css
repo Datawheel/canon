@@ -30,7 +30,7 @@
   /* transitions */
   transition: border-color 0.1s ease-out;
   /* theming */
-  @mixin button-theming;
+  @mixin cms-button-theming;
   border: 1px solid var(--light-3);
   border-radius: 2px;
   color: var(--dark-2);

@@ -110,7 +110,7 @@ class Builder extends Component {
           )}
 
           <div className="cms-nav-settings-button-container">
-            <Button className="cms-nav-settings-button" icon="cog" onClick={this.toggleSettings.bind(this)}>
+            <Button className="cms-nav-settings-button" context="cms" icon="cog" onClick={this.toggleSettings.bind(this)}>
               settings
             </Button>
           </div>

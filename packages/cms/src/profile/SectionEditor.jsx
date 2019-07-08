@@ -192,7 +192,7 @@ class SectionEditor extends Component {
               Section slug
               <div className="bp3-input-group">
                 <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-                <Button onClick={this.save.bind(this)}>Rename</Button>
+                <Button context="cms" onClick={this.save.bind(this)}>Rename</Button>
               </div>
             </label>
             {/* visibility select */}
@@ -218,10 +218,11 @@ class SectionEditor extends Component {
             {/* sticky select */}
             <label className="bp3-label">
               Positioning
-              <ButtonGroup buttons={[
+              <ButtonGroup context="cms" buttons={[
                 {
                   onClick: this.selectButton.bind(this, "sticky", true, false),
                   active: !minData.sticky,
+                  context: "cms",
                   icon: "alignment-left",
                   iconPosition: "left",
                   children: "default"
@@ -229,6 +230,7 @@ class SectionEditor extends Component {
                 {
                   onClick: this.selectButton.bind(this, "sticky", true, true),
                   active: minData.sticky,
+                  context: "cms",
                   icon: "alignment-top",
                   iconPosition: "left",
                   children: "sticky"

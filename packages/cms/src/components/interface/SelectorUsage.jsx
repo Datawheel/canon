@@ -97,6 +97,7 @@ class SelectorUsage extends Component {
                     {s.name}
                     <Button
                       className="cms-selector-usage-item-button font-xxxs"
+                      context="cms"
                       icon="plus"
                       iconOnly
                       onClick={this.addItem.bind(this, s.id)}
@@ -126,6 +127,7 @@ class SelectorUsage extends Component {
                     <div className="cms-button-group">
                       <Button
                         className="cms-card-heading-button font-xxs"
+                        context="cms"
                         onClick={this.removeItem.bind(this, s.id)}
                         icon="cross"
                         iconOnly
@@ -160,6 +162,7 @@ class SelectorUsage extends Component {
                       <Button
                         onClick={() => console.log("set me up jimmyyyy")}
                         className="cms-reorder-button"
+                        context="cms"
                         icon="swap-vertical"
                         iconOnly
                       >

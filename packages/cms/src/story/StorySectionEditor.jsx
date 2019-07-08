@@ -135,7 +135,7 @@ class StorySectionEditor extends Component {
               Story slug
               <div className="bp3-input-group">
                 <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-                <Button onClick={this.save.bind(this)}>Rename</Button>
+                <Button context="cms" onClick={this.save.bind(this)}>Rename</Button>
               </div>
             </label>
             <label className="bp3-label bp3-fill">
