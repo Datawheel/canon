@@ -4,9 +4,10 @@ import {connect} from "react-redux";
 import AceWrapper from "./AceWrapper";
 import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
-import Button from "../fields/Button";
 import {Switch, Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
+import Button from "../fields/Button";
+import Select from "../fields/Select";
 
 import "./GeneratorEditor.css";
 
@@ -288,18 +289,17 @@ class GeneratorEditor extends Component {
           </div>
         }
         {/* visibility */}
-        <div className="cms-field-container">
-          { (type === "profile_visualization" || type === "section_visualization") &&
-            <label className="bp3-label bp3-inline">
-              <span className="label-text">Allowed</span>
-              <div className="bp3-select">
-                <select value={ data.allowed || "always" } onChange={this.chooseVariable.bind(this)}>
-                  {varOptions}
-                </select>
-              </div>
-            </label>
-          }
-        </div>
+        { (type === "profile_visualization" || type === "section_visualization") &&
+          <Select
+            label="Visible"
+            inline
+            context="cms"
+            value={data.allowed || "always"}
+            onChange={this.chooseVariable.bind(this)}
+          >
+            {varOptions}
+          </Select>
+        }
         {/* callback instructions */}
         {!simple &&
           <section className="generator-editor-help">

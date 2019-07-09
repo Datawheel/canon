@@ -51,7 +51,6 @@
   /* expects a label and an input */
   & .cms-field-container-inline {
     display: flex;
-    align-items: center;
 
     /* override .cms-field-container defaults above */
     & > * {
@@ -76,9 +75,8 @@
   }
 
   /* space out adjacent fields & field groups */
-  & .cms-field-container + .cms-field-container,
-  & .cms-field-group + .cms-field-container,
-  & .cms-field-group + .cms-field-group {
+  & .cms-field-container + *,
+  & .cms-field-group + * {
     margin-top: 1rem;
   }
 }

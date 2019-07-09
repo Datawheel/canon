@@ -127,6 +127,7 @@ class Builder extends Component {
                 <Select
                   label="Primary"
                   fontSize="xs"
+                  context="cms"
                   inline
                   options={[localeDefault]}
                 />
@@ -134,6 +135,7 @@ class Builder extends Component {
                 <Select
                   label="Secondary"
                   fontSize="xs"
+                  context="cms"
                   inline
                   value={secondaryLocale}
                   options={locales.map(loc => loc)}

@@ -300,6 +300,7 @@ class SelectorEditor extends Component {
                     <Select
                       label="option (new)"
                       labelHidden
+                      context="cms"
                       value={option.option}
                       onChange={this.chooseOption.bind(this, i)}
                     >
@@ -310,8 +311,9 @@ class SelectorEditor extends Component {
                   {/* visibility */}
                   <td className="cms-selector-editor-cell">
                     <Select
-                      label="visibility"
+                      label="Visible"
                       labelHidden
+                      context="cms"
                       value={option.allowed}
                       onChange={this.chooseAllowed.bind(this, i)}
                     >
@@ -378,6 +380,7 @@ class SelectorEditor extends Component {
               <Select
                 label=" "
                 labelHidden
+                context="cms"
                 value={data.default}
                 onChange={this.chooseCustom.bind(this)}
                 inline
