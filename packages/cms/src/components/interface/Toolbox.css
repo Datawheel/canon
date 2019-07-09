@@ -23,6 +23,12 @@
     }
   }
 }
+@media (min-width: 768px) and (max-width: 991px) {
+  .cms-toolbox {
+    width: calc(100% - var(--sidebar-width));
+    margin-left: auto;
+  }
+}
 
 .cms-toolbox {
   /* sizing */
