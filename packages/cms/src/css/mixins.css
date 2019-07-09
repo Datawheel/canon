@@ -283,6 +283,7 @@ VarTable & VarList
   @mixin dark-mode {
     background-color: color(var(--black) a(0.75));
     border: 1px solid var(--dark-3);
+    box-shadow: none;
     color: var(--light-3);
   }
 }
