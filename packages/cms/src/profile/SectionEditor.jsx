@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 import Button from "../components/fields/Button";
 import ButtonGroup from "../components/fields/ButtonGroup";
+import Select from "../components/fields/Select";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Status from "../components/interface/Status";
@@ -195,25 +196,26 @@ class SectionEditor extends Component {
                 <Button context="cms" onClick={this.save.bind(this)}>Rename</Button>
               </div>
             </label>
+
             {/* visibility select */}
-            <label className="bp3-label bp3-fill">
-              Allowed
-              <div className="bp3-select">
-                <select id="visibility-select" value={minData.allowed || "always"} onChange={this.changeField.bind(this, "allowed", true)}>
-                  {varOptions}
-                </select>
-              </div>
-            </label>
+            <Select
+              label="Visible"
+              context="cms"
+              value={minData.allowed || "always"}
+              onChange={this.changeField.bind(this, "allowed", true)}
+            >
+              {varOptions}
+            </Select>
 
             {/* layout select */}
-            <label className="bp3-label bp3-fill">
-              Layout
-              <div className="bp3-select">
-                <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
-                  {typeOptions}
-                </select>
-              </div>
-            </label>
+            <Select
+              label="Layout"
+              context="cms"
+              value={minData.type}
+              onChange={this.changeField.bind(this, "type", true)}
+            >
+              {typeOptions}
+            </Select>
 
             {/* sticky select */}
             <label className="bp3-label">

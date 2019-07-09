@@ -2,6 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 
 import Button from "../components/fields/Button";
+import Select from "../components/fields/Select";
 import Accardion from "../components/interface/Accardion";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
@@ -138,14 +139,16 @@ class StorySectionEditor extends Component {
                 <Button context="cms" onClick={this.save.bind(this)}>Rename</Button>
               </div>
             </label>
-            <label className="bp3-label bp3-fill">
-              Layout
-              <div className="bp3-select">
-                <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
-                  {typeOptions}
-                </select>
-              </div>
-            </label>
+
+            {/* layout select */}
+            <Select
+              label="Layout"
+              context="cms"
+              value={minData.type}
+              onChange={this.changeField.bind(this, "type", true)}
+            >
+              {typeOptions}
+            </Select>
           </div>
         </Accardion>
 

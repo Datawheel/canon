@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {MenuItem} from "@blueprintjs/core";
 import {MultiSelect} from "@blueprintjs/select";
 import Button from "./fields/Button";
+import Select from "./fields/Select";
 
 class DimensionCreator extends Component {
 
@@ -91,15 +92,16 @@ class DimensionCreator extends Component {
           <label htmlFor="slug">Slug: </label>
           <input id="slug" className="bp3-input" type="text" value={profileData.slug} onChange={this.changeField.bind(this, "slug")}/>
         </div>
-        <div className="cms-field-container">
-          Dimension:
-          <div className="bp3-select">
-            <select className="field-input" value={profileData.dimension} onChange={this.chooseDimension.bind(this)}>
-              <option value="default">Choose One</option>
-              {dimOptions}
-            </select>
-          </div>
-        </div>
+        <Select
+          label="Dimension"
+          inline
+          context="cms"
+          value={profileData.dimension}
+          onChange={this.chooseDimension.bind(this)}
+        >
+          <option value="default">Choose a selector</option>
+          {dimOptions}
+        </Select>
         { profileData.dimension &&
           <div className="cms-field-container">
             Levels:
@@ -121,15 +123,16 @@ class DimensionCreator extends Component {
           </div>
         }
         { profileData.dimension && profileData.levels.length > 0 &&
-          <div className="cms-field-container">
-            Measure:
-            <div className="bp3-select">
-              <select className="field-input" value={profileData.measure} onChange={this.changeField.bind(this, "measure")}>
-                <option value="default">Choose One</option>
-                {measureOptions}
-              </select>
-            </div>
-          </div>
+          <Select
+            label="Measure"
+            inline
+            context="cms"
+            value={profileData.measure}
+            onChange={this.changeField.bind(this, "measure")}
+          >
+            <option value="default">Choose a measure</option>
+            {measureOptions}
+          </Select>
         }
         <div className="cms-field-container">
           { profileData.dimension && profileData.levels.length > 0 && profileData.measure

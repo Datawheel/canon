@@ -198,6 +198,7 @@
 .cms-editor-header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-end;
   flex-wrap: wrap;
   margin-top: -2px;
   padding: 1rem 1.25rem 0.5rem 1.25rem;

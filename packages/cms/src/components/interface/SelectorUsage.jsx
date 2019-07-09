@@ -141,6 +141,7 @@ class SelectorUsage extends Component {
                     <Select
                       label={s.title}
                       fontSize="xs"
+                      context="cms"
                       value={currentValues[s.name]}
                       onChange={this.onChange.bind(this, s.name)}
                     >

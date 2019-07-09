@@ -4,6 +4,7 @@ import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
 import Button from "../fields/Button";
+import Select from "../fields/Select";
 
 import "./SimpleVisualizationEditor.css";
 
@@ -182,41 +183,36 @@ class SimpleVisualizationEditor extends Component {
       </div>
 
       {object.data &&
-        <div className="cms-field-container">
-          Type
-          <div className="bp3-select">
-            <select value={object.type} onChange={this.onChange.bind(this, "type")}>
-              <option value="undefined">Select visualization type</option>
-              {Object.keys(vizLookup).map(type =>
-                <option key={type} value={type}>{type}</option>
-              )}
-            </select>
-          </div>
-        </div>
+        <Select
+          label="Visualization type"
+          inline
+          context="cms"
+          value={object.type}
+          onChange={this.onChange.bind(this, "type")}
+        >
+          <option value="undefined" default>Select visualization type</option>
+          {Object.keys(vizLookup).map(type =>
+            <option key={type} value={type}>{type}</option>
+          )}
+        </Select>
       }
 
-
       {payload.data &&
-        <ul className="viz-dropdown-list">
-          {
-            object.type &&
-              vizLookup[object.type].map(prop =>
-                <li key={prop}>
-                  {prop}:
-                  {reservedWords.includes(prop)
-                    ? <input key={prop} value={object[prop]} onChange={this.onChange.bind(this, prop)} />
-                    : <div className="bp3-select">
-                      <select value={object[prop]} onChange={this.onChange.bind(this, prop)}>
-                        {Object.keys(firstObj).map(type =>
-                          <option key={type} value={type}>{type}</option>
-                        )}
-                      </select>
-                    </div>
-                  }
-                </li>
-              )
-          }
-        </ul>
+        <div className="viz-select-group">
+          {object.type && vizLookup[object.type].map(prop => reservedWords.includes(prop)
+            ? <input key={prop} value={object[prop]} onChange={this.onChange.bind(this, prop)} />
+            : <Select
+              label={prop === "groupBy" ? "grouping" : prop}
+              context="cms"
+              value={object[prop]}
+              onChange={this.onChange.bind(this, prop)}
+            >
+              {Object.keys(firstObj).map(type =>
+                <option key={type} value={type}>{type}</option>
+              )}
+            </Select>
+          )}
+        </div>
       }
     </div>;
 
