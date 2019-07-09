@@ -3,6 +3,7 @@ import {MenuItem} from "@blueprintjs/core";
 import {MultiSelect} from "@blueprintjs/select";
 import Button from "./fields/Button";
 import Select from "./fields/Select";
+import TextInput from "./fields/TextInput";
 
 class DimensionCreator extends Component {
 
@@ -88,10 +89,14 @@ class DimensionCreator extends Component {
 
     return (
       <div className="bp3-dialog-body">
-        <div className="cms-field-container cms-field-container-inline">
-          <label htmlFor="slug">Slug: </label>
-          <input id="slug" className="bp3-input" type="text" value={profileData.slug} onChange={this.changeField.bind(this, "slug")}/>
-        </div>
+        <TextInput
+          label="slug"
+          inline
+          context="cms"
+          value={profileData.slug}
+          onChange={this.changeField.bind(this, "slug")}
+        />
+
         <Select
           label="Dimension"
           inline
@@ -102,11 +107,10 @@ class DimensionCreator extends Component {
           <option value="default">Choose a selector</option>
           {dimOptions}
         </Select>
-        { profileData.dimension &&
+
+        {profileData.dimension &&
           <div className="cms-field-container">
             Levels:
-
-            {/* new hotness */}
             <fieldset className="cms-fieldset">
               { levelList.map(level =>
                 <label className="cms-checkbox-label" key={level}>
@@ -119,10 +123,10 @@ class DimensionCreator extends Component {
                 </label>
               )}
             </fieldset>
-
           </div>
         }
-        { profileData.dimension && profileData.levels.length > 0 &&
+
+        {profileData.dimension && profileData.levels.length > 0 &&
           <Select
             label="Measure"
             inline
@@ -134,15 +138,14 @@ class DimensionCreator extends Component {
             {measureOptions}
           </Select>
         }
+
         <div className="cms-field-container">
-          { profileData.dimension && profileData.levels.length > 0 && profileData.measure
+          {profileData.dimension && profileData.levels.length > 0 && profileData.measure
             ? <Button onClick={this.createProfile.bind(this)} context="cms" icon="plus">Add dimension</Button>
             : <Button icon="plus" context="cms" disabled>Add dimension</Button>
           }
         </div>
-
       </div>
-
     );
   }
 }

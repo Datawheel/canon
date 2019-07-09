@@ -5,6 +5,7 @@ import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
 import Button from "../fields/Button";
 import Select from "../fields/Select";
+import TextButtonGroup from "../fields/TextButtonGroup";
 
 import "./SimpleVisualizationEditor.css";
 
@@ -155,6 +156,19 @@ class SimpleVisualizationEditor extends Component {
 
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
 
+    let buttonProps = {
+      children: "Build",
+      disabled: true,
+      context: "cms"
+    };
+    if (object.data) {
+      buttonProps = {
+        children: payload.data ? "Rebuild" : "Build",
+        context: "cms",
+        onClick: this.maybeRebuild.bind(this)
+      };
+    }
+
     return <div className="cms-viz-editor">
       <Alert
         cancelButtonText="Cancel"
@@ -170,17 +184,17 @@ class SimpleVisualizationEditor extends Component {
       </Alert>
 
       {/* data URL */}
-      <div className="cms-field-container">
-        <label className="label" htmlFor="data">Data</label>
-        <div className="cms-field-container-inline bp3-input-group">
-          <input key="data-url" className="bp3-input" value={object.data || ""} onChange={this.onChange.bind(this, "data")} id="data"/>
-          {object.data &&
-            <Button context="cms" onClick={this.maybeRebuild.bind(this)} key="button-build">
-              {payload.data ? "Rebuild" : "Build"}
-            </Button>
-          }
-        </div>
-      </div>
+      <TextButtonGroup
+        context="cms"
+        inputProps={{
+          label: "Data",
+          inline: true,
+          context: "cms",
+          value: object.data || "",
+          onChange: this.onChange.bind(this, "data")
+        }}
+        buttonProps={buttonProps}
+      />
 
       {object.data &&
         <Select

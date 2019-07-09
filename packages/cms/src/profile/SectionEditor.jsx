@@ -3,8 +3,9 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import Button from "../components/fields/Button";
-import ButtonGroup from "../components/fields/ButtonGroup";
 import Select from "../components/fields/Select";
+import ButtonGroup from "../components/fields/ButtonGroup";
+import TextButtonGroup from "../components/fields/TextButtonGroup";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Status from "../components/interface/Status";
@@ -189,18 +190,28 @@ class SectionEditor extends Component {
           {/* current section options */}
           <div className="cms-editor-header">
             {/* change slug */}
-            <label className="bp3-label cms-slug">
-              Section slug
-              <div className="bp3-input-group">
-                <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-                <Button context="cms" onClick={this.save.bind(this)}>Rename</Button>
-              </div>
-            </label>
+            <TextButtonGroup
+              context="cms"
+              inputProps={{
+                label: "Slug",
+                labelHidden: true,
+                inline: true,
+                context: "cms",
+                value: minData.slug,
+                onChange: this.changeField.bind(this, "slug", false)
+              }}
+              buttonProps={{
+                children: "Rename slug",
+                context: "cms",
+                onClick: this.save.bind(this)
+              }}
+            />
 
             {/* visibility select */}
             <Select
               label="Visible"
               context="cms"
+              inline
               value={minData.allowed || "always"}
               onChange={this.changeField.bind(this, "allowed", true)}
             >
@@ -210,6 +221,7 @@ class SectionEditor extends Component {
             {/* layout select */}
             <Select
               label="Layout"
+              inline
               context="cms"
               value={minData.type}
               onChange={this.changeField.bind(this, "type", true)}
@@ -219,7 +231,7 @@ class SectionEditor extends Component {
 
             {/* sticky select */}
             <label className="bp3-label">
-              Positioning
+              <span className="u-visually-hidden">Positioning</span>
               <ButtonGroup context="cms" buttons={[
                 {
                   onClick: this.selectButton.bind(this, "sticky", true, false),

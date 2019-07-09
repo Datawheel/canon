@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import Button from "../fields/Button";
-import ButtonGroup from "../fields/ButtonGroup";
 import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
+import ButtonGroup from "../fields/ButtonGroup";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -243,15 +244,18 @@ class SelectorEditor extends Component {
       <div className="cms-selector-editor">
 
         <div className="cms-field-group">
-          <label className="cms-field-container">
-            Selector name
-            <input className="bp3-input" value={data.name} onChange={this.editName.bind(this)} />
-          </label>
-
-          <label className="cms-field-container">
-            Input label
-            <input className="bp3-input" value={data.title} onChange={this.editLabel.bind(this)} />
-          </label>
+          <TextInput
+            label="Selector name"
+            context="cms"
+            value={data.name}
+            onChange={this.editName.bind(this)}
+          />
+          <TextInput
+            label="Input label"
+            context="cms"
+            value={data.title}
+            onChange={this.editLabel.bind(this)}
+          />
         </div>
 
         <ButtonGroup className="cms-selector-editor-button-group" context="cms" buttons={[
