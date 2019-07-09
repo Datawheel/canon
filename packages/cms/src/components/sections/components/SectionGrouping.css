@@ -1,9 +1,19 @@
 @import "../../../css/mixins.css";
 
+.cp-section-grouping {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .cp-section-grouping-inner {
+  width: calc(var(--container-width) + var(--gutter-md) + var(--gutter-md));
+  max-width: 100%;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  /* offset section margin */
+  margin-left: auto;
+  margin-right: auto;
 
   & > .cp-section {
     flex: 1 0 calc(33.333% - 25px);

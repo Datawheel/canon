@@ -7,6 +7,7 @@ import {fetchData} from "@datawheel/canon-core";
 import libs from "../utils/libs";
 import stripP from "../utils/formatters/stripP";
 
+import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
 
@@ -84,15 +85,8 @@ class Profile extends Component {
 
     return (
       <div className="cp">
-        {/* page title TODO: componentize & style */}
-        <header className="cp-header">
-          <div className="cp-header-inner">
-            <h1 className="cp-header-title">{stripP(profile.title)}</h1>
-            {profile.subtitle
-              ? <p className="cp-header-subtitle" dangerouslySetInnerHTML={{__html: stripP(profile.subtitle)}} /> : ""
-            }
-          </div>
-        </header>
+        {/* TODO: make hero a proper section */}
+        <Hero profile={profile} />
 
         {/* main content sections */}
         <main className="cp-content" id="main">

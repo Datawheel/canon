@@ -35,32 +35,32 @@ typography
 /* type scaling */
 @define-mixin font-xl {
   font-size: 1.5rem; /* 24px */
-  line-height: 1.25; /* 30 */
+  /* line-height: 1.25; */
 }
 @define-mixin font-lg {
   font-size: 1.25rem; /* 20px */
-  line-height: 1.3; /* 26 */
+  /* line-height: 1.3; */
 }
 @define-mixin font-md {
   font-size: 1rem; /* 16px */
-  line-height: 1.5; /* 24 */
+  /* line-height: 1.5; */
 }
 @define-mixin font-sm {
   font-size: 0.875rem; /* 14px */
-  line-height: 1.8333; /* ~22px */
+  /* line-height: 1.8333; */
 }
 @define-mixin font-xs {
   font-size: 0.75rem; /* 12px */
-  line-height: 1.666; /* ~20px */
+  /* line-height: 1.666; */
 }
 @define-mixin font-xxs {
   font-size: 0.625rem; /* 10px */
-  line-height: 1.5; /* ~20px */
+  /* line-height: 1.5; */
 }
 /* use sparingly */
 @define-mixin font-xxxs {
   font-size: 0.5rem; /* 8px */
-  line-height: 1.5; /* 12px */
+  /* line-height: 1.5; */
 }
 
 /* font smoothing */
