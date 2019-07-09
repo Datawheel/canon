@@ -50,9 +50,26 @@ toolbox-width: "22.5rem"
 nav-height:      "50px"
 container-width: "80rem" # 1280px
 
+gutter-xs: "0.5rem"
+gutter-sm: "0.75rem"
+gutter-md: "1.5rem"
+gutter-lg: "2.25rem"
+gutter-xl: "3rem"
+
+# typography
+font-xxxs: "0.5rem"   # 8px  - use sparingly
+font-xxs:  "0.625rem" # 10px
+font-xs:   "0.75rem"  # 12px
+font-sm:   "0.875rem" # 14px
+font-md:   "1rem"     # 16px
+font-lg:   "1.25rem"  # 20px
+font-xl:   "1.5rem"   # 24px
+font-xxl:  "2rem"     # 32px - use sparingly
+
 # sections
-section-bg:    "var(--white)"
-section-color: "var(--dark-3)"
+section-bg-odd:  "var(--white)"
+section-bg-even: "var(--light-1)"
+section-color:   "var(--dark-3)"
 
 # buttons
 button-border-radius:          "2px"

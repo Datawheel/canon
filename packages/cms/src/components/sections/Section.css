@@ -1,13 +1,8 @@
 @import "../../css/mixins.css";
 
 .cp-section {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  padding: 25px;
-  width: 100%;
+  padding: var(--gutter-md);
   /* theming */
-  background-color: var(--section-bg);
 
   /* sticky section */
   &.is-sticky {
@@ -22,97 +17,18 @@
     top: var(--nav-height);
     z-index: 1;
   }
-
-  & .cp-section-content {
-    align-self: flex-start;
-    flex: 1;
-
-    & .cp-section-stats {
-      display: flex;
-      flex-wrap: wrap;
-      width: 100%;
-    }
-
-    & .cp-section-descriptions {
-      position: relative;
-    }
-
-  }
-
-  & .cp-section-visualization {
-    flex: 1;
-    margin-left: 50px;
-    min-height: 400px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  &.is-loading {
-    & .cp-section-description, & .cp-section-stats, & .cp-section-visualization {
-      opacity: 0.25;
-    }
-  }
-
-  & .bp3-non-ideal-state {
-    left: 0;
-    position: absolute;
-    top: 0;
-  }
-
-  &.compare {
-    & .cp-section-body {
-      flex-wrap: wrap;
-      & .cp-section-content {
-        max-width: none !important;
-        width: 100%;
-        & .cp-section-text {
-          &:not(:first-child) {
-            margin-left: 50px;
-          }
-        }
-        & .cp-section-visualization {
-          margin-left: 0;
-          &:not(:first-child) {
-            margin-left: 50px;
-          }
-        }
-      }
-    }
-  }
-
-  &.cp-text-viz-section > .cp-section-inner {
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-  }
-
-  &.cp-column-section,
-  &.cp-tabs-section,
-  &.cp-card-section {
-    flex: 1;
-    flex-direction: column;
-    width: auto;
-    & .cp-section-content {
-      max-width: none;
-      width: 100%;
-    }
-    & .cp-section-visualization {
-      margin: 0;
-      min-height: 200px;
-    }
-  }
-
-  &.cp-card-section {
-    display: inline-block;
-    width: 50%;
-    vertical-align: top;
-  }
-
 }
 
-.cp-section-flex {
-  display: flex;
-  & .cp-section-selectors {
-    max-width: 300px;
-  }
+.cp-section-inner {
+  width: var(--container-width);
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cp-content > *:nth-child(odd) {
+  background-color: var(--section-bg-odd);
+}
+.cp-content > *:nth-child(even) {
+  background-color: var(--section-bg-even);
 }

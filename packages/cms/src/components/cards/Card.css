@@ -54,6 +54,7 @@
     @mixin overflow-ellipsis;
     padding-right: 0.5em;
     margin: 0;
+    line-height: 1.75;
     transition: color 0.2s ease-out;
   }
 
