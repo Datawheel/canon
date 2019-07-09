@@ -72,6 +72,11 @@
     columns: 2;
     column-width: 18rem;
     column-gap: 2rem;
+
+    /* fixes pesky multicolumn box-shadow bug */
+    & > * {
+      padding-top: 1px;
+    }
   }
 
   /* space out adjacent fields & field groups */

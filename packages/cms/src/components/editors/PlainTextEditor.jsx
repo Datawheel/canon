@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
+import TextInput from "../fields/TextInput";
+
 class PlainTextEditor extends Component {
 
   constructor(props) {
@@ -39,13 +41,17 @@ class PlainTextEditor extends Component {
 
     if (!data || !fields) return null;
 
-    const thisLocale = data.content.find(c => c.lang === locale); 
+    const thisLocale = data.content.find(c => c.lang === locale);
 
     const inputs = fields.map(f =>
-      <div key={f}>
-        <label htmlFor={f}>{f}</label>
-        <input id={f} className="bp3-input" type="text" value={thisLocale[f]} onChange={this.changeField.bind(this, f)}/>
-      </div>
+      <TextInput
+        label={f}
+        inline
+        context="cms"
+        value={thisLocale[f]}
+        onChange={this.changeField.bind(this, f)}
+        key={f}
+      />
     );
 
     return (

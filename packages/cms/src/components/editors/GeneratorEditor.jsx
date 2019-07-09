@@ -6,8 +6,9 @@ import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
 import {Switch, Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
-import Button from "../fields/Button";
 import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
+import TextButtonGroup from "../fields/TextButtonGroup";
 
 import "./GeneratorEditor.css";
 
@@ -261,27 +262,40 @@ class GeneratorEditor extends Component {
         {/* name & description fields */}
         {(type === "generator" || type === "materializer" || type === "formatter") &&
           <div className="cms-field-group">
-            <div key="gen-name" className="cms-field-container">
-              <label className="label">Name</label>
-              <input className="bp3-input" type="text" value={data.name} onChange={this.changeField.bind(this, "name")}/>
-            </div>
-            <div key="gen-desc" className="cms-field-container">
-              <label className="label">Description</label>
-              <input className="bp3-input" type="text" value={data.description} onChange={this.changeField.bind(this, "description")}/>
-            </div>
+            <TextInput
+              label="Name"
+              context="cms"
+              inline
+              value={data.name}
+              onChange={this.changeField.bind(this, "name")}
+            />
+            <TextInput
+              label="Description"
+              context="cms"
+              inline
+              value={data.description}
+              onChange={this.changeField.bind(this, "description")}
+            />
           </div>
         }
 
         { type === "generator" &&
-          <div className="cms-field-container">
-            <label className="label" htmlFor="api">API</label>
-            <div className="cms-field-container-inline bp3-input-group">
-              <input className="bp3-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
-              <Button onClick={this.maybePreviewPayload.bind(this)} context="cms" icon={payload && !payload.error ? "refresh" : "download"}>
-                {payload && !payload.error ? "Refetch data" : "Fetch data"}
-              </Button>
-            </div>
-          </div>
+          <TextButtonGroup
+            context="cms"
+            inputProps={{
+              label: "API",
+              inline: true,
+              context: "cms",
+              value: data.api,
+              onChange: this.changeField.bind(this, "api")
+            }}
+            buttonProps={{
+              children: payload && !payload.error ? "Refetch data" : "Fetch data",
+              context: "cms",
+              icon: payload && !payload.error ? "refresh" : "download",
+              onClick: this.maybePreviewPayload.bind(this)
+            }}
+          />
         }
         { (type === "generator" || type.includes("_visualization")) &&
           <div className="cms-field-container">
