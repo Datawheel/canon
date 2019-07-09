@@ -161,6 +161,10 @@
   padding: 2rem;
   width: 100%;
   max-width: 100%;
+
+  & .cms-accardion:not(:last-of-type) {
+    margin-bottom: 2rem;
+  }
 }
 
 /* 2 col layout */
