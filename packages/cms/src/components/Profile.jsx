@@ -102,7 +102,7 @@ class Profile extends Component {
 
     return (
       <div className="cp">
-        <Hero profile={profile} contents={heroSection} />
+        <Hero profile={profile} contents={heroSection || null} />
 
         {/* main content sections */}
         <main className="cp-content" id="main">

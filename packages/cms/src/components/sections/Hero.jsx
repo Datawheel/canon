@@ -25,7 +25,7 @@ class Hero extends Component {
       <header className="cp-section cp-hero">
         <div className="cp-section-inner cp-hero-inner">
           <h1 className="cp-hero-title u-font-xxl">
-            {stripP(contents.title || profile.title)}
+            {stripP(contents ? contents.title : profile.title)}
           </h1>
           {profile.subtitle
             ? <p className="cp-hero-subtitle" dangerouslySetInnerHTML={{__html: stripP(profile.subtitle)}} /> : ""
