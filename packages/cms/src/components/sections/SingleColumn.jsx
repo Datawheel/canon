@@ -8,7 +8,7 @@ import StatGroup from "../Viz/StatGroup";
 import Selector from "./components/Selector";
 import "./Section.css";
 
-export default class Column extends Component {
+export default class SingleColumn extends Component {
 
   render() {
 

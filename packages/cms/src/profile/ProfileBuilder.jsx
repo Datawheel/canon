@@ -21,9 +21,9 @@ import "./ProfileBuilder.css";
 
 const sectionIcons = {
   Card: "square",
-  Column: "list",
+  SingleColumn: "list",
   Tabs: "folder-close",
-  TextViz: "list-detail-view"
+  Default: "list-detail-view"
 };
 
 class ProfileBuilder extends Component {

@@ -10,7 +10,7 @@ import StatGroup from "../Viz/StatGroup";
 import Selector from "./components/Selector";
 import "./Section.css";
 
-export default class TextViz extends Component {
+export default class Default extends Component {
 
   render() {
 

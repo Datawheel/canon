@@ -8,7 +8,7 @@ import Viz from "../Viz/index";
 import Selector from "./components/Selector";
 import "./Section.css";
 
-export default class Card extends Component {
+export default class InfoCard extends Component {
 
   render() {
 
