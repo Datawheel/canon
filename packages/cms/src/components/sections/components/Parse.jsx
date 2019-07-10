@@ -8,6 +8,7 @@ export default class Parse extends Component {
       El,        // the element to render
       split,     // if there's a <br> tag, create another element (default) or replace it with a space
       className, // class given to each generated element
+      id,        // mostly for section anchors
       children   // content to parse; one blob of content expected
     } = this.props;
 
@@ -33,7 +34,12 @@ export default class Parse extends Component {
     return (
       <React.Fragment>
         {blob.map((el, i) =>
-          <El key={`${el}-${El}-${i}`} className={className} dangerouslySetInnerHTML={{__html: stripP(el)}} />
+          <El
+            className={className}
+            dangerouslySetInnerHTML={{__html: stripP(el)}}
+            id={ id && i === 0 ? id : null }
+            key={`${el}-${El}-${i}`}
+          />
         )}
       </React.Fragment>
     );

@@ -1,10 +1,18 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import {nest} from "d3-collection";
+
 import styles from "../../../app/style.yml";
 import throttle from "../../utils/throttle";
 import pxToInt from "../../utils/formatters/pxToInt";
 import toKebabCase from "../../utils/formatters/toKebabCase";
+
+import SourceGroup from "../Viz/SourceGroup";
+import StatGroup from "../Viz/StatGroup";
+
+import Parse from "./components/Parse";
+import Selector from "./components/Selector";
 
 import Default from "./Default";
 import InfoCard from "./InfoCard";
@@ -107,14 +115,71 @@ class Section extends Component {
 
   render() {
     const {contents, sources, isStickyIE, height} = this.state;
-    const {loading} = this.props;
+    const {headingLevel, loading} = this.props;
 
     // remap old section names
     let layout = contents.type;
     if (layout === "TextViz") layout = "Default";
     if (layout === "Card") layout = "InfoCard";
+    const layoutClass = `cp-${toKebabCase(layout)}-section`;
 
-    const Comp = sectionTypes[layout] || Default;
+    const Layout = sectionTypes[layout] || Default; // assign the section layout component
+
+    const {descriptions, slug, stats, subtitles, title, visualizations} = contents;
+    const selectors = contents.selectors || [];
+
+    // heading & subhead(s)
+    const heading = <React.Fragment>
+      {title &&
+        <Parse El={headingLevel} id={ slug } className={`cp-section-heading ${layoutClass}-heading`}>
+          {title}
+        </Parse>
+      }
+
+      {subtitles.map((content, i) =>
+        <Parse className={`cp-section-subhead ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
+          {content.subtitle}
+        </Parse>
+      )}
+    </React.Fragment>;
+
+    // filters
+    const filters = selectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />);
+
+    // stats
+    let statContent;
+    const statGroups = nest().key(d => d.title).entries(stats);
+    if (stats.length > 0) {
+      statContent = statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />);
+    }
+
+    // paragraphs
+    let paragraphs;
+    if (descriptions.length) {
+      paragraphs = loading
+        ? <p>Loading...</p>
+        : descriptions.map((content, i) =>
+          <Parse className={`cp-section-paragraph ${layoutClass}-paragraph`} key={`${content.description}-subhead-${i}`}>
+            {content.description}
+          </Parse>
+        );
+    }
+
+    // sources
+    const sourceContent = <SourceGroup sources={sources} />;
+
+    const componentProps = {
+      contents, // TODO: remove
+      slug,
+      title,
+      heading,
+      paragraphs,
+      filters,
+      stats: statContent,
+      sources: sourceContent,
+      visualizations,
+      loading
+    };
 
     return (
       <React.Fragment>
@@ -127,7 +192,7 @@ class Section extends Component {
           ref={this.section}
           key={`section-${contents.id}`}
         >
-          <Comp contents={contents} loading={loading} sources={sources} />
+          <Layout {...componentProps} />
         </section>
 
         {/* in IE, create empty div set to the height of the stuck element */}
@@ -136,6 +201,10 @@ class Section extends Component {
     );
   }
 }
+
+Section.defaultProps = {
+  headingLevel: "h2"
+};
 
 Section.contextTypes = {
   formatters: PropTypes.object,
