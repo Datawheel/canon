@@ -7,7 +7,7 @@ module.exports = (percentage, msg, current, active, modulepath) => {
     modulepath = modulepath ? ` …${modulepath.substr(modulepath.length - 30)}` : "";
     current = current ? ` ${current}` : "";
     active = active ? ` ${active}` : "";
-    process.stdout.write(`${(percentage * 100).toFixed(0)}% ${msg}${current}${active}${modulepath} `);
+    process.stdout.write(`${(percentage * 100).toFixed(0)}% ${msg}${current}${active}`);
   }
   else if (percentage === 1) {
     readline.clearLine(process.stdout, 0);
