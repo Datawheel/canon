@@ -34,10 +34,10 @@
     "react-quill": "^1.3.1"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "^0.17.27"
+    "@datawheel/canon-core": "^0.17.35"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.17.27"
+    "@datawheel/canon-core": "^0.17.35"
   },
   "repository": {
     "type": "git",
