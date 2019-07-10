@@ -62,7 +62,7 @@ class ShareDirectLink extends Component {
           <input className="bp3-input clipboard-input" value={ displayText } readOnly />
 
           {/* fake button */}
-          <span className="clipboard-button bp3-button font-sm">
+          <span className="clipboard-button bp3-button u-font-sm">
             <span className="clipboard-button-text button-text">
               { buttonText }
             </span>

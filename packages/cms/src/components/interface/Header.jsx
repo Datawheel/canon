@@ -39,7 +39,7 @@ export default class Header extends Component {
 
     return (
       <header className="cms-header">
-        <h1 className="cms-header-title font-lg">
+        <h1 className="cms-header-title u-font-lg">
           {!parentTitle
 
             // profile
@@ -57,7 +57,7 @@ export default class Header extends Component {
               <span className="cms-header-title-parent">{parentTitle} </span>
               <span className="cms-header-title-main">
                 {title}
-                <Button className="cms-header-title-button font-xs" context="cms" onClick={this.renameSection.bind(this)} icon="cog" iconOnly>
+                <Button className="cms-header-title-button u-font-xs" context="cms" onClick={this.renameSection.bind(this)} icon="cog" iconOnly>
                   rename section
                 </Button>
               </span>
@@ -68,7 +68,7 @@ export default class Header extends Component {
         <span className="cms-header-link-container">
           {dimensions && dimensions.length
             // proper URL can be constructed
-            ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "font-xs" : ""}`}>
+            ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "u-font-xs" : ""}`}>
               {/* dimensions & ids */}
               {prettyDomain}/profile{dimensions && dimensions.map(dim =>
                 <React.Fragment key={dim.slug}>/

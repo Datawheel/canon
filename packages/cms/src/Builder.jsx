@@ -123,7 +123,7 @@ class Builder extends Component {
             {/* locale select */}
             {locales &&
               <React.Fragment>
-                <h2 className="cms-nav-settings-heading font-sm">
+                <h2 className="cms-nav-settings-heading u-font-sm">
                   Languages
                 </h2>
                 {/* primary locale */}

@@ -32,14 +32,14 @@ export default class Accardion extends Component {
       <section className={`cms-accardion cms-${entity}-accardion ${isOpen ? "is-open" : "is-collapsed"}`}>
 
         {/* accardion title */}
-        <h2 className="cms-accardion-heading font-md" id={entity}>
-          <button className="cms-accardion-button font-sm" onClick={this.toggleAccordion.bind(this)}>
+        <h2 className="cms-accardion-heading u-font-md" id={entity}>
+          <button className="cms-accardion-button u-font-sm" onClick={this.toggleAccordion.bind(this)}>
             {title}
             <span className="u-visually-hidden"> ({isOpen ? "collapse" : "open"} section)</span>
             <Icon className="cms-accardion-button-icon" icon="caret-down" />
           </button>
           {(cards && cards.length > 0 && addItem) || inToolbox === true
-            ? <Button onClick={addItem} className="cms-accardion-heading-add-button font-xxs" context="cms" icon="plus">
+            ? <Button onClick={addItem} className="cms-accardion-heading-add-button u-font-xxs" context="cms" icon="plus">
               add {entity}
             </Button>
             : null
@@ -49,7 +49,7 @@ export default class Accardion extends Component {
         {/* optional description */}
         {description &&
           <div className="cms-card-container">
-            <p className="cms-card cms-accardion-description font-xs">
+            <p className="cms-card cms-accardion-description u-font-xs">
               {description}
             </p>
           </div>
@@ -57,7 +57,7 @@ export default class Accardion extends Component {
 
         {/* cards */}
         {subtitle &&
-          <h3 className="cms-accardion-subtitle font-sm">{subtitle}</h3>
+          <h3 className="cms-accardion-subtitle u-font-sm">{subtitle}</h3>
         }
         {cards &&
           <div className={`cms-card-container${secondaryCards ? " two-columns" : ""}`}>

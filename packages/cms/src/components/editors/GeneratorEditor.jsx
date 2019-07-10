@@ -317,9 +317,9 @@ class GeneratorEditor extends Component {
         {/* callback instructions */}
         {!simple &&
           <section className="generator-editor-help">
-            <h3 className="font-sm">Callback</h3>
-            <p className="font-xs">{preMessage[type]}</p>
-            <p className="font-xs">{postMessage[type]}</p>
+            <h3 className="u-font-sm">Callback</h3>
+            <p className="u-font-xs">{preMessage[type]}</p>
+            <p className="u-font-xs">{postMessage[type]}</p>
           </section>
         }
 
