@@ -21,13 +21,13 @@ class Hero extends Component {
     const {contents, loading, sources, profile} = this.props;
 
     return (
-      <header className="cp-section cp-hero-section">
-        <div className="cp-section-inner cp-hero-section-inner">
-          <h1 className="cp-header-title">
+      <header className="cp-section cp-hero">
+        <div className="cp-section-inner cp-hero-inner">
+          <h1 className="cp-hero-title">
             {stripP(contents.title || profile.title)}
           </h1>
           {profile.subtitle
-            ? <p className="cp-header-subtitle" dangerouslySetInnerHTML={{__html: stripP(profile.subtitle)}} /> : ""
+            ? <p className="cp-hero-subtitle" dangerouslySetInnerHTML={{__html: stripP(profile.subtitle)}} /> : ""
           }
         </div>
       </header>
