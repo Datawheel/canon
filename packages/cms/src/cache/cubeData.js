@@ -5,7 +5,7 @@ const axios = require("axios");
 // CANON_CMS_CUBES was changed to be root only, so fix it here so we can handle
 // both the new style and the old style
 const url = process.env.CANON_CMS_CUBES
-  .replace(/[\/]{0,}[cubes]{0,}[\/]{0,}$/, "/cubes");
+  .replace(/[\/]{0,}(cubes){0,}[\/]{0,}$/, "/cubes");
 
 const s = (a, b) => {
   const ta = a.name.toUpperCase();
