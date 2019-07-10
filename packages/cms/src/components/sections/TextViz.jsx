@@ -34,10 +34,13 @@ export default class TextViz extends Component {
           ? <div className="cp-section-stats">
             { statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
           </div> : null }
-        <div className="cp-section-descriptions">
-          { descriptions.map((content, i) => <div key={i} className="cp-section-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
-          { loading && <NonIdealState visual={<Spinner />} /> }
-        </div>
+
+        {descriptions.length
+          ? <div className="cp-section-descriptions">
+            { descriptions.map((content, i) => <div key={i} className="cp-section-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
+            { loading && <NonIdealState visual={<Spinner />} /> }
+          </div> : ""
+        }
         { miniviz && <Viz section={this} config={miniviz} className="cp-section-miniviz" title={ title } slug={ `${slug}_miniviz` } /> }
         <SourceGroup sources={sources} />
       </div>

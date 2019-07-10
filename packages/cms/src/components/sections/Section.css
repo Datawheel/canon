@@ -1,21 +1,39 @@
 @import "../../css/mixins.css";
 
+/* section (or section grouping) backgrounds */
+.cp-content > *:nth-child(odd) {
+  background-color: var(--section-bg-odd);
+}
+.cp-content > *:nth-child(even) {
+  background-color: var(--section-bg-even);
+}
+
 .cp-section {
   padding: var(--gutter-md);
   overflow-x: hidden;
 
-  /* sticky section */
-  &.is-sticky {
-    position: relative; /* IE fallback */
-    position: sticky;
-    top: 0;
-    z-index: 2;
+  @mixin min-md {
+    padding-top: var(--gutter-lg);
+    padding-bottom: var(--gutter-lg);
   }
-  /* make it work in IE */
-  &.ie-is-stuck {
-    position: fixed;
-    top: var(--nav-height);
-    z-index: 1;
+
+  /* sticky section */
+  @mixin min-md {
+    &.is-sticky {
+      position: relative; /* IE fallback */
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      /* reduce padding, since it's going to take up a bunch of space */
+      padding-top: var(--gutter-sm);
+      padding-bottom: var(--gutter-sm);
+    }
+    /* make it work in IE */
+    &.ie-is-stuck {
+      position: fixed;
+      top: var(--nav-height);
+      z-index: 1;
+    }
   }
 }
 
@@ -26,9 +44,14 @@
   margin-right: auto;
 }
 
-.cp-content > *:nth-child(odd) {
-  background-color: var(--section-bg-odd);
-}
-.cp-content > *:nth-child(even) {
-  background-color: var(--section-bg-even);
+.cp-section-content > * {
+  margin: 0;
+
+  &:not(:last-child) {
+    margin-bottom: 0.5em;
+  }
+
+  &:empty {
+    border: 1px solid red;
+  }
 }

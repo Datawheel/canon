@@ -47,8 +47,10 @@ toolbox-width: "22.5rem"
 ########################################
 
 # measurements
-nav-height:      "50px"
-container-width: "80rem" # 1280px
+nav-height:       "50px"
+subnav-height:    "var(--nav-height)"
+container-width:  "80rem" # 1280px
+hero-container-width: "var(--container-width)"
 
 gutter-xs: "0.5rem"
 gutter-sm: "0.75rem"
@@ -66,10 +68,16 @@ font-lg:   "1.25rem"  # 20px
 font-xl:   "1.5rem"   # 24px
 font-xxl:  "2rem"     # 32px - use sparingly
 
+# hero AKA header AKA splash
+hero-bg-color:      "var(--dark-3)"
+hero-text-color:    "var(--light-2)"
+hero-heading-color: "var(--white)"
+
 # sections
-section-bg-odd:  "var(--white)"
-section-bg-even: "var(--light-1)"
-section-color:   "var(--dark-3)"
+section-bg-odd:        "var(--white)"
+section-bg-even:       "var(--light-1)"
+section-text-color:    "var(--dark-3)"
+section-heading-color: "var(--dark-2)"
 
 # buttons
 button-border-radius:          "2px"
@@ -85,7 +93,7 @@ button-hover-color:            "var(--white)"
 # fields
 field-border-radius:      "1px"
 field-border-width:       "1px"
-field-padding:            "0.5em"
+field-padding:            "0.5em 0.5em 0.625em 0.5em"
 field-font-weight:        "400"
 field-background-color:   "var(--white)"
 field-border-color:       "var(--light-3)"

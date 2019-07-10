@@ -29,27 +29,13 @@
 }
 
 /* TYPOGRAPHY */
-  h1 {
-    @mixin font-xl;
-  }
-  h2 {
-    @mixin font-lg;
-  }
-  h3 {
-    @mixin font-md;
-  }
-  h4, p, li, label, input {
-    @mixin font-sm;
-  }
-  h5 {
-    @mixin font-xs;
-  }
-  h6 {
-    @mixin font-xxs;
-  }
-  small {
-    @mixin font-xxxs;
-  }
+  h1 { @mixin font-xl; }
+  h2 { @mixin font-lg; }
+  h3 { @mixin font-md; }
+  h4, p, li, label, input { @mixin font-sm; }
+  h5 { @mixin font-xs; }
+  h6 { @mixin font-xxs; }
+  small { @mixin font-xxxs; }
 
 
 /* THEMING */
