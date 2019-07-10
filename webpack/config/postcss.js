@@ -16,7 +16,7 @@ module.exports = [
   require("postcss-each")(),
   require("postcss-for")(),
   require("postcss-custom-properties")({
-    importFrom: variables
+    variables
   }),
   require("postcss-map")({
     maps: [variables]

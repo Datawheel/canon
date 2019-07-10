@@ -101,7 +101,7 @@
     "pixrem": "^5.0.0",
     "postcss-color-function": "^4.1.0",
     "postcss-conditionals": "^2.1.0",
-    "postcss-custom-properties": "^9.0.1",
+    "postcss-custom-properties": "^7.0.0",
     "postcss-each": "^0.10.0",
     "postcss-flexbugs-fixes": "^4.1.0",
     "postcss-for": "^2.1.1",
