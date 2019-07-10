@@ -138,7 +138,7 @@ class PreviewSearch extends Component {
 
     return (
       <div
-        className={`cms-preview-search font-${fontSize} ${previewing ? "is-value" : "is-placeholder"}`}
+        className={`cms-preview-search u-font-${fontSize} ${previewing ? "is-value" : "is-placeholder"}`}
         ref={comp => this.container = comp}
       >
         <label className="u-visually-hidden cms-preview-search-text" htmlFor={`${label}-search-label`}>{label}</label>
@@ -160,7 +160,7 @@ class PreviewSearch extends Component {
           ? <ul className={`cms-search-result-list ${active ? "is-visible" : "is-hidden"}`}>
             {results.map(result =>
               <li
-                className="cms-search-result-item font-xs"
+                className="cms-search-result-item u-font-xs"
                 onClick={this.onSelect.bind(this, result)}
                 key={result.id}
               >
@@ -168,7 +168,7 @@ class PreviewSearch extends Component {
               </li>
             )}
             {!results.length &&
-              <li className="cms-search-error-message font-sm">No results found</li>
+              <li className="cms-search-error-message u-font-sm">No results found</li>
             }
           </ul> : null
         }

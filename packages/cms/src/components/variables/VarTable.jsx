@@ -9,7 +9,7 @@ export default class VarTable extends Component {
 
     return dataset
       ? dataset.error || Object.values(dataset).length < 1
-        ? <span className="cms-var-table-error cms-error font-xxs">
+        ? <span className="cms-var-table-error cms-error u-font-xxs">
           <Icon className="cms-var-table-error-icon" icon="warning-sign" /> { dataset.error || "No data returned" }
         </span>
         : <table className="cms-var-table">

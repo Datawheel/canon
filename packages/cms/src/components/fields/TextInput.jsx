@@ -17,7 +17,7 @@ export default class TextInput extends Component {
     } = this.props;
 
     return (
-      <label className={`${context}-input-label font-${fontSize}${inline ? " cms-inline-input-label" : ""}`}>
+      <label className={`${context}-input-label u-font-${fontSize}${inline ? " cms-inline-input-label" : ""}`}>
         <span className={`${context}-input-text${label && labelHidden ? " u-visually-hidden" : "" }`}>
           {label}
         </span>

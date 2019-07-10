@@ -235,7 +235,7 @@ class SelectorEditor extends Component {
       });
 
     const buttonProps = {
-      className: "font-xs",
+      className: "u-font-xs",
       context: "cms",
       iconPosition: "left"
     };
@@ -361,7 +361,7 @@ class SelectorEditor extends Component {
         {/* new option */}
         <Button
           onClick={this.addOption.bind(this)}
-          className={!data.options.length ? "font-md" : null}
+          className={!data.options.length ? "u-font-md" : null}
           context="cms"
           icon="plus"
           block

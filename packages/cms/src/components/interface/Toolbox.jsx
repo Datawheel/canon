@@ -254,8 +254,8 @@ export default class Toolbox extends Component {
             .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
             .map(key =>
               <li key={key} className="cms-definition-item" onClick={this.openGenerator.bind(this, key)}>
-                <span className="cms-definition-label font-xxs">{key}: </span>
-                <span className="cms-definition-text font-xxs">
+                <span className="cms-definition-label u-font-xxs">{key}: </span>
+                <span className="cms-definition-text u-font-xxs">
                   <ConsoleVariable value={variables[localeDefault][key]} />
                 </span>
               </li>

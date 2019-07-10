@@ -169,7 +169,7 @@ class SelectorCard extends Component {
 
               {varList.length
                 ? <React.Fragment>
-                  <div className="cms-definition-label font-xxxs">options:</div>
+                  <div className="cms-definition-label u-font-xxxs">options:</div>
                   <VarList vars={varList} />
                 </React.Fragment> : ""
               }
