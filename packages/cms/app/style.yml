@@ -46,6 +46,11 @@ toolbox-width: "22.5rem"
 # profile
 ########################################
 
+# any rem units will scale up with the viewport
+body-font-scale-sm: "100%"   # 1rem = 16px (max-width: 991px)
+body-font-scale-md: "112.5%" # 1rem = 18px (min-width: 992px)
+body-font-scale-xl: "125%"   # 1rem = 20px (min-width: 1400px)
+
 # measurements
 nav-height:       "50px"
 subnav-height:    "var(--nav-height)"

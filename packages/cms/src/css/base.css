@@ -1,5 +1,11 @@
 @import "./mixins.css";
 
+/* global font scaling with rems */
+html:root       { font-size: var(--body-font-scale-sm);
+  @mixin min-md { font-size: var(--body-font-scale-md); }
+  @mixin min-xl { font-size: var(--body-font-scale-xl); }
+}
+
 /* BASE CMS STYLES */
 .cms {
   min-height: 100vh; /* extend background on short pages */
