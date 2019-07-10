@@ -68,7 +68,6 @@ module.exports = props => {
   ];
 
   if (process.env.NODE_ENV === "development") {
-    babelPlugins.unshift("react-hot-loader/babel");
     babelPlugins.push("@babel/plugin-transform-react-inline-elements");
   }
 
