@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import stripP from "../../utils/formatters/stripP";
+import "./Section.css";
 
 /** the profile hero, AKA header, AKA splash */
 class Hero extends Component {
@@ -22,7 +23,9 @@ class Hero extends Component {
     return (
       <header className="cp-section cp-hero-section">
         <div className="cp-section-inner cp-hero-section-inner">
-          <h1 className="cp-header-title">{stripP(profile.title)}</h1>
+          <h1 className="cp-header-title">
+            {stripP(contents.title || profile.title)}
+          </h1>
           {profile.subtitle
             ? <p className="cp-header-subtitle" dangerouslySetInnerHTML={{__html: stripP(profile.subtitle)}} /> : ""
           }

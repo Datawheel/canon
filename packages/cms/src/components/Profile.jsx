@@ -11,6 +11,8 @@ import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
 
+import "./Profile.css";
+
 class Profile extends Component {
 
   constructor(props) {
@@ -59,7 +61,16 @@ class Profile extends Component {
 
   render() {
     const {profile, loading} = this.state;
-    const {sections} = profile;
+
+    let {sections} = profile;
+    let heroSection;
+    // split out hero from sections array
+    if (sections.filter(l => l.type === "Hero").length) {
+      // there are somehow multiple hero sections; grab the first one only
+      heroSection = sections.filter(l => l.type === "Hero")[0];
+      // filter out Hero from sections
+      sections = sections.filter(l => l.type !== "Hero");
+    }
 
     const groupableSections = ["Card", "Column"]; // sections to be grouped together
     const groupedSections = []; // array for sections to be accumulated into
@@ -85,8 +96,7 @@ class Profile extends Component {
 
     return (
       <div className="cp">
-        {/* TODO: make hero a proper section */}
-        <Hero profile={profile} />
+        <Hero profile={profile} contents={heroSection} />
 
         {/* main content sections */}
         <main className="cp-content" id="main">

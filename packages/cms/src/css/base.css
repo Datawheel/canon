@@ -3,7 +3,6 @@
 /* BASE CMS STYLES */
 .cms {
   min-height: 100vh; /* extend background on short pages */
-  text-align: left; /* override canon */
 
   /* RESETS */
   & * {
