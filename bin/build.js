@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 const {title} = require("./logging.js"),
-      babel = require("babel-core"),
+      babel = require("@babel/core"),
       chalk = require("chalk"),
       path = require("path"),
       shell = require("shelljs");
@@ -21,8 +21,7 @@ title("Generating index.js", "📒");
 let {code} = babel.transformFileSync(`${__dirname}/server.js`, {
   ignore: [staticFolder],
   presets: [
-    ["env", {targets: {node: "current"}}],
-    "stage-0"
+    ["@babel/preset-env", {targets: {node: "current"}}]
   ]
 });
 code = code.replace(/process\.cwd\(\)/g, "__dirname");

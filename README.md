@@ -8,6 +8,7 @@ Reusable React environment and components for creating visualization engines.
 * [Deployment](#deployment)
 * [Header/Meta Information](#header-meta-information)
 * [Page Routing](#page-routing)
+  * [Window Location](#window-location)
 * [Redux Store](#redux-store)
 * [Localization](#localization)
   * [Language Detection](#language-detection)
@@ -141,6 +142,14 @@ class Tile extends Component {
 ```
 
 Notice the different usage of `push` and `replace`. Pushing a new URL to the router effects the push/pop history of the browser (so back and forward buttons work), which replacing the URL simply updates the value without effecting the browser history.
+
+### Window Location
+
+There are 3 preferred ways (each with their use cases) to determine the current page the user is viewing:
+
+1. **redux `state.location`** - for server-side rendering, like if you need the current page in a `render` function when a component mounts. This object is created manually on the server-side to mimic `window.location`, but _does NOT get updated on subsequent react-router page views_.
+2. **`this.props.router.location`** - every top-level component that is connected to a route in `routes.jsx` has access to the main react-router instance, which should be relied on to always contain the currently viewed page.
+3. **`this.context.router.location`** - the current react-router instance is also passed down to every component via context.
 
 ---
 

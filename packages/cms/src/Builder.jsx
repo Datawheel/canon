@@ -29,7 +29,8 @@ class Builder extends Component {
   }
 
   componentDidMount() {
-    const {isEnabled, env, location} = this.props;
+    const {isEnabled, env} = this.props;
+    const {location} = this.props.router;
     const {profile, section, previews} = location.query;
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
@@ -82,7 +83,9 @@ class Builder extends Component {
     const diffSection = String(pathObj.section) !== String(this.state.pathObj.section);
     if (diffProfile || diffSection) {
       const {router} = this.props;
-      let url = `?profile=${pathObj.profile}`;
+      const {pathname} = router.location;
+      let url = pathname === "/" ? "" : "/";
+      url += `${pathname}?profile=${pathObj.profile}`;
       if (pathObj.section) url += `&section=${pathObj.section}`;
       // if (pathObj.previews) url += `&previews=${pathObj.previews}`;
       router.replace(url);

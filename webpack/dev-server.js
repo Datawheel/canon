@@ -30,7 +30,13 @@ module.exports = {
     rules: commonLoaders({extract: true})
   },
   resolve: {
-    modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],
+    modules: [
+      path.join(appDir, "node_modules"),
+      appDir,
+      appPath,
+      path.join(__dirname, "../src"),
+      path.join(__dirname, "../node_modules")
+    ],
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [

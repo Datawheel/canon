@@ -3,7 +3,6 @@
 const {title} = require("./logging"),
       nodemon = require("nodemon"),
       path = require("path"),
-      readline = require("readline"),
       shell = require("shelljs"),
       webpack = require("webpack");
 
