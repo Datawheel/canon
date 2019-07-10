@@ -29,35 +29,27 @@
 }
 
 /* TYPOGRAPHY */
-.cms {
-  & h1,
-  & .font-xl {
+  h1 {
     @mixin font-xl;
   }
-  & h2,
-  & .font-lg {
+  h2 {
     @mixin font-lg;
   }
-  & h3,
-  & .font-md {
+  h3 {
     @mixin font-md;
   }
-  & h4, & p, & li, & label, & input,
-  & .font-sm {
+  h4, p, li, label, input {
     @mixin font-sm;
   }
-  & h5,
-  & .font-xs {
+  h5 {
     @mixin font-xs;
   }
-  & h6,
-  & .font-xxs {
+  h6 {
     @mixin font-xxs;
   }
-  & .font-xxxs {
+  small {
     @mixin font-xxxs;
   }
-}
 
 
 /* THEMING */

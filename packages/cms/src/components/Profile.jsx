@@ -11,6 +11,12 @@ import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
 
+import "../css/utilities.css";
+import "../css/base.css";
+import "../css/blueprint-overrides.css";
+import "../css/form-fields.css";
+import "../css/layout.css";
+
 import "./Profile.css";
 
 class Profile extends Component {
