@@ -113,7 +113,7 @@ class Section extends Component {
     let layout = contents.type;
     if (layout === "TextViz") layout = "Default";
     if (layout === "Card") layout = "InfoCard";
-    
+
     const Comp = sectionTypes[layout] || Default;
 
     return (

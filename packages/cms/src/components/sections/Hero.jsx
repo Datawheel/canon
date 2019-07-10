@@ -1,7 +1,9 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
-import stripP from "../../utils/formatters/stripP";
+
+import Parse from "./components/Parse";
+
 import "./Section.css";
 import "./Hero.css";
 
@@ -24,12 +26,12 @@ class Hero extends Component {
     return (
       <header className="cp-section cp-hero">
         <div className="cp-section-inner cp-hero-inner">
-          <h1 className="cp-hero-title u-font-xxl">
-            {stripP(contents ? contents.title : profile.title)}
-          </h1>
-          {profile.subtitle
-            ? <p className="cp-hero-subtitle" dangerouslySetInnerHTML={{__html: stripP(profile.subtitle)}} /> : ""
-          }
+          <Parse El="h1" className="cp-hero-title u-font-xxl">
+            {contents ? contents.title : profile.title}
+          </Parse>
+          <Parse El="p" className="cp-hero-subtitle">
+            {profile.subtitle}
+          </Parse>
         </div>
       </header>
     );
