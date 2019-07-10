@@ -1,10 +1,10 @@
 @import "../../css/mixins.css";
 
 /* section (or section grouping) backgrounds */
-.cp-content > *:nth-child(odd) {
+.cp-main > *:nth-child(odd) {
   background-color: var(--section-bg-odd);
 }
-.cp-content > *:nth-child(even) {
+.cp-main > *:nth-child(even) {
   background-color: var(--section-bg-even);
 }
 

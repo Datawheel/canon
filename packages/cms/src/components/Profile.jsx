@@ -105,7 +105,7 @@ class Profile extends Component {
         <Hero profile={profile} contents={heroSection || null} />
 
         {/* main content sections */}
-        <main className="cp-content" id="main">
+        <main className="cp-main" id="main">
           {groupedSections.map((grouping, i) => grouping.length === 1
             // ungrouped section
             ? <Section key={`${grouping[0].slug}-${i}`} loading={loading} contents={grouping[0]} />
