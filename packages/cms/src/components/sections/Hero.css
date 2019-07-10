@@ -1,0 +1,18 @@
+@import "../../css/mixins.css";
+
+.cp-hero {
+  background-color: var(--hero-bg-color);
+  color: var(--hero-text-color);
+  display: flex;
+  /* fill up the screen, but make room for the nav & subnav */
+  min-height: calc(100vh - var(--nav-height) - var(--subnav-height));
+}
+
+.cp-hero-inner {
+  width: var(--hero-container-width);
+  padding-top: var(--gutter-xl);
+  padding-bottom: var(--gutter-xl);
+  /* set height & center contents */
+  margin-top: auto;
+  margin-bottom: auto;
+}
