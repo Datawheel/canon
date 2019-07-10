@@ -135,7 +135,7 @@ class SectionEditor extends Component {
   render() {
 
     const {minData, recompiling, query} = this.state;
-    const {variables, previews, selectors, children, locale, localeDefault} = this.props;
+    const {variables, previews, selectors, children, locale, localeDefault, order} = this.props;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
@@ -155,8 +155,13 @@ class SectionEditor extends Component {
           return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
         }));
 
-    const typeOptions = minData.types.map(t =>
-      <option key={t} value={t}>{t}</option>
+    // remove Hero from available layouts
+    let availableLayouts = minData.types.filter(l => l !== "Hero");
+    // if this is the first section, add Hero layout to the front
+    if (order === 0) availableLayouts = ["Hero"].concat(availableLayouts);
+
+    const layouts = availableLayouts.map(l =>
+      <option key={l} value={l}>{l}</option>
     );
 
     return (
@@ -226,7 +231,7 @@ class SectionEditor extends Component {
               value={minData.type}
               onChange={this.changeField.bind(this, "type", true)}
             >
-              {typeOptions}
+              {layouts}
             </Select>
 
             {/* sticky select */}

@@ -2,7 +2,7 @@
 
 .cp-section {
   padding: var(--gutter-md);
-  /* theming */
+  overflow-x: hidden;
 
   /* sticky section */
   &.is-sticky {

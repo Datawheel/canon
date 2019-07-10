@@ -12,7 +12,7 @@ import Column from "./Column";
 import Tabs from "./Tabs";
 
 // used to construct component
-// NOTE: should be every Component in `components/sections/` except for Section (i.e., this component)
+// NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
 const sectionTypes = {Card, Column, Tabs, TextViz};
 
 /** wrapper for all sections */
