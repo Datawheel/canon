@@ -78,7 +78,7 @@ class Profile extends Component {
       sections = sections.filter(l => l.type !== "Hero");
     }
 
-    const groupableSections = ["InfoCard", "SingleColumn"]; // sections to be grouped together
+    const groupableSections = ["Card", "InfoCard", "Column", "SingleColumn"]; // sections to be grouped together
     const groupedSections = []; // array for sections to be accumulated into
 
     // reduce sections into a nested array of groupedSections
