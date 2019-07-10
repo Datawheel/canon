@@ -30,7 +30,7 @@ module.exports = [
         path.join(appDir, "node_modules"),
         appDir,
         appPath,
-        path.join(__dirname, "../src"),
+        path.join(__dirname, ".."),
         path.join(__dirname, "../node_modules")
       ],
       extensions: [".js", ".jsx", ".css"]
