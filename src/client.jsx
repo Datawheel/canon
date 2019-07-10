@@ -1,5 +1,6 @@
 /* eslint react/display-name:0 */
-import "babel-polyfill";
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
 import React from "react";
 import {hydrate} from "react-dom";

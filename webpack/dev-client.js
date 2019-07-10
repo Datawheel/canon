@@ -1,7 +1,6 @@
 const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
-      hotMiddlewareScript = "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true&noInfo=true",
       path = require("path"),
       progress = require("./progress"),
       webpack = require("webpack"),
@@ -19,7 +18,10 @@ module.exports = {
   mode: "development",
   context: path.join(__dirname, "../src"),
   entry: {
-    app: ["./client", hotMiddlewareScript]
+    app: [
+      "./client",
+      "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true&noInfo=true"
+    ]
   },
   output: {
     path: assetsPath,
