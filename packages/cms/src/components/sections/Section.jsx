@@ -6,14 +6,14 @@ import throttle from "../../utils/throttle";
 import pxToInt from "../../utils/formatters/pxToInt";
 import toKebabCase from "../../utils/formatters/toKebabCase";
 
-import Card from "./Card";
-import TextViz from "./TextViz";
-import Column from "./Column";
+import Default from "./Default";
+import InfoCard from "./InfoCard";
+import SingleColumn from "./SingleColumn";
 import Tabs from "./Tabs";
 
 // used to construct component
 // NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
-const sectionTypes = {Card, Column, Tabs, TextViz};
+const sectionTypes = {Default, InfoCard, SingleColumn, Tabs};
 
 /** wrapper for all sections */
 class Section extends Component {
@@ -108,7 +108,13 @@ class Section extends Component {
   render() {
     const {contents, sources, isStickyIE, height} = this.state;
     const {loading} = this.props;
-    const Comp = sectionTypes[contents.type] || TextViz;
+
+    // remap old section names
+    let layout = contents.type;
+    if (layout === "TextViz") layout = "Default";
+    if (layout === "Card") layout = "InfoCard";
+    
+    const Comp = sectionTypes[layout] || Default;
 
     return (
       <React.Fragment>

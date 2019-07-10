@@ -2,6 +2,8 @@ import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
+import toSpacedCase from "../utils/formatters/toSpacedCase";
+
 import Button from "../components/fields/Button";
 import Select from "../components/fields/Select";
 import ButtonGroup from "../components/fields/ButtonGroup";
@@ -161,7 +163,9 @@ class SectionEditor extends Component {
     if (order === 0) availableLayouts = ["Hero"].concat(availableLayouts);
 
     const layouts = availableLayouts.map(l =>
-      <option key={l} value={l}>{l}</option>
+      <option key={l} value={l}>
+        {toSpacedCase(l)}
+      </option>
     );
 
     return (
