@@ -16,7 +16,14 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
   catch (e) {
     console.error(`Parsing Error in propify (ID: ${id})`);
     console.error(`Error message: ${e.message}`);
-    return {error: `${e}`};
+    const frontEndMessage = "Error Rendering Visualization";
+    return {
+      error: `${e}`,
+      config: {
+        data: [], 
+        type: "Treemap", 
+        noDataHTML: `<div style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></div>`}
+    };
   }
 
   // strip out the "dataFormat" from config
