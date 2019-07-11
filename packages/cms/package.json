@@ -11,7 +11,8 @@
     "release": "canon-release",
     "setup": "canon-setup",
     "start": "canon-start",
-    "migrate-legacy": "node scripts/migrate-legacy.js"
+    "migrate-legacy": "node scripts/migrate-legacy.js",
+    "migrate-0.1": "node scripts/migrate-0.1.js"
   },
   "dependencies": {
     "@blueprintjs/datetime": "^3.7.1",
