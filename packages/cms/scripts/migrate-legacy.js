@@ -55,7 +55,7 @@ const migrate = async() => {
   const storyLookup = {
     authors: "author", 
     descriptions: "story_description",
-    footnotes: "story_footnte"
+    footnotes: "story_footnote"
   };
 
   const storytopicLookup = {
@@ -108,7 +108,7 @@ const migrate = async() => {
     let newprofile = await dbnew.profile.create({ordering}).catch(catcher);
     newprofile = newprofile.toJSON();
     // create its associated meta content
-    await dbnew.profile_meta.create({profile_id: newprofile.id, slug, dimension, levels});
+    await dbnew.profile_meta.create({profile_id: newprofile.id, slug, dimension, levels, ordering: 0});
     // create its associated english language content
     const {title, subtitle, label} = oldprofile;
     await dbnew.profile_content.create({id: newprofile.id, lang: "en", title, subtitle, label}).catch(catcher);
@@ -182,7 +182,7 @@ const migrate = async() => {
           for (const entity of oldtopic[list]) {
             const {ordering, allowed, logic, options, name, type} = entity;
             const simple = entity.simple || false;
-            let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: newtopic.id, ordering, allowed, logic, options, name, type, default: entity.default, simple}).catch(catcher);
+            let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: newtopic.id, ordering, allowed, logic, options, name, type, title: entity.title, default: entity.default, simple}).catch(catcher);
             newTopicEntity = newTopicEntity.toJSON();     
             // create associated english content
             const {description, title, subtitle, value, tooltip} = entity;
@@ -213,8 +213,8 @@ const migrate = async() => {
     let newstory = await dbnew.story.create({slug, ordering}).catch(catcher);
     newstory = newstory.toJSON();
     // create its associated english language content
-    const {title, image} = oldstory;
-    await dbnew.story_content.create({id: newstory.id, lang: "en", title, image}).catch(catcher);
+    const {title, subtitle, image} = oldstory;
+    await dbnew.story_content.create({id: newstory.id, lang: "en", title, subtitle, image}).catch(catcher);
     // move the story entities
     for (const list of ["authors", "descriptions", "footnotes"]) {
       for (const entity of oldstory[list]) {
