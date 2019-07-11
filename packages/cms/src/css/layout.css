@@ -114,7 +114,7 @@
   & ~ .cms-button {
     position: absolute;
     top: var(--nav-height);
-    margin-top: 0.75rem;
+    margin-top: 0.875rem;
     z-index: 3; /* above nav */
     left: 11.75rem;
 
