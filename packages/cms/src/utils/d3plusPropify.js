@@ -7,7 +7,7 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
 
   let config;
 
-  // The logic provided might be malformed. Wrap it in a try/catch to be sure we don't 
+  // The logic provided might be malformed. Wrap it in a try/catch to be sure we don't
   // crash / RSOD whatever page is making use of propify.
   try {
     config = parse({vars: ["variables"], logic}, formatters, locale)(variables);
@@ -20,8 +20,8 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
     return {
       error: `${e}`,
       config: {
-        data: [], 
-        type: "Treemap", 
+        data: [],
+        type: "Treemap",
         noDataHTML: `<div style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></div>`}
     };
   }
@@ -29,6 +29,15 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
   // strip out the "dataFormat" from config
   const dataFormat = config.dataFormat ? config.dataFormat : d => d.data;
   delete config.dataFormat;
+
+  const linksFormat = config.linksFormat || undefined;
+  delete config.linksFormat;
+
+  const nodesFormat = config.nodesFormat || undefined;
+  delete config.nodesFormat;
+
+  const topojsonFormat = config.topojsonFormat || undefined;
+  delete config.topojsonFormat;
 
   // hides the non-discrete axis, if necessary
   const discrete = config.discrete || "x";
@@ -45,6 +54,6 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
     }
   });
 
-  return {config, dataFormat};
+  return {config, dataFormat, linksFormat, nodesFormat, topojsonFormat};
 
 };
