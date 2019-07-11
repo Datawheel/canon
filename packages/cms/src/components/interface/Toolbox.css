@@ -1,7 +1,7 @@
 @import "../../css/mixins";
 
 /* quick and dirty layout */
-@mixin min-md {
+@mixin min-lg {
   .cms-panel:not(:last-child) {
     width: calc(100% - var(--toolbox-width));
     max-width: calc(100% - var(--toolbox-width));
@@ -23,7 +23,7 @@
     }
   }
 }
-@media (min-width: 768px) and (max-width: 991px) {
+@media (min-width: 768px) and (max-width: 1199px) {
   .cms-toolbox {
     width: calc(100% - var(--sidebar-width));
     margin-left: auto;
