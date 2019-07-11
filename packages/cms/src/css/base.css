@@ -34,14 +34,48 @@ html:root       { font-size: var(--body-font-scale-sm);
   }
 }
 
+
 /* TYPOGRAPHY */
-  h1 { @mixin font-xl; }
-  h2 { @mixin font-lg; }
-  h3 { @mixin font-md; }
-  h4, p, li, label, input { @mixin font-sm; }
-  h5 { @mixin font-xs; }
-  h6 { @mixin font-xxs; }
-  small { @mixin font-xxxs; }
+
+/* font sizing */
+h1 { @mixin font-xl; }
+h2 { @mixin font-lg; }
+h3 { @mixin font-md; }
+h4, p, li, label, input { @mixin font-sm; }
+h5 { @mixin font-xs; }
+h6 { @mixin font-xxs; }
+small { @mixin font-xxxs; }
+
+/* base typography */
+html body {
+  font-family: var(--base-font-stack);
+  font-weight: var(--base-font-weight);
+  letter-spacing: var(--base-letter-spacing);
+}
+
+/* headings */
+h1, h2, h3, h4, h5, h6, .heading {
+  font-family: var(--heading-font-stack);
+  font-weight: var(--heading-font-weight);
+  text-transform: var(--heading-text-transform);
+  letter-spacing: var(--heading-letter-spacing);
+}
+
+/* display */
+.display {
+  font-family: var(--display-font-stack);
+  font-weight: var(--display-font-weight);
+  text-transform: var(--display-text-transform);
+  letter-spacing: var(--display-letter-spacing);
+}
+
+/* display */
+.label {
+  font-family: var(--label-font-stack);
+  font-weight: var(--label-font-weight);
+  text-transform: var(--label-text-transform);
+  letter-spacing: var(--label-letter-spacing);
+}
 
 
 /* THEMING */

@@ -1,0 +1,40 @@
+@import "../../../css/mixins.css";
+
+/* sizing */
+.cp-stat {
+  width: 100%;
+  margin: var(--gutter-sm) 0; /* reset <dl> */
+}
+
+/* layout */
+.cp-stat-label,
+.cp-stat-value {
+  display: block;
+}
+.cp-stat-value {
+  margin-left: 0; /* reset <dd> default */
+}
+.cp-stat-qualifier {
+  display: block;
+  width: 100%;
+}
+
+/* insert spaces */
+.cp-stat-label,
+.cp-stat-value-text {
+  margin-right: 0.125rem;
+}
+
+/* typography & theming */
+.cp-stat-label-text {
+  color: var(--stat-label-color);
+  font-size: var(--stat-label-font-size);
+}
+.cp-stat-value-text {
+  color: var(--stat-value-color);
+  font-size: var(--stat-value-font-size);
+  }
+.cp-stat-qualifier {
+  color: var(--stat-qualifier-color);
+  font-size: var(--stat-qualifier-font-size);
+}
