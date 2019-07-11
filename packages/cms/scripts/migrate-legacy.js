@@ -42,7 +42,7 @@ const loadModels = (db, modelPath, clear) => {
 const migrate = async() => {
 
   await loadModels(dbold, "/db_legacy", false);
-  await loadModels(dbnew, "../db", true);
+  await loadModels(dbnew, "/db_0.6", true);
 
   const tableLookup = {
     descriptions: "topic_description",
