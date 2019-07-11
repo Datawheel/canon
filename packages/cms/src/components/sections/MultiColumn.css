@@ -1,0 +1,15 @@
+@import "../../css/mixins.css";
+
+.cp-multi-column-section-heading {
+  margin-top: 0;
+}
+
+.cp-multi-column-section-caption {
+  columns: var(--multicolumn-column-count);
+  column-width: var(--multicolumn-column-width);
+  column-gap: var(--multicolumn-column-gap);
+
+  & > * {
+    break-inside: avoid;
+  }
+}

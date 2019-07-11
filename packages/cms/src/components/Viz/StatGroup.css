@@ -1,15 +1,12 @@
 @import "../../css/mixins.css";
 
-.StatGroup {
-  &.single {
-    flex: 1;
-    min-width: 45%;
-  }
-  &.multi {
-    min-width: 100%;
-    width: 100%;
-  }
-  & .plus-minus {
-    vertical-align: baseline;
+.cp-stat-group {
+  display: flex;
+  flex-wrap: wrap;
+
+  & > .cp-stat {
+    flex: 1 1 calc(50% - var(--gutter-xs));
+    min-width: calc(50% - var(--gutter-xs));
+    max-width: 100%;
   }
 }

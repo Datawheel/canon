@@ -13,15 +13,17 @@ import StatGroup from "../Viz/StatGroup";
 
 import Parse from "./components/Parse";
 import Selector from "./components/Selector";
+import Stat from "./components/Stat";
 
 import Default from "./Default";
 import InfoCard from "./InfoCard";
+import MultiColumn from "./MultiColumn";
 import SingleColumn from "./SingleColumn";
 import Tabs from "./Tabs";
 
 // used to construct component
 // NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
-const sectionTypes = {Default, InfoCard, SingleColumn, Tabs};
+const sectionTypes = {Default, InfoCard, MultiColumn, SingleColumn, Tabs};
 
 /** wrapper for all sections */
 class Section extends Component {
@@ -148,7 +150,9 @@ class Section extends Component {
     let statContent;
     const statGroups = nest().key(d => d.title).entries(stats);
     if (stats.length > 0) {
-      statContent = statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />);
+      statContent = <div className="cp-stat-group">
+        {statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />)}
+      </div>;
     }
 
     // paragraphs

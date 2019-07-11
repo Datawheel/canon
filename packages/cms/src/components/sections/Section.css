@@ -1,5 +1,9 @@
 @import "../../css/mixins.css";
 
+/* THEMING */
+.cp-section {
+  color: var(--section-text-color);
+}
 /* section (or section grouping) backgrounds */
 .cp-main > *:nth-child(odd) {
   background-color: var(--section-bg-odd);
@@ -7,7 +11,11 @@
 .cp-main > *:nth-child(even) {
   background-color: var(--section-bg-even);
 }
+.cp-heading {
+  color: var(--section-heading-color);
+}
 
+/* LAYOUT */
 .cp-section {
   padding: var(--gutter-md);
   overflow-x: hidden;
@@ -18,21 +26,26 @@
   }
 
   /* sticky section */
-  @mixin min-md {
-    &.is-sticky {
+  &.is-sticky {
+    background-color: var(--sticky-section-bg);
+
+    @mixin min-md {
       position: relative; /* IE fallback */
       position: sticky;
-      top: 0;
+      top: var(--sticky-section-offset);
       z-index: 2;
       /* reduce padding, since it's going to take up a bunch of space */
       padding-top: var(--gutter-sm);
       padding-bottom: var(--gutter-sm);
-    }
-    /* make it work in IE */
-    &.ie-is-stuck {
-      position: fixed;
-      top: var(--nav-height);
-      z-index: 1;
+      /* theming */
+      box-shadow: var(--sticky-section-shadow);
+
+      /* make it work in IE */
+      &.ie-is-stuck {
+        position: fixed;
+        top: var(--nav-height);
+        z-index: 1;
+      }
     }
   }
 }
@@ -49,9 +62,5 @@
 
   &:not(:last-child) {
     margin-bottom: 0.5em;
-  }
-
-  &:empty {
-    border: 1px solid red;
   }
 }
