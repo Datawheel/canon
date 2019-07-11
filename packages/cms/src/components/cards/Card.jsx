@@ -38,6 +38,7 @@ export default class Card extends Component {
       refreshButton = Object.assign({}, {
         children: "refresh",
         icon: "refresh",
+        fontSize: "xxs",
         onClick: onRefresh,
         disabled: rebuilding,
         rebuilding,
@@ -50,6 +51,7 @@ export default class Card extends Component {
       deleteButton = Object.assign({}, {
         children: "delete entry",
         icon: "trash",
+        fontSize: "xxs",
         onClick: onDelete,
         disabled: rebuilding,
         ...buttonProps
@@ -61,6 +63,7 @@ export default class Card extends Component {
       editButton = Object.assign({}, {
         children: "edit entry",
         icon: "cog",
+        fontSize: "xxs",
         onClick: onEdit,
         disabled: rebuilding,
         ...buttonProps

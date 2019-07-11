@@ -367,7 +367,8 @@ class StoryBuilder extends Component {
         {/* new entity */}
         <Button
           onClick={this.addFirst.bind(this)}
-          className="cms-add-story-button u-font-xxs"
+          className="cms-add-story-button"
+          fontSize="xxs"
           context="cms"
           icon="plus"
           iconPosition="right"

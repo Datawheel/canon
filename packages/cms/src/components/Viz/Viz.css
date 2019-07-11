@@ -1,0 +1,19 @@
+@import "../../css/mixins.css";
+
+.cp-viz-container {
+  position: relative;
+  padding-top: var(--viz-aspect-ratio);
+  min-height: var(--viz-min-height);
+
+  & > .Options {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  & > .cp-viz {
+    padding-top: 2rem;
+    margin-top: calc(0px - var(--viz-aspect-ratio));
+    min-height: var(--viz-min-height);
+  }
+}

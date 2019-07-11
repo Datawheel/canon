@@ -204,6 +204,7 @@ class SectionEditor extends Component {
               inputProps={{
                 label: "Slug",
                 labelHidden: true,
+                fontSize: "xs",
                 inline: true,
                 context: "cms",
                 value: minData.slug,
@@ -211,6 +212,7 @@ class SectionEditor extends Component {
               }}
               buttonProps={{
                 children: "Rename slug",
+                fontSize: "xs",
                 context: "cms",
                 onClick: this.save.bind(this)
               }}
@@ -220,6 +222,7 @@ class SectionEditor extends Component {
             <Select
               label="Visible"
               context="cms"
+              fontSize="xs"
               inline
               value={minData.allowed || "always"}
               onChange={this.changeField.bind(this, "allowed", true)}
@@ -232,6 +235,7 @@ class SectionEditor extends Component {
               label="Layout"
               inline
               context="cms"
+              fontSize="xs"
               value={minData.type}
               onChange={this.changeField.bind(this, "type", true)}
             >
@@ -246,6 +250,7 @@ class SectionEditor extends Component {
                   onClick: this.selectButton.bind(this, "sticky", true, false),
                   active: !minData.sticky,
                   context: "cms",
+                  fontSize: "xs",
                   icon: "alignment-left",
                   iconPosition: "left",
                   children: "default"
@@ -254,6 +259,7 @@ class SectionEditor extends Component {
                   onClick: this.selectButton.bind(this, "sticky", true, true),
                   active: minData.sticky,
                   context: "cms",
+                  fontSize: "xs",
                   icon: "alignment-top",
                   iconPosition: "left",
                   children: "sticky"

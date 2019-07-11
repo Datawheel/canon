@@ -7,7 +7,6 @@
 
   /* the input */
   & [class*="filter-search-input"] {
-    font-size: 14px; /* prevent zooming on mobile */
     border-radius: 3em; /* fully rounded */
     /* sizing */
     width: 100%;
@@ -19,6 +18,10 @@
       border-color 0.3s ease-out,
       box-shadow 0.3s ease-out,
       color 0.3s ease-out;
+
+    @mixin max-sm {
+      font-size: 14px; /* prevent zooming on mobile */
+    }
   }
 
   /* filter icon */

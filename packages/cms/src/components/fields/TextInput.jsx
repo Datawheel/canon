@@ -23,7 +23,7 @@ export default class TextInput extends Component {
         </span>
 
         <input
-          className={`${context}-input`}
+          className={`${context}-input u-font-${fontSize}`}
           value={value}
           onChange={onChange}
           placeholder={placeholder}

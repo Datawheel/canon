@@ -48,7 +48,7 @@ class Selector extends Component {
 
     const {comparisons} = this.state;
     const {onSelector, variables} = this.context;
-    const {default: defaultValue, id, loading, options, name, title, type} = this.props;
+    const {default: defaultValue, fontSize, id, loading, options, name, title, type} = this.props;
     const slug = `${name}-${id}`;
 
     return <div className="selector">
@@ -78,6 +78,7 @@ class Selector extends Component {
         : <Select
           label={title}
           inline
+          fontSize={fontSize}
           id={slug}
           onChange={d => onSelector(name, d.target.value)}
           disabled={loading}
@@ -96,6 +97,10 @@ class Selector extends Component {
 Selector.contextTypes = {
   onSelector: PropTypes.func,
   variables: PropTypes.object
+};
+
+Selector.defaultProps = {
+  fontSize: "xxs"
 };
 
 export default Selector;

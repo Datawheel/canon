@@ -4,7 +4,7 @@ import {nest} from "d3-collection";
 import stripP from "../../utils/formatters/stripP";
 
 import StatGroup from "../Viz/StatGroup";
-import Viz from "../Viz/index";
+import Viz from "../Viz/Viz";
 import Selector from "./components/Selector";
 import "./Section.css";
 
@@ -18,7 +18,7 @@ export default class InfoCard extends Component {
 
     const statGroups = nest().key(d => d.title).entries(stats);
 
-    return <div className={ `cp-section-inner cp-${slug}-section-inner bp3-card bp3-elevation-0` } ref={ comp => this.section = comp }>
+    return <div className={ `cp-section-inner cp-${slug}-section-inner cp-info-card-section-inner bp3-card bp3-elevation-0` } ref={ comp => this.section = comp }>
       <div className="cp-section-content">
         <div className="title-wrapper">
           { title &&

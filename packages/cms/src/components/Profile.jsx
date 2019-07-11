@@ -78,7 +78,14 @@ class Profile extends Component {
       sections = sections.filter(l => l.type !== "Hero");
     }
 
-    const groupableSections = ["Card", "InfoCard", "Column", "SingleColumn"]; // sections to be grouped together
+    // rename old section names
+    sections.forEach(l => {
+      if (l.type === "TextViz") l.type = "Default";
+      if (l.type === "Card") l.type = "InfoCard";
+      if (l.type === "Column") l.type = "SingleColumn";
+    });
+
+    const groupableSections = ["InfoCard", "SingleColumn"]; // sections to be grouped together
     const groupedSections = []; // array for sections to be accumulated into
 
     // reduce sections into a nested array of groupedSections
