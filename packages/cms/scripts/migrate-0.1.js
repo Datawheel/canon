@@ -55,7 +55,7 @@ const migrate = async() => {
   const storyLookup = {
     authors: "author", 
     descriptions: "story_description",
-    footnotes: "story_footnte"
+    footnotes: "story_footnote"
   };
 
   const storytopicLookup = {
@@ -73,17 +73,16 @@ const migrate = async() => {
   }
 
   // Copy the Formatters
-  let formatters = await dbold.formatters.findAll();
+  let formatters = await dbold.formatter.findAll();
   formatters = formatters.map(row => row.toJSON());
   await dbnew.formatter.bulkCreate(formatters);
 
   // Copy each profile
-  let profiles = await dbold.profiles.findAll({include: [
+  let profiles = await dbold.profile.findAll({include: [
     {association: "generators", separate: true},
     {association: "materializers", separate: true},
-    {association: "descriptions", separate: true},
     {association: "stats", separate: true},
-    {association: "visualizations", separate: true},
+    {association: "footnotes", separate: true},
     {association: "sections", separate: true, include: [
       {association: "descriptions", separate: true},
       {association: "subtitles", separate: true},
@@ -108,15 +107,17 @@ const migrate = async() => {
     let newprofile = await dbnew.profile.create({ordering}).catch(catcher);
     newprofile = newprofile.toJSON();
     // create its associated meta content
-    await dbnew.profile_meta.create({profile_id: newprofile.id, slug, dimension, levels});
+    await dbnew.profile_meta.create({profile_id: newprofile.id, slug, dimension, levels, ordering: 0});
     // create its associated english language content
     const {title, subtitle, label} = oldprofile;
     await dbnew.profile_content.create({id: newprofile.id, lang: "en", title, subtitle, label}).catch(catcher);
 
     // transfer generators
     for (const generator of oldprofile.generators) {
-      const {name, api, description, logic} = generator;
-      await dbnew.generator.create({profile_id: newprofile.id, name, api, description, logic, simple: false}).catch(catcher);
+      const {name, api, description, logic} = generator; 
+      const simple = generator.simple || false;
+      const logic_simple = generator.logic_simple || null; // eslint-disable-line camelcase
+      await dbnew.generator.create({profile_id: newprofile.id, name, api, description, logic, simple, logic_simple}).catch(catcher);
     }
 
     // transfer materializers
@@ -132,16 +133,15 @@ const migrate = async() => {
     nextTopicLoc++;
     // create its associated english language content
     await dbnew.topic_content.create({title: "About", lang: "en", id: profiletopic.id}).catch(catcher);
-    for (const list of ["descriptions", "stats", "visualizations"]) {
+    for (const list of ["stats"]) {
       for (const entity of oldprofile[list]) {
         // migrate the array of profile entities to the new "profiletopic"
-        const {ordering, allowed, logic} = entity;
-        const simple = entity.simple || false;
-        let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: profiletopic.id, ordering, allowed, logic, simple}).catch(catcher);
+        const {ordering, allowed} = entity;
+        let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: profiletopic.id, ordering, allowed}).catch(catcher);
         newTopicEntity = newTopicEntity.toJSON();
         // create associated english content
         const {description, title, subtitle, value, tooltip} = entity;
-        if (list !== "visualizations") await dbnew[`${tableLookup[list]}_content`].create({id: newTopicEntity.id, lang: "en", description, title, subtitle, value, tooltip}).catch(catcher);
+        await dbnew[`${tableLookup[list]}_content`].create({id: newTopicEntity.id, lang: "en", description, title, subtitle, value, tooltip}).catch(catcher);
       }
     }
     oldprofile.sections.sort((a, b) => a.ordering - b.ordering);
@@ -182,7 +182,8 @@ const migrate = async() => {
           for (const entity of oldtopic[list]) {
             const {ordering, allowed, logic, options, name, type} = entity;
             const simple = entity.simple || false;
-            let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: newtopic.id, ordering, allowed, logic, options, name, type, default: entity.default, simple}).catch(catcher);
+            const logic_simple = entity.logic_simple  || null; // eslint-disable-line camelcase
+            let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: newtopic.id, ordering, allowed, logic, options, name, type, title: entity.title, default: entity.default, simple, logic_simple}).catch(catcher);
             newTopicEntity = newTopicEntity.toJSON();     
             // create associated english content
             const {description, title, subtitle, value, tooltip} = entity;
@@ -191,10 +192,24 @@ const migrate = async() => {
         }
       }
     }
+    if (oldprofile.footnotes.length > 0) {
+      oldprofile.footnotes.sort((a, b) => a.ordering - b.ordering);
+      for (const oldfootnote of oldprofile.footnotes) {
+        const slug = `footnote-${oldfootnote.ordering + 1}`;
+        let newtopic = await dbnew.topic.create({profile_id: newprofile.id, ordering: nextTopicLoc, type: "Footnote", slug, allowed: "always"}).catch(catcher);
+        newtopic = newtopic.toJSON();
+        nextTopicLoc++;
+        const {description, title} = oldfootnote;
+        await dbnew.topic_content.create({title, lang: "en", id: newtopic.id}).catch(catcher);
+        let newDescription = await dbnew.topic_description.create({topic_id: newtopic.id, allowed: "always", ordering: 0}).catch(catcher);
+        newDescription = newDescription.toJSON();
+        await dbnew.topic_description_content.create({description, lang: "en", id: newDescription.id}).catch(catcher);
+      }
+    }
   }
 
   // Copy each story
-  let stories = await dbold.stories.findAll({include: [
+  let stories = await dbold.story.findAll({include: [
     {association: "authors", separate: true},
     {association: "descriptions", separate: true},
     {association: "footnotes", separate: true},
@@ -213,8 +228,8 @@ const migrate = async() => {
     let newstory = await dbnew.story.create({slug, ordering}).catch(catcher);
     newstory = newstory.toJSON();
     // create its associated english language content
-    const {title, image} = oldstory;
-    await dbnew.story_content.create({id: newstory.id, lang: "en", title, image}).catch(catcher);
+    const {title, subtitle, image} = oldstory;
+    await dbnew.story_content.create({id: newstory.id, lang: "en", title, subtitle, image}).catch(catcher);
     // move the story entities
     for (const list of ["authors", "descriptions", "footnotes"]) {
       for (const entity of oldstory[list]) {
