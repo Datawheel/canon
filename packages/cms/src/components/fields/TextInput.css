@@ -8,7 +8,6 @@
   /* the input */
   & > .cp-input,
   & > .cms-input {
-    font-size: 14px; /* prevent zooming on mobile */
     line-height: 1.125;
     border-radius: var(--field-border-radius);
     /* sizing */
@@ -19,6 +18,10 @@
       border-color 0.3s ease-out,
       box-shadow 0.3s ease-out,
       color 0.3s ease-out;
+
+    @mixin max-sm {
+      font-size: 14px; /* prevent zooming on mobile */
+    }
   }
 }
 

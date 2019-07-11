@@ -5,7 +5,7 @@ import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
-import Viz from "../Viz";
+import Viz from "../Viz/Viz";
 import FooterButtons from "../editors/components/FooterButtons";
 import deepClone from "../../utils/deepClone";
 import Card from "./Card";

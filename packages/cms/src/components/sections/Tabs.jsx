@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import Viz from "../Viz/index";
+import Viz from "../Viz/Viz";
 // import {AnchorLink} from "@datawheel/canon-core";
 import {nest} from "d3-collection";
 import stripP from "../../utils/formatters/stripP";

@@ -97,6 +97,7 @@ class SelectorUsage extends Component {
                     {s.name}
                     <Button
                       className="cms-selector-usage-item-button u-font-xxxs"
+                      fontSize="xxxs"
                       context="cms"
                       icon="plus"
                       iconOnly
@@ -127,6 +128,7 @@ class SelectorUsage extends Component {
                     <div className="cms-button-group">
                       <Button
                         className="cms-card-heading-button u-font-xxs"
+                        fontSize="xxxs"
                         context="cms"
                         onClick={this.removeItem.bind(this, s.id)}
                         icon="cross"

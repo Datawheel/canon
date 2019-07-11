@@ -118,9 +118,7 @@ class Section extends Component {
     const {headingLevel, loading} = this.props;
 
     // remap old section names
-    let layout = contents.type;
-    if (layout === "TextViz") layout = "Default";
-    if (layout === "Card") layout = "InfoCard";
+    const layout = contents.type;
     const layoutClass = `cp-${toKebabCase(layout)}-section`;
 
     const Layout = sectionTypes[layout] || Default; // assign the section layout component

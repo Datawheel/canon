@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import Viz from "../Viz/index";
+import Viz from "../Viz/Viz";
 import "./Default.css";
 
 export default class Default extends Component {

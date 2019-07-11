@@ -26,3 +26,12 @@
     }
   }
 }
+
+/* bring grouped cards closer together */
+.cp-info-card-section-grouping-inner {
+  padding: var(--gutter-sm);
+
+  & .cp-info-card-section {
+    padding: var(--gutter-sm);
+  }
+}

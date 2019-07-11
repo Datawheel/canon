@@ -2,9 +2,9 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
 import PercentageBar from "./PercentageBar";
-import "./index.css";
 import Options from "./Options";
 import propify from "../../utils/d3plusPropify";
+import "./Viz.css";
 
 const vizTypes = Object.assign({PercentageBar}, d3plus);
 
@@ -25,7 +25,7 @@ class Viz extends Component {
     // is a lookup object of languages, so we must fetch the appropriate formatter set.
     // In the latter, the locale is passed in based on params and then used in propify.
     // Thus, we use a flat formatter list, passed down by Profile.jsx, not needing a
-    // locale-nested format.    
+    // locale-nested format.
     const formatters = this.context.formatters[locale] || this.context.formatters;
 
     const {config, configOverride, className, options, slug, section} = this.props;
@@ -53,20 +53,23 @@ class Viz extends Component {
     const title = (this.props.title || config.title || slug || "")
       .replace(/^<p>/g, "").replace(/<\/p>$/g, "");
 
-    return <div className={ `visualization ${className}` }>
-      { options ? <Options
-        key="option-key"
-        component={{section, viz: this}}
-        data={ vizProps.config.data }
-        dataFormat={ vizProps.dataFormat }
-        slug={ slug }
-        title={ title } /> : null }
+    return <div className={ `cp-viz-container${className ? ` ${className}` : ""}` }>
+      { options
+        ? <Options
+          key="option-key"
+          component={{section, viz: this}}
+          data={ vizProps.config.data }
+          dataFormat={ vizProps.dataFormat }
+          slug={ slug }
+          title={ title }
+        /> : ""}
       <Visualization
         key="viz-key"
         ref={ comp => this.viz = comp }
-        className="d3plus"
+        className={`d3plus cp-viz cp-${type}-viz`}
         dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
-        config={vizProps.config} />
+        config={vizProps.config}
+      />
     </div>;
   }
 

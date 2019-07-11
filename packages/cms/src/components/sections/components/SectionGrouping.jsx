@@ -1,13 +1,18 @@
 import React, {Component} from "react";
+import toKebabCase from "../../../utils/formatters/toKebabCase";
 import "./SectionGrouping.css";
 
 export default class SectionGrouping extends Component {
   render() {
-    const {children, layout} = this.props;
+    const {children} = this.props;
+
+    const {layout} = this.props;
+    const layoutClass = `cp-${toKebabCase(layout)}-section-grouping`;
+
 
     return (
-      <div className={`cp-section-grouping cp-${layout.toLowerCase()}-section-grouping`}>
-        <div className="cp-section-grouping-inner">
+      <div className={`cp-section-grouping ${layoutClass}`}>
+        <div className={`cp-section-grouping-inner ${layoutClass}-inner`}>
           {children}
         </div>
       </div>

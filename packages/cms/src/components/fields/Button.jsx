@@ -9,6 +9,7 @@ export default class Button extends Component {
       block,        // set `true` to completely fill container width
       children,
       className,
+      fontSize,
       context,      // "cp" (default) or "cms"
       disabled,
       rebuilding,   // add a spinning animation
@@ -20,7 +21,7 @@ export default class Button extends Component {
 
     return (
       <button
-        className={`${context}-button${
+        className={`${context}-button u-font-${fontSize}${
           className ? ` ${className}` : ""
         }${
           active ? " is-active" : " is-inactive"
@@ -60,5 +61,6 @@ Button.defaultProps = {
   iconOnly: false,
   iconPosition: "right",
   children: "Missing `children` prop in Button.jsx",
+  fontSize: "sm",
   context: "cp"
 };

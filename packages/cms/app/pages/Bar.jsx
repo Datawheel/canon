@@ -1,8 +1,8 @@
 import React, {Component} from "react";
-import Viz from "../../src/components/Viz";
+import Viz from "../../src/components/Viz/Viz";
 
 export default class Bar extends Component {
-  
+
   render() {
 
     const logic = `return {
@@ -27,7 +27,7 @@ export default class Bar extends Component {
 
     return (
       <div id="Bar">
-        <Viz 
+        <Viz
           config={{logic}}
         />
       </div>
