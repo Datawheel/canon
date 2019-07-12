@@ -19,6 +19,13 @@ const dbnew = new Sequelize(newDBName, newDBUser, newDBPW, {host: newDBHost, dia
 
 const catcher = e => console.log("error: ", e);
 
+const resetSequence = async(db, modelName, col) => {
+  const maxFetch = await db[modelName].findAll({attributes: [[Sequelize.fn("max", Sequelize.col(col)), "max"]], raw: true});
+  const max = maxFetch ? maxFetch[0].max : null;
+  const query = `SELECT setval(pg_get_serial_sequence('canon_cms_${modelName}', '${col}'), ${max})`;
+  return max ? db.query(query) : null;
+};
+
 const loadModels = (db, modelPath, clear) => {
   const folder = path.join(__dirname, modelPath);
   fs.readdirSync(folder)
@@ -71,11 +78,13 @@ const migrate = async() => {
     rows = rows.map(row => row.toJSON());
     await dbnew[table].bulkCreate(rows);
   }
+  await resetSequence(dbnew, "images", "id");
 
   // Copy the Formatters
   let formatters = await dbold.formatter.findAll();
   formatters = formatters.map(row => row.toJSON());
   await dbnew.formatter.bulkCreate(formatters);
+  await resetSequence(dbnew, "formatter", "id");
 
   // Copy each profile
   let profiles = await dbold.profile.findAll({include: [
