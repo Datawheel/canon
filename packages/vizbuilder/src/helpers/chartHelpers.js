@@ -39,14 +39,14 @@ export function datagroupToCharts(datagroup, generalConfig) {
 
   const charts = datagroup.charts.reduce((sum, chartType) => {
     const setups = calcChartSetups(chartType, datagroup.query).map(setup => ({
-        ...datagroup,
-        baseConfig,
-        chartType,
-        component: chartComponents[chartType],
-        setup,
-        topoConfig,
-        userConfig
-      }));
+      ...datagroup,
+      baseConfig,
+      chartType,
+      component: chartComponents[chartType],
+      setup,
+      topoConfig,
+      userConfig
+    }));
     return sum.concat(setups);
   }, []);
 
