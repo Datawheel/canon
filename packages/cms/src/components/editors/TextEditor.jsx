@@ -54,7 +54,8 @@ class TextEditor extends Component {
 
     const quills = fields.map(f =>
       <div className="cms-field-container" key={f}>
-        <label htmlFor={f}>{formatFieldName(f, contentType)}</label>
+        <label htmlFor={f}>{formatFieldName(f, contentType.replace("story_", "").replace("section_", "")
+        )}</label>
         <QuillWrapper id={f} value={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
       </div>
     );
