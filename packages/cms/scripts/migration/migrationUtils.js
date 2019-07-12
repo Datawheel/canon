@@ -2,6 +2,19 @@ const Sequelize = require("sequelize");
 const fs = require("fs");
 const path = require("path");
 
+const oldDBName = process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
+const oldDBUser = process.env.CANON_CONST_MIGRATION_OLD_DB_USER;
+const oldDBPW = process.env.CANON_CONST_MIGRATION_OLD_DB_PW || null;
+const oldDBHost = process.env.CANON_CONST_MIGRATION_OLD_DB_HOST;
+
+const newDBName = process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
+const newDBUser = process.env.CANON_CONST_MIGRATION_NEW_DB_USER;
+const newDBPW = process.env.CANON_CONST_MIGRATION_NEW_DB_PW || null;
+const newDBHost = process.env.CANON_CONST_MIGRATION_NEW_DB_HOST;
+
+const dbold = new Sequelize(oldDBName, oldDBUser, oldDBPW, {host: oldDBHost, dialect: "postgres", define: {timestamps: true}, logging: () => {}});
+const dbnew = new Sequelize(newDBName, newDBUser, newDBPW, {host: newDBHost, dialect: "postgres", define: {timestamps: true}, logging: () => {}});
+
 const catcher = e => console.log("error: ", e);
 
 const resetSequence = async(db, modelName, col) => {
@@ -36,4 +49,14 @@ const loadModels = (db, modelPath, clear) => {
   }
 };
 
-module.exports = {catcher, resetSequence, loadModels};
+const fetchOldModel = async(modelPath, clear) => {
+  await loadModels(dbold, modelPath, clear);
+  return dbold;
+};
+
+const fetchNewModel = async(modelPath, clear) => {
+  await loadModels(dbnew, modelPath, clear);
+  return dbnew;
+};
+
+module.exports = {catcher, resetSequence, fetchOldModel, fetchNewModel};

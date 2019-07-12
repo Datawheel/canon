@@ -1,26 +1,12 @@
 #! /usr/bin/env node
  
-const Sequelize = require("sequelize");
 const utils = require("./migrationUtils.js");
-const {catcher, loadModels, resetSequence} = utils;
-
-const oldDBName = process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
-const oldDBUser = process.env.CANON_CONST_MIGRATION_OLD_DB_USER;
-const oldDBPW = process.env.CANON_CONST_MIGRATION_OLD_DB_PW || null;
-const oldDBHost = process.env.CANON_CONST_MIGRATION_OLD_DB_HOST;
-
-const newDBName = process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
-const newDBUser = process.env.CANON_CONST_MIGRATION_NEW_DB_USER;
-const newDBPW = process.env.CANON_CONST_MIGRATION_NEW_DB_PW || null;
-const newDBHost = process.env.CANON_CONST_MIGRATION_NEW_DB_HOST;
-
-const dbold = new Sequelize(oldDBName, oldDBUser, oldDBPW, {host: oldDBHost, dialect: "postgres", define: {timestamps: true}, logging: () => {}});
-const dbnew = new Sequelize(newDBName, newDBUser, newDBPW, {host: newDBHost, dialect: "postgres", define: {timestamps: true}, logging: () => {}});
+const {catcher, resetSequence, fetchOldModel, fetchNewModel} = utils;
 
 const migrate = async() => {
 
-  await loadModels(dbold, "/db_0.6", false);
-  await loadModels(dbnew, "/db_0.7", true);
+  const dbold = await fetchOldModel("/db_0.6", false);
+  const dbnew = await fetchNewModel("/db_0.7", true);
 
   // The order of this migration matters - Many tables have FK dependencies, so the tables must be created in order.
   const migrationMap = [
