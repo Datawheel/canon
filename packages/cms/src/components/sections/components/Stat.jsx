@@ -4,7 +4,7 @@ import "./Stat.css";
 
 export default class Stat extends Component {
   render() {
-    const {label, value, qualifier} = this.props;
+    const {label, value, subtitle} = this.props;
 
     return (
       <dl className="cp-stat">
@@ -19,11 +19,11 @@ export default class Stat extends Component {
             {value}
           </Parse>
 
-          {qualifier &&
+          {subtitle &&
             <React.Fragment>
               <span className="u-visually-hidden">:</span>
-              <Parse El="span" className="cp-stat-qualifier">
-                {qualifier}
+              <Parse El="span" className="cp-stat-subtitle">
+                {subtitle}
               </Parse>
             </React.Fragment>
           }

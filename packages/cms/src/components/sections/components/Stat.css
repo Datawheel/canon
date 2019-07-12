@@ -3,7 +3,7 @@
 /* sizing */
 .cp-stat {
   width: 100%;
-  margin: var(--gutter-sm) 0; /* reset <dl> */
+  margin: var(--gutter-xs) 0 var(--gutter-sm) 0; /* reset <dl> */
 }
 
 /* layout */
@@ -14,7 +14,7 @@
 .cp-stat-value {
   margin-left: 0; /* reset <dd> default */
 }
-.cp-stat-qualifier {
+.cp-stat-subtitle {
   display: block;
   width: 100%;
 }
@@ -34,7 +34,7 @@
   color: var(--stat-value-color);
   font-size: var(--stat-value-font-size);
   }
-.cp-stat-qualifier {
-  color: var(--stat-qualifier-color);
-  font-size: var(--stat-qualifier-font-size);
+.cp-stat-subtitle {
+  color: var(--stat-subtitle-color);
+  font-size: var(--stat-subtitle-font-size);
 }

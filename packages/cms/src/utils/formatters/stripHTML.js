@@ -1,8 +1,8 @@
 /**
- * Removes all HTML tags from a string.
- */
+* Converts html tags to spaces, then removes redundant spaces
+*/
 function stripHTML(n) {
-  return n.replace(/<[^>]+>/g, "");
+  return n.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
 module.exports = stripHTML;
