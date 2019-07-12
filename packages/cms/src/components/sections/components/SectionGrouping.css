@@ -16,8 +16,8 @@
   margin-right: auto;
 
   & > .cp-section {
-    flex: 1 0 calc(33.333% - 25px);
-    min-width: 20em;
+    flex: 1 0 calc( 100% / var(--singlecolumn-column-count) - var(--gutter-md) );
+    min-width: var(--singlecolumn-min-width);
     max-width: 100%;
 
     /* grouped sections should never be sticky, probably */

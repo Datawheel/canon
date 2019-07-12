@@ -3,7 +3,7 @@
 /* sizing */
 .cp-stat {
   width: 100%;
-  margin: var(--gutter-xs) 0 var(--gutter-sm) 0; /* reset <dl> */
+  margin: var(--gutter-xs) 0; /* reset <dl> */
 }
 
 /* layout */

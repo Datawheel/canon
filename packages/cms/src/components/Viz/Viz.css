@@ -5,15 +5,20 @@
   padding-top: var(--viz-aspect-ratio);
   min-height: var(--viz-min-height);
 
+  & > .cp-viz {
+    @mixin absolute-expand;
+    position: absolute !important;
+  }
+
   & > .Options {
     position: absolute;
     top: 0;
     right: 0;
-  }
 
-  & > .cp-viz {
-    padding-top: 2rem;
-    margin-top: calc(0px - var(--viz-aspect-ratio));
-    min-height: var(--viz-min-height);
+    & + .cp-viz {
+      padding-top: 2rem;
+      bottom: 2rem;
+      height: calc(100% - 2rem);
+    }
   }
 }
