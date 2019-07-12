@@ -97,9 +97,17 @@ label-text-transform: "uppercase"
 label-letter-spacing: "0.0125em" # generally, some kerning is helps legibility of all caps text only
 
 # hero AKA header AKA splash
-hero-bg-color:      "var(--dark-3)"
-hero-text-color:    "var(--light-2)"
-hero-heading-color: "var(--white)"
+hero-bg-color:          "var(--dark-3)"
+hero-text-color:        "var(--light-2)"
+hero-paragraph-size:    "var(--font-xs)"
+hero-heading-color:     "var(--white)"
+hero-heading-size:      "var(--font-xxl)"
+hero-subhead-color:     "var(--white)"
+hero-subhead-size:      "var(--font-md)"
+hero-stat-value-color:  "var(--accent)"
+hero-stat-column-count: "4"
+hero-stat-column-width: "10rem"
+hero-viz-width:         "20rem"
 
 # sections
 section-bg-odd:            "var(--white)"
@@ -149,9 +157,9 @@ viz-aspect-ratio: "50%"  # set as padding-top on .cp-viz-container, then .cp-viz
 viz-min-height:   "40vh" # prevent visualizations from getting too squishy
 
 # stats
-stat-label-font-size:     "var(--font-sm)"
-stat-label-color:         "inherit"
-stat-value-font-size:     "var(--font-xl)"
-stat-value-color:         "var(--accent-dark)"
+stat-label-font-size:    "var(--font-sm)"
+stat-label-color:        "inherit"
+stat-value-font-size:    "var(--font-xl)"
+stat-value-color:        "var(--accent-dark)"
 stat-subtitle-font-size: "var(--font-xs)"
 stat-subtitle-color:     "var(--dark-1)"

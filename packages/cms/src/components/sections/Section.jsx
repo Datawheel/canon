@@ -150,8 +150,10 @@ class Section extends Component {
     let statContent;
     const statGroups = nest().key(d => d.title).entries(stats);
     if (stats.length > 0) {
-      statContent = <div className="cp-stat-group">
-        {statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />)}
+      statContent = <div className="cp-stat-group-wrapper">
+        <div className="cp-stat-group">
+          {statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />)}
+        </div>
       </div>;
     }
 
@@ -161,7 +163,7 @@ class Section extends Component {
       paragraphs = loading
         ? <p>Loading...</p>
         : descriptions.map((content, i) =>
-          <Parse className={`cp-section-paragraph ${layoutClass}-paragraph`} key={`${content.description}-subhead-${i}`}>
+          <Parse className={`cp-section-paragraph ${layoutClass}-paragraph`} key={`${content.description}-paragraph-${i}`}>
             {content.description}
           </Parse>
         );

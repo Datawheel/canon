@@ -4,10 +4,10 @@ import "./Stat.css";
 
 export default class Stat extends Component {
   render() {
-    const {label, value, subtitle} = this.props;
+    const {className, label, value, subtitle} = this.props;
 
     return (
-      <dl className="cp-stat">
+      <dl className={`cp-stat${className ? ` ${className}` : ""}`}>
         <dt className="cp-stat-label">
           <Parse El="span" className="cp-stat-label-text label">
             {label}

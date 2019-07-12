@@ -38,3 +38,15 @@
   color: var(--stat-subtitle-color);
   font-size: var(--stat-subtitle-font-size);
 }
+
+
+/* hero stat overrides */
+.cp-hero-stat .cp-stat-label-text {
+  color: var(--hero-subhead-color);
+}
+.cp-hero-stat .cp-stat-value-text {
+  color: var(--hero-stat-value-color);
+}
+.cp-hero-stat .cp-stat-subtitle {
+  color: var(--hero-text-color);
+}
