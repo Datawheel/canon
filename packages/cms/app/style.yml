@@ -102,17 +102,21 @@ hero-text-color:    "var(--light-2)"
 hero-heading-color: "var(--white)"
 
 # sections
-section-bg-odd:           "var(--white)"
-section-bg-even:          "var(--light-1)"
-section-text-color:       "var(--dark-2)"
-section-heading-color:    "var(--dark-3)"
-sticky-section-offset:    "var(--nav-height)"
-sticky-section-height:    "var(--nav-height)"
-sticky-section-bg:        "var(--white)"
-sticky-section-shadow:    "0 1px 0.375rem color(var(--black) a(0.125))"
-multicolumn-column-count: "3"
-multicolumn-column-width: "20rem"
-multicolumn-column-gap:   "var(--gutter-xl)"
+section-bg-odd:            "var(--white)"
+section-bg-even:           "var(--light-1)"
+section-text-color:        "var(--dark-2)"
+section-heading-color:     "var(--dark-3)"
+sticky-section-offset:     "var(--nav-height)"
+sticky-section-height:     "var(--nav-height)"
+sticky-section-bg:         "var(--white)"
+sticky-section-shadow:     "0 1px 0.375rem color(var(--black) a(0.125))"
+# handle grouped SingleColumn sections with flex-basis
+singlecolumn-column-count: "3"
+singlecolumn-min-width:    "20rem"
+# handle MultiColumn section with css multicolumn
+multicolumn-column-count:  "3"
+multicolumn-column-width:  "20rem"
+multicolumn-column-gap:    "var(--gutter-xl)"
 
 # buttons
 button-border-radius:          "2px"
@@ -141,8 +145,8 @@ select-border-radius:     "var(--button-border-radius)"
 select-background-color:  "var(--light-1)"
 
 # visualizations
-viz-aspect-ratio: "33.333%" # 1 height : 3 width; set as padding-top on .cp-viz-container, then offset as margin-top in .cp-viz
-viz-min-height:   "40vh"    # prevent visualizations from getting too squishy
+viz-aspect-ratio: "50%"  # set as padding-top on .cp-viz-container, then .cp-viz fills the height
+viz-min-height:   "40vh" # prevent visualizations from getting too squishy
 
 # stats
 stat-label-font-size:     "var(--font-sm)"

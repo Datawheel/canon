@@ -4,6 +4,10 @@
   display: flex;
   flex-wrap: wrap;
 
+  &:first-child {
+    margin-top: calc(0px - var(--gutter-xs));
+  }
+
   & > .cp-stat {
     flex: 1 1 calc(50% - var(--gutter-xs));
     min-width: calc(50% - var(--gutter-xs));

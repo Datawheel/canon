@@ -137,14 +137,14 @@ class Section extends Component {
       }
 
       {subtitles.map((content, i) =>
-        <Parse className={`cp-section-subhead ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
+        <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
           {content.subtitle}
         </Parse>
       )}
     </React.Fragment>;
 
     // filters
-    const filters = selectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />);
+    const filters = selectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} fontSize={contents.sticky ? "xxs" : "xs"} />);
 
     // stats
     let statContent;
