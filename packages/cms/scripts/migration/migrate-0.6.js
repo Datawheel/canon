@@ -12,8 +12,8 @@ const migrate = async() => {
   const migrationMap = [
     // These ones have no dependencies and can be copied wholesale
     {old: "formatter", new: "formatter"},
-    {old: "search", new: "search"},
     {old: "images", new: "images"},
+    {old: "search", new: "search"},
     // Profile 
     {old: "profile", new: "profile"},
     {old: "profile_content", new: "profile_content"},
