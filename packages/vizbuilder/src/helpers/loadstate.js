@@ -138,9 +138,7 @@ export function fetchControl(preQuery, postQuery) {
     }
 
     promise = promise
-      .then(result => {
-        return dispatch({type: "VB_FETCH_FINISH", state: result});
-      })
+      .then(result => dispatch({type: "VB_FETCH_FINISH", state: result}))
       .then(null, error => {
         dispatch({error, state: initialState, type: "VB_FETCH_ERROR"});
         if (__DEV__) {
