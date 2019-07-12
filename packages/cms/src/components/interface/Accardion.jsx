@@ -40,7 +40,7 @@ export default class Accardion extends Component {
           </button>
           {(cards && cards.length > 0 && addItem) || inToolbox === true
             ? <Button onClick={addItem} className="cms-accardion-heading-add-button" fontSize="xxs" context="cms" icon="plus">
-              add {entity}
+              add {entity === "description" ? "paragraph" : entity}
             </Button>
             : null
           }
@@ -73,7 +73,7 @@ export default class Accardion extends Component {
                   icon="plus"
                   iconPosition="right"
                 >
-                  Add first {entity}
+                  Add first {entity === "description" ? "paragraph" : entity}
                 </Button>
             }
 

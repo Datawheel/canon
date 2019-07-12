@@ -329,7 +329,7 @@ class SectionEditor extends Component {
 
         {/* descriptions */}
         <Accardion
-          title="Descriptions"
+          title="Paragraphs"
           entity="description"
           addItem={this.addItem.bind(this, "section_description")}
           cards={minData.descriptions && minData.descriptions.map(d =>

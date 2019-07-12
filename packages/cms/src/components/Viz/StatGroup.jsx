@@ -17,7 +17,7 @@ export default class StatGroup extends Component {
         <Stat
           label={sanitize(stat.title)}
           value={sanitize(stat.value)}
-          qualifier={sanitize(stat.subtitle)}
+          subtitle={sanitize(stat.subtitle)}
           key={i}
         />
       )}
