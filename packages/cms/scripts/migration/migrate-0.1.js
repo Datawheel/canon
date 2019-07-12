@@ -1,8 +1,8 @@
 #! /usr/bin/env node
  
 const Sequelize = require("sequelize");
-const fs = require("fs");
-const path = require("path");
+const utils = require("./migrationUtils.js");
+const {catcher, loadModels, resetSequence} = utils;
 
 const oldDBName = process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
 const oldDBUser = process.env.CANON_CONST_MIGRATION_OLD_DB_USER;
@@ -17,38 +17,9 @@ const newDBHost = process.env.CANON_CONST_MIGRATION_NEW_DB_HOST;
 const dbold = new Sequelize(oldDBName, oldDBUser, oldDBPW, {host: oldDBHost, dialect: "postgres", define: {timestamps: true}, logging: () => {}});
 const dbnew = new Sequelize(newDBName, newDBUser, newDBPW, {host: newDBHost, dialect: "postgres", define: {timestamps: true}, logging: () => {}});
 
-const catcher = e => console.log("error: ", e);
-
-const resetSequence = async(db, modelName, col) => {
-  const maxFetch = await db[modelName].findAll({attributes: [[Sequelize.fn("max", Sequelize.col(col)), "max"]], raw: true});
-  const max = maxFetch ? maxFetch[0].max : null;
-  const query = `SELECT setval(pg_get_serial_sequence('canon_cms_${modelName}', '${col}'), ${max})`;
-  return max ? db.query(query) : null;
-};
-
-const loadModels = (db, modelPath, clear) => {
-  const folder = path.join(__dirname, modelPath);
-  fs.readdirSync(folder)
-    .filter(file => file && file.indexOf(".") !== 0)
-    .forEach(file => {
-      const fullPath = path.join(folder, file);
-      const model = db.import(fullPath);
-      db[model.name] = model;
-    });  
-  Object.keys(db).forEach(modelName => {
-    if ("associate" in db[modelName]) db[modelName].associate(db);
-  });
-  if (clear) {
-    return db.sync({force: true}).catch(catcher);
-  }
-  else {
-    return db.sync().catch(catcher);
-  }
-};
-
 const migrate = async() => {
 
-  await loadModels(dbold, "/db_legacy", false);
+  await loadModels(dbold, "/db_0.1", false);
   await loadModels(dbnew, "/db_0.6", true);
 
   const tableLookup = {
@@ -81,18 +52,17 @@ const migrate = async() => {
   await resetSequence(dbnew, "images", "id");
 
   // Copy the Formatters
-  let formatters = await dbold.formatters.findAll();
+  let formatters = await dbold.formatter.findAll();
   formatters = formatters.map(row => row.toJSON());
   await dbnew.formatter.bulkCreate(formatters);
   await resetSequence(dbnew, "formatter", "id");
 
   // Copy each profile
-  let profiles = await dbold.profiles.findAll({include: [
+  let profiles = await dbold.profile.findAll({include: [
     {association: "generators", separate: true},
     {association: "materializers", separate: true},
-    {association: "descriptions", separate: true},
     {association: "stats", separate: true},
-    {association: "visualizations", separate: true},
+    {association: "footnotes", separate: true},
     {association: "sections", separate: true, include: [
       {association: "descriptions", separate: true},
       {association: "subtitles", separate: true},
@@ -124,8 +94,10 @@ const migrate = async() => {
 
     // transfer generators
     for (const generator of oldprofile.generators) {
-      const {name, api, description, logic} = generator;
-      await dbnew.generator.create({profile_id: newprofile.id, name, api, description, logic, simple: false}).catch(catcher);
+      const {name, api, description, logic} = generator; 
+      const simple = generator.simple || false;
+      const logic_simple = generator.logic_simple || null; // eslint-disable-line camelcase
+      await dbnew.generator.create({profile_id: newprofile.id, name, api, description, logic, simple, logic_simple}).catch(catcher);
     }
 
     // transfer materializers
@@ -141,16 +113,15 @@ const migrate = async() => {
     nextTopicLoc++;
     // create its associated english language content
     await dbnew.topic_content.create({title: "About", lang: "en", id: profiletopic.id}).catch(catcher);
-    for (const list of ["descriptions", "stats", "visualizations"]) {
+    for (const list of ["stats"]) {
       for (const entity of oldprofile[list]) {
         // migrate the array of profile entities to the new "profiletopic"
-        const {ordering, allowed, logic} = entity;
-        const simple = entity.simple || false;
-        let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: profiletopic.id, ordering, allowed, logic, simple}).catch(catcher);
+        const {ordering, allowed} = entity;
+        let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: profiletopic.id, ordering, allowed}).catch(catcher);
         newTopicEntity = newTopicEntity.toJSON();
         // create associated english content
         const {description, title, subtitle, value, tooltip} = entity;
-        if (list !== "visualizations") await dbnew[`${tableLookup[list]}_content`].create({id: newTopicEntity.id, lang: "en", description, title, subtitle, value, tooltip}).catch(catcher);
+        await dbnew[`${tableLookup[list]}_content`].create({id: newTopicEntity.id, lang: "en", description, title, subtitle, value, tooltip}).catch(catcher);
       }
     }
     oldprofile.sections.sort((a, b) => a.ordering - b.ordering);
@@ -191,7 +162,8 @@ const migrate = async() => {
           for (const entity of oldtopic[list]) {
             const {ordering, allowed, logic, options, name, type} = entity;
             const simple = entity.simple || false;
-            let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: newtopic.id, ordering, allowed, logic, options, name, type, title: entity.title, default: entity.default, simple}).catch(catcher);
+            const logic_simple = entity.logic_simple  || null; // eslint-disable-line camelcase
+            let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: newtopic.id, ordering, allowed, logic, options, name, type, title: entity.title, default: entity.default, simple, logic_simple}).catch(catcher);
             newTopicEntity = newTopicEntity.toJSON();     
             // create associated english content
             const {description, title, subtitle, value, tooltip} = entity;
@@ -200,10 +172,24 @@ const migrate = async() => {
         }
       }
     }
+    if (oldprofile.footnotes.length > 0) {
+      oldprofile.footnotes.sort((a, b) => a.ordering - b.ordering);
+      for (const oldfootnote of oldprofile.footnotes) {
+        const slug = `footnote-${oldfootnote.ordering + 1}`;
+        let newtopic = await dbnew.topic.create({profile_id: newprofile.id, ordering: nextTopicLoc, type: "Footnote", slug, allowed: "always"}).catch(catcher);
+        newtopic = newtopic.toJSON();
+        nextTopicLoc++;
+        const {description, title} = oldfootnote;
+        await dbnew.topic_content.create({title, lang: "en", id: newtopic.id}).catch(catcher);
+        let newDescription = await dbnew.topic_description.create({topic_id: newtopic.id, allowed: "always", ordering: 0}).catch(catcher);
+        newDescription = newDescription.toJSON();
+        await dbnew.topic_description_content.create({description, lang: "en", id: newDescription.id}).catch(catcher);
+      }
+    }
   }
 
   // Copy each story
-  let stories = await dbold.stories.findAll({include: [
+  let stories = await dbold.story.findAll({include: [
     {association: "authors", separate: true},
     {association: "descriptions", separate: true},
     {association: "footnotes", separate: true},
