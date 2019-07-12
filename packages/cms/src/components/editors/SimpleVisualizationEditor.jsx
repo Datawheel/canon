@@ -5,6 +5,7 @@ import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
 import Button from "../fields/Button";
 import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
 
 import "./SimpleVisualizationEditor.css";
@@ -214,10 +215,18 @@ class SimpleVisualizationEditor extends Component {
       {payload.data &&
         <div className="viz-select-group">
           {object.type && vizLookup[object.type].map(prop => reservedWords.includes(prop)
-            ? <input key={prop} value={object[prop]} onChange={this.onChange.bind(this, prop)} />
+            ? <TextInput
+              label={`please enter ${prop}`}
+              context="cms"
+              fontSize="xs"
+              key={prop}
+              value={object[prop]}
+              onChange={this.onChange.bind(this, prop)}
+            />
             : <Select
               label={prop === "groupBy" ? "grouping" : prop}
               context="cms"
+              fontSize="xs"
               value={object[prop]}
               onChange={this.onChange.bind(this, prop)}
             >

@@ -10,11 +10,12 @@ const sanitize = html => html
 export default class StatGroup extends Component {
 
   render() {
-    const {stats} = this.props;
+    const {className, stats} = this.props;
 
     return <React.Fragment>
       {stats.length && stats.map((stat, i) =>
         <Stat
+          className={className}
           label={sanitize(stat.title)}
           value={sanitize(stat.value)}
           subtitle={sanitize(stat.subtitle)}
