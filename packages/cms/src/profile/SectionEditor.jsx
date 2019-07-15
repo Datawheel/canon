@@ -11,7 +11,7 @@ import TextButtonGroup from "../components/fields/TextButtonGroup";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Status from "../components/interface/Status";
-import Accardion from "../components/interface/Accardion";
+import Deck from "../components/interface/Deck";
 import SelectorUsage from "../components/interface/SelectorUsage";
 import "./SectionEditor.css";
 
@@ -176,7 +176,7 @@ class SectionEditor extends Component {
 
         {/* section name */}
         {/* TODO: convert to fields */}
-        <Accardion
+        <Deck
           title="Section metadata"
           subtitle="Title"
           entity="meta"
@@ -267,10 +267,10 @@ class SectionEditor extends Component {
               ]} />
             </label>
           </div>
-        </Accardion>
+        </Deck>
 
         {/* subtitles */}
-        <Accardion
+        <Deck
           title="Subtitles"
           entity="subtitle"
           addItem={this.addItem.bind(this, "section_subtitle")}
@@ -293,7 +293,7 @@ class SectionEditor extends Component {
         />
 
         {selectors && selectors.length > 0 &&
-          <Accardion title="Selector activation" entity="selectorUsage">
+          <Deck title="Selector activation" entity="selectorUsage">
             <SelectorUsage
               key="selector-usage"
               minData={minData}
@@ -301,11 +301,11 @@ class SectionEditor extends Component {
               selectors={selectors}
               onSelect={this.onSelect.bind(this)}
             />
-          </Accardion>
+          </Deck>
         }
 
         {/* stats */}
-        <Accardion
+        <Deck
           title="Stats"
           entity="stat"
           addItem={this.addItem.bind(this, "section_stat")}
@@ -328,7 +328,7 @@ class SectionEditor extends Component {
         />
 
         {/* descriptions */}
-        <Accardion
+        <Deck
           title="Paragraphs"
           entity="description"
           addItem={this.addItem.bind(this, "section_description")}
@@ -351,7 +351,7 @@ class SectionEditor extends Component {
         />
 
         {/* visualizations */}
-        <Accardion
+        <Deck
           title="Visualizations"
           entity="visualization"
           addItem={this.addItem.bind(this, "section_visualization")}

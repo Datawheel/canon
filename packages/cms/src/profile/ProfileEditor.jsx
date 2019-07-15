@@ -2,7 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import Loading from "components/Loading";
-import Accardion from "../components/interface/Accardion";
+import Deck from "../components/interface/Deck";
 
 import TextCard from "../components/cards/TextCard";
 
@@ -72,7 +72,7 @@ class ProfileEditor extends Component {
 
         {/* profile meta */}
         {/* TODO: move to header */}
-        <Accardion
+        <Deck
           title="Profile meta"
           subtitle="Profile title"
           entity="splash"

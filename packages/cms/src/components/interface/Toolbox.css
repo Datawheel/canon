@@ -59,11 +59,11 @@
   }
 }
 
-/* wrapper for all accardions */
-.cms-toolbox-accardion-wrapper.is-hidden {
+/* wrapper for all decks */
+.cms-toolbox-deck-wrapper.is-hidden {
   /* in output view, hide everything except for edit dialogs */
-  & .cms-accardion-heading,
-  & .cms-accardion-description,
+  & .cms-deck-heading,
+  & .cms-deck-description,
   & .cms-card {
     display: none;
   }

@@ -162,7 +162,7 @@
   width: 100%;
   max-width: 100%;
 
-  & .cms-accardion:not(:last-of-type) {
+  & .cms-deck:not(:last-of-type) {
     margin-bottom: 2rem;
   }
 }
