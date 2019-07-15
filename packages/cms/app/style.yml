@@ -128,7 +128,7 @@ multicolumn-column-gap:    "var(--gutter-xl)"
 
 # buttons
 button-border-radius:          "2px"
-button-border-width:           "2px"
+button-border-width:           "1px"
 button-background-color:       "var(--accent-dark)"
 button-border-color:           "var(--accent-black)"
 button-color:                  "var(--white)"
@@ -140,7 +140,7 @@ button-hover-color:            "var(--white)"
 # fields
 field-border-radius:      "1px"
 field-border-width:       "1px"
-field-padding:            "0.5em 0.5em 0.625em 0.5em"
+field-padding:            "0.5em 0.5em 0.575em 0.5em"
 field-font-weight:        "400"
 field-background-color:   "var(--white)"
 field-border-color:       "var(--light-3)"
