@@ -9,10 +9,6 @@ export default class LoginSignup extends Component {
     };
   }
 
-  toggleAccordion() {
-    this.setState({isOpen: !this.state.isOpen});
-  }
-
   render() {
 
     const {tab} = this.state;
