@@ -16,12 +16,26 @@
   }
 }
 
-.cp-multicolumn-default-section-figure {
-  columns: 2;
-  column-width: var(--multicolumn-column-width);
-  column-gap: var(--multicolumn-column-gap);
 
-  & > * {
-    break-inside: avoid;
+/* using grid rather than multicolumn since visualizations weren't rendering correclty */
+.cp-multicolumn-default-section-figure {
+  /* fallback */
+  & > *:not(:last-child) {
+    margin-bottom: var(--multicolumn-column-gap);
+  }
+
+  /* multiple proportional columns with a min-width */
+  @supports (grid-template-columns: minMax(1px, 1fr)) {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(var(--multicolumn-column-width), 1fr)
+    );
+    grid-gap: var(--multicolumn-column-gap);
+
+    /* reset above */
+    & > *:not(:last-child) {
+      margin-bottom: 0;
+    }
   }
 }
