@@ -4,16 +4,17 @@ import "./ButtonGroup.css";
 
 export default class ButtonGroup extends Component {
   render() {
-    const {buttons, className, context} = this.props;
+    const {buttons, className, children, context} = this.props;
 
-
-    return buttons.length &&
-      <div className={`${context}-button-group ${className || ""}`}>
-        {buttons.map(button =>
-          <Button key={button.children} {...button} />
-        )}
-      </div>
-    ;
+    return (
+      buttons || children
+        ? <div className={`${context}-button-group ${className || ""}`}>
+          {children}
+          {buttons && buttons.map(button =>
+            <Button key={button.children} {...button} />
+          )}
+        </div> : ""
+    );
   }
 }
 

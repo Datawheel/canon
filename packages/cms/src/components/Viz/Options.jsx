@@ -12,7 +12,10 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import {Button, ButtonGroup, Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
+import Button from "../fields/Button";
+import ButtonGroup from "../fields/ButtonGroup";
+
+import {Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 
@@ -241,7 +244,7 @@ class Options extends Component {
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
-          <Button key="data-download" icon="download" className="bp3-minimal" onClick={this.onCSV.bind(this)}>
+          <Button key="data-download" icon="download" fontSize="xxs" onClick={this.onCSV.bind(this)}>
             {t("CMS.Options.Download as CSV")}
           </Button>
           { dataUrl && <input key="data-url" type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={dataUrl} /> }
@@ -284,7 +287,7 @@ class Options extends Component {
 
         {/* direct link */}
         <Label>
-          <span className="options-label-text">{t("CMS.Options.Social")}</span>
+          <span className="u-font-xs options-label-text">{t("CMS.Options.Social")}</span>
           <ButtonGroup fill={true}>
             <ShareFacebookLink link={shareLink} />
             <ShareTwitterLink link={shareLink} />
@@ -296,15 +299,15 @@ class Options extends Component {
     return <div className="Options">
 
       <ButtonGroup>
-        <Button icon="th" className="bp3-button option view-table" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
+        <Button icon="th" fontSize="xxs" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
           {t("CMS.Options.View Data")}
         </Button>
 
-        <Button icon="export" className="bp3-button option save-image" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
+        <Button icon="export" fontSize="xxs" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
           {t("CMS.Options.Save Image")}
         </Button>
 
-        <Button icon="share" className="bp3-button option share-button" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
+        <Button icon="share" fontSize="xxs" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
           {t("CMS.Options.Share")}
         </Button>
       </ButtonGroup>
@@ -318,7 +321,9 @@ class Options extends Component {
           <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
           <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={<ImagePanel />} />
           <Tab id="share" title={t("CMS.Options.Share")} panel={<SharePanel />} />
-          <Button icon="small-cross" aria-label="Close" className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)} />
+          <Button icon="small-cross" iconOnly className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)}>
+            Close
+          </Button>
         </Tabs>
       </Dialog>
 
