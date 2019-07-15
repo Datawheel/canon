@@ -1,8 +1,6 @@
 @import "../../css/mixins.css";
 
 .clipboard-label {
-  /* sizing */
-  line-height: 2.5em;
   /* position children */
   display: flex;
   align-items: center;

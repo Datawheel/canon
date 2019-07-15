@@ -46,7 +46,7 @@ class ShareDirectLink extends Component {
         </span>
 
         <Clipboard
-          className={`clipboard-label ${copied ? " is-copied" : ""}`}
+          className={`cp-input-label u-font-font-sm clipboard-label ${copied ? " is-copied" : ""}`}
           data-clipboard-text={ copyText }
           component="label"
           onSuccess={ this.onSuccess }>
@@ -59,11 +59,11 @@ class ShareDirectLink extends Component {
           <Icon icon="clipboard" className="clipboard-icon" />
 
           {/* input with text */}
-          <input className="bp3-input clipboard-input" value={ displayText } readOnly />
+          <input className="cp-input u-font-sm clipboard-input" value={ displayText } readOnly />
 
           {/* fake button */}
-          <span className="clipboard-button bp3-button u-font-sm">
-            <span className="clipboard-button-text button-text">
+          <span className="clipboard-button cp-button u-font-xs">
+            <span className="clipboard-button-text cp-button-text button-text">
               { buttonText }
             </span>
           </span>
