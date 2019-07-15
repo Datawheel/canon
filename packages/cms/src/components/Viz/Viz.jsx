@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
 import PercentageBar from "./PercentageBar";
 import Options from "./Options";
+import toKebabCase from "../../utils/formatters/toKebabCase";
 import propify from "../../utils/d3plusPropify";
 import "./Viz.css";
 
@@ -54,7 +55,11 @@ class Viz extends Component {
     const title = (this.props.title || config.title || slug || "")
       .replace(/^<p>/g, "").replace(/<\/p>$/g, "");
 
-    return <div className={ `cp-viz-container${className ? ` ${className}` : ""}` }>
+    return <div className={ `cp-viz-container${
+      className ? ` ${className}` : ""
+    }${
+      type ? ` cp-${toKebabCase(type)}-viz-container` : ""
+    }`}>
       { options && !vizProps.error
         ? <Options
           key="option-key"
