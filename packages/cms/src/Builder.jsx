@@ -3,9 +3,12 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import Select from "./components/fields/Select";
 import ProfileBuilder from "./profile/ProfileBuilder";
+import {isAuthenticated} from "@datawheel/canon-core";
 import StoryBuilder from "./story/StoryBuilder";
 import {fetchData} from "@datawheel/canon-core";
+import LoginSignup from "./components/interface/LoginSignup";
 import {connect} from "react-redux";
+import yn from "yn";
 
 import Button from "./components/fields/Button";
 
@@ -24,7 +27,8 @@ class Builder extends Component {
       localeDefault: false,
       secondaryLocale: false,
       pathObj: {},
-      formatters: {}
+      formatters: {},
+      userInit: false
     };
   }
 
@@ -32,6 +36,9 @@ class Builder extends Component {
     const {isEnabled, env} = this.props;
     const {location} = this.props.router;
     const {profile, section, previews} = location.query;
+
+    this.props.isAuthenticated();
+
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
     const pathObj = {profile, section, previews};
@@ -52,6 +59,12 @@ class Builder extends Component {
       this.setState({localeDefault, formatters, pathObj});
     }
 
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.auth.loading && !this.props.auth.loading) {
+      this.setState({userInit: true});
+    }
   }
 
   getChildContext() {
@@ -94,11 +107,22 @@ class Builder extends Component {
   }
 
   render() {
-    const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen} = this.state;
-    const {isEnabled} = this.props;
+    const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen, userInit} = this.state;
+    const {isEnabled, env, auth} = this.props;
     const navLinks = ["profiles", "stories"];
 
-    if (!isEnabled) return null;
+    const waitingForUser = yn(env.CANON_LOGINS) && !userInit;
+
+    if (!isEnabled || waitingForUser) return null;
+
+    if (yn(env.CANON_LOGINS) && !auth.user) return <LoginSignup />;
+
+    if (yn(env.CANON_LOGINS) && auth.user && auth.user.role < 1) {
+      return <div>
+        Current user (<strong>{auth.user.username}</strong>) does not have sufficient CMS permissions. Please contact administrator. <br/>
+        <a href="/auth/logout">Log Out</a>.
+      </div>;
+    }
 
     return (
       <div className="cms">
@@ -146,6 +170,7 @@ class Builder extends Component {
                 </Select>
               </React.Fragment>
             }
+            {auth.user && <a href="/auth/logout">Log Out</a>} 
           </div>
         </div>
 
@@ -179,8 +204,18 @@ Builder.need = [
   fetchData("isEnabled", "/api/cms")
 ];
 
-export default connect(state => ({
+const mapStateToProps = state => ({
   formatters: state.data.formatters,
   env: state.env,
-  isEnabled: state.data.isEnabled
-}))(Builder);
+  isEnabled: state.data.isEnabled,
+  auth: state.auth
+});
+
+const mapDispatchToProps = dispatch => ({
+  dispatch: action => dispatch(action),
+  isAuthenticated: () => {
+    dispatch(isAuthenticated());
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Builder);
