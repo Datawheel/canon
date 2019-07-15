@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Button from "../components/fields/Button";
-import Accardion from "../components/interface/Accardion";
+import Deck from "../components/interface/Deck";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import {DatePicker} from "@blueprintjs/datetime";
@@ -108,7 +108,7 @@ class StoryEditor extends Component {
       <div className="cms-editor-inner">
 
         {/* current story options */}
-        <Accardion
+        <Deck
           title="Story metadata"
           subtitle="Story title"
           entity="story"
@@ -160,10 +160,10 @@ class StoryEditor extends Component {
               </div>
             </div>
           </div>
-        </Accardion>
+        </Deck>
 
         {/* descriptions */}
-        <Accardion
+        <Deck
           title="Descriptions"
           entity="description"
           addItem={this.addItem.bind(this, "story_description")}
@@ -197,7 +197,7 @@ class StoryEditor extends Component {
 
 
         {/* footnotes */}
-        <Accardion
+        <Deck
           title="Footnotes"
           entity="footnote"
           addItem={this.addItem.bind(this, "story_footnote")}
@@ -233,7 +233,7 @@ class StoryEditor extends Component {
 
 
         {/* authors */}
-        <Accardion
+        <Deck
           title="Authors"
           entity="author"
           addItem={this.addItem.bind(this, "author")}

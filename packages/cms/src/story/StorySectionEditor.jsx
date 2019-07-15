@@ -3,7 +3,7 @@ import React, {Component} from "react";
 
 import Button from "../components/fields/Button";
 import Select from "../components/fields/Select";
-import Accardion from "../components/interface/Accardion";
+import Deck from "../components/interface/Deck";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import VisualizationCard from "../components/cards/VisualizationCard";
@@ -105,7 +105,7 @@ class StorySectionEditor extends Component {
       <div className="cms-editor-inner">
 
         {/* current story options */}
-        <Accardion
+        <Deck
           title="Story section metadata"
           subtitle="Section title"
           entity="title"
@@ -150,10 +150,10 @@ class StorySectionEditor extends Component {
               {typeOptions}
             </Select>
           </div>
-        </Accardion>
+        </Deck>
 
         {/* subtitles */}
-        <Accardion
+        <Deck
           title="Subtitles"
           entity="subtitle"
           addItem={this.addItem.bind(this, "storysection_subtitle")}
@@ -188,7 +188,7 @@ class StorySectionEditor extends Component {
         />
 
         {/* Stats */}
-        <Accardion
+        <Deck
           title="Stats"
           entity="stat"
           addItem={this.addItem.bind(this, "storysection_stat")}
@@ -223,7 +223,7 @@ class StorySectionEditor extends Component {
         />
 
         {/* Descriptions */}
-        <Accardion
+        <Deck
           title="Descriptions"
           entity="description"
           addItem={this.addItem.bind(this, "storysection_description")}
@@ -259,7 +259,7 @@ class StorySectionEditor extends Component {
 
         {/* visualizations */}
 
-        <Accardion
+        <Deck
           title="Visualizations"
           entity="visualization"
           addItem={this.addItem.bind(this, "storysection_visualization")}

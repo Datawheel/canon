@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-import Accardion from "./Accardion";
+import Deck from "./Deck";
 import ButtonGroup from "../fields/ButtonGroup";
 import FilterSearch from "../fields/FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
@@ -266,10 +266,10 @@ export default class Toolbox extends Component {
       {/* Hide the panels if not detailView - but SHOW them if forceOpen is set, which means
         * that someone has clicked an individual variable and wants to view its editor
         */}
-      <div className={`cms-toolbox-accardion-wrapper${detailView || forceOpen ? "" : " is-hidden"}`}>
+      <div className={`cms-toolbox-deck-wrapper${detailView || forceOpen ? "" : " is-hidden"}`}>
 
         {(showGenerators || forceOpen) &&
-          <Accardion
+          <Deck
             title="Generators"
             entity="generator"
             description="Variables constructed from JSON data calls."
@@ -297,7 +297,7 @@ export default class Toolbox extends Component {
         }
 
         {(showMaterializers  || forceOpen) &&
-          <Accardion
+          <Deck
             title="Materializers"
             entity="materializer"
             description="Variables constructed from other variables. No API calls needed."
@@ -325,7 +325,7 @@ export default class Toolbox extends Component {
         }
 
         { detailView && showSelectors &&
-          <Accardion
+          <Deck
             title="Selectors"
             entity="selector"
             description="Profile-wide Selectors."
@@ -345,7 +345,7 @@ export default class Toolbox extends Component {
         }
 
         { detailView && showFormatters &&
-          <Accardion
+          <Deck
             title="Formatters"
             entity="formatter"
             addItem={this.addItem.bind(this, "formatter")}
