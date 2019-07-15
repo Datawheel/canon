@@ -7,6 +7,8 @@
   /* transitions */
   transition:
     color 0.2s ease-out,
+    border 0.2s ease-out,
+    background-color 0.2s ease-out,
     box-shadow 0.2s ease-out;
 
 
@@ -15,6 +17,7 @@
     display: inline-block;
 
     &:not(:last-child) {
+      margin-left: -0.25em;
       margin-right: 0.25em;
     }
   }
@@ -45,6 +48,11 @@
     & + [class*="-button-text"] {
       margin-left: 0.25em;
     }
+  }
+
+  &:not([class*="-icon-only-button"]) > [class*="-button-icon"]:last-child {
+    margin-left: 0.25em;
+    margin-right: -0.25em;
   }
 
   /* cover the whole container width */
