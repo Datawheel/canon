@@ -28,7 +28,7 @@ class Viz extends Component {
     // locale-nested format.
     const formatters = this.context.formatters[locale] || this.context.formatters;
 
-    const {config, configOverride, className, options, slug, section} = this.props;
+    const {config, configOverride, className, debug, options, slug, section} = this.props;
     const {id} = config;
 
     // clone config object to allow manipulation
@@ -36,9 +36,10 @@ class Viz extends Component {
 
     // If the result of propify has an "error" property, then the provided javascript was malformed and propify
     // caught an error. Instead of attempting to render the viz, simply show the error to the user.
-    if (vizProps.error) {
-      return <div>{`Error in Viz index: ${vizProps.error}`}</div>;
-    }
+    // If "debug" is set to true, this viz is being rendered in the CMS, and we can show the stacktrace directly.
+    if (vizProps.error && debug) return <div>{`Error in Viz index: ${vizProps.error}`}</div>;
+    // Note that if vizProps.error exists but debug is NOT true, we should still keep rendering, because propify
+    // gave us a "stub" config with a user-friendly error message built in, so the front-end can see it.
     vizProps.config = Object.assign(vizProps.config, configOverride);
 
     // strip out the "type" from config
@@ -54,7 +55,7 @@ class Viz extends Component {
       .replace(/^<p>/g, "").replace(/<\/p>$/g, "");
 
     return <div className={ `cp-viz-container${className ? ` ${className}` : ""}` }>
-      { options
+      { options && !vizProps.error
         ? <Options
           key="option-key"
           component={{section, viz: this}}
@@ -62,7 +63,8 @@ class Viz extends Component {
           dataFormat={ vizProps.dataFormat }
           slug={ slug }
           title={ title }
-        /> : ""}
+        /> : ""
+      }
       <Visualization
         key="viz-key"
         ref={ comp => this.viz = comp }

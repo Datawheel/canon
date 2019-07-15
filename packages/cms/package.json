@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-cms",
   "description": "Content Management System for Canon sites.",
-  "version": "0.7.0",
+  "version": "0.7.4",
   "author": "James Mullen",
   "license": "MIT",
   "scripts": {
@@ -26,6 +26,7 @@
     "iso-639-1": "^2.0.3",
     "jszip": "^3.1.5",
     "localforage": "^1.7.2",
+    "mondrian-rest-client": "^1.1.3",
     "node-yaml": "^3.1.1",
     "promise-throttle": "^1.0.0",
     "react-ace": "^6.2.0",
@@ -33,11 +34,10 @@
     "react-quill": "^1.3.1"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "^0.17.27",
-    "@datawheel/canon-logiclayer": "^0.3.20"
+    "@datawheel/canon-core": "^0.17.35"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.17.26"
+    "@datawheel/canon-core": "^0.17.35"
   },
   "repository": {
     "type": "git",

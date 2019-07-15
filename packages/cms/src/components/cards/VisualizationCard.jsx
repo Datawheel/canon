@@ -158,6 +158,7 @@ class VisualizationCard extends Component {
           <Viz
             config={config}
             locale={locale}
+            debug={true}
             variables={variables}
             configOverride={{height, scrollContainer: "#item-editor"}}
             options={false}
