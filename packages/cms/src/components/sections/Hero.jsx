@@ -98,8 +98,8 @@ class Hero extends Component {
           {/* print the first visualization */}
           {contents && contents.visualizations && contents.visualizations.length
             ? <div className="cp-hero-figure">
-              {contents.visualizations.map((visualization, i) => i === 0
-                ? <Viz section={this} config={visualization} options={false} title={title} slug={`${contents.slug}-${i}`} key={i} />
+              {contents.visualizations.map((visualization, ii) => ii === 0
+                ? <Viz section={this} config={visualization} options={false} title={title} slug={`${contents.slug}-${ii}`} key={ii} />
                 : ""
               )}
             </div> : ""

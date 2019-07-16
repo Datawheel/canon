@@ -20,8 +20,8 @@ export default class MultiColumn extends Component {
           {stats}
           {paragraphs}
           {sources}
-          {visualizations.map((visualization, i) =>
-            <Viz section={this} config={visualization} title={title} slug={`${slug}-${i}`}  key={`${slug}-${i}`} />
+          {visualizations.map((visualization, ii) =>
+            <Viz section={this} config={visualization} title={title} slug={`${slug}-${ii}`}  key={`${slug}-${ii}`} />
           )}
         </div>
       </div>

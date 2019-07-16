@@ -22,8 +22,8 @@ export default class Default extends Component {
 
         {/* caption */}
         <div className={`cp-default-section-figure${visualizations.length > 1 ? " cp-multicolumn-default-section-figure" : ""}`}>
-          {visualizations.map((visualization, i) =>
-            <Viz section={this} config={visualization} title={title} slug={`${slug}-${i}`} key={i} />
+          {visualizations.map((visualization, ii) =>
+            <Viz section={this} config={visualization} title={title} slug={`${slug}-${ii}`} key={ii} />
           )}
         </div>
       </div>
