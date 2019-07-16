@@ -84,7 +84,7 @@
   }
 
   & .cms-nav-settings-button {
-    margin: auto;
+    align-self: center;
     z-index: 2;
   }
 
