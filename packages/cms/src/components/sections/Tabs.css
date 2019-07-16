@@ -1,0 +1,21 @@
+@import "../../css/mixins.css";
+
+@mixin min-sm {
+  .cp-tabs-section-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .cp-tabs-section-caption {
+    width: var(--sidebar-width);
+  }
+
+  .cp-tabs-section-figure {
+    width: calc(100% - var(--sidebar-width) - var(--gutter-xl))
+  }
+}
+
+.cp-tabs-section .cp-button-group:not(:last-child) {
+  margin-bottom: 0.75rem;
+}
