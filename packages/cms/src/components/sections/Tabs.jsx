@@ -1,13 +1,14 @@
 import React, {Component} from "react";
 import Viz from "../Viz/Viz";
 // import {AnchorLink} from "@datawheel/canon-core";
-import {nest} from "d3-collection";
-import stripP from "../../utils/formatters/stripP";
 
-
-import StatGroup from "../Viz/StatGroup";
+import Button from "../fields/Button";
+import ButtonGroup from "../fields/ButtonGroup";
 import Selector from "./components/Selector";
+import Parse from "./components/Parse";
 import "./Section.css";
+
+import "./Tabs.css";
 
 /** */
 function findKey(str, key) {
@@ -33,12 +34,11 @@ export default class Tabs extends Component {
   }
 
   render() {
-    const {contents, loading} = this.props;
-    const {descriptions, slug, stats, subtitles, title, visualizations} = contents;
+    const {contents} = this.props;
+    const {slug, title, heading, loading, filters, stats, sources} = this.props;
+    const {descriptions, visualizations} = contents;
     const selectors = contents.selectors || [];
     const {tabIndex} = this.state;
-
-    const statGroups = nest().key(d => d.title).entries(stats);
 
     const visualization = visualizations[tabIndex];
     const selectorConfig = visualization.logic.match(/selectors\:[\s]*(\[[^\]]+\])/);
@@ -65,30 +65,45 @@ export default class Tabs extends Component {
       return title || `Visualization ${i + 1}`;
     });
 
-    return <div className={ `cp-section-inner cp-${slug}-section-inner` } ref={ comp => this.section = comp }>
-      <div className="cp-section-content">
-        { title &&
-          <h2 id={ slug } className="cp-section-title" dangerouslySetInnerHTML={{__html: stripP(title)}} />
+    return <div className={`cp-section-inner cp-${slug}-section-inner cp-tabs-section-inner`} ref={comp => this.section = comp}>
+      {/* sidebar */}
+      <div className="cp-section-content cp-tabs-section-caption">
+        {heading}
+        {filters}
+
+        {tabs.length > 1 &&
+          <React.Fragment>
+            <p className="u-visually-hidden">Select visualization: </p>
+            <ButtonGroup>
+              {tabs.map((title, key) =>
+                <Button
+                  active={tabIndex === key}
+                  fontSize="xxs"
+                  key={key}
+                  onClick={this.updateTabs.bind(this, key)}
+                >
+                  {title}
+                </Button>
+              )}
+            </ButtonGroup>
+          </React.Fragment>
         }
-        { subtitles.map((content, i) => <div key={i} className="cp-section-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
-        { stats.length > 0
-          ? <div className="cp-section-stats">
-            { statGroups && statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
-          </div> : null }
-        { tabDescriptions && tabDescriptions.map((content, i) => <div key={i} className="cp-section-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
-        { tabs.length > 1 && <div className={`tab-group tab-${tabIndex}`}>
-          { tabs && tabs.map((title, key) =>
-            <button className={tabIndex === key ? "tab selected" : "tab"} key={key} onClick={this.updateTabs.bind(this, key)}>
-              {title}
-            </button>
-          )}
-        </div> }
+
+        {tabDescriptions && tabDescriptions.map((content, i) =>
+          <Parse key={i}>
+            {content.description}
+          </Parse>
+        )}
+
+        {stats}
+        {sources}
       </div>
-      <div className="cp-section-flex">
-        { <Viz section={this} config={visualization} key={tabIndex} className="cp-section-visualization" title={ title } slug={ `${slug}_${tabIndex}` } /> }
-        { tabSelectors.length > 0 && <div className="cp-section-selectors">
-          { tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
-        </div> }
+
+      <div className="cp-tabs-section-figure">
+        <Viz section={this} config={visualization} key={tabIndex} title={title} slug={`${slug}_${tabIndex}`} />
+        {tabSelectors.length > 0 && <div className="cp-section-selectors">
+          {tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />)}
+        </div>}
       </div>
     </div>;
   }
