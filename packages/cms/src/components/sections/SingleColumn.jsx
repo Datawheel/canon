@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import Viz from "../Viz/Viz";
 
+import "./SingleColumn.css";
+
 export default class SingleColumn extends Component {
 
   render() {
