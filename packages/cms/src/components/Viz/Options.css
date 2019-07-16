@@ -3,9 +3,7 @@
 .Options {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 5px;
   & .option {
-    margin-bottom: 5px;
     /* keep tooltips above button (blueprint override) */
     &.bp3-button,
     &.bp3-button:focus {

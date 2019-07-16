@@ -14,18 +14,17 @@
     position: absolute;
     top: 0;
     right: 0;
-    z-index: 1;
 
     & + .cp-viz {
-      padding-top: 2rem;
-      bottom: 2rem;
-      height: calc(100% - 2rem);
+      margin-top: 1.5rem;
+      bottom: 1.5rem;
+      height: calc(100% - 1.5rem);
     }
   }
 
   /* reset non-d3plus visualizations */
   &.cp-percentage-bar-viz-container {
     min-height: 0;
-    padding-top: 2rem;
+    padding-top: 1.5rem;
   }
 }
