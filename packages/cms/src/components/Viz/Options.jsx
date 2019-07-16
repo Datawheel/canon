@@ -299,15 +299,15 @@ class Options extends Component {
     return <div className="Options">
 
       <ButtonGroup>
-        <Button icon="th" fontSize="xxs" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
+        <Button icon="th" fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
           {t("CMS.Options.View Data")}
         </Button>
 
-        <Button icon="export" fontSize="xxs" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
+        <Button icon="export" fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
           {t("CMS.Options.Save Image")}
         </Button>
 
-        <Button icon="share" fontSize="xxs" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
+        <Button icon="share" fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
           {t("CMS.Options.Share")}
         </Button>
       </ButtonGroup>
