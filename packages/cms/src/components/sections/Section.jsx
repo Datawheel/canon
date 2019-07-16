@@ -144,7 +144,14 @@ class Section extends Component {
     </React.Fragment>;
 
     // filters
-    const filters = selectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} fontSize={contents.sticky ? "xxs" : "xs"} />);
+    const filters = selectors.map(selector =>
+      <Selector
+        key={selector.id}
+        {...selector}
+        loading={loading}
+        fontSize="xxs"
+      />
+    );
 
     // stats
     let statContent;
