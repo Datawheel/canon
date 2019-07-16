@@ -125,6 +125,13 @@ singlecolumn-min-width:    "20rem"
 multicolumn-column-count:  "3"
 multicolumn-column-width:  "20rem"
 multicolumn-column-gap:    "var(--gutter-xl)"
+# InfoCard
+infocard-viz-min-width:    "10rem"
+infocard-border-radius:    "4px"
+infocard-border-width:     "1px"
+infocard-border-color:     "var(--light-2)"
+infocard-header-bg-color:  "var(--light-1)"
+infocard-main-bg-color:    "var(--white)"
 
 # buttons
 button-border-radius:          "2px"

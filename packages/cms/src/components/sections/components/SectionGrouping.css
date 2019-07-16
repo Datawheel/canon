@@ -20,6 +20,12 @@
     min-width: var(--singlecolumn-min-width);
     max-width: 100%;
 
+    /* single column */
+    @mixin max-sm {
+      min-width: 100%;
+      width: 100%;
+    }
+
     /* grouped sections should never be sticky, probably */
     &.is-sticky {
       position: relative;

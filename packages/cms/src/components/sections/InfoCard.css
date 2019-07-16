@@ -1,1 +1,103 @@
 @import "../../css/mixins.css";
+
+.cp-info-card-section-inner {
+  display: flex;
+  flex-direction: column;
+
+  & > .cp-info-card-section-main {
+    align-self: stretch;
+    flex: 1 0 auto;
+  }
+}
+
+.cp-info-card-section-header,
+.cp-info-card-section-main {
+  /* sizing */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  /* theming */
+  border-radius: var(--infocard-border-radius);
+  border: var(--infocard-border-width) solid var(--infocard-border-color);
+  /* layout */
+  padding: var(--gutter-xs) var(--gutter-sm);
+
+  @mixin max-sm {
+    & > [class][class] {
+      width: 100%;
+      text-align: left;
+    }
+  }
+}
+
+/* title left, 1st stat right */
+.cp-info-card-section-header {
+  align-items: baseline;
+  /* theming */
+  background-color: var(--infocard-header-bg-color);
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+
+  & > .cp-section-info-card-header-caption:not(:last-child) {
+    flex: 1 0 auto;
+    margin-right: var(--gutter-md);
+  }
+
+  & > .cp-stat-group-wrapper {
+    width: auto;
+    text-align: right; /* will look silly on small screens */
+
+    & .cp-stat {
+      margin-top: 0;
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+/* text & additional stats left, viz right */
+.cp-info-card-section-main {
+  align-items: flex-start;
+  /* theming */
+  background-color: var(--infocard-main-bg-color);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+
+  & > * {
+    flex: 1 1 auto;
+  }
+  & > .cp-info-card-section-caption:not(:last-child) {
+    padding-right: var(--gutter-md);
+    margin-bottom: var(--gutter-md);
+  }
+  & > .cp-info-card-section-viz {
+    flex-basis: var(--infocard-viz-min-width);
+  }
+}
+
+
+/* rebalance font sizes */
+.cp-info-card-section-heading {
+  @mixin font-md;
+  margin-top: 0;
+  margin-bottom: 0.25em;
+}
+.cp-info-card-section-subhead {
+  @mixin font-xxs;
+}
+
+.cp-info-card-section-header .cp-stat-label-text,
+.cp-info-card-section-header .cp-stat-subtitle {
+  @mixin font-xxs;
+}
+.cp-info-card-section-header .cp-stat-value-text {
+  @mixin font-sm;
+}
+
+.cp-info-card-section-main .cp-stat-label-text,
+.cp-info-card-section-main .cp-stat-subtitle {
+  @mixin font-xs;
+}
+.cp-info-card-section-main .cp-stat-value-text {
+  @mixin font-md;
+}
