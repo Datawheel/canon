@@ -59,6 +59,7 @@ h1, h2, h3, h4, h5, h6, .heading {
   font-weight: var(--heading-font-weight);
   text-transform: var(--heading-text-transform);
   letter-spacing: var(--heading-letter-spacing);
+  line-height: 1.125;
 }
 
 /* display */
@@ -69,12 +70,17 @@ h1, h2, h3, h4, h5, h6, .heading {
   letter-spacing: var(--display-letter-spacing);
 }
 
-/* display */
+/* labels */
 .label {
   font-family: var(--label-font-stack);
   font-weight: var(--label-font-weight);
   text-transform: var(--label-text-transform);
   letter-spacing: var(--label-letter-spacing);
+}
+
+strong, [class] > strong,
+.bold {
+  font-weight: var(--bold-weight);
 }
 
 
