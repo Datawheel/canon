@@ -109,7 +109,7 @@
   position: relative;
 }
 .cp-select {
-  background: var(--select-background-color); /* base */
+  background: var(--select-bg-color); /* base */
   background-image: linear-gradient(
     180deg,
     color(var(--field-border-color) a(0.02)) 0%,

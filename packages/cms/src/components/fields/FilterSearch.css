@@ -144,7 +144,7 @@
 .cp-filter-search {
   & > .cp-filter-search-input {
     /* theming */
-    background-color: var(--field-background-color);
+    background-color: var(--field-bg-color);
     border: var(--field-border-width) solid var(--field-border-color);
     color: var(--field-color);
 

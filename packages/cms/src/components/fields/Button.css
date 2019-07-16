@@ -124,13 +124,13 @@
   padding: var(--button-padding);
   border-radius: var(--button-border-radius);
   border: var(--button-border-width) solid var(--button-border-color);
-  background-color: var(--accent-dark);
-  color: var(--white);
+  background-color: var(--button-bg-color);
+  color: var(--button-color);
 
   &:hover,
   &:focus {
-    background-color: var(--button-hover-background-color);
-    border-color: var(--button-hover-background-color);
+    background-color: var(--button-hover-bg-color);
+    border-color: var(--button-hover-bg-color);
     color: var(--button-hover-color);
   }
 }
