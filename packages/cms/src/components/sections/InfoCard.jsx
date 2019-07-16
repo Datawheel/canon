@@ -17,16 +17,18 @@ export default class InfoCard extends Component {
 
     return (
       <div
-        className={`cp-section-inner cp-${slug}-section-inner cp-info-card-section-inner bp3-card bp3-elevation-0${loading ? " is-loading" : ""}`}
+        className={`cp-section-inner cp-${slug}-section-inner cp-info-card-section-inner${loading ? " is-loading" : ""}`}
         ref={comp => this.section = comp}
       >
         {/* header */}
-        <div className="cp-section-info-card-header">
-          {heading}
+        <div className="cp-info-card-section-header">
+          <div className="cp-info-card-section-header-caption">
+            {heading}
+          </div>
           {stats}
         </div>
 
-        <div className="cp-section-content">
+        <div className="cp-info-card-section-main">
           {/* main content */}
           <div className="cp-section-content cp-info-card-section-caption">
             {secondaryStats}
@@ -36,9 +38,9 @@ export default class InfoCard extends Component {
           </div>
 
           {visualizations && visualizations.length
-            ? <div className="cp-section-content cp-info-card-section-caption">
+            ? <div className="cp-section-content cp-info-card-section-viz">
               {visualizations.map((visualization, ii) => ii === 0
-                ? <Viz section={this} config={visualization} title={title} slug={`${slug}-${ii}`}  key={`${slug}-${ii}`} /> : ""
+                ? <Viz section={this} config={visualization} options={false} title={title} slug={`${slug}-${ii}`}  key={`${slug}-${ii}`} /> : ""
               )}
             </div> : ""
           }
