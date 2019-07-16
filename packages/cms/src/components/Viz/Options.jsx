@@ -303,7 +303,7 @@ class Options extends Component {
           {t("CMS.Options.View Data")}
         </Button>
 
-        <Button icon="export" fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
+        <Button icon="media" fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
           {t("CMS.Options.Save Image")}
         </Button>
 
