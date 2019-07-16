@@ -67,9 +67,9 @@ class Viz extends Component {
         ref={ comp => this.viz = comp }
         className="d3plus"
         dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
-        linksFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.linksFormat(resp))}
-        nodesFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.nodesFormat(resp))}
-        topojsonFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.topojsonFormat(resp))}
+        linksFormat={resp => vizProps.linksFormat(resp)}
+        nodesFormat={resp => vizProps.nodesFormat(resp)}
+        topojsonFormat={resp => vizProps.topojsonFormat(resp)}
         config={vizProps.config} />
     </div>;
   }
