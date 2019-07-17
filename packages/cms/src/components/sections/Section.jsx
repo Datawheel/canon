@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
 
-import styles from "../../../app/style.yml";
+import styles from "style.yml";
 import throttle from "../../utils/throttle";
 import pxToInt from "../../utils/formatters/pxToInt";
 import toKebabCase from "../../utils/formatters/toKebabCase";
@@ -54,7 +54,7 @@ class Section extends Component {
         window.addEventListener("scroll", this.scrollBind);
         this.setState({
           // combine the position
-          top: currentSection.getBoundingClientRect().top + window.scrollY + pxToInt(styles["nav-height"]),
+          top: currentSection.getBoundingClientRect().top + document.documentElement.scrollTop,
           height: currentSection.getBoundingClientRect().height
         });
       }
@@ -100,7 +100,7 @@ class Section extends Component {
     if (stickySection === true && typeof window !== "undefined") {
       const isStickyIE = this.state.isStickyIE;
       const containerTop = this.state.top;
-      const screenTop = window.scrollY + pxToInt(styles["nav-height"]);
+      const screenTop = document.documentElement.scrollTop + pxToInt(styles["sticky-section-offset"] || "50px");
 
       throttle(() => {
         if (screenTop !== containerTop) {
@@ -221,7 +221,10 @@ class Section extends Component {
         </section>
 
         {/* in IE, create empty div set to the height of the stuck element */}
-        {isStickyIE ? <div className="ie-sticky-spacer" style={{height}} /> : ""}
+        {isStickyIE ? <React.Fragment>
+          <div className="ie-sticky-spacer" style={{height}} />
+          <div className="ie-sticky-section-color-fixer" />
+        </React.Fragment> : ""}
       </React.Fragment>
     );
   }

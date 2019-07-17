@@ -34,18 +34,56 @@
       position: sticky;
       top: var(--sticky-section-offset);
       z-index: 2;
-      /* reduce padding, since it's going to take up a bunch of space */
-      padding-top: var(--gutter-sm);
-      padding-bottom: var(--gutter-sm);
+      padding-top: 0;
+      padding-bottom: 0;
       /* theming */
       box-shadow: var(--sticky-section-shadow);
+      height: var(--sticky-section-height);
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+
+      /* hide scrollbar */
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        width: 0;
+        opacity: 0;
+        display: none;
+      }
+
+      & .cp-section-heading {
+        @mixin font-sm;
+      }
+
+      & > .cp-section-inner {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        height: var(--sticky-section-height);
+
+        & > * {
+          flex: 1 0 auto;
+          width: auto;
+          margin: 0 var(--gutter-lg) 0 0;
+        }
+
+        & * {
+          margin-bottom: 0;
+        }
+      }
 
       /* make it work in IE */
       &.ie-is-stuck {
         position: fixed;
-        top: var(--nav-height);
+        width: calc(100vw - var(--gutter-sm));
+        max-width: calc(100vw - var(--gutter-sm));
+        top: var(--sticky-section-offset);
         z-index: 1;
       }
+    }
+
+    @mixin ie-only {
+      top: 0;
     }
   }
 }

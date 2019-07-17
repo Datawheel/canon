@@ -115,7 +115,7 @@ section-bg-odd:            "var(--white)"
 section-bg-even:           "var(--light-1)"
 section-text-color:        "var(--dark-2)"
 section-heading-color:     "var(--dark-3)"
-sticky-section-offset:     "var(--nav-height)"
+sticky-section-offset:     "50px" # px value required here unfortunately
 sticky-section-height:     "var(--nav-height)"
 sticky-section-bg:         "var(--white)"
 sticky-section-shadow:     "0 1px 0.375rem color(var(--black) a(0.125))"
