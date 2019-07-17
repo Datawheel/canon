@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {EditableText, Icon} from "@blueprintjs/core";
-import {merge} from "d3-array";
 import Button from "../fields/Button";
 import "./Header.css";
 
@@ -27,15 +26,23 @@ export default class Header extends Component {
     } = this.props;
 
     let domain = this.props;
-    if (typeof domain !== "undefined" && typeof window !== "undefined") {
+    if (typeof domain !== "undefined" && typeof window !== "undefined" && window.document.location.origin) {
       domain = window.document.location.origin;
+    }
+    else {
+      if (typeof domain !== "undefined" && typeof window !== "undefined") {
+        domain = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ""}`;
+      }
     }
 
     const prettyDomain = domain.replace("http://", "").replace("https://", "");
 
     // construct URL from domain and dimensions
-    // TODO: merge(arrayOfArrays);
-    const previewURL = `${domain}/profile/${dimensions.map(dim => Object.values(dim)).flat().join("/")}${typeof slug !== "undefined" ? `#${slug}` : ""}`;
+    const previewURL = `${domain}/profile/${dimensions
+      .map(dim => Object.values(dim)) // extract each dimension key & value into an array
+      .reduce((acc, val) => acc.concat(val), []) // flatten arrays
+      .join("/") // now it's a URL
+    }${typeof slug !== "undefined" ? `#${slug}` : ""}`;
 
     return (
       <header className="cms-header">
