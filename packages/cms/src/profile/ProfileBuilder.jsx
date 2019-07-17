@@ -555,6 +555,14 @@ class ProfileBuilder extends Component {
               }
             });
           }
+          // Further, for any given _genStatus or _matStatus that is incoming, 
+          // if the incoming version has no error, we must CLEAR the error from
+          // the current state of the variables.
+          const incGens = defObj[localeDefault]._genStatus;
+          const curGens = variablesHash[currentPid][localeDefault]._genStatus;
+          Object.keys(incGens).forEach(id => {
+            if (!incGens[id].error) delete curGens[id].error;
+          });
           variablesHash[currentPid] = nestedObjectAssign(variablesHash[currentPid], defObj);
         }
         if (locale) {
@@ -580,6 +588,11 @@ class ProfileBuilder extends Component {
                 }
               });
             }
+            const incGens = locObj[locale]._genStatus;
+            const curGens = variablesHash[currentPid][locale]._genStatus;
+            Object.keys(incGens).forEach(id => {
+              if (!incGens[id].error) delete curGens[id].error;
+            });
             variablesHash[currentPid] = nestedObjectAssign(variablesHash[currentPid], locObj);
             this.setState({variablesHash}, maybeCallback);
           });
