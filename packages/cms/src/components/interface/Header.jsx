@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {EditableText, Icon} from "@blueprintjs/core";
+import {merge} from "d3-array";
 import Button from "../fields/Button";
 import "./Header.css";
 
@@ -33,9 +34,8 @@ export default class Header extends Component {
     const prettyDomain = domain.replace("http://", "").replace("https://", "");
 
     // construct URL from domain and dimensions
-    const previewURL = `${domain}/profile/${
-      dimensions.map(dim => Object.values(dim)).flat().join("/")
-    }${typeof slug !== "undefined" ? `#${slug}` : ""}`;
+    // TODO: merge(arrayOfArrays);
+    const previewURL = `${domain}/profile/${dimensions.map(dim => Object.values(dim)).flat().join("/")}${typeof slug !== "undefined" ? `#${slug}` : ""}`;
 
     return (
       <header className="cms-header">

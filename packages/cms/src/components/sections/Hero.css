@@ -6,6 +6,11 @@
   display: flex;
   /* fill up the screen, but make room for the nav & subnav */
   min-height: calc(100vh - var(--nav-height) - var(--subnav-height));
+
+  /* IE doesn't really do vertical centering, so remove min-height */
+  @mixin ie-only {
+    min-height: 0;
+  }
 }
 
 .cp-hero-inner {
