@@ -41,7 +41,11 @@ class Viz extends Component {
     if (vizProps.error && debug) return <div>{`Error in Viz index: ${vizProps.error}`}</div>;
     // Note that if vizProps.error exists but debug is NOT true, we should still keep rendering, because propify
     // gave us a "stub" config with a user-friendly error message built in, so the front-end can see it.
+<<<<<<< HEAD:packages/cms/src/components/Viz/Viz.jsx
     vizProps.config = Object.assign(vizProps.config, configOverride);
+=======
+    vizProps.config = Object.assign(vizProps.config, configOverride);
+>>>>>>> b0de6b41f1580e625f323ac1c282c2a10d023733:packages/cms/src/components/Viz/index.jsx
 
     // strip out the "type" from config
     const {type} = vizProps.config;
