@@ -253,10 +253,17 @@ class TextCard extends Component {
         // text: <span dangerouslySetInnerHTML={{__html: stripP(thatDisplayData[k])}} />
       })) : [];
 
+    // Find the first key that isn't empty in the display and use it as the title.
+    let title = "";
+    thisDisplay.forEach(d => {
+      if (!title && d.text) title = d.text;
+    });
+    if (!title) title = "Missing Title";
+
     // define props for Card
     const cardProps = {
       cardClass,
-      title: thisDisplay[0].text,
+      title,
       onEdit: this.openEditor.bind(this),
       onDelete: ["profile", "section", "story", "storysection"].includes(type) ? false : this.maybeDelete.bind(this),
       // reorder
