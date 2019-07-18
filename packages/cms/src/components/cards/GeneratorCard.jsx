@@ -4,7 +4,7 @@ import {Dialog} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import FooterButtons from "../editors/components/FooterButtons";
 import deepClone from "../../utils/deepClone";
-import LocaleName from "./LocaleName";
+import LocaleName from "./components/LocaleName";
 import VarTable from "../variables/VarTable";
 import Card from "./Card";
 import "./GeneratorCard.css";

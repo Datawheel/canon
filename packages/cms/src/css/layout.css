@@ -84,7 +84,7 @@
   }
 
   & .cms-nav-settings-button {
-    margin: auto;
+    align-self: center;
     z-index: 2;
   }
 
@@ -114,7 +114,7 @@
   & ~ .cms-button {
     position: absolute;
     top: var(--nav-height);
-    margin-top: 0.75rem;
+    margin-top: 0.875rem;
     z-index: 3; /* above nav */
     left: 11.75rem;
 
@@ -161,6 +161,10 @@
   padding: 2rem;
   width: 100%;
   max-width: 100%;
+
+  & .cms-deck:not(:last-of-type) {
+    margin-bottom: 2rem;
+  }
 }
 
 /* 2 col layout */
@@ -198,9 +202,10 @@
 .cms-editor-header {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
   flex-wrap: wrap;
   margin-top: -2px;
-  padding: 1rem 1.25rem 0.5rem 1.25rem;
+  padding: 1.5rem 0 0.5rem 0;
   /* theming */
   background-color: var(--light-1);
   border-bottom-left-radius: 2px;
@@ -216,11 +221,13 @@
   /* one child */
   & > * {
     width: 100%;
+    margin-left: 1.25rem;
+    margin-right: 1.25rem;
 
     /* 2+ children */
     &:not(:only-child) {
-      min-width: 10rem;
-      width: calc(50% - 1rem);
+      width: auto;
+      flex: 1 1 16rem;
     }
   }
 }

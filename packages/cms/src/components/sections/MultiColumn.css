@@ -1,0 +1,26 @@
+@import "../../css/mixins.css";
+
+.cp-multi-column-section-heading {
+  margin-top: 0;
+}
+
+.cp-multi-column-section-caption {
+  columns: var(--multicolumn-column-count);
+  column-width: var(--multicolumn-column-width);
+  column-gap: var(--multicolumn-column-gap);
+
+  & > * {
+    break-inside: avoid;
+  }
+}
+
+/* reset viz sizing defaults, since padding, multicolumn, and d3plus don't play well together */
+.cp-multi-column-section .cp-viz-container {
+  padding-top: 0;
+  min-height: 0;
+
+  & > .cp-viz {
+    position: static !important;
+    transform: translateY(1.5rem); /* margin is being ignored (?) */
+  }
+}

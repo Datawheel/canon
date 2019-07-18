@@ -5,31 +5,29 @@ import "./Select.css";
 export default class Select extends Component {
   render() {
     const {
+      context,     // "cp" (default) or "cms"
       fontSize,
       inline,
       label,       // the label
       labelHidden, // hide the label (label still required)
       options,     // array of options
       children,    // when creating options from an array isn't enough
-      value,
-      onChange
+      value,       // select value
+      onChange     // callback function; select a new option
     } = this.props;
 
     // remove stringified nulls
     const filteredOptions = options && options.filter(option => option !== "");
 
     return (options && options.length) || children
-      ? <label
-        className={`cms-select-label font-${fontSize}${inline ? " cms-inline-select-label" : ""}`}
-        value={value}
-      >
-        <span className={`cms-select-text${label && labelHidden ? " u-visually-hidden" : "" }`}>
+      ? <label className={`${context}-select-label u-font-${fontSize}${inline ? " cms-inline-select-label" : ""}`}>
+        <span className={`${context}-select-text${label && labelHidden ? " u-visually-hidden" : "" }`}>
           {label || "missing `label` prop in Select.jsx"}
         </span>
 
-        <Icon className="cms-select-icon" icon="caret-down" />
+        <Icon className={`${context}-select-icon`} icon="caret-down" />
 
-        <select className="cms-select" onChange={onChange} value={value}>
+        <select className={`${context}-select`} onChange={onChange} value={value}>
           {options && filteredOptions.map(option =>
             <option value={option} key={`select-option-${option}`}>
               {option}
@@ -43,5 +41,6 @@ export default class Select extends Component {
 }
 
 Select.defaultProps = {
-  fontSize: "sm"
+  fontSize: "sm",
+  context: "cp"
 };

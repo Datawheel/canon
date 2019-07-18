@@ -2,7 +2,8 @@ import axios from "axios";
 import React, {Component} from "react";
 
 import Button from "../components/fields/Button";
-import Accardion from "../components/interface/Accardion";
+import Select from "../components/fields/Select";
+import Deck from "../components/interface/Deck";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import VisualizationCard from "../components/cards/VisualizationCard";
@@ -104,7 +105,7 @@ class StorySectionEditor extends Component {
       <div className="cms-editor-inner">
 
         {/* current story options */}
-        <Accardion
+        <Deck
           title="Story section metadata"
           subtitle="Section title"
           entity="title"
@@ -135,22 +136,24 @@ class StorySectionEditor extends Component {
               Story slug
               <div className="bp3-input-group">
                 <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-                <Button onClick={this.save.bind(this)}>Rename</Button>
+                <Button context="cms" onClick={this.save.bind(this)}>Rename</Button>
               </div>
             </label>
-            <label className="bp3-label bp3-fill">
-              Layout
-              <div className="bp3-select">
-                <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
-                  {typeOptions}
-                </select>
-              </div>
-            </label>
+
+            {/* layout select */}
+            <Select
+              label="Layout"
+              context="cms"
+              value={minData.type}
+              onChange={this.changeField.bind(this, "type", true)}
+            >
+              {typeOptions}
+            </Select>
           </div>
-        </Accardion>
+        </Deck>
 
         {/* subtitles */}
-        <Accardion
+        <Deck
           title="Subtitles"
           entity="subtitle"
           addItem={this.addItem.bind(this, "storysection_subtitle")}
@@ -185,7 +188,7 @@ class StorySectionEditor extends Component {
         />
 
         {/* Stats */}
-        <Accardion
+        <Deck
           title="Stats"
           entity="stat"
           addItem={this.addItem.bind(this, "storysection_stat")}
@@ -220,7 +223,7 @@ class StorySectionEditor extends Component {
         />
 
         {/* Descriptions */}
-        <Accardion
+        <Deck
           title="Descriptions"
           entity="description"
           addItem={this.addItem.bind(this, "storysection_description")}
@@ -256,7 +259,7 @@ class StorySectionEditor extends Component {
 
         {/* visualizations */}
 
-        <Accardion
+        <Deck
           title="Visualizations"
           entity="visualization"
           addItem={this.addItem.bind(this, "storysection_visualization")}

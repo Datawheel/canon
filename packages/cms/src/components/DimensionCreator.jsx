@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import {MenuItem} from "@blueprintjs/core";
 import {MultiSelect} from "@blueprintjs/select";
 import Button from "./fields/Button";
+import Select from "./fields/Select";
+import TextInput from "./fields/TextInput";
 
 class DimensionCreator extends Component {
 
@@ -87,24 +89,28 @@ class DimensionCreator extends Component {
 
     return (
       <div className="bp3-dialog-body">
-        <div className="cms-field-container cms-field-container-inline">
-          <label htmlFor="slug">Slug: </label>
-          <input id="slug" className="bp3-input" type="text" value={profileData.slug} onChange={this.changeField.bind(this, "slug")}/>
-        </div>
-        <div className="cms-field-container">
-          Dimension:
-          <div className="bp3-select">
-            <select className="field-input" value={profileData.dimension} onChange={this.chooseDimension.bind(this)}>
-              <option value="default">Choose One</option>
-              {dimOptions}
-            </select>
-          </div>
-        </div>
-        { profileData.dimension &&
+        <TextInput
+          label="slug"
+          inline
+          context="cms"
+          value={profileData.slug}
+          onChange={this.changeField.bind(this, "slug")}
+        />
+
+        <Select
+          label="Dimension"
+          inline
+          context="cms"
+          value={profileData.dimension}
+          onChange={this.chooseDimension.bind(this)}
+        >
+          <option value="default">Choose a selector</option>
+          {dimOptions}
+        </Select>
+
+        {profileData.dimension &&
           <div className="cms-field-container">
             Levels:
-
-            {/* new hotness */}
             <fieldset className="cms-fieldset">
               { levelList.map(level =>
                 <label className="cms-checkbox-label" key={level}>
@@ -117,29 +123,29 @@ class DimensionCreator extends Component {
                 </label>
               )}
             </fieldset>
+          </div>
+        }
 
-          </div>
+        {profileData.dimension && profileData.levels.length > 0 &&
+          <Select
+            label="Measure"
+            inline
+            context="cms"
+            value={profileData.measure}
+            onChange={this.changeField.bind(this, "measure")}
+          >
+            <option value="default">Choose a measure</option>
+            {measureOptions}
+          </Select>
         }
-        { profileData.dimension && profileData.levels.length > 0 &&
-          <div className="cms-field-container">
-            Measure:
-            <div className="bp3-select">
-              <select className="field-input" value={profileData.measure} onChange={this.changeField.bind(this, "measure")}>
-                <option value="default">Choose One</option>
-                {measureOptions}
-              </select>
-            </div>
-          </div>
-        }
+
         <div className="cms-field-container">
-          { profileData.dimension && profileData.levels.length > 0 && profileData.measure
-            ? <Button onClick={this.createProfile.bind(this)} icon="plus">Add dimension</Button>
-            : <Button icon="plus" disabled>Add dimension</Button>
+          {profileData.dimension && profileData.levels.length > 0 && profileData.measure
+            ? <Button onClick={this.createProfile.bind(this)} context="cms" icon="plus">Add dimension</Button>
+            : <Button icon="plus" context="cms" disabled>Add dimension</Button>
           }
         </div>
-
       </div>
-
     );
   }
 }

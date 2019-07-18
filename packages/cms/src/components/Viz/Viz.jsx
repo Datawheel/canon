@@ -2,9 +2,10 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
 import PercentageBar from "./PercentageBar";
-import "./index.css";
 import Options from "./Options";
+import toKebabCase from "../../utils/formatters/toKebabCase";
 import propify from "../../utils/d3plusPropify";
+import "./Viz.css";
 
 const vizTypes = Object.assign({PercentageBar}, d3plus);
 
@@ -54,18 +55,24 @@ class Viz extends Component {
     const title = (this.props.title || config.title || slug || "")
       .replace(/^<p>/g, "").replace(/<\/p>$/g, "");
 
-    return <div className={ `visualization ${className}` }>
-      { options && !vizProps.error ? <Options
-        key="option-key"
-        component={{section, viz: this}}
-        data={ vizProps.config.data }
-        dataFormat={ vizProps.dataFormat }
-        slug={ slug }
-        title={ title } /> : null }
+    return <div className={ `cp-viz-container${
+      className ? ` ${className}` : ""
+    }${
+      type ? ` cp-${toKebabCase(type)}-viz-container` : ""
+    }`}>
+      { options && !vizProps.error
+        ? <Options
+          key="option-key"
+          component={{section, viz: this}}
+          data={ vizProps.config.data }
+          dataFormat={ vizProps.dataFormat }
+          slug={ slug }
+          title={ title }
+        /> : ""}
       <Visualization
         key="viz-key"
         ref={ comp => this.viz = comp }
-        className="d3plus"
+        className={`d3plus cp-viz cp-${type}-viz`}
         dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
         linksFormat={vizProps.linksFormat}
         nodesFormat={vizProps.nodesFormat}

@@ -1,8 +1,10 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
-import {Select} from "@blueprintjs/select";
+import {Select as BlueprintSelect} from "@blueprintjs/select";
 import {MenuItem, Icon} from "@blueprintjs/core";
+
+import Select from "../../fields/Select";
 
 class Selector extends Component {
 
@@ -46,37 +48,47 @@ class Selector extends Component {
 
     const {comparisons} = this.state;
     const {onSelector, variables} = this.context;
-    const {default: defaultValue, id, loading, options, name, title, type} = this.props;
+    const {default: defaultValue, fontSize, id, loading, options, name, title, type} = this.props;
     const slug = `${name}-${id}`;
 
     return <div className="selector">
-      { title && <label htmlFor={slug}>{title}</label> }
-      <div className={ `bp3-fill ${type === "multi" ? "" : "bp3-select"}` }>
-        { type === "multi"
-          ? <React.Fragment>
-            <div className="multi-list">
-              { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
-                { variables[d] }
-                <button aria-label={`${variables[d]} (remove)`} className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
-              </div>) }
-            </div>
-            { comparisons.length !== options.length
-              ? <Select name="comparisonPhenotype"
-                filterable={false}
-                noResults={<MenuItem disabled text="No results." />}
-                onItemSelect={this.addComparison.bind(this)}
-                items={options.map(d => d.option)}
-                itemRenderer={this.renderItem.bind(this)}>
-                <button type="button" className="multi-add bp3-button bp3-icon-plus">
-                  Add a Comparison
-                </button>
-              </Select>
-              : null }
-          </React.Fragment>
-          : <select id={slug} name={name} onChange={d => onSelector(name, d.target.value)} disabled={loading} value={defaultValue}>
-            { options.map(({option}) => <option value={option} key={option}>{variables[option]}</option>) }
-          </select> }
-      </div>
+      {type === "multi"
+        ? <div className={ `bp3-fill ${type === "multi" ? "" : "bp3-select"}` }>
+          { title && <label htmlFor={slug}>{title}</label> }
+          <div className="multi-list">
+            { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
+              { variables[d] }
+              <button aria-label={`${variables[d]} (remove)`} className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
+            </div>) }
+          </div>
+          { comparisons.length !== options.length
+            ? <BlueprintSelect name={slug}
+              filterable={false}
+              noResults={<MenuItem disabled text="No results." />}
+              onItemSelect={this.addComparison.bind(this)}
+              items={options.map(d => d.option)}
+              itemRenderer={this.renderItem.bind(this)}>
+              <button type="button" className="multi-add bp3-button bp3-icon-plus">
+                Add a Comparison
+              </button>
+            </BlueprintSelect>
+            : null }
+        </div>
+
+        : <Select
+          label={title}
+          inline
+          fontSize={fontSize}
+          id={slug}
+          onChange={d => onSelector(name, d.target.value)}
+          disabled={loading}
+          value={defaultValue}
+        >
+          {options.map(({option}) => <option value={option} key={option}>
+            {variables[option]}
+          </option>)}
+        </Select>
+      }
     </div>;
   }
 
@@ -85,6 +97,10 @@ class Selector extends Component {
 Selector.contextTypes = {
   onSelector: PropTypes.func,
   variables: PropTypes.object
+};
+
+Selector.defaultProps = {
+  fontSize: "xxs"
 };
 
 export default Selector;

@@ -3,13 +3,27 @@
 .cms-viz-editor {
   margin-top: 1em;
   height: auto; /* override vh */
+  overflow-x: hidden !important; /* prevent .viz-select-group from overflowing */
 
   /* groupBy, x, y, etc. (hidden until a Data & Type are entered) */
-  & .viz-dropdown-list {
-    margin: 1rem 0;
-    padding: 0;
-    list-style: none;
-    columns: 3;
-    column-gap: 1.25rem;
+  & .viz-select-group {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-right: -1.5rem; /* offset select right margin */
+
+    & > * {
+      flex: 1 0 calc(33.333% - 1.5rem);
+      margin-right: 1.5rem; /* create gutter */
+    }
+
+    /* TODO: replace with labelled input */
+    & input {
+      margin-bottom: 1em;
+    }
+  }
+
+  & .cms-select-text {
+    text-transform: capitalize;
   }
 }

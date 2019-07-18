@@ -10,9 +10,9 @@ import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
-// import stripP from "../../utils/formatters/stripP";
+import formatFieldName from "../../utils/formatters/formatFieldName";
 import PropTypes from "prop-types";
-import LocaleName from "./LocaleName";
+import LocaleName from "./components/LocaleName";
 import Card from "./Card";
 import "./TextCard.css";
 
@@ -233,13 +233,13 @@ class TextCard extends Component {
 
     let cardClass = "splash-card";
     if (["profile_stat", "section_stat"].includes(type)) cardClass = "cms-stat-card";
-    const displaySort = ["title", "value", "subtitle", "description"];
+    const displaySort = ["title", "value", "subtitle", "description", "tooltip"];
 
     const thisDisplay = Object.keys(thisDisplayData)
       .filter(k => typeof thisDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
       .map(k => ({
-        label: k,
+        label: formatFieldName(k, this.prettifyType(type)),
         text: stripHTML(thisDisplayData[k])
         // text: <span dangerouslySetInnerHTML={{__html: stripP(thisDisplayData[k])}} />
       }));
@@ -248,7 +248,7 @@ class TextCard extends Component {
       .filter(k => typeof thatDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
       .map(k => ({
-        label: k,
+        label: formatFieldName(k, this.prettifyType(type)),
         text: stripHTML(thatDisplayData[k])
         // text: <span dangerouslySetInnerHTML={{__html: stripP(thatDisplayData[k])}} />
       })) : [];
@@ -318,15 +318,15 @@ class TextCard extends Component {
                 {locale &&
                   <LocaleName locale={localeDefault} />
                 }
-                {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={plainfields} />}
-                {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={plainfields} />}
+                {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
               </div>
 
               {locale &&
                 <div className="cms-dialog-locale-container">
                   <LocaleName locale={locale} />
-                  {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
-                  {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                  {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
+                  {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
                 </div>
               }
             </div>
@@ -334,6 +334,7 @@ class TextCard extends Component {
             { showVars &&
               <Select
                 label="Visible"
+                context="cms"
                 value={minData.allowed || "always"}
                 onChange={this.chooseVariable.bind(this)}
                 inline

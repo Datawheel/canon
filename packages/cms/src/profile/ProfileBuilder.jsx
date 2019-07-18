@@ -21,9 +21,9 @@ import "./ProfileBuilder.css";
 
 const sectionIcons = {
   Card: "square",
-  Column: "list",
+  SingleColumn: "list",
   Tabs: "folder-close",
-  TextViz: "list-detail-view"
+  Default: "list-detail-view"
 };
 
 class ProfileBuilder extends Component {
@@ -606,13 +606,18 @@ class ProfileBuilder extends Component {
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
 
-    return (
+    // get current node order; used for showing hero section in section layout list
+    let currNodeOrder;
+    if (currentNode && currentNode.data) currNodeOrder = currentNode.data.ordering;
 
+    return (
       <React.Fragment>
         {/* new entity */}
         <Button
           onClick={this.createProfile.bind(this)}
-          className="cms-add-profile-button font-xxs"
+          context="cms"
+          className="cms-add-profile-button"
+          fontSize="xxs"
           icon="plus"
           iconPosition="right"
         >
@@ -621,26 +626,14 @@ class ProfileBuilder extends Component {
 
         <div className="cms-panel profile-panel" id="profile-builder">
           <div className="cms-sidebar" id="tree">
-
             <SidebarTree
               onNodeClick={this.handleNodeClick.bind(this)}
               onNodeCollapse={this.handleNodeCollapse.bind(this)}
               onNodeExpand={this.handleNodeExpand.bind(this)}
               contents={nodes}
             />
-
           </div>
-          <Alert
-            isOpen={nodeToDelete}
-            cancelButtonText="Cancel"
-            confirmButtonText="Delete"
-            iconName="trash"
-            intent={Intent.DANGER}
-            onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
-            onCancel={() => this.setState({nodeToDelete: false})}
-          >
-            {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
-          </Alert>
+
           <div className="cms-editor" id="item-editor">
             { currentNode
               ? <Editor
@@ -650,6 +643,7 @@ class ProfileBuilder extends Component {
                 previews={previews}
                 variables={variables}
                 selectors={selectors}
+                order={currNodeOrder}
                 onSelect={this.onSelect.bind(this)}
                 reportSave={this.reportSave.bind(this)}
               >
@@ -674,7 +668,20 @@ class ProfileBuilder extends Component {
               : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
             }
           </div>
+
+          <Alert
+            isOpen={nodeToDelete}
+            cancelButtonText="Cancel"
+            confirmButtonText="Delete"
+            iconName="trash"
+            intent={Intent.DANGER}
+            onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
+            onCancel={() => this.setState({nodeToDelete: false})}
+          >
+            {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
+          </Alert>
         </div>
+
         <Toolbox
           id={currentPid}
           locale={locale}
@@ -685,7 +692,6 @@ class ProfileBuilder extends Component {
           previews={previews}
         />
       </React.Fragment>
-
     );
   }
 }

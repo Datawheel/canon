@@ -14,6 +14,11 @@ class QuillWrapper extends Component {
         ],
         clipboard: {
           matchVisual: false
+        },
+        keyboard: {
+          bindings: {
+            tab: false
+          }
         }
       };
       return <Quill

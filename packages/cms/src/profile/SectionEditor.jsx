@@ -2,12 +2,16 @@ import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
+import toSpacedCase from "../utils/formatters/toSpacedCase";
+
 import Button from "../components/fields/Button";
+import Select from "../components/fields/Select";
 import ButtonGroup from "../components/fields/ButtonGroup";
+import TextButtonGroup from "../components/fields/TextButtonGroup";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Status from "../components/interface/Status";
-import Accardion from "../components/interface/Accardion";
+import Deck from "../components/interface/Deck";
 import SelectorUsage from "../components/interface/SelectorUsage";
 import "./SectionEditor.css";
 
@@ -133,7 +137,7 @@ class SectionEditor extends Component {
   render() {
 
     const {minData, recompiling, query} = this.state;
-    const {variables, previews, selectors, children, locale, localeDefault} = this.props;
+    const {variables, previews, selectors, children, locale, localeDefault, order} = this.props;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
@@ -153,8 +157,15 @@ class SectionEditor extends Component {
           return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
         }));
 
-    const typeOptions = minData.types.map(t =>
-      <option key={t} value={t}>{t}</option>
+    // remove Hero from available layouts
+    let availableLayouts = minData.types.filter(l => l !== "Hero");
+    // if this is the first section, add Hero layout to the front
+    if (order === 0) availableLayouts = ["Hero"].concat(availableLayouts);
+
+    const layouts = availableLayouts.map(l =>
+      <option key={l} value={l}>
+        {toSpacedCase(l)}
+      </option>
     );
 
     return (
@@ -165,7 +176,7 @@ class SectionEditor extends Component {
 
         {/* section name */}
         {/* TODO: convert to fields */}
-        <Accardion
+        <Deck
           title="Section metadata"
           subtitle="Title"
           entity="meta"
@@ -188,40 +199,58 @@ class SectionEditor extends Component {
           {/* current section options */}
           <div className="cms-editor-header">
             {/* change slug */}
-            <label className="bp3-label cms-slug">
-              Section slug
-              <div className="bp3-input-group">
-                <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-                <Button onClick={this.save.bind(this)}>Rename</Button>
-              </div>
-            </label>
+            <TextButtonGroup
+              context="cms"
+              inputProps={{
+                label: "Slug",
+                labelHidden: true,
+                fontSize: "xs",
+                inline: true,
+                context: "cms",
+                value: minData.slug,
+                onChange: this.changeField.bind(this, "slug", false)
+              }}
+              buttonProps={{
+                children: "Rename slug",
+                fontSize: "xs",
+                context: "cms",
+                onClick: this.save.bind(this)
+              }}
+            />
+
             {/* visibility select */}
-            <label className="bp3-label bp3-fill">
-              Allowed
-              <div className="bp3-select">
-                <select id="visibility-select" value={minData.allowed || "always"} onChange={this.changeField.bind(this, "allowed", true)}>
-                  {varOptions}
-                </select>
-              </div>
-            </label>
+            <Select
+              label="Visible"
+              context="cms"
+              fontSize="xs"
+              inline
+              value={minData.allowed || "always"}
+              onChange={this.changeField.bind(this, "allowed", true)}
+            >
+              {varOptions}
+            </Select>
 
             {/* layout select */}
-            <label className="bp3-label bp3-fill">
-              Layout
-              <div className="bp3-select">
-                <select value={minData.type} onChange={this.changeField.bind(this, "type", true)}>
-                  {typeOptions}
-                </select>
-              </div>
-            </label>
+            <Select
+              label="Layout"
+              inline
+              context="cms"
+              fontSize="xs"
+              value={minData.type}
+              onChange={this.changeField.bind(this, "type", true)}
+            >
+              {layouts}
+            </Select>
 
             {/* sticky select */}
             <label className="bp3-label">
-              Positioning
-              <ButtonGroup buttons={[
+              <span className="u-visually-hidden">Positioning</span>
+              <ButtonGroup context="cms" buttons={[
                 {
                   onClick: this.selectButton.bind(this, "sticky", true, false),
                   active: !minData.sticky,
+                  context: "cms",
+                  fontSize: "xs",
                   icon: "alignment-left",
                   iconPosition: "left",
                   children: "default"
@@ -229,6 +258,8 @@ class SectionEditor extends Component {
                 {
                   onClick: this.selectButton.bind(this, "sticky", true, true),
                   active: minData.sticky,
+                  context: "cms",
+                  fontSize: "xs",
                   icon: "alignment-top",
                   iconPosition: "left",
                   children: "sticky"
@@ -236,10 +267,10 @@ class SectionEditor extends Component {
               ]} />
             </label>
           </div>
-        </Accardion>
+        </Deck>
 
         {/* subtitles */}
-        <Accardion
+        <Deck
           title="Subtitles"
           entity="subtitle"
           addItem={this.addItem.bind(this, "section_subtitle")}
@@ -262,7 +293,7 @@ class SectionEditor extends Component {
         />
 
         {selectors && selectors.length > 0 &&
-          <Accardion title="Selector activation" entity="selectorUsage">
+          <Deck title="Selector activation" entity="selectorUsage">
             <SelectorUsage
               key="selector-usage"
               minData={minData}
@@ -270,11 +301,11 @@ class SectionEditor extends Component {
               selectors={selectors}
               onSelect={this.onSelect.bind(this)}
             />
-          </Accardion>
+          </Deck>
         }
 
         {/* stats */}
-        <Accardion
+        <Deck
           title="Stats"
           entity="stat"
           addItem={this.addItem.bind(this, "section_stat")}
@@ -297,8 +328,8 @@ class SectionEditor extends Component {
         />
 
         {/* descriptions */}
-        <Accardion
-          title="Descriptions"
+        <Deck
+          title="Paragraphs"
           entity="description"
           addItem={this.addItem.bind(this, "section_description")}
           cards={minData.descriptions && minData.descriptions.map(d =>
@@ -320,7 +351,7 @@ class SectionEditor extends Component {
         />
 
         {/* visualizations */}
-        <Accardion
+        <Deck
           title="Visualizations"
           entity="visualization"
           addItem={this.addItem.bind(this, "section_visualization")}
