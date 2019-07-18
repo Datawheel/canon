@@ -6,6 +6,7 @@ const sequelize = require("sequelize");
 const shell = require("shelljs");
 const yn = require("yn");
 const path = require("path");
+const {strip} = require("d3plus-text");
 const Op = sequelize.Op;
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
@@ -300,8 +301,19 @@ const populateSearch = async(profileData, db) => {
 
   }
 
+  let slugs = await db.search.findAll().catch(catcher);
+  slugs = slugs.map(s => s.slug).filter(d => d);
+
+  const slugify = (str, id) => {
+    let slug = strip(str).replace(/-{2,}/g, "-").toLowerCase();
+    if (slugs.includes(slug)) slug += `-${id}`;
+    slugs.push(slug);
+    return slug;
+  };
+
   for (let i = 0; i < fullList.length; i++) {
     const obj = fullList[i];
+    obj.slug = slugify(obj.name, obj.id);
     const {id, dimension, hierarchy} = obj;
     const [row, created] = await db.search.findOrCreate({
       where: {id, dimension, hierarchy},
@@ -309,6 +321,7 @@ const populateSearch = async(profileData, db) => {
     }).catch(catcher);
     if (verbose && created) console.log(`Created: ${row.id} ${row.display}`);
     else {
+      if (row.slug) delete obj.slug;
       await row.updateAttributes(obj).catch(catcher);
       if (verbose) console.log(`Updated: ${row.id} ${row.display}`);
     }
