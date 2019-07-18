@@ -5,9 +5,9 @@
   "author": "James Mullen",
   "license": "MIT",
   "bin": {
-    "canon-cms-migrate-legacy": "node scripts/migration/canon-cms-migrate-legacy.js",
-    "canon-cms-migrate-0.1": "node scripts/migration/canon-cms-migrate-0.1.js",
-    "canon-cms-migrate-0.6": "node scripts/migration/canon-cms-migrate-0.6.js"
+    "canon-cms-migrate-legacy": "scripts/migration/canon-cms-migrate-legacy.js",
+    "canon-cms-migrate-0.1": "scripts/migration/canon-cms-migrate-0.1.js",
+    "canon-cms-migrate-0.6": "scripts/migration/canon-cms-migrate-0.6.js"
   },
   "scripts": {
     "dev": "canon-dev",
