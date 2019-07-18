@@ -3,7 +3,6 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
-import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
@@ -198,23 +197,33 @@ class SimpleVisualizationEditor extends Component {
       />
 
       {object.data &&
-        <Select
-          label="Visualization type"
-          inline
-          context="cms"
-          value={object.type}
-          onChange={this.onChange.bind(this, "type")}
-        >
-          <option value="undefined" default>Select visualization type</option>
-          {Object.keys(vizLookup).map(type =>
-            <option key={type} value={type}>{type}</option>
-          )}
-        </Select>
+        <React.Fragment>
+          <Select
+            label="Visualization type"
+            inline
+            context="cms"
+            value={object.type}
+            onChange={this.onChange.bind(this, "type")}
+          >
+            <option value="undefined" default>Select visualization type</option>
+            {Object.keys(vizLookup).map(type =>
+              <option key={type} value={type}>{type}</option>
+            )}
+          </Select>
+          <TextInput
+            label={"Visualization Title"}
+            context="cms"
+            fontSize="xs"
+            key="title-text"
+            value={object.title}
+            onChange={this.onChange.bind(this, "title")}
+          />
+        </React.Fragment>
       }
 
       {payload.data &&
         <div className="viz-select-group">
-          {object.type && vizLookup[object.type].map(prop => reservedWords.includes(prop)
+          {object.type && vizLookup[object.type] && vizLookup[object.type].map(prop => reservedWords.includes(prop)
             ? <TextInput
               label={`please enter ${prop}`}
               context="cms"
