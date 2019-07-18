@@ -44,13 +44,13 @@ import {Profile} from "@datawheel/canon-cms";
 
 For upgrading to new versions, there are currently three migration scripts:
 
-1) `npm run migrate-legacy` (for DataUSA) 
-2) `npm run migrate-0.1` (for CDC or other 0.1 CMS users)
-3) `npm run migrate-0.6` (for 0.6 CMS users)
+1) `npx migrate-legacy` (for DataUSA) 
+2) `npx migrate-0.1` (for CDC or other 0.1 CMS users)
+3) `npx migrate-0.6` (for 0.6 CMS users)
 
 ### Instructions
 
-The name of the script represents the version you wish to migrate **FROM**.  So, to upgrade a DB from 0.6 to 0.7, one would use `npm run migrate-0.6`.  Currently both `legacy` and `0.1` upgrade directly to `0.6`.  From here on out, versions will upgrade **one dot version at a time**.
+The name of the script represents the version you wish to migrate **FROM**.  So, to upgrade a DB from 0.6 to 0.7, one would use `npx migrate-0.6`.  Currently both `legacy` and `0.1` upgrade directly to `0.6`.  From here on out, versions will upgrade **one dot version at a time**.
 
 It is necessary that users spin up an entire new database for any CMS migration.
 
