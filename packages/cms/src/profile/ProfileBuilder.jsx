@@ -12,6 +12,8 @@ import SidebarTree from "../components/interface/SidebarTree";
 import Header from "../components/interface/Header";
 import Toolbox from "../components/interface/Toolbox";
 import nestedObjectAssign from "../utils/nestedObjectAssign";
+import sectionIconLookup from "../utils/sectionIconLookup";
+import toKebabCase from "../utils/formatters/toKebabCase";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
@@ -92,7 +94,9 @@ class ProfileBuilder extends Component {
           itemType: "section",
           masterPid: p.id,
           masterMeta: p.meta,
-          data: t
+          data: t,
+          icon: sectionIconLookup(t.type, t.sticky),
+          className: `${toKebabCase(t.type)}-node`
         };
       })
     }));
@@ -555,7 +559,7 @@ class ProfileBuilder extends Component {
               }
             });
           }
-          // Further, for any given _genStatus or _matStatus that is incoming, 
+          // Further, for any given _genStatus or _matStatus that is incoming,
           // if the incoming version has no error, we must CLEAR the error from
           // the current state of the variables.
           if (variablesHash[currentPid][localeDefault]) {
