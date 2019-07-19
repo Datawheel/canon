@@ -352,7 +352,7 @@ async function start() {
   if (NODE_ENV === "production") {
     app.use(gzip());
     const FRAMEGUARD = yn(process.env.CANON_HELMET_FRAMEGUARD);
-    app.use(helmet({frameguard: FRAMEGUARD === void 0 ? false : FRAMEGUARD}));
+    app.use(helmet({frameguard: FRAMEGUARD === null ? false : FRAMEGUARD}));
   }
 
   app.get("*", App.default(store, headerConfig));
