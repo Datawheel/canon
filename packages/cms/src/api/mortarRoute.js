@@ -290,7 +290,7 @@ module.exports = function(app) {
         // genStatus is used to track the status of each individual generator
         genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
         // Fold the generated variables into the accumulating returnVariables
-        return {...returnVariables, ...vars};
+        return {...acc, ...vars};
       }, returnVariables);
     });
     returnVariables._genStatus = genStatus;

@@ -74,7 +74,7 @@ export default class Card extends Component {
       <div className={`cms-card cms-${ cardClass }-card${ secondaryLocale ? " is-multilingual" : "" }`} style={style}>
 
         {/* cover button */}
-        {onEdit && title &&
+        {onEdit && 
           <button className="cms-card-cover-button" onClick={ onEdit }>
             <span className="u-visually-hidden">edit {title}</span>
           </button>

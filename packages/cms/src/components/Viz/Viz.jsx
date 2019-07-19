@@ -60,7 +60,7 @@ class Viz extends Component {
     }${
       type ? ` cp-${toKebabCase(type)}-viz-container` : ""
     }`}>
-      { options && !vizProps.error
+      {options && !vizProps.error
         ? <Options
           key="option-key"
           component={{section, viz: this}}
@@ -75,6 +75,9 @@ class Viz extends Component {
         ref={ comp => this.viz = comp }
         className={`d3plus cp-viz cp-${type}-viz`}
         dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
+        linksFormat={vizProps.linksFormat}
+        nodesFormat={vizProps.nodesFormat}
+        topojsonFormat={vizProps.topojsonFormat}
         config={vizProps.config}
       />
     </div>;
