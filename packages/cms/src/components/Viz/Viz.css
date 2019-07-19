@@ -16,8 +16,12 @@
     align-items: baseline;
     justify-content: space-between;
 
-    & > .cp-viz-title:not(:last-child) {
-      margin-right: var(--gutter-sm);
+    & > .cp-viz-title {
+      @mixin overflow-ellipsis;
+
+      &:not(:last-child) {
+        margin-right: var(--gutter-sm);
+      }
     }
 
     & > .Options {
