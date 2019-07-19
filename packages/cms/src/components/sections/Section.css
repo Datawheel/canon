@@ -5,10 +5,12 @@
   color: var(--section-text-color);
 }
 /* section (or section grouping) backgrounds */
-.cp-main > *:nth-child(odd) {
+.cp-main > *:nth-child(odd),
+.cp-main > *:only-child > *:nth-child(odd) {
   background-color: var(--section-bg-odd);
 }
-.cp-main > *:nth-child(even) {
+.cp-main > *:nth-child(even),
+.cp-main > *:only-child > *:nth-child(even) {
   background-color: var(--section-bg-even);
 }
 .cp-heading {

@@ -15,6 +15,7 @@ import Parse from "./components/Parse";
 import Selector from "./components/Selector";
 
 import Default from "./Default";
+import Grouping from "./Grouping";
 import InfoCard from "./InfoCard";
 import MultiColumn from "./MultiColumn";
 import SingleColumn from "./SingleColumn";
@@ -22,7 +23,7 @@ import Tabs from "./Tabs";
 
 // used to construct component
 // NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
-const sectionTypes = {Default, InfoCard, MultiColumn, SingleColumn, Tabs};
+const sectionTypes = {Default, Grouping, InfoCard, MultiColumn, SingleColumn, Tabs};
 
 /** wrapper for all sections */
 class Section extends Component {

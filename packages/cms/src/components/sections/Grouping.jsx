@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import Viz from "../Viz/Viz";
 import "./Grouping.css";
 
-export grouping class Grouping extends Component {
+export default class Grouping extends Component {
   render() {
     const {slug, title, heading, paragraphs, loading, filters, stats, sources, visualizations} = this.props;
 
