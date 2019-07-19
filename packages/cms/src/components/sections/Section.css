@@ -16,6 +16,10 @@
 .cp-section-heading {
   margin-top: 0;
   color: var(--section-heading-color);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 /* LAYOUT */
@@ -44,7 +48,7 @@
 
 /* STICKY */
 .cp-section.is-sticky {
-  background-color: var(--sticky-section-bg);
+  background-color: var(--sticky-section-bg-color);
 
   @mixin min-md {
     position: relative; /* IE fallback */

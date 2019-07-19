@@ -232,16 +232,18 @@ class SectionEditor extends Component {
             </Select>
 
             {/* layout select */}
-            <Select
-              label="Layout"
-              inline
-              context="cms"
-              fontSize="xs"
-              value={minData.type}
-              onChange={this.changeField.bind(this, "type", true)}
-            >
-              {layouts}
-            </Select>
+            {!minData.sticky &&
+              <Select
+                label="Layout"
+                inline
+                context="cms"
+                fontSize="xs"
+                value={minData.type}
+                onChange={this.changeField.bind(this, "type", true)}
+              >
+                {layouts}
+              </Select>
+            }
 
             {/* sticky select */}
             <label className="bp3-label">
