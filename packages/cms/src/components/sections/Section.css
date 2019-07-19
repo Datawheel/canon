@@ -21,6 +21,8 @@
 .cp-section {
   padding: var(--gutter-md);
   overflow-x: hidden;
+  overflow-y: visible;
+  height: auto;
 
   @mixin min-md {
     padding-top: var(--gutter-lg);
@@ -36,11 +38,7 @@
 }
 
 .cp-section-content > * {
-  margin: 0;
-
-  &:not(:last-child) {
-    margin-bottom: 0.5em;
-  }
+  margin-bottom: 0.5em;
 }
 
 /* STICKY */

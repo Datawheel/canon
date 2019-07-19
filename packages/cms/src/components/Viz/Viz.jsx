@@ -1,10 +1,12 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
+import {SizeMe} from "react-sizeme";
 import PercentageBar from "./PercentageBar";
 import Options from "./Options";
 import toKebabCase from "../../utils/formatters/toKebabCase";
 import propify from "../../utils/d3plusPropify";
+import Parse from "../sections/components/Parse";
 import "./Viz.css";
 
 const vizTypes = Object.assign({PercentageBar}, d3plus);
@@ -17,7 +19,6 @@ class Viz extends Component {
   }
 
   render() {
-
     const variables = this.props.variables || this.context.variables;
     const locale = this.props.locale || this.context.locale;
 
@@ -29,7 +30,7 @@ class Viz extends Component {
     // locale-nested format.
     const formatters = this.context.formatters[locale] || this.context.formatters;
 
-    const {config, configOverride, className, debug, options, slug, section} = this.props;
+    const {config, configOverride, context, className, debug, options, slug, section, showTitle, headingLevel} = this.props;
     const {id} = config;
 
     // clone config object to allow manipulation
@@ -52,37 +53,50 @@ class Viz extends Component {
       return <div>{`${type} is not a valid Visualization Type`}</div>;
     }
 
-    const title = (this.props.title || config.title || slug || "")
-      .replace(/^<p>/g, "").replace(/<\/p>$/g, "");
+    const title = vizProps.config.title || this.props.title || config.title || slug || "";
+    delete vizProps.config.title;
 
-    return <div className={ `cp-viz-container${
-      className ? ` ${className}` : ""
-    }${
-      type ? ` cp-${toKebabCase(type)}-viz-container` : ""
-    }`}>
-      {options && !vizProps.error
-        ? <Options
-          key="option-key"
-          component={{section, viz: this}}
-          data={ vizProps.config.data }
-          dataFormat={ vizProps.dataFormat }
-          slug={ slug }
-          title={ title }
-        /> : ""
-      }
-      <Visualization
-        key="viz-key"
-        ref={ comp => this.viz = comp }
-        className={`d3plus cp-viz cp-${type}-viz`}
-        dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
-        linksFormat={vizProps.linksFormat}
-        nodesFormat={vizProps.nodesFormat}
-        topojsonFormat={vizProps.topojsonFormat}
-        config={vizProps.config}
-      />
-    </div>;
+    return <SizeMe render={({size}) =>
+      <div className={ `${context}-viz-container${
+        className ? ` ${className}` : ""
+      }${
+        type ? ` ${context}-${toKebabCase(type)}-viz-container` : ""
+      }`}>
+        {showTitle || options
+          ? <div className={`${context}-viz-header`}>
+            {title && showTitle
+              ? <Parse El={headingLevel} className={`${context}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}>
+                {title}
+              </Parse> : ""
+            }
+            {options && !vizProps.error
+              ? <Options
+                key="option-key"
+                component={{section, viz: this}}
+                data={ vizProps.config.data }
+                dataFormat={ vizProps.dataFormat }
+                slug={ slug }
+                title={ title }
+                iconOnly={size && size.width < 320 ? true : false}
+              /> : ""
+            }
+          </div> : ""
+        }
+        <div className={`${context}-viz-figure`}>
+          <Visualization
+            key="viz-key"
+            ref={ comp => this.viz = comp }
+            className={`d3plus ${context}-viz ${context}-${type}-viz`}
+            dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
+            linksFormat={vizProps.linksFormat}
+            nodesFormat={vizProps.nodesFormat}
+            topojsonFormat={vizProps.topojsonFormat}
+            config={vizProps.config}
+          />
+        </div>
+      </div>
+    } />;
   }
-
 }
 
 Viz.contextTypes = {
@@ -96,8 +110,11 @@ Viz.defaultProps = {
   className: "",
   config: {},
   configOverride: {},
+  context: "cp",
   options: true,
-  title: undefined
+  title: undefined,
+  showTitle: true,
+  headingLevel: "h3"
 };
 
 export default Viz;

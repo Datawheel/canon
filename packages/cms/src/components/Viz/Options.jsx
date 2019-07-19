@@ -195,7 +195,7 @@ class Options extends Component {
   render() {
 
     const {backgroundColor, imageContext, imageProcessing, includeSlug, openDialog, results, title} = this.state;
-    const {data, slug, t, transitionDuration} = this.props;
+    const {data, iconOnly, slug, t, transitionDuration} = this.props;
 
     // construct URL from a combination of redux & context (#537)
     const domain = this.props.location.origin;
@@ -299,15 +299,15 @@ class Options extends Component {
     return <div className="Options">
 
       <ButtonGroup>
-        <Button icon="th" fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
+        <Button icon="th" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
           {t("CMS.Options.View Data")}
         </Button>
 
-        <Button icon="media" fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
+        <Button icon="media" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
           {t("CMS.Options.Save Image")}
         </Button>
 
-        <Button icon="share" fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
+        <Button icon="share" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
           {t("CMS.Options.Share")}
         </Button>
       </ButtonGroup>
@@ -333,7 +333,8 @@ class Options extends Component {
 }
 
 Options.defaultProps = {
-  transitionDuration: 100
+  transitionDuration: 100,
+  iconOnly: false
 };
 Options.contextTypes = {
   router: PropTypes.object

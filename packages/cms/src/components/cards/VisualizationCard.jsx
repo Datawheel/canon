@@ -127,7 +127,6 @@ class VisualizationCard extends Component {
 
     const cardProps = {
       cardClass: "visualization",
-      style: {minHeight: `calc(${height}px + 2.25rem)`},
       title: config && config.logic_simple && config.logic_simple.data
         ? `${
           config.logic_simple.type}${
@@ -157,6 +156,7 @@ class VisualizationCard extends Component {
         {!isOpen &&
           <Viz
             config={config}
+            context="cms"
             locale={locale}
             debug={true}
             variables={variables}

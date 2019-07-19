@@ -2,29 +2,50 @@
 
 .cp-viz-container {
   position: relative;
-  padding-top: var(--viz-aspect-ratio);
-  min-height: var(--viz-min-height);
 
-  & > .cp-viz {
-    @mixin absolute-expand;
-    position: absolute !important;
-  }
-
-  & > .Options {
+  /* title & buttons */
+  & > .cp-viz-header {
+    /* sizing & positioning */
     position: absolute;
     top: 0;
+    left: 0;
     right: 0;
+    /* layout */
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    justify-content: space-between;
 
-    & + .cp-viz {
-      margin-top: 1.5rem;
+    & > .cp-viz-title:not(:last-child) {
+      margin-right: var(--gutter-sm);
+    }
+
+    & > .Options {
+      flex-shrink: 0;
+    }
+
+    /* header exists; make room for it */
+    & + .cp-viz-figure {
+      top: 1.5rem;
       bottom: 1.5rem;
       height: calc(100% - 1.5rem);
     }
   }
 
+  /* viz container */
+  & > .cp-viz-figure {
+    position: relative;
+    padding-top: var(--viz-aspect-ratio);
+    min-height: var(--viz-min-height);
+  }
+  & .cp-viz {
+    @mixin absolute-expand;
+    position: absolute !important;
+  }
+
   /* reset non-d3plus visualizations */
-  &.cp-percentage-bar-viz-container {
+  &.cp-percentage-bar-viz-container .cp-viz-figure {
     min-height: 0;
-    padding-top: 1.5rem;
+    padding-top: 0;
   }
 }

@@ -8,6 +8,7 @@
   columns: var(--multicolumn-column-count);
   column-width: var(--multicolumn-column-width);
   column-gap: var(--multicolumn-column-gap);
+  column-fill: auto;
 
   & > * {
     break-inside: avoid;
@@ -15,12 +16,12 @@
 }
 
 /* reset viz sizing defaults, since padding, multicolumn, and d3plus don't play well together */
-.cp-multi-column-section .cp-viz-container {
+/* !IMPORTANT NOTE: no top-padding on these two elements, d3plus won't render the viz correctly */
+.cp-multi-column-section .cp-viz-figure {
   padding-top: 0;
-  min-height: 0;
-
-  & > .cp-viz {
-    position: static !important;
-    transform: translateY(1.5rem); /* margin is being ignored (?) */
-  }
+}
+.cp-multi-column-section .cp-viz-header,
+.cp-multi-column-section .cp-viz {
+  position: static !important;
+  margin-bottom: var(--gutter-xs);
 }
