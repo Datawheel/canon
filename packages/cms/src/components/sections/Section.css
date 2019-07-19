@@ -13,7 +13,8 @@
 .cp-main > *:only-child > *:nth-child(even) {
   background-color: var(--section-bg-even);
 }
-.cp-heading {
+.cp-section-heading {
+  margin-top: 0;
   color: var(--section-heading-color);
 }
 

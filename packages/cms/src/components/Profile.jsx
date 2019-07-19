@@ -119,15 +119,28 @@ class Profile extends Component {
 
         {/* main content sections */}
         <main className="cp-main" id="main">
-          {groupedSections.map((groupings, ii) =>
-            <div className="cp-grouping" key={ii}>
-              {groupings.map((innerGrouping, i) => innerGrouping.length === 1
+          {groupedSections.map((groupings, i) =>
+            <div className="cp-grouping" key={i}>
+              {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                 // ungrouped section
-                ? <Section key={`${innerGrouping[0].slug}-${i}`} loading={loading} contents={innerGrouping[0]} />
+                ? <Section
+                  contents={innerGrouping[0]}
+                  headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
+                  loading={loading}
+                  key={`${innerGrouping[0].slug}-${ii}`}
+                />
                 // grouped sections
                 : <SectionGrouping layout={innerGrouping[0].type}>
-                  {innerGrouping.map((section, sectionIndex) =>
-                    <Section key={`${section.slug}-${sectionIndex}`} loading={loading} contents={section} />
+                  {innerGrouping.map((section, iii) =>
+                    <Section
+                      contents={section}
+                      headingLevel={groupedSections.length === 1 || ii === 0
+                        ? iii === 0 ? "h2" : "h3"
+                        : "h4"
+                      }
+                      loading={loading}
+                      key={`${section.slug}-${iii}`}
+                    />
                   )}
                 </SectionGrouping>
               )}

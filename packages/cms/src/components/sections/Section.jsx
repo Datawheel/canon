@@ -204,6 +204,7 @@ class Section extends Component {
       sources: sourceContent,
       paragraphs: layout === "Tabs" ? contents.descriptions : paragraphs,
       visualizations: !contents.sticky ? visualizations : [],
+      vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
       loading
     };
 

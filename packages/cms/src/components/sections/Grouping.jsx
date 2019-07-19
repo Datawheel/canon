@@ -4,7 +4,7 @@ import "./Grouping.css";
 
 export default class Grouping extends Component {
   render() {
-    const {slug, title, heading, paragraphs, loading, filters, stats, sources, visualizations} = this.props;
+    const {slug, title, heading, paragraphs, loading, filters, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -23,7 +23,7 @@ export default class Grouping extends Component {
         {/* caption */}
         <div className={`cp-grouping-section-figure${visualizations.length > 1 ? " cp-multicolumn-grouping-section-figure" : ""}`}>
           {visualizations.map((visualization, ii) =>
-            <Viz section={this} config={visualization} title={title} slug={`${slug}-${ii}`} key={ii} />
+            <Viz section={this} config={visualization} title={title} slug={`${slug}-${ii}`} headingLevel={vizHeadingLevel} key={ii} />
           )}
         </div>
       </div>
