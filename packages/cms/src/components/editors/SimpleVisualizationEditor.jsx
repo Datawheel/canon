@@ -212,9 +212,9 @@ class SimpleVisualizationEditor extends Component {
             )}
           </Select>
           <TextInput
-            label={"Visualization title"}
+            label="Title"
             context="cms"
-            fontSize="xs"
+            inline
             key="title-text"
             value={object.title}
             onChange={this.onChange.bind(this, "title")}

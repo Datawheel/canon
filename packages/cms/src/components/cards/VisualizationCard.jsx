@@ -170,7 +170,7 @@ class VisualizationCard extends Component {
           className="generator-editor-dialog"
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Variable Editor"
+          title="Visualization editor"
           usePortal={false}
         >
           <div className="bp3-dialog-body">

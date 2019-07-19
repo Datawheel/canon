@@ -81,11 +81,7 @@
         minmax(18rem, 1fr)
       );
       grid-gap: var(--multicolumn-column-gap);
-
-      /* reset above */
-      & > *:not(:last-child) {
-        margin-bottom: 0;
-      }
+      margin-bottom: 0;
     }
 
     /* fixes pesky multicolumn box-shadow bug */
