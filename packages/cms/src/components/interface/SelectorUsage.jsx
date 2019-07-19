@@ -96,7 +96,7 @@ class SelectorUsage extends Component {
                   <label className="cms-selector-usage-item-label u-font-xs">
                     {s.name}
                     <Button
-                      className="cms-selector-usage-item-button u-font-xxxs"
+                      className="cms-selector-usage-item-button"
                       fontSize="xxxs"
                       context="cms"
                       icon="plus"
@@ -127,7 +127,7 @@ class SelectorUsage extends Component {
                     <h3 className="cms-card-heading-text u-font-sm">{s.name}</h3>
                     <div className="cms-button-group">
                       <Button
-                        className="cms-card-heading-button u-font-xxs"
+                        className="cms-card-heading-button"
                         fontSize="xxxs"
                         context="cms"
                         onClick={this.removeItem.bind(this, s.id)}

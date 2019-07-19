@@ -26,7 +26,8 @@ export default class Card extends Component {
     } = this.props;
 
     const buttonProps = {
-      className: "cms-card-heading-button u-font-xxs",
+      className: "cms-card-heading-button",
+      fontSize: "xxxs",
       context: "cms",
       iconOnly: true
     };
@@ -74,7 +75,7 @@ export default class Card extends Component {
       <div className={`cms-card cms-${ cardClass }-card${ secondaryLocale ? " is-multilingual" : "" }`} style={style}>
 
         {/* cover button */}
-        {onEdit && 
+        {onEdit &&
           <button className="cms-card-cover-button" onClick={ onEdit }>
             <span className="u-visually-hidden">edit {title}</span>
           </button>

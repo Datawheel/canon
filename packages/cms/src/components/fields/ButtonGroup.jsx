@@ -8,7 +8,7 @@ export default class ButtonGroup extends Component {
 
     return (
       buttons || children
-        ? <div className={`${context}-button-group ${className || ""}`}>
+        ? <div className={`${context}-button-group${className ? ` ${className}` : ""}`}>
           {children}
           {buttons && buttons.map(button =>
             <Button key={button.children} {...button} />
