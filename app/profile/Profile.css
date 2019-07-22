@@ -6,7 +6,7 @@
   }
 
   & .offset-content {
-    padding-left: var(--subnav-size);
+    padding-left: var(--subnav-height);
   }
 
 }
