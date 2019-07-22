@@ -47,9 +47,14 @@
     position: absolute !important;
   }
 
-  /* reset non-d3plus visualizations */
-  &.cp-percentage-bar-viz-container .cp-viz-figure {
-    min-height: 0;
+  /* reset non-d3plus visualizations & visualizations with an explicit height in px */
+  &.cp-percentage-bar-viz-container .cp-viz-figure,
+  & > .cp-viz-figure.with-explicit-height {
     padding-top: 0;
+    min-height: 0;
+
+    & > .cp-viz {
+      position: static !important;
+    }
   }
 }

@@ -82,11 +82,11 @@ class Viz extends Component {
             }
           </div> : ""
         }
-        <div className={`${context}-viz-figure`}>
+        <div className={`${context}-viz-figure${vizProps.config.height ? " with-explicit-height" : ""}`}>
           <Visualization
             key="viz-key"
             ref={ comp => this.viz = comp }
-            className={`d3plus ${context}-viz ${context}-${type}-viz`}
+            className={`d3plus ${context}-viz ${context}-${toKebabCase(type)}-viz`}
             dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
             linksFormat={vizProps.linksFormat}
             nodesFormat={vizProps.nodesFormat}
