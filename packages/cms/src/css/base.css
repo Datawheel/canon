@@ -120,8 +120,12 @@ strong, [class] > strong,
   }
 }
 
-
-
+/* highlighted text style */
+.cms ::selection,
+.cp ::selection {
+  color: var(--black);
+  background-color: color(var(--accent-light) a(0.75));
+}
 
 
 
