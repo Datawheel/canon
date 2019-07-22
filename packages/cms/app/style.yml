@@ -1,17 +1,41 @@
 ########################################
-# admin panel
+# instructions
+########################################
+
+# When styling a canon profile, the first thing you should do is heavily customize these variables.
+# Each of the following variables is used throughout both the admin panel and generated profile css.
+# If you replace the default grayscale colors, you should try and use similar shades.
+
+# It is recommended that you also use these variables in your css files. i.e., `color: var(--accent);`
+# They can also be imported and used by react components: `import styles from style.yml`, then `<span style={{color: styles["alert-dark"]}} />`
+# And of course, you can add as many new variables here as you like, and use them in the same way.
+
+# The pigments plugin is highly recommended for visualizing hex values as colors in your text editor:
+# Atom:   https://atom.io/packages/pigments
+# VSCode: https://marketplace.visualstudio.com/items?itemName=jaspernorth.vscode-pigments
+
+# GOTCHAS:
+# 1. When aliasing variables in this file (i.e., `section-text-color: "var(--dark-2)"`), these variables will be replaced in css files, but NOT in js files.
+# 2. Currently, after making changes to this file, you will need to clear the cache `rm -rf node_modules/.cache` and then rerun the build. There's an issue for this.
+# 3. Make sure there are no more than 1 empty line at the end of the file, or style.yml will not be recognized and your build will fail. ¯\_(ツ)_/¯
+
+# Finally, if you encounter any bugs, are confused by anything, or wish things were better/different, let @perpetualgrimace know!
+
+
+########################################
+# shared vars (admin panel & profile)
 ########################################
 
 # grayscale
-white:   "#FFFFFF"
-light-1: "#F8F9FA"
-light-2: "#ECEFF1"
-light-3: "#CFDAE2"
-gray:    "#AEBDCC"
-dark-1:  "#8A97AE"
-dark-2:  "#2A2F3B"
-dark-3:  "#20242E"
-black:   "#181A21"
+white:        "#FFFFFF"
+light-1:      "#F8F9FA"
+light-2:      "#ECEFF1"
+light-3:      "#CFDAE2"
+gray:         "#AEBDCC"
+dark-1:       "#8A97AE"
+dark-2:       "#2A2F3B"
+dark-3:       "#20242E"
+black:        "#181A21"
 
 # accent colors
 accent:       "#FFCD33"
@@ -19,27 +43,32 @@ accent-light: "#FFD65B"
 accent-dark:  "#C4960B"
 accent-black: "#7F6516"
 
+
+########################################
+# admin panel
+########################################
+
 # UI colors
-alert-dark:   "#75224D"
-alert:        "#992C64"
-alert-light:  "#DB64A6"
+alert-dark:         "#75224D"
+alert:              "#992C64"
+alert-light:        "#DB64A6"
 
-type-number:      "#8EB6FF"
-type-number-dark: "#2D4A7F"
+type-number:        "#8EB6FF"
+type-number-dark:   "#2D4A7F"
 
-type-string:      "#B9E28C"
-type-string-dark: "#62873B"
+type-string:        "#B9E28C"
+type-string-dark:   "#62873B"
 
-type-boolean:      "#FFD65B"
-type-boolean-dark: "#7F6516"
+type-boolean:       "#FFD65B"
+type-boolean-dark:  "#7F6516"
 
-type-error:       "#DB64A6"
-type-error-dark:  "#75224D"
+type-error:         "#DB64A6"
+type-error-dark:    "#75224D"
 
 # measurements
-cms-nav-height: "3.125rem"
-sidebar-width: "17rem"
-toolbox-width: "22.5rem"
+cms-nav-height:     "3.125rem"
+sidebar-width:      "17rem"
+toolbox-width:      "22.5rem"
 
 
 ########################################
