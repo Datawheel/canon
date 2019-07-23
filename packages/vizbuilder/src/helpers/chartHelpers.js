@@ -1,17 +1,8 @@
 import {assign} from "d3plus-common";
-import {
-  BarChart,
-  Donut,
-  Geomap,
-  LinePlot,
-  Pie,
-  StackedArea,
-  Treemap
-} from "d3plus-react";
-
+import {BarChart, Donut, Geomap, LinePlot, Pie, StackedArea, Treemap} from "d3plus-react";
+import {joinStringsWithCommaAnd} from "./formatting";
 import {getPermutations} from "./sorting";
 import {areMetaMeasuresZero} from "./validation";
-import {joinStringsWithCommaAnd} from "./formatting";
 
 export const chartComponents = {
   barchart: BarChart,
@@ -105,12 +96,11 @@ export function calcChartSetups(type, query) {
        * 1 member, as these look the same in both orders.
        * @see Issue#434 on {@link https://github.com/Datawheel/canon/issues/434 | GitHub}
        */
-      return permutations
-        .filter(setup => {
-          const level = setup[0];
-          const grouping = groupings.find(grp => grp.level === level);
-          return grouping.members.length !== 1;
-        });
+      return permutations.filter(setup => {
+        const level = setup[0];
+        const grouping = groupings.find(grp => grp.level === level);
+        return grouping.members.length !== 1;
+      });
     }
 
     default: {
@@ -121,11 +111,12 @@ export function calcChartSetups(type, query) {
 
 /**
  * Generates the parameters for the tooltip shown for the current datagroup.
- * @param {Datagroup} datagroup The chart datagroup
+ * @param {import("./chartCriteria").Datagroup} datagroup The chart datagroup
  */
 export function tooltipGenerator(datagroup) {
   const {formatter, names} = datagroup;
   const {levelName, measureName} = names;
+  const {filters} = datagroup.query;
   const shouldShow = areMetaMeasuresZero(names, datagroup.dataset);
 
   const tbody = Object.keys(datagroup.members)
@@ -153,6 +144,14 @@ export function tooltipGenerator(datagroup) {
   if (shouldShow.clt) {
     const {collectionName} = names;
     tbody.push(["Collection", d => `${d[collectionName]}`]);
+  }
+
+  if (Array.isArray(filters)) {
+    filters.forEach(filter => {
+      const filterName = filter.name;
+      const formatter = filter.getFormatter();
+      filterName && tbody.push([filterName, d => `${formatter(d[filterName])}`]);
+    });
   }
 
   return {

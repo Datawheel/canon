@@ -1,7 +1,51 @@
 import * as React from "react";
-import {Cube, Level, Measure} from "mondrian-rest-client";
+import { Cube, Level, Measure } from "mondrian-rest-client";
+import Member from "mondrian-rest-client/lib/types/member";
+import { Datagroup } from "./helpers/chartCriteria";
 
 export function vbStateReducer(state: any, action: any): any;
+
+declare class Grouping {
+  private uuid: string;
+  public level: Level;
+  public members: Member[];
+
+  public key?: string;
+  public name?: string;
+  public hasMembers: boolean;
+
+  static isValid(grouping: Grouping): boolean;
+  static isValidCut(grouping: Grouping): boolean;
+
+  public toString(): string;
+  public serialize(): string;
+  public getClone(): Grouping;
+  public setLevel(level: Level): Grouping;
+  public addMember(member: Member): Grouping;
+  public removeMember(member: Member): Grouping;
+}
+
+declare class Filter {
+  private uuid: string;
+  public measure: Measure;
+  public operator: number;
+  public value: number;
+  public visibleValue: string | number;
+
+  public key: string;
+  public name: string;
+  public operatorLabel: string;
+  public hasValue: boolean;
+
+  public toString(): string;
+  public serialize(): string;
+  public getClone(): Filter;
+  public getFormatter(): (d: number) => string;
+  public getMultiplier(): number;
+  public setMeasure(measure: Measure): Filter;
+  public setOperator(evt: Event): Filter;
+  public setValue(valueAsNumber: number, valueAsString: string): Filter;
+}
 
 declare class Vizbuilder extends React.Component<VizbuilderProps, any> {}
 
@@ -52,6 +96,45 @@ export interface VizbuilderProps {
   visualizations?: string[];
 }
 
+export interface VbState {
+  charts: VbChart[];
+  datagroups: Datagroup[];
+  instanceKey: string;
+  load: VbLoadState;
+  options: VbOptions;
+  query: VbQuery;
+  uiParams: VbUIParams;
+}
+
+export interface VbDatagroup {
+  aggType: string;
+  charts: string[];
+  dataset: any[];
+  formatter: (d: number) => string;
+  key: string;
+  members: {[key: string]: string[] | number[]};
+  names: {[key: string]: string};
+  query: VbQuery;
+  quirk: string;
+}
+
+export interface VbChart implements VbDatagroup {
+  aggType: string;
+  baseConfig: Partial<D3plusConfigObject>;
+  chartType: string;
+  charts: string[];
+  component: React.Component;
+  dataset: any[];
+  formatter: (d: number) => string;
+  key: string;
+  members: {[key: string]: string[] | number[]};
+  names: {[key: string]: string};
+  query: VbQuery;
+  setup: Level[];
+  topoConfig: {projection: string; ocean: string; topojson: string};
+  userConfig: Partial<D3plusConfigObject>;
+}
+
 export interface VbQuery {
   measure: Measure;
   groups: Grouping[];
@@ -69,23 +152,6 @@ export interface VbUIParams {
   activeChart: string | null;
   selectedTime: number | null;
   showConfidenceInt: boolean;
-}
-
-export interface VbChart {
-  aggType: string;
-  baseConfig: Partial<D3plusConfigObject>;
-  chartType: string;
-  charts: string[];
-  component: React.Component;
-  dataset: any[];
-  formatter: (d: number) => string;
-  key: string;
-  members: { [x: string]: string[] | number [] };
-  names: { [x: string]: string };
-  query: VbQuery;
-  setup: Level[];
-  topoConfig: { projection: string, ocean: string, topojson: string };
-  userConfig: Partial<D3plusConfigObject>;
 }
 
 export default Vizbuilder;
