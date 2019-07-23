@@ -6,7 +6,7 @@
   position: absolute;
   top: 0;
   width: 100vw;
-  z-index: var(--cover);
+  z-index: 2;
 
   & .close {
     color: white;

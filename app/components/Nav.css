@@ -2,7 +2,7 @@
   display: block;
   height: 100px;
   width: 100%;
-  z-index: var(--foreground);
+  z-index: 1;
   & .logo {
     font-weight: 600;
     lost-column: 1/4;

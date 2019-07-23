@@ -16,6 +16,7 @@
 
 .cms-tree [class*="tree-node-content-0"] {
   min-height: 2.5rem;
+  padding-left: 0.25rem;
 }
 
 .cms-tree .bp3-tree-node {
@@ -49,14 +50,15 @@
 
     /* fudge chevron sizing and alignment */
     & [class*="chevron"] {
-      width: 28px;
+      min-width: 1.125rem;
       height: 28px;
-      left: -4px;
+      left: -0.125rem;
+      margin-left: -0.375rem;
       margin-right: -8px;
-      top: 2px;
+      top: 1px;
 
-      &[class*="open"]{
-        left: -7px;
+      &[class*="open"] {
+        left: -0.2rem;
         top: 0;
       }
     }
@@ -96,7 +98,7 @@
     /* nested nodes
     /* -------------------------- */
     &.bp3-tree-node-content-1 {
-      padding-left: 1.25rem;
+      padding-left: 0.75rem;
       font-weight: 300;
       background-color: var(--light-2);
       min-height: 1.875rem;
@@ -167,5 +169,21 @@
         color: var(--accent-light);
       }
     }
+  }
+}
+
+[class*="tree-node"]:not(.bp3-tree-node-selected) > * > .bp3-tree-node-icon {
+  transform: scale(0.875);
+}
+
+.bp3-tree-node-icon {
+  margin-right: 0 !important;
+}
+
+.grouping-node ~ *:not(.grouping-node) > [class*="tree-node-content"] {
+  padding: 0 5px 0 2.125rem !important;
+
+  & > [class*="tree-node-label"] {
+    @mixin font-xxs;
   }
 }

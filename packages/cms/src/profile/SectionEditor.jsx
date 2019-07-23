@@ -161,6 +161,7 @@ class SectionEditor extends Component {
     let availableLayouts = minData.types.filter(l => l !== "Hero");
     // if this is the first section, add Hero layout to the front
     if (order === 0) availableLayouts = ["Hero"].concat(availableLayouts);
+    if (minData.sticky) availableLayouts = ["Default"];
 
     const layouts = availableLayouts.map(l =>
       <option key={l} value={l}>
@@ -231,16 +232,18 @@ class SectionEditor extends Component {
             </Select>
 
             {/* layout select */}
-            <Select
-              label="Layout"
-              inline
-              context="cms"
-              fontSize="xs"
-              value={minData.type}
-              onChange={this.changeField.bind(this, "type", true)}
-            >
-              {layouts}
-            </Select>
+            {!minData.sticky &&
+              <Select
+                label="Layout"
+                inline
+                context="cms"
+                fontSize="xs"
+                value={minData.type}
+                onChange={this.changeField.bind(this, "type", true)}
+              >
+                {layouts}
+              </Select>
+            }
 
             {/* sticky select */}
             <label className="bp3-label">
@@ -270,27 +273,29 @@ class SectionEditor extends Component {
         </Deck>
 
         {/* subtitles */}
-        <Deck
-          title="Subtitles"
-          entity="subtitle"
-          addItem={this.addItem.bind(this, "section_subtitle")}
-          cards={minData.subtitles && minData.subtitles.map(s =>
-            <TextCard
-              key={s.id}
-              item={s}
-              locale={locale}
-              localeDefault={localeDefault}
-              fields={["subtitle"]}
-              query={query}
-              type="section_subtitle"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              parentArray={minData.subtitles}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        />
+        {!minData.sticky &&
+          <Deck
+            title="Subtitles"
+            entity="subtitle"
+            addItem={this.addItem.bind(this, "section_subtitle")}
+            cards={minData.subtitles && minData.subtitles.map(s =>
+              <TextCard
+                key={s.id}
+                item={s}
+                locale={locale}
+                localeDefault={localeDefault}
+                fields={["subtitle"]}
+                query={query}
+                type="section_subtitle"
+                onDelete={this.onDelete.bind(this)}
+                variables={variables[localeDefault]}
+                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
+                parentArray={minData.subtitles}
+                onMove={this.onMove.bind(this)}
+              />
+            )}
+          />
+        }
 
         {selectors && selectors.length > 0 &&
           <Deck title="Selector activation" entity="selectorUsage">
@@ -304,76 +309,79 @@ class SectionEditor extends Component {
           </Deck>
         }
 
-        {/* stats */}
-        <Deck
-          title="Stats"
-          entity="stat"
-          addItem={this.addItem.bind(this, "section_stat")}
-          cards={minData.stats && minData.stats.map(s =>
-            <TextCard
-              key={s.id}
-              item={s}
-              locale={locale}
-              localeDefault={localeDefault}
-              fields={["title", "subtitle", "value", "tooltip"]}
-              query={query}
-              type="section_stat"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              parentArray={minData.stats}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        />
+        {/* hide fields that won't be used by sticky sections */}
+        {!minData.sticky && <React.Fragment>
+          {/* stats */}
+          <Deck
+            title="Stats"
+            entity="stat"
+            addItem={this.addItem.bind(this, "section_stat")}
+            cards={minData.stats && minData.stats.map(s =>
+              <TextCard
+                key={s.id}
+                item={s}
+                locale={locale}
+                localeDefault={localeDefault}
+                fields={["title", "subtitle", "value", "tooltip"]}
+                query={query}
+                type="section_stat"
+                onDelete={this.onDelete.bind(this)}
+                variables={variables[localeDefault]}
+                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
+                parentArray={minData.stats}
+                onMove={this.onMove.bind(this)}
+              />
+            )}
+          />
 
-        {/* descriptions */}
-        <Deck
-          title="Paragraphs"
-          entity="description"
-          addItem={this.addItem.bind(this, "section_description")}
-          cards={minData.descriptions && minData.descriptions.map(d =>
-            <TextCard
-              key={d.id}
-              item={d}
-              locale={locale}
-              localeDefault={localeDefault}
-              fields={["description"]}
-              query={query}
-              type="section_description"
-              onDelete={this.onDelete.bind(this)}
-              variables={variables[localeDefault]}
-              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              parentArray={minData.descriptions}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        />
+          {/* descriptions */}
+          <Deck
+            title="Paragraphs"
+            entity="description"
+            addItem={this.addItem.bind(this, "section_description")}
+            cards={minData.descriptions && minData.descriptions.map(d =>
+              <TextCard
+                key={d.id}
+                item={d}
+                locale={locale}
+                localeDefault={localeDefault}
+                fields={["description"]}
+                query={query}
+                type="section_description"
+                onDelete={this.onDelete.bind(this)}
+                variables={variables[localeDefault]}
+                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
+                parentArray={minData.descriptions}
+                onMove={this.onMove.bind(this)}
+              />
+            )}
+          />
 
-        {/* visualizations */}
-        <Deck
-          title="Visualizations"
-          entity="visualization"
-          addItem={this.addItem.bind(this, "section_visualization")}
-          cards={minData.visualizations && minData.visualizations.map(v =>
-            <VisualizationCard
-              key={v.id}
-              item={v}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              secondaryLocale={locale}
-              query={query}
-              previews={previews}
-              onDelete={this.onDelete.bind(this)}
-              type="section_visualization"
-              variables={variables[localeDefault]}
-              secondaryVariables={variables[locale]}
-              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              parentArray={minData.visualizations}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-        />
+          {/* visualizations */}
+          <Deck
+            title="Visualizations"
+            entity="visualization"
+            addItem={this.addItem.bind(this, "section_visualization")}
+            cards={minData.visualizations && minData.visualizations.map(v =>
+              <VisualizationCard
+                key={v.id}
+                item={v}
+                locale={localeDefault}
+                localeDefault={localeDefault}
+                secondaryLocale={locale}
+                query={query}
+                previews={previews}
+                onDelete={this.onDelete.bind(this)}
+                type="section_visualization"
+                variables={variables[localeDefault]}
+                secondaryVariables={variables[locale]}
+                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
+                parentArray={minData.visualizations}
+                onMove={this.onMove.bind(this)}
+              />
+            )}
+          />
+        </React.Fragment>}
 
         {/* loading status */}
         <Status recompiling={recompiling} />

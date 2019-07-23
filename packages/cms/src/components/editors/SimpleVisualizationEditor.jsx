@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
+import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
@@ -211,9 +212,9 @@ class SimpleVisualizationEditor extends Component {
             )}
           </Select>
           <TextInput
-            label={"Visualization Title"}
+            label="Title"
             context="cms"
-            fontSize="xs"
+            inline
             key="title-text"
             value={object.title}
             onChange={this.onChange.bind(this, "title")}

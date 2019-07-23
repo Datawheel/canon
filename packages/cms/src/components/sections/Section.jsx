@@ -13,9 +13,9 @@ import StatGroup from "../Viz/StatGroup";
 
 import Parse from "./components/Parse";
 import Selector from "./components/Selector";
-import Stat from "./components/Stat";
 
 import Default from "./Default";
+import Grouping from "./Grouping";
 import InfoCard from "./InfoCard";
 import MultiColumn from "./MultiColumn";
 import SingleColumn from "./SingleColumn";
@@ -23,7 +23,7 @@ import Tabs from "./Tabs";
 
 // used to construct component
 // NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
-const sectionTypes = {Default, InfoCard, MultiColumn, SingleColumn, Tabs};
+const sectionTypes = {Default, Grouping, InfoCard, MultiColumn, SingleColumn, Tabs};
 
 /** wrapper for all sections */
 class Section extends Component {
@@ -123,7 +123,7 @@ class Section extends Component {
     const layout = contents.type;
     const layoutClass = `cp-${toKebabCase(layout)}-section`;
 
-    const Layout = sectionTypes[layout] || Default; // assign the section layout component
+    const Layout = contents.sticky ? Default : sectionTypes[layout] || Default; // assign the section layout component
 
     const {descriptions, slug, stats, subtitles, title, visualizations} = contents;
     const selectors = contents.selectors || [];
@@ -136,7 +136,7 @@ class Section extends Component {
         </Parse>
       }
 
-      {subtitles.map((content, i) =>
+      {!contents.sticky && subtitles.map((content, i) =>
         <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
           {content.subtitle}
         </Parse>
@@ -155,31 +155,33 @@ class Section extends Component {
 
     // stats
     let statContent, secondaryStatContent;
-    const statGroups = nest().key(d => d.title).entries(stats);
-    if (stats.length > 0) {
-      statContent = <div className="cp-stat-group-wrapper">
-        <div className="cp-stat-group">
-          {statGroups.map(({key, values}, i) =>
-            !(layout === "InfoCard" && i > 0) // only push the first stat for cards
+
+    if (!contents.sticky) {
+      const statGroups = nest().key(d => d.title).entries(stats);
+
+      if (stats.length > 0) {
+        statContent = <div className="cp-stat-group-wrapper">
+          <div className="cp-stat-group">
+            {statGroups.map(({key, values}, i) => !(layout === "InfoCard" && i > 0) // only push the first stat for cards
               ? <StatGroup key={key} title={key} stats={values} /> : ""
-          )}
-        </div>
-      </div>;
-    }
-    if (stats.length > 1 && layout === "InfoCard") {
-      secondaryStatContent = <div className="cp-stat-group-wrapper cp-secondary-stat-group-wrapper">
-        <div className="cp-stat-group">
-          {statGroups.map(({key, values}, i) =>
-            i > 0 // don't push the first stat again
+            )}
+          </div>
+        </div>;
+      }
+      if (stats.length > 1 && layout === "InfoCard") {
+        secondaryStatContent = <div className="cp-stat-group-wrapper cp-secondary-stat-group-wrapper">
+          <div className="cp-stat-group">
+            {statGroups.map(({key, values}, i) => i > 0 // don't push the first stat again
               ? <StatGroup key={key} title={key} stats={values} /> : ""
-          )}
-        </div>
-      </div>;
+            )}
+          </div>
+        </div>;
+      }
     }
 
     // paragraphs
     let paragraphs;
-    if (descriptions.length) {
+    if (descriptions.length && !contents.sticky) {
       paragraphs = loading
         ? <p>Loading...</p>
         : descriptions.map((content, i) =>
@@ -193,16 +195,16 @@ class Section extends Component {
     const sourceContent = <SourceGroup sources={sources} />;
 
     const componentProps = {
-      contents, // TODO: remove
       slug,
       title,
       heading,
-      paragraphs,
       filters,
       stats: statContent,
       secondaryStats: secondaryStatContent,
       sources: sourceContent,
-      visualizations,
+      paragraphs: layout === "Tabs" ? contents.descriptions : paragraphs,
+      visualizations: !contents.sticky ? visualizations : [],
+      vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
       loading
     };
 

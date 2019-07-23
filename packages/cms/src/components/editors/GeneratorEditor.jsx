@@ -297,23 +297,6 @@ class GeneratorEditor extends Component {
             }}
           />
         }
-        { (type === "generator" || type.includes("_visualization")) &&
-          <div className="cms-field-container">
-            <Switch checked={simple} label="UI mode" onChange={this.maybeSwitchSimple.bind(this)} />
-          </div>
-        }
-        {/* visibility */}
-        { (type === "profile_visualization" || type === "section_visualization") &&
-          <Select
-            label="Visible"
-            inline
-            context="cms"
-            value={data.allowed || "always"}
-            onChange={this.chooseVariable.bind(this)}
-          >
-            {varOptions}
-          </Select>
-        }
         {/* callback instructions */}
         {!simple &&
           <section className="generator-editor-help">
@@ -352,6 +335,27 @@ class GeneratorEditor extends Component {
             />
           }
         </div>
+
+        {/* visibility */}
+        { (type === "profile_visualization" || type === "section_visualization") &&
+          <Select
+            label="Visible"
+            inline
+            fontSize="xs"
+            context="cms"
+            value={data.allowed || "always"}
+            onChange={this.chooseVariable.bind(this)}
+          >
+            {varOptions}
+          </Select>
+        }
+
+        {/* UI/JS mode toggle */}
+        { (type === "generator" || type.includes("_visualization")) &&
+          <div className="cms-field-container cms-mode-switch-container">
+            <Switch checked={simple} label="UI mode" onChange={this.maybeSwitchSimple.bind(this)} />
+          </div>
+        }
       </div>
     );
   }

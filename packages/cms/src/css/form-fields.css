@@ -73,8 +73,20 @@
     column-width: 18rem;
     column-gap: 2rem;
 
+    /* multiple proportional columns with a min-width */
+    @supports (grid-template-columns: minMax(1px, 1fr)) {
+      display: grid;
+      grid-template-columns: repeat(
+        auto-fit,
+        minmax(18rem, 1fr)
+      );
+      grid-gap: var(--multicolumn-column-gap);
+      margin-bottom: 0;
+    }
+
     /* fixes pesky multicolumn box-shadow bug */
     & > * {
+      break-inside: avoid;
       padding-top: 1px;
     }
   }

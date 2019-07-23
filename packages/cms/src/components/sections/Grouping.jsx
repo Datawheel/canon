@@ -1,18 +1,18 @@
 import React, {Component} from "react";
 import Viz from "../Viz/Viz";
-import "./Default.css";
+import "./Grouping.css";
 
-export default class Default extends Component {
+export default class Grouping extends Component {
   render() {
     const {slug, title, heading, paragraphs, loading, filters, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
-        className={`cp-section-inner cp-default-section-inner cp-${slug}-section-inner ${loading ? "is-loading" : ""}`}
+        className={`cp-section-inner cp-grouping-section-inner cp-${slug}-section-inner ${loading ? "is-loading" : ""}`}
         ref={comp => this.section = comp}
       >
         {/* sidebar */}
-        <div className="cp-section-content cp-default-section-caption">
+        <div className="cp-section-content cp-grouping-section-caption">
           {heading}
           {filters}
           {stats}
@@ -21,9 +21,9 @@ export default class Default extends Component {
         </div>
 
         {/* caption */}
-        <div className={`cp-default-section-figure${visualizations.length > 1 ? " cp-multicolumn-default-section-figure" : ""}`}>
+        <div className={`cp-grouping-section-figure${visualizations.length > 1 ? " cp-multicolumn-grouping-section-figure" : ""}`}>
           {visualizations.map((visualization, ii) =>
-            <Viz section={this} config={visualization} title={title} headingLevel={vizHeadingLevel} slug={`${slug}-${ii}`} key={ii} />
+            <Viz section={this} config={visualization} title={title} slug={`${slug}-${ii}`} headingLevel={vizHeadingLevel} key={ii} />
           )}
         </div>
       </div>

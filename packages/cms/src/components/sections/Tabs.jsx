@@ -34,10 +34,8 @@ export default class Tabs extends Component {
   }
 
   render() {
-    const {contents} = this.props;
-    const {slug, title, heading, loading, filters, stats, sources} = this.props;
-    const {descriptions, visualizations} = contents;
-    const selectors = contents.selectors || [];
+    const {slug, title, heading, loading, filters, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const selectors = filters || [];
     const {tabIndex} = this.state;
 
     const visualization = visualizations[tabIndex];
@@ -54,7 +52,7 @@ export default class Tabs extends Component {
       tabSelectors = selectors.slice(selectorsPerViz * tabIndex, selectorsPerViz * (tabIndex + 1));
     }
 
-    const tabDescriptions = descriptions.length === visualizations.length ? [descriptions[tabIndex]] : descriptions;
+    const tabDescriptions = paragraphs.length === visualizations.length ? [paragraphs[tabIndex]] : paragraphs;
 
     const tabs = visualizations.map((d, i) => {
       let title;
@@ -100,12 +98,11 @@ export default class Tabs extends Component {
       </div>
 
       <div className="cp-tabs-section-figure">
-        <Viz section={this} config={visualization} key={tabIndex} title={title} slug={`${slug}_${tabIndex}`} />
+        <Viz section={this} config={visualization} key={tabIndex} title={title} slug={`${slug}_${tabIndex}`} headingLevel={vizHeadingLevel} />
         {tabSelectors.length > 0 && <div className="cp-section-selectors">
           {tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />)}
         </div>}
       </div>
     </div>;
   }
-
 }

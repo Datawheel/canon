@@ -80,16 +80,16 @@ class Profile extends Component {
 
     // rename old section names
     sections.forEach(l => {
-      if (l.type === "TextViz") l.type = "Default";
+      if (l.type === "TextViz" || l.sticky === true) l.type = "Default";
       if (l.type === "Card") l.type = "InfoCard";
       if (l.type === "Column") l.type = "SingleColumn";
     });
 
     const groupableSections = ["InfoCard", "SingleColumn"]; // sections to be grouped together
-    const groupedSections = []; // array for sections to be accumulated into
+    const innerGroupedSections = []; // array for sections to be accumulated into
 
     // reduce sections into a nested array of groupedSections
-    groupedSections.push(sections.reduce((arr, section) => {
+    innerGroupedSections.push(sections.reduce((arr, section) => {
       if (arr.length === 0) arr.push(section); // push the first one
       else {
         const prevType = arr[arr.length - 1].type;
@@ -100,12 +100,18 @@ class Profile extends Component {
         }
         // otherwise, push the section as-is
         else {
-          groupedSections.push(arr);
+          innerGroupedSections.push(arr);
           arr = [section];
         }
       }
       return arr;
     }, []));
+
+    const groupedSections = innerGroupedSections.reduce((arr, group) => {
+      if (arr.length === 0 || group[0].type === "Grouping") arr.push([group]);
+      else arr[arr.length - 1].push(group);
+      return arr;
+    }, []);
 
     return (
       <div className="cp">
@@ -113,15 +119,32 @@ class Profile extends Component {
 
         {/* main content sections */}
         <main className="cp-main" id="main">
-          {groupedSections.map((grouping, i) => grouping.length === 1
-            // ungrouped section
-            ? <Section key={`${grouping[0].slug}-${i}`} loading={loading} contents={grouping[0]} />
-            // grouped sections
-            : <SectionGrouping layout={grouping[0].type}>
-              {grouping.map((section, sectionIndex) =>
-                <Section key={`${section.slug}-${sectionIndex}`} loading={loading} contents={section} />
+          {groupedSections.map((groupings, i) =>
+            <div className="cp-grouping" key={i}>
+              {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
+                // ungrouped section
+                ? <Section
+                  contents={innerGrouping[0]}
+                  headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
+                  loading={loading}
+                  key={`${innerGrouping[0].slug}-${ii}`}
+                />
+                // grouped sections
+                : <SectionGrouping layout={innerGrouping[0].type}>
+                  {innerGrouping.map((section, iii) =>
+                    <Section
+                      contents={section}
+                      headingLevel={groupedSections.length === 1 || ii === 0
+                        ? iii === 0 ? "h2" : "h3"
+                        : "h4"
+                      }
+                      loading={loading}
+                      key={`${section.slug}-${iii}`}
+                    />
+                  )}
+                </SectionGrouping>
               )}
-            </SectionGrouping>
+            </div>
           )}
         </main>
       </div>
