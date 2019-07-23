@@ -1,7 +1,7 @@
 import {uuid} from "d3plus-common";
-
+import {DEFAULT_MEASURE_FORMATTERS, DEFAULT_MEASURE_MULTIPLIERS} from "./formatting";
 import OPERATORS, {LABELS, SYMBOLS} from "./operators";
-import {isValidFilter, isNumeric} from "./validation";
+import {isNumeric, isValidFilter} from "./validation";
 
 class Filter {
   constructor(measure, operator, value) {
@@ -33,9 +33,7 @@ class Filter {
   }
 
   serialize() {
-    return (
-      this.measure && [this.measure.name, SYMBOLS[this.operator], this.value]
-    );
+    return this.measure && [this.measure.name, SYMBOLS[this.operator], this.value];
   }
 
   getClone() {
@@ -95,6 +93,8 @@ class Filter {
   }
 }
 
+Filter.formatters = {...DEFAULT_MEASURE_FORMATTERS};
 Filter.isValid = isValidFilter;
+Filter.multipliers = {...DEFAULT_MEASURE_MULTIPLIERS};
 
 export default Filter;

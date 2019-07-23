@@ -115,7 +115,7 @@ export function replaceMeasureInFilters(filters, cube) {
 export function replaceKeysInString(string, oldList, newList, property) {
   if (typeof string !== "string") return string;
 
-  property = property || 'key';
+  property = property || "key";
 
   for (let i = 0; i < newList.length; i++) {
     if (oldList[i][property] && newList[i][property]) {
@@ -148,7 +148,8 @@ export function generateQueries(params) {
       if (grouping.hasMembers) {
         validCuts.push(grouping);
         cutMap.set(grouping.level, grouping);
-      } else {
+      }
+      else {
         validNotCuts.push(grouping);
       }
     }
@@ -189,27 +190,27 @@ export function generateQueries(params) {
   }
 */
   // if (validCuts.length > 0) {
-    let totalValidGroups = validGroups.length;
-    const ddGroups = [];
-    const ctGroups = [];
+  let totalValidGroups = validGroups.length;
+  const ddGroups = [];
+  const ctGroups = [];
 
-    for (let i = 0; i < totalValidGroups; i++) {
-      const group = validGroups[i];
-      const target = group.hasMembers ? ctGroups : ddGroups;
-      target.push(group);
-    }
+  for (let i = 0; i < totalValidGroups; i++) {
+    const group = validGroups[i];
+    const target = group.hasMembers ? ctGroups : ddGroups;
+    target.push(group);
+  }
 
-    if (ddGroups.length === 0) {
-      ddGroups.push(validGroups[0]);
-    }
+  if (ddGroups.length === 0) {
+    ddGroups.push(validGroups[0]);
+  }
 
-    queries.push({
-      ...params,
-      kind: "c",
-      level: ddGroups[0].level,
-      levels: ddGroups.map(grp => grp.level),
-      cuts: ctGroups
-    });
+  queries.push({
+    ...params,
+    kind: "c",
+    level: ddGroups[0].level,
+    levels: ddGroups.map(grp => grp.level),
+    cuts: ctGroups
+  });
   // }
 
   return queries;
@@ -223,10 +224,12 @@ export function generateQueries(params) {
 export function queryConverter(params, includeConfidenceInt) {
   const measures = [
     params.measure.name,
-    (includeConfidenceInt && params.moe) && params.moe.name,
-    (includeConfidenceInt && params.lci) && params.lci.name,
-    (includeConfidenceInt && params.uci) && params.uci.name
-  ].filter(Boolean);
+    includeConfidenceInt && params.moe && params.moe.name,
+    includeConfidenceInt && params.lci && params.lci.name,
+    includeConfidenceInt && params.uci && params.uci.name
+  ]
+    .concat(params.filters.map(filter => filter.name))
+    .filter(Boolean);
 
   const drilldownList = []
     .concat(params.levels, params.timeLevel)
