@@ -1,4 +1,4 @@
-const libs = require("./libs");
+const libs = require("../libs");
 
 /**
  * Abbreviates a number into a smaller more human-readible number.
