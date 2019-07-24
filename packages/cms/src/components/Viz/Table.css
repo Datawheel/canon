@@ -1,0 +1,14 @@
+@import "../../css/mixins.css";
+
+.cp-table {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+}
+
+.cp-table .rt-tr {
+  display: flex;
+}
+
+[class="-loading"] {
+  display: none;
+}

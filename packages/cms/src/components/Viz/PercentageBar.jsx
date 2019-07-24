@@ -71,9 +71,6 @@ class PercentageBar extends Component {
 
     return (
       <div className="percentage-bar-wrapper">
-        {title &&
-          <Parse El={"h3"} className="percentage-bar-title">{title}</Parse>
-        }
         <ul className="percentage-bar-list">
           {displayData.map((d, i) => {
             const percent = d[value] / total * 100;

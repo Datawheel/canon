@@ -48,6 +48,7 @@
   }
 
   /* reset non-d3plus visualizations & visualizations with an explicit height in px */
+  &.cp-table-viz-container .cp-viz-figure,
   &.cp-percentage-bar-viz-container .cp-viz-figure,
   & > .cp-viz-figure.with-explicit-height {
     padding-top: 0;
