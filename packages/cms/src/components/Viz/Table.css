@@ -1,13 +1,288 @@
 @import "../../css/mixins.css";
 
+.cp-table-viz-container .cp-viz-figure {
+  height: auto;
+  min-height: 500px;
+}
+
+/* -----------------------------
+REACT TABLE LAYOUT
+NOTE: ripped from ReactTable
+----------------------------- */
+
 .cp-table {
+  flex-direction: column;
+  min-width: 100%;
+}
+
+.rt-table {
+  flex: auto 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 100%;
+  width: auto;
+  border-collapse: collapse;
+  overflow: auto;
+}
+
+.rt-thead {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  left: 0;
+}
+
+.rt-tbody {
+  flex: 99999 1 auto;
+  display: flex;
+  flex-direction: column;
+  max-height: 500px;
   overflow: auto;
   -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
 }
 
-.cp-table .rt-tr {
+.rt-tr-group {
+  flex: 1 0 auto;
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
+.rt-tr {
+  flex: 1 0 auto;
+  display: inline-flex;
+}
+
+.rt-th, .rt-td,
+.cp-table-header-button {
+  position: relative;
+  flex: 1 0 0px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0.75em 0.625em 0.75em 0.625em;
+  overflow: hidden;
+}
+
+/* -----------------------------
+MODIFIERS
+NOTE: ripped from ReactTable
+----------------------------- */
+
+.rt-expandable {
+  cursor: pointer;
+  text-overflow: clip;
+}
+
+.rt-resizable-header {
+  position: relative;
+  overflow: visible;
+  min-height: 3em;
+
+  /* add absolutely positioned button */
+  & .cp-table-header-button {
+    @mixin absolute-expand;
+    display: flex;
+    background: none;
+    border: none;
+    color: inherit;
+    text-align: left;
+    cursor: ns-resize;
+
+    & > .cp-table-header-icon {
+      opacity: 0;
+      margin-left: auto;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+      transition:
+        0.1s ease-out opacity,
+        0.1s ease transform;
+    }
+  }
+
+  /* interactions */
+  &.-sort-desc, &.-sort-asc,
+  &.rt-th.rt-th:hover {
+    background-color: color(var(--dark-1) a(0.875));
+
+    & .cp-table-header-icon {
+      opacity: 1;
+    }
+  }
+}
+
+.rt-resizable-header-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rt-resizing .rt-th,
+.rt-resizing .rt-td {
+  cursor: col-resize;
+}
+
+.rt-th.-sort-asc .cp-table-header-icon {
+  transform: rotate(-180deg);
+}
+
+/* -----------------------------
+THEMING
+----------------------------- */
+
+/* non-empty header group */
+.rt-thead.-headerGroups .rt-th:not(:empty) {
+  background-color: color(var(--light-2) a(0.25));
+  border: 1px solid var(--light-2);
+  border-bottom: none;
+  text-align: center;
+}
+
+/* nested / primary header */
+.rt-thead.-header .rt-th {
+  background-color: var(--dark-1);
+  border: 1px solid color(var(--dark-2) a(0.25));
+  color: var(--light-1);
+}
+
+/* columns */
+.rt-tbody .rt-td {
+  background-color: var(--white);
+  border: 1px solid var(--light-2);
+  border-top: none;
+}
+
+/* linked */
+.rt-td a {
+  border-bottom: 1px solid var(--accent-color);
+  color: var(--dark-1);
+
+  &:hover, &:focus {
+    text-decoration: none;
+  }
+}
+
+/* remove adjacent borders from all cells */
+.rt-th:not(:last-of-type),
+.rt-td:not(:last-of-type) {
+  border-right: none !important;
+}
+
+/* nested rows */
+.rt-tr-group > .rt-tr-group .rt-td {
+  background-color: var(--light-1);
+}
+
+/* hide redundant double nested row */
+/* NOTE: remove/override if nested pivots are necessary */
+.rt-tr-group > .rt-tr-group .rt-expandable {
+  cursor: auto;
+}
+.rt-tr-group > .rt-tr-group > .rt-tr-group {
+  display: none;
+}
+
+/* chevron icon for expandable */
+.rt-expander {
+  /* positioning */
+  display: inline-block;
+  color: transparent; /* hide the bullet */
+
+  /* blueprint chevron-right */
+  &:before {
+    content: "\E695";
+    font-family: Icons20,sans-serif;
+    /* positioning */
+    display: inline-block;
+    /* theming */
+    color: var(--dark-1);
+    /* transitions */
+    will-change: transform;
+    transition:
+      transform 0.2s ease-out,
+      color 0.2s ease-out;
+  }
+
+  /* expanded state */
+  &.-open:before {
+    transform: rotateZ(90deg);
+  }
+}
+
+/* column resize handle */
+.rt-resizer {
+  /* sizing & positioning */
+  display: inline-block;
+  position: absolute;
+  width: 4px;
+  top: 4px;
+  bottom: 4px;
+  right: 4px;
+  border-left: 4px dotted var(--dark-2);
+  /* transitions */
+  cursor: col-resize;
+  opacity: 0;
+  transform: translateX(50%);
+  transition:
+    0.1s ease-out opacity,
+    0.1s ease-out transform;
+}
+.rt-resizable-header:hover .rt-resizer {
+  opacity: 1;
+  transform: none;
+}
+
+/* footer controls */
+.-pagination {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-top: 1rem;
+
+  /* space out adjacent elements */
+  & > *:not(:last-child) {
+    margin-right: 1rem;
+  }
+
+  /* button style */
+  & .-btn {
+    @mixin cms-button-theming;
+    @mixin cms-button-shadow;
+  }
+
+  /* hide the page select menu */
+  /* NOTE: only visible when prop `showPageSizeOptions` is false */
+  & .select-wrap {
+    display: none;
+  }
+
+  & .-pageInfo {
+    display: flex;
+    align-items: baseline;
+    color: var(--gray);
+
+    & .-pageJump {
+      margin: 0.25em;
+
+      & input {
+        padding: 0.125em 0.5em 0.25em 0.5em;
+        width: 2rem;
+        text-align: center;
+
+        /* hide the pager */
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+          -webkit-appearance: none; /* `display: none` can cause crashes */
+          margin: 0; /* nuke the margin */
+        }
+      }
+    }
+    & .-totalPages {
+      margin-left: 0.1em;
+    }
+  }
+}
+
 
 [class="-loading"] {
   display: none;
