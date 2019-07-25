@@ -57,8 +57,7 @@ class Viz extends Component {
     const title = vizProps.config.title || this.props.title || config.title || slug || "";
     delete vizProps.config.title;
 
-    const vizConfig = Object.assign(defaultConfig, {locale}, vizProps.config);
-    console.log(vizConfig);
+    const vizConfig = Object.assign({}, defaultConfig, {locale}, vizProps.config);
 
     return <SizeMe render={({size}) =>
       <div className={ `${context}-viz-container${
