@@ -1,4 +1,4 @@
-@import "./variables";
+@import "../variables";
 
 .section {
   padding: calc(var(--gutter) / 2);

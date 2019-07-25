@@ -8,6 +8,8 @@ import Helmet from "react-helmet";
 import urllite from "urllite";
 import {Portal, Toaster} from "@blueprintjs/core";
 
+import "./variables.css";
+
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 
