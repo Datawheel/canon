@@ -91,7 +91,11 @@ export default class DimensionCard extends Component {
               previewing={preview.id}
               fontSize="xxs"
               renderResults={d =>
-                <Button className="cms-search-result-button" context="cms" onClick={this.onSelectPreview.bind(this, d)}>
+                <Button
+                  className="cms-search-result-button"
+                  context="cms"
+                  fontSize="xxs" onClick={this.onSelectPreview.bind(this, d)}
+                >
                   {d.name}
                 </Button>
               }

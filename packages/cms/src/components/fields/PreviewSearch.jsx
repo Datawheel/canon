@@ -168,7 +168,7 @@ class PreviewSearch extends Component {
               </li>
             )}
             {!results.length &&
-              <li className="cms-search-error-message u-font-sm">No results found</li>
+              <li className="cms-search-error-message u-font-xs">No results found</li>
             }
           </ul> : null
         }
