@@ -234,7 +234,8 @@ export default class Toolbox extends Component {
           context: "cms",
           icon: "th-list",
           iconPosition: "left",
-          children: "detail view"
+          children: "detail view",
+          fontSize: "xs"
         },
         {
           onClick: () => this.setState({detailView: false}),
@@ -242,7 +243,8 @@ export default class Toolbox extends Component {
           context: "cms",
           icon: "list",
           iconPosition: "left",
-          children: "output view"
+          children: "output view",
+          fontSize: "xs"
         }
       ]} />
 

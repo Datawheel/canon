@@ -124,7 +124,7 @@ class SelectorUsage extends Component {
 
                   {/* header */}
                   <div className="cms-card-heading">
-                    <h3 className="cms-card-heading-text u-font-sm">{s.name}</h3>
+                    <h3 className="cms-card-heading-text u-font-xs">{s.name}</h3>
                     <div className="cms-button-group">
                       <Button
                         className="cms-card-heading-button"
