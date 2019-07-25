@@ -33,7 +33,7 @@ class Selector extends Component {
     onSelector(name, filteredComparison);
   }
 
-  renderItem({handleClick, item}) {
+  renderItem(item, {handleClick}) {
     const {comparisons} = this.state;
     const {variables} = this.context;
     const selected = comparisons.find(comparison => comparison === item);
