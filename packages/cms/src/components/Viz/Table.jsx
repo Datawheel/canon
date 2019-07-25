@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import Parse from "../sections/components/Parse";
 import abbreviate from "../../utils/formatters/abbreviate";
 
+import {Icon} from "@blueprintjs/core";
 import ReactTable from "react-table";
 
 import "./Table.css";
@@ -75,7 +76,9 @@ class Table extends Component {
 
     const tableStructure = columns.map(col =>
       Object.assign({
-        Header: col,
+        Header: <button className="cp-table-header-button">
+          {col} <span className="u-visually-hidden">sort by column</span><Icon className="cp-table-header-icon" icon="caret-down" />
+        </button>,
         id: col,
         accessor: d => d[col],
         Cell: row =>
