@@ -110,6 +110,14 @@ NOTE: ripped from ReactTable
       opacity: 1;
     }
   }
+  & .cp-table-header-button:focus {
+    background-color: color(var(--white) a(0.125));
+    outline: none;
+
+    & > .cp-table-header-icon {
+      opacity: 1;
+    }
+  }
 }
 
 .rt-resizable-header-content {
@@ -217,7 +225,8 @@ THEMING
   width: 4px;
   top: 4px;
   bottom: 4px;
-  right: 4px;
+  right: 0;
+  padding-right: 4px;
   border-left: 4px dotted var(--dark-2);
   /* transitions */
   cursor: col-resize;
