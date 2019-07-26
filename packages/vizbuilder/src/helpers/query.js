@@ -223,10 +223,12 @@ export function generateQueries(params) {
 export function queryConverter(params, includeConfidenceInt) {
   const measures = [
     params.measure.name,
-    (includeConfidenceInt && params.moe) && params.moe.name,
-    (includeConfidenceInt && params.lci) && params.lci.name,
-    (includeConfidenceInt && params.uci) && params.uci.name
-  ].filter(Boolean);
+    includeConfidenceInt && params.moe && params.moe.name,
+    includeConfidenceInt && params.lci && params.lci.name,
+    includeConfidenceInt && params.uci && params.uci.name
+  ]
+    .concat(params.filters.map(filter => filter.name))
+    .filter(Boolean);
 
   const drilldownList = []
     .concat(params.levels, params.timeLevel)

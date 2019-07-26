@@ -10,7 +10,7 @@ import {
 } from "d3plus-react";
 
 import {getPermutations} from "./sorting";
-import {areMetaMeasuresZero} from "./validation";
+import {areMetaMeasuresZero, isValidFilter} from "./validation";
 import {joinStringsWithCommaAnd} from "./formatting";
 
 export const chartComponents = {
@@ -121,11 +121,12 @@ export function calcChartSetups(type, query) {
 
 /**
  * Generates the parameters for the tooltip shown for the current datagroup.
- * @param {Datagroup} datagroup The chart datagroup
+ * @param {import("./chartCriteria").Datagroup} datagroup The chart datagroup
  */
 export function tooltipGenerator(datagroup) {
   const {formatter, names} = datagroup;
   const {levelName, measureName} = names;
+  const {filters} = datagroup.query;
   const shouldShow = areMetaMeasuresZero(names, datagroup.dataset);
 
   const tbody = Object.keys(datagroup.members)
@@ -153,6 +154,16 @@ export function tooltipGenerator(datagroup) {
   if (shouldShow.clt) {
     const {collectionName} = names;
     tbody.push(["Collection", d => `${d[collectionName]}`]);
+  }
+
+  if (Array.isArray(filters)) {
+    filters.forEach(filter => {
+      if (isValidFilter(filter)) {
+        const filterName = filter.name;
+        const formatter = filter.getFormatter();
+        tbody.push([filterName, d => `${formatter(d[filterName])}`]);
+      }
+    });
   }
 
   return {
