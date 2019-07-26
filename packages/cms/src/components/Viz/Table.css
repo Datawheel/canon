@@ -1,8 +1,7 @@
 @import "../../css/mixins.css";
 
 .cp-table-viz-container .cp-viz-figure {
-  height: auto;
-  min-height: 500px;
+  height: auto !important;
 }
 
 /* -----------------------------
@@ -13,6 +12,10 @@ NOTE: ripped from ReactTable
 .cp-table {
   flex-direction: column;
   min-width: 100%;
+
+  & * {
+    outline: none;
+  }
 }
 
 .rt-table {
@@ -30,7 +33,6 @@ NOTE: ripped from ReactTable
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  position: sticky;
   top: 0;
   left: 0;
 }
@@ -39,7 +41,7 @@ NOTE: ripped from ReactTable
   flex: 99999 1 auto;
   display: flex;
   flex-direction: column;
-  max-height: 500px;
+  max-height: var(--table-height);
   overflow: auto;
   -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
 }
@@ -104,7 +106,7 @@ NOTE: ripped from ReactTable
   /* interactions */
   &.-sort-desc, &.-sort-asc,
   &.rt-th.rt-th:hover {
-    background-color: color(var(--dark-1) a(0.875));
+    background-color: color(var(--table-thead-bg-color) a(0.875));
 
     & .cp-table-header-icon {
       opacity: 1;
@@ -112,7 +114,8 @@ NOTE: ripped from ReactTable
   }
   & .cp-table-header-button:focus {
     background-color: color(var(--white) a(0.125));
-    outline: none;
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
 
     & > .cp-table-header-icon {
       opacity: 1;
@@ -140,45 +143,37 @@ THEMING
 
 /* non-empty header group */
 .rt-thead.-headerGroups .rt-th:not(:empty) {
-  background-color: color(var(--light-2) a(0.25));
-  border: 1px solid var(--light-2);
+  background-color: var(--table-hgroup-bg-color);
+  border: 1px solid var(--table-hgroup-border-color);
   border-bottom: none;
+  color: var(--table-hgroup-text-color);
   text-align: center;
 }
 
 /* nested / primary header */
 .rt-thead.-header .rt-th {
-  background-color: var(--dark-1);
-  border: 1px solid color(var(--dark-2) a(0.25));
-  color: var(--light-1);
+  background-color: var(--table-thead-bg-color);
+  border: 1px solid var(--table-thead-border-color);
+  color: var(--table-thead-text-color);
 }
 
 /* columns */
 .rt-tbody .rt-td {
-  background-color: var(--white);
-  border: 1px solid var(--light-2);
+  background-color: var(--table-cell-bg-color);
+  border: 1px solid var(--table-cell-border-color);
+  color: var(--table-cell-text-color);
   border-top: none;
-}
-
-/* linked */
-.rt-td a {
-  border-bottom: 1px solid var(--accent-color);
-  color: var(--dark-1);
-
-  &:hover, &:focus {
-    text-decoration: none;
-  }
 }
 
 /* remove adjacent borders from all cells */
 .rt-th:not(:last-of-type),
 .rt-td:not(:last-of-type) {
-  border-right: none !important;
+  border-right-color: transparent !important;
 }
 
 /* nested rows */
 .rt-tr-group > .rt-tr-group .rt-td {
-  background-color: var(--light-1);
+  background-color: var(--table-nested-cell-bg-color);
 }
 
 /* hide redundant double nested row */
@@ -203,7 +198,7 @@ THEMING
     /* positioning */
     display: inline-block;
     /* theming */
-    color: var(--dark-1);
+    color: var(--table-icon-color);
     /* transitions */
     will-change: transform;
     transition:
@@ -227,7 +222,7 @@ THEMING
   bottom: 4px;
   right: 0;
   padding-right: 4px;
-  border-left: 4px dotted var(--dark-2);
+  border-left: 4px dotted var(--table-icon-color);
   /* transitions */
   cursor: col-resize;
   opacity: 0;
@@ -291,7 +286,6 @@ THEMING
     }
   }
 }
-
 
 [class="-loading"] {
   display: none;
