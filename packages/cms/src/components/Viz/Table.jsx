@@ -77,7 +77,8 @@ class Table extends Component {
     const tableStructure = columns.map(col =>
       Object.assign({
         Header: <button className="cp-table-header-button">
-          {col} <span className="u-visually-hidden">sort by column</span><Icon className="cp-table-header-icon" icon="caret-down" />
+          {col} <span className="u-visually-hidden">sort by column</span>
+          <Icon className="cp-table-header-icon" icon="caret-down" />
         </button>,
         id: col,
         accessor: d => d[col],
