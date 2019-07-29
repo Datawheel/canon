@@ -1,0 +1,41 @@
+@import "../../css/mixins.css";
+
+/* center form */
+.cms-auth-form {
+  padding: 2rem;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cms-auth-form-inner {
+  width: 40rem;
+  max-width: 100%;
+}
+
+.cms-auth-form-title {
+  margin-top: 0;
+}
+
+.cms .cms-auth-form-switcher {
+  /* it's a button, but probably should be a link */
+  @mixin button-reset;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  font-weight: 500;
+  color: var(--accent-dark);
+
+  &:hover, &:focus {
+    color: var(--accent-black);
+  }
+
+  @mixin dark-mode {
+    color: var(--accent);
+
+    &:hover, &:focus {
+      color: var(--accent-light);
+    }
+  }
+}

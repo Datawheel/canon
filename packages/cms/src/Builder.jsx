@@ -6,7 +6,7 @@ import ProfileBuilder from "./profile/ProfileBuilder";
 import {isAuthenticated} from "@datawheel/canon-core";
 import StoryBuilder from "./story/StoryBuilder";
 import {fetchData} from "@datawheel/canon-core";
-import LoginSignup from "./components/interface/LoginSignup";
+import AuthForm from "./components/interface/AuthForm";
 import {connect} from "react-redux";
 import yn from "yn";
 
@@ -115,7 +115,7 @@ class Builder extends Component {
 
     if (!isEnabled || waitingForUser) return null;
 
-    if (yn(env.CANON_LOGINS) && !auth.user) return <LoginSignup />;
+    if (yn(env.CANON_LOGINS) && !auth.user) return <AuthForm />;
 
     if (yn(env.CANON_LOGINS) && auth.user && auth.user.role < 1) {
       return <div>
@@ -170,7 +170,7 @@ class Builder extends Component {
                 </Select>
               </React.Fragment>
             }
-            {auth.user && <a href="/auth/logout">Log Out</a>} 
+            {auth.user && <a href="/auth/logout">Log Out</a>}
           </div>
         </div>
 
