@@ -38,7 +38,7 @@ export function datagroupToCharts(datagroup, generalConfig) {
   );
 
   const charts = datagroup.charts.reduce((sum, chartType) => {
-    const setups = calcChartSetups(chartType, datagroup.query).map(setup => ({
+    const setups = calcChartSetups(datagroup, chartType).map(setup => ({
         ...datagroup,
         baseConfig,
         chartType,
@@ -94,11 +94,13 @@ export function buildBaseConfig(datagroup, params) {
   return config;
 }
 
-export function calcChartSetups(type, query) {
+export function calcChartSetups(datagroup, type) {
+  const levels = datagroup.query.levels;
+
   switch (type) {
     case "treemap": {
-      const groupings = query.groups;
-      const permutations = getPermutations(query.levels);
+      const members = datagroup.members;
+      const permutations = getPermutations(levels);
 
       /**
        * We must remove permutations where the first element is being cut by
@@ -108,13 +110,12 @@ export function calcChartSetups(type, query) {
       return permutations
         .filter(setup => {
           const level = setup[0];
-          const grouping = groupings.find(grp => grp.level === level);
-          return grouping.members.length !== 1;
+          return members[level.name].length !== 1;
         });
     }
 
     default: {
-      return [query.levels];
+      return [levels];
     }
   }
 }
