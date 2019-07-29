@@ -1,0 +1,220 @@
+:root {
+  /* ------------------------------------------------
+  shared vars (admin panel & profile)
+  ------------------------------------------------ */
+
+  /* grayscale */
+  --white:        var(--white,        #FFFFFF);
+  --light-1:      var(--light-1,      #F8F9FA);
+  --light-2:      var(--light-2,      #ECEFF1);
+  --light-3:      var(--light-3,      #CFDAE2);
+  --gray:         var(--gray,         #AEBDCC);
+  --dark-1:       var(--dark-1,       #8A97AE);
+  --dark-2:       var(--dark-2,       #2A2F3B);
+  --dark-3:       var(--dark-3,       #20242E);
+  --black:        var(--black,        #181A21);
+
+  /* accent colors */
+  --accent:       var(--accent:       #FFCD33);
+  --accent-light: var(--accent-light: #FFD65B);
+  --accent-dark:  var(--accent-dark:  #C4960B);
+  --accent-black: var(--accent-black: #7F6516);
+
+
+  /* ------------------------------------------------
+  admin panel
+  ------------------------------------------------ */
+
+  /* UI colors */
+  --alert-dark:        var(--alert-dark,        #75224D);
+  --alert:             var(--alert,             #992C64);
+  --alert-light:       var(--alert-light,       #DB64A6);
+
+  --type-number:       var(--type-number,       #8EB6FF);
+  --type-number-dark:  var(--type-number-dark,  #2D4A7F);
+
+  --type-string:       var(--type-string,       #B9E28C);
+  --type-string-dark:  var(--type-string-dark,  #62873B);
+
+  --type-boolean:      var(--type-boolean,      #FFD65B);
+  --type-boolean-dark: var(--type-boolean-dark, #7F6516);
+
+  --type-error:        var(--type-error,        #DB64A6);
+  --type-error-dark:   var(--type-error-dark,   #75224D);
+
+  /* measurements */
+  --cms-nav-height:    var(--cms-nav-height,    3.125rem);
+  --sidebar-width:     var(--sidebar-width,     17rem);
+  --toolbox-width:     var(--toolbox-width,     22.5rem);
+
+
+  /* ------------------------------------------------
+  profile
+  ------------------------------------------------ */
+
+  /* any rem units will scale up with the viewport */
+  --body-font-scale-sm:   var(--body-font-scale-sm,   100%);
+  --body-font-scale-md:   var(--body-font-scale-md,   112.5%);
+  --body-font-scale-xl:   var(--body-font-scale-xl,   125%);
+
+  /* spacing and sizing */
+  --nav-height:           var(--nav-height,           50px);
+  --subnav-height:        var(--subnav-height,        var(--nav-height));
+  --container-width:      var(--container-width,      80rem);
+  --hero-container-width: var(--hero-container-width, var(--container-width));
+
+  --gutter-xs:            var(--gutter-xs, 0.5rem);
+  --gutter-sm:            var(--gutter-sm, 0.75rem);
+  --gutter-md:            var(--gutter-md, 1.5rem);
+  --gutter-lg:            var(--gutter-lg, 2.25rem);
+  --gutter-xl:            var(--gutter-xl, 3rem);
+
+  /* typography */
+  --font-xxxs:            var(--font-xxxs, 0.5rem);
+  --font-xxs:             var(--font-xxs,  0.625rem);
+  --font-xs:              var(--font-xs,   0.75rem);
+  --font-sm:              var(--font-sm,   0.875rem);
+  --font-md:              var(--font-md,   1rem);
+  --font-lg:              var(--font-lg,   1.25rem);
+  --font-xl:              var(--font-xl,   1.5rem);
+  --font-xxl:             var(--font-xxl,  2rem);
+
+  /* base (p, li, etc.) */
+  --base-font-stack:        var(--base-font-stack,        'Lato', 'Trebuchet MS', sans-serif);
+  --base-font-weight:       var(--base-font-weight,       400);
+  --base-letter-spacing:    var(--base-letter-spacing,    0);
+  --bold-weight:            var(--bold-weight,            800);
+
+  /* headings (h1, h2, etc.; .heading class) */
+  --heading-font-stack:     var(--heading-font-stack,     var(--base-font-stack));
+  --heading-font-weight:    var(--heading-font-weight,    600);
+  --heading-text-transform: var(--heading-text-transform, none);
+  --heading-letter-spacing: var(--heading-letter-spacing, 0);
+
+  /* display (.display class) */
+  --display-font-stack:     var(--display-font-stack,     var(--base-font-stack));
+  --display-font-weight:    var(--display-font-weight,    600);
+  --display-text-transform: var(--display-text-transform, uppercase);
+  --display-letter-spacing: var(--display-letter-spacing, 0.0125em);
+
+  /* label (.label class) */
+  --label-font-stack:       var(--label-font-stack,       var(--base-font-stack));
+  --label-font-weight:      var(--label-font-weight,      400);
+  --label-text-transform:   var(--label-text-transform,   uppercase);
+  --label-letter-spacing:   var(--label-letter-spacing,   0.0125em);
+
+  /* hero AKA header AKA splash */
+  --hero-bg-color:          var(--hero-bg-color,          var(--dark-3));
+  --hero-text-color:        var(--hero-text-color,        var(--light-2));
+  --hero-paragraph-size:    var(--hero-paragraph-size,    var(--font-xs));
+  --hero-heading-color:     var(--hero-heading-color,     var(--white));
+  --hero-heading-size:      var(--hero-heading-size,      var(--font-xxl));
+  --hero-subhead-color:     var(--hero-subhead-color,     var(--white));
+  --hero-subhead-size:      var(--hero-subhead-size,      var(--font-md));
+  --hero-stat-value-color:  var(--hero-stat-value-color,  var(--accent));
+  --hero-stat-column-count: var(--hero-stat-column-count, 4);
+  --hero-stat-column-width: var(--hero-stat-column-width, 10rem);
+  --hero-viz-width:         var(--hero-viz-width,         20rem);
+
+  /* sections */
+  --section-bg-odd:             var(--section-bg-odd,             var(--white));
+  --section-bg-even:            var(--section-bg-even,            var(--light-1));
+  --section-text-color:         var(--section-text-color,         var(--dark-2));
+  --section-heading-color:      var(--section-heading-color,      var(--dark-3));
+  /* sticky sections */
+  --sticky-section-offset:      var(--sticky-section-offset,      50px);
+  --sticky-section-height:      var(--sticky-section-height,      var(--nav-height));
+  --sticky-section-bg-color:    var(--sticky-section-bg-color,    var(--white));
+  --sticky-section-shadow:      var(--sticky-section-shadow,      0 1px 0.375rem color(var(--black) a(0.125)));
+  /* handle grouped SingleColumn sections with flex-basis */
+  --singlecolumn-column-count:  var(--singlecolumn-column-count,  3);
+  --singlecolumn-min-width:     var(--singlecolumn-min-width,     20rem);
+  /* handle MultiColumn section with css multicolumn */
+  --multicolumn-column-count:   var(--multicolumn-column-count,   3);
+  --multicolumn-column-width:   var(--multicolumn-column-width,   20rem);
+  --multicolumn-column-gap:     var(--multicolumn-column-gap,     var(--gutter-xl));
+  /* InfoCard */
+  --infocard-viz-min-width:     var(--infocard-viz-min-width,     10rem);
+  --infocard-border-radius:     var(--infocard-border-radius,     4px);
+  --infocard-border-width:      var(--infocard-border-width,      1px);
+  --infocard-border-color:      var(--infocard-border-color,      var(--light-2));
+  --infocard-header-bg-color:   var(--infocard-header-bg-color,   var(--light-1));
+  --infocard-main-bg-color:     var(--infocard-main-bg-color,     var(--white));
+  /* Grouping (intro) section */
+  --grouping-bg-color:          var(--grouping-bg-color,          var(--accent-light));
+  --grouping-text-color:        var(--grouping-text-color,        var(--black));
+  --grouping-paragraph-size:    var(--grouping-paragraph-size,    var(--font-md));
+  --grouping-subhead-color:     var(--grouping-subhead-color,     var(--accent-black));
+  --grouping-subhead-font-size: var(--grouping-subhead-font-size, var(--font-xl));
+  --grouping-heading-color:     var(--grouping-heading-color,     var(--white));
+  --grouping-heading-font-size: var(--grouping-heading-font-size, var(--font-xxl));
+  --grouping-stat-value-color:  var(--grouping-stat-value-color,  var(--white));
+
+  /* buttons */
+  --button-border-radius:       var(--button-border-radius,       2px);
+  --button-border-width:        var(--button-border-width,        1px);
+  --button-bg-color:            var(--button-bg-color,            color(var(--white) a(0.5)));
+  --button-border-color:        var(--button-border-color,        var(--light-3));
+  --button-color:               var(--button-color,               var(--accent-black));
+  --button-padding:             var(--button-padding,             0.5em 1.25em);
+  --button-hover-bg-color:      var(--button-hover-bg-color,      var(--accent-black));
+  --button-hover-border-color:  var(--button-hover-border-color,  var(--accent-black));
+  --button-hover-color:         var(--button-hover-color,         var(--white));
+
+  /* fields */
+  --field-border-radius:        var(--field-border-radius,        1px);
+  --field-border-width:         var(--field-border-width,         1px);
+  --field-padding:              var(--field-padding,              0.5em 0.5em 0.575em 0.5em);
+  --field-font-weight:          var(--field-font-weight,          400);
+  --field-bg-color:             var(--field-bg-color,             var(--white));
+  --field-border-color:         var(--field-border-color,         var(--light-3));
+  --field-color:                var(--field-color,                var(--dark-2));
+  --field-placeholder-color:    var(--field-placeholder-color,    var(--gray));
+  --field-focus-color:          var(--field-focus-color,          var(--accent-dark));
+  --field-icon-color:           var(--field-icon-color,           var(--dark-1));
+  --field-icon-hover-color:     var(--field-icon-hover-color,     var(--dark-3));
+  --select-border-radius:       var(--select-border-radius,       var(--button-border-radius));
+  --select-bg-color:            var(--select-bg-color,            var(--light-1));
+
+  /* visualizations */
+  --viz-aspect-ratio:           var(--viz-aspect-ratio,           50%);
+  --viz-min-height:             var(--viz-min-height,             40vh);
+  /* percentage bar visualization */
+  --percentage-bar-height:      var(--percentage-bar-height,      var(--gutter-xs));
+  --percentage-bar-bg-color:    var(--percentage-bar-bg-color,    var(--light-2));
+  --percentage-bar-color:       var(--percentage-bar-color,       var(--accent-dark));
+  --percentage-bar-radius:      var(--percentage-bar-radius,      0.5em);
+
+  /* stats */
+  --stat-label-font-size:       var(--stat-label-font-size,       var(--font-sm));
+  --stat-label-color:           var(--stat-label-color,           inherit);
+  --stat-value-font-size:       var(--stat-value-font-size,       var(--font-xl));
+  --stat-value-color:           var(--stat-value-color,           var(--accent-dark));
+  --stat-subtitle-font-size:    var(--stat-subtitle-font-size,    var(--font-xs));
+  --stat-subtitle-color:        var(--stat-subtitle-color,        var(--dark-1));
+
+
+  /* ------------------------------------------------
+  legacy canon vars
+  ------------------------------------------------ */
+  --light: var(--light-3, #CFDAE2);
+  --dark: var(--dark-2,  #2A2F3B);
+  --gutter: var(--gutter-md, 1rem);
+  --column: var(--column, 64px);
+
+  --font-family: var(--base-font-stack, 'Lato', 'Trebuchet MS', sans-serif);
+  --topic-title-color: var(--topic-title-color, var(--black));
+  --topic-title-family: var(--topic-title-family, var(--font-family));
+  --topic-title-size: var(--topic-title-size, 48px);
+  --topic-title-weight: var(--topic-title-weight, 300);
+  --section-title-color: var(--section-title-color, var(--dark));
+  --section-title-family: var(--section-title-family, var(--font-family));
+  --section-title-size: var(--section-title-size, 24px);
+  --section-title-weight: var(--section-title-weight, 600);
+  --section-article-color: var(--section-article-color, var(--dark));
+  --section-article-family: var(--section-article-family, var(--font-family));
+  --section-article-size: var(--section-article-size, 16px);
+  --section-article-weight: var(--section-article-weight, 400);
+  --section-article-small: var(--section-article-small, calc(var(--column) * 3 + var(--gutter) * 2));
+  --section-article-large: var(--section-article-large, calc(var(--column) * 5 + var(--gutter) * 4));
+}

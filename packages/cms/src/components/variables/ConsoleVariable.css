@@ -60,9 +60,10 @@
     display: block;
   }
 
-  & > * {
+  /* needed for ace editor */
+  & > .cms-ace-container {
     height: 50vh;
-    overflow: auto;
+    overflow-y: auto;
   }
 
   & .cms-variable-editor-json {

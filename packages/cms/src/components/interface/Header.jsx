@@ -26,20 +26,27 @@ export default class Header extends Component {
     } = this.props;
 
     let domain = this.props;
-    if (typeof domain !== "undefined" && typeof window !== "undefined") {
+    if (typeof domain !== "undefined" && typeof window !== "undefined" && window.document.location.origin) {
       domain = window.document.location.origin;
+    }
+    else {
+      if (typeof domain !== "undefined" && typeof window !== "undefined") {
+        domain = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ""}`;
+      }
     }
 
     const prettyDomain = domain.replace("http://", "").replace("https://", "");
 
     // construct URL from domain and dimensions
-    const previewURL = `${domain}/profile/${
-      dimensions.map(dim => Object.values(dim)).flat().join("/")
-    }${slug && `#${slug}`}`;
+    const previewURL = `${domain}/profile/${dimensions
+      .map(dim => Object.values(dim)) // extract each dimension key & value into an array
+      .reduce((acc, val) => acc.concat(val), []) // flatten arrays
+      .join("/") // now it's a URL
+    }${typeof slug !== "undefined" ? `#${slug}` : ""}`;
 
     return (
       <header className="cms-header">
-        <h1 className="cms-header-title font-lg">
+        <h1 className="cms-header-title u-font-lg">
           {!parentTitle
 
             // profile
@@ -57,7 +64,7 @@ export default class Header extends Component {
               <span className="cms-header-title-parent">{parentTitle} </span>
               <span className="cms-header-title-main">
                 {title}
-                <Button className="cms-header-title-button font-xs" onClick={this.renameSection.bind(this)} icon="cog" iconOnly>
+                <Button className="cms-header-title-button" context="cms" fontSize="xxs" onClick={this.renameSection.bind(this)} icon="cog" iconOnly>
                   rename section
                 </Button>
               </span>
@@ -68,7 +75,7 @@ export default class Header extends Component {
         <span className="cms-header-link-container">
           {dimensions && dimensions.length
             // proper URL can be constructed
-            ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "font-xs" : ""}`}>
+            ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "u-font-xs" : ""}`}>
               {/* dimensions & ids */}
               {prettyDomain}/profile{dimensions && dimensions.map(dim =>
                 <React.Fragment key={dim.slug}>/

@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import Accardion from "../components/interface/Accardion";
+import Deck from "../components/interface/Deck";
 
 import GeneratorCard from "../components/cards/GeneratorCard";
 
@@ -45,7 +45,7 @@ class FormatterEditor extends Component {
     const {formatters} = this.state;
 
     return (
-      <Accardion
+      <Deck
         title="Formatters"
         entity="formatter"
         addItem={this.addItem.bind(this)}

@@ -1,0 +1,41 @@
+@import "../../css/mixins.css";
+
+@mixin min-sm {
+  .cp-default-section-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .cp-default-section-caption {
+    width: var(--sidebar-width);
+  }
+
+  .cp-default-section-figure {
+    width: calc(100% - var(--sidebar-width) - var(--gutter-xl))
+  }
+}
+
+
+/* using grid rather than multicolumn since visualizations weren't rendering correclty */
+.cp-multicolumn-default-section-figure {
+  /* fallback */
+  & > *:not(:last-child) {
+    margin-bottom: var(--multicolumn-column-gap);
+  }
+
+  /* multiple proportional columns with a min-width */
+  @supports (grid-template-columns: minMax(1px, 1fr)) {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(var(--multicolumn-column-width), 1fr)
+    );
+    grid-gap: var(--multicolumn-column-gap);
+
+    /* reset above */
+    & > *:not(:last-child) {
+      margin-bottom: 0;
+    }
+  }
+}

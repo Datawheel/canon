@@ -88,15 +88,17 @@ class SelectorUsage extends Component {
       <div className="cms-selector-usage cms-card-container">
 
         <div className="cms-selector-usage-column">
-          <h3 className="cms-selector-usage-heading font-sm">Inactive selectors</h3>
+          <h3 className="cms-selector-usage-heading u-font-sm">Inactive selectors</h3>
           {inactiveSelectors.length
             ? <ul className="cms-selector-usage-list">
               {inactiveSelectors.map(s =>
                 <li className="cms-selector-usage-item" key={s.id}>
-                  <label className="cms-selector-usage-item-label font-xs">
+                  <label className="cms-selector-usage-item-label u-font-xs">
                     {s.name}
                     <Button
-                      className="cms-selector-usage-item-button font-xxxs"
+                      className="cms-selector-usage-item-button"
+                      fontSize="xxxs"
+                      context="cms"
                       icon="plus"
                       iconOnly
                       onClick={this.addItem.bind(this, s.id)}
@@ -107,12 +109,12 @@ class SelectorUsage extends Component {
                 </li>
               )}
             </ul>
-            : <p className="font-xs">All available selectors have been activated</p>
+            : <p className="u-font-xs">All available selectors have been activated</p>
           }
         </div>
 
         <div className="cms-selector-usage-column">
-          <h3 className="cms-selector-usage-heading font-sm">Active selectors</h3>
+          <h3 className="cms-selector-usage-heading u-font-sm">Active selectors</h3>
 
           {activeSelectors.length
             ? <ol className="cms-selector-usage-list">
@@ -122,10 +124,12 @@ class SelectorUsage extends Component {
 
                   {/* header */}
                   <div className="cms-card-heading">
-                    <h3 className="cms-card-heading-text font-sm">{s.name}</h3>
+                    <h3 className="cms-card-heading-text u-font-sm">{s.name}</h3>
                     <div className="cms-button-group">
                       <Button
-                        className="cms-card-heading-button font-xxs"
+                        className="cms-card-heading-button"
+                        fontSize="xxxs"
+                        context="cms"
                         onClick={this.removeItem.bind(this, s.id)}
                         icon="cross"
                         iconOnly
@@ -139,6 +143,7 @@ class SelectorUsage extends Component {
                     <Select
                       label={s.title}
                       fontSize="xs"
+                      context="cms"
                       value={currentValues[s.name]}
                       onChange={this.onChange.bind(this, s.name)}
                     >
@@ -160,6 +165,7 @@ class SelectorUsage extends Component {
                       <Button
                         onClick={() => console.log("set me up jimmyyyy")}
                         className="cms-reorder-button"
+                        context="cms"
                         icon="swap-vertical"
                         iconOnly
                       >
@@ -170,7 +176,7 @@ class SelectorUsage extends Component {
                 </li>
               )}
             </ol>
-            : <p className="font-xs">No selectors are currently activated</p>
+            : <p className="u-font-xs">No selectors are currently activated</p>
           }
         </div>
       </div>

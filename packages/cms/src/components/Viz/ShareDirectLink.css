@@ -1,12 +1,6 @@
 @import "../../css/mixins.css";
 
-.u-visually-hidden {
-  @mixin visually-hidden;
-}
-
 .clipboard-label {
-  /* sizing */
-  line-height: 2.5em;
   /* position children */
   display: flex;
   align-items: center;

@@ -1,10 +1,14 @@
 import React, {Component} from "react";
-import Viz from "../Viz/index";
-import {AnchorLink} from "@datawheel/canon-core";
-import {nest} from "d3-collection";
-import StatGroup from "../Viz/StatGroup";
+import Viz from "../Viz/Viz";
+// import {AnchorLink} from "@datawheel/canon-core";
+
+import Button from "../fields/Button";
+import ButtonGroup from "../fields/ButtonGroup";
 import Selector from "./components/Selector";
+import Parse from "./components/Parse";
 import "./Section.css";
+
+import "./Tabs.css";
 
 /** */
 function findKey(str, key) {
@@ -30,12 +34,9 @@ export default class Tabs extends Component {
   }
 
   render() {
-    const {contents, loading} = this.props;
-    const {descriptions, slug, stats, subtitles, title, visualizations} = contents;
-    const selectors = contents.selectors || [];
+    const {slug, title, heading, loading, filters, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const selectors = filters || [];
     const {tabIndex} = this.state;
-
-    const statGroups = nest().key(d => d.title).entries(stats);
 
     const visualization = visualizations[tabIndex];
     const selectorConfig = visualization.logic.match(/selectors\:[\s]*(\[[^\]]+\])/);
@@ -51,7 +52,7 @@ export default class Tabs extends Component {
       tabSelectors = selectors.slice(selectorsPerViz * tabIndex, selectorsPerViz * (tabIndex + 1));
     }
 
-    const tabDescriptions = descriptions.length === visualizations.length ? [descriptions[tabIndex]] : descriptions;
+    const tabDescriptions = paragraphs.length === visualizations.length ? [paragraphs[tabIndex]] : paragraphs;
 
     const tabs = visualizations.map((d, i) => {
       let title;
@@ -62,34 +63,46 @@ export default class Tabs extends Component {
       return title || `Visualization ${i + 1}`;
     });
 
-    return <div className={ `section ${slug} Tabs` } ref={ comp => this.section = comp }>
-      <div className="section-content">
-        { title &&
-          <h3 className="section-title">
-            <AnchorLink to={ slug } id={ slug } className="anchor" dangerouslySetInnerHTML={{__html: title}}></AnchorLink>
-          </h3>
+    return <div className={`cp-section-inner cp-${slug}-section-inner cp-tabs-section-inner`} ref={comp => this.section = comp}>
+      {/* sidebar */}
+      <div className="cp-section-content cp-tabs-section-caption">
+        {heading}
+        {filters}
+
+        {tabs.length > 1 &&
+          <React.Fragment>
+            <p className="u-visually-hidden">Select visualization: </p>
+            <ButtonGroup>
+              {tabs.map((title, key) =>
+                <Button
+                  active={tabIndex === key}
+                  fontSize="xxs"
+                  key={key}
+                  onClick={this.updateTabs.bind(this, key)}
+                >
+                  {title}
+                </Button>
+              )}
+            </ButtonGroup>
+          </React.Fragment>
         }
-        { subtitles.map((content, i) => <div key={i} className="section-subtitle" dangerouslySetInnerHTML={{__html: content.subtitle}} />) }
-        { stats.length > 0
-          ? <div className="section-stats">
-            { statGroups && statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />) }
-          </div> : null }
-        { tabDescriptions && tabDescriptions.map((content, i) => <div key={i} className="section-description" dangerouslySetInnerHTML={{__html: content.description}} />) }
-        { tabs.length > 1 && <div className={`tab-group tab-${tabIndex}`}>
-          { tabs && tabs.map((title, key) =>
-            <button className={tabIndex === key ? "tab selected" : "tab"} key={key} onClick={this.updateTabs.bind(this, key)}>
-              {title}
-            </button>
-          )}
-        </div> }
+
+        {tabDescriptions && tabDescriptions.map((content, i) =>
+          <Parse key={i}>
+            {content.description}
+          </Parse>
+        )}
+
+        {stats}
+        {sources}
       </div>
-      <div className="section-flex">
-        { <Viz section={this} config={visualization} key={tabIndex} className="section-visualization" title={ title } slug={ `${slug}_${tabIndex}` } /> }
-        { tabSelectors.length > 0 && <div className="section-selectors">
-          { tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />) }
-        </div> }
+
+      <div className="cp-tabs-section-figure">
+        <Viz section={this} config={visualization} key={tabIndex} title={title} slug={`${slug}_${tabIndex}`} headingLevel={vizHeadingLevel} />
+        {tabSelectors.length > 0 && <div className="cp-section-selectors">
+          {tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />)}
+        </div>}
       </div>
     </div>;
   }
-
 }

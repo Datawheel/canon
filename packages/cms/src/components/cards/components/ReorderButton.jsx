@@ -77,6 +77,7 @@ export default class ReorderButton extends Component {
           <Button
             onClick={() => this.move("right")}
             className="cms-reorder-button"
+            context="cms"
             icon="swap-vertical"
             iconOnly
           >

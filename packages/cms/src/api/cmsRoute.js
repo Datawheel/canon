@@ -6,6 +6,7 @@ const sequelize = require("sequelize");
 const shell = require("shelljs");
 const yn = require("yn");
 const path = require("path");
+const {strip} = require("d3plus-text");
 const Op = sequelize.Op;
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
@@ -22,13 +23,13 @@ client.checkStatus().then(resp => {
   }
   else {
     if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
-    client = new MondrianClient(CANON_CMS_CUBES);  
+    client = new MondrianClient(CANON_CMS_CUBES);
   }
 }, e => {
   // On tesseract status failure, assume mondrian.
   if (verbose) console.error(`Tesseract Failed to connect with error: ${e}`);
   if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
-  client = new MondrianClient(CANON_CMS_CUBES);  
+  client = new MondrianClient(CANON_CMS_CUBES);
 }
 );
 
@@ -52,8 +53,8 @@ const profileReqTreeOnly = {
   attributes: ["id", "ordering"],
   include: [
     {association: "meta"},
-    {   
-      association: "sections", attributes: ["id", "slug", "ordering", "profile_id", "type", "sticky"], 
+    {
+      association: "sections", attributes: ["id", "slug", "ordering", "profile_id", "type", "sticky"],
       include: [
         {association: "content", attributes: ["id", "lang", "title"]}
       ]
@@ -88,7 +89,7 @@ const profileReqToolbox = {
     {association: "content"},
     {association: "generators", attributes: ["id", "name", "description"]},
     {association: "materializers", attributes: ["id", "name", "ordering", "description"]},
-    {association: "selectors"} 
+    {association: "selectors"}
   ]
 };
 
@@ -108,7 +109,7 @@ const sectionReqSectionOnly = {
     {association: "descriptions", attributes: ["id", "ordering"]},
     {association: "visualizations", attributes: ["id", "ordering"]},
     {association: "stats", attributes: ["id", "ordering"]},
-    {association: "selectors"} 
+    {association: "selectors"}
   ]
 };
 
@@ -136,21 +137,21 @@ const cmsTables = [
 
 /**
  * Some tables are translated to different languages using a corresponding "content" table, like "profile_content".
- * As such, some of the following functions need to take compound actions, e.g., insert a metadata record into 
+ * As such, some of the following functions need to take compound actions, e.g., insert a metadata record into
  * profile, THEN insert the "real" data into "profile_content." This list (subset of cmsTables) represents those
  * tables that need corresponding _content updates.
  */
 
 const contentTables = [
-  "author", "profile", "story", "story_description", "story_footnote", "storysection", "storysection_description", 
+  "author", "profile", "story", "story_description", "story_footnote", "storysection", "storysection_description",
   "storysection_stat", "storysection_subtitle", "section", "section_description", "section_stat", "section_subtitle"
 ];
 
 const sorter = (a, b) => a.ordering - b.ordering;
 
 /**
- * Due to yet-unreproducible edge cases, sometimes elements lose their ordering. 
- * This function sorts an array, then checks if the "ordering" property lines up 
+ * Due to yet-unreproducible edge cases, sometimes elements lose their ordering.
+ * This function sorts an array, then checks if the "ordering" property lines up
  * with the element's place in the array. If not, "patch" the element and send it back
  * to the client, and asynchronously send an update to the db to match it.
  */
@@ -300,8 +301,19 @@ const populateSearch = async(profileData, db) => {
 
   }
 
+  let slugs = await db.search.findAll().catch(catcher);
+  slugs = slugs.map(s => s.slug).filter(d => d);
+
+  const slugify = (str, id) => {
+    let slug = strip(str).replace(/-{2,}/g, "-").toLowerCase();
+    if (slugs.includes(slug)) slug += `-${id}`;
+    slugs.push(slug);
+    return slug;
+  };
+
   for (let i = 0; i < fullList.length; i++) {
     const obj = fullList[i];
+    obj.slug = slugify(obj.name, obj.id);
     const {id, dimension, hierarchy} = obj;
     const [row, created] = await db.search.findOrCreate({
       where: {id, dimension, hierarchy},
@@ -309,6 +321,7 @@ const populateSearch = async(profileData, db) => {
     }).catch(catcher);
     if (verbose && created) console.log(`Created: ${row.id} ${row.display}`);
     else {
+      if (row.slug) delete obj.slug;
       await row.updateAttributes(obj).catch(catcher);
       if (verbose) console.log(`Updated: ${row.id} ${row.display}`);
     }
@@ -394,7 +407,7 @@ module.exports = function(app) {
       // so the ensuing replace operation works (this should be a no-op for *nix/osx systems)
       const sectionTypeDirFixed = sectionTypeDir.replace(/\\/g, "/");
       const compName = file.replace(sectionTypeDirFixed, "").replace(".jsx", "");
-      sectionTypes.push(compName);
+      if (compName !== "Section") sectionTypes.push(compName);
     });
     section = sortSection(db, section);
     section.types = sectionTypes;
@@ -526,7 +539,7 @@ module.exports = function(app) {
         where2[list.parent] = row[list.parent];
         const rows = await db[ref].findAll({where: where2, attributes: ["id", "ordering"], order: [["ordering", "ASC"]]}).catch(catcher);
         return res.json(rows);
-      });      
+      });
     });
   });
 
@@ -565,7 +578,7 @@ module.exports = function(app) {
       rows = section.selectors;
     }
     return res.json(rows);
-  });  
+  });
 
   app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {
     const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
@@ -607,8 +620,8 @@ module.exports = function(app) {
     await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.section.destroy({where: {id: req.query.id}}).catch(catcher);
     const rows = await db.section.findAll({
-      where: {profile_id: row.profile_id}, 
-      attributes: ["id", "slug", "ordering", "profile_id", "type"], 
+      where: {profile_id: row.profile_id},
+      attributes: ["id", "slug", "ordering", "profile_id", "type"],
       include: [
         {association: "content", attributes: ["id", "lang", "title"]}
       ],
@@ -622,8 +635,8 @@ module.exports = function(app) {
     await db.storysection.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.storysection.destroy({where: {id: req.query.id}}).catch(catcher);
     const rows = await db.storysection.findAll({
-      where: {story_id: row.story_id}, 
-      attributes: ["id", "slug", "ordering", "story_id", "type"], 
+      where: {story_id: row.story_id},
+      attributes: ["id", "slug", "ordering", "story_id", "type"],
       include: [
         {association: "content", attributes: ["id", "lang", "title"]}
       ],

@@ -12,6 +12,7 @@ import yn from "yn";
 
 import Button from "./components/fields/Button";
 
+import "./css/utilities.css";
 import "./css/base.css";
 import "./css/blueprint-overrides.css";
 import "./css/form-fields.css";
@@ -137,7 +138,7 @@ class Builder extends Component {
           )}
 
           <div className="cms-nav-settings-button-container">
-            <Button className="cms-nav-settings-button" icon="cog" onClick={this.toggleSettings.bind(this)}>
+            <Button className="cms-nav-settings-button" context="cms" icon="cog" onClick={this.toggleSettings.bind(this)}>
               settings
             </Button>
           </div>
@@ -146,7 +147,7 @@ class Builder extends Component {
             {/* locale select */}
             {locales &&
               <React.Fragment>
-                <h2 className="cms-nav-settings-heading font-sm">
+                <h2 className="cms-nav-settings-heading u-font-sm">
                   Languages
                 </h2>
                 {/* primary locale */}
@@ -154,6 +155,7 @@ class Builder extends Component {
                 <Select
                   label="Primary"
                   fontSize="xs"
+                  context="cms"
                   inline
                   options={[localeDefault]}
                 />
@@ -161,6 +163,7 @@ class Builder extends Component {
                 <Select
                   label="Secondary"
                   fontSize="xs"
+                  context="cms"
                   inline
                   value={secondaryLocale}
                   options={locales.map(loc => loc)}

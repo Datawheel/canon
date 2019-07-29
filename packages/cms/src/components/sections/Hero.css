@@ -1,0 +1,68 @@
+@import "../../css/mixins.css";
+
+.cp-hero {
+  background-color: var(--hero-bg-color);
+  color: var(--hero-text-color);
+  display: flex;
+  /* fill up the screen, but make room for the nav & subnav */
+  min-height: calc(100vh - var(--nav-height) - var(--subnav-height));
+
+  /* IE doesn't really do vertical centering, so remove min-height */
+  @mixin ie-only {
+    min-height: 0;
+  }
+}
+
+.cp-hero-inner {
+  /* sizing */
+  width: var(--hero-container-width);
+  padding-top: var(--gutter-xl);
+  padding-bottom: var(--gutter-xl);
+  /* alignment */
+  margin-top: auto;
+  margin-bottom: auto;
+  /* layout */
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cp-hero-figure {
+  width: 100%;
+  padding-top: var(--gutter-lg);
+  padding-bottom: var(--gutter-lg);
+}
+
+.cp-hero-caption {
+  width: 100%;
+
+  @mixin min-sm {
+    /* no viz; center the content */
+    &:last-child {
+      text-align: center;
+    }
+    /* viz; make room for content */
+    &:not(:last-child) {
+      flex-basis: calc(100% - var(--gutter-xl) - var(--hero-viz-width));
+      padding-right: var(--gutter-md);
+    }
+    & + .cp-hero-figure {
+      flex-basis: var(--hero-viz-width);
+      min-width: var(--hero-viz-width);
+      width: 100%;
+    }
+  }
+}
+
+.cp-hero-heading {
+  color: var(--hero-heading-color);
+  font-size: var(--hero-heading-size);
+}
+.cp-hero-subhead {
+  color: var(--hero-subhead-color);
+  font-size: var(--hero-subhead-size);
+}
+.cp-hero-paragraph {
+  font-size: var(--hero-paragraph-size);
+}

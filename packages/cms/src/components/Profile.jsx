@@ -3,8 +3,21 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {fetchData} from "@datawheel/canon-core";
-import Section from "./sections/Section";
+
 import libs from "../utils/libs";
+import stripP from "../utils/formatters/stripP";
+
+import Hero from "./sections/Hero";
+import Section from "./sections/Section";
+import SectionGrouping from "./sections/components/SectionGrouping";
+
+import "../css/utilities.css";
+import "../css/base.css";
+import "../css/blueprint-overrides.css";
+import "../css/form-fields.css";
+import "../css/layout.css";
+
+import "./Profile.css";
 
 class Profile extends Component {
 
@@ -36,7 +49,6 @@ class Profile extends Component {
   }
 
   onSelector(name, value) {
-
     const {profile, selectors} = this.state;
     const {id, variables} = profile;
     const {locale} = this.props;
@@ -51,22 +63,93 @@ class Profile extends Component {
       .then(resp => {
         this.setState({profile: resp.data, loading: false});
       });
-
   }
 
   render() {
     const {profile, loading} = this.state;
-    const {sections} = profile;
+
+    let {sections} = profile;
+    let heroSection;
+    // split out hero from sections array
+    if (sections.filter(l => l.type === "Hero").length) {
+      // there are somehow multiple hero sections; grab the first one only
+      heroSection = sections.filter(l => l.type === "Hero")[0];
+      // filter out Hero from sections
+      sections = sections.filter(l => l.type !== "Hero");
+    }
+
+    // rename old section names
+    sections.forEach(l => {
+      if (l.type === "TextViz" || l.sticky === true) l.type = "Default";
+      if (l.type === "Card") l.type = "InfoCard";
+      if (l.type === "Column") l.type = "SingleColumn";
+    });
+
+    const groupableSections = ["InfoCard", "SingleColumn"]; // sections to be grouped together
+    const innerGroupedSections = []; // array for sections to be accumulated into
+
+    // reduce sections into a nested array of groupedSections
+    innerGroupedSections.push(sections.reduce((arr, section) => {
+      if (arr.length === 0) arr.push(section); // push the first one
+      else {
+        const prevType = arr[arr.length - 1].type;
+        const currType = section.type;
+        // if the current and previous types are groupable and the same type, group them into an array
+        if (groupableSections.includes(prevType) && groupableSections.includes(currType) && prevType === currType) {
+          arr.push(section);
+        }
+        // otherwise, push the section as-is
+        else {
+          innerGroupedSections.push(arr);
+          arr = [section];
+        }
+      }
+      return arr;
+    }, []));
+
+    const groupedSections = innerGroupedSections.reduce((arr, group) => {
+      if (arr.length === 0 || group[0].type === "Grouping") arr.push([group]);
+      else arr[arr.length - 1].push(group);
+      return arr;
+    }, []);
 
     return (
-      <div id="Profile">
-        <h1 dangerouslySetInnerHTML={{__html: profile.title}} />
-        <h3 dangerouslySetInnerHTML={{__html: profile.subtitle}} />
-        {sections.map((section, i) => <Section key={`${section.slug}-${i}`} loading={loading} contents={section} />)}
+      <div className="cp">
+        <Hero profile={profile} contents={heroSection || null} />
+
+        {/* main content sections */}
+        <main className="cp-main" id="main">
+          {groupedSections.map((groupings, i) =>
+            <div className="cp-grouping" key={i}>
+              {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
+                // ungrouped section
+                ? <Section
+                  contents={innerGrouping[0]}
+                  headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
+                  loading={loading}
+                  key={`${innerGrouping[0].slug}-${ii}`}
+                />
+                // grouped sections
+                : <SectionGrouping layout={innerGrouping[0].type}>
+                  {innerGrouping.map((section, iii) =>
+                    <Section
+                      contents={section}
+                      headingLevel={groupedSections.length === 1 || ii === 0
+                        ? iii === 0 ? "h2" : "h3"
+                        : "h4"
+                      }
+                      loading={loading}
+                      key={`${section.slug}-${iii}`}
+                    />
+                  )}
+                </SectionGrouping>
+              )}
+            </div>
+          )}
+        </main>
       </div>
     );
   }
-
 }
 
 Profile.childContextTypes = {

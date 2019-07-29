@@ -4,7 +4,7 @@ import ButtonGroup from "../fields/ButtonGroup";
 import ReorderButton from "./components/ReorderButton";
 import "./Card.css";
 
-// TODO: rename existing Card.jsx (profile section layout?)
+/** Wrapper to generate markup for all admin cards */
 export default class Card extends Component {
   render() {
     const {
@@ -26,7 +26,9 @@ export default class Card extends Component {
     } = this.props;
 
     const buttonProps = {
-      className: "cms-card-heading-button font-xxs",
+      className: "cms-card-heading-button",
+      fontSize: "xxxs",
+      context: "cms",
       iconOnly: true
     };
 
@@ -37,6 +39,7 @@ export default class Card extends Component {
       refreshButton = Object.assign({}, {
         children: "refresh",
         icon: "refresh",
+        fontSize: "xxs",
         onClick: onRefresh,
         disabled: rebuilding,
         rebuilding,
@@ -49,6 +52,7 @@ export default class Card extends Component {
       deleteButton = Object.assign({}, {
         children: "delete entry",
         icon: "trash",
+        fontSize: "xxs",
         onClick: onDelete,
         disabled: rebuilding,
         ...buttonProps
@@ -60,6 +64,7 @@ export default class Card extends Component {
       editButton = Object.assign({}, {
         children: "edit entry",
         icon: "cog",
+        fontSize: "xxs",
         onClick: onEdit,
         disabled: rebuilding,
         ...buttonProps
@@ -70,7 +75,7 @@ export default class Card extends Component {
       <div className={`cms-card cms-${ cardClass }-card${ secondaryLocale ? " is-multilingual" : "" }`} style={style}>
 
         {/* cover button */}
-        {onEdit && title &&
+        {onEdit &&
           <button className="cms-card-cover-button" onClick={ onEdit }>
             <span className="u-visually-hidden">edit {title}</span>
           </button>
@@ -81,9 +86,9 @@ export default class Card extends Component {
           {onEdit &&
             <Icon className="cms-card-heading-icon" icon="cog" />
           }
-          <h3 className="cms-card-heading-text font-sm">{title || "missing `title` prop in Card.jsx"}</h3>
+          <h3 className="cms-card-heading-text u-font-sm">{title || "missing `title` prop in Card.jsx"}</h3>
           {buttons.length
-            ? <ButtonGroup buttons={buttons} />
+            ? <ButtonGroup context="cms" buttons={buttons} />
             : ""
           }
         </div>

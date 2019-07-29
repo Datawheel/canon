@@ -1,5 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
+import Button from "../fields/Button";
+import Parse from "../sections/components/Parse";
 
 import "./PercentageBar.css";
 
@@ -27,7 +29,7 @@ class PercentageBar extends Component {
         const perc = Number(d[value] / total * 100);
         return isNaN(perc) ? "No Data" : `${perc.toFixed(2)}%`;
       },
-      showText: "Show More",
+      showText: "Show more",
       hideText: "Hide"
     };
 
@@ -55,7 +57,6 @@ class PercentageBar extends Component {
   }
 
   render() {
-
     const {showAll, config} = this.state;
 
     if (!config) return null;
@@ -67,30 +68,59 @@ class PercentageBar extends Component {
     let displayData = showAll ? data : cutoffFunction(data);
 
     if (sort) displayData = displayData.sort(sort);
-  
-    return <div className="PercentageBar">
-      <h3 className="pb-title" dangerouslySetInnerHTML={{__html: title}} />
-      { 
-        displayData.map((d, i) => {
-          const percent = d[value] / total * 100;
-          const label = d[groupBy];
-          return <div key={`pb-${i}`}className="percent-wrapper">
-            <p className="label s-size">{label}</p>
-            <div className="bp3-progress-bar bp3-intent-primary bp3-no-stripes">
-              {!isNaN(percent) && <div className="bp3-progress-meter" style={{width: `${percent}%`}}>
-              </div>}      
-              
-            </div>
-            <p className="percent-label xs-size">{numberFormat(d, value, total)}</p>    
-          </div>;
-        })
-      }
-      <div className="show-more">
-        {!showAll && cutoffText && <div className="cutoff-text">{cutoffText}</div>}
-        {(showAll || data.length > displayData.length) && <button onClick={() => this.setState({showAll: !this.state.showAll})}>{showAll ? hideText : showText}</button>}
-      </div>
-    </div>;
 
+    return (
+      <div className="percentage-bar-wrapper">
+        {title &&
+          <Parse El={"h3"} className="percentage-bar-title">{title}</Parse>
+        }
+        <ul className="percentage-bar-list">
+          {displayData.map((d, i) => {
+            const percent = d[value] / total * 100;
+            const label = d[groupBy];
+            return (
+              <React.Fragment key={`percentage-bar-${i}`}>
+                <li className="percentage-bar-item">
+                  <span className="percentage-bar-label label u-font-xs">
+                    {label}
+                  </span>
+                  <span className="u-visually-hidden">: </span>
+                  {!isNaN(percent) &&
+                    <span className="percentage-bar-bg">
+                      <span
+                        className="percentage-bar"
+                        style={{
+                          width: `${percent}%`,
+                          animationDelay: `0.${i}s`
+                        }}
+                      />
+                    </span>
+                  }
+                  <span className="percentage-bar-value display u-font-md">
+                    {numberFormat(d, value, total)}
+                  </span>
+                </li>
+              </React.Fragment>
+            );
+          })}
+        </ul>
+        <div className="show-more">
+          {!showAll && cutoffText &&
+            <div className="cutoff-text">{cutoffText}</div>
+          }
+          {(showAll || data.length > displayData.length) &&
+            <Button
+              fontSize="xs"
+              iconPosition="left"
+              icon={showAll ? "eye-off" : "eye-open"}
+              onClick={() => this.setState({showAll: !this.state.showAll})}
+            >
+              {showAll ? hideText : showText}
+            </Button>
+          }
+        </div>
+      </div>
+    );
   }
 }
 

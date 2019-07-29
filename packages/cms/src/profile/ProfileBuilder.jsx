@@ -12,6 +12,8 @@ import SidebarTree from "../components/interface/SidebarTree";
 import Header from "../components/interface/Header";
 import Toolbox from "../components/interface/Toolbox";
 import nestedObjectAssign from "../utils/nestedObjectAssign";
+import sectionIconLookup from "../utils/sectionIconLookup";
+import toKebabCase from "../utils/formatters/toKebabCase";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
@@ -21,9 +23,9 @@ import "./ProfileBuilder.css";
 
 const sectionIcons = {
   Card: "square",
-  Column: "list",
+  SingleColumn: "list",
   Tabs: "folder-close",
-  TextViz: "list-detail-view"
+  Default: "list-detail-view"
 };
 
 class ProfileBuilder extends Component {
@@ -92,7 +94,9 @@ class ProfileBuilder extends Component {
           itemType: "section",
           masterPid: p.id,
           masterMeta: p.meta,
-          data: t
+          data: t,
+          icon: sectionIconLookup(t.type, t.sticky),
+          className: `${toKebabCase(t.type)}-node`
         };
       })
     }));
@@ -555,6 +559,18 @@ class ProfileBuilder extends Component {
               }
             });
           }
+          // Further, for any given _genStatus or _matStatus that is incoming,
+          // if the incoming version has no error, we must CLEAR the error from
+          // the current state of the variables.
+          if (variablesHash[currentPid][localeDefault]) {
+            ["_genStatus", "_matStatus"].forEach(status => {
+              const incGens = defObj[localeDefault][status];
+              const curGens = variablesHash[currentPid][localeDefault][status];
+              Object.keys(incGens).forEach(id => {
+                if (!incGens[id].error) delete curGens[id].error;
+              });
+            });
+          }
           variablesHash[currentPid] = nestedObjectAssign(variablesHash[currentPid], defObj);
         }
         if (locale) {
@@ -578,6 +594,15 @@ class ProfileBuilder extends Component {
                   delete theseVars[key];
                   delete current[key];
                 }
+              });
+            }
+            if (variablesHash[currentPid][locale]) {
+              ["_genStatus", "_matStatus"].forEach(status => {
+                const incGens = locObj[locale][status];
+                const curGens = variablesHash[currentPid][locale][status];
+                Object.keys(incGens).forEach(id => {
+                  if (!incGens[id].error) delete curGens[id].error;
+                });
               });
             }
             variablesHash[currentPid] = nestedObjectAssign(variablesHash[currentPid], locObj);
@@ -606,13 +631,18 @@ class ProfileBuilder extends Component {
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
 
-    return (
+    // get current node order; used for showing hero section in section layout list
+    let currNodeOrder;
+    if (currentNode && currentNode.data) currNodeOrder = currentNode.data.ordering;
 
+    return (
       <React.Fragment>
         {/* new entity */}
         <Button
           onClick={this.createProfile.bind(this)}
-          className="cms-add-profile-button font-xxs"
+          context="cms"
+          className="cms-add-profile-button"
+          fontSize="xxs"
           icon="plus"
           iconPosition="right"
         >
@@ -621,26 +651,14 @@ class ProfileBuilder extends Component {
 
         <div className="cms-panel profile-panel" id="profile-builder">
           <div className="cms-sidebar" id="tree">
-
             <SidebarTree
               onNodeClick={this.handleNodeClick.bind(this)}
               onNodeCollapse={this.handleNodeCollapse.bind(this)}
               onNodeExpand={this.handleNodeExpand.bind(this)}
               contents={nodes}
             />
-
           </div>
-          <Alert
-            isOpen={nodeToDelete}
-            cancelButtonText="Cancel"
-            confirmButtonText="Delete"
-            iconName="trash"
-            intent={Intent.DANGER}
-            onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
-            onCancel={() => this.setState({nodeToDelete: false})}
-          >
-            {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
-          </Alert>
+
           <div className="cms-editor" id="item-editor">
             { currentNode
               ? <Editor
@@ -650,6 +668,7 @@ class ProfileBuilder extends Component {
                 previews={previews}
                 variables={variables}
                 selectors={selectors}
+                order={currNodeOrder}
                 onSelect={this.onSelect.bind(this)}
                 reportSave={this.reportSave.bind(this)}
               >
@@ -674,7 +693,20 @@ class ProfileBuilder extends Component {
               : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
             }
           </div>
+
+          <Alert
+            isOpen={nodeToDelete}
+            cancelButtonText="Cancel"
+            confirmButtonText="Delete"
+            iconName="trash"
+            intent={Intent.DANGER}
+            onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
+            onCancel={() => this.setState({nodeToDelete: false})}
+          >
+            {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
+          </Alert>
         </div>
+
         <Toolbox
           id={currentPid}
           locale={locale}
@@ -685,7 +717,6 @@ class ProfileBuilder extends Component {
           previews={previews}
         />
       </React.Fragment>
-
     );
   }
 }

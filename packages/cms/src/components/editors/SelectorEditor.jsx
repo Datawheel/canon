@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import Button from "../fields/Button";
-import ButtonGroup from "../fields/ButtonGroup";
 import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
+import ButtonGroup from "../fields/ButtonGroup";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -233,37 +234,44 @@ class SelectorEditor extends Component {
         return <option key={`{{${key}}}`} value={`{{${key}}}`} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
       });
 
+    const buttonProps = {
+      className: "u-font-xs",
+      context: "cms",
+      iconPosition: "left"
+    };
+
     return (
       <div className="cms-selector-editor">
 
         <div className="cms-field-group">
-          <label className="cms-field-container">
-            Selector name
-            <input className="bp3-input" value={data.name} onChange={this.editName.bind(this)} />
-          </label>
-
-          <label className="cms-field-container">
-            Input label
-            <input className="bp3-input" value={data.title} onChange={this.editLabel.bind(this)} />
-          </label>
+          <TextInput
+            label="Selector name"
+            context="cms"
+            value={data.name}
+            onChange={this.editName.bind(this)}
+          />
+          <TextInput
+            label="Input label"
+            context="cms"
+            value={data.title}
+            onChange={this.editLabel.bind(this)}
+          />
         </div>
 
-        <ButtonGroup className="cms-selector-editor-button-group" buttons={[
+        <ButtonGroup className="cms-selector-editor-button-group" context="cms" buttons={[
           {
             children: "single selection",
-            className: "font-xs",
             active: data.type === "single",
             onClick: this.handleTypeChange.bind(this, "single"),
             icon: "layer",
-            iconPosition: "left"
+            ...buttonProps
           },
           {
             children: "multiple selections",
-            className: "font-xs",
             active: data.type === "multi",
             onClick: this.handleTypeChange.bind(this, "multi"),
             icon: "layers",
-            iconPosition: "left"
+            ...buttonProps
           }
         ]} />
 
@@ -296,6 +304,7 @@ class SelectorEditor extends Component {
                     <Select
                       label="option (new)"
                       labelHidden
+                      context="cms"
                       value={option.option}
                       onChange={this.chooseOption.bind(this, i)}
                     >
@@ -306,8 +315,9 @@ class SelectorEditor extends Component {
                   {/* visibility */}
                   <td className="cms-selector-editor-cell">
                     <Select
-                      label="visibility"
+                      label="Visible"
                       labelHidden
+                      context="cms"
                       value={option.allowed}
                       onChange={this.chooseAllowed.bind(this, i)}
                     >
@@ -319,6 +329,7 @@ class SelectorEditor extends Component {
                   <td className="cms-selector-editor-cell cms-delete-selector-editor-cell">
                     <Button
                       onClick={this.deleteOption.bind(this, i)}
+                      context="cms"
                       icon="trash"
                       iconOnly
                     >
@@ -331,6 +342,7 @@ class SelectorEditor extends Component {
                     <td className="cms-selector-editor-cell cms-reorder">
                       <Button
                         onClick={this.moveDown.bind(this, i)}
+                        context="cms"
                         className="cms-reorder-button"
                         icon="swap-vertical"
                         iconOnly
@@ -349,7 +361,8 @@ class SelectorEditor extends Component {
         {/* new option */}
         <Button
           onClick={this.addOption.bind(this)}
-          className={!data.options.length ? "font-md" : null}
+          className={!data.options.length ? "u-font-md" : null}
+          context="cms"
           icon="plus"
           block
         >
@@ -371,6 +384,7 @@ class SelectorEditor extends Component {
               <Select
                 label=" "
                 labelHidden
+                context="cms"
                 value={data.default}
                 onChange={this.chooseCustom.bind(this)}
                 inline

@@ -1,0 +1,113 @@
+@import "../../css/mixins.css";
+
+/* shared input styles */
+.cp-input-label,
+.cms-input-label {
+  display: block; /* honor margin */
+
+  /* the input */
+  & > .cp-input,
+  & > .cms-input {
+    line-height: 1.125;
+    border-radius: var(--field-border-radius);
+    /* sizing */
+    width: 100%;
+    padding: var(--field-padding);
+    /* transitions */
+    transition:
+      border-color 0.3s ease-out,
+      box-shadow 0.3s ease-out,
+      color 0.3s ease-out;
+
+    @mixin max-sm {
+      font-size: 14px; /* prevent zooming on mobile */
+    }
+  }
+}
+
+/* inline lable & input */
+.cp-inline-input-label,
+.cms-inline-input-label {
+  display: flex;
+  align-items: baseline;
+
+  & > .cp-input,
+  & > .cms-input {
+    flex: 1 1 auto;
+  }
+
+  & > [class*="-input-text"] {
+    white-space: nowrap;
+    margin-right: 0.75em;
+  }
+}
+
+
+/* admin panel context */
+.cms-input {
+  /* theming */
+  background-color: var(--white);
+  border: 1px solid var(--light-3);
+  color: var(--dark-2);
+
+  &::placeholder {
+    @mixin font-smoothing;
+    color: var(--gray);
+  }
+
+  @mixin dark-mode {
+    background-color: color(var(--black) a(0.75));
+    border-color: var(--black);
+    color: var(--light-1);
+
+    &::placeholder {
+      color: var(--dark-1);
+    }
+  }
+}
+
+/* label hover state */
+.cms-input-label:hover .cms-input {
+  border-color: var(--accent-dark);
+
+  @mixin dark-mode {
+    border-color: var(--accent);
+  }
+}
+
+/* input focus state */
+.cms-input:focus {
+  border-color: var(--accent-dark);
+  box-shadow: 0 0 0 1px var(--accent-dark);
+  outline: none;
+
+  @mixin dark-mode {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+}
+
+
+/* profile context */
+.cp-input {
+  /* theming */
+  background-color: var(--field-bg-color);
+  border: var(--field-border-width) solid var(--field-border-color);
+  color: var(--field-color);
+
+  &::placeholder {
+    color: var(--field-placeholder-color);
+  }
+}
+
+/* label hover state */
+.cp-input-label:hover .cp-input {
+  border-color: var(--field-focus-color);
+}
+
+/* input focus state */
+.cp-input:focus {
+  border-color: var(--field-focus-color);
+  box-shadow: 0 0 0 var(--field-border-width) var(--field-focus-color);
+  outline: none;
+}

@@ -10,9 +10,9 @@ import StorySectionEditor from "./StorySectionEditor";
 
 const sectionIcons = {
   Card: "square",
-  Column: "list",
+  SingleColumn: "list",
   Tabs: "folder-close",
-  TextViz: "list-detail-view"
+  Default: "list-detail-view"
 };
 
 class StoryBuilder extends Component {
@@ -367,7 +367,9 @@ class StoryBuilder extends Component {
         {/* new entity */}
         <Button
           onClick={this.addFirst.bind(this)}
-          className="cms-add-story-button font-xxs"
+          className="cms-add-story-button"
+          fontSize="xxs"
+          context="cms"
           icon="plus"
           iconPosition="right"
         >

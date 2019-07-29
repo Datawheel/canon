@@ -1,7 +1,7 @@
 @import "../../css/mixins";
 
 /* quick and dirty layout */
-@mixin min-md {
+@mixin min-lg {
   .cms-panel:not(:last-child) {
     width: calc(100% - var(--toolbox-width));
     max-width: calc(100% - var(--toolbox-width));
@@ -21,6 +21,12 @@
       bottom: 0;
       left: auto;
     }
+  }
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  .cms-toolbox {
+    width: calc(100% - var(--sidebar-width));
+    margin-left: auto;
   }
 }
 
@@ -53,11 +59,11 @@
   }
 }
 
-/* wrapper for all accardions */
-.cms-toolbox-accardion-wrapper.is-hidden {
+/* wrapper for all decks */
+.cms-toolbox-deck-wrapper.is-hidden {
   /* in output view, hide everything except for edit dialogs */
-  & .cms-accardion-heading,
-  & .cms-accardion-description,
+  & .cms-deck-heading,
+  & .cms-deck-description,
   & .cms-card {
     display: none;
   }

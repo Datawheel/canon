@@ -4,9 +4,11 @@ import {connect} from "react-redux";
 import AceWrapper from "./AceWrapper";
 import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
-import Button from "../fields/Button";
 import {Switch, Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
+import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
+import TextButtonGroup from "../fields/TextButtonGroup";
 
 import "./GeneratorEditor.css";
 
@@ -260,52 +262,47 @@ class GeneratorEditor extends Component {
         {/* name & description fields */}
         {(type === "generator" || type === "materializer" || type === "formatter") &&
           <div className="cms-field-group">
-            <div key="gen-name" className="cms-field-container">
-              <label className="label">Name</label>
-              <input className="bp3-input" type="text" value={data.name} onChange={this.changeField.bind(this, "name")}/>
-            </div>
-            <div key="gen-desc" className="cms-field-container">
-              <label className="label">Description</label>
-              <input className="bp3-input" type="text" value={data.description} onChange={this.changeField.bind(this, "description")}/>
-            </div>
+            <TextInput
+              label="Name"
+              context="cms"
+              inline
+              value={data.name}
+              onChange={this.changeField.bind(this, "name")}
+            />
+            <TextInput
+              label="Description"
+              context="cms"
+              inline
+              value={data.description}
+              onChange={this.changeField.bind(this, "description")}
+            />
           </div>
         }
 
         { type === "generator" &&
-          <div className="cms-field-container">
-            <label className="label" htmlFor="api">API</label>
-            <div className="cms-field-container-inline bp3-input-group">
-              <input className="bp3-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
-              <Button onClick={this.maybePreviewPayload.bind(this)} icon={payload && !payload.error ? "refresh" : "download"}>
-                {payload && !payload.error ? "Refetch data" : "Fetch data"}
-              </Button>
-            </div>
-          </div>
+          <TextButtonGroup
+            context="cms"
+            inputProps={{
+              label: "API",
+              inline: true,
+              context: "cms",
+              value: data.api,
+              onChange: this.changeField.bind(this, "api")
+            }}
+            buttonProps={{
+              children: payload && !payload.error ? "Refetch data" : "Fetch data",
+              context: "cms",
+              icon: payload && !payload.error ? "refresh" : "download",
+              onClick: this.maybePreviewPayload.bind(this)
+            }}
+          />
         }
-        { (type === "generator" || type.includes("_visualization")) &&
-          <div className="cms-field-container">
-            <Switch checked={simple} label="UI mode" onChange={this.maybeSwitchSimple.bind(this)} />
-          </div>
-        }
-        {/* visibility */}
-        <div className="cms-field-container">
-          { (type === "profile_visualization" || type === "section_visualization") &&
-            <label className="bp3-label bp3-inline">
-              <span className="label-text">Allowed</span>
-              <div className="bp3-select">
-                <select value={ data.allowed || "always" } onChange={this.chooseVariable.bind(this)}>
-                  {varOptions}
-                </select>
-              </div>
-            </label>
-          }
-        </div>
         {/* callback instructions */}
         {!simple &&
           <section className="generator-editor-help">
-            <h3 className="font-sm">Callback</h3>
-            <p className="font-xs">{preMessage[type]}</p>
-            <p className="font-xs">{postMessage[type]}</p>
+            <h3 className="u-font-sm">Callback</h3>
+            <p className="u-font-xs">{preMessage[type]}</p>
+            <p className="u-font-xs">{postMessage[type]}</p>
           </section>
         }
 
@@ -338,6 +335,27 @@ class GeneratorEditor extends Component {
             />
           }
         </div>
+
+        {/* visibility */}
+        { (type === "profile_visualization" || type === "section_visualization") &&
+          <Select
+            label="Visible"
+            inline
+            fontSize="xs"
+            context="cms"
+            value={data.allowed || "always"}
+            onChange={this.chooseVariable.bind(this)}
+          >
+            {varOptions}
+          </Select>
+        }
+
+        {/* UI/JS mode toggle */}
+        { (type === "generator" || type.includes("_visualization")) &&
+          <div className="cms-field-container cms-mode-switch-container">
+            <Switch checked={simple} label="UI mode" onChange={this.maybeSwitchSimple.bind(this)} />
+          </div>
+        }
       </div>
     );
   }
