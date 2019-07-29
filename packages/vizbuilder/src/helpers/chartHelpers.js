@@ -2,7 +2,7 @@ import {assign} from "d3plus-common";
 import {BarChart, Donut, Geomap, LinePlot, Pie, StackedArea, Treemap} from "d3plus-react";
 import {joinStringsWithCommaAnd} from "./formatting";
 import {getPermutations} from "./sorting";
-import {areMetaMeasuresZero} from "./validation";
+import {areMetaMeasuresZero, isValidFilter} from "./validation";
 
 export const chartComponents = {
   barchart: BarChart,
@@ -149,9 +149,11 @@ export function tooltipGenerator(datagroup) {
 
   if (Array.isArray(filters)) {
     filters.forEach(filter => {
-      const filterName = filter.name;
-      const formatter = filter.getFormatter();
-      filterName && tbody.push([filterName, d => `${formatter(d[filterName])}`]);
+      if (isValidFilter(filter)) {
+        const filterName = filter.name;
+        const formatter = filter.getFormatter();
+        tbody.push([filterName, d => `${formatter(d[filterName])}`]);
+      }
     });
   }
 
