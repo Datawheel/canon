@@ -20,18 +20,15 @@ import loadingProgress from "./reducers/loadingProgress";
     @param {Object} history a history object. We use `createMemoryHistory` for server-side rendering, while using browserHistory for client-side rendering.
 */
 export default function storeConfig(initialState, history, reduxMiddleware = false) {
+
   // Installs hooks that always keep react-router and redux store in sync
   const middleware = [thunk, promiseMiddleware, routerMiddleware(history)];
+  if (__DEV__ && !__SERVER__ && __LOGREDUX__) middleware.push(createLogger());
 
   // Custom middleware
-  let appliedMiddleware = null;
-  console.log("storeConfig->", reduxMiddleware);
-  if (reduxMiddleware) {
-    appliedMiddleware = reduxMiddleware(applyMiddleware, middleware);
-  }
-  else {
-    appliedMiddleware = applyMiddleware(...middleware);
-  }
+  const appliedMiddleware = reduxMiddleware
+    ? reduxMiddleware(applyMiddleware, middleware)
+    : appliedMiddleware = applyMiddleware(...middleware);
 
   let store;
 
@@ -50,7 +47,6 @@ export default function storeConfig(initialState, history, reduxMiddleware = fal
   }, appReducers));
 
   if (__DEV__ && !__SERVER__) {
-    if (__LOGREDUX__) middleware.push(createLogger());
     store = createStore(canonReducer, initialState, compose(
       appliedMiddleware,
       typeof window === "object" && typeof window.devToolsExtension !== "undefined" ? window.devToolsExtension() : f => f
