@@ -139,8 +139,8 @@ export function generateQueries(params) {
   const validCuts = [];
   const cutMap = new WeakMap();
 
-  const totalGroups = params.groups.length;
-  for (let i = 0; i < totalGroups; i++) {
+  const groupsCount = params.groups.length;
+  for (let i = 0; i < groupsCount; i++) {
     const grouping = params.groups[i];
     if (isValidGrouping(grouping)) {
       validGroups.push(grouping);
@@ -154,64 +154,16 @@ export function generateQueries(params) {
       }
     }
   }
-  /*
-  const totalValidGroups = validGroups.length;
 
-  for (let i = 0; i < totalValidGroups; i++) {
-    const grouping = validGroups[i];
-    const level = grouping.level;
-
-    queries.push({
-      ...params,
-      kind: "s",
-      level,
-      levels: [level],
-      cuts: [grouping].filter(isValidCut)
-    });
-  }
-
-  if (totalValidGroups > 1) {
-    const combinations = getCombinationsChoose2(validGroups);
-
-    while (true) {
-      const combination = combinations.next();
-      if (combination.done) break;
-
-      const groupings = combination.value;
-
-      queries.push({
-        ...params,
-        kind: "d",
-        level: groupings[0].level,
-        levels: groupings.map(grp => grp.level),
-        cuts: groupings.filter(isValidCut)
-      });
-    }
-  }
-*/
-  // if (validCuts.length > 0) {
-  let totalValidGroups = validGroups.length;
-  const ddGroups = [];
-  const ctGroups = [];
-
-  for (let i = 0; i < totalValidGroups; i++) {
-    const group = validGroups[i];
-    const target = group.hasMembers ? ctGroups : ddGroups;
-    target.push(group);
-  }
-
-  if (ddGroups.length === 0) {
-    ddGroups.push(validGroups[0]);
-  }
+  const levels = validGroups.map(grp => grp.level);
 
   queries.push({
     ...params,
     kind: "c",
-    level: ddGroups[0].level,
-    levels: ddGroups.map(grp => grp.level),
-    cuts: ctGroups
+    level: levels[0],
+    levels: levels,
+    cuts: validCuts
   });
-  // }
 
   return queries;
 }
