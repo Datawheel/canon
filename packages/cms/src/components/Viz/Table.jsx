@@ -25,7 +25,8 @@ class Table extends Component {
     const {dataFormat} = this.props;
 
     const defaults = {
-      cellFormat: (key, val) => abbreviate(val),
+      cellFormat: (key, val) => isNaN(val) ? val : abbreviate(val),
+      headerFormat: val => val,
       showPagination: false
     };
 
@@ -35,13 +36,11 @@ class Table extends Component {
     if (typeof config.data === "string") {
       axios.get(config.data).then(resp => {
         config.data = dataFormat(resp.data);
-        if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
         this.setState({config});
       });
     }
     else {
       config.data = dataFormat(config.data);
-      if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
       this.setState({config});
     }
   }
@@ -59,25 +58,21 @@ class Table extends Component {
 
     const {
       data,
-      title,
-      showPagination,
       headerFormat, // (key)
-      cellFormat, // (key, val)
+      cellFormat // (key, val)
     } = config;
 
     // check that we have a valid columns object
-    let {columns} = config;
-    if (columns && typeof columns === "object") {
-      // filter out hidden columns
-      columns = columns.filter(col => col !== false);
-    }
-    // for now, just show all the columns; TODO: remove/replace
-    else columns = Object.keys(data[0]);
+    const columns = config.columns &&
+      // it it's array, use it as-is; otherwise, make it an array
+      Array.isArray(config.columns) ? config.columns : [config.columns] ||
+      // otherwise, make an array from all available columns
+      Object.keys(data[0]);
 
     const tableStructure = columns.map(col =>
       Object.assign({
         Header: <button className="cp-table-header-button">
-          {col} <span className="u-visually-hidden">sort by column</span>
+          {headerFormat(col)} <span className="u-visually-hidden">sort by column</span>
           <Icon className="cp-table-header-icon" icon="caret-down" />
         </button>,
         id: col,
