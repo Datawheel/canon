@@ -80,11 +80,8 @@ class SimpleVisualizationEditor extends Component {
       axios.get(url).then(resp => {
         const payload = resp.data;
 
-        // object with all keys set to true
-        availableColumns = Object.keys(payload.data[0]).reduce((accumulator, column) => {
-          accumulator[column] = true;
-          return accumulator;
-        }, {});
+        // array of all columns
+        const availableColumns = Object.keys(payload.data[0]);
         selectedColumns = availableColumns;
 
         this.setState({payload}, this.compileCode.bind(this)).setState(selectedColumns);
@@ -144,15 +141,25 @@ class SimpleVisualizationEditor extends Component {
   }
 
   onCheck(field) {
-    const {selectedColumns} = this.state;
-    selectedColumns[field] = !selectedColumns[field];
-    this.setState({selectedColumns});
+    let columns = this.state.selectedColumns;
+
+    // if it's there, remove it
+    if (columns.filter(col => col === field).length > 0)  {
+      columns = columns.filter(col => col !== field);
+    }
+    else {
+      columns.push(field);
+    }
+
+    console.log(columns);
+
+    this.setState({selectedColumns: columns});
   }
 
   rebuild() {
     const {object} = this.state;
     const {data, type} = object;
-    let availableColumns = {};
+    let availableColumns = [];
     axios.get(data).then(resp => {
       const payload = resp.data;
       const firstObj = payload.data[0];
@@ -162,11 +169,8 @@ class SimpleVisualizationEditor extends Component {
       };
       if (vizLookup[type] && firstObj) {
         vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
-        // object with all keys set to true
-        availableColumns = Object.keys(firstObj).reduce((accumulator, column) => {
-          accumulator[column] = true;
-          return accumulator;
-        }, {});
+        // array of all columns
+        availableColumns = Object.keys(payload.data[0]);
       }
       this.setState({
         payload,
@@ -272,7 +276,7 @@ class SimpleVisualizationEditor extends Component {
                     <label className="cms-checkbox-label u-font-xs" key={column}>
                       <input
                         type="checkbox"
-                        checked={typeof selectedColumns !== "undefined" ? selectedColumns[column] : false}
+                        checked={typeof selectedColumns !== "undefined" ? selectedColumns.includes(column) : false}
                         onChange={() => this.onCheck(column)}
                       /> {column}
                     </label>
