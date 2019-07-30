@@ -17,8 +17,11 @@ import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
 const {basename} = window.__INITIAL_STATE__.location;
 const browserHistory = useRouterHistory(createHistory)({basename});
-// TODO add redux middleware from canon.js
-const store = configureStore(window.__INITIAL_STATE__, browserHistory);
+
+import canonConfig from "canon.js";
+const reduxMiddleware = canonConfig.reduxMiddleware || false;
+
+const store = configureStore(window.__INITIAL_STATE__, browserHistory, reduxMiddleware);
 const history = syncHistoryWithStore(browserHistory, store);
 const routes = createRoutes(store);
 
