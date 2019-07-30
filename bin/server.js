@@ -119,6 +119,9 @@ const LANGUAGES = process.env.CANON_LANGUAGES || LANGUAGE_DEFAULT;
 
 title("Gathering Resources", "📂");
 
+const canonConfig = resolve("canon.js", appDir) || {};
+const reduxMiddleware = canonConfig.reduxMiddleware || false;
+
 const store = resolve("store.js") || {};
 store.env = {
   CANON_API: API,
@@ -130,9 +133,6 @@ store.env = {
   CANON_PORT: PORT,
   NODE_ENV
 };
-
-const canonConfig = require(path.join(process.cwd(), "canon.js"));
-const reduxMiddleware = canonConfig.reduxMiddleware || false;
 
 Object.keys(process.env)
   .forEach(key => {
