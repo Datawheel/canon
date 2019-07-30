@@ -1,0 +1,70 @@
+@import "../../css/mixins";
+
+/* quick and dirty layout */
+@mixin min-lg {
+  .cms-panel:not(:last-child) {
+    width: calc(100% - var(--toolbox-width));
+    max-width: calc(100% - var(--toolbox-width));
+
+    & ~ .cms-toolbox {
+      position: absolute;
+      width: var(--toolbox-width);
+      padding: 1.25rem;
+      height: 100%;
+      max-height: calc(100vh - (var(--nav-height) + var(--cms-nav-height)));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+      box-shadow: -1px 0 0 var(--light-2); /* left "border" */
+      /* positioning */
+      top: var(--nav-height);
+      right: 0;
+      bottom: 0;
+      left: auto;
+    }
+  }
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  .cms-toolbox {
+    width: calc(100% - var(--sidebar-width));
+    margin-left: auto;
+  }
+}
+
+.cms-toolbox {
+  /* sizing */
+  display: block;
+  /* layout */
+  margin-top: var(--cms-nav-height);
+  padding: 2rem;
+  /* theming */
+  background-color: var(--light-1);
+  box-shadow: 0 -1px 0 var(--light-2); /* top "border" */
+
+  @mixin dark-mode {
+    background-color: var(--dark-2);
+    box-shadow: none !important;
+  }
+
+  & > .cms-filter-search {
+    margin-bottom: 0.625rem;
+  }
+  & > .cms-button-group {
+    margin-bottom: 1.25rem;
+  }
+
+  /* reset card widths */
+  & .cms-card {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* wrapper for all decks */
+.cms-toolbox-deck-wrapper.is-hidden {
+  /* in output view, hide everything except for edit dialogs */
+  & .cms-deck-heading,
+  & .cms-deck-description,
+  & .cms-card {
+    display: none;
+  }
+}

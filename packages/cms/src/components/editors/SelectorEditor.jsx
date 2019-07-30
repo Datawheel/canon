@@ -1,5 +1,8 @@
 import React, {Component} from "react";
-import {RadioGroup, Radio} from "@blueprintjs/core";
+import Button from "../fields/Button";
+import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
+import ButtonGroup from "../fields/ButtonGroup";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -127,9 +130,9 @@ class SelectorEditor extends Component {
     }
   }
 
-  handleTypeChange(e) {
+  handleTypeChange(type) {
     const {data, isDirty} = this.state;
-    data.type = e.target.value;
+    data.type = type;
     if (data.type === "single") {
       let foundDefault = false;
       data.options = data.options.map(o => {
@@ -144,25 +147,6 @@ class SelectorEditor extends Component {
         }
         return o;
       });
-    }
-    if (!isDirty) {
-      if (this.props.markAsDirty) this.props.markAsDirty();
-      this.setState({isDirty: true, data});
-    }
-    else {
-      this.setState({data});
-    }
-  }
-
-  moveUp(i) {
-    const {data, isDirty} = this.state;
-    if (i === 0) {
-      return;
-    }
-    else {
-      const temp = data.options[i - 1];
-      data.options[i - 1] = data.options[i];
-      data.options[i] = temp;
     }
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
@@ -204,7 +188,7 @@ class SelectorEditor extends Component {
     }
   }
 
-  editTitle(e) {
+  editLabel(e) {
     const {data, isDirty} = this.state;
     data.title = e.target.value;
     if (!isDirty) {
@@ -230,6 +214,7 @@ class SelectorEditor extends Component {
     const varOptions = [<option key="always" value="always">Always</option>]
       .concat(Object.keys(variables)
         .filter(key => !key.startsWith("_"))
+        .filter(key => typeof variables[key] !== "object")
         .sort((a, b) => a.localeCompare(b))
         .map(key => {
           const value = variables[key];
@@ -240,6 +225,7 @@ class SelectorEditor extends Component {
 
     const customOptions = Object.keys(variables)
       .filter(key => !key.startsWith("_"))
+      .filter(key => typeof variables[key] !== "object")
       .sort((a, b) => a.localeCompare(b))
       .map(key => {
         const value = variables[key];
@@ -248,100 +234,166 @@ class SelectorEditor extends Component {
         return <option key={`{{${key}}}`} value={`{{${key}}}`} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
       });
 
+    const buttonProps = {
+      className: "u-font-xs",
+      context: "cms",
+      iconPosition: "left"
+    };
+
     return (
       <div className="cms-selector-editor">
 
         <div className="cms-field-group">
-          <label className="cms-field-container">
-            Title (on page)
-            <input className="bp3-input" value={data.title} onChange={this.editTitle.bind(this)} />
-          </label>
-          <label className="cms-field-container">
-            Name (in editor)
-            <input className="bp3-input" value={data.name} onChange={this.editName.bind(this)} />
-          </label>
+          <TextInput
+            label="Selector name"
+            context="cms"
+            value={data.name}
+            onChange={this.editName.bind(this)}
+          />
+          <TextInput
+            label="Input label"
+            context="cms"
+            value={data.title}
+            onChange={this.editLabel.bind(this)}
+          />
         </div>
 
-        <div className="cms-field-container">
-          <RadioGroup
-            className="inline-radio-group"
-            label="Selector Type: "
-            onChange={this.handleTypeChange.bind(this)}
-            selectedValue={data.type}
-          >
-            <Radio label="Single" value="single" />
-            <Radio label="Multi" value="multi" />
-          </RadioGroup>
-        </div>
-
-        <ul className="cms-field-container cms-selector-editor-list">
+        <ButtonGroup className="cms-selector-editor-button-group" context="cms" buttons={[
           {
-            data.options && data.options.map((option, i) =>
-              <li className="cms-selector-editor-item" key={i}>
-
-                {/* option / allowed */}
-                <label className="bp3-label">
-                  Option
-                  <div className="bp3-select">
-                    <select value={option.option} onChange={this.chooseOption.bind(this, i)}>
-                      { varOptions }
-                    </select>
-                  </div>
-                </label>
-                <label className="bp3-label">
-                  Allowed
-                  <div className="bp3-select">
-                    <select value={option.allowed} onChange={this.chooseAllowed.bind(this, i)}>
-                      { varOptions }
-                    </select>
-                  </div>
-                </label>
-
-                <ul className="cms-selector-editor-action-list">
-                  <li className="cms-selector-editor-action-item">
-                    <label className="cms-selector-editor-checkbox">
-                      <input type="checkbox" checked={option.isDefault} onChange={this.setDefault.bind(this, option.option)}/> Active
-                    </label>
-                  </li>
-                  <li className="cms-selector-editor-action-item">
-                    <button className="cms-button" onClick={this.moveUp.bind(this, i)}>
-                      <span className="bp3-icon bp3-icon-arrow-up" />
-                    </button>
-                  </li>
-                  <li className="cms-selector-editor-action-item">
-                    <button className="cms-button" onClick={this.moveDown.bind(this, i)}>
-                      <span className="bp3-icon bp3-icon-arrow-down" />
-                    </button>
-                  </li>
-                  <li className="cms-selector-editor-action-item">
-                    <button className="cms-button" onClick={this.deleteOption.bind(this, i)}>
-                      <span className="bp3-icon bp3-icon-trash" /> delete</button>
-                  </li>
-                </ul>
-              </li>
-            )
+            children: "single selection",
+            active: data.type === "single",
+            onClick: this.handleTypeChange.bind(this, "single"),
+            icon: "layer",
+            ...buttonProps
+          },
+          {
+            children: "multiple selections",
+            active: data.type === "multi",
+            onClick: this.handleTypeChange.bind(this, "multi"),
+            icon: "layers",
+            ...buttonProps
           }
-        </ul>
-        <div className="cms-selector-editor-button-group">
-          <button className="cms-button" onClick={this.addOption.bind(this)}>
-            Add option <span className="bp3-icon bp3-icon-plus"/>
-          </button>
-          <button className="cms-button" onClick={this.toggleCustom.bind(this)}>
-            Custom default <span className={`bp3-icon ${showCustom ? "bp3-icon-cross" : "bp3-icon-cog"}`}/>
-          </button>
-        </div>
+        ]} />
+
+        {data.options.length > 0 &&
+          <table className="cms-selector-editor-table">
+            <thead className="cms-selector-editor-thead">
+              <tr className="cms-selector-editor-row">
+                <td className="cms-selector-editor-cell">Default</td>
+                <td className="cms-selector-editor-cell">Option</td>
+                <td className="cms-selector-editor-cell">Visible</td>
+                <td className="cms-selector-editor-cell" colSpan="2">Actions</td>
+              </tr>
+            </thead>
+
+            <tbody className="cms-selector-editor-tbody">
+              {data.options.map((option, i) =>
+                <tr className="cms-selector-editor-row" key={i}>
+
+                  {/* default */}
+                  <td className="cms-selector-editor-cell">
+                    <input
+                      type={data.type === "multi" ? "checkbox" : "radio"}
+                      checked={option.isDefault}
+                      onChange={this.setDefault.bind(this, option.option)}
+                    /><span className="u-visually-hidden">default option</span>
+                  </td>
+
+                  {/* option */}
+                  <td className="cms-selector-editor-cell">
+                    <Select
+                      label="option (new)"
+                      labelHidden
+                      context="cms"
+                      value={option.option}
+                      onChange={this.chooseOption.bind(this, i)}
+                    >
+                      {varOptions}
+                    </Select>
+                  </td>
+
+                  {/* visibility */}
+                  <td className="cms-selector-editor-cell">
+                    <Select
+                      label="Visible"
+                      labelHidden
+                      context="cms"
+                      value={option.allowed}
+                      onChange={this.chooseAllowed.bind(this, i)}
+                    >
+                      {varOptions}
+                    </Select>
+                  </td>
+
+                  {/* delete */}
+                  <td className="cms-selector-editor-cell cms-delete-selector-editor-cell">
+                    <Button
+                      onClick={this.deleteOption.bind(this, i)}
+                      context="cms"
+                      icon="trash"
+                      iconOnly
+                    >
+                      Delete entry
+                    </Button>
+                  </td>
+
+                  {/* reorder */}
+                  {i !== data.options.length - 1 &&
+                    <td className="cms-selector-editor-cell cms-reorder">
+                      <Button
+                        onClick={this.moveDown.bind(this, i)}
+                        context="cms"
+                        className="cms-reorder-button"
+                        icon="swap-vertical"
+                        iconOnly
+                      >
+                        Swap positioning of current and next cards
+                      </Button>
+                    </td>
+                  }
+                </tr>
+              )}
+            </tbody>
+          </table>
+        }
+
+
+        {/* new option */}
+        <Button
+          onClick={this.addOption.bind(this)}
+          className={!data.options.length ? "u-font-md" : null}
+          context="cms"
+          icon="plus"
+          block
+        >
+          {!data.options.length ? "Add first option" : "Add option"}
+        </Button>
+
 
         {/* custom default */}
-        {showCustom &&
-          <div className="cms-field-container bp3-label">
-            Custom default
-            <div className="bp3-select">
-              <select value={data.default} onChange={this.chooseCustom.bind(this)}>
+        <label className={`cms-selector-editor-custom ${showCustom ? "is-visible" : "is-hidden"}`}>
+          <input
+            className="cms-selector-editor-custom-checkbox"
+            type="checkbox"
+            checked={showCustom}
+            onClick={this.toggleCustom.bind(this)}
+          />
+          {!showCustom
+            ? "Override default with custom logic"
+            : <React.Fragment>Custom default: 
+              <Select
+                label=" "
+                labelHidden
+                context="cms"
+                value={data.default}
+                onChange={this.chooseCustom.bind(this)}
+                inline
+              >
                 {customOptions}
-              </select>
-            </div>
-          </div>
-        }
+              </Select>
+            </React.Fragment>
+          }
+        </label>
       </div>
     );
   }

@@ -1,14 +1,14 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import {Dialog, Alert, Intent} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import Loading from "components/Loading";
-import Viz from "../Viz";
-import FooterButtons from "../FooterButtons";
-import MoveButtons from "../MoveButtons";
+import Viz from "../Viz/Viz";
+import FooterButtons from "../editors/components/FooterButtons";
 import deepClone from "../../utils/deepClone";
+import Card from "./Card";
 import "./VisualizationCard.css";
 
 class VisualizationCard extends Component {
@@ -82,7 +82,7 @@ class VisualizationCard extends Component {
         confirm: "Yes, Abandon changes."
       };
       this.setState({alertObj});
-    } 
+    }
     else {
       this.closeEditorWithoutSaving.bind(this)();
     }
@@ -105,16 +105,19 @@ class VisualizationCard extends Component {
   render() {
 
     const {minData, isOpen, alertObj} = this.state;
+    const {query} = this.props;
 
     if (!minData) return <Loading />;
 
-    const {selectors, type, variables, parentArray, item, previews, locale, localeDefault} = this.props;
+    const {selectors, type, variables, secondaryVariables, parentArray, item, previews, locale, onMove, secondaryLocale} = this.props;
     const formatters = this.context.formatters[locale];
+
+    // TODO: add formatters toggle for secondaryLocale & secondaryVariables
 
     minData.selectors = selectors;
     let logic = "return {}";
     // Only calculate the viz render if the user is finished editing and has closed the window.
-    if (!isOpen) logic = varSwapRecursive(minData, formatters, variables).logic;
+    if (!isOpen) logic = varSwapRecursive(minData, formatters, variables, query).logic;
     const re = new RegExp(/height\:[\s]*([0-9]+)/g);
     let height = re.exec(logic);
     height = height ? height[1] : "400";
@@ -122,65 +125,61 @@ class VisualizationCard extends Component {
     // Create the config object to pass to the viz, but replace its es6 logic with transpiled es5
     const config = Object.assign({}, minData, {logic});
 
+    const cardProps = {
+      cardClass: "visualization",
+      title: config && config.logic_simple && config.logic_simple.data
+        ? `${
+          config.logic_simple.type}${
+          config.logic_simple.type && config.logic_simple.data && ": "}${
+          config.logic_simple.data}`
+        : config.simple || config.logic && config.logic === "return {}"
+          ? "No configuration defined"
+          : config.logic.replace("return ", ""),
+      onEdit: this.openEditor.bind(this),
+      onDelete: this.maybeDelete.bind(this),
+      // reorder
+      reorderProps: parentArray ? {
+        array: parentArray,
+        item,
+        type
+      } : null,
+      onReorder: onMove ? onMove.bind(this) : null,
+      // alert
+      alertObj,
+      onAlertCancel: () => this.setState({alertObj: false})
+    };
+
     return (
-      <div className="cms-card" style={{minHeight: `calc(${height}px + 2.25rem)`}}>
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
+      <Card {...cardProps}>
 
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
-
-        {/* title & edit toggle button */}
-        {locale === localeDefault && <h5 className="cms-card-header">
-          <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="bp3-icon bp3-icon-cog" />
-          </button>
-        </h5> }
-
-        {/* reorder buttons */}
-        { parentArray &&
-          <MoveButtons
-            item={item}
-            array={parentArray}
-            type={type}
-            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
+        {/* viz preview */}
+        {!isOpen &&
+          <Viz
+            config={config}
+            context="cms"
+            locale={locale}
+            debug={true}
+            variables={variables}
+            configOverride={{height, scrollContainer: "#item-editor"}}
+            options={false}
           />
         }
 
+        {/* edit mode */}
         <Dialog
           className="generator-editor-dialog"
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Variable Editor"
+          title="Visualization editor"
           usePortal={false}
         >
           <div className="bp3-dialog-body">
-            <GeneratorEditor 
-              markAsDirty={this.markAsDirty.bind(this)} 
-              previews={previews} 
-              data={minData} 
-              variables={variables} 
-              type={type} 
+            <GeneratorEditor
+              markAsDirty={this.markAsDirty.bind(this)}
+              previews={previews}
+              data={minData}
+              variables={variables}
+              type={type}
             />
           </div>
           <FooterButtons
@@ -188,8 +187,7 @@ class VisualizationCard extends Component {
             onSave={this.save.bind(this)}
           />
         </Dialog>
-        { !isOpen ? <Viz config={config} locale={locale} variables={variables} configOverride={{height, scrollContainer: "#item-editor"}} options={false} /> : <p>No configuration defined.</p> }
-      </div>
+      </Card>
     );
   }
 

@@ -1,0 +1,136 @@
+@import "../../css/mixins.css";
+
+/* shared button styles */
+.cp-button,
+.cms-button {
+  display: inline-block;
+  /* transitions */
+  transition:
+    color 0.2s ease-out,
+    border 0.2s ease-out,
+    background-color 0.2s ease-out,
+    box-shadow 0.2s ease-out;
+
+
+  /* align icons & text */
+  & > * {
+    display: inline-block;
+
+    &:not(:last-child) {
+      margin-left: -0.25em;
+      margin-right: 0.25em;
+    }
+  }
+
+  /* hidden text */
+  &[class*="-icon-only-button"] {
+    padding: 0;
+    width: 2em;
+    height: 2em;
+
+    /* override default margin */
+    & > * {
+      margin-right: 0;
+    }
+  }
+
+  /* icon positioning */
+  & > [class*="-button-icon"] {
+    top: -1px;
+    transition: transform 0.1s ease-out;
+
+    /* icon sized by button font-size */
+    &, & > svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    & + [class*="-button-text"] {
+      margin-left: 0.25em;
+    }
+  }
+
+  &:not([class*="-icon-only-button"]) > [class*="-button-icon"]:last-child {
+    margin-left: 0.25em;
+    margin-right: -0.25em;
+  }
+
+  /* cover the whole container width */
+  &.is-block {
+    display: block;
+    width: 100%;
+  }
+
+  /* disabled state overrides all styles */
+  &[disabled] {
+    cursor: not-allowed;
+    pointer-events: none;
+    /* theming */
+    box-shadow: none !important;
+    background: var(--light-2) !important;
+    color: var(--gray) !important;
+
+    @mixin dark-mode {
+      background: var(--black) !important;
+      color: var(--dark-2) !important;
+    }
+  }
+}
+
+
+/* admin panel context */
+.cms-button {
+  padding: 0.5em 1.25em;
+  /* theming */
+  @mixin cms-button-theming;
+  @mixin cms-button-shadow;
+  border: none; /* reset browser default */
+  border-radius: 10em;
+
+  /* interactions */
+  &:hover, &:focus {
+    color: var(--accent-black);
+
+    @mixin dark-mode {
+      color: var(--accent-light);
+    }
+
+    & > .cms-button-icon {
+      transform: scale(1.125);
+
+      /* gears keep on turning */
+      &[class*="cog"] {
+         transform: scale(1.125) rotate(-30deg);
+      }
+      &[class*="trash"] {
+        color: var(--alert);
+
+        @mixin dark-mode {
+          color: var(--alert-light);
+        }
+      }
+    }
+  }
+
+  /* rebuilding */
+  &.is-rebuilding > .cms-button-icon {
+    animation: rotate 0.75s infinite ease-in-out;
+  }
+}
+
+
+/* profile context */
+.cp-button {
+  padding: var(--button-padding);
+  border-radius: var(--button-border-radius);
+  border: var(--button-border-width) solid var(--button-border-color);
+  background-color: var(--button-bg-color);
+  color: var(--button-color);
+
+  &:hover,
+  &:focus {
+    background-color: var(--button-hover-bg-color);
+    border-color: var(--button-hover-bg-color);
+    color: var(--button-hover-color);
+  }
+}

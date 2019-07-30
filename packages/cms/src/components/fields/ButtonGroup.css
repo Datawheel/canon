@@ -1,0 +1,92 @@
+@import "../../css/mixins.css";
+
+/* shared button group styles */
+.cp-button-group,
+.cms-button-group {
+  /* layout */
+  width: 100%;
+  display: flex;
+
+  & > [class*="-button"] {
+    flex: 1 1 auto;
+
+    /* selectively remove border radius and adjust padding */
+    &:not(:last-child) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: 0;
+    }
+    &:not(:first-child) {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+}
+
+
+.cms-button-group {
+  /* theming */
+  @mixin cms-button-shadow;
+  border-radius: 10em;
+
+  & > .cms-button {
+    box-shadow: none;
+
+    /* adjust padding & offset with margin */
+    &:not(:last-child) {
+      &.cms-icon-only-button {
+        padding-left: 0.125em;
+        margin-right: -0.125em;
+      }
+
+      &:not(.cms-icon-only-button) {
+        padding-right: 0.5em;
+
+        &:last-child {
+          padding-left: 1.75em;
+        }
+      }
+    }
+    &:not(:first-child) {
+      &.cms-icon-only-button {
+        padding-right: 0.125em;
+        margin-left: -0.125em;
+      }
+
+      &:not(.cms-icon-only-button) {
+        padding-left: 0.5em;
+
+        &:last-child {
+          padding-right: 1.75em;
+        }
+      }
+    }
+
+    &.is-active:hover,
+    &.is-active:focus {
+      color: var(--dark-2);
+    }
+
+    /* inactive state defaults */
+    &.is-inactive {
+      color: var(--dark-1);
+
+      &:hover, &:focus {
+        color: var(--accent-black);
+      }
+    }
+
+    /* dark mode overrides */
+    @mixin dark-mode {
+      &.is-inactive:hover,
+      &.is-inactive:focus {
+        color: var(--accent-light);
+      }
+      &.is-active {
+        &, &:hover, &:focus {
+          color: var(--white);
+        }
+      }
+    }
+  }
+}

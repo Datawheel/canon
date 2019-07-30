@@ -1,16 +1,13 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog, Alert, Intent} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
-import Loading from "components/Loading";
-import FooterButtons from "../FooterButtons";
-import MoveButtons from "../MoveButtons";
+import FooterButtons from "../editors/components/FooterButtons";
 import deepClone from "../../utils/deepClone";
-import Flag from "./Flag";
-import VarTable from "../VarTable";
+import LocaleName from "./components/LocaleName";
+import VarTable from "../variables/VarTable";
+import Card from "./Card";
 import "./GeneratorCard.css";
-
-import ConsoleVariable from "../ConsoleVariable";
 
 class GeneratorCard extends Component {
 
@@ -34,13 +31,22 @@ class GeneratorCard extends Component {
     if (this.state.minData && prevProps.variables !== this.props.variables) {
       this.formatDisplay.bind(this)();
     }
+    if (prevProps.forceOpen !== this.props.forceOpen && this.props.forceOpen) {
+      this.openEditor.bind(this)();
+    }
   }
 
   hitDB() {
-    const {item, type} = this.props;
+    const {item, type, forceOpen} = this.props;
     const {id} = item;
     axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      this.setState({minData: resp.data}, this.formatDisplay.bind(this));
+      // If this card Mounted at the same time that forceOpen was set, that means
+      // the user created a new card, and we should open it immediately.
+      const callback = () => {
+        this.formatDisplay.bind(this)();
+        if (forceOpen) this.openEditor.bind(this)();
+      };
+      this.setState({minData: resp.data}, callback);
     });
   }
 
@@ -89,7 +95,8 @@ class GeneratorCard extends Component {
     axios.post(`/api/cms/${type}/update`, minData).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
-        if (this.props.onSave) this.props.onSave();
+        const query = type === "generator" ? {generator: minData.id} : false;
+        if (this.props.onSave) this.props.onSave(query);
       }
     });
   }
@@ -122,6 +129,7 @@ class GeneratorCard extends Component {
     const isOpen = false;
     const alertObj = false;
     const isDirty = false;
+    if (this.props.onClose) this.props.onClose();
     this.setState({minData, isOpen, alertObj, isDirty});
   }
 
@@ -131,7 +139,7 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {attr, context, type, variables, item, parentArray, previews, locale, secondaryLocale} = this.props;
+    const {attr, context, type, variables, item, hidden, onMove, parentArray, previews, locale, secondaryLocale} = this.props;
     const {displayData, secondaryDisplayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
@@ -143,104 +151,89 @@ class GeneratorCard extends Component {
       }
     }
 
+    // define initial/loading props for Card
+    const cardProps = {
+      cardClass: context,
+      secondaryLocale,
+      title: "•••" // placeholder
+    };
+
+    // add additional props once the data is available
+    if (minData && variables) {
+      Object.assign(cardProps, {
+        title: minData.name, // overwrites placeholder
+        onEdit: this.openEditor.bind(this),
+        onDelete: this.maybeDelete.bind(this),
+        // reorder
+        reorderProps: parentArray ? {
+          array: parentArray,
+          item,
+          type
+        } : null,
+        onReorder: onMove ? onMove.bind(this) : null,
+        // alert
+        alertObj,
+        onAlertCancel: () => this.setState({alertObj: false})
+      });
+    }
+
+    const {id} = this.props.item;
+
     return (
-      <div className={`cms-card cms-${ context }-card ${ secondaryLocale ? " is-wide" : "" }`}>
+      <React.Fragment>
+        <Card {...cardProps} key={`${cardProps.title}-${id}`}>
 
-        {!minData || !variables
-          // loading
-          ? <h3 className="cms-card-header">•••</h3>
+          {showDesc &&
+            <p className="cms-card-description">{description}</p>
+          }
 
-          // loaded
-          : <React.Fragment>
-            {/* title & edit toggle button */}
-            <h3 className="cms-card-header">
-              {minData.name}
-
-              <button className="cms-button" onClick={this.openEditor.bind(this)}>
-                Edit <span className="bp3-icon bp3-icon-cog" />
-              </button>
-            </h3>
-
-            {showDesc &&
-              <p className="cms-card-description">{description}</p>
-            }
-
-            {/* show variables, but not for formatter cards */}
-            {context !== "formatter" &&
-              <div className="cms-card-locale-group">
-                <div className="cms-card-locale-container">
-                  {secondaryLocale &&
-                    <h4 className="cms-card-locale">
-                      <Flag>{locale}</Flag>
-                    </h4>
-                  }
-                  <VarTable dataset={displayData} />
-                </div>
-
+          {/* show variables, but not for formatter cards */}
+          {context !== "formatter" &&
+            <div className="cms-card-locale-group">
+              <div className="cms-card-locale-container">
                 {secondaryLocale &&
-                  <div className="cms-card-locale-container">
-                    <h4 className="cms-card-locale">
-                      <Flag>{secondaryLocale}</Flag>
-                    </h4>
-                    <VarTable dataset={secondaryDisplayData} />
-                  </div>
+                  <LocaleName>{locale}</LocaleName>
                 }
+                <VarTable dataset={displayData} />
               </div>
-            }
 
-            {/* reorder buttons */}
-            {parentArray &&
-              <MoveButtons
-                item={item}
-                array={parentArray}
-                type={type}
-                onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
-              />
-            }
+              {secondaryLocale &&
+                <div className="cms-card-locale-container">
+                  <LocaleName>{secondaryLocale}</LocaleName>
+                  <VarTable dataset={secondaryDisplayData} />
+                </div>
+              }
+            </div>
+          }
+        </Card>
 
-            {/* are you suuuuuuuuuuuuuure */}
-            <Alert
-              cancelButtonText="Cancel"
-              confirmButtonText={alertObj.confirm}
-              className="cms-confirm-alert"
-              iconName="bp3-icon-warning-sign"
-              intent={Intent.DANGER}
-              isOpen={alertObj}
-              onConfirm={alertObj.callback}
-              onCancel={() => this.setState({alertObj: false})}
-            >
-              {alertObj.message}
-            </Alert>
+        {/* open state */}
+        <Dialog
+          className="generator-editor-dialog"
+          isOpen={isOpen}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
+          title="Variable Editor"
+          usePortal={false}
+          icon={false}
+        >
 
-            {/* open state */}
-            <Dialog
-              className="generator-editor-dialog"
-              isOpen={isOpen}
-              onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-              title="Variable Editor"
-              usePortal={false}
-              icon={false}
-            >
-
-              <div className="bp3-dialog-body">
-                <GeneratorEditor
-                  markAsDirty={this.markAsDirty.bind(this)}
-                  previews={previews}
-                  attr={attr}
-                  locale={locale}
-                  data={minData}
-                  variables={variables}
-                  type={type}
-                />
-              </div>
-              <FooterButtons
-                onDelete={this.maybeDelete.bind(this)}
-                onSave={this.save.bind(this)}
-              />
-            </Dialog>
-          </React.Fragment>
-        }
-      </div>
+          <div className="bp3-dialog-body">
+            <GeneratorEditor
+              markAsDirty={this.markAsDirty.bind(this)}
+              previews={previews}
+              attr={attr}
+              locale={locale}
+              data={minData}
+              variables={variables}
+              type={type}
+            />
+          </div>
+          <FooterButtons
+            onDelete={this.maybeDelete.bind(this)}
+            onSave={this.save.bind(this)}
+          />
+        </Dialog>
+      </React.Fragment>
     );
   }
 }

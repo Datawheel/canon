@@ -171,7 +171,7 @@ const i18nConfig = {
     withRef: true
   },
   detection: {
-    order: ["domain", "query", "path", "header"]
+    order: ["domain", "query", "path"]
   }
 };
 
@@ -203,7 +203,7 @@ async function start() {
   app.set("port", PORT);
   app.set("trust proxy", "loopback");
   app.use(cookieParser());
-  app.use(bodyParser.json());
+  app.use(bodyParser.json({limit: "50mb"}));
   app.use(bodyParser.urlencoded({extended: true, limit: "50mb"}));
   app.use(express.static(staticPath));
   app.use(i18nMiddleware.handle(i18n));
@@ -365,7 +365,7 @@ async function start() {
   if (NODE_ENV === "production") {
     app.use(gzip());
     const FRAMEGUARD = yn(process.env.CANON_HELMET_FRAMEGUARD);
-    app.use(helmet({frameguard: FRAMEGUARD === void 0 ? false : FRAMEGUARD}));
+    app.use(helmet({frameguard: FRAMEGUARD === null ? false : FRAMEGUARD}));
   }
 
   app.get("*", App.default(store, headerConfig, reduxMiddleware));

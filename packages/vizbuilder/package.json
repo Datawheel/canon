@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-vizbuilder",
   "description": "Visualization explorer for data retrieved from mondrian-rest.",
-  "version": "0.2.15",
+  "version": "0.3.2",
   "main": "index.js",
   "types": "index.d.ts",
   "author": "Francisco Abarzúa & Carlos Navarrete",
@@ -17,25 +17,25 @@
     "release": "canon-release"
   },
   "dependencies": {
-    "@blueprintjs/core": "^1.39.0",
-    "@blueprintjs/labs": "^0.14.5",
+    "@blueprintjs/core": "^3.15.1",
+    "@blueprintjs/select": "^3.8.1",
     "classnames": "^2.2.6",
     "d3-array": "^1.2.4",
     "d3plus-common": "^0.6.43",
     "d3plus-format": "^0.1.2",
-    "d3plus-react": "^0.5.2",
+    "d3plus-react": "^0.5.4",
     "fast-sort": "^1.5.3",
     "lodash": "^4.17.10",
+    "memoize-one": "^5.0.4",
     "mondrian-rest-client": "^1.1.0",
-    "pluralize": "^7.0.0",
+    "pluralize": "^8.0.0",
     "prop-types": "^15.6.0",
-    "query-string": "^6.1.0",
-    "react-tiny-virtual-list": "^2.1.4",
+    "react-windowed-list": "^3.0.2",
     "shorthash": "^0.0.2"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "0.16.32",
-    "@types/react": "^15.6.2"
+    "@datawheel/canon-core": "^0.17.30",
+    "react": "^16.8.6"
   },
   "repository": {
     "type": "git",

@@ -1,13 +1,13 @@
+@import "../../css/mixins.css";
+
 .Options {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 5px;
   & .option {
-    margin-bottom: 5px;
     /* keep tooltips above button (blueprint override) */
     &.bp3-button,
     &.bp3-button:focus {
-      z-index: 0;
+      z-index: auto;
     }
   }
 }
@@ -92,15 +92,24 @@
   padding: 10px 20px; /* line up with tabs */
 
   /* facebook & twitter buttons */
-  & .bp3-button[href*="facebook"] {
+  & .cp-button[href*="facebook"] {
+    background-color: var(--light-1);
     color: #3B5998;
+    border-color: var(--light-3);
   }
-  & .bp3-button[href*="twitter"] {
+  & .cp-button[href*="twitter"] {
+    background-color: var(--light-1);
     color: #00ACED;
+    border-color: var(--light-3);
+  }
+  & .cp-button > * {
+    vertical-align: middle;
   }
   /* space out icon from text */
-  & .bp3-button > svg {
+  & .cp-button > svg {
     margin-right: 0.125em;
+    width: 1.5em;
+    height: 1.5em;
 
     /* let the color of the button define the color of the icon */
     & path {

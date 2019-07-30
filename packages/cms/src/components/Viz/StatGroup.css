@@ -1,13 +1,35 @@
-.StatGroup {
-  &.single {
-    flex: 1;
-    min-width: 45%;
+@import "../../css/mixins.css";
+
+.cp-stat-group-wrapper {
+  width: 100%;
+  overflow-x: hidden;
+}
+.cp-stat-group-wrapper:first-child {
+  margin-top: calc(0px - var(--gutter-xs));
+}
+
+.cp-stat-group {
+  display: flex;
+  flex-wrap: wrap;
+  width: calc(100% + var(--gutter-md));
+
+  & > .cp-stat {
+    flex: 1 1 calc(50% - var(--gutter-xs));
+    min-width: calc(50% - var(--gutter-xs));
+    max-width: 100%;
+    padding-right: var(--gutter-md);
   }
-  &.multi {
-    min-width: 100%;
-    width: 100%;
+}
+
+/* hero stat layout overrides */
+.cp-hero-stat-group-wrapper:not(:first-child) {
+  margin-top: var(--gutter-md);
+
+  &:not(:last-child) {
+    margin-bottom: var(--gutter-md);
   }
-  & .plus-minus {
-    vertical-align: baseline;
-  }
+}
+.cp-hero-stat-group > .cp-stat {
+  flex-basis: calc(100% / var(--hero-stat-column-count) - var(--gutter-xs));
+  min-width: var(--hero-stat-column-width);
 }

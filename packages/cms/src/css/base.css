@@ -1,0 +1,169 @@
+@import "./mixins.css";
+
+/* global font scaling with rems */
+html:root       { font-size: var(--body-font-scale-sm);
+  @mixin min-md { font-size: var(--body-font-scale-md); }
+  @mixin min-xl { font-size: var(--body-font-scale-xl); }
+}
+
+/* BASE CMS STYLES */
+.cms {
+  min-height: 100vh; /* extend background on short pages */
+
+  /* RESETS */
+  & * {
+    position: relative;
+  }
+
+  & svg, & img {
+    max-width: 100%;
+  }
+
+  & code {
+    padding: 0.125em 0.5em;
+  }
+
+  /* CANON OVERRIDES */
+  & .loading {
+    z-index: auto;
+    background: none;
+
+    @mixin dark-mode {
+      color: var(--light-3);
+    }
+  }
+}
+
+
+/* TYPOGRAPHY */
+
+/* font sizing */
+h1 { @mixin font-xl; }
+h2 { @mixin font-lg; }
+h3 { @mixin font-md; }
+h4, p, li, label, input { @mixin font-sm; }
+h5 { @mixin font-xs; }
+h6 { @mixin font-xxs; }
+small { @mixin font-xxxs; }
+
+/* base typography */
+html body {
+  font-family: var(--base-font-stack);
+  font-weight: var(--base-font-weight);
+  letter-spacing: var(--base-letter-spacing);
+}
+
+/* headings */
+h1, h2, h3, h4, h5, h6, .heading {
+  font-family: var(--heading-font-stack);
+  font-weight: var(--heading-font-weight);
+  text-transform: var(--heading-text-transform);
+  letter-spacing: var(--heading-letter-spacing);
+  line-height: 1.125;
+}
+
+/* display */
+.display {
+  font-family: var(--display-font-stack);
+  font-weight: var(--display-font-weight);
+  text-transform: var(--display-text-transform);
+  letter-spacing: var(--display-letter-spacing);
+}
+
+/* labels */
+.label {
+  font-family: var(--label-font-stack);
+  font-weight: var(--label-font-weight);
+  text-transform: var(--label-text-transform);
+  letter-spacing: var(--label-letter-spacing);
+}
+
+strong, [class] > strong,
+.bold {
+  font-weight: var(--bold-weight);
+}
+
+
+/* THEMING */
+.cms {
+  background-color: var(--white);
+  color: var(--black);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+    color: var(--light-1);
+  }
+
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    color: var(--black);
+
+    @mixin dark-mode {
+      color: var(--white);
+    }
+  }
+
+  /* reset loading style */
+  & .loading {
+    background-color: none;
+    color: var(--black);
+
+    @mixin dark-mode {
+      color: var(--light-1);
+    }
+  }
+
+  /* use blueprint theming for quill editor for now */
+  /* TODO: dark theme */
+  & .quill {
+    background-color: #f5f8fa;
+    color: #182026;
+  }
+}
+
+/* highlighted text style */
+.cms ::selection,
+.cp ::selection {
+  color: var(--black);
+  background-color: color(var(--accent-light) a(0.75));
+}
+
+
+
+/* TODO: move to Dialog wrapper component */
+.cms-dialog-footer-button {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  /* TODO: adjust the container margin, not button margin */
+  margin-top: -2.25rem;
+  /* theming */
+  color: var(--dark-3);
+
+  @mixin dark-mode {
+    color: var(--light-1);
+  }
+
+  & .cms-dialog-footer-button-icon {
+    top: -2px;
+    color: var(--dark-1);
+
+    @mixin dark-mode {
+      color: var(--gray);
+    }
+  }
+
+  /* interactions */
+  &:hover, &:focus {
+    & .cms-dialog-footer-button-icon {
+      color: var(--dark-3);
+
+      @mixin dark-mode {
+        color: var(--light-1);
+      }
+    }
+  }
+
+  &:not(:last-of-type) {
+    margin-right: 1.5em;
+  }
+}

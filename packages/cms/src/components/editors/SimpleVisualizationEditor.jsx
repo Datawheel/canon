@@ -1,7 +1,12 @@
 import axios from "axios";
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
+import Button from "../fields/Button";
+import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
+import TextButtonGroup from "../fields/TextButtonGroup";
 
 import "./SimpleVisualizationEditor.css";
 
@@ -20,7 +25,7 @@ const vizLookup = {
 
 const reservedWords = ["topojson"];
 
-export default class SimpleVisualizationEditor extends Component {
+class SimpleVisualizationEditor extends Component {
 
   constructor(props) {
     super(props);
@@ -55,7 +60,7 @@ export default class SimpleVisualizationEditor extends Component {
 
   firstBuild() {
     const {object} = this.state;
-    const {previews, variables} = this.props;
+    const {previews, variables, env} = this.props;
     const {data} = object;
     if (data) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
@@ -68,7 +73,7 @@ export default class SimpleVisualizationEditor extends Component {
         }
         lookup[`id${i + 1}`] = p.id;
       });
-      const url = urlSwap(data, Object.assign({}, variables, lookup));
+      const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
         this.setState({payload}, this.compileCode.bind(this));
@@ -152,6 +157,19 @@ export default class SimpleVisualizationEditor extends Component {
 
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
 
+    let buttonProps = {
+      children: "Build",
+      disabled: true,
+      context: "cms"
+    };
+    if (object.data) {
+      buttonProps = {
+        children: payload.data ? "Rebuild" : "Build",
+        context: "cms",
+        onClick: this.maybeRebuild.bind(this)
+      };
+    }
+
     return <div className="cms-viz-editor">
       <Alert
         cancelButtonText="Cancel"
@@ -167,53 +185,71 @@ export default class SimpleVisualizationEditor extends Component {
       </Alert>
 
       {/* data URL */}
-      <div className="cms-field-container">
-        <label className="label" htmlFor="data">Data</label>
-        <div className="cms-field-container-inline bp3-input-group">
-          <input key="data-url" className="bp3-input" value={object.data || ""} onChange={this.onChange.bind(this, "data")} id="data"/>
-          {object.data &&
-            <button key="button-build" className="cms-button bp3-button" onClick={this.maybeRebuild.bind(this)}>
-              {payload.data ? "Rebuild" : "Build"}
-            </button>
-          }
-        </div>
-      </div>
+      <TextButtonGroup
+        context="cms"
+        inputProps={{
+          label: "Data",
+          inline: true,
+          context: "cms",
+          value: object.data || "",
+          onChange: this.onChange.bind(this, "data")
+        }}
+        buttonProps={buttonProps}
+      />
 
-      <div className="cms-field-container">
-        Type
-        <div className="bp3-select">
-          <select value={object.type} onChange={this.onChange.bind(this, "type")}>
+      {object.data &&
+        <React.Fragment>
+          <Select
+            label="Visualization type"
+            inline
+            context="cms"
+            value={object.type}
+            onChange={this.onChange.bind(this, "type")}
+          >
+            <option value="undefined" default>Select visualization type</option>
             {Object.keys(vizLookup).map(type =>
               <option key={type} value={type}>{type}</option>
             )}
-          </select>
-        </div>
-      </div>
-
+          </Select>
+          <TextInput
+            label="Title"
+            context="cms"
+            inline
+            key="title-text"
+            value={object.title}
+            onChange={this.onChange.bind(this, "title")}
+          />
+        </React.Fragment>
+      }
 
       {payload.data &&
-        <ul className="viz-dropdown-list">
-          {
-            object.type &&
-              vizLookup[object.type].map(prop =>
-                <li key={prop}>
-                  {prop}:
-                  {reservedWords.includes(prop)
-                    ? <input key={prop} value={object[prop]} onChange={this.onChange.bind(this, prop)} />
-                    : <div className="bp3-select">
-                      <select value={object[prop]} onChange={this.onChange.bind(this, prop)}>
-                        {Object.keys(firstObj).map(type =>
-                          <option key={type} value={type}>{type}</option>
-                        )}
-                      </select>
-                    </div>
-                  }
-                </li>
-              )
-          }
-        </ul>
+        <div className="viz-select-group">
+          {object.type && vizLookup[object.type] && vizLookup[object.type].map(prop => reservedWords.includes(prop)
+            ? <TextInput
+              label={`please enter ${prop}`}
+              context="cms"
+              fontSize="xs"
+              key={prop}
+              value={object[prop]}
+              onChange={this.onChange.bind(this, prop)}
+            />
+            : <Select
+              label={prop === "groupBy" ? "grouping" : prop}
+              context="cms"
+              fontSize="xs"
+              value={object[prop]}
+              onChange={this.onChange.bind(this, prop)}
+            >
+              {Object.keys(firstObj).map(type =>
+                <option key={type} value={type}>{type}</option>
+              )}
+            </Select>
+          )}
+        </div>
       }
     </div>;
 
   }
 }
+
+export default connect(state => ({env: state.env}))(SimpleVisualizationEditor);

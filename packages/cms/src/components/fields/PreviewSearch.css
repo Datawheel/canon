@@ -1,0 +1,178 @@
+@import "../../css/mixins.css";
+
+/* TODO: refactor/genericize */
+.cms-preview-search {
+  display: block; /* honor margin */
+
+  /* the input */
+  & .cms-preview-search-input {
+    font-size: inherit;
+    /* sizing */
+    width: 100%;
+    height: 2em;
+    padding: 0 0 0 2.25em;
+    z-index: 1;
+    /* transitions */
+    transition:
+      border-color 0.3s ease-out,
+      box-shadow 0.3s ease-out,
+      color 0.3s ease-out;
+    /* theming */
+    border-radius: 1.25em;
+    background-color: var(--white);
+    border: 1px solid var(--light-3);
+    color: var(--dark-2);
+
+    @mixin dark-mode {
+      background-color: color(var(--black) a(0.75));
+      border-color: var(--black);
+      color: var(--light-1);
+    }
+  }
+
+  /* placeholder text */
+  &.is-placeholder .cms-preview-search-input::placeholder {
+    @mixin font-smoothing;
+    color: var(--gray);
+
+    @mixin dark-mode {
+      color: var(--dark-1);
+    }
+  }
+
+  /* placeholder text as the value */
+  &.is-value .cms-preview-search-input::placeholder {
+    color: var(--dark-2);
+
+    @mixin dark-mode {
+      color: var(--light-2);
+    }
+  }
+
+  /* filter icon */
+  & > .cms-preview-search-icon {
+    /* positioning */
+    position: absolute;
+    top: 0.5em;
+    left: 0.75em;
+    z-index: 1;
+    /* theming */
+    color: var(--dark-1);
+    transition:
+      color 0.3s ease-out,
+      transform 0.15s ease-out;
+
+    /* sizing */
+    &, & > svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  /* label hover state */
+  &:hover {
+    & .cms-preview-search-input {
+      border-color: var(--accent-dark);
+
+      @mixin dark-mode {
+        border-color: var(--accent);
+      }
+    }
+    & .cms-preview-search-icon {
+      transform: scale(1.125);
+    }
+  }
+
+  /* input focus state */
+  & .cms-preview-search-input:focus {
+    border-color: var(--accent-dark);
+    box-shadow: 0 0 0 1px var(--accent-dark);
+    outline: none;
+
+    @mixin dark-mode {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    /* style adjacent search icon */
+    & + .cms-preview-search-icon {
+      color: var(--dark-2);
+
+      @mixin dark-mode {
+        color: var(--light-3);
+      }
+    }
+  }
+}
+
+
+/* close button */
+.cms-preview-search > .cms-preview-search-close-button {
+  /* positioning */
+  @mixin absolute-vertical-center;
+  right: 0.425em;
+  /* transitions */
+  transition:
+    color 0.1s ease-out,
+    transform 0.1s ease-out;
+  /* theming */
+  @mixin button-reset;
+  color: var(--dark-1);
+
+  /* sizing */
+  & * {
+    width: 1em;
+    height: 1em;
+  }
+
+  /* hidden state */
+  &[tabindex="-1"] {
+    opacity: 0;
+  }
+
+  &:hover, &:focus {
+    outline: none;
+    transform: translateY(-50%) scale(1.25); /* scale up while keeping it vertically centered */
+    color: var(--dark-3);
+
+    @mixin dark-mode {
+      color: var(--light-2);
+    }
+  }
+}
+
+.cms-search-result-list {
+  @mixin list-reset;
+  @mixin cms-button-shadow;
+  border-radius: 0.875rem;
+  padding-top: 2rem;
+  padding-bottom: 0.5rem;
+  width: calc(100% + 0.5rem);
+  /* positioning */
+  left: -0.25rem;
+  right: -0.25rem;
+  margin-top: -1.5rem;
+  /* theming */
+  background-color: var(--white);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+  }
+
+  & > .is-highlighted {
+    background-color: var(--light-1);
+
+    @mixin dark-mode {
+      background-color: var(--dark-3);
+    }
+  }
+
+  & .cms-search-result-button {
+    @mixin button-reset;
+    box-shadow: none;
+    border-radius: 0;
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+}

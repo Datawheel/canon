@@ -1,5 +1,5 @@
-import Filter from "../components/Sidebar/FilterManager/Filter";
-import Grouping from "../components/Sidebar/GroupingManager/Grouping";
+import Filter from "./Filter";
+import Grouping from "./Grouping";
 
 import {fetchMembers} from "./fetch";
 import OPERATORS from "./operators";

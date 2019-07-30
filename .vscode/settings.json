@@ -1,6 +1,9 @@
 {
   "editor.tabSize": 2,
   "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+  "files.associations": {
+    "*.css": "scss"
+  },
   "eslint.autoFixOnSave": true,
   "editor.trimAutoWhitespace": true,
   "files.trimTrailingWhitespace": true,

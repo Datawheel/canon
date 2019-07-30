@@ -1,15 +1,19 @@
 import funcifyFormatterByLocale from "./utils/funcifyFormatterByLocale";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
+import Select from "./components/fields/Select";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
-import FormatterEditor from "./formatter/FormatterEditor";
 import {fetchData} from "@datawheel/canon-core";
 import {connect} from "react-redux";
 
-import "./cms.css";
-import "./themes/cms-light.css";
-import "./themes/cms-dark.css";
+import Button from "./components/fields/Button";
+
+import "./css/utilities.css";
+import "./css/base.css";
+import "./css/blueprint-overrides.css";
+import "./css/form-fields.css";
+import "./css/layout.css";
 
 class Builder extends Component {
 
@@ -20,17 +24,19 @@ class Builder extends Component {
       locales: false,
       localeDefault: false,
       secondaryLocale: false,
-      // showLocale: false,
+      pathObj: {},
       formatters: {}
     };
   }
 
   componentDidMount() {
     const {isEnabled, env} = this.props;
+    const {location} = this.props.router;
+    const {profile, section, previews} = location.query;
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
+    const pathObj = {profile, section, previews};
 
-    // env.CANON_LANGUAGES = false;
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     const formatters = {};
@@ -41,11 +47,12 @@ class Builder extends Component {
       locales.forEach(locale => {
         formatters[locale] = funcifyFormatterByLocale(this.props.formatters, locale);
       });
-      this.setState({locales, formatters, secondaryLocale, localeDefault});
+      this.setState({locales, formatters, secondaryLocale, localeDefault, pathObj});
     }
     else {
-      this.setState({localeDefault, formatters});
+      this.setState({localeDefault, formatters, pathObj});
     }
+
   }
 
   getChildContext() {
@@ -60,32 +67,6 @@ class Builder extends Component {
     }
   }
 
-  /*
-  setPath(node) {
-    const {router} = this.props;
-    const {pslug, tslug} = this.props.params;
-    let path;
-    if (node.itemType === "profile") {
-      path = `/cms-profile/${node.data.slug}`;
-    }
-    else if (node.itemType === "topic") {
-      path = `/cms-profile/${node.masterSlug}/${node.data.slug}`;
-    }
-    router.push(path);
-  }
-  */
-
-  // toggleLocale(e) {
-  //   const {locales} = this.state;
-  //   const secondaryLocale = e.target.checked ? false : locales[0];
-  //   const showLocale = e.target.checked;
-  //   this.setState({showLocale, secondaryLocale});
-  // }
-
-  // handleThemeSelect(e) {
-  //   this.setState({theme: e.target.value});
-  // }
-
   handleLocaleSelect(e) {
     const val = e.target.value;
     this.setState({
@@ -94,18 +75,29 @@ class Builder extends Component {
     });
   }
 
+  toggleSettings() {
+    this.setState({settingsOpen: !this.state.settingsOpen});
+  }
+
+  setPath(pathObj) {
+    const diffProfile = String(pathObj.profile) !== String(this.state.pathObj.profile);
+    const diffSection = String(pathObj.section) !== String(this.state.pathObj.section);
+    if (diffProfile || diffSection) {
+      const {router} = this.props;
+      const {pathname} = router.location;
+      let url = pathname === "/" ? "" : "/";
+      url += `${pathname}?profile=${pathObj.profile}`;
+      if (pathObj.section) url += `&section=${pathObj.section}`;
+      // if (pathObj.previews) url += `&previews=${pathObj.previews}`;
+      router.replace(url);
+      this.setState({pathObj});
+    }
+  }
+
   render() {
-    const {currentTab, theme, secondaryLocale, locales, localeDefault} = this.state;
+    const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen} = this.state;
     const {isEnabled} = this.props;
-    const navLinks = ["profiles", "stories", "formatters"];
-
-    // console.log("showLocale", this.state.showLocale);
-
-    /*
-    const {profileSlug, topicSlug} = this.props.params;
-
-    const pathObj = {profileSlug, topicSlug};
-    */
+    const navLinks = ["profiles", "stories"];
 
     if (!isEnabled) return null;
 
@@ -121,55 +113,49 @@ class Builder extends Component {
             </button>
           )}
 
-          <div className="cms-nav-options">
+          <div className="cms-nav-settings-button-container">
+            <Button className="cms-nav-settings-button" context="cms" icon="cog" onClick={this.toggleSettings.bind(this)}>
+              settings
+            </Button>
+          </div>
+
+          <div className={`cms-nav-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
             {/* locale select */}
             {locales &&
               <React.Fragment>
+                <h2 className="cms-nav-settings-heading u-font-sm">
+                  Languages
+                </h2>
                 {/* primary locale */}
                 {/* NOTE: currently just shows the primary locale in a dropdown */}
-                <label className="cms-select-label cms-locale-select">
-                  <strong>languages</strong>: primary
-                  <select className="cms-select">
-                    <option key="current-locale" value={localeDefault}>{localeDefault}</option>
-                  </select>
-                </label>
+                <Select
+                  label="Primary"
+                  fontSize="xs"
+                  context="cms"
+                  inline
+                  options={[localeDefault]}
+                />
                 {/* secondary locale */}
-                <label className="cms-select-label cms-locale-select">
-                  secondary
-                  <select
-                    className="cms-select"
-                    value={secondaryLocale}
-                    onChange={this.handleLocaleSelect.bind(this)}
-                  >
-                    {locales.map(loc =>
-                      <option key={loc} value={loc}>{loc}</option>)
-                    }
-                    <option key="no-locale" value="none">none</option>
-                  </select>
-                </label>
-                {/* <span className="cms-nav-options-divider">|</span>*/}
+                <Select
+                  label="Secondary"
+                  fontSize="xs"
+                  context="cms"
+                  inline
+                  value={secondaryLocale}
+                  options={locales.map(loc => loc)}
+                  onChange={this.handleLocaleSelect.bind(this)}
+                >
+                  <option value="none">none</option>
+                </Select>
               </React.Fragment>
             }
-            {/* theme select */}
-            {/* <label className="cms-select-label cms-theme-select">theme:
-              <select
-                className="cms-select"
-                name="select-theme"
-                id="select-theme"
-                value={this.state.selectValue}
-                onChange={this.handleThemeSelect.bind(this)}
-              >
-                <option value="cms-light">light</option>
-                <option value="cms-dark">dark</option>
-              </select>
-            </label>*/}
           </div>
         </div>
 
         {currentTab === "profiles" &&
           <ProfileBuilder
-            // pathObj={pathObj}
-            // setPath={this.setPath.bind(this)}
+            pathObj={pathObj}
+            setPath={this.setPath.bind(this)}
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
@@ -181,9 +167,6 @@ class Builder extends Component {
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
-        }
-        {currentTab === "formatters" &&
-          <FormatterEditor />
         }
       </div>
     );

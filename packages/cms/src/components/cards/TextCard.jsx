@@ -1,15 +1,19 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog, Alert, Intent} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
-import FooterButtons from "../FooterButtons";
-import MoveButtons from "../MoveButtons";
+import DefinitionList from "../variables/DefinitionList";
+import FooterButtons from "../editors/components/FooterButtons";
+import Select from "./../fields/Select";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
+import stripHTML from "../../utils/formatters/stripHTML";
+import formatFieldName from "../../utils/formatters/formatFieldName";
 import PropTypes from "prop-types";
-import Flag from "./Flag";
+import LocaleName from "./components/LocaleName";
+import Card from "./Card";
 import "./TextCard.css";
 
 class TextCard extends Component {
@@ -18,7 +22,8 @@ class TextCard extends Component {
     super(props);
     this.state = {
       minData: null,
-      displayData: null,
+      thisDisplayData: null,
+      thatDisplayData: null,
       initialData: null,
       alertObj: false,
       isDirty: false
@@ -30,7 +35,11 @@ class TextCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.minData && (JSON.stringify(prevProps.variables) !== JSON.stringify(this.props.variables) || JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors))) {
+    if (this.state.minData && (
+      JSON.stringify(prevProps.variables) !== JSON.stringify(this.props.variables) ||
+      JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors) ||
+      JSON.stringify(this.props.query) !== JSON.stringify(prevProps.query)
+    )) {
       this.formatDisplay.bind(this)();
     }
     if (prevProps.item.id !== this.props.item.id || prevProps.locale !== this.props.locale) {
@@ -40,6 +49,16 @@ class TextCard extends Component {
 
   populateLanguageContent(minData) {
     const {locale, localeDefault, fields, plainfields} = this.props;
+    if (!minData.content.find(c => c.lang === localeDefault)) {
+      // This is a rare edge case, but in some cases, the DEFAULT
+      // Language is not populated. We must scaffold out a fake
+      // Starting point with empty strings to base everything on.
+      const defCon = {id: minData.id, lang: localeDefault};
+      // If for any reason the default was missing fields, set it to a scaffold warning
+      fields.forEach(k => !defCon[k] ? defCon[k] = "Missing Default Language Content!" : null);
+      if (plainfields) plainfields.forEach(k => !defCon[k] ? defCon[k] = "" : null);
+      minData.content.push(defCon);
+    }
     if (!minData.content.find(c => c.lang === locale)) {
       const defCon = minData.content.find(c => c.lang === localeDefault);
       const newCon = {id: minData.id, lang: locale};
@@ -71,36 +90,64 @@ class TextCard extends Component {
   }
 
   formatDisplay() {
-    const {variables, selectors, locale} = this.props;
-    const formatters = this.context.formatters[locale];
+    const {variables, selectors, locale, query, localeDefault} = this.props;
 
     const minData = this.populateLanguageContent.bind(this)(this.state.minData);
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
     // polluting the object itself
     minData.selectors = selectors;
+
+    const thisFormatters = this.context.formatters[localeDefault];
     // Swap vars, and extract the actual (multilingual) content
-    const content = varSwapRecursive(minData, formatters, variables).content;
-    const currLang = content.find(c => c.lang === locale);
+    const content = varSwapRecursive(minData, thisFormatters, variables, query).content;
+    const thisLang = content.find(c => c.lang === localeDefault);
     // Map over each of the default keys, and fetch its equivalent locale version (or default)
-    const displayData = {};
-    Object.keys(currLang).forEach(k => {
-      displayData[k] = currLang[k];
-    });
-    this.setState({displayData});
+    const thisDisplayData = {};
+    if (thisLang) {
+      Object.keys(thisLang).forEach(k => {
+        thisDisplayData[k] = thisLang[k];
+      });
+    }
+
+    let thatDisplayData = null;
+
+    if (locale) {
+      thatDisplayData = {};
+      const thatFormatters = this.context.formatters[locale];
+      const content = varSwapRecursive(minData, thatFormatters, variables, query).content;
+      const thatLang = content.find(c => c.lang === locale);
+
+      if (thatLang) {
+        Object.keys(thatLang).forEach(k => {
+          thatDisplayData[k] = thatLang[k];
+        });
+      }
+    }
+
+    this.setState({thisDisplayData, thatDisplayData});
   }
 
   save() {
-    const {type, fields, plainfields, locale, localeDefault} = this.props;
+    const {type, fields, plainfields, locale, localeDefault, hideAllowed} = this.props;
     const {minData} = this.state;
     const payload = {id: minData.id};
-    const thisLocale = minData.content.find(c => c.lang === locale);
+
+    const thisLocale = minData.content.find(c => c.lang === localeDefault);
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
     fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
     if (plainfields) plainfields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
-    payload.allowed = minData.allowed;
-    payload.content = [thisLocale];
+
+    const thatLocale = minData.content.find(c => c.lang === locale);
+    // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
+    // this to the database - save an empty string instead.
+    fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
+    if (plainfields) plainfields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
+    // If hideAllowed is true, this TextCard is being used by a top-level Section, whose
+    // allowed is controlled elsewhere. Don't accidentally pave it here.
+    if (!hideAllowed) payload.allowed = minData.allowed;
+    payload.content = [thisLocale, thatLocale];
     axios.post(`/api/cms/${type}/update`, payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false, isDirty: false}, this.formatDisplay.bind(this));
@@ -161,76 +208,157 @@ class TextCard extends Component {
     this.setState({minData, isOpen, alertObj, isDirty});
   }
 
-  render() {
-    const {displayData, minData, isOpen, alertObj} = this.state;
-    const {variables, fields, plainfields, type, parentArray, item, locale} = this.props;
+  upperCaseFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
-    if (!minData || !displayData) return <Loading />;
-
-    let cardClass = "splash-card";
-    if (["profile_stat", "topic_stat"].includes(type)) cardClass = "stat-card";
-    const displaySort = ["title", "value", "subtitle", "description"];
-    const displays = Object.keys(displayData)
-      .filter(k => typeof displayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
-      .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b));
-
-    return (
-      <div className={`cms-card cms-${cardClass}`}>
-
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
-
-        {/* title & edit toggle button */}
-        <h5 className="cms-card-header">
-          <Flag locale={locale} />
-          <button className="cms-button" onClick={this.openEditor.bind(this)}>
-            Edit <span className="bp3-icon bp3-icon-cog" />
-          </button>
-        </h5>
-
-        { displays.map((k, i) =>
-          <p key={i} className={k} dangerouslySetInnerHTML={{__html: displayData[k]}} />
-        )}
-
-        {/* reorder buttons */}
-        { parentArray &&
-          <MoveButtons
-            item={item}
-            array={parentArray}
-            type={type}
-            onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
-          />
-        }
-
-        <Dialog
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Text Editor"
-          usePortal={false}
-        >
-          <div className="bp3-dialog-body">
-            {plainfields && <PlainTextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
-            {fields && <TextEditor markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
-          </div>
-          <FooterButtons
-            onDelete={["profile", "section", "topic", "story", "storytopic"].includes(type) ? false : this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
-        </Dialog>
-      </div>
+  prettifyType(type) {
+    return this.upperCaseFirst(type
+      .replace("story_", "")
+      .replace("section_", "")
     );
   }
 
+  chooseVariable(e) {
+    const {minData} = this.state;
+    minData.allowed = e.target.value;
+    this.setState({minData}, this.markAsDirty.bind(this));
+  }
+
+  render() {
+    const {alertObj, thisDisplayData, thatDisplayData, minData, isOpen} = this.state;
+    const {variables, fields, onMove, hideAllowed, plainfields, type, parentArray, item, locale, localeDefault} = this.props;
+
+    if (!minData || !thisDisplayData) return <Loading />;
+
+    let cardClass = "splash-card";
+    if (["profile_stat", "section_stat"].includes(type)) cardClass = "cms-stat-card";
+    const displaySort = ["title", "value", "subtitle", "description", "tooltip"];
+
+    const thisDisplay = Object.keys(thisDisplayData)
+      .filter(k => typeof thisDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
+      .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
+      .map(k => ({
+        label: formatFieldName(k, this.prettifyType(type)),
+        text: stripHTML(thisDisplayData[k])
+        // text: <span dangerouslySetInnerHTML={{__html: stripP(thisDisplayData[k])}} />
+      }));
+
+    const thatDisplay = thatDisplayData ? Object.keys(thatDisplayData)
+      .filter(k => typeof thatDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
+      .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
+      .map(k => ({
+        label: formatFieldName(k, this.prettifyType(type)),
+        text: stripHTML(thatDisplayData[k])
+        // text: <span dangerouslySetInnerHTML={{__html: stripP(thatDisplayData[k])}} />
+      })) : [];
+
+    // Find the first key that isn't empty in the display and use it as the title.
+    let title = "";
+    thisDisplay.forEach(d => {
+      if (!title && d.text) title = d.text;
+    });
+    if (!title) title = "Missing Title";
+
+    // define props for Card
+    const cardProps = {
+      cardClass,
+      title,
+      onEdit: this.openEditor.bind(this),
+      onDelete: ["profile", "section", "story", "storysection"].includes(type) ? false : this.maybeDelete.bind(this),
+      // reorder
+      reorderProps: parentArray ? {
+        array: parentArray,
+        item,
+        type
+      } : null,
+      onReorder: onMove ? onMove.bind(this) : null,
+      // alert
+      alertObj,
+      onAlertCancel: () => this.setState({alertObj: false})
+    };
+
+    const varOptions = [<option key="always" value="always">Always</option>]
+      .concat(Object.keys(variables)
+        .filter(key => !key.startsWith("_"))
+        .sort((a, b) => a.localeCompare(b))
+        .map(key => {
+          const value = variables[key];
+          const type = typeof value;
+          const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
+          return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
+        }));
+
+    const showVars = Object.keys(variables).length > 0 && !hideAllowed;
+
+    return (
+      <Card {...cardProps}>
+
+        {/* preview content */}
+        <div className="cms-locale-group">
+          <div className="cms-locale-container">
+            {locale &&
+              <LocaleName locale={localeDefault} />
+            }
+            <DefinitionList definitions={thisDisplay} />
+          </div>
+
+          {locale &&
+            <div className="cms-locale-container">
+              <LocaleName locale={locale} />
+              <DefinitionList definitions={thatDisplay} />
+            </div>
+          }
+        </div>
+
+        {/* edit content */}
+        <Dialog
+          isOpen={isOpen}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
+          title={type ? `${this.prettifyType(type)} editor` : "Text editor"}
+          usePortal={false}
+        >
+          <div className="bp3-dialog-body">
+
+            <div className="cms-dialog-locale-group">
+              <div className="cms-dialog-locale-container">
+                {locale &&
+                  <LocaleName locale={localeDefault} />
+                }
+                {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={plainfields} />}
+                {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+              </div>
+
+              {locale &&
+                <div className="cms-dialog-locale-container">
+                  <LocaleName locale={locale} />
+                  {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
+                  {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                </div>
+              }
+            </div>
+
+            { showVars &&
+              <Select
+                label="Visible"
+                context="cms"
+                value={minData.allowed || "always"}
+                onChange={this.chooseVariable.bind(this)}
+                inline
+              >
+                {varOptions}
+              </Select>
+            }
+          </div>
+
+          <FooterButtons
+            onDelete={["profile", "section", "section", "story", "storysection"].includes(type) ? false : this.maybeDelete.bind(this)}
+            onSave={this.save.bind(this)}
+          />
+        </Dialog>
+      </Card>
+    );
+  }
 }
 
 TextCard.contextTypes = {

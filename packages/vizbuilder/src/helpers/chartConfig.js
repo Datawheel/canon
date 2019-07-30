@@ -17,6 +17,7 @@ const makeConfig = {
         y: levelName,
         yConfig: {title: levelName, ticks: []},
         x: measureName,
+        xConfig: {tickFormat: chart.formatter},
         stacked: level.depth > 1,
         shapeConfig: {
           Bar: {
@@ -143,7 +144,7 @@ const makeConfig = {
       chart.baseConfig,
       {
         discrete: "x",
-        confidence: [],
+        confidence: false,
         groupBy: chart.setup.map(lvl => lvl.name),
         yConfig: {scale: "linear", title: measureName},
         x: timeLevelName,
@@ -159,7 +160,7 @@ const makeConfig = {
     }
 
     const mainLevelName = levelNames[0];
-    if (chart.members[mainLevelName].length < 13) {
+    if (uiParams.showConfidenceInt && chart.members[mainLevelName].length < 13) {
       const {moeName, lciName, uciName} = chart.names;
       if (lciName && uciName) {
         config.confidence = [d => d[lciName], d => d[uciName]];

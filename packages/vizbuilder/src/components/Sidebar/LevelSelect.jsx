@@ -1,76 +1,99 @@
+import {Button, MenuItem} from "@blueprintjs/core";
+import {Select} from "@blueprintjs/select";
+import classNames from "classnames";
+import memoizeOne from "memoize-one";
 import React from "react";
-import classnames from "classnames";
-import escapeRegExp from "lodash/escapeRegExp";
 
-import MultiLevelSelect from "./MultiLevelSelect";
 import {composePropertyName} from "../../helpers/formatting";
+import CategoryListRenderer from "./CategoryListRenderer";
 
-class LevelSelect extends MultiLevelSelect {
-  renderTarget(item) {
-    const valueLabel = composePropertyName(item);
+class UpdatedLevelSelect extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.renderItemList = this.renderItemList.bind(this);
+    this.renderItem = this.renderItem.bind(this);
+    this.itemSelectHandler = this.itemSelectHandler.bind(this);
+
+    this.categoryListComposer = memoizeOne((stack, items) => {
+      const depth = stack.length;
+
+      if (depth === 0) {
+        const dimensionMap = {};
+        let n = items.length;
+        while (n--) {
+          const name = items[n].hierarchy.dimension.name;
+          dimensionMap[name] = true;
+        }
+        return Object.keys(dimensionMap).sort();
+      }
+
+      const [dimension] = stack;
+      return items.filter(item => item.hierarchy.dimension.name === dimension);
+    });
+  }
+
+  render() {
+    const {items, activeItem, disabled} = this.props;
+    const popoverProps = {
+      boundary: "viewport",
+      minimal: true,
+      targetTagName: "div",
+      wrapperTagName: "div"
+    };
+
     return (
-      <div className="select-item select-option option-level current" title={valueLabel}>
-        <span className="select-value">
-          <span className="select-label">{valueLabel}</span>
-        </span>
-        <span className="pt-icon-standard pt-icon-double-caret-vertical" />
-      </div>
+      <Select
+        activeItem={activeItem}
+        disabled={disabled}
+        filterable={false}
+        itemListRenderer={this.renderItemList}
+        itemRenderer={this.renderItem}
+        items={items}
+        onItemSelect={this.itemSelectHandler}
+        popoverProps={popoverProps}
+      >
+        <Button
+          alignText="left"
+          className="measure-select select-option active"
+          fill={true}
+          rightIcon="double-caret-vertical"
+          text={activeItem ? composePropertyName(activeItem) : "Select..."}
+          title={activeItem.name}
+        />
+      </Select>
     );
+  }
+
+  /** @param {import("@blueprintjs/select").IItemListRendererProps} listProps */
+  renderItemList(listProps) {
+    return (
+      <CategoryListRenderer
+        {...listProps}
+        itemListComposer={this.categoryListComposer}
+        maxDepth={1}
+      />
+    );
+  }
+
+  renderItem(item, {handleClick, index, modifiers, query}) {
+    const fullName = composePropertyName(item);
+    return (
+      <MenuItem
+        className={classNames("level-select option", {active: modifiers.active})}
+        disabled={modifiers.disabled}
+        key={fullName}
+        onClick={handleClick}
+        text={item.name}
+        title={fullName}
+      />
+    );
+  }
+
+  itemSelectHandler(item, evt) {
+    const {onItemSelect} = this.props;
+    onItemSelect && onItemSelect(item, evt);
   }
 }
 
-LevelSelect.displayName = "LevelSelect";
-LevelSelect.defaultProps = {
-  ...MultiLevelSelect.defaultProps,
-  getItemHeight() {
-    return 26;
-  },
-  itemListPredicate(query, levels) {
-    query = query.trim();
-    query = escapeRegExp(query);
-    query = query.replace(/\s+/g, ".+");
-    const tester = RegExp(query || ".", "i");
-    return levels.filter(lvl =>
-      tester.test(
-        `${lvl.caption || lvl.name} ${lvl.hierarchy.dimension.name}`
-      )
-    );
-  },
-  itemListComposer(levels) {
-    const nope = {hierarchy:{}};
-    return levels.reduce((all, level, i, levels) => {
-      const prevLevel = levels[i - 1] || nope;
-      const prevDimension = prevLevel.hierarchy.dimension;
-      const currDimension = level.hierarchy.dimension;
-      if (prevDimension !== currDimension) {
-        all.push(currDimension);
-      }
-      all.push(level)
-      return all;
-    }, []);
-  },
-  itemRenderer({style, handleClick, item, isActive}) {
-    const isHeader = Boolean(item.cube);
-
-    const childClassName = classnames("select-label", {h1: isHeader});
-    const child = <span className={childClassName}>{item.name}</span>;
-
-    return React.createElement('div', {
-      key: item.annotations._key,
-      style,
-      onClick: !isHeader && handleClick,
-      title: item.name,
-      className: classnames(
-        "select-item",
-        isHeader ? "select-optgroup" : "select-option",
-        "option-level",
-        {
-          active: isActive,
-          disabled: item.disabled
-        }
-      )
-    }, child);
-  }
-};
-
-export default LevelSelect;
+export default UpdatedLevelSelect;

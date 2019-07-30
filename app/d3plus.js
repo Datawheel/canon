@@ -1,7 +1,7 @@
 export default {
   shapeConfig: {
     labelConfig: {
-      fontFamily: "Comic Sans MS"
+      fontFamily: "Pathway Gothic One"
     }
   }
 };

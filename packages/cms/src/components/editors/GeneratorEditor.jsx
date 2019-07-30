@@ -1,10 +1,14 @@
 import axios from "axios";
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import AceWrapper from "./AceWrapper";
 import SimpleGeneratorEditor from "./SimpleGeneratorEditor";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
 import {Switch, Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
+import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
+import TextButtonGroup from "../fields/TextButtonGroup";
 
 import "./GeneratorEditor.css";
 
@@ -104,7 +108,7 @@ class GeneratorEditor extends Component {
   previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
-    const {attr, previews, variables, locale} = this.props;
+    const {attr, previews, variables, locale, env} = this.props;
     if (api) {
       // The API will have <ids> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
@@ -116,7 +120,7 @@ class GeneratorEditor extends Component {
         }
         lookup[`id${i + 1}`] = p.id;
       });
-      const url = urlSwap(api, Object.assign({}, attr, variables, lookup));
+      const url = urlSwap(api, Object.assign({}, attr, env, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
         let {simple} = this.state;
@@ -212,19 +216,19 @@ class GeneratorEditor extends Component {
     const {type, previews} = this.props;
 
     const preMessage = {
-      generator: <p className="bp3-text-muted">You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</p>,
-      materializer: <p className="bp3-text-muted">You have access to all variables previously created by generators</p>,
-      profile_visualization: <p className="bp3-text-muted">You have access to all variables previously created by generators and materializers.</p>,
-      topic_visualization: <p className="bp3-text-muted">You have access to all variables previously created by generators and materializers.</p>,
-      formatter: <p className="bp3-text-muted">You have access to the variable <code>n</code>, which represents the string to be formatted.</p>
+      generator: <React.Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</React.Fragment>,
+      materializer: <React.Fragment>You have access to all variables previously created by generators</React.Fragment>,
+      profile_visualization: <React.Fragment>You have access to all variables previously created by generators and materializers.</React.Fragment>,
+      section_visualization: <React.Fragment>You have access to all variables previously created by generators and materializers.</React.Fragment>,
+      formatter: <React.Fragment>You have access to the variable <code>n</code>, which represents the string to be formatted.</React.Fragment>
     };
 
     const postMessage = {
-      generator: <p className="bp3-text-muted">Be sure to return an <strong>object</strong> with the variables you want stored as keys.</p>,
-      materalizer: <p className="bp3-text-muted">Be sure to return an <strong>object</strong> with the variables you want stored as keys.</p>,
-      profile_visualization: <p className="bp3-text-muted">Be sure to return a valid config object for a visualization</p>,
-      topic_visualization: <p className="bp3-text-muted">Be sure to return a valid config object for a visualization</p>,
-      formatter: <p className="bp3-text-muted">Be sure to return a <strong>string</strong> that represents your formatted content.</p>
+      generator: <React.Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</React.Fragment>,
+      materalizer: <React.Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</React.Fragment>,
+      profile_visualization: <React.Fragment>Be sure to return a valid config object for a visualization</React.Fragment>,
+      section_visualization: <React.Fragment>Be sure to return a valid config object for a visualization</React.Fragment>,
+      formatter: <React.Fragment>Be sure to return a <strong>string</strong> that represents your formatted content.</React.Fragment>
     };
 
     const varOptions = [<option key="always" value="always">Always</option>]
@@ -241,7 +245,7 @@ class GeneratorEditor extends Component {
     if (!data) return null;
 
     return (
-      <div id="generator-editor">
+      <div className="generator-editor">
         <Alert
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
@@ -258,53 +262,48 @@ class GeneratorEditor extends Component {
         {/* name & description fields */}
         {(type === "generator" || type === "materializer" || type === "formatter") &&
           <div className="cms-field-group">
-            <div key="gen-name" className="cms-field-container">
-              <label className="label">Name</label>
-              <input className="bp3-input" type="text" value={data.name} onChange={this.changeField.bind(this, "name")}/>
-            </div>
-            <div key="gen-desc" className="cms-field-container">
-              <label className="label">Description</label>
-              <input className="bp3-input" type="text" value={data.description} onChange={this.changeField.bind(this, "description")}/>
-            </div>
+            <TextInput
+              label="Name"
+              context="cms"
+              inline
+              value={data.name}
+              onChange={this.changeField.bind(this, "name")}
+            />
+            <TextInput
+              label="Description"
+              context="cms"
+              inline
+              value={data.description}
+              onChange={this.changeField.bind(this, "description")}
+            />
           </div>
         }
 
         { type === "generator" &&
-          <div className="cms-field-container">
-            <label className="label" htmlFor="api">API</label>
-            <div className="cms-field-container-inline bp3-input-group">
-              <input className="bp3-input" type="text" value={data.api} onChange={this.changeField.bind(this, "api")} id="api"/>
-              <button className="cms-button bp3-button" onClick={this.maybePreviewPayload.bind(this)}>
-                {payload && !payload.error ? "Refetch data" : "Fetch data"}
-              </button>
-            </div>
-          </div>
+          <TextButtonGroup
+            context="cms"
+            inputProps={{
+              label: "API",
+              inline: true,
+              context: "cms",
+              value: data.api,
+              onChange: this.changeField.bind(this, "api")
+            }}
+            buttonProps={{
+              children: payload && !payload.error ? "Refetch data" : "Fetch data",
+              context: "cms",
+              icon: payload && !payload.error ? "refresh" : "download",
+              onClick: this.maybePreviewPayload.bind(this)
+            }}
+          />
         }
-        { (type === "generator" || type.includes("_visualization")) &&
-          <div className="cms-field-container">
-            <Switch checked={simple} label="UI mode" onChange={this.maybeSwitchSimple.bind(this)} />
-          </div>
-        }
-        {/* visibility */}
-        <div className="cms-field-container">
-          { (type === "profile_visualization" || type === "topic_visualization") &&
-            <label className="bp3-label bp3-inline">
-              <span className="label-text">Allowed</span>
-              <div className="bp3-select">
-                <select value={ data.allowed || "always" } onChange={this.chooseVariable.bind(this)}>
-                  {varOptions}
-                </select>
-              </div>
-            </label>
-          }
-        </div>
         {/* callback instructions */}
         {!simple &&
-          <div className="cms-paragraphs">
-            Callback
-            {preMessage[type]}
-            {postMessage[type]}
-          </div>
+          <section className="generator-editor-help">
+            <h3 className="u-font-sm">Callback</h3>
+            <p className="u-font-xs">{preMessage[type]}</p>
+            <p className="u-font-xs">{postMessage[type]}</p>
+          </section>
         }
 
         <div className={`cms-variable-editor-group${!payload ? " single-column" : ""}`}>
@@ -320,7 +319,7 @@ class GeneratorEditor extends Component {
                 ? <SimpleGeneratorEditor
                   key="simp-gen"
                   payload={payload}
-                  simpleConfig={data.logic_simple} 
+                  simpleConfig={data.logic_simple}
                   onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null
@@ -336,9 +335,30 @@ class GeneratorEditor extends Component {
             />
           }
         </div>
+
+        {/* visibility */}
+        { (type === "profile_visualization" || type === "section_visualization") &&
+          <Select
+            label="Visible"
+            inline
+            fontSize="xs"
+            context="cms"
+            value={data.allowed || "always"}
+            onChange={this.chooseVariable.bind(this)}
+          >
+            {varOptions}
+          </Select>
+        }
+
+        {/* UI/JS mode toggle */}
+        { (type === "generator" || type.includes("_visualization")) &&
+          <div className="cms-field-container cms-mode-switch-container">
+            <Switch checked={simple} label="UI mode" onChange={this.maybeSwitchSimple.bind(this)} />
+          </div>
+        }
       </div>
     );
   }
 }
 
-export default GeneratorEditor;
+export default connect(state => ({env: state.env}))(GeneratorEditor);

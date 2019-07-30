@@ -1,7 +1,9 @@
 import axios from "axios";
 import React, {Component} from "react";
-import Search from "../Search/Search.jsx";
-import {Alert, Intent} from "@blueprintjs/core";
+import Button from "../fields/Button";
+import DefinitionList from "../variables/DefinitionList";
+import PreviewSearch from "../fields/PreviewSearch";
+import Card from "./Card";
 import "./DimensionCard.css";
 
 export default class DimensionCard extends Component {
@@ -62,67 +64,46 @@ export default class DimensionCard extends Component {
 
     if (!preview) return null;
 
+    // define props for Card
+    const cardProps = {
+      cardClass: "dimension",
+      title: meta.dimension,
+      onDelete: this.maybeDelete.bind(this),
+      onRefresh: this.rebuildSearch.bind(this),
+      rebuilding,
+      // onEdit: this.openEditor.bind(this),
+      // onReorder: this.props.onMove ? this.props.onMove.bind(this) : null,
+      // alert
+      alertObj,
+      onAlertCancel: () => this.setState({alertObj: false})
+    };
+
     return (
-      <div className="cms-card cms-dimension-card">
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText={alertObj.confirm}
-          className="cms-confirm-alert"
-          iconName="bp3-icon-warning-sign"
-          intent={Intent.DANGER}
-          isOpen={alertObj}
-          onConfirm={alertObj.callback}
-          onCancel={() => this.setState({alertObj: false})}
-        >
-          {alertObj.message}
-        </Alert>
-        <table className="cms-dimension-card-table">
-          <tbody>
-            <tr className="cms-dimension-card-table-row">
-              <th className="cms-dimension-card-table-cell">slug</th>
-              <th className="cms-dimension-card-table-cell">Dimension</th>
-              <th className="cms-dimension-card-table-cell">Levels</th>
-              <th className="cms-dimension-card-table-cell">Measure</th>
-              <th className="cms-dimension-card-table-cell">Preview ID</th>
-            </tr>
-          </tbody>
-          <tbody>
-            <tr className="cms-dimension-card-table-row">
-              <td className="cms-dimension-card-table-cell">{meta.slug}</td>
-              <td className="cms-dimension-card-table-cell">{meta.dimension}</td>
-              <td className="cms-dimension-card-table-cell">
-                {meta.levels.length === 1
-                  ? meta.levels
-                  : <ul className="cms-dimension-card-table-list">
-                    {meta.levels.map(level =>
-                      <li className="cms-dimension-card-table-item" key={level}>{level}</li>
-                    )}
-                  </ul>
-                }
-              </td>
-              <td className="cms-dimension-card-table-cell">{meta.measure}</td>
-              <td className="cms-dimension-card-table-cell">{preview.id}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div className="dimension-card-controls">
-          <div>{/* <label> causes dropdown to stay open; TODO: revisit */}
-            Preview profile
-            <Search
-              render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
+      <Card {...cardProps}>
+
+        <DefinitionList definitions={[
+          {label: "slug", text: meta.slug},
+          {label: "levels", text: Array.join(meta.levels, ", ")},
+          {label: "measure", text: meta.measure},
+          {label: "preview ID", text:
+            <PreviewSearch
+              label={preview.id || "search profiles..."}
+              previewing={preview.id}
+              fontSize="xxs"
+              renderResults={d =>
+                <Button className="cms-search-result-button" context="cms" onClick={this.onSelectPreview.bind(this, d)}>
+                  {d.name}
+                </Button>
+              }
               dimension={meta.dimension}
               levels={meta.levels}
               limit={20}
             />
-          </div>
-          <button className="cms-button" disabled={rebuilding} onClick={this.rebuildSearch.bind(this)}>
-            {rebuilding ? "Rebuilding..." : "Rebuild"}
-          </button>
-          <button className="cms-button" disabled={rebuilding} onClick={this.maybeDelete.bind(this)}>
-            Delete
-          </button>
-        </div>
-      </div>
+          }
+        ]}/>
+
+        {/* TODO: edit mode */}
+      </Card>
     );
   }
 

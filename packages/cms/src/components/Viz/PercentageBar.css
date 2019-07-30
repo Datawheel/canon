@@ -1,7 +1,52 @@
-.show-more {
-  display: flex;
+@import "../../css/mixins.css";
+
+.percentage-bar-list {
+  @mixin list-reset;
 }
 
-.cutoff-text {
-  margin: 5px;
+.percentage-bar-bg,
+.percentage-bar {
+  display: block;
+  height: var(--percentage-bar-height);
+  border-radius: var(--percentage-bar-radius);
+}
+
+.percentage-bar-bg {
+  position: relative;
+  width: 100%;
+  margin-bottom: 0.125rem;
+  background-color: var(--percentage-bar-bg-color);
+}
+
+.percentage-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: var(--percentage-bar-color);
+  transform-origin: 0 0;
+  animation: grow-from-left 0.333s ease-out;
+}
+
+.percentage-bar-item:not(:last-child) {
+  margin-bottom: 0.625em;
+}
+
+.percentage-bar-label {
+  margin-bottom: 0.25em;
+  color: var(--stat-label-color);
+}
+
+.percentage-bar-value {
+  color: var(--stat-value-color);
+  margin-bottom: 0;
+}
+
+@keyframes grow-from-left {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: none;
+  }
 }

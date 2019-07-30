@@ -1,0 +1,98 @@
+@import "../../css/mixins.css";
+
+.cms-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  /* main title */
+  & .cms-header-title {
+    margin-top: 0;
+    font-weight: 500;
+
+    /* preceeds section title */
+    & > .cms-header-title-parent {
+      font-weight: 300;
+      color: var(--dark-1);
+    }
+
+    /* main title text */
+    & > .cms-header-title-main {
+      color: var(--accent-black);
+      display: inline-block; /* keep with icon */
+
+      @mixin dark-mode {
+        color: var(--accent-light);
+      }
+    }
+
+    /* edit title button */
+    & .cms-header-title-button {
+      margin-left: 0.5em; /* space out from title */
+      margin-right: 1.25rem; /* space out from link */
+      top: -1px;
+    }
+  }
+
+
+  /* link to profile */
+  & .cms-header-link-container {
+    margin-bottom: 1.25rem;
+    color: var(--dark-1);
+    /* transitions */
+    transition: border 0.2s ease-out;
+    /* theming */
+    border-bottom: 2px solid var(--light-3);
+    color: var(--dark-2);
+
+    @mixin dark-mode {
+      border-color: var(--dark-2);
+      color: var(--gray);
+    }
+
+    /* interactions */
+    &:hover, &:focus-within {
+      border-color: var(--accent-dark);
+
+      @mixin dark-mode {
+        border-color: var(--accent);
+      }
+    }
+  }
+
+  /* reset actual link */
+  & .cms-header-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* highlight preview id */
+  & .cms-header-link-id,
+  & .cms-header-link-slug {
+    font-weight: 600;
+    color: var(--dark-3);
+
+    @mixin dark-mode {
+      color: var(--light-1);
+    }
+  }
+
+  /* position non-button icons */
+  & .bp3-editable-text + [class*="icon"] {
+    @mixin absolute-vertical-center;
+    left: auto;
+    right: -0.625em;
+    margin-top: 1px;
+    width: 0.75em;
+  }
+
+  /* hide icon when editing */
+  & [class*="-editing"] + [class*="icon"]{
+    opacity: 0;
+  }
+  /* reset font size */
+  & [class*="-editing"] > * {
+    font-size: inherit;
+  }
+}

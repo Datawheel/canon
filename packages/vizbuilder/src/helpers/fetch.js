@@ -3,7 +3,7 @@ import {unique} from "shorthash";
 import yn from "yn";
 
 import * as api from "./api";
-import {TooMuchData} from "./errors";
+import {EmptyDataset, TooMuchData} from "./errors";
 import {generateBaseState, queryBuilder, queryConverter} from "./query";
 import {
   classifyMeasures,
@@ -66,9 +66,7 @@ export function injectCubeInfoOnMeasure(cubes) {
         while (nLvl--) {
           const level = hierarchy.levels[nLvl];
 
-          level.annotations._key = unique(
-            `${keyPrefix} ${hierarchy.name} ${level.name}`
-          );
+          level.annotations._key = unique(`${keyPrefix} ${hierarchy.name} ${level.name}`);
         }
       }
     }
@@ -204,6 +202,11 @@ export function fetchQuery(query, params) {
 
   return api.query(mondrianQuery).then(result => {
     const dataset = (result.data || {}).data || [];
+
+    if (dataset.length === 0) {
+      throw new EmptyDataset();
+    }
+
     sort(dataset).desc(measureName);
     const members = getIncludedMembers(query, dataset);
 

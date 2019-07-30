@@ -1,13 +1,14 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Dialog, Alert, Intent} from "@blueprintjs/core";
-import Loading from "components/Loading";
-import FooterButtons from "../FooterButtons";
-import MoveButtons from "../MoveButtons";
-import SelectorEditor from "../editors/SelectorEditor";
+import {Dialog} from "@blueprintjs/core";
 import PropTypes from "prop-types";
+import FooterButtons from "../editors/components/FooterButtons";
+import SelectorEditor from "../editors/SelectorEditor";
+import DefinitionList from "../variables/DefinitionList";
+import VarList from "../variables/VarList";
 import deepClone from "../../utils/deepClone";
-import varSwap from "../../utils/varSwap";
+// import varSwap from "../../utils/varSwap";
+import Card from "./Card";
 import "./SelectorCard.css";
 
 /**
@@ -34,12 +35,6 @@ class SelectorCard extends Component {
    */
   componentDidMount() {
     this.setState({minData: this.props.minData});
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.minData !== this.props.minData) {
-      this.setState({minData: this.props.minData});
-    }
   }
 
   markAsDirty() {
@@ -111,77 +106,99 @@ class SelectorCard extends Component {
 
   render() {
     const {minData, isOpen, alertObj} = this.state;
-    const {variables, parentArray, type, locale} = this.props;
+    const {locale, onMove, onSave, parentArray, type, variables} = this.props;
     const formatters = this.context.formatters[locale];
 
+    // define initial card props
+    const cardProps = {
+      cardClass: "selector",
+      title: "•••"
+    };
+
+    // fill in real card props
+    if (minData) {
+      Object.assign(cardProps, {
+        // title: varSwap(minData.title, formatters, variables),
+        title: minData.name === "newselector" ? "New selector" : minData.name,
+        onEdit: onSave ? this.openEditor.bind(this) : null,
+        onDelete: this.maybeDelete.bind(this),
+        // reorder
+        reorderProps: parentArray ? {
+          item: minData,
+          array: parentArray,
+          type
+        } : null,
+        onReorder: onMove ? onMove.bind(this) : null,
+        // alert
+        alertObj,
+        onAlertCancel: () => this.setState({alertObj: false})
+      });
+    }
+
+    const varList = [];
+    if (minData && minData.options.length > 0) {
+      minData.options.forEach(o =>
+        typeof variables[o.option] !== "object"
+          ? varList.push(o.isDefault
+            ? `${variables[o.option]} (default)`
+            : variables[o.option]
+          ) : null
+      );
+    }
+
+    const {id} = this.props.minData;
+
     return (
-      <div className="cms-card">
+      <React.Fragment>
+        <Card {...cardProps} key={`${cardProps.title}-${id}`}>
 
-        {/* title & edit toggle button */}
-        {!minData
-          ? <h3 className="cms-card-header">•••</h3>
-          : <React.Fragment>
-            <h3 className="cms-card-header">
-              {varSwap(minData.title, formatters, variables)}
-              <button className="cms-button" onClick={this.openEditor.bind(this)}>
-                Edit <span className="bp3-icon bp3-icon-cog" />
-              </button>
-            </h3>
-
-            <p>{minData.name}</p>
-
-            <ul>
-              {minData.options && minData.options.map(o =>
-                <li key={o.option} className={minData.default === o.option ? "is-default" : ""}>{o.option}</li>
-              )}
-            </ul>
-
-            {/* reorder buttons */}
-            { parentArray &&
-              <MoveButtons
-                item={minData}
-                array={parentArray}
-                type={type}
-                onMove={this.props.onMove ? this.props.onMove.bind(this) : null}
+          {minData &&
+            <React.Fragment>
+              {/* content preview */}
+              <DefinitionList definitions={[
+                {
+                  label: "label",
+                  text: minData.title
+                },
+                {
+                  label: "selections",
+                  text: minData.type === "single" ? "one" : "multiple"
+                }
+              ]}
               />
-            }
 
-            <Alert
-              cancelButtonText="Cancel"
-              confirmButtonText={alertObj.confirm}
-              className="cms-confirm-alert"
-              iconName="bp3-icon-warning-sign"
-              intent={Intent.DANGER}
-              isOpen={alertObj}
-              onConfirm={alertObj.callback}
-              onCancel={() => this.setState({alertObj: false})}
-            >
-              {alertObj.message}
-            </Alert>
+              {varList.length
+                ? <React.Fragment>
+                  <div className="cms-definition-label u-font-xxxs">options:</div>
+                  <VarList vars={varList} />
+                </React.Fragment> : ""
+              }
+            </React.Fragment>
+          }
+        </Card>
 
-            <Dialog
-              className="generator-editor-dialog"
-              isOpen={isOpen}
-              onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-              title="Selector Editor"
-              icon={false}
-              usePortal={false}
-            >
-              <div className="bp3-dialog-body">
-                <SelectorEditor
-                  markAsDirty={this.markAsDirty.bind(this)}
-                  variables={variables}
-                  data={minData}
-                />
-              </div>
-              <FooterButtons
-                onDelete={this.maybeDelete.bind(this)}
-                onSave={this.save.bind(this)}
-              />
-            </Dialog>
-          </React.Fragment>
-        }
-      </div>
+        {/* edit mode */}
+        <Dialog
+          className="generator-editor-dialog"
+          isOpen={isOpen}
+          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
+          title="Selector Editor"
+          icon={false}
+          usePortal={false}
+        >
+          <div className="bp3-dialog-body">
+            <SelectorEditor
+              markAsDirty={this.markAsDirty.bind(this)}
+              variables={variables}
+              data={minData}
+            />
+          </div>
+          <FooterButtons
+            onDelete={this.maybeDelete.bind(this)}
+            onSave={this.save.bind(this)}
+          />
+        </Dialog>
+      </React.Fragment>
     );
   }
 
