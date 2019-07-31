@@ -25,7 +25,8 @@ class Table extends Component {
     const {dataFormat} = this.props;
 
     const defaults = {
-      cellFormat: (key, val) => isNaN(val) ? val : abbreviate(val),
+      cellFormat: (key, val) =>
+        isNaN(val) ? val : abbreviate(val),
       headerFormat: val => val,
       showPagination: false
     };
@@ -51,16 +52,58 @@ class Table extends Component {
     }
   }
 
+  // determines whether there are any nested arrays at all
+  hasNesting(columns) {
+    // top level contains arrays
+    if (columns && columns.map(col => Array.isArray(col)).filter(c => c).length) {
+      return true;
+    }
+    return false; // no nested columns
+  }
+
+  // render parent header grouping
+  // assumes an array with string followed by an array of columns
+  renderGrouping = currColumn => {
+    const {headerFormat} = this.state.config;
+
+    let groupingTitle, nestedColumns;
+    if (currColumn[0] && typeof currColumn[0] === "string") groupingTitle = currColumn[0];
+    if (currColumn[1] && Array.isArray(currColumn[1])) nestedColumns = currColumn[1];
+
+    if (groupingTitle !== null && nestedColumns) {
+      return Object.assign({}, {
+        Header: headerFormat(groupingTitle),
+        id: groupingTitle,
+        columns: nestedColumns.map(col => this.renderColumn(col))
+      });
+    }
+
+    console.log("Invalid columns config passed to table viz; expected either an array of strings, or an array of arrays, each with a string first (table heading grouping title) and an array of strings.");
+    return undefined;
+  }
+
+  // render ungrouped column
+  renderColumn = col => {
+    const {headerFormat, cellFormat} = this.state.config;
+    return Object.assign({}, {
+      Header: <button className="cp-table-header-button">
+        {headerFormat(col)} <span className="u-visually-hidden">, sort by column</span>
+        <Icon className="cp-table-header-icon" icon="caret-down" />
+      </button>,
+      id: col,
+      accessor: d => d[col],
+      Cell: cell =>
+        <span className="cp-table-cell-inner">
+          {cellFormat(cell, cell.value)}
+        </span>
+    });
+  };
+
   render() {
     const {config} = this.state;
-
     if (!config) return null;
 
-    const {
-      data,
-      headerFormat, // (key)
-      cellFormat // (key, val)
-    } = config;
+    const {data} = config;
 
     // check that we have a valid columns object
     const columns = config.columns &&
@@ -70,31 +113,24 @@ class Table extends Component {
       Object.keys(data[0]);
 
     const tableStructure = columns.map(col =>
-      Object.assign({
-        Header: <button className="cp-table-header-button">
-          {headerFormat(col)} <span className="u-visually-hidden">sort by column</span>
-          <Icon className="cp-table-header-icon" icon="caret-down" />
-        </button>,
-        id: col,
-        accessor: d => d[col],
-        Cell: row =>
-          <span className="cp-table-cell-inner">
-            {cellFormat(row, row.value)}
-          </span>
-      })
-    );
-
-    // console.log(data);
-    // console.log(config);
-    // console.log(tableStructure);
+      // we got arrays
+      this.hasNesting(columns)
+        // current item is an array; render as a grouping
+        ? this.renderGrouping(col)
+        // no arrays, render a straightforward table
+        : this.renderColumn(col)
+    ).filter(Boolean); // handle malformed tables
 
     return (
       <div className="cp-table-wrapper">
-        <ReactTable
-          {...config}
-          className="cp-table"
-          columns={tableStructure}
-        />
+        {tableStructure && tableStructure.length
+          ? <ReactTable
+            {...config}
+            className="cp-table"
+            columns={tableStructure}
+          />
+          : console.log("Error: array with undefined returned in Table `columns` prop")
+        }
       </div>
     );
   }
