@@ -30,8 +30,6 @@ export default function storeConfig(initialState, history, reduxMiddleware = fal
     ? reduxMiddleware(applyMiddleware, middleware)
     : appliedMiddleware = applyMiddleware(...middleware);
 
-  let store;
-
   const canonReducer = combineReducers(Object.assign({
     auth,
     data: fetchData,
@@ -46,15 +44,13 @@ export default function storeConfig(initialState, history, reduxMiddleware = fal
     social: (state = []) => state
   }, appReducers));
 
-  if (__DEV__ && !__SERVER__) {
-    store = createStore(canonReducer, initialState, compose(
-      appliedMiddleware,
-      typeof window === "object" && typeof window.devToolsExtension !== "undefined" ? window.devToolsExtension() : f => f
-    ));
-  }
-  else {
-    store = createStore(canonReducer, initialState, compose(appliedMiddleware, f => f));
-  }
+  const composeEnhancers =
+    __DEV__ && !__SERVER__ && typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+      ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+      : compose;
+
+  const enhancers = composeEnhancers(appliedMiddleware);
+  const store = createStore(canonReducer, initialState, enhancers);
 
   if (module.hot) {
     // Enable Webpack hot module replacement for reducers
