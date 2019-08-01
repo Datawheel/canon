@@ -28,6 +28,7 @@ class Table extends Component {
       cellFormat: (key, val) =>
         isNaN(val) ? val : abbreviate(val),
       headerFormat: val => val,
+      minRows: 0,
       showPagination: false
     };
 
