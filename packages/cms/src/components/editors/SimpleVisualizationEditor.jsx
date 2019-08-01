@@ -84,7 +84,7 @@ class SimpleVisualizationEditor extends Component {
         const availableColumns = Object.keys(payload.data[0]);
         selectedColumns = availableColumns;
 
-        this.setState({payload}, this.compileCode.bind(this)).setState(selectedColumns);
+        this.setState({payload, selectedColumns}, this.compileCode.bind(this));
       }).catch(() => {
         console.log("API error");
       });
@@ -147,11 +147,7 @@ class SimpleVisualizationEditor extends Component {
     if (columns.filter(col => col === field).length > 0)  {
       columns = columns.filter(col => col !== field);
     }
-    else {
-      columns.push(field);
-    }
-
-    console.log(columns);
+    else columns.push(field);
 
     this.setState({selectedColumns: columns});
   }
