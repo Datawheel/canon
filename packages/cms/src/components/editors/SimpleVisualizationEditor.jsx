@@ -183,7 +183,7 @@ class SimpleVisualizationEditor extends Component {
 
   render() {
     const {object, rebuildAlertOpen, payload} = this.state;
-    const selectedColumns = object.columns;
+    const selectedColumns = object.columns || [];
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
 
     let buttonProps = {
