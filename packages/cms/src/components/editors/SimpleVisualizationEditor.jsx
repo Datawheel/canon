@@ -106,7 +106,7 @@ class SimpleVisualizationEditor extends Component {
         }
         else {
           if (k === "columns") {
-            return `\n "${k}": [${object[k].map(d => `"${d}"`).join()}]`;
+            return `\n "${k}": ${JSON.stringify(object[k])}`;
           }
           else {
             return `\n  "${k}": "${object[k]}"`;
