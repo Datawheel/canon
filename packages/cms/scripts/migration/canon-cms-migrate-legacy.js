@@ -91,14 +91,14 @@ const migrate = async() => {
       await dbnew.materializer.create({profile_id: newprofile.id, name, description, logic, ordering}).catch(catcher);
     }
 
-    // make a topic to replace the profile about/stats/viz
-    let profiletopic = await dbnew.topic.create({ordering: nextTopicLoc, profile_id: newprofile.id, type: "About", slug: "about"}).catch(catcher);
+    // make a topic to replace the profile stats
+    let profiletopic = await dbnew.topic.create({ordering: nextTopicLoc, profile_id: newprofile.id, type: "Hero", slug: "hero"}).catch(catcher);
     profiletopic = profiletopic.toJSON();
     // increment the topic head
     nextTopicLoc++;
     // create its associated english language content
-    await dbnew.topic_content.create({title: "About", lang: "en", id: profiletopic.id}).catch(catcher);
-    for (const list of ["descriptions", "stats", "visualizations"]) {
+    await dbnew.topic_content.create({title: oldprofile.title, lang: "en", id: profiletopic.id}).catch(catcher);
+    for (const list of ["stats"]) {
       for (const entity of oldprofile[list]) {
         // migrate the array of profile entities to the new "profiletopic"
         const {ordering, allowed, logic} = entity;
@@ -110,11 +110,31 @@ const migrate = async() => {
         if (list !== "visualizations") await dbnew[`${tableLookup[list]}_content`].create({id: newTopicEntity.id, lang: "en", description, title, subtitle, value, tooltip}).catch(catcher);
       }
     }
+    // make a topic to replace the profile about/stats/viz
+    let abouttopic = await dbnew.topic.create({ordering: nextTopicLoc, profile_id: newprofile.id, type: "About", slug: "about"}).catch(catcher);
+    abouttopic = abouttopic.toJSON();
+    // increment the topic head
+    nextTopicLoc++;
+    // create its associated english language content
+    await dbnew.topic_content.create({title: "About", lang: "en", id: abouttopic.id}).catch(catcher);
+    for (const list of ["descriptions", "visualizations"]) {
+      for (const entity of oldprofile[list]) {
+        // migrate the array of profile entities to the new "abouttopic"
+        const {ordering, allowed, logic} = entity;
+        const simple = entity.simple || false;
+        let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: abouttopic.id, ordering, allowed, logic, simple}).catch(catcher);
+        newTopicEntity = newTopicEntity.toJSON();
+        // create associated english content
+        const {description, title, subtitle, value, tooltip} = entity;
+        if (list !== "visualizations") await dbnew[`${tableLookup[list]}_content`].create({id: newTopicEntity.id, lang: "en", description, title, subtitle, value, tooltip}).catch(catcher);
+      }
+    }
+    
     oldprofile.sections.sort((a, b) => a.ordering - b.ordering);
     for (const oldsection of oldprofile.sections) {
       // make this section into a new topic, with an ordering of the current "ordering head"
       const {slug, allowed} = oldsection;
-      let sectiontopic = await dbnew.topic.create({ordering: nextTopicLoc, profile_id: newprofile.id, type: "Section", slug, allowed}).catch(catcher);
+      let sectiontopic = await dbnew.topic.create({ordering: nextTopicLoc, profile_id: newprofile.id, type: "Grouping", slug, allowed}).catch(catcher);
       sectiontopic = sectiontopic.toJSON();
       // increment the topic head
       nextTopicLoc++;
