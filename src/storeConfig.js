@@ -19,11 +19,16 @@ import loadingProgress from "./reducers/loadingProgress";
     @param {Object} initialState initial state to bootstrap our stores with for server-side rendering
     @param {Object} history a history object. We use `createMemoryHistory` for server-side rendering, while using browserHistory for client-side rendering.
 */
-export default function storeConfig(initialState, history) {
+export default function storeConfig(initialState, history, reduxMiddleware = false) {
 
   // Installs hooks that always keep react-router and redux store in sync
   const middleware = [thunk, promiseMiddleware, routerMiddleware(history)];
-  let store;
+  if (__DEV__ && !__SERVER__ && __LOGREDUX__) middleware.push(createLogger());
+
+  // Custom middleware
+  const appliedMiddleware = reduxMiddleware
+    ? reduxMiddleware(applyMiddleware, middleware)
+    : appliedMiddleware = applyMiddleware(...middleware);
 
   const canonReducer = combineReducers(Object.assign({
     auth,
@@ -39,16 +44,13 @@ export default function storeConfig(initialState, history) {
     social: (state = []) => state
   }, appReducers));
 
-  if (__DEV__ && !__SERVER__) {
-    if (__LOGREDUX__) middleware.push(createLogger());
-    store = createStore(canonReducer, initialState, compose(
-      applyMiddleware(...middleware),
-      typeof window === "object" && typeof window.devToolsExtension !== "undefined" ? window.devToolsExtension() : f => f
-    ));
-  }
-  else {
-    store = createStore(canonReducer, initialState, compose(applyMiddleware(...middleware), f => f));
-  }
+  const composeEnhancers =
+    __DEV__ && !__SERVER__ && typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+      ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+      : compose;
+
+  const enhancers = composeEnhancers(appliedMiddleware);
+  const store = createStore(canonReducer, initialState, enhancers);
 
   if (module.hot) {
     // Enable Webpack hot module replacement for reducers
