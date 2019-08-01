@@ -102,7 +102,7 @@ class Table extends Component {
       </button>,
       id: col,
       accessor: d => d[col],
-      Cell: cell => 
+      Cell: cell =>
         <span className="cp-table-cell-inner">
           {cellFormat(cell, cell.value)}
         </span>
@@ -131,7 +131,7 @@ class Table extends Component {
         return this.renderGrouping(col);
       }
       else return {};
-    });
+    }).filter(Boolean); // handle malformed tables
 
     return (
       <div className="cp-table-wrapper">
