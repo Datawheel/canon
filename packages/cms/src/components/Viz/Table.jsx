@@ -70,12 +70,21 @@ class Table extends Component {
     if (currColumn[0] && typeof currColumn[0] === "string") groupingTitle = currColumn[0];
     if (currColumn[1] && Array.isArray(currColumn[1])) nestedColumns = currColumn[1];
 
-    if (groupingTitle !== null && nestedColumns) {
-      return Object.assign({}, {
-        Header: headerFormat(groupingTitle),
-        id: groupingTitle,
-        columns: nestedColumns.map(col => this.renderColumn(col))
-      });
+    if (nestedColumns) {
+      if (typeof nestedColumns[0] === "string") {
+        return Object.assign({}, {
+          Header: headerFormat(groupingTitle),
+          id: groupingTitle,
+          columns: nestedColumns.map(col => this.renderColumn(col))
+        });
+      }
+      else if (Array.isArray(nestedColumns[0])) {
+        return Object.assign({}, {
+          Header: headerFormat(groupingTitle),
+          id: groupingTitle,
+          columns: nestedColumns.map(col => this.renderGrouping(col))
+        });
+      }
     }
 
     console.log("Invalid columns config passed to table viz; expected either an array of strings, or an array of arrays, each with a string first (table heading grouping title) and an array of strings.");
@@ -92,7 +101,7 @@ class Table extends Component {
       </button>,
       id: col,
       accessor: d => d[col],
-      Cell: cell =>
+      Cell: cell => 
         <span className="cp-table-cell-inner">
           {cellFormat(cell, cell.value)}
         </span>
@@ -112,14 +121,18 @@ class Table extends Component {
       // otherwise, make an array from all available columns
       Object.keys(data[0]);
 
-    const tableStructure = columns.map(col =>
-      // we got arrays
-      this.hasNesting(columns)
-        // current item is an array; render as a grouping
-        ? this.renderGrouping(col)
-        // no arrays, render a straightforward table
-        : this.renderColumn(col)
-    ).filter(Boolean); // handle malformed tables
+    const tableStructure = columns.map(col => {
+      // if the current column is a string alone, render the column
+      if (typeof col === "string") {
+        return this.renderColumn(col);
+      }
+      else if (Array.isArray(col)) {
+        return this.renderGrouping(col);
+      }
+      else return {};
+    });
+
+    console.log(tableStructure);
 
     return (
       <div className="cp-table-wrapper">
