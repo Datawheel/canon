@@ -243,16 +243,6 @@ class Options extends Component {
       ? data.indexOf("http") === 0 ? data : `${ domain }${ data }`
       : false;
 
-    // console.log("results", results);
-    // const formattedColumns = columns.map(column =>
-    //   Object.assign({}, {
-    //     key: column,
-    //     width: 200,
-    //     title: column
-    //   })
-    // );
-    // console.log("columns", formattedColumns);
-
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
