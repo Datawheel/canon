@@ -3,6 +3,21 @@
 const utils = require("./migrationUtils.js");
 const {catcher, resetSequence, fetchOldModel, fetchNewModel} = utils;
 
+const sectionInclude = [
+  {association: "descriptions", separate: true},
+  {association: "subtitles", separate: true},
+  {association: "stats", separate: true},
+  {association: "visualizations", separate: true}
+];
+
+const updateSelector = (obj, oldname, newname) => {
+  const re = new RegExp(oldname, "g");
+  Object.keys(obj).forEach(key => {
+    if (typeof obj[key] === "string") obj[key] = obj[key].replace(re, newname);
+  });
+  return obj;
+};
+
 const migrate = async() => {
 
   const dbold = await fetchOldModel("/db_0.6", false);
@@ -72,6 +87,11 @@ const migrate = async() => {
     let oldtopic = await dbold.topic.findOne({where: {id: oldselector.topic_id}});
     oldtopic = oldtopic.toJSON();
     oldselector.profile_id = oldtopic.profile_id;
+    // Selectors are going from a topic namespace to a profile-wide namespace. To avoid collision, add
+    // the topic/section slug to the end of the selector
+    const oldname = oldselector.name;
+    const newname = `${oldname}-${oldtopic.slug}`;
+    oldselector.name = newname;
     delete oldselector.topic_id;
     let newselector = await dbnew.selector.create(oldselector).catch(catcher);
     newselector = newselector.toJSON();
@@ -80,6 +100,21 @@ const migrate = async() => {
       selector_id: newselector.id,
       ordering: oldselector.ordering
     }).catch(catcher);
+    // Because we renamed the selector, all content and vizes that REFERENCE that selector must have
+    // their content updated to match the new selector name.
+    let newsection = await dbnew.section.findOne({where: {id: oldtopic.id}, include: sectionInclude}).catch(catcher);
+    newsection = newsection.toJSON();
+    let content = await dbnew.section_content.findOne({where: {id: newsection.id}}).catch(catcher);
+    content = updateSelector(content.toJSON(), oldname, newname);
+    await dbnew.section_content.update(content, {where: {id: newsection.id}}).catch(catcher);
+    for (const list of ["descriptions", "subtitles", "stats", "visualizations"]) {
+      for (const entity of newsection[list]) {
+        const table = list === "visualizations" ? "section_visualization" : `section_${list.slice(0, -1)}_content`;
+        let content = await dbnew[table].findOne({where: {id: entity.id}}).catch(catcher);
+        content = updateSelector(content.toJSON(), oldname, newname);
+        await dbnew[table].update(content, {where: {id: entity.id}}).catch(catcher);
+      }
+    }
   }
 
   console.log("Done.");
@@ -88,6 +123,3 @@ const migrate = async() => {
 migrate();
 
 return;
-
-
-

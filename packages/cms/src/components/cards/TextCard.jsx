@@ -147,7 +147,7 @@ class TextCard extends Component {
     // If hideAllowed is true, this TextCard is being used by a top-level Section, whose
     // allowed is controlled elsewhere. Don't accidentally pave it here.
     if (!hideAllowed) payload.allowed = minData.allowed;
-    payload.content = [thisLocale, thatLocale];
+    payload.content = locale ? [thisLocale, thatLocale] : [thisLocale];
     axios.post(`/api/cms/${type}/update`, payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false, isDirty: false}, this.formatDisplay.bind(this));

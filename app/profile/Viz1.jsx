@@ -12,7 +12,6 @@ class Viz1 extends SectionColumns {
 
   render() {
 
-    const data = this.context.data.harvested_area;
     const {t} = this.props;
     const {router} = this.context;
 
@@ -21,7 +20,9 @@ class Viz1 extends SectionColumns {
         <SectionTitle>My Cool Title</SectionTitle>
         <article>{ t("Some Text") }</article>
         <Treemap config={{
-          data,
+          data: this.context.data.harvested_area,
+          // data: "https://api.dataafrica.io/api/join/?geo=040AF00182&show=crop&required=harvested_area,value_of_production&order=harvested_area&sort=desc&display_names=true",
+          // data: [],
           groupBy: "crop",
           height: 400,
           label: d => d.crop_name,
@@ -32,7 +33,9 @@ class Viz1 extends SectionColumns {
             }
           },
           sum: d => d.harvested_area
-        }} />
+        }}
+        dataFormat={dataFold}
+        />
       </SectionColumns>
     );
   }

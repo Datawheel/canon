@@ -9,6 +9,7 @@ import toKebabCase from "../../utils/formatters/toKebabCase";
 import propify from "../../utils/d3plusPropify";
 import Parse from "../sections/components/Parse";
 import "./Viz.css";
+import defaultConfig from "./defaultConfig";
 
 const vizTypes = Object.assign({PercentageBar}, {Table}, d3plus);
 
@@ -57,6 +58,8 @@ class Viz extends Component {
     const title = vizProps.config.title || this.props.title || config.title || slug || "";
     delete vizProps.config.title;
 
+    const vizConfig = Object.assign({}, defaultConfig, {locale}, vizProps.config);
+
     return <SizeMe render={({size}) =>
       <div className={ `${context}-viz-container${
         className ? ` ${className}` : ""
@@ -74,7 +77,7 @@ class Viz extends Component {
               ? <Options
                 key="option-key"
                 component={{section, viz: this}}
-                data={ vizProps.config.data }
+                data={ vizConfig.data }
                 dataFormat={ vizProps.dataFormat }
                 slug={ slug }
                 title={ title }
@@ -83,7 +86,7 @@ class Viz extends Component {
             }
           </div> : ""
         }
-        <div className={`${context}-viz-figure${vizProps.config.height ? " with-explicit-height" : ""}`}>
+        <div className={`${context}-viz-figure${vizConfig.height ? " with-explicit-height" : ""}`}>
           <Visualization
             key="viz-key"
             ref={ comp => this.viz = comp }
@@ -92,7 +95,7 @@ class Viz extends Component {
             linksFormat={vizProps.linksFormat}
             nodesFormat={vizProps.nodesFormat}
             topojsonFormat={vizProps.topojsonFormat}
-            config={vizProps.config}
+            config={vizConfig}
           />
         </div>
       </div>
