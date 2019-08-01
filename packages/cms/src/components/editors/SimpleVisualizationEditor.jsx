@@ -34,8 +34,7 @@ class SimpleVisualizationEditor extends Component {
     this.state = {
       object: {},
       rebuildAlertOpen: false,
-      payload: {},
-      selectedColumns: {}
+      payload: {}
     };
   }
 
@@ -62,7 +61,7 @@ class SimpleVisualizationEditor extends Component {
   }
 
   firstBuild() {
-    const {selectedColumns, object} = this.state;
+    const {object} = this.state;
     const {previews, variables, env} = this.props;
     const {data} = object;
     if (data) {
@@ -80,11 +79,7 @@ class SimpleVisualizationEditor extends Component {
       axios.get(url).then(resp => {
         const payload = resp.data;
 
-        // array of all columns
-        const availableColumns = Object.keys(payload.data[0]);
-        selectedColumns = availableColumns;
-
-        this.setState({payload, selectedColumns}, this.compileCode.bind(this));
+        this.setState({payload}, this.compileCode.bind(this));
       }).catch(() => {
         console.log("API error");
       });
@@ -110,7 +105,12 @@ class SimpleVisualizationEditor extends Component {
           return `\n  "${k}": \`${fixedUrl}\``;
         }
         else {
-          return `\n  "${k}": "${object[k]}"`;
+          if (k === "columns") {
+            return `\n "${k}": [${object[k].map(d => `"${d}"`).join()}]`;
+          }
+          else {
+            return `\n  "${k}": "${object[k]}"`;
+          }
         }
       })
     }\n}`;
@@ -140,22 +140,22 @@ class SimpleVisualizationEditor extends Component {
     }
   }
 
+
   onCheck(field) {
-    let columns = this.state.selectedColumns;
+    const {object} = this.state;
 
     // if it's there, remove it
-    if (columns.filter(col => col === field).length > 0)  {
-      columns = columns.filter(col => col !== field);
+    if (object.columns.find(col => col === field))  {
+      object.columns = object.columns.filter(col => col !== field);
     }
-    else columns.push(field);
+    else object.columns.push(field);
 
-    this.setState({selectedColumns: columns});
+    this.setState({object}, this.compileCode.bind(this));
   }
 
   rebuild() {
     const {object} = this.state;
     const {data, type} = object;
-    let availableColumns = [];
     axios.get(data).then(resp => {
       const payload = resp.data;
       const firstObj = payload.data[0];
@@ -164,15 +164,17 @@ class SimpleVisualizationEditor extends Component {
         type: object.type
       };
       if (vizLookup[type] && firstObj) {
-        vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
-        // array of all columns
-        availableColumns = Object.keys(payload.data[0]);
+        if (newObject.type === "Table") {
+          newObject.columns = Object.keys(firstObj);
+        }
+        else {
+          vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
+        }
       }
       this.setState({
         payload,
         object: newObject,
-        rebuildAlertOpen: false,
-        selectedColumns: availableColumns
+        rebuildAlertOpen: false
       }, this.compileCode.bind(this));
     }).catch(() => {
       console.log("API error");
@@ -180,10 +182,9 @@ class SimpleVisualizationEditor extends Component {
   }
 
   render() {
-    const {selectedColumns, object, rebuildAlertOpen, payload} = this.state;
+    const {object, rebuildAlertOpen, payload} = this.state;
+    const selectedColumns = object.columns;
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
-
-    // console.log(selectedColumns);
 
     let buttonProps = {
       children: "Build",
@@ -268,11 +269,11 @@ class SimpleVisualizationEditor extends Component {
               : checkboxFields.includes(prop)
                 ? <fieldset className="cms-fieldset">
                   <legend className="u-font-sm">Columns</legend>
-                  {Object.keys(payload.data[0]).map(column =>
+                  {Object.keys(firstObj).map(column =>
                     <label className="cms-checkbox-label u-font-xs" key={column}>
                       <input
                         type="checkbox"
-                        checked={typeof selectedColumns !== "undefined" ? selectedColumns.includes(column) : false}
+                        checked={selectedColumns.includes(column)}
                         onChange={() => this.onCheck(column)}
                       /> {column}
                     </label>
