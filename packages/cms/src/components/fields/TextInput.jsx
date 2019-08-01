@@ -5,20 +5,23 @@ import "./TextInput.css";
 export default class TextInput extends Component {
   render() {
     const {
-      context,     // "cp" (default) or "cms"
+      context,      // "cp" (default) or "cms"
+      autoFocus,
       disabled,
       fontSize,
+      labelFontSize,
       inline,
-      label,       // the label
-      labelHidden, // hide the label (label still required)
-      onChange,    // callback function
-      placeholder, // placeholder text
-      value        // input value
+      label,        // the label
+      labelHidden,  // hide the label (label still required)
+      name,
+      onChange,     // callback function
+      placeholder,  // placeholder text
+      value         // input value
     } = this.props;
 
     return (
       <label className={`${context}-input-label u-font-${fontSize}${inline ? " cms-inline-input-label" : ""}`}>
-        <span className={`${context}-input-text${label && labelHidden ? " u-visually-hidden" : "" }`}>
+        <span className={`${context}-input-text u-font-${labelFontSize || fontSize}${label && labelHidden ? " u-visually-hidden" : "" }`}>
           {label}
         </span>
 
@@ -26,7 +29,9 @@ export default class TextInput extends Component {
           className={`${context}-input u-font-${fontSize}`}
           value={value}
           onChange={onChange}
+          name={name}
           placeholder={placeholder}
+          autoFocus={autoFocus}
           disabled={disabled}
           tabIndex={disabled ? "-1" : null}
         />

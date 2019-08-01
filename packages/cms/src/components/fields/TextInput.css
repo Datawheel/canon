@@ -23,6 +23,11 @@
       font-size: 14px; /* prevent zooming on mobile */
     }
   }
+  & > .cp-input-text,
+  & > .cms-input-text {
+    display: block;
+    margin-bottom: 0.25em;
+  }
 }
 
 /* inline lable & input */

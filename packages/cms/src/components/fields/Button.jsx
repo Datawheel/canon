@@ -13,6 +13,7 @@ export default class Button extends Component {
       context,      // "cp" (default) or "cms"
       disabled,
       rebuilding,   // add a spinning animation
+      type,         // pretty much just for "submit"
       icon,         // blueprint icon name (https://blueprintjs.com/docs/#icons)
       iconOnly,     // set `true` to hide the text (NOTE: `children` is still required for accessibility)
       iconPosition, // "left" || "right" (default)
@@ -35,6 +36,7 @@ export default class Button extends Component {
         disabled={disabled}
         tabIndex={disabled ? "-1" : null}
         onClick={onClick && !disabled ? onClick : null}
+        type={type}
       >
         {/* left icon (default) */}
         {icon && iconPosition === "left" &&

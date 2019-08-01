@@ -6,6 +6,9 @@ import {signup} from "@datawheel/canon-core/src/actions/auth";
 import {Intent} from "@blueprintjs/core";
 import {SocialButtons} from "@datawheel/canon-core/src/components/SocialButtons";
 
+import Button from "../fields/Button";
+import TextInput from "../fields/TextInput";
+
 import {SIGNUP_EXISTS} from "@datawheel/canon-core/src/consts";
 
 class SignupForm extends Component {
@@ -31,12 +34,12 @@ class SignupForm extends Component {
   onSubmit(e) {
     e.preventDefault();
     const {legal, redirect, t} = this.props;
-    const {agreedToTerms, email, password, passwordAgain, username} = this.state;
+    const {agreedToTerms, email, password, username} = this.state;
 
-    if (password !== passwordAgain) {
-      this.setState({error: {icon: "lock", message: t("SignUp.error.PasswordMatch")}});
-    }
-    else if (!username || !email || !password) {
+    // if (password !== this.state.passwordAgain) {
+    //   this.setState({error: {icon: "lock", message: t("SignUp.error.PasswordMatch")}});
+    // }
+    if (!username || !email || !password) {
       this.setState({error: {icon: "id-number", message: t("SignUp.error.IncompleteFields")}});
     }
     else if ((legal.privacy || legal.terms) && !agreedToTerms) {
@@ -76,41 +79,77 @@ class SignupForm extends Component {
 
   render() {
     const {auth, legal, social, t} = this.props;
-    const {agreedToTerms} = this.state;
+    const {agreedToTerms, username, password} = this.state;
     const email = this.state.email === null ? auth.error && auth.error.email ? auth.error.email : "" : this.state.email;
 
     return (
-      <div>
-        <form id="signup" onSubmit={this.onSubmit.bind(this)} className="login-container">
-          <div className="bp3-input-group">
-            <span className="bp3-icon bp3-icon-envelope"></span>
-            <input className="bp3-input" placeholder={ t("SignupForm.E-mail") } value={email} type="email" name="email" onChange={this.onChange} tabIndex="1" />
-          </div>
-          <div className="bp3-input-group">
-            <span className="bp3-icon bp3-icon-user"></span>
-            <input className="bp3-input" placeholder={ t("SignupForm.Username") } value={this.state.username} type="text" name="username" onFocus={this.onChange} onChange={this.onChange} tabIndex="2" />
-          </div>
-          <div className="bp3-input-group">
-            <span className="bp3-icon bp3-icon-lock"></span>
-            <input className="bp3-input" placeholder={ t("SignupForm.Password") } value={this.state.password} type="password" name="password" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="3" />
-          </div>
-          <div className="bp3-input-group">
-            <span className="bp3-icon bp3-icon-lock"></span>
-            <input className="bp3-input" placeholder={ t("SignupForm.Confirm Password") } value={this.state.passwordAgain} type="password" name="passwordAgain" onFocus={this.onChange} onChange={this.onChange} autoComplete="Off" tabIndex="4" />
-          </div>
-          { legal.privacy || legal.terms
-            ? <label className="bp3-control bp3-checkbox" htmlFor="ppcbox">
-              <input type="checkbox" id="ppcbox" name="agreedToTerms" checked={agreedToTerms} onChange={this.onChange} />
-              <span className="bp3-control-indicator"></span>
-              <span dangerouslySetInnerHTML={{__html: legal.privacy && legal.terms ? t("SignupForm.PrivacyTermsText") : legal.privacy ? t("SignupForm.PrivacyText") : t("SignupForm.TermsText"), legal}}></span>
-            </label>
-            : null }
-          <button type="submit" className="bp3-button bp3-fill" tabIndex="5">{ t("SignupForm.Sign Up") }</button>
-        </form>
-        <SocialButtons social={social} />
-      </div>
-    );
+      <form onSubmit={this.onSubmit.bind(this)} className="login-container" autoComplete="off">
+        <TextInput
+          label={t("SignUp.E-mail")}
+          context="cms"
+          fontSize="md"
+          labelFontSize="xs"
+          icon="envelope"
+          value={email}
+          name="email"
+          onChange={this.onChange}
+          autoFocus
+        />
 
+        <TextInput
+          label={t("SignUp.Username")}
+          context="cms"
+          fontSize="md"
+          labelFontSize="xs"
+          icon="user"
+          value={username}
+          name="username"
+          onChange={this.onChange}
+        />
+
+        <TextInput
+          label={t("SignUp.Password")}
+          context="cms"
+          fontSize="md"
+          labelFontSize="xs"
+          icon="lock"
+          value={password}
+          name="password"
+          onChange={this.onChange}
+        />
+
+        {/* <TextInput
+          label={t("SignUp.Confirm Password")}
+          context="cms"
+          fontSize="md"
+          labelFontSize="xs"
+          icon="lock"
+          value={this.state.passwordAgain}
+          name="passwordAgain"
+          onChange={this.onChange}
+        /> */}
+
+        { legal.privacy || legal.terms
+          ? <label className="bp3-control bp3-checkbox" htmlFor="ppcbox">
+            <input type="checkbox" id="ppcbox" name="agreedToTerms" checked={agreedToTerms} onChange={this.onChange} />
+            <span className="bp3-control-indicator"></span>
+            <span dangerouslySetInnerHTML={{__html: legal.privacy && legal.terms ? t("SignUp.PrivacyTermsText") : legal.privacy ? t("SignUp.PrivacyText") : t("SignUp.TermsText"), legal}}></span>
+          </label> : ""
+        }
+
+        <Button
+          className="cms-login-submit-button u-margin-top-md"
+          context="cms"
+          fontSize="md"
+          block
+          type="submit"
+        >
+          {t("SignUp.Sign Up")}
+        </Button>
+
+        {social ? <SocialButtons social={social} /> : ""}
+      </form>
+    );
   }
 }
 
