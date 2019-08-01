@@ -74,6 +74,7 @@ class Table extends Component {
       if (typeof nestedColumns[0] === "string") {
         return Object.assign({}, {
           Header: headerFormat(groupingTitle),
+          accessor: d => d[nestedColumns[0]],
           id: groupingTitle,
           columns: nestedColumns.map(col => this.renderColumn(col))
         });
@@ -131,8 +132,6 @@ class Table extends Component {
       }
       else return {};
     });
-
-    console.log(tableStructure);
 
     return (
       <div className="cp-table-wrapper">
