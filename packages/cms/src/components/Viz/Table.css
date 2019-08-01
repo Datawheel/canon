@@ -84,7 +84,11 @@ NOTE: ripped from ReactTable
 .rt-resizable-header {
   position: relative;
   overflow: visible;
-  min-height: 3em;
+  padding: 0;
+
+  &, & > .rt-resizable-header-content {
+    min-height: 2rem;
+  }
 
   /* add absolutely positioned button */
   & .cp-table-header-button {
@@ -119,7 +123,7 @@ NOTE: ripped from ReactTable
   & .cp-table-header-button:focus {
     background-color: color(var(--white) a(0.125));
     outline: 2px solid var(--accent);
-    outline-offset: -1px;
+    outline-offset: -2px;
 
     & > .cp-table-header-icon {
       opacity: 1;
@@ -152,6 +156,7 @@ THEMING
   border-bottom: none;
   color: var(--table-hgroup-text-color);
   text-align: center;
+  outline: none; /* doesn't do anything; no need to highlight */
 }
 
 /* nested / primary header */
@@ -220,7 +225,7 @@ THEMING
 .rt-resizer {
   /* sizing & positioning */
   display: inline-block;
-  position: absolute;
+  position: absolute !important;
   width: 4px;
   top: 4px;
   bottom: 4px;
@@ -250,12 +255,6 @@ THEMING
   /* space out adjacent elements */
   & > *:not(:last-child) {
     margin-right: 1rem;
-  }
-
-  /* button style */
-  & .-btn {
-    @mixin cms-button-theming;
-    @mixin cms-button-shadow;
   }
 
   /* hide the page select menu */
