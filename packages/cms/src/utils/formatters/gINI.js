@@ -1,4 +1,4 @@
-const libs = require("./libs");
+const libs = require("../libs");
 
 /**
  * Calculates GINI growth given an array of data and string keys to access the following: bucket, value, weight.
