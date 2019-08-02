@@ -20,10 +20,12 @@ const vizLookup = {
   PercentageBar: ["groupBy", "value"],
   Pie: ["groupBy", "value"],
   StackedArea: ["groupBy", "x", "y"],
-  Treemap: ["groupBy", "sum"]
+  Treemap: ["groupBy", "sum"],
+  Table: ["columns"]
 };
 
-const reservedWords = ["topojson"];
+const textFields = ["topojson"];
+const checkboxFields = ["columns"];
 
 class SimpleVisualizationEditor extends Component {
 
@@ -76,6 +78,7 @@ class SimpleVisualizationEditor extends Component {
       const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
+
         this.setState({payload}, this.compileCode.bind(this));
       }).catch(() => {
         console.log("API error");
@@ -102,7 +105,12 @@ class SimpleVisualizationEditor extends Component {
           return `\n  "${k}": \`${fixedUrl}\``;
         }
         else {
-          return `\n  "${k}": "${object[k]}"`;
+          if (k === "columns") {
+            return `\n "${k}": ${JSON.stringify(object[k])}`;
+          }
+          else {
+            return `\n  "${k}": "${object[k]}"`;
+          }
         }
       })
     }\n}`;
@@ -132,6 +140,19 @@ class SimpleVisualizationEditor extends Component {
     }
   }
 
+
+  onCheck(field) {
+    const {object} = this.state;
+
+    // if it's there, remove it
+    if (object.columns.find(col => col === field))  {
+      object.columns = object.columns.filter(col => col !== field);
+    }
+    else object.columns.push(field);
+
+    this.setState({object}, this.compileCode.bind(this));
+  }
+
   rebuild() {
     const {object} = this.state;
     const {data, type} = object;
@@ -143,18 +164,26 @@ class SimpleVisualizationEditor extends Component {
         type: object.type
       };
       if (vizLookup[type] && firstObj) {
-        vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
+        if (newObject.type === "Table") {
+          newObject.columns = Object.keys(firstObj);
+        }
+        else {
+          vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
+        }
       }
-      this.setState({payload, object: newObject, rebuildAlertOpen: false}, this.compileCode.bind(this));
+      this.setState({
+        payload,
+        object: newObject,
+        rebuildAlertOpen: false
+      }, this.compileCode.bind(this));
     }).catch(() => {
       console.log("API error");
     });
   }
 
   render() {
-
     const {object, rebuildAlertOpen, payload} = this.state;
-
+    const selectedColumns = object.columns || [];
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
 
     let buttonProps = {
@@ -224,31 +253,49 @@ class SimpleVisualizationEditor extends Component {
 
       {payload.data &&
         <div className="viz-select-group">
-          {object.type && vizLookup[object.type] && vizLookup[object.type].map(prop => reservedWords.includes(prop)
-            ? <TextInput
-              label={`please enter ${prop}`}
-              context="cms"
-              fontSize="xs"
-              key={prop}
-              value={object[prop]}
-              onChange={this.onChange.bind(this, prop)}
-            />
-            : <Select
-              label={prop === "groupBy" ? "grouping" : prop}
-              context="cms"
-              fontSize="xs"
-              value={object[prop]}
-              onChange={this.onChange.bind(this, prop)}
-            >
-              {Object.keys(firstObj).map(type =>
-                <option key={type} value={type}>{type}</option>
-              )}
-            </Select>
+          {object.type && vizLookup[object.type] && vizLookup[object.type].map(prop =>
+            // render prop as text input
+            textFields.includes(prop)
+              ? <TextInput
+                label={`please enter ${prop}`}
+                context="cms"
+                fontSize="xs"
+                key={prop}
+                value={object[prop]}
+                onChange={this.onChange.bind(this, prop)}
+              />
+
+              // render payload as checkboxes
+              : checkboxFields.includes(prop)
+                ? <fieldset className="cms-fieldset">
+                  <legend className="u-font-sm">Columns</legend>
+                  {Object.keys(firstObj).map(column =>
+                    <label className="cms-checkbox-label u-font-xs" key={column}>
+                      <input
+                        type="checkbox"
+                        checked={selectedColumns.includes(column)}
+                        onChange={() => this.onCheck(column)}
+                      /> {column}
+                    </label>
+                  )}
+                </fieldset>
+
+                // render prop as select
+                : <Select
+                  label={prop === "groupBy" ? "grouping" : prop}
+                  context="cms"
+                  fontSize="xs"
+                  value={object[prop]}
+                  onChange={this.onChange.bind(this, prop)}
+                >
+                  {Object.keys(firstObj).map(type =>
+                    <option key={type} value={type}>{type}</option>
+                  )}
+                </Select>
           )}
         </div>
       }
     </div>;
-
   }
 }
 

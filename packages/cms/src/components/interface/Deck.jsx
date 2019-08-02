@@ -57,7 +57,7 @@ export default class Deck extends Component {
 
         {/* cards */}
         {subtitle &&
-          <h3 className="cms-deck-subtitle u-font-sm">{subtitle}</h3>
+          <h3 className="cms-deck-subtitle u-font-xs">{subtitle}</h3>
         }
         {cards &&
           <div className={`cms-card-container${secondaryCards ? " two-columns" : ""}`}>

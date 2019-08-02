@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import Deck from "./Deck";
+import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
 import FilterSearch from "../fields/FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
@@ -234,7 +235,8 @@ export default class Toolbox extends Component {
           context: "cms",
           icon: "th-list",
           iconPosition: "left",
-          children: "detail view"
+          children: "detail view",
+          fontSize: "xs"
         },
         {
           onClick: () => this.setState({detailView: false}),
@@ -242,22 +244,27 @@ export default class Toolbox extends Component {
           context: "cms",
           icon: "list",
           iconPosition: "left",
-          children: "output view"
+          children: "output view",
+          fontSize: "xs"
         }
       ]} />
 
       {!detailView &&
-        <ul className="cms-definition-list">
+        <ul className="cms-button-list">
           {Object.keys(variables[localeDefault])
             .sort((a, b) => a.localeCompare(b))
             .filter(key => key !== "_genStatus" && key !== "_matStatus")
             .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
             .map(key =>
-              <li key={key} className="cms-definition-item" onClick={this.openGenerator.bind(this, key)}>
-                <span className="cms-definition-label u-font-xxs">{key}: </span>
-                <span className="cms-definition-text u-font-xxs">
-                  <ConsoleVariable value={variables[localeDefault][key]} />
-                </span>
+              <li key={key} className="cms-button-item">
+                <Button
+                  onClick={this.openGenerator.bind(this, key)}
+                  context="cms"
+                  fontSize="xxs"
+                  block
+                >
+                  {key}: <ConsoleVariable value={variables[localeDefault][key]} />
+                </Button>
               </li>
             )}
         </ul>

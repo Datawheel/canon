@@ -43,21 +43,10 @@
     /* transitions */
     transition: border 0.2s ease-out;
     /* theming */
-    border-bottom: 2px solid var(--light-3);
     color: var(--dark-2);
 
     @mixin dark-mode {
-      border-color: var(--dark-2);
       color: var(--gray);
-    }
-
-    /* interactions */
-    &:hover, &:focus-within {
-      border-color: var(--accent-dark);
-
-      @mixin dark-mode {
-        border-color: var(--accent);
-      }
     }
   }
 
@@ -65,6 +54,25 @@
   & .cms-header-link {
     text-decoration: none;
     color: inherit;
+    /* "border" */
+    background-position: 0 calc(1em + 2px);
+    padding-bottom: 2px;
+    background-size: 1px;
+    background-image: linear-gradient(var(--light-3) 50%, var(--light-3) 50%);
+    background-repeat: repeat-x;
+
+    @mixin dark-mode {
+      background-image: linear-gradient(var(--dark-2) 50%, var(--dark-2) 50%);
+    }
+
+    /* interactions */
+    &:hover, &:focus {
+      background-image: linear-gradient(var(--accent-dark) 50%, var(--accent-dark) 50%);
+
+      @mixin dark-mode {
+        background-image: linear-gradient(var(--accent) 50%, var(--accent) 50%);
+      }
+    }
   }
 
   /* highlight preview id */

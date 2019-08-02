@@ -220,6 +220,13 @@ layout
   transform: translate(-50%, 0);
 }
 
+@define-mixin hide-scrollbars {
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 
 /* -----------------------------------
 resets

@@ -23,6 +23,8 @@ import ShareDirectLink from "./ShareDirectLink";
 import ShareFacebookLink from "./ShareFacebookLink";
 import ShareTwitterLink from "./ShareTwitterLink";
 
+import ReactTable from "react-table";
+
 const filename = str => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/^\-/g, "")
   .replace(/\-$/g, "");
@@ -253,6 +255,7 @@ class Options extends Component {
           className="table"
           tabIndex={0}
           onFocus={() => document.getElementById("bp3-tab-title_undefined_view-table").focus()}>
+
           <Table
             columnWidths={columnWidths}
             enableColumnResizing={false}

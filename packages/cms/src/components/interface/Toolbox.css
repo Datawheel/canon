@@ -68,3 +68,33 @@
     display: none;
   }
 }
+
+/* output view */
+.cms-button-list {
+  @mixin list-reset;
+  animation: pull-up 0.25s ease-out;
+}
+.cms-button-item {
+  &:not(:last-child) {
+    margin-bottom: 0.5em;
+  }
+
+  & .cms-button {
+    text-align: left;
+  }
+
+  & .cms-variable {
+    display: inline-block;
+  }
+}
+
+@keyframes pull-up {
+  from {
+    opacity: 0;
+    transform: translateY(30%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
