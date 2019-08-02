@@ -39,9 +39,11 @@ export default class AuthForm extends Component {
               // render error message
               ? <React.Fragment>
                 <h1 className="cms-auth-form-title">Error: insufficient permissions</h1>
-                <p className="cms-auth-form-paragraph">
+                <p className="cms-auth-form-paragraph u-font-sm u-margin-bottom-sm">
                   User <strong>{auth.user.username}</strong> is currently not allowed to access the CMS. Please contact administrator.
-                  <br /><a className="cms-auth-form-link" href="/auth/logout">Log Out</a>
+                </p>
+                <p className="cms-auth-form-paragraph u-margin-bottom-off">
+                  <a className="cms-auth-form-link" href="/auth/logout">Log Out</a>
                 </p>
               </React.Fragment>
               // render the form
