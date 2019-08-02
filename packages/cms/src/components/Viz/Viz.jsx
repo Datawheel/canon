@@ -116,7 +116,6 @@ Viz.defaultProps = {
   configOverride: {},
   context: "cp",
   options: true,
-  title: undefined,
   showTitle: true,
   headingLevel: "h3"
 };
