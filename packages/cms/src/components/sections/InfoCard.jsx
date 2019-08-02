@@ -40,7 +40,7 @@ export default class InfoCard extends Component {
           {visualizations && visualizations.length
             ? <div className="cp-section-content cp-info-card-section-viz">
               {visualizations.map((visualization, ii) => ii === 0
-                ? <Viz section={this} config={visualization} options={false} title={title} slug={`${slug}-${ii}`} headingLevel={vizHeadingLevel} key={`${slug}-${ii}`} /> : ""
+                ? <Viz section={this} config={visualization} options={false} slug={`${slug}-${ii}`} headingLevel={vizHeadingLevel} key={`${slug}-${ii}`} /> : ""
               )}
             </div> : ""
           }
