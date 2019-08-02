@@ -4,6 +4,7 @@
 .cp-button,
 .cms-button {
   display: inline-block;
+  text-align: center; /* for links disguised as buttons */
   /* transitions */
   transition:
     color 0.2s ease-out,

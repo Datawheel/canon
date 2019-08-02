@@ -1,16 +1,17 @@
 import funcifyFormatterByLocale from "./utils/funcifyFormatterByLocale";
 import React, {Component} from "react";
-import PropTypes from "prop-types";
-import Select from "./components/fields/Select";
-import ProfileBuilder from "./profile/ProfileBuilder";
-import {isAuthenticated} from "@datawheel/canon-core";
-import StoryBuilder from "./story/StoryBuilder";
-import {fetchData} from "@datawheel/canon-core";
-import AuthForm from "./components/interface/AuthForm";
 import {connect} from "react-redux";
+import PropTypes from "prop-types";
 import yn from "yn";
+import {Icon} from "@blueprintjs/core";
 
+import {fetchData} from "@datawheel/canon-core";
+import {isAuthenticated} from "@datawheel/canon-core";
+import ProfileBuilder from "./profile/ProfileBuilder";
+import StoryBuilder from "./story/StoryBuilder";
+import Select from "./components/fields/Select";
 import Button from "./components/fields/Button";
+import AuthForm from "./components/interface/AuthForm";
 
 import "./css/utilities.css";
 import "./css/base.css";
@@ -182,7 +183,17 @@ class Builder extends Component {
                 </Select>
               </React.Fragment>
             }
-            {auth.user && <a href="/auth/logout">Log Out</a>}
+            {auth.user &&
+              <React.Fragment>
+                <h2 className="cms-nav-settings-heading u-font-sm u-margin-top-md">
+                  Account
+                </h2>
+                <a className="cms-button is-block u-margin-bottom-xs" href="/auth/logout">
+                  <Icon className="cms-button-icon" icon="log-out" />
+                  <span className="cms-button-text">Log Out</span>
+                </a>
+              </React.Fragment>
+            }
           </div>
         </div>
 
