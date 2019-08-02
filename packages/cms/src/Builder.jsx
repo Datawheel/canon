@@ -121,17 +121,7 @@ class Builder extends Component {
 
     if (yn(env.CANON_LOGINS) && auth.user && auth.user.role < 1) {
       return (
-        <div className="cms">
-          <div className="cms-auth-form">
-            <div className="cms-auth-form-inner">
-              <h1 className="cms-auth-form-title">Error: insufficient permissions</h1>
-              <p className="cms-auth-form-paragraph">
-                User <strong>{auth.user.username}</strong> is currently not allowed to access the CMS. Please contact administrator.
-                <br /><a className="cms-auth-form-link" href="/auth/logout">Log Out</a>
-              </p>
-            </div>
-          </div>
-        </div>
+        <AuthForm error={true} auth={auth} />
       );
     }
 
