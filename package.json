@@ -11,7 +11,7 @@
     "canon-setup": "bin/setup.js"
   },
   "scripts": {
-    "build": "canon-build",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 canon-build",
     "cache-clear": "rm -rf node_modules/.cache/",
     "dev": "canon-dev",
     "locales": "canon-locales",

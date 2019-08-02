@@ -9,7 +9,7 @@ const pkg = JSON.parse(shell.cat("package.json"));
 const canon = JSON.parse(shell.cat(path.join(__dirname, "../package.json")));
 pkg.main = "src/index.js";
 Object.keys(canon.bin).forEach(script => {
-  pkg.scripts[script.split("-")[1]] = script;
+  pkg.scripts[script.split("-")[1]] = `${script === "canon-build" ? "NODE_OPTIONS=--max-old-space-size=4096 " : ""}${script}`;
 });
 pkg.scripts.start = "node index.js";
 
