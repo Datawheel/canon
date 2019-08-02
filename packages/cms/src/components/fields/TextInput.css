@@ -28,6 +28,12 @@
     display: block;
     margin-bottom: 0.25em;
   }
+
+  & > [class*="-button"] {
+    position: absolute;
+    bottom: 0.5em;
+    right: 0.5em;
+  }
 }
 
 /* inline lable & input */

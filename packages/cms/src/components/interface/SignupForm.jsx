@@ -115,6 +115,7 @@ class SignupForm extends Component {
           icon="lock"
           value={password}
           name="password"
+          type="password"
           onChange={this.onChange}
         />
 

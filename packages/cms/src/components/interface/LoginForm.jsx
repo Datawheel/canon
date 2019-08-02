@@ -104,6 +104,7 @@ class LoginForm extends Component {
           icon="lock"
           value={password}
           name="password"
+          type="password"
           onChange={this.onChange}
         />
 
