@@ -62,6 +62,11 @@
 
     & > .Options {
       flex-shrink: 0;
+
+      /* keep right aligned if no title */
+      &:first-child {
+        margin-left: auto;
+      }
     }
 
     /* header exists; make room for it */
