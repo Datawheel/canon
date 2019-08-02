@@ -1,5 +1,13 @@
 @import "../../css/mixins.css";
 
+.cms.cms-auth-page {
+  background-color: var(--light-2);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+  }
+}
+
 /* center form */
 .cms-auth-form {
   min-height: 100vh;
@@ -13,6 +21,8 @@
   max-width: 100%;
   padding: 2rem;
   border-radius: 4px;
+  background-color: var(--white);
+  box-shadow: 0 0.125rem 0.75rem color(var(--black) a(0.2));
 
   @mixin dark-mode {
     background-color: var(--dark-3);

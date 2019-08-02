@@ -31,7 +31,7 @@ export default class AuthForm extends Component {
     }
 
     return (
-      <div className="cms">
+      <div className="cms cms-auth-page">
         <div className="cms-auth-form">
           <div className="cms-auth-form-inner">
             <h1 className="cms-auth-form-title">{modeTitle}</h1>

@@ -86,6 +86,12 @@
   & .cms-nav-settings-button {
     align-self: center;
     z-index: 2;
+    outline: none;
+
+    &.is-active {
+      background: none;
+      box-shadow: none;
+    }
   }
 
   & .cms-nav-settings {
@@ -105,8 +111,12 @@
       border-color: var(--dark-3);
     }
 
+    /* states */
     &.is-hidden {
-      display: none;
+      @mixin visually-hidden;
+    }
+    &.is-visible {
+      animation: unfold-from-above 0.1s ease-out;
     }
   }
 
@@ -229,5 +239,20 @@
       width: auto;
       flex: 1 1 16rem;
     }
+  }
+}
+
+@keyframes unfold-from-above {
+  0% {
+    transform:
+      scaleX(0.75)
+      scaleY(0.625)
+      translateX(10%)
+      translateY(-10%);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
   }
 }
