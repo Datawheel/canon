@@ -11,6 +11,12 @@ export default class AuthForm extends Component {
     };
   }
 
+  toggleMode(currentMode) {
+    this.setState({
+      mode: currentMode === "login" ? "signup" : "login"
+    });
+  }
+
   render() {
     const {mode} = this.state;
 
@@ -34,7 +40,7 @@ export default class AuthForm extends Component {
 
             <p className="cms-auth-form-paragraph u-font-xs u-margin-top-md u-margin-bottom-off">
               {modeSwitchPrompt}
-              <button className="cms-auth-form-switcher" onClick={() => this.setState({mode: mode === "login" ? "signup" : "login"})}>
+              <button className="cms-auth-form-switcher" onClick={() => this.toggleMode(mode)}>
                 {modeSwitchLink}
               </button>
             </p>
