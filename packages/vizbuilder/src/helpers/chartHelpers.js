@@ -85,27 +85,21 @@ export function buildBaseConfig(datagroup, params) {
   return config;
 }
 
+/**
+ * @param {import("./chartCriteria").Datagroup} datagroup
+ * @param {string} type
+ */
 export function calcChartSetups(datagroup, type) {
-  const levels = datagroup.query.levels;
+  const {members, query} = datagroup;
 
   switch (type) {
     case "treemap": {
-      const members = datagroup.members;
-      const permutations = getPermutations(levels);
-
-      /**
-       * We must remove permutations where the first element is being cut by
-       * 1 member, as these look the same in both orders.
-       * @see Issue#434 on {@link https://github.com/Datawheel/canon/issues/434 | GitHub}
-       */
-      return permutations.filter(setup => {
-        const level = setup[0];
-        return members[level.name].length !== 1;
-      });
+      const relevantLevels = query.levels.filter(lvl => members[lvl.name].length > 1);
+      return getPermutations(relevantLevels);
     }
 
     default: {
-      return [levels];
+      return [query.levels];
     }
   }
 }
@@ -165,13 +159,13 @@ export function tooltipGenerator(datagroup) {
 
 /**
  * Generates the function to render the labels in the shapes of a chart.
- * @param {string} lvlName1 Name of main level
- * @param {string} lvlName2 Name of secondary level
+ * @param {...string} arguments
  */
-export function labelFunctionGenerator(lvlName1, lvlName2) {
+export function labelFunctionGenerator() {
+  const [lvlName1, lvlName2] = arguments;
   return lvlName2
     ? d => `${d[lvlName1]} (${joinStringsWithCommaAnd(d[lvlName2])})`
-    : d => d[lvlName1];
+    : d => `${d[lvlName1]}`;
 }
 
 /**
