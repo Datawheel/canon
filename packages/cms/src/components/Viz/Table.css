@@ -81,35 +81,50 @@ NOTE: ripped from ReactTable
   text-overflow: clip;
 }
 
+.cp-table-header-button {
+  @mixin absolute-expand;
+  display: flex;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: ns-resize;
+
+  & > .cp-table-header-icon {
+    opacity: 0;
+    margin-left: auto;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    transition:
+      0.1s ease-out opacity,
+      0.1s ease transform;
+  }
+
+  &:focus {
+    background-color: color(var(--white) a(0.125));
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+
+    & > .cp-table-header-icon {
+      opacity: 1;
+    }
+  }
+}
+
+.rt-resizable-header,
+.rt-thead:not(.-headerGroups) .rt-th {
+  padding: 0;
+}
+
+.rt-resizable-header,
+.rt-resizable-header-content,
+.rt-th > [class=""] {
+  min-height: 2rem;
+}
+
 .rt-resizable-header {
   position: relative;
   overflow: visible;
-  padding: 0;
-
-  &, & > .rt-resizable-header-content {
-    min-height: 2rem;
-  }
-
-  /* add absolutely positioned button */
-  & .cp-table-header-button {
-    @mixin absolute-expand;
-    display: flex;
-    background: none;
-    border: none;
-    color: inherit;
-    text-align: left;
-    cursor: ns-resize;
-
-    & > .cp-table-header-icon {
-      opacity: 0;
-      margin-left: auto;
-      padding-left: 0.5em;
-      padding-right: 0.5em;
-      transition:
-        0.1s ease-out opacity,
-        0.1s ease transform;
-    }
-  }
 
   /* interactions */
   &.-sort-desc, &.-sort-asc,
@@ -117,15 +132,6 @@ NOTE: ripped from ReactTable
     background-color: color(var(--table-thead-bg-color) a(0.875));
 
     & .cp-table-header-icon {
-      opacity: 1;
-    }
-  }
-  & .cp-table-header-button:focus {
-    background-color: color(var(--white) a(0.125));
-    outline: 2px solid var(--accent);
-    outline-offset: -2px;
-
-    & > .cp-table-header-icon {
       opacity: 1;
     }
   }

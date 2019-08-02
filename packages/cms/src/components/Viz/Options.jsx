@@ -4,6 +4,7 @@ import {connect} from "react-redux";
 import {animateScroll} from "react-scroll";
 import ReactTable from "react-table";
 import PropTypes from "prop-types";
+import "./Table.css";
 import "./Options.css";
 
 import {Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
@@ -245,6 +246,7 @@ class Options extends Component {
             minRows="0"
             minWidth="300"
             showPagination={false}
+            resizable={false}
           />
         </div>
       </div>
