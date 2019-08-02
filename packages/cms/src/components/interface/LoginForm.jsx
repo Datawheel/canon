@@ -85,7 +85,7 @@ class LoginForm extends Component {
     return (
       <form onSubmit={this.onSubmit.bind(this)} className="login-container">
         <TextInput
-          label={t("Login.E-mail")}
+          label="Email address"
           context="cms"
           fontSize="md"
           labelFontSize="xs"
@@ -97,7 +97,7 @@ class LoginForm extends Component {
         />
 
         <TextInput
-          label={t("Login.Password")}
+          label="Password"
           context="cms"
           fontSize="md"
           labelFontSize="xs"
@@ -115,7 +115,7 @@ class LoginForm extends Component {
           block
           type="submit"
         >
-          {t("Login.Log in")}
+          log in
         </Button>
 
         {social ? <SocialButtons social={social} /> : ""}

@@ -85,7 +85,7 @@ class SignupForm extends Component {
     return (
       <form onSubmit={this.onSubmit.bind(this)} className="login-container" autoComplete="off">
         <TextInput
-          label={t("SignUp.E-mail")}
+          label="Email address"
           context="cms"
           fontSize="md"
           labelFontSize="xs"
@@ -97,7 +97,7 @@ class SignupForm extends Component {
         />
 
         <TextInput
-          label={t("SignUp.Username")}
+          label="Username"
           context="cms"
           fontSize="md"
           labelFontSize="xs"
@@ -108,7 +108,7 @@ class SignupForm extends Component {
         />
 
         <TextInput
-          label={t("SignUp.Password")}
+          label="Password"
           context="cms"
           fontSize="md"
           labelFontSize="xs"
@@ -145,7 +145,7 @@ class SignupForm extends Component {
           block
           type="submit"
         >
-          {t("SignUp.Sign Up")}
+          sign up
         </Button>
 
         {social ? <SocialButtons social={social} /> : ""}
