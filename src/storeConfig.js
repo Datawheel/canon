@@ -28,7 +28,7 @@ export default function storeConfig(initialState, history, reduxMiddleware = fal
   // Custom middleware
   const appliedMiddleware = reduxMiddleware
     ? reduxMiddleware(applyMiddleware, middleware)
-    : appliedMiddleware = applyMiddleware(...middleware);
+    : applyMiddleware(...middleware);
 
   const canonReducer = combineReducers(Object.assign({
     auth,
