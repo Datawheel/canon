@@ -3,12 +3,12 @@ module.exports = function(sequelize, db) {
   const s = sequelize.define("search_content",
     {
       id: {
-        type: db.TEXT,
+        type: db.INTEGER,
         primaryKey: true,
         onDelete: "cascade",
         references: {
           model: "canon_cms_search",
-          key: "id"
+          key: "contentId"
         }
       },
       lang: {
@@ -20,8 +20,7 @@ module.exports = function(sequelize, db) {
         type: db.TEXT
       },
       display: db.TEXT,
-      keywords: db.ARRAY(db.TEXT),
-      imageId: db.INTEGER
+      keywords: db.ARRAY(db.TEXT)
     },
     {
       tableName: "canon_cms_search_content",

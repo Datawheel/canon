@@ -17,7 +17,8 @@ module.exports = function(sequelize, db) {
       },
       stem: db.INTEGER,
       slug: db.TEXT,
-      imageId: db.INTEGER
+      imageId: db.INTEGER,
+      contentId: db.INTEGER
     },
     {
       tableName: "canon_cms_search",
@@ -28,7 +29,7 @@ module.exports = function(sequelize, db) {
 
   search.associate = models => {
     search.belongsTo(models.images);
-    search.hasMany(models.search_content, {foreignKey: "id", sourceKey: "id", as: "content"});
+    search.hasMany(models.search_content, {foreignKey: "contentId", sourceKey: "id", as: "content"});
   };
 
   return search;
