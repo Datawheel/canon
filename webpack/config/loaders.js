@@ -31,7 +31,8 @@ module.exports = props => {
   const babelPresets = [
     ["@babel/preset-env", {
       modules: false,
-      forceAllTransforms: true
+      forceAllTransforms: true,
+      exclude: ["/mapbox-gl"]
     }],
     "@babel/preset-react"
   ];
