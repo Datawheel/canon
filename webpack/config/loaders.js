@@ -31,8 +31,7 @@ module.exports = props => {
   const babelPresets = [
     ["@babel/preset-env", {
       modules: false,
-      forceAllTransforms: true,
-      exclude: ["/mapbox-gl"]
+      forceAllTransforms: true
     }],
     "@babel/preset-react"
   ];
@@ -81,6 +80,7 @@ module.exports = props => {
         presets: babelPresets,
         plugins: babelPlugins
       },
+      exclude: [path.join(appDir, "node_modules", "mapbox-gl")],
       include: [
         path.join(appDir, "app"),
         path.join(appDir, "src"),
