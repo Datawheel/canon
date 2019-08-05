@@ -1,5 +1,5 @@
 .loading {
-  background-color: var(--dark);
+  background-color: var(--dark, rgb(61, 71, 55));
   color: var(--white);
   height: 100vh;
   left: 0;
@@ -12,7 +12,7 @@
     max-width: 200px;
     width: 100%;
     & .bp3-progress-meter {
-      background-color: var(--light);
+      background-color: var(--light, rgb(101, 111, 95));
     }
   }
   & .bp3-heading {

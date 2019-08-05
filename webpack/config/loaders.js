@@ -80,6 +80,7 @@ module.exports = props => {
         presets: babelPresets,
         plugins: babelPlugins
       },
+      exclude: [path.join(appDir, "node_modules", "mapbox-gl")],
       include: [
         path.join(appDir, "app"),
         path.join(appDir, "src"),
