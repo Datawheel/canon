@@ -16,7 +16,6 @@ module.exports = function(sequelize, db) {
         primaryKey: true
       },
       name: {
-        primaryKey: true,
         type: db.TEXT
       },
       display: db.TEXT,

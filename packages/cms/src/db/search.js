@@ -18,7 +18,10 @@ module.exports = function(sequelize, db) {
       stem: db.INTEGER,
       slug: db.TEXT,
       imageId: db.INTEGER,
-      contentId: db.INTEGER
+      contentId: {
+        autoIncrement: true,
+        type: db.INTEGER
+      }
     },
     {
       tableName: "canon_cms_search",
