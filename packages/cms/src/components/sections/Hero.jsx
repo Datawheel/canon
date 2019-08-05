@@ -99,7 +99,7 @@ class Hero extends Component {
           {contents && contents.visualizations && contents.visualizations.length
             ? <div className="cp-hero-figure">
               {contents.visualizations.map((visualization, ii) => ii === 0
-                ? <Viz section={this} config={visualization} showTitle={false} options={false} title={title} slug={`${contents.slug}-${ii}`} key={ii} />
+                ? <Viz section={this} config={visualization} showTitle={false} options={false} slug={`${contents.slug}-${ii}`} key={ii} />
                 : ""
               )}
             </div> : ""

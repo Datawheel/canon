@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
+import {dataFold} from "d3plus-viz";
 import Parse from "../sections/components/Parse";
 import abbreviate from "../../utils/formatters/abbreviate";
 

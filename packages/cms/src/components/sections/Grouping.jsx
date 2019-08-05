@@ -23,7 +23,7 @@ export default class Grouping extends Component {
         {/* caption */}
         <div className={`cp-grouping-section-figure${visualizations.length > 1 ? " cp-multicolumn-grouping-section-figure" : ""}`}>
           {visualizations.map((visualization, ii) =>
-            <Viz section={this} config={visualization} title={title} slug={`${slug}-${ii}`} headingLevel={vizHeadingLevel} key={ii} />
+            <Viz section={this} config={visualization} slug={`${slug}-${ii}`} headingLevel={vizHeadingLevel} key={ii} />
           )}
         </div>
       </div>

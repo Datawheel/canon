@@ -1,6 +1,6 @@
 import {assign} from "d3plus-common";
 
-import {composeChartTitle} from "./formatting";
+import {labelFunctionGenerator} from "./chartHelpers";
 import {relativeStdDev} from "./math";
 import {sortByCustomKey} from "./sorting";
 
@@ -205,7 +205,8 @@ const makeConfig = {
       {},
       chart.baseConfig,
       {
-        groupBy: levels.slice(1, ddIndex + 1).map(lvl => lvl.name)
+        groupBy: levels.slice(1, ddIndex + 1).map(lvl => lvl.name),
+        label: labelFunctionGenerator(...chart.setup.map(lvl => lvl.name))
       },
       chart.userConfig
     );

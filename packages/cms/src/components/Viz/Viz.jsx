@@ -55,7 +55,7 @@ class Viz extends Component {
       return <div>{`${type} is not a valid Visualization Type`}</div>;
     }
 
-    const title = vizProps.config.title || this.props.title || config.title || slug || "";
+    const title = vizProps.config.title;
     delete vizProps.config.title;
 
     const vizConfig = Object.assign({}, defaultConfig, {locale}, vizProps.config);
@@ -66,7 +66,7 @@ class Viz extends Component {
       }${
         type ? ` ${context}-${toKebabCase(type)}-viz-container` : ""
       }`}>
-        {showTitle || options
+        {title && showTitle || options
           ? <div className={`${context}-viz-header`}>
             {title && showTitle
               ? <Parse El={headingLevel} className={`${context}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}>
@@ -116,7 +116,6 @@ Viz.defaultProps = {
   configOverride: {},
   context: "cp",
   options: true,
-  title: undefined,
   showTitle: true,
   headingLevel: "h3"
 };
