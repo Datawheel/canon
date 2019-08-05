@@ -1,13 +1,17 @@
 import funcifyFormatterByLocale from "./utils/funcifyFormatterByLocale";
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import PropTypes from "prop-types";
-import Select from "./components/fields/Select";
+import yn from "yn";
+import {Icon} from "@blueprintjs/core";
+
+import {fetchData} from "@datawheel/canon-core";
+import {isAuthenticated} from "@datawheel/canon-core";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
-import {fetchData} from "@datawheel/canon-core";
-import {connect} from "react-redux";
-
+import Select from "./components/fields/Select";
 import Button from "./components/fields/Button";
+import AuthForm from "./components/interface/AuthForm";
 
 import "./css/utilities.css";
 import "./css/base.css";
@@ -25,7 +29,8 @@ class Builder extends Component {
       localeDefault: false,
       secondaryLocale: false,
       pathObj: {},
-      formatters: {}
+      formatters: {},
+      userInit: false
     };
   }
 
@@ -33,6 +38,9 @@ class Builder extends Component {
     const {isEnabled, env} = this.props;
     const {location} = this.props.router;
     const {profile, section, previews} = location.query;
+
+    this.props.isAuthenticated();
+
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
     const pathObj = {profile, section, previews};
@@ -53,6 +61,12 @@ class Builder extends Component {
       this.setState({localeDefault, formatters, pathObj});
     }
 
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.auth.loading && !this.props.auth.loading) {
+      this.setState({userInit: true});
+    }
   }
 
   getChildContext() {
@@ -95,11 +109,21 @@ class Builder extends Component {
   }
 
   render() {
-    const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen} = this.state;
-    const {isEnabled} = this.props;
+    const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen, userInit} = this.state;
+    const {isEnabled, env, auth} = this.props;
     const navLinks = ["profiles", "stories"];
 
-    if (!isEnabled) return null;
+    const waitingForUser = yn(env.CANON_LOGINS) && !userInit;
+
+    if (!isEnabled || waitingForUser) return null;
+
+    if (yn(env.CANON_LOGINS) && !auth.user) return <AuthForm />;
+
+    if (yn(env.CANON_LOGINS) && auth.user && auth.user.role < 1) {
+      return (
+        <AuthForm error={true} auth={auth} />
+      );
+    }
 
     return (
       <div className="cms">
@@ -114,7 +138,7 @@ class Builder extends Component {
           )}
 
           <div className="cms-nav-settings-button-container">
-            <Button className="cms-nav-settings-button" context="cms" icon="cog" onClick={this.toggleSettings.bind(this)}>
+            <Button className="cms-nav-settings-button" context="cms" icon="cog" active={settingsOpen} onClick={this.toggleSettings.bind(this)}>
               settings
             </Button>
           </div>
@@ -147,6 +171,17 @@ class Builder extends Component {
                 >
                   <option value="none">none</option>
                 </Select>
+              </React.Fragment>
+            }
+            {auth.user &&
+              <React.Fragment>
+                <h2 className="cms-nav-settings-heading u-font-sm u-margin-top-md">
+                  Account
+                </h2>
+                <a className="cms-button is-block u-margin-bottom-xs" href="/auth/logout">
+                  <Icon className="cms-button-icon" icon="log-out" />
+                  <span className="cms-button-text">Log Out</span>
+                </a>
               </React.Fragment>
             }
           </div>
@@ -182,8 +217,18 @@ Builder.need = [
   fetchData("isEnabled", "/api/cms")
 ];
 
-export default connect(state => ({
+const mapStateToProps = state => ({
   formatters: state.data.formatters,
   env: state.env,
-  isEnabled: state.data.isEnabled
-}))(Builder);
+  isEnabled: state.data.isEnabled,
+  auth: state.auth
+});
+
+const mapDispatchToProps = dispatch => ({
+  dispatch: action => dispatch(action),
+  isAuthenticated: () => {
+    dispatch(isAuthenticated());
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Builder);
