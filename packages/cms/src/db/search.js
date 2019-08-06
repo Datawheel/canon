@@ -20,7 +20,8 @@ module.exports = function(sequelize, db) {
       imageId: db.INTEGER,
       contentId: {
         autoIncrement: true,
-        type: db.INTEGER
+        type: db.INTEGER,
+        unique: true
       }
     },
     {
