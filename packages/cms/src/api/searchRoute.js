@@ -1,5 +1,12 @@
 const sequelize = require("sequelize");
 
+const catcher = e => {
+  if (verbose) {
+    console.error("Error in searchRoute: ", e);
+  }
+  return [];
+};
+
 module.exports = function(app) {
 
   const {db, cache} = app.settings;
@@ -15,27 +22,39 @@ module.exports = function(app) {
     let {limit = "10"} = req.query;
     limit = parseInt(limit, 10);
 
+    const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
+
     const {id, q, dimension, levels} = req.query;
 
-    if (q) {
+    let rows = [];
+
+    if (id) {
+      where.id = id.includes(",") ? id.split(",") : id;
+      rows = await db.search.findAll({
+        where,
+        include: [{model: db.images}, {association: "content"}]
+      });
+    } 
+    else if (q) {
       where[sequelize.Op.or] = [
         {name: {[sequelize.Op.iLike]: `%${q}%`}},
-        {display: {[sequelize.Op.iLike]: `%${q}%`}},
         {keywords: {[sequelize.Op.overlap]: [q]}}
       ];
+      where.lang = locale;
+      rows = await db.search_content.findAll({where}).catch(catcher);
+      const searchWhere = {
+        contentId: Array.from(new Set(rows.map(r => r.id)))
+      };
+      if (dimension) searchWhere.dimension = dimension;
+      // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
+      if (levels) searchWhere.hierarchy = levels.split(",");
+      rows = await db.search.findAll({
+        include: [{model: db.images}, {association: "content"}],
+        limit,
+        order: [["zvalue", "DESC"]],
+        where: searchWhere
+      });
     }
-
-    if (dimension) where.dimension = dimension;
-    // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
-    if (levels) where.hierarchy = levels.split(",");
-    if (id) where.id = id.includes(",") ? id.split(",") : id;
-
-    const rows = await db.search.findAll({
-      include: [{model: db.images}],
-      limit,
-      order: [["zvalue", "DESC"]],
-      where
-    });
 
     /**
      * Note: The purpose of this slugs lookup object is so that in traditional, 1:1 cms sites,
@@ -55,17 +74,24 @@ module.exports = function(app) {
       if (!slugs[m.dimension]) slugs[m.dimension] = m.slug;
     });
 
-    const results = rows.map(d => ({
-      dimension: d.dimension,
-      hierarchy: d.hierarchy,
-      id: d.id,
-      image: d.image,
-      keywords: d.keywords,
-      name: d.display,
-      profile: slugs[d.dimension],
-      slug: d.slug,
-      stem: d.stem === 1
-    }));
+    const results = rows.map(d => {
+      d = d.toJSON();
+      const result = {
+        dimension: d.dimension,
+        hierarchy: d.hierarchy,
+        id: d.id,
+        image: d.image,
+        profile: slugs[d.dimension],
+        slug: d.slug,
+        stem: d.stem === 1
+      };
+      const defCon = d.content.find(c => c.lang === locale);
+      if (defCon) {
+        result.name = defCon.name;
+        result.keywords = defCon.keywords;
+      }
+      return result;
+    });
 
     res.json({
       results,

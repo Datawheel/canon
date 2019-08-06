@@ -351,6 +351,10 @@ const populateSearch = async(profileData, db) => {
       if (row.slug) delete searchObj.slug;
       // If it's an update, update everything except the (permanent) slug
       await row.updateAttributes(searchObj).catch(catcher);
+      if (verbose) {
+        console.log(`Updated: ${row.id} ${row.slug}`);
+        console.log("Updating associated language content:");
+      }
       // If the user has added a new language, it's possible we need to do a mix
       // of updating existing content and creating new content. Do a findOrCreate
       // similar to the one above to make sure all lang content is there.
@@ -368,7 +372,6 @@ const populateSearch = async(profileData, db) => {
           if (verbose) console.log(`Updated ${contentRow.id} ${contentRow.lang}: ${contentRow.name}`);
         }
       }
-      if (verbose) console.log(`Updated: ${row.id} ${row.slug}`);
     }
   }
 
