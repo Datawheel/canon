@@ -11,6 +11,8 @@ const Op = sequelize.Op;
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+const LANGUAGES = process.env.CANON_LANGUAGES ? process.env.CANON_LANGUAGES.split(",") : [envLoc];
+if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
 
 const {CANON_CMS_CUBES} = process.env;
 
@@ -311,19 +313,62 @@ const populateSearch = async(profileData, db) => {
     return slug;
   };
 
+  
+  /*
+  {
+    id: '17',
+    name: 'Illinois',
+    display: 'Illinois',
+    zvalue: 0.39501440122792586,
+    dimension: 'Geography',
+    hierarchy: 'State',
+    stem: -1
+  }
+  */
+
+  // Fold over the list of members
   for (let i = 0; i < fullList.length; i++) {
-    const obj = fullList[i];
-    obj.slug = slugify(obj.name, obj.id);
-    const {id, dimension, hierarchy} = obj;
+    // Extract their properties
+    const {id, name, zvalue, dimension, hierarchy, stem} = fullList[i];
+    // The search table holds the non-translatable props
+    const searchObj = {id, zvalue, dimension, hierarchy, stem};
+    searchObj.slug = slugify(name, id);
+    // Create the member in the search table
     const [row, created] = await db.search.findOrCreate({
       where: {id, dimension, hierarchy},
-      defaults: obj
+      defaults: searchObj
     }).catch(catcher);
-    if (verbose && created) console.log(`Created: ${row.id} ${row.display}`);
+    // The contents, namely "name", need to be translated
+    // TODO: work with walther to fetch translated name field
+    const contentArray = LANGUAGES.map(lang => ({id: row.contentId, lang, name}));
+    // Depending on what happened, create or update the translated content as well
+    if (created) {
+      if (verbose) console.log(`Created: ${row.id} ${row.slug}`);
+      // If this is a new creation, just dump all the translated content
+      await db.search_content.bulkCreate(contentArray);
+    }
     else {
-      if (row.slug) delete obj.slug;
-      await row.updateAttributes(obj).catch(catcher);
-      if (verbose) console.log(`Updated: ${row.id} ${row.display}`);
+      if (row.slug) delete searchObj.slug;
+      // If it's an update, update everything except the (permanent) slug
+      await row.updateAttributes(searchObj).catch(catcher);
+      // If the user has added a new language, it's possible we need to do a mix
+      // of updating existing content and creating new content. Do a findOrCreate
+      // similar to the one above to make sure all lang content is there.
+      for (const content of contentArray) {
+        const {id, lang, name} = content;
+        const [contentRow, contentCreated] = await db.search_content.findOrCreate({
+          where: {id, lang},
+          defaults: {name}
+        }).catch(catcher);
+        if (contentCreated) {
+          if (verbose) console.log(`Created ${content.lang} Content: ${row.name}`);
+        }
+        else {
+          await contentRow.updateAttributes({name: content.name});
+          if (verbose) console.log(`Updated ${contentRow.id} ${contentRow.lang}: ${contentRow.name}`);
+        }
+      }
+      if (verbose) console.log(`Updated: ${row.id} ${row.slug}`);
     }
   }
 

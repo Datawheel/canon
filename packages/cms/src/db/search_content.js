@@ -18,7 +18,6 @@ module.exports = function(sequelize, db) {
       name: {
         type: db.TEXT
       },
-      display: db.TEXT,
       keywords: db.ARRAY(db.TEXT)
     },
     {
