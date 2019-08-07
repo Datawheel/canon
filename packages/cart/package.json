@@ -1,0 +1,27 @@
+{
+  "name": "canon-cart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 canon-build",
+    "dev": "canon-dev",
+    "locales": "canon-locales",
+    "release": "canon-release",
+    "setup": "canon-setup",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@datawheel/canon-core": "^0.17.35"
+  },
+  "peerDependencies": {
+    "@datawheel/canon-core": "^0.17.35"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/datawheel/canon.git"
+  }
+}

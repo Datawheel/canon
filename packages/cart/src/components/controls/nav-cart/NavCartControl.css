@@ -1,0 +1,14 @@
+.canon-cart-nav-control-popover{
+  & .canon-cart-nav-control-content{
+    width: 310px;
+    & .canon-cart-nav-control-button-container{
+      width: 100%;
+      & .canon-cart-nav-control-button{
+
+      }
+    }
+  }
+}
+.canon-cart-nav-control-container{
+
+}
