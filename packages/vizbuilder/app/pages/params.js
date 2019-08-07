@@ -1,5 +1,5 @@
 
-export const ENDPOINT = "https://flint-api.datausa.io/";
+export const ENDPOINT = "https://graphite-api.datausa.io/";
 
 export const DEFAULT_TOPOJSON = {
   "Nation": {
