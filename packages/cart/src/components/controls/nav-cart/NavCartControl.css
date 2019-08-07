@@ -7,8 +7,19 @@
 
       }
     }
+    & .canon-cart-nav-control-dataset-container{
+      & .canon-cart-nav-control-dataset-item{
+        display: flex;
+        justify-content: space-between;
+      }
+    }
   }
 }
 .canon-cart-nav-control-container{
+  & .canon-cart-nav-control-qty{
 
+  }
+  & .canon-cart-nav-control-text{
+
+  }
 }

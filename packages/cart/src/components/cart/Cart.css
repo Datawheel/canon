@@ -1,3 +1,6 @@
 .canon-cart-container{
+  & .canon-cart-dataset-item{
+    display: flex;
 
+  }
 }

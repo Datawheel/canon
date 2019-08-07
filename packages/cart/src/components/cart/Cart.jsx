@@ -1,6 +1,8 @@
-import {Button, Tooltip} from "@blueprintjs/core";
+import {Button} from "@blueprintjs/core";
 import React from "react";
 import {connect} from "react-redux";
+
+import {removeFromCartAction} from "../../actions";
 
 import "./Cart.css";
 
@@ -10,7 +12,7 @@ class Cart extends React.Component {
 
     this.state = {
     };
-
+    this.onClickRemoveDataset = this.onClickRemoveDataset.bind(this);
   }
 
   initialize(props) {
@@ -29,10 +31,22 @@ class Cart extends React.Component {
 
   }
 
+  onClickRemoveDataset(datasetId) {
+    this.props.dispatch(removeFromCartAction(datasetId));
+  }
+
   render() {
+    const {datasets} = this.props;
+
+    const datasetsIds = Object.keys(datasets);
+
     return (
       <div className={"canon-cart-container"}>
-        CART COMPONENT!
+        <h3>Datasets: {datasetsIds.length}</h3>
+        {datasetsIds.map(did => <a className="canon-cart-dataset-item" key={datasets[did].id}>
+          <span>{datasets[did].name}</span>
+          <Button onClick={() => this.onClickRemoveDataset(did)}>x</Button>
+        </a>)}
       </div>
     );
   }
@@ -54,6 +68,6 @@ export const defaultProps = Cart.defaultProps;
 export default connect(state => {
   const ct = state.cart;
   return {
-
+    datasets: ct.list
   };
 })(Cart);
