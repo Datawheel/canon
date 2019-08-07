@@ -9,6 +9,7 @@ import {fetchData} from "@datawheel/canon-core";
 import {isAuthenticated} from "@datawheel/canon-core";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
+import MemberBuilder from "./member/MemberBuilder";
 import Select from "./components/fields/Select";
 import Button from "./components/fields/Button";
 import AuthForm from "./components/interface/AuthForm";
@@ -111,7 +112,7 @@ class Builder extends Component {
   render() {
     const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen, userInit} = this.state;
     const {isEnabled, env, auth} = this.props;
-    const navLinks = ["profiles", "stories"];
+    const navLinks = ["profiles", "stories", "members"];
 
     const waitingForUser = yn(env.CANON_LOGINS) && !userInit;
 
@@ -197,8 +198,12 @@ class Builder extends Component {
         }
         {currentTab === "stories" &&
           <StoryBuilder
-            // pathObj={pathObj}
-            // setPath={this.setPath.bind(this)}
+            localeDefault={localeDefault}
+            locale={secondaryLocale}
+          />
+        }
+        {currentTab === "members" &&
+          <MemberBuilder
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />

@@ -1,4 +1,7 @@
 const sequelize = require("sequelize");
+const yn = require("yn");
+
+const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 const catcher = e => {
   if (verbose) {
@@ -14,6 +17,14 @@ module.exports = function(app) {
   app.get("/api/cubeData", (req, res) => {
     res.json(cache.cubeData).end();
   });  
+
+  app.get("/api/search/all", async(req, res) => {
+    let rows = await db.search.findAll({include: [
+      {model: db.images}, {association: "content"}
+    ]}).catch(catcher);
+    rows = rows.map(r => r.toJSON());
+    res.json(rows);
+  });
 
   app.get("/api/search", async(req, res) => {
 
