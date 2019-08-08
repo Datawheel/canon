@@ -1,9 +1,11 @@
 import axios from "axios";
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import ReactTable from "react-table";
 import Select from "../components/fields/Select";
 import {Dialog} from "@blueprintjs/core";
 import FooterButtons from "../components/editors/components/FooterButtons";
+// import Flickr from "flickr-sdk";
 
 import "./MemberBuilder.css";
 
@@ -20,11 +22,14 @@ class MemberBuilder extends Component {
       hierarchies: [],
       hierarchy: "all",
       isOpen: false,
-      currentRow: {}
+      currentRow: {},
+      flickr: {}
     };
   }
 
   componentDidMount() {
+    console.log(this.props.env);
+    // const flickr = new Flickr(this.props.)
     this.hitDB.bind(this)();
   }
 
@@ -33,17 +38,6 @@ class MemberBuilder extends Component {
     const url = currentRow.image && currentRow.image.url ? currentRow.image.url : "";
     const isOpen = true;
     this.setState({url, isOpen, currentRow});
-
-    /*
-    const {id, dimension, hierarchy} = row;
-    const {url} = this.state;
-    const payload = {id, dimension, hierarchy};
-    axios.post(payload, "/api/search/update").then(resp => {
-      if (resp.status === 200) {
-        console.log(resp.data);
-      }
-    });
-    */
   }
 
   prepData() {
@@ -173,4 +167,8 @@ class MemberBuilder extends Component {
   }
 }
 
-export default MemberBuilder;
+const mapStateToProps = state => ({
+  env: state.env
+});
+
+export default connect(mapStateToProps)(MemberBuilder);

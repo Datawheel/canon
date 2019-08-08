@@ -16,7 +16,7 @@ module.exports = function(app) {
 
   app.get("/api/cubeData", (req, res) => {
     res.json(cache.cubeData).end();
-  });  
+  });
 
   app.get("/api/search/all", async(req, res) => {
     let rows = await db.search.findAll({include: [
