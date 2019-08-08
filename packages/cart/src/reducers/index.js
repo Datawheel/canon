@@ -1,10 +1,7 @@
 import initialState from "../state";
 import localforage from "localforage";
-import {INIT_CART, CLEAR_CART, ADD_TO_CART, REMOVE_FROM_CART} from "../actions";
-import {STORAGE_CART_KEY} from "../helpers/consts";
-
-
-const MAX_DATASETS_IN_CART = 5;
+import {INIT_CART, CLEAR_CART, ADD_TO_CART, REMOVE_FROM_CART, TOGGLE_CART_SETTING} from "../actions";
+import {STORAGE_CART_KEY, MAX_DATASETS_IN_CART} from "../helpers/consts";
 
 /**
  * Cart reducer
@@ -42,7 +39,6 @@ function cartStateReducer(state = initialState(), action) {
     }
 
     case REMOVE_FROM_CART: {
-      newState = state.list;
       newState = Object.assign({}, state.list);
       delete newState[action.payload.id];
       newState = {
@@ -50,6 +46,17 @@ function cartStateReducer(state = initialState(), action) {
         list: newState
       };
       newState.internal.full = Object.keys(newState.list).length === MAX_DATASETS_IN_CART ? true : false;
+      localforage.setItem(STORAGE_CART_KEY, newState);
+      return newState;
+    }
+
+    case TOGGLE_CART_SETTING: {
+      newState = Object.assign({}, state.settings);
+      newState[action.payload.id].value = !newState[action.payload.id].value;
+      newState = {
+        ...state,
+        settings: newState
+      };
       localforage.setItem(STORAGE_CART_KEY, newState);
       return newState;
     }

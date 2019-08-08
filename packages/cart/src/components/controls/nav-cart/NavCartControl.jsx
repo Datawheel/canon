@@ -1,10 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
-
-import {clearCartAction, removeFromCartAction, initCartAction} from "../../../actions";
-import DatasetList from "../../partials/DatasetList";
 import {Popover, PopoverInteractionKind, Classes, Button} from "@blueprintjs/core";
+
+import {clearCartAction, initCartAction} from "../../../actions";
+
+import DatasetList from "../../partials/DatasetList";
 
 import "./NavCartControl.css";
 

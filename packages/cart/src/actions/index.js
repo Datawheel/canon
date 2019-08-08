@@ -45,4 +45,10 @@ export const removeFromCartAction = id => ({
   payload: {id}
 });
 
+/* Toggle cart setting */
+export const TOGGLE_CART_SETTING = "@@canon-cart/TOGGLE_CART_SETTING";
+export const toggleSettingAction = id => ({
+  type: TOGGLE_CART_SETTING,
+  payload: {id}
+});
 
