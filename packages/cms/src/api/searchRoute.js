@@ -26,6 +26,31 @@ module.exports = function(app) {
     res.json(rows);
   });
 
+  app.post("/api/search/update", async(req, res) => {
+    const {contentId, url} = req.body;
+    const searchRow = await db.search.findOne({where: {contentId}}).catch(catcher);
+    const imageRow = await db.images.findOne({where: {url}}).catch(catcher);
+    if (searchRow) {
+      if (imageRow) {
+        await db.search.update({imageId: imageRow.id}, {where: {contentId}}).catch(catcher);
+      }
+      else {
+        const newImage = await db.images.create({url}).catch(catcher);
+        await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
+      }
+      const newRow = await db.search.findOne({
+        where: {contentId},
+        include: [
+          {model: db.images}, {association: "content"}
+        ]
+      }).catch(catcher);
+      res.json(newRow);
+    }
+    else {
+      res.json("Error updating Search");
+    }
+  });
+
   app.get("/api/search", async(req, res) => {
 
     const where = {};

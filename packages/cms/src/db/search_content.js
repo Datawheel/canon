@@ -15,9 +15,8 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         primaryKey: true
       },
-      name: {
-        type: db.TEXT
-      },
+      name: db.TEXT,
+      attributes: db.JSONB,
       keywords: db.ARRAY(db.TEXT)
     },
     {
