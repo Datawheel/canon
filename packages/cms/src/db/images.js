@@ -13,7 +13,8 @@ module.exports = function(sequelize, db) {
       },
       author: db.TEXT,
       meta: db.TEXT,
-      license: db.INTEGER
+      license: db.INTEGER,
+      link: db.TEXT
     },
     {
       tableName: "canon_cms_images",
