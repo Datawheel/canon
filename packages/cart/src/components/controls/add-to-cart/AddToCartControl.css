@@ -3,4 +3,12 @@
 }
 .canon-add-to-cart-control-container{
   cursor: pointer;
+  opacity: 0.5;
+  &.ready{
+    opacity: 1;
+  }
+  &.full-state{
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }

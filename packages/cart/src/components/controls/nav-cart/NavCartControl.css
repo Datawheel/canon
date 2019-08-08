@@ -16,6 +16,10 @@
   }
 }
 .canon-cart-nav-control-container{
+  opacity: 0.5;
+  &.ready{
+    opacity: 1;
+  }
   & .canon-cart-nav-control-qty{
 
   }

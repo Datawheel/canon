@@ -1,0 +1,5 @@
+.canon-cart-dataset-list{
+  & .canon-cart-dataset-item{
+    display: flex;
+  }
+}

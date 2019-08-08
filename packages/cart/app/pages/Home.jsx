@@ -1,6 +1,5 @@
 import React, {Component} from "react";
-import {AddToCartControl, NavCartControl} from "../../src/";
-import {Navbar, Alignment} from "@blueprintjs/core";
+import {AddToCartControl} from "../../src/";
 
 import "./Home.css";
 
@@ -19,20 +18,11 @@ export default class Home extends Component {
 
     return (
       <div id="home">
-        <Navbar>
-          <Navbar.Group align={Alignment.LEFT}>
-            <Navbar.Heading>Test canon-cart package</Navbar.Heading>
-            <Navbar.Divider />
-            <a className="bp3-minimal" href="/cart">Go to cart link!</a>
-          </Navbar.Group>
-          <Navbar.Group align={Alignment.RIGHT}>
-            <NavCartControl cartRoute={"/cart"} />
-          </Navbar.Group>
-        </Navbar>
         <div className="content">
+          <h1>Test AddToCartControl in charts</h1>
           {queryList.map((q, ix) =>
             <div key={ix}>
-              <h1>AddToCart {q.title} <small>(tooltip: {q.tooltip ? "true" : "false"})</small></h1>
+              <h2>{q.title} <small>(tooltip: {q.tooltip ? "true" : "false"})</small></h2>
               <AddToCartControl query={q.query} tooltip={q.tooltip} />
             </div>
           )}

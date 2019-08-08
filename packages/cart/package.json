@@ -23,5 +23,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/datawheel/canon.git"
+  },
+  "dependencies": {
+    "localforage": "^1.7.3"
   }
 }

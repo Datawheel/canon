@@ -1,6 +1,7 @@
 import {Button} from "@blueprintjs/core";
 import React from "react";
 import {connect} from "react-redux";
+import PropTypes from "prop-types";
 
 import {removeFromCartAction} from "../../actions";
 
@@ -9,14 +10,14 @@ import "./Cart.css";
 class Cart extends React.Component {
   constructor(props, ctx) {
     super(props);
-
-    this.state = {
-    };
     this.onClickRemoveDataset = this.onClickRemoveDataset.bind(this);
   }
 
-  initialize(props) {
-
+  getChildContext() {
+    const {datasets, dispatch} = this.props;
+    return {
+      datasets, dispatch
+    };
   }
 
   componentDidMount() {
@@ -37,7 +38,6 @@ class Cart extends React.Component {
 
   render() {
     const {datasets} = this.props;
-
     const datasetsIds = Object.keys(datasets);
 
     return (
@@ -56,6 +56,8 @@ Cart.contextTypes = {
 };
 
 Cart.childContextTypes = {
+  datasets: PropTypes.object,
+  dispatch: PropTypes.func
 };
 
 Cart.propTypes = {

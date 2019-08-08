@@ -2,8 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 
-import {clearCartAction, removeFromCartAction} from "../../../actions";
-
+import {clearCartAction, removeFromCartAction, initCartAction} from "../../../actions";
+import DatasetList from "../../partials/DatasetList";
 import {Popover, PopoverInteractionKind, Classes, Button} from "@blueprintjs/core";
 
 import "./NavCartControl.css";
@@ -16,7 +16,6 @@ class NavCartControl extends React.Component {
     };
 
     this.onClickClearCart = this.onClickClearCart.bind(this);
-    this.onClickRemoveDataset = this.onClickRemoveDataset.bind(this);
   }
 
   initialize(props) {
@@ -24,7 +23,7 @@ class NavCartControl extends React.Component {
   }
 
   componentDidMount() {
-
+    this.props.dispatch(initCartAction());
   }
 
   componentDidUpdate(prevProps) {
@@ -39,26 +38,26 @@ class NavCartControl extends React.Component {
     this.props.dispatch(clearCartAction());
   }
 
-  onClickRemoveDataset(datasetId) {
-    this.props.dispatch(removeFromCartAction(datasetId));
+  getChildContext() {
+    const {datasets, dispatch} = this.props;
+    return {
+      datasets, dispatch
+    };
   }
 
   render() {
-    const {cartRoute, popover, datasets} = this.props;
+    const {cartRoute, popover, datasets, ready, full} = this.props;
 
     const buttonText = "Cart";
     const datasetsIds = Object.keys(datasets);
     const qty = datasetsIds.length;
+    let stateClass = qty === 0 ? "empty-state" : "non-empty-state";
+    stateClass = full ? "full-state non-empty-state" : "non-empty-state";
+    const readyClass = ready ? "ready" : "no-ready";
 
     const popoverContent =
       <div className={"canon-cart-nav-control-content"}>
-        <h4>Data cart</h4>
-        <div className={"canon-cart-nav-control-dataset-container"}>
-          {datasetsIds.map(did => <a className="canon-cart-nav-control-dataset-item" key={datasets[did].id}>
-            <span>{datasets[did].name}</span>
-            <span onClick={() => this.onClickRemoveDataset(did)}>x</span>
-          </a>)}
-        </div>
+        <DatasetList />
         <div className={"canon-cart-nav-control-button-container"}>
           <a className={"bp3-button bp3-fill bp3-minimal canon-cart-nav-control-button"} href={cartRoute}>View Data</a>
           <Button onClick={this.onClickClearCart} fill={true} minimal={true}>Clear Data</Button>
@@ -67,8 +66,8 @@ class NavCartControl extends React.Component {
     ;
 
     return (
-      <Popover content={popoverContent} disabled={!popover} popoverClassName={`canon-cart-nav-control-popover ${Classes.POPOVER_CONTENT_SIZING} ${Classes.POPOVER_DISMISS}`} interactionKind={PopoverInteractionKind.HOVER}>
-        <a href={cartRoute} className={"canon-cart-nav-control-container"}>
+      <Popover content={popoverContent} disabled={!popover && ready} popoverClassName={`canon-cart-nav-control-popover ${Classes.POPOVER_CONTENT_SIZING} ${Classes.POPOVER_DISMISS}`} interactionKind={PopoverInteractionKind.HOVER}>
+        <a href={cartRoute} className={`canon-cart-nav-control-container ${readyClass} ${stateClass}`}>
           {qty > 0 && <span className={"canon-cart-nav-control-qty"}>({qty})</span>}
           <span className={"canon-cart-nav-control-text"}>{buttonText}</span>
         </a>
@@ -77,10 +76,9 @@ class NavCartControl extends React.Component {
   }
 }
 
-NavCartControl.contextTypes = {
-};
-
 NavCartControl.childContextTypes = {
+  datasets: PropTypes.object,
+  dispatch: PropTypes.func
 };
 
 NavCartControl.propTypes = {
@@ -97,6 +95,8 @@ export const defaultProps = NavCartControl.defaultProps;
 export default connect(state => {
   const ct = state.cart;
   return {
-    datasets: ct.list
+    datasets: ct.list,
+    ready: ct.internal.ready,
+    full: ct.internal.full
   };
 })(NavCartControl);

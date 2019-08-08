@@ -20,10 +20,6 @@ class AddToCartControl extends React.Component {
 
   }
 
-  initialize(props) {
-
-  }
-
   componentDidMount() {
 
   }
@@ -37,41 +33,40 @@ class AddToCartControl extends React.Component {
   }
 
   onClickAddToCart() {
-    const {query, datasets} = this.props;
+    const {query, datasets, cartIsFull, dispatch} = this.props;
     const hash = getHashCode(query);
     if (datasets[`${hash}`]) {
-      this.props.dispatch(removeFromCartAction(hash));
+      dispatch(removeFromCartAction(hash));
     }
     else {
-      this.props.dispatch(addToCartAction(query));
+      if (!cartIsFull) {
+        dispatch(addToCartAction(query));
+      }
     }
   }
 
   render() {
-    const {tooltip, query, datasets} = this.props;
+    const {tooltip, query, datasets, cartIsReady, cartIsFull} = this.props;
     const hash = getHashCode(query);
     const canAdd = datasets[`${hash}`] ? false : true;
+    const readyClass = cartIsReady ? "ready" : "no-ready";
+    let stateClass = canAdd ? "add-state" : "remove-state";
+    stateClass = cartIsFull && canAdd ? "full-state add-state" : stateClass;
 
     const buttonText = canAdd ? "Add Data To Cart" : "Remove from Cart";
-    const tooltipText = canAdd ? "Add the underlying data to the cart, and merge with the existing cart data" : "Remove this dataset from the cart";
-
+    let tooltipText = canAdd ? "Add the underlying data to the cart, and merge with the existing cart data" : "Remove this dataset from the cart";
+    tooltipText = cartIsFull && canAdd ? "Cart limit has been reached. Please visit the cart page to download the current cart and/or remove data." : tooltipText;
     return <Tooltip
       className={`${Classes.TOOLTIP_INDICATOR  } canon-add-to-cart-control-tooltip`}
       content={tooltipText}
-      disabled={!tooltip}
+      disabled={!tooltip && cartIsReady}
     >
-      <div className={"canon-add-to-cart-control-container"} onClick={this.onClickAddToCart}>
+      <div className={`canon-add-to-cart-control-container ${readyClass} ${stateClass}`} onClick={this.onClickAddToCart}>
         <span>{buttonText}</span>
       </div>
     </Tooltip>;
   }
 }
-
-AddToCartControl.contextTypes = {
-};
-
-AddToCartControl.childContextTypes = {
-};
 
 AddToCartControl.propTypes = {
   query: PropTypes.string,
@@ -87,6 +82,8 @@ export const defaultProps = AddToCartControl.defaultProps;
 export default connect(state => {
   const ct = state.cart;
   return {
-    datasets: ct.list
+    datasets: ct.list,
+    cartIsReady: ct.internal.ready,
+    cartIsFull: ct.internal.full
   };
 })(AddToCartControl);
