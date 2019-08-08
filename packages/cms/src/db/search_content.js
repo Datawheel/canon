@@ -16,7 +16,7 @@ module.exports = function(sequelize, db) {
         primaryKey: true
       },
       name: db.TEXT,
-      attributes: db.JSONB,
+      attr: db.JSONB,
       keywords: db.ARRAY(db.TEXT)
     },
     {

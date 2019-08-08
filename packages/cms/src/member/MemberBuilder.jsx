@@ -62,7 +62,7 @@ class MemberBuilder extends Component {
         return {
           id: "image",
           Header: "image",
-          accessor: d => d ? d.url : null,
+          accessor: d => d.image ? d.image.url : null,
           Cell: cell => <span onClick={this.clickCell.bind(this, cell)} className="cp-table-cell-inner">
             {cell.value ? cell.value : "+ Add Image"}
           </span>
@@ -93,15 +93,15 @@ class MemberBuilder extends Component {
   }
 
   save(currentRow) {
-    const {url, sourceData} = this.state;
+    const {url} = this.state;
     const {contentId} = currentRow;
     const payload = {contentId, url};
-    console.log(payload);
     axios.post("/api/search/update", payload).then(resp => {
-      console.log(resp.data);
+      const row = resp.data;
+      const sourceData = this.state.sourceData.map(d => row.contentId === d.contentId ? row : d);
+      const isOpen = false;
+      this.setState({isOpen, sourceData}, this.prepData.bind(this));
     });
-
-    this.setState({isOpen: false});
   }
 
   onChange(field, e) {
