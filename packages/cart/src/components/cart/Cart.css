@@ -1,3 +1,36 @@
-.canon-cart-container{
+.canon-cart-container {
+  height: 100vh;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: stretch;
 
+  & > .canon-cart-area-sidebar {
+    flex: 0 0 300px;
+    width: 300px;
+  }
+
+  & > .canon-cart-area-sidebar.hidden {
+    display: none;
+  }
+
+  & > .canon-cart-area-data {
+    flex: 1 0 560px;
+  }
+
+  & > .canon-cart-area-middle {
+    position: relative;
+
+    & .toggle-sidebar {
+      position: absolute;
+    }
+  }
+}
+
+.canon-cart-area-sidebar,
+.canon-cart-area-data {
+  overflow: auto;
+
+  & > .canon-cart-wrapper {
+    padding: 15px;
+  }
 }
