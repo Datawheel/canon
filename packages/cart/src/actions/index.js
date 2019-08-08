@@ -30,20 +30,27 @@ export const clearCartAction = () => ({
 /* Add query to Cart */
 export const ADD_TO_CART = "@@canon-cart/ADD_TO_CART";
 export const addToCartAction = query => {
-  const id = getHashCode(query);
-  const name = getHumanTitle(query);
+  const human = getHumanTitle(query);
   return {
     type: ADD_TO_CART,
-    payload: {id, name, query}
+    payload: {
+      id: getHashCode(query),
+      url: query,
+      name: human.title,
+      query: human.meta
+    }
   };
 };
 
 /* Remove query from Cart */
 export const REMOVE_FROM_CART = "@@canon-cart/REMOVE_FROM_CART";
-export const removeFromCartAction = id => ({
-  type: REMOVE_FROM_CART,
-  payload: {id}
-});
+export const removeFromCartAction = query => {
+  const id = getHashCode(query);
+  return {
+    type: REMOVE_FROM_CART,
+    payload: {id}
+  };
+};
 
 /* Toggle cart setting */
 export const TOGGLE_CART_SETTING = "@@canon-cart/TOGGLE_CART_SETTING";

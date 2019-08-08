@@ -6,6 +6,8 @@ import {Tooltip, Button} from "@blueprintjs/core";
 import DatasetList from "../partials/DatasetList";
 import SettingsPanel from "./partials/SettingsPanel";
 import ActionsPanel from "./partials/ActionsPanel";
+import EmptyCartPanel from "./partials/EmptyCartPanel";
+
 import Table from "./partials/Table";
 
 import "./Cart.css";
@@ -45,7 +47,16 @@ class Cart extends React.Component {
 
   render() {
     const {showSidebar} = this.state;
+    const {datasets} = this.props;
     const hiddenClass = showSidebar ? "" : "hidden";
+
+    const emptyCart = Object.keys(datasets).length === 0;
+
+    if (emptyCart) {
+      return <div className={"canon-cart-container"}>
+        <EmptyCartPanel />
+      </div>;
+    }
 
     return (
       <div className={"canon-cart-container"}>

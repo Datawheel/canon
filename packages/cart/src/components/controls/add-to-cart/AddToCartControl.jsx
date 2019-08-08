@@ -36,7 +36,7 @@ class AddToCartControl extends React.Component {
     const {query, datasets, cartIsFull, dispatch} = this.props;
     const hash = getHashCode(query);
     if (datasets[`${hash}`]) {
-      dispatch(removeFromCartAction(hash));
+      dispatch(removeFromCartAction(query));
     }
     else {
       if (!cartIsFull) {

@@ -1,6 +1,6 @@
-import {Button} from "@blueprintjs/core";
 import React from "react";
 import PropTypes from "prop-types";
+import {MenuItem, Icon} from "@blueprintjs/core";
 
 import {removeFromCartAction} from "../../actions";
 
@@ -24,9 +24,9 @@ class DatasetList extends React.Component {
 
   }
 
-  onClickRemoveDataset(datasetId) {
+  onClickRemoveDataset(dataset) {
     const {dispatch} = this.context;
-    dispatch(removeFromCartAction(datasetId));
+    dispatch(removeFromCartAction(dataset.url));
   }
 
   render() {
@@ -36,11 +36,21 @@ class DatasetList extends React.Component {
     return (
       <div className={"canon-cart-dataset-list"}>
         <h3>Data cart</h3>
-        <p>Datasets: {datasetsIds.length}</p>
-        {datasetsIds.map(did => <div className="canon-cart-dataset-item" key={datasets[did].id}>
-          <span>{datasets[did].name}</span>
-          <Button onClick={() => this.onClickRemoveDataset(did)}>x</Button>
-        </div>)}
+        {datasetsIds.length === 0 &&
+          <div>
+            <p>No datasets loaded</p>
+          </div>
+        }
+        {datasetsIds.length > 0 &&
+          <div>
+            <p>Datasets: {datasetsIds.length}</p>
+            <ul className="canon-cart-dataset-ul">
+              {datasetsIds.map(did =>
+                <MenuItem multiline={true} className={"canon-cart-dataset-item"} onClick={() => this.onClickRemoveDataset(datasets[did])} key={datasets[did].id} labelElement={<Icon icon="trash" />} text={datasets[did].name} />
+              )}
+            </ul>
+          </div>
+        }
       </div>
     );
   }

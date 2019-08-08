@@ -35,11 +35,13 @@ class ActionsPanel extends React.Component {
   }
 
   render() {
+    const {datasets} = this.context;
+    const emptyCart = Object.keys(datasets).length === 0;
 
     return (
       <div className={"canon-cart-actions-panel"}>
-        <Button onClick={this.onClickDownloadData} fill={true} minimal={true}>Download Data</Button>
-        <Button onClick={this.onClickClearCart} fill={true} minimal={true}>Clear Data</Button>
+        <Button onClick={this.onClickDownloadData} fill={true} minimal={true} disabled={emptyCart}>Download Data</Button>
+        <Button onClick={this.onClickClearCart} fill={true} minimal={true} disabled={emptyCart}>Clear Data</Button>
       </div>
     );
   }

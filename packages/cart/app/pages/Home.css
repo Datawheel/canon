@@ -1,6 +1,18 @@
 #home {
   & .content{
     max-width: 1000px;
-    margin: 0 auto;
+    margin: 15px auto;
+    & .row{
+      display: flex;
+      padding: 15px;
+      & .col-full{
+        width: 100%;
+        padding: 0 15px;
+      }
+      & .col-half{
+        width: 50%;
+        padding: 0 15px;
+      }
+    }
   }
 }

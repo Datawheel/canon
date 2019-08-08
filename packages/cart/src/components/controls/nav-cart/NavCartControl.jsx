@@ -59,9 +59,10 @@ class NavCartControl extends React.Component {
     const popoverContent =
       <div className={"canon-cart-nav-control-content"}>
         <DatasetList />
+        <hr/>
         <div className={"canon-cart-nav-control-button-container"}>
           <a className={"bp3-button bp3-fill bp3-minimal canon-cart-nav-control-button"} href={cartRoute}>View Data</a>
-          <Button onClick={this.onClickClearCart} fill={true} minimal={true}>Clear Data</Button>
+          <Button onClick={this.onClickClearCart} fill={true} minimal={true} disabled={qty === 0}>Clear Data</Button>
         </div>
       </div>
     ;

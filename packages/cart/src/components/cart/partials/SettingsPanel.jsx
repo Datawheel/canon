@@ -29,13 +29,14 @@ class SettingsPanel extends React.Component {
   }
 
   render() {
-    const {settings} = this.context;
+    const {settings, datasets} = this.context;
+    const emptyCart = Object.keys(datasets).length === 0;
 
     return (
       <div className={"canon-cart-settings-panel"}>
         {Object.keys(settings).map(key =>
           <div key={key}>
-            <Checkbox checked={settings[key].value} label={settings[key].label} onChange={this.onChangeSetting.bind(this, key)} />
+            <Checkbox checked={settings[key].value} label={settings[key].label} disabled={emptyCart} onChange={this.onChangeSetting.bind(this, key)} />
           </div>
         )}
       </div>
@@ -45,7 +46,8 @@ class SettingsPanel extends React.Component {
 
 SettingsPanel.contextTypes = {
   dispatch: PropTypes.func,
-  settings: PropTypes.object
+  settings: PropTypes.object,
+  datasets: PropTypes.object
 };
 
 SettingsPanel.propTypes = {

@@ -8,4 +8,46 @@ export const getHashCode = s => {
 };
 
 /** TODO: generate human title from query */
-export const getHumanTitle = s => `Title ${s}`;
+export const getHumanTitle = query => {
+  const meta = parseURL(query);
+  console.log(meta);
+  const title = meta.params.measure ? meta.params.measure[0] : meta.params.measures[0];
+  return {title, meta};
+};
+
+export const parseURL = url => {
+  let [base, query] = url.split("?");
+
+  // Fix mondrian query '&' in values
+  query = decodeURIComponent(query);
+  query = query.replace(/\.&\[/g, "|||");
+
+  const params = query.split("&")
+    .reduce((obj, d) => {
+      let [key, val] = d.split("=");
+
+      // Custom fix mondrian query []
+      key = key.replace(/\[\]/g, "");
+      val = val.replace(/\|\|\|/g, ".&[").replace(/\+/g, " ");
+
+      if (val) {
+        obj[key] = val
+          .split(/\,([A-z])/g)
+          .reduce((arr, d) => {
+            if (arr.length && arr[arr.length - 1].length === 1) arr[arr.length - 1] += d;
+            else if (d.length) arr.push(d);
+            return arr;
+          }, []);
+      }
+      else {
+        console.error("BAD key value:", key, val);
+      }
+      return obj;
+    }, {});
+
+  return {
+    base,
+    query,
+    params
+  };
+};
