@@ -5,6 +5,7 @@ const verbose = yn(process.env.CANON_CMS_LOGGING);
 const Flickr = require("flickr-sdk");
 const flickr = new Flickr(process.env.FLICKR_API_KEY);
 const sharp = require("sharp");
+const axios = require("axios");
 const validLicenses = ["4", "5", "7", "8", "9", "10"];
 
 const catcher = e => {
@@ -21,10 +22,9 @@ module.exports = function(app) {
   app.post("/api/image/update", async(req, res) => {
     const {url, contentId} = req.body;
     const id = url.replace("https://flic.kr/p/", "");
-    const info = await flickr.photos.getInfo({photo_id: id}).catch(catcher);
-    if (info && info.text) {
-      const obj = JSON.parse(info.text);
-      if (validLicenses.includes(obj.photo.license)) {
+    const info = await flickr.photos.getInfo({photo_id: id}).then(resp => resp.body).catch(catcher);
+    if (info) {
+      if (validLicenses.includes(info.photo.license)) {
         const searchRow = await db.search.findOne({where: {contentId}}).catch(catcher);
         const imageRow = await db.images.findOne({where: {url}}).catch(catcher);
         if (searchRow) {
@@ -32,12 +32,16 @@ module.exports = function(app) {
             await db.search.update({imageId: imageRow.id}, {where: {contentId}}).catch(catcher);
           }
           else {
-            const sizes = await flickr.photos.getSizes({photo_id: id}).catch(catcher);
-            console.log(sizes);
+            const sizeObj = await flickr.photos.getSizes({photo_id: id}).then(resp => resp.body).catch(catcher);
+            let image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1600);
+            if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1000);
+            if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
+            const bmp = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
+            // console.log(bmp);
             const payload = {
               url,
-              author: obj.photo.owner.realname || obj.photo.owner.username,
-              license: obj.photo.license
+              author: info.photo.owner.realname || info.photo.owner.username,
+              license: info.photo.license
             };
             const newImage = await db.images.create(payload).catch(catcher);
             await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
