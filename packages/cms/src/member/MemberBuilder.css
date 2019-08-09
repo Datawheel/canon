@@ -6,3 +6,7 @@
   margin: 30px;
   display: inline-flex;
 }
+
+.cms-flickr-input {
+  width: 300px;
+}

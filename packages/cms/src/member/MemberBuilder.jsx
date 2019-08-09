@@ -5,7 +5,7 @@ import ReactTable from "react-table";
 import Select from "../components/fields/Select";
 import {Dialog} from "@blueprintjs/core";
 import FooterButtons from "../components/editors/components/FooterButtons";
-// import Flickr from "flickr-sdk";
+import PropTypes from "prop-types";
 
 import "./MemberBuilder.css";
 
@@ -22,14 +22,11 @@ class MemberBuilder extends Component {
       hierarchies: [],
       hierarchy: "all",
       isOpen: false,
-      currentRow: {},
-      flickr: {}
+      currentRow: {}
     };
   }
 
   componentDidMount() {
-    console.log(this.props.env);
-    // const flickr = new Flickr(this.props.)
     this.hitDB.bind(this)();
   }
 
@@ -89,6 +86,35 @@ class MemberBuilder extends Component {
   save(currentRow) {
     const {url} = this.state;
     const {contentId} = currentRow;
+    const Toast = this.context.toast.current;
+    const payload = {url, contentId};
+    axios.post("/api/image/update", payload).then(resp => {
+      if (resp.data) {
+        if (resp.data.error) {
+          Toast.show({
+            intent: "danger",
+            message: `Invalid Flickr Link - ${resp.data.error}`,
+            timeout: 2000
+          });
+        }
+        else {
+          const row = resp.data;
+          const sourceData = this.state.sourceData.map(d => row.contentId === d.contentId ? row : d);
+          const isOpen = false;
+          this.setState({isOpen, sourceData}, this.prepData.bind(this));
+          Toast.show({
+            intent: "success",
+            message: "Success!",
+            timeout: 2000
+          });
+        }
+      }
+    });
+    
+    /*
+
+    const {url} = this.state;
+    const {contentId} = currentRow;
     const payload = {contentId, url};
     axios.post("/api/search/update", payload).then(resp => {
       const row = resp.data;
@@ -96,6 +122,7 @@ class MemberBuilder extends Component {
       const isOpen = false;
       this.setState({isOpen, sourceData}, this.prepData.bind(this));
     });
+    */
   }
 
   onChange(field, e) {
@@ -124,8 +151,17 @@ class MemberBuilder extends Component {
           usePortal={false}
         >
           <div className="bp3-dialog-body">
+            <h3>Instructions</h3>
+            <ul>
+              <li>Go To Flickr.com</li>
+              <li>Search for an image</li>
+              <li>Change the License to <strong>Commercial use & mods allowed</strong></li>
+              <li>Choose and image and click it</li>
+              <li>Click the Share Button on the bottom right</li>
+              <li>Paste the URL below.</li>
+            </ul>
             Enter a Flickr URL
-            <input value={url} onChange={e => this.setState({url: e.target.value})}/>
+            <input className="cms-flickr-input" value={url} onChange={e => this.setState({url: e.target.value})}/>
           </div>
           <FooterButtons onSave={this.save.bind(this, currentRow)} />
         </Dialog>
@@ -166,6 +202,10 @@ class MemberBuilder extends Component {
     );
   }
 }
+
+MemberBuilder.contextTypes = {
+  toast: PropTypes.object
+};
 
 const mapStateToProps = state => ({
   env: state.env

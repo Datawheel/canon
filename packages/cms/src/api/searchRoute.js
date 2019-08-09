@@ -2,6 +2,10 @@ const sequelize = require("sequelize");
 const yn = require("yn");
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+const Flickr = require("flickr-sdk");
+const flickr = new Flickr(process.env.FLICKR_API_KEY);
+const sharp = require("sharp");
+const validLicenses = ["4", "5", "7", "8", "9", "10"];
 
 const catcher = e => {
   if (verbose) {
@@ -13,6 +17,51 @@ const catcher = e => {
 module.exports = function(app) {
 
   const {db, cache} = app.settings;
+
+  app.post("/api/image/update", async(req, res) => {
+    const {url, contentId} = req.body;
+    const id = url.replace("https://flic.kr/p/", "");
+    const info = await flickr.photos.getInfo({photo_id: id}).catch(catcher);
+    if (info && info.text) {
+      const obj = JSON.parse(info.text);
+      if (validLicenses.includes(obj.photo.license)) {
+        const searchRow = await db.search.findOne({where: {contentId}}).catch(catcher);
+        const imageRow = await db.images.findOne({where: {url}}).catch(catcher);
+        if (searchRow) {
+          if (imageRow) {
+            await db.search.update({imageId: imageRow.id}, {where: {contentId}}).catch(catcher);
+          }
+          else {
+            const sizes = await flickr.photos.getSizes({photo_id: id}).catch(catcher);
+            console.log(sizes);
+            const payload = {
+              url,
+              author: obj.photo.owner.realname || obj.photo.owner.username,
+              license: obj.photo.license
+            };
+            const newImage = await db.images.create(payload).catch(catcher);
+            await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
+          }
+          const newRow = await db.search.findOne({
+            where: {contentId},
+            include: [
+              {model: db.images}, {association: "content"}
+            ]
+          }).catch(catcher);
+          res.json(newRow);
+        }
+        else {
+          res.json("Error updating Search");
+        }
+      }
+      else {
+        res.json({error: "Bad License"});
+      }
+    }
+    else {
+      res.json({error: "Malformed URL"});
+    }
+  });
 
   app.get("/api/cubeData", (req, res) => {
     res.json(cache.cubeData).end();
@@ -28,27 +77,7 @@ module.exports = function(app) {
 
   app.post("/api/search/update", async(req, res) => {
     const {contentId, url} = req.body;
-    const searchRow = await db.search.findOne({where: {contentId}}).catch(catcher);
-    const imageRow = await db.images.findOne({where: {url}}).catch(catcher);
-    if (searchRow) {
-      if (imageRow) {
-        await db.search.update({imageId: imageRow.id}, {where: {contentId}}).catch(catcher);
-      }
-      else {
-        const newImage = await db.images.create({url}).catch(catcher);
-        await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
-      }
-      const newRow = await db.search.findOne({
-        where: {contentId},
-        include: [
-          {model: db.images}, {association: "content"}
-        ]
-      }).catch(catcher);
-      res.json(newRow);
-    }
-    else {
-      res.json("Error updating Search");
-    }
+    
   });
 
   app.get("/api/search", async(req, res) => {
