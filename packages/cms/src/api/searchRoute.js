@@ -4,9 +4,14 @@ const yn = require("yn");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const Flickr = require("flickr-sdk");
 const flickr = new Flickr(process.env.FLICKR_API_KEY);
+const {Storage} = require("@google-cloud/storage");
+const storage = new Storage();
 const sharp = require("sharp");
+const tmp = require("tmp");
 const axios = require("axios");
+
 const validLicenses = ["4", "5", "7", "8", "9", "10"];
+
 
 const catcher = e => {
   if (verbose) {
@@ -18,6 +23,16 @@ const catcher = e => {
 module.exports = function(app) {
 
   const {db, cache} = app.settings;
+
+  app.get("/api/haha", async(req, res) => {
+    const bucket = "datawheel-cms-images";
+    const file = "steps.txt";
+    const path = `/Users/jimmy/Desktop/${file}`;
+    const result = await storage.bucket(bucket).upload(path).catch(catcher);
+    await storage.bucket(bucket).file(file).makePublic().catch(catcher);
+    const link = result[1].selfLink;
+    res.json(link);
+  });
 
   app.post("/api/image/update", async(req, res) => {
     const {url, contentId} = req.body;
@@ -36,8 +51,9 @@ module.exports = function(app) {
             let image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1600);
             if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1000);
             if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
-            const bmp = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
-            // console.log(bmp);
+            const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
+            const dude = await sharp(imageData).resize(1600).toFile("/Users/jimmy/Desktop/hi.jpg").catch(catcher);
+            console(dude);
             const payload = {
               url,
               author: info.photo.owner.realname || info.photo.owner.username,
