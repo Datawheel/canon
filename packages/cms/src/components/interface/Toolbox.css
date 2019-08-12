@@ -81,10 +81,15 @@
 
   & .cms-button {
     text-align: left;
+    /* handle large output */
+    border-radius: 0.5em;
+    overflow: auto;
+    max-height: 6em;
   }
 
   & .cms-variable {
     display: inline-block;
+    margin-top: 0.5em;
   }
 }
 
