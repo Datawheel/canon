@@ -1,0 +1,12 @@
+.canon-cart-loading-panel{
+  & .canon-cart-loading-list{
+    & .canon-cart-loading-item{
+      display: flex;
+      justify-content: space-between;
+      height: 25px;
+      & .canon-cart-loading-item-icon{
+        margin-left: 5px;
+      }
+    }
+  }
+}

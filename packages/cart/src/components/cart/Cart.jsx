@@ -3,10 +3,13 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {Tooltip, Button} from "@blueprintjs/core";
 
+import {loadDatasetsAction} from "../../actions";
+
 import DatasetList from "../partials/DatasetList";
 import SettingsPanel from "./partials/SettingsPanel";
 import ActionsPanel from "./partials/ActionsPanel";
 import EmptyCartPanel from "./partials/EmptyCartPanel";
+import LoadingPanel from "./partials/LoadingPanel";
 
 import Table from "./partials/Table";
 
@@ -34,25 +37,34 @@ class Cart extends React.Component {
   }
 
   componentDidMount() {
-
+    this.loadAllDatasets();
   }
 
   componentDidUpdate(prevProps) {
-
+    const changedDatasets = Object.keys(prevProps.datasets).length !== Object.keys(this.props.datasets).length;
+    const changedSettings = prevProps.settings !== this.props.settings;
+    if (changedDatasets || changedSettings) {
+      this.loadAllDatasets();
+    }
   }
 
   componentWillUnmount() {
 
   }
 
+  loadAllDatasets() {
+    const {dispatch, datasets} = this.props;
+    dispatch(loadDatasetsAction(datasets));
+  }
+
   render() {
     const {showSidebar} = this.state;
-    const {datasets} = this.props;
+    const {datasets, cartReady, cartLoading} = this.props;
     const hiddenClass = showSidebar ? "" : "hidden";
 
     const emptyCart = Object.keys(datasets).length === 0;
 
-    if (emptyCart) {
+    if (cartReady && emptyCart) {
       return <div className={"canon-cart-container"}>
         <EmptyCartPanel />
       </div>;
@@ -61,6 +73,9 @@ class Cart extends React.Component {
     return (
       <div className={"canon-cart-container"}>
         <div className={`canon-cart-area-sidebar ${hiddenClass}`}>
+          {!cartReady || cartLoading &&
+            <div className="canon-cart-sidebar-blocker"/>
+          }
           <div className="canon-cart-wrapper">
             <DatasetList />
             <hr />
@@ -82,9 +97,14 @@ class Cart extends React.Component {
           </Tooltip>
         </div>
         <div className="canon-cart-area-data">
-          <div className="canon-cart-wrapper">
-            <Table />
-          </div>
+          {cartReady && cartLoading &&
+            <LoadingPanel />
+          }
+          {cartReady && !cartLoading &&
+            <div className="canon-cart-wrapper">
+              <Table />
+            </div>
+          }
         </div>
       </div>
     );
@@ -97,7 +117,8 @@ Cart.contextTypes = {
 Cart.childContextTypes = {
   datasets: PropTypes.object,
   dispatch: PropTypes.func,
-  settings: PropTypes.object
+  settings: PropTypes.object,
+  internal: PropTypes.object
 };
 
 Cart.propTypes = {
@@ -111,6 +132,8 @@ export default connect(state => {
   const ct = state.cart;
   return {
     datasets: ct.list,
-    settings: ct.settings
+    settings: ct.settings,
+    cartReady: ct.internal.ready,
+    cartLoading: ct.internal.loading
   };
 })(Cart);

@@ -34,6 +34,7 @@ class SettingsPanel extends React.Component {
 
     return (
       <div className={"canon-cart-settings-panel"}>
+
         {Object.keys(settings).map(key =>
           <div key={key}>
             <Checkbox checked={settings[key].value} label={settings[key].label} disabled={emptyCart} onChange={this.onChangeSetting.bind(this, key)} />
@@ -58,3 +59,4 @@ SettingsPanel.defaultProps = {
 
 export const defaultProps = SettingsPanel.defaultProps;
 export default SettingsPanel;
+

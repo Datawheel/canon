@@ -9,7 +9,7 @@ export const initCartAction = () => dispatch => {
     dispatch(sendInitCartAction(data));
     return data;
   }).catch(err => {
-    console.warning(err);
+    console.warn(err);
     dispatch(sendInitCartAction(false));
   });
 };
@@ -37,7 +37,8 @@ export const addToCartAction = query => {
       id: getHashCode(query),
       url: query,
       name: human.title,
-      query: human.meta
+      query: human.meta,
+      isLoaded: false
     }
   };
 };
@@ -59,3 +60,30 @@ export const toggleSettingAction = id => ({
   payload: {id}
 });
 
+/** Loading datasets */
+export const loadDatasetsAction = datasets => dispatch => {
+  dispatch(loadAllDatasetsAction());
+  Object.keys(datasets).map((d, ix) => {
+    // TEST LOADING
+    setTimeout(() => {
+      dispatch(successLoadDatasetAction(d));
+    }, (ix + 1) * 1000);
+  });
+};
+
+export const LOAD_DATASETS = "@@canon-cart/LOAD_DATASETS";
+export const loadAllDatasetsAction = () => ({
+  type: LOAD_DATASETS
+});
+
+export const SUCCESS_LOAD_DATASET = "@@canon-cart/SUCCESS_LOAD_DATASET";
+export const successLoadDatasetAction = id => ({
+  type: SUCCESS_LOAD_DATASET,
+  payload: {id}
+});
+
+export const FAILURE_LOAD_DATASET = "@@canon-cart/FAILURE_LOAD_DATASET";
+export const failureLoadDatasetAction = id => ({
+  type: FAILURE_LOAD_DATASET,
+  payload: {id}
+});

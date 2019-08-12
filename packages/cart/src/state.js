@@ -4,11 +4,12 @@
 export default function initialStateFactory() {
   return {
     internal: {
+      loading: true,
       ready: false,
       full: false
     },
+    loadingList: [],
     list: {
-
     },
     settings: {
       pivotYear: {value: true, label: "Pivot Years to Columns"},

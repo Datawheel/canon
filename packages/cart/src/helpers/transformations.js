@@ -4,13 +4,12 @@ export const getHashCode = s => {
   for (let i = 0; i < s.length; i++) {
     h = Math.imul(31, h) + s.charCodeAt(i) | 0;
   }
-  return h;
+  return Math.abs(h);
 };
 
 /** TODO: generate human title from query */
 export const getHumanTitle = query => {
   const meta = parseURL(query);
-  console.log(meta);
   const title = meta.params.measure ? meta.params.measure[0] : meta.params.measures[0];
   return {title, meta};
 };
