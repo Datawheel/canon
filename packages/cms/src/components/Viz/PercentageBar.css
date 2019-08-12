@@ -13,6 +13,7 @@
 
 .percentage-bar-bg {
   position: relative;
+  overflow: hidden; /* hide awkwardly unrounded small bars */
   width: 100%;
   margin-bottom: 0.125rem;
   background-color: var(--percentage-bar-bg-color);
