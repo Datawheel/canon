@@ -23,9 +23,8 @@
   top: 0;
   left: 0;
   bottom: 0;
+  max-width: 100%; /* prevent 100%+ from breaking out of container */
   background: var(--percentage-bar-color);
-  transform-origin: 0 0;
-  animation: grow-from-left 0.333s ease-out;
 }
 
 .percentage-bar-item:not(:last-child) {
@@ -40,13 +39,4 @@
 .percentage-bar-value {
   color: var(--stat-value-color);
   margin-bottom: 0;
-}
-
-@keyframes grow-from-left {
-  0% {
-    transform: scaleX(0);
-  }
-  100% {
-    transform: none;
-  }
 }
