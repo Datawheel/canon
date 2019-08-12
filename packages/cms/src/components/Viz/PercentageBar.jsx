@@ -84,13 +84,7 @@ class PercentageBar extends Component {
                   <span className="u-visually-hidden">: </span>
                   {!isNaN(percent) &&
                     <span className="percentage-bar-bg">
-                      <span
-                        className="percentage-bar"
-                        style={{
-                          width: `${percent}%`,
-                          animationDelay: `0.${i}s`
-                        }}
-                      />
+                      <span className="percentage-bar" style={{width: `${percent}%`}} />
                     </span>
                   }
                   <span className="percentage-bar-value display u-font-md">
