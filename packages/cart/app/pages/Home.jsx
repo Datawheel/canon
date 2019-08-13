@@ -24,8 +24,8 @@ class Home extends Component {
     "DataChile": {
       engine: "mondrian",
       list: [
-        {title: "Crime", query: "https://chilecube.datachile.io/cubes/crimes/aggregate.jsonrecords?drilldown%5B%5D=%5BCrime%5D.%5BCrime%5D&drilldown%5B%5D=%5BDate%5D.%5BYear%5D&cut%5B%5D=%5BGeography%5D.%5BRegion%5D.%26%5B3%5D&measures%5B%5D=Cases&caption%5B%5D=%5BCrime%5D.%5BCrime%5D.Description+ES&caption%5B%5D=%5BCrime%5D.%5BCrime+Group%5D.Description+ES&nonempty=true&distinct=false&parents=true&debug=false&sparse=true", tooltip: true},
-        {title: "Education enrollment", query: "https://chilecube.datachile.io/cubes/education_enrollment/aggregate.json?drilldown%5B%5D=%5BDate%5D.%5BYear%5D&cut%5B%5D=%5BZone%5D.%5BZone%5D.%5BZone%5D.%26%5B2%5D&cut%5B%5D=%5BDate%5D.%5BDate%5D.%5BYear%5D.%26%5B2015%5D&cut%5B%5D=%5BGeography%5D.%5BRegion%5D.%26%5B3%5D&measures%5B%5D=Number+of+records&nonempty=true&distinct=false&parents=false&debug=false&sparse=true", tooltip: false}
+        {title: "Crimes by Crime Group in Region Metropolitana", query: "https://chilecube.datachile.io/cubes/crimes/aggregate.json?drilldown%5B%5D=%5BGeography%5D.%5BRegion%5D&drilldown%5B%5D=%5BCrime%5D.%5BCrime+Group%5D&cut%5B%5D=%5BGeography%5D.%5BGeography%5D.%5BRegion%5D.%26%5B13%5D&measures%5B%5D=Cases&nonempty=true&distinct=false&parents=false&debug=true&sparse=true", tooltip: true},
+        {title: "Number of Visas in Region Valparaiso", query: "https://chilecube.datachile.io/cubes/immigration/aggregate.jsonrecords?drilldown%5B%5D=%5BGeography%5D.%5BRegion%5D&cut%5B%5D=%5BGeography%5D.%5BGeography%5D.%5BRegion%5D.%26%5B5%5D&measures%5B%5D=Number+of+visas&nonempty=true&distinct=false&parents=false&debug=true&sparse=true", tooltip: false}
       ]
     },
     "DataUSA": {

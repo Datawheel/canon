@@ -25,6 +25,7 @@
     "url": "git+https://github.com/datawheel/canon.git"
   },
   "dependencies": {
+    "@datawheel/olap-client": "^0.1.0",
     "localforage": "^1.7.3",
     "react-table": "^6.10.0"
   }

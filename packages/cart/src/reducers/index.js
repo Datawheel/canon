@@ -58,7 +58,6 @@ function cartStateReducer(state = initialState(), action) {
   switch (action.type) {
 
     case INIT_CART: {
-      console.log("init->", action.payload);
       tempObj = initialState();
       newState = Object.assign(
         tempObj,

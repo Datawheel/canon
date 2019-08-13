@@ -1,6 +1,8 @@
 import localforage from "localforage";
-import {getHashCode, getHumanTitle} from "../helpers/transformations";
+import {getHashCode, parseURL} from "../helpers/transformations";
 import {STORAGE_CART_KEY} from "../helpers/consts";
+import {Client} from "@datawheel/olap-client";
+import axios from "axios";
 
 /* Init Cart */
 export const INIT_CART = "@@canon-cart/INIT_CART";
@@ -30,14 +32,14 @@ export const clearCartAction = () => ({
 /* Add query to Cart */
 export const ADD_TO_CART = "@@canon-cart/ADD_TO_CART";
 export const addToCartAction = query => {
-  const human = getHumanTitle(query);
+  const parsed = parseURL(query);
   return {
     type: ADD_TO_CART,
     payload: {
       id: getHashCode(query),
-      url: query,
-      name: human.title,
-      query: human.meta,
+      url: parsed.query,
+      name: parsed.title,
+      query: parsed.meta,
       isLoaded: false
     }
   };
@@ -64,16 +66,24 @@ export const toggleSettingAction = id => ({
 export const loadDatasetsAction = datasets => dispatch => {
   dispatch(loadAllDatasetsAction());
   let loaded = 0;
+  const client = new Client([]);
+  console.log("DATASETS TO LOAD!!", datasets);
+  console.log(client);
   const datasetIds = Object.keys(datasets);
-  datasetIds.map((d, ix) => {
-    // TEST LOADING
-    setTimeout(() => {
-      dispatch(successLoadDatasetAction(d));
-      loaded += 1;
-      if (loaded === datasetIds.length) {
-        processAllDatasets(dispatch, "data");
-      }
-    }, (ix + 1) * 1000);
+  let datasetObj;
+  const loadedData = {};
+  datasetIds.map((datasetId, ix) => {
+    datasetObj = datasets[datasetId];
+    axios.get(datasetObj.url)
+      .then(resp => {
+        console.log(resp.data);
+        loadedData[datasetId] = resp.data;
+        dispatch(successLoadDatasetAction(datasetId));
+        loaded += 1;
+        if (loaded === datasetIds.length) {
+          processAllDatasets(dispatch, loadedData);
+        }
+      });
   });
 };
 
@@ -97,6 +107,7 @@ export const failureLoadDatasetAction = id => ({
 /** Processing datasets */
 export const processAllDatasets = (dispatch, datasets) => {
   dispatch(startProcessingAction());
+  console.log("processAllDatasets->", datasets);
   // TODO: merge datasets
   setTimeout(() => {
     dispatch(endProcessingAction());

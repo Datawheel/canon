@@ -8,13 +8,27 @@ export const getHashCode = s => {
 };
 
 /** TODO: generate human title from query */
-export const getHumanTitle = query => {
-  const meta = parseURL(query);
-  const title = meta.params.measure ? meta.params.measure[0] : meta.params.measures[0];
-  return {title, meta};
+export const parseURL = url => {
+  const meta = parseQueryParams(url);
+  const sanitizedUrl = sanitizeUrl(url, meta);
+  return {
+    title: getHumanTitle(meta),
+    meta,
+    query: sanitizedUrl
+  };
 };
 
-export const parseURL = url => {
+/** Sanitize UrL */
+export const sanitizeUrl = (url, meta) => url.replace("aggregate.json?", "aggregate.jsonrecords?");
+
+/** TODO: generate human title from query */
+export const getHumanTitle = meta => {
+  const title = meta.params.measure ? meta.params.measure[0] : meta.params.measures[0];
+  return title;
+};
+
+/** Parse query params */
+export const parseQueryParams = url => {
   let [base, query] = url.split("?");
 
   // Fix mondrian query '&' in values

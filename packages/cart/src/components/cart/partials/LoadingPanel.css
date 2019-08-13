@@ -4,6 +4,7 @@
       display: flex;
       justify-content: space-between;
       height: 25px;
+      min-width: 200px;
       align-items: center;
       & .canon-cart-loading-item-icon{
         margin-left: 10px;
