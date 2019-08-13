@@ -27,7 +27,6 @@ export default class Parse extends Component {
       El !== "h6"
     ) {
       blob = blob.split("<br/>");
-      console.log(blob);
     }
     // Otherwise, just remove the br tag, and convert the blob to an array with one entry
     else {
