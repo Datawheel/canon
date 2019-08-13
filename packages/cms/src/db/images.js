@@ -1,3 +1,4 @@
+
 module.exports = function(sequelize, db) {
 
   const images = sequelize.define("images",
@@ -13,8 +14,7 @@ module.exports = function(sequelize, db) {
       },
       author: db.TEXT,
       meta: db.TEXT,
-      license: db.INTEGER,
-      link: db.TEXT
+      license: db.INTEGER
     },
     {
       tableName: "canon_cms_images",

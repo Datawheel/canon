@@ -60,28 +60,25 @@ module.exports = function(app) {
             if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
             const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
             
+            const configs = [
+              {type: "splash", res: 1600}, 
+              {type: "thumb", res: 425}
+            ];
             // For both splash and thumb sizes, write the buffer to disk, upload to cloud, then delete.
-            const splashHandle = tmp.fileSync();
-            const splashPath = splashHandle.name;
-            await sharp(imageData).resize(1600).toFile(splashPath).catch(catcher);
-            const splashFile = `${newImage.id}.jpg`;
-            const splashOptions = {destination: splashFile};
-            const splashUpload = await storage.bucket(bucket).upload(splashPath, splashOptions).catch(catcher);
-            await storage.bucket(bucket).file(splashFile).makePublic().catch(catcher);
-            const link = splashUpload[1].selfLink;
-            fs.unlinkSync(splashPath);
-            
-            const thumbHandle = tmp.fileSync();
-            const thumbPath = thumbHandle.name;
-            await sharp(imageData).resize(425).toFile(thumbPath).catch(catcher);
-            const thumbFile = `${newImage.id}_thumb.jpg`;
-            const thumbOptions = {destination: thumbFile};
-            await storage.bucket(bucket).upload(thumbPath, thumbOptions).catch(catcher);
-            await storage.bucket(bucket).file(thumbFile).makePublic().catch(catcher);
-            fs.unlinkSync(thumbPath);  
-
+            for (const config of configs) {
+              const handle = tmp.fileSync({postfix: ".jpg"});
+              const path = handle.name;
+              await sharp(imageData).resize(config.res).toFile(path).catch(catcher);
+              const file = `/${config.type}/${newImage.id}.jpg`;
+              const options = {metadata: {contentType: "image/jpeg"}, destination: file};
+              const upload = await storage.bucket(bucket).upload(path, options).catch(catcher);
+              await storage.bucket(bucket).file(file).makePublic().catch(catcher);
+              const link = upload[1].selfLink;
+              console.log(link);
+              fs.unlinkSync(path);
+            }
             // Then update the image row to store the cloud link
-            await db.images.update({link}, {where: {id: newImage.id}}).catch(catcher);
+            // await db.images.update({link}, {where: {id: newImage.id}}).catch(catcher);
           }
           const newRow = await db.search.findOne({
             where: {contentId},
