@@ -4,6 +4,7 @@
 export default function initialStateFactory() {
   return {
     internal: {
+      processing: false,
       loading: true,
       ready: false,
       full: false

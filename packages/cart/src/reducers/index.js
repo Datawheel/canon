@@ -1,6 +1,16 @@
 import initialState from "../state";
 import localforage from "localforage";
-import {INIT_CART, CLEAR_CART, ADD_TO_CART, REMOVE_FROM_CART, TOGGLE_CART_SETTING, LOAD_DATASETS, SUCCESS_LOAD_DATASET} from "../actions";
+import {
+  INIT_CART,
+  CLEAR_CART,
+  ADD_TO_CART,
+  REMOVE_FROM_CART,
+  TOGGLE_CART_SETTING,
+  LOAD_DATASETS,
+  SUCCESS_LOAD_DATASET,
+  START_PROCESSING_DATASETS,
+  END_PROCESSING_DATASETS
+} from "../actions";
 import {STORAGE_CART_KEY, MAX_DATASETS_IN_CART} from "../helpers/consts";
 
 /** Persist state in Local Storage */
@@ -27,9 +37,20 @@ function allDatasetsLoaded(list) {
   return ids.length === loaded;
 }
 
+/** Retrieve a list of loading datasets */
+function getLoadingIds(list) {
+  const ids = Object.keys(list);
+  const loading = [];
+  ids.map(id => {
+    if (!list[id].isLoaded) {
+      loading.push(id);
+    }
+  });
+  return loading;
+}
+
 /**
  * Cart reducer
- *
  */
 function cartStateReducer(state = initialState(), action) {
   let newState, tempObj;
@@ -37,8 +58,6 @@ function cartStateReducer(state = initialState(), action) {
   switch (action.type) {
 
     case INIT_CART: {
-      newState = initialState();
-
       newState = Object.assign(
         initialState(),
         action.payload ? {
@@ -52,10 +71,14 @@ function cartStateReducer(state = initialState(), action) {
     }
 
     case CLEAR_CART: {
-      newState = initialState();
-      newState.internal.full = false;
-      newState.internal.ready = true;
-      newState.internal.loading = false;
+      newState = {
+        ...initialState(),
+        internal: {
+          full: false,
+          ready: true,
+          loading: false
+        }
+      };
       setLocalForageState(newState);
       return newState;
     }
@@ -66,10 +89,13 @@ function cartStateReducer(state = initialState(), action) {
         list: {
           ...state.list,
           [`${action.payload.id}`]: action.payload
+        },
+        internal: {
+          ...state.internal,
+          full: Object.keys(state.list).length === MAX_DATASETS_IN_CART ? true : false,
+          loading: true
         }
       };
-      newState.internal.full = Object.keys(newState.list).length === MAX_DATASETS_IN_CART ? true : false;
-      newState.internal.loading = true;
       setLocalForageState(newState);
       return newState;
     }
@@ -79,22 +105,33 @@ function cartStateReducer(state = initialState(), action) {
       delete newState[action.payload.id];
       newState = {
         ...state,
-        list: newState
+        list: {
+          ...newState
+        },
+        internal: {
+          ...state.internal,
+          full: Object.keys(newState).length === MAX_DATASETS_IN_CART ? true : false,
+          loading: true
+        }
       };
-      newState.internal.full = Object.keys(newState.list).length === MAX_DATASETS_IN_CART ? true : false;
-      newState.internal.loading = true;
       setLocalForageState(newState);
       return newState;
     }
 
     case TOGGLE_CART_SETTING: {
-      newState = Object.assign({}, state.settings);
-      newState[action.payload.id].value = !newState[action.payload.id].value;
+      tempObj = Object.assign({}, state.settings);
+      tempObj[action.payload.id].value = !tempObj[action.payload.id].value;
       newState = {
         ...state,
-        settings: newState
+        settings: {
+          ...state.settings,
+          ...tempObj
+        },
+        internal: {
+          ...state.internal,
+          loading: true
+        }
       };
-      newState.internal.loading = true;
       setLocalForageState(newState);
       return newState;
     }
@@ -107,30 +144,62 @@ function cartStateReducer(state = initialState(), action) {
       });
       newState = {
         ...state,
-        list: tempObj
+        list: {
+          ...state.list,
+          ...tempObj
+        },
+        loadingList: getLoadingIds(tempObj),
+        internal: {
+          ...state.internal,
+          loading: true
+        }
       };
-      const arr = [];
-      Object.keys(newState.list).map(id => {
-        arr.push(id);
-      });
-      newState.loadingList = arr;
-      newState.internal.loading = true;
       return newState;
     }
 
     case SUCCESS_LOAD_DATASET: {
+      tempObj = {
+        ...state.list,
+        [`${action.payload.id}`]: {
+          ...state.list[`${action.payload.id}`],
+          isLoaded: true
+        }
+      };
       newState = {
         ...state,
         list: {
           ...state.list,
-          [`${action.payload.id}`]: {
-            ...state.list[`${action.payload.id}`],
-            isLoaded: true
-          }
+          ...tempObj
+        },
+        loadingList: getLoadingIds(tempObj),
+        internal: {
+          ...state.internal,
+          processing: allDatasetsLoaded(tempObj)
         }
       };
-      newState.loadingList.pop();
-      newState.internal.loading = !allDatasetsLoaded(newState.list);
+      return newState;
+    }
+
+    case START_PROCESSING_DATASETS: {
+      newState = {
+        ...state,
+        internal: {
+          ...state.internal,
+          processing: true
+        }
+      };
+      return newState;
+    }
+
+    case END_PROCESSING_DATASETS: {
+      newState = {
+        ...state,
+        internal: {
+          ...state.internal,
+          processing: false,
+          loading: false
+        }
+      };
       return newState;
     }
 

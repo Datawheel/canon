@@ -63,10 +63,16 @@ export const toggleSettingAction = id => ({
 /** Loading datasets */
 export const loadDatasetsAction = datasets => dispatch => {
   dispatch(loadAllDatasetsAction());
-  Object.keys(datasets).map((d, ix) => {
+  let loaded = 0;
+  const datasetIds = Object.keys(datasets);
+  datasetIds.map((d, ix) => {
     // TEST LOADING
     setTimeout(() => {
       dispatch(successLoadDatasetAction(d));
+      loaded += 1;
+      if (loaded === datasetIds.length) {
+        processAllDatasets(dispatch, "data");
+      }
     }, (ix + 1) * 1000);
   });
 };
@@ -86,4 +92,23 @@ export const FAILURE_LOAD_DATASET = "@@canon-cart/FAILURE_LOAD_DATASET";
 export const failureLoadDatasetAction = id => ({
   type: FAILURE_LOAD_DATASET,
   payload: {id}
+});
+
+/** Processing datasets */
+export const processAllDatasets = (dispatch, datasets) => {
+  dispatch(startProcessingAction());
+  // TODO: merge datasets
+  setTimeout(() => {
+    dispatch(endProcessingAction());
+  }, 2000);
+};
+
+export const START_PROCESSING_DATASETS = "@@canon-cart/START_PROCESSING_DATASETS";
+export const startProcessingAction = () => ({
+  type: START_PROCESSING_DATASETS
+});
+
+export const END_PROCESSING_DATASETS = "@@canon-cart/END_PROCESSING_DATASETS";
+export const endProcessingAction = () => ({
+  type: END_PROCESSING_DATASETS
 });

@@ -117,8 +117,7 @@ Cart.contextTypes = {
 Cart.childContextTypes = {
   datasets: PropTypes.object,
   dispatch: PropTypes.func,
-  settings: PropTypes.object,
-  internal: PropTypes.object
+  settings: PropTypes.object
 };
 
 Cart.propTypes = {
