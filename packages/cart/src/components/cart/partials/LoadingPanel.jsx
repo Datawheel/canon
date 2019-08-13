@@ -39,7 +39,7 @@ class LoadingPanel extends React.Component {
       {
         cartProcessing &&
         <div className="canon-cart-loading-item">
-          Processing datasets<span className="canon-cart-loading-item-icon"><Spinner size={Spinner.SIZE_SMALL} /></span>
+          Processing datasets<span className="canon-cart-loading-item-icon"><Spinner size={16} /></span>
         </div>
       }
       {
