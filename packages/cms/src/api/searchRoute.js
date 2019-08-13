@@ -7,10 +7,12 @@ const flickr = new Flickr(process.env.FLICKR_API_KEY);
 const {Storage} = require("@google-cloud/storage");
 const storage = new Storage();
 const sharp = require("sharp");
+const fs = require("fs");
 const tmp = require("tmp");
 const axios = require("axios");
 
 const validLicenses = ["4", "5", "7", "8", "9", "10"];
+const bucket = "datawheel-cms-images";
 
 
 const catcher = e => {
@@ -25,13 +27,8 @@ module.exports = function(app) {
   const {db, cache} = app.settings;
 
   app.get("/api/haha", async(req, res) => {
-    const bucket = "datawheel-cms-images";
-    const file = "steps.txt";
-    const path = `/Users/jimmy/Desktop/${file}`;
-    const result = await storage.bucket(bucket).upload(path).catch(catcher);
-    await storage.bucket(bucket).file(file).makePublic().catch(catcher);
-    const link = result[1].selfLink;
-    res.json(link);
+    
+    
   });
 
   app.post("/api/image/update", async(req, res) => {
@@ -47,13 +44,7 @@ module.exports = function(app) {
             await db.search.update({imageId: imageRow.id}, {where: {contentId}}).catch(catcher);
           }
           else {
-            const sizeObj = await flickr.photos.getSizes({photo_id: id}).then(resp => resp.body).catch(catcher);
-            let image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1600);
-            if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1000);
-            if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
-            const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
-            const dude = await sharp(imageData).resize(1600).toFile("/Users/jimmy/Desktop/hi.jpg").catch(catcher);
-            console(dude);
+            // To add a new image, first create a row in the table with the metadata from flickr.
             const payload = {
               url,
               author: info.photo.owner.realname || info.photo.owner.username,
@@ -61,6 +52,36 @@ module.exports = function(app) {
             };
             const newImage = await db.images.create(payload).catch(catcher);
             await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
+            
+            // Then fetch the available sizes from flickr
+            const sizeObj = await flickr.photos.getSizes({photo_id: id}).then(resp => resp.body).catch(catcher);
+            let image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1600);
+            if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1000);
+            if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
+            const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
+            
+            // For both splash and thumb sizes, write the buffer to disk, upload to cloud, then delete.
+            const splashHandle = tmp.fileSync();
+            const splashPath = splashHandle.name;
+            await sharp(imageData).resize(1600).toFile(splashPath).catch(catcher);
+            const splashFile = `${newImage.id}.jpg`;
+            const splashOptions = {destination: splashFile};
+            const splashUpload = await storage.bucket(bucket).upload(splashPath, splashOptions).catch(catcher);
+            await storage.bucket(bucket).file(splashFile).makePublic().catch(catcher);
+            const link = splashUpload[1].selfLink;
+            fs.unlinkSync(splashPath);
+            
+            const thumbHandle = tmp.fileSync();
+            const thumbPath = thumbHandle.name;
+            await sharp(imageData).resize(425).toFile(thumbPath).catch(catcher);
+            const thumbFile = `${newImage.id}_thumb.jpg`;
+            const thumbOptions = {destination: thumbFile};
+            await storage.bucket(bucket).upload(thumbPath, thumbOptions).catch(catcher);
+            await storage.bucket(bucket).file(thumbFile).makePublic().catch(catcher);
+            fs.unlinkSync(thumbPath);  
+
+            // Then update the image row to store the cloud link
+            await db.images.update({link}, {where: {id: newImage.id}}).catch(catcher);
           }
           const newRow = await db.search.findOne({
             where: {contentId},
