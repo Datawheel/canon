@@ -26,11 +26,6 @@ module.exports = function(app) {
 
   const {db, cache} = app.settings;
 
-  app.get("/api/haha", async(req, res) => {
-    
-    
-  });
-
   app.post("/api/image/update", async(req, res) => {
     const {url, contentId} = req.body;
     const id = url.replace("https://flic.kr/p/", "");
@@ -71,10 +66,8 @@ module.exports = function(app) {
               await sharp(imageData).resize(config.res).toFile(path).catch(catcher);
               const file = `/${config.type}/${newImage.id}.jpg`;
               const options = {metadata: {contentType: "image/jpeg"}, destination: file};
-              const upload = await storage.bucket(bucket).upload(path, options).catch(catcher);
+              await storage.bucket(bucket).upload(path, options).catch(catcher);
               await storage.bucket(bucket).file(file).makePublic().catch(catcher);
-              const link = upload[1].selfLink;
-              console.log(link);
               fs.unlinkSync(path);
             }
             // Then update the image row to store the cloud link
@@ -177,6 +170,8 @@ module.exports = function(app) {
       if (!slugs[m.dimension]) slugs[m.dimension] = m.slug;
     });
 
+    const cloudroot = `https://storage.cloud.google.com/datawheel-cms-images`;
+
     const results = rows.map(d => {
       d = d.toJSON();
       const result = {
@@ -184,6 +179,8 @@ module.exports = function(app) {
         hierarchy: d.hierarchy,
         id: d.id,
         image: d.image,
+        splashLink: d.image && d.image.id ? `${cloudroot}/splash/${d.image.id}.jpg` : "",
+        thumbLink: d.image && d.image.id ? `${cloudroot}/thumb/${d.image.id}.jpg` : "",
         profile: slugs[d.dimension],
         slug: d.slug,
         stem: d.stem === 1
