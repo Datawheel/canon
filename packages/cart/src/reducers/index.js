@@ -23,7 +23,7 @@ function setLocalForageState(newState) {
     newInstance.list[id].isLoaded = false;
   });
   stateToLocalForage.list = Object.assign({}, newInstance.list);
-
+  stateToLocalForage.settings = Object.assign({}, newInstance.settings);
   localforage.setItem(STORAGE_CART_KEY, stateToLocalForage);
 }
 
@@ -58,11 +58,19 @@ function cartStateReducer(state = initialState(), action) {
   switch (action.type) {
 
     case INIT_CART: {
+      console.log("init->", action.payload);
+      tempObj = initialState();
       newState = Object.assign(
-        initialState(),
+        tempObj,
         action.payload ? {
-          list: action.payload.list,
-          settings: action.payload.settings
+          list: {
+            ...tempObj.list,
+            ...action.payload.list
+          },
+          settings: {
+            ...tempObj.settings,
+            ...action.payload.settings
+          }
         } : {}
       );
       newState.internal.ready = true;
