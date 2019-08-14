@@ -7,13 +7,10 @@ const flickr = new Flickr(process.env.FLICKR_API_KEY);
 const {Storage} = require("@google-cloud/storage");
 const storage = new Storage();
 const sharp = require("sharp");
-const fs = require("fs");
-const tmp = require("tmp");
 const axios = require("axios");
 
 const validLicenses = ["4", "5", "7", "8", "9", "10"];
-const bucket = "datawheel-cms-images";
-
+const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
 
 const catcher = e => {
   if (verbose) {
@@ -39,39 +36,38 @@ module.exports = function(app) {
             await db.search.update({imageId: imageRow.id}, {where: {contentId}}).catch(catcher);
           }
           else {
-            // To add a new image, first create a row in the table with the metadata from flickr.
-            const payload = {
-              url,
-              author: info.photo.owner.realname || info.photo.owner.username,
-              license: info.photo.license
-            };
-            const newImage = await db.images.create(payload).catch(catcher);
-            await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
-            
-            // Then fetch the available sizes from flickr
-            const sizeObj = await flickr.photos.getSizes({photo_id: id}).then(resp => resp.body).catch(catcher);
-            let image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1600);
-            if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1000);
-            if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
-            const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
-            
-            const configs = [
-              {type: "splash", res: 1600}, 
-              {type: "thumb", res: 425}
-            ];
-            // For both splash and thumb sizes, write the buffer to disk, upload to cloud, then delete.
-            for (const config of configs) {
-              const handle = tmp.fileSync({postfix: ".jpg"});
-              const path = handle.name;
-              await sharp(imageData).resize(config.res).toFile(path).catch(catcher);
-              const file = `/${config.type}/${newImage.id}.jpg`;
-              const options = {metadata: {contentType: "image/jpeg"}, destination: file};
-              await storage.bucket(bucket).upload(path, options).catch(catcher);
-              await storage.bucket(bucket).file(file).makePublic().catch(catcher);
-              fs.unlinkSync(path);
+            if (!bucket) {
+              if (verbose) console.error("CANON_CONST_STORAGE_BUCKET not configured, failed to update image");
             }
-            // Then update the image row to store the cloud link
-            // await db.images.update({link}, {where: {id: newImage.id}}).catch(catcher);
+            else {
+              // To add a new image, first create a row in the table with the metadata from flickr.
+              const payload = {
+                url,
+                author: info.photo.owner.realname || info.photo.owner.username,
+                license: info.photo.license
+              };
+              const newImage = await db.images.create(payload).catch(catcher);
+              await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);            
+
+              // Then fetch the available sizes from flickr
+              const sizeObj = await flickr.photos.getSizes({photo_id: id}).then(resp => resp.body).catch(catcher);
+              let image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1600);
+              if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1000);
+              if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
+              const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
+              
+              const configs = [
+                {type: "splash", res: 1600}, 
+                {type: "thumb", res: 425}
+              ];
+              for (const config of configs) {
+                const buffer = await sharp(imageData).resize(config.res).toBuffer().catch(catcher);
+                const file = `/${config.type}/${newImage.id}.jpg`;
+                const options = {metadata: {contentType: "image/jpeg"}};
+                await storage.bucket(bucket).file(file).save(buffer, options).catch(catcher);
+                await storage.bucket(bucket).file(file).makePublic().catch(catcher);
+              }
+            }
           }
           const newRow = await db.search.findOne({
             where: {contentId},
@@ -170,7 +166,7 @@ module.exports = function(app) {
       if (!slugs[m.dimension]) slugs[m.dimension] = m.slug;
     });
 
-    const cloudroot = `https://storage.cloud.google.com/datawheel-cms-images`;
+    const cloudroot = `https://storage.cloud.google.com/${bucket}`;
 
     const results = rows.map(d => {
       d = d.toJSON();
@@ -179,8 +175,6 @@ module.exports = function(app) {
         hierarchy: d.hierarchy,
         id: d.id,
         image: d.image,
-        splashLink: d.image && d.image.id ? `${cloudroot}/splash/${d.image.id}.jpg` : "",
-        thumbLink: d.image && d.image.id ? `${cloudroot}/thumb/${d.image.id}.jpg` : "",
         profile: slugs[d.dimension],
         slug: d.slug,
         stem: d.stem === 1
