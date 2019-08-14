@@ -166,8 +166,6 @@ module.exports = function(app) {
       if (!slugs[m.dimension]) slugs[m.dimension] = m.slug;
     });
 
-    const cloudroot = `https://storage.cloud.google.com/${bucket}`;
-
     const results = rows.map(d => {
       d = d.toJSON();
       const result = {

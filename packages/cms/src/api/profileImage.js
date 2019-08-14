@@ -1,6 +1,10 @@
 const axios = require("axios");
+const sequelize = require("sequelize");
+const request = require("request");
+const yn = require("yn");
 
 const {CANON_LOGICLAYER_CUBE} = process.env;
+const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 const slugMap = {
   cip: "CIP",
@@ -11,9 +15,41 @@ const slugMap = {
   university: "University"
 };
 
+const catcher = e => {
+  if (verbose) {
+    console.error("Error in searchRoute: ", e);
+  }
+  return [];
+};
+
 module.exports = function(app) {
 
   const {db} = app.settings;
+  
+  /* CMS 0.8+ IMAGE ROUTE */
+  /* See below for legacy Datausa Route */
+
+  app.get("/api/image", async(req, res) => {
+    const {slug, id} = req.query;
+    const size = req.query.size || "splash";
+    const meta = await db.profile_meta.findOne({where: {slug}}).catch(catcher);
+    if (!meta) return res.sendFile(`${process.cwd()}/static/images/transparent.png`);
+    const {dimension} = meta;
+    const member = await db.search.findOne({where: {dimension, [sequelize.Op.or]: {id, slug: id}}}).catch(catcher);
+    if (!member) return res.sendFile(`${process.cwd()}/static/images/transparent.png`);
+    const {imageId} = member;
+    const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
+    if (imageId && bucket && ["splash", "thumb"].includes(size)) {
+      const url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
+      return request.get(url).pipe(res);
+    }
+    else {
+      return res.sendFile(`${process.cwd()}/static/images/transparent.png`);
+    }
+  });
+
+  /* LEGACY DATAUSA IMAGE ROUTE */
+
   const {parents} = app.settings.cache;
 
   app.get("/api/profile/:pslug/:pid/:size", (req, res) => {
