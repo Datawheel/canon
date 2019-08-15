@@ -56,6 +56,24 @@ The visualizations are powered by [D3plus](http://d3plus.org/), a JavaScript lib
 
 One thing to note about d3plus configuration is that any setting can be set in one of two ways: as a method of the instantiated class like `.data(myDataURL)` as seen in some examples, or as a large configuration option (like `.config({data: myDataURL})`). The CMS utilizes the second method of creating custom configuration objects.
 
+### How can I format the data for a visualization?
+
+The config _Object_ that is returned for any visualization contains special additional keys that pertain to formatting data loaded from a URL. For example, if you provide a URL to the `data` key, you can provide a callback function to the `dataFormat` key that will be provided the response data and is expected to return the final data for the visualization and associated data table. This is helpful for doing things like calculating a share percentage:
+
+```js
+data: "your-data-url.com",
+dataFormat: resp => {
+  const data = resp.data;
+  const total = sum(data, d => d.quantity);
+  data.forEach(d => {
+    d.share = d.quantity / total;
+  });
+  return data;
+}
+```
+
+This callback functionality works with any method that loads data from a URL, such as `topojson` and `topojsonFormat`.
+
 ### How do I add control toggles to a section?
 
 Control toggles are called "selectors" in the CMS, and you create them in the right-hand toolbox using any previously defined generator variables. Similar to generators, the current value of a selector is accessibly in text using double square brackets to surround the id of the selector. For example, if you create a selector with the ID of `year-select`, you could reference the current value in any text (whether a decription or a visualization config) as `[[year-select]]`.
