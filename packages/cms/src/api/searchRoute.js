@@ -181,6 +181,7 @@ module.exports = function(app) {
       if (defCon) {
         result.name = defCon.name;
         result.keywords = defCon.keywords;
+        result.attr = defCon.attr;
       }
       return result;
     });
