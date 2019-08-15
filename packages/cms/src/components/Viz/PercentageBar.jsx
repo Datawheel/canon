@@ -72,7 +72,7 @@ class PercentageBar extends Component {
     return (
       <div className="percentage-bar-wrapper">
         <ul className="percentage-bar-list">
-          {displayData.map((d, i) => {
+          {displayData.filter(d => d).map((d, i) => {
             const percent = d[value] / total * 100;
             const label = d[groupBy];
             return (
