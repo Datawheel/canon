@@ -19,6 +19,9 @@ const catcher = e => {
   return [];
 };
 
+const splashWidth = Number(process.env.CANON_CONST_IMAGE_SPLASH_WIDTH) || 1400;
+const thumbWidth = Number(process.env.CANON_CONST_IMAGE_THUMB_WIDTH) || 400;
+
 module.exports = function(app) {
 
   const {db, cache} = app.settings;
@@ -57,8 +60,8 @@ module.exports = function(app) {
               const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
               
               const configs = [
-                {type: "splash", res: 1600}, 
-                {type: "thumb", res: 425}
+                {type: "splash", res: splashWidth}, 
+                {type: "thumb", res: thumbWidth}
               ];
               for (const config of configs) {
                 const buffer = await sharp(imageData).resize(config.res).toBuffer().catch(catcher);
