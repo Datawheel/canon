@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import {Select as BlueprintSelect} from "@blueprintjs/select";
 import {MenuItem, Icon} from "@blueprintjs/core";
 
+import stripHTML from "../../../utils/formatters/stripHTML";
+
 import Select from "../../fields/Select";
 
 class Selector extends Component {
@@ -41,7 +43,7 @@ class Selector extends Component {
       shouldDismissPopover={true}
       onClick={handleClick}
       key={item}
-      text={variables[item]}/>;
+      text={stripHTML(variables[item])}/>;
   }
 
   render() {
@@ -57,7 +59,7 @@ class Selector extends Component {
           { title && <label htmlFor={slug}>{title}</label> }
           <div className="multi-list">
             { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
-              { variables[d] }
+              { stripHTML(variables[d]) }
               <button aria-label={`${variables[d]} (remove)`} className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
             </div>) }
           </div>
@@ -85,7 +87,7 @@ class Selector extends Component {
           value={defaultValue}
         >
           {options.map(({option}) => <option value={option} key={option}>
-            {variables[option]}
+            {stripHTML(variables[option])}
           </option>)}
         </Select>
       }
