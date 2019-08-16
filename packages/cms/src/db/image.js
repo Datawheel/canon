@@ -1,4 +1,3 @@
-
 module.exports = function(sequelize, db) {
 
   const image = sequelize.define("image",
