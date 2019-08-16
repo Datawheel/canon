@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactTable from "react-table";
 import Select from "../components/fields/Select";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Spinner} from "@blueprintjs/core";
 import FooterButtons from "../components/editors/components/FooterButtons";
 import PropTypes from "prop-types";
 
@@ -22,7 +22,8 @@ class MemberBuilder extends Component {
       hierarchies: [],
       hierarchy: "all",
       isOpen: false,
-      currentRow: {}
+      currentRow: {},
+      loading: false
     };
   }
 
@@ -88,6 +89,7 @@ class MemberBuilder extends Component {
     const {contentId} = currentRow;
     const Toast = this.context.toast.current;
     const payload = {url, contentId};
+    this.setState({loading: true});
     axios.post("/api/image/update", payload).then(resp => {
       if (resp.data) {
         if (resp.data.error) {
@@ -96,12 +98,14 @@ class MemberBuilder extends Component {
             message: `Invalid Flickr Link - ${resp.data.error}`,
             timeout: 2000
           });
+          this.setState({loading: false});
         }
         else {
           const row = resp.data;
           const sourceData = this.state.sourceData.map(d => row.contentId === d.contentId ? row : d);
           const isOpen = false;
-          this.setState({isOpen, sourceData}, this.prepData.bind(this));
+          const loading = false;
+          this.setState({isOpen, sourceData, loading}, this.prepData.bind(this));
           Toast.show({
             intent: "success",
             message: "Success!",
@@ -130,17 +134,24 @@ class MemberBuilder extends Component {
     this.setState({data, [field]: e.target.value});
   }
 
-  maybeCloseEditorWithoutSaving() {
-
-  }
-
   closeEditor() {
-    this.setState({url: "", isOpen: false});
+    this.setState({url: "", isOpen: false, loading: false});
   }
 
   render() {
 
-    const {data, columns, dimensions, dimension, hierarchies, hierarchy, isOpen, url, currentRow} = this.state;
+    const {
+      columns, 
+      currentRow,
+      data, 
+      dimension, 
+      dimensions, 
+      hierarchy, 
+      hierarchies, 
+      isOpen, 
+      loading,
+      url
+    } = this.state;
 
     return (
       <React.Fragment>
@@ -163,7 +174,7 @@ class MemberBuilder extends Component {
             Enter a Flickr URL
             <input className="cms-flickr-input" value={url} onChange={e => this.setState({url: e.target.value})}/>
           </div>
-          <FooterButtons onSave={this.save.bind(this, currentRow)} />
+          {loading ? <Spinner size="30" className="cms-spinner"/> : <FooterButtons onSave={this.save.bind(this, currentRow)} />}
         </Dialog>
         <div className="cms-panel member-panel">
           <h3>Filters</h3>
