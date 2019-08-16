@@ -135,7 +135,7 @@ module.exports = function(app) {
         {name: {[sequelize.Op.iLike]: `%${q}%`}},
         {keywords: {[sequelize.Op.overlap]: [q]}}
       ];
-      where.lang = locale;
+      where.locale = locale;
       rows = await db.search_content.findAll({where}).catch(catcher);
       const searchWhere = {
         contentId: Array.from(new Set(rows.map(r => r.id)))
@@ -180,7 +180,7 @@ module.exports = function(app) {
         slug: d.slug,
         stem: d.stem === 1
       };
-      const defCon = d.content.find(c => c.lang === locale);
+      const defCon = d.content.find(c => c.locale === locale);
       if (defCon) {
         result.name = defCon.name;
         result.keywords = defCon.keywords;

@@ -58,7 +58,7 @@ const profileReqTreeOnly = {
     {
       association: "sections", attributes: ["id", "slug", "ordering", "profile_id", "type", "sticky"],
       include: [
-        {association: "content", attributes: ["id", "lang", "title"]}
+        {association: "content", attributes: ["id", "locale", "title"]}
       ]
     }
   ]
@@ -67,9 +67,9 @@ const profileReqTreeOnly = {
 const storyReqTreeOnly = {
   attributes: ["id", "slug", "ordering"],
   include: [
-    {association: "content", attributes: ["id", "lang", "title"]},
+    {association: "content", attributes: ["id", "locale", "title"]},
     {association: "storysections", attributes: ["id", "slug", "ordering", "story_id", "type"],
-      include: [{association: "content", attributes: ["id", "lang", "title"]}]
+      include: [{association: "content", attributes: ["id", "locale", "title"]}]
     }
   ]
 };
@@ -340,7 +340,7 @@ const populateSearch = async(profileData, db) => {
     }).catch(catcher);
     // The contents, namely "name", need to be translated
     // TODO: work with walther to fetch translated name field
-    const contentArray = LANGUAGES.map(lang => ({id: row.contentId, lang, name}));
+    const contentArray = LANGUAGES.map(locale => ({id: row.contentId, locale, name}));
     // Depending on what happened, create or update the translated content as well
     if (created) {
       if (verbose) console.log(`Created: ${row.id} ${row.slug}`);
@@ -359,17 +359,17 @@ const populateSearch = async(profileData, db) => {
       // of updating existing content and creating new content. Do a findOrCreate
       // similar to the one above to make sure all lang content is there.
       for (const content of contentArray) {
-        const {id, lang, name} = content;
+        const {id, locale, name} = content;
         const [contentRow, contentCreated] = await db.search_content.findOrCreate({
-          where: {id, lang},
+          where: {id, locale},
           defaults: {name}
         }).catch(catcher);
         if (contentCreated) {
-          if (verbose) console.log(`Created ${content.lang} Content: ${row.name}`);
+          if (verbose) console.log(`Created ${content.locale} Content: ${row.name}`);
         }
         else {
           await contentRow.updateAttributes({name: content.name});
-          if (verbose) console.log(`Updated ${contentRow.id} ${contentRow.lang}: ${contentRow.name}`);
+          if (verbose) console.log(`Updated ${contentRow.id} ${contentRow.locale}: ${contentRow.name}`);
         }
       }
     }
@@ -506,7 +506,7 @@ module.exports = function(app) {
       const newObj = await db[ref].create(req.body).catch(catcher);
       // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
       if (contentTables.includes(ref)) {
-        const payload = Object.assign({}, req.body, {id: newObj.id, lang: envLoc});
+        const payload = Object.assign({}, req.body, {id: newObj.id, locale: envLoc});
         await db[`${ref}_content`].create(payload).catch(catcher);
         const fullObj = await db[ref].findOne({where: {id: newObj.id}, include: [{association: "content"}]}).catch(catcher);
         return res.json(fullObj);
@@ -519,9 +519,9 @@ module.exports = function(app) {
 
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
     const profile = await db.profile.create(req.body).catch(catcher);
-    await db.profile_content.create({id: profile.id, lang: envLoc}).catch(catcher);
+    await db.profile_content.create({id: profile.id, locale: envLoc}).catch(catcher);
     const section = await db.section.create({ordering: 0, profile_id: profile.id});
-    await db.section_content.create({id: section.id, lang: envLoc}).catch(catcher);
+    await db.section_content.create({id: section.id, locale: envLoc}).catch(catcher);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     return res.json(profiles);
@@ -555,7 +555,7 @@ module.exports = function(app) {
       const o = await db[ref].update(req.body, {where: {id: req.body.id}}).catch(catcher);
       if (contentTables.includes(ref) && req.body.content) {
         req.body.content.forEach(async content => {
-          await db[`${ref}_content`].upsert(content, {where: {id: req.body.id, lang: content.lang}}).catch(catcher);
+          await db[`${ref}_content`].upsert(content, {where: {id: req.body.id, locale: content.locale}}).catch(catcher);
         });
       }
       return res.json(o);
@@ -671,7 +671,7 @@ module.exports = function(app) {
       where: {profile_id: row.profile_id},
       attributes: ["id", "slug", "ordering", "profile_id", "type"],
       include: [
-        {association: "content", attributes: ["id", "lang", "title"]}
+        {association: "content", attributes: ["id", "locale", "title"]}
       ],
       order: [["ordering", "ASC"]]
     }).catch(catcher);
@@ -686,7 +686,7 @@ module.exports = function(app) {
       where: {story_id: row.story_id},
       attributes: ["id", "slug", "ordering", "story_id", "type"],
       include: [
-        {association: "content", attributes: ["id", "lang", "title"]}
+        {association: "content", attributes: ["id", "locale", "title"]}
       ],
       order: [["ordering", "ASC"]]
     }).catch(catcher);

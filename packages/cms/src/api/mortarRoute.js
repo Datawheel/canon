@@ -158,10 +158,10 @@ const bubbleUp = (obj, locale) => {
       if (!fieldSet.includes(k)) fieldSet.push(k);
     });
   });
-  const defCon = obj.content.find(c => c.lang === envLoc);
-  const thisCon = obj.content.find(c => c.lang === locale);
+  const defCon = obj.content.find(c => c.locale === envLoc);
+  const thisCon = obj.content.find(c => c.locale === locale);
   fieldSet.forEach(k => {
-    if (k !== "id" && k !== "lang") {
+    if (k !== "id" && k !== "locale") {
       thisCon && thisCon[k] ? obj[k] = thisCon[k] : obj[k] = defCon ? defCon[k] : "";
     }
   });
@@ -477,7 +477,7 @@ module.exports = function(app) {
     let stories = await db.story.findAll({include: [
       {association: "content"},
       {association: "authors", include: [
-        {association: "content", attributes: ["name", "image", "lang"]}
+        {association: "content", attributes: ["name", "image", "locale"]}
       ]}
     ]}).catch(catcher);
     stories = stories.map(story => extractLocaleContent(story, locale, "story"));

@@ -48,7 +48,7 @@ class StoryBuilder extends Component {
     const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters[localeDefault];
     const nodes = stories.map(s => {
-      const defCon = s.content.find(c => c.lang === localeDefault);
+      const defCon = s.content.find(c => c.locale === localeDefault);
       const title = defCon && defCon.title ? defCon.title : s.slug;
       return {
         id: `story${s.id}`,
@@ -57,7 +57,7 @@ class StoryBuilder extends Component {
         itemType: "story",
         data: s,
         childNodes: s.storysections.map(t => {
-          const defCon = t.content.find(c => c.lang === localeDefault);
+          const defCon = t.content.find(c => c.locale === localeDefault);
           const title = defCon && defCon.title ? defCon.title : t.slug;
           return {
             id: `storysection${t.id}`,
@@ -177,7 +177,7 @@ class StoryBuilder extends Component {
           if (storysection.status === 200) {
             obj.id = `storysection${storysection.data.id}`;
             obj.data = storysection.data;
-            const defCon = storysection.data.content.find(c => c.lang === localeDefault);
+            const defCon = storysection.data.content.find(c => c.locale === localeDefault);
             const title = defCon && defCon.title ? defCon.title : storysection.data.slug;
             obj.label = this.decode(stripHTML(title));
             const parent = this.locateNode("story", obj.data.story_id);
@@ -194,7 +194,7 @@ class StoryBuilder extends Component {
         axios.post(storyPath, obj.data).then(story => {
           obj.id = `story${story.data.id}`;
           obj.data = story.data;
-          const defCon = story.data.content.find(c => c.lang === localeDefault);
+          const defCon = story.data.content.find(c => c.locale === localeDefault);
           const title = defCon && defCon.title ? defCon.title : story.data.slug;
           obj.label = this.decode(stripHTML(title));
           objStorySection.data.story_id = story.data.id;
@@ -202,7 +202,7 @@ class StoryBuilder extends Component {
             if (storySection.status === 200) {
               objStorySection.id = `storysection${storySection.data.id}`;
               objStorySection.data = storySection.data;
-              const defCon = storySection.data.content.find(c => c.lang === localeDefault);
+              const defCon = storySection.data.content.find(c => c.locale === localeDefault);
               const title = defCon && defCon.title ? defCon.title : storySection.data.slug;
               objStorySection.label = this.decode(stripHTML(title));
               nodes.push(obj);
@@ -233,7 +233,7 @@ class StoryBuilder extends Component {
       const parent = this.locateNode("story", n.data.story_id);
       axios.delete("/api/cms/storysection/delete", {params: {id: n.data.id}}).then(resp => {
         const storysections = resp.data.map(storySectionData => {
-          const defCon = storySectionData.content.find(c => c.lang === localeDefault);
+          const defCon = storySectionData.content.find(c => c.locale === localeDefault);
           const title = defCon && defCon.title ? defCon.title : storySectionData.slug;
           return {
             id: `storysection${storySectionData.id}`,
@@ -347,7 +347,7 @@ class StoryBuilder extends Component {
     const {stripHTML} = this.context.formatters[localeDefault];
     const node = this.locateNode.bind(this)(type, id);
     if (node) {
-      const defCon = node.data.content.find(c => c.lang === localeDefault);
+      const defCon = node.data.content.find(c => c.locale === localeDefault);
       if (defCon) defCon.title = newValue;
       node.label = this.decode(stripHTML(newValue));
     }

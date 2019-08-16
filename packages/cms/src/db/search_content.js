@@ -11,7 +11,7 @@ module.exports = function(sequelize, db) {
           key: "contentId"
         }
       },
-      lang: {
+      locale: {
         type: db.STRING,
         primaryKey: true
       },

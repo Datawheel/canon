@@ -85,7 +85,7 @@ class ProfileBuilder extends Component {
       masterMeta: p.meta,
       data: p,
       childNodes: p.sections.map(t => {
-        const defCon = t.content.find(c => c.lang === localeDefault);
+        const defCon = t.content.find(c => c.locale === localeDefault);
         const title = defCon && defCon.title ? defCon.title : t.slug;
         return {
           id: `section${t.id}`,
@@ -208,7 +208,7 @@ class ProfileBuilder extends Component {
       if (section.status === 200) {
         obj.id = `section${section.data.id}`;
         obj.data = section.data;
-        const defCon = section.data.content.find(c => c.lang === localeDefault);
+        const defCon = section.data.content.find(c => c.locale === localeDefault);
         const title = defCon && defCon.title ? defCon.title : section.slug;
         obj.label = this.formatLabel.bind(this)(title);
         const parent = this.locateNode("profile", obj.data.profile_id);
@@ -238,7 +238,7 @@ class ProfileBuilder extends Component {
       const parent = this.locateNode("profile", n.data.profile_id);
       axios.delete("/api/cms/section/delete", {params: {id: n.data.id}}).then(resp => {
         const sections = resp.data.map(sectionData => {
-          const defCon = sectionData.content.find(c => c.lang === localeDefault);
+          const defCon = sectionData.content.find(c => c.locale === localeDefault);
           const title = defCon && defCon.title ? defCon.title : sectionData.slug;
           return {
             id: `section${sectionData.id}`,
@@ -394,7 +394,7 @@ class ProfileBuilder extends Component {
     const node = this.locateNode.bind(this)("section", id);
     // Update the label based on the new value.
     if (node) {
-      const defCon = node.data.content.find(c => c.lang === localeDefault);
+      const defCon = node.data.content.find(c => c.locale === localeDefault);
       if (defCon) defCon.title = newValue;
       // todo: determine if this could be merged with formatTreeVariables
       node.label = this.formatLabel.bind(this)(newValue);
@@ -504,7 +504,7 @@ class ProfileBuilder extends Component {
     const p = this.locateProfileNodeByPid(currentPid);
     p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions";
     p.childNodes = p.childNodes.map(t => {
-      const defCon = t.data.content.find(c => c.lang === localeDefault);
+      const defCon = t.data.content.find(c => c.locale === localeDefault);
       const title = defCon && defCon.title ? defCon.title : t.data.slug;
       t.label = this.formatLabel.bind(this)(title);
       return t;
