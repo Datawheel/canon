@@ -16,6 +16,7 @@ class MemberBuilder extends Component {
     this.state = {
       sourceData: [],
       data: [],
+      query: "",
       columns: [],
       dimensions: [],
       dimension: "all",
@@ -129,9 +130,21 @@ class MemberBuilder extends Component {
     */
   }
 
+  processFiltering() {
+    const {dimension, hierarchy, query} = this.state;
+    const data = this.state.sourceData
+      .filter(d => d.dimension === dimension || dimension === "all")
+      .filter(d => d.hierarchy === hierarchy || hierarchy === "all")
+      .filter(d => d.slug.includes(query) || query === ""); // TODO: ADD MULTI LANG NAME
+    this.setState({data});
+  }
+
+  resetFiltering() {
+    this.setState({query: "", dimension: "all", hierarchy: "all"}, this.processFiltering.bind(this));
+  }
+
   onChange(field, e) {
-    const data = this.state.sourceData.filter(d => d[field] === e.target.value || e.target.value === "all");
-    this.setState({data, [field]: e.target.value});
+    this.setState({[field]: e.target.value}, this.processFiltering.bind(this));
   }
 
   closeEditor() {
@@ -146,6 +159,7 @@ class MemberBuilder extends Component {
       data, 
       dimension, 
       dimensions, 
+      query,
       hierarchy, 
       hierarchies, 
       isOpen, 
@@ -179,6 +193,7 @@ class MemberBuilder extends Component {
         <div className="cms-panel member-panel">
           <h3>Filters</h3>
           <div className="cms-member-filter-container">
+            Search Query: <input value={query} onChange={this.onChange.bind(this, "query")}/>
             <Select
               label="Dimension"
               inline
@@ -201,6 +216,7 @@ class MemberBuilder extends Component {
                 <option key={hier} value={hier}>{hier}</option>
               )}
             </Select>
+            <button onClick={this.resetFiltering.bind(this)}>Reset Filters</button>
           </div>
           <h3>Members</h3>
           <ReactTable
