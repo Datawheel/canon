@@ -69,6 +69,22 @@ class MemberBuilder extends Component {
             {cell.value ? cell.value : "+ Add Image"}
           </span>
         });
+        columns.push({
+          id: `meta (${localeDefault})`,
+          Header: `meta (${localeDefault})`,
+          accessor: d => {
+            const content = d.content.find(c => c.locale === localeDefault);
+            return content ? content.meta : null;
+          }
+        });
+        columns.push({
+          id: `meta (${locale})`,
+          Header: `meta (${locale})`,
+          accessor: d => {
+            const content = d.content.find(c => c.locale === locale);
+            return content ? content.meta : null;
+          }
+        });
       }
       else if (field === "content") {
         columns.push({
