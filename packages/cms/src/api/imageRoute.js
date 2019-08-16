@@ -5,6 +5,7 @@ const yn = require("yn");
 
 const {CANON_LOGICLAYER_CUBE} = process.env;
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
 const slugMap = {
   cip: "CIP",
@@ -30,21 +31,40 @@ module.exports = function(app) {
   /* See below for legacy Datausa Route */
 
   app.get("/api/image", async(req, res) => {
-    const {slug, id} = req.query;
+    const {slug, id, type} = req.query;
     const size = req.query.size || "splash";
+    const locale = req.query.locale || envLoc;
+    const jsonError = () => res.json({error: "Not Found"});
+    const imageError = () => res.sendFile(`${process.cwd()}/static/images/transparent.png`);
     const meta = await db.profile_meta.findOne({where: {slug}}).catch(catcher);
-    if (!meta) return res.sendFile(`${process.cwd()}/static/images/transparent.png`);
+    if (!meta) return type === "json" ? jsonError() : imageError();
     const {dimension} = meta;
-    const member = await db.search.findOne({where: {dimension, [sequelize.Op.or]: {id, slug: id}}}).catch(catcher);
-    if (!member) return res.sendFile(`${process.cwd()}/static/images/transparent.png`);
-    const {imageId} = member;
-    const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
-    if (imageId && bucket && ["splash", "thumb"].includes(size)) {
-      const url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
-      return request.get(url).pipe(res);
+    let member = await db.search.findOne({
+      where: {dimension, [sequelize.Op.or]: {id, slug: id}},
+      include: {model: db.images, include: [{association: "content"}]}
+    }).catch(catcher);
+    if (!member) return type === "json" ? jsonError() : imageError();
+    member = member.toJSON();
+    if (type === "json") {
+      if (member.image && member.image.content) {
+        const content = member.image.content.find(d => d.locale === locale);
+        if (content) {
+          member.image.meta = content.meta;
+          delete member.image.content;
+        }
+      }
+      return res.json(member);
     }
     else {
-      return res.sendFile(`${process.cwd()}/static/images/transparent.png`);
+      const {imageId} = member;
+      const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
+      if (imageId && bucket && ["splash", "thumb"].includes(size)) {
+        const url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
+        return request.get(url).pipe(res);
+      }
+      else {
+        return imageError();
+      }
     }
   });
 
