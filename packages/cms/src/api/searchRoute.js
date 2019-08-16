@@ -75,7 +75,7 @@ module.exports = function(app) {
           const newRow = await db.search.findOne({
             where: {contentId},
             include: [
-              {model: db.image}, {association: "content"}
+              {model: db.image, include: [{association: "content"}]}, {association: "content"}
             ]
           }).catch(catcher);
           res.json(newRow);
@@ -99,7 +99,7 @@ module.exports = function(app) {
 
   app.get("/api/search/all", async(req, res) => {
     let rows = await db.search.findAll({include: [
-      {model: db.image}, {association: "content"}
+      {model: db.image, include: [{association: "content"}]}, {association: "content"}
     ]}).catch(catcher);
     rows = rows.map(r => r.toJSON());
     res.json(rows);

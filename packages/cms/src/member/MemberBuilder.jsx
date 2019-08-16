@@ -32,6 +32,13 @@ class MemberBuilder extends Component {
     this.hitDB.bind(this)();
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.locale !== this.props.locale) {
+      this.prepData.bind(this)();
+      this.processFiltering.bind(this)();
+    }
+  }
+
   clickCell(cell) {
     const currentRow = cell.original;
     const url = currentRow.image && currentRow.image.url ? currentRow.image.url : "";
@@ -41,6 +48,7 @@ class MemberBuilder extends Component {
 
   prepData() {
     const {sourceData} = this.state;
+    const {locale, localeDefault} = this.props;
     sourceData.sort((a, b) => {
       if (a.dimension === b.dimension) {
         return b.zvalue - a.zvalue;
@@ -48,24 +56,43 @@ class MemberBuilder extends Component {
       return a.dimension < b.dimension ? 1 : -1;
     });
     const data = sourceData;
-    const skip = ["stem", "content", "imageId", "contentId"];
+    const skip = ["stem", "imageId", "contentId"];
     const fields = Object.keys(data[0]).filter(d => !skip.includes(d));
-    const columns = fields.map(field => {
+    const columns = [];
+    fields.forEach(field => {
       if (field === "image") {
-        return {
+        columns.push({
           id: "image",
           Header: "image",
           accessor: d => d.image ? d.image.url : null,
           Cell: cell => <span onClick={this.clickCell.bind(this, cell)} className="cp-table-cell-inner">
             {cell.value ? cell.value : "+ Add Image"}
           </span>
-        };
+        });
+      }
+      else if (field === "content") {
+        columns.push({
+          id: `name (${localeDefault})`,
+          Header: `name (${localeDefault})`,
+          accessor: d => {
+            const content = d.content.find(c => c.locale === localeDefault);
+            return content ? content.name : null;
+          }
+        });
+        columns.push({
+          id: `name (${locale})`,
+          Header: `name (${locale})`,
+          accessor: d => {
+            const content = d.content.find(c => c.locale === locale);
+            return content ? content.name : null;
+          }
+        });
       }
       else {
-        return {
+        columns.push({
           Header: field,
           accessor: field
-        };
+        });
       }
     });
     this.setState({sourceData, data, columns});
