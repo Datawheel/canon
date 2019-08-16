@@ -2,6 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
+import stripHTML from "../../utils/formatters/stripHTML";
 import "./SelectorUsage.css";
 
 class SelectorUsage extends Component {
@@ -153,8 +154,8 @@ class SelectorUsage extends Component {
                           value={option.option}
                         >
                           {typeof variables[option.option] === "object"
-                            ? JSON.stringify(variables[option.option])
-                            : variables[option.option]}
+                            ? stripHTML(JSON.stringify(variables[option.option]))
+                            : stripHTML(variables[option.option])}
                         </option>
                       )}
                     </Select>
