@@ -41,7 +41,7 @@ module.exports = function(app) {
     const {dimension} = meta;
     let member = await db.search.findOne({
       where: {dimension, [sequelize.Op.or]: {id, slug: id}},
-      include: {model: db.images, include: [{association: "content"}]}
+      include: {model: db.image, include: [{association: "content"}]}
     }).catch(catcher);
     if (!member) return type === "json" ? jsonError() : imageError();
     member = member.toJSON();

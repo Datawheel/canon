@@ -1,1 +1,1 @@
-module.exports = require("../src/db/images");
+module.exports = require("../src/db/image");

@@ -33,7 +33,7 @@ module.exports = function(app) {
     if (info) {
       if (validLicenses.includes(info.photo.license)) {
         const searchRow = await db.search.findOne({where: {contentId}}).catch(catcher);
-        const imageRow = await db.images.findOne({where: {url}}).catch(catcher);
+        const imageRow = await db.image.findOne({where: {url}}).catch(catcher);
         if (searchRow) {
           if (imageRow) {
             await db.search.update({imageId: imageRow.id}, {where: {contentId}}).catch(catcher);
@@ -49,7 +49,7 @@ module.exports = function(app) {
                 author: info.photo.owner.realname || info.photo.owner.username,
                 license: info.photo.license
               };
-              const newImage = await db.images.create(payload).catch(catcher);
+              const newImage = await db.image.create(payload).catch(catcher);
               await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);            
 
               // Then fetch the available sizes from flickr
@@ -75,7 +75,7 @@ module.exports = function(app) {
           const newRow = await db.search.findOne({
             where: {contentId},
             include: [
-              {model: db.images}, {association: "content"}
+              {model: db.image}, {association: "content"}
             ]
           }).catch(catcher);
           res.json(newRow);
@@ -99,7 +99,7 @@ module.exports = function(app) {
 
   app.get("/api/search/all", async(req, res) => {
     let rows = await db.search.findAll({include: [
-      {model: db.images}, {association: "content"}
+      {model: db.image}, {association: "content"}
     ]}).catch(catcher);
     rows = rows.map(r => r.toJSON());
     res.json(rows);
@@ -127,7 +127,7 @@ module.exports = function(app) {
       where.id = id.includes(",") ? id.split(",") : id;
       rows = await db.search.findAll({
         where,
-        include: [{model: db.images}, {association: "content"}]
+        include: [{model: db.image}, {association: "content"}]
       });
     } 
     else if (q) {
@@ -144,7 +144,7 @@ module.exports = function(app) {
       // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
       if (levels) searchWhere.hierarchy = levels.split(",");
       rows = await db.search.findAll({
-        include: [{model: db.images}, {association: "content"}],
+        include: [{model: db.image}, {association: "content"}],
         limit,
         order: [["zvalue", "DESC"]],
         where: searchWhere
