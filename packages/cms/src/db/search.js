@@ -32,7 +32,7 @@ module.exports = function(sequelize, db) {
   );
 
   search.associate = models => {
-    search.belongsTo(models.images);
+    search.belongsTo(models.image);
     search.hasMany(models.search_content, {foreignKey: "id", sourceKey: "contentId", as: "content"});
   };
 
