@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactTable from "react-table";
 import Select from "../components/fields/Select";
-import {Dialog, Spinner} from "@blueprintjs/core";
+import {Dialog, Spinner, EditableText} from "@blueprintjs/core";
 import FooterButtons from "../components/editors/components/FooterButtons";
 import PropTypes from "prop-types";
 
@@ -46,6 +46,42 @@ class MemberBuilder extends Component {
     this.setState({url, isOpen, currentRow});
   }
 
+  changeCell(cell, context, value) {
+    const {localeDefault, locale} = this.props;
+    const original = this.state.data.find(c => c.contentId === cell.original.contentId);
+    if (context.includes("meta")) {
+      let relevantLocale = localeDefault;
+      if (context.includes("Secondary")) relevantLocale = locale;
+      const data = this.state.data.map(d => {
+        if (d.contentId === cell.original.contentId) {
+          const content = original.image.content.find(c => c.locale === relevantLocale);
+          if (content) content.meta = value;
+          return d;
+        }
+        else {
+          return d;
+        }
+      });
+      this.setState({data});
+    }
+  }
+
+  renderEditable(cell, context) {
+    return <EditableText
+      confirmOnEnterKey={true}
+      onChange={this.changeCell.bind(this, cell, context)}
+      value={cell.value}
+      onConfirm={this.saveCell.bind(this, cell, context)}
+    />;
+  }
+
+  saveCell(cell, context) {
+    const {data} = this.state;
+    const {contentId} = cell.original;
+    const content = data.find(c => c.contentId === contentId);
+    console.log(content);
+  }
+
   prepData() {
     const {sourceData} = this.state;
     const {locale, localeDefault} = this.props;
@@ -73,17 +109,19 @@ class MemberBuilder extends Component {
           id: `meta (${localeDefault})`,
           Header: `meta (${localeDefault})`,
           accessor: d => {
-            const content = d.content.find(c => c.locale === localeDefault);
+            const content = d.image ? d.image.content.find(c => c.locale === localeDefault) : null
             return content ? content.meta : null;
-          }
+          },
+          Cell: cell => this.renderEditable.bind(this)(cell, "metaPrimary")
         });
         columns.push({
           id: `meta (${locale})`,
           Header: `meta (${locale})`,
           accessor: d => {
-            const content = d.content.find(c => c.locale === locale);
+            const content = d.image ? d.image.content.find(c => c.locale === locale) : null;
             return content ? content.meta : null;
-          }
+          },
+          Cell: cell => this.renderEditable.bind(this)(cell, "metaSecondary")
         });
       }
       else if (field === "content") {
@@ -266,6 +304,7 @@ class MemberBuilder extends Component {
             className="cms-member-table"
             data={data}
             columns={columns}
+            defaultPageSize={10}
           />
         </div>
       </React.Fragment>
