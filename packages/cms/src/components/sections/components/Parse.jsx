@@ -1,5 +1,7 @@
 import React, {Component} from "react";
 import stripP from "../../../utils/formatters/stripP";
+import stripUL from "../../../utils/formatters/stripUL";
+import stripOL from "../../../utils/formatters/stripOL";
 
 /** Quill editor likes to generate <p> and <br> tags, boy is that fun. */
 export default class Parse extends Component {
@@ -12,11 +14,11 @@ export default class Parse extends Component {
       children   // content to parse; one blob of content expected
     } = this.props;
 
-    let blob = children;
+    let blob = children.replace(/<p><br><\/p>/g, "<br/>");
 
     // By default, split into separate elements at br tags. If there is a br tag. Unless it's a heading tag.
     if (split === true &&
-      blob.indexOf("<br>") !== -1 &&
+      blob.indexOf("<br/>") !== -1 &&
       El !== "h1" &&
       El !== "h2" &&
       El !== "h3" &&
@@ -24,24 +26,54 @@ export default class Parse extends Component {
       El !== "h5" &&
       El !== "h6"
     ) {
-      blob = blob.split("<br>");
+      blob = blob.split("<br/>");
     }
     // Otherwise, just remove the br tag, and convert the blob to an array with one entry
     else {
       blob = Array.of(blob.replace(/\<br\>/g, " "));
     }
 
-    return (
-      <React.Fragment>
-        {blob.map((el, i) =>
-          <El
+    // loop through all elements in the blob
+    return blob.map((el, i) =>
+      // ordered list
+      el.indexOf("<ol>") !== -1
+        ? <ol
+          className={className}
+          key={`${el}-${El}-${i}`}
+          dangerouslySetInnerHTML={{__html: stripOL(el)}}
+        />
+
+        // unordered list
+        : el.indexOf("<ul>") !== -1
+          ? <ul
             className={className}
-            dangerouslySetInnerHTML={{__html: stripP(el)}}
-            id={ id && i === 0 ? id : null }
             key={`${el}-${El}-${i}`}
+            dangerouslySetInnerHTML={{__html: stripUL(el)}}
           />
-        )}
-      </React.Fragment>
+
+          // inline code block
+          : el.indexOf(`<pre class="ql-syntax" spellcheck="false">`) !== -1
+            ? <p
+              className={className}
+              key={`${el}-${El}-${i}`}
+              dangerouslySetInnerHTML={{__html: el}}
+            />
+
+            // quote
+            : el.indexOf("<blockquote>") !== -1
+              ? <blockquote
+                className={className}
+                key={`${el}-${El}-${i}`}
+                dangerouslySetInnerHTML={{__html: el}}
+              />
+
+              // anything else
+              : <El
+                className={className}
+                dangerouslySetInnerHTML={{__html: stripP(el)}}
+                id={id && i === 0 ? id : null}
+                key={`${el}-${El}-${i}`}
+              />
     );
   }
 }

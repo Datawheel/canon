@@ -19,8 +19,9 @@ module.exports = {
   context: path.join(__dirname, "../src"),
   entry: {
     app: [
-      "./client",
-      "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true&noInfo=true"
+      "react-hot-loader/patch",
+      "webpack-hot-middleware/client",
+      "./client"
     ]
   },
   output: {
@@ -42,12 +43,12 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
+    new webpack.HotModuleReplacementPlugin(),
     new webpack.ProgressPlugin(progress),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
       info: {level: "warn"}
     }),
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))
       .reduce((d, k) => {

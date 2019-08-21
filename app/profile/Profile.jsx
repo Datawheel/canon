@@ -3,6 +3,7 @@ import Helmet from "react-helmet";
 import {connect} from "react-redux";
 import {Link} from "react-router";
 import "./Profile.css";
+import {hot} from "react-hot-loader/root";
 
 import {fetchData} from "../../src/actions/fetchData";
 import {dataFold} from "d3plus-viz";
@@ -88,4 +89,4 @@ export default connect(state => ({
   data: state.data,
   env: state.env,
   location: state.location
-}), {})(Profile);
+}), {})(hot(Profile));
