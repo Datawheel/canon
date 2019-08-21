@@ -47,37 +47,70 @@ class MemberBuilder extends Component {
   }
 
   changeCell(cell, context, locale, value) {
-    if (context === "meta") {
-      const data = this.state.data.map(d => {
-        if (d.contentId === cell.original.contentId) {
-          if (d.image) {
-            const content = d.image.content.find(c => c.locale === locale);
+    const data = this.state.data.map(row => {
+      if (row.contentId === cell.original.contentId) {
+        if (context === "meta") {
+          if (row.image) {
+            const content = row.image.content.find(c => c.locale === locale);
             if (content) {
               content.meta = value;
             }
             else {
-              d.image.content.push({
-                id: d.image.id,
+              row.image.content.push({
+                id: row.image.id,
                 locale,
                 meta: value
               });
             }
           }
-          return d;
+          return row;
+        }
+        else if (context === "attr") {
+          const content = row.content.find(c => c.locale === locale);
+          if (content) {
+            content.attr = value;
+          }
+          return row;
+        }
+        else if (context === "keywords") {
+          const content = row.content.find(c => c.locale === locale);
+          if (content) {
+            content.keywords = value;
+          }
+          return row;
         }
         else {
-          return d;
+          return row;
         }
-      });
-      this.setState({data});
-    }
+      }
+      else {
+        return row;
+      }
+    });
+    this.setState({data});
   }
 
   renderEditable(cell, context, locale) {
+    let isBrokenJSON = false;
+    if (context === "attr") {
+      const {contentId} = cell.original;
+      const row = this.state.data.find(c => c.contentId === contentId);
+      const content = row.content.find(c => c.locale === locale);
+      if (content.attr) {
+        try {
+          JSON.parse(content.attr);
+        }
+        catch (e) {
+          isBrokenJSON = true;
+        }
+      }
+    }
     return <EditableText
       confirmOnEnterKey={true}
+      multiline={true}
       onChange={this.changeCell.bind(this, cell, context, locale)}
       value={cell.value}
+      intent={isBrokenJSON ? "danger" : "none"}
       onConfirm={this.saveCell.bind(this, cell, context, locale)}
     />;
   }
@@ -86,32 +119,43 @@ class MemberBuilder extends Component {
     const {data} = this.state;
     const {contentId} = cell.original;
     const row = data.find(c => c.contentId === contentId);
-    if (row && row.image && row.image.content) {
-      const content = row.image.content.find(c => c.locale === locale);
-      if (content) {
-        const payload = content;
-        axios.post("/api/image_content/update", payload).then(resp => {
-          console.log("updated", resp.data);
-        });
-      }
-      else {
-        /*const newLocaleContent = {
-          id: row.imageId,
-          locale,
-
-        };
-        row.image.content.push
-        */
-        // const payload = 
-        /*
-        axios.post("/api/image_content/create", content).then(resp => {
-          console.log("created", resp.data);
-        });
-        */
+    if (context === "meta") {
+      if (row && row.image && row.image.content) {
+        const content = row.image.content.find(c => c.locale === locale);
+        if (content) {
+          axios.post("/api/image_content/update", content).then(resp => {
+            if (!resp.status === 200) console.log("image update error");
+          });
+        }
       }
     }
-  }
+    else if (context === "attr" || context === "keywords") {
+      if (row && row.content) {
+        const content = row.content.find(c => c.locale === locale);
+        if (content) {
+          const payload = {id: content.id, locale};
+          if (context === "attr") {
+            if (content.attr === "") {
+              payload.attr = null;
+            }
+            else {
+              try {
+                payload.attr = JSON.parse(content.attr);    
+              }
+              catch (e) {
+                payload.attr = null;
+              }
+            } 
+          }
+          if (context === "keywords") payload.keywords = content.keywords.split(",");
+          axios.post("/api/search/update", payload).then(resp => {
+            if (!resp.status === 200) console.log("search update error");
+          });
+        }
+      }
+    }
 
+  }
 
   /**
    * Once sourceData has been set, prepare the two variables that react-table needs: data and columns.
@@ -125,9 +169,29 @@ class MemberBuilder extends Component {
       }
       return a.dimension < b.dimension ? 1 : -1;
     });
-    const data = sourceData;
+    const data = sourceData.map(d => 
+      Object.assign({}, d, {content: d.content.map(c => {
+        const stringifed = {};
+        if (c.attr) {
+          try {
+            stringifed.attr = JSON.stringify(c.attr);
+          }
+          catch (e) {
+            console.log("error stringifying: ", e);
+          }
+        }
+        if (c.keywords) {
+          stringifed.keywords = c.keywords.join();
+        }
+        return Object.assign({}, c, stringifed);
+      })})
+    );
+    console.log(data);
     const skip = ["stem", "imageId", "contentId"];
-    const fields = Object.keys(data[0]).filter(d => !skip.includes(d));
+    const keySort = ["id", "slug", "content", "zvalue", "dimension", "hierarchy", "image"];
+    const fields = Object.keys(data[0])
+      .filter(d => !skip.includes(d))
+      .sort((a, b) => keySort.indexOf(a) - keySort.indexOf(b));
     const columns = [];
     fields.forEach(field => {
       if (field === "image") {
@@ -148,31 +212,39 @@ class MemberBuilder extends Component {
           },
           Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", localeDefault) : cell.value
         });
-        columns.push({
-          id: `meta (${locale})`,
-          Header: `meta (${locale})`,
-          accessor: d => {
-            const content = d.image ? d.image.content.find(c => c.locale === locale) : null;
-            return content ? content.meta : null;
-          },
-          Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", locale) : cell.value
-        });
+        if (locale) {
+          columns.push({
+            id: `meta (${locale})`,
+            Header: `meta (${locale})`,
+            accessor: d => {
+              const content = d.image ? d.image.content.find(c => c.locale === locale) : null;
+              return content ? content.meta : null;
+            },
+            Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", locale) : cell.value
+          });
+        }
       }
       else if (field === "content") {
-        columns.push({
-          id: `name (${localeDefault})`,
-          Header: `name (${localeDefault})`,
-          accessor: d => {
-            const content = d.content.find(c => c.locale === localeDefault);
-            return content ? content.name : null;
-          }
-        });
-        columns.push({
-          id: `name (${locale})`,
-          Header: `name (${locale})`,
-          accessor: d => {
-            const content = d.content.find(c => c.locale === locale);
-            return content ? content.name : null;
+        ["name", "attr", "keywords"].forEach(prop => {
+          columns.push({
+            id: `${prop} (${localeDefault})`,
+            Header: `${prop} (${localeDefault})`,
+            accessor: d => {
+              const content = d.content.find(c => c.locale === localeDefault);
+              return content ? content[prop] : null;
+            },
+            Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, localeDefault) : cell.value
+          });
+          if (locale) {
+            columns.push({
+              id: `${prop} (${locale})`,
+              Header: `${prop} (${locale})`,
+              accessor: d => {
+                const content = d.content.find(c => c.locale === locale);
+                return content ? content[prop] : null;
+              },
+              Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, locale) : cell.value
+            });
           }
         });
       }
@@ -235,19 +307,6 @@ class MemberBuilder extends Component {
         }
       }
     });
-    
-    /*
-
-    const {url} = this.state;
-    const {contentId} = currentRow;
-    const payload = {contentId, url};
-    axios.post("/api/search/update", payload).then(resp => {
-      const row = resp.data;
-      const sourceData = this.state.sourceData.map(d => row.contentId === d.contentId ? row : d);
-      const isOpen = false;
-      this.setState({isOpen, sourceData}, this.prepData.bind(this));
-    });
-    */
   }
 
   processFiltering() {

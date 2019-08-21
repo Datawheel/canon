@@ -118,6 +118,12 @@ module.exports = function(app) {
     }
   });
 
+  app.post("/api/search/update", async(req, res) => {
+    const {id, locale} = req.body;
+    const update = await db.search_content.update(req.body, {where: {id, locale}}).catch(catcher);
+    res.json(update);
+  });
+
   app.get("/api/search", async(req, res) => {
 
     const where = {};
