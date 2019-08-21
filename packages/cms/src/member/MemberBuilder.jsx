@@ -324,6 +324,8 @@ class MemberBuilder extends Component {
         query === "" ||
         d.slug.includes(query) ||
         d.content.some(c => c.name.includes(query)) ||
+        d.content.some(c => c.attr && c.attr.includes(query)) ||
+        d.content.some(c => c.keywords && c.keywords.includes(query)) ||
         d.image && d.image.content && d.image.content.some(c => c.meta.includes(query))
       );
     this.setState({data});
