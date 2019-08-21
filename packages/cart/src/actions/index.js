@@ -1,8 +1,8 @@
+/* eslint-disable prefer-arrow-callback */
 import localforage from "localforage";
 import {getHashCode, parseURL} from "../helpers/transformations";
-import {STORAGE_CART_KEY} from "../helpers/consts";
-import {Client} from "@datawheel/olap-client";
-import axios from "axios";
+import {STORAGE_CART_KEY, TYPE_OLAP} from "../helpers/consts";
+import {Client as OLAPClient} from "@datawheel/olap-client";
 
 /* Init Cart */
 export const INIT_CART = "@@canon-cart/INIT_CART";
@@ -40,6 +40,8 @@ export const addToCartAction = query => {
       url: parsed.query,
       name: parsed.title,
       query: parsed.meta,
+      provider: parsed.provider,
+      cube: parsed.cube,
       isLoaded: false
     }
   };
@@ -65,26 +67,66 @@ export const toggleSettingAction = id => ({
 /** Loading datasets */
 export const loadDatasetsAction = datasets => dispatch => {
   dispatch(loadAllDatasetsAction());
+
   let loaded = 0;
-  const client = new Client([]);
-  console.log("DATASETS TO LOAD!!", datasets);
-  console.log(client);
+
+  const client = new OLAPClient();
   const datasetIds = Object.keys(datasets);
-  let datasetObj;
   const loadedData = {};
-  datasetIds.map((datasetId, ix) => {
-    datasetObj = datasets[datasetId];
-    axios.get(datasetObj.url)
-      .then(resp => {
-        console.log(resp.data);
-        loadedData[datasetId] = resp.data;
-        dispatch(successLoadDatasetAction(datasetId));
-        loaded += 1;
-        if (loaded === datasetIds.length) {
-          processAllDatasets(dispatch, loadedData);
-        }
+  const dimensions = {};
+
+  datasetIds.map(datasetId => {
+    const datasetObj = datasets[datasetId];
+    if (datasetObj.provider.type === TYPE_OLAP) {
+      // Add server to client
+      client.addServer(datasetObj.provider.server).then(status => {
+
+        // Connected!
+        console.info("Connected to:", JSON.stringify(status));
+
+        // Ask for cubes and dimentions
+        client.cubes().then(cubes => {
+          const cube = cubes.find(c => c.name === datasetObj.cube);
+
+          if (cube) {
+            dimensions[cube.name] = cube.dimensionsByName;
+            dispatch(successLoadDatasetAction(datasetId));
+            loaded += 1;
+
+            // All metadata is loaded and correct
+            if (loaded === datasetIds.length) {
+              let sharedDimensionsList = getSharedDimensions(dimensions);
+              const dateDimensionField = getDateDimension(sharedDimensionsList);
+              if (dateDimensionField) {
+                sharedDimensionsList = sharedDimensionsList.filter(sd => sd !== dateDimensionField);
+              }
+              console.log("Shared dimensions ->>", sharedDimensionsList);
+              console.log("Date Field ->>", dateDimensionField);
+
+              processAllDatasets(dispatch, loadedData);
+            }
+          }
+          else {
+            console.error("Cube doesn't exists:", datasetObj.cube);
+          }
+        });
       });
+    }
   });
+
+  // Demo request
+
+  /* axios.get(datasetObj.url)
+  .then(resp => {
+    console.log(resp.data);
+    loadedData[datasetId] = resp.data;
+    dispatch(successLoadDatasetAction(datasetId));
+    loaded += 1;
+    if (loaded === datasetIds.length) {
+      processAllDatasets(dispatch, loadedData);
+    }
+  });*/
+
 };
 
 export const LOAD_DATASETS = "@@canon-cart/LOAD_DATASETS";
@@ -105,6 +147,25 @@ export const failureLoadDatasetAction = id => ({
 });
 
 /** Processing datasets */
+const getSharedDimensions = cubeDimensionMap => {
+  let shared = [];
+  Object.keys(cubeDimensionMap).map(cube => {
+    const dimensionsNames = Object.keys(cubeDimensionMap[cube]);
+    shared = shared.length === 0 ? dimensionsNames : dimensionsNames.filter(value => shared.includes(value));
+  });
+  return shared;
+};
+
+const getDateDimension = sharedDimensions => {
+  let bestCandidate = false;
+  sharedDimensions.map(sd => {
+    if (sd.toLowerCase() === "date" || sd.toLowerCase() === "year") {
+      bestCandidate = sd;
+    }
+  });
+  return bestCandidate;
+};
+
 export const processAllDatasets = (dispatch, datasets) => {
   dispatch(startProcessingAction());
   console.log("processAllDatasets->", datasets);

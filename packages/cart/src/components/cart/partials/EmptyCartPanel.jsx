@@ -24,7 +24,7 @@ class EmptyCartPanel extends React.Component {
 
   render() {
     return (
-      <NonIdealState className={"canon-cart-empty-panel"} icon="shopping-cart" title="Empty Cart" description="Navigate over the site and add some to cart" action={<p>Action</p>} />
+      <NonIdealState className={"canon-cart-empty-panel"} icon="shopping-cart" title="Empty Cart" description="Navigate over the site and add some data to cart" action={<p>Action</p>} />
     );
   }
 }
