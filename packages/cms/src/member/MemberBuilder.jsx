@@ -106,6 +106,7 @@ class MemberBuilder extends Component {
       }
     }
     return <EditableText
+      key={`cell-${cell.original.contentId}`}
       confirmOnEnterKey={true}
       multiline={true}
       onChange={this.changeCell.bind(this, cell, context, locale)}
@@ -157,36 +158,40 @@ class MemberBuilder extends Component {
 
   }
 
+  fetchStringifiedSourceData() {
+    const {sourceData} = this.state;
+    return sourceData
+      .sort((a, b) => {
+        if (a.dimension === b.dimension) {
+          return b.zvalue - a.zvalue;
+        }
+        return a.dimension < b.dimension ? 1 : -1;
+      })
+      .map(d => 
+        Object.assign({}, d, {content: d.content.map(c => {
+          const stringifed = {};
+          if (c.attr) {
+            try {
+              stringifed.attr = JSON.stringify(c.attr);
+            }
+            catch (e) {
+              console.log("error stringifying: ", e);
+            }
+          }
+          if (c.keywords) {
+            stringifed.keywords = c.keywords.join();
+          }
+          return Object.assign({}, c, stringifed);
+        })})
+      );
+  }
+
   /**
    * Once sourceData has been set, prepare the two variables that react-table needs: data and columns.
    */
   prepData() {
-    const {sourceData} = this.state;
     const {locale, localeDefault} = this.props;
-    sourceData.sort((a, b) => {
-      if (a.dimension === b.dimension) {
-        return b.zvalue - a.zvalue;
-      }
-      return a.dimension < b.dimension ? 1 : -1;
-    });
-    const data = sourceData.map(d => 
-      Object.assign({}, d, {content: d.content.map(c => {
-        const stringifed = {};
-        if (c.attr) {
-          try {
-            stringifed.attr = JSON.stringify(c.attr);
-          }
-          catch (e) {
-            console.log("error stringifying: ", e);
-          }
-        }
-        if (c.keywords) {
-          stringifed.keywords = c.keywords.join();
-        }
-        return Object.assign({}, c, stringifed);
-      })})
-    );
-    console.log(data);
+    const data = this.fetchStringifiedSourceData.bind(this)();
     const skip = ["stem", "imageId", "contentId"];
     const keySort = ["id", "slug", "content", "zvalue", "dimension", "hierarchy", "image"];
     const fields = Object.keys(data[0])
@@ -255,7 +260,7 @@ class MemberBuilder extends Component {
         });
       }
     });
-    this.setState({sourceData, data, columns});
+    this.setState({data, columns});
   }
 
   /**
@@ -311,10 +316,16 @@ class MemberBuilder extends Component {
 
   processFiltering() {
     const {dimension, hierarchy, query} = this.state;
-    const data = this.state.sourceData
+    const sourceData = this.fetchStringifiedSourceData.bind(this)();
+    const data = sourceData
       .filter(d => d.dimension === dimension || dimension === "all")
       .filter(d => d.hierarchy === hierarchy || hierarchy === "all")
-      .filter(d => d.slug.includes(query) || query === ""); // TODO: ADD MULTI LANG NAME
+      .filter(d => 
+        query === "" ||
+        d.slug.includes(query) ||
+        d.content.some(c => c.name.includes(query)) ||
+        d.image && d.image.content && d.image.content.some(c => c.meta.includes(query))
+      );
     this.setState({data});
   }
 
