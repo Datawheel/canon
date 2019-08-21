@@ -105,9 +105,17 @@ module.exports = function(app) {
     res.json(rows);
   });
 
-  app.post("/api/search/update", async(req, res) => {
-    const {contentId, url} = req.body;
-    
+  app.post("/api/image_content/update", async(req, res) => {
+    const {id, locale} = req.body;
+    const defaults = req.body;
+    const [row, created] = await db.image_content.findOrCreate({where: {id, locale}, defaults}).catch(catcher);
+    if (created) {
+      res.json(created);
+    }
+    else {
+      row.updateAttributes(defaults).catch(catcher);
+      res.json(row);
+    }
   });
 
   app.get("/api/search", async(req, res) => {

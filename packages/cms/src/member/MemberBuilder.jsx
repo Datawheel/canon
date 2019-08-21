@@ -46,16 +46,23 @@ class MemberBuilder extends Component {
     this.setState({url, isOpen, currentRow});
   }
 
-  changeCell(cell, context, value) {
-    const {localeDefault, locale} = this.props;
-    const original = this.state.data.find(c => c.contentId === cell.original.contentId);
-    if (context.includes("meta")) {
-      let relevantLocale = localeDefault;
-      if (context.includes("Secondary")) relevantLocale = locale;
+  changeCell(cell, context, locale, value) {
+    if (context === "meta") {
       const data = this.state.data.map(d => {
         if (d.contentId === cell.original.contentId) {
-          const content = original.image.content.find(c => c.locale === relevantLocale);
-          if (content) content.meta = value;
+          if (d.image) {
+            const content = d.image.content.find(c => c.locale === locale);
+            if (content) {
+              content.meta = value;
+            }
+            else {
+              d.image.content.push({
+                id: d.image.id,
+                locale,
+                meta: value
+              });
+            }
+          }
           return d;
         }
         else {
@@ -66,22 +73,49 @@ class MemberBuilder extends Component {
     }
   }
 
-  renderEditable(cell, context) {
+  renderEditable(cell, context, locale) {
     return <EditableText
       confirmOnEnterKey={true}
-      onChange={this.changeCell.bind(this, cell, context)}
+      onChange={this.changeCell.bind(this, cell, context, locale)}
       value={cell.value}
-      onConfirm={this.saveCell.bind(this, cell, context)}
+      onConfirm={this.saveCell.bind(this, cell, context, locale)}
     />;
   }
 
-  saveCell(cell, context) {
+  saveCell(cell, context, locale) {
     const {data} = this.state;
     const {contentId} = cell.original;
-    const content = data.find(c => c.contentId === contentId);
-    console.log(content);
+    const row = data.find(c => c.contentId === contentId);
+    if (row && row.image && row.image.content) {
+      const content = row.image.content.find(c => c.locale === locale);
+      if (content) {
+        const payload = content;
+        axios.post("/api/image_content/update", payload).then(resp => {
+          console.log("updated", resp.data);
+        });
+      }
+      else {
+        /*const newLocaleContent = {
+          id: row.imageId,
+          locale,
+
+        };
+        row.image.content.push
+        */
+        // const payload = 
+        /*
+        axios.post("/api/image_content/create", content).then(resp => {
+          console.log("created", resp.data);
+        });
+        */
+      }
+    }
   }
 
+
+  /**
+   * Once sourceData has been set, prepare the two variables that react-table needs: data and columns.
+   */
   prepData() {
     const {sourceData} = this.state;
     const {locale, localeDefault} = this.props;
@@ -109,10 +143,10 @@ class MemberBuilder extends Component {
           id: `meta (${localeDefault})`,
           Header: `meta (${localeDefault})`,
           accessor: d => {
-            const content = d.image ? d.image.content.find(c => c.locale === localeDefault) : null
+            const content = d.image ? d.image.content.find(c => c.locale === localeDefault) : null;
             return content ? content.meta : null;
           },
-          Cell: cell => this.renderEditable.bind(this)(cell, "metaPrimary")
+          Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", localeDefault) : cell.value
         });
         columns.push({
           id: `meta (${locale})`,
@@ -121,7 +155,7 @@ class MemberBuilder extends Component {
             const content = d.image ? d.image.content.find(c => c.locale === locale) : null;
             return content ? content.meta : null;
           },
-          Cell: cell => this.renderEditable.bind(this)(cell, "metaSecondary")
+          Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", locale) : cell.value
         });
       }
       else if (field === "content") {
@@ -152,6 +186,11 @@ class MemberBuilder extends Component {
     this.setState({sourceData, data, columns});
   }
 
+  /**
+   * Hit the search endpoint for all possible members, all locales, and their image meta
+   * Use this to popluate the filtering dropdowns, and set sourceData to the pure payload.
+   * Then call prepData to turn the sourceData into columns for the table.
+   */
   hitDB() {
     axios.get("/api/search/all").then(resp => {
       if (resp.status === 200 && resp.data && resp.data[0]) {
