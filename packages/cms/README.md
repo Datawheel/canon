@@ -7,7 +7,7 @@ Datawheel makes sites with lots of profiles, which requires lots of templating s
 
 - Hit an endpoint to receive a data payload
 - Turn that payload into variables using javascript
-- Write prose that subsitutes those variables
+- Write prose that substitutes those variables
 - Apply formatters that make the variables human-readable
 - Compile these sections into a page that handles drop-downs, visualizations, and other complexities without bothering DevOps
 
@@ -15,7 +15,7 @@ Datawheel makes sites with lots of profiles, which requires lots of templating s
 ## Contents
 * [Overview and Terminology](#overview-and-terminology)
 * [Setup and Installation](#setup-and-installation)
-* [Additional Setup Steps](#additional-setup-steps)
+* [Enabling Image Support](#enabling-image-support)
 * [Rendering a Profile](#rendering-a-profile)
 * [Environment Variables](#environment-variables)
 * [Frequently Asked Questions](#frequently-asked-questions)
@@ -90,7 +90,6 @@ export CANON_CMS_CUBES=https://tesseract-url.com/
 ```
 
 In total, your env vars should now look like this:
-
 ```sh
 export NODE_ENV=development
 export CANON_API=http://localhost:3300
@@ -103,7 +102,6 @@ export CANON_CMS_CUBES=https://tesseract-url.com/
 ```
 
 #### 4) Add the Builder Component to a route
-
 ```jsx
 import {Builder} from "@datawheel/canon-cms";
 
@@ -113,7 +111,6 @@ import {Builder} from "@datawheel/canon-cms";
 ```
 
 #### 5) Start your dev server 
-
 ```sh
 npm run dev
 ```
@@ -121,6 +118,52 @@ npm run dev
 #### 6) Navigate to the CMS panel
 
 `http://localhost:3300/cms`
+
+---
+
+## Enabling Image Support
+
+Mortar includes the ability to assign each member of a cube (Such as *Massachusetts*, or *Metalworkers*) an acceptably licensed photo from flickr. In order to enable this, a series of steps must be taken to configure both the flickr authentication and the Google Cloud Storage for image hosting.  Contact the Admin who is in charge of this project's Google Cloud Project, or get permissions to do the following:
+
+#### 1) Create a bucket
+
+In the Storage section of Google Cloud Projects, create a bucket and give it a name. Set the var `CANON_CONST_STORAGE_BUCKET` to the name you provided.
+```sh
+export CANON_CONST_STORAGE_BUCKET=your_bucketname
+```
+
+#### 2) Create and Download a JSON Token
+
+Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create a JSON token with "Storage -> Storage Object Admin" permissions. 
+
+Save the JSON token to disk and set its permissions to `644`.
+```sh
+chmod 644 /path/to/token.json
+```
+
+Configure the `GOOGLE_APPLICATION_CREDENTIALS` env var to the token's path.
+```sh
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/token.json"
+```
+
+#### 3) Set your Flickr API key
+
+```sh
+export FLICKR_API_KEY=your_api_key
+```
+
+#### 4) Set Image Sizes (optional)
+
+By default, mortar will resize your splash and thumb images to a width of 1400 and 200, respectively. To override these sizes you may set the following env vars:
+
+```sh
+export CANON_CONST_IMAGE_SPLASH_SIZE=1400
+export CANON_CONST_IMAGE_THUMB_SIZE=200
+```
+
+#### 5) Follow the instructions in the "Members" Tab of the CMS
+
+Every member for every profile is listed under the Members tab. Click "+ Add Image" in one of the rows and follow the intructions to upload an image via a flickr share link.
 
 ---
 
@@ -146,8 +189,8 @@ import {Profile} from "@datawheel/canon-cms";
 |`FLICKR_API_KEY`|Used to configure Flickr Authentication|`undefined`|
 |`GOOGLE_APPLICATION_CREDENTIALS`|Path to JSON token file for Cloud Storage|`undefined`|
 |`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
-|`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|`1400`|
-|`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|`200`|
+|`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|1400|
+|`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
 
 ---
 
