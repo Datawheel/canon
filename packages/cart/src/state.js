@@ -1,5 +1,5 @@
 /**
- * Generates a new, empty initial state for the whole Vizbuilder.
+ * Generates a new, empty initial state for the whole Cart.
  */
 export default function initialStateFactory() {
   return {
@@ -16,6 +16,12 @@ export default function initialStateFactory() {
       pivotYear: {value: true, label: "Pivot Years to Columns"},
       showMOE: {value: false, label: "Show Margin of Error"},
       showID: {value: false, label: "Show ID Columns"}
+    },
+    controls: {
+      sharedDimensions: [],
+      selectedSharedDimensionId: false,
+      dateDimensions: [],
+      selectedDateDimensionId: false
     }
   };
 }

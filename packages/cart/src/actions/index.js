@@ -95,14 +95,23 @@ export const loadDatasetsAction = datasets => dispatch => {
 
             // All metadata is loaded and correct
             if (loaded === datasetIds.length) {
-              let sharedDimensionsList = getSharedDimensions(dimensions);
-              const dateDimensionField = getDateDimension(sharedDimensionsList);
-              if (dateDimensionField) {
-                sharedDimensionsList = sharedDimensionsList.filter(sd => sd !== dateDimensionField);
-              }
-              console.log("Shared dimensions ->>", sharedDimensionsList);
-              console.log("Date Field ->>", dateDimensionField);
 
+              // Calculate common dimensions
+              let sharedDimensionsList = getSharedDimensions(dimensions);
+              const dateDimensionsList = getDateDimensions(sharedDimensionsList);
+              sharedDimensionsList = sharedDimensionsList.filter(sd => !dateDimensionsList.find(dd => dd.name === sd.name));
+
+              // Set results in redux to fill controls
+              dispatch(setSharedDimensionListAction(sharedDimensionsList));
+              if (sharedDimensionsList[0]) {
+                dispatch(sharedDimensionChangedAction(sharedDimensionsList[0].name));
+              }
+              dispatch(setDateDimensionListAction(dateDimensionsList));
+              if (dateDimensionsList[0]) {
+                dispatch(dateDimensionChangedAction(dateDimensionsList[0].name));
+              }
+
+              // Process All datasets
               processAllDatasets(dispatch, loadedData);
             }
           }
@@ -146,25 +155,42 @@ export const failureLoadDatasetAction = id => ({
   payload: {id}
 });
 
-/** Processing datasets */
-const getSharedDimensions = cubeDimensionMap => {
-  let shared = [];
-  Object.keys(cubeDimensionMap).map(cube => {
-    const dimensionsNames = Object.keys(cubeDimensionMap[cube]);
-    shared = shared.length === 0 ? dimensionsNames : dimensionsNames.filter(value => shared.includes(value));
-  });
-  return shared;
-};
+/** Processing datasets events */
+export const START_PROCESSING_DATASETS = "@@canon-cart/START_PROCESSING_DATASETS";
+export const startProcessingAction = () => ({
+  type: START_PROCESSING_DATASETS
+});
 
-const getDateDimension = sharedDimensions => {
-  let bestCandidate = false;
-  sharedDimensions.map(sd => {
-    if (sd.toLowerCase() === "date" || sd.toLowerCase() === "year") {
-      bestCandidate = sd;
-    }
-  });
-  return bestCandidate;
-};
+export const END_PROCESSING_DATASETS = "@@canon-cart/END_PROCESSING_DATASETS";
+export const endProcessingAction = () => ({
+  type: END_PROCESSING_DATASETS
+});
+
+/** Shared Dimensions */
+export const SET_SHARED_DIMENSION_LIST = "@@canon-cart/SET_SHARED_DIMENSION_LIST";
+export const setSharedDimensionListAction = list => ({
+  type: SET_SHARED_DIMENSION_LIST,
+  payload: {dimensions: list}
+});
+
+export const SHARED_DIMENSION_CHANGED = "@@canon-cart/SHARED_DIMENSION_CHANGED";
+export const sharedDimensionChangedAction = dimId => ({
+  type: SHARED_DIMENSION_CHANGED,
+  payload: {id: dimId}
+});
+
+/** Date Dimensions */
+export const SET_DATE_DIMENSION_LIST = "@@canon-cart/SET_DATE_DIMENSION_LIST";
+export const setDateDimensionListAction = list => ({
+  type: SET_DATE_DIMENSION_LIST,
+  payload: {dimensions: list}
+});
+
+export const DATE_DIMENSION_CHANGED = "@@canon-cart/DATE_DIMENSION_CHANGED";
+export const dateDimensionChangedAction = dimId => ({
+  type: DATE_DIMENSION_CHANGED,
+  payload: {id: dimId}
+});
 
 export const processAllDatasets = (dispatch, datasets) => {
   dispatch(startProcessingAction());
@@ -175,12 +201,25 @@ export const processAllDatasets = (dispatch, datasets) => {
   }, 2000);
 };
 
-export const START_PROCESSING_DATASETS = "@@canon-cart/START_PROCESSING_DATASETS";
-export const startProcessingAction = () => ({
-  type: START_PROCESSING_DATASETS
-});
 
-export const END_PROCESSING_DATASETS = "@@canon-cart/END_PROCESSING_DATASETS";
-export const endProcessingAction = () => ({
-  type: END_PROCESSING_DATASETS
-});
+/** Processing datasets helpers fns  */
+const getSharedDimensions = cubeDimensionMap => {
+  let sharedDimNames = [];
+  let sharedDimObjects = [];
+  Object.keys(cubeDimensionMap).map(cube => {
+    const dimensionsNames = Object.keys(cubeDimensionMap[cube]);
+    sharedDimNames = sharedDimNames.length === 0 ? dimensionsNames : dimensionsNames.filter(value => sharedDimNames.includes(value));
+    sharedDimObjects = sharedDimNames.map(dimId => cubeDimensionMap[cube][dimId]);
+  });
+  return sharedDimObjects;
+};
+
+const getDateDimensions = sharedDimensions => {
+  const dateDimensions = [];
+  sharedDimensions.map(sd => {
+    if (sd.name.toLowerCase() === "date" || sd.name.toLowerCase() === "year") {
+      dateDimensions.push(sd);
+    }
+  });
+  return dateDimensions;
+};

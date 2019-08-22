@@ -9,7 +9,11 @@ import {
   LOAD_DATASETS,
   SUCCESS_LOAD_DATASET,
   START_PROCESSING_DATASETS,
-  END_PROCESSING_DATASETS
+  END_PROCESSING_DATASETS,
+  SET_SHARED_DIMENSION_LIST,
+  SET_DATE_DIMENSION_LIST,
+  SHARED_DIMENSION_CHANGED,
+  DATE_DIMENSION_CHANGED
 } from "../actions";
 import {STORAGE_CART_KEY, MAX_DATASETS_IN_CART} from "../helpers/consts";
 
@@ -205,6 +209,50 @@ function cartStateReducer(state = initialState(), action) {
           ...state.internal,
           processing: false,
           loading: false
+        }
+      };
+      return newState;
+    }
+
+    case SET_SHARED_DIMENSION_LIST: {
+      newState = {
+        ...state,
+        controls: {
+          ...state.controls,
+          sharedDimensions: action.payload.dimensions
+        }
+      };
+      return newState;
+    }
+
+    case SET_DATE_DIMENSION_LIST: {
+      newState = {
+        ...state,
+        controls: {
+          ...state.controls,
+          dateDimensions: action.payload.dimensions
+        }
+      };
+      return newState;
+    }
+
+    case SHARED_DIMENSION_CHANGED: {
+      newState = {
+        ...state,
+        controls: {
+          ...state.controls,
+          selectedSharedDimensionId: action.payload.id
+        }
+      };
+      return newState;
+    }
+
+    case DATE_DIMENSION_CHANGED: {
+      newState = {
+        ...state,
+        controls: {
+          ...state.controls,
+          selectedDateDimensionId: action.payload.id
         }
       };
       return newState;

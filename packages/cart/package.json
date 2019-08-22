@@ -25,6 +25,7 @@
     "url": "git+https://github.com/datawheel/canon.git"
   },
   "dependencies": {
+    "@blueprintjs/select": "^3.10.0",
     "@datawheel/olap-client": "^0.1.3",
     "localforage": "^1.7.3",
     "react-table": "^6.10.0"

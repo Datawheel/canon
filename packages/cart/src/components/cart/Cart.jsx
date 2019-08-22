@@ -10,6 +10,7 @@ import SettingsPanel from "./partials/SettingsPanel";
 import ActionsPanel from "./partials/ActionsPanel";
 import EmptyCartPanel from "./partials/EmptyCartPanel";
 import LoadingPanel from "./partials/LoadingPanel";
+import DimensionsPanel from "./partials/DimensionsPanel";
 
 import Table from "./partials/Table";
 
@@ -23,9 +24,9 @@ class Cart extends React.Component {
   }
 
   getChildContext() {
-    const {datasets, dispatch, settings} = this.props;
+    const {datasets, dispatch, settings, controls} = this.props;
     return {
-      datasets, dispatch, settings
+      datasets, dispatch, settings, controls
     };
   }
 
@@ -79,6 +80,8 @@ class Cart extends React.Component {
           <div className="canon-cart-wrapper">
             <DatasetList />
             <hr />
+            <DimensionsPanel />
+            <hr />
             <SettingsPanel />
             <hr/>
             <ActionsPanel/>
@@ -116,6 +119,7 @@ Cart.contextTypes = {
 
 Cart.childContextTypes = {
   datasets: PropTypes.object,
+  controls: PropTypes.object,
   dispatch: PropTypes.func,
   settings: PropTypes.object
 };
@@ -132,6 +136,7 @@ export default connect(state => {
   return {
     datasets: ct.list,
     settings: ct.settings,
+    controls: ct.controls,
     cartReady: ct.internal.ready,
     cartLoading: ct.internal.loading
   };
