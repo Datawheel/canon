@@ -1,10 +1,21 @@
-# Canon CMS
+# Mortar (Canon CMS)
 Content Management System for Canon sites.
 
-![](https://github.com/datawheel/canon/raw/master/docs/balls.png)
+## Why?
 
-#### Contents
+Datawheel makes sites with lots of profiles, which requires lots of templating support. Content creators and translators need to be able to author and update page templates easily. Mortar allows users to:
+
+- Hit an endpoint to receive a data payload
+- Turn that payload into variables using javascript
+- Write prose that subsitutes those variables
+- Apply formatters that make the variables human-readable
+- Compile these sections into a page that handles drop-downs, visualizations, and other complexities without bothering DevOps
+
+
+## Contents
+* [Overview and Terminology](#overview-and-terminology)
 * [Setup and Installation](#setup-and-installation)
+* [Additional Setup Steps](#additional-setup-steps)
 * [Rendering a Profile](#rendering-a-profile)
 * [Environment Variables](#environment-variables)
 * [Frequently Asked Questions](#frequently-asked-questions)
@@ -12,13 +23,104 @@ Content Management System for Canon sites.
 
 ---
 
+## Overview and Terminology
+
+A Canon site often takes the form of DataCountry.io, and is made of **Profiles**. Mortar provides a way of creating and updating these profiles. Here are a few terms:
+
+### CMS Elements
+
+- **Profile**: A "page" on DataCountry.io. This could be something like "Massachusetts" or "Metalworkers". These are linked to a **Dimension** in a Tesseract or Mondrian cube.
+
+- **Section**: A vertically stacked "unit" of a Profile page. As you scroll down a DataCountry profile, you will see **Sections** - individual blocks of prose and vizes - that represent some data (such as "Wage by Gender")
+
+- **Generator**: A CMS Entity which hits a provided API and stores the response in a variable called `resp`. Expects you to write javascript that returns an object full of key-value pairs. These KV pairs will be combined with other generators into a giant `variables` object that represents your lookup table for your mad-libs prose.
+
+- **Materializer**: Similar to a Generator, but with no API call. Materializers are guaranteed to be run *after* Generators, and in a strict order. Any materializer can make use of variables generated before it. Useful for datacalls that need to be combined, or for arbitrary variables (like CMS rules or about text)
+
+- **Formatter**: A formatter is a javascript function that will be applied to a variable. It receives one input, **n**, and returns a String. For example, take a javascript integer and add commas to make it a human-readable number.
+
+### Cube / Data Elements
+
+- **Cube**: A queryable data store. For the purposes of this README, think of it as a database you can make API requests to.
+
+- **Dimension**: Any given Profile in the CMS must be linked to one or more dimensions. Examples include "Geography," "University," or "CIP" (Industry). You could have a `geo` profile, which is linked to the "Geography" dimension, whose members are things like Massachusetts or New York.
+
+--- 
+
 ## Setup and Installation
 
-Coming "Soon" by @jhmullen :grimacing:
+`canon-cms` (Mortar) is a package for `canon`. These instructions assume you have installed the latest version of `canon`.
+
+#### 1) Install the package using npm
+
+`npm i @datawheel/canon-core`
+
+#### 2) Configure `canon` vars 
+
+There are a number of [canon-core environment variables](https://github.com/Datawheel/canon#additional-environment-variables) that `canon-cms` relies on. Ensure that the the following env vars are set.
+
+By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the full list of [Environment Variables](#environment-variables) below.
+```sh
+export NODE_ENV=development
+```
+
+The CMS relies on `canon` needs, so be sure your `CANON_API` is set:
+```sh
+export CANON_API=http://localhost:3300
+```
+
+CMS content that you author can be translated into other languages. Set `CANON_LANGUAGE_DEFAULT` to your locale. If you plan to translate your content, set `CANON_LANGUAGES` to a comma separated list of languages you wish to use. Note that while `CANON_LANGUAGES` can be changed later, `CANON_LANGUAGE_DEFAULT` cannot, so remember to set it before starting!
+```sh
+export CANON_LANGUAGE_DEFAULT=en
+export CANON_LANGUAGES=pt,es,ru,et
+```
+
+The CMS makes use of `canon`-level db credentials to store its content. Currently the CMS only supports Postgres.
+```sh
+export CANON_DB_USER=dbuser
+export CANON_DB_NAME=dbname
+export CANON_DB_HOST=dbhost
+```
+
+#### 3) Configure `canon-cms` vars
+
+The CMS requires a `canon-cms` specific env var for the current location of your mondrian or tesseract installation.
+```sh
+export CANON_CMS_CUBES=https://tesseract-url.com/
+```
+
+In total, your env vars should now look like this:
 
 ```sh
-export CANON_CMS_CUBES=https://tesseract-url.com/cubes
+export NODE_ENV=development
+export CANON_API=http://localhost:3300
+export CANON_LANGUAGE_DEFAULT=en
+export CANON_LANGUAGES=pt,es,ru,et
+export CANON_DB_USER=dbuser
+export CANON_DB_NAME=dbname
+export CANON_DB_HOST=dbhost
+export CANON_CMS_CUBES=https://tesseract-url.com/
 ```
+
+#### 4) Add the Builder Component to a route
+
+```jsx
+import {Builder} from "@datawheel/canon-cms";
+
+...
+
+<Route path="/cms" component={Builder} />
+```
+
+#### 5) Start your dev server 
+
+```sh
+npm run dev
+```
+
+#### 6) Navigate to the CMS panel
+
+`http://localhost:3300/cms`
 
 ---
 
@@ -38,7 +140,14 @@ import {Profile} from "@datawheel/canon-cms";
 
 |variable|description|default|
 |---|---|---|
+|`CANON_CMS_CUBES`|Path to the mondrian or tesseract|`undefined (required)`|
 |`CANON_CMS_ENABLE`|Setting this env var to `true` allows access to the cms in production builds.|`false`|
+|`CANON_CMS_LOGGING`|Enable verbose logging in console.|`false`|
+|`FLICKR_API_KEY`|Used to configure Flickr Authentication|`undefined`|
+|`GOOGLE_APPLICATION_CREDENTIALS`|Path to JSON token file for Cloud Storage|`undefined`|
+|`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
+|`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|`1400`|
+|`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|`200`|
 
 ---
 
