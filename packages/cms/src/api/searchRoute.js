@@ -105,7 +105,13 @@ module.exports = function(app) {
       license: validLicensesString,
       sort: "relevance"
     }).then(resp => resp.body).catch(catcher);
-    res.json(result);
+    const photos = result.photos.photo;
+    const payload = [];
+    for (const photo of photos.slice(0, 5)) {
+      const sizes = await flickr.photos.getSizes({photo_id: photo.id}).then(resp => resp.body).catch(catcher);
+      payload.push(sizes);
+    }
+    res.json(payload);
   });
 
   app.get("/api/search/all", async(req, res) => {
