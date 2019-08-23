@@ -96,7 +96,7 @@ class MemberBuilder extends Component {
       const {contentId} = cell.original;
       const row = this.state.data.find(c => c.contentId === contentId);
       const content = row.content.find(c => c.locale === locale);
-      if (content.attr) {
+      if (content && content.attr) {
         try {
           JSON.parse(content.attr);
         }
@@ -322,11 +322,11 @@ class MemberBuilder extends Component {
       .filter(d => d.hierarchy === hierarchy || hierarchy === "all")
       .filter(d => 
         query === "" ||
-        d.slug.includes(query) ||
-        d.content.some(c => c.name.includes(query)) ||
-        d.content.some(c => c.attr && c.attr.includes(query)) ||
-        d.content.some(c => c.keywords && c.keywords.includes(query)) ||
-        d.image && d.image.content && d.image.content.some(c => c.meta.includes(query))
+        d.slug.includes(query.toLowerCase()) ||
+        d.content.some(c => c.name.toLowerCase().includes(query.toLowerCase())) ||
+        d.content.some(c => c.attr && c.attr.toLowerCase().includes(query.toLowerCase())) ||
+        d.content.some(c => c.keywords && c.keywords.toLowerCase().includes(query.toLowerCase())) ||
+        d.image && d.image.content && d.image.content.some(c => c.meta.toLowerCase().includes(query.toLowerCase()))
       );
     this.setState({data});
   }

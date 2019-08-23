@@ -32,6 +32,9 @@ const migrate = async() => {
     {old: "section_subtitle", new: "section_subtitle"},
     {old: "section_subtitle_content", new: "section_subtitle_content"},
     {old: "section_visualization", new: "section_visualization"},
+    // Selectors
+    {old: "selector", new: "selector"},
+    {old: "section_selector", new: "section_selector"},
     // Story
     {old: "story", new: "story"},
     {old: "story_content", new: "story_content"},
