@@ -3,13 +3,6 @@
 const utils = require("./migrationUtils.js");
 const {catcher, resetSequence, fetchOldModel, fetchNewModel} = utils;
 
-const sectionInclude = [
-  {association: "descriptions", separate: true},
-  {association: "subtitles", separate: true},
-  {association: "stats", separate: true},
-  {association: "visualizations", separate: true}
-];
-
 const locale = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
 const migrate = async() => {
@@ -59,10 +52,9 @@ const migrate = async() => {
   ];
 
   for (const tableObj of migrationMap) {
-    let oldrows = await dbold[tableObj.old].findAll();
+    let oldrows = await dbold[tableObj.old].findAll().catch(catcher);
     oldrows = oldrows.map(row => row.toJSON());
     for (const oldrow of oldrows) {
-      oldrow = oldrow.toJSON();
       if (oldrow.lang) {
         oldrow.locale = oldrow.lang;
         delete oldrow.lang;
@@ -70,23 +62,33 @@ const migrate = async() => {
     }
     await dbnew[tableObj.new].bulkCreate(oldrows).catch(catcher);
     await resetSequence(dbnew, tableObj.new, "id");
-    for (const oldrow of oldrows) {
-      if (tableObj.old === "images") {
+    
+    if (tableObj.old === "images") {
+      const image_content = []; // eslint-disable-line camelcase
+      for (const oldrow of oldrows) {
         const {id, meta} = oldrow;
-        if (meta) await dbnew.image_content.create({id, locale, meta}).catch(catcher);
+        if (meta) image_content.push({id, locale, meta});
       }
-      if (tableObj.old === "search") {
-        const {id, dimension, hierarchy, keywords} = oldrow;
-        const newRow = await dbnew.search.findOne({where: {id, dimension, hierarchy}}).catch(catcher);
-        const {contentId} = newRow;
-        if (oldrow.name) await dbnew.search_content.create({id: contentId, locale, name, keywords});
+      await dbnew.image_content.bulkCreate(image_content).catch(catcher);
+    }
+
+    if (tableObj.old === "search") {
+      let newrows = await dbnew[tableObj.new].findAll().catch(catcher);
+      newrows = newrows.map(row => row.toJSON());
+      const search_content = []; // eslint-disable-line camelcase
+      for (const oldrow of oldrows) {
+        const {id, dimension, hierarchy, name, keywords} = oldrow;  
+        const newrow = newrows.find(d => d.id === id && d.dimension === dimension && d.hierarchy === hierarchy);
+        const {contentId} = newrow;
+        search_content.push({id: contentId, locale, name, keywords});
       }
+      await dbnew.search_content.bulkCreate(search_content).catch(catcher);
     }
   }
 
   console.log("Done.");
 };
 
-// migrate();
+migrate();
 
 return;
