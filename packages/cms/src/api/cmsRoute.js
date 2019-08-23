@@ -227,8 +227,7 @@ const formatter = (members, data, dimension, level) => {
   const newData = members.reduce((arr, d) => {
     const obj = {};
     obj.id = `${d.key}`;
-    obj.name = d.name;
-    obj.display = d.caption || d.name;
+    obj.name = d.caption || d.name;
     obj.zvalue = data[obj.id] || 0;
     obj.dimension = dimension;
     obj.hierarchy = level;
