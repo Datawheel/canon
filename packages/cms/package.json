@@ -7,7 +7,8 @@
   "bin": {
     "canon-cms-migrate-legacy": "scripts/migration/canon-cms-migrate-legacy.js",
     "canon-cms-migrate-0.1": "scripts/migration/canon-cms-migrate-0.1.js",
-    "canon-cms-migrate-0.6": "scripts/migration/canon-cms-migrate-0.6.js"
+    "canon-cms-migrate-0.6": "scripts/migration/canon-cms-migrate-0.6.js",
+    "canon-cms-migrate-0.7": "scripts/migration/canon-cms-migrate-0.7.js"
   },
   "scripts": {
     "dev": "canon-dev",
@@ -18,7 +19,8 @@
     "start": "canon-start",
     "canon-cms-migrate-legacy": "node scripts/migration/canon-cms-migrate-legacy.js",
     "canon-cms-migrate-0.1": "node scripts/migration/canon-cms-migrate-0.1.js",
-    "canon-cms-migrate-0.6": "node scripts/migration/canon-cms-migrate-0.6.js"
+    "canon-cms-migrate-0.6": "node scripts/migration/canon-cms-migrate-0.6.js",
+    "canon-cms-migrate-0.7": "node scripts/migration/canon-cms-migrate-0.7.js"
   },
   "dependencies": {
     "@blueprintjs/datetime": "^3.7.1",

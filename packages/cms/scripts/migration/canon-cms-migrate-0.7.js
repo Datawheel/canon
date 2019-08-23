@@ -10,6 +10,8 @@ const sectionInclude = [
   {association: "visualizations", separate: true}
 ];
 
+const locale = process.env.CANON_LANGUAGE_DEFAULT || "en";
+
 const migrate = async() => {
 
   const dbold = await fetchOldModel("/db_0.7", false);
@@ -57,24 +59,34 @@ const migrate = async() => {
   ];
 
   for (const tableObj of migrationMap) {
-    let rows = await dbold[tableObj.old].findAll();
-    rows = rows.map(row => {
-      row = row.toJSON();
+    let oldrows = await dbold[tableObj.old].findAll();
+    oldrows = oldrows.map(row => row.toJSON());
+    for (const oldrow of oldrows) {
+      oldrow = oldrow.toJSON();
+      if (oldrow.lang) {
+        oldrow.locale = oldrow.lang;
+        delete oldrow.lang;
+      }
+    }
+    await dbnew[tableObj.new].bulkCreate(oldrows).catch(catcher);
+    await resetSequence(dbnew, tableObj.new, "id");
+    for (const oldrow of oldrows) {
       if (tableObj.old === "images") {
-        
+        const {id, meta} = oldrow;
+        if (meta) await dbnew.image_content.create({id, locale, meta}).catch(catcher);
       }
       if (tableObj.old === "search") {
-
+        const {id, dimension, hierarchy, keywords} = oldrow;
+        const newRow = await dbnew.search.findOne({where: {id, dimension, hierarchy}}).catch(catcher);
+        const {contentId} = newRow;
+        if (oldrow.name) await dbnew.search_content.create({id: contentId, locale, name, keywords});
       }
-      return row;
-    });
-    await dbnew[tableObj.new].bulkCreate(rows).catch(catcher);
-    await resetSequence(dbnew, tableObj.new, "id");
+    }
   }
 
   console.log("Done.");
 };
 
-migrate();
+// migrate();
 
 return;
