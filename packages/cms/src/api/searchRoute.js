@@ -10,6 +10,7 @@ const sharp = require("sharp");
 const axios = require("axios");
 
 const validLicenses = ["4", "5", "7", "8", "9", "10"];
+const validLicensesString = validLicenses.join();
 const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
 
 const catcher = e => {
@@ -95,6 +96,16 @@ module.exports = function(app) {
 
   app.get("/api/cubeData", (req, res) => {
     res.json(cache.cubeData).end();
+  });
+
+  app.get("/api/flickr/search", async(req, res) => {
+    const {q} = req.query;
+    const result = await flickr.photos.search({
+      text: q, 
+      license: validLicensesString,
+      sort: "relevance"
+    }).then(resp => resp.body).catch(catcher);
+    res.json(result);
   });
 
   app.get("/api/search/all", async(req, res) => {

@@ -367,6 +367,9 @@ class MemberBuilder extends Component {
           title="Choose Image URL"
           usePortal={false}
         >
+          {
+
+          /*
           <div className="bp3-dialog-body">
             <h3>Instructions</h3>
             <ul>
@@ -381,6 +384,9 @@ class MemberBuilder extends Component {
             <input className="cms-flickr-input" value={url} onChange={e => this.setState({url: e.target.value})}/>
           </div>
           {loading ? <Spinner size="30" className="cms-spinner"/> : <FooterButtons onSave={this.save.bind(this, currentRow)} />}
+          */
+          
+          }
         </Dialog>
         <div className="cms-panel member-panel">
           <h3>Filters</h3>
