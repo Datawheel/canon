@@ -40,7 +40,7 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.ProgressPlugin(progress),
+    new webpack.ProgressPlugin(progress("server")),
     new MiniCssExtractPlugin({
       filename: "styles.css"
     }),

@@ -44,7 +44,7 @@ module.exports = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.ProgressPlugin(progress),
+    new webpack.ProgressPlugin(progress("client")),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
       info: {level: "warn"}
