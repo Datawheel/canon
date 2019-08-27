@@ -28,7 +28,7 @@ class MemberBuilder extends Component {
       isOpen: false,
       currentRow: {},
       loading: false,
-      loadingSearch: false,
+      searching: false,
       url: ""
     };
   }
@@ -312,7 +312,9 @@ class MemberBuilder extends Component {
           const sourceData = this.state.sourceData.map(d => row.contentId === d.contentId ? row : d);
           const isOpen = false;
           const loading = false;
-          this.setState({isOpen, sourceData, loading}, this.prepData.bind(this));
+          const url = "";
+          const flickrImages = [];
+          this.setState({isOpen, sourceData, loading, url, flickrImages}, this.prepData.bind(this));
           Toast.show({
             intent: "success",
             message: "Success!",
@@ -325,9 +327,10 @@ class MemberBuilder extends Component {
 
   searchFlickr() {
     const {flickrQuery} = this.state;
+    this.setState({searching: true});
     axios.get(`/api/flickr/search?q=${flickrQuery}`).then(resp => {
       const flickrImages = resp.data || [];
-      this.setState({flickrImages});
+      this.setState({flickrImages, searching: false});
     });
   }
 
@@ -375,6 +378,7 @@ class MemberBuilder extends Component {
       flickrImages,
       isOpen, 
       loading,
+      searching,
       url
     } = this.state;
 
@@ -396,7 +400,9 @@ class MemberBuilder extends Component {
                 <h3>Flickr Image Search</h3>
                 <input value={flickrQuery} onChange={e => this.setState({flickrQuery: e.target.value})} />
                 <button onClick={this.searchFlickr.bind(this)}>Search for Images</button>
-                { flickrImages.length > 0 && 
+                { searching 
+                  ? <Spinner size="30" className="cms-spinner"/> 
+                  : flickrImages.length > 0 && 
                   <div className="cms-flickr-image-container">
                     { 
                       flickrImages.map(image => 
