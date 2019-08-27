@@ -52,7 +52,7 @@
     "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
-    "@blueprintjs/core": "^3.10.0",
+    "@blueprintjs/core": "^3.18.0",
     "axios": "^0.18.0",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
