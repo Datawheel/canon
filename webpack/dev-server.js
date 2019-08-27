@@ -3,7 +3,6 @@ const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
-      progress = require("./progress"),
       webpack = require("webpack");
 
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
@@ -40,7 +39,11 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.ProgressPlugin(progress("server")),
+    new webpack.ProgressPlugin({
+      activeModules: false,
+      entries: false,
+      modules: true
+    }),
     new MiniCssExtractPlugin({
       filename: "styles.css"
     }),

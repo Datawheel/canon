@@ -1,7 +1,6 @@
 const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
       appDir = process.cwd(),
       path = require("path"),
-      progress = require("./progress"),
       webpack = require("webpack"),
       yn = require("yn");
 
@@ -47,7 +46,11 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.ProgressPlugin(progress("client")),
+    new webpack.ProgressPlugin({
+      activeModules: false,
+      entries: false,
+      modules: true
+    }),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
       environmentHash: {

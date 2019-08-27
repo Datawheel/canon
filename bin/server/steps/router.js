@@ -163,9 +163,10 @@ module.exports = function(config) {
       config.webpackHotMiddleware = require("webpack-hot-middleware")(compiler);
 
     }
+
     router.use(config.webpackDevMiddleware);
     router.use(config.webpackHotMiddleware);
-    shell.echo("please wait...");
+
   }
 
   if (NODE_ENV === "production") {
