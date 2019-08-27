@@ -4,7 +4,12 @@
   width: 20px;
 }
 
-@each $color in red, green {
+/* -----------------------------------
+test comment block
+----------------------------------- */
+
+/* test single-line comment */
+@each $color in red, green { /* test inline comment */
   .box.$(color) {
     background: $(color);
   }
