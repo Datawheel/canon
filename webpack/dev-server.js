@@ -49,7 +49,7 @@ module.exports = {
       environmentHash: {
         root: appDir,
         directories: [],
-        files: ["package-lock.json", "yarn.lock", "app/style.yml"]
+        files: ["package-lock.json", "yarn.lock", "app/style.yml", ".env", ".envrc"]
       },
       info: {level: "error"}
     }),
