@@ -9,3 +9,7 @@
     background: $(color);
   }
 }
+
+.box.custom {
+  background: var(--custom-color);
+}

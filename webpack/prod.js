@@ -16,7 +16,12 @@ module.exports = [
     mode: "production",
     devtool: "cheap-module-source-map",
     context: path.join(__dirname, "../src"),
-    entry: {app: "./client"},
+    entry: {
+      app: [
+        "@babel/polyfill",
+        "./client"
+      ]
+    },
     output: {
       path: assetsPath,
       filename: "[name].js",

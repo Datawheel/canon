@@ -4,6 +4,12 @@ const appDir = process.cwd(),
 const appPath = path.join(appDir, "app");
 
 const variables = require("../require-fallback")("style.yml") || {};
+const customProperties = {};
+for (const key in variables) {
+  if ({}.hasOwnProperty.call(variables, key)) {
+    customProperties[`${key.startsWith("--") ? "" : "--"}${key}`] = variables[key];
+  }
+}
 
 module.exports = [
   require("postcss-import")({
@@ -16,7 +22,11 @@ module.exports = [
   require("postcss-each")(),
   require("postcss-for")(),
   require("postcss-custom-properties")({
-    variables
+    importFrom: [
+      path.join(__dirname, "variables.css"),
+      {customProperties}
+    ],
+    preserve: false
   }),
   require("postcss-map")({
     maps: [variables]

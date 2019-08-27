@@ -19,6 +19,7 @@ module.exports = {
   context: path.join(__dirname, "../src"),
   entry: {
     app: [
+      "@babel/polyfill",
       "react-hot-loader/patch",
       "webpack-hot-middleware/client",
       "./client"
