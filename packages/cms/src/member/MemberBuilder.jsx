@@ -5,6 +5,7 @@ import ReactTable from "react-table";
 import Select from "../components/fields/Select";
 import {Dialog, Spinner, EditableText} from "@blueprintjs/core";
 import FooterButtons from "../components/editors/components/FooterButtons";
+import Base58 from "base58";
 import PropTypes from "prop-types";
 
 import "./MemberBuilder.css";
@@ -27,7 +28,8 @@ class MemberBuilder extends Component {
       isOpen: false,
       currentRow: {},
       loading: false,
-      loadingSearch: false
+      loadingSearch: false,
+      url: ""
     };
   }
 
@@ -288,11 +290,12 @@ class MemberBuilder extends Component {
     });  
   }
 
-  save(currentRow) {
-    const {url} = this.state;
+  save(currentRow, shortid, id) {
     const {contentId} = currentRow;
+    if (id && !shortid) shortid = Base58.int_to_base58(id);
+    if (!id && shortid) id = Base58.base58_to_int(shortid);
     const Toast = this.context.toast.current;
-    const payload = {url, contentId};
+    const payload = {id, shortid, contentId};
     this.setState({loading: true});
     axios.post("/api/image/update", payload).then(resp => {
       if (resp.data) {
@@ -324,13 +327,8 @@ class MemberBuilder extends Component {
     const {flickrQuery} = this.state;
     axios.get(`/api/flickr/search?q=${flickrQuery}`).then(resp => {
       const flickrImages = resp.data || [];
-      console.log(flickrImages);
       this.setState({flickrImages});
     });
-  }
-
-  chooseFlickr(id) {
-    console.log(id);
   }
 
   processFiltering() {
@@ -359,7 +357,7 @@ class MemberBuilder extends Component {
   }
 
   closeEditor() {
-    this.setState({url: "", flickrImages: [], isOpen: false, loading: false, loadingSearch: false});
+    this.setState({url: "", flickrImages: [], isOpen: false, loading: false});
   }
 
   render() {
@@ -377,7 +375,6 @@ class MemberBuilder extends Component {
       flickrImages,
       isOpen, 
       loading,
-      loadingSearch,
       url
     } = this.state;
 
@@ -390,32 +387,25 @@ class MemberBuilder extends Component {
           usePortal={false}
         >
           <div className="bp3-dialog-body">
-            {!loadingSearch && 
-              <React.Fragment>
+            {loading 
+              ? <Spinner size="30" className="cms-spinner"/> 
+              : <React.Fragment>
                 <h3>Manually enter Flickr Link</h3>
                 <input value={url} onChange={e => this.setState({url: e.target.value})}/>
-                {loading ? <Spinner size="30" className="cms-spinner"/> : <button onClick={this.save.bind(this, currentRow)}>Save Manual Link</button>}
-              </React.Fragment>
-            }
-            {!loading && 
-              <React.Fragment>
+                <button onClick={this.save.bind(this, currentRow, url.replace("https://flic.kr/p/", ""), null)}>Save Manual Link</button>
                 <h3>Flickr Image Search</h3>
-                {!loadingSearch && 
-                  <React.Fragment>
-                    <input value={flickrQuery} onChange={e => this.setState({flickrQuery: e.target.value})} />
-                    <button onClick={this.searchFlickr.bind(this)}>Search for Images</button>
-                    { flickrImages.length > 0 && 
-                      <div className="cms-flickr-image-container">
-                        { 
-                          flickrImages.map(image => 
-                            <div key={image.id} onClick={this.chooseFlickr.bind(this, image.id)}>
-                              <img className="cms-flickr-image" width="320" src={image.source}/>
-                            </div>
-                          )
-                        }
-                      </div>
+                <input value={flickrQuery} onChange={e => this.setState({flickrQuery: e.target.value})} />
+                <button onClick={this.searchFlickr.bind(this)}>Search for Images</button>
+                { flickrImages.length > 0 && 
+                  <div className="cms-flickr-image-container">
+                    { 
+                      flickrImages.map(image => 
+                        <div key={image.id} onClick={this.save.bind(this, currentRow, null, image.id)}>
+                          <img className="cms-flickr-image" width="320" src={image.source}/>
+                        </div>
+                      )
                     }
-                  </React.Fragment>
+                  </div>
                 }
               </React.Fragment>
             }

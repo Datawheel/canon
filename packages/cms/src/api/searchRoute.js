@@ -28,8 +28,8 @@ module.exports = function(app) {
   const {db, cache} = app.settings;
 
   app.post("/api/image/update", async(req, res) => {
-    const {url, contentId} = req.body;
-    const id = url.replace("https://flic.kr/p/", "");
+    const {id, shortid, contentId} = req.body;
+    const url = `https://flic.kr/p/${shortid}`;
     const info = await flickr.photos.getInfo({photo_id: id}).then(resp => resp.body).catch(catcher);
     if (info) {
       if (validLicenses.includes(info.photo.license)) {
@@ -107,7 +107,7 @@ module.exports = function(app) {
     }).then(resp => resp.body).catch(catcher);
     const photos = result.photos.photo;
     const payload = [];
-    for (const photo of photos.slice(0, 10)) {
+    for (const photo of photos.slice(0, 12)) {
       const sizeObj = await flickr.photos.getSizes({photo_id: photo.id}).then(resp => resp.body).catch(catcher);
       const small = sizeObj.sizes.size.find(d => d.label === "Small 320");
       if (small) {
