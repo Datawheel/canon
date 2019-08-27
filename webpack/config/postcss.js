@@ -23,8 +23,8 @@ module.exports = [
   require("postcss-for")(),
   require("postcss-custom-properties")({
     importFrom: [
-      path.join(__dirname, "variables.css"),
-      {customProperties}
+      {customProperties},
+      path.join(__dirname, "variables.css")
     ],
     preserve: false
   }),
