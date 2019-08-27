@@ -26,7 +26,8 @@ class MemberBuilder extends Component {
       flickrImages: [],
       isOpen: false,
       currentRow: {},
-      loading: false
+      loading: false,
+      loadingSearch: false
     };
   }
 
@@ -358,7 +359,7 @@ class MemberBuilder extends Component {
   }
 
   closeEditor() {
-    this.setState({url: "", flickrImages: [], isOpen: false, loading: false});
+    this.setState({url: "", flickrImages: [], isOpen: false, loading: false, loadingSearch: false});
   }
 
   render() {
@@ -376,6 +377,7 @@ class MemberBuilder extends Component {
       flickrImages,
       isOpen, 
       loading,
+      loadingSearch,
       url
     } = this.state;
 
@@ -388,19 +390,34 @@ class MemberBuilder extends Component {
           usePortal={false}
         >
           <div className="bp3-dialog-body">
-            <h3>Flickr Image Search</h3>
-            <input value={flickrQuery} onChange={e => this.setState({flickrQuery: e.target.value})} />
-            <button onClick={this.searchFlickr.bind(this)}>Search for Images</button>
-            { flickrImages.length > 0 && 
-              <div className="cms-flickr-image-container">
-                { 
-                  flickrImages.map(image => 
-                    <div key={image.id} onClick={this.chooseFlickr.bind(this, image.id)}>
-                      <img className="cms-flickr-image" width="320" src={image.source}/>
-                    </div>
-                  )
+            {!loadingSearch && 
+              <React.Fragment>
+                <h3>Manually enter Flickr Link</h3>
+                <input value={url} onChange={e => this.setState({url: e.target.value})}/>
+                {loading ? <Spinner size="30" className="cms-spinner"/> : <button onClick={this.save.bind(this, currentRow)}>Save Manual Link</button>}
+              </React.Fragment>
+            }
+            {!loading && 
+              <React.Fragment>
+                <h3>Flickr Image Search</h3>
+                {!loadingSearch && 
+                  <React.Fragment>
+                    <input value={flickrQuery} onChange={e => this.setState({flickrQuery: e.target.value})} />
+                    <button onClick={this.searchFlickr.bind(this)}>Search for Images</button>
+                    { flickrImages.length > 0 && 
+                      <div className="cms-flickr-image-container">
+                        { 
+                          flickrImages.map(image => 
+                            <div key={image.id} onClick={this.chooseFlickr.bind(this, image.id)}>
+                              <img className="cms-flickr-image" width="320" src={image.source}/>
+                            </div>
+                          )
+                        }
+                      </div>
+                    }
+                  </React.Fragment>
                 }
-              </div>
+              </React.Fragment>
             }
           </div>
 
