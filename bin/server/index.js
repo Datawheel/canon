@@ -40,8 +40,9 @@ async function start() {
   if (shell.test("-d", moduleFolder)) {
     fs.readdirSync(moduleFolder)
       .forEach(folder => {
-        shell.echo(moduleName(folder) || "unknown");
-        modules.unshift(path.join(moduleFolder, folder, "src/"));
+        const fullPath = path.join(moduleFolder, folder);
+        shell.echo(moduleName(fullPath) || folder);
+        modules.unshift(path.join(fullPath, "src/"));
       });
   }
   else {
