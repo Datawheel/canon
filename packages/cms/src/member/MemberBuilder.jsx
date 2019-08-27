@@ -22,6 +22,8 @@ class MemberBuilder extends Component {
       dimension: "all",
       hierarchies: [],
       hierarchy: "all",
+      flickrQuery: "",
+      flickrImages: [],
       isOpen: false,
       currentRow: {},
       loading: false
@@ -40,10 +42,13 @@ class MemberBuilder extends Component {
   }
 
   clickCell(cell) {
+    const {localeDefault} = this.props;
     const currentRow = cell.original;
     const url = currentRow.image && currentRow.image.url ? currentRow.image.url : "";
     const isOpen = true;
-    this.setState({url, isOpen, currentRow});
+    const content = currentRow.content.find(d => d.locale === localeDefault);
+    const flickrQuery = content ? content.name : "";
+    this.setState({url, isOpen, currentRow, flickrQuery});
   }
 
   changeCell(cell, context, locale, value) {
@@ -314,6 +319,19 @@ class MemberBuilder extends Component {
     });
   }
 
+  searchFlickr() {
+    const {flickrQuery} = this.state;
+    axios.get(`/api/flickr/search?q=${flickrQuery}`).then(resp => {
+      const flickrImages = resp.data || [];
+      console.log(flickrImages);
+      this.setState({flickrImages});
+    });
+  }
+
+  chooseFlickr(id) {
+    console.log(id);
+  }
+
   processFiltering() {
     const {dimension, hierarchy, query} = this.state;
     const sourceData = this.fetchStringifiedSourceData.bind(this)();
@@ -340,7 +358,7 @@ class MemberBuilder extends Component {
   }
 
   closeEditor() {
-    this.setState({url: "", isOpen: false, loading: false});
+    this.setState({url: "", flickrImages: [], isOpen: false, loading: false});
   }
 
   render() {
@@ -354,6 +372,8 @@ class MemberBuilder extends Component {
       query,
       hierarchy, 
       hierarchies, 
+      flickrQuery,
+      flickrImages,
       isOpen, 
       loading,
       url
@@ -367,26 +387,23 @@ class MemberBuilder extends Component {
           title="Choose Image URL"
           usePortal={false}
         >
-          {
-
-          /*
           <div className="bp3-dialog-body">
-            <h3>Instructions</h3>
-            <ul>
-              <li>Go To Flickr.com</li>
-              <li>Search for an image</li>
-              <li>Change the License to <strong>Commercial use & mods allowed</strong></li>
-              <li>Choose and image and click it</li>
-              <li>Click the Share Button on the bottom right</li>
-              <li>Paste the URL below.</li>
-            </ul>
-            Enter a Flickr URL
-            <input className="cms-flickr-input" value={url} onChange={e => this.setState({url: e.target.value})}/>
+            <h3>Flickr Image Search</h3>
+            <input value={flickrQuery} onChange={e => this.setState({flickrQuery: e.target.value})} />
+            <button onClick={this.searchFlickr.bind(this)}>Search for Images</button>
+            { flickrImages.length > 0 && 
+              <div className="cms-flickr-image-container">
+                { 
+                  flickrImages.map(image => 
+                    <div key={image.id} onClick={this.chooseFlickr.bind(this, image.id)}>
+                      <img className="cms-flickr-image" width="320" src={image.source}/>
+                    </div>
+                  )
+                }
+              </div>
+            }
           </div>
-          {loading ? <Spinner size="30" className="cms-spinner"/> : <FooterButtons onSave={this.save.bind(this, currentRow)} />}
-          */
-          
-          }
+
         </Dialog>
         <div className="cms-panel member-panel">
           <h3>Filters</h3>

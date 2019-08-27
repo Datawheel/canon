@@ -10,3 +10,14 @@
 .cms-flickr-input {
   width: 300px;
 }
+
+.cms-flickr-image-container {
+  width: 1000px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.cms-flickr-image {
+  width: 320px;
+  padding: 10px;
+}

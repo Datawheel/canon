@@ -107,9 +107,16 @@ module.exports = function(app) {
     }).then(resp => resp.body).catch(catcher);
     const photos = result.photos.photo;
     const payload = [];
-    for (const photo of photos.slice(0, 5)) {
-      const sizes = await flickr.photos.getSizes({photo_id: photo.id}).then(resp => resp.body).catch(catcher);
-      payload.push(sizes);
+    for (const photo of photos.slice(0, 10)) {
+      const sizeObj = await flickr.photos.getSizes({photo_id: photo.id}).then(resp => resp.body).catch(catcher);
+      const small = sizeObj.sizes.size.find(d => d.label === "Small 320");
+      if (small) {
+        payload.push({
+          id: photo.id,
+          source: small.source
+        });  
+      }
+      
     }
     res.json(payload);
   });
