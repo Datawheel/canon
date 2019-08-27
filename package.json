@@ -64,7 +64,7 @@
     "compression": "^1.7.1",
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-beta.3",
-    "css-loader": "^0.28.7",
+    "css-loader": "^0.28.11",
     "d3-array": "^1.2.1",
     "d3plus-react": "^0.5.3",
     "d3plus-text": "^0.9.50",
