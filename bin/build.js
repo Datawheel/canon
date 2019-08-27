@@ -18,7 +18,7 @@ title("Bundling Production Webpack", "🔷");
 shell.exec(`webpack --progress --colors --hide-modules --config ${__dirname}/../webpack/prod.js`);
 
 title("Generating index.js", "📒");
-let {code} = babel.transformFileSync(`${__dirname}/server.js`, {
+let {code} = babel.transformFileSync(`${__dirname}/server/index.js`, {
   ignore: [staticFolder],
   presets: [
     ["@babel/preset-env", {targets: {node: "current"}}]
