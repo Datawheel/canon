@@ -1,7 +1,10 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin"),
       appDir = process.cwd(),
-      path = require("path"),
-      postCSS = require("./postcss");
+      path = require("path");
+
+const postCSSPath = require.resolve("./postcss");
+delete require.cache[postCSSPath];
+const postCSS = require(postCSSPath);
 
 const cssLoaders = [
   {

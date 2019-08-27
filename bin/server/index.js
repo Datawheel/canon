@@ -93,9 +93,15 @@ async function start() {
     server = routerConfig.server;
   }
 
-  const watchFiles = storeFiles.concat(cacheFiles.concat(dbFiles.concat(routerFiles)));
+  const watchFiles = [
+    path.join(appPath, "style.yml"),
+    ...storeFiles,
+    ...cacheFiles,
+    ...dbFiles,
+    ...routerFiles
+  ];
 
-  if (NODE_ENV === "development" && watchFiles.length) {
+  if (NODE_ENV === "development") {
 
     const chokidar = require("chokidar");
 
@@ -104,6 +110,7 @@ async function start() {
 
         if (["change", "add", "unlink"].includes(event)) {
 
+          config.change = path;
           delete require.cache[path];
 
           if (storeFiles.some(f => path.startsWith(f))) {

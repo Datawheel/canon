@@ -1,6 +1,5 @@
 const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
       appDir = process.cwd(),
-      commonLoaders = require("./config/loaders"),
       path = require("path"),
       progress = require("./progress"),
       webpack = require("webpack"),
@@ -9,6 +8,10 @@ const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
+
+const loaderPath = require.resolve("./config/loaders");
+delete require.cache[loaderPath];
+const commonLoaders = require(loaderPath);
 
 process.traceDeprecation = true;
 
@@ -44,12 +47,17 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.ProgressPlugin(progress("client")),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
-      info: {level: "warn"}
+      environmentHash: {
+        root: appDir,
+        directories: [],
+        files: ["package-lock.json", "yarn.lock", "app/style.yml"]
+      },
+      info: {level: "error"}
     }),
+    new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))
       .reduce((d, k) => {

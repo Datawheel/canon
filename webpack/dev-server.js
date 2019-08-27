@@ -46,6 +46,11 @@ module.exports = {
     }),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
+      environmentHash: {
+        root: appDir,
+        directories: [],
+        files: ["package-lock.json", "yarn.lock", "app/style.yml"]
+      },
       info: {level: "error"}
     }),
     new HardSourceWebpackPlugin.ExcludeModulePlugin([

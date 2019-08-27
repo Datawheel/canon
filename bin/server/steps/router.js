@@ -147,11 +147,13 @@ module.exports = function(config) {
 
   if (NODE_ENV === "development") {
 
-    if (!config.webpackDevMiddleware) {
+    if (!config.webpackDevMiddleware || config.change && config.change.includes("style.yml")) {
 
       title("Bundling Client Webpack", "🔷");
       const webpack = require("webpack");
-      const webpackDevConfig = require(path.join(canonPath, "webpack/dev-client.js"));
+      const configPath = path.join(canonPath, "webpack/dev-client.js");
+      delete require.cache[configPath];
+      const webpackDevConfig = require(configPath);
       const compiler = webpack(webpackDevConfig);
 
       config.webpackDevMiddleware = require("webpack-dev-middleware")(compiler, {
@@ -163,6 +165,7 @@ module.exports = function(config) {
     }
     router.use(config.webpackDevMiddleware);
     router.use(config.webpackHotMiddleware);
+    shell.echo("please wait...");
   }
 
   if (NODE_ENV === "production") {
