@@ -10,6 +10,8 @@ import PropTypes from "prop-types";
 
 import "./MemberBuilder.css";
 
+const IMAGES_PER_PAGE = 5;
+
 class MemberBuilder extends Component {
 
   constructor(props) {
@@ -29,6 +31,7 @@ class MemberBuilder extends Component {
       currentRow: {},
       loading: false,
       searching: false,
+      offset: 0,
       url: ""
     };
   }
@@ -314,7 +317,8 @@ class MemberBuilder extends Component {
           const loading = false;
           const url = "";
           const flickrImages = [];
-          this.setState({isOpen, sourceData, loading, url, flickrImages}, this.prepData.bind(this));
+          const offset = 0;
+          this.setState({isOpen, sourceData, loading, url, flickrImages, offset}, this.prepData.bind(this));
           Toast.show({
             intent: "success",
             message: "Success!",
@@ -332,6 +336,14 @@ class MemberBuilder extends Component {
       const flickrImages = resp.data || [];
       this.setState({flickrImages, searching: false});
     });
+  }
+
+  showNext() {
+    this.setState({offset: this.state.offset + IMAGES_PER_PAGE});
+  }
+
+  showPrev() {
+    this.setState({offset: this.state.offset - IMAGES_PER_PAGE}); 
   }
 
   processFiltering() {
@@ -360,7 +372,7 @@ class MemberBuilder extends Component {
   }
 
   closeEditor() {
-    this.setState({url: "", flickrImages: [], isOpen: false, loading: false});
+    this.setState({url: "", flickrImages: [], isOpen: false, loading: false, offset: 0});
   }
 
   render() {
@@ -379,6 +391,7 @@ class MemberBuilder extends Component {
       isOpen, 
       loading,
       searching,
+      offset,
       url
     } = this.state;
 
@@ -403,14 +416,18 @@ class MemberBuilder extends Component {
                 { searching 
                   ? <Spinner size="30" className="cms-spinner"/> 
                   : flickrImages.length > 0 && 
-                  <div className="cms-flickr-image-container">
-                    { 
-                      flickrImages.map(image => 
-                        <div key={image.id} onClick={this.save.bind(this, currentRow, null, image.id)}>
-                          <img className="cms-flickr-image" width="320" src={image.source}/>
-                        </div>
-                      )
-                    }
+                  <div>
+                    <div className="cms-flickr-image-container">
+                      { 
+                        flickrImages.slice(offset, offset + IMAGES_PER_PAGE).map(image => 
+                          <div key={image.id} onClick={this.save.bind(this, currentRow, null, image.id)}>
+                            <img className="cms-flickr-image" width="320" src={image.source}/>
+                          </div>
+                        )
+                      }
+                    </div>
+                    {offset >= IMAGES_PER_PAGE && <button onClick={this.showPrev.bind(this)}>Previous</button>}
+                    {offset + IMAGES_PER_PAGE < flickrImages.length && <button onClick={this.showNext.bind(this)}>Next</button>}
                   </div>
                 }
               </React.Fragment>
