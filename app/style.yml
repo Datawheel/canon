@@ -37,6 +37,7 @@ dark-3:       "#20242E"
 black:        "#181A21"
 subnav-height: "200px"
 custom-color: "cornflowerblue"
+test-size: "10px"
 
 # accent colors
 accent:       "#FFCD33"

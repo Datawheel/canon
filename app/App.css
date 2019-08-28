@@ -18,3 +18,8 @@ test comment block
 .box.custom {
   background: var(--custom-color);
 }
+
+/* test mixin */
+@define-mixin font-xxxs { /* use sparingly */
+  font-size: calc(var(--test-size) - 2px);
+}
