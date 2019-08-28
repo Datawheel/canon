@@ -11,6 +11,8 @@ for (const key in variables) {
   }
 }
 
+const assetBase = process.env.CANON_BASE_URL || "";
+
 module.exports = [
   require("postcss-import")({
     addDependencyTo: process.env.NODE_ENV === "development" ? require("webpack") : undefined,
@@ -23,6 +25,9 @@ module.exports = [
   require("postcss-for")(),
   require("postcss-preset-env")({
     browsers: ["> 1%", "last 2 versions"],
+    features: {
+      "nesting-rules": true
+    },
     importFrom: [
       {customProperties},
       path.join(__dirname, "variables.css")
@@ -37,5 +42,8 @@ module.exports = [
     filter: msg => msg.type === "warning" || msg.type !== "dependency"
   }),
   require("postcss-color-function")(),
-  require("postcss-flexbugs-fixes")()
+  require("postcss-flexbugs-fixes")(),
+  require("postcss-url")({
+    url: asset => `${assetBase}${asset.url}`
+  })
 ];
