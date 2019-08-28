@@ -21,7 +21,8 @@ module.exports = [
   require("postcss-mixins")(),
   require("postcss-each")(),
   require("postcss-for")(),
-  require("postcss-custom-properties")({
+  require("postcss-preset-env")({
+    browsers: ["> 1%", "last 2 versions"],
     importFrom: [
       {customProperties},
       path.join(__dirname, "variables.css")
@@ -31,11 +32,7 @@ module.exports = [
   require("postcss-map")({
     maps: [variables]
   }),
-  require("postcss-nesting")(),
   require("postcss-conditionals")(),
-  require("postcss-preset-env")({
-    browserslist: ["> 1%", "last 2 versions"]
-  }),
   require("postcss-reporter")({
     filter: msg => msg.type === "warning" || msg.type !== "dependency"
   }),
