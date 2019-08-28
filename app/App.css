@@ -8,6 +8,11 @@
 test comment block
 ----------------------------------- */
 
+/* test mixin */
+@define-mixin font-xxxs { /* use sparingly */
+  font-size: calc(10px - 2px);
+}
+
 /* test single-line comment */
 @each $color in red, green { /* test inline comment */
   .box.$(color) {
@@ -16,10 +21,6 @@ test comment block
 }
 
 .box.custom {
+  @mixin font-xxxs;
   background: var(--custom-color);
-}
-
-/* test mixin */
-@define-mixin font-xxxs { /* use sparingly */
-  font-size: calc(var(--test-size) - 2px);
 }
