@@ -1,7 +1,5 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {dataFold} from "d3plus-viz";
-import Parse from "../sections/components/Parse";
 import abbreviate from "../../utils/formatters/abbreviate";
 
 import {Icon} from "@blueprintjs/core";
@@ -104,10 +102,7 @@ class Table extends Component {
       </button>,
       id: col,
       accessor: d => d[col],
-      Cell: cell =>
-        <span className="cp-table-cell-inner">
-          {cellFormat(cell, cell.value)}
-        </span>
+      Cell: cell => <span className="cp-table-cell-inner" dangerouslySetInnerHTML={{__html: cellFormat(cell, cell.value)}} />
     });
   };
 
