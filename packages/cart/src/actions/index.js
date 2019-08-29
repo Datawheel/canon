@@ -72,7 +72,6 @@ export const loadDatasetsAction = datasets => dispatch => {
 
   const client = new OLAPClient();
   const datasetIds = Object.keys(datasets);
-  const loadedData = {};
   const dimensions = {};
 
   datasetIds.map(datasetId => {
@@ -90,7 +89,7 @@ export const loadDatasetsAction = datasets => dispatch => {
 
           if (cube) {
             dimensions[cube.name] = cube.dimensionsByName;
-            dispatch(successLoadDatasetAction(datasetId));
+            // dispatch(successLoadDatasetAction(datasetId));
             loaded += 1;
 
             // All metadata is loaded and correct
@@ -112,7 +111,7 @@ export const loadDatasetsAction = datasets => dispatch => {
               }
 
               // Process All datasets
-              processAllDatasets(dispatch, loadedData);
+              processAllDatasets(dispatch, datasets, client, sharedDimensionsList, dateDimensionsList);
             }
           }
           else {
@@ -192,13 +191,77 @@ export const dateDimensionChangedAction = dimId => ({
   payload: {id: dimId}
 });
 
-export const processAllDatasets = (dispatch, datasets) => {
+
+/** processAllDatasets */
+export const processAllDatasets = (dispatch, datasets, client, sharedDimensionsList, dateDimensionsList) => {
   dispatch(startProcessingAction());
-  console.log("processAllDatasets->", datasets);
-  // TODO: merge datasets
-  setTimeout(() => {
-    dispatch(endProcessingAction());
-  }, 2000);
+  console.log("processAllDatasets->", client);
+
+  let loaded = 0;
+
+  const loadedData = {};
+
+  const datasetIds = Object.keys(datasets);
+  datasetIds.map(datasetId => {
+    const datasetObj = datasets[datasetId];
+    if (datasetObj.provider.type === TYPE_OLAP) {
+      client.addServer(datasetObj.provider.server).then(status => {
+
+        client.cubes().then(cubes => {
+          const cube = cubes.find(c => c.name === datasetObj.cube);
+          const query = cube.query;
+
+          if (datasetObj.query.params.drilldown) {
+            datasetObj.query.params.drilldown.map(m => {
+              query.addDrilldown(m);
+            });
+          }
+
+          if (datasetObj.query.params.measures) {
+            datasetObj.query.params.measures.map(m => {
+              query.addMeasure(m);
+            });
+          }
+
+          if (dateDimensionsList) {
+            dateDimensionsList.map(d => {
+              const level = d.hierarchies[0].levels.find(lev => lev.name.toLowerCase().indexOf("all") === -1);
+              query.addDrilldown(level.fullname);
+            });
+          }
+
+          if (sharedDimensionsList) {
+            sharedDimensionsList.map(d => {
+              const level = d.hierarchies[0].levels.find(lev => lev.name.toLowerCase().indexOf("all") === -1);
+              query.addDrilldown(level.fullname);
+            });
+          }
+
+          return client.execQuery(query);
+        }).then(aggregation => {
+          dispatch(successLoadDatasetAction(datasetId));
+          loaded += 1;
+          loadedData[datasetId] = aggregation.data;
+
+          // All metadata is loaded and correct
+          if (loaded === datasetIds.length) {
+            console.log("RESPONSES !!!", loadedData);
+            // TODO: merge datasets
+
+            setTimeout(() => {
+              dispatch(endProcessingAction());
+            }, 2000);
+          }
+
+        });
+
+      });
+
+      // Add server to client
+
+    }
+  });
+
 };
 
 
