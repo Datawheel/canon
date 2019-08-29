@@ -15,7 +15,7 @@ const rootPath = process.cwd();
 const appPath = path.join(rootPath, "app");
 const staticPath = path.join(rootPath, process.env.CANON_STATIC_FOLDER || "static");
 const canonPath = name === "@datawheel/canon-core" ? rootPath : path.join(rootPath, "node_modules/@datawheel/canon-core/");
-const serverPath = path.join(NODE_ENV === "development" ? __dirname : path.join(canonPath, "bin/server/"));
+const serverPath = NODE_ENV === "development" ? __dirname : path.join(canonPath, "bin/server/");
 const paths = {appPath, canonPath, rootPath, serverPath, staticPath};
 
 /* Internal Helper Functions */

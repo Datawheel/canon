@@ -1,6 +1,7 @@
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin,
       InlineEnviromentVariablesPlugin = require("inline-environment-variables-webpack-plugin"),
       MiniCssExtractPlugin = require("mini-css-extract-plugin"),
+      WebpackBar = require("webpackbar"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
@@ -41,6 +42,10 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
+      new WebpackBar({
+        color: "#fc6",
+        name: "client"
+      }),
       new MiniCssExtractPlugin({
         filename: "styles.css"
       }),
@@ -83,6 +88,10 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
+      new WebpackBar({
+        color: "#CB9F2C",
+        name: "server"
+      }),
       new MiniCssExtractPlugin({
         filename: "styles.css"
       }),

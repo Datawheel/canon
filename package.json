@@ -135,6 +135,7 @@
     "webpack-cli": "^3.3.7",
     "webpack-dev-middleware": "^3.7.0",
     "webpack-hot-middleware": "^2.25.0",
+    "webpackbar": "^4.0.0",
     "yml-loader": "^2.1.0",
     "yn": "^3.0.0"
   },
