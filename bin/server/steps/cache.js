@@ -23,7 +23,7 @@ module.exports = async function(config) {
         title(`${everDetect ? "Re-f" : "F"}illing Caches`, "📦");
         everDetect = true;
       }
-      const module = moduleName(cacheFolder) || name;
+      const module = moduleName(cacheFolder) || moduleName(name) || name;
       const promises = [];
       files.push(cacheFolder);
       readFiles(cacheFolder)

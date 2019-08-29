@@ -43,7 +43,7 @@ module.exports = async function(config) {
 
         }
         files.push(dbFolder);
-        const module = moduleName(dbFolder) || name;
+        const module = moduleName(dbFolder) || moduleName(name) || name;
         const {db} = config;
         readFiles(dbFolder)
           .forEach(file => {

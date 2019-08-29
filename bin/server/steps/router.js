@@ -136,7 +136,7 @@ module.exports = function(config) {
       }
       files.push(apiFolder);
       readFiles(apiFolder).forEach(file => {
-        const module = moduleName(file) || name;
+        const module = moduleName(file) || moduleName(name) || name;
         const parts = file.replace(/\\/g, "/").split("/");
         const apiName = parts[parts.length - 1].replace(".js", "");
         shell.echo(`${module}: ${apiName}`);
