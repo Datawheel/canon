@@ -15,10 +15,10 @@
   --black:        var(--black,        #181A21);
 
   /* accent colors */
-  --accent:       var(--accent:       #FFCD33);
-  --accent-light: var(--accent-light: #FFD65B);
-  --accent-dark:  var(--accent-dark:  #C4960B);
-  --accent-black: var(--accent-black: #7F6516);
+  --accent:       var(--accent,       #FFCD33);
+  --accent-light: var(--accent-light, #FFD65B);
+  --accent-dark:  var(--accent-dark,  #C4960B);
+  --accent-black: var(--accent-black, #7F6516);
 
 
   /* ------------------------------------------------

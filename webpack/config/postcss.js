@@ -6,7 +6,7 @@ const appPath = path.join(appDir, "app");
 const variables = require("../require-fallback")("style.yml") || {};
 const customProperties = {};
 for (const key in variables) {
-  if ({}.hasOwnProperty.call(variables, key)) {
+  if ({}.hasOwnProperty.call(variables, key) && !key.includes(" ")) {
     customProperties[`${key.startsWith("--") ? "" : "--"}${key}`] = variables[key];
   }
 }
@@ -30,7 +30,7 @@ module.exports = [
     },
     importFrom: [
       {customProperties},
-      path.join(__dirname, "variables.css")
+      path.join(__dirname, "../../src/variables.css")
     ],
     preserve: false
   }),
