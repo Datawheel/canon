@@ -61,12 +61,7 @@ module.exports = [
         openAnalyzer: false,
         reportFilename: "../reports/webpack-prod-client.html"
       })
-    ],
-    stats: {
-      entrypoints: false,
-      children: false,
-      warnings: false
-    }
+    ]
   },
   {
     name: "server",
@@ -109,11 +104,6 @@ module.exports = [
         openAnalyzer: false,
         reportFilename: "../reports/webpack-prod-server.html"
       })
-    ],
-    stats: {
-      entrypoints: false,
-      children: false,
-      warnings: false
-    }
+    ]
   }
 ];
