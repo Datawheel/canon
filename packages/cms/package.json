@@ -11,11 +11,11 @@
   },
   "scripts": {
     "dev": "canon-dev",
-    "build": "canon-build",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 canon-build",
     "locales": "canon-locales",
     "release": "canon-release",
     "setup": "canon-setup",
-    "start": "canon-start",
+    "start": "node index.js",
     "canon-cms-migrate-legacy": "node scripts/migration/canon-cms-migrate-legacy.js",
     "canon-cms-migrate-0.1": "node scripts/migration/canon-cms-migrate-0.1.js",
     "canon-cms-migrate-0.6": "node scripts/migration/canon-cms-migrate-0.6.js"
