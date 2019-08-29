@@ -5,9 +5,8 @@ let everDetect = false;
 
 module.exports = function(config) {
 
-  const {paths} = config;
+  const {NODE_ENV, paths} = config;
   const {appPath, serverPath} = paths;
-  const {NODE_ENV} = process.env;
 
   const resolve = require(path.join(serverPath, "helpers/resolve")),
         title = require(path.join(serverPath, "helpers/title"));

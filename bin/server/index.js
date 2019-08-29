@@ -66,6 +66,7 @@ async function start() {
 
   /* define some globally used internal variables */
   const config = {
+    NODE_ENV,
     modules,
     opbeat,
     name,
