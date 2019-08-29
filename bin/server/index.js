@@ -48,7 +48,7 @@ async function start() {
   else {
     shell.echo("no canon plugins detected");
   }
-  if (name === "@datawheel/canon-core") modules.unshift(path.join(rootPath, "src/"));
+  if (name.includes("@datawheel/canon")) modules.unshift(path.join(rootPath, "src/"));
 
   title("Registering Services", "🛎️");
 
