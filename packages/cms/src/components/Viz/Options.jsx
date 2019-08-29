@@ -242,6 +242,7 @@ class Options extends Component {
         <div className="table">
           <ReactTable
             data={results}
+            defaultPageSize={results.length}
             columns={columns.map(col => this.renderColumn(col))}
             minRows="0"
             minWidth="300"
