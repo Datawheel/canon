@@ -81,15 +81,18 @@ class PercentageBar extends Component {
                   <span className="percentage-bar-label label u-font-xs">
                     {label}
                   </span>
+
+                  <span className="percentage-bar-value display u-font-md">
+                    {numberFormat(d, value, total)}
+                  </span>
+
                   <span className="u-visually-hidden">: </span>
                   {!isNaN(percent) &&
                     <span className="percentage-bar-bg">
                       <span className="percentage-bar" style={{width: `${percent}%`}} />
                     </span>
                   }
-                  <span className="percentage-bar-value display u-font-md">
-                    {numberFormat(d, value, total)}
-                  </span>
+
                 </li>
               </React.Fragment>
             );
@@ -97,7 +100,7 @@ class PercentageBar extends Component {
         </ul>
         <div className="show-more">
           {!showAll && cutoffText &&
-            <div className="cutoff-text">{cutoffText}</div>
+            <div className="cutoff-text" dangerouslySetInnerHTML={{__html: cutoffText}}></div>
           }
           {(showAll || data.length > displayData.length) &&
             <Button
