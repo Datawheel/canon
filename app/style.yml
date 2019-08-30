@@ -16,8 +16,6 @@
 
 # GOTCHAS:
 # 1. When aliasing variables in this file (i.e., `section-text-color: "var(--dark-2)"`), these variables will be replaced in css files, but NOT in js files.
-# 2. Currently, after making changes to this file, you will need to clear the cache `rm -rf node_modules/.cache` and then rerun the build. There's an issue for this.
-# 3. Make sure there are no more than 1 empty line at the end of the file, or style.yml will not be recognized and your build will fail. ¯\_(ツ)_/¯
 
 # Finally, if you encounter any bugs, are confused by anything, or wish things were better/different, let @perpetualgrimace know!
 
@@ -27,20 +25,7 @@
 ########################################
 
 # grayscale
-light-1:      "#F8F9FA"
-light-2:      "#ECEFF1"
-light-3:      "#CFDAE2"
-gray:         "#AEBDCC"
-dark-1:       "#8A97AE"
-dark-2:       "#2A2F3B"
-dark-3:       "#20242E"
-black:        "#181A21"
-subnav-height: "200px"
+test-height: "200px"
+subnav-height: "var(--test-height)"
 custom-color: "cornflowerblue"
 test-size: "10px"
-
-# accent colors
-accent:       "#FFCD33"
-accent-light: "#FFD65B"
-accent-dark:  "#C4960B"
-accent-black: "#7F6516"
