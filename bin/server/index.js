@@ -111,6 +111,7 @@ async function start() {
 
         if (["change", "add", "unlink"].includes(event)) {
 
+          title(`Change detected: ${path.replace(paths.rootPath, "")}`, "👀️");
           config.change = path;
           delete require.cache[path];
 
