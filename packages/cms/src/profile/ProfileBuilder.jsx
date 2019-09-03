@@ -637,20 +637,23 @@ class ProfileBuilder extends Component {
 
     return (
       <React.Fragment>
-        {/* new entity */}
-        <Button
-          onClick={this.createProfile.bind(this)}
-          context="cms"
-          className="cms-add-profile-button"
-          fontSize="xxs"
-          icon="plus"
-          iconPosition="right"
-        >
-          add profile
-        </Button>
-
         <div className="cms-panel profile-panel" id="profile-builder">
           <div className="cms-sidebar" id="tree">
+            {/* new entity */}
+            <div className="cms-button-container">
+              <Button
+                onClick={this.createProfile.bind(this)}
+                context="cms"
+                className="cms-add-profile-button"
+                fontSize="xxs"
+                icon="plus"
+                iconPosition="right"
+                block
+              >
+                add profile
+              </Button>
+            </div>
+
             <SidebarTree
               onNodeClick={this.handleNodeClick.bind(this)}
               onNodeCollapse={this.handleNodeCollapse.bind(this)}

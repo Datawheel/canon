@@ -132,14 +132,21 @@ class Builder extends Component {
           {navLinks.map(navLink =>
             <button
               key={navLink}
-              className={`cms-nav-link${navLink === currentTab ? " is-active" : ""}`}
+              className={`cms-nav-link u-font-xs${navLink === currentTab ? " is-active" : ""}`}
               onClick={this.handleTabChange.bind(this, navLink)}>
               {navLink}
             </button>
           )}
 
           <div className="cms-nav-settings-button-container">
-            <Button className="cms-nav-settings-button" context="cms" icon="cog" active={settingsOpen} onClick={this.toggleSettings.bind(this)}>
+            <Button
+              className="cms-nav-settings-button"
+              context="cms"
+              icon="cog"
+              fontSize="xs"
+              active={settingsOpen}
+              onClick={this.toggleSettings.bind(this)}
+            >
               settings
             </Button>
           </div>

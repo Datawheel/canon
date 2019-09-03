@@ -119,20 +119,6 @@
       animation: unfold-from-above 0.1s ease-out;
     }
   }
-
-  /* fudge add profile/story button into place */
-  & ~ .cms-button {
-    position: absolute;
-    top: var(--nav-height);
-    margin-top: 0.875rem;
-    z-index: 3; /* above nav */
-    left: 11.75rem;
-
-    /* needs a different magic number because it has a different width */
-    &.cms-add-story-button {
-      left: 12.125rem;
-    }
-  }
 }
 
 
@@ -163,6 +149,16 @@
     background-color: var(--dark-2);
     color: var(--light-1);
     box-shadow: 0 0 1rem var(--black);
+  }
+
+  & > .cms-button-container {
+    padding: var(--gutter-xs);
+    border-bottom: 1px solid var(--light-2);
+
+    @mixin dark-mode {
+      background-color: var(--black);
+      border-color: var(--black);
+    }
   }
 }
 

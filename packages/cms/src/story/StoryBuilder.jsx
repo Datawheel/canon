@@ -364,20 +364,22 @@ class StoryBuilder extends Component {
 
     return (
       <React.Fragment>
-        {/* new entity */}
-        <Button
-          onClick={this.addFirst.bind(this)}
-          className="cms-add-story-button"
-          fontSize="xxs"
-          context="cms"
-          icon="plus"
-          iconPosition="right"
-        >
-          add story
-        </Button>
-
         <div className="cms-panel story-panel" id="profile-builder">
           <div className="cms-sidebar" id="tree">
+              {/* new entity */}
+              <div className="cms-button-container">
+                <Button
+                  onClick={this.addFirst.bind(this)}
+                  className="cms-add-story-button"
+                  fontSize="xxs"
+                  context="cms"
+                  icon="plus"
+                  iconPosition="right"
+                  block
+                >
+                  add story
+                </Button>
+              </div>
 
             <SidebarTree
               onNodeClick={this.handleNodeClick.bind(this)}
