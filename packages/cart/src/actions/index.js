@@ -2,7 +2,8 @@
 import localforage from "localforage";
 import {getHashCode, parseURL} from "../helpers/transformations";
 import {STORAGE_CART_KEY, TYPE_OLAP} from "../helpers/consts";
-import {Client as OLAPClient} from "@datawheel/olap-client";
+import {MultiClient} from "@datawheel/olap-client";
+import {nest} from "d3-collection";
 
 /* Init Cart */
 export const INIT_CART = "@@canon-cart/INIT_CART";
@@ -65,16 +66,48 @@ export const toggleSettingAction = id => ({
 });
 
 /** Loading datasets */
-export const loadDatasetsAction = datasets => dispatch => {
+export const loadDatasetsAction = datasets => async dispatch => {
   dispatch(loadAllDatasetsAction());
 
-  let loaded = 0;
+  const loaded = 0, dimensions = {};
 
-  const client = new OLAPClient();
+  // Datasets Ids
   const datasetIds = Object.keys(datasets);
-  const dimensions = {};
 
+  // Initialize Multiclient
+  const serverList = datasetIds.map(datasetId => datasets[datasetId].provider.server);
+  const multiClient = await MultiClient.fromURL(...serverList);
+
+  console.log(multiClient);
+
+  multiClient.getCubes().then(cubes => {
+    console.log("cubes ->", cubes);
+  }).catch(e => {
+    console.error(e);
+  });
+
+  // Iterate & Query
   datasetIds.map(datasetId => {
+    const datasetObj = datasets[datasetId];
+
+    if (datasetObj.provider.type === TYPE_OLAP) {
+      console.log(datasetObj);
+      multiClient.getCube(datasetObj.cube, cubes => {
+        const mcCube = cubes.find(c => c.server === datasetObj.provider.server);
+        return mcCube;
+      }).then(cube => {
+        console.log("found cube ->", cube);
+        // console.log("query obj ->", cube.query);
+        dimensions[cube.name] = cube.dimensionsByName;
+      }).catch(e => {
+        console.error(e);
+      });
+    }
+  });
+
+  // console.log(unknownClient);
+
+  /* datasetIds.map(datasetId => {
     const datasetObj = datasets[datasetId];
     if (datasetObj.provider.type === TYPE_OLAP) {
       // Add server to client
@@ -120,7 +153,7 @@ export const loadDatasetsAction = datasets => dispatch => {
         });
       });
     }
-  });
+  });*/
 
   // Demo request
 

@@ -55,7 +55,9 @@ class Cart extends React.Component {
 
   loadAllDatasets() {
     const {dispatch, datasets} = this.props;
-    dispatch(loadDatasetsAction(datasets));
+    if (datasets && Object.keys(datasets).length > 0) {
+      dispatch(loadDatasetsAction(datasets));
+    }
   }
 
   render() {
