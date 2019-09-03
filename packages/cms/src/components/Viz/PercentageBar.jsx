@@ -69,8 +69,55 @@ class PercentageBar extends Component {
 
     if (sort) displayData = displayData.sort(sort);
 
+
+
     return (
       <div className="percentage-bar-wrapper">
+
+
+<div className="precentage-bar-grid-holder">
+<svg className="percentage-bar-grid">
+            <defs>
+                <clipPath id="percentage-bar-clip">
+                    <rect x="0" y="0" width="100%" height={showAll ? "99%" : "88%"} />
+                </clipPath>
+            </defs>
+
+            <g className="percentage-bar-ticks">
+              <line x1="0.1%" x2="0.1%" y1="0" y2="100%"/>
+              <line x1="10%" x2="10%" y1="0" y2="100%"/>
+              <line x1="20%" x2="20%" y1="0" y2="100%"/>
+              <line x1="30%" x2="30%" y1="0" y2="100%"/>
+              <line x1="40%" x2="40%" y1="0" y2="100%"/>
+              <line x1="50%" x2="50%" y1="0" y2="100%"/>
+              <line x1="60%" x2="60%" y1="0" y2="100%"/>
+              <line x1="70%" x2="70%" y1="0" y2="100%"/>
+              <line x1="80%" x2="80%" y1="0" y2="100%"/>
+              <line x1="90%" x2="90%" y1="0" y2="100%"/>
+              <line x1="99.9%" x2="99.9%" y1="0" y2="100%"/>
+            </g>
+
+            <g className="percentage-bar-labels">
+                <text x="0" y="100%">0%</text>
+                <text x="10%" y="100%">10%</text>
+                <text x="20%" y="100%">20%</text>
+                <text x="30%" y="100%">30%</text>
+                <text x="40%" y="100%">40%</text>
+                <text x="50%" y="100%">50%</text>
+                <text x="60%" y="100%">60%</text>
+                <text x="70%" y="100%">70%</text>
+                <text x="80%" y="100%">80%</text>
+                <text x="90%" y="100%">90%</text>
+                <text x="100%" y="100%">100%</text>
+            </g>
+          </svg>
+
+        </div>
+
+
+
+
+
         <ul className="percentage-bar-list">
           {displayData.filter(d => d).map((d, i) => {
             const percent = d[value] / total * 100;
