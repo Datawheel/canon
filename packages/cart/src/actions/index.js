@@ -67,9 +67,13 @@ export const toggleSettingAction = id => ({
 
 /** Loading datasets */
 export const loadDatasetsAction = datasets => async dispatch => {
+
+  // Start load screen
   dispatch(loadAllDatasetsAction());
 
-  const loaded = 0, dimensions = {};
+  // Variables
+  let loaded = 0;
+  const dimensions = {}, queries = {};
 
   // Datasets Ids
   const datasetIds = Object.keys(datasets);
@@ -78,95 +82,48 @@ export const loadDatasetsAction = datasets => async dispatch => {
   const serverList = datasetIds.map(datasetId => datasets[datasetId].provider.server);
   const multiClient = await MultiClient.fromURL(...serverList);
 
-  console.log(multiClient);
-
-  multiClient.getCubes().then(cubes => {
-    console.log("cubes ->", cubes);
-  }).catch(e => {
-    console.error(e);
-  });
-
   // Iterate & Query
   datasetIds.map(datasetId => {
     const datasetObj = datasets[datasetId];
 
     if (datasetObj.provider.type === TYPE_OLAP) {
       console.log(datasetObj);
-      multiClient.getCube(datasetObj.cube, cubes => {
-        const mcCube = cubes.find(c => c.server === datasetObj.provider.server);
-        return mcCube;
-      }).then(cube => {
-        console.log("found cube ->", cube);
-        // console.log("query obj ->", cube.query);
+      multiClient.getCube(datasetObj.cube, cubes => cubes.find(c => datasetObj.provider.server.indexOf(c.server) > -1)).then(cube => {
+
+        // Store dimensions
         dimensions[cube.name] = cube.dimensionsByName;
+        queries[cube.name] = cube.query;
+
+        // Add new cube loaded
+        loaded += 1;
+
+        // All metadata is loaded and correct
+        if (loaded === datasetIds.length) {
+
+          // Calculate common dimensions
+          let sharedDimensionsList = getSharedDimensions(dimensions);
+          const dateDimensionsList = getDateDimensions(sharedDimensionsList);
+          sharedDimensionsList = sharedDimensionsList.filter(sd => !dateDimensionsList.find(dd => dd.name === sd.name));
+
+          // Set results in redux to fill controls
+          dispatch(setSharedDimensionListAction(sharedDimensionsList));
+          if (sharedDimensionsList[0]) {
+            dispatch(sharedDimensionChangedAction(sharedDimensionsList[0].name));
+          }
+          dispatch(setDateDimensionListAction(dateDimensionsList));
+          if (dateDimensionsList[0]) {
+            dispatch(dateDimensionChangedAction(dateDimensionsList[0].name));
+          }
+
+          // Process All datasets
+          processAllDatasets(dispatch, datasets, multiClient, queries, sharedDimensionsList, dateDimensionsList);
+        }
+
       }).catch(e => {
         console.error(e);
       });
     }
   });
-
-  // console.log(unknownClient);
-
-  /* datasetIds.map(datasetId => {
-    const datasetObj = datasets[datasetId];
-    if (datasetObj.provider.type === TYPE_OLAP) {
-      // Add server to client
-      client.addServer(datasetObj.provider.server).then(status => {
-
-        // Connected!
-        console.info("Connected to:", JSON.stringify(status));
-
-        // Ask for cubes and dimentions
-        client.cubes().then(cubes => {
-          const cube = cubes.find(c => c.name === datasetObj.cube);
-
-          if (cube) {
-            dimensions[cube.name] = cube.dimensionsByName;
-            // dispatch(successLoadDatasetAction(datasetId));
-            loaded += 1;
-
-            // All metadata is loaded and correct
-            if (loaded === datasetIds.length) {
-
-              // Calculate common dimensions
-              let sharedDimensionsList = getSharedDimensions(dimensions);
-              const dateDimensionsList = getDateDimensions(sharedDimensionsList);
-              sharedDimensionsList = sharedDimensionsList.filter(sd => !dateDimensionsList.find(dd => dd.name === sd.name));
-
-              // Set results in redux to fill controls
-              dispatch(setSharedDimensionListAction(sharedDimensionsList));
-              if (sharedDimensionsList[0]) {
-                dispatch(sharedDimensionChangedAction(sharedDimensionsList[0].name));
-              }
-              dispatch(setDateDimensionListAction(dateDimensionsList));
-              if (dateDimensionsList[0]) {
-                dispatch(dateDimensionChangedAction(dateDimensionsList[0].name));
-              }
-
-              // Process All datasets
-              processAllDatasets(dispatch, datasets, client, sharedDimensionsList, dateDimensionsList);
-            }
-          }
-          else {
-            console.error("Cube doesn't exists:", datasetObj.cube);
-          }
-        });
-      });
-    }
-  });*/
-
-  // Demo request
-
-  /* axios.get(datasetObj.url)
-  .then(resp => {
-    console.log(resp.data);
-    loadedData[datasetId] = resp.data;
-    dispatch(successLoadDatasetAction(datasetId));
-    loaded += 1;
-    if (loaded === datasetIds.length) {
-      processAllDatasets(dispatch, loadedData);
-    }
-  });*/
 
 };
 
@@ -226,16 +183,74 @@ export const dateDimensionChangedAction = dimId => ({
 
 
 /** processAllDatasets */
-export const processAllDatasets = (dispatch, datasets, client, sharedDimensionsList, dateDimensionsList) => {
+export const processAllDatasets = (dispatch, datasets, multiClient, queries, sharedDimensionsList, dateDimensionsList) => {
   dispatch(startProcessingAction());
-  console.log("processAllDatasets->", client);
 
   let loaded = 0;
 
-  const loadedData = {};
+  const loadedData = {};
 
   const datasetIds = Object.keys(datasets);
+
   datasetIds.map(datasetId => {
+    const datasetObj = datasets[datasetId];
+
+    if (datasetObj.provider.type === TYPE_OLAP) {
+      const query = queries[datasetObj.cube];
+
+      console.log(datasetObj.cube, query, sharedDimensionsList, dateDimensionsList);
+
+      console.log(datasetObj.query.params.drilldown);
+
+      if (datasetObj.query.params.drilldown) {
+        datasetObj.query.params.drilldown.map(m => {
+          query.addDrilldown(m);
+        });
+      }
+
+      if (datasetObj.query.params.measures) {
+        datasetObj.query.params.measures.map(m => {
+          query.addMeasure(m);
+        });
+      }
+
+      if (dateDimensionsList) {
+        dateDimensionsList.map(d => {
+          const level = d.hierarchies[0].levels[0];
+          query.addDrilldown({level: level.name, dimension: level.dimension.fullName});
+        });
+      }
+
+      if (sharedDimensionsList) {
+        sharedDimensionsList.map(d => {
+          const level = d.hierarchies[0].levels[0];
+          query.addDrilldown({level: level.name, dimension: level.dimension.fullName});
+        });
+      }
+
+      multiClient.execQuery(query)
+        .then(aggregation => {
+
+          dispatch(successLoadDatasetAction(datasetId));
+          loaded += 1;
+          loadedData[datasetId] = aggregation.data;
+
+          // All metadata is loaded and correct
+          if (loaded === datasetIds.length) {
+            console.log("RESPONSES !!!", loadedData);
+            // TODO: merge datasets
+
+            setTimeout(() => {
+              dispatch(endProcessingAction());
+            }, 2000);
+          }
+
+        });
+
+    }
+  });
+
+  /* datasetIds.map(datasetId => {
     const datasetObj = datasets[datasetId];
     if (datasetObj.provider.type === TYPE_OLAP) {
       client.addServer(datasetObj.provider.server).then(status => {
@@ -293,7 +308,7 @@ export const processAllDatasets = (dispatch, datasets, client, sharedDimensionsL
       // Add server to client
 
     }
-  });
+  }); */
 
 };
 

@@ -12,7 +12,8 @@ export const getHashCode = s => {
 /** TODO: generate human title from query */
 export const parseURL = url => {
   const meta = parseQueryParams(url);
-  const sanitizedUrl = sanitizeUrl(url, meta);
+  meta.params.drilldown = meta.params.drilldown.map(d => parseLevelDimension(d));
+  const sanitizedUrl = sanitizeUrl(url);
   return {
     title: getHumanTitle(meta),
     provider: getProviderInfo(url),
@@ -23,7 +24,7 @@ export const parseURL = url => {
 };
 
 /** Sanitize UrL */
-export const sanitizeUrl = (url, meta) => url.replace("aggregate.json?", "aggregate.jsonrecords?");
+export const sanitizeUrl = url => url.replace("aggregate.json?", "aggregate.jsonrecords?");
 
 /** TODO: generate human title from query */
 export const getHumanTitle = meta => {
@@ -31,13 +32,12 @@ export const getHumanTitle = meta => {
   return title;
 };
 
-/** TODO: generate human title from query */
+/** Parse cube name */
 export const getCubeName = url => {
   const parts = url.split("/");
   const aggregateIndex = parts.findIndex(p => p.startsWith("aggregate."));
   return aggregateIndex ? parts[aggregateIndex - 1] : null;
 };
-
 
 /** Decide provider based on query */
 export const getProviderInfo = url => {
@@ -51,6 +51,15 @@ export const getProviderInfo = url => {
     server = url.split("?")[0];
   }
   return {type, server};
+};
+
+/** Parse level and dimension */
+export const parseLevelDimension = string => {
+  const parts = string.split(".").map(s => s.replace("[", "").replace("]", ""));
+  if (parts.length > 2) {
+    parts.slice(Math.max(parts.length - 2, 1));
+  }
+  return {dimension: parts[0], level: parts[1]};
 };
 
 /** Parse query params */
