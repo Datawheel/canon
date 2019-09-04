@@ -21,12 +21,13 @@ import {STORAGE_CART_KEY, MAX_DATASETS_IN_CART} from "../helpers/consts";
 function setLocalForageState(newState) {
   const stateToLocalForage = Object.assign({}, initialState());
   const newInstance = Object.assign({}, newState);
+  stateToLocalForage.urls = [];
 
-  // Clean custom states
+  // Clean calculated urls info, just save in storage the url string
   Object.keys(newInstance.list).map(id => {
-    newInstance.list[id].isLoaded = false;
+    stateToLocalForage.urls.push(newInstance.list[id].url);
   });
-  stateToLocalForage.list = Object.assign({}, newInstance.list);
+  delete stateToLocalForage.list;
   stateToLocalForage.settings = Object.assign({}, newInstance.settings);
   localforage.setItem(STORAGE_CART_KEY, stateToLocalForage);
 }
@@ -241,7 +242,7 @@ function cartStateReducer(state = initialState(), action) {
         ...state,
         controls: {
           ...state.controls,
-          selectedSharedDimensionId: action.payload.id
+          selectedSharedDimensionLevel: action.payload.id
         }
       };
       return newState;
@@ -252,7 +253,7 @@ function cartStateReducer(state = initialState(), action) {
         ...state,
         controls: {
           ...state.controls,
-          selectedDateDimensionId: action.payload.id
+          selectedDateDimensionLevel: action.payload.id
         }
       };
       return newState;

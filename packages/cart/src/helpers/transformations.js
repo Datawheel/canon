@@ -53,6 +53,20 @@ export const getProviderInfo = url => {
   return {type, server};
 };
 
+/** Prepare Query to Aadd */
+export const parseQueryToAdd = query => {
+  const parsed = parseURL(query);
+  return {
+    id: getHashCode(query),
+    url: parsed.query,
+    name: parsed.title,
+    query: parsed.meta,
+    provider: parsed.provider,
+    cube: parsed.cube,
+    isLoaded: false
+  };
+};
+
 /** Parse level and dimension */
 export const parseLevelDimension = string => {
   const parts = string.split(".").map(s => s.replace("[", "").replace("]", ""));
@@ -61,6 +75,9 @@ export const parseLevelDimension = string => {
   }
   return {dimension: parts[0], level: parts[1]};
 };
+
+/** Get level and dimension from Level object */
+export const getLevelDimension = level => ({dimension: level.dimension.name, level: level.name});
 
 /** Parse query params */
 export const parseQueryParams = url => {

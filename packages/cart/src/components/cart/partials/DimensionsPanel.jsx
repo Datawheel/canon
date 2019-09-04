@@ -1,10 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import {Select} from "@blueprintjs/select";
-import {MenuItem, Button, Label} from "@blueprintjs/core";
+import {Icon, PopoverInteractionKind, Popover, Position, Menu, MenuItem, Button, Label} from "@blueprintjs/core";
 
-import {sharedDimensionChangedAction, dateDimensionChangedAction} from "../../../actions";
+import {getLevelDimension} from "../../../helpers/transformations";
+
+import {sharedDimensionLevelChangedAction, dateDimensionLevelChangedAction} from "../../../actions";
 
 import "./DimensionsPanel.css";
 
@@ -15,6 +16,7 @@ class DimensionsPanel extends React.Component {
     this.onChangeDateDimension = this.onChangeDateDimension.bind(this);
     this.sharedDimItemRenderer = this.sharedDimItemRenderer.bind(this);
     this.dateDimItemRenderer = this.dateDimItemRenderer.bind(this);
+    this.renderLabel = this.renderLabel.bind(this);
   }
 
   componentDidMount() {
@@ -29,83 +31,87 @@ class DimensionsPanel extends React.Component {
 
   }
 
-  onChangeSharedDimension(dimName) {
-    this.context.dispatch(sharedDimensionChangedAction(dimName));
+  onChangeSharedDimension(level) {
+    this.context.dispatch(sharedDimensionLevelChangedAction(getLevelDimension(level)));
   }
 
-  onChangeDateDimension(dimName) {
-    this.context.dispatch(dateDimensionChangedAction(dimName));
+  onChangeDateDimension(level) {
+    this.context.dispatch(dateDimensionLevelChangedAction(getLevelDimension(level)));
   }
-
-  sharedDimItemRenderer(dim) {
+  // onClick={() => this.onChangeSharedDimension(dim.name)}
+  sharedDimItemRenderer(sDims) {
     return (
-      <MenuItem
-        key={dim.name}
-        text={dim.name}
-        onClick={() => this.onChangeSharedDimension(dim.name)}
-      />
+      <Menu>
+        {sDims.map(dim => <MenuItem key={`d-${dim.name}`} text={dim.name}>
+          {dim.hierarchies.map(h => <MenuItem key={`h-${h.name}`} text={h.name}>
+            {h && h.levels.map(level => <MenuItem key={`l-${level.name}`} text={level.name} onClick={() => this.onChangeSharedDimension(level)} />)}
+          </MenuItem>)}
+        </MenuItem>)}
+      </Menu>
     );
   }
 
-  dateDimItemRenderer(dim) {
+  dateDimItemRenderer(sDims) {
     return (
-      <MenuItem
-        key={dim.name}
-        text={dim.name}
-        onClick={() => this.onChangeDateDimension(dim.name)}
-      />
+      <Menu>
+        {sDims.map(dim => <MenuItem key={`d-${dim.name}`} text={dim.name}>
+          {dim.hierarchies.map(h => <MenuItem key={`h-${h.name}`} text={h.name}>
+            {h && h.levels.map(level => <MenuItem key={`l-${level.name}`} text={level.name} onClick={() => this.onChangeDateDimension(level)} />)}
+          </MenuItem>)}
+        </MenuItem>)}
+      </Menu>
     );
+  }
+
+  renderLabel(level) {
+    return <span>{level.dimension}  <Icon icon="caret-right"/>  {level.level}</span>;
   }
 
   render() {
     const {controls, datasets} = this.context;
     const emptyCart = Object.keys(datasets).length === 0;
 
-    /**         {Object.keys(settings).map(key =>
-          <div key={key}>
-            <Checkbox checked={settings[key].value} label={settings[key].label} disabled={emptyCart} onChange={this.onChangeSetting.bind(this, key)} />
-          </div>
-        )}
- */
-
     return (
       <div className={"canon-cart-dimensions-panel"}>
 
-        <Label htmlFor="shared-dimensions" className={"bp3-inline"}>
-          Shared dimensions
-          <Select
-            id={"shared-dimensions"}
-            items={controls.sharedDimensions}
-            itemRenderer={this.sharedDimItemRenderer}
-            onItemSelect={this.onChangeSharedDimension}
-            popoverProps={{minimal: true}}
-            filterable={false}>
-            <Button
-              icon="layers"
-              rightIcon="caret-down"
+        {controls.selectedSharedDimensionLevel &&
+          <Label>
+            Shared dimensions
+            <Popover
+              content={this.sharedDimItemRenderer(controls.sharedDimensions)}
+              interactionKind={PopoverInteractionKind.CLICK}
               fill={true}
-              text={controls.selectedSharedDimensionId}
-            />
-          </Select>
-        </Label>
+              position={Position.BOTTOM}
+              autoFocus={false}>
+              <Button
+                icon="layers"
+                rightIcon="caret-down"
+                fill={true}
+                text={this.renderLabel(controls.selectedSharedDimensionLevel)}
+              />
+            </Popover>
+          </Label>
+        }
 
-        <Label htmlFor="date-dimensions" className={"bp3-inline"}>
-          Date dimensions
-          <Select
-            id={"date-dimensions"}
-            items={controls.dateDimensions}
-            itemRenderer={this.dateDimItemRenderer}
-            onItemSelect={this.onChangeDateDimension}
-            popoverProps={{minimal: true}}
-            filterable={false}>
-            <Button
-              icon="calendar"
-              rightIcon="caret-down"
+        {controls.selectedDateDimensionLevel &&
+          <Label>
+            Date dimensions
+            <Popover
+              content={this.dateDimItemRenderer(controls.dateDimensions)}
+              interactionKind={PopoverInteractionKind.CLICK}
               fill={true}
-              text={controls.selectedDateDimensionId}
-            />
-          </Select>
-        </Label>
+              position={Position.BOTTOM}
+              autoFocus={false}>
+              <Button
+                icon="calendar"
+                rightIcon="caret-down"
+                fill={true}
+                text={this.renderLabel(controls.selectedDateDimensionLevel)}
+              />
+            </Popover>
+          </Label>
+        }
+
       </div>
     );
   }

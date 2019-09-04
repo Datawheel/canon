@@ -19,9 +19,9 @@ export default function initialStateFactory() {
     },
     controls: {
       sharedDimensions: [],
-      selectedSharedDimensionId: false,
+      selectedSharedDimensionLevel: false,
       dateDimensions: [],
-      selectedDateDimensionId: false
+      selectedDateDimensionLevel: false
     }
   };
 }

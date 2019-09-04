@@ -42,6 +42,7 @@ class Cart extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    const ready = this.props.cartReady && !this.props.cartLoading;
     const changedDatasets = Object.keys(prevProps.datasets).length !== Object.keys(this.props.datasets).length;
     const changedSettings = prevProps.settings !== this.props.settings;
     if (changedDatasets || changedSettings) {

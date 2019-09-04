@@ -1,6 +1,6 @@
 /* eslint-disable prefer-arrow-callback */
 import localforage from "localforage";
-import {getHashCode, parseURL} from "../helpers/transformations";
+import {getHashCode, parseQueryToAdd, getLevelDimension} from "../helpers/transformations";
 import {STORAGE_CART_KEY, TYPE_OLAP} from "../helpers/consts";
 import {MultiClient} from "@datawheel/olap-client";
 import {nest} from "d3-collection";
@@ -18,6 +18,14 @@ export const initCartAction = () => dispatch => {
 };
 export const sendInitCartAction = initial => {
   initial = initial ? initial : {};
+  if (initial.urls) {
+    initial.list = {};
+    initial.urls.map(url => {
+      const parsed = parseQueryToAdd(url);
+      initial.list[parsed.id] = parsed;
+    });
+  }
+
   return {
     type: INIT_CART,
     payload: initial
@@ -33,18 +41,10 @@ export const clearCartAction = () => ({
 /* Add query to Cart */
 export const ADD_TO_CART = "@@canon-cart/ADD_TO_CART";
 export const addToCartAction = query => {
-  const parsed = parseURL(query);
+  const parsed = parseQueryToAdd(query);
   return {
     type: ADD_TO_CART,
-    payload: {
-      id: getHashCode(query),
-      url: parsed.query,
-      name: parsed.title,
-      query: parsed.meta,
-      provider: parsed.provider,
-      cube: parsed.cube,
-      isLoaded: false
-    }
+    payload: parsed
   };
 };
 
@@ -87,7 +87,7 @@ export const loadDatasetsAction = datasets => async dispatch => {
     const datasetObj = datasets[datasetId];
 
     if (datasetObj.provider.type === TYPE_OLAP) {
-      console.log(datasetObj);
+
       multiClient.getCube(datasetObj.cube, cubes => cubes.find(c => datasetObj.provider.server.indexOf(c.server) > -1)).then(cube => {
 
         // Store dimensions
@@ -107,16 +107,20 @@ export const loadDatasetsAction = datasets => async dispatch => {
 
           // Set results in redux to fill controls
           dispatch(setSharedDimensionListAction(sharedDimensionsList));
+          let sharedDimensionLevelSelected;
           if (sharedDimensionsList[0]) {
-            dispatch(sharedDimensionChangedAction(sharedDimensionsList[0].name));
+            sharedDimensionLevelSelected = getLevelDimension(sharedDimensionsList[0].hierarchies[0].levels[0]);
+            dispatch(sharedDimensionLevelChangedAction(sharedDimensionLevelSelected));
           }
           dispatch(setDateDimensionListAction(dateDimensionsList));
+          let dateDimensionLevelSelected;
           if (dateDimensionsList[0]) {
-            dispatch(dateDimensionChangedAction(dateDimensionsList[0].name));
+            dateDimensionLevelSelected = getLevelDimension(dateDimensionsList[0].hierarchies[0].levels[0]);
+            dispatch(dateDimensionLevelChangedAction(dateDimensionLevelSelected));
           }
 
           // Process All datasets
-          processAllDatasets(dispatch, datasets, multiClient, queries, sharedDimensionsList, dateDimensionsList);
+          queryAndProcessDatasets(dispatch, datasets, multiClient, queries, sharedDimensionLevelSelected, dateDimensionLevelSelected);
         }
 
       }).catch(e => {
@@ -163,7 +167,7 @@ export const setSharedDimensionListAction = list => ({
 });
 
 export const SHARED_DIMENSION_CHANGED = "@@canon-cart/SHARED_DIMENSION_CHANGED";
-export const sharedDimensionChangedAction = dimId => ({
+export const sharedDimensionLevelChangedAction = dimId => ({
   type: SHARED_DIMENSION_CHANGED,
   payload: {id: dimId}
 });
@@ -176,14 +180,14 @@ export const setDateDimensionListAction = list => ({
 });
 
 export const DATE_DIMENSION_CHANGED = "@@canon-cart/DATE_DIMENSION_CHANGED";
-export const dateDimensionChangedAction = dimId => ({
+export const dateDimensionLevelChangedAction = dimId => ({
   type: DATE_DIMENSION_CHANGED,
   payload: {id: dimId}
 });
 
 
-/** processAllDatasets */
-export const processAllDatasets = (dispatch, datasets, multiClient, queries, sharedDimensionsList, dateDimensionsList) => {
+/** Generate queries & process results */
+export const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, sharedDimensionsLevel, dateDimensionsLevel) => {
   dispatch(startProcessingAction());
 
   let loaded = 0;
@@ -198,10 +202,6 @@ export const processAllDatasets = (dispatch, datasets, multiClient, queries, sha
     if (datasetObj.provider.type === TYPE_OLAP) {
       const query = queries[datasetObj.cube];
 
-      console.log(datasetObj.cube, query, sharedDimensionsList, dateDimensionsList);
-
-      console.log(datasetObj.query.params.drilldown);
-
       if (datasetObj.query.params.drilldown) {
         datasetObj.query.params.drilldown.map(m => {
           query.addDrilldown(m);
@@ -214,18 +214,12 @@ export const processAllDatasets = (dispatch, datasets, multiClient, queries, sha
         });
       }
 
-      if (dateDimensionsList) {
-        dateDimensionsList.map(d => {
-          const level = d.hierarchies[0].levels[0];
-          query.addDrilldown({level: level.name, dimension: level.dimension.fullName});
-        });
+      if (sharedDimensionsLevel) {
+        query.addDrilldown(sharedDimensionsLevel);
       }
 
-      if (sharedDimensionsList) {
-        sharedDimensionsList.map(d => {
-          const level = d.hierarchies[0].levels[0];
-          query.addDrilldown({level: level.name, dimension: level.dimension.fullName});
-        });
+      if (dateDimensionsLevel) {
+        query.addDrilldown(dateDimensionsLevel);
       }
 
       multiClient.execQuery(query)
@@ -249,66 +243,6 @@ export const processAllDatasets = (dispatch, datasets, multiClient, queries, sha
 
     }
   });
-
-  /* datasetIds.map(datasetId => {
-    const datasetObj = datasets[datasetId];
-    if (datasetObj.provider.type === TYPE_OLAP) {
-      client.addServer(datasetObj.provider.server).then(status => {
-
-        client.cubes().then(cubes => {
-          const cube = cubes.find(c => c.name === datasetObj.cube);
-          const query = cube.query;
-
-          if (datasetObj.query.params.drilldown) {
-            datasetObj.query.params.drilldown.map(m => {
-              query.addDrilldown(m);
-            });
-          }
-
-          if (datasetObj.query.params.measures) {
-            datasetObj.query.params.measures.map(m => {
-              query.addMeasure(m);
-            });
-          }
-
-          if (dateDimensionsList) {
-            dateDimensionsList.map(d => {
-              const level = d.hierarchies[0].levels.find(lev => lev.name.toLowerCase().indexOf("all") === -1);
-              query.addDrilldown(level.fullname);
-            });
-          }
-
-          if (sharedDimensionsList) {
-            sharedDimensionsList.map(d => {
-              const level = d.hierarchies[0].levels.find(lev => lev.name.toLowerCase().indexOf("all") === -1);
-              query.addDrilldown(level.fullname);
-            });
-          }
-
-          return client.execQuery(query);
-        }).then(aggregation => {
-          dispatch(successLoadDatasetAction(datasetId));
-          loaded += 1;
-          loadedData[datasetId] = aggregation.data;
-
-          // All metadata is loaded and correct
-          if (loaded === datasetIds.length) {
-            console.log("RESPONSES !!!", loadedData);
-            // TODO: merge datasets
-
-            setTimeout(() => {
-              dispatch(endProcessingAction());
-            }, 2000);
-          }
-
-        });
-
-      });
-
-      // Add server to client
-
-    }
-  }); */
 
 };
 
