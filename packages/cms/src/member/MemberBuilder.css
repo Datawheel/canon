@@ -1,3 +1,5 @@
+@import "../css/mixins.css";
+
 .cms-member-header {
   padding: var(--gutter-sm) calc(var(--gutter-xs) + var(--gutter-sm));
   background-color: var(--light-1);
