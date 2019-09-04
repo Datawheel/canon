@@ -7,6 +7,7 @@ export default class FilterSearch extends Component {
   render() {
     const {
       context,  // "cp" (default) or "cms"
+      fontSize,
       label,    // used for placeholder text and label, for accessibility
       value,    // input value
       onChange, // callback function; listen for value changes
@@ -18,7 +19,7 @@ export default class FilterSearch extends Component {
         <span className={`u-visually-hidden ${context}-filter-search-text`}>{label}</span>
         <input
           key="filter-input"
-          className={`${context}-filter-search-input`}
+          className={`${context}-filter-search-input u-font-${fontSize}`}
           placeholder={label || "missing 'label' prop in FilterSearch.jsx"}
           value={value}
           onChange={onChange}
@@ -39,5 +40,6 @@ export default class FilterSearch extends Component {
 }
 
 FilterSearch.defaultProps = {
-  context: "cp"
+  context: "cp",
+  fontSize: "sm"
 };

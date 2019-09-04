@@ -2,11 +2,14 @@ import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactTable from "react-table";
-import Select from "../components/fields/Select";
-import {Dialog, Spinner, EditableText} from "@blueprintjs/core";
-import FooterButtons from "../components/editors/components/FooterButtons";
 import Base58 from "base58";
 import PropTypes from "prop-types";
+import {Dialog, Spinner, EditableText} from "@blueprintjs/core";
+
+import Button from "../components/fields/Button";
+import FilterSearch from "../components/fields/FilterSearch";
+import Select from "../components/fields/Select";
+import FooterButtons from "../components/editors/components/FooterButtons";
 
 import "./MemberBuilder.css";
 
@@ -152,12 +155,12 @@ class MemberBuilder extends Component {
             }
             else {
               try {
-                payload.attr = JSON.parse(content.attr);    
+                payload.attr = JSON.parse(content.attr);
               }
               catch (e) {
                 payload.attr = null;
               }
-            } 
+            }
           }
           if (context === "keywords") payload.keywords = content.keywords.split(",");
           axios.post("/api/search/update", payload).then(resp => {
@@ -178,7 +181,7 @@ class MemberBuilder extends Component {
         }
         return a.dimension < b.dimension ? 1 : -1;
       })
-      .map(d => 
+      .map(d =>
         Object.assign({}, d, {content: d.content.map(c => {
           const stringifed = {};
           if (c.attr) {
@@ -286,11 +289,11 @@ class MemberBuilder extends Component {
         const dimensions = ["all"].concat([... new Set(sourceData.map(d => d.dimension))]);
         const hierarchies = ["all"].concat([... new Set(sourceData.map(d => d.hierarchy))]);
         this.setState({dimensions, hierarchies, sourceData}, this.prepData.bind(this));
-      } 
+      }
       else {
         console.log("Fetch Error in MemberBuilder.jsx");
       }
-    });  
+    });
   }
 
   save(currentRow, shortid, id) {
@@ -343,7 +346,7 @@ class MemberBuilder extends Component {
   }
 
   showPrev() {
-    this.setState({offset: this.state.offset - IMAGES_PER_PAGE}); 
+    this.setState({offset: this.state.offset - IMAGES_PER_PAGE});
   }
 
   processFiltering() {
@@ -352,7 +355,7 @@ class MemberBuilder extends Component {
     const data = sourceData
       .filter(d => d.dimension === dimension || dimension === "all")
       .filter(d => d.hierarchy === hierarchy || hierarchy === "all")
-      .filter(d => 
+      .filter(d =>
         query === "" ||
         d.slug.includes(query.toLowerCase()) ||
         d.content.some(c => c.name.toLowerCase().includes(query.toLowerCase())) ||
@@ -366,6 +369,9 @@ class MemberBuilder extends Component {
   resetFiltering() {
     this.setState({query: "", dimension: "all", hierarchy: "all"}, this.processFiltering.bind(this));
   }
+  resetQuery() {
+    this.setState({query: ""}, this.processFiltering.bind(this));
+  }
 
   onChange(field, e) {
     this.setState({[field]: e.target.value}, this.processFiltering.bind(this));
@@ -378,17 +384,17 @@ class MemberBuilder extends Component {
   render() {
 
     const {
-      columns, 
+      columns,
       currentRow,
-      data, 
-      dimension, 
-      dimensions, 
+      data,
+      dimension,
+      dimensions,
       query,
-      hierarchy, 
-      hierarchies, 
+      hierarchy,
+      hierarchies,
       flickrQuery,
       flickrImages,
-      isOpen, 
+      isOpen,
       loading,
       searching,
       offset,
@@ -397,6 +403,70 @@ class MemberBuilder extends Component {
 
     return (
       <React.Fragment>
+        <div className="cms-panel member-editor">
+          <div className="cms-member-header">
+            <h1 className="u-visually-hidden">Edit entities</h1>
+            <h2 className="cms-member-header-heading u-margin-top-off u-font-xs">Filters</h2>
+            <Button
+              className="cms-member-header-button"
+              onClick={this.resetFiltering.bind(this)}
+              disabled={query === "" && dimension === "all" && hierarchy === "all"}
+              context="cms"
+              fontSize="xxs"
+              icon="cross"
+              iconOnly
+            >
+              Clear all filters
+            </Button>
+
+            <div className="cms-member-controls">
+              <FilterSearch
+                label="filter by name, slug, keywords, meta..."
+                onChange={this.onChange.bind(this, "query")}
+                onReset={this.resetQuery.bind(this)}
+                value={query}
+                context="cms"
+                fontSize="xs"
+              />
+
+              <Select
+                label="Dimension"
+                inline
+                fontSize="xs"
+                context="cms"
+                value={dimension}
+                onChange={this.onChange.bind(this, "dimension")}
+              >
+                {dimensions.map(dim =>
+                  <option key={dim} value={dim}>{dim}</option>
+                )}
+              </Select>
+
+              <Select
+                label="Hierarchy"
+                inline
+                fontSize="xs"
+                context="cms"
+                value={hierarchy}
+                onChange={this.onChange.bind(this, "hierarchy")}
+              >
+                {hierarchies.map(hier =>
+                  <option key={hier} value={hier}>{hier}</option>
+                )}
+              </Select>
+            </div>
+          </div>
+
+
+          <h2>Members</h2>
+          <ReactTable
+            className="cms-member-table"
+            data={data}
+            columns={columns}
+            defaultPageSize={10}
+          />
+        </div>
+
         <Dialog
           isOpen={isOpen}
           onClose={this.closeEditor.bind(this)}
@@ -404,8 +474,8 @@ class MemberBuilder extends Component {
           usePortal={false}
         >
           <div className="bp3-dialog-body">
-            {loading 
-              ? <Spinner size="30" className="cms-spinner"/> 
+            {loading
+              ? <Spinner size="30" className="cms-spinner"/>
               : <React.Fragment>
                 <h3>Manually enter Flickr Link</h3>
                 <input value={url} onChange={e => this.setState({url: e.target.value})}/>
@@ -413,13 +483,13 @@ class MemberBuilder extends Component {
                 <h3>Flickr Image Search</h3>
                 <input value={flickrQuery} onChange={e => this.setState({flickrQuery: e.target.value})} />
                 <button onClick={this.searchFlickr.bind(this)}>Search for Images</button>
-                { searching 
-                  ? <Spinner size="30" className="cms-spinner"/> 
-                  : flickrImages.length > 0 && 
+                { searching
+                  ? <Spinner size="30" className="cms-spinner"/>
+                  : flickrImages.length > 0 &&
                   <div>
                     <div className="cms-flickr-image-container">
-                      { 
-                        flickrImages.slice(offset, offset + IMAGES_PER_PAGE).map(image => 
+                      {
+                        flickrImages.slice(offset, offset + IMAGES_PER_PAGE).map(image =>
                           <div key={image.id} onClick={this.save.bind(this, currentRow, null, image.id)}>
                             <img className="cms-flickr-image" width="320" src={image.source}/>
                           </div>
@@ -433,44 +503,7 @@ class MemberBuilder extends Component {
               </React.Fragment>
             }
           </div>
-
         </Dialog>
-        <div className="cms-panel member-panel">
-          <h3>Filters</h3>
-          <div className="cms-member-filter-container">
-            Search Query: <input value={query} onChange={this.onChange.bind(this, "query")}/>
-            <Select
-              label="Dimension"
-              inline
-              context="cms"
-              value={dimension}
-              onChange={this.onChange.bind(this, "dimension")}
-            >
-              {dimensions.map(dim =>
-                <option key={dim} value={dim}>{dim}</option>
-              )}
-            </Select>
-            <Select
-              label="Hierarchy"
-              inline
-              context="cms"
-              value={hierarchy}
-              onChange={this.onChange.bind(this, "hierarchy")}
-            >
-              {hierarchies.map(hier =>
-                <option key={hier} value={hier}>{hier}</option>
-              )}
-            </Select>
-            <button onClick={this.resetFiltering.bind(this)}>Reset Filters</button>
-          </div>
-          <h3>Members</h3>
-          <ReactTable
-            className="cms-member-table"
-            data={data}
-            columns={columns}
-            defaultPageSize={10}
-          />
-        </div>
       </React.Fragment>
     );
   }
