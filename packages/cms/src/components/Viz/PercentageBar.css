@@ -82,6 +82,7 @@
 /* PrecentageBar Grid */
 .percentage-bar-wrapper{
     position: relative;
+    margin-bottom: 1rem;
 }
 .precentage-bar-grid-holder{
     width: 74%;
@@ -104,11 +105,25 @@
 .percentage-bar-grid text{
     font-family: sans-serif;
     font-size: 0.5rem;
-    transform: translate(-0.4rem, 0);
+    transform: translate(-0.5rem, 0);
 }
 .percentage-bar-grid text:first-child{
-    transform: translate(0.1rem, 0);
+    transform: translate(0rem, 0);
 }
 .percentage-bar-grid text:last-child{
-    transform: translate(-1.3rem, 0);
+    transform: translate(-1rem, 0);
+}
+/* Tweak positioning for percentage values in labels */
+.is-percent .percentage-bar-grid text{
+  transform: translate(-0.4rem, 0);
+}
+.is-percent .percentage-bar-grid text:first-child{
+  transform: translate(0.1rem, 0);
+}
+.is-percent .percentage-bar-grid text:last-child{
+  transform: translate(-1.3rem, 0);
+}
+
+.cutoff-text{
+  margin-bottom: 1rem;
 }
