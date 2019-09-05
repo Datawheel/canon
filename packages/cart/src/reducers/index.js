@@ -104,8 +104,7 @@ function cartStateReducer(state = initialState(), action) {
         },
         internal: {
           ...state.internal,
-          full: Object.keys(state.list).length === MAX_DATASETS_IN_CART ? true : false,
-          loading: true
+          full: Object.keys(state.list).length === MAX_DATASETS_IN_CART ? true : false
         }
       };
       setLocalForageState(newState);
@@ -122,8 +121,7 @@ function cartStateReducer(state = initialState(), action) {
         },
         internal: {
           ...state.internal,
-          full: Object.keys(newState).length === MAX_DATASETS_IN_CART ? true : false,
-          loading: true
+          full: Object.keys(newState).length === MAX_DATASETS_IN_CART ? true : false
         }
       };
       setLocalForageState(newState);
@@ -138,10 +136,6 @@ function cartStateReducer(state = initialState(), action) {
         settings: {
           ...state.settings,
           ...tempObj
-        },
-        internal: {
-          ...state.internal,
-          loading: true
         }
       };
       setLocalForageState(newState);
@@ -210,6 +204,11 @@ function cartStateReducer(state = initialState(), action) {
           ...state.internal,
           processing: false,
           loading: false
+        },
+        results: {
+          ...state.results,
+          cols: action.payload.cols,
+          data: action.payload.data
         }
       };
       return newState;

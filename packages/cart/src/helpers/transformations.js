@@ -12,7 +12,9 @@ export const getHashCode = s => {
 /** TODO: generate human title from query */
 export const parseURL = url => {
   const meta = parseQueryParams(url);
-  meta.params.drilldown = meta.params.drilldown.map(d => parseLevelDimension(d));
+  if (meta.params.drilldown) {
+    meta.params.drilldown = meta.params.drilldown.map(d => parseLevelDimension(d));
+  }
   const sanitizedUrl = sanitizeUrl(url);
   return {
     title: getHumanTitle(meta),

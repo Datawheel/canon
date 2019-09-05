@@ -24,9 +24,9 @@ class Cart extends React.Component {
   }
 
   getChildContext() {
-    const {datasets, dispatch, settings, controls} = this.props;
+    const {datasets, dispatch, settings, controls, results} = this.props;
     return {
-      datasets, dispatch, settings, controls
+      datasets, dispatch, settings, controls, results
     };
   }
 
@@ -38,15 +38,27 @@ class Cart extends React.Component {
   }
 
   componentDidMount() {
-    this.loadAllDatasets();
+    console.log("componentDidMount");
+    this.loadAllDatasets(false);
   }
 
   componentDidUpdate(prevProps) {
-    const ready = this.props.cartReady && !this.props.cartLoading;
+    const readyAndLoaded = this.props.cartReady && !this.props.cartLoading;
+
+    // Datasets changed
     const changedDatasets = Object.keys(prevProps.datasets).length !== Object.keys(this.props.datasets).length;
-    const changedSettings = prevProps.settings !== this.props.settings;
-    if (changedDatasets || changedSettings) {
-      this.loadAllDatasets();
+    if (changedDatasets) {
+      this.loadAllDatasets(false);
+    }
+
+    if (readyAndLoaded) {
+      // Settings or Dimensions
+      const changedSettings = prevProps.settings !== this.props.settings;
+      const changedDims = prevProps.controls !== this.props.controls;
+      if (changedSettings || changedDims) {
+        this.loadAllDatasets(true);
+      }
+
     }
   }
 
@@ -54,10 +66,16 @@ class Cart extends React.Component {
 
   }
 
-  loadAllDatasets() {
+  loadAllDatasets(sendDimensions) {
     const {dispatch, datasets} = this.props;
+    const {selectedSharedDimensionLevel, selectedDateDimensionLevel} = this.props.controls;
+    let dateLevel, sharedLevel;
     if (datasets && Object.keys(datasets).length > 0) {
-      dispatch(loadDatasetsAction(datasets));
+      if (sendDimensions) {
+        sharedLevel = selectedSharedDimensionLevel;
+        dateLevel = selectedDateDimensionLevel;
+      }
+      dispatch(loadDatasetsAction(datasets, sharedLevel, dateLevel));
     }
   }
 
@@ -124,7 +142,8 @@ Cart.childContextTypes = {
   datasets: PropTypes.object,
   controls: PropTypes.object,
   dispatch: PropTypes.func,
-  settings: PropTypes.object
+  settings: PropTypes.object,
+  results: PropTypes.object
 };
 
 Cart.propTypes = {
@@ -141,6 +160,7 @@ export default connect(state => {
     settings: ct.settings,
     controls: ct.controls,
     cartReady: ct.internal.ready,
-    cartLoading: ct.internal.loading
+    cartLoading: ct.internal.loading,
+    results: ct.results
   };
 })(Cart);

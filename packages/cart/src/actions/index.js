@@ -3,7 +3,7 @@ import localforage from "localforage";
 import {getHashCode, parseQueryToAdd, getLevelDimension} from "../helpers/transformations";
 import {STORAGE_CART_KEY, TYPE_OLAP} from "../helpers/consts";
 import {MultiClient} from "@datawheel/olap-client";
-import {nest} from "d3-collection";
+import {nest as d3Nest} from "d3-collection";
 
 /* Init Cart */
 export const INIT_CART = "@@canon-cart/INIT_CART";
@@ -66,7 +66,7 @@ export const toggleSettingAction = id => ({
 });
 
 /** Loading datasets */
-export const loadDatasetsAction = datasets => async dispatch => {
+export const loadDatasetsAction = (datasets, sharedDimensionLevelSelected, dateDimensionLevelSelected) => async dispatch => {
 
   // Start load screen
   dispatch(loadAllDatasetsAction());
@@ -100,23 +100,27 @@ export const loadDatasetsAction = datasets => async dispatch => {
         // All metadata is loaded and correct
         if (loaded === datasetIds.length) {
 
-          // Calculate common dimensions
-          let sharedDimensionsList = getSharedDimensions(dimensions);
-          const dateDimensionsList = getDateDimensions(sharedDimensionsList);
-          sharedDimensionsList = sharedDimensionsList.filter(sd => !dateDimensionsList.find(dd => dd.name === sd.name));
+          if (!sharedDimensionLevelSelected && !dateDimensionLevelSelected) {
 
-          // Set results in redux to fill controls
-          dispatch(setSharedDimensionListAction(sharedDimensionsList));
-          let sharedDimensionLevelSelected;
-          if (sharedDimensionsList[0]) {
-            sharedDimensionLevelSelected = getLevelDimension(sharedDimensionsList[0].hierarchies[0].levels[0]);
-            dispatch(sharedDimensionLevelChangedAction(sharedDimensionLevelSelected));
-          }
-          dispatch(setDateDimensionListAction(dateDimensionsList));
-          let dateDimensionLevelSelected;
-          if (dateDimensionsList[0]) {
-            dateDimensionLevelSelected = getLevelDimension(dateDimensionsList[0].hierarchies[0].levels[0]);
-            dispatch(dateDimensionLevelChangedAction(dateDimensionLevelSelected));
+            // Calculate common dimensions
+            let sharedDimensionsList = getSharedDimensions(dimensions);
+            const dateDimensionsList = getDateDimensions(sharedDimensionsList);
+            sharedDimensionsList = sharedDimensionsList.filter(sd => !dateDimensionsList.find(dd => dd.name === sd.name));
+
+            // Set results in redux to fill controls
+            dispatch(setSharedDimensionListAction(sharedDimensionsList));
+            // let sharedDimensionLevelSelected;
+            if (sharedDimensionsList[0]) {
+              sharedDimensionLevelSelected = getLevelDimension(sharedDimensionsList[0].hierarchies[0].levels[0]);
+              dispatch(sharedDimensionLevelChangedAction(sharedDimensionLevelSelected));
+            }
+            dispatch(setDateDimensionListAction(dateDimensionsList));
+            // let dateDimensionLevelSelected;
+            if (dateDimensionsList[0]) {
+              dateDimensionLevelSelected = getLevelDimension(dateDimensionsList[0].hierarchies[0].levels[0]);
+              dispatch(dateDimensionLevelChangedAction(dateDimensionLevelSelected));
+            }
+
           }
 
           // Process All datasets
@@ -128,8 +132,149 @@ export const loadDatasetsAction = datasets => async dispatch => {
       });
     }
   });
+};
+
+/** Generate queries & process results */
+const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, sharedDimensionsLevel, dateDimensionsLevel) => {
+  dispatch(startProcessingAction());
+
+  let loaded = 0;
+
+  const loadedData = {};
+
+  const datasetIds = Object.keys(datasets);
+
+  datasetIds.map(datasetId => {
+    const datasetObj = datasets[datasetId];
+
+    if (datasetObj.provider.type === TYPE_OLAP) {
+      const query = queries[datasetObj.cube];
+
+      if (sharedDimensionsLevel) {
+        query.addDrilldown(sharedDimensionsLevel);
+      }
+
+      if (dateDimensionsLevel) {
+        query.addDrilldown(dateDimensionsLevel);
+      }
+
+      if (datasetObj.query.params.drilldown) {
+        datasetObj.query.params.drilldown.map(drill => {
+          if (!sharedDimensionsLevel || sharedDimensionsLevel.dimension !== drill.dimension) {
+            query.addDrilldown(drill);
+          }
+        });
+      }
+
+      if (datasetObj.query.params.measures) {
+        datasetObj.query.params.measures.map(m => {
+          query.addMeasure(m);
+        });
+      }
+
+      multiClient.execQuery(query)
+        .then(aggregation => {
+
+          dispatch(successLoadDatasetAction(datasetId));
+          loaded += 1;
+          loadedData[datasetId] = aggregation.data;
+
+          // All metadata is loaded and correct
+          if (loaded === datasetIds.length) {
+
+            joinResultsAndSave(dispatch, loadedData, sharedDimensionsLevel, dateDimensionsLevel);
+
+          }
+
+        });
+
+    }
+  });
 
 };
+
+/** Merge datasets and show table */
+const joinResultsAndSave = (dispatch, responses, sharedDimensionsLevel, dateDimensionsLevel) => {
+
+  // TODO: merge datasets
+  console.log("RESPONSES !!!", responses);
+  console.log("sharedDimensionsLevel !!!", sharedDimensionsLevel);
+  console.log("dateDimensionsLevel !!!", dateDimensionsLevel);
+
+  // Think about dates
+  let dates = [];
+  let entities = [];
+  const nestedResponses = Object.keys(responses).map(key => {
+    const queryResponses = responses[key];
+
+    let nested = d3Nest();
+
+    if (sharedDimensionsLevel) {
+      entities = entities.concat([...new Set(queryResponses.map(x => x[sharedDimensionsLevel.level]))]);
+      nested = nested
+        .key(function(d) {
+          return d[sharedDimensionsLevel.level];
+        });
+    }
+    if (dateDimensionsLevel) {
+      dates = dates.concat([...new Set(queryResponses.map(x => x[dateDimensionsLevel.level]))]);
+      nested = nested
+        .key(function(d) {
+          return d[dateDimensionsLevel.level];
+        });
+    }
+
+    return nested.map(queryResponses);
+  });
+  entities = [...new Set(entities)].sort();
+  dates = [...new Set(dates)].sort();
+
+  console.log(dates);
+  console.log(entities);
+  console.log(nestedResponses);
+
+  let cols = [];
+  const data = [];
+
+  // Merge years in rows
+  entities.map(entity => {
+    dates.map(date => {
+      let record = {};
+      let item;
+      nestedResponses.map(nestedResponse => {
+        item = nestedResponse.get(entity);
+        if (item) {
+          item = item.get(date);
+          if (item) {
+            record = {...record, ...item[0]};
+            cols = cols.length > Object.keys(record).length ? cols : Object.keys(record);
+          }
+        }
+      });
+      data.push(record);
+    });
+  });
+
+  // If show ID cols
+  cols = cols
+    .filter(field => !(field.startsWith("ID ") || field.endsWith(" ID")));
+
+  cols = cols.map(field => ({
+    Header: field,
+    accessor: field
+  }));
+
+  console.log(cols);
+  console.log(data);
+
+  // TODO Merge years in cols
+
+
+  setTimeout(() => {
+    dispatch(endProcessingAction(cols, data));
+  }, 2000);
+};
+
 
 export const LOAD_DATASETS = "@@canon-cart/LOAD_DATASETS";
 export const loadAllDatasetsAction = () => ({
@@ -155,8 +300,9 @@ export const startProcessingAction = () => ({
 });
 
 export const END_PROCESSING_DATASETS = "@@canon-cart/END_PROCESSING_DATASETS";
-export const endProcessingAction = () => ({
-  type: END_PROCESSING_DATASETS
+export const endProcessingAction = (cols, data) => ({
+  type: END_PROCESSING_DATASETS,
+  payload: {cols, data}
 });
 
 /** Shared Dimensions */
@@ -186,65 +332,6 @@ export const dateDimensionLevelChangedAction = dimId => ({
 });
 
 
-/** Generate queries & process results */
-export const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, sharedDimensionsLevel, dateDimensionsLevel) => {
-  dispatch(startProcessingAction());
-
-  let loaded = 0;
-
-  const loadedData = {};
-
-  const datasetIds = Object.keys(datasets);
-
-  datasetIds.map(datasetId => {
-    const datasetObj = datasets[datasetId];
-
-    if (datasetObj.provider.type === TYPE_OLAP) {
-      const query = queries[datasetObj.cube];
-
-      if (datasetObj.query.params.drilldown) {
-        datasetObj.query.params.drilldown.map(m => {
-          query.addDrilldown(m);
-        });
-      }
-
-      if (datasetObj.query.params.measures) {
-        datasetObj.query.params.measures.map(m => {
-          query.addMeasure(m);
-        });
-      }
-
-      if (sharedDimensionsLevel) {
-        query.addDrilldown(sharedDimensionsLevel);
-      }
-
-      if (dateDimensionsLevel) {
-        query.addDrilldown(dateDimensionsLevel);
-      }
-
-      multiClient.execQuery(query)
-        .then(aggregation => {
-
-          dispatch(successLoadDatasetAction(datasetId));
-          loaded += 1;
-          loadedData[datasetId] = aggregation.data;
-
-          // All metadata is loaded and correct
-          if (loaded === datasetIds.length) {
-            console.log("RESPONSES !!!", loadedData);
-            // TODO: merge datasets
-
-            setTimeout(() => {
-              dispatch(endProcessingAction());
-            }, 2000);
-          }
-
-        });
-
-    }
-  });
-
-};
 
 
 /** Processing datasets helpers fns  */

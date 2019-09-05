@@ -10,8 +10,7 @@ export default function initialStateFactory() {
       full: false
     },
     loadingList: [],
-    list: {
-    },
+    list: {},
     settings: {
       pivotYear: {value: true, label: "Pivot Years to Columns"},
       showMOE: {value: false, label: "Show Margin of Error"},
@@ -22,6 +21,10 @@ export default function initialStateFactory() {
       selectedSharedDimensionLevel: false,
       dateDimensions: [],
       selectedDateDimensionLevel: false
+    },
+    results: {
+      cols: [],
+      data: []
     }
   };
 }
