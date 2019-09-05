@@ -116,6 +116,7 @@ const migrate = async() => {
       }
     }
   }
+  await resetSequence(dbnew, "selector", "id");
 
   console.log("Done.");
 };
