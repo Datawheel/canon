@@ -218,9 +218,9 @@ class MemberBuilder extends Component {
           id: "image",
           Header: "image",
           accessor: d => d.image ? d.image.url : null,
-          Cell: cell => <span onClick={this.clickCell.bind(this, cell)} className="cp-table-cell-inner">
+          Cell: cell => <button onClick={this.clickCell.bind(this, cell)} className="cp-table-cell-inner">
             {cell.value ? cell.value : "+ Add Image"}
-          </span>
+          </button>
         });
         columns.push({
           id: `meta (${localeDefault})`,
@@ -402,68 +402,68 @@ class MemberBuilder extends Component {
     } = this.state;
 
     return (
-      <React.Fragment>
-        <div className="cms-panel member-editor">
-          <div className="cms-member-header">
-            <h1 className="u-visually-hidden">Edit entities</h1>
-            <h2 className="cms-member-header-heading u-margin-top-off u-font-xs">Filters</h2>
-            <Button
-              className="cms-member-header-button"
-              onClick={this.resetFiltering.bind(this)}
-              disabled={query === "" && dimension === "all" && hierarchy === "all"}
+      <div className="cms-panel member-editor">
+        <div className="cms-member-header">
+          <h1 className="u-visually-hidden">Edit entities</h1>
+          <h2 className="cms-member-header-heading u-margin-top-off u-font-xs">Filters</h2>
+          <Button
+            className="cms-member-header-button"
+            onClick={this.resetFiltering.bind(this)}
+            disabled={query === "" && dimension === "all" && hierarchy === "all"}
+            context="cms"
+            fontSize="xxs"
+            icon="cross"
+            iconOnly
+          >
+            Clear all filters
+          </Button>
+
+          <div className="cms-member-controls">
+            <FilterSearch
+              label="filter by name, slug, keywords, meta..."
+              onChange={this.onChange.bind(this, "query")}
+              onReset={this.resetQuery.bind(this)}
+              value={query}
               context="cms"
-              fontSize="xxs"
-              icon="cross"
-              iconOnly
+              fontSize="xs"
+            />
+
+            <Select
+              label="Dimension"
+              inline
+              fontSize="xs"
+              context="cms"
+              value={dimension}
+              onChange={this.onChange.bind(this, "dimension")}
             >
-              Clear all filters
-            </Button>
+              {dimensions.map(dim =>
+                <option key={dim} value={dim}>{dim}</option>
+              )}
+            </Select>
 
-            <div className="cms-member-controls">
-              <FilterSearch
-                label="filter by name, slug, keywords, meta..."
-                onChange={this.onChange.bind(this, "query")}
-                onReset={this.resetQuery.bind(this)}
-                value={query}
-                context="cms"
-                fontSize="xs"
-              />
-
-              <Select
-                label="Dimension"
-                inline
-                fontSize="xs"
-                context="cms"
-                value={dimension}
-                onChange={this.onChange.bind(this, "dimension")}
-              >
-                {dimensions.map(dim =>
-                  <option key={dim} value={dim}>{dim}</option>
-                )}
-              </Select>
-
-              <Select
-                label="Hierarchy"
-                inline
-                fontSize="xs"
-                context="cms"
-                value={hierarchy}
-                onChange={this.onChange.bind(this, "hierarchy")}
-              >
-                {hierarchies.map(hier =>
-                  <option key={hier} value={hier}>{hier}</option>
-                )}
-              </Select>
-            </div>
+            <Select
+              label="Hierarchy"
+              inline
+              fontSize="xs"
+              context="cms"
+              value={hierarchy}
+              onChange={this.onChange.bind(this, "hierarchy")}
+            >
+              {hierarchies.map(hier =>
+                <option key={hier} value={hier}>{hier}</option>
+              )}
+            </Select>
           </div>
+        </div>
 
-
-          <h2>Members</h2>
+        <div className="cms-member-table-container">
+          <h2 className="u-visually-hidden">Members</h2>
           <ReactTable
             className="cms-member-table"
             data={data}
             columns={columns}
-            defaultPageSize={10}
+            pageSize={data.length}
+            showPagination={false}
           />
         </div>
 
@@ -504,7 +504,7 @@ class MemberBuilder extends Component {
             }
           </div>
         </Dialog>
-      </React.Fragment>
+      </div>
     );
   }
 }

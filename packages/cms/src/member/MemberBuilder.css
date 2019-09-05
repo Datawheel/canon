@@ -52,12 +52,21 @@
     width: 20em;
     max-width: 100%;
 
+    /* override filter search height */
+    & > .cms-filter-search-input { height: 2rem; }
+    & > .cms-filter-search-icon { top: 0.625rem; }
+
     @mixin max-sm {
       width: 100%;
       margin-right: 0 !important;
       margin-bottom: var(--gutter-sm);
     }
   }
+}
+
+/* the table */
+.cms-member-table-container {
+  padding: calc(var(--gutter-xs) + var(--gutter-sm));
 }
 
 .cms-flickr-input {
