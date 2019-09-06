@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import ReactTable from "react-table";
 import Base58 from "base58";
 import PropTypes from "prop-types";
-import {Dialog, Spinner, EditableText} from "@blueprintjs/core";
+import {Dialog, Icon, EditableText, Spinner} from "@blueprintjs/core";
 
 import Button from "../components/fields/Button";
 import FilterSearch from "../components/fields/FilterSearch";
@@ -119,15 +119,17 @@ class MemberBuilder extends Component {
         }
       }
     }
-    return <EditableText
-      key={`cell-${cell.original.contentId}`}
-      confirmOnEnterKey={true}
-      multiline={true}
-      onChange={this.changeCell.bind(this, cell, context, locale)}
-      value={cell.value}
-      intent={isBrokenJSON ? "danger" : "none"}
-      onConfirm={this.saveCell.bind(this, cell, context, locale)}
-    />;
+    return <span className="cp-table-cell-inner">
+      <EditableText
+        key={`cell-${cell.original.contentId}`}
+        confirmOnEnterKey={true}
+        multiline={true}
+        onChange={this.changeCell.bind(this, cell, context, locale)}
+        value={cell.value}
+        intent={isBrokenJSON ? "danger" : "none"}
+        onConfirm={this.saveCell.bind(this, cell, context, locale)}
+      />
+    </span>;
   }
 
   saveCell(cell, context, locale) {
@@ -200,6 +202,29 @@ class MemberBuilder extends Component {
       );
   }
 
+  /** formatting columns for react-table gets verbose, so here are some render functions */
+  renderHeader(label) {
+    return <button className="cp-table-header-button">
+      {label} <span className="u-visually-hidden">, sort by column</span>
+      <Icon className="cp-table-header-icon" icon="caret-down" />
+    </button>;
+  }
+  renderCell(cell) {
+    return <span className="cp-table-cell-inner">{cell.value}</span>;
+  }
+  columnWidths(key) {
+    if (key.includes("keywords") || key.includes("image")) return 120;
+    else if (key.includes("meta") || key.includes("attr")) return 160;
+    else return 90;
+  }
+  renderColumn = col => Object.assign({}, {
+    Header: this.renderHeader(col),
+    id: col,
+    accessor: d => d[col],
+    Cell: cell => this.renderCell(cell),
+    minWidth: this.columnWidths(col)
+  });
+
   /**
    * Once sourceData has been set, prepare the two variables that react-table needs: data and columns.
    */
@@ -216,30 +241,43 @@ class MemberBuilder extends Component {
       if (field === "image") {
         columns.push({
           id: "image",
-          Header: "image",
+          Header: this.renderHeader("image"),
+          minWidth: this.columnWidths("image"),
           accessor: d => d.image ? d.image.url : null,
-          Cell: cell => <button onClick={this.clickCell.bind(this, cell)} className="cp-table-cell-inner">
-            {cell.value ? cell.value : "+ Add Image"}
-          </button>
+          Cell: cell => <span className="cp-table-cell-inner">
+            {cell.value ? <img src={cell.value} alt={cell.value} /> : ""}
+            <Button
+              onClick={this.clickCell.bind(this, cell)}
+              context="cms"
+              fontSize="xxs"
+              icon={cell.value ? "cog" : "plus" }
+              iconPosition="left"
+              block
+            >
+              {cell.value ? "edit image" : "add image"}
+            </Button>
+          </span>
         });
         columns.push({
           id: `meta (${localeDefault})`,
-          Header: `meta (${localeDefault})`,
+          Header: this.renderHeader(`meta (${localeDefault})`),
+          minWidth: this.columnWidths("meta"),
           accessor: d => {
             const content = d.image ? d.image.content.find(c => c.locale === localeDefault) : null;
             return content ? content.meta : null;
           },
-          Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", localeDefault) : cell.value
+          Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", localeDefault) : this.renderCell(cell)
         });
         if (locale) {
           columns.push({
             id: `meta (${locale})`,
-            Header: `meta (${locale})`,
+            Header: this.renderHeader(`meta (${locale})`),
+            minWidth: this.columnWidths("meta"),
             accessor: d => {
               const content = d.image ? d.image.content.find(c => c.locale === locale) : null;
               return content ? content.meta : null;
             },
-            Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", locale) : cell.value
+            Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", locale) : this.renderCell(cell)
           });
         }
       }
@@ -247,31 +285,30 @@ class MemberBuilder extends Component {
         ["name", "attr", "keywords"].forEach(prop => {
           columns.push({
             id: `${prop} (${localeDefault})`,
-            Header: `${prop} (${localeDefault})`,
+            Header: this.renderHeader(`${prop} (${localeDefault})`),
+            minWidth: this.columnWidths(prop),
             accessor: d => {
               const content = d.content.find(c => c.locale === localeDefault);
               return content ? content[prop] : null;
             },
-            Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, localeDefault) : cell.value
+            Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, localeDefault) : this.renderCell(cell)
           });
           if (locale) {
             columns.push({
               id: `${prop} (${locale})`,
-              Header: `${prop} (${locale})`,
+              Header: this.renderHeader(`${prop} (${locale})`),
+              minWidth: this.columnWidths(prop),
               accessor: d => {
                 const content = d.content.find(c => c.locale === locale);
                 return content ? content[prop] : null;
               },
-              Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, locale) : cell.value
+              Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, locale) : this.renderCell(cell)
             });
           }
         });
       }
       else {
-        columns.push({
-          Header: field,
-          accessor: field
-        });
+        columns.push(this.renderColumn(field));
       }
     });
     this.setState({data, columns});

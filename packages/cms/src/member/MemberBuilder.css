@@ -67,6 +67,29 @@
 /* the table */
 .cms-member-table-container {
   padding: calc(var(--gutter-xs) + var(--gutter-sm));
+
+  @mixin dark-mode {
+    /* dark mode table overrides */
+    & .cms-member-table .rt-th,
+    & .cms-member-table .rt-td {
+      border-color: var(--black);
+      color: var(--white);
+    }
+    & .rt-thead.-headerGroups .rt-th { background-color: var(--dark-3); }
+    & .rt-thead.-header .rt-th       { background-color: var(--dark-2); }
+    & .rt-tbody .rt-tr.-odd .rt-td   { background-color: transparent; }
+    & .rt-tbody .rt-tr.-even .rt-td  { background-color: color(var(--dark-3) a(0.5)); }
+    & .rt-resizer                    { border-left-color: var(--light-3); }
+
+    /* keep editable text visible */
+    & [class*="editable-text-placeholder"] > [class*="editable-text-content"] {
+      color: var(--gray);
+    }
+    & input[class*="editable"],
+    & textarea[class*="editable"] {
+      color: var(--black);
+    }
+  }
 }
 
 .cms-flickr-input {
