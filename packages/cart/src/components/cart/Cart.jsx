@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {Tooltip, Button} from "@blueprintjs/core";
 
-import {loadDatasetsAction} from "../../actions";
+import {loadDatasetsAction, joinResultsAndShow} from "../../actions";
 
 import DatasetList from "../partials/DatasetList";
 import SettingsPanel from "./partials/SettingsPanel";
@@ -38,7 +38,6 @@ class Cart extends React.Component {
   }
 
   componentDidMount() {
-    console.log("componentDidMount");
     this.loadAllDatasets(false);
   }
 
@@ -52,11 +51,16 @@ class Cart extends React.Component {
     }
 
     if (readyAndLoaded) {
-      // Settings or Dimensions
-      const changedSettings = prevProps.settings !== this.props.settings;
+      // Dimensions
       const changedDims = prevProps.controls !== this.props.controls;
       if (changedSettings || changedDims) {
         this.loadAllDatasets(true);
+      }
+
+      // Settings
+      const changedSettings = prevProps.settings !== this.props.settings;
+      if (changedSettings) {
+        this.processAllDatasets();
       }
 
     }
@@ -67,7 +71,7 @@ class Cart extends React.Component {
   }
 
   loadAllDatasets(sendDimensions) {
-    const {dispatch, datasets} = this.props;
+    const {dispatch, datasets, settings} = this.props;
     const {selectedSharedDimensionLevel, selectedDateDimensionLevel} = this.props.controls;
     let dateLevel, sharedLevel;
     if (datasets && Object.keys(datasets).length > 0) {
@@ -75,7 +79,19 @@ class Cart extends React.Component {
         sharedLevel = selectedSharedDimensionLevel;
         dateLevel = selectedDateDimensionLevel;
       }
-      dispatch(loadDatasetsAction(datasets, sharedLevel, dateLevel));
+      dispatch(loadDatasetsAction(datasets, sharedLevel, dateLevel, settings));
+    }
+  }
+
+  processAllDatasets() {
+    const {dispatch, datasets, settings} = this.props;
+    const {selectedSharedDimensionLevel, selectedDateDimensionLevel} = this.props.controls;
+    const {responses} = this.props.results;
+    let dateLevel, sharedLevel;
+    if (datasets && Object.keys(datasets).length > 0) {
+      sharedLevel = selectedSharedDimensionLevel;
+      dateLevel = selectedDateDimensionLevel;
+      dispatch(joinResultsAndShow(responses, sharedLevel, dateLevel, settings));
     }
   }
 

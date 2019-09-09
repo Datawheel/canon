@@ -13,7 +13,8 @@ import {
   SET_SHARED_DIMENSION_LIST,
   SET_DATE_DIMENSION_LIST,
   SHARED_DIMENSION_CHANGED,
-  DATE_DIMENSION_CHANGED
+  DATE_DIMENSION_CHANGED,
+  SAVE_RESPONSES
 } from "../actions";
 import {STORAGE_CART_KEY, MAX_DATASETS_IN_CART} from "../helpers/consts";
 
@@ -191,6 +192,7 @@ function cartStateReducer(state = initialState(), action) {
         ...state,
         internal: {
           ...state.internal,
+          loading: true,
           processing: true
         }
       };
@@ -257,6 +259,18 @@ function cartStateReducer(state = initialState(), action) {
       };
       return newState;
     }
+
+    case SAVE_RESPONSES: {
+      newState = {
+        ...state,
+        results: {
+          ...state.results,
+          responses: action.payload.responses
+        }
+      };
+      return newState;
+    }
+
 
     default: {
       return state;

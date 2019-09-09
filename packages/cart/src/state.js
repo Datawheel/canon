@@ -23,6 +23,7 @@ export default function initialStateFactory() {
       selectedDateDimensionLevel: false
     },
     results: {
+      responses: {},
       cols: [],
       data: []
     }

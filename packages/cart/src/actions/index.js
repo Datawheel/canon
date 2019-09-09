@@ -65,8 +65,71 @@ export const toggleSettingAction = id => ({
   payload: {id}
 });
 
+export const LOAD_DATASETS = "@@canon-cart/LOAD_DATASETS";
+export const loadAllDatasetsAction = () => ({
+  type: LOAD_DATASETS
+});
+
+export const SUCCESS_LOAD_DATASET = "@@canon-cart/SUCCESS_LOAD_DATASET";
+export const successLoadDatasetAction = id => ({
+  type: SUCCESS_LOAD_DATASET,
+  payload: {id}
+});
+
+export const FAILURE_LOAD_DATASET = "@@canon-cart/FAILURE_LOAD_DATASET";
+export const failureLoadDatasetAction = id => ({
+  type: FAILURE_LOAD_DATASET,
+  payload: {id}
+});
+
+/** Processing datasets events */
+export const START_PROCESSING_DATASETS = "@@canon-cart/START_PROCESSING_DATASETS";
+export const startProcessingAction = () => ({
+  type: START_PROCESSING_DATASETS
+});
+
+export const END_PROCESSING_DATASETS = "@@canon-cart/END_PROCESSING_DATASETS";
+export const endProcessingAction = (cols, data) => ({
+  type: END_PROCESSING_DATASETS,
+  payload: {cols, data}
+});
+
+/** Shared Dimensions */
+export const SET_SHARED_DIMENSION_LIST = "@@canon-cart/SET_SHARED_DIMENSION_LIST";
+export const setSharedDimensionListAction = list => ({
+  type: SET_SHARED_DIMENSION_LIST,
+  payload: {dimensions: list}
+});
+
+export const SHARED_DIMENSION_CHANGED = "@@canon-cart/SHARED_DIMENSION_CHANGED";
+export const sharedDimensionLevelChangedAction = dimId => ({
+  type: SHARED_DIMENSION_CHANGED,
+  payload: {id: dimId}
+});
+
+/** Date Dimensions */
+export const SET_DATE_DIMENSION_LIST = "@@canon-cart/SET_DATE_DIMENSION_LIST";
+export const setDateDimensionListAction = list => ({
+  type: SET_DATE_DIMENSION_LIST,
+  payload: {dimensions: list}
+});
+
+export const DATE_DIMENSION_CHANGED = "@@canon-cart/DATE_DIMENSION_CHANGED";
+export const dateDimensionLevelChangedAction = dimId => ({
+  type: DATE_DIMENSION_CHANGED,
+  payload: {id: dimId}
+});
+
+export const SAVE_RESPONSES = "@@canon-cart/SAVE_RESPONSES";
+export const saveResponsesAction = responses => ({
+  type: SAVE_RESPONSES,
+  payload: {responses}
+});
+
+
+
 /** Loading datasets */
-export const loadDatasetsAction = (datasets, sharedDimensionLevelSelected, dateDimensionLevelSelected) => async dispatch => {
+export const loadDatasetsAction = (datasets, sharedDimensionLevelSelected, dateDimensionLevelSelected, settings) => async dispatch => {
 
   // Start load screen
   dispatch(loadAllDatasetsAction());
@@ -124,7 +187,7 @@ export const loadDatasetsAction = (datasets, sharedDimensionLevelSelected, dateD
           }
 
           // Process All datasets
-          queryAndProcessDatasets(dispatch, datasets, multiClient, queries, sharedDimensionLevelSelected, dateDimensionLevelSelected);
+          queryAndProcessDatasets(dispatch, datasets, multiClient, queries, sharedDimensionLevelSelected, dateDimensionLevelSelected, settings);
         }
 
       }).catch(e => {
@@ -135,8 +198,7 @@ export const loadDatasetsAction = (datasets, sharedDimensionLevelSelected, dateD
 };
 
 /** Generate queries & process results */
-const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, sharedDimensionsLevel, dateDimensionsLevel) => {
-  dispatch(startProcessingAction());
+const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, sharedDimensionsLevel, dateDimensionsLevel, settings) => {
 
   let loaded = 0;
 
@@ -181,9 +243,8 @@ const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, share
 
           // All metadata is loaded and correct
           if (loaded === datasetIds.length) {
-
-            joinResultsAndSave(dispatch, loadedData, sharedDimensionsLevel, dateDimensionsLevel);
-
+            dispatch(saveResponsesAction(loadedData));
+            joinResultsAndShow(loadedData, sharedDimensionsLevel, dateDimensionsLevel, settings)(dispatch);
           }
 
         });
@@ -194,7 +255,9 @@ const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, share
 };
 
 /** Merge datasets and show table */
-const joinResultsAndSave = (dispatch, responses, sharedDimensionsLevel, dateDimensionsLevel) => {
+export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensionsLevel, settings) => dispatch => {
+
+  dispatch(startProcessingAction());
 
   // TODO: merge datasets
   console.log("RESPONSES !!!", responses);
@@ -236,103 +299,55 @@ const joinResultsAndSave = (dispatch, responses, sharedDimensionsLevel, dateDime
   let cols = [];
   const data = [];
 
-  // Merge years in rows
-  entities.map(entity => {
-    dates.map(date => {
-      let record = {};
-      let item;
-      nestedResponses.map(nestedResponse => {
-        item = nestedResponse.get(entity);
-        if (item) {
-          item = item.get(date);
+  if (settings.pivotYear.value) {
+
+    // Merge years in rows
+    entities.map(entity => {
+      dates.map(date => {
+        let record = {};
+        let item;
+        nestedResponses.map(nestedResponse => {
+          item = nestedResponse.get(entity);
           if (item) {
-            record = {...record, ...item[0]};
-            cols = cols.length > Object.keys(record).length ? cols : Object.keys(record);
+            item = item.get(date);
+            if (item) {
+              record = {...record, ...item[0]};
+              cols = cols.length > Object.keys(record).length ? cols : Object.keys(record);
+            }
           }
-        }
+        });
+        data.push(record);
       });
-      data.push(record);
     });
-  });
 
-  // If show ID cols
-  cols = cols
-    .filter(field => !(field.startsWith("ID ") || field.endsWith(" ID")));
+  }
+  else {
+    console.log("SETTINGS", settings);
+  }
 
+  // If hide ID cols
+  if (!settings.showID.value) {
+    cols = cols
+      .filter(field => !(field.toLowerCase().startsWith("id ") || field.toLowerCase().endsWith(" id")));
+  }
+
+  // If hide MOE cols
+  if (!settings.showMOE.value) {
+    cols = cols
+      .filter(field => !(field.toLowerCase().startsWith("moe ") || field.toLowerCase().endsWith(" moe")));
+  }
+
+  // Create react-table ready cols config
   cols = cols.map(field => ({
     Header: field,
     accessor: field
   }));
 
-  console.log(cols);
-  console.log(data);
-
-  // TODO Merge years in cols
-
-
   setTimeout(() => {
     dispatch(endProcessingAction(cols, data));
-  }, 2000);
+  }, 500);
+
 };
-
-
-export const LOAD_DATASETS = "@@canon-cart/LOAD_DATASETS";
-export const loadAllDatasetsAction = () => ({
-  type: LOAD_DATASETS
-});
-
-export const SUCCESS_LOAD_DATASET = "@@canon-cart/SUCCESS_LOAD_DATASET";
-export const successLoadDatasetAction = id => ({
-  type: SUCCESS_LOAD_DATASET,
-  payload: {id}
-});
-
-export const FAILURE_LOAD_DATASET = "@@canon-cart/FAILURE_LOAD_DATASET";
-export const failureLoadDatasetAction = id => ({
-  type: FAILURE_LOAD_DATASET,
-  payload: {id}
-});
-
-/** Processing datasets events */
-export const START_PROCESSING_DATASETS = "@@canon-cart/START_PROCESSING_DATASETS";
-export const startProcessingAction = () => ({
-  type: START_PROCESSING_DATASETS
-});
-
-export const END_PROCESSING_DATASETS = "@@canon-cart/END_PROCESSING_DATASETS";
-export const endProcessingAction = (cols, data) => ({
-  type: END_PROCESSING_DATASETS,
-  payload: {cols, data}
-});
-
-/** Shared Dimensions */
-export const SET_SHARED_DIMENSION_LIST = "@@canon-cart/SET_SHARED_DIMENSION_LIST";
-export const setSharedDimensionListAction = list => ({
-  type: SET_SHARED_DIMENSION_LIST,
-  payload: {dimensions: list}
-});
-
-export const SHARED_DIMENSION_CHANGED = "@@canon-cart/SHARED_DIMENSION_CHANGED";
-export const sharedDimensionLevelChangedAction = dimId => ({
-  type: SHARED_DIMENSION_CHANGED,
-  payload: {id: dimId}
-});
-
-/** Date Dimensions */
-export const SET_DATE_DIMENSION_LIST = "@@canon-cart/SET_DATE_DIMENSION_LIST";
-export const setDateDimensionListAction = list => ({
-  type: SET_DATE_DIMENSION_LIST,
-  payload: {dimensions: list}
-});
-
-export const DATE_DIMENSION_CHANGED = "@@canon-cart/DATE_DIMENSION_CHANGED";
-export const dateDimensionLevelChangedAction = dimId => ({
-  type: DATE_DIMENSION_CHANGED,
-  payload: {id: dimId}
-});
-
-
-
 
 /** Processing datasets helpers fns  */
 const getSharedDimensions = cubeDimensionMap => {
