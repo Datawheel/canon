@@ -27,6 +27,8 @@
   "dependencies": {
     "@blueprintjs/select": "^3.10.0",
     "@datawheel/olap-client": "^1.0.3",
+    "file-saver": "^2.0.2",
+    "jszip": "^3.2.2",
     "localforage": "^1.7.3",
     "react-table": "^6.10.0"
   }
