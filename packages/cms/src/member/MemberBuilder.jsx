@@ -481,18 +481,13 @@ class MemberBuilder extends Component {
               <option key="all" value="all">All</option>
               {Object.keys(dimensions).map(dim =>
                 <optgroup key={dim} label={dim}>
-                  {/* Sometimes the dimension matches the hierarchy. Don't show both. */}
-                  {dim !== dimensions[dim][0] &&
-                    <option key={dim} value={dim}>{dim}</option>
-                  }
-                  {/* Show subdimensions, indenting as necessary to show hierarchy */}
+                  {/* show the dimension as the first option in each group */}
+                  <option key={dim} value={dim}>{dim}</option>
+                  {/* Show indented subdimensions */}
                   {dimensions[dim].map(level =>
-                    <option key={level} value={level}>
-                      {dimensions[dim].length === 1 && dim !== level
-                        ? level
-                        : `   ${level}`
-                      }
-                    </option>
+                    !dimensions[dim].includes(dim) || dimensions[dim].length !== 1
+                      ? <option key={level} value={level}>   {level}</option>
+                      : ""
                   )}
                 </optgroup>
 
