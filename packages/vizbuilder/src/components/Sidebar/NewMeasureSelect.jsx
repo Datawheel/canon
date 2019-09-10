@@ -15,12 +15,12 @@ class NewMeasureSelect extends BaseSelect {
   }
 
   makeItemHeader(prevMeasure, measure) {
-    const topic = measure.annotations._cb_topic;
-    const subtopic = measure.annotations._cb_subtopic;
+    const topic = measure.annotations._vb_topic;
+    const subtopic = measure.annotations._vb_subtopic;
 
     if (
-      topic !== prevMeasure.annotations._cb_topic ||
-      subtopic !== prevMeasure.annotations._cb_subtopic
+      topic !== prevMeasure.annotations._vb_topic ||
+      subtopic !== prevMeasure.annotations._vb_subtopic
     ) {
       let _key = topic + (subtopic ? `-${subtopic}` : "");
       const header = this.headerItems[_key] || {topic, subtopic, _key, isHeader: true};
@@ -30,16 +30,16 @@ class NewMeasureSelect extends BaseSelect {
   }
 
   itemListComposer(items) {
-    const nope = {annotations: {_cb_topic: "", _cb_subtopic: ""}};
+    const nope = {annotations: {_vb_topic: "", _vb_subtopic: ""}};
     /**
      * itemMap: { [x: string]: Measure[] }
-     * x: measure.annotations._cb_table_id + "." + measure.name
+     * x: measure.annotations._vb_cbTableId + "." + measure.name
      */
     const {value, itemMap} = this.props;
     const hasQuery = Boolean(this.state.query);
 
     return items.reduce((all, measure, index, array) => {
-      const key = `${measure.annotations._cb_table_id}.${measure.name}`;
+      const key = `${measure.annotations._vb_cbTableId}.${measure.name}`;
 
       if (hasQuery) {
         const header = this.makeItemHeader(array[index - 1] || nope, measure);
@@ -69,7 +69,7 @@ class NewMeasureSelect extends BaseSelect {
       >
         <div className="select-value">
           <span className="select-label name">{item.caption || item.name}</span>
-          <span className="select-label source">{item.annotations._cb_tagline}</span>
+          <span className="select-label source">{item.annotations._vb_tagline}</span>
         </div>
         <span className="pt-icon-standard pt-icon-double-caret-vertical" />
       </div>
