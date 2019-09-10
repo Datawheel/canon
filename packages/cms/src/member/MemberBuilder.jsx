@@ -26,6 +26,7 @@ class MemberBuilder extends Component {
       columns: [],
       dimensions: [],
       filterBy: "all",
+      filterKey: "dimension",
       flickrQuery: "",
       flickrImages: [],
       isOpen: false,
@@ -405,11 +406,11 @@ class MemberBuilder extends Component {
         d.content.some(c => c.keywords && c.keywords.toLowerCase().includes(query.toLowerCase())) ||
         d.image && d.image.content && d.image.content.some(c => c.meta.toLowerCase().includes(query.toLowerCase()))
       );
-    this.setState({data});
+    this.setState({data, filterKey});
   }
 
   resetFiltering() {
-    this.setState({query: "", filterBy: "all"}, this.processFiltering.bind(this));
+    this.setState({query: "", filterBy: "all", filterKey: "dimension"}, this.processFiltering.bind(this));
   }
   resetQuery() {
     this.setState({query: ""}, this.processFiltering.bind(this));
@@ -432,6 +433,7 @@ class MemberBuilder extends Component {
       dimensions,
       query,
       filterBy,
+      filterKey,
       flickrQuery,
       flickrImages,
       isOpen,
@@ -469,7 +471,7 @@ class MemberBuilder extends Component {
             />
 
             <Select
-              label="Filter by Dimension or subdimension"
+              label={filterKey === "dimension" ? "Dimension" : "Subdimension"}
               inline
               fontSize="xs"
               context="cms"
@@ -480,12 +482,20 @@ class MemberBuilder extends Component {
               {Object.keys(dimensions).map(dim =>
                 <optgroup key={dim} label={dim}>
                   {/* Sometimes the dimension matches the hierarchy. Don't show both. */}
-                  {dim !== dimensions[dim][0] && <option key={dim} value={dim}>{dim}</option>}
-                  {dimensions[dim].map(level => 
-                    <option key={level} value={level}>{level}</option>
-                  )}  
-                </optgroup>  
-                
+                  {dim !== dimensions[dim][0] &&
+                    <option key={dim} value={dim}>{dim}</option>
+                  }
+                  {/* Show subdimensions, indenting as necessary to show hierarchy */}
+                  {dimensions[dim].map(level =>
+                    <option key={level} value={level}>
+                      {dimensions[dim].length === 1 && dim !== level
+                        ? level
+                        : `   ${level}`
+                      }
+                    </option>
+                  )}
+                </optgroup>
+
               )}
             </Select>
 

@@ -28,38 +28,25 @@
 }
 /* filters */
 .cms-member-controls {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-
   & > [class*="cms-"] {
-    margin-bottom: 0;
-    flex: 1 0 auto;
-
-    &:not(:last-child) {
-      margin-right: var(--gutter-lg);
-    }
-
-    @mixin max-xs {
-      width: 100%;
-      margin-right: 0;
-      margin-bottom: var(--gutter-sm);
-    }
+    margin-bottom: var(--gutter-sm);
   }
 
   & .cms-filter-search {
-    width: 20em;
-    max-width: 100%;
-
     /* override filter search height */
     & > .cms-filter-search-input { height: 2rem; }
-    & > .cms-filter-search-icon { top: 0.625rem; }
+    & > .cms-filter-search-icon { top: 0.666em; }
+  }
 
-    @mixin max-sm {
-      width: 100%;
-      margin-right: 0 !important;
-      margin-bottom: var(--gutter-sm);
+  @mixin min-xs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    & > [class*="cms-"] {
+      margin-bottom: 0;
+      flex: 1 0 50%;
+      max-width: calc(50% - var(--gutter-sm));
     }
   }
 }
