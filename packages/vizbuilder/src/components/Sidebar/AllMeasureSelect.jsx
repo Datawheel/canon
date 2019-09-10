@@ -23,15 +23,15 @@ class UpdatedMeasureSelect extends React.Component {
 
       return items.reduce((output, item) => {
         // Compose headers by category
-        const topic = item.annotations._cb_topic;
-        const subtopic = item.annotations._cb_subtopic;
+        const topic = item.annotations._vb_topic;
+        const subtopic = item.annotations._vb_subtopic;
         if (topic !== lastTopic || subtopic !== lastSubtopic) {
           lastTopic = topic;
           lastSubtopic = subtopic;
           output.push({isOptgroup: true, topic, subtopic});
         }
         // Adds the item only if it wasn't added from another dataset previously
-        const key = `${item.annotations._cb_table_id}.${item.name}`;
+        const key = `${item.annotations._vb_cbTableId}.${item.name}`;
         const tableMap = itemMap[key];
         if (tableMap && tableMap.length > 0) {
           // if selectedItem is from the current tableMap, use it, else use first
@@ -57,7 +57,7 @@ class UpdatedMeasureSelect extends React.Component {
         while (n--) {
           const measure = items[n];
           if (measure.isOptgroup) continue;
-          const label = measure.annotations._cb_topic;
+          const label = measure.annotations._vb_topic;
           topicMap[label] = true;
         }
         return Object.keys(topicMap).sort();
@@ -71,8 +71,8 @@ class UpdatedMeasureSelect extends React.Component {
           const measure = items[n];
           if (measure.isOptgroup) continue;
           const measureAnn = measure.annotations;
-          if (measureAnn._cb_topic === topic) {
-            subtopicMap[measureAnn._cb_subtopic] = true;
+          if (measureAnn._vb_topic === topic) {
+            subtopicMap[measureAnn._vb_subtopic] = true;
           }
         }
         return Object.keys(subtopicMap).sort();
@@ -82,8 +82,8 @@ class UpdatedMeasureSelect extends React.Component {
       return items.filter(
         measure =>
           !measure.isOptgroup &&
-          (measure.annotations._cb_topic === topic &&
-            measure.annotations._cb_subtopic === subtopic)
+          (measure.annotations._vb_topic === topic &&
+            measure.annotations._vb_subtopic === subtopic)
       );
     });
   }
@@ -180,7 +180,7 @@ class UpdatedMeasureSelect extends React.Component {
         active={modifiers.active}
         className="measure-select option"
         disabled={modifiers.disabled}
-        key={`${item.annotations._cb_name} ${item.name}`}
+        key={`${item.annotations._vb_cbName} ${item.name}`}
         onClick={handleClick}
         text={<MeasureItem {...item} showDimensions />}
         title={item.name}
@@ -199,7 +199,7 @@ function MeasureItem(props) {
     <span className="measure-label">
       <span className="name">{props.name}</span>
       {props.showSource && (
-        <span className="source">{props.annotations._cb_tagline}</span>
+        <span className="source">{props.annotations._vb_tagline}</span>
       )}
       {props.showDimensions && (
         <span className="dimensions">
