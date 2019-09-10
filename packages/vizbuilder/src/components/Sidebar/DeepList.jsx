@@ -59,10 +59,10 @@ class DeepList extends React.PureComponent {
 
     let isActive;
     if (state.currLevel == 2) {
-      isActive = value && value.annotations._cb_topic === item;
+      isActive = value && value.annotations._vb_topic === item;
     }
     else {
-      isActive = value && value.annotations._cb_subtopic === item;
+      isActive = value && value.annotations._vb_subtopic === item;
     }
 
     return (
@@ -114,7 +114,7 @@ DeepList.defaultProps = {
     if (currLevel == 2) {
       const topicMap = {};
       while (n--) {
-        const label = items[n].annotations._cb_topic;
+        const label = items[n].annotations._vb_topic;
         topicMap[label] = true;
       }
       return Object.keys(topicMap).sort();
@@ -123,8 +123,8 @@ DeepList.defaultProps = {
       const subtopicMap = {};
       while (n--) {
         const measureAnn = items[n].annotations;
-        if (measureAnn._cb_topic === currTopic) {
-          const label = measureAnn._cb_subtopic;
+        if (measureAnn._vb_topic === currTopic) {
+          const label = measureAnn._vb_subtopic;
           subtopicMap[label] = true;
         }
       }
@@ -135,8 +135,8 @@ DeepList.defaultProps = {
       while (n--) {
         const measure = items[n];
         if (
-          measure.annotations._cb_topic === currTopic &&
-          measure.annotations._cb_subtopic === currSubtopic
+          measure.annotations._vb_topic === currTopic &&
+          measure.annotations._vb_subtopic === currSubtopic
         ) {
           itemList.push(measure);
         }
