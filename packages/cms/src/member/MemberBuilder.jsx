@@ -25,9 +25,7 @@ class MemberBuilder extends Component {
       query: "",
       columns: [],
       dimensions: [],
-      dimension: "all",
-      hierarchies: [],
-      hierarchy: "all",
+      filterBy: "all",
       flickrQuery: "",
       flickrImages: [],
       isOpen: false,
@@ -320,16 +318,21 @@ class MemberBuilder extends Component {
    * Then call prepData to turn the sourceData into columns for the table.
    */
   hitDB() {
-    axios.get("/api/search/all").then(resp => {
-      if (resp.status === 200 && resp.data && resp.data[0]) {
-        const sourceData = resp.data;
-        const dimensions = ["all"].concat([... new Set(sourceData.map(d => d.dimension))]);
-        const hierarchies = ["all"].concat([... new Set(sourceData.map(d => d.hierarchy))]);
-        this.setState({dimensions, hierarchies, sourceData}, this.prepData.bind(this));
-      }
-      else {
-        console.log("Fetch Error in MemberBuilder.jsx");
-      }
+    const searchGet = axios.get("/api/search/all");
+    const metaGet = axios.get("/api/cms/meta");
+    Promise.all([searchGet, metaGet]).then(resp => {
+      const sourceData = resp[0].data;
+      const metaData = resp[1].data;
+      const dimensions = {};
+      metaData.forEach(meta => {
+        if (!dimensions[meta.dimension]) {
+          dimensions[meta.dimension] = meta.levels;
+        }
+        else {
+          dimensions[meta.dimension] = [...new Set([...dimensions[meta.dimension], ...meta.levels])];
+        }
+      });
+      this.setState({dimensions, sourceData}, this.prepData.bind(this));
     });
   }
 
@@ -387,11 +390,13 @@ class MemberBuilder extends Component {
   }
 
   processFiltering() {
-    const {dimension, hierarchy, query} = this.state;
+    const {filterBy, dimensions, query} = this.state;
+    // The user may have clicked either a dimension or a hierarchy. Find out which.
+    let filterKey = "hierarchy";
+    if (Object.keys(dimensions).includes(filterBy)) filterKey = "dimension";
     const sourceData = this.fetchStringifiedSourceData.bind(this)();
     const data = sourceData
-      .filter(d => d.dimension === dimension || dimension === "all")
-      .filter(d => d.hierarchy === hierarchy || hierarchy === "all")
+      .filter(d => d[filterKey] === filterBy || filterBy === "all")
       .filter(d =>
         query === "" ||
         d.slug.includes(query.toLowerCase()) ||
@@ -404,7 +409,7 @@ class MemberBuilder extends Component {
   }
 
   resetFiltering() {
-    this.setState({query: "", dimension: "all", hierarchy: "all"}, this.processFiltering.bind(this));
+    this.setState({query: "", filterBy: "all"}, this.processFiltering.bind(this));
   }
   resetQuery() {
     this.setState({query: ""}, this.processFiltering.bind(this));
@@ -424,11 +429,9 @@ class MemberBuilder extends Component {
       columns,
       currentRow,
       data,
-      dimension,
       dimensions,
       query,
-      hierarchy,
-      hierarchies,
+      filterBy,
       flickrQuery,
       flickrImages,
       isOpen,
@@ -446,7 +449,7 @@ class MemberBuilder extends Component {
           <Button
             className="cms-member-header-button"
             onClick={this.resetFiltering.bind(this)}
-            disabled={query === "" && dimension === "all" && hierarchy === "all"}
+            disabled={query === "" && filterBy === "all"}
             context="cms"
             fontSize="xxs"
             icon="cross"
@@ -466,30 +469,26 @@ class MemberBuilder extends Component {
             />
 
             <Select
-              label="Dimension"
+              label="Filter by Dimension or subdimension"
               inline
               fontSize="xs"
               context="cms"
-              value={dimension}
-              onChange={this.onChange.bind(this, "dimension")}
+              value={filterBy}
+              onChange={this.onChange.bind(this, "filterBy")}
             >
-              {dimensions.map(dim =>
-                <option key={dim} value={dim}>{dim}</option>
+              <option key="all" value="all">All</option>
+              {Object.keys(dimensions).map(dim =>
+                <optgroup key={dim} label={dim}>
+                  {/* Sometimes the dimension matches the hierarchy. Don't show both. */}
+                  {dim !== dimensions[dim][0] && <option key={dim} value={dim}>{dim}</option>}
+                  {dimensions[dim].map(level => 
+                    <option key={level} value={level}>{level}</option>
+                  )}  
+                </optgroup>  
+                
               )}
             </Select>
 
-            <Select
-              label="Hierarchy"
-              inline
-              fontSize="xs"
-              context="cms"
-              value={hierarchy}
-              onChange={this.onChange.bind(this, "hierarchy")}
-            >
-              {hierarchies.map(hier =>
-                <option key={hier} value={hier}>{hier}</option>
-              )}
-            </Select>
           </div>
         </div>
 

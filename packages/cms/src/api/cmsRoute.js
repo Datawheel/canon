@@ -384,6 +384,12 @@ module.exports = function(app) {
 
   /* GETS */
 
+  app.get("/api/cms/meta", async(req, res) => {
+    let meta = await db.profile_meta.findAll().catch(catcher);
+    meta = meta.map(m => m.toJSON());
+    res.json(meta);
+  });
+
   app.get("/api/cms/tree", async(req, res) => {
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
