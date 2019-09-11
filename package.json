@@ -1,6 +1,6 @@
 {
   "name": "@datawheel/canon-core",
-  "version": "0.17.58",
+  "version": "0.17.59",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "src/index.js",
   "bin": {
@@ -116,8 +116,8 @@
     "pretty": "^2.0.0",
     "promise-throttle": "^1.0.0",
     "prop-types": "^15.6.0",
-    "react": "16.8.0",
-    "react-dom": "^16.8.0",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
     "react-helmet": "^5.2.0",
     "react-hot-loader": "^4.12.11",
     "react-i18next": "^9.0.1",
