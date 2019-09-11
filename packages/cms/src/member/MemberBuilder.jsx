@@ -444,6 +444,8 @@ class MemberBuilder extends Component {
       url
     } = this.state;
 
+    console.log("test");
+
     return (
       <div className="cms-panel member-editor">
         <div className="cms-member-header">
