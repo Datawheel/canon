@@ -17,7 +17,7 @@ import {isGeoDimension, isValidGrouping} from "./validation";
  * @param {Measure} measure The currently selected Measure
  */
 export function generateBaseState(cubes, measure, geomapLevels) {
-  const cubeName = measure.annotations._cb_name;
+  const cubeName = measure.annotations._vb_cbName;
   const cube = cubes.find(cube => cube.name === cubeName);
 
   const query = getMeasureMeta(cube, measure);

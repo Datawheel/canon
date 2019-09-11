@@ -10,6 +10,7 @@ export const DEFAULT_MEASURE_FORMATTERS = {
   Rate: d => `${formatAbbreviate(d * 100 || 0)}%`,
   Ratio: d => `${formatAbbreviate(d * 1 || 0)} to 1`,
   USD: d => `$${formatAbbreviate(d * 1 || 0)}`,
+  Year: d => d,
   get Dollars() {
     return DEFAULT_MEASURE_FORMATTERS.USD;
   },

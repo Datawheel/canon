@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-cms",
   "description": "Content Management System for Canon sites.",
-  "version": "0.7.17",
+  "version": "0.7.24",
   "author": "James Mullen",
   "license": "MIT",
   "bin": {
@@ -12,11 +12,11 @@
   },
   "scripts": {
     "dev": "canon-dev",
-    "build": "canon-build",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 canon-build",
     "locales": "canon-locales",
     "release": "canon-release",
     "setup": "canon-setup",
-    "start": "canon-start",
+    "start": "node index.js",
     "canon-cms-migrate-legacy": "node scripts/migration/canon-cms-migrate-legacy.js",
     "canon-cms-migrate-0.1": "node scripts/migration/canon-cms-migrate-0.1.js",
     "canon-cms-migrate-0.6": "node scripts/migration/canon-cms-migrate-0.6.js",
@@ -31,8 +31,8 @@
     "base58": "^2.0.1",
     "buble": "^0.19.3",
     "d3-selection": "^1.3.2",
-    "d3plus-common": "^0.6.43",
-    "d3plus-export": "^0.3.12",
+    "d3plus-common": "^0.6.57",
+    "d3plus-export": "^0.3.16",
     "flickr-sdk": "^3.9.0",
     "iso-639-1": "^2.0.3",
     "jszip": "^3.1.5",

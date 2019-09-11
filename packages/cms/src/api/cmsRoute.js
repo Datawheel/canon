@@ -169,6 +169,20 @@ const flatSort = (conn, array) => {
   return array;
 };
 
+const bubbleSortSelectors = (conn, selectors) => {
+  selectors = selectors
+    .map(s => Object.assign({}, s, {ordering: s.section_selector.ordering}))
+    .sort(sorter);
+  selectors.forEach((o, i) => {
+    if (o.ordering !== i) {
+      o.ordering = i;
+      o.section_selector.ordering = i;
+      conn.update({ordering: i}, {where: {id: o.section_selector.id}}).catch(catcher);
+    }
+  });
+  return selectors;
+};
+
 
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. todo: move it up to the query.
 const sortProfileTree = (db, profiles) => {
@@ -210,6 +224,8 @@ const sortSection = (db, section) => {
   section.visualizations = flatSort(db.section_visualization, section.visualizations);
   section.stats = flatSort(db.section_stat, section.stats);
   section.descriptions = flatSort(db.section_description, section.descriptions);
+  // ordering is nested in section_selector - bubble for top-level sorting
+  section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
   return section;
 };
 
@@ -622,12 +638,33 @@ module.exports = function(app) {
   app.delete("/api/cms/section_selector/delete", isEnabled, async(req, res) => {
     const {selector_id, section_id} = req.query; // eslint-disable-line camelcase
     const row = await db.section_selector.findOne({where: {selector_id, section_id}}).catch(catcher);
+    await db.section_selector.update({ordering: sequelize.literal("ordering -1")}, {where: {section_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.section_selector.destroy({where: {selector_id, section_id}});
     const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id: row.section_id}});
     let section = await db.section.findOne(reqObj).catch(catcher);
     let rows = [];
     if (section) {
       section = section.toJSON();
+      section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
+      rows = section.selectors;
+    }
+    return res.json(rows);
+  });
+
+  app.post("/api/cms/section_selector/swap", isEnabled, async(req, res) => {
+    const {selector_id, section_id} = req.body; // eslint-disable-line camelcase
+    let selectors = await db.section_selector.findAll({where: {section_id}}).catch(catcher);
+    selectors = selectors.map(s => s.toJSON());
+    const selector1 = selectors.find(s => s.selector_id === selector_id); // eslint-disable-line camelcase
+    const selector2 = selectors.find(s => s.ordering === selector1.ordering + 1);
+    await db.section_selector.update({ordering: selector2.ordering}, {where: {id: selector1.id}}).catch(catcher);
+    await db.section_selector.update({ordering: selector1.ordering}, {where: {id: selector2.id}}).catch(catcher);
+    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id: section_id}});
+    let section = await db.section.findOne(reqObj).catch(catcher);
+    let rows = [];
+    if (section) {
+      section = section.toJSON();
+      section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
       rows = section.selectors;
     }
     return res.json(rows);

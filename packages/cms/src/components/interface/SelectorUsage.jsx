@@ -2,6 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
+import stripHTML from "../../utils/formatters/stripHTML";
 import "./SelectorUsage.css";
 
 class SelectorUsage extends Component {
@@ -62,6 +63,21 @@ class SelectorUsage extends Component {
     if (this.props.onSelect) this.props.onSelect(selectionObj);
   }
 
+  swapSelector(index) {
+    const {minData} = this.state;
+    const {selectors} = minData;
+    const payload = {
+      section_id: minData.id,
+      selector_id: selectors[index].id
+    };
+    axios.post("/api/cms/section_selector/swap", payload).then(resp => {
+      if (resp.status === 200) {
+        minData.selectors = resp.data;
+        this.setState({minData});
+      }
+    });
+  }
+
   render() {
 
     const {minData, currentValues} = this.state;
@@ -72,17 +88,16 @@ class SelectorUsage extends Component {
 
     const {selectors} = minData;
 
-    const activeSelectors = [];
+    const activeSelectors = selectors;
     const inactiveSelectors = [];
 
     allSelectors.forEach(selector => {
-      if (selectors.map(s => s.id).includes(selector.id)) {
-        activeSelectors.push(selector);
-      }
-      else {
+      if (!selectors.map(s => s.id).includes(selector.id)) {
         inactiveSelectors.push(selector);
       }
     });
+
+    activeSelectors.sort((a, b) => a.ordering - b.ordering);
 
     return (
       <div className="cms-selector-usage cms-card-container">
@@ -153,8 +168,8 @@ class SelectorUsage extends Component {
                           value={option.option}
                         >
                           {typeof variables[option.option] === "object"
-                            ? JSON.stringify(variables[option.option])
-                            : variables[option.option]}
+                            ? stripHTML(JSON.stringify(variables[option.option]))
+                            : stripHTML(variables[option.option])}
                         </option>
                       )}
                     </Select>
@@ -163,7 +178,7 @@ class SelectorUsage extends Component {
                   {i !== activeSelectors.length - 1 &&
                     <div className="cms-reorder">
                       <Button
-                        onClick={() => console.log("set me up jimmyyyy")}
+                        onClick={this.swapSelector.bind(this, i)}
                         className="cms-reorder-button"
                         context="cms"
                         icon="swap-vertical"

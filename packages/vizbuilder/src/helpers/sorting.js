@@ -129,10 +129,10 @@ export function classifyMeasures(cubes, mapMode) {
  * @param {(cube: Cube) => Cube} userTableIdFunc The cube selector function
  */
 export function userTableIdMeasure(measure, measureMap, cubes, userTableIdFunc) {
-  const measureTableKey = `${measure.annotations._cb_table_id}.${measure.name}`;
+  const measureTableKey = `${measure.annotations._vb_cbTableId}.${measure.name}`;
   const measureArray = measureMap[measureTableKey] || [];
   const cubeArray = measureArray.map(msr =>
-    cubes.find(cube => cube.name === msr.annotations._cb_name)
+    cubes.find(cube => cube.name === msr.annotations._vb_cbName)
   );
 
   const pickedCube = userTableIdFunc(cubeArray);

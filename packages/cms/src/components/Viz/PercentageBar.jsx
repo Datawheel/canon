@@ -72,7 +72,7 @@ class PercentageBar extends Component {
     return (
       <div className="percentage-bar-wrapper">
         <ul className="percentage-bar-list">
-          {displayData.map((d, i) => {
+          {displayData.filter(d => d).map((d, i) => {
             const percent = d[value] / total * 100;
             const label = d[groupBy];
             return (
@@ -84,13 +84,7 @@ class PercentageBar extends Component {
                   <span className="u-visually-hidden">: </span>
                   {!isNaN(percent) &&
                     <span className="percentage-bar-bg">
-                      <span
-                        className="percentage-bar"
-                        style={{
-                          width: `${percent}%`,
-                          animationDelay: `0.${i}s`
-                        }}
-                      />
+                      <span className="percentage-bar" style={{width: `${percent}%`}} />
                     </span>
                   }
                   <span className="percentage-bar-value display u-font-md">

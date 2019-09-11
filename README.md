@@ -9,6 +9,7 @@ Reusable React environment and components for creating visualization engines.
 * [Header/Meta Information](#header-meta-information)
 * [Page Routing](#page-routing)
   * [Window Location](#window-location)
+* [Hot Module Reloading](#hot-module-reloading)
 * [Redux Store](#redux-store)
 * [Localization](#localization)
   * [Language Detection](#language-detection)
@@ -54,7 +55,7 @@ Now that the necessary files are in place, simply run `npm run dev` to spin up t
 If you encounter an error that causes the node server to keep running in the background, the following command should kill the process:
 
 ```bash
-kill -9 $(ps aux | grep @datawheel/canon-core/bin/server.js | grep -v grep | awk '{print $2}')
+kill -9 $(ps aux | grep @datawheel/canon-core/bin/server/index.js | grep -v grep | awk '{print $2}')
 ```
 
 ---
@@ -150,6 +151,22 @@ There are 3 preferred ways (each with their use cases) to determine the current 
 1. **redux `state.location`** - for server-side rendering, like if you need the current page in a `render` function when a component mounts. This object is created manually on the server-side to mimic `window.location`, but _does NOT get updated on subsequent react-router page views_.
 2. **`this.props.router.location`** - every top-level component that is connected to a route in `routes.jsx` has access to the main react-router instance, which should be relied on to always contain the currently viewed page.
 3. **`this.context.router.location`** - the current react-router instance is also passed down to every component via context.
+
+---
+
+## Hot Module Reloading
+
+To enable hot module reloading, the component being used on a Route (like `Home.jsx` or `Profile.jsx`) needs to be wrapped with the `hot` wrapper when exporting. Import it like this:
+
+```jsx
+import {hot} from "react-hot-loader/root";
+```
+
+And export it like this:
+
+```jsx
+export default hot(Home);
+```
 
 ---
 
