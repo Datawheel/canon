@@ -621,7 +621,7 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode, variablesHash, currentPid, previews, cubeData, nodeToDelete, selectors} = this.state;
+    const {nodes, currentNode, variablesHash, currentPid, previews, profiles, cubeData, nodeToDelete, selectors} = this.state;
     const {locale, localeDefault} = this.props;
 
     if (!nodes) return null;
@@ -684,6 +684,7 @@ class ProfileBuilder extends Component {
                 <DimensionBuilder
                   cubeData={cubeData}
                   meta={currentNode.masterMeta}
+                  takenSlugs={profiles.map(p => p.meta).reduce((acc, d) => acc.concat(d.map(m => m.slug)), [])}
                   previews={previews}
                   onSelectPreview={this.onSelectPreview.bind(this)}
                   onAddDimension={this.onAddDimension.bind(this)}
