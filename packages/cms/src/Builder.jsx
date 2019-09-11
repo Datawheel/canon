@@ -14,6 +14,8 @@ import Select from "./components/fields/Select";
 import Button from "./components/fields/Button";
 import AuthForm from "./components/interface/AuthForm";
 
+import {hot} from "react-hot-loader/root";
+
 import "./css/utilities.css";
 import "./css/base.css";
 import "./css/blueprint-overrides.css";
@@ -243,4 +245,4 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Builder);
+export default hot(connect(mapStateToProps, mapDispatchToProps)(Builder));
