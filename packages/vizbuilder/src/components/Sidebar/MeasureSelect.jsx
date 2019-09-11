@@ -14,7 +14,7 @@ class MeasureSelect extends BaseMonoSelect {
         <div className="select-value">
           <span className="select-label name">{item.caption || item.name}</span>
           <span className="select-label source">
-            {item.annotations._cb_tagline}
+            {item.annotations._vb_tagline}
           </span>
         </div>
         <span className="pt-icon-standard pt-icon-double-caret-vertical" />
@@ -42,20 +42,20 @@ MeasureSelect.defaultProps = {
   },
   itemListComposer(items) {
     const nope = {
-      annotations: {_cb_topic: "", _cb_subtopic: ""}
+      annotations: {_vb_topic: "", _vb_subtopic: ""}
     };
 
     const {value, itemMap} = this.props;
 
     return items.reduce((all, measure, i, array) => {
-      const topic = measure.annotations._cb_topic;
-      const subtopic = measure.annotations._cb_subtopic || undefined;
+      const topic = measure.annotations._vb_topic;
+      const subtopic = measure.annotations._vb_subtopic || undefined;
 
       const prevMeasure = array[i - 1] || nope;
 
       if (
-        topic !== prevMeasure.annotations._cb_topic ||
-        subtopic !== prevMeasure.annotations._cb_subtopic
+        topic !== prevMeasure.annotations._vb_topic ||
+        subtopic !== prevMeasure.annotations._vb_subtopic
       ) {
         let _key = topic + (subtopic ? `-${subtopic}` : "");
         const header = headerItems[_key] || {
@@ -69,7 +69,7 @@ MeasureSelect.defaultProps = {
         all.push(header);
       }
 
-      const key = `${measure.annotations._cb_table_id}.${measure.name}`;
+      const key = `${measure.annotations._vb_cbTableId}.${measure.name}`;
       if (key in itemMap) {
         const valueInTableId = itemMap[key].indexOf(value) > -1;
         const reprMeasure = valueInTableId ? value : itemMap[key][0];
@@ -112,7 +112,7 @@ MeasureSelect.defaultProps = {
       params.push(
         <span className="select-label">{item.name}</span>,
         <span className="select-label source">
-          {item.annotations._cb_tagline}
+          {item.annotations._vb_tagline}
         </span>,
         <span className="select-label dims">
           {item.annotations._dim_labels.map(label => (
