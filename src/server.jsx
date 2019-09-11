@@ -1,5 +1,3 @@
-import "babel-polyfill";
-
 import React from "react";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";

@@ -120,10 +120,10 @@ class Options extends Component {
   }
 
   toggleDialog(slug) {
-    const {openDialog, focusOptions} = this.state;
+    const {openDialog} = this.state;
     const {transitionDuration} = this.props;
 
-    if (slug && !this.state.openDialog) {
+    if (slug && !openDialog) {
       setTimeout(() => {
         // IE is the wurst with CSSTransitionGroup
         document.getElementsByClassName("options-dialog")[0].style.opacity = 1;
@@ -142,7 +142,7 @@ class Options extends Component {
 
     const node = this.getNode.bind(this)();
 
-    if (node && !this.state.openDialog) {
+    if (node && !openDialog) {
       const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
       if (node.offsetTop < scrollTop) animateScroll.scrollTo(node.offsetTop);
     }
@@ -192,7 +192,7 @@ class Options extends Component {
     </button>,
     id: col,
     accessor: d => d[col],
-    Cell: cell => <span className="cp-table-cell-inner">{cell.value}</span>,
+    Cell: cell => <span className="cp-table-cell-inner" dangerouslySetInnerHTML={{__html: cell.value}} />,
     minWidth: this.columnWidths(col)
   });
 
@@ -242,6 +242,7 @@ class Options extends Component {
         <div className="table">
           <ReactTable
             data={results}
+            defaultPageSize={results.length}
             columns={columns.map(col => this.renderColumn(col))}
             minRows="0"
             minWidth="300"

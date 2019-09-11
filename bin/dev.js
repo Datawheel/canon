@@ -1,7 +1,6 @@
 #! /usr/bin/env node
 
 const {title} = require("./logging"),
-      nodemon = require("nodemon"),
       path = require("path"),
       shell = require("shelljs"),
       webpack = require("webpack");
@@ -41,20 +40,8 @@ compiler.watch({}, (err, stats) => {
     shell.exit(1);
   }
   else if (!started) {
-
     started = true;
-    nodemon({
-      watch: [
-        "api/**/*.js",
-        "cache/**/*.js",
-        "db/**/*.js"
-      ],
-      verbose: true,
-      exec: `node ${path.join(canonPath, "bin/server.js")}`
-    })
-      .on("quit", () => {
-        process.exit();
-      });
-
+    shell.exec(`node ${path.join(canonPath, "bin/server/index.js")}`);
   }
+
 });
