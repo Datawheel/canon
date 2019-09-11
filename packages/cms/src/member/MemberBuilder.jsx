@@ -391,10 +391,11 @@ class MemberBuilder extends Component {
   }
 
   processFiltering() {
-    const {filterBy, dimensions, query} = this.state;
-    // The user may have clicked either a dimension or a hierarchy. Find out which.
-    let filterKey = "hierarchy";
-    if (Object.keys(dimensions).includes(filterBy)) filterKey = "dimension";
+    const {query} = this.state;
+    let {filterBy} = this.state;
+    // The user may have clicked either a dimension or a hierarchy. Determine which.
+    const filterKey = filterBy.includes("hierarchy_") ? "hierarchy" : "dimension";
+    filterBy = filterBy.replace("hierarchy_", "").replace("dimension_", "");
     const sourceData = this.fetchStringifiedSourceData.bind(this)();
     const data = sourceData
       .filter(d => d[filterKey] === filterBy || filterBy === "all")
@@ -482,11 +483,11 @@ class MemberBuilder extends Component {
               {Object.keys(dimensions).map(dim =>
                 <optgroup key={dim} label={dim}>
                   {/* show the dimension as the first option in each group */}
-                  <option key={dim} value={dim}>{dim}</option>
+                  <option key={`dimension_${dim}`} value={`dimension_${dim}`}>{dim}</option>
                   {/* Show indented subdimensions */}
-                  {dimensions[dim].map(level =>
+                  {dimensions[dim].map(hierarchy =>
                     !dimensions[dim].includes(dim) || dimensions[dim].length !== 1
-                      ? <option key={level} value={level}>   {level}</option>
+                      ? <option key={`hierarchy_${hierarchy}`} value={`hierarchy_${hierarchy}`}>   {hierarchy}</option>
                       : ""
                   )}
                 </optgroup>
