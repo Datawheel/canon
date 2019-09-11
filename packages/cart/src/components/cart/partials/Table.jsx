@@ -25,8 +25,6 @@ class Table extends React.Component {
   render() {
     const {cols, data} = this.context.results;
 
-    console.log("TABLE!", cols, data);
-
     return (
       <div className={"canon-cart-table-panel"}>
         <ReactTable

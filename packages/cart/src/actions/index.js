@@ -239,7 +239,7 @@ const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, share
 
           dispatch(successLoadDatasetAction(datasetId));
           loaded += 1;
-          loadedData[datasetId] = aggregation.data;
+          loadedData[datasetId] = aggregation;
 
           // All metadata is loaded and correct
           if (loaded === datasetIds.length) {
@@ -259,16 +259,14 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
 
   dispatch(startProcessingAction());
 
-  // TODO: merge datasets
-  console.log("RESPONSES !!!", responses);
-  console.log("sharedDimensionsLevel !!!", sharedDimensionsLevel);
-  console.log("dateDimensionsLevel !!!", dateDimensionsLevel);
-
   // Think about dates
   let dates = [];
   let entities = [];
+  let measuresList = [];
   const nestedResponses = Object.keys(responses).map(key => {
-    const queryResponses = responses[key];
+    const queryResponses = responses[key].data;
+    const queryObject = responses[key].query;
+    measuresList = measuresList.concat(queryObject.measures.map(me => me.name));
 
     let nested = d3Nest();
 
@@ -292,10 +290,6 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
   entities = [...new Set(entities)].sort();
   dates = [...new Set(dates)].sort();
 
-  console.log(dates);
-  console.log(entities);
-  console.log(nestedResponses);
-
   let cols = [];
   const data = [];
 
@@ -311,6 +305,8 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
           if (item) {
             item = item.get(date);
             if (item) {
+              // TODO different drilldowns !!
+              console.log("TODO different drilldowns", item);
               record = {...record, ...item[0]};
               cols = cols.length > Object.keys(record).length ? cols : Object.keys(record);
             }
@@ -322,7 +318,26 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
 
   }
   else {
-    console.log("SETTINGS", settings);
+
+    // Merge years in cols
+    entities.map(entity => {
+      let record = {};
+      dates.map(date => {
+        let item;
+        nestedResponses.map(nestedResponse => {
+          item = nestedResponse.get(entity);
+          if (item) {
+            item = item.get(date);
+            if (item) {
+              record = {...record, ...getPivotedRecord(item[0], dateDimensionsLevel.level, measuresList)};
+              cols = cols.length > Object.keys(record).length ? cols : Object.keys(record);
+            }
+          }
+        });
+      });
+      data.push(record);
+    });
+
   }
 
   // If hide ID cols
@@ -369,4 +384,27 @@ const getDateDimensions = sharedDimensions => {
     }
   });
   return dateDimensions;
+};
+
+const getPivotedRecord = (record, dateLevel, measuresList) => {
+  let pivoted;
+  if (record) {
+    pivoted = {...record};
+    measuresList.map(measure => {
+      if (pivoted[measure]) {
+        pivoted[`${measure}(${pivoted[dateLevel]})`] = pivoted[measure];
+        delete pivoted[measure];
+      }
+    });
+    if (dateLevel) {
+      delete pivoted[dateLevel];
+    }
+    if (pivoted[`${dateLevel} ID`]) {
+      delete pivoted[`${dateLevel} ID`];
+    }
+    if (pivoted[`ID ${dateLevel}`]) {
+      delete pivoted[`ID ${dateLevel}`];
+    }
+  }
+  return pivoted;
 };
