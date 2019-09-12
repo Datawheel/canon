@@ -1,6 +1,6 @@
 @import "../css/mixins.css";
 
-.cms-member-header {
+.cms-meta-header {
   padding: var(--gutter-sm) calc(var(--gutter-xs) + var(--gutter-sm));
   background-color: var(--light-1);
   border-bottom: 1px solid var(--light-2);
@@ -13,12 +13,12 @@
 }
 
 /* filters heading */
-.cms-member-header-heading {
+.cms-meta-header-heading {
   display: inline-block;
   margin-right: 0.5em;
 }
 /* reset button */
-.cms-member-header-button {
+.cms-meta-header-button {
   transition-property: color, background-color, border, opacity, transform;
 
   &[disabled] {
@@ -27,7 +27,7 @@
   }
 }
 /* filters */
-.cms-member-controls {
+.cms-meta-controls {
   & > [class*="cms-"] {
     margin-bottom: var(--gutter-sm);
   }
@@ -52,7 +52,7 @@
 }
 
 /* the table */
-.cms-member-table-container {
+.cms-meta-table-container {
   text-align: left;
 
   & .rt-tbody {
@@ -74,8 +74,8 @@
 
   @mixin dark-mode {
     /* dark mode table overrides */
-    & .cms-member-table .rt-th,
-    & .cms-member-table .rt-td {
+    & .cms-meta-table .rt-th,
+    & .cms-meta-table .rt-td {
       border-color: var(--black);
       color: var(--white);
     }

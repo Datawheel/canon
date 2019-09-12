@@ -9,12 +9,10 @@ import {fetchData} from "@datawheel/canon-core";
 import {isAuthenticated} from "@datawheel/canon-core";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
-import MemberBuilder from "./member/MemberBuilder";
+import MetaEditor from "./member/MetaEditor";
 import Select from "./components/fields/Select";
 import Button from "./components/fields/Button";
 import AuthForm from "./components/interface/AuthForm";
-
-import {hot} from "react-hot-loader/root";
 
 import "./css/utilities.css";
 import "./css/base.css";
@@ -114,7 +112,7 @@ class Builder extends Component {
   render() {
     const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen, userInit} = this.state;
     const {isEnabled, env, auth} = this.props;
-    const navLinks = ["profiles", "stories", "members"];
+    const navLinks = ["profiles", "stories", "metadata"];
 
     const waitingForUser = yn(env.CANON_LOGINS) && !userInit;
 
@@ -211,8 +209,8 @@ class Builder extends Component {
             locale={secondaryLocale}
           />
         }
-        {currentTab === "members" &&
-          <MemberBuilder
+        {currentTab === "metadata" &&
+          <MetaEditor
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
@@ -245,4 +243,4 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-export default hot(connect(mapStateToProps, mapDispatchToProps)(Builder));
+export default connect(mapStateToProps, mapDispatchToProps)(Builder);

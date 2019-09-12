@@ -11,11 +11,11 @@ import FilterSearch from "../components/fields/FilterSearch";
 import Select from "../components/fields/Select";
 import FooterButtons from "../components/editors/components/FooterButtons";
 
-import "./MemberBuilder.css";
+import "./MetaEditor.css";
 
 const IMAGES_PER_PAGE = 5;
 
-class MemberBuilder extends Component {
+class MetaEditor extends Component {
 
   constructor(props) {
     super(props);
@@ -447,12 +447,12 @@ class MemberBuilder extends Component {
     console.log("test");
 
     return (
-      <div className="cms-panel member-editor">
-        <div className="cms-member-header">
+      <div className="cms-panel meta-editor">
+        <div className="cms-meta-header">
           <h1 className="u-visually-hidden">Edit entities</h1>
-          <h2 className="cms-member-header-heading u-margin-top-off u-font-xs">Filters</h2>
+          <h2 className="cms-meta-header-heading u-margin-top-off u-font-xs">Filters</h2>
           <Button
-            className="cms-member-header-button"
+            className="cms-meta-header-button"
             onClick={this.resetFiltering.bind(this)}
             disabled={query === "" && filterBy === "all"}
             context="cms"
@@ -463,7 +463,7 @@ class MemberBuilder extends Component {
             Clear all filters
           </Button>
 
-          <div className="cms-member-controls">
+          <div className="cms-meta-controls">
             <FilterSearch
               label="filter by name, slug, keywords, meta..."
               onChange={this.onChange.bind(this, "query")}
@@ -500,10 +500,10 @@ class MemberBuilder extends Component {
           </div>
         </div>
 
-        <div className="cms-member-table-container">
+        <div className="cms-meta-table-container">
           <h2 className="u-visually-hidden">Members</h2>
           <ReactTable
-            className="cms-member-table"
+            className="cms-meta-table"
             data={data}
             columns={columns}
             pageSize={data.length}
@@ -553,7 +553,7 @@ class MemberBuilder extends Component {
   }
 }
 
-MemberBuilder.contextTypes = {
+MetaEditor.contextTypes = {
   toast: PropTypes.object
 };
 
@@ -561,4 +561,4 @@ const mapStateToProps = state => ({
   env: state.env
 });
 
-export default connect(mapStateToProps)(MemberBuilder);
+export default connect(mapStateToProps)(MetaEditor);
