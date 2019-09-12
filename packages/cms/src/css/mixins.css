@@ -180,6 +180,61 @@ theming
     }
   }
 }
+@define-mixin cms-button-style {
+  @mixin cms-button-theming;
+  @mixin cms-button-shadow;
+  border: none; /* reset browser default */
+  border-radius: 10em;
+  padding: 0.5em 1.25em;
+
+  /* interactions */
+  &:hover, &:focus {
+    color: var(--accent-black);
+
+    @mixin dark-mode {
+      color: var(--accent-light);
+    }
+
+    & > .cms-button-icon {
+      transform: scale(1.125);
+
+      /* gears keep on turning */
+      &[class*="cog"] {
+         transform: scale(1.125) rotate(-30deg);
+      }
+      &[class*="trash"] {
+        color: var(--alert);
+
+        @mixin dark-mode {
+          color: var(--alert-light);
+        }
+      }
+    }
+  }
+}
+
+/* text input */
+@define-mixin cms-text-input-style {
+  /* theming */
+  background-color: var(--white);
+  border: 1px solid var(--light-3);
+  color: var(--dark-2);
+
+  &::placeholder {
+    @mixin font-smoothing;
+    color: var(--gray);
+  }
+
+  @mixin dark-mode {
+    background-color: color(var(--black) a(0.75));
+    border-color: var(--black);
+    color: var(--light-1);
+
+    &::placeholder {
+      color: var(--dark-1);
+    }
+  }
+}
 
 
 /* -----------------------------------

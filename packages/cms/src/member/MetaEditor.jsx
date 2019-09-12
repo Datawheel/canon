@@ -10,7 +10,6 @@ import {Dialog, Icon, EditableText, Spinner} from "@blueprintjs/core";
 import Button from "../components/fields/Button";
 import FilterSearch from "../components/fields/FilterSearch";
 import Select from "../components/fields/Select";
-import FooterButtons from "../components/editors/components/FooterButtons";
 
 import "./MetaEditor.css";
 

@@ -81,37 +81,7 @@
 
 /* admin panel context */
 .cms-button {
-  padding: 0.5em 1.25em;
-  /* theming */
-  @mixin cms-button-theming;
-  @mixin cms-button-shadow;
-  border: none; /* reset browser default */
-  border-radius: 10em;
-
-  /* interactions */
-  &:hover, &:focus {
-    color: var(--accent-black);
-
-    @mixin dark-mode {
-      color: var(--accent-light);
-    }
-
-    & > .cms-button-icon {
-      transform: scale(1.125);
-
-      /* gears keep on turning */
-      &[class*="cog"] {
-         transform: scale(1.125) rotate(-30deg);
-      }
-      &[class*="trash"] {
-        color: var(--alert);
-
-        @mixin dark-mode {
-          color: var(--alert-light);
-        }
-      }
-    }
-  }
+  @mixin cms-button-style;
 
   /* rebuilding */
   &.is-rebuilding > .cms-button-icon {

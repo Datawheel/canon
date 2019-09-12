@@ -1,10 +1,25 @@
 @import "../css/mixins.css";
 
+/* layout */
 .cms-metadata-page {
   max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  & .meta-editor,
+  & .cms-meta-table-container,
+  & .cms-meta-table {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+  }
+
+  /* push pager to bottom */
+  & .cms-meta-table {
+    justify-content: space-between;
+  }
 
   & .rt-tbody {
-    @mixin font-xxs;
     max-height: none;
   }
 }
@@ -98,7 +113,13 @@
     & textarea[class*="editable"] {
       color: var(--black);
     }
+    & .-pagination { background-color: var(--dark-3); }
   }
+
+  & .rt-tbody { @mixin font-xxs; }
+  & .-btn { @mixin cms-button-style; }
+  & .-pageJump > input { @mixin cms-text-input-style; }
+  & .-pageJump > * { margin: 0 0.125em; }
 }
 
 .cms-flickr-input {

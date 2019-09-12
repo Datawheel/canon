@@ -256,7 +256,8 @@ THEMING
   display: flex;
   align-items: baseline;
   justify-content: center;
-  margin-top: 1rem;
+  padding-top: var(--gutter-sm);
+  padding-bottom: var(--gutter-sm);
 
   /* space out adjacent elements */
   & > *:not(:last-child) {
