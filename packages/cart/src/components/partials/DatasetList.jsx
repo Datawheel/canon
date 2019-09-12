@@ -26,7 +26,7 @@ class DatasetList extends React.Component {
 
   onClickRemoveDataset(dataset) {
     const {dispatch} = this.context;
-    dispatch(removeFromCartAction(dataset.url));
+    dispatch(removeFromCartAction(dataset.originalUrl));
   }
 
   render() {

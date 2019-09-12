@@ -1,6 +1,6 @@
 /* eslint-disable prefer-arrow-callback */
 import localforage from "localforage";
-import {getHashCode, parseQueryToAdd, getLevelDimension} from "../helpers/transformations";
+import {getHashCode, parseQueryToAdd, getLevelDimension, sanitizeUrl} from "../helpers/transformations";
 import {STORAGE_CART_KEY, TYPE_OLAP} from "../helpers/consts";
 import {MultiClient} from "@datawheel/olap-client";
 import {nest as d3Nest} from "d3-collection";
@@ -306,7 +306,7 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
             item = item.get(date);
             if (item) {
               // TODO different drilldowns !!
-              console.log("TODO different drilldowns", item);
+              // console.log("TODO different drilldowns", item);
               record = {...record, ...item[0]};
               cols = cols.length > Object.keys(record).length ? cols : Object.keys(record);
             }

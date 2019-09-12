@@ -61,6 +61,7 @@ export const parseQueryToAdd = query => {
   return {
     id: getHashCode(query),
     url: parsed.query,
+    originalUrl: query,
     name: parsed.title,
     query: parsed.meta,
     provider: parsed.provider,
