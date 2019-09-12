@@ -427,7 +427,6 @@ class MetaEditor extends Component {
   }
 
   render() {
-
     const {
       columns,
       currentRow,
@@ -444,8 +443,6 @@ class MetaEditor extends Component {
       offset,
       url
     } = this.state;
-
-    console.log("test");
 
     return (
       <div className="cms-panel meta-editor">
