@@ -82,7 +82,6 @@ class DimensionCreator extends Component {
     else {
       if (this.props.onAddDimension) this.props.onAddDimension(profileData);  
     }
-    
   }
 
   render() {
