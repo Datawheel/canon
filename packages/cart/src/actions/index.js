@@ -1,6 +1,6 @@
 /* eslint-disable prefer-arrow-callback */
 import localforage from "localforage";
-import {getHashCode, parseQueryToAdd, getLevelDimension, sanitizeUrl} from "../helpers/transformations";
+import {getHashCode, parseQueryToAdd, getLevelDimension, parseLevelDimension} from "../helpers/transformations";
 import {STORAGE_CART_KEY, TYPE_OLAP} from "../helpers/consts";
 import {MultiClient} from "@datawheel/olap-client";
 import {nest as d3Nest} from "d3-collection";
@@ -172,13 +172,12 @@ export const loadDatasetsAction = (datasets, sharedDimensionLevelSelected, dateD
 
             // Set results in redux to fill controls
             dispatch(setSharedDimensionListAction(sharedDimensionsList));
-            // let sharedDimensionLevelSelected;
             if (sharedDimensionsList[0]) {
               sharedDimensionLevelSelected = getLevelDimension(sharedDimensionsList[0].hierarchies[0].levels[0]);
               dispatch(sharedDimensionLevelChangedAction(sharedDimensionLevelSelected));
             }
+
             dispatch(setDateDimensionListAction(dateDimensionsList));
-            // let dateDimensionLevelSelected;
             if (dateDimensionsList[0]) {
               dateDimensionLevelSelected = getLevelDimension(dateDimensionsList[0].hierarchies[0].levels[0]);
               dispatch(dateDimensionLevelChangedAction(dateDimensionLevelSelected));
@@ -259,86 +258,46 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
 
   dispatch(startProcessingAction());
 
-  // Think about dates
-  let dates = [];
-  let entities = [];
+  // Drilldowns
+  let dims = [];
+  let bigList = [];
   let measuresList = [];
-  const nestedResponses = Object.keys(responses).map(key => {
-    const queryResponses = responses[key].data;
+  if (sharedDimensionsLevel) {
+    dims = [sharedDimensionsLevel];
+  }
+  Object.keys(responses).map(key => {
     const queryObject = responses[key].query;
     measuresList = measuresList.concat(queryObject.measures.map(me => me.name));
-
-    let nested = d3Nest();
-
-    if (sharedDimensionsLevel) {
-      entities = entities.concat([...new Set(queryResponses.map(x => x[sharedDimensionsLevel.level]))]);
-      nested = nested
-        .key(function(d) {
-          return d[sharedDimensionsLevel.level];
-        });
-    }
-    if (dateDimensionsLevel) {
-      dates = dates.concat([...new Set(queryResponses.map(x => x[dateDimensionsLevel.level]))]);
-      nested = nested
-        .key(function(d) {
-          return d[dateDimensionsLevel.level];
-        });
-    }
-
-    return nested.map(queryResponses);
+    bigList = bigList.concat(responses[key].data);
+    let dim, drilldownLevel;
+    queryObject.drilldowns.map(drill => {
+      drilldownLevel = parseLevelDimension(drill.fullName);
+      dim = dims.find(d => drilldownLevel.dimension === d.dimension);
+      if (!dim) {
+        if (!dateDimensionsLevel || dateDimensionsLevel.dimension !== drilldownLevel.dimension) {
+          dims.push(drilldownLevel);
+        }
+      }
+    });
   });
-  entities = [...new Set(entities)].sort();
-  dates = [...new Set(dates)].sort();
 
-  let cols = [];
-  const data = [];
-
-  if (settings.pivotYear.value) {
-
-    // Merge years in rows
-    entities.map(entity => {
-      dates.map(date => {
-        let record = {};
-        let item;
-        nestedResponses.map(nestedResponse => {
-          item = nestedResponse.get(entity);
-          if (item) {
-            item = item.get(date);
-            if (item) {
-              // TODO different drilldowns !!
-              // console.log("TODO different drilldowns", item);
-              record = {...record, ...item[0]};
-              cols = cols.length > Object.keys(record).length ? cols : Object.keys(record);
-            }
-          }
-        });
-        data.push(record);
-      });
-    });
-
+  // Nested by drilldown
+  let nestedBigList = d3Nest();
+  dims.map(dim => {
+    nestedBigList = nestedBigList
+      .key(d => d[dim.level]);
+  });
+  if (dateDimensionsLevel && !settings.pivotYear.value) {
+    nestedBigList = nestedBigList
+      .key(d => d[dateDimensionsLevel.level]);
   }
-  else {
+  nestedBigList = nestedBigList.map(bigList);
 
-    // Merge years in cols
-    entities.map(entity => {
-      let record = {};
-      dates.map(date => {
-        let item;
-        nestedResponses.map(nestedResponse => {
-          item = nestedResponse.get(entity);
-          if (item) {
-            item = item.get(date);
-            if (item) {
-              record = {...record, ...getPivotedRecord(item[0], dateDimensionsLevel.level, measuresList)};
-              cols = cols.length > Object.keys(record).length ? cols : Object.keys(record);
-            }
-          }
-        });
-      });
-      data.push(record);
-    });
+  // Get plain big list
+  const plainBigList = getPlainBigList(nestedBigList, settings, dateDimensionsLevel.level, measuresList);
 
-  }
+  let cols = plainBigList.cols;
+  const data = plainBigList.rows;
 
   // If hide ID cols
   if (!settings.showID.value) {
@@ -360,8 +319,36 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
 
   setTimeout(() => {
     dispatch(endProcessingAction(cols, data));
-  }, 500);
+  }, 500); // 500ms of suspense...
 
+};
+
+/** Recursively process Big Map list  */
+const getPlainBigList = (mapItem, settings, dateDimensionsLevel, measuresList) => {
+  let rows = [];
+  let cols = [];
+  mapItem.each((value, key, map) => {
+    if (value.length) { // It's an array of records! Last leaf!
+      let record = {};
+      if (settings.pivotYear.value) {
+        record = getPivotedRecord(value, dateDimensionsLevel, measuresList);
+      }
+      else {
+        record = getNonPivotedRecord(value);
+      }
+      rows.push(record);
+      cols = cols.concat(Object.keys(record));
+    }
+    else { // It's a map, in the branch yet run recursion
+      const tempResults = getPlainBigList(value, settings, dateDimensionsLevel, measuresList);
+      rows = rows.concat(tempResults.rows);
+      cols = cols.concat(tempResults.cols);
+    }
+  });
+
+  cols = [...new Set(cols)];
+
+  return {rows, cols};
 };
 
 /** Processing datasets helpers fns  */
@@ -386,12 +373,12 @@ const getDateDimensions = sharedDimensions => {
   return dateDimensions;
 };
 
-const getPivotedRecord = (record, dateLevel, measuresList) => {
-  let pivoted;
-  if (record) {
-    pivoted = {...record};
+const getPivotedRecord = (records, dateLevel, measuresList) => {
+  let finalPivotedRecord;
+  records.map(record => {
+    const pivoted = {...record};
     measuresList.map(measure => {
-      if (pivoted[measure]) {
+      if (typeof pivoted[measure] !== "undefined") {
         pivoted[`${measure}(${pivoted[dateLevel]})`] = pivoted[measure];
         delete pivoted[measure];
       }
@@ -399,12 +386,16 @@ const getPivotedRecord = (record, dateLevel, measuresList) => {
     if (dateLevel) {
       delete pivoted[dateLevel];
     }
-    if (pivoted[`${dateLevel} ID`]) {
+    if (typeof pivoted[`${dateLevel} ID`] !== "undefined") {
       delete pivoted[`${dateLevel} ID`];
     }
-    if (pivoted[`ID ${dateLevel}`]) {
+    if (typeof pivoted[`ID ${dateLevel}`] !== "undefined") {
       delete pivoted[`ID ${dateLevel}`];
     }
-  }
-  return pivoted;
+
+    finalPivotedRecord = {...finalPivotedRecord, ...pivoted};
+  });
+  return finalPivotedRecord;
 };
+
+const getNonPivotedRecord = recordList => recordList.reduce((nonPivoted, item) => ({...nonPivoted, ...item}), {});

@@ -30,7 +30,12 @@ export const sanitizeUrl = url => url.replace("aggregate.json?", "aggregate.json
 
 /** TODO: generate human title from query */
 export const getHumanTitle = meta => {
-  const title = meta.params.measure ? meta.params.measure[0] : meta.params.measures[0];
+  let title = meta.params.measure ? meta.params.measure[0] : meta.params.measures[0];
+  if (meta.params.drilldown) {
+    meta.params.drilldown.map(d => {
+      title += ` by ${d.dimension}`;
+    });
+  }
   return title;
 };
 
