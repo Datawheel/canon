@@ -4,7 +4,7 @@
   max-height: 100vh;
 
   & .rt-tbody {
-    flex: 1 1 auto;
+    @mixin font-xxs;
     max-height: none;
   }
 }
