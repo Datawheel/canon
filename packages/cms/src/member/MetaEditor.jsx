@@ -2,6 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactTable from "react-table";
+import {hot} from "react-hot-loader/root";
 import Base58 from "base58";
 import PropTypes from "prop-types";
 import {Dialog, Icon, EditableText, Spinner} from "@blueprintjs/core";
@@ -561,4 +562,4 @@ const mapStateToProps = state => ({
   env: state.env
 });
 
-export default connect(mapStateToProps)(MetaEditor);
+export default connect(mapStateToProps)(hot(MetaEditor));

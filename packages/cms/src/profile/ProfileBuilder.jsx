@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
+import {hot} from "react-hot-loader/root";
 import {NonIdealState, Intent, Alert} from "@blueprintjs/core";
 import ProfileEditor from "./ProfileEditor";
 import SectionEditor from "./SectionEditor";
@@ -729,4 +730,4 @@ ProfileBuilder.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default connect(state => ({env: state.env}))(ProfileBuilder);
+export default connect(state => ({env: state.env}))(hot(ProfileBuilder));

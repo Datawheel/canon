@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
+import {hot} from "react-hot-loader/root";
 import {NonIdealState, Alert, Intent} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import Button from "../components/fields/Button";
@@ -431,4 +432,4 @@ StoryBuilder.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default StoryBuilder;
+export default hot(StoryBuilder);
