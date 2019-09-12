@@ -1,5 +1,14 @@
 @import "../css/mixins.css";
 
+.cms-metadata-page {
+  max-height: 100vh;
+
+  & .rt-tbody {
+    flex: 1 1 auto;
+    max-height: none;
+  }
+}
+
 .cms-meta-header {
   padding: var(--gutter-sm) calc(var(--gutter-xs) + var(--gutter-sm));
   background-color: var(--light-1);
@@ -54,10 +63,6 @@
 /* the table */
 .cms-meta-table-container {
   text-align: left;
-
-  & .rt-tbody {
-    max-height: calc(100vh - 7.125rem - 2px - var(--cms-nav-height) - var(--nav-height)); /* somewhat fudged */
-  }
 
   & .rt-th:first-of-type .cp-table-header-button {
     padding-left: 0;

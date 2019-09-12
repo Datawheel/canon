@@ -127,7 +127,7 @@ class Builder extends Component {
     }
 
     return (
-      <div className="cms">
+      <div className={`cms cms-${currentTab}-page`}>
         <div className="cms-nav">
           {navLinks.map(navLink =>
             <button
