@@ -32,13 +32,16 @@ module.exports = function(app) {
 
   app.get("/api/image", async(req, res) => {
     const {slug, id, type} = req.query;
+    let {dimension} = req.query;
     const size = req.query.size || "splash";
     const locale = req.query.locale || envLoc;
     const jsonError = () => res.json({error: "Not Found"});
     const imageError = () => res.sendFile(`${process.cwd()}/static/images/transparent.png`);
-    const meta = await db.profile_meta.findOne({where: {slug}}).catch(catcher);
-    if (!meta) return type === "json" ? jsonError() : imageError();
-    const {dimension} = meta;
+    if (!dimension) {
+      const meta = await db.profile_meta.findOne({where: {slug}}).catch(catcher);
+      if (!meta) return type === "json" ? jsonError() : imageError();  
+      dimension = meta.dimension;
+    }
     let member = await db.search.findOne({
       where: {dimension, [sequelize.Op.or]: {id, slug: id}},
       include: {model: db.image, include: [{association: "content"}]}

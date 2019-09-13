@@ -259,19 +259,22 @@ class MetaEditor extends Component {
           Header: this.renderHeader("image"),
           minWidth: this.columnWidths("image"),
           accessor: d => d.image ? d.image.url : null,
-          Cell: cell => <span className="cp-table-cell-inner">
-            {cell.value ? <img src={cell.value} alt={cell.value} /> : ""}
-            <Button
-              onClick={this.clickCell.bind(this, cell)}
-              context="cms"
-              fontSize="xxs"
-              icon={cell.value ? "cog" : "plus" }
-              iconPosition="left"
-              block
-            >
-              {cell.value ? "edit image" : "add image"}
-            </Button>
-          </span>
+          Cell: cell => {
+            const imgURL = `/api/image?dimension=${cell.original.dimension}&id=${cell.original.id}&type=thumb`;
+            return <span className="cp-table-cell-inner">
+              {cell.value ? <img src={imgURL} alt={imgURL} /> : ""}
+              <Button
+                onClick={this.clickCell.bind(this, cell)}
+                context="cms"
+                fontSize="xxs"
+                icon={cell.value ? "cog" : "plus" }
+                iconPosition="left"
+                block
+              >
+                {cell.value ? "edit image" : "add image"}
+              </Button>
+            </span>;
+          }
         });
         displayColumns.push({
           id: `meta (${localeDefault})`,
