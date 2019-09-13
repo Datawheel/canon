@@ -21,6 +21,7 @@ class Viz extends Component {
   }
 
   render() {
+    const {sectionTitle} = this.props;
     const variables = this.props.variables || this.context.variables;
     const locale = this.props.locale || this.context.locale;
 
@@ -80,7 +81,7 @@ class Viz extends Component {
                 data={ vizConfig.data }
                 dataFormat={ vizProps.dataFormat }
                 slug={ slug }
-                title={ title }
+                title={ title || sectionTitle || slug }
                 iconOnly={size && size.width < 320 ? true : false}
               /> : ""
             }
