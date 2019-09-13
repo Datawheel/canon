@@ -66,16 +66,16 @@
 }
 
 .percentage-bar-item{
-  font-size: .75rem;
+  font-size: var(--font-xs);
 }
 .percentage-bar-bg,
 .percentage-bar{
-  border-radius: 0;
-  height: 1rem;
+  border-radius: var(--percentage-bar-radius);
+  height: var(--percentage-bar-height);
   width: 74%;
 }
 .percentage-bar-bg{
-  background-color: transparent;
+  background-color: var(--percentage-bar-bg-color);
 }
 
 
@@ -99,12 +99,12 @@
     clip-path: url(#percentage-bar-clip);
 }
 .percentage-bar-ticks line{
-    stroke: #e5e5e5;
-    stroke-width: 2;
+    stroke: var(--percentage-bar-stroke-color);
+    stroke-width: var(--percentage-bar-stroke-width);
 }
 .percentage-bar-grid text{
-    font-family: sans-serif;
-    font-size: 0.5rem;
+    font-family: var(--base-font-stack);
+    font-size: var(--font-xxxs);
     transform: translate(-0.5rem, 0);
 }
 .percentage-bar-grid text:first-child{
