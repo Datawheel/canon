@@ -1,5 +1,7 @@
-const MondrianClient = require("mondrian-rest-client").Client;
-const TesseractClient = require("@datawheel/tesseract-client").Client;
+const Client = require("@datawheel/olap-client").Client;
+const MondrianDataSource = require("@datawheel/olap-client").MondrianDataSource;
+// const TesseractDataSource = require("@datawheel/olap-client").TesseractDataSource;
+
 const collate = require("../utils/collate");
 const d3Array = require("d3-array");
 const sequelize = require("sequelize");
@@ -16,23 +18,18 @@ if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
 
 const {CANON_CMS_CUBES} = process.env;
 
-let isTesseract = false;
-let client = new TesseractClient(CANON_CMS_CUBES);
-client.checkStatus().then(resp => {
-  if (resp && resp.status === "ok") {
-    isTesseract = true;
+const client = new Client();
+Client.dataSourceFromURL(CANON_CMS_CUBES).then(
+  datasource => {
     if (verbose) console.log(`Initializing Tesseract at ${CANON_CMS_CUBES}`);
-  }
-  else {
+    client.setDataSource(datasource);
+  },
+  err => {
+    const ds = new MondrianDataSource(CANON_CMS_CUBES);
+    client.setDataSource(ds);
+    if (verbose) console.error(`Tesseract not detected: ${err.message}`);
     if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
-    client = new MondrianClient(CANON_CMS_CUBES);
   }
-}, e => {
-  // On tesseract status failure, assume mondrian.
-  if (verbose) console.error(`Tesseract Failed to connect with error: ${e}`);
-  if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
-  client = new MondrianClient(CANON_CMS_CUBES);
-}
 );
 
 const sectionTypeDir = path.join(__dirname, "../components/sections/");
@@ -280,110 +277,84 @@ const populateSearch = async(profileData, db) => {
   const dimension = profileData.dimName || profileData.dimension;
   const dimLevels = profileData.levels;
 
-  const cube = await client.cube(cubeName).catch(catcher);
+  const cube = await client.getCube(cubeName).catch(catcher);
 
   const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
     .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
 
-  let fullList = [];
-  for (let i = 0; i < levels.length; i++) {
+  for (const locale of LANGUAGES) {
 
-    const level = levels[i];
-    const members = await client.members(level).catch(catcher);
+    let fullList = [];
+    for (let i = 0; i < levels.length; i++) {
 
-    let data = [];
+      const level = levels[i];
+      const members = await client.getMembers(level, {locale}).catch(catcher);
 
-    if (isTesseract) {
+      let data = [];
+
+      const drilldown = {
+        dimension,
+        hierarchy: level.hierarchy.name,
+        level: level.name
+      };
+
       data = await client.execQuery(cube.query
-        .addDrilldown(`${dimension}.${level.hierarchy.name}.${level.name}`)
-        .addMeasure(measure), "jsonrecords")
+        .addDrilldown(drilldown)
+        .addMeasure(measure))
         .then(resp => resp.data)
         .then(data => data.reduce((obj, d) => {
           obj[d[`${level.name} ID`]] = d[measure];
           return obj;
         }, {})).catch(catcher);
-    }
-    else {
-      data = await client.query(cube.query
-        .drilldown(dimension, level.hierarchy.name, level.name)
-        .measure(measure), "jsonrecords")
-        .then(resp => resp.data.data)
-        .then(data => data.reduce((obj, d) => {
-          obj[d[`ID ${level.name}`]] = d[measure];
-          return obj;
-        }, {})).catch(catcher);
+
+      fullList = fullList.concat(formatter(members, data, dimension, level.name));
+
     }
 
-    fullList = fullList.concat(formatter(members, data, dimension, level.name));
+    let slugs = await db.search.findAll().catch(catcher);
+    slugs = slugs.map(s => s.slug).filter(d => d);
 
-  }
+    const slugify = (str, id) => {
+      let slug = strip(str).replace(/-{2,}/g, "-").toLowerCase();
+      if (slugs.includes(slug)) slug += `-${id}`;
+      slugs.push(slug);
+      return slug;
+    };
 
-  let slugs = await db.search.findAll().catch(catcher);
-  slugs = slugs.map(s => s.slug).filter(d => d);
-
-  const slugify = (str, id) => {
-    let slug = strip(str).replace(/-{2,}/g, "-").toLowerCase();
-    if (slugs.includes(slug)) slug += `-${id}`;
-    slugs.push(slug);
-    return slug;
-  };
-
-  
-  /*
-  {
-    id: '17',
-    name: 'Illinois',
-    display: 'Illinois',
-    zvalue: 0.39501440122792586,
-    dimension: 'Geography',
-    hierarchy: 'State',
-    stem: -1
-  }
-  */
-
-  // Fold over the list of members
-  for (let i = 0; i < fullList.length; i++) {
-    // Extract their properties
-    const {id, name, zvalue, dimension, hierarchy, stem} = fullList[i];
-    // The search table holds the non-translatable props
-    const searchObj = {id, zvalue, dimension, hierarchy, stem};
-    searchObj.slug = slugify(name, id);
-    // Create the member in the search table
-    const [row, created] = await db.search.findOrCreate({
-      where: {id, dimension, hierarchy},
-      defaults: searchObj
-    }).catch(catcher);
-    // The contents, namely "name", need to be translated
-    // TODO: work with walther to fetch translated name field
-    const contentArray = LANGUAGES.map(locale => ({id: row.contentId, locale, name}));
-    // Depending on what happened, create or update the translated content as well
-    if (created) {
-      if (verbose) console.log(`Created: ${row.id} ${row.slug}`);
-      // If this is a new creation, just dump all the translated content
-      await db.search_content.bulkCreate(contentArray);
-    }
-    else {
-      if (row.slug) delete searchObj.slug;
-      // If it's an update, update everything except the (permanent) slug
-      await row.updateAttributes(searchObj).catch(catcher);
-      if (verbose) {
-        console.log(`Updated: ${row.id} ${row.slug}`);
-        console.log("Updating associated language content:");
+    // Fold over the list of members
+    for (let i = 0; i < fullList.length; i++) {
+      // Extract their properties
+      const {id, name, zvalue, dimension, hierarchy, stem} = fullList[i];
+      // The search table holds the non-translatable props
+      const searchObj = {id, zvalue, dimension, hierarchy, stem};
+      searchObj.slug = slugify(name, id);
+      // Create the member in the search table
+      const [row, created] = await db.search.findOrCreate({
+        where: {id, dimension, hierarchy},
+        defaults: searchObj
+      }).catch(catcher);
+      if (created) {
+        if (verbose) console.log(`Created: ${row.id} ${row.slug}`);
+        // If a new row was created, create its translated content
+        await db.search_content.create({id: row.contentId, locale, name});
       }
-      // If the user has added a new language, it's possible we need to do a mix
-      // of updating existing content and creating new content. Do a findOrCreate
-      // similar to the one above to make sure all lang content is there.
-      for (const content of contentArray) {
-        const {id, locale, name} = content;
+      else {
+        if (row.slug) delete searchObj.slug;
+        // If it's an update, update everything except the (permanent) slug
+        await row.updateAttributes(searchObj).catch(catcher);
+        if (verbose) {
+          console.log(`Updated: ${row.id} ${row.slug}`);
+          console.log("Updating associated language content:");
+        }
         const [contentRow, contentCreated] = await db.search_content.findOrCreate({
-          where: {id, locale},
+          where: {id: row.contentId, locale},
           defaults: {name}
         }).catch(catcher);
         if (contentCreated) {
-          if (verbose) console.log(`Created ${content.locale} Content: ${row.name}`);
+          if (verbose) console.log(`Created ${locale} Content: ${contentRow.name}`);
         }
         else {
-          await contentRow.updateAttributes({name: content.name});
+          await contentRow.updateAttributes({name});
           if (verbose) console.log(`Updated ${contentRow.id} ${contentRow.locale}: ${contentRow.name}`);
         }
       }
