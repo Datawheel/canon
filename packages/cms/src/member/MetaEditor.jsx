@@ -283,7 +283,7 @@ class MetaEditor extends Component {
         });
         displayColumns.push({
           id: `meta (${localeDefault})`,
-          Header: this.renderHeader(`meta (${localeDefault})`),
+          Header: this.renderHeader(locale ? `meta (${localeDefault})` : "meta"),
           minWidth: this.columnWidths("meta"),
           accessor: d => {
             const content = d.image ? d.image.content.find(c => c.locale === localeDefault) : null;
@@ -312,7 +312,7 @@ class MetaEditor extends Component {
 
           columnGroup.push({
             id: `${prop} (${localeDefault})`,
-            Header: this.renderHeader(`${prop === "attr" ? "language hints" : prop} (${localeDefault})`),
+            Header: this.renderHeader(`${prop === "attr" ? "language hints" : prop}${locale ? ` (${localeDefault})` : ""}`),
             minWidth: this.columnWidths(prop),
             accessor: d => {
               const content = d.content.find(c => c.locale === localeDefault);
