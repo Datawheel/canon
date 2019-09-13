@@ -166,6 +166,7 @@ class Builder extends Component {
                   context="cms"
                   inline
                   options={[localeDefault]}
+                  tabIndex={settingsOpen ? null : "-1"}
                 />
                 {/* secondary locale */}
                 <Select
@@ -176,6 +177,7 @@ class Builder extends Component {
                   value={secondaryLocale}
                   options={locales.map(loc => loc)}
                   onChange={this.handleLocaleSelect.bind(this)}
+                  tabIndex={settingsOpen ? null : "-1"}
                 >
                   <option value="none">none</option>
                 </Select>
@@ -193,6 +195,11 @@ class Builder extends Component {
               </React.Fragment>
             }
           </div>
+          <button
+            className={`cms-nav-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
+            onClick={this.toggleSettings.bind(this)}
+            tabIndex={settingsOpen ? null : "-1"}
+          />
         </div>
 
         {currentTab === "profiles" &&
