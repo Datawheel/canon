@@ -27,11 +27,9 @@
 .cms-meta-header {
   padding: var(--gutter-sm) calc(var(--gutter-xs) + var(--gutter-sm));
   background-color: var(--light-1);
-  border-bottom: 1px solid var(--light-2);
 
   @mixin dark-mode {
     border-top: 1px solid var(--black);
-    border-bottom-color: transparent;
     background-color: var(--dark-3);
   }
 }
@@ -78,26 +76,36 @@
 /* the table */
 .cms-meta-table-container {
   text-align: left;
+  background-color: var(--light-1);
 
   & .rt-th:first-of-type .cp-table-header-button {
     padding-left: 0;
   }
 
-  & .rt-th:first-of-type,
+  & .rt-th:first-of-type .cp-table-header-button,
   & .rt-td:first-of-type {
     padding-left: calc(var(--gutter-xs) + var(--gutter-sm));
   }
-  & .rt-th:last-of-type,
   & .rt-td:last-of-type {
     padding-right: calc(var(--gutter-xs) + var(--gutter-sm));
   }
 
+  /* theming */
+  & .rt-tbody .rt-tr.-even .rt-td  { background-color: color(var(--white) a(0.5)); }
+  & .rt-tbody { @mixin font-xxs; }
+  & .-btn { @mixin cms-button-style; }
+  & .-pageJump > input { @mixin cms-text-input-style; }
+  & .-pageJump > * { margin: 0 0.125em; }
+  & .-pagination { background-color: var(--light-1); }
+
   @mixin dark-mode {
-    /* dark mode table overrides */
+    background-color: var(--black);
+
     & .cms-meta-table .rt-th,
+    & .cms-meta-table .rt-thead .rt-th,
     & .cms-meta-table .rt-td {
       border-color: var(--black);
-      color: var(--white);
+      color: var(--light-1);
     }
     & .rt-thead.-headerGroups .rt-th { background-color: var(--dark-3); }
     & .rt-thead.-header .rt-th       { background-color: var(--dark-2); }
@@ -115,11 +123,6 @@
     }
     & .-pagination { background-color: var(--dark-3); }
   }
-
-  & .rt-tbody { @mixin font-xxs; }
-  & .-btn { @mixin cms-button-style; }
-  & .-pageJump > input { @mixin cms-text-input-style; }
-  & .-pageJump > * { margin: 0 0.125em; }
 }
 
 .cms-flickr-input {

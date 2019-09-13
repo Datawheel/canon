@@ -217,7 +217,11 @@ class MetaEditor extends Component {
     else return 90;
   }
   renderColumn = col => Object.assign({}, {
-    Header: this.renderHeader(col),
+    Header: this.renderHeader(
+      col === "hierarchy" ? "subdimension"
+        : col === "zvalue" ? "z value"
+          : col
+    ),
     id: col,
     accessor: d => d[col],
     Cell: cell => this.renderCell(cell),
@@ -235,10 +239,22 @@ class MetaEditor extends Component {
     const fields = Object.keys(data[0])
       .filter(d => !skip.includes(d))
       .sort((a, b) => keySort.indexOf(a) - keySort.indexOf(b));
-    const columns = [];
+
+    const idColumns = [];
+    const classColumns = [];
+    const searchColumns = [];
+    const displayColumns = [];
+
+    const columns = [
+      {Header: "identification",  columns: idColumns },
+      {Header: "classification",  columns: classColumns },
+      {Header: "search",          columns: searchColumns },
+      {Header: "display",         columns: displayColumns }
+    ];
+
     fields.forEach(field => {
       if (field === "image") {
-        columns.push({
+        displayColumns.push({
           id: "image",
           Header: this.renderHeader("image"),
           minWidth: this.columnWidths("image"),
@@ -257,7 +273,7 @@ class MetaEditor extends Component {
             </Button>
           </span>
         });
-        columns.push({
+        displayColumns.push({
           id: `meta (${localeDefault})`,
           Header: this.renderHeader(`meta (${localeDefault})`),
           minWidth: this.columnWidths("meta"),
@@ -268,7 +284,7 @@ class MetaEditor extends Component {
           Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", localeDefault) : this.renderCell(cell)
         });
         if (locale) {
-          columns.push({
+          displayColumns.push({
             id: `meta (${locale})`,
             Header: this.renderHeader(`meta (${locale})`),
             minWidth: this.columnWidths("meta"),
@@ -282,9 +298,13 @@ class MetaEditor extends Component {
       }
       else if (field === "content") {
         ["name", "attr", "keywords"].forEach(prop => {
-          columns.push({
+          let columnGroup = idColumns;
+          if (prop === "keywords") columnGroup = searchColumns;
+          if (prop === "attr") columnGroup = displayColumns;
+
+          columnGroup.push({
             id: `${prop} (${localeDefault})`,
-            Header: this.renderHeader(`${prop} (${localeDefault})`),
+            Header: this.renderHeader(`${prop === "attr" ? "language hints" : prop} (${localeDefault})`),
             minWidth: this.columnWidths(prop),
             accessor: d => {
               const content = d.content.find(c => c.locale === localeDefault);
@@ -293,9 +313,9 @@ class MetaEditor extends Component {
             Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, localeDefault) : this.renderCell(cell)
           });
           if (locale) {
-            columns.push({
+            columnGroup.push({
               id: `${prop} (${locale})`,
-              Header: this.renderHeader(`${prop} (${locale})`),
+              Header: this.renderHeader(`${prop === "attr" ? "language hints" : prop} (${locale})`),
               minWidth: this.columnWidths(prop),
               accessor: d => {
                 const content = d.content.find(c => c.locale === locale);
@@ -307,7 +327,10 @@ class MetaEditor extends Component {
         });
       }
       else {
-        columns.push(this.renderColumn(field));
+        let columnGroup = idColumns;
+        if (field === "zvalue") columnGroup = searchColumns;
+        if (field === "dimension" || field === "hierarchy") columnGroup = classColumns;
+        columnGroup.push(this.renderColumn(field));
       }
     });
     this.setState({data, columns});

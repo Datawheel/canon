@@ -282,6 +282,7 @@ THEMING
         padding: 0.125em 0.5em 0.25em 0.5em;
         width: 2rem;
         text-align: center;
+        font-size: inherit;
 
         /* hide the pager */
         &::-webkit-outer-spin-button,
@@ -292,7 +293,7 @@ THEMING
       }
     }
     & .-totalPages {
-      margin-left: 0.1em;
+      margin-left: 0.25em;
     }
   }
 }
