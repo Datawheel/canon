@@ -212,7 +212,7 @@ class MetaEditor extends Component {
     return <span className="cp-table-cell-inner">{cell.value}</span>;
   }
   columnWidths(key) {
-    if (key.includes("keywords") || key.includes("image")) return 120;
+    if (key.includes("keywords") || key.includes("image")) return 110;
     else if (key.includes("meta") || key.includes("attr")) return 160;
     else return 90;
   }
@@ -246,10 +246,10 @@ class MetaEditor extends Component {
     const displayColumns = [];
 
     const columns = [
-      {Header: "identification",  columns: idColumns },
-      {Header: "classification",  columns: classColumns },
-      {Header: "search",          columns: searchColumns },
-      {Header: "display",         columns: displayColumns }
+      {Header: "identification",  columns: idColumns},
+      {Header: "classification",  columns: classColumns},
+      {Header: "search",          columns: searchColumns},
+      {Header: "display",         columns: displayColumns}
     ];
 
     fields.forEach(field => {
@@ -261,19 +261,24 @@ class MetaEditor extends Component {
           accessor: d => d.image ? d.image.url : null,
           Cell: cell => {
             const imgURL = `/api/image?dimension=${cell.original.dimension}&id=${cell.original.id}&type=thumb`;
-            return <span className="cp-table-cell-inner">
-              {cell.value ? <img src={imgURL} alt={imgURL} /> : ""}
-              <Button
-                onClick={this.clickCell.bind(this, cell)}
-                context="cms"
-                fontSize="xxs"
-                icon={cell.value ? "cog" : "plus" }
-                iconPosition="left"
-                block
-              >
-                {cell.value ? "edit image" : "add image"}
-              </Button>
-            </span>;
+            return cell.value
+              // image wrapped inside a button
+              ? <button className="cp-table-cell-inner cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
+                <img className="cp-table-cell-img" src={imgURL} alt="add image" />
+              </button>
+              // normal cell with a button
+              : <span className="cp-table-cell-inner">
+                <Button
+                  onClick={this.clickCell.bind(this, cell)}
+                  context="cms"
+                  fontSize="xxs"
+                  icon="plus"
+                  iconPosition="left"
+                  block
+                >
+                  add image
+                </Button>
+              </span>;
           }
         });
         displayColumns.push({
