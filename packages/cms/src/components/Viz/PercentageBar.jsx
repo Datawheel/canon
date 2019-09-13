@@ -27,7 +27,6 @@ class PercentageBar extends Component {
         const perc = Number(d[value] / total * 100);
         return isNaN(perc) ? "No Data" : `${perc.toFixed(2)}%`;
       },
-      isPercentValues: true, // defines whether tick labels are displayed as percentages
       showText: "Show all",
       hideText: "Hide"
     };
@@ -56,7 +55,7 @@ class PercentageBar extends Component {
   render() {
     const {showAll, config} = this.state;
     if (!config) return null;
-    const {data, cutoff, cutoffText, title, value, groupBy, sort, total, numberFormat, isPercentValues, showText, hideText} = config;
+    const {data, cutoff, cutoffText, title, value, groupBy, sort, total, numberFormat, showText, hideText} = config;
     const cutoffFunction = typeof cutoff === "number" ? data => data.slice(0, cutoff) : cutoff;
     let displayData = showAll ? data : cutoffFunction(data);
 
@@ -66,16 +65,14 @@ class PercentageBar extends Component {
     let labelVal, xPos;
     let lines = [];
     let ticks = [];
+    let obj = {};
     for (let i = 0; i <= 10; i++) {
       // ensure first line isn't cropped left
       xPos = i === 0 ? '0.1%' : i*10 + '%';
 
-      // Determine whether to display labels as percentages
-      if(isPercentValues){
-        labelVal = i === 0 ? '0%' : Math.round(total*(i*0.1)) + '%';
-      }else{
-        labelVal = i === 0 ? 0 : (total*(i*0.1)).toFixed(2);
-      }
+      // generate arguments for numberFormat
+      obj['tickValue'] = (total*(i*0.1)).toFixed(2);
+      labelVal = numberFormat(obj, 'tickValue', total);
 
       lines.push(<line key={i} x1={xPos} x2={xPos} y1="0" y2="100%"/>);
       ticks.push(<text key={i} x={xPos} y="100%">{labelVal}</text>);
@@ -83,7 +80,7 @@ class PercentageBar extends Component {
 
     return (
       <>
-      <div className={`percentage-bar-wrapper ${isPercentValues ? 'is-percent' : ''}`}>
+      <div className={`percentage-bar-wrapper ${labelVal.includes('%') ? 'is-percent' : ''}`}>
 
         <div className="precentage-bar-grid-holder">
           <svg className="percentage-bar-grid">
