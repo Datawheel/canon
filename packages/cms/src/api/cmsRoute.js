@@ -15,9 +15,17 @@ const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const LANGUAGES = process.env.CANON_LANGUAGES ? process.env.CANON_LANGUAGES.split(",") : [envLoc];
 if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
+// Put the default language first in the array. This ensures that slugs that are generated
+// in populateSearch will be made from the default language content.
+LANGUAGES.sort(a => a === envLoc ? -1 : 1);
 
 const {CANON_CMS_CUBES} = process.env;
 
+/**
+ * There is not a fully-featured way for olap-client to know the difference between a 
+ * Tesseract and a Mondrian Client. Tesseract is more modern/nice in its HTTP codes/responses,
+ * so attempt Tesseract first, and on failure, assume mondrian. 
+ */
 const client = new Client();
 Client.dataSourceFromURL(CANON_CMS_CUBES).then(
   datasource => {
