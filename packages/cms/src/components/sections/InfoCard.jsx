@@ -21,20 +21,22 @@ export default class InfoCard extends Component {
         ref={comp => this.section = comp}
       >
         {/* header */}
-        <div className="cp-info-card-section-header">
-          <div className="cp-info-card-section-header-caption">
-            {heading}
+        <header className="cp-info-card-section-header">
+          <div className="cp-info-card-header">
+            <div className="cp-info-card-title">&#9702; {heading}</div>
+            <div className="cp-info-card-filters">{filters}</div>
           </div>
           {stats}
-        </div>
+        </header>
 
+        {/* main content */}
         <div className="cp-info-card-section-main">
-          {/* main content */}
-          <div className="cp-section-content cp-info-card-section-caption">
-            {secondaryStats}
-            {filters}
-            {paragraphs}
-            {sources}
+          <div className="cp-section-content cp-info-card-section-content">
+            <div className="cp-info-card-paragraphs">{paragraphs}</div>
+            <div className="cp-info-card-secondary-stats">
+              <strong>Key Data Points</strong>
+              {secondaryStats}
+            </div>
           </div>
 
           {visualizations && visualizations.length
@@ -45,6 +47,7 @@ export default class InfoCard extends Component {
             </div> : ""
           }
         </div>
+        <div className="cp-info-card-section-sources">{sources}</div>
       </div>
     );
   }
