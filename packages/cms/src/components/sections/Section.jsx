@@ -135,12 +135,27 @@ class Section extends Component {
           {title}
         </Parse>
       }
-
       {!contents.sticky && subtitles.map((content, i) =>
         <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
           {content.subtitle}
         </Parse>
       )}
+    </React.Fragment>;
+
+      const mainTitle = <React.Fragment>
+      {title &&
+        <Parse El={headingLevel} id={ slug } className={`cp-section-heading ${layoutClass}-heading`}>
+          {title}
+        </Parse>
+      }
+    </React.Fragment>;
+
+    const subTitle = <React.Fragment>
+    {subtitles[0] && subtitles.map((content, i) =>
+      <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
+        {content.subtitle}
+      </Parse>
+    )}
     </React.Fragment>;
 
     // filters
@@ -198,6 +213,8 @@ class Section extends Component {
       slug,
       title,
       heading,
+      mainTitle,
+      subTitle,
       filters,
       stats: statContent,
       secondaryStats: secondaryStatContent,

@@ -13,7 +13,7 @@ import "./InfoCard.css";
 export default class InfoCard extends Component {
 
   render() {
-    const {slug, title, heading, paragraphs, loading, filters, stats, secondaryStats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, title, heading, mainTitle, subTitle, paragraphs, loading, filters, stats, secondaryStats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -23,7 +23,7 @@ export default class InfoCard extends Component {
         {/* header */}
         <header className="cp-info-card-section-header">
           <div className="cp-info-card-header">
-            <div className="cp-info-card-title"><span>&#9702;</span> {heading}</div>
+            <div className="cp-info-card-title">{/*heading*/} {mainTitle}</div>
             <div className="cp-info-card-filters">{filters}</div>
           </div>
           {stats}
@@ -32,9 +32,12 @@ export default class InfoCard extends Component {
         {/* main content */}
         <div className="cp-info-card-section-main">
           <div className="cp-section-content cp-info-card-section-content">
-            <div className="cp-info-card-paragraphs">{paragraphs}</div>
+            <div className="cp-info-card-paragraphs">
+              {subTitle}
+              {paragraphs}
+            </div>
             <div className="cp-info-card-secondary-stats">
-              <strong>Key Data Points</strong>
+              <p className="cp-section-subhead display cp-info-card-section-subhead">Key Data Points</p>
               {secondaryStats}
             </div>
           </div>
