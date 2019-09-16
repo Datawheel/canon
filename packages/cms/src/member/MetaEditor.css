@@ -75,16 +75,16 @@
     min-height: 2.5rem;
   }
 
+  /* add a bit of extra breathing room to first and last columns */
   & .rt-th:first-of-type .cp-table-header-button {
     padding-left: 0;
   }
-
   & .rt-th:first-of-type .cp-table-header-button,
   & .rt-td:first-of-type {
-    padding-left: calc(var(--gutter-xs) + var(--gutter-sm));
+    padding-left: var(--gutter-sm);
   }
   & .rt-td:last-of-type {
-    padding-right: calc(var(--gutter-xs) + var(--gutter-sm));
+    padding-right: var(--gutter-sm);
   }
 
   & .cp-table-cell-cover-button {

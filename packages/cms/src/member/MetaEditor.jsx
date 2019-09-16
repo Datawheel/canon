@@ -13,7 +13,7 @@ import Select from "../components/fields/Select";
 
 import "./MetaEditor.css";
 
-const IMAGES_PER_PAGE = 5;
+const IMAGES_PER_PAGE = 48;
 
 class MetaEditor extends Component {
 
@@ -33,7 +33,7 @@ class MetaEditor extends Component {
       currentRow: {},
       loading: false,
       searching: false,
-      offset: 0,
+      imgIndex: 0,
       url: ""
     };
   }
@@ -392,8 +392,8 @@ class MetaEditor extends Component {
           const loading = false;
           const url = "";
           const flickrImages = [];
-          const offset = 0;
-          this.setState({isOpen, sourceData, loading, url, flickrImages, offset}, this.prepData.bind(this));
+          const imgIndex = 0;
+          this.setState({isOpen, sourceData, loading, url, flickrImages, imgIndex}, this.prepData.bind(this));
           Toast.show({
             intent: "success",
             message: "Success!",
@@ -414,11 +414,7 @@ class MetaEditor extends Component {
   }
 
   showNext() {
-    this.setState({offset: this.state.offset + IMAGES_PER_PAGE});
-  }
-
-  showPrev() {
-    this.setState({offset: this.state.offset - IMAGES_PER_PAGE});
+    this.setState({imgIndex: this.state.imgIndex + IMAGES_PER_PAGE});
   }
 
   processFiltering() {
@@ -453,7 +449,7 @@ class MetaEditor extends Component {
   }
 
   closeEditor() {
-    this.setState({url: "", flickrImages: [], isOpen: false, loading: false, offset: 0});
+    this.setState({url: "", flickrImages: [], isOpen: false, loading: false, imgIndex: 0});
   }
 
   render() {
@@ -470,7 +466,7 @@ class MetaEditor extends Component {
       isOpen,
       loading,
       searching,
-      offset,
+      imgIndex,
       url
     } = this.state;
 
@@ -561,15 +557,16 @@ class MetaEditor extends Component {
                   <div>
                     <div className="cms-flickr-image-container">
                       {
-                        flickrImages.slice(offset, offset + IMAGES_PER_PAGE).map(image =>
+                        flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
                           <div key={image.id} onClick={this.save.bind(this, currentRow, null, image.id)}>
                             <img className="cms-flickr-image" width="320" src={image.source}/>
                           </div>
                         )
                       }
                     </div>
-                    {offset >= IMAGES_PER_PAGE && <button onClick={this.showPrev.bind(this)}>Previous</button>}
-                    {offset + IMAGES_PER_PAGE < flickrImages.length && <button onClick={this.showNext.bind(this)}>Next</button>}
+                    {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
+                      <button onClick={this.showNext.bind(this)}>Load more</button>
+                    }
                   </div>
                 }
               </React.Fragment>
