@@ -17,6 +17,11 @@
   /* push pager to bottom */
   & .cms-meta-table {
     justify-content: space-between;
+
+    /* center no data message */
+    & .rt-noData {
+      margin: auto;
+    }
   }
 
   & .rt-tbody {
