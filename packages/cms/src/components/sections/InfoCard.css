@@ -94,7 +94,7 @@
   }
   & .cp-stat:not(:last-child){
     padding-bottom: var(--gutter-md);
-    border-bottom:1px solid blue/* var(--infocard-header-bg-color); */;
+    border-bottom:1px solid var(--infocard-header-bg-color);
   }
 }
 
@@ -132,7 +132,7 @@
     & > .cp-info-card-paragraphs{
       width: 80%;
       padding-right: var(--gutter-sm);
-      border-right: 1px solid blue; /*var(--infocard-header-bg-color);*/
+      border-right: 1px solid var(--infocard-header-bg-color);
     }
     @media (max-width: 767px) {
 
@@ -225,6 +225,7 @@
 }
 .cp-info-card-section-subhead {
   @mixin font-xxs;
+  color: var(--infocard-header-bg-color);
 }
 
 .cp-info-card-section-header .cp-stat-label-text,
