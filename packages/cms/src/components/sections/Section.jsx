@@ -129,20 +129,7 @@ class Section extends Component {
     const selectors = contents.selectors || [];
 
     // heading & subhead(s)
-    const heading = <React.Fragment>
-      {title &&
-        <Parse El={headingLevel} id={ slug } className={`cp-section-heading ${layoutClass}-heading`}>
-          {title}
-        </Parse>
-      }
-      {!contents.sticky && subtitles.map((content, i) =>
-        <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
-          {content.subtitle}
-        </Parse>
-      )}
-    </React.Fragment>;
-
-      const mainTitle = <React.Fragment>
+    const mainTitle = <React.Fragment>
       {title &&
         <Parse El={headingLevel} id={ slug } className={`cp-section-heading ${layoutClass}-heading`}>
           {title}
@@ -151,11 +138,16 @@ class Section extends Component {
     </React.Fragment>;
 
     const subTitle = <React.Fragment>
-    {subtitles[0] && subtitles.map((content, i) =>
+    {!contents.sticky && subtitles.map((content, i) =>
       <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
         {content.subtitle}
       </Parse>
     )}
+    </React.Fragment>;
+
+    const heading = <React.Fragment>
+      {mainTitle}
+      {subTitle}
     </React.Fragment>;
 
     // filters
