@@ -126,12 +126,13 @@
   }
 
   /* theming */
-  & .rt-tbody .rt-tr.-even .rt-td  { background-color: color(var(--white) a(0.5)); }
-  & .rt-tbody { @mixin font-xxs; }
-  & .-btn { @mixin cms-button-style; }
-  & .-pageJump > input { @mixin cms-text-input-style; }
-  & .-pageJump > * { margin: 0 0.125em; }
-  & .-pagination { background-color: var(--light-1); }
+  & .rt-tbody .rt-tr.-even .rt-td { background-color: color(var(--white) a(0.5)); }
+  & .rt-tbody                     { @mixin font-xxs; }
+  & .-btn                         { @mixin cms-button-style; }
+  & .-pageJump > input            { @mixin cms-text-input-style; }
+  & .-pageJump > *                { margin: 0 0.125em; }
+  & .-pagination                  { background-color: var(--light-1); }
+  & .rt-td > .cms-button          { background: none; box-shadow: none; }
 
   @mixin dark-mode {
     background-color: var(--black);
@@ -150,13 +151,29 @@
 
     /* keep editable text visible */
     & [class*="editable-text-placeholder"] > [class*="editable-text-content"] {
-      color: var(--gray);
+      color: var(--dark-1);
     }
     & input[class*="editable"],
     & textarea[class*="editable"] {
       color: var(--black);
     }
     & .-pagination { background-color: var(--dark-3); }
+  }
+
+  /* make editable text look editable */
+  & [class*="editable"] {
+    font-weight: var(--bold-weight);
+
+    &:hover {
+      color: var(--accent-dark);
+
+      @mixin dark-mode {
+        color: var(--accent);
+      }
+    }
+  }
+  & [class*="editable-text-placeholder"] > [class*="editable-text-content"] {
+    font-weight: var(--base-font-weight);
   }
 }
 

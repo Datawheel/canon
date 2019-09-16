@@ -118,17 +118,20 @@ class MetaEditor extends Component {
         }
       }
     }
-    return <span className="cp-table-cell-inner">
-      <EditableText
-        key={`cell-${cell.original.contentId}`}
-        confirmOnEnterKey={true}
-        multiline={true}
-        onChange={this.changeCell.bind(this, cell, context, locale)}
-        value={cell.value}
-        intent={isBrokenJSON ? "danger" : "none"}
-        onConfirm={this.saveCell.bind(this, cell, context, locale)}
-      />
-    </span>;
+    return <EditableText
+      key={`cell-${cell.original.contentId}`}
+      confirmOnEnterKey={true}
+      multiline={true}
+      onChange={this.changeCell.bind(this, cell, context, locale)}
+      value={cell.value}
+      placeholder={`add ${
+        context === "attr" ? "hints"
+          : context === "meta" ? "description"
+            : context
+      }`}
+      intent={isBrokenJSON ? "danger" : "none"}
+      onConfirm={this.saveCell.bind(this, cell, context, locale)}
+    />;
   }
 
   saveCell(cell, context, locale) {
@@ -209,11 +212,11 @@ class MetaEditor extends Component {
     </button>;
   }
   renderCell(cell) {
-    return <span className="cp-table-cell-inner">{cell.value}</span>;
+    return cell.value;
   }
   columnWidths(key) {
-    if (key.includes("keywords") || key.includes("image")) return 110;
-    else if (key.includes("meta") || key.includes("attr")) return 160;
+    if (key.includes("keywords") || key.includes("meta") || key.includes("attr")) return 160;
+    else if (key.includes("zvalue") || key.includes("image") || key.includes("dimension") || key.includes("hierarchy")) return 120;
     else return 90;
   }
   renderColumn = col => Object.assign({}, {
@@ -263,27 +266,24 @@ class MetaEditor extends Component {
             const imgURL = `/api/image?dimension=${cell.original.dimension}&id=${cell.original.id}&type=thumb`;
             return cell.value
               // image wrapped inside a button
-              ? <button className="cp-table-cell-inner cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
+              ? <button className="cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
                 <img className="cp-table-cell-img" src={imgURL} alt="add image" />
               </button>
               // normal cell with a button
-              : <span className="cp-table-cell-inner">
-                <Button
-                  onClick={this.clickCell.bind(this, cell)}
-                  context="cms"
-                  fontSize="xxs"
-                  icon="plus"
-                  iconPosition="left"
-                  block
-                >
-                  add image
-                </Button>
-              </span>;
+              : <Button
+                onClick={this.clickCell.bind(this, cell)}
+                context="cms"
+                fontSize="xxs"
+                iconPosition="left"
+                block
+              >
+                add image
+              </Button>;
           }
         });
         displayColumns.push({
           id: `meta (${localeDefault})`,
-          Header: this.renderHeader(locale ? `meta (${localeDefault})` : "meta"),
+          Header: this.renderHeader(locale ? `${localeDefault} image description` : "image description"),
           minWidth: this.columnWidths("meta"),
           accessor: d => {
             const content = d.image ? d.image.content.find(c => c.locale === localeDefault) : null;
@@ -294,7 +294,7 @@ class MetaEditor extends Component {
         if (locale) {
           displayColumns.push({
             id: `meta (${locale})`,
-            Header: this.renderHeader(`meta (${locale})`),
+            Header: this.renderHeader(`${locale} image description`),
             minWidth: this.columnWidths("meta"),
             accessor: d => {
               const content = d.image ? d.image.content.find(c => c.locale === locale) : null;
@@ -312,7 +312,7 @@ class MetaEditor extends Component {
 
           columnGroup.push({
             id: `${prop} (${localeDefault})`,
-            Header: this.renderHeader(`${prop === "attr" ? "language hints" : prop}${locale ? ` (${localeDefault})` : ""}`),
+            Header: this.renderHeader(`${locale ? `${localeDefault} ` : ""}${prop === "attr" ? "language hints" : prop}`),
             minWidth: this.columnWidths(prop),
             accessor: d => {
               const content = d.content.find(c => c.locale === localeDefault);
@@ -323,7 +323,7 @@ class MetaEditor extends Component {
           if (locale) {
             columnGroup.push({
               id: `${prop} (${locale})`,
-              Header: this.renderHeader(`${prop === "attr" ? "language hints" : prop} (${locale})`),
+              Header: this.renderHeader(`${locale} ${prop === "attr" ? "language hints" : prop}`),
               minWidth: this.columnWidths(prop),
               accessor: d => {
                 const content = d.content.find(c => c.locale === locale);

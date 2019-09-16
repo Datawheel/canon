@@ -199,6 +199,7 @@ class Builder extends Component {
             className={`cms-nav-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
             onClick={this.toggleSettings.bind(this)}
             tabIndex={settingsOpen ? null : "-1"}
+            block
           />
         </div>
 
