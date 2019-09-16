@@ -536,6 +536,7 @@ class MetaEditor extends Component {
         </div>
 
         <Dialog
+          className={`cms-meta-popover${flickrImages.length > 0 ? " cms-gallery-popover" : ""}`}
           isOpen={isOpen}
           onClose={this.closeEditor.bind(this)}
           title="Choose Image URL"
@@ -554,16 +555,16 @@ class MetaEditor extends Component {
                 { searching
                   ? <Spinner size="30" className="cms-spinner"/>
                   : flickrImages.length > 0 &&
-                  <div>
-                    <div className="cms-flickr-image-container">
-                      {
-                        flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
-                          <div key={image.id} onClick={this.save.bind(this, currentRow, null, image.id)}>
-                            <img className="cms-flickr-image" width="320" src={image.source}/>
-                          </div>
-                        )
-                      }
-                    </div>
+                  <div className="cms-gallery-wrapper">
+                    <ul className="cms-gallery-list">
+                      {flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
+                        <li className="cms-gallery-item" key={image.id}>
+                          <button className="cms-gallery-button" onClick={this.save.bind(this, currentRow, null, image.id)}>
+                            <img className="cms-gallery-img" src={image.source} alt="add image" />
+                          </button>
+                        </li>
+                      )}
+                    </ul>
                     {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
                       <button onClick={this.showNext.bind(this)}>Load more</button>
                     }

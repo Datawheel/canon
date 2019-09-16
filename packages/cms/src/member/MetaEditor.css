@@ -168,17 +168,52 @@
   }
 }
 
-.cms-flickr-input {
-  width: 300px;
+/* searching for images */
+.cms-meta-popover {
+  will-change: width;
+  transition: width 0.1s ease-out;
+
+  /* override blueprint */
+  & [class*="-dialog-body"][class] {
+    padding-top: 0;
+    padding-bottom: var(--gutter-md);
+  }
 }
 
-.cms-flickr-image-container {
-  width: 1000px;
+.cms-gallery-popover {
+  width: calc(100vw - var(--gutter-md)) !important; /* override blueprint */
+}
+
+.cms-gallery-wrapper {
+  margin-top: var(--gutter-md);
+}
+
+/* display flickr images in a grid */
+.cms-gallery-list {
+  @mixin list-reset;
   display: flex;
   flex-wrap: wrap;
-}
+  margin: calc(0px - var(--gutter-sm));
 
-.cms-flickr-image {
-  width: 320px;
-  padding: 10px;
+  & .cms-gallery-item {
+    margin: var(--gutter-sm);
+    width: 100%;
+
+    /* more screen real estate, more columns */
+    @mixin min-xxs { width: calc((100%/2) - (var(--gutter-sm) * 2)); }
+    @mixin min-sm  { width: calc((100%/3) - (var(--gutter-sm) * 2)); }
+    @mixin min-md  { width: calc((100%/4) - (var(--gutter-sm) * 2)); }
+    @mixin min-xxl { width: calc((100%/6) - (var(--gutter-sm) * 2)); }
+  }
+
+  & .cms-gallery-button {
+    @mixin button-reset;
+    width: 100%;
+    padding: 66.666% 0 0 0;
+  }
+
+  & .cms-gallery-img {
+    @mixin absolute-expand;
+    object-fit: cover;
+  }
 }
