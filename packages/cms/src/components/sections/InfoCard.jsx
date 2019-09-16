@@ -23,7 +23,7 @@ export default class InfoCard extends Component {
         {/* header */}
         <header className="cp-info-card-section-header">
           <div className="cp-info-card-header">
-            <div className="cp-info-card-title">&#9702; {heading}</div>
+            <div className="cp-info-card-title"><span>&#9702;</span> {heading}</div>
             <div className="cp-info-card-filters">{filters}</div>
           </div>
           {stats}
