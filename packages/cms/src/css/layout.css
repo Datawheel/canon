@@ -9,11 +9,12 @@
   top: var(--nav-height);
   /* sizing */
   width: 100%;
-  height: var(--cms-nav-height);
+  min-height: var(--cms-nav-height);
   /* layout */
   padding-left: 0.5rem;
   padding-right: 1rem;
   display: flex;
+  flex-wrap: wrap;
   /* positioning */
   z-index: 3;
   /* theming */

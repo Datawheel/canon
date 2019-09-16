@@ -129,14 +129,16 @@ class Builder extends Component {
     return (
       <div className={`cms cms-${currentTab}-page`}>
         <div className="cms-nav">
-          {navLinks.map(navLink =>
-            <button
-              key={navLink}
-              className={`cms-nav-link u-font-xs${navLink === currentTab ? " is-active" : ""}`}
-              onClick={this.handleTabChange.bind(this, navLink)}>
-              {navLink}
-            </button>
-          )}
+          <div className="cms-nav-main">
+            {navLinks.map(navLink =>
+              <button
+                key={navLink}
+                className={`cms-nav-link u-font-xs${navLink === currentTab ? " is-active" : ""}`}
+                onClick={this.handleTabChange.bind(this, navLink)}>
+                {navLink}
+              </button>
+            )}
+          </div>
 
           <div className="cms-nav-settings-button-container">
             <Button
@@ -199,7 +201,6 @@ class Builder extends Component {
             className={`cms-nav-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
             onClick={this.toggleSettings.bind(this)}
             tabIndex={settingsOpen ? null : "-1"}
-            block
           />
         </div>
 
