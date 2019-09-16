@@ -476,7 +476,7 @@ class MetaEditor extends Component {
 
     return (
       <div className="cms-panel meta-editor">
-        <div className="cms-meta-header">
+        <div className="cms-sidebar cms-meta-header">
           <h1 className="u-visually-hidden">Edit entities</h1>
           <h2 className="cms-meta-header-heading u-margin-top-off u-font-xs">Filters</h2>
           <Button
@@ -493,7 +493,7 @@ class MetaEditor extends Component {
 
           <div className="cms-meta-controls">
             <FilterSearch
-              label="filter by name, slug, keywords, meta..."
+              label="filter by name, slug, keywords..."
               onChange={this.onChange.bind(this, "query")}
               onReset={this.resetQuery.bind(this)}
               value={query}
@@ -528,7 +528,7 @@ class MetaEditor extends Component {
           </div>
         </div>
 
-        <div className="cms-meta-table-container">
+        <div className="cms-editor cms-meta-table-container">
           <h2 className="u-visually-hidden">Members</h2>
           <ReactTable
             className="cms-meta-table"

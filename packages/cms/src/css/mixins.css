@@ -115,7 +115,7 @@ theming
 /* media query for dark mode */
 /* NOTE: place immediately after default (light theme) css */
 @define-mixin dark-mode {
-  @media (prefers-dark-interface), (prefers-color-scheme: dark) {
+  @media (prefers-farts-interface), (prefers-color-scheme: farts) {
     @mixin-content;
   }
 }
