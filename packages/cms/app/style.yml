@@ -202,11 +202,15 @@ select-bg-color:            "var(--light-1)"
 # visualizations
 viz-aspect-ratio:           "50%"  # set as padding-top on .cp-viz-container, then .cp-viz fills the height
 viz-min-height:             "40vh" # prevent visualizations from getting too squishy
+
 # percentage bar visualization
 percentage-bar-height:      "var(--gutter-xs)"
 percentage-bar-bg-color:    "var(--light-2)"
 percentage-bar-color:       "var(--accent-dark)"
 percentage-bar-radius:      "0.5em"
+percentage-bar-stroke-color: "var(--light-1)"
+percentage-bar-stroke-width: "2px"
+
 # (react-)table visualization
 table-height:               "60vh" # height of table body
 table-hgroup-bg-color:      "var(--light-2)" # top heading in a group of nested headings
