@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 import {Dialog, Icon, EditableText, Spinner} from "@blueprintjs/core";
 
 import Button from "../components/fields/Button";
+import TextButtonGroup from "../components/fields/TextButtonGroup";
 import FilterSearch from "../components/fields/FilterSearch";
 import Select from "../components/fields/Select";
 
@@ -546,12 +547,47 @@ class MetaEditor extends Component {
             {loading
               ? <Spinner size="30" className="cms-spinner"/>
               : <React.Fragment>
+
+                {/* paste in a URL */}
                 <h3>Manually enter Flickr Link</h3>
-                <input value={url} onChange={e => this.setState({url: e.target.value})}/>
-                <button onClick={this.save.bind(this, currentRow, url.replace("https://flic.kr/p/", ""), null)}>Save Manual Link</button>
+                <TextButtonGroup
+                  context="cms"
+                  inputProps={{
+                    label: "Flickr image direct link",
+                    value: url,
+                    onChange: e => this.setState({url: e.target.value}),
+                    context: "cms",
+                    labelHidden: true
+                  }}
+                  buttonProps={{
+                    onClick: this.save.bind(this, currentRow, url.replace("https://flic.kr/p/", ""), null),
+                    context: "cms",
+                    children: "update"
+                  }}
+                />
+
+                {currentRow.dimension && currentRow.id &&
+                  <img src={`/api/image?dimension=${currentRow.dimension}&id=${currentRow.id}&type=thumb`} alt="" />
+                }
+
+                {/* search images */}
                 <h3>Flickr Image Search</h3>
-                <input value={flickrQuery} onChange={e => this.setState({flickrQuery: e.target.value})} />
-                <button onClick={this.searchFlickr.bind(this)}>Search for Images</button>
+                <TextButtonGroup
+                  context="cms"
+                  inputProps={{
+                    label: "Flickr image search",
+                    value: flickrQuery,
+                    onChange: e => this.setState({flickrQuery: e.target.value}),
+                    context: "cms",
+                    labelHidden: true
+                  }}
+                  buttonProps={{
+                    onClick: this.searchFlickr.bind(this),
+                    context: "cms",
+                    children: "search"
+                  }}
+                />
+
                 { searching
                   ? <Spinner size="30" className="cms-spinner"/>
                   : flickrImages.length > 0 &&
@@ -566,7 +602,14 @@ class MetaEditor extends Component {
                       )}
                     </ul>
                     {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
-                      <button onClick={this.showNext.bind(this)}>Load more</button>
+                      <Button
+                        className="cms-gallery-more-button"
+                        onClick={this.showNext.bind(this)}
+                        context="cms"
+                        block
+                      >
+                        load more
+                      </Button>
                     }
                   </div>
                 }

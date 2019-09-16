@@ -206,14 +206,21 @@
     @mixin min-xxl { width: calc((100%/6) - (var(--gutter-sm) * 2)); }
   }
 
+  /* set height via padding-top */
   & .cms-gallery-button {
     @mixin button-reset;
     width: 100%;
     padding: 66.666% 0 0 0;
   }
 
+  /* images sized by .cms-gallery-item width & .cms-gallery-button padding-top */
   & .cms-gallery-img {
     @mixin absolute-expand;
     object-fit: cover;
+  }
+
+  /* space out from load more button */
+  &:not(:last-child) {
+    margin-bottom: var(--gutter-sm);
   }
 }
