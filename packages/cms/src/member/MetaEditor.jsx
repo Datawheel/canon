@@ -540,80 +540,81 @@ class MetaEditor extends Component {
           className={`cms-meta-popover${flickrImages.length > 0 ? " cms-gallery-popover" : ""}`}
           isOpen={isOpen}
           onClose={this.closeEditor.bind(this)}
-          title="Choose Image URL"
+          title="Image editor"
           usePortal={false}
         >
-          <div className="bp3-dialog-body">
-            {loading
+          <div className="cms-meta-popover-inner">
+            {/* paste in a URL */}
+            <h3>Manually enter Flickr Link</h3>
+            <TextButtonGroup
+              context="cms"
+              inputProps={{
+                label: "Flickr image direct link",
+                value: url,
+                onChange: e => this.setState({url: e.target.value}),
+                context: "cms",
+                labelHidden: true
+              }}
+              buttonProps={{
+                onClick: this.save.bind(this, currentRow, url.replace("https://flic.kr/p/", ""), null),
+                context: "cms",
+                children: "update"
+              }}
+            />
+
+            <div className="cms-meta-selected-img-wrapper">
+              {currentRow.dimension && currentRow.id &&
+                <img
+                  className="cms-meta-selected-img"
+                  src={`/api/image?dimension=${currentRow.dimension}&id=${currentRow.id}&type=thumb`}
+                  alt=""
+                  draggable="false"
+                />
+              }
+            </div>
+
+            {/* search images */}
+            <h3>Flickr Image Search</h3>
+            <TextButtonGroup
+              context="cms"
+              inputProps={{
+                label: "Flickr image search",
+                value: flickrQuery,
+                onChange: e => this.setState({flickrQuery: e.target.value}),
+                context: "cms",
+                labelHidden: true
+              }}
+              buttonProps={{
+                onClick: this.searchFlickr.bind(this),
+                context: "cms",
+                children: "search"
+              }}
+            />
+
+            { searching
               ? <Spinner size="30" className="cms-spinner"/>
-              : <React.Fragment>
-
-                {/* paste in a URL */}
-                <h3>Manually enter Flickr Link</h3>
-                <TextButtonGroup
-                  context="cms"
-                  inputProps={{
-                    label: "Flickr image direct link",
-                    value: url,
-                    onChange: e => this.setState({url: e.target.value}),
-                    context: "cms",
-                    labelHidden: true
-                  }}
-                  buttonProps={{
-                    onClick: this.save.bind(this, currentRow, url.replace("https://flic.kr/p/", ""), null),
-                    context: "cms",
-                    children: "update"
-                  }}
-                />
-
-                {currentRow.dimension && currentRow.id &&
-                  <img src={`/api/image?dimension=${currentRow.dimension}&id=${currentRow.id}&type=thumb`} alt="" />
+              : flickrImages.length > 0 &&
+              <div className="cms-gallery-wrapper">
+                <ul className="cms-gallery-list">
+                  {flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
+                    <li className="cms-gallery-item" key={image.id}>
+                      <button className="cms-gallery-button" onClick={this.save.bind(this, currentRow, null, image.id)}>
+                        <img className="cms-gallery-img" src={image.source} alt="add image" />
+                      </button>
+                    </li>
+                  )}
+                </ul>
+                {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
+                  <Button
+                    className="cms-gallery-more-button"
+                    onClick={this.showNext.bind(this)}
+                    context="cms"
+                    block
+                  >
+                    load more
+                  </Button>
                 }
-
-                {/* search images */}
-                <h3>Flickr Image Search</h3>
-                <TextButtonGroup
-                  context="cms"
-                  inputProps={{
-                    label: "Flickr image search",
-                    value: flickrQuery,
-                    onChange: e => this.setState({flickrQuery: e.target.value}),
-                    context: "cms",
-                    labelHidden: true
-                  }}
-                  buttonProps={{
-                    onClick: this.searchFlickr.bind(this),
-                    context: "cms",
-                    children: "search"
-                  }}
-                />
-
-                { searching
-                  ? <Spinner size="30" className="cms-spinner"/>
-                  : flickrImages.length > 0 &&
-                  <div className="cms-gallery-wrapper">
-                    <ul className="cms-gallery-list">
-                      {flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
-                        <li className="cms-gallery-item" key={image.id}>
-                          <button className="cms-gallery-button" onClick={this.save.bind(this, currentRow, null, image.id)}>
-                            <img className="cms-gallery-img" src={image.source} alt="add image" />
-                          </button>
-                        </li>
-                      )}
-                    </ul>
-                    {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
-                      <Button
-                        className="cms-gallery-more-button"
-                        onClick={this.showNext.bind(this)}
-                        context="cms"
-                        block
-                      >
-                        load more
-                      </Button>
-                    }
-                  </div>
-                }
-              </React.Fragment>
+              </div>
             }
           </div>
         </Dialog>

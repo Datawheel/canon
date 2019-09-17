@@ -176,21 +176,39 @@
   transition: width 0.1s ease-out;
 
   /* override blueprint */
-  & [class*="-dialog-body"][class] {
-    padding-top: 0;
-    padding-bottom: var(--gutter-md);
+  & .cms-meta-popover-inner {
+    padding: var(--gutter-md);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
   }
 }
 
-.cms-gallery-popover {
-  width: calc(100vw - var(--gutter-md)) !important; /* override blueprint */
-}
+/* selected image */
+.cms-meta-selected-img-wrapper {
+  width: 100%;
+  padding-top: 40%; /* set aspect ratio */
+  background-color: var(--light-2);
+  border: 1px solid var(--gray);
 
-.cms-gallery-wrapper {
-  margin-top: var(--gutter-md);
+  @mixin dark-mode {
+    background-color: color(var(--black) a(0.5));
+    border-color: var(--black);
+  }
+
+  /* sized by container */
+  & .cms-meta-selected-img {
+    @mixin absolute-expand;
+    object-fit: contain;
+  }
 }
 
 /* display flickr images in a grid */
+.cms-gallery-popover {
+  width: calc(100vw - var(--gutter-md)) !important; /* override blueprint */
+}
+.cms-gallery-wrapper {
+  margin-top: var(--gutter-md);
+}
 .cms-gallery-list {
   @mixin list-reset;
   display: flex;
