@@ -31,7 +31,7 @@ module.exports = function(app) {
   /* See below for legacy Datausa Route */
 
   app.get("/api/image", async(req, res) => {
-    const {slug, id, type} = req.query;
+    const {slug, id, type, t} = req.query;
     let {dimension} = req.query;
     const size = req.query.size || "splash";
     const locale = req.query.locale || envLoc;
@@ -62,7 +62,8 @@ module.exports = function(app) {
       const {imageId} = member;
       const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
       if (imageId && bucket && ["splash", "thumb"].includes(size)) {
-        const url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
+        let url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
+        if (t) url += `?t=${t}`;
         return request.get(url).pipe(res);
       }
       else {

@@ -40,7 +40,8 @@ class MetaEditor extends Component {
   }
 
   componentDidMount() {
-    this.hitDB.bind(this)();
+    const epoch = new Date().getTime();
+    this.setState({epoch}, this.hitDB.bind(this));
   }
 
   componentDidUpdate(prevProps) {
@@ -237,6 +238,7 @@ class MetaEditor extends Component {
    */
   prepData() {
     const {locale, localeDefault} = this.props;
+    const {epoch} = this.state;
     const data = this.fetchStringifiedSourceData.bind(this)();
     const skip = ["stem", "imageId", "contentId"];
     const keySort = ["id", "slug", "content", "zvalue", "dimension", "hierarchy", "image"];
@@ -264,7 +266,7 @@ class MetaEditor extends Component {
           minWidth: this.columnWidths("image"),
           accessor: d => d.image ? d.image.url : null,
           Cell: cell => {
-            const imgURL = `/api/image?dimension=${cell.original.dimension}&id=${cell.original.id}&type=thumb`;
+            const imgURL = `/api/image?dimension=${cell.original.dimension}&id=${cell.original.id}&type=thumb&t=${epoch}`;
             return cell.value
               // image wrapped inside a button
               ? <button className="cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
@@ -394,7 +396,8 @@ class MetaEditor extends Component {
           const url = "";
           const flickrImages = [];
           const imgIndex = 0;
-          this.setState({isOpen, sourceData, loading, url, flickrImages, imgIndex}, this.prepData.bind(this));
+          const epoch = new Date().getTime();
+          this.setState({isOpen, sourceData, loading, url, flickrImages, imgIndex, epoch}, this.prepData.bind(this));
           Toast.show({
             intent: "success",
             message: "Success!",
@@ -460,6 +463,7 @@ class MetaEditor extends Component {
       data,
       dimensions,
       query,
+      epoch,
       filterBy,
       filterKey,
       flickrQuery,
@@ -563,13 +567,14 @@ class MetaEditor extends Component {
             />
 
             <div className="cms-meta-selected-img-wrapper">
-              {currentRow.dimension && currentRow.id &&
-                <img
+              {currentRow.imageId && currentRow.dimension && currentRow.id 
+                ? <img
                   className="cms-meta-selected-img"
-                  src={`/api/image?dimension=${currentRow.dimension}&id=${currentRow.id}&type=thumb`}
+                  src={`/api/image?dimension=${currentRow.dimension}&id=${currentRow.id}&type=thumb&t=${epoch}`}
                   alt=""
                   draggable="false"
                 />
+                : <div>Please Choose or Search for an Image.</div>
               }
             </div>
 
