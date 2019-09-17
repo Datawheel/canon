@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 import {Dialog, Icon, EditableText, Spinner} from "@blueprintjs/core";
 
 import Button from "../components/fields/Button";
+import ButtonGroup from "../components/fields/ButtonGroup";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
 import FilterSearch from "../components/fields/FilterSearch";
 import Select from "../components/fields/Select";
@@ -26,6 +27,7 @@ class MetaEditor extends Component {
       query: "",
       columns: [],
       dimensions: [],
+      dialogMode: "direct",
       filterBy: "all",
       filterKey: "dimension",
       flickrQuery: "",
@@ -453,7 +455,7 @@ class MetaEditor extends Component {
   }
 
   closeEditor() {
-    this.setState({url: "", flickrImages: [], isOpen: false, loading: false, imgIndex: 0});
+    this.setState({url: "", flickrImages: [], isOpen: false, dialogMode: "direct", loading: false, imgIndex: 0});
   }
 
   render() {
@@ -461,6 +463,7 @@ class MetaEditor extends Component {
       columns,
       currentRow,
       data,
+      dialogMode,
       dimensions,
       query,
       epoch,
@@ -547,79 +550,132 @@ class MetaEditor extends Component {
           title="Image editor"
           usePortal={false}
         >
+
+          {/* tab between direct & search modes */}
+          <ButtonGroup className="cms-meta-popover-button-group" context="cms">
+            <Button
+              active={dialogMode === "direct"}
+              fontSize="xs"
+              context="cms"
+              icon="link"
+              iconPosition="left"
+              onClick={() => this.setState({dialogMode: "direct"})}
+            >
+              direct link
+            </Button>
+            <Button
+              active={dialogMode === "search"}
+              fontSize="xs"
+              context="cms"
+              icon="search"
+              iconPosition="left"
+              onClick={() => this.setState({dialogMode: "search"})}
+            >
+              search
+            </Button>
+          </ButtonGroup>
+
           <div className="cms-meta-popover-inner">
-            {/* paste in a URL */}
-            <h3>Manually enter Flickr Link</h3>
-            <TextButtonGroup
-              context="cms"
-              inputProps={{
-                label: "Flickr image direct link",
-                value: url,
-                onChange: e => this.setState({url: e.target.value}),
-                context: "cms",
-                labelHidden: true
-              }}
-              buttonProps={{
-                onClick: this.save.bind(this, currentRow, url.replace("https://flic.kr/p/", ""), null),
-                context: "cms",
-                children: "update"
-              }}
-            />
-
-            <div className="cms-meta-selected-img-wrapper">
-              {currentRow.imageId && currentRow.dimension && currentRow.id 
-                ? <img
-                  className="cms-meta-selected-img"
-                  src={`/api/image?dimension=${currentRow.dimension}&id=${currentRow.id}&type=thumb&t=${epoch}`}
-                  alt=""
-                  draggable="false"
-                />
-                : <div>Please Choose or Search for an Image.</div>
+            <h2 className="cms-meta-popover-heading u-font-md u-margin-top-off u-margin-bottom-xs">
+              {dialogMode === "direct"
+                ? currentRow.imageId ? "Current image" : "Flickr URL"
+                : "Search Flickr"
               }
-            </div>
+            </h2>
 
-            {/* search images */}
-            <h3>Flickr Image Search</h3>
-            <TextButtonGroup
-              context="cms"
-              inputProps={{
-                label: "Flickr image search",
-                value: flickrQuery,
-                onChange: e => this.setState({flickrQuery: e.target.value}),
-                context: "cms",
-                labelHidden: true
-              }}
-              buttonProps={{
-                onClick: this.searchFlickr.bind(this),
-                context: "cms",
-                children: "search"
-              }}
-            />
+            {dialogMode === "direct"
+              // paste in a URL
+              ? <React.Fragment>
+                <TextButtonGroup
+                  className="u-margin-bottom-md"
+                  context="cms"
+                  inputProps={{
+                    label: "Flickr direct link",
+                    placeholder: "https://flickr.com/url",
+                    value: url,
+                    onChange: e => this.setState({url: e.target.value}),
+                    context: "cms",
+                    labelHidden: true,
+                    autoFocus: true
+                  }}
+                  buttonProps={{
+                    onClick: this.save.bind(this, currentRow, url.replace("https://flic.kr/p/", ""), null),
+                    context: "cms",
+                    children: currentRow.imageId ? "update" : "submit"
+                  }}
+                />
 
-            { searching
-              ? <Spinner size="30" className="cms-spinner"/>
-              : flickrImages.length > 0 &&
-              <div className="cms-gallery-wrapper">
-                <ul className="cms-gallery-list">
-                  {flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
-                    <li className="cms-gallery-item" key={image.id}>
-                      <button className="cms-gallery-button" onClick={this.save.bind(this, currentRow, null, image.id)}>
-                        <img className="cms-gallery-img" src={image.source} alt="add image" />
-                      </button>
-                    </li>
-                  )}
-                </ul>
-                {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
-                  <Button
-                    className="cms-gallery-more-button"
-                    onClick={this.showNext.bind(this)}
-                    context="cms"
-                    block
-                  >
-                    load more
-                  </Button>
+                <div className="cms-meta-selected-img-wrapper">
+                  {currentRow.imageId && currentRow.dimension && currentRow.id
+                    ? <img
+                      className="cms-meta-selected-img"
+                      src={`/api/image?dimension=${currentRow.dimension}&id=${currentRow.id}&type=thumb&t=${epoch}`}
+                      alt=""
+                      draggable="false"
+                    />
+                    : <div className="cms-meta-selected-img-error">
+                      <p className="cms-meta-selected-img-error-text">
+                        No image associated with this profile.
+                        <Button
+                          className="u-margin-top-xs"
+                          onClick={() => this.setState({dialogMode: "search"})}
+                          context="cms"
+                          block
+                        >
+                          Search Flickr
+                        </Button>
+                      </p>
+                    </div>
+                  }
+                </div>
+              </React.Fragment>
+
+              // search Flickr
+              : <React.Fragment>
+                <TextButtonGroup
+                  context="cms"
+                  inputProps={{
+                    label: "Flickr image search",
+                    placeholder: "Search Flickr images",
+                    value: flickrQuery,
+                    onChange: e => this.setState({flickrQuery: e.target.value}),
+                    context: "cms",
+                    labelHidden: true,
+                    autoFocus: true
+                  }}
+                  buttonProps={{
+                    onClick: this.searchFlickr.bind(this),
+                    context: "cms",
+                    children: "search"
+                  }}
+                />
+
+                { searching
+                  ? <Spinner size="30" className="cms-spinner"/>
+                  : flickrImages.length > 0 &&
+                  <div className="cms-gallery-wrapper">
+                    <ul className="cms-gallery-list">
+                      {flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
+                        <li className="cms-gallery-item" key={image.id}>
+                          <button className="cms-gallery-button" onClick={this.save.bind(this, currentRow, null, image.id)}>
+                            <img className="cms-gallery-img" src={image.source} alt="add image" />
+                          </button>
+                        </li>
+                      )}
+                    </ul>
+                    {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
+                      <Button
+                        className="cms-gallery-more-button"
+                        onClick={this.showNext.bind(this)}
+                        context="cms"
+                        block
+                      >
+                        load more
+                      </Button>
+                    }
+                  </div>
                 }
-              </div>
+              </React.Fragment>
             }
           </div>
         </Dialog>
