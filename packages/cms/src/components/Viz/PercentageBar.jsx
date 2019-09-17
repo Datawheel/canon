@@ -81,7 +81,7 @@ class PercentageBar extends Component {
 
     return (
       <>
-      <div className={`percentage-bar-wrapper ${labelVal.includes("%") ? "is-percent" : ""}`}>
+      <div className={`percentage-bar-wrapper ${`${labelVal}`.includes("%") ? "is-percent" : ""}`}>
 
         <div className="precentage-bar-grid-holder">
           <svg className="percentage-bar-grid">
