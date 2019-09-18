@@ -4,9 +4,10 @@ import {withNamespaces, Trans} from "react-i18next";
 import "./Home.css";
 import {Button} from "@blueprintjs/core";
 import {Activate} from "../../src/";
+import {hot} from "react-hot-loader/root";
 // import Vizbuilder from "@datawheel/canon-vizbuilder";
 
-// import styles from "style.yml";
+import styles from "style.yml";
 
 // import yn from "yn";
 
@@ -16,7 +17,7 @@ class Home extends Component {
     const {t} = this.props;
     const count = 5, name = "Dave";
     // console.log("yn test", yn("true"));
-    // console.log(styles);
+    console.log(styles);
     // use the 't' function for simple keys and strings, and
     // the Interpolate component for strings with variable replace.
     return (
@@ -58,4 +59,4 @@ class Home extends Component {
   }
 }
 
-export default withNamespaces()(Home);
+export default withNamespaces()(hot(Home));

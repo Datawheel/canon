@@ -1,11 +1,10 @@
 module.exports = function(app) {
 
-  const {db} = app.settings;
+  const {cache} = app.settings;
 
-  app.get("/api/user", async(req, res) => {
+  app.get("/api/cache", async(req, res) => {
 
-    const u = await db.testTable.findAll({where: req.query});
-    res.json(u).end();
+    res.json(cache.const).end();
 
   });
 

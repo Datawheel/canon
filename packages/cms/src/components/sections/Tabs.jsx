@@ -98,7 +98,7 @@ export default class Tabs extends Component {
       </div>
 
       <div className="cp-tabs-section-figure">
-        <Viz section={this} config={visualization} key={tabIndex} slug={`${slug}_${tabIndex}`} headingLevel={vizHeadingLevel} />
+        <Viz section={this} config={visualization} key={tabIndex} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title}  />
         {tabSelectors.length > 0 && <div className="cp-section-selectors">
           {tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />)}
         </div>}

@@ -32,7 +32,7 @@ export default class DimensionBuilder extends Component {
   }
 
   render() {
-    const {meta, previews} = this.props;
+    const {meta, previews, takenSlugs} = this.props;
     const {isOpen} = this.state;
 
     return (
@@ -63,6 +63,7 @@ export default class DimensionBuilder extends Component {
 
           <div className="bp3-dialog-body">
             <DimensionCreator
+              takenSlugs={takenSlugs}
               cubeData={this.props.cubeData}
               onAddDimension={this.onAddDimension.bind(this)}
             />

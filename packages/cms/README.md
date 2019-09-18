@@ -1,9 +1,21 @@
-# Mortar (Canon CMS)
+# Canon CMS
 Content Management System for Canon sites.
+
+## Table of Contents
+* [Why?](#why)
+* [Setup and Installation](#setup-and-installation)
+* [Enabling Image Support](#enabling-image-support)
+* [Rendering a Profile](#rendering-a-profile)
+* [Overview and Terminology](#overview-and-terminology)
+* [Environment Variables](#environment-variables)
+* [Frequently Asked Questions](#frequently-asked-questions)
+* [Migration](#migration)
+
+---
 
 ## Why?
 
-Datawheel makes sites with lots of profiles, which requires lots of templating support. Content creators and translators need to be able to author and update page templates easily. Mortar allows users to:
+Datawheel makes sites with lots of profiles, which requires lots of templating support. Content creators and translators need to be able to author and update page templates easily. Canon CMS allows users to:
 
 - Hit an endpoint to receive a data payload
 - Turn that payload into variables using javascript
@@ -11,60 +23,21 @@ Datawheel makes sites with lots of profiles, which requires lots of templating s
 - Apply formatters that make the variables human-readable
 - Compile these sections into a page that handles drop-downs, visualizations, and other complexities without bothering DevOps
 
-
-## Contents
-* [Overview and Terminology](#overview-and-terminology)
-* [Setup and Installation](#setup-and-installation)
-* [Enabling Image Support](#enabling-image-support)
-* [Rendering a Profile](#rendering-a-profile)
-* [Environment Variables](#environment-variables)
-* [Frequently Asked Questions](#frequently-asked-questions)
-* [Migration](#migration)
-
 ---
-
-## Overview and Terminology
-
-A Canon site often takes the form of DataCountry.io, and is made of **Profiles**. Mortar provides a way of creating and updating these profiles. Here are a few terms:
-
-### CMS Elements
-
-- **Profile**: A "page" on DataCountry.io. This could be something like "Massachusetts" or "Metalworkers". These are linked to a **Dimension** in a Tesseract or Mondrian cube.
-
-- **Section**: A vertically stacked "unit" of a Profile page. As you scroll down a DataCountry profile, you will see **Sections** - individual blocks of prose and vizes - that represent some data (such as "Wage by Gender")
-
-- **Generator**: A CMS Entity which hits a provided API and stores the response in a variable called `resp`. Expects you to write javascript that returns an object full of key-value pairs. These KV pairs will be combined with other generators into a giant `variables` object that represents your lookup table for your mad-libs prose.
-
-- **Materializer**: Similar to a Generator, but with no API call. Materializers are guaranteed to be run *after* Generators, and in a strict order. Any materializer can make use of variables generated before it. Useful for datacalls that need to be combined, or for arbitrary variables (like CMS rules or about text)
-
-- **Formatter**: A formatter is a javascript function that will be applied to a variable. It receives one input, **n**, and returns a String. For example, take a javascript integer and add commas to make it a human-readable number.
-
-### Cube / Data Elements
-
-- **Cube**: A queryable data store. For the purposes of this README, think of it as a database you can make API requests to.
-
-- **Dimension**: Any given Profile in the CMS must be linked to one or more dimensions. Examples include "Geography," "University," or "CIP" (Industry). You could have a `geo` profile, which is linked to the "Geography" dimension, whose members are things like Massachusetts or New York.
-
---- 
 
 ## Setup and Installation
 
-`canon-cms` (Mortar) is a package for `canon`. These instructions assume you have installed the latest version of `canon`.
+Canon CMS is a package for `canon`. These instructions assume you have installed the latest version of `canon`.
 
 #### 1) Install the package using npm
 
-`npm i @datawheel/canon-core`
+`npm i @datawheel/canon-cms`
 
 #### 2) Configure `canon` vars 
 
 There are a number of [canon-core environment variables](https://github.com/Datawheel/canon#additional-environment-variables) that `canon-cms` relies on. Ensure that the the following env vars are set.
 
-By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the full list of [Environment Variables](#environment-variables) below.
-```sh
-export NODE_ENV=development
-```
-
-The CMS relies on `canon` needs, so be sure your `CANON_API` is set:
+Canon CMS relies on `canon` needs, so be sure your `CANON_API` is set:
 ```sh
 export CANON_API=http://localhost:3300
 ```
@@ -75,7 +48,7 @@ export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=pt,es,ru,et
 ```
 
-The CMS makes use of `canon`-level db credentials to store its content. Currently the CMS only supports Postgres.
+Canon CMS makes use of `canon`-level db credentials to store its content. Currently Canon CMS only supports Postgres.
 ```sh
 export CANON_DB_USER=dbuser
 export CANON_DB_NAME=dbname
@@ -84,14 +57,15 @@ export CANON_DB_HOST=dbhost
 
 #### 3) Configure `canon-cms` vars
 
-The CMS requires a `canon-cms` specific env var for the current location of your mondrian or tesseract installation.
+Canon CMS requires a `canon-cms` specific env var for the current location of your mondrian or tesseract installation.
 ```sh
 export CANON_CMS_CUBES=https://tesseract-url.com/
 ```
 
+By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_CMS_ENABLE` in [Environment Variables](#environment-variables) below.
+
 In total, your env vars should now look like this:
 ```sh
-export NODE_ENV=development
 export CANON_API=http://localhost:3300
 export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=pt,es,ru,et
@@ -123,7 +97,7 @@ npm run dev
 
 ## Enabling Image Support
 
-Mortar includes the ability to assign each member of a cube (Such as *Massachusetts*, or *Metalworkers*) an acceptably licensed photo from flickr. In order to enable this, a series of steps must be taken to configure both the flickr authentication and the Google Cloud Storage for image hosting.  Contact the Admin who is in charge of this project's Google Cloud Project, or get permissions to do the following:
+Canon CMS includes the ability to assign each member of a cube (Such as *Massachusetts*, or *Metalworkers*) an acceptably licensed photo from flickr. In order to enable this, a series of steps must be taken to configure both the flickr authentication and the Google Cloud Storage for image hosting.  Contact the Admin who is in charge of this project's Google Cloud Project, or get permissions to do the following:
 
 #### 1) Create a bucket
 
@@ -154,7 +128,7 @@ export FLICKR_API_KEY=your_api_key
 
 #### 4) Set Image Sizes (optional)
 
-By default, mortar will resize your splash and thumb images to a width of 1400 and 200, respectively. To override these sizes you may set the following env vars:
+By default, Canon CMS will resize your splash and thumb images to a width of 1400 and 200, respectively. To override these sizes you may set the following env vars:
 
 ```sh
 export CANON_CONST_IMAGE_SPLASH_SIZE=1400
@@ -165,7 +139,7 @@ export CANON_CONST_IMAGE_THUMB_SIZE=200
 
 Every member for every profile is listed under the Members tab. Click "+ Add Image" in one of the rows and follow the intructions to upload an image via a flickr share link.
 
----
+--- 
 
 ## Rendering a Profile
 
@@ -176,6 +150,30 @@ import {Profile} from "@datawheel/canon-cms";
 ...
 <Route path="/profile/:pslug/:pid" component={Profile} />
 ```
+
+---
+
+## Overview and Terminology
+
+A Canon site often takes the form of DataCountry.io, and is made of **Profiles**. Canon CMS provides a way of creating and updating these profiles. Here are a few terms:
+
+### CMS Elements
+
+- **Profile**: A "page" on DataCountry.io. This could be something like "Massachusetts" or "Metalworkers". These are linked to a **Dimension** in a Tesseract or Mondrian cube.
+
+- **Section**: A vertically stacked "unit" of a Profile page. As you scroll down a DataCountry profile, you will see **Sections** - individual blocks of prose and vizes - that represent some data (such as "Wage by Gender")
+
+- **Generator**: A CMS Entity which hits a provided API and stores the response in a variable called `resp`. Expects you to write javascript that returns an object full of key-value pairs. These KV pairs will be combined with other generators into a giant `variables` object that represents your lookup table for your mad-libs prose.
+
+- **Materializer**: Similar to a Generator, but with no API call. Materializers are guaranteed to be run *after* Generators, and in a strict order. Any materializer can make use of variables generated before it. Useful for datacalls that need to be combined, or for arbitrary variables (like CMS rules or about text)
+
+- **Formatter**: A formatter is a javascript function that will be applied to a variable. It receives one input, **n**, and returns a String. For example, take a javascript integer and add commas to make it a human-readable number.
+
+### Cube / Data Elements
+
+- **Cube**: A queryable data store. For the purposes of this README, think of it as a database you can make API requests to.
+
+- **Dimension**: Any given Profile in the CMS must be linked to one or more dimensions. Examples include "Geography," "University," or "CIP" (Industry). You could have a `geo` profile, which is linked to the "Geography" dimension, whose members are things like Massachusetts or New York.
 
 ---
 
@@ -249,6 +247,7 @@ For upgrading to new versions, there are currently three migration scripts:
 1) `npx canon-cms-migrate-legacy` (for DataUSA)
 2) `npx canon-cms-migrate-0.1` (for CDC or other 0.1 CMS users)
 3) `npx canon-cms-migrate-0.6` (for 0.6 CMS users)
+4) `npx canon-cms-migrate-0.7` (for 0.7 CMS users)
 
 ### Instructions
 
