@@ -209,6 +209,8 @@ class ProfileBuilder extends Component {
       if (section.status === 200) {
         obj.id = `section${section.data.id}`;
         obj.data = section.data;
+        obj.icon = sectionIconLookup(section.data.type, section.data.sticky);
+        obj.className = `${toKebabCase(section.data.type)}-node`;
         const defCon = section.data.content.find(c => c.locale === localeDefault);
         const title = defCon && defCon.title ? defCon.title : section.slug;
         obj.label = this.formatLabel.bind(this)(title);
