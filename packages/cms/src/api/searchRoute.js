@@ -162,6 +162,8 @@ module.exports = function(app) {
 
     if (id) {
       where.id = id.includes(",") ? id.split(",") : id;
+      if (dimension) where.dimension = dimension;
+      if (levels) where.hierarchy = levels.split(",");
       rows = await db.search.findAll({
         where,
         include: [{model: db.image}, {association: "content"}]
