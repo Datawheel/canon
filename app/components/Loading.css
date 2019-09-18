@@ -1,5 +1,5 @@
 .loading {
-  background-color: var(--dark, rgb(61, 71, 55));
+  background-color: var(--dark);
   color: var(--white);
   height: 100vh;
   left: 0;

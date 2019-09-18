@@ -329,7 +329,7 @@ module.exports = function(app) {
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
     // Replace that slug with the actual real id from the search table. 
     for (let i = 0; i < dims.length; i++) {
-      const dim = dims[0];
+      const dim = dims[i];
       const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
       if (attribute && attribute.id) dim.id = attribute.id;
     }

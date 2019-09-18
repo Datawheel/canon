@@ -40,7 +40,8 @@ class PercentageBar extends Component {
         if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
         this.setState({config});
       });
-    } else {
+    }
+    else {
       config.data = dataFormat(config.data);
       if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
       this.setState({config});
@@ -63,16 +64,16 @@ class PercentageBar extends Component {
 
     // Create ticks and labels
     let labelVal, xPos;
-    let lines = [];
-    let ticks = [];
-    let obj = {};
+    const lines = [];
+    const ticks = [];
+    const obj = {};
     for (let i = 0; i <= 10; i++) {
       // ensure first line isn't cropped left
-      xPos = i === 0 ? '0.1%' : i*10 + '%';
+      xPos = i === 0 ? "0.1%" : `${i * 10  }%`;
 
       // generate arguments for numberFormat
-      obj['tickValue'] = (total*(i*0.1)).toFixed(2);
-      labelVal = numberFormat(obj, 'tickValue', total);
+      obj.tickValue = (total * (i * 0.1)).toFixed(2);
+      labelVal = numberFormat(obj, "tickValue", total);
 
       lines.push(<line key={i} x1={xPos} x2={xPos} y1="0" y2="100%"/>);
       ticks.push(<text key={i} x={xPos} y="100%">{labelVal}</text>);
@@ -80,14 +81,14 @@ class PercentageBar extends Component {
 
     return (
       <>
-      <div className={`percentage-bar-wrapper ${labelVal.includes('%') ? 'is-percent' : ''}`}>
+      <div className={`percentage-bar-wrapper ${`${labelVal}`.includes("%") ? "is-percent" : ""}`}>
 
         <div className="precentage-bar-grid-holder">
           <svg className="percentage-bar-grid">
             <defs>
-                <clipPath id="percentage-bar-clip">
-                    <rect x="0" y="0" width="100%" height={showAll ? "99%" : "88%"} />
-                </clipPath>
+              <clipPath id="percentage-bar-clip">
+                <rect x="0" y="0" width="100%" height={showAll ? "99%" : "88%"} />
+              </clipPath>
             </defs>
             <g className="percentage-bar-ticks">
               {lines}
@@ -103,27 +104,27 @@ class PercentageBar extends Component {
             const percent = d[value] / total * 100;
             const label = d[groupBy];
             return (
-                <li key={`percentage-bar-${i}`} className="percentage-bar-item">
-                  <span className="percentage-bar-label label u-font-xs">
-                    {label}
-                  </span>
+              <li key={`percentage-bar-${i}`} className="percentage-bar-item">
+                <span className="percentage-bar-label label u-font-xs">
+                  {label}
+                </span>
 
-                  <span className="percentage-bar-value display u-font-md">
-                    {numberFormat(d, value, total)}
-                  </span>
+                <span className="percentage-bar-value display u-font-md">
+                  {numberFormat(d, value, total)}
+                </span>
 
-                  <span className="u-visually-hidden">: </span>
-                  {!isNaN(percent) &&
+                <span className="u-visually-hidden">: </span>
+                {!isNaN(percent) &&
                     <span className="percentage-bar-bg">
                       <span className="percentage-bar" style={{width: `${percent}%`}} />
                     </span>
-                  }
+                }
 
-                </li>
+              </li>
             );
           })}
         </ul>
-        </div>
+      </div>
         <div className="show-more">
           {!showAll && cutoffText &&
             <div className="cutoff-text" dangerouslySetInnerHTML={{__html: cutoffText}}></div>

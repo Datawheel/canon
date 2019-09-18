@@ -4,7 +4,7 @@ import "./Default.css";
 
 export default class Default extends Component {
   render() {
-    const {slug, heading, paragraphs, loading, filters, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, heading, title, paragraphs, loading, filters, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -23,7 +23,7 @@ export default class Default extends Component {
         {/* caption */}
         <div className={`cp-default-section-figure${visualizations.length > 1 ? " cp-multicolumn-default-section-figure" : ""}`}>
           {visualizations.map((visualization, ii) =>
-            <Viz section={this} config={visualization} headingLevel={vizHeadingLevel} slug={`${slug}-${ii}`} key={ii} />
+            <Viz section={this} config={visualization} headingLevel={vizHeadingLevel} sectionTitle={title} slug={slug} key={ii} />
           )}
         </div>
       </div>

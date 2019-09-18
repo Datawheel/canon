@@ -83,7 +83,7 @@ export default class DimensionCard extends Component {
 
         <DefinitionList definitions={[
           {label: "slug", text: meta.slug},
-          {label: "levels", text: Array.join(meta.levels, ", ")},
+          {label: "levels", text: meta.levels.join(", ")},
           {label: "measure", text: meta.measure},
           {label: "preview ID", text:
             <PreviewSearch

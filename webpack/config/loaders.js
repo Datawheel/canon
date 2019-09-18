@@ -1,14 +1,16 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin"),
       appDir = process.cwd(),
-      path = require("path"),
-      postCSS = require("./postcss");
+      path = require("path");
+
+const postCSSPath = require.resolve("./postcss");
+delete require.cache[postCSSPath];
+const postCSS = require(postCSSPath);
 
 const cssLoaders = [
   {
     loader: "css-loader",
     options: {
-      minimize: process.env.NODE_ENV === "production",
-      root: process.env.CANON_BASE_URL || false,
+      modules: "global",
       sourceMap: process.env.NODE_ENV === "development"
     }
   },

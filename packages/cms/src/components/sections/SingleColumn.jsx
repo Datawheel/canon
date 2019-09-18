@@ -23,7 +23,7 @@ export default class SingleColumn extends Component {
           {paragraphs}
           {sources}
           {visualizations.map((visualization, ii) =>
-            <Viz section={this} config={visualization} slug={`${slug}-${ii}`} headingLevel={vizHeadingLevel} key={`${slug}-${ii}`} />
+            <Viz section={this} config={visualization} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title} key={`${slug}-${ii}`} />
           )}
         </div>
       </div>

@@ -1,5 +1,3 @@
-@import "../variables";
-
 .topic-title {
   color: var(--topic-title-color);
   font-family: var(--topic-title-family);

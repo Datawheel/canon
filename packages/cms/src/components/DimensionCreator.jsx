@@ -1,6 +1,5 @@
 import React, {Component} from "react";
-import {MenuItem} from "@blueprintjs/core";
-import {MultiSelect} from "@blueprintjs/select";
+import PropTypes from "prop-types";
 import Button from "./fields/Button";
 import Select from "./fields/Select";
 import TextInput from "./fields/TextInput";
@@ -71,7 +70,19 @@ class DimensionCreator extends Component {
 
   createProfile() {
     const {profileData} = this.state;
-    if (this.props.onAddDimension) this.props.onAddDimension(profileData);
+    const {takenSlugs} = this.props;
+    const Toast = this.context.toast.current;
+    if (takenSlugs.includes(profileData.slug)) {
+      Toast.show({
+        intent: "danger",
+        message: "Slug already taken. Please choose a different slug.",
+        timeout: 2000
+      });
+    }
+    else {
+      if (this.props.onAddDimension) this.props.onAddDimension(profileData);  
+    }
+    
   }
 
   render() {
@@ -149,5 +160,9 @@ class DimensionCreator extends Component {
     );
   }
 }
+
+DimensionCreator.contextTypes = {
+  toast: PropTypes.object
+};
 
 export default DimensionCreator;

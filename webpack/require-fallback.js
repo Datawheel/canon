@@ -11,6 +11,7 @@ module.exports = file => {
 
   try {
     require.resolve(fullPath);
+    delete require.cache[fullPath];
     const contents = fs.readFileSync(fullPath, "utf8");
     if (process.env.NODE_ENV === "development") shell.echo(`${file} loaded from .app/ directory`);
     return yaml.safeLoad(contents, {json: true});

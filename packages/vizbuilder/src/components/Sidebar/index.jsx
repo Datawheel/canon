@@ -208,10 +208,10 @@ class Sidebar extends PureComponent {
   setDataset(evt) {
     const cubeName = evt.target.value;
     const {options, query} = this.props;
-    const tableId = query.measure.annotations._cb_table_id;
+    const tableId = query.measure.annotations._vb_cbTableId;
     const key = `${tableId}.${query.measure.name}`;
     const measureList = options.measureMap[key];
-    const measure = measureList.find(item => item.annotations._cb_name == cubeName);
+    const measure = measureList.find(item => item.annotations._vb_cbName == cubeName);
     return this.setMeasure(measure, false);
   }
 
