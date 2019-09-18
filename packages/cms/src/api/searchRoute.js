@@ -167,11 +167,13 @@ module.exports = function(app) {
         include: [{model: db.image}, {association: "content"}]
       });
     } 
-    else if (q) {
-      where[sequelize.Op.or] = [
-        {name: {[sequelize.Op.iLike]: `%${q}%`}},
-        {keywords: {[sequelize.Op.overlap]: [q]}}
-      ];
+    else {
+      if (q) {
+        where[sequelize.Op.or] = [
+          {name: {[sequelize.Op.iLike]: `%${q}%`}},
+          {keywords: {[sequelize.Op.overlap]: [q]}}
+        ];
+      }
       where.locale = locale;
       rows = await db.search_content.findAll({where}).catch(catcher);
       const searchWhere = {

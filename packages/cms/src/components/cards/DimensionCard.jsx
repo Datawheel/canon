@@ -16,9 +16,6 @@ export default class DimensionCard extends Component {
     };
   }
 
-  componentDidMount() {
-  }
-
   onSelectPreview(result) {
     // todo bivariate - should this slug come from preview or meta? once the user
     // is able to change slug, one of these will have to become the source of truth
