@@ -33,7 +33,6 @@ export default class InfoCard extends Component {
         <div className="cp-info-card-section-main">
           <div className="cp-section-content cp-info-card-section-content">
             <div className="cp-info-card-paragraphs">
-              {subTitle}
               {paragraphs}
             </div>
             <div className="cp-info-card-secondary-stats">
@@ -49,8 +48,9 @@ export default class InfoCard extends Component {
               )}
             </div> : ""
           }
+          {sources}
         </div>
-        <div className="cp-info-card-section-sources">{sources}</div>
+        <div className="cp-info-card-subtitle">{subTitle}</div>
       </div>
     );
   }
