@@ -2,8 +2,6 @@ import {Button, Classes, Icon, Menu, Text} from "@blueprintjs/core";
 import classNames from "classnames";
 import React from "react";
 
-import "./CategoryListRenderer.css";
-
 class CategoryListRenderer extends React.Component {
   constructor(props) {
     super(props);

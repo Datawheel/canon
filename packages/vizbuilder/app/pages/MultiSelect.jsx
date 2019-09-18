@@ -4,7 +4,7 @@ import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 
 import {defaultProps} from "../../src";
-import UpdatedMemberSelect from "../../src/components/Sidebar/MemberSelect";
+import UpdatedMemberSelect from "../../src/components/MemberSelect";
 import {resetClient} from "../../src/helpers/api";
 import {fetchCubes, fetchMembers} from "../../src/helpers/fetch";
 import initialStateFactory from "../../src/state";

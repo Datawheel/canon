@@ -2,9 +2,9 @@ import {Button, NumericInput} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import React from "react";
 
-import {composePropertyName} from "../../helpers/formatting";
-import OPERATORS, {KIND_NUMBER as NUMBER_OPERATORS, LABELS as OPERATOR_LABELS} from "../../helpers/operators";
-import Filter from "../../helpers/Filter";
+import {composePropertyName} from "../helpers/formatting";
+import OPERATORS, {KIND_NUMBER as NUMBER_OPERATORS, LABELS as OPERATOR_LABELS} from "../helpers/operators";
+import Filter from "../helpers/Filter";
 
 import FilterMeasureSelect from "./CubeMeasureSelect";
 import SidebarCRUDItem from "./SidebarCRUDItem";

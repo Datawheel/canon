@@ -3,10 +3,8 @@ import classNames from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
 
-import createChartConfig from "../../helpers/chartConfig";
+import createChartConfig from "../helpers/chartConfig";
 import ChartCard from "./ChartCard";
-
-import "./style.css";
 
 class ChartArea extends React.Component {
   constructor(props) {

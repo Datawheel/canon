@@ -2,14 +2,14 @@ import {Button} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import React from "react";
 
-import {fetchMembers} from "../../helpers/fetch";
-import {composePropertyName} from "../../helpers/formatting";
+import {fetchMembers} from "../helpers/fetch";
+import {composePropertyName} from "../helpers/formatting";
 
 import LevelSelect from "./LevelSelect";
 import MemberSelect from "./MemberSelect";
 import SidebarCRUDItem from "./SidebarCRUDItem";
 
-import Grouping from "../../helpers/Grouping";
+import Grouping from "../helpers/Grouping";
 
 /**
  * @augments SidebarCRUDItem

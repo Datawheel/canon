@@ -3,16 +3,15 @@ import classnames from "classnames";
 import PropTypes from "prop-types";
 import React, {PureComponent} from "react";
 
-import "./style.css";
 
 import {
   generateBaseState,
   replaceKeysInString,
   replaceLevelsInGroupings,
   replaceMeasureInFilters
-} from "../../helpers/query";
-import {getGeoLevel, userTableIdMeasure} from "../../helpers/sorting";
-import {isValidMeasure} from "../../helpers/validation";
+} from "../helpers/query";
+import {getGeoLevel, userTableIdMeasure} from "../helpers/sorting";
+import {isValidMeasure} from "../helpers/validation";
 
 import MeasureSelect from "./AllMeasureSelect";
 import ConditionalAnchor from "./ConditionalAnchor";

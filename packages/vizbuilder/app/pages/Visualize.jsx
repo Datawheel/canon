@@ -1,6 +1,6 @@
 import React, {PropTypes} from "react";
 
-import Vizbuilder from "../../index";
+import {Vizbuilder} from "../../src/index";
 import {
   DEFAULT_CONFIG,
   DEFAULT_PERMAKEYS,

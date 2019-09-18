@@ -416,16 +416,16 @@ export function sortByCustomKey(key, members) {
  * Generates a 2-object combination from a list of objects.
  * @param {any[]} set An array of objects to get the combo.
  */
-export function* getCombinationsChoose2(set) {
-  const n = set.length;
-  if (n > 0) {
-    const first = set[0];
-    for (let i = 1; i < n; i++) {
-      yield [first, set[i]];
-    }
-    yield* getCombinationsChoose2(set.slice(1));
-  }
-}
+// export function* getCombinationsChoose2(set) {
+//   const n = set.length;
+//   if (n > 0) {
+//     const first = set[0];
+//     for (let i = 1; i < n; i++) {
+//       yield [first, set[i]];
+//     }
+//     yield* getCombinationsChoose2(set.slice(1));
+//   }
+// }
 
 export function getPermutations(set) {
   let result = [];

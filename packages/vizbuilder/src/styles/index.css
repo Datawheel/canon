@@ -1,3 +1,8 @@
+@import "./CategoryListRenderer.css";
+@import "./ChartArea.css";
+@import "./Sidebar.css";
+@import "./VirtualListRenderer.css";
+
 .vizbuilder {
   height: 100vh;
   display: flex;

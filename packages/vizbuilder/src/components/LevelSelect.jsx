@@ -4,7 +4,7 @@ import classNames from "classnames";
 import memoizeOne from "memoize-one";
 import React from "react";
 
-import {composePropertyName} from "../../helpers/formatting";
+import {composePropertyName} from "../helpers/formatting";
 import CategoryListRenderer from "./CategoryListRenderer";
 
 class UpdatedLevelSelect extends React.Component {

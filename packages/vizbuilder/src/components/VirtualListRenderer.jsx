@@ -3,7 +3,6 @@ import classnames from "classnames";
 import React from "react";
 import WindowedList from "react-windowed-list";
 
-import "./VirtualListRenderer.css";
 
 class VirtualListRenderer extends React.Component {
   render() {

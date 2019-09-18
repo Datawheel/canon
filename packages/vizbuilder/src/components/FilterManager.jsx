@@ -2,7 +2,7 @@ import React from "react";
 import classNames from "classnames";
 import {Button} from "@blueprintjs/core";
 
-import Filter from "../../helpers/Filter";
+import Filter from "../helpers/Filter";
 import FilterItem from "./FilterItem";
 import SidebarCRUDManager from "./SidebarCRUDManager";
 

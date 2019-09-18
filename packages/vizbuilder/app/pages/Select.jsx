@@ -1,6 +1,6 @@
 import React from "react";
 import {Client} from "mondrian-rest-client";
-import UpdatedMeasureSelect from "../../src/components/Sidebar/AllMeasureSelect";
+import UpdatedMeasureSelect from "../../src/components/AllMeasureSelect";
 import {injectCubeInfoOnMeasure, fetchCubes} from "../../src/helpers/fetch";
 
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";

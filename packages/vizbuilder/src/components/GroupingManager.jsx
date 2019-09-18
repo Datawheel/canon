@@ -4,14 +4,14 @@ import React from "react";
 
 import SidebarCRUDManager from "./SidebarCRUDManager";
 
-import Grouping from "../../helpers/Grouping";
+import Grouping from "../helpers/Grouping";
 import GroupingItem from "./GroupingItem";
 import {
   IncompleteParameter,
   NoMoreOptions,
   DimensionInUse
-} from "../../helpers/errors";
-import {getGeoLevel} from "../../helpers/sorting";
+} from "../helpers/errors";
+import {getGeoLevel} from "../helpers/sorting";
 
 class GroupingManager extends SidebarCRUDManager {
   constructor(props) {

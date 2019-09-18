@@ -1,4 +1,4 @@
-import {vbStateReducer} from "../../index";
+import {vbStateReducer} from "../../src";
 
 /**
   The object exported by this file should contain reducers to be
