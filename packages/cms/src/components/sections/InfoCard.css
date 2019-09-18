@@ -185,7 +185,7 @@
   margin-bottom: var(--gutter-xs);
 }
 .cp-info-card-section-paragraph strong {
-  @mixin font-xs;
+  @mixin font-sm;
   color: var(--infocard-subhead-color);
 }
 
