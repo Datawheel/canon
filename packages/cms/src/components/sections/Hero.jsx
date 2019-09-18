@@ -23,13 +23,44 @@ class Hero extends Component {
       contents: props.contents,
       loading: false,
       selectors: {},
-      sources: []
+      sources: [],
+      images: []
     };
+  }
+
+  componentDidMount() {
+    const {profile} = this.props;
+    const {dims} = profile;
+
+    /** Image Metadata 
+     * A profile is a set of one more slug/id pairs. In multi-variate profiles, these pairs are strictly 
+     * ordered, for example, /geo/mass/export/coal/import/cars. Each of these slug/id pairs may or may not 
+     * have image data associated with it, which makes up the backdrop of the Hero Section. If it does have 
+     * an image, then it also will have metadata. The `images` array that I create is a strictly ordered 
+     * array of image links and their data. This means, in the example above, if /export/coal is the only 
+     * one of the three that have an image, then this image array will be [null, {imageData}, null]. 
+     */
+
+    const images = [];
+    for (let i = 0; i < dims.length; i++) {
+      if (profile.images[i]) {
+        images.push({
+          src: `/api/image?slug=${dims[i].slug}&id=${dims[i].id}&type=splash`,
+          author: profile.images[i].author,
+          meta: profile.images[i].meta,
+          permalink: profile.images[i].url
+        });
+      }
+      else images.push(null);
+    }
+
+    this.setState({images});
   }
 
   render() {
     const {contents, loading, sources, profile} = this.props;
-
+    // const {images} = this.state;
+    
     // no hero section; just grab the profile title & subtitle
     let title = profile.title;
     let subtitleContent = <Parse El="p" className="cp-hero-subtitle">{profile.subtitle}</Parse>;

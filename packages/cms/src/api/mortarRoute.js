@@ -442,7 +442,18 @@ module.exports = function(app) {
       returnObject = Object.assign({}, returnObject, profile);
     }
     returnObject.ids = dims.map(d => d.id).join();
+    returnObject.dims = dims;
     returnObject.variables = variables;
+    // The provided ids may have images associated with them, and these images have metadata. Before we send
+    // The object, we need to make a request to our /api/image endpoint to get any relevant image data.
+    // Note! Images are strictly ordered to match your strictly ordered slug/id pairs 
+    const images = [];
+    for (const dim of dims) {
+      const url = `${origin}/api/image?slug=${dim.slug}&id=${dim.id}&locale=${locale}&type=json`;
+      const image = await axios.get(url).then(d => d.data).catch(catcher);
+      images.push(image ? image.image : null);
+    }
+    returnObject.images = images;
     if (verbose) console.log("varSwap complete, sending json...");
     return res.json(returnObject);
   };
