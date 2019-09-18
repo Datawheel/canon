@@ -69,14 +69,10 @@ class Profile extends Component {
     const {profile, loading} = this.state;
 
     let {sections} = profile;
-    let heroSection;
-    // split out hero from sections array
-    if (sections.filter(l => l.type === "Hero").length) {
-      // there are somehow multiple hero sections; grab the first one only
-      heroSection = sections.filter(l => l.type === "Hero")[0];
-      // filter out Hero from sections
-      sections = sections.filter(l => l.type !== "Hero");
-    }
+    // Find the first instance of a Hero section (excludes all following instances)
+    const heroSection = sections.find(l => l.type === "Hero");
+    // Remove all non-heroes from sections.
+    if (heroSection) sections = sections.filter(l => l.type !== "Hero");
 
     // rename old section names
     sections.forEach(l => {

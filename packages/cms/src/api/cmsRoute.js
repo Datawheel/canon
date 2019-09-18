@@ -520,7 +520,7 @@ module.exports = function(app) {
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
     const profile = await db.profile.create(req.body).catch(catcher);
     await db.profile_content.create({id: profile.id, locale: envLoc}).catch(catcher);
-    const section = await db.section.create({ordering: 0, profile_id: profile.id});
+    const section = await db.section.create({ordering: 0, type: "Hero", profile_id: profile.id});
     await db.section_content.create({id: section.id, locale: envLoc}).catch(catcher);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
