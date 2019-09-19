@@ -320,7 +320,9 @@ class ProfileBuilder extends Component {
         resps.forEach((resp, i) => {
           previews.push({
             slug: node.masterMeta[i].slug,
-            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
+            name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
+            memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
           });
         });
         pathObj.previews = previews.map(d => d.id).join();
@@ -424,7 +426,9 @@ class ProfileBuilder extends Component {
         resps.forEach((resp, i) => {
           previews.push({
             slug: masterMeta[i].slug,
-            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
+            name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
+            memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
           });
         });
         this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
@@ -447,7 +451,9 @@ class ProfileBuilder extends Component {
       resps.forEach((resp, i) => {
         previews.push({
           slug: masterMeta[i].slug,
-          id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+          id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
+          name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
+          memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
         });
       });
       this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
@@ -469,14 +475,8 @@ class ProfileBuilder extends Component {
   /*
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
-  onSelectPreview(slug, id) {
-    const previews = this.state.previews.map(p => {
-      const newId = p.slug === slug ? id : p.id;
-      return {
-        id: newId,
-        slug: p.slug
-      };
-    });
+  onSelectPreview(newPreview) {
+    const previews = this.state.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
     this.setState({previews}, this.fetchVariables.bind(this, true));
   }
 

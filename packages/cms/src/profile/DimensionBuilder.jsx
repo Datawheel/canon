@@ -17,8 +17,8 @@ export default class DimensionBuilder extends Component {
   componentDidMount() {
   }
 
-  onSelectPreview(slug, id) {
-    if (this.props.onSelectPreview) this.props.onSelectPreview(slug, id);
+  onSelectPreview(newPreview) {
+    if (this.props.onSelectPreview) this.props.onSelectPreview(newPreview);
   }
 
   onAddDimension(d) {

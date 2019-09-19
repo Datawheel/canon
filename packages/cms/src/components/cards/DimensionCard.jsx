@@ -20,8 +20,9 @@ export default class DimensionCard extends Component {
     // todo bivariate - should this slug come from preview or meta? once the user
     // is able to change slug, one of these will have to become the source of truth
     const {slug} = this.props.preview;
-    const {id} = result;
-    if (this.props.onSelectPreview) this.props.onSelectPreview(slug, id);
+    const {id, name, slug: memberSlug} = result;
+    const newPreview = {slug, id, name, memberSlug};
+    if (this.props.onSelectPreview) this.props.onSelectPreview(newPreview);
   }
 
   rebuildSearch() {
@@ -75,6 +76,8 @@ export default class DimensionCard extends Component {
       onAlertCancel: () => this.setState({alertObj: false})
     };
 
+    // console.log(preview);
+
     return (
       <Card {...cardProps}>
 
@@ -84,8 +87,8 @@ export default class DimensionCard extends Component {
           {label: "measure", text: meta.measure},
           {label: "preview ID", text:
             <PreviewSearch
-              label={preview.id || "search profiles..."}
-              previewing={preview.id}
+              label={preview.name || preview.id || "search profiles..."}
+              previewing={preview.name || preview.id}
               fontSize="xxs"
               renderResults={d =>
                 <Button
