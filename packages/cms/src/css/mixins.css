@@ -373,3 +373,17 @@ VarTable & VarList
     color: var(--alert-light);
   }
 }
+
+/* -----------------------------------
+meta editor images
+----------------------------------- */
+@define-mixin meta-editor-img-wrapper {
+  background-color: var(--light-2);
+  border: 1px solid var(--gray);
+  transition: border 0.2s ease-out;
+
+  @mixin dark-mode {
+    background-color: color(var(--black) a(0.5));
+    border-color: var(--black);
+  }
+}

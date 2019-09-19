@@ -218,15 +218,9 @@
 
 /* selected image */
 .cms-meta-selected-img-wrapper {
+  @mixin meta-editor-img-wrapper;
   width: 100%;
   padding-top: 40%; /* set aspect ratio */
-  background-color: var(--light-2);
-  border: 1px solid var(--gray);
-
-  @mixin dark-mode {
-    background-color: color(var(--black) a(0.5));
-    border-color: var(--black);
-  }
 
   /* sized by container */
   & .cms-meta-selected-img {
@@ -272,14 +266,25 @@
   /* set height via padding-top */
   & .cms-gallery-button {
     @mixin button-reset;
+    @mixin meta-editor-img-wrapper;
     width: 100%;
     padding: 66.666% 0 0 0;
+    overflow: hidden;
+
+    &:hover, &:focus {
+      border-color: var(--accent);
+
+      & .cms-gallery-img {
+        transform: scale(1.075);
+      }
+    }
   }
 
   /* images sized by .cms-gallery-item width & .cms-gallery-button padding-top */
   & .cms-gallery-img {
     @mixin absolute-expand;
-    object-fit: cover;
+    object-fit: contain;
+    transition: transform 0.2s ease-out;
   }
 
   /* space out from load more button */
