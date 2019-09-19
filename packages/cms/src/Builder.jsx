@@ -139,69 +139,70 @@ class Builder extends Component {
               </button>
             )}
           </div>
+          {(locales || auth.user) && <React.Fragment>
+            <div className="cms-nav-settings-button-container">
+              <Button
+                className="cms-nav-settings-button"
+                context="cms"
+                icon="cog"
+                fontSize="xs"
+                active={settingsOpen}
+                onClick={this.toggleSettings.bind(this)}
+              >
+                settings
+              </Button>
+            </div>
 
-          <div className="cms-nav-settings-button-container">
-            <Button
-              className="cms-nav-settings-button"
-              context="cms"
-              icon="cog"
-              fontSize="xs"
-              active={settingsOpen}
+            <div className={`cms-nav-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
+              {/* locale select */}
+              {locales &&
+                <React.Fragment>
+                  <h2 className="cms-nav-settings-heading u-font-sm">
+                    Languages
+                  </h2>
+                  {/* primary locale */}
+                  {/* NOTE: currently just shows the primary locale in a dropdown */}
+                  <Select
+                    label="Primary"
+                    fontSize="xs"
+                    context="cms"
+                    inline
+                    options={[localeDefault]}
+                    tabIndex={settingsOpen ? null : "-1"}
+                  />
+                  {/* secondary locale */}
+                  <Select
+                    label="Secondary"
+                    fontSize="xs"
+                    context="cms"
+                    inline
+                    value={secondaryLocale}
+                    options={locales.map(loc => loc)}
+                    onChange={this.handleLocaleSelect.bind(this)}
+                    tabIndex={settingsOpen ? null : "-1"}
+                  >
+                    <option value="none">none</option>
+                  </Select>
+                </React.Fragment>
+              }
+              {auth.user &&
+                <React.Fragment>
+                  <h2 className="cms-nav-settings-heading u-font-sm u-margin-top-md">
+                    Account
+                  </h2>
+                  <a className="cms-button is-block u-margin-bottom-xs" href="/auth/logout">
+                    <Icon className="cms-button-icon" icon="log-out" />
+                    <span className="cms-button-text">Log Out</span>
+                  </a>
+                </React.Fragment>
+              }
+            </div>
+            <button
+              className={`cms-nav-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
               onClick={this.toggleSettings.bind(this)}
-            >
-              settings
-            </Button>
-          </div>
-
-          <div className={`cms-nav-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
-            {/* locale select */}
-            {locales &&
-              <React.Fragment>
-                <h2 className="cms-nav-settings-heading u-font-sm">
-                  Languages
-                </h2>
-                {/* primary locale */}
-                {/* NOTE: currently just shows the primary locale in a dropdown */}
-                <Select
-                  label="Primary"
-                  fontSize="xs"
-                  context="cms"
-                  inline
-                  options={[localeDefault]}
-                  tabIndex={settingsOpen ? null : "-1"}
-                />
-                {/* secondary locale */}
-                <Select
-                  label="Secondary"
-                  fontSize="xs"
-                  context="cms"
-                  inline
-                  value={secondaryLocale}
-                  options={locales.map(loc => loc)}
-                  onChange={this.handleLocaleSelect.bind(this)}
-                  tabIndex={settingsOpen ? null : "-1"}
-                >
-                  <option value="none">none</option>
-                </Select>
-              </React.Fragment>
-            }
-            {auth.user &&
-              <React.Fragment>
-                <h2 className="cms-nav-settings-heading u-font-sm u-margin-top-md">
-                  Account
-                </h2>
-                <a className="cms-button is-block u-margin-bottom-xs" href="/auth/logout">
-                  <Icon className="cms-button-icon" icon="log-out" />
-                  <span className="cms-button-text">Log Out</span>
-                </a>
-              </React.Fragment>
-            }
-          </div>
-          <button
-            className={`cms-nav-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
-            onClick={this.toggleSettings.bind(this)}
-            tabIndex={settingsOpen ? null : "-1"}
-          />
+              tabIndex={settingsOpen ? null : "-1"}
+            />
+          </React.Fragment> }
         </div>
 
         {currentTab === "profiles" &&
