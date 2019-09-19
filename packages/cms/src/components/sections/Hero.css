@@ -4,6 +4,7 @@
   background-color: var(--hero-bg-color);
   color: var(--hero-text-color);
   display: flex;
+  position: relative;
   /* fill up the screen, but make room for the nav & subnav */
   min-height: calc(100vh - var(--nav-height) - var(--subnav-height));
 
@@ -18,9 +19,10 @@
   width: var(--hero-container-width);
   padding-top: var(--gutter-xl);
   padding-bottom: var(--gutter-xl);
-  /* alignment */
+  /* positioning */
   margin-top: auto;
   margin-bottom: auto;
+  z-index: 2; /* in front of image & overlay */
   /* layout */
   display: inline-flex;
   flex-wrap: wrap;
@@ -65,4 +67,32 @@
 }
 .cp-hero-paragraph {
   font-size: var(--hero-paragraph-size);
+}
+
+/* image(s) wrapper */
+.cp-hero-img-outer,
+.cp-hero-img-grid,
+.cp-hero-img-overlay {
+  @mixin absolute-expand;
+}
+/* lay out multiple images in a grid */
+.cp-hero-img-grid {
+  display: flex;
+  flex-wrap: nowrap;
+
+  & > .cp-hero-img-wrapper {
+    flex: 1 0 33.333%;
+
+    & > .cp-hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+/* darken the overlay */
+.cp-hero-img-overlay {
+  background-color: var(--hero-bg-color);
+  opacity: var(--hero-img-overlay-opacity);
+  z-index: 1;
 }

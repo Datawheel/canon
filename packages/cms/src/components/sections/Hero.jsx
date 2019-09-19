@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
 
@@ -32,14 +32,14 @@ class Hero extends Component {
     const {profile} = this.props;
     const {dims} = profile;
 
-    /** Image Metadata 
-     * A profile is a set of one more slug/id pairs. In multi-variate profiles, these pairs are strictly 
-     * ordered, for example, /geo/mass/export/coal/import/cars. Each of these slug/id pairs may or may not 
-     * have image data associated with it, which makes up the backdrop of the Hero Section. If it does have 
-     * an image, then it also will have metadata. The `images` array that I create is a strictly ordered 
-     * array of image links and their data. This means, in the example above, if /export/coal is the only 
-     * one of the three that have an image, then this image array will be [null, {imageData}, null]. 
-     */
+    /** Image Metadata
+      * A profile is a set of one more slug/id pairs. In multi-variate profiles, these pairs are strictly
+      * ordered, for example, /geo/mass/export/coal/import/cars. Each of these slug/id pairs may or may not
+      * have image data associated with it, which makes up the backdrop of the Hero Section. If it does have
+      * an image, then it also will have metadata. The `images` array that I create is a strictly ordered
+      * array of image links and their data. This means, in the example above, if /export/coal is the only
+      * one of the three that have an image, then this image array will be [null, {imageData}, null].
+      */
 
     const images = [];
     for (let i = 0; i < dims.length; i++) {
@@ -51,7 +51,6 @@ class Hero extends Component {
           permalink: profile.images[i].url
         });
       }
-      else images.push(null);
     }
 
     this.setState({images});
@@ -59,8 +58,8 @@ class Hero extends Component {
 
   render() {
     const {contents, loading, sources, profile} = this.props;
-    // const {images} = this.state;
-    
+    const {images} = this.state;
+
     // no hero section; just grab the profile title & subtitle
     let title = profile.title;
     let subtitleContent = <Parse El="p" className="cp-hero-subtitle">{profile.subtitle}</Parse>;
@@ -136,6 +135,18 @@ class Hero extends Component {
             </div> : ""
           }
         </div>
+        {images
+          ? <div className="cp-hero-img-outer">
+            <div className="cp-hero-img-overlay" />
+            <div className="cp-hero-img-grid">
+              {images.map(img => img.src &&
+                <div className="cp-hero-img-wrapper">
+                  <img className="cp-hero-img" src={img.src} alt="" />
+                </div>
+              )}
+            </div>
+          </div> : ""
+        }
       </header>
     );
   }
