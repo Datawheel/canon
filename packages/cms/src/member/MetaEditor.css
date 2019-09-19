@@ -287,3 +287,10 @@
     margin-bottom: var(--gutter-sm);
   }
 }
+
+/* message displayed while searching */
+.cms-gallery-searching {
+  text-align: center;
+  padding-top: calc(var(--gutter-xs) + 10vh);
+  padding-bottom: calc(var(--gutter-xl) + 10vh);
+}

@@ -641,17 +641,24 @@ class MetaEditor extends Component {
                     onChange: e => this.setState({flickrQuery: e.target.value}),
                     context: "cms",
                     labelHidden: true,
-                    autoFocus: true
+                    autoFocus: true,
+                    disabled: searching
                   }}
                   buttonProps={{
                     onClick: this.searchFlickr.bind(this),
                     context: "cms",
-                    children: "search"
+                    children: "search",
+                    disabled: searching
                   }}
                 />
 
                 { searching
-                  ? <Spinner size="30" className="cms-spinner"/>
+                  ? <div className="cms-gallery-searching">
+                    <Spinner size="50" className="cms-gallery-spinner u-margin-bottom-sm"/>
+                    <p className="cms-gallery-searching-text u-font-xl">
+                      Searching Flickr for useable <em>{flickrQuery}</em> images…
+                    </p>
+                  </div>
                   : flickrImages.length > 0 &&
                   <div className="cms-gallery-wrapper">
                     <ul className="cms-gallery-list">
