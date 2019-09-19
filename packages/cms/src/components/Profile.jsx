@@ -1,7 +1,8 @@
 import axios from "axios";
 import React, {Component} from "react";
-import PropTypes from "prop-types";
+import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
+import PropTypes from "prop-types";
 import {fetchData} from "@datawheel/canon-core";
 
 import libs from "../utils/libs";
@@ -165,4 +166,4 @@ export default connect(state => ({
   formatters: state.data.formatters,
   locale: state.i18n.locale,
   profile: state.data.profile
-}))(Profile);
+}))(hot(Profile));
