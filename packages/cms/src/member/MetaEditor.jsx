@@ -399,7 +399,7 @@ class MetaEditor extends Component {
           const flickrImages = [];
           const imgIndex = 0;
           const epoch = new Date().getTime();
-          this.setState({isOpen, sourceData, loading, url, flickrImages, imgIndex, epoch}, this.prepData.bind(this));
+          this.setState({isOpen, sourceData, loading, url, flickrImages, imgIndex, epoch, dialogMode: "direct"}, this.prepData.bind(this));
           Toast.show({
             intent: "success",
             message: "Success!",
@@ -652,35 +652,40 @@ class MetaEditor extends Component {
                   }}
                 />
 
-                { searching
+                { searching || loading
+                  // alerts
                   ? <div className="cms-gallery-searching">
                     <Spinner size="50" className="cms-gallery-spinner u-margin-bottom-sm"/>
                     <p className="cms-gallery-searching-text u-font-xl">
-                      Searching Flickr for useable <em>{flickrQuery}</em> images…
+                      {searching
+                        ? `Searching Flickr for useable ${flickrQuery} images…`
+                        : "Importing image…"
+                      }
                     </p>
                   </div>
+                  // display images
                   : flickrImages.length > 0 &&
-                  <div className="cms-gallery-wrapper">
-                    <ul className="cms-gallery-list">
-                      {flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
-                        <li className="cms-gallery-item" key={image.id}>
-                          <button className="cms-gallery-button" onClick={this.save.bind(this, currentRow, null, image.id)}>
-                            <img className="cms-gallery-img" src={image.source} alt="add image" />
-                          </button>
-                        </li>
-                      )}
-                    </ul>
-                    {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
-                      <Button
-                        className="cms-gallery-more-button"
-                        onClick={this.showNext.bind(this)}
-                        context="cms"
-                        block
-                      >
-                        load more
-                      </Button>
-                    }
-                  </div>
+                    <div className="cms-gallery-wrapper">
+                      <ul className="cms-gallery-list">
+                        {flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
+                          <li className="cms-gallery-item" key={image.id}>
+                            <button className="cms-gallery-button" onClick={this.save.bind(this, currentRow, null, image.id)}>
+                              <img className="cms-gallery-img" src={image.source} alt="add image" />
+                            </button>
+                          </li>
+                        )}
+                      </ul>
+                      {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
+                        <Button
+                          className="cms-gallery-more-button"
+                          onClick={this.showNext.bind(this)}
+                          context="cms"
+                          block
+                        >
+                          load more
+                        </Button>
+                      }
+                    </div>
                 }
               </React.Fragment>
             }
