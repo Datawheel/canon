@@ -311,7 +311,7 @@ const populateSearch = async(profileData, db) => {
         .addMeasure(measure))
         .then(resp => resp.data)
         .then(data => data.reduce((obj, d) => {
-          obj[d[`${level.name} ID`]] = d[measure];
+          obj[d[`ID ${level.name}`] ? d[`ID ${level.name}`] : d[`${level.name} ID`]] = d[measure];
           return obj;
         }, {})).catch(catcher);
 
