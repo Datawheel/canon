@@ -1,13 +1,6 @@
 import React, {Component} from "react";
-// import {AnchorLink} from "@datawheel/canon-core";
-import {nest} from "d3-collection";
-import stripP from "../../utils/formatters/stripP";
-
-import StatGroup from "../Viz/StatGroup";
 import Viz from "../Viz/Viz";
-import Selector from "./components/Selector";
 import "./Section.css";
-
 import "./InfoCard.css";
 
 export default class InfoCard extends Component {
