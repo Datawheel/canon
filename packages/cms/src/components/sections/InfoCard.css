@@ -28,7 +28,7 @@
 .cp-info-card-section-header {
   background-color: var(--infocard-header-bg-color);
 
-  & > .cp-info-card-header{
+  & > .cp-info-card-header {
     width: 80%;
   }
 
@@ -62,23 +62,23 @@
   }
 }
 
-.cp-info-card-secondary-stats{
+.cp-info-card-secondary-stats {
   & .cp-stat-group{
     flex-direction: column;
   }
-  & strong{
+  & strong {
     text-transform: uppercase;
   }
-  & .cp-stat{
+  & .cp-stat {
     padding-top: var(--gutter-md);
   }
-  & .cp-stat:not(:last-child){
+  & .cp-stat:not(:last-child) {
     padding-bottom: var(--gutter-md);
     border-bottom:1px solid var(--infocard-divider-color);
   }
 }
 
-.cp-info-card-title{
+.cp-info-card-title {
   padding: var(--gutter-sm);
   display: flex;
 }
@@ -90,14 +90,14 @@
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 
-  & > .cp-info-card-section-content{
+  & > .cp-info-card-section-content {
     display: flex;
     padding: var(--gutter-md) var(--gutter-sm);
   }
 }
 
 
-.cp-info-card-paragraphs{
+.cp-info-card-paragraphs {
   width: 80%;
   padding-right: var(--gutter-sm);
   border-right: 1px solid var(--black);
@@ -112,13 +112,13 @@
 }
 
 
-.cp-info-card-secondary-stats{
+.cp-info-card-secondary-stats {
   padding: 0 var(--gutter-md) var(--gutter-md);
 
-  & .cp-stat-value{
+  & .cp-stat-value {
     display: flex;
   }
-  & .cp-stat-value-text{
+  & .cp-stat-value-text {
     margin-right: var(--gutter-md);
   }
   @media (max-width: 767px) {
@@ -131,7 +131,7 @@
 
 
 /* Filters */
-.cp-info-card-filters{
+.cp-info-card-filters {
   display: flex;
   align-items: stretch;
 
@@ -151,28 +151,28 @@
   }
 }
 
-.cp-select-label{
+.cp-select-label {
   display: block;
   text-transform: uppercase;
   flex-direction: column;
 
-  & .cp-select-text{
+  & .cp-select-text {
     color: var(--infocard-header-text-color);
     padding-bottom: var(--gutter-xs);
   }
 }
 
 /* Subtitle */
-.cp-info-card-subtitle{
+.cp-info-card-subtitle {
   @mixin font-xxs;
   padding: var(--gutter-xs) var(--gutter-sm);
   background-color: var(--infocard-main-bg-color);
 
-  &.display{
+  &.display {
     text-transform: none !important;
   }
 }
-.cp-info-card-subtitle p{
+.cp-info-card-subtitle p {
   @mixin font-xxs;
   font-weight: normal;
   text-transform: none;
@@ -195,7 +195,6 @@
 }
 
 .cp-info-card-section-header .cp-stat-value-text {
-  /* @mixin font-sm; */
   @mixin font-xxl;
 }
 
