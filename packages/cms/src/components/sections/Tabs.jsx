@@ -34,7 +34,7 @@ export default class Tabs extends Component {
   }
 
   render() {
-    const {slug, title, heading, loading, filters, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, title, heading, loading, filters, paragraphs, onSetVariables, stats, sources, visualizations, vizHeadingLevel} = this.props;
     const selectors = filters || [];
     const {tabIndex} = this.state;
 
@@ -98,7 +98,7 @@ export default class Tabs extends Component {
       </div>
 
       <div className="cp-tabs-section-figure">
-        <Viz section={this} config={visualization} key={tabIndex} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title}  />
+        <Viz section={this} onSetVariables={onSetVariables} config={visualization} key={tabIndex} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title}  />
         {tabSelectors.length > 0 && <div className="cp-section-selectors">
           {tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />)}
         </div>}

@@ -134,6 +134,10 @@ class SectionEditor extends Component {
     this.setState({minData});
   }
 
+  onSetVariables(newVariables) {
+    if (this.props.onSetVariables) this.props.onSetVariables(newVariables);
+  }
+
   render() {
 
     const {minData, recompiling, query} = this.state;
@@ -373,6 +377,7 @@ class SectionEditor extends Component {
                 previews={previews}
                 onDelete={this.onDelete.bind(this)}
                 type="section_visualization"
+                onSetVariables={this.onSetVariables.bind(this)}
                 variables={variables[localeDefault]}
                 secondaryVariables={variables[locale]}
                 selectors={minData.allSelectors.map(s => Object.assign({}, s))}

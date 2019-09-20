@@ -13,7 +13,7 @@ import "./InfoCard.css";
 export default class InfoCard extends Component {
 
   render() {
-    const {slug, title, heading, paragraphs, loading, filters, stats, secondaryStats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, title, heading, paragraphs, loading, filters, onSetVariables, stats, secondaryStats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -40,7 +40,7 @@ export default class InfoCard extends Component {
           {visualizations && visualizations.length
             ? <div className="cp-section-content cp-info-card-section-viz">
               {visualizations.map((visualization, ii) => ii === 0
-                ? <Viz section={this} config={visualization} options={false} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title} key={`${slug}-${ii}`} /> : ""
+                ? <Viz section={this} onSetVariables={onSetVariables} config={visualization} options={false} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title} key={`${slug}-${ii}`} /> : ""
               )}
             </div> : ""
           }

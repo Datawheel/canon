@@ -49,6 +49,30 @@ class Profile extends Component {
     };
   }
 
+  /** 
+   * Visualizations have the ability to "break out" and override a variable in the variables object.
+   * This requires a server round trip, because the user may have changed a variable that would affect 
+   * the "allowed" status of a given section.
+   */
+  onSetVariables(newVariables) {
+    const {profile, selectors, loading} = this.state;
+    const {id, variables} = profile;
+    const {locale} = this.props;
+    // Users should ONLY call setVariables in a callback - never in the main execution, as this
+    // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
+    // loop by checking if the vars are in there already, only updating if they are not yet set.
+    const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
+    if (!loading && !alreadySet) {
+      this.setState({loading: true});
+      const url = `/api/profile?profile=${id}&locale=${locale}&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
+      const payload = {variables: Object.assign({}, variables, newVariables)};
+      axios.post(url, payload)
+        .then(resp => {
+          this.setState({profile: resp.data, loading: false});
+        });
+    }
+  }
+
   onSelector(name, value) {
     const {profile, selectors} = this.state;
     const {id, variables} = profile;
@@ -125,6 +149,7 @@ class Profile extends Component {
               {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                 // ungrouped section
                 ? <Section
+                  onSetVariables={this.onSetVariables.bind(this)}
                   contents={innerGrouping[0]}
                   headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
                   loading={loading}
@@ -134,6 +159,7 @@ class Profile extends Component {
                 : <SectionGrouping layout={innerGrouping[0].type}>
                   {innerGrouping.map((section, iii) =>
                     <Section
+                      onSetVariables={this.onSetVariables.bind(this)}
                       contents={section}
                       headingLevel={groupedSections.length === 1 || ii === 0
                         ? iii === 0 ? "h2" : "h3"
