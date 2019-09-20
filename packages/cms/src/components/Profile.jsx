@@ -83,32 +83,36 @@ class Profile extends Component {
     });
 
     const groupableSections = ["InfoCard", "SingleColumn"]; // sections to be grouped together
-    const innerGroupedSections = []; // array for sections to be accumulated into
+    let innerGroupedSections = []; // array for sections to be accumulated into
+    let groupedSections = [];
 
-    // reduce sections into a nested array of groupedSections
-    innerGroupedSections.push(sections.reduce((arr, section) => {
-      if (arr.length === 0) arr.push(section); // push the first one
-      else {
-        const prevType = arr[arr.length - 1].type;
-        const currType = section.type;
-        // if the current and previous types are groupable and the same type, group them into an array
-        if (groupableSections.includes(prevType) && groupableSections.includes(currType) && prevType === currType) {
-          arr.push(section);
-        }
-        // otherwise, push the section as-is
+    // make sure there are sections to loop through (issue #700)
+    if (sections.length) {
+      // reduce sections into a nested array of groupedSections
+      innerGroupedSections.push(sections.reduce((arr, section) => {
+        if (arr.length === 0) arr.push(section); // push the first one
         else {
-          innerGroupedSections.push(arr);
-          arr = [section];
+          const prevType = arr[arr.length - 1].type;
+          const currType = section.type;
+          // if the current and previous types are groupable and the same type, group them into an array
+          if (groupableSections.includes(prevType) && groupableSections.includes(currType) && prevType === currType) {
+            arr.push(section);
+          }
+          // otherwise, push the section as-is
+          else {
+            innerGroupedSections.push(arr);
+            arr = [section];
+          }
         }
-      }
-      return arr;
-    }, []));
+        return arr;
+      }, []));
 
-    const groupedSections = innerGroupedSections.reduce((arr, group) => {
-      if (arr.length === 0 || group[0].type === "Grouping") arr.push([group]);
-      else arr[arr.length - 1].push(group);
-      return arr;
-    }, []);
+      groupedSections = innerGroupedSections.reduce((arr, group) => {
+        if (arr.length === 0 || group[0].type === "Grouping") arr.push([group]);
+        else arr[arr.length - 1].push(group);
+        return arr;
+      }, []);
+    }
 
     return (
       <div className="cp">
