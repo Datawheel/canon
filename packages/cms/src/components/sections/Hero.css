@@ -87,6 +87,18 @@
     /* transitions */
     transition: background-color 0.1s ease-out;
 
+    /* adjust credits sizing on non-small screens */
+    @mixin min-xs {
+      width: max-content;
+      max-width: 100%;
+      margin-left: auto;
+
+      & .cp-hero-credits-item {
+        width: 30vw;
+        max-width: 20rem;
+      }
+    }
+
     & .cp-hero-credits-button {
       top: calc(0px - var(--gutter-lg));
     }
