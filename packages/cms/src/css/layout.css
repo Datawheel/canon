@@ -172,10 +172,11 @@
 
   & > .cms-button-container {
     padding: var(--gutter-xs);
+    border-top: 1px solid var(--light-2);
     border-bottom: 1px solid var(--light-2);
 
     @mixin dark-mode {
-      background-color: var(--black);
+      background-color: var(--dark-3);
       border-color: var(--black);
     }
   }
