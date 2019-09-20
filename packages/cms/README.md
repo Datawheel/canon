@@ -135,9 +135,9 @@ export CANON_CONST_IMAGE_SPLASH_SIZE=1400
 export CANON_CONST_IMAGE_THUMB_SIZE=200
 ```
 
-#### 5) Follow the instructions in the "Members" Tab of the CMS
+#### 5) Follow the instructions in the "Meta Editor" Tab of the CMS
 
-Every member for every profile is listed under the Members tab. Click "+ Add Image" in one of the rows and follow the intructions to upload an image via a flickr share link.
+Every member for every profile is listed under the Meta Editor tab. Click "+ Add Image" in one of the rows and follow the intructions to upload an image via a flickr share link.
 
 --- 
 
