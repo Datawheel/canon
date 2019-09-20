@@ -9,6 +9,8 @@ import Viz from "../Viz/Viz";
 import SourceGroup from "../Viz/SourceGroup";
 import StatGroup from "../Viz/StatGroup";
 
+import Button from "../fields/Button";
+
 import Parse from "./components/Parse";
 
 import "./Section.css";
@@ -24,7 +26,8 @@ class Hero extends Component {
       loading: false,
       selectors: {},
       sources: [],
-      images: []
+      images: [],
+      creditsVisible: false
     };
   }
 
@@ -58,7 +61,7 @@ class Hero extends Component {
 
   render() {
     const {contents, loading, sources, profile} = this.props;
-    const {images} = this.state;
+    const {images, creditsVisible} = this.state;
 
     // no hero section; just grab the profile title & subtitle
     let title = profile.title;
@@ -135,17 +138,73 @@ class Hero extends Component {
             </div> : ""
           }
         </div>
+
+        {/* display image credits, and images */}
         {images
-          ? <div className="cp-hero-img-outer">
-            <div className="cp-hero-img-overlay" />
-            <div className="cp-hero-img-grid">
-              {images.map(img => img.src &&
-                <div className="cp-hero-img-wrapper">
-                  <img className="cp-hero-img" src={img.src} alt="" />
-                </div>
-              )}
+          ? <React.Fragment>
+            {/* credits */}
+            <div className={`cp-hero-credits ${creditsVisible ? "is-open" : "is-closed"}`}>
+              <Button
+                className="cp-hero-credits-button"
+                onClick={() => this.setState({creditsVisible: !creditsVisible})}
+                icon={creditsVisible ? "eye-off" : "eye-open"}
+                iconPosition="left"
+                fontSize="xxs"
+                active={creditsVisible}
+              >
+                <span className="u-visually-hidden">
+                  {creditsVisible ? "view " : "hide "}
+                </span>
+                image credits
+              </Button>
+
+              {creditsVisible
+                ? <ul className="cp-hero-credits-list">
+                  {images.map((img, i) =>
+                    <li className="cp-hero-credits-item" key={img.permalink}>
+                      {images.length > 1
+                        ? <h2 className="cp-hero-credits-item-heading u-font-md">
+                          Image {i + 1}
+                        </h2> : ""
+                      }
+
+                      {/* author */}
+                      {img.author
+                        ? <p className="cp-hero-credits-text">
+                          Photograph by <span className="cp-hero-credits-name heading">
+                            {img.author}
+                          </span>
+                        </p> : ""
+                      }
+                      {/* description */}
+                      {img.meta ? <p className="cp-hero-credits-text">
+                        {img.meta}
+                      </p> : ""}
+                      {/* flickr link */}
+                      {img.permalink ? <p className="cp-hero-credits-text u-font-xs">
+                        <span className="u-visually-hidden">Direct link: </span>
+                        <a className="cp-hero-credits-link" href={img.permalink}>
+                          {img.permalink.replace("https://", "")}
+                        </a>
+                      </p> : ""}
+                    </li>
+                  )}
+                </ul> : ""
+              }
             </div>
-          </div> : ""
+
+            {/* images */}
+            <div className="cp-hero-img-outer">
+              <div className="cp-hero-img-overlay" />
+              <div className="cp-hero-img-grid">
+                {images.map(img => img.src &&
+                  <div className="cp-hero-img-wrapper" key={img.src}>
+                    <img className="cp-hero-img" src={img.src} alt="" draggable="false" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </React.Fragment> : ""
         }
       </header>
     );

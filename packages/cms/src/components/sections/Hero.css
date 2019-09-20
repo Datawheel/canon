@@ -4,6 +4,7 @@
   background-color: var(--hero-bg-color);
   color: var(--hero-text-color);
   display: flex;
+  flex-direction: column;
   position: relative;
   /* fill up the screen, but make room for the nav & subnav */
   min-height: calc(100vh - var(--nav-height) - var(--subnav-height));
@@ -67,6 +68,91 @@
 }
 .cp-hero-paragraph {
   font-size: var(--hero-paragraph-size);
+}
+
+/* image(s) credits */
+.cp-hero-credits {
+  z-index: 2;
+  padding: var(--gutter-md);
+  position: relative;
+
+  @mixin min-md {
+    margin-bottom: calc(0px - var(--gutter-sm));
+  }
+
+  /* credits visible state */
+  &.is-open {
+    background-color: var(--section-bg-even);
+    color: var(--section-text-color);
+    /* transitions */
+    transition: background-color 0.1s ease-out;
+
+    & .cp-hero-credits-button {
+      top: calc(0px - var(--gutter-lg));
+    }
+  }
+}
+
+/* toggle credits button */
+.cp-hero-credits-button {
+  /* positioning */
+  position: absolute;
+  right: 0;
+  top: var(--gutter-sm);
+  /* theming */
+  color: var(--light-3);
+  background: none;
+  border-color: transparent;
+
+  &:hover, &:focus {
+    color: var(--light-1);
+    border-color: var(--button-border-color);
+  }
+}
+.cp-hero-credits-list {
+  @mixin list-reset;
+}
+
+/* stacked layout */
+@mixin max-xs {
+  .cp-hero-credits-item:not(:last-child) {
+    margin-bottom: var(--gutter-md);
+  }
+}
+
+/* multi-column layout */
+@mixin min-xs {
+  .cp-hero-credits-list {
+    display: flex;
+  }
+  .cp-hero-credits-item {
+    flex: 1 0 calc(33.333% - var(--gutter-sm));
+
+    &:not(:last-child) {
+      margin-right: var(--gutter-md);
+    }
+  }
+}
+
+/* credits text spacing */
+.cp-hero-credits-item-heading {
+  margin-top: -0.25em;
+}
+.cp-hero-credits-text {
+  margin-bottom: 0.5em;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+/* TODO: default link styles */
+.cp-hero-credits-link {
+  color: var(--accent-dark);
+  text-decoration: underline;
+
+  &:hover, &:focus {
+    color: var(--accent-black);
+  }
 }
 
 /* image(s) wrapper */
