@@ -139,6 +139,16 @@ export CANON_CONST_IMAGE_THUMB_SIZE=200
 
 Every member for every profile is listed under the Meta Editor tab. Click "+ Add Image" in one of the rows and follow the intructions to upload an image via a flickr share link.
 
+#### 6) Accessing Images
+
+Images will automatically be rendered in the "Hero" section of a profile, which is automatically created upon profile creation. However, if you need direct access to the hosted images, they are reachable via:
+
+```
+/api/image?slug=<slug>&id=<id>
+```
+
+Images default to splash size, but you may set `&size=thumb` for a thumbnail. To retrieve metadata about the image rather than the image itself, add `&type=json` to the params.
+
 --- 
 
 ## Rendering a Profile
