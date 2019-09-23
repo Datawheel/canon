@@ -1,6 +1,5 @@
 const axios = require("axios");
 const sequelize = require("sequelize");
-const request = require("request");
 const yn = require("yn");
 
 const {CANON_LOGICLAYER_CUBE} = process.env;
@@ -64,7 +63,9 @@ module.exports = function(app) {
       if (imageId && bucket && ["splash", "thumb"].includes(size)) {
         let url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
         if (t) url += `?t=${t}`;
-        return request.get(url).pipe(res);
+        const imgData = await axios.get(url, {responseType: "arraybuffer"}).then(resp => resp.data).catch(catcher);
+        res.writeHead(200,  {"Content-Type": "image/jpeg"});
+        return res.end(imgData, "binary");
       }
       else {
         return imageError();
