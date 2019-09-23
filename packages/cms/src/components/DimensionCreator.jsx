@@ -78,7 +78,7 @@ class DimensionCreator extends Component {
         message: "Slug already taken. Please choose a different slug.",
         timeout: 2000
       });
-    } 
+    }
     else {
       if (this.props.onAddDimension) this.props.onAddDimension(profileData);  
     }

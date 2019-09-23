@@ -76,8 +76,6 @@ export default class DimensionCard extends Component {
       onAlertCancel: () => this.setState({alertObj: false})
     };
 
-    // console.log(preview);
-
     return (
       <Card {...cardProps}>
 
