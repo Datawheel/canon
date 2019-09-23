@@ -3,7 +3,6 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import ReactTable from "react-table";
 import {hot} from "react-hot-loader/root";
-import Base58 from "base58";
 import PropTypes from "prop-types";
 import {Dialog, Icon, EditableText, Spinner} from "@blueprintjs/core";
 
@@ -375,8 +374,6 @@ class MetaEditor extends Component {
 
   save(currentRow, shortid, id) {
     const {contentId} = currentRow;
-    if (id && !shortid) shortid = Base58.int_to_base58(id);
-    if (!id && shortid) id = Base58.base58_to_int(shortid);
     const Toast = this.context.toast.current;
     const payload = {id, shortid, contentId};
     this.setState({loading: true});

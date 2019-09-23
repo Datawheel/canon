@@ -8,6 +8,7 @@ const {Storage} = require("@google-cloud/storage");
 const storage = new Storage();
 const sharp = require("sharp");
 const axios = require("axios");
+const Base58 = require("base58");
 
 const validLicenses = ["4", "5", "7", "8", "9", "10"];
 const validLicensesString = validLicenses.join();
@@ -28,7 +29,10 @@ module.exports = function(app) {
   const {db, cache} = app.settings;
 
   app.post("/api/image/update", async(req, res) => {
-    const {id, shortid, contentId} = req.body;
+    const {contentId} = req.body;
+    let {id, shortid} = req.body;
+    if (id && !shortid) shortid = Base58.int_to_base58(id);
+    if (!id && shortid) id = Base58.base58_to_int(shortid);
     const url = `https://flic.kr/p/${shortid}`;
     const info = await flickr.photos.getInfo({photo_id: id}).then(resp => resp.body).catch(catcher);
     if (info) {
