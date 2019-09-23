@@ -2,6 +2,9 @@
  
 const utils = require("./migrationUtils.js");
 const {catcher, resetSequence, fetchOldModel, fetchNewModel} = utils;
+const shell = require("shelljs");
+const oldDBName = process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
+const newDBName = process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
 
 const locale = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
@@ -88,8 +91,8 @@ const migrate = async() => {
       await dbnew.search_content.bulkCreate(search_content).catch(catcher);
     }
   }
-
-  console.log("Done.");
+  console.log(`Successfully migrated from CMS version 0.7 on ${oldDBName} to CMS version 0.8 on ${newDBName}`);
+  shell.exit(0);
 };
 
 migrate();
