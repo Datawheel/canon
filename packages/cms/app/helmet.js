@@ -1,7 +1,4 @@
 export default {
-  link: [
-    {rel: "icon", href: "/images/favicon.ico"}
-  ],
   meta: [
     {charset: "utf-8"},
     {"http-equiv": "X-UA-Compatible", "content": "IE=edge"},
