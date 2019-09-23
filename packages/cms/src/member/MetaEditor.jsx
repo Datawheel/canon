@@ -409,10 +409,21 @@ class MetaEditor extends Component {
 
   searchFlickr() {
     const {flickrQuery} = this.state;
+    const Toast = this.context.toast.current;
     this.setState({searching: true});
     axios.get(`/api/flickr/search?q=${flickrQuery}`).then(resp => {
-      const flickrImages = resp.data || [];
-      this.setState({flickrImages, searching: false});
+      if (resp.data.error) {
+        Toast.show({
+          intent: "danger",
+          message: `Flickr Search Error - ${resp.data.error}`,
+          timeout: 2000
+        });
+        this.setState({searching: false});
+      }
+      else {
+        const flickrImages = resp.data || [];
+        this.setState({flickrImages, searching: false});
+      }
     });
   }
 

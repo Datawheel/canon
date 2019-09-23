@@ -2,13 +2,16 @@ const sequelize = require("sequelize");
 const yn = require("yn");
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
-const Flickr = require("flickr-sdk");
-const flickr = new Flickr(process.env.FLICKR_API_KEY);
-const {Storage} = require("@google-cloud/storage");
-const storage = new Storage();
-const sharp = require("sharp");
+let Base58, flickr, sharp, storage;
+if (process.env.FLICKR_API_KEY) {
+  const Flickr = require("flickr-sdk");
+  flickr = new Flickr(process.env.FLICKR_API_KEY);
+  const {Storage} = require("@google-cloud/storage");
+  storage = new Storage();
+  sharp = require("sharp");
+  Base58 = require("base58");
+}
 const axios = require("axios");
-const Base58 = require("base58");
 
 const validLicenses = ["4", "5", "7", "8", "9", "10"];
 const validLicensesString = validLicenses.join();
@@ -29,6 +32,7 @@ module.exports = function(app) {
   const {db, cache} = app.settings;
 
   app.post("/api/image/update", async(req, res) => {
+    if (!flickr) return res.json({error: "Flickr API Key not configured"});
     const {contentId} = req.body;
     let {id, shortid} = req.body;
     if (id && !shortid) shortid = Base58.int_to_base58(id);
@@ -83,18 +87,18 @@ module.exports = function(app) {
               {model: db.image, include: [{association: "content"}]}, {association: "content"}
             ]
           }).catch(catcher);
-          res.json(newRow);
+          return res.json(newRow);
         }
         else {
-          res.json("Error updating Search");
+          return res.json("Error updating Search");
         }
       }
       else {
-        res.json({error: "Bad License"});
+        return res.json({error: "Bad License"});
       }
     }
     else {
-      res.json({error: "Malformed URL"});
+      return res.json({error: "Malformed URL"});
     }
   });
 
@@ -103,6 +107,7 @@ module.exports = function(app) {
   });
 
   app.get("/api/flickr/search", async(req, res) => {
+    if (!flickr) return res.json({error: "Flickr API Key not configured"});
     const {q} = req.query;
     const result = await flickr.photos.search({
       text: q, 
@@ -121,7 +126,7 @@ module.exports = function(app) {
         });  
       }
     }
-    res.json(payload);
+    return res.json(payload);
   });
 
   app.get("/api/search/all", async(req, res) => {
