@@ -115,6 +115,7 @@ Viz.childContextTypes = {
   d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,
+  onSetVariables: PropTypes.func,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };
@@ -123,8 +124,8 @@ Viz.contextTypes = {
   d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,
-  updateSource: PropTypes.func,
   onSetVariables: PropTypes.func,
+  updateSource: PropTypes.func,
   variables: PropTypes.object
 };
 
