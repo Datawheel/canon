@@ -54,9 +54,10 @@ function func2obj(func) {
 
 }
 
-function parse(config, formatters = {}, locale = "en") {
+function parse(config, formatters = {}, locale = "en", setVariables = d => d) {
 
   const globals = {
+    setVariables,
     formatters,
     libs,
     locale

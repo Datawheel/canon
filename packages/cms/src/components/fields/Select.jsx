@@ -13,6 +13,7 @@ export default class Select extends Component {
       options,     // array of options
       children,    // when creating options from an array isn't enough
       value,       // select value
+      tabIndex,
       onChange     // callback function; select a new option
     } = this.props;
 
@@ -27,7 +28,7 @@ export default class Select extends Component {
 
         <Icon className={`${context}-select-icon`} icon="caret-down" />
 
-        <select className={`${context}-select`} onChange={onChange} value={value}>
+        <select className={`${context}-select`} onChange={onChange} value={value} tabIndex={tabIndex}>
           {options && filteredOptions.map(option =>
             <option value={option} key={`select-option-${option}`}>
               {option}

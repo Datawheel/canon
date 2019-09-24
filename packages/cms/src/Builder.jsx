@@ -9,6 +9,7 @@ import {fetchData} from "@datawheel/canon-core";
 import {isAuthenticated} from "@datawheel/canon-core";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
+import MetaEditor from "./member/MetaEditor";
 import Select from "./components/fields/Select";
 import Button from "./components/fields/Button";
 import AuthForm from "./components/interface/AuthForm";
@@ -111,7 +112,7 @@ class Builder extends Component {
   render() {
     const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen, userInit} = this.state;
     const {isEnabled, env, auth} = this.props;
-    const navLinks = ["profiles", "stories"];
+    const navLinks = ["profiles", "stories", "metadata"];
 
     const waitingForUser = yn(env.CANON_LOGINS) && !userInit;
 
@@ -126,65 +127,82 @@ class Builder extends Component {
     }
 
     return (
-      <div className="cms">
+      <div className={`cms cms-${currentTab}-page`}>
         <div className="cms-nav">
-          {navLinks.map(navLink =>
+          <div className="cms-nav-main">
+            {navLinks.map(navLink =>
+              <button
+                key={navLink}
+                className={`cms-nav-link u-font-xs${navLink === currentTab ? " is-active" : ""}`}
+                onClick={this.handleTabChange.bind(this, navLink)}>
+                {navLink}
+              </button>
+            )}
+          </div>
+          {(locales || auth.user) && <React.Fragment>
+            <div className="cms-nav-settings-button-container">
+              <Button
+                className="cms-nav-settings-button"
+                context="cms"
+                icon="cog"
+                fontSize="xs"
+                active={settingsOpen}
+                onClick={this.toggleSettings.bind(this)}
+              >
+                settings
+              </Button>
+            </div>
+
+            <div className={`cms-nav-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
+              {/* locale select */}
+              {locales &&
+                <React.Fragment>
+                  <h2 className="cms-nav-settings-heading u-font-sm">
+                    Languages
+                  </h2>
+                  {/* primary locale */}
+                  {/* NOTE: currently just shows the primary locale in a dropdown */}
+                  <Select
+                    label="Primary"
+                    fontSize="xs"
+                    context="cms"
+                    inline
+                    options={[localeDefault]}
+                    tabIndex={settingsOpen ? null : "-1"}
+                  />
+                  {/* secondary locale */}
+                  <Select
+                    label="Secondary"
+                    fontSize="xs"
+                    context="cms"
+                    inline
+                    value={secondaryLocale}
+                    options={locales.map(loc => loc)}
+                    onChange={this.handleLocaleSelect.bind(this)}
+                    tabIndex={settingsOpen ? null : "-1"}
+                  >
+                    <option value="none">none</option>
+                  </Select>
+                </React.Fragment>
+              }
+              {auth.user &&
+                <React.Fragment>
+                  <h2 className="cms-nav-settings-heading u-font-sm u-margin-top-md">
+                    Account
+                  </h2>
+                  <a className="cms-button is-block u-margin-bottom-xs" href="/auth/logout">
+                    <Icon className="cms-button-icon" icon="log-out" />
+                    <span className="cms-button-text">Log Out</span>
+                  </a>
+                </React.Fragment>
+              }
+            </div>
             <button
-              key={navLink}
-              className={`cms-nav-link${navLink === currentTab ? " is-active" : ""}`}
-              onClick={this.handleTabChange.bind(this, navLink)}>
-              {navLink}
-            </button>
-          )}
-
-          <div className="cms-nav-settings-button-container">
-            <Button className="cms-nav-settings-button" context="cms" icon="cog" active={settingsOpen} onClick={this.toggleSettings.bind(this)}>
-              settings
-            </Button>
-          </div>
-
-          <div className={`cms-nav-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
-            {/* locale select */}
-            {locales &&
-              <React.Fragment>
-                <h2 className="cms-nav-settings-heading u-font-sm">
-                  Languages
-                </h2>
-                {/* primary locale */}
-                {/* NOTE: currently just shows the primary locale in a dropdown */}
-                <Select
-                  label="Primary"
-                  fontSize="xs"
-                  context="cms"
-                  inline
-                  options={[localeDefault]}
-                />
-                {/* secondary locale */}
-                <Select
-                  label="Secondary"
-                  fontSize="xs"
-                  context="cms"
-                  inline
-                  value={secondaryLocale}
-                  options={locales.map(loc => loc)}
-                  onChange={this.handleLocaleSelect.bind(this)}
-                >
-                  <option value="none">none</option>
-                </Select>
-              </React.Fragment>
-            }
-            {auth.user &&
-              <React.Fragment>
-                <h2 className="cms-nav-settings-heading u-font-sm u-margin-top-md">
-                  Account
-                </h2>
-                <a className="cms-button is-block u-margin-bottom-xs" href="/auth/logout">
-                  <Icon className="cms-button-icon" icon="log-out" />
-                  <span className="cms-button-text">Log Out</span>
-                </a>
-              </React.Fragment>
-            }
-          </div>
+              className={`cms-nav-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
+              onClick={this.toggleSettings.bind(this)}
+              tabIndex={settingsOpen ? null : "-1"}
+            />
+          </React.Fragment> }
         </div>
 
         {currentTab === "profiles" &&
@@ -197,8 +215,12 @@ class Builder extends Component {
         }
         {currentTab === "stories" &&
           <StoryBuilder
-            // pathObj={pathObj}
-            // setPath={this.setPath.bind(this)}
+            localeDefault={localeDefault}
+            locale={secondaryLocale}
+          />
+        }
+        {currentTab === "metadata" &&
+          <MetaEditor
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />

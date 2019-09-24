@@ -9,11 +9,12 @@
   top: var(--nav-height);
   /* sizing */
   width: 100%;
-  height: var(--cms-nav-height);
+  min-height: var(--cms-nav-height);
   /* layout */
   padding-left: 0.5rem;
   padding-right: 1rem;
   display: flex;
+  flex-wrap: wrap;
   /* positioning */
   z-index: 3;
   /* theming */
@@ -100,6 +101,7 @@
     top: 0;
     right: 0.375rem;
     width: 18.75rem;
+    z-index: 1; /* in front of overlay */
     max-width: calc(100% - 0.75rem);
     /* theming */
     border-radius: 4px;
@@ -120,17 +122,20 @@
     }
   }
 
-  /* fudge add profile/story button into place */
-  & ~ .cms-button {
-    position: absolute;
-    top: var(--nav-height);
-    margin-top: 0.875rem;
-    z-index: 3; /* above nav */
-    left: 11.75rem;
+  & .cms-nav-settings-overlay {
+    @mixin absolute-expand;
+    @mixin button-reset;
+    position: fixed;
+    background-color: color(var(--black) a(0.875));
+    transition:
+      opacity 0.2s ease-out,
+      background-color 0.2s ease-out;
 
-    /* needs a different magic number because it has a different width */
-    &.cms-add-story-button {
-      left: 12.125rem;
+    &.is-hidden {
+      width: 0;
+      height: 0;
+      z-index: -1;
+      opacity: 0;
     }
   }
 }
@@ -163,6 +168,17 @@
     background-color: var(--dark-2);
     color: var(--light-1);
     box-shadow: 0 0 1rem var(--black);
+  }
+
+  & > .cms-button-container {
+    padding: var(--gutter-xs);
+    border-top: 1px solid var(--light-2);
+    border-bottom: 1px solid var(--light-2);
+
+    @mixin dark-mode {
+      background-color: var(--dark-3);
+      border-color: var(--black);
+    }
   }
 }
 

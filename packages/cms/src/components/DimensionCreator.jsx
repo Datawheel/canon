@@ -82,7 +82,6 @@ class DimensionCreator extends Component {
     else {
       if (this.props.onAddDimension) this.props.onAddDimension(profileData);  
     }
-    
   }
 
   render() {
@@ -121,7 +120,7 @@ class DimensionCreator extends Component {
 
         {profileData.dimension &&
           <div className="cms-field-container">
-            Levels:
+            Subdimensions:
             <fieldset className="cms-fieldset">
               { levelList.map(level =>
                 <label className="cms-checkbox-label" key={level}>

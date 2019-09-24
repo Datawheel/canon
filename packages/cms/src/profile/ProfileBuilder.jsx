@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
+import {hot} from "react-hot-loader/root";
 import {NonIdealState, Intent, Alert} from "@blueprintjs/core";
 import ProfileEditor from "./ProfileEditor";
 import SectionEditor from "./SectionEditor";
@@ -45,6 +46,13 @@ class ProfileBuilder extends Component {
     };
   }
 
+  getChildContext() {
+    return {
+      onSetVariables: this.onSetVariables.bind(this),
+      onSelectPreview: this.onSelectPreview.bind(this)
+    };
+  }
+
   componentDidMount() {
     const treeGet = axios.get("/api/cms/tree");
     const cubeGet = axios.get("/api/cubeData");
@@ -85,7 +93,7 @@ class ProfileBuilder extends Component {
       masterMeta: p.meta,
       data: p,
       childNodes: p.sections.map(t => {
-        const defCon = t.content.find(c => c.lang === localeDefault);
+        const defCon = t.content.find(c => c.locale === localeDefault);
         const title = defCon && defCon.title ? defCon.title : t.slug;
         return {
           id: `section${t.id}`,
@@ -208,7 +216,9 @@ class ProfileBuilder extends Component {
       if (section.status === 200) {
         obj.id = `section${section.data.id}`;
         obj.data = section.data;
-        const defCon = section.data.content.find(c => c.lang === localeDefault);
+        obj.icon = sectionIconLookup(section.data.type, section.data.sticky);
+        obj.className = `${toKebabCase(section.data.type)}-node`;
+        const defCon = section.data.content.find(c => c.locale === localeDefault);
         const title = defCon && defCon.title ? defCon.title : section.slug;
         obj.label = this.formatLabel.bind(this)(title);
         const parent = this.locateNode("profile", obj.data.profile_id);
@@ -238,7 +248,7 @@ class ProfileBuilder extends Component {
       const parent = this.locateNode("profile", n.data.profile_id);
       axios.delete("/api/cms/section/delete", {params: {id: n.data.id}}).then(resp => {
         const sections = resp.data.map(sectionData => {
-          const defCon = sectionData.content.find(c => c.lang === localeDefault);
+          const defCon = sectionData.content.find(c => c.locale === localeDefault);
           const title = defCon && defCon.title ? defCon.title : sectionData.slug;
           return {
             id: `section${sectionData.id}`,
@@ -317,7 +327,9 @@ class ProfileBuilder extends Component {
         resps.forEach((resp, i) => {
           previews.push({
             slug: node.masterMeta[i].slug,
-            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
+            name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
+            memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
           });
         });
         pathObj.previews = previews.map(d => d.id).join();
@@ -394,7 +406,7 @@ class ProfileBuilder extends Component {
     const node = this.locateNode.bind(this)("section", id);
     // Update the label based on the new value.
     if (node) {
-      const defCon = node.data.content.find(c => c.lang === localeDefault);
+      const defCon = node.data.content.find(c => c.locale === localeDefault);
       if (defCon) defCon.title = newValue;
       // todo: determine if this could be merged with formatTreeVariables
       node.label = this.formatLabel.bind(this)(newValue);
@@ -421,7 +433,9 @@ class ProfileBuilder extends Component {
         resps.forEach((resp, i) => {
           previews.push({
             slug: masterMeta[i].slug,
-            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
+            name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
+            memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
           });
         });
         this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
@@ -444,7 +458,9 @@ class ProfileBuilder extends Component {
       resps.forEach((resp, i) => {
         previews.push({
           slug: masterMeta[i].slug,
-          id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : ""
+          id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
+          name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
+          memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
         });
       });
       this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
@@ -466,14 +482,8 @@ class ProfileBuilder extends Component {
   /*
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
-  onSelectPreview(slug, id) {
-    const previews = this.state.previews.map(p => {
-      const newId = p.slug === slug ? id : p.id;
-      return {
-        id: newId,
-        slug: p.slug
-      };
-    });
+  onSelectPreview(newPreview) {
+    const previews = this.state.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
     this.setState({previews}, this.fetchVariables.bind(this, true));
   }
 
@@ -504,7 +514,7 @@ class ProfileBuilder extends Component {
     const p = this.locateProfileNodeByPid(currentPid);
     p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions";
     p.childNodes = p.childNodes.map(t => {
-      const defCon = t.data.content.find(c => c.lang === localeDefault);
+      const defCon = t.data.content.find(c => c.locale === localeDefault);
       const title = defCon && defCon.title ? defCon.title : t.data.slug;
       t.label = this.formatLabel.bind(this)(title);
       return t;
@@ -567,7 +577,7 @@ class ProfileBuilder extends Component {
               const incGens = defObj[localeDefault][status];
               const curGens = variablesHash[currentPid][localeDefault][status];
               Object.keys(incGens).forEach(id => {
-                if (!incGens[id].error) delete curGens[id].error;
+                if (!incGens[id].error && curGens[id]) delete curGens[id].error;
               });
             });
           }
@@ -601,7 +611,7 @@ class ProfileBuilder extends Component {
                 const incGens = locObj[locale][status];
                 const curGens = variablesHash[currentPid][locale][status];
                 Object.keys(incGens).forEach(id => {
-                  if (!incGens[id].error) delete curGens[id].error;
+                  if (!incGens[id].error && curGens[id]) delete curGens[id].error;
                 });
               });
             }
@@ -616,6 +626,27 @@ class ProfileBuilder extends Component {
     }
     else {
       this.setState({variablesHash}, maybeCallback);
+    }
+  }
+
+  /** 
+   * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
+   * and overrides/sets a variable in the variables object. This does not require a server 
+   * round-trip - we need only inject the variables object and trigger a re-render.
+   */
+  onSetVariables(newVariables) {
+    const {variablesHash, currentPid} = this.state;
+    // Users should ONLY call setVariables in a callback - never in the main execution, as this
+    // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
+    // loop by checking if the vars are in there already, only updating if they are not yet set.
+    const alreadySet = Object.keys(variablesHash[currentPid]).every(locale => 
+      Object.keys(newVariables).every(key => variablesHash[currentPid][locale][key] === newVariables[key])
+    );
+    if (!alreadySet) {
+      Object.keys(variablesHash[currentPid]).forEach(locale => {
+        variablesHash[currentPid][locale] = Object.assign({}, variablesHash[currentPid][locale], newVariables);
+      });
+      this.setState({variablesHash});
     }
   }
 
@@ -637,20 +668,23 @@ class ProfileBuilder extends Component {
 
     return (
       <React.Fragment>
-        {/* new entity */}
-        <Button
-          onClick={this.createProfile.bind(this)}
-          context="cms"
-          className="cms-add-profile-button"
-          fontSize="xxs"
-          icon="plus"
-          iconPosition="right"
-        >
-          add profile
-        </Button>
-
         <div className="cms-panel profile-panel" id="profile-builder">
           <div className="cms-sidebar" id="tree">
+            {/* new entity */}
+            <div className="cms-button-container">
+              <Button
+                onClick={this.createProfile.bind(this)}
+                context="cms"
+                className="cms-add-profile-button"
+                fontSize="xxs"
+                icon="plus"
+                iconPosition="right"
+                block
+              >
+                add profile
+              </Button>
+            </div>
+
             <SidebarTree
               onNodeClick={this.handleNodeClick.bind(this)}
               onNodeCollapse={this.handleNodeCollapse.bind(this)}
@@ -666,6 +700,7 @@ class ProfileBuilder extends Component {
                 locale={locale}
                 localeDefault={localeDefault}
                 previews={previews}
+                onSetVariables={this.onSetVariables.bind(this)}
                 variables={variables}
                 selectors={selectors}
                 order={currNodeOrder}
@@ -722,8 +757,13 @@ class ProfileBuilder extends Component {
   }
 }
 
+ProfileBuilder.childContextTypes = {
+  onSetVariables: PropTypes.func,
+  onSelectPreview: PropTypes.func
+};
+
 ProfileBuilder.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default connect(state => ({env: state.env}))(ProfileBuilder);
+export default connect(state => ({env: state.env}))(hot(ProfileBuilder));

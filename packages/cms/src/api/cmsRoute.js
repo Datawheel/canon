@@ -1,5 +1,7 @@
-const MondrianClient = require("mondrian-rest-client").Client;
-const TesseractClient = require("@datawheel/tesseract-client").Client;
+const Client = require("@datawheel/olap-client").Client;
+const MondrianDataSource = require("@datawheel/olap-client").MondrianDataSource;
+// const TesseractDataSource = require("@datawheel/olap-client").TesseractDataSource;
+
 const collate = require("../utils/collate");
 const d3Array = require("d3-array");
 const sequelize = require("sequelize");
@@ -11,26 +13,31 @@ const Op = sequelize.Op;
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+const LANGUAGES = process.env.CANON_LANGUAGES ? process.env.CANON_LANGUAGES.split(",") : [envLoc];
+if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
+// Put the default language first in the array. This ensures that slugs that are generated
+// in populateSearch will be made from the default language content.
+LANGUAGES.sort(a => a === envLoc ? -1 : 1);
 
 const {CANON_CMS_CUBES} = process.env;
 
-let isTesseract = false;
-let client = new TesseractClient(CANON_CMS_CUBES);
-client.checkStatus().then(resp => {
-  if (resp && resp.status === "ok") {
-    isTesseract = true;
+/**
+ * There is not a fully-featured way for olap-client to know the difference between a 
+ * Tesseract and a Mondrian Client. Tesseract is more modern/nice in its HTTP codes/responses,
+ * so attempt Tesseract first, and on failure, assume mondrian. 
+ */
+const client = new Client();
+Client.dataSourceFromURL(CANON_CMS_CUBES).then(
+  datasource => {
     if (verbose) console.log(`Initializing Tesseract at ${CANON_CMS_CUBES}`);
-  }
-  else {
+    client.setDataSource(datasource);
+  },
+  err => {
+    const ds = new MondrianDataSource(CANON_CMS_CUBES);
+    client.setDataSource(ds);
+    if (verbose) console.error(`Tesseract not detected: ${err.message}`);
     if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
-    client = new MondrianClient(CANON_CMS_CUBES);
   }
-}, e => {
-  // On tesseract status failure, assume mondrian.
-  if (verbose) console.error(`Tesseract Failed to connect with error: ${e}`);
-  if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
-  client = new MondrianClient(CANON_CMS_CUBES);
-}
 );
 
 const sectionTypeDir = path.join(__dirname, "../components/sections/");
@@ -56,7 +63,7 @@ const profileReqTreeOnly = {
     {
       association: "sections", attributes: ["id", "slug", "ordering", "profile_id", "type", "sticky"],
       include: [
-        {association: "content", attributes: ["id", "lang", "title"]}
+        {association: "content", attributes: ["id", "locale", "title"]}
       ]
     }
   ]
@@ -65,9 +72,9 @@ const profileReqTreeOnly = {
 const storyReqTreeOnly = {
   attributes: ["id", "slug", "ordering"],
   include: [
-    {association: "content", attributes: ["id", "lang", "title"]},
+    {association: "content", attributes: ["id", "locale", "title"]},
     {association: "storysections", attributes: ["id", "slug", "ordering", "story_id", "type"],
-      include: [{association: "content", attributes: ["id", "lang", "title"]}]
+      include: [{association: "content", attributes: ["id", "locale", "title"]}]
     }
   ]
 };
@@ -241,8 +248,7 @@ const formatter = (members, data, dimension, level) => {
   const newData = members.reduce((arr, d) => {
     const obj = {};
     obj.id = `${d.key}`;
-    obj.name = d.name;
-    obj.display = d.caption || d.name;
+    obj.name = d.caption || d.name;
     obj.zvalue = data[obj.id] || 0;
     obj.dimension = dimension;
     obj.hierarchy = level;
@@ -279,67 +285,87 @@ const populateSearch = async(profileData, db) => {
   const dimension = profileData.dimName || profileData.dimension;
   const dimLevels = profileData.levels;
 
-  const cube = await client.cube(cubeName).catch(catcher);
+  const cube = await client.getCube(cubeName).catch(catcher);
 
   const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
     .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
 
-  let fullList = [];
-  for (let i = 0; i < levels.length; i++) {
+  for (const locale of LANGUAGES) {
 
-    const level = levels[i];
-    const members = await client.members(level).catch(catcher);
+    let fullList = [];
+    for (let i = 0; i < levels.length; i++) {
 
-    let data = [];
+      const level = levels[i];
+      const members = await client.getMembers(level, {locale}).catch(catcher);
 
-    if (isTesseract) {
+      let data = [];
+
+      const drilldown = {
+        dimension,
+        hierarchy: level.hierarchy.name,
+        level: level.name
+      };
+
       data = await client.execQuery(cube.query
-        .addDrilldown(`${dimension}.${level.hierarchy.name}.${level.name}`)
-        .addMeasure(measure), "jsonrecords")
+        .addDrilldown(drilldown)
+        .addMeasure(measure))
         .then(resp => resp.data)
         .then(data => data.reduce((obj, d) => {
-          obj[d[`${level.name} ID`]] = d[measure];
+          obj[d[`ID ${level.name}`] ? d[`ID ${level.name}`] : d[`${level.name} ID`]] = d[measure];
           return obj;
         }, {})).catch(catcher);
-    }
-    else {
-      data = await client.query(cube.query
-        .drilldown(dimension, level.hierarchy.name, level.name)
-        .measure(measure), "jsonrecords")
-        .then(resp => resp.data.data)
-        .then(data => data.reduce((obj, d) => {
-          obj[d[`ID ${level.name}`]] = d[measure];
-          return obj;
-        }, {})).catch(catcher);
+
+      fullList = fullList.concat(formatter(members, data, dimension, level.name));
+
     }
 
-    fullList = fullList.concat(formatter(members, data, dimension, level.name));
+    let slugs = await db.search.findAll().catch(catcher);
+    slugs = slugs.map(s => s.slug).filter(d => d);
 
-  }
+    const slugify = (str, id) => {
+      let slug = strip(str).replace(/-{2,}/g, "-").toLowerCase();
+      if (slugs.includes(slug)) slug += `-${id}`;
+      slugs.push(slug);
+      return slug;
+    };
 
-  let slugs = await db.search.findAll().catch(catcher);
-  slugs = slugs.map(s => s.slug).filter(d => d);
-
-  const slugify = (str, id) => {
-    let slug = strip(str).replace(/-{2,}/g, "-").toLowerCase();
-    if (slugs.includes(slug)) slug += `-${id}`;
-    slugs.push(slug);
-    return slug;
-  };
-
-  for (let i = 0; i < fullList.length; i++) {
-    const obj = fullList[i];
-    obj.slug = slugify(obj.name, obj.id);
-    const {id, dimension, hierarchy} = obj;
-    const [row, created] = await db.search.findOrCreate({
-      where: {id, dimension, hierarchy},
-      defaults: obj
-    }).catch(catcher);
-    if (verbose && created) console.log(`Created: ${row.id} ${row.display}`);
-    else {
-      if (row.slug) delete obj.slug;
-      await row.updateAttributes(obj).catch(catcher);
-      if (verbose) console.log(`Updated: ${row.id} ${row.display}`);
+    // Fold over the list of members
+    for (let i = 0; i < fullList.length; i++) {
+      // Extract their properties
+      const {id, name, zvalue, dimension, hierarchy, stem} = fullList[i];
+      // The search table holds the non-translatable props
+      const searchObj = {id, zvalue, dimension, hierarchy, stem};
+      searchObj.slug = slugify(name, id);
+      // Create the member in the search table
+      const [row, created] = await db.search.findOrCreate({
+        where: {id, dimension, hierarchy},
+        defaults: searchObj
+      }).catch(catcher);
+      if (created) {
+        if (verbose) console.log(`Created: ${row.id} ${row.slug}`);
+        // If a new row was created, create its translated content
+        await db.search_content.create({id: row.contentId, locale, name});
+      }
+      else {
+        if (row.slug) delete searchObj.slug;
+        // If it's an update, update everything except the (permanent) slug
+        await row.updateAttributes(searchObj).catch(catcher);
+        if (verbose) {
+          console.log(`Updated: ${row.id} ${row.slug}`);
+          console.log("Updating associated language content:");
+        }
+        const [contentRow, contentCreated] = await db.search_content.findOrCreate({
+          where: {id: row.contentId, locale},
+          defaults: {name}
+        }).catch(catcher);
+        if (contentCreated) {
+          if (verbose) console.log(`Created ${locale} Content: ${contentRow.name}`);
+        }
+        else {
+          await contentRow.updateAttributes({name});
+          if (verbose) console.log(`Updated ${contentRow.id} ${contentRow.locale}: ${contentRow.name}`);
+        }
+      }
     }
   }
 
@@ -352,6 +378,12 @@ module.exports = function(app) {
   app.get("/api/cms", (req, res) => res.json(cmsCheck()));
 
   /* GETS */
+
+  app.get("/api/cms/meta", async(req, res) => {
+    let meta = await db.profile_meta.findAll().catch(catcher);
+    meta = meta.map(m => m.toJSON());
+    res.json(meta);
+  });
 
   app.get("/api/cms/tree", async(req, res) => {
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
@@ -474,7 +506,7 @@ module.exports = function(app) {
       const newObj = await db[ref].create(req.body).catch(catcher);
       // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
       if (contentTables.includes(ref)) {
-        const payload = Object.assign({}, req.body, {id: newObj.id, lang: envLoc});
+        const payload = Object.assign({}, req.body, {id: newObj.id, locale: envLoc});
         await db[`${ref}_content`].create(payload).catch(catcher);
         const fullObj = await db[ref].findOne({where: {id: newObj.id}, include: [{association: "content"}]}).catch(catcher);
         return res.json(fullObj);
@@ -487,9 +519,9 @@ module.exports = function(app) {
 
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
     const profile = await db.profile.create(req.body).catch(catcher);
-    await db.profile_content.create({id: profile.id, lang: envLoc}).catch(catcher);
-    const section = await db.section.create({ordering: 0, profile_id: profile.id});
-    await db.section_content.create({id: section.id, lang: envLoc}).catch(catcher);
+    await db.profile_content.create({id: profile.id, locale: envLoc}).catch(catcher);
+    const section = await db.section.create({ordering: 0, type: "Hero", profile_id: profile.id});
+    await db.section_content.create({id: section.id, locale: envLoc}).catch(catcher);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     return res.json(profiles);
@@ -523,7 +555,7 @@ module.exports = function(app) {
       const o = await db[ref].update(req.body, {where: {id: req.body.id}}).catch(catcher);
       if (contentTables.includes(ref) && req.body.content) {
         req.body.content.forEach(async content => {
-          await db[`${ref}_content`].upsert(content, {where: {id: req.body.id, lang: content.lang}}).catch(catcher);
+          await db[`${ref}_content`].upsert(content, {where: {id: req.body.id, locale: content.locale}}).catch(catcher);
         });
       }
       return res.json(o);
@@ -660,7 +692,7 @@ module.exports = function(app) {
       where: {profile_id: row.profile_id},
       attributes: ["id", "slug", "ordering", "profile_id", "type"],
       include: [
-        {association: "content", attributes: ["id", "lang", "title"]}
+        {association: "content", attributes: ["id", "locale", "title"]}
       ],
       order: [["ordering", "ASC"]]
     }).catch(catcher);
@@ -675,7 +707,7 @@ module.exports = function(app) {
       where: {story_id: row.story_id},
       attributes: ["id", "slug", "ordering", "story_id", "type"],
       include: [
-        {association: "content", attributes: ["id", "lang", "title"]}
+        {association: "content", attributes: ["id", "locale", "title"]}
       ],
       order: [["ordering", "ASC"]]
     }).catch(catcher);
