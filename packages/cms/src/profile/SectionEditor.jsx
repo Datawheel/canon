@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 
 import toSpacedCase from "../utils/formatters/toSpacedCase";
 
-import Button from "../components/fields/Button";
 import Select from "../components/fields/Select";
 import ButtonGroup from "../components/fields/ButtonGroup";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
@@ -132,10 +131,6 @@ class SectionEditor extends Component {
     const {minData} = this.state;
     minData[propMap[type]] = newArray;
     this.setState({minData});
-  }
-
-  onSetVariables(newVariables) {
-    if (this.props.onSetVariables) this.props.onSetVariables(newVariables);
   }
 
   render() {
@@ -377,7 +372,6 @@ class SectionEditor extends Component {
                 previews={previews}
                 onDelete={this.onDelete.bind(this)}
                 type="section_visualization"
-                onSetVariables={this.onSetVariables.bind(this)}
                 variables={variables[localeDefault]}
                 secondaryVariables={variables[locale]}
                 selectors={minData.allSelectors.map(s => Object.assign({}, s))}

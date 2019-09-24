@@ -102,10 +102,6 @@ class VisualizationCard extends Component {
     this.setState({minData, isOpen, alertObj, isDirty});
   }
 
-  onSetVariables(newVariables) {
-    if (this.props.onSetVariables) this.props.onSetVariables(newVariables);
-  }
-
   render() {
 
     const {minData, isOpen, alertObj} = this.state;
@@ -164,7 +160,6 @@ class VisualizationCard extends Component {
             locale={locale}
             debug={true}
             variables={variables}
-            onSetVariables={this.onSetVariables.bind(this)}
             configOverride={{height, scrollContainer: "#item-editor"}}
             options={false}
           />

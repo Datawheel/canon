@@ -2,11 +2,12 @@ import axios from "axios";
 import React, {Component} from "react";
 import Button from "../fields/Button";
 import DefinitionList from "../variables/DefinitionList";
+import PropTypes from "prop-types";
 import PreviewSearch from "../fields/PreviewSearch";
 import Card from "./Card";
 import "./DimensionCard.css";
 
-export default class DimensionCard extends Component {
+class DimensionCard extends Component {
 
   constructor(props) {
     super(props);
@@ -22,7 +23,7 @@ export default class DimensionCard extends Component {
     const {slug} = this.props.preview;
     const {id, name, slug: memberSlug} = result;
     const newPreview = {slug, id, name, memberSlug};
-    if (this.props.onSelectPreview) this.props.onSelectPreview(newPreview);
+    this.context.onSelectPreview(newPreview);
   }
 
   rebuildSearch() {
@@ -110,3 +111,9 @@ export default class DimensionCard extends Component {
   }
 
 }
+
+DimensionCard.contextTypes = {
+  onSelectPreview: PropTypes.func
+};
+
+export default DimensionCard;

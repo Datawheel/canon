@@ -20,13 +20,10 @@ class Viz extends Component {
     if (updateSource && resp.source) updateSource(resp.source);
   }
 
-  setVariables(newVariables) {
-    if (this.props.onSetVariables) this.props.onSetVariables(newVariables);
-  }
-
   render() {
     const {sectionTitle} = this.props;
     const variables = this.props.variables || this.context.variables;
+    const {onSetVariables} = this.context;
     const locale = this.props.locale || this.context.locale;
 
     // This Viz component may be embedded in two ways - as a VisualizationCard in the
@@ -41,7 +38,7 @@ class Viz extends Component {
     const {id} = config;
 
     // clone config object to allow manipulation
-    const vizProps = propify(config.logic, formatters, variables, locale, id, this.setVariables.bind(this));
+    const vizProps = propify(config.logic, formatters, variables, locale, id, onSetVariables);
 
     // If the result of propify has an "error" property, then the provided javascript was malformed and propify
     // caught an error. Instead of attempting to render the viz, simply show the error to the user.
@@ -112,6 +109,7 @@ Viz.contextTypes = {
   formatters: PropTypes.object,
   locale: PropTypes.string,
   updateSource: PropTypes.func,
+  onSetVariables: PropTypes.func,
   variables: PropTypes.object
 };
 

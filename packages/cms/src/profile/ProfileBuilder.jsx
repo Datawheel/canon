@@ -46,6 +46,13 @@ class ProfileBuilder extends Component {
     };
   }
 
+  getChildContext() {
+    return {
+      onSetVariables: this.onSetVariables.bind(this),
+      onSelectPreview: this.onSelectPreview.bind(this)
+    };
+  }
+
   componentDidMount() {
     const treeGet = axios.get("/api/cms/tree");
     const cubeGet = axios.get("/api/cubeData");
@@ -749,6 +756,11 @@ class ProfileBuilder extends Component {
     );
   }
 }
+
+ProfileBuilder.childContextTypes = {
+  onSetVariables: PropTypes.func,
+  onSelectPreview: PropTypes.func
+};
 
 ProfileBuilder.contextTypes = {
   formatters: PropTypes.object

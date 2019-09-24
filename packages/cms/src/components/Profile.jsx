@@ -6,7 +6,6 @@ import PropTypes from "prop-types";
 import {fetchData} from "@datawheel/canon-core";
 
 import libs from "../utils/libs";
-import stripP from "../utils/formatters/stripP";
 
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
@@ -44,6 +43,7 @@ class Profile extends Component {
       }, {}),
       router,
       onSelector: this.onSelector.bind(this),
+      onSetVariables: this.onSetVariables.bind(this),
       variables,
       locale
     };
@@ -149,7 +149,6 @@ class Profile extends Component {
               {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                 // ungrouped section
                 ? <Section
-                  onSetVariables={this.onSetVariables.bind(this)}
                   contents={innerGrouping[0]}
                   headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
                   loading={loading}
@@ -159,7 +158,6 @@ class Profile extends Component {
                 : <SectionGrouping layout={innerGrouping[0].type}>
                   {innerGrouping.map((section, iii) =>
                     <Section
-                      onSetVariables={this.onSetVariables.bind(this)}
                       contents={section}
                       headingLevel={groupedSections.length === 1 || ii === 0
                         ? iii === 0 ? "h2" : "h3"
@@ -184,7 +182,8 @@ Profile.childContextTypes = {
   locale: PropTypes.string,
   router: PropTypes.object,
   variables: PropTypes.object,
-  onSelector: PropTypes.func
+  onSelector: PropTypes.func,
+  onSetVariables: PropTypes.func
 };
 
 Profile.need = [

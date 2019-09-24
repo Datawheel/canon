@@ -115,10 +115,6 @@ class Section extends Component {
     }
   }
 
-  onSetVariables(newVariables) {
-    if (this.props.onSetVariables) this.props.onSetVariables(newVariables);
-  }
-
   render() {
     const {contents, sources, isStickyIE, height} = this.state;
     const {headingLevel, loading} = this.props;
@@ -209,7 +205,6 @@ class Section extends Component {
       paragraphs: layout === "Tabs" ? contents.descriptions : paragraphs,
       visualizations: !contents.sticky ? visualizations : [],
       vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
-      onSetVariables: this.onSetVariables.bind(this),
       loading
     };
 

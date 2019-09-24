@@ -17,10 +17,6 @@ export default class DimensionBuilder extends Component {
   componentDidMount() {
   }
 
-  onSelectPreview(newPreview) {
-    if (this.props.onSelectPreview) this.props.onSelectPreview(newPreview);
-  }
-
   onAddDimension(d) {
     if (this.props.onAddDimension) this.props.onAddDimension(d);
     this.setState({isOpen: false});
@@ -46,7 +42,6 @@ export default class DimensionBuilder extends Component {
               key={`dc-${i}`}
               meta={meta[i]}
               preview={previews[i]}
-              onSelectPreview={this.onSelectPreview.bind(this)}
               onDeleteDimension={this.onDeleteDimension.bind(this)}
             />
           )}
