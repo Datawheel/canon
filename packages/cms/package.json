@@ -27,7 +27,7 @@
     "@blueprintjs/select": "^3.6.1",
     "@datawheel/olap-client": "^1.0.15",
     "@datawheel/tesseract-client": "^0.1.1",
-    "@google-cloud/storage": "^3.1.0",
+    "@google-cloud/storage": "3.1.0",
     "axios": "^0.18.0",
     "base58": "^2.0.1",
     "buble": "^0.19.3",
