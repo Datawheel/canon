@@ -252,7 +252,7 @@ ___
 
 ## Migration
 
-For upgrading to new versions, there are currently three migration scripts:
+For upgrading to new versions, there are currently four migration scripts:
 
 1) `npx canon-cms-migrate-legacy` (for DataUSA)
 2) `npx canon-cms-migrate-0.1` (for CDC or other 0.1 CMS users)
