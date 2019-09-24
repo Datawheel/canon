@@ -31,6 +31,8 @@ module.exports = function(app) {
 
   const {db, cache} = app.settings;
 
+  app.get("/api/isImageEnabled", async(req, res) => res.json(Boolean(flickr)));
+
   app.post("/api/image/update", async(req, res) => {
     if (!flickr) return res.json({error: "Flickr API Key not configured"});
     const {contentId} = req.body;

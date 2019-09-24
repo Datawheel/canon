@@ -31,6 +31,7 @@ class MetaEditor extends Component {
       filterKey: "dimension",
       flickrQuery: "",
       flickrImages: [],
+      imageEnabled: false,
       isOpen: false,
       currentRow: {},
       loading: false,
@@ -42,7 +43,10 @@ class MetaEditor extends Component {
 
   componentDidMount() {
     const epoch = new Date().getTime();
-    this.setState({epoch}, this.hitDB.bind(this));
+    axios.get("/api/isImageEnabled").then(resp => {
+      const imageEnabled = resp.data;
+      this.setState({epoch, imageEnabled}, this.hitDB.bind(this));
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -239,9 +243,10 @@ class MetaEditor extends Component {
    */
   prepData() {
     const {locale, localeDefault} = this.props;
-    const {epoch} = this.state;
+    const {epoch, imageEnabled} = this.state;
     const data = this.fetchStringifiedSourceData.bind(this)();
-    const skip = ["stem", "imageId", "contentId"];
+    let skip = ["stem", "imageId", "contentId"];
+    if (!imageEnabled) skip = skip.concat("image");
     const keySort = ["id", "slug", "content", "zvalue", "dimension", "hierarchy", "image"];
     const fields = Object.keys(data[0])
       .filter(d => !skip.includes(d))
