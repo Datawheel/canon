@@ -103,7 +103,7 @@ class Options extends Component {
       let background;
       if (backgroundColor) background = getBackground(node);
       saveElement(node,
-        {filename: `${filename(title)}.${type}`},
+        {filename: filename(title), type},
         {background, callback: () => this.setState({imageProcessing: false})}
       );
     }
