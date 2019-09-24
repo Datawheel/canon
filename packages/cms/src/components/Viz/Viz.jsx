@@ -15,6 +15,12 @@ const vizTypes = Object.assign({PercentageBar}, {Table}, d3plus);
 
 class Viz extends Component {
 
+  getChildContext() {
+    const context = {...this.context};
+    context.d3plus = {...defaultConfig, ...context.d3plus};
+    return context;
+  }
+
   analyzeData(resp) {
     const {updateSource} = this.context;
     if (updateSource && resp.source) updateSource(resp.source);
@@ -60,7 +66,7 @@ class Viz extends Component {
     const title = vizProps.config.title;
     delete vizProps.config.title;
 
-    const vizConfig = Object.assign({}, defaultConfig, {locale}, vizProps.config);
+    const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
     return <SizeMe render={({size}) =>
       <div className={ `${context}-viz-container${
@@ -105,7 +111,16 @@ class Viz extends Component {
   }
 }
 
+Viz.childContextTypes = {
+  d3plus: PropTypes.object,
+  formatters: PropTypes.object,
+  locale: PropTypes.string,
+  updateSource: PropTypes.func,
+  variables: PropTypes.object
+};
+
 Viz.contextTypes = {
+  d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,
   updateSource: PropTypes.func,
