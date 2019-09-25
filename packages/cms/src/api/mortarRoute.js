@@ -158,10 +158,10 @@ const bubbleUp = (obj, locale) => {
       if (!fieldSet.includes(k)) fieldSet.push(k);
     });
   });
-  const defCon = obj.content.find(c => c.lang === envLoc);
-  const thisCon = obj.content.find(c => c.lang === locale);
+  const defCon = obj.content.find(c => c.locale === envLoc);
+  const thisCon = obj.content.find(c => c.locale === locale);
   fieldSet.forEach(k => {
-    if (k !== "id" && k !== "lang") {
+    if (k !== "id" && k !== "locale") {
       thisCon && thisCon[k] ? obj[k] = thisCon[k] : obj[k] = defCon ? defCon[k] : "";
     }
   });
@@ -442,7 +442,18 @@ module.exports = function(app) {
       returnObject = Object.assign({}, returnObject, profile);
     }
     returnObject.ids = dims.map(d => d.id).join();
+    returnObject.dims = dims;
     returnObject.variables = variables;
+    // The provided ids may have images associated with them, and these images have metadata. Before we send
+    // The object, we need to make a request to our /api/image endpoint to get any relevant image data.
+    // Note! Images are strictly ordered to match your strictly ordered slug/id pairs 
+    const images = [];
+    for (const dim of dims) {
+      const url = `${origin}/api/image?slug=${dim.slug}&id=${dim.id}&locale=${locale}&type=json`;
+      const image = await axios.get(url).then(d => d.data).catch(catcher);
+      images.push(image ? image.image : null);
+    }
+    returnObject.images = images;
     if (verbose) console.log("varSwap complete, sending json...");
     return res.json(returnObject);
   };
@@ -477,7 +488,7 @@ module.exports = function(app) {
     let stories = await db.story.findAll({include: [
       {association: "content"},
       {association: "authors", include: [
-        {association: "content", attributes: ["name", "image", "lang"]}
+        {association: "content", attributes: ["name", "image", "locale"]}
       ]}
     ]}).catch(catcher);
     stories = stories.map(story => extractLocaleContent(story, locale, "story"));

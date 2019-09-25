@@ -39,10 +39,9 @@ export default class Header extends Component {
 
     // construct URL from domain and dimensions
     const previewURL = `${domain}/profile/${dimensions
-      .map(dim => Object.values(dim)) // extract each dimension key & value into an array
-      .reduce((acc, val) => acc.concat(val), []) // flatten arrays
-      .join("/") // now it's a URL
-    }${typeof slug !== "undefined" ? `#${slug}` : ""}`;
+      .map(dim => `${dim.slug}/${dim.memberSlug || dim.id}/`)
+      .reduce((acc, d) => acc += d, "")
+    }`;
 
     return (
       <header className="cms-header">
@@ -80,7 +79,7 @@ export default class Header extends Component {
               {prettyDomain}/profile{dimensions && dimensions.map(dim =>
                 <React.Fragment key={dim.slug}>/
                   <span className="cms-header-link-dimension">{dim.slug}</span>/
-                  <span className="cms-header-link-id">{dim.id}</span>
+                  <span className="cms-header-link-id">{dim.memberSlug || dim.id}</span>
                 </React.Fragment>
               )}
             </a>

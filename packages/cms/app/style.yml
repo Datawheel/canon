@@ -128,6 +128,7 @@ label-letter-spacing:       "0.0125em" # generally, some kerning is helps legibi
 
 # hero AKA header AKA splash
 hero-bg-color:              "var(--dark-3)"
+hero-img-overlay-opacity:   "0.875"
 hero-text-color:            "var(--light-2)"
 hero-paragraph-size:        "var(--font-xs)"
 hero-heading-color:         "var(--white)"

@@ -9,6 +9,9 @@
   color: var(--grouping-heading-color);
   font-size: var(--grouping-heading-font-size);
 }
+.cp-grouping-section-heading-anchor {
+  color: var(--hero-heading-color);
+}
 
 .cp-grouping-section-subhead {
   color: var(--grouping-subhead-color);

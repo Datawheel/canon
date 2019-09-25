@@ -2,11 +2,12 @@ import axios from "axios";
 import React, {Component} from "react";
 import Button from "../fields/Button";
 import DefinitionList from "../variables/DefinitionList";
+import PropTypes from "prop-types";
 import PreviewSearch from "../fields/PreviewSearch";
 import Card from "./Card";
 import "./DimensionCard.css";
 
-export default class DimensionCard extends Component {
+class DimensionCard extends Component {
 
   constructor(props) {
     super(props);
@@ -16,15 +17,13 @@ export default class DimensionCard extends Component {
     };
   }
 
-  componentDidMount() {
-  }
-
   onSelectPreview(result) {
     // todo bivariate - should this slug come from preview or meta? once the user
     // is able to change slug, one of these will have to become the source of truth
     const {slug} = this.props.preview;
-    const {id} = result;
-    if (this.props.onSelectPreview) this.props.onSelectPreview(slug, id);
+    const {id, name, slug: memberSlug} = result;
+    const newPreview = {slug, id, name, memberSlug};
+    this.context.onSelectPreview(newPreview);
   }
 
   rebuildSearch() {
@@ -87,8 +86,8 @@ export default class DimensionCard extends Component {
           {label: "measure", text: meta.measure},
           {label: "preview ID", text:
             <PreviewSearch
-              label={preview.id || "search profiles..."}
-              previewing={preview.id}
+              label={preview.name || preview.id || "search profiles..."}
+              previewing={preview.name || preview.id}
               fontSize="xxs"
               renderResults={d =>
                 <Button
@@ -112,3 +111,9 @@ export default class DimensionCard extends Component {
   }
 
 }
+
+DimensionCard.contextTypes = {
+  onSelectPreview: PropTypes.func
+};
+
+export default DimensionCard;

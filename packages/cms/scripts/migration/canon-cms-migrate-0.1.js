@@ -2,6 +2,9 @@
  
 const utils = require("./migrationUtils.js");
 const {catcher, resetSequence, fetchOldModel, fetchNewModel} = utils;
+const shell = require("shelljs");
+const oldDBName = process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
+const newDBName = process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
 
 const migrate = async() => {
 
@@ -229,7 +232,8 @@ const migrate = async() => {
       }
     }
   }
-  console.log("Done.");
+  console.log(`Successfully migrated from CMS version 0.1 on ${oldDBName} to CMS version 0.6 on ${newDBName}`);
+  shell.exit(0);
 };
 
 migrate();

@@ -9,6 +9,7 @@ import "./Options.css";
 
 import {Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 
+import {max, sum} from "d3-array";
 import {select} from "d3-selection";
 import {saveAs} from "file-saver";
 import JSZip from "jszip";
@@ -22,6 +23,9 @@ import ButtonGroup from "../fields/ButtonGroup";
 import ShareDirectLink from "./ShareDirectLink";
 import ShareFacebookLink from "./ShareFacebookLink";
 import ShareTwitterLink from "./ShareTwitterLink";
+
+const measureText = str => sum(`${str}`.split("")
+  .map(c => ["I", "i", "l", "."].includes(c) ? 4 : 9));
 
 const filename = str => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/^\-/g, "")
@@ -180,9 +184,11 @@ class Options extends Component {
   }
 
   columnWidths(key) {
-    if (key === "Year") return 60;
-    else if (key.includes("ID ")) return 120;
-    else return 150;
+    const {results} = this.state;
+    const data = Array.from(new Set(results.map(d => d[key])))
+      .filter(Boolean)
+      .map(measureText);
+    return max([measureText(key)].concat(data)) + 25;
   }
 
   renderColumn = col => Object.assign({}, {
@@ -193,12 +199,12 @@ class Options extends Component {
     id: col,
     accessor: d => d[col],
     Cell: cell => <span className="cp-table-cell-inner" dangerouslySetInnerHTML={{__html: cell.value}} />,
-    minWidth: this.columnWidths(col)
+    minWidth: this.columnWidths.bind(this)(col)
   });
 
   render() {
-    const {backgroundColor, imageContext, imageProcessing, includeSlug, openDialog, results, title, focusOptions} = this.state;
-    const {data, dataFormat, iconOnly, slug, t, transitionDuration} = this.props;
+    const {backgroundColor, imageContext, imageProcessing, includeSlug, openDialog, results, focusOptions} = this.state;
+    const {data, iconOnly, slug, t, transitionDuration} = this.props;
 
     // construct URL from a combination of redux & context (#537)
     const domain = this.props.location.origin;

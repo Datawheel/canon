@@ -49,22 +49,22 @@ class TextCard extends Component {
 
   populateLanguageContent(minData) {
     const {locale, localeDefault, fields, plainfields} = this.props;
-    if (!minData.content.find(c => c.lang === localeDefault)) {
+    if (!minData.content.find(c => c.locale === localeDefault)) {
       // This is a rare edge case, but in some cases, the DEFAULT
       // Language is not populated. We must scaffold out a fake
       // Starting point with empty strings to base everything on.
-      const defCon = {id: minData.id, lang: localeDefault};
+      const defCon = {id: minData.id, locale: localeDefault};
       // If for any reason the default was missing fields, set it to a scaffold warning
       fields.forEach(k => !defCon[k] ? defCon[k] = "Missing Default Language Content!" : null);
       if (plainfields) plainfields.forEach(k => !defCon[k] ? defCon[k] = "" : null);
       minData.content.push(defCon);
     }
-    if (!minData.content.find(c => c.lang === locale)) {
-      const defCon = minData.content.find(c => c.lang === localeDefault);
-      const newCon = {id: minData.id, lang: locale};
+    if (!minData.content.find(c => c.locale === locale)) {
+      const defCon = minData.content.find(c => c.locale === localeDefault);
+      const newCon = {id: minData.id, locale};
       if (defCon) {
         Object.keys(defCon).forEach(k => {
-          if (k !== "id" && k !== "lang") newCon[k] = defCon[k];
+          if (k !== "id" && k !== "locale") newCon[k] = defCon[k];
         });
       }
       // If for any reason the default was missing fields, fill the rest with blanks
@@ -101,7 +101,7 @@ class TextCard extends Component {
     const thisFormatters = this.context.formatters[localeDefault];
     // Swap vars, and extract the actual (multilingual) content
     const content = varSwapRecursive(minData, thisFormatters, variables, query).content;
-    const thisLang = content.find(c => c.lang === localeDefault);
+    const thisLang = content.find(c => c.locale === localeDefault);
     // Map over each of the default keys, and fetch its equivalent locale version (or default)
     const thisDisplayData = {};
     if (thisLang) {
@@ -116,7 +116,7 @@ class TextCard extends Component {
       thatDisplayData = {};
       const thatFormatters = this.context.formatters[locale];
       const content = varSwapRecursive(minData, thatFormatters, variables, query).content;
-      const thatLang = content.find(c => c.lang === locale);
+      const thatLang = content.find(c => c.locale === locale);
 
       if (thatLang) {
         Object.keys(thatLang).forEach(k => {
@@ -133,13 +133,13 @@ class TextCard extends Component {
     const {minData} = this.state;
     const payload = {id: minData.id};
 
-    const thisLocale = minData.content.find(c => c.lang === localeDefault);
+    const thisLocale = minData.content.find(c => c.locale === localeDefault);
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
     fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
     if (plainfields) plainfields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
 
-    const thatLocale = minData.content.find(c => c.lang === locale);
+    const thatLocale = minData.content.find(c => c.locale === locale);
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
     fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
@@ -236,7 +236,7 @@ class TextCard extends Component {
     const displaySort = ["title", "value", "subtitle", "description", "tooltip"];
 
     const thisDisplay = Object.keys(thisDisplayData)
-      .filter(k => typeof thisDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
+      .filter(k => typeof thisDisplayData[k] === "string" && !["id", "locale", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
       .map(k => ({
         label: formatFieldName(k, this.prettifyType(type)),
@@ -245,7 +245,7 @@ class TextCard extends Component {
       }));
 
     const thatDisplay = thatDisplayData ? Object.keys(thatDisplayData)
-      .filter(k => typeof thatDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
+      .filter(k => typeof thatDisplayData[k] === "string" && !["id", "locale", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
       .map(k => ({
         label: formatFieldName(k, this.prettifyType(type)),

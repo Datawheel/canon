@@ -26,7 +26,7 @@ class TextEditor extends Component {
   handleEditor(field, t) {
     const {data, isDirty} = this.state;
     const {locale} = this.props;
-    const thisLocale = data.content.find(c => c.lang === locale);
+    const thisLocale = data.content.find(c => c.locale === locale);
     // When an editor loads a raw string from the DB (like "new title") then the first
     // thing it does is surround it in p tags, which counts as an "edit" and marks the
     // editor as dirty. Don't mark dirty in this case.
@@ -50,7 +50,7 @@ class TextEditor extends Component {
 
     if (!data || !fields || !variables || !formatters) return null;
 
-    const thisLocale = data.content.find(c => c.lang === locale);
+    const thisLocale = data.content.find(c => c.locale === locale);
 
     const quills = fields.map(f =>
       <div className="cms-field-container" key={f}>
