@@ -447,7 +447,7 @@ class MetaEditor extends Component {
       .filter(d => d[filterKey] === filterBy || filterBy === "all")
       .filter(d =>
         query === "" ||
-        (d.slug && d.slug.includes(query.toLowerCase())) ||
+        d.slug && d.slug.includes(query.toLowerCase()) ||
         d.content.some(c => c.name.toLowerCase().includes(query.toLowerCase())) ||
         d.content.some(c => c.attr && c.attr.toLowerCase().includes(query.toLowerCase())) ||
         d.content.some(c => c.keywords && c.keywords.toLowerCase().includes(query.toLowerCase())) ||
