@@ -86,7 +86,7 @@ class LoginForm extends Component {
       <form onSubmit={this.onSubmit.bind(this)} className="login-container">
         <TextInput
           label="Email address"
-          context="cms"
+          namespace="cms"
           fontSize="md"
           labelFontSize="xs"
           icon="envelope"
@@ -98,7 +98,7 @@ class LoginForm extends Component {
 
         <TextInput
           label="Password"
-          context="cms"
+          namespace="cms"
           fontSize="md"
           labelFontSize="xs"
           icon="lock"
@@ -110,7 +110,7 @@ class LoginForm extends Component {
 
         <Button
           className="cms-login-submit-button u-margin-top-md"
-          context="cms"
+          namespace="cms"
           fontSize="md"
           block
           type="submit"

@@ -143,7 +143,7 @@ class Builder extends Component {
             <div className="cms-nav-settings-button-container">
               <Button
                 className="cms-nav-settings-button"
-                context="cms"
+                namespace="cms"
                 icon="cog"
                 fontSize="xs"
                 active={settingsOpen}
@@ -165,7 +165,7 @@ class Builder extends Component {
                   <Select
                     label="Primary"
                     fontSize="xs"
-                    context="cms"
+                    namespace="cms"
                     inline
                     options={[localeDefault]}
                     tabIndex={settingsOpen ? null : "-1"}
@@ -174,7 +174,7 @@ class Builder extends Component {
                   <Select
                     label="Secondary"
                     fontSize="xs"
-                    context="cms"
+                    namespace="cms"
                     inline
                     value={secondaryLocale}
                     options={locales.map(loc => loc)}

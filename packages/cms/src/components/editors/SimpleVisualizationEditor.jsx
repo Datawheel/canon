@@ -189,12 +189,12 @@ class SimpleVisualizationEditor extends Component {
     let buttonProps = {
       children: "Build",
       disabled: true,
-      context: "cms"
+      namespace: "cms"
     };
     if (object.data) {
       buttonProps = {
         children: payload.data ? "Rebuild" : "Build",
-        context: "cms",
+        namespace: "cms",
         onClick: this.maybeRebuild.bind(this)
       };
     }
@@ -215,11 +215,11 @@ class SimpleVisualizationEditor extends Component {
 
       {/* data URL */}
       <TextButtonGroup
-        context="cms"
+        namespace="cms"
         inputProps={{
           label: "Data",
           inline: true,
-          context: "cms",
+          namespace: "cms",
           value: object.data || "",
           onChange: this.onChange.bind(this, "data")
         }}
@@ -231,7 +231,7 @@ class SimpleVisualizationEditor extends Component {
           <Select
             label="Visualization type"
             inline
-            context="cms"
+            namespace="cms"
             value={object.type}
             onChange={this.onChange.bind(this, "type")}
           >
@@ -242,7 +242,7 @@ class SimpleVisualizationEditor extends Component {
           </Select>
           <TextInput
             label="Title"
-            context="cms"
+            namespace="cms"
             inline
             key="title-text"
             value={object.title}
@@ -258,7 +258,7 @@ class SimpleVisualizationEditor extends Component {
             textFields.includes(prop)
               ? <TextInput
                 label={`please enter ${prop}`}
-                context="cms"
+                namespace="cms"
                 fontSize="xs"
                 key={prop}
                 value={object[prop]}
@@ -283,7 +283,7 @@ class SimpleVisualizationEditor extends Component {
                 // render prop as select
                 : <Select
                   label={prop === "groupBy" ? "grouping" : prop}
-                  context="cms"
+                  namespace="cms"
                   fontSize="xs"
                   value={object[prop]}
                   onChange={this.onChange.bind(this, prop)}

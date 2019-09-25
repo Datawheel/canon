@@ -92,7 +92,7 @@ class DimensionCard extends Component {
               renderResults={d =>
                 <Button
                   className="cms-search-result-button"
-                  context="cms"
+                  namespace="cms"
                   fontSize="xxs" onClick={this.onSelectPreview.bind(this, d)}
                 >
                   {d.name}

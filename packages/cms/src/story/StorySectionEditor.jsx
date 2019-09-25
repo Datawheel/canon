@@ -136,14 +136,14 @@ class StorySectionEditor extends Component {
               Story slug
               <div className="bp3-input-group">
                 <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
-                <Button context="cms" onClick={this.save.bind(this)}>Rename</Button>
+                <Button namespace="cms" onClick={this.save.bind(this)}>Rename</Button>
               </div>
             </label>
 
             {/* layout select */}
             <Select
               label="Layout"
-              context="cms"
+              namespace="cms"
               value={minData.type}
               onChange={this.changeField.bind(this, "type", true)}
             >
