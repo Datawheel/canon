@@ -39,7 +39,7 @@ export default class Deck extends Component {
             <Icon className="cms-deck-button-icon" icon="caret-down" />
           </button>
           {(cards && cards.length > 0 && addItem) || inToolbox === true
-            ? <Button onClick={addItem} className="cms-deck-heading-add-button" fontSize="xxs" context="cms" icon="plus">
+            ? <Button onClick={addItem} className="cms-deck-heading-add-button" fontSize="xxs" namespace="cms" icon="plus">
               add {entity === "description" ? "paragraph" : entity}
             </Button>
             : null
@@ -68,7 +68,7 @@ export default class Deck extends Component {
               : addItem && !inToolbox &&
                 <Button
                   className="cms-deck-big-button"
-                  context="cms"
+                  namespace="cms"
                   onClick={addItem}
                   icon="plus"
                   iconPosition="right"

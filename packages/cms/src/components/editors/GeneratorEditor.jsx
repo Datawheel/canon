@@ -264,14 +264,14 @@ class GeneratorEditor extends Component {
           <div className="cms-field-group">
             <TextInput
               label="Name"
-              context="cms"
+              namespace="cms"
               inline
               value={data.name}
               onChange={this.changeField.bind(this, "name")}
             />
             <TextInput
               label="Description"
-              context="cms"
+              namespace="cms"
               inline
               value={data.description}
               onChange={this.changeField.bind(this, "description")}
@@ -281,17 +281,17 @@ class GeneratorEditor extends Component {
 
         { type === "generator" &&
           <TextButtonGroup
-            context="cms"
+            namespace="cms"
             inputProps={{
               label: "API",
               inline: true,
-              context: "cms",
+              namespace: "cms",
               value: data.api,
               onChange: this.changeField.bind(this, "api")
             }}
             buttonProps={{
               children: payload && !payload.error ? "Refetch data" : "Fetch data",
-              context: "cms",
+              namespace: "cms",
               icon: payload && !payload.error ? "refresh" : "download",
               onClick: this.maybePreviewPayload.bind(this)
             }}
@@ -342,7 +342,7 @@ class GeneratorEditor extends Component {
             label="Visible"
             inline
             fontSize="xs"
-            context="cms"
+            namespace="cms"
             value={data.allowed || "always"}
             onChange={this.chooseVariable.bind(this)}
           >

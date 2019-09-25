@@ -47,7 +47,7 @@ class PlainTextEditor extends Component {
       <TextInput
         label={f}
         inline
-        context="cms"
+        namespace="cms"
         value={thisLocale[f]}
         onChange={this.changeField.bind(this, f)}
         key={f}

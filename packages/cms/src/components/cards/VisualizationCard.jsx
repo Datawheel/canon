@@ -156,7 +156,7 @@ class VisualizationCard extends Component {
         {!isOpen &&
           <Viz
             config={config}
-            context="cms"
+            namespace="cms"
             locale={locale}
             debug={true}
             variables={variables}

@@ -10,7 +10,7 @@ export default class Button extends Component {
       children,
       className,
       fontSize,
-      context,      // "cp" (default) or "cms"
+      namespace,    // "cp" (default) or "cms"
       disabled,
       rebuilding,   // add a spinning animation
       type,         // pretty much just for "submit"
@@ -23,7 +23,7 @@ export default class Button extends Component {
 
     return (
       <button
-        className={`${context}-button u-font-${fontSize}${
+        className={`${namespace}-button u-font-${fontSize}${
           className ? ` ${className}` : ""
         }${
           active ? " is-active" : " is-inactive"
@@ -42,11 +42,11 @@ export default class Button extends Component {
       >
         {/* left icon (default) */}
         {icon && iconPosition === "left" &&
-          <Icon className={`${context}-button-icon`} icon={icon} />
+          <Icon className={`${namespace}-button-icon`} icon={icon} />
         }
 
         {/* button text */}
-        <span className={`${context}-button-text${
+        <span className={`${namespace}-button-text${
           icon && iconOnly && children !== "Missing `children` prop in Button.jsx" ? " u-visually-hidden" : ""}`
         }>
           {children}
@@ -54,7 +54,7 @@ export default class Button extends Component {
 
         {/* right icon */}
         {icon && iconPosition === "right" &&
-          <Icon className={`${context}-button-icon`} icon={icon} />
+          <Icon className={`${namespace}-button-icon`} icon={icon} />
         }
       </button>
     );
@@ -66,5 +66,5 @@ Button.defaultProps = {
   iconPosition: "right",
   children: "Missing `children` prop in Button.jsx",
   fontSize: "sm",
-  context: "cp"
+  namespace: "cp"
 };

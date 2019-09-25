@@ -373,7 +373,7 @@ class StoryBuilder extends Component {
                   onClick={this.addFirst.bind(this)}
                   className="cms-add-story-button"
                   fontSize="xxs"
-                  context="cms"
+                  namespace="cms"
                   icon="plus"
                   iconPosition="right"
                   block

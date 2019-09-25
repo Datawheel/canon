@@ -200,20 +200,20 @@ class SectionEditor extends Component {
           <div className="cms-editor-header">
             {/* change slug */}
             <TextButtonGroup
-              context="cms"
+              namespace="cms"
               inputProps={{
                 label: "Slug",
                 labelHidden: true,
                 fontSize: "xs",
                 inline: true,
-                context: "cms",
+                namespace: "cms",
                 value: minData.slug,
                 onChange: this.changeField.bind(this, "slug", false)
               }}
               buttonProps={{
                 children: "Rename slug",
                 fontSize: "xs",
-                context: "cms",
+                namespace: "cms",
                 onClick: this.save.bind(this)
               }}
             />
@@ -221,7 +221,7 @@ class SectionEditor extends Component {
             {/* visibility select */}
             <Select
               label="Visible"
-              context="cms"
+              namespace="cms"
               fontSize="xs"
               inline
               value={minData.allowed || "always"}
@@ -235,7 +235,7 @@ class SectionEditor extends Component {
               <Select
                 label="Layout"
                 inline
-                context="cms"
+                namespace="cms"
                 fontSize="xs"
                 value={minData.type}
                 onChange={this.changeField.bind(this, "type", true)}
@@ -247,11 +247,11 @@ class SectionEditor extends Component {
             {/* sticky select */}
             <label className="bp3-label">
               <span className="u-visually-hidden">Positioning</span>
-              <ButtonGroup context="cms" buttons={[
+              <ButtonGroup namespace="cms" buttons={[
                 {
                   onClick: this.selectButton.bind(this, "sticky", true, false),
                   active: !minData.sticky,
-                  context: "cms",
+                  namespace: "cms",
                   fontSize: "xs",
                   icon: "alignment-left",
                   iconPosition: "left",
@@ -260,7 +260,7 @@ class SectionEditor extends Component {
                 {
                   onClick: this.selectButton.bind(this, "sticky", true, true),
                   active: minData.sticky,
-                  context: "cms",
+                  namespace: "cms",
                   fontSize: "xs",
                   icon: "alignment-top",
                   iconPosition: "left",
