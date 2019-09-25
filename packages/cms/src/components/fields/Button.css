@@ -57,7 +57,7 @@
   }
 
   /* cover the whole container width */
-  &.is-block {
+  &[class*="-fill-button"] {
     display: block;
     width: 100%;
   }

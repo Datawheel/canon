@@ -190,7 +190,7 @@ class Builder extends Component {
                   <h2 className="cms-nav-settings-heading u-font-sm u-margin-top-md">
                     Account
                   </h2>
-                  <a className="cms-button is-block u-margin-bottom-xs" href="/auth/logout">
+                  <a className="cms-button cms-fill-button u-margin-bottom-xs" href="/auth/logout">
                     <Icon className="cms-button-icon" icon="log-out" />
                     <span className="cms-button-text">Log Out</span>
                   </a>

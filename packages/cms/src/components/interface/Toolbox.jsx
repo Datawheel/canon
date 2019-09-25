@@ -261,7 +261,7 @@ export default class Toolbox extends Component {
                   onClick={this.openGenerator.bind(this, key)}
                   namespace="cms"
                   fontSize="xxs"
-                  block
+                  fill
                 >
                   {key}: <ConsoleVariable value={variables[localeDefault][key]} />
                 </Button>
