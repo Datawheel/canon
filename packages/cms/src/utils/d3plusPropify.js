@@ -3,14 +3,14 @@ import {parse} from "./FUNC";
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-export default (logic, formatters = {}, variables = {}, locale = envLoc, id = null, setVariables = d => d) => {
+export default (logic, formatters = {}, variables = {}, locale = envLoc, id = null, setVariables = d => d, openWindow = d => d) => {
 
   let config;
 
   // The logic provided might be malformed. Wrap it in a try/catch to be sure we don't
   // crash / RSOD whatever page is making use of propify.
   try {
-    config = parse({vars: ["variables"], logic}, formatters, locale, setVariables)(variables);
+    config = parse({vars: ["variables"], logic}, formatters, locale, setVariables, openWindow)(variables);
   }
   // If the javascript fails, return a special error object for the front-end to use.
   catch (e) {

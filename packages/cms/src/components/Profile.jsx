@@ -4,6 +4,7 @@ import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {fetchData} from "@datawheel/canon-core";
+import {Dialog} from "@blueprintjs/core";
 
 import libs from "../utils/libs";
 
@@ -26,6 +27,7 @@ class Profile extends Component {
     this.state = {
       profile: props.profile,
       selectors: {},
+      isOpen: false,
       loading: false
     };
   }
@@ -44,9 +46,17 @@ class Profile extends Component {
       router,
       onSelector: this.onSelector.bind(this),
       onSetVariables: this.onSetVariables.bind(this),
+      onOpenWindow: this.onOpenWindow.bind(this),
       variables,
       locale
     };
+  }
+
+  /** 
+   * Visualizations have the ability to "break out" and open a window.
+   */
+  onOpenWindow() {
+    this.setState({isOpen: true});
   }
 
   /** 
@@ -91,13 +101,15 @@ class Profile extends Component {
   }
 
   render() {
-    const {profile, loading} = this.state;
+    const {profile, loading, isOpen} = this.state;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
     const heroSection = sections.find(l => l.type === "Hero");
     // Remove all non-heroes from sections.
     if (heroSection) sections = sections.filter(l => l.type !== "Hero");
+    // Remove all "windowed" sections from normal rendering"
+    sections = sections.filter(l => l.position !== "windowed");
 
     // rename old section names
     sections.forEach(l => {
@@ -139,40 +151,56 @@ class Profile extends Component {
     }
 
     return (
-      <div className="cp">
-        <Hero profile={profile} contents={heroSection || null} />
+      <React.Fragment>
+        <div className="cp">
+          <Hero profile={profile} contents={heroSection || null} />
 
-        {/* main content sections */}
-        <main className="cp-main" id="main">
-          {groupedSections.map((groupings, i) =>
-            <div className="cp-grouping" key={i}>
-              {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
-                // ungrouped section
-                ? <Section
-                  contents={innerGrouping[0]}
-                  headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
-                  loading={loading}
-                  key={`${innerGrouping[0].slug}-${ii}`}
-                />
-                // grouped sections
-                : <SectionGrouping layout={innerGrouping[0].type}>
-                  {innerGrouping.map((section, iii) =>
-                    <Section
-                      contents={section}
-                      headingLevel={groupedSections.length === 1 || ii === 0
-                        ? iii === 0 ? "h2" : "h3"
-                        : "h4"
-                      }
-                      loading={loading}
-                      key={`${section.slug}-${iii}`}
-                    />
-                  )}
-                </SectionGrouping>
-              )}
-            </div>
-          )}
-        </main>
-      </div>
+          {/* main content sections */}
+          <main className="cp-main" id="main">
+            {groupedSections.map((groupings, i) =>
+              <div className="cp-grouping" key={i}>
+                {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
+                  // ungrouped section
+                  ? <Section
+                    contents={innerGrouping[0]}
+                    headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
+                    loading={loading}
+                    key={`${innerGrouping[0].slug}-${ii}`}
+                  />
+                  // grouped sections
+                  : <SectionGrouping layout={innerGrouping[0].type}>
+                    {innerGrouping.map((section, iii) =>
+                      <Section
+                        contents={section}
+                        headingLevel={groupedSections.length === 1 || ii === 0
+                          ? iii === 0 ? "h2" : "h3"
+                          : "h4"
+                        }
+                        loading={loading}
+                        key={`${section.slug}-${iii}`}
+                      />
+                    )}
+                  </SectionGrouping>
+                )}
+              </div>
+            )}
+          </main>
+        </div>
+        <Dialog
+          isOpen={isOpen}
+          onClose={() => this.setState({isOpen: false})}
+          title="Window"
+          usePortal={false}
+          icon={false}
+        >
+          <div className="bp3-dialog-body">
+            <Section
+              contents={profile.sections.find(s => s.slug === "window")}
+              loading={loading}
+            />
+          </div>
+        </Dialog>
+      </React.Fragment>
     );
   }
 }
@@ -183,7 +211,8 @@ Profile.childContextTypes = {
   router: PropTypes.object,
   variables: PropTypes.object,
   onSelector: PropTypes.func,
-  onSetVariables: PropTypes.func
+  onSetVariables: PropTypes.func,
+  onOpenWindow: PropTypes.func
 };
 
 Profile.need = [
