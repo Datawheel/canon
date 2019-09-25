@@ -46,16 +46,16 @@ class Profile extends Component {
       router,
       onSelector: this.onSelector.bind(this),
       onSetVariables: this.onSetVariables.bind(this),
-      onOpenWindow: this.onOpenWindow.bind(this),
+      onOpenModal: this.onOpenModal.bind(this),
       variables,
       locale
     };
   }
 
   /** 
-   * Visualizations have the ability to "break out" and open a window.
+   * Visualizations have the ability to "break out" and open a modal.
    */
-  onOpenWindow() {
+  onOpenModal() {
     this.setState({isOpen: true});
   }
 
@@ -108,8 +108,8 @@ class Profile extends Component {
     const heroSection = sections.find(l => l.type === "Hero");
     // Remove all non-heroes from sections.
     if (heroSection) sections = sections.filter(l => l.type !== "Hero");
-    // Remove all "windowed" sections from normal rendering"
-    sections = sections.filter(l => l.position !== "windowed");
+    // Remove all "modal" sections from normal rendering"
+    sections = sections.filter(l => l.position !== "modal");
 
     // rename old section names
     sections.forEach(l => {
@@ -189,13 +189,13 @@ class Profile extends Component {
         <Dialog
           isOpen={isOpen}
           onClose={() => this.setState({isOpen: false})}
-          title="Window"
+          title="Modal"
           usePortal={false}
           icon={false}
         >
           <div className="bp3-dialog-body">
             <Section
-              contents={profile.sections.find(s => s.slug === "window")}
+              contents={profile.sections.find(s => s.slug === "modal")}
               loading={loading}
             />
           </div>
@@ -212,7 +212,7 @@ Profile.childContextTypes = {
   variables: PropTypes.object,
   onSelector: PropTypes.func,
   onSetVariables: PropTypes.func,
-  onOpenWindow: PropTypes.func
+  onOpenModal: PropTypes.func
 };
 
 Profile.need = [

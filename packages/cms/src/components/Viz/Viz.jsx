@@ -30,9 +30,9 @@ class Viz extends Component {
     const {sectionTitle} = this.props;
     const variables = this.props.variables || this.context.variables;
     const {onSetVariables} = this.context;
-    // Window opening is only supported on front-end profiles. If onOpenWindow didn't come through context,
+    // Window opening is only supported on front-end profiles. If onOpenModal didn't come through context,
     // then this Viz is in the CMS, so just replace it with a no-op.
-    const onOpenWindow = this.context.onOpenWindow ? this.context.onOpenWindow : d => d;
+    const onOpenModal = this.context.onOpenModal ? this.context.onOpenModal : d => d;
     const locale = this.props.locale || this.context.locale;
 
     // This Viz component may be embedded in two ways - as a VisualizationCard in the
@@ -47,7 +47,7 @@ class Viz extends Component {
     const {id} = config;
 
     // clone config object to allow manipulation
-    const vizProps = propify(config.logic, formatters, variables, locale, id, onSetVariables, onOpenWindow);
+    const vizProps = propify(config.logic, formatters, variables, locale, id, onSetVariables, onOpenModal);
 
     // If the result of propify has an "error" property, then the provided javascript was malformed and propify
     // caught an error. Instead of attempting to render the viz, simply show the error to the user.
@@ -119,7 +119,7 @@ Viz.childContextTypes = {
   formatters: PropTypes.object,
   locale: PropTypes.string,
   onSetVariables: PropTypes.func,
-  onOpenWindow: PropTypes.func,
+  onOpenModal: PropTypes.func,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };
@@ -129,7 +129,7 @@ Viz.contextTypes = {
   formatters: PropTypes.object,
   locale: PropTypes.string,
   onSetVariables: PropTypes.func,
-  onOpenWindow: PropTypes.func,
+  onOpenModal: PropTypes.func,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };

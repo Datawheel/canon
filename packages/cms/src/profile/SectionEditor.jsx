@@ -267,13 +267,13 @@ class SectionEditor extends Component {
                   children: "sticky"
                 },
                 {
-                  onClick: this.selectButton.bind(this, "position", true, "windowed"),
-                  active: minData.position === "windowed",
+                  onClick: this.selectButton.bind(this, "position", true, "modal"),
+                  active: minData.position === "modal",
                   context: "cms",
                   fontSize: "xs",
                   icon: "applications",
                   iconPosition: "left",
-                  children: "windowed"
+                  children: "modal"
                 }
               ]} />
             </label>
