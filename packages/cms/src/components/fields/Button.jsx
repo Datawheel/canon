@@ -6,7 +6,7 @@ export default class Button extends Component {
   render() {
     const {
       active,       // button is currently pressed; useful for button groups
-      block,        // set `true` to completely fill container width
+      fill,         // set `true` to completely fill container width
       children,
       className,
       fontSize,
@@ -32,7 +32,7 @@ export default class Button extends Component {
         }${
           iconOnly && children !== "Missing `children` prop in Button.jsx" ? " cms-icon-only-button" : ""
         }${
-          block ? " is-block" : ""
+          fill ? ` ${namespace}-fill-button` : ""
         }`}
         disabled={disabled}
         tabIndex={disabled ? "-1" : null}

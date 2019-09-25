@@ -142,7 +142,7 @@ class SignupForm extends Component {
           className="cms-login-submit-button u-margin-top-md"
           namespace="cms"
           fontSize="md"
-          block
+          fill
           type="submit"
         >
           sign up

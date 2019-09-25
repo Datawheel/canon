@@ -284,7 +284,7 @@ class MetaEditor extends Component {
                 namespace="cms"
                 fontSize="xxs"
                 iconPosition="left"
-                block
+                fill
               >
                 add image
               </Button>;
@@ -633,7 +633,7 @@ class MetaEditor extends Component {
                           className="u-margin-top-xs"
                           onClick={() => this.setState({dialogMode: "search"})}
                           namespace="cms"
-                          block
+                          fill
                         >
                           Search Flickr
                         </Button>
@@ -693,7 +693,7 @@ class MetaEditor extends Component {
                           className="cms-gallery-more-button"
                           onClick={this.showNext.bind(this)}
                           namespace="cms"
-                          block
+                          fill
                         >
                           load more
                         </Button>

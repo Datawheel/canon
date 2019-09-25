@@ -364,7 +364,7 @@ class SelectorEditor extends Component {
           className={!data.options.length ? "u-font-md" : null}
           namespace="cms"
           icon="plus"
-          block
+          fill
         >
           {!data.options.length ? "Add first option" : "Add option"}
         </Button>
