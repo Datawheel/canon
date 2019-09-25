@@ -101,7 +101,7 @@ class Profile extends Component {
 
     // rename old section names
     sections.forEach(l => {
-      if (l.type === "TextViz" || l.sticky === true) l.type = "Default";
+      if (l.type === "TextViz" || l.position === "sticky") l.type = "Default";
       if (l.type === "Card") l.type = "InfoCard";
       if (l.type === "Column") l.type = "SingleColumn";
     });

@@ -28,9 +28,9 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         defaultValue: "always"
       },
-      sticky: {
-        type: db.BOOLEAN,
-        defaultValue: false
+      position: {
+        type: db.STRING,
+        defaultValue: "default"
       }
     }, 
     {
