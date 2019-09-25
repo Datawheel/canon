@@ -1,6 +1,6 @@
 module.exports = function(sequelize, db) {
 
-  const images = sequelize.define("images",
+  const image = sequelize.define("image",
     {
       id: {
         autoIncrement: true,
@@ -12,16 +12,18 @@ module.exports = function(sequelize, db) {
         unique: true
       },
       author: db.TEXT,
-      meta: db.TEXT,
       license: db.INTEGER
     },
     {
-      tableName: "canon_cms_images",
-      freezeTableName: true,
-      timestamps: false
+      tableName: "canon_cms_image",
+      freezeTableName: true
     }
   );
 
-  return images;
+  image.associate = models => {
+    image.hasMany(models.image_content, {foreignKey: "id", sourceKey: "id", as: "content"});
+  };
+
+  return image;
 
 };

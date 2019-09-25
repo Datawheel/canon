@@ -256,7 +256,8 @@ THEMING
   display: flex;
   align-items: baseline;
   justify-content: center;
-  margin-top: 1rem;
+  padding-top: var(--gutter-sm);
+  padding-bottom: var(--gutter-sm);
 
   /* space out adjacent elements */
   & > *:not(:last-child) {
@@ -281,6 +282,7 @@ THEMING
         padding: 0.125em 0.5em 0.25em 0.5em;
         width: 2rem;
         text-align: center;
+        font-size: inherit;
 
         /* hide the pager */
         &::-webkit-outer-spin-button,
@@ -291,7 +293,7 @@ THEMING
       }
     }
     & .-totalPages {
-      margin-left: 0.1em;
+      margin-left: 0.25em;
     }
   }
 }

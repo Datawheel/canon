@@ -1,11 +1,11 @@
 import axios from "axios";
 import React, {Component} from "react";
-import PropTypes from "prop-types";
+import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
+import PropTypes from "prop-types";
 import {fetchData} from "@datawheel/canon-core";
 
 import libs from "../utils/libs";
-import stripP from "../utils/formatters/stripP";
 
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
@@ -43,9 +43,34 @@ class Profile extends Component {
       }, {}),
       router,
       onSelector: this.onSelector.bind(this),
+      onSetVariables: this.onSetVariables.bind(this),
       variables,
       locale
     };
+  }
+
+  /** 
+   * Visualizations have the ability to "break out" and override a variable in the variables object.
+   * This requires a server round trip, because the user may have changed a variable that would affect 
+   * the "allowed" status of a given section.
+   */
+  onSetVariables(newVariables) {
+    const {profile, selectors, loading} = this.state;
+    const {id, variables} = profile;
+    const {locale} = this.props;
+    // Users should ONLY call setVariables in a callback - never in the main execution, as this
+    // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
+    // loop by checking if the vars are in there already, only updating if they are not yet set.
+    const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
+    if (!loading && !alreadySet) {
+      this.setState({loading: true});
+      const url = `/api/profile?profile=${id}&locale=${locale}&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
+      const payload = {variables: Object.assign({}, variables, newVariables)};
+      axios.post(url, payload)
+        .then(resp => {
+          this.setState({profile: resp.data, loading: false});
+        });
+    }
   }
 
   onSelector(name, value) {
@@ -69,14 +94,10 @@ class Profile extends Component {
     const {profile, loading} = this.state;
 
     let {sections} = profile;
-    let heroSection;
-    // split out hero from sections array
-    if (sections.filter(l => l.type === "Hero").length) {
-      // there are somehow multiple hero sections; grab the first one only
-      heroSection = sections.filter(l => l.type === "Hero")[0];
-      // filter out Hero from sections
-      sections = sections.filter(l => l.type !== "Hero");
-    }
+    // Find the first instance of a Hero section (excludes all following instances)
+    const heroSection = sections.find(l => l.type === "Hero");
+    // Remove all non-heroes from sections.
+    if (heroSection) sections = sections.filter(l => l.type !== "Hero");
 
     // rename old section names
     sections.forEach(l => {
@@ -86,32 +107,36 @@ class Profile extends Component {
     });
 
     const groupableSections = ["InfoCard", "SingleColumn"]; // sections to be grouped together
-    const innerGroupedSections = []; // array for sections to be accumulated into
+    let innerGroupedSections = []; // array for sections to be accumulated into
+    let groupedSections = [];
 
-    // reduce sections into a nested array of groupedSections
-    innerGroupedSections.push(sections.reduce((arr, section) => {
-      if (arr.length === 0) arr.push(section); // push the first one
-      else {
-        const prevType = arr[arr.length - 1].type;
-        const currType = section.type;
-        // if the current and previous types are groupable and the same type, group them into an array
-        if (groupableSections.includes(prevType) && groupableSections.includes(currType) && prevType === currType) {
-          arr.push(section);
-        }
-        // otherwise, push the section as-is
+    // make sure there are sections to loop through (issue #700)
+    if (sections.length) {
+      // reduce sections into a nested array of groupedSections
+      innerGroupedSections.push(sections.reduce((arr, section) => {
+        if (arr.length === 0) arr.push(section); // push the first one
         else {
-          innerGroupedSections.push(arr);
-          arr = [section];
+          const prevType = arr[arr.length - 1].type;
+          const currType = section.type;
+          // if the current and previous types are groupable and the same type, group them into an array
+          if (groupableSections.includes(prevType) && groupableSections.includes(currType) && prevType === currType) {
+            arr.push(section);
+          }
+          // otherwise, push the section as-is
+          else {
+            innerGroupedSections.push(arr);
+            arr = [section];
+          }
         }
-      }
-      return arr;
-    }, []));
+        return arr;
+      }, []));
 
-    const groupedSections = innerGroupedSections.reduce((arr, group) => {
-      if (arr.length === 0 || group[0].type === "Grouping") arr.push([group]);
-      else arr[arr.length - 1].push(group);
-      return arr;
-    }, []);
+      groupedSections = innerGroupedSections.reduce((arr, group) => {
+        if (arr.length === 0 || group[0].type === "Grouping") arr.push([group]);
+        else arr[arr.length - 1].push(group);
+        return arr;
+      }, []);
+    }
 
     return (
       <div className="cp">
@@ -157,7 +182,8 @@ Profile.childContextTypes = {
   locale: PropTypes.string,
   router: PropTypes.object,
   variables: PropTypes.object,
-  onSelector: PropTypes.func
+  onSelector: PropTypes.func,
+  onSetVariables: PropTypes.func
 };
 
 Profile.need = [
@@ -169,4 +195,4 @@ export default connect(state => ({
   formatters: state.data.formatters,
   locale: state.i18n.locale,
   profile: state.data.profile
-}))(Profile);
+}))(hot(Profile));

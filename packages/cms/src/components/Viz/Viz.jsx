@@ -15,6 +15,12 @@ const vizTypes = Object.assign({PercentageBar}, {Table}, d3plus);
 
 class Viz extends Component {
 
+  getChildContext() {
+    const context = {...this.context};
+    context.d3plus = {...defaultConfig, ...context.d3plus};
+    return context;
+  }
+
   analyzeData(resp) {
     const {updateSource} = this.context;
     if (updateSource && resp.source) updateSource(resp.source);
@@ -23,6 +29,7 @@ class Viz extends Component {
   render() {
     const {sectionTitle} = this.props;
     const variables = this.props.variables || this.context.variables;
+    const {onSetVariables} = this.context;
     const locale = this.props.locale || this.context.locale;
 
     // This Viz component may be embedded in two ways - as a VisualizationCard in the
@@ -37,7 +44,7 @@ class Viz extends Component {
     const {id} = config;
 
     // clone config object to allow manipulation
-    const vizProps = propify(config.logic, formatters, variables, locale, id);
+    const vizProps = propify(config.logic, formatters, variables, locale, id, onSetVariables);
 
     // If the result of propify has an "error" property, then the provided javascript was malformed and propify
     // caught an error. Instead of attempting to render the viz, simply show the error to the user.
@@ -59,7 +66,7 @@ class Viz extends Component {
     const title = vizProps.config.title;
     delete vizProps.config.title;
 
-    const vizConfig = Object.assign({}, defaultConfig, {locale}, vizProps.config);
+    const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
     return <SizeMe render={({size}) =>
       <div className={ `${context}-viz-container${
@@ -96,7 +103,7 @@ class Viz extends Component {
             linksFormat={vizProps.linksFormat}
             nodesFormat={vizProps.nodesFormat}
             topojsonFormat={vizProps.topojsonFormat}
-            config={vizConfig}
+            config={{...vizConfig, variables}}
           />
         </div>
       </div>
@@ -104,9 +111,20 @@ class Viz extends Component {
   }
 }
 
-Viz.contextTypes = {
+Viz.childContextTypes = {
+  d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,
+  onSetVariables: PropTypes.func,
+  updateSource: PropTypes.func,
+  variables: PropTypes.object
+};
+
+Viz.contextTypes = {
+  d3plus: PropTypes.object,
+  formatters: PropTypes.object,
+  locale: PropTypes.string,
+  onSetVariables: PropTypes.func,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };

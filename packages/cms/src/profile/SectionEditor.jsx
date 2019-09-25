@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 
 import toSpacedCase from "../utils/formatters/toSpacedCase";
 
-import Button from "../components/fields/Button";
 import Select from "../components/fields/Select";
 import ButtonGroup from "../components/fields/ButtonGroup";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
@@ -112,7 +111,7 @@ class SectionEditor extends Component {
 
   onSave(minData) {
     const {localeDefault} = this.props;
-    const defCon = minData.content.find(c => c.lang === localeDefault);
+    const defCon = minData.content.find(c => c.locale === localeDefault);
     const title = defCon && defCon.title ? defCon.title : minData.slug;
     if (this.props.reportSave) this.props.reportSave(minData.id, title);
   }

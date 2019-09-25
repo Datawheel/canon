@@ -56,6 +56,7 @@
     /* hidden state */
     &[tabindex="-1"] {
       opacity: 0;
+      z-index: -1;
     }
 
     &:hover, &:focus {

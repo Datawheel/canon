@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
+import {AnchorLink} from "@datawheel/canon-core";
 
 import styles from "style.yml";
 import throttle from "../../utils/throttle";
@@ -131,9 +132,14 @@ class Section extends Component {
     // heading & subhead(s)
     const mainTitle = <React.Fragment>
       {title &&
-        <Parse El={headingLevel} id={ slug } className={`cp-section-heading ${layoutClass}-heading`}>
-          {title}
-        </Parse>
+        <div className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}>
+          <Parse El={headingLevel} id={slug} className={`cp-section-heading ${layoutClass}-heading`} tabIndex="0">
+            {title}
+          </Parse>
+          <AnchorLink to={slug} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`}>
+            #<span className="u-visually-hidden">permalink to section</span>
+          </AnchorLink>
+        </div>
       }
     </React.Fragment>;
 
