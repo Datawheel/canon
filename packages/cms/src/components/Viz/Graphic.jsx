@@ -54,21 +54,19 @@ class Graphic extends Component {
     }
   }
   render() {
-    if (!this.state) return null;
     const {config} = this.state;
     if (!config) return null;
-    const {data} = config;
 
     return (
       <div className="cp-graphic">
-        {data.img &&
-          <img src={data.img} className="cp-graphic-img" alt="" />
+        {config.imageURL &&
+          <img src={config.imageURL} className="cp-graphic-img" alt="" />
         }
         <Stat
           className="cp-graphic-stat"
-          label={data.label}
-          value={data.value}
-          subtitle={data.subtitle}
+          label={config.label}
+          value={config.value}
+          subtitle={config.subtitle}
         />
       </div>
     );

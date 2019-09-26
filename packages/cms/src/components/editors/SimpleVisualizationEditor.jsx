@@ -256,7 +256,7 @@ class SimpleVisualizationEditor extends Component {
             // render prop as text input
             textFields.includes(prop)
               ? <TextInput
-                label={`please enter ${prop}`}
+                label={prop === "imageURL" ? "Image URL" : prop}
                 namespace="cms"
                 fontSize="xs"
                 key={prop}
@@ -287,6 +287,10 @@ class SimpleVisualizationEditor extends Component {
                   value={object[prop]}
                   onChange={this.onChange.bind(this, prop)}
                 >
+                  {/* optional fields */}
+                  {object.type === "Graphic" && prop === "subtitle"
+                    ? <option key={null} value="">none</option> : ""
+                  }
                   {Object.keys(firstObj).map(type =>
                     <option key={type} value={type}>{type}</option>
                   )}
