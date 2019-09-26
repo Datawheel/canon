@@ -139,7 +139,7 @@ Viz.defaultProps = {
   className: "",
   config: {},
   configOverride: {},
-  context: "cp",
+  namespace: "cp",
   options: true,
   showTitle: true,
   headingLevel: "h3"

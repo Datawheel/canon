@@ -281,10 +281,10 @@ class MetaEditor extends Component {
               // normal cell with a button
               : <Button
                 onClick={this.clickCell.bind(this, cell)}
-                context="cms"
+                namespace="cms"
                 fontSize="xxs"
                 iconPosition="left"
-                block
+                fill
               >
                 add image
               </Button>;
@@ -500,7 +500,7 @@ class MetaEditor extends Component {
             className="cms-meta-header-button"
             onClick={this.resetFiltering.bind(this)}
             disabled={query === "" && filterBy === "all"}
-            context="cms"
+            namespace="cms"
             fontSize="xxs"
             icon="cross"
             iconOnly
@@ -514,7 +514,7 @@ class MetaEditor extends Component {
               onChange={this.onChange.bind(this, "query")}
               onReset={this.resetQuery.bind(this)}
               value={query}
-              context="cms"
+              namespace="cms"
               fontSize="xs"
             />
 
@@ -522,7 +522,7 @@ class MetaEditor extends Component {
               label={filterKey === "dimension" ? "Dimension" : "Subdimension"}
               inline
               fontSize="xs"
-              context="cms"
+              namespace="cms"
               value={filterBy}
               onChange={this.onChange.bind(this, "filterBy")}
             >
@@ -565,11 +565,11 @@ class MetaEditor extends Component {
         >
 
           {/* tab between direct & search modes */}
-          <ButtonGroup className="cms-meta-popover-button-group" context="cms">
+          <ButtonGroup className="cms-meta-popover-button-group" namespace="cms">
             <Button
               active={dialogMode === "direct"}
               fontSize="xs"
-              context="cms"
+              namespace="cms"
               icon="link"
               iconPosition="left"
               onClick={() => this.setState({dialogMode: "direct"})}
@@ -579,7 +579,7 @@ class MetaEditor extends Component {
             <Button
               active={dialogMode === "search"}
               fontSize="xs"
-              context="cms"
+              namespace="cms"
               icon="search"
               iconPosition="left"
               onClick={() => this.setState({dialogMode: "search"})}
@@ -601,19 +601,19 @@ class MetaEditor extends Component {
               ? <React.Fragment>
                 <TextButtonGroup
                   className="u-margin-bottom-md"
-                  context="cms"
+                  namespace="cms"
                   inputProps={{
                     label: "Flickr direct link",
                     placeholder: "https://flickr.com/url",
                     value: url,
                     onChange: e => this.setState({url: e.target.value}),
-                    context: "cms",
+                    namespace: "cms",
                     labelHidden: true,
                     autoFocus: true
                   }}
                   buttonProps={{
                     onClick: this.save.bind(this, currentRow, url.replace("https://flic.kr/p/", ""), null),
-                    context: "cms",
+                    namespace: "cms",
                     children: currentRow.imageId ? "update" : "submit"
                   }}
                 />
@@ -632,8 +632,8 @@ class MetaEditor extends Component {
                         <Button
                           className="u-margin-top-xs"
                           onClick={() => this.setState({dialogMode: "search"})}
-                          context="cms"
-                          block
+                          namespace="cms"
+                          fill
                         >
                           Search Flickr
                         </Button>
@@ -646,20 +646,20 @@ class MetaEditor extends Component {
               // search Flickr
               : <React.Fragment>
                 <TextButtonGroup
-                  context="cms"
+                  namespace="cms"
                   inputProps={{
                     label: "Flickr image search",
                     placeholder: "Search Flickr images",
                     value: flickrQuery,
                     onChange: e => this.setState({flickrQuery: e.target.value}),
-                    context: "cms",
+                    namespace: "cms",
                     labelHidden: true,
                     autoFocus: true,
                     disabled: searching
                   }}
                   buttonProps={{
                     onClick: this.searchFlickr.bind(this),
-                    context: "cms",
+                    namespace: "cms",
                     children: "search",
                     disabled: searching
                   }}
@@ -692,8 +692,8 @@ class MetaEditor extends Component {
                         <Button
                           className="cms-gallery-more-button"
                           onClick={this.showNext.bind(this)}
-                          context="cms"
-                          block
+                          namespace="cms"
+                          fill
                         >
                           load more
                         </Button>

@@ -157,7 +157,7 @@ export default class SimpleGeneratorEditor extends Component {
         Are you sure you want to rebuild your variables from the current payload?
       </Alert>
       <div className="cms-label">
-        Generated variables <Button className="u-font-xxs" onClick={this.maybeRebuild.bind(this)} context="cms" icon="undo" iconOnly>
+        Generated variables <Button className="u-font-xxs" onClick={this.maybeRebuild.bind(this)} namespace="cms" icon="undo" iconOnly>
           Rebuild variables
         </Button>
       </div>

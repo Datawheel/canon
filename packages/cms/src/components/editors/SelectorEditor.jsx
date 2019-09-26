@@ -236,7 +236,7 @@ class SelectorEditor extends Component {
 
     const buttonProps = {
       className: "u-font-xs",
-      context: "cms",
+      namespace: "cms",
       iconPosition: "left"
     };
 
@@ -246,19 +246,19 @@ class SelectorEditor extends Component {
         <div className="cms-field-group">
           <TextInput
             label="Selector name"
-            context="cms"
+            namespace="cms"
             value={data.name}
             onChange={this.editName.bind(this)}
           />
           <TextInput
             label="Input label"
-            context="cms"
+            namespace="cms"
             value={data.title}
             onChange={this.editLabel.bind(this)}
           />
         </div>
 
-        <ButtonGroup className="cms-selector-editor-button-group" context="cms" buttons={[
+        <ButtonGroup className="cms-selector-editor-button-group" namespace="cms" buttons={[
           {
             children: "single selection",
             active: data.type === "single",
@@ -304,7 +304,7 @@ class SelectorEditor extends Component {
                     <Select
                       label="option (new)"
                       labelHidden
-                      context="cms"
+                      namespace="cms"
                       value={option.option}
                       onChange={this.chooseOption.bind(this, i)}
                     >
@@ -317,7 +317,7 @@ class SelectorEditor extends Component {
                     <Select
                       label="Visible"
                       labelHidden
-                      context="cms"
+                      namespace="cms"
                       value={option.allowed}
                       onChange={this.chooseAllowed.bind(this, i)}
                     >
@@ -329,7 +329,7 @@ class SelectorEditor extends Component {
                   <td className="cms-selector-editor-cell cms-delete-selector-editor-cell">
                     <Button
                       onClick={this.deleteOption.bind(this, i)}
-                      context="cms"
+                      namespace="cms"
                       icon="trash"
                       iconOnly
                     >
@@ -342,7 +342,7 @@ class SelectorEditor extends Component {
                     <td className="cms-selector-editor-cell cms-reorder">
                       <Button
                         onClick={this.moveDown.bind(this, i)}
-                        context="cms"
+                        namespace="cms"
                         className="cms-reorder-button"
                         icon="swap-vertical"
                         iconOnly
@@ -362,9 +362,9 @@ class SelectorEditor extends Component {
         <Button
           onClick={this.addOption.bind(this)}
           className={!data.options.length ? "u-font-md" : null}
-          context="cms"
+          namespace="cms"
           icon="plus"
-          block
+          fill
         >
           {!data.options.length ? "Add first option" : "Add option"}
         </Button>
@@ -384,7 +384,7 @@ class SelectorEditor extends Component {
               <Select
                 label=" "
                 labelHidden
-                context="cms"
+                namespace="cms"
                 value={data.default}
                 onChange={this.chooseCustom.bind(this)}
                 inline

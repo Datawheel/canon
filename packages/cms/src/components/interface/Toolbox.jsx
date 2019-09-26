@@ -222,17 +222,17 @@ export default class Toolbox extends Component {
     return <div className="cms-toolbox">
       <FilterSearch
         label="filter by name, output, description..."
-        context="cms"
+        namespace="cms"
         value={query}
         onChange={this.filter.bind(this)}
         onReset={this.onReset.bind(this)}
       />
 
-      <ButtonGroup context="cms" buttons={[
+      <ButtonGroup namespace="cms" buttons={[
         {
           onClick: () => this.setState({detailView: true}),
           active: detailView,
-          context: "cms",
+          namespace: "cms",
           icon: "th-list",
           iconPosition: "left",
           children: "detail view",
@@ -241,7 +241,7 @@ export default class Toolbox extends Component {
         {
           onClick: () => this.setState({detailView: false}),
           active: !detailView,
-          context: "cms",
+          namespace: "cms",
           icon: "list",
           iconPosition: "left",
           children: "output view",
@@ -259,9 +259,9 @@ export default class Toolbox extends Component {
               <li key={key} className="cms-button-item">
                 <Button
                   onClick={this.openGenerator.bind(this, key)}
-                  context="cms"
+                  namespace="cms"
                   fontSize="xxs"
-                  block
+                  fill
                 >
                   {key}: <ConsoleVariable value={variables[localeDefault][key]} />
                 </Button>

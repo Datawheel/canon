@@ -341,7 +341,7 @@ class TextCard extends Component {
             { showVars &&
               <Select
                 label="Visible"
-                context="cms"
+                namespace="cms"
                 value={minData.allowed || "always"}
                 onChange={this.chooseVariable.bind(this)}
                 inline
