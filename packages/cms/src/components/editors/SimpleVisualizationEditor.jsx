@@ -16,6 +16,7 @@ const vizLookup = {
   BumpChart: ["groupBy", "x", "y"],
   Donut: ["groupBy", "value"],
   Geomap: ["groupBy", "colorScale", "topojson"],
+  Graphic: ["label", "value", "subtitle", "imageURL"],
   LinePlot: ["groupBy", "x", "y"],
   PercentageBar: ["groupBy", "value"],
   Pie: ["groupBy", "value"],
@@ -24,7 +25,7 @@ const vizLookup = {
   Table: ["columns"]
 };
 
-const textFields = ["topojson"];
+const textFields = ["imageURL", "topojson"];
 const checkboxFields = ["columns"];
 
 class SimpleVisualizationEditor extends Component {
@@ -217,7 +218,7 @@ class SimpleVisualizationEditor extends Component {
       <TextButtonGroup
         namespace="cms"
         inputProps={{
-          label: "Data",
+          label: "Data endpoint",
           inline: true,
           namespace: "cms",
           value: object.data || "",
@@ -226,30 +227,28 @@ class SimpleVisualizationEditor extends Component {
         buttonProps={buttonProps}
       />
 
-      {object.data &&
-        <React.Fragment>
-          <Select
-            label="Visualization type"
-            inline
-            namespace="cms"
-            value={object.type}
-            onChange={this.onChange.bind(this, "type")}
-          >
-            <option value="undefined" default>Select visualization type</option>
-            {Object.keys(vizLookup).map(type =>
-              <option key={type} value={type}>{type}</option>
-            )}
-          </Select>
-          <TextInput
-            label="Title"
-            namespace="cms"
-            inline
-            key="title-text"
-            value={object.title}
-            onChange={this.onChange.bind(this, "title")}
-          />
-        </React.Fragment>
-      }
+      <div className="cms-field-group">
+        <Select
+          label="Visualization"
+          inline
+          namespace="cms"
+          value={object.type}
+          onChange={this.onChange.bind(this, "type")}
+        >
+          <option value="undefined" default>Select visualization type</option>
+          {Object.keys(vizLookup).map(type =>
+            <option key={type} value={type}>{type}</option>
+          )}
+        </Select>
+        <TextInput
+          label="Title"
+          namespace="cms"
+          inline
+          key="title-text"
+          value={object.title}
+          onChange={this.onChange.bind(this, "title")}
+        />
+      </div>
 
       {payload.data &&
         <div className="viz-select-group">

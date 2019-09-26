@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
 import {SizeMe} from "react-sizeme";
+import Graphic from "./Graphic";
 import PercentageBar from "./PercentageBar";
 import Table from "./Table";
 import Options from "./Options";
@@ -11,7 +12,7 @@ import Parse from "../sections/components/Parse";
 import "./Viz.css";
 import defaultConfig from "./defaultConfig";
 
-const vizTypes = Object.assign({PercentageBar}, {Table}, d3plus);
+const vizTypes = Object.assign({PercentageBar}, {Table}, {Graphic}, d3plus);
 
 class Viz extends Component {
 
