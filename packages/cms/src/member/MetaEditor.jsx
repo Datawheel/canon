@@ -52,7 +52,6 @@ class MetaEditor extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.locale !== this.props.locale) {
       this.prepData.bind(this)();
-      this.processFiltering.bind(this)();
     }
   }
 
@@ -226,17 +225,26 @@ class MetaEditor extends Component {
     else if (key.includes("zvalue") || key.includes("image") || key.includes("dimension") || key.includes("hierarchy")) return 120;
     else return 90;
   }
-  renderColumn = col => Object.assign({}, {
-    Header: this.renderHeader(
-      col === "hierarchy" ? "subdimension"
-        : col === "zvalue" ? "z value"
-          : col
-    ),
-    id: col,
-    accessor: d => d[col],
-    Cell: cell => this.renderCell(cell),
-    minWidth: this.columnWidths(col)
-  });
+  numericSort(a, b) {
+    if (!isNaN(a) && !isNaN(b)) {
+      return Number(a) - Number(b);
+    } 
+    else return a.localeCompare(b);
+  }
+  renderColumn(col) {
+    return Object.assign({}, {
+      Header: this.renderHeader(
+        col === "hierarchy" ? "subdimension"
+          : col === "zvalue" ? "z value"
+            : col
+      ),
+      id: col,
+      sortMethod: col === "id" ? this.numericSort.bind(this) : undefined,
+      accessor: d => d[col],
+      Cell: cell => this.renderCell(cell),
+      minWidth: this.columnWidths(col)
+    });
+  }
 
   /**
    * Once sourceData has been set, prepare the two variables that react-table needs: data and columns.
@@ -350,7 +358,7 @@ class MetaEditor extends Component {
         columnGroup.push(this.renderColumn(field));
       }
     });
-    this.setState({data, columns});
+    this.setState({data, columns}, this.processFiltering.bind(this));
   }
 
   /**
