@@ -27,7 +27,7 @@ class Profile extends Component {
     this.state = {
       profile: props.profile,
       selectors: {},
-      isOpen: false,
+      modalSlug: null,
       loading: false
     };
   }
@@ -55,8 +55,8 @@ class Profile extends Component {
   /** 
    * Visualizations have the ability to "break out" and open a modal.
    */
-  onOpenModal() {
-    this.setState({isOpen: true});
+  onOpenModal(modalSlug) {
+    this.setState({modalSlug});
   }
 
   /** 
@@ -101,7 +101,7 @@ class Profile extends Component {
   }
 
   render() {
-    const {profile, loading, isOpen} = this.state;
+    const {profile, loading, modalSlug} = this.state;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
@@ -150,6 +150,8 @@ class Profile extends Component {
       }, []);
     }
 
+    const modalSection = modalSlug ? profile.sections.find(s => s.slug === modalSlug) : null;
+
     return (
       <React.Fragment>
         <div className="cp">
@@ -187,15 +189,15 @@ class Profile extends Component {
           </main>
         </div>
         <Dialog
-          isOpen={isOpen}
-          onClose={() => this.setState({isOpen: false})}
+          isOpen={modalSection}
+          onClose={() => this.setState({modalSlug: null})}
           title="Modal"
           usePortal={false}
           icon={false}
         >
           <div className="bp3-dialog-body">
             <Section
-              contents={profile.sections.find(s => s.slug === "modal")}
+              contents={modalSection}
               loading={loading}
             />
           </div>
