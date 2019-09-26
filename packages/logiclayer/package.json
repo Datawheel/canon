@@ -19,10 +19,10 @@
     "promise-throttle": "^1.0.0"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "^0.16.7"
+    "@datawheel/canon-core": "^0.16.34"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.16.7"
+    "@datawheel/canon-core": "^0.16.34"
   },
   "repository": {
     "type": "git",
