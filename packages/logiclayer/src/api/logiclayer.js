@@ -292,6 +292,13 @@ module.exports = function(app) {
             cube.subs = {};
             let allowed = true;
 
+            drilldowns.forEach(d => {
+              const dim = findDimension(flatDims, d);
+              if (dim && dim.caption && !renames.find(o => Object.keys(o)[0] === dim.level)) {
+                renames.push({[dim.level]: dim.caption});
+              }
+            });
+
             for (const dim in dimCuts) {
               if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
                 for (const level in dimCuts[dim]) {
@@ -325,6 +332,9 @@ module.exports = function(app) {
                         allowed = false;
                         break;
                       }
+                    }
+                    else if (drilldownDim.caption && !renames.find(o => Object.keys(o)[0] === drilldownDim.level)) {
+                      renames.push({[drilldownDim.level]: drilldownDim.caption});
                     }
                   }
                 }
