@@ -113,7 +113,7 @@ class SelectorUsage extends Component {
                     <Button
                       className="cms-selector-usage-item-button"
                       fontSize="xxxs"
-                      context="cms"
+                      namespace="cms"
                       icon="plus"
                       iconOnly
                       onClick={this.addItem.bind(this, s.id)}
@@ -144,7 +144,7 @@ class SelectorUsage extends Component {
                       <Button
                         className="cms-card-heading-button"
                         fontSize="xxxs"
-                        context="cms"
+                        namespace="cms"
                         onClick={this.removeItem.bind(this, s.id)}
                         icon="cross"
                         iconOnly
@@ -158,7 +158,7 @@ class SelectorUsage extends Component {
                     <Select
                       label={s.title}
                       fontSize="xs"
-                      context="cms"
+                      namespace="cms"
                       value={currentValues[s.name]}
                       onChange={this.onChange.bind(this, s.name)}
                     >
@@ -180,7 +180,7 @@ class SelectorUsage extends Component {
                       <Button
                         onClick={this.swapSelector.bind(this, i)}
                         className="cms-reorder-button"
-                        context="cms"
+                        namespace="cms"
                         icon="swap-vertical"
                         iconOnly
                       >

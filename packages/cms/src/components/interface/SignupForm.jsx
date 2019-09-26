@@ -86,7 +86,7 @@ class SignupForm extends Component {
       <form onSubmit={this.onSubmit.bind(this)} className="login-container" autoComplete="off">
         <TextInput
           label="Email address"
-          context="cms"
+          namespace="cms"
           fontSize="md"
           labelFontSize="xs"
           icon="envelope"
@@ -98,7 +98,7 @@ class SignupForm extends Component {
 
         <TextInput
           label="Username"
-          context="cms"
+          namespace="cms"
           fontSize="md"
           labelFontSize="xs"
           icon="user"
@@ -109,7 +109,7 @@ class SignupForm extends Component {
 
         <TextInput
           label="Password"
-          context="cms"
+          namespace="cms"
           fontSize="md"
           labelFontSize="xs"
           icon="lock"
@@ -121,7 +121,7 @@ class SignupForm extends Component {
 
         {/* <TextInput
           label={t("SignUp.Confirm Password")}
-          context="cms"
+          namespace="cms"
           fontSize="md"
           labelFontSize="xs"
           icon="lock"
@@ -140,9 +140,9 @@ class SignupForm extends Component {
 
         <Button
           className="cms-login-submit-button u-margin-top-md"
-          context="cms"
+          namespace="cms"
           fontSize="md"
-          block
+          fill
           type="submit"
         >
           sign up

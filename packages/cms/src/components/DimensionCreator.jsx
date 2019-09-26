@@ -102,7 +102,7 @@ class DimensionCreator extends Component {
         <TextInput
           label="slug"
           inline
-          context="cms"
+          namespace="cms"
           value={profileData.slug}
           onChange={this.changeField.bind(this, "slug")}
         />
@@ -110,7 +110,7 @@ class DimensionCreator extends Component {
         <Select
           label="Dimension"
           inline
-          context="cms"
+          namespace="cms"
           value={profileData.dimension}
           onChange={this.chooseDimension.bind(this)}
         >
@@ -140,7 +140,7 @@ class DimensionCreator extends Component {
           <Select
             label="Measure"
             inline
-            context="cms"
+            namespace="cms"
             value={profileData.measure}
             onChange={this.changeField.bind(this, "measure")}
           >
@@ -151,8 +151,8 @@ class DimensionCreator extends Component {
 
         <div className="cms-field-container">
           {profileData.dimension && profileData.levels.length > 0 && profileData.measure
-            ? <Button onClick={this.createProfile.bind(this)} context="cms" icon="plus">Add dimension</Button>
-            : <Button icon="plus" context="cms" disabled>Add dimension</Button>
+            ? <Button onClick={this.createProfile.bind(this)} namespace="cms" icon="plus">Add dimension</Button>
+            : <Button icon="plus" namespace="cms" disabled>Add dimension</Button>
           }
         </div>
       </div>
