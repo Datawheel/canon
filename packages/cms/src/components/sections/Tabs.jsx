@@ -97,7 +97,9 @@ export default class Tabs extends Component {
         {sources}
       </div>
 
-      <div className="cp-tabs-section-figure">
+      <div className={`cp-tabs-section-figure${
+        visualizations.filter(viz => viz.logic_simple && viz.logic_simple.type === "Graphic").length ? " cp-graphic-viz-grid" : ""
+      }`}>
         <Viz section={this} config={visualization} key={tabIndex} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title}  />
         {tabSelectors.length > 0 && <div className="cp-section-selectors">
           {tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />)}

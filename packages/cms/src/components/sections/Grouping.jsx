@@ -21,7 +21,11 @@ export default class Grouping extends Component {
         </div>
 
         {/* caption */}
-        <div className={`cp-grouping-section-figure${visualizations.length > 1 ? " cp-multicolumn-grouping-section-figure" : ""}`}>
+        <div className={`cp-grouping-section-figure${
+          visualizations.length > 1 ? " cp-multicolumn-grouping-section-figure" : ""
+        }${
+          visualizations.filter(viz => viz.logic_simple && viz.logic_simple.type === "Graphic").length ? " cp-graphic-viz-grid" : ""
+        }`}>
           {visualizations.map((visualization, ii) =>
             <Viz section={this} config={visualization} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title} key={ii} />
           )}
