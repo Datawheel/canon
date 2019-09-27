@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {Alert, Icon} from "@blueprintjs/core";
+import stripEntities from "../../utils/formatters/stripEntities";
 import ButtonGroup from "../fields/ButtonGroup";
 import ReorderButton from "./components/ReorderButton";
 import "./Card.css";
@@ -86,7 +87,7 @@ export default class Card extends Component {
           {onEdit &&
             <Icon className="cms-card-heading-icon" icon="cog" />
           }
-          <h3 className="cms-card-heading-text u-font-xs">{title || "missing `title` prop in Card.jsx"}</h3>
+          <h3 className="cms-card-heading-text u-font-xs">{stripEntities(title) || "missing `title` prop in Card.jsx"}</h3>
           {buttons.length
             ? <ButtonGroup namespace="cms" buttons={buttons} />
             : ""
