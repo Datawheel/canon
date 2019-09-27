@@ -62,12 +62,14 @@ class Graphic extends Component {
         {config.imageURL &&
           <img src={config.imageURL} className="cp-graphic-img" alt="" />
         }
-        <Stat
-          className="cp-graphic-stat"
-          label={config.label}
-          value={config.value}
-          subtitle={config.subtitle}
-        />
+        {config.label && config.value &&
+          <Stat
+            className="cp-graphic-stat"
+            label={config.label}
+            value={config.value}
+            subtitle={config.subtitle}
+          />
+        }
       </div>
     );
   }

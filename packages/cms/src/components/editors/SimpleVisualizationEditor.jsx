@@ -3,7 +3,6 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
-import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
@@ -288,7 +287,7 @@ class SimpleVisualizationEditor extends Component {
                   onChange={this.onChange.bind(this, prop)}
                 >
                   {/* optional fields */}
-                  {object.type === "Graphic" && prop === "subtitle"
+                  {object.type === "Graphic"
                     ? <option key={null} value="">none</option> : ""
                   }
                   {Object.keys(firstObj).map(type =>

@@ -75,7 +75,7 @@ class Viz extends Component {
       }${
         type ? ` ${context}-${toKebabCase(type)}-viz-container` : ""
       }`}>
-        {title && showTitle || options
+        {(title && showTitle || options) && type !== "Graphic"
           ? <div className={`${context}-viz-header`}>
             {title && showTitle
               ? <Parse El={headingLevel} className={`${context}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}>
