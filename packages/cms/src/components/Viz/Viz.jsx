@@ -41,7 +41,7 @@ class Viz extends Component {
     // locale-nested format.
     const formatters = this.context.formatters[locale] || this.context.formatters;
 
-    const {config, configOverride, context, className, debug, options, slug, section, showTitle, headingLevel} = this.props;
+    const {config, configOverride, namespace, className, debug, options, slug, section, showTitle, headingLevel} = this.props;
     const {id} = config;
 
     // clone config object to allow manipulation
@@ -70,15 +70,15 @@ class Viz extends Component {
     const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
     return <SizeMe render={({size}) =>
-      <div className={ `${context}-viz-container${
+      <div className={ `${namespace}-viz-container${
         className ? ` ${className}` : ""
       }${
-        type ? ` ${context}-${toKebabCase(type)}-viz-container` : ""
+        type ? ` ${namespace}-${toKebabCase(type)}-viz-container` : ""
       }`}>
         {(title && showTitle || options) && type !== "Graphic"
-          ? <div className={`${context}-viz-header`}>
+          ? <div className={`${namespace}-viz-header`}>
             {title && showTitle
-              ? <Parse El={headingLevel} className={`${context}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}>
+              ? <Parse El={headingLevel} className={`${namespace}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}>
                 {title}
               </Parse> : ""
             }
@@ -95,11 +95,11 @@ class Viz extends Component {
             }
           </div> : ""
         }
-        <div className={`${context}-viz-figure${vizConfig.height ? " with-explicit-height" : ""}`}>
+        <div className={`${namespace}-viz-figure${vizConfig.height || type === "Graphic" ? " with-explicit-height" : ""}`}>
           <Visualization
             key="viz-key"
             ref={ comp => this.viz = comp }
-            className={`d3plus ${context}-viz ${context}-${toKebabCase(type)}-viz`}
+            className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
             dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
             linksFormat={vizProps.linksFormat}
             nodesFormat={vizProps.nodesFormat}
