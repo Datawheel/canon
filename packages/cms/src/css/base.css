@@ -15,10 +15,6 @@ html:root       { font-size: var(--body-font-scale-sm);
     position: relative;
   }
 
-  & svg, & img {
-    max-width: 100%;
-  }
-
   & code {
     padding: 0.125em 0.5em;
   }
@@ -32,6 +28,11 @@ html:root       { font-size: var(--body-font-scale-sm);
       color: var(--light-3);
     }
   }
+}
+
+/* needed for responsive */
+svg, img {
+  max-width: 100%;
 }
 
 

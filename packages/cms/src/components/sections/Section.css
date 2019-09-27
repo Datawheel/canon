@@ -70,6 +70,21 @@
   margin-bottom: 0.5em;
 }
 
+/* GRAPHICS */
+.cp-graphic-viz-grid[class] {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  text-align: center;
+
+  & > .cp-graphic-viz-container {
+    flex: 1 0 calc(33.333% - var(--gutter-md));
+    min-width: 8rem;
+    max-width: 100%;
+    padding: var(--gutter-sm);
+  }
+}
+
 /* STICKY */
 .cp-section.is-sticky {
   background-color: var(--sticky-section-bg-color);
