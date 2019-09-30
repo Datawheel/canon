@@ -1,0 +1,52 @@
+@import "mixins.css";
+
+/* -----------------------------------
+accessibility
+----------------------------------- */
+
+.u-visually-hidden {
+  @mixin visually-hidden;
+}
+
+/* -----------------------------------
+typography
+----------------------------------- */
+
+/* typography */
+.u-font-xxxs { @mixin font-xxxs; }
+.u-font-xxs  { @mixin font-xxs;  }
+.u-font-xs   { @mixin font-xs;   }
+.u-font-sm   { @mixin font-sm;   }
+.u-font-md   { @mixin font-md;   }
+.u-font-lg   { @mixin font-lg;   }
+.u-font-xl   { @mixin font-xl;   }
+.u-font-xxl  { @mixin font-xxl;  }
+
+/* -----------------------------------
+layout
+----------------------------------- */
+
+/* vertical margin */
+.u-margin-top-xs  { margin-top: var(--gutter-xs) !important; }
+.u-margin-top-sm  { margin-top: var(--gutter-sm) !important; }
+.u-margin-top-md  { margin-top: var(--gutter-md) !important; }
+.u-margin-top-lg  { margin-top: var(--gutter-lg) !important; }
+.u-margin-top-xl  { margin-top: var(--gutter-xl) !important; }
+.u-margin-top-off { margin-top: 0 !important; }
+.u-margin-top-off-children > * { margin-top: 0 !important; }
+
+.u-margin-bottom-xs { margin-bottom: var(--gutter-xs) !important; }
+.u-margin-bottom-sm { margin-bottom: var(--gutter-sm) !important; }
+.u-margin-bottom-md { margin-bottom: var(--gutter-md) !important; }
+.u-margin-bottom-lg { margin-bottom: var(--gutter-lg) !important; }
+.u-margin-bottom-xl { margin-bottom: var(--gutter-xl) !important; }
+.u-margin-bottom-off { margin-bottom: 0 !important; }
+.u-margin-bottom-off-children > * { margin-bottom: 0 !important; }
+
+/* show/hide content */
+.u-hide-above-md { @mixin min-md { display: none !important; } }
+.u-hide-below-md { @mixin max-md { display: none !important; } }
+.u-hide-above-sm { @mixin min-sm { display: none !important; } }
+.u-hide-below-sm { @mixin max-sm { display: none !important; } }
+.u-hide-above-xs { @mixin min-xs { display: none !important; } }
+.u-hide-below-xs { @mixin max-xs { display: none !important; } }

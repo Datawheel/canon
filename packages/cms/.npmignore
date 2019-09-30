@@ -1,0 +1,8 @@
+.vscode/
+api/
+app/
+cache/
+db/
+locales/
+static/
+.envrc

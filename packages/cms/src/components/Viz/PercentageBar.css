@@ -1,0 +1,129 @@
+@import "../../css/mixins.css";
+
+.percentage-bar-list {
+  @mixin list-reset;
+  padding-bottom: 0;
+}
+
+.percentage-bar-bg,
+.percentage-bar {
+  display: block;
+  height: var(--percentage-bar-height);
+  border-radius: var(--percentage-bar-radius);
+}
+
+.percentage-bar-bg {
+  position: relative;
+  overflow: hidden; /* hide awkwardly unrounded small bars */
+  width: 100%;
+  margin-bottom: 0.125rem;
+  background-color: var(--percentage-bar-bg-color);
+}
+
+.percentage-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  max-width: 100%; /* prevent 100%+ from breaking out of container */
+  background: var(--percentage-bar-color);
+}
+
+.percentage-bar-item:not(:last-child) {
+  margin-bottom: 0.625em;
+}
+
+.percentage-bar-label {
+  margin-bottom: 0.25em;
+  color: var(--stat-label-color);
+}
+
+.percentage-bar-value {
+  color: var(--stat-value-color);
+  margin-bottom: 0;
+}
+/* Added styling */
+.percentage-bar-list{
+  padding-bottom: 1rem;
+}
+.percentage-bar-list > li {
+  display: flex;
+  flex-direction: row;
+}
+.percentage-bar-item .label{
+  width: 20%;
+}
+.percentage-bar-label {
+  margin-bottom: 0.25em;
+  color: var(--stat-label-color);
+  width: 24%;
+}
+
+.percentage-bar-value {
+  color: var(--stat-value-color);
+  margin-bottom: 0;
+  width: 6%;
+}
+
+.percentage-bar-item{
+  font-size: var(--font-xs);
+}
+.percentage-bar-bg,
+.percentage-bar{
+  border-radius: var(--percentage-bar-radius);
+  height: var(--percentage-bar-height);
+  width: 74%;
+}
+.percentage-bar-bg{
+  background-color: var(--percentage-bar-bg-color);
+}
+
+
+/* PrecentageBar Grid */
+.percentage-bar-wrapper{
+    position: relative;
+    margin-bottom: 1rem;
+}
+.precentage-bar-grid-holder{
+    width: 74%;
+    margin-left: 26%;
+    height: 100%;
+    position: absolute;
+}
+.percentage-bar-grid{
+    position: absolute;
+    width: 100%;
+    height:100%;
+}
+.percentage-bar-ticks{
+    clip-path: url(#percentage-bar-clip);
+}
+.percentage-bar-ticks line{
+    stroke: var(--percentage-bar-stroke-color);
+    stroke-width: var(--percentage-bar-stroke-width);
+}
+.percentage-bar-grid text{
+    font-family: var(--base-font-stack);
+    font-size: var(--font-xxxs);
+    transform: translate(-0.5rem, 0);
+}
+.percentage-bar-grid text:first-child{
+    transform: translate(0rem, 0);
+}
+.percentage-bar-grid text:last-child{
+    transform: translate(-1rem, 0);
+}
+/* Tweak positioning for percentage values in labels */
+.is-percent .percentage-bar-grid text{
+  transform: translate(-0.4rem, 0);
+}
+.is-percent .percentage-bar-grid text:first-child{
+  transform: translate(0.1rem, 0);
+}
+.is-percent .percentage-bar-grid text:last-child{
+  transform: translate(-1.3rem, 0);
+}
+
+.cutoff-text{
+  margin-bottom: 1rem;
+}

@@ -1,0 +1,91 @@
+@import "../../css/mixins.css";
+
+.cms-variable {
+  color: inherit;
+  display: block;
+  font-family: 'Menlo', monospace;
+  font-style: inherit;
+  font-weight: 500;
+  word-break: keep-all;
+  max-width: 100%;
+
+  &.object, &.array, &.function {
+    font-style: italic;
+    & pre {
+      white-space: pre-wrap;
+      margin: 0; /* reset browser default */
+    }
+  }
+
+  /* theming */
+  &.number {
+    color: var(--type-number-dark);
+    @mixin dark-mode {
+      color: var(--type-number);
+    }
+  }
+  &.string {
+    color: var(--type-string-dark);
+    @mixin dark-mode {
+      color: var(--type-string);
+    }
+  }
+  &.boolean {
+    color: var(--type-boolean-dark);
+    @mixin dark-mode {
+      color: var(--type-boolean);
+    }
+  }
+  &.undefined {
+    color: var(--dark-2);
+    @mixin dark-mode {
+      color: var(--gray);
+    }
+  }
+  &.error {
+    color: var(--type-error-dark);
+    @mixin dark-mode {
+      color: var(--type-error);
+    }
+  }
+}
+
+
+/* layout */
+.cms-variable-editor-group {
+  display: flex;
+
+  /* make the editor visible when for visualizations */
+  &.single-column {
+    display: block;
+  }
+
+  /* needed for ace editor */
+  & > .cms-ace-container {
+    height: 50vh;
+    overflow-y: auto;
+  }
+
+  & .cms-variable-editor-json {
+    margin: 0 2.5rem 0 0;
+    width: 15.5rem;
+
+    & + * {
+      width: calc(100% - 15.5rem - 2.5rem);
+    }
+  }
+
+  /* get code editor height from parent */
+  & .editor {
+    height: 100% !important;
+  }
+}
+
+/* vars printed by varSwap helper function */
+.cms-var-highlight {
+  background-color: color(var(--type-string) a(0.125));
+  outline: 1px dotted color(var(--type-string) a(0.333));
+  /* reset <var> */
+  font-weight: inherit;
+  font-style: inherit;
+}

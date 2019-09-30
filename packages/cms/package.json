@@ -1,0 +1,63 @@
+{
+  "name": "@datawheel/canon-cms",
+  "description": "Content Management System for Canon sites.",
+  "version": "0.8.5",
+  "author": "James Mullen",
+  "license": "MIT",
+  "bin": {
+    "canon-cms-migrate-legacy": "scripts/migration/canon-cms-migrate-legacy.js",
+    "canon-cms-migrate-0.1": "scripts/migration/canon-cms-migrate-0.1.js",
+    "canon-cms-migrate-0.6": "scripts/migration/canon-cms-migrate-0.6.js",
+    "canon-cms-migrate-0.7": "scripts/migration/canon-cms-migrate-0.7.js"
+  },
+  "scripts": {
+    "dev": "canon-dev",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 canon-build",
+    "locales": "canon-locales",
+    "release": "canon-release",
+    "setup": "canon-setup",
+    "start": "node index.js",
+    "canon-cms-migrate-legacy": "node scripts/migration/canon-cms-migrate-legacy.js",
+    "canon-cms-migrate-0.1": "node scripts/migration/canon-cms-migrate-0.1.js",
+    "canon-cms-migrate-0.6": "node scripts/migration/canon-cms-migrate-0.6.js",
+    "canon-cms-migrate-0.7": "node scripts/migration/canon-cms-migrate-0.7.js"
+  },
+  "dependencies": {
+    "@blueprintjs/datetime": "^3.7.1",
+    "@blueprintjs/select": "^3.6.1",
+    "@datawheel/olap-client": "^1.0.15",
+    "@datawheel/tesseract-client": "^0.1.1",
+    "@google-cloud/storage": "3.1.0",
+    "axios": "^0.18.0",
+    "base58": "^2.0.1",
+    "buble": "^0.19.3",
+    "d3-selection": "^1.3.2",
+    "d3plus-common": "^0.6.57",
+    "d3plus-export": "^0.3.16",
+    "flickr-sdk": "^3.9.0",
+    "iso-639-1": "^2.0.3",
+    "jszip": "^3.2.2",
+    "localforage": "^1.7.2",
+    "mondrian-rest-client": "^1.1.3",
+    "node-yaml": "^3.1.1",
+    "promise-throttle": "^1.0.0",
+    "react-ace": "^6.2.0",
+    "react-clipboard.js": "^2.0.7",
+    "react-quill": "^1.3.1",
+    "react-sizeme": "^2.6.7",
+    "react-table": "^6.10.0",
+    "sharp": "^0.23.0"
+  },
+  "devDependencies": {
+    "@datawheel/canon-core": "^0.17.59",
+    "@datawheel/canon-logiclayer": "^0.3.22"
+  },
+  "peerDependencies": {
+    "@datawheel/canon-core": "^0.17.59"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/datawheel/canon.git"
+  },
+  "main": "src/index.js"
+}

@@ -1,0 +1,196 @@
+@import "../../css/mixins.css";
+
+.cp-hero {
+  background-color: var(--hero-bg-color);
+  color: var(--hero-text-color);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  /* fill up the screen, but make room for the nav & subnav */
+  min-height: calc(100vh - var(--nav-height) - var(--subnav-height));
+
+  /* IE doesn't really do vertical centering, so remove min-height */
+  @mixin ie-only {
+    min-height: 0;
+  }
+}
+
+.cp-hero-inner {
+  /* sizing */
+  width: var(--hero-container-width);
+  padding-top: var(--gutter-xl);
+  padding-bottom: var(--gutter-xl);
+  /* positioning */
+  margin-top: auto;
+  margin-bottom: auto;
+  z-index: 2; /* in front of image & overlay */
+  /* layout */
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cp-hero-figure {
+  width: 100%;
+  padding-top: var(--gutter-lg);
+  padding-bottom: var(--gutter-lg);
+}
+
+.cp-hero-caption {
+  width: 100%;
+
+  @mixin min-sm {
+    /* no viz; center the content */
+    &:last-child {
+      text-align: center;
+    }
+    /* viz; make room for content */
+    &:not(:last-child) {
+      flex-basis: calc(100% - var(--gutter-xl) - var(--hero-viz-width));
+      padding-right: var(--gutter-md);
+    }
+    & + .cp-hero-figure {
+      flex-basis: var(--hero-viz-width);
+      min-width: var(--hero-viz-width);
+      width: 100%;
+    }
+  }
+}
+
+.cp-hero-heading {
+  color: var(--hero-heading-color);
+  font-size: var(--hero-heading-size);
+}
+.cp-hero-subhead {
+  color: var(--hero-subhead-color);
+  font-size: var(--hero-subhead-size);
+}
+.cp-hero-paragraph {
+  font-size: var(--hero-paragraph-size);
+}
+
+/* image(s) credits */
+.cp-hero-credits {
+  z-index: 2;
+  padding: var(--gutter-md);
+  position: relative;
+
+  @mixin min-md {
+    margin-bottom: calc(0px - var(--gutter-sm));
+  }
+
+  /* credits visible state */
+  &.is-open {
+    background-color: var(--section-bg-even);
+    color: var(--section-text-color);
+    /* transitions */
+    transition: background-color 0.1s ease-out;
+
+    /* adjust credits sizing on non-small screens */
+    @mixin min-xs {
+      width: max-content;
+      max-width: 100%;
+      margin-left: auto;
+
+      & .cp-hero-credits-item {
+        width: 30vw;
+        max-width: 20rem;
+      }
+    }
+
+    & .cp-hero-credits-button {
+      top: calc(0px - var(--gutter-lg));
+    }
+  }
+}
+
+/* toggle credits button */
+.cp-hero-credits-button {
+  /* positioning */
+  position: absolute;
+  right: 0;
+  top: var(--gutter-sm);
+  /* theming */
+  color: var(--light-3);
+  background: none;
+  border-color: transparent;
+
+  &:hover, &:focus {
+    color: var(--light-1);
+    border-color: var(--button-border-color);
+  }
+}
+.cp-hero-credits-list {
+  @mixin list-reset;
+}
+
+/* stacked layout */
+@mixin max-xs {
+  .cp-hero-credits-item:not(:last-child) {
+    margin-bottom: var(--gutter-md);
+  }
+}
+
+/* multi-column layout */
+@mixin min-xs {
+  .cp-hero-credits-list {
+    display: flex;
+  }
+  .cp-hero-credits-item {
+    flex: 1 0 calc(33.333% - var(--gutter-sm));
+
+    &:not(:last-child) {
+      margin-right: var(--gutter-md);
+    }
+  }
+}
+
+/* credits text spacing */
+.cp-hero-credits-item-heading {
+  margin-top: -0.25em;
+}
+.cp-hero-credits-text {
+  margin-bottom: 0.5em;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+/* TODO: default link styles */
+.cp-hero-credits-link {
+  color: var(--accent-dark);
+  text-decoration: underline;
+
+  &:hover, &:focus {
+    color: var(--accent-black);
+  }
+}
+
+/* image(s) wrapper */
+.cp-hero-img-outer,
+.cp-hero-img-grid,
+.cp-hero-img-overlay {
+  @mixin absolute-expand;
+}
+/* lay out multiple images in a grid */
+.cp-hero-img-grid {
+  display: flex;
+  flex-wrap: nowrap;
+
+  & > .cp-hero-img-wrapper {
+    flex: 1 0 33.333%;
+
+    & > .cp-hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+/* darken the overlay */
+.cp-hero-img-overlay {
+  background-color: var(--hero-bg-color);
+  opacity: var(--hero-img-overlay-opacity);
+  z-index: 1;
+}

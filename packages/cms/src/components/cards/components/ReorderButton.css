@@ -1,0 +1,31 @@
+@import "../../../css/mixins.css";
+
+.cms .cms-reorder {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+  width: 100%;
+
+  & .cms-reorder-button {
+    /* sizing */
+    width: 1.0625rem;
+    height: 1.0625rem;
+    line-height: 0.5625rem;
+    /* positioning */
+    transform: translateY(50%);
+    z-index: 2;
+
+    & .cms-button-icon {
+      width: 0.5625rem;
+      height: 0.5625rem;
+
+      & > svg {
+        width: 100%;
+        height: auto;
+        top: -1px;
+      }
+    }
+  }
+}

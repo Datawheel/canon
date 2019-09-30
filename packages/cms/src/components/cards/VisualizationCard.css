@@ -1,0 +1,10 @@
+@import "../../css/mixins.css";
+
+/* keep visualizations from breaking out of the container */
+.cms-visualization-card .visualization {
+  max-width: 100%;
+
+  & .d3plus-Mask {
+    background-color: transparent !important;
+  }
+}

@@ -1,0 +1,27 @@
+@import "../../css/mixins.css";
+
+.cp-grouping-section {
+  background-color: var(--grouping-bg-color);
+  color: var(--grouping-text-color);
+}
+
+.cp-grouping-section-heading {
+  color: var(--grouping-heading-color);
+  font-size: var(--grouping-heading-font-size);
+}
+.cp-grouping-section-heading-anchor {
+  color: var(--hero-heading-color);
+}
+
+.cp-grouping-section-subhead {
+  color: var(--grouping-subhead-color);
+  font-size: var(--grouping-subhead-font-size);
+}
+
+.cp-grouping-section-paragraph {
+  font-size: var(--grouping-paragraph-size);
+}
+
+.cp-grouping-section .cp-stat-value-text {
+  color: var(--grouping-stat-value-color);
+}

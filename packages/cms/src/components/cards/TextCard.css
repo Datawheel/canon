@@ -1,0 +1,34 @@
+@import "../../css/mixins.css";
+
+/* TODO: genericize */
+.cms-dialog-locale-group {
+  margin-bottom: 2.25rem;
+
+  & .cms-dialog-locale-container {
+    width: 100%;
+    min-width: 12rem;
+    max-width: 100%;
+  }
+}
+
+/* dialog */
+.cms-locale-group,
+.cms-dialog-locale-group {
+  /* layout */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  & > * {
+    flex-basis: calc(50% - 1.25rem);
+    margin-bottom: 1rem;
+
+    &:only-child {
+      flex-basis: 100%;
+    }
+  }
+}
+
+.cms-locale-container {
+  margin-bottom: 0;
+}
