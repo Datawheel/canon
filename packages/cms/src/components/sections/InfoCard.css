@@ -32,6 +32,10 @@
   margin-top: 0;
   margin-bottom: var(--gutter-xs);
 
+  & .cp-info-card-section-heading{
+    color: var(--infocard-header-text-color);
+  }
+
   & > .cp-info-card-header {
     width: 80%;
   }
