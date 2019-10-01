@@ -139,7 +139,11 @@
   --infocard-border-radius:     4px;
   --infocard-border-width:      1px;
   --infocard-border-color:      var(--light-2);
-  --infocard-header-bg-color:   var(--light-1);
+  --infocard-divider-color:     var(--dark-3);
+  --infocard-subhead-color:     var(--dark-3);
+  --infocard-header-bg-color:   var(--dark-3);
+  --infocard-stat-bg-color:     var(--accent-light);
+  --infocard-header-text-color: var(--white);
   --infocard-main-bg-color:     var(--white);
   /* Grouping (intro) section */
   --grouping-bg-color:          var(--accent-light);
@@ -181,10 +185,12 @@
   --viz-aspect-ratio:           50%;
   --viz-min-height:             40vh;
   /* percentage bar visualization */
-  --percentage-bar-height:      var(--gutter-xs);
-  --percentage-bar-bg-color:    var(--light-2);
-  --percentage-bar-color:       var(--accent-dark);
-  --percentage-bar-radius:      0.5em;
+  --percentage-bar-height:       var(--gutter-xs);
+  --percentage-bar-bg-color:     var(--light-2);
+  --percentage-bar-color:        var(--accent-dark);
+  --percentage-bar-radius:       0.5em;
+  --percentage-bar-stroke-color: var(--light-1);
+  --percentage-bar-stroke-width: 2px;
   /* (react-)table visualization */
   --table-height:               60vh;
   --table-hgroup-bg-color:      var(--light-2);
