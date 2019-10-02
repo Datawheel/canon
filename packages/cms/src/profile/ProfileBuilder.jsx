@@ -319,7 +319,7 @@ class ProfileBuilder extends Component {
       const requests = node.masterMeta.map(meta => {
         const levels = meta.levels ? meta.levels.join() : false;
         const levelString = levels ? `&levels=${levels}` : "";
-        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
+        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
         return axios.get(url);
       });
       const previews = [];
@@ -425,7 +425,7 @@ class ProfileBuilder extends Component {
       const requests = masterMeta.map(meta => {
         const levels = meta.levels ? meta.levels.join() : false;
         const levelString = levels ? `&levels=${levels}` : "";
-        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
+        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
         return axios.get(url);
       });
       const previews = [];
@@ -450,7 +450,7 @@ class ProfileBuilder extends Component {
     const requests = masterMeta.map(meta => {
       const levels = meta.levels ? meta.levels.join() : false;
       const levelString = levels ? `&levels=${levels}` : "";
-      const url = `/api/search?q=&dimension=${meta.dimension}${levelString}`;
+      const url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
       return axios.get(url);
     });
     const previews = [];
