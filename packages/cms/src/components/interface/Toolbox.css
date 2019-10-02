@@ -2,6 +2,10 @@
 
 /* quick and dirty layout */
 @mixin min-lg {
+  .cms-panel {
+    will-change: width;
+    transition: width 0.2s ease-out 0.4s;
+  }
   .cms-panel:not(:last-child) {
     width: calc(100% - var(--toolbox-width));
     max-width: calc(100% - var(--toolbox-width));
@@ -21,6 +25,12 @@
       bottom: 0;
       left: auto;
     }
+  }
+  /* toolbox is a div */
+  /* TODO: do this in a less hacky way */
+  .cms-panel:nth-last-of-type(2) {
+    width: 100%;
+    max-width: none;
   }
 }
 @media (min-width: 768px) and (max-width: 1199px) {
@@ -56,6 +66,63 @@
   & .cms-card {
     min-width: 0;
     max-width: 100%;
+  }
+
+  /* collapsed state */
+  &.is-hidden {
+    background: none;
+    box-shadow: none !important;
+    transform: translateX(calc(100% - 2rem));
+    transition:
+      background-color 0.3s ease-out,
+      box-shadow 0.3s ease-out,
+      transform 0.3s ease-out;
+
+    & .cms-toolbox-collapse-wrapper {
+      left: 0.75rem;
+
+      & ~ * {
+        opacity: 0;
+        z-index: -1;
+        transform: translateX(25%);
+        transition:
+          opacity 0.3s ease-out,
+          transform 0.3s ease-out;
+      }
+    }
+    & .cms-toolbox-collapse-button:hover {
+      transform: translateX(-0.125rem);
+    }
+  }
+
+  &.is-visible .cms-toolbox-collapse-button {
+    margin-top: calc(var(--cms-nav-height) + 2.5rem);
+    background: var(--white);
+
+    @mixin dark-mode {
+      background: var(--black);
+    }
+    &:hover {
+      transform: translateX(0.125rem);
+    }
+  }
+}
+
+/* toggle the toolbox */
+.cms .cms-toolbox-collapse-wrapper {
+  @mixin absolute-vertical-center;
+  position: fixed;
+  left: auto;
+  right: calc(var(--toolbox-width) - 0.75rem);
+  z-index: 1;
+}
+.cms-toolbox-collapse-button {
+  box-shadow: none;
+  transition-property: color, border, background-color, box-shadow, transform;
+
+  &:focus {
+    outline: none;
+    border: 1px solid var(--accent);
   }
 }
 

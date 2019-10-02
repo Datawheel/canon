@@ -1,5 +1,11 @@
 @import "./mixins.css";
 
+/* prevent absolute positioned elements (i.e., collapsed toolbars) from breaking outside of the body */
+.cms {
+  position: relative;
+  overflow-x: hidden;
+}
+
 /* --------------------------------------- */
 /* NAV BAR */
 /* --------------------------------------- */
