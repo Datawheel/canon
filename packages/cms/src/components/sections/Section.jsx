@@ -118,7 +118,7 @@ class Section extends Component {
 
   render() {
     const {contents, sources, isStickyIE, height} = this.state;
-    const {headingLevel, loading} = this.props;
+    const {headingLevel, loading, isModal} = this.props;
 
     // remap old section names
     const layout = contents.type;
@@ -136,19 +136,21 @@ class Section extends Component {
           <Parse El={headingLevel} id={slug} className={`cp-section-heading ${layoutClass}-heading`} tabIndex="0">
             {title}
           </Parse>
-          <AnchorLink to={slug} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`}>
-            #<span className="u-visually-hidden">permalink to section</span>
-          </AnchorLink>
+          {!isModal && 
+            <AnchorLink to={slug} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`}>
+              #<span className="u-visually-hidden">permalink to section</span>
+            </AnchorLink>
+          }
         </div>
       }
     </React.Fragment>;
 
     const subTitle = <React.Fragment>
-    {contents.position !== "sticky" && subtitles.map((content, i) =>
-      <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
-        {content.subtitle}
-      </Parse>
-    )}
+      {contents.position !== "sticky" && subtitles.map((content, i) =>
+        <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
+          {content.subtitle}
+        </Parse>
+      )}
     </React.Fragment>;
 
     const heading = <React.Fragment>

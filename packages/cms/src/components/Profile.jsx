@@ -191,12 +191,12 @@ class Profile extends Component {
         <Dialog
           isOpen={modalSection}
           onClose={() => this.setState({modalSlug: null})}
-          title="Modal"
           usePortal={false}
           icon={false}
         >
           <div className="bp3-dialog-body">
             <Section
+              isModal={true}
               contents={modalSection}
               loading={loading}
             />
