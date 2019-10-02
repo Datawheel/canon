@@ -52,16 +52,16 @@ class Profile extends Component {
     };
   }
 
-  /** 
+  /**
    * Visualizations have the ability to "break out" and open a modal.
    */
   onOpenModal(modalSlug) {
     this.setState({modalSlug});
   }
 
-  /** 
+  /**
    * Visualizations have the ability to "break out" and override a variable in the variables object.
-   * This requires a server round trip, because the user may have changed a variable that would affect 
+   * This requires a server round trip, because the user may have changed a variable that would affect
    * the "allowed" status of a given section.
    */
   onSetVariables(newVariables) {
@@ -106,10 +106,8 @@ class Profile extends Component {
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
     const heroSection = sections.find(l => l.type === "Hero");
-    // Remove all non-heroes from sections.
-    if (heroSection) sections = sections.filter(l => l.type !== "Hero");
-    // Remove all "modal" sections from normal rendering"
-    sections = sections.filter(l => l.position !== "modal");
+    // Remove all heros & modals from sections.
+    if (heroSection) sections = sections.filter(l => l.type !== "Hero" && l.position !== "modal");
 
     // rename old section names
     sections.forEach(l => {
