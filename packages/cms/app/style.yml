@@ -15,9 +15,7 @@
 # VSCode: https://marketplace.visualstudio.com/items?itemName=jaspernorth.vscode-pigments
 
 # GOTCHAS:
-# 1. When aliasing variables in this file (i.e., `section-text-color: "var(--dark-2)"`), these variables will be replaced in css files, but NOT in js files.
-# 2. Currently, after making changes to this file, you will need to clear the cache `rm -rf node_modules/.cache` and then rerun the build. There's an issue for this.
-# 3. Make sure there are no more than 1 empty line at the end of the file, or style.yml will not be recognized and your build will fail. ¯\_(ツ)_/¯
+# Make sure there are no more than 1 empty line at the end of the file, or style.yml will not be recognized and your build will fail. ¯\_(ツ)_/¯
 
 # Finally, if you encounter any bugs, are confused by anything, or wish things were better/different, let @perpetualgrimace know!
 
@@ -162,7 +160,11 @@ infocard-viz-min-width:     "10rem"
 infocard-border-radius:     "4px"
 infocard-border-width:      "1px"
 infocard-border-color:      "var(--light-2)"
-infocard-header-bg-color:   "var(--light-1)"
+infocard-divider-color:     "var(--dark-3)"
+infocard-subhead-color:     "var(--dark-3)"
+infocard-header-bg-color:   "var(--dark-3)"
+infocard-stat-bg-color:     "var(--accent-light)"
+infocard-header-text-color: "var(--white)"
 infocard-main-bg-color:     "var(--white)"
 # Grouping (intro) section
 grouping-bg-color:          "var(--accent-light)"

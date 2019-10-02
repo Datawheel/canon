@@ -3,7 +3,6 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
-import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
@@ -16,6 +15,7 @@ const vizLookup = {
   BumpChart: ["groupBy", "x", "y"],
   Donut: ["groupBy", "value"],
   Geomap: ["groupBy", "colorScale", "topojson"],
+  Graphic: ["label", "value", "subtitle", "imageURL"],
   LinePlot: ["groupBy", "x", "y"],
   PercentageBar: ["groupBy", "value"],
   Pie: ["groupBy", "value"],
@@ -24,7 +24,7 @@ const vizLookup = {
   Table: ["columns"]
 };
 
-const textFields = ["topojson"];
+const textFields = ["imageURL", "topojson"];
 const checkboxFields = ["columns"];
 
 class SimpleVisualizationEditor extends Component {
@@ -217,7 +217,7 @@ class SimpleVisualizationEditor extends Component {
       <TextButtonGroup
         namespace="cms"
         inputProps={{
-          label: "Data",
+          label: "Data endpoint",
           inline: true,
           namespace: "cms",
           value: object.data || "",
@@ -226,30 +226,28 @@ class SimpleVisualizationEditor extends Component {
         buttonProps={buttonProps}
       />
 
-      {object.data &&
-        <React.Fragment>
-          <Select
-            label="Visualization type"
-            inline
-            namespace="cms"
-            value={object.type}
-            onChange={this.onChange.bind(this, "type")}
-          >
-            <option value="undefined" default>Select visualization type</option>
-            {Object.keys(vizLookup).map(type =>
-              <option key={type} value={type}>{type}</option>
-            )}
-          </Select>
-          <TextInput
-            label="Title"
-            namespace="cms"
-            inline
-            key="title-text"
-            value={object.title}
-            onChange={this.onChange.bind(this, "title")}
-          />
-        </React.Fragment>
-      }
+      <div className="cms-field-group">
+        <Select
+          label="Visualization"
+          inline
+          namespace="cms"
+          value={object.type}
+          onChange={this.onChange.bind(this, "type")}
+        >
+          <option value="undefined" default>Select visualization type</option>
+          {Object.keys(vizLookup).map(type =>
+            <option key={type} value={type}>{type}</option>
+          )}
+        </Select>
+        <TextInput
+          label="Title"
+          namespace="cms"
+          inline
+          key="title-text"
+          value={object.title}
+          onChange={this.onChange.bind(this, "title")}
+        />
+      </div>
 
       {payload.data &&
         <div className="viz-select-group">
@@ -257,7 +255,7 @@ class SimpleVisualizationEditor extends Component {
             // render prop as text input
             textFields.includes(prop)
               ? <TextInput
-                label={`please enter ${prop}`}
+                label={prop === "imageURL" ? "Image URL" : prop}
                 namespace="cms"
                 fontSize="xs"
                 key={prop}
@@ -288,6 +286,10 @@ class SimpleVisualizationEditor extends Component {
                   value={object[prop]}
                   onChange={this.onChange.bind(this, prop)}
                 >
+                  {/* optional fields */}
+                  {object.type === "Graphic"
+                    ? <option key={null} value="">none</option> : ""
+                  }
                   {Object.keys(firstObj).map(type =>
                     <option key={type} value={type}>{type}</option>
                   )}

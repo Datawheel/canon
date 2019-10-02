@@ -80,7 +80,7 @@
         auto-fit,
         minmax(18rem, 1fr)
       );
-      grid-gap: var(--multicolumn-column-gap);
+      grid-gap: var(--gutter-sm) var(--multicolumn-column-gap);
       margin-bottom: 0;
     }
 

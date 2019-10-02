@@ -139,7 +139,7 @@ class Hero extends Component {
         </div>
 
         {/* display image credits, and images */}
-        {images
+        {images && images.length
           ? <React.Fragment>
             {/* credits */}
             <div className={`cp-hero-credits ${creditsVisible ? "is-open" : "is-closed"}`}>
