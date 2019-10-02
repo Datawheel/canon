@@ -4,7 +4,7 @@
 @mixin min-lg {
   .cms-panel {
     will-change: width;
-    transition: width 0.2s ease-out 0.4s;
+    transition: width 0.2s ease-out 0.2s;
   }
   .cms-panel:not(:last-child) {
     width: calc(100% - var(--toolbox-width));
