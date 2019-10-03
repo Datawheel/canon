@@ -94,6 +94,7 @@ export default class Toolbox extends Component {
           forceType = type;
           forceOpen = true;
         }
+        console.log(minData[propMap[type]]);
         this.setState({minData, forceID, forceType, forceOpen}, maybeFetch);
       }
     });
@@ -204,7 +205,7 @@ export default class Toolbox extends Component {
       .filter(this.filterFunc.bind(this));
 
     const materializers = minData.materializers
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => a.ordering - b.ordering)
       .map(d => Object.assign({}, {type: "materializer"}, d))
       .filter(this.filterFunc.bind(this));
 
