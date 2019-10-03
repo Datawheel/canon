@@ -279,7 +279,7 @@ class StoryBuilder extends Component {
     else if (currentNode && node.id === currentNode.id) {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
-    if (this.props.setPath) this.props.setPath(node);
+    // this.context.setPath(node);
     this.setState({currentNode: node});
   }
 
