@@ -39,7 +39,7 @@ class Builder extends Component {
     const {isEnabled, env} = this.props;
     const {router} = this.props;
     const {location} = router;
-    const {tab, profile, section, previews} = location.query;
+    const {tab, profile, section, previews, story, storysection} = location.query;
 
     this.props.isAuthenticated();
 
@@ -58,7 +58,7 @@ class Builder extends Component {
       router.replace(url);
     }
 
-    const pathObj = {profile, section, previews, tab: currentTab};
+    const pathObj = {profile, section, previews, story, storysection, tab: currentTab};
 
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
@@ -123,12 +123,16 @@ class Builder extends Component {
     const {pathname} = router.location;
     let url = pathname === "/" ? "" : "/";
     url += `${pathname}?tab=${pathObj.tab}`;
+    // Profile
     if (pathObj.profile) url += `&profile=${pathObj.profile}`;
     if (pathObj.section) url += `&section=${pathObj.section}`;
     if (pathObj.previews) {
       const previews = pathObj.previews.map(d => d.id).join();
       url += `&previews=${previews}`;
     }
+    // Story 
+    if (pathObj.story) url += `&story=${pathObj.story}`;
+    if (pathObj.storysection) url += `&storysection=${pathObj.storysection}`;
     router.replace(url);
     this.setState({pathObj});
   }

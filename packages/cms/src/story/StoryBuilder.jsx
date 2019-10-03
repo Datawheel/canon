@@ -72,7 +72,18 @@ class StoryBuilder extends Component {
       };
     });
     if (!openNode) {
-      this.setState({nodes});
+      const {story, storysection} = this.props.pathObj;
+      if (storysection) {
+        const nodeToOpen = this.locateNode("storysection", storysection, nodes);
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+      else if (story) {
+        const nodeToOpen = this.locateNode("story", story, nodes);
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+      else {
+        this.setState({nodes});
+      }
     }
     else {
       this.setState({nodes}, this.handleNodeClick.bind(this, nodes[0]));
@@ -264,6 +275,8 @@ class StoryBuilder extends Component {
     if (node.itemType === "storysection") parentLength = this.locateNode("story", node.data.story_id).childNodes.length;
     if (node.itemType === "story") parentLength = nodes.length;
     if (!currentNode) {
+      // If the node has a parent, it's a section. Expand its parent profile so we can see it.
+      if (node.parent) node.parent.isExpanded = true;
       node.isSelected = true;
       node.isExpanded = true;
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
@@ -279,7 +292,13 @@ class StoryBuilder extends Component {
     else if (currentNode && node.id === currentNode.id) {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
-    // this.context.setPath(node);
+    let ssParent;
+    if (node.itemType === "storysection") ssParent = this.locateNode("story", node.data.story_id);
+    const pathObj = {
+      story: node.itemType === "story" ? node.data.id : ssParent.data.id,
+      storysection: node.itemType === "storysection" ? node.data.id : undefined
+    };
+    this.context.setPath(pathObj);
     this.setState({currentNode: node});
   }
 
@@ -323,16 +342,19 @@ class StoryBuilder extends Component {
   /**
    * Given a node type (story, storysection) and an id, crawl down the tree and fetch a reference to the Tree node with that id
    */
-  locateNode(type, id) {
-    const {nodes} = this.state;
+  locateNode(type, id, pnodes) {
+    const nodes = pnodes || this.state.nodes;
     let node = null;
     if (type === "story") {
-      node = nodes.find(s => s.data.id === id);
+      node = nodes.find(s => Number(s.data.id) === Number(id));
     }
     else if (type === "storysection") {
       nodes.forEach(s => {
-        const attempt = s.childNodes.find(t => t.data.id === id);
-        if (attempt) node = attempt;
+        const attempt = s.childNodes.find(t => Number(t.data.id) === Number(id));
+        if (attempt) {
+          node = attempt;
+          node.parent = nodes.find(s => Number(s.data.id) === Number(node.data.story_id)); // add parent to node
+        }
       });
     }
     return node;
