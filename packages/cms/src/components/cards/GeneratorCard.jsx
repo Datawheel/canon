@@ -28,8 +28,20 @@ class GeneratorCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.minData && prevProps.variables !== this.props.variables) {
-      this.formatDisplay.bind(this)();
+    if (this.state.minData) {
+      const {id} = this.state.minData;
+      let varTypes = ["variables"];
+      if (this.props.secondaryVariables) varTypes = varTypes.concat("secondaryVariables");
+      const changed = varTypes.some(varType => 
+        ["_genStatus", "_matStatus"].some(status => 
+          prevProps[varType] && 
+          prevProps[varType][status] && 
+          this.props[varType] && 
+          this.props[varType][status] && 
+          JSON.stringify(prevProps[varType][status][id]) !== JSON.stringify(this.props[varType][status][id])
+        )
+      );
+      if (changed) this.formatDisplay.bind(this)();
     }
     if (prevProps.forceOpen !== this.props.forceOpen && this.props.forceOpen) {
       this.openEditor.bind(this)();
