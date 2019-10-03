@@ -118,7 +118,6 @@ class Builder extends Component {
     // The underlying Editors don't know about tabs, so they will send pathObjs that don't have a tab in them.
     // Always trust Builder.jsx's current tab, and assign it into whatever the Editors send up.
     pathObj = Object.assign({}, pathObj, {tab: currentTab});
-    console.log(pathObj);
     const {router} = this.props;
     const {pathname} = router.location;
     let url = pathname === "/" ? "" : "/";
