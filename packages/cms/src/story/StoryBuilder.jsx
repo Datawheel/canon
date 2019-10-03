@@ -429,7 +429,8 @@ class StoryBuilder extends Component {
 }
 
 StoryBuilder.contextTypes = {
-  formatters: PropTypes.object
+  formatters: PropTypes.object,
+  setPath: PropTypes.func
 };
 
 export default hot(StoryBuilder);
