@@ -308,18 +308,26 @@ class ProfileBuilder extends Component {
     };
     // If the pids match, the master profile is the same, so keep the same preview
     if (this.state.currentPid === node.masterPid) {
-      pathObj.previews = previews.map(d => d.id).join();
-      if (this.props.setPath) this.props.setPath(pathObj);
+      pathObj.previews = previews;
+      this.context.setPath(pathObj);
       this.setState({currentNode: node});
     }
     // If they don't match, update the currentPid and reset the preview
     else {
       // An empty search string will automatically provide the highest z-index results.
       // Use this to auto-populate the preview when the user changes profiles.
-      const requests = node.masterMeta.map(meta => {
+      const requests = node.masterMeta.map((meta, i) => {
         const levels = meta.levels ? meta.levels.join() : false;
         const levelString = levels ? `&levels=${levels}` : "";
-        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
+        let url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
+        const ps = this.props.pathObj.previews;
+        // If previews is of type string, then it came from the URL permalink. Override
+        // The search to manually choose the exact id for each dimension.
+        if (typeof ps === "string") {
+          const ids = ps.split(",");
+          const id = ids[i];
+          if (id) url += `&id=${id}`;
+        }
         return axios.get(url);
       });
       const previews = [];
@@ -332,8 +340,8 @@ class ProfileBuilder extends Component {
             memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
           });
         });
-        pathObj.previews = previews.map(d => d.id).join();
-        if (this.props.setPath) this.props.setPath(pathObj);
+        pathObj.previews = previews;
+        this.context.setPath(pathObj);
         this.setState({currentNode: node, currentPid: node.masterPid, previews});
       });
     }
@@ -483,7 +491,9 @@ class ProfileBuilder extends Component {
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
   onSelectPreview(newPreview) {
+    const {pathObj} = this.props;
     const previews = this.state.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
+    this.context.setPath(Object.assign({}, pathObj, {previews}));
     this.setState({previews}, this.fetchVariables.bind(this, true));
   }
 
@@ -721,7 +731,6 @@ class ProfileBuilder extends Component {
                   meta={currentNode.masterMeta}
                   takenSlugs={profiles.map(p => p.meta).reduce((acc, d) => acc.concat(d.map(m => m.slug)), [])}
                   previews={previews}
-                  onSelectPreview={this.onSelectPreview.bind(this)}
                   onAddDimension={this.onAddDimension.bind(this)}
                   onDeleteDimension={this.onDeleteDimension.bind(this)}
                 />
@@ -763,7 +772,8 @@ ProfileBuilder.childContextTypes = {
 };
 
 ProfileBuilder.contextTypes = {
-  formatters: PropTypes.object
+  formatters: PropTypes.object,
+  setPath: PropTypes.func
 };
 
 export default connect(state => ({env: state.env}))(hot(ProfileBuilder));

@@ -72,7 +72,11 @@ class Builder extends Component {
 
   getChildContext() {
     const {formatters} = this.state;
-    return {formatters};
+    const setPath = this.setPath.bind(this);
+    return {
+      formatters,
+      setPath
+    };
   }
 
   handleTabChange(newTab) {
@@ -95,15 +99,16 @@ class Builder extends Component {
   }
 
   setPath(pathObj) {
-    const diffProfile = String(pathObj.profile) !== String(this.state.pathObj.profile);
-    const diffSection = String(pathObj.section) !== String(this.state.pathObj.section);
-    if (diffProfile || diffSection) {
+    if (JSON.stringify(pathObj) !== JSON.stringify(this.state.pathObj)) {
       const {router} = this.props;
       const {pathname} = router.location;
       let url = pathname === "/" ? "" : "/";
       url += `${pathname}?profile=${pathObj.profile}`;
       if (pathObj.section) url += `&section=${pathObj.section}`;
-      // if (pathObj.previews) url += `&previews=${pathObj.previews}`;
+      if (pathObj.previews) {
+        const previews = pathObj.previews.map(d => d.id).join();
+        url += `&previews=${previews}`;
+      }
       router.replace(url);
       this.setState({pathObj});
     }
@@ -208,19 +213,20 @@ class Builder extends Component {
         {currentTab === "profiles" &&
           <ProfileBuilder
             pathObj={pathObj}
-            setPath={this.setPath.bind(this)}
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
         }
         {currentTab === "stories" &&
           <StoryBuilder
+            pathObj={pathObj}
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
         }
         {currentTab === "metadata" &&
           <MetaEditor
+            pathObj={pathObj}
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
@@ -231,7 +237,8 @@ class Builder extends Component {
 }
 
 Builder.childContextTypes = {
-  formatters: PropTypes.object
+  formatters: PropTypes.object,
+  setPath: PropTypes.func
 };
 
 Builder.need = [
