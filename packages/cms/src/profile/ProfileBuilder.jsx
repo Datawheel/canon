@@ -538,90 +538,32 @@ class ProfileBuilder extends Component {
       this.formatTreeVariables.bind(this)();
     };
     if (force || !variablesHash[currentPid] || variablesHash[currentPid] && locale && !variablesHash[currentPid][locale]) {
-      let url = `/api/variables/${currentPid}/?locale=${localeDefault}`;
+      let paramString = "";
       previews.forEach((p, i) => {
-        url += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+        paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
       });
       if (query) {
         Object.keys(query).forEach(k => {
-          url += `&${k}=${query[k]}`;
+          paramString += `&${k}=${query[k]}`;
         });
       }
-      axios.get(url).then(def => {
-        const defObj = {[localeDefault]: def.data};
-        if (!variablesHash[currentPid]) {
-          variablesHash[currentPid] = defObj;
-        }
-        else {
-          // If query.generator was specified, then we are here because an
-          // onSave event Fired. Though we eventually do a nestedObjectAssign
-          // (See below) this is not sufficient if the user DELETED any keys.
-          // Compare the gen status and "pre-delete" the missing keys before
-          // the nestedObjectAssign runs.
-          if (query && query.generator) {
-            const theseVars = variablesHash[currentPid][localeDefault];
-            const current = theseVars._genStatus[query.generator];
-            const incoming = defObj[localeDefault]._genStatus[query.generator];
-            Object.keys(current).forEach(key => {
-              if (current[key] && !incoming.key) {
-                delete theseVars[key];
-                delete current[key];
-              }
-            });
-          }
-          // Further, for any given _genStatus or _matStatus that is incoming,
-          // if the incoming version has no error, we must CLEAR the error from
-          // the current state of the variables.
-          if (variablesHash[currentPid][localeDefault]) {
-            ["_genStatus", "_matStatus"].forEach(status => {
-              const incGens = defObj[localeDefault][status];
-              const curGens = variablesHash[currentPid][localeDefault][status];
-              Object.keys(incGens).forEach(id => {
-                if (!incGens[id].error && curGens[id]) delete curGens[id].error;
-              });
-            });
-          }
-          variablesHash[currentPid] = nestedObjectAssign(variablesHash[currentPid], defObj);
-        }
-        if (locale) {
-          let lurl = `/api/variables/${currentPid}/?locale=${locale}`;
-          previews.forEach((p, i) => {
-            lurl += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
-          });
-          if (query) {
-            Object.keys(query).forEach(k => {
-              lurl += `&${k}=${query[k]}`;
-            });
-          }
-          axios.get(lurl).then(loc => {
-            const locObj = {[locale]: loc.data};
-            if (query && query.generator) {
-              const theseVars = variablesHash[currentPid][locale];
-              const current = theseVars._genStatus[query.generator];
-              const incoming = locObj[locale]._genStatus[query.generator];
-              Object.keys(current).forEach(key => {
-                if (current[key] && !incoming.key) {
-                  delete theseVars[key];
-                  delete current[key];
-                }
-              });
-            }
-            if (variablesHash[currentPid][locale]) {
-              ["_genStatus", "_matStatus"].forEach(status => {
-                const incGens = locObj[locale][status];
-                const curGens = variablesHash[currentPid][locale][status];
-                Object.keys(incGens).forEach(id => {
-                  if (!incGens[id].error && curGens[id]) delete curGens[id].error;
-                });
-              });
-            }
-            variablesHash[currentPid] = nestedObjectAssign(variablesHash[currentPid], locObj);
-            this.setState({variablesHash}, maybeCallback);
-          });
-        }
-        else {
-          this.setState({variablesHash}, maybeCallback);
-        }
+      const url = `/api/variables/${currentPid}/?locale=${localeDefault}${paramString}`;
+      const lurl = `/api/variables/${currentPid}/?locale=${locale}${paramString}`;
+      // If query.generator or materializer was specified, then we are here because an onSave event Fired. 
+      let promises;
+      if (query && (query.generator || query.materializer)) {
+        promises = [axios.post(url, {variables: variablesHash[currentPid][localeDefault]})];
+        if (locale) promises.push(axios.post(lurl, {variables: variablesHash[currentPid][locale]}));
+      }
+      else {
+        promises = [axios.get(url)];
+        if (locale) promises.push(axios.get(lurl));
+      }
+      Promise.all(promises).then(resp => {
+        if (!variablesHash[currentPid]) variablesHash[currentPid] = {};
+        variablesHash[currentPid][localeDefault] = resp[0].data;
+        if (locale && resp[1].data) variablesHash[currentPid][locale] = resp[1].data;
+        this.setState({variablesHash}, maybeCallback);
       });
     }
     else {

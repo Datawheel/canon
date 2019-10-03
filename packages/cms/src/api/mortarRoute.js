@@ -210,7 +210,7 @@ module.exports = function(app) {
     return res.json(sortProfile(extractLocaleContent(profile, locale, "profile")));
   });
 
-  app.get("/api/variables/:pid", async(req, res) => {
+  const fetchVariables = async(req, res) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     const dims = collate(req.query);
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
@@ -265,35 +265,57 @@ module.exports = function(app) {
     }
     
     const formatters = await db.formatter.findAll().catch(catcher);
-    // Allow the user to specify a specific generator only via a query param
-    const gid = req.query.generator;
-    const genObj = gid ? {where: {id: gid}} : {where: {profile_id: profile.id}};
-    const generators = await db.generator.findAll(genObj).catch(catcher);
-    // Given a profile id and its generators, hit all the API endpoints they provide
     // Create a hash table so the formatters are directly accessible by name
     const formatterFunctions = formatters4eval(formatters, locale);
-    // Deduplicate generators that share an API endpoint
-    const requests = Array.from(new Set(generators.map(g => g.api)));
-    const fetches = requests.map(r => throttle.add(createGeneratorFetch.bind(this, r, attr)));
-    const results = await Promise.all(fetches).catch(catcher);
+
     // Given a profile id, its generators, their API endpoints, and the responses of those endpoints,
     // start to build a returnVariables object by executing the javascript of each generator on its data
     let returnVariables = {};
-    const genStatus = {};
-    results.forEach((r, i) => {
-      // For every API result, find ONLY the generators that depend on this data
-      const requiredGenerators = generators.filter(g => g.api === requests[i]);
-      // Build the return object using a reducer, one generator at a time
-      returnVariables = requiredGenerators.reduce((acc, g) => {
-        const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale);
-        const {vars} = evalResults;
-        // genStatus is used to track the status of each individual generator
-        genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
-        // Fold the generated variables into the accumulating returnVariables
-        return {...acc, ...vars};
-      }, returnVariables);
-    });
-    returnVariables._genStatus = genStatus;
+
+    // ONLY run generators if a specific materializer was not provided. If the materializer was provided,
+    // this this is a POST operation and variables have already been provided, so skip the generators entirely.
+    if (!req.query.materializer) {
+      // Allow the user to specify a specific generator only via a query param
+      const gid = req.query.generator;
+      const genObj = gid ? {where: {id: gid}} : {where: {profile_id: profile.id}};
+      let generators = await db.generator.findAll(genObj).catch(catcher);
+      generators = generators.map(g => g.toJSON());
+      // Given a profile id and its generators, hit all the API endpoints they provide
+      // Deduplicate generators that share an API endpoint
+      const requests = Array.from(new Set(generators.map(g => g.api)));
+      const fetches = requests.map(r => throttle.add(createGeneratorFetch.bind(this, r, attr)));
+      const results = await Promise.all(fetches).catch(catcher);
+  
+      let genStatus = {};
+      // However, if the variables object has already been provided, this is coming from a CMS generator update.
+      // This means we need to delete the variables created by the provided generators, so that they can be
+      // re-run and successfully re-inserted into the variables object.
+      if (req.body.variables && gid) {
+        returnVariables = req.body.variables;
+        if (returnVariables._genStatus[gid]) {
+          Object.keys(returnVariables._genStatus[gid]).forEach(k => {
+            delete returnVariables[k];
+          });
+          delete returnVariables._genStatus[gid];
+        }
+        genStatus = returnVariables._genStatus;
+      }
+      results.forEach((r, i) => {
+        // For every API result, find ONLY the generators that depend on this data
+        const requiredGenerators = generators.filter(g => g.api === requests[i]);
+        // Build the return object using a reducer, one generator at a time
+        returnVariables = requiredGenerators.reduce((acc, g) => {
+          const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale);
+          const {vars} = evalResults;
+          // genStatus is used to track the status of each individual generator
+          genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
+          // Fold the generated variables into the accumulating returnVariables
+          return {...acc, ...vars};
+        }, returnVariables);
+      });
+      returnVariables._genStatus = genStatus;
+    }
+
     const mid = req.query.materializer;
     const matObj = mid ? {where: {id: mid}} : {where: {profile_id: profile.id}};
     let materializers = await db.materializer.findAll(matObj).catch(catcher);
@@ -302,7 +324,18 @@ module.exports = function(app) {
     // Run the materializers and fold their generated variables into returnVariables     
     // The order of materializers matter because input to later materializers depends on output from earlier materializers
     materializers.sort((a, b) => a.ordering - b.ordering);
-    const matStatus = {};
+    let matStatus = {};
+    if (req.body.variables && mid) {
+      // Remember, if the code gets here, generators were never run, so the following assignment shouldn't pave anything.
+      returnVariables = req.body.variables;
+      if (returnVariables._matStatus[mid]) {
+        Object.keys(returnVariables._matStatus[mid]).forEach(k => {
+          delete returnVariables[k];
+        });
+        delete returnVariables._matStatus[mid];
+      }
+      matStatus = returnVariables._matStatus;
+    }
     returnVariables = materializers.reduce((acc, m) => {
       const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions, locale);
       const {vars} = evalResults;
@@ -311,7 +344,17 @@ module.exports = function(app) {
     }, returnVariables);
     returnVariables._matStatus = matStatus;
     return res.json(returnVariables);
-  });  
+  };  
+
+  /* There are two ways to fetch variables:
+   * GET - the initial GET operation on CMS or Profile load, performed by a need
+   * POST - a subsequent reload, caused by a generator change, requiring the user
+   *        to provide the variables object previous received in the GET
+   * The following two endpoints route those two options to the same code.
+  */
+
+  app.get("/api/variables/:pid", async(req, res) => await fetchVariables(req, res));
+  app.post("/api/variables/:pid", async(req, res) => await fetchVariables(req, res));
 
   /* Main API Route to fetch a profile, given a list of slug/id pairs
    * slugs represent the type of page (geo, naics, soc, cip, university)

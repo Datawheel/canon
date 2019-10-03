@@ -72,7 +72,8 @@ export default class Toolbox extends Component {
     payload.ordering = minData[propMap[type]].length;
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
       if (resp.status === 200) {
-        const maybeFetch = type === "formatter" ? null : this.fetchVariables.bind(this, true);
+        let maybeFetch = null;
+        if (type === "generator" || type === "materializer") maybeFetch = this.fetchVariables.bind(this, true, {[type]: resp.data.id});
         // Selectors, unlike the rest of the elements, actually do pass down their entire
         // content to the Card (the others are simply given an id and load the data themselves)
         if (type === "selector") {
@@ -119,11 +120,14 @@ export default class Toolbox extends Component {
     }
   }
 
-  onDelete(type, newArray) {
+  onDelete(type, id, newArray) {
     const {minData} = this.state;
     minData[propMap[type]] = newArray;
     const recompiling = type === "formatter" ? false : true;
-    const maybeFetch = type === "formatter" ? null : this.fetchVariables.bind(this, true);
+    let maybeFetch = null;
+    // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
+    // is handled gracefully server-side - it prunes the provided id from the variables object and re-runs necessary gens/mats.
+    if (type === "generator" || type === "materializer") maybeFetch = this.fetchVariables.bind(this, true, {[type]: id});
     this.setState({minData, recompiling}, maybeFetch);
     if (type === "selector") {
       const {selectors} = minData;

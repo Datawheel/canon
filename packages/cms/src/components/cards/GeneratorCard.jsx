@@ -81,10 +81,11 @@ class GeneratorCard extends Component {
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
-    axios.delete(`/api/cms/${type}/delete`, {params: {id: minData.id}}).then(resp => {
+    const {id} = minData;
+    axios.delete(`/api/cms/${type}/delete`, {params: {id}}).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
-        if (this.props.onDelete) this.props.onDelete(type, resp.data);
+        if (this.props.onDelete) this.props.onDelete(type, id, resp.data);
       }
     });
   }
@@ -95,7 +96,8 @@ class GeneratorCard extends Component {
     axios.post(`/api/cms/${type}/update`, minData).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
-        const query = type === "generator" ? {generator: minData.id} : false;
+        let query = false; 
+        if (type === "generator" || type === "materializer") query = {[type]: minData.id};
         if (this.props.onSave) this.props.onSave(query);
       }
     });
