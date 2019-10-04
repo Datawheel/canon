@@ -181,17 +181,16 @@ module.exports = function(app) {
       });
     } 
     else {
+      const searchWhere = {};
       if (q) {
         where[sequelize.Op.or] = [
           {name: {[sequelize.Op.iLike]: `%${q}%`}},
           {keywords: {[sequelize.Op.overlap]: [q]}}
         ];
+        where.locale = locale;
+        rows = await db.search_content.findAll({where}).catch(catcher);
+        searchWhere.contentId = Array.from(new Set(rows.map(r => r.id)));
       }
-      where.locale = locale;
-      rows = await db.search_content.findAll({where}).catch(catcher);
-      const searchWhere = {
-        contentId: Array.from(new Set(rows.map(r => r.id)))
-      };
       if (dimension) searchWhere.dimension = dimension;
       // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
       if (levels) searchWhere.hierarchy = levels.split(",");
