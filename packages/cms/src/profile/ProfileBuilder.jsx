@@ -66,7 +66,7 @@ class ProfileBuilder extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.locale !== this.props.locale) {
       const {currentPid} = this.state;
-      if (currentPid) this.fetchVariables.bind(this)(true);
+      if (currentPid) this.fetchVariables.bind(this)();
     }
   }
 
@@ -484,7 +484,8 @@ class ProfileBuilder extends Component {
    */
   onSelectPreview(newPreview) {
     const previews = this.state.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
-    this.setState({previews}, this.fetchVariables.bind(this, true));
+    // console.log(this.state.profiles);
+    this.setState({previews}, this.fetchVariables.bind(this));
   }
 
   /*
@@ -526,56 +527,75 @@ class ProfileBuilder extends Component {
    * Certain events in the Editors, such as saving a generator, can change the resulting
    * variables object. In order to ensure that this new variables object is passed down to
    * all the editors, each editor has a callback that accesses this function. We store the
-   * variables object in a hash that is keyed by the profile id, so we don't re-run the get if
-   * the variables are already there. However, we provide a "force" option, which editors
-   * can use to say "trust me, I've changed something, you need to re-do the variables get"
+   * variables object in a hash that is keyed by the profile id.
    */
-  fetchVariables(force, callback, query) {
+  fetchVariables(callback, query) {
     const {variablesHash, currentPid, previews} = this.state;
     const {locale, localeDefault} = this.props;
     const maybeCallback = () => {
       if (callback) callback();
       this.formatTreeVariables.bind(this)();
     };
-    if (force || !variablesHash[currentPid] || variablesHash[currentPid] && locale && !variablesHash[currentPid][locale]) {
       
-      /*
-      // notes
-      if (!variablesHash[currentPid]) variablesHash[currentPid] = {};
-      if (!variablesHash[currentPid][localeDefault]) variablesHash[currentPid][localeDefault] = {_genStatus: {}, _matStatus: {}};
-      if (locale && !variablesHash[currentPid][locale]) variablesHash[currentPid][locale] = {_genStatus: {}, _matStatus: {}};
-      */
-      
-      let paramString = "";
-      previews.forEach((p, i) => {
-        paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
-      });
-      if (query) {
-        Object.keys(query).forEach(k => {
-          paramString += `&${k}=${query[k]}`;
-        });
-      }
-      const url = `/api/variables/${currentPid}/?locale=${localeDefault}${paramString}`;
-      const lurl = `/api/variables/${currentPid}/?locale=${locale}${paramString}`;
-      // If query.generator or materializer was specified, then we are here because an onSave event Fired. 
-      let promises;
-      if (query && (query.generator || query.materializer)) {
-        promises = [axios.post(url, {variables: variablesHash[currentPid][localeDefault]})];
-        if (locale) promises.push(axios.post(lurl, {variables: variablesHash[currentPid][locale]}));
-      }
-      else {
-        promises = [axios.get(url)];
-        if (locale) promises.push(axios.get(lurl));
-      }
-      Promise.all(promises).then(resp => {
-        if (!variablesHash[currentPid]) variablesHash[currentPid] = {};
-        variablesHash[currentPid][localeDefault] = resp[0].data;
-        if (locale && resp[1].data) variablesHash[currentPid][locale] = resp[1].data;
-        this.setState({variablesHash}, maybeCallback);
+    if (!variablesHash[currentPid]) variablesHash[currentPid] = {};
+    if (!variablesHash[currentPid][localeDefault]) variablesHash[currentPid][localeDefault] = {_genStatus: {}, _matStatus: {}};
+    if (locale && !variablesHash[currentPid][locale]) variablesHash[currentPid][locale] = {_genStatus: {}, _matStatus: {}};
+    
+    let paramString = "";
+    previews.forEach((p, i) => {
+      paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+    });
+    if (query) {
+      Object.keys(query).forEach(k => {
+        paramString += `&${k}=${query[k]}`;
       });
     }
-    else {
-      this.setState({variablesHash}, maybeCallback);
+    const locales = [localeDefault];
+    if (locale) locales.push(locale);
+    for (const thisLocale of locales) {
+      let theseVars = variablesHash[currentPid][thisLocale];
+      if (query && query.materializer) {
+        axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: theseVars}).then(mat => {
+          const incMat = mat.data;
+          if (incMat._matStatus) {
+            Object.keys(incMat._matStatus).forEach(mid => {
+              Object.keys(incMat._matStatus[mid]).forEach(k => {
+                delete theseVars[k];
+              });
+              delete theseVars._matStatus[mid];
+            });
+          }
+          theseVars = nestedObjectAssign(theseVars, mat.data);
+          this.setState({variablesHash}, maybeCallback);
+        });
+      }
+      else {
+        axios.get(`/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
+          const incGen = gen.data;
+          if (incGen._genStatus) {
+            Object.keys(incGen._genStatus).forEach(gid => {
+              Object.keys(incGen._genStatus[gid]).forEach(k => {
+                delete theseVars[k];
+              });
+              delete theseVars._genStatus[gid];
+            });
+          }
+          theseVars = nestedObjectAssign(theseVars, gen.data);
+          axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: theseVars}).then(mat => {
+            const incMat = mat.data;
+            if (incMat._matStatus) {
+              Object.keys(incMat._matStatus).forEach(mid => {
+                Object.keys(incMat._matStatus[mid]).forEach(k => {
+                  delete theseVars[k];
+                });
+                delete theseVars._matStatus[mid];
+              });
+            }
+            theseVars = nestedObjectAssign(theseVars, mat.data);
+            this.setState({variablesHash}, maybeCallback);
+          });
+        });
+      }
     }
   }
 

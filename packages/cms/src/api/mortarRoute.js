@@ -4,7 +4,6 @@ const FUNC = require("../utils/FUNC"),
       collate = require("../utils/collate"),
       libs = require("../utils/libs"), // leave this! needed for the variable functions
       mortarEval = require("../utils/mortarEval"),
-      nestedObjectAssign = require("../utils/nestedObjectAssign"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
@@ -249,13 +248,14 @@ module.exports = function(app) {
     return attr;
   };
 
-  const runGenerator = async(req, id) => {
+  const runGenerators = async(req, pid, id) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     const dims = collate(req.query);
-    let generator = await db.generator.findOne({where: {id}}).catch(catcher);
-    if (!generator) return {};
-    generator = generator.toJSON();
-    const pid = generator.profile_id;
+    const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
+    let generators = await db.generator.findAll(genObj).catch(catcher);
+    if (generators.length === 0) return {};
+    generators = generators.map(g => g.toJSON());
+    
     const attr = await fetchAttr(pid, dims);
 
     /** */
@@ -279,21 +279,39 @@ module.exports = function(app) {
 
     const formatterFunctions = await formatters4eval(db, locale);
 
-    const request = throttle.add(createGeneratorFetch.bind(this, generator.api, attr));
-    const result = await request.catch(catcher);
-    const evalResults = mortarEval("resp", result.data, generator.logic, formatterFunctions, locale);
-    const returnVariables = {...evalResults.vars, _genStatus: evalResults.error ? {[id]: {error: evalResults.error}} : {[id]: evalResults.vars}};
+    const requests = Array.from(new Set(generators.map(g => g.api)));
+    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, attr)));
+    const results = await Promise.all(fetches).catch(catcher);
+
+    let returnVariables = {};
+    const genStatus = {};
+    results.forEach((r, i) => {
+      // For every API result, find ONLY the generators that depend on this data
+      const requiredGenerators = generators.filter(g => g.api === requests[i]);
+      // Build the return object using a reducer, one generator at a time
+      returnVariables = requiredGenerators.reduce((acc, g) => {
+        const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale);
+        const {vars} = evalResults;
+        // genStatus is used to track the status of each individual generator
+        genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
+        // Fold the generated variables into the accumulating returnVariables
+        return {...acc, ...vars};
+      }, returnVariables);
+    });
+    returnVariables._genStatus = genStatus;
 
     return returnVariables;
     
   };
 
-  app.get("/api/generator/:id", async(req, res) => res.json(await runGenerator(req, req.params.id)));
+  app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
 
   const runMaterializers = async(req, variables, pid) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     let materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+    if (materializers.length === 0) return {};
     materializers = materializers.map(m => m.toJSON());
+
     // The order of materializers matters because input to later materializers depends on output from earlier materializers
     materializers.sort((a, b) => a.ordering - b.ordering);
     const formatterFunctions = await formatters4eval(db, locale);
@@ -323,14 +341,7 @@ module.exports = function(app) {
 
     if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${pid}`);
 
-    let returnVariables = {};
-
-    const generators = await db.generator.findAll({where: {profile_id: pid}}).catch(catcher);
-    const results = await Promise.all(generators.map(g => runGenerator(req, g.id)));
-    results.forEach(result => {
-      returnVariables = nestedObjectAssign(returnVariables, result);
-    });
-
+    let returnVariables = await runGenerators(req, pid);
     returnVariables = await runMaterializers(req, returnVariables, pid);
 
     return res.json(returnVariables);

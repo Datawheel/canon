@@ -47,7 +47,21 @@ export default class Toolbox extends Component {
         const minData = resp.data;
         const callback = () => {
           this.updateSelectors.bind(this)();
-          this.fetchVariables.bind(this)(true, query);
+          // If query is set, the user has saved a single generator and we should load just that one.
+          if (query) {
+            this.fetchVariables.bind(this)(query);  
+          }
+          // Otherwise, this is a first load, so run the full list of generators (one a time) to be returned async.
+          else {
+            if (minData.generators.length > 0) {
+              minData.generators.forEach(g => {
+                this.fetchVariables.bind(this)({generator: g.id});     
+              });
+            }
+            else {
+              this.fetchVariables.bind(this)();     
+            } 
+          }
         };
         this.setState({minData, recompiling: true}, callback);
       });
@@ -57,10 +71,10 @@ export default class Toolbox extends Component {
     }
   }
 
-  fetchVariables(force, query) {
+  fetchVariables(query) {
     if (this.props.fetchVariables) {
       const callback = () => this.setState({recompiling: false});
-      this.props.fetchVariables(force, callback, query);
+      this.props.fetchVariables(callback, query);
     }
   }
 
@@ -73,7 +87,7 @@ export default class Toolbox extends Component {
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
       if (resp.status === 200) {
         let maybeFetch = null;
-        if (type === "generator" || type === "materializer") maybeFetch = this.fetchVariables.bind(this, true, {[type]: resp.data.id});
+        if (type === "generator" || type === "materializer") maybeFetch = this.fetchVariables.bind(this, {[type]: resp.data.id});
         // Selectors, unlike the rest of the elements, actually do pass down their entire
         // content to the Card (the others are simply given an id and load the data themselves)
         if (type === "selector") {
@@ -127,7 +141,7 @@ export default class Toolbox extends Component {
     let maybeFetch = null;
     // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
     // is handled gracefully server-side - it prunes the provided id from the variables object and re-runs necessary gens/mats.
-    if (type === "generator" || type === "materializer") maybeFetch = this.fetchVariables.bind(this, true, {[type]: id});
+    if (type === "generator" || type === "materializer") maybeFetch = this.fetchVariables.bind(this, {[type]: id});
     this.setState({minData, recompiling}, maybeFetch);
     if (type === "selector") {
       const {selectors} = minData;
