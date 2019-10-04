@@ -1,20 +1,21 @@
-import React from "react";
-import classnames from "classnames";
-import escapeRegExp from "lodash/escapeRegExp";
 import {Icon} from "@blueprintjs/core";
 import {Select} from "@blueprintjs/labs";
-
-import {composePropertyName} from "../../helpers/formatting";
+import classnames from "classnames";
+import escapeRegExp from "lodash/escapeRegExp";
+import React from "react";
+import {captionOrName, composePropertyName} from "../../helpers/formatting";
 
 function FilterMeasureSelect(props) {
+  const selectedItem = props.value;
   let item;
 
-  if (!props.value || typeof props.value !== "object") {
+  if (!selectedItem || typeof selectedItem !== "object") {
     item = props.defaultOption;
   }
   else {
-    const valueName = props.value.name;
-    item = props.items.find(item => item.name === valueName) || props.defaultOption;
+    const valueName = captionOrName(selectedItem);
+    item =
+      props.items.find(item => captionOrName(item) === valueName) || props.defaultOption;
   }
 
   const name = composePropertyName(item);

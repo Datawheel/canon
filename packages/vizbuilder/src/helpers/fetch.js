@@ -1,9 +1,9 @@
 import sort from "fast-sort";
 import {unique} from "shorthash";
 import yn from "yn";
-
 import * as api from "./api";
 import {EmptyDataset, TooMuchData} from "./errors";
+import {captionOrName} from "./formatting";
 import {generateBaseState, queryBuilder, queryConverter} from "./query";
 import {
   classifyMeasures,
@@ -34,7 +34,7 @@ export function injectCubeInfoOnMeasure(cubes) {
       continue;
     }
 
-    const cbName = cube.caption || cube.name;
+    const cbName = captionOrName(cube);
     const cbTableId = cbAnnotations.table_id;
     const cbTopic = cbAnnotations.topic || "Other";
     const cbSubtopic = cbAnnotations.subtopic || "Other";
@@ -51,7 +51,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     let nDim = cube.dimensions.length;
     while (nDim--) {
       const dimension = cube.dimensions[nDim];
-      const keyPrefix = `${cbName} ${dimension.name} `;
+      const keyPrefix = `${cbName} ${captionOrName(dimension)} `;
 
       dimension.annotations._key = unique(keyPrefix);
       dimension.annotations._nlvls = 0;
@@ -65,7 +65,9 @@ export function injectCubeInfoOnMeasure(cubes) {
         while (nLvl--) {
           const level = hierarchy.levels[nLvl];
 
-          level.annotations._key = unique(`${keyPrefix} ${hierarchy.name} ${level.name}`);
+          level.annotations._key = unique(
+            `${keyPrefix} ${captionOrName(hierarchy)} ${captionOrName(level)}`
+          );
         }
       }
     }
@@ -73,7 +75,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cbLevelNameList = cbLevelList
       .sort((a, b) => {
         const diff = b.annotations._nlvls - a.annotations._nlvls;
-        return diff !== 0 ? diff : `${a.name}`.localeCompare(b.name);
+        return diff !== 0 ? diff : captionOrName(a).localeCompare(captionOrName(b));
       })
       .map(dim => dim.name);
     const levelKeys = cbLevelNameList.join("_");
@@ -81,7 +83,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     let nMsr = cube.measures.length;
     while (nMsr--) {
       const measure = cube.measures[nMsr];
-      const measureLabel = measure.caption || measure.name;
+      const measureLabel = captionOrName(measure);
       const msAnnotations = measure.annotations;
 
       const msTopic = msAnnotations.topic || cbTopic;

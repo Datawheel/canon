@@ -1,5 +1,6 @@
-import React from "react";
 import PropTypes from "prop-types";
+import React from "react";
+import {captionOrName} from "../../helpers/formatting";
 
 class Ranking extends React.PureComponent {
   render() {
@@ -10,23 +11,19 @@ class Ranking extends React.PureComponent {
 
     const {measureName, timeLevelName} = names;
 
-    const levelNames = query.levels.map(lvl => lvl.name);
+    const levelNames = query.levels.map(captionOrName);
     const getLevelNames = a => levelNames.map(name => a[name]).join(" - ");
 
     const renderListItem = datapoint => (
       <li className="ranking-item">
         <div className="row">
           <span className="item-label">{getLevelNames(datapoint)}</span>
-          <span className="item-value">
-            {formatter(datapoint[measureName])}
-          </span>
+          <span className="item-value">{formatter(datapoint[measureName])}</span>
         </div>
       </li>
     );
 
-    const selectedTimeDataset = dataset.filter(
-      d => d[timeLevelName] == selectedTime
-    );
+    const selectedTimeDataset = dataset.filter(d => d[timeLevelName] == selectedTime);
 
     if (selectedTimeDataset.length === 1) {
       return null;
@@ -36,9 +33,7 @@ class Ranking extends React.PureComponent {
       return (
         <div className="control ranking">
           <p className="label">{`Ranking (${selectedTime})`}</p>
-          <ol className="ranking-list">
-            {selectedTimeDataset.map(renderListItem)}
-          </ol>
+          <ol className="ranking-list">{selectedTimeDataset.map(renderListItem)}</ol>
         </div>
       );
     }

@@ -1,6 +1,5 @@
 import {formatAbbreviate} from "d3plus-format";
 import pluralize from "pluralize";
-
 import {QUIRKS} from "./chartCriteria";
 
 export const DEFAULT_MEASURE_FORMATTERS = {
@@ -93,6 +92,10 @@ export function normalizeFullNames(input) {
   }, []);
 }
 
+export function captionOrName(obj) {
+  return typeof obj === "object" ? obj.caption || obj.name : `${obj}`;
+}
+
 /**
  * For a drilldown, generates a standard name format to use in selectors.
  * @param {Level|Measure} item A Level or Measure object
@@ -100,14 +103,15 @@ export function normalizeFullNames(input) {
  * @returns {string}
  */
 export function composePropertyName(item, style = PROPNAMESTYLES.DIMHIELVL) {
-  let txt = style & PROPNAMESTYLES.LVL ? item.name : "";
+  const name = captionOrName(item);
+  let txt = style & PROPNAMESTYLES.LVL ? name : "";
   if ("hierarchy" in item) {
-    const hname = item.hierarchy.name;
-    const dname = item.hierarchy.dimension.name;
-    if (style & PROPNAMESTYLES.HIE && hname !== item.name && hname !== dname) {
+    const hname = captionOrName(item.hierarchy);
+    const dname = captionOrName(item.hierarchy.dimension);
+    if (style & PROPNAMESTYLES.HIE && hname !== name && hname !== dname) {
       txt = `${hname} › ${txt}`;
     }
-    if (style & PROPNAMESTYLES.DIM && dname !== item.name) {
+    if (style & PROPNAMESTYLES.DIM && dname !== name) {
       txt = `${dname} › ${txt}`;
     }
   }
@@ -145,18 +149,17 @@ export function composeChartTitle(chart, uiParams) {
   const {query, setup} = chart;
   const {measureName, timeLevelName} = chart.names;
 
-  const getName = obj => obj.name;
-  const levels = setup.map(getName);
-  const appliedCuts = query.cuts.map(getName);
+  const levels = setup.map(captionOrName);
+  const appliedCuts = query.cuts.map(cut => captionOrName(cut.level));
 
   const cuts = [];
 
   let n = query.groups.length;
   while (n--) {
     const group = query.groups[n];
-    const values = group.members.map(m => m.name);
+    const values = group.members.map(captionOrName);
 
-    const levelName = group.level.name;
+    const levelName = captionOrName(group.level);
 
     let label;
     if (appliedCuts.indexOf(levelName) === -1) {

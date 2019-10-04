@@ -2,9 +2,8 @@ import sort from "fast-sort";
 import groupBy from "lodash/groupBy";
 import union from "lodash/union";
 import yn from "yn";
-
 import Grouping from "../components/Sidebar/GroupingManager/Grouping";
-import {findFirstNumber} from "./formatting";
+import {captionOrName, findFirstNumber} from "./formatting";
 import {
   areKindaNumeric,
   isGeoDimension,
@@ -40,9 +39,7 @@ export function findByKey(needle, haystack, elseFirst = false) {
  * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
  */
 export function findByName(needle, haystack, elseFirst = false) {
-  const findResult = needle
-    ? haystack.find(item => item.name === needle)
-    : undefined;
+  const findResult = needle ? haystack.find(item => item.name === needle) : undefined;
   return elseFirst ? findResult || haystack[0] : findResult;
 }
 
@@ -314,7 +311,7 @@ export function joinDrilldownList(array, drilldown) {
  * @param {Level[]} array The level array to filter
  */
 export function removeDuplicateLevels(array) {
-  const nameList = array.map(lvl => lvl.name);
+  const nameList = array.map(captionOrName);
   let n = array.length;
   while (n--) {
     const currName = nameList[n];
@@ -322,7 +319,7 @@ export function removeDuplicateLevels(array) {
       // the current element's name is more than once on the list
       nameList.indexOf(currName) !== nameList.lastIndexOf(currName) &&
       // and its hierarchy's name is different to its own name
-      array[n].hierarchy.name !== currName
+      captionOrName(array[n].hierarchy) !== currName
     ) {
       nameList.splice(n, 1);
       array.splice(n, 1);

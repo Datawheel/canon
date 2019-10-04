@@ -1,5 +1,6 @@
-import React from "react";
 import classnames from "classnames";
+import React from "react";
+import {captionOrName} from "../../helpers/formatting";
 
 class DeepList extends React.PureComponent {
   constructor(props) {
@@ -82,7 +83,7 @@ class DeepList extends React.PureComponent {
           className={classnames("pt-menu-item select-item", {"pt-active": isActive})}
           onClick={this.selectItemHandler.bind(this, item)}
         >
-          <span className="select-label">{item.name}</span>
+          <span className="select-label">{captionOrName(item)}</span>
         </button>
       </li>
     );
@@ -97,14 +98,14 @@ DeepList.defaultProps = {
       const dimMap = {};
       let n = items.length;
       while (n--) {
-        const label = items[n].hierarchy.dimension.name;
+        const label = captionOrName(items[n].hierarchy.dimension);
         dimMap[label] = true;
       }
       return Object.keys(dimMap).sort();
     }
 
     return items.filter(lvl => {
-      return lvl.hierarchy.dimension.name === currDimension;
+      return captionOrName(lvl.hierarchy.dimension) === currDimension;
     });
   }
 };

@@ -1,7 +1,6 @@
-import React from "react";
 import classNames from "classnames";
-import {Popover2} from "@blueprintjs/labs";
-
+import React from "react";
+import {captionOrName} from "../../../helpers/formatting";
 import BaseSelect from "./BaseSelect";
 import VirtualListWrapper from "./VirtualListWrapper";
 
@@ -50,9 +49,9 @@ MonoSelect.defaultProps = {
       key: item.annotations._key,
       onClick: handleClick,
       style,
-      title: item.name,
+      title: captionOrName(item)
     };
-    const child = <span className="select-label">{item.name}</span>;
+    const child = <span className="select-label">{captionOrName(item)}</span>;
     return React.createElement("div", props, child);
   }
 };

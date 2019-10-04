@@ -1,8 +1,8 @@
-import React from "react";
+import {Spinner} from "@blueprintjs/core";
 import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
-
-import {Spinner} from "@blueprintjs/core";
+import React from "react";
+import {captionOrName} from "../../helpers/formatting";
 import {BaseMultiSelect} from "./CustomSelect";
 import DeepList from "./MemberDeepList";
 import VirtualList from "./VirtualList";
@@ -15,8 +15,8 @@ class NewMemberSelect extends BaseMultiSelect {
     return members.reduce((all, member, i, array) => {
       const prevMember = array[i - 1] || nope;
 
-      const prevAncestor = prevMember.ancestors[0].name;
-      const currAncestor = member.ancestors[0].name;
+      const prevAncestor = captionOrName(prevMember.ancestors[0]);
+      const currAncestor = captionOrName(member.ancestors[0]);
 
       if (hasQuery && prevAncestor !== currAncestor) {
         all.push(member.ancestors[0]);
@@ -91,7 +91,7 @@ NewMemberSelect.defaultProps = {
     query = escapeRegExp(query);
     query = query.replace(/\s+/g, ".+");
     const tester = RegExp(query || ".", "i");
-    return items.filter(item => tester.test(item.caption || item.name));
+    return items.filter(item => tester.test(captionOrName(item)));
   },
   resetOnSelect: true,
   sticky: "_header",
