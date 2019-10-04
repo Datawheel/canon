@@ -4,6 +4,7 @@ const FUNC = require("../utils/FUNC"),
       collate = require("../utils/collate"),
       libs = require("../utils/libs"), // leave this! needed for the variable functions
       mortarEval = require("../utils/mortarEval"),
+      nestedObjectAssign = require("../utils/nestedObjectAssign"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
@@ -98,25 +99,34 @@ const storyReq = {
   ]
 };
 
-const formatters4eval = (formatters, locale) => formatters.reduce((acc, f) => {
+let formatters = null;
 
-  const name = f.name === f.name.toUpperCase()
-    ? f.name.toLowerCase()
-    : f.name.replace(/^\w/g, chr => chr.toLowerCase());
+const formatters4eval = async(db, locale) => {
 
-  // Formatters may be malformed. Wrap in a try/catch to avoid js crashes.
-  try {
-    acc[name] = FUNC.parse({logic: f.logic, vars: ["n"]}, acc, locale);
-  }
-  catch (e) {
-    console.error(`Server-side Malformed Formatter encountered: ${name}`);
-    console.error(`Error message: ${e.message}`);
-    acc[name] = FUNC.parse({logic: "return \"N/A\";", vars: ["n"]}, acc, locale);
+  if (!formatters) {
+    formatters = await db.formatter.findAll().catch(catcher);
   }
 
-  return acc;
+  return formatters.reduce((acc, f) => {
 
-}, {});
+    const name = f.name === f.name.toUpperCase()
+      ? f.name.toLowerCase()
+      : f.name.replace(/^\w/g, chr => chr.toLowerCase());
+
+    // Formatters may be malformed. Wrap in a try/catch to avoid js crashes.
+    try {
+      acc[name] = FUNC.parse({logic: f.logic, vars: ["n"]}, acc, locale);
+    }
+    catch (e) {
+      console.error(`Server-side Malformed Formatter encountered: ${name}`);
+      console.error(`Error message: ${e.message}`);
+      acc[name] = FUNC.parse({logic: "return \"N/A\";", vars: ["n"]}, acc, locale);
+    }
+
+    return acc;
+
+  }, {});
+};
 
 const sorter = (a, b) => a.ordering - b.ordering;
 
@@ -197,7 +207,6 @@ const extractLocaleContent = (obj, locale, mode) => {
   return obj;
 };
 
-
 module.exports = function(app) {
 
   const {cache, db} = app.settings;
@@ -240,29 +249,19 @@ module.exports = function(app) {
     return attr;
   };
 
-  /*
-
-  // Get a generator, provide me slugs and ids (i'll get the profile and attr myself)
-  app.get("/api/generator/:id", async(req, res) => await fetchGenerator(req, res));
-  // Post a generator, provide me slugs and ids (post me the attr for swapping to avoid profile/search lookup)
-  app.post("/api/generator/:id", async(req, res) => await fetchGenerator(req, res));
-
-  */
-
-  const fetchVariables = async(req, res) => {
+  const runGenerator = async(req, id) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
-    const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
     const dims = collate(req.query);
-    req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-    const {pid} = req.params;
-
-    if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${pid}`);
-
+    let generator = await db.generator.findOne({where: {id}}).catch(catcher);
+    if (!generator) return {};
+    generator = generator.toJSON();
+    const pid = generator.profile_id;
     const attr = await fetchAttr(pid, dims);
 
     /** */
     function createGeneratorFetch(r, attr) {
       // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
+      const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
       let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
       if (url.indexOf("http") !== 0) {
         url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
@@ -276,80 +275,31 @@ module.exports = function(app) {
           if (verbose) console.log("Variable Error:", url);
           return {};
         });
-    }   
+    }
+
+    const formatterFunctions = await formatters4eval(db, locale);
+
+    const request = throttle.add(createGeneratorFetch.bind(this, generator.api, attr));
+    const result = await request.catch(catcher);
+    const evalResults = mortarEval("resp", result.data, generator.logic, formatterFunctions, locale);
+    const returnVariables = {...evalResults.vars, _genStatus: evalResults.error ? {[id]: {error: evalResults.error}} : {[id]: evalResults.vars}};
+
+    return returnVariables;
     
-    const formatters = await db.formatter.findAll().catch(catcher);
-    // Create a hash table so the formatters are directly accessible by name
-    const formatterFunctions = formatters4eval(formatters, locale);
+  };
 
-    // Given a profile id, its generators, their API endpoints, and the responses of those endpoints,
-    // start to build a returnVariables object by executing the javascript of each generator on its data
-    let returnVariables = {};
+  app.get("/api/generator/:id", async(req, res) => res.json(await runGenerator(req, req.params.id)));
 
-    // ONLY run generators if a specific materializer was not provided. If the materializer was provided,
-    // this this is a POST operation and variables have already been provided, so skip the generators entirely.
-    if (!req.query.materializer) {
-      // Allow the user to specify a specific generator only via a query param
-      const gid = req.query.generator;
-      const genObj = gid ? {where: {id: gid}} : {where: {profile_id: pid}};
-      let generators = await db.generator.findAll(genObj).catch(catcher);
-      generators = generators.map(g => g.toJSON());
-      // Given a profile id and its generators, hit all the API endpoints they provide
-      // Deduplicate generators that share an API endpoint
-      const requests = Array.from(new Set(generators.map(g => g.api)));
-      const fetches = requests.map(r => throttle.add(createGeneratorFetch.bind(this, r, attr)));
-      const results = await Promise.all(fetches).catch(catcher);
-  
-      let genStatus = {};
-      // However, if the variables object has already been provided, this is coming from a CMS generator update.
-      // This means we need to delete the variables created by the provided generators, so that they can be
-      // re-run and successfully re-inserted into the variables object.
-      if (req.body.variables && gid) {
-        returnVariables = req.body.variables;
-        if (returnVariables._genStatus[gid]) {
-          Object.keys(returnVariables._genStatus[gid]).forEach(k => {
-            delete returnVariables[k];
-          });
-          delete returnVariables._genStatus[gid];
-        }
-        genStatus = returnVariables._genStatus;
-      }
-      results.forEach((r, i) => {
-        // For every API result, find ONLY the generators that depend on this data
-        const requiredGenerators = generators.filter(g => g.api === requests[i]);
-        // Build the return object using a reducer, one generator at a time
-        returnVariables = requiredGenerators.reduce((acc, g) => {
-          const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale);
-          const {vars} = evalResults;
-          // genStatus is used to track the status of each individual generator
-          genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
-          // Fold the generated variables into the accumulating returnVariables
-          return {...acc, ...vars};
-        }, returnVariables);
-      });
-      returnVariables._genStatus = genStatus;
-    }
-
-    const mid = req.query.materializer;
-    const matObj = mid ? {where: {id: mid}} : {where: {profile_id: pid}};
-    let materializers = await db.materializer.findAll(matObj).catch(catcher);
+  const runMaterializers = async(req, variables, pid) => {
+    const locale = req.query.locale ? req.query.locale : envLoc;
+    let materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
     materializers = materializers.map(m => m.toJSON());
-    // Given the partially built returnVariables and all the materializers for this profile id,
-    // Run the materializers and fold their generated variables into returnVariables     
-    // The order of materializers matter because input to later materializers depends on output from earlier materializers
+    // The order of materializers matters because input to later materializers depends on output from earlier materializers
     materializers.sort((a, b) => a.ordering - b.ordering);
-    let matStatus = {};
-    if (req.body.variables && mid) {
-      // Remember, if the code gets here, generators were never run, so the following assignment shouldn't pave anything.
-      returnVariables = req.body.variables;
-      if (returnVariables._matStatus[mid]) {
-        Object.keys(returnVariables._matStatus[mid]).forEach(k => {
-          delete returnVariables[k];
-        });
-        delete returnVariables._matStatus[mid];
-      }
-      matStatus = returnVariables._matStatus;
-    }
+    const formatterFunctions = await formatters4eval(db, locale);
+
+    let returnVariables = variables;
+    const matStatus = {};
     returnVariables = materializers.reduce((acc, m) => {
       const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions, locale);
       const {vars} = evalResults;
@@ -357,6 +307,32 @@ module.exports = function(app) {
       return {...acc, ...vars};
     }, returnVariables);
     returnVariables._matStatus = matStatus;
+    return returnVariables;
+  };
+
+  app.post("/api/materializers/:pid", async(req, res) => {
+    const {pid} = req.params;
+    const {variables} = req.body;
+    const materializer = await db.materializer.findOne({where: {profile_id: pid}}).catch(catcher);
+    if (!materializer) return res.json({});
+    return res.json(await runMaterializers(req, variables, materializer.profile_id));
+  });
+
+  const fetchVariables = async(req, res) => {
+    const {pid} = req.params;
+
+    if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${pid}`);
+
+    let returnVariables = {};
+
+    const generators = await db.generator.findAll({where: {profile_id: pid}}).catch(catcher);
+    const results = await Promise.all(generators.map(g => runGenerator(req, g.id)));
+    results.forEach(result => {
+      returnVariables = nestedObjectAssign(returnVariables, result);
+    });
+
+    returnVariables = await runMaterializers(req, returnVariables, pid);
+
     return res.json(returnVariables);
   };  
 
@@ -454,8 +430,7 @@ module.exports = function(app) {
       delete variables._matStatus;
     }
 
-    const formatters = await db.formatter.findAll().catch(catcher);
-    const formatterFunctions = formatters4eval(formatters, locale);
+    const formatterFunctions = await formatters4eval(db, locale);
     // Given the completely built returnVariables and all the formatters (formatters are global)
     // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare 
     // it to be formatted and regex replaced.
