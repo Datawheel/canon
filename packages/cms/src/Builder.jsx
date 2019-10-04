@@ -25,7 +25,7 @@ class Builder extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentTab: "profiles",
+      currentTab: null,
       locales: false,
       localeDefault: false,
       secondaryLocale: false,
@@ -37,14 +37,28 @@ class Builder extends Component {
 
   componentDidMount() {
     const {isEnabled, env} = this.props;
-    const {location} = this.props.router;
-    const {profile, section, previews} = location.query;
+    const {router} = this.props;
+    const {location} = router;
+    const {tab, profile, section, previews, story, storysection} = location.query;
 
     this.props.isAuthenticated();
 
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
-    const pathObj = {profile, section, previews};
+    
+    let currentTab;
+    if (tab) {
+      currentTab = tab;
+    }
+    else {
+      currentTab = "profiles";
+      const {pathname} = location;
+      let url = pathname === "/" ? "" : "/";
+      url += "?tab=profiles";
+      router.replace(url);
+    }
+
+    const pathObj = {profile, section, previews, story, storysection, tab: currentTab};
 
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
@@ -56,10 +70,10 @@ class Builder extends Component {
       locales.forEach(locale => {
         formatters[locale] = funcifyFormatterByLocale(this.props.formatters, locale);
       });
-      this.setState({locales, formatters, secondaryLocale, localeDefault, pathObj});
+      this.setState({locales, formatters, secondaryLocale, localeDefault, pathObj, currentTab});
     }
     else {
-      this.setState({localeDefault, formatters, pathObj});
+      this.setState({localeDefault, formatters, pathObj, currentTab});
     }
 
   }
@@ -72,13 +86,18 @@ class Builder extends Component {
 
   getChildContext() {
     const {formatters} = this.state;
-    return {formatters};
+    const setPath = this.setPath.bind(this);
+    return {
+      formatters,
+      setPath
+    };
   }
 
   handleTabChange(newTab) {
     const {currentTab} = this.state;
     if (newTab !== currentTab) {
-      this.setState({currentTab: newTab});
+      const newPathObj = {tab: newTab};
+      this.setState({currentTab: newTab, pathObj: newPathObj}, this.setPath.bind(this, newPathObj));
     }
   }
 
@@ -95,18 +114,26 @@ class Builder extends Component {
   }
 
   setPath(pathObj) {
-    const diffProfile = String(pathObj.profile) !== String(this.state.pathObj.profile);
-    const diffSection = String(pathObj.section) !== String(this.state.pathObj.section);
-    if (diffProfile || diffSection) {
-      const {router} = this.props;
-      const {pathname} = router.location;
-      let url = pathname === "/" ? "" : "/";
-      url += `${pathname}?profile=${pathObj.profile}`;
-      if (pathObj.section) url += `&section=${pathObj.section}`;
-      // if (pathObj.previews) url += `&previews=${pathObj.previews}`;
-      router.replace(url);
-      this.setState({pathObj});
+    const {currentTab} = this.state;
+    // The underlying Editors don't know about tabs, so they will send pathObjs that don't have a tab in them.
+    // Always trust Builder.jsx's current tab, and assign it into whatever the Editors send up.
+    pathObj = Object.assign({}, pathObj, {tab: currentTab});
+    const {router} = this.props;
+    const {pathname} = router.location;
+    let url = pathname === "/" ? "" : "/";
+    url += `${pathname}?tab=${pathObj.tab}`;
+    // Profile
+    if (pathObj.profile) url += `&profile=${pathObj.profile}`;
+    if (pathObj.section) url += `&section=${pathObj.section}`;
+    if (pathObj.previews) {
+      const previews = pathObj.previews.map(d => d.id).join();
+      url += `&previews=${previews}`;
     }
+    // Story 
+    if (pathObj.story) url += `&story=${pathObj.story}`;
+    if (pathObj.storysection) url += `&storysection=${pathObj.storysection}`;
+    router.replace(url);
+    this.setState({pathObj});
   }
 
   render() {
@@ -208,19 +235,20 @@ class Builder extends Component {
         {currentTab === "profiles" &&
           <ProfileBuilder
             pathObj={pathObj}
-            setPath={this.setPath.bind(this)}
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
         }
         {currentTab === "stories" &&
           <StoryBuilder
+            pathObj={pathObj}
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
         }
         {currentTab === "metadata" &&
           <MetaEditor
+            pathObj={pathObj}
             localeDefault={localeDefault}
             locale={secondaryLocale}
           />
@@ -231,7 +259,8 @@ class Builder extends Component {
 }
 
 Builder.childContextTypes = {
-  formatters: PropTypes.object
+  formatters: PropTypes.object,
+  setPath: PropTypes.func
 };
 
 Builder.need = [
