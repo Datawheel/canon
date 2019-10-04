@@ -1,5 +1,5 @@
 import {uuid} from "d3plus-common";
-
+import {captionOrName} from "../../../helpers/formatting";
 import {isValidCut, isValidGrouping} from "../../../helpers/validation";
 
 class Grouping {
@@ -22,6 +22,10 @@ class Grouping {
     return this.level && this.level.name;
   }
 
+  get caption() {
+    return this.level ? captionOrName(this.level) : undefined;
+  }
+
   get hasMembers() {
     return this.members.length > 0;
   }
@@ -29,11 +33,9 @@ class Grouping {
   toString() {
     return (
       this.level &&
-      `${this.key}${
-        this.hasMembers
-          ? `-${this.members.map(member => member.key).join("~")}`
-          : ""
-      }`
+      `${this.key}${this.hasMembers
+        ? `-${this.members.map(member => member.key).join("~")}`
+        : ""}`
     );
   }
 

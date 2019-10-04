@@ -1,11 +1,10 @@
-import React from "react";
 import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
-
+import React from "react";
+import {captionOrName, composePropertyName} from "../../helpers/formatting";
 import BaseSelect from "./CustomSelect/BaseSelect";
 import DeepList from "./LevelDeepList";
 import VirtualList from "./VirtualList";
-import {composePropertyName} from "../../helpers/formatting";
 
 class NewLevelSelect extends BaseSelect {
   itemListComposer(levels) {
@@ -60,13 +59,13 @@ class NewLevelSelect extends BaseSelect {
   }
 
   renderListItem(item, params) {
-    const props = this.props;
+    const name = captionOrName(item);
 
     if (item.hierarchies) {
       return (
-        <li className="virtlist-title" key={item.name} style={params.style}>
-          <span className="topic" title={item.name}>
-            {item.name}
+        <li className="virtlist-title" key={name} style={params.style}>
+          <span className="topic" title={name}>
+            {name}
           </span>
         </li>
       );
@@ -82,7 +81,7 @@ class NewLevelSelect extends BaseSelect {
           })}
           onClick={params.handleClick}
         >
-          <span className="select-label">{item.name}</span>
+          <span className="select-label">{name}</span>
         </button>
       </li>
     );
@@ -101,7 +100,7 @@ NewLevelSelect.defaultProps = {
     query = escapeRegExp(query).replace(/\s+/g, "[^|]+");
     const queryTester = RegExp(query || ".", "i");
     return items.filter(lvl =>
-      queryTester.test(`${lvl.caption || lvl.name}|${lvl.hierarchy.dimension.name}`)
+      queryTester.test(`${captionOrName(lvl)}|${captionOrName(lvl.hierarchy.dimension)}`)
     );
   }
 };

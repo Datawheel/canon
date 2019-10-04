@@ -1,21 +1,17 @@
-import React from "react";
 import classNames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
-
+import React from "react";
+import {captionOrName} from "../../helpers/formatting";
 import {BaseMonoSelect} from "./CustomSelect";
 
 class MeasureSelect extends BaseMonoSelect {
   renderTarget(item) {
+    const name = captionOrName(item);
     return (
-      <div
-        className="select-item select-option option-measure current"
-        title={item.caption || item.name}
-      >
+      <div className="select-item select-option option-measure current" title={name}>
         <div className="select-value">
-          <span className="select-label name">{item.caption || item.name}</span>
-          <span className="select-label source">
-            {item.annotations._vb_tagline}
-          </span>
+          <span className="select-label name">{name}</span>
+          <span className="select-label source">{item.annotations._vb_tagline}</span>
         </div>
         <span className="pt-icon-standard pt-icon-double-caret-vertical" />
       </div>
@@ -36,9 +32,7 @@ MeasureSelect.defaultProps = {
     query = query.trim();
     query = escapeRegExp(query).replace(/\s+/g, "[^_]+");
     const queryTester = RegExp(query || ".", "i");
-    return items.filter(item =>
-      queryTester.test(item.annotations._searchIndex)
-    );
+    return items.filter(item => queryTester.test(item.annotations._searchIndex));
   },
   itemListComposer(items) {
     const nope = {
@@ -108,12 +102,11 @@ MeasureSelect.defaultProps = {
     else {
       className.push("select-option");
       props.onClick = handleClick;
-      props.title = item.name;
+      const name = captionOrName(item);
+      props.title = name;
       params.push(
-        <span className="select-label">{item.name}</span>,
-        <span className="select-label source">
-          {item.annotations._vb_tagline}
-        </span>,
+        <span className="select-label">{name}</span>,
+        <span className="select-label source">{item.annotations._vb_tagline}</span>,
         <span className="select-label dims">
           {item.annotations._dim_labels.map(label => (
             <span className="pt-tag">{label}</span>

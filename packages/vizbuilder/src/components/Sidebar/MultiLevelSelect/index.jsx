@@ -1,10 +1,11 @@
-import React from "react";
-import classNames from "classnames";
 import {Popover2} from "@blueprintjs/labs";
-
-import VirtualListWrapper from "./VirtualListWrapper";
+import classNames from "classnames";
+import React from "react";
+import {captionOrName} from "../../../helpers/formatting";
 
 import "./style.css";
+
+import VirtualListWrapper from "./VirtualListWrapper";
 
 class MultiLevelSelect extends React.Component {
   constructor(props) {
@@ -78,12 +79,12 @@ class MultiLevelSelect extends React.Component {
   }
 
   maybeRenderResetButton() {
-    return this.state.query.length
-      ? <button
+    return this.state.query.length ? (
+      <button
         className="pt-button pt-minimal pt-icon-cross mlsel-filter-reset"
         onClick={this.handleQueryReset}
       />
-      : null;
+    ) : null;
   }
 
   renderTarget(item) {
@@ -117,7 +118,7 @@ class MultiLevelSelect extends React.Component {
 
     return (
       <div className="mlsel-popover-content">
-        {filterable &&
+        {filterable && (
           <div className="pt-input-group mlsel-filter-group">
             <span className="pt-icon pt-icon-search" />
             <input
@@ -131,7 +132,7 @@ class MultiLevelSelect extends React.Component {
             />
             {this.maybeRenderResetButton.call(this)}
           </div>
-        }
+        )}
 
         <VirtualListWrapper
           className="mlsel-select-list"
@@ -161,7 +162,10 @@ class MultiLevelSelect extends React.Component {
         disabled={props.disabled}
         {...props.popoverProps}
         content={popContent}
-        className={classNames("select-target-wrapper mlsel-target-wrapper pt-fill", props.className)}
+        className={classNames(
+          "select-target-wrapper mlsel-target-wrapper pt-fill",
+          props.className
+        )}
         onInteraction={this.handlePopoverInteraction}
         popoverWillOpen={this.handlePopoverWillOpen}
         popoverDidOpen={this.handlePopoverDidOpen}
@@ -186,9 +190,9 @@ MultiLevelSelect.defaultProps = {
       key: item.annotations._key,
       onClick: handleClick,
       style,
-      title: item.name,
+      title: captionOrName(item)
     };
-    const child = <span className="select-label">{item.name}</span>;
+    const child = <span className="select-label">{captionOrName(item)}</span>;
     return React.createElement("li", props, child);
   },
   popoverProps: {

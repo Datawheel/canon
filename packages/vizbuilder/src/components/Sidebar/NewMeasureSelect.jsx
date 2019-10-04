@@ -1,7 +1,7 @@
-import React from "react";
 import classnames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
-
+import React from "react";
+import {captionOrName} from "../../helpers/formatting";
 import BaseSelect from "./CustomSelect/BaseSelect";
 import DeepList from "./DeepList";
 import VirtualList from "./VirtualList";
@@ -62,13 +62,11 @@ class NewMeasureSelect extends BaseSelect {
   }
 
   renderTarget(item) {
+    const name = captionOrName(item);
     return (
-      <div
-        className="select-item select-option option-measure current"
-        title={item.caption || item.name}
-      >
+      <div className="select-item select-option option-measure current" title={name}>
         <div className="select-value">
-          <span className="select-label name">{item.caption || item.name}</span>
+          <span className="select-label name">{name}</span>
           <span className="select-label source">{item.annotations._vb_tagline}</span>
         </div>
         <span className="pt-icon-standard pt-icon-double-caret-vertical" />
@@ -100,10 +98,14 @@ class NewMeasureSelect extends BaseSelect {
     if (item.isHeader) {
       return (
         <li className="virtlist-title" key={item._key} style={params.style}>
-          <span className="topic" title={item.topic}>{item.topic}</span>
-          <span className="subtopic" title={item.subtopic}>{item.subtopic}</span>
+          <span className="topic" title={item.topic}>
+            {item.topic}
+          </span>
+          <span className="subtopic" title={item.subtopic}>
+            {item.subtopic}
+          </span>
         </li>
-      )
+      );
     }
 
     return (
@@ -116,7 +118,7 @@ class NewMeasureSelect extends BaseSelect {
           })}
           onClick={params.handleClick}
         >
-          <span className="select-label">{item.name}</span>
+          <span className="select-label">{captionOrName(item)}</span>
           {props.showDimensions && (
             <span className="select-label dims">
               {item.annotations._dim_labels.map(label => (

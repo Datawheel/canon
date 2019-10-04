@@ -1,14 +1,11 @@
 import {Button} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import React from "react";
-
 import {fetchMembers} from "../../../helpers/fetch";
-import {composePropertyName} from "../../../helpers/formatting";
-
+import {captionOrName, composePropertyName} from "../../../helpers/formatting";
 import LevelSelect from "../NewLevelSelect";
 import MemberSelect from "../NewMemberSelect";
 import SidebarCRUDItem from "../SidebarCRUDItem";
-
 import Grouping from "./Grouping";
 
 /**
@@ -41,7 +38,7 @@ class GroupingItem extends SidebarCRUDItem {
     const {item = {}} = this.props;
     return !item.level || this.state.isOpen
       ? this.renderEditable.call(this)
-      : this.renderClosed.call(this)
+      : this.renderClosed.call(this);
   }
 
   renderClosed() {
@@ -53,7 +50,7 @@ class GroupingItem extends SidebarCRUDItem {
           {item.hasMembers && (
             <div className="group grouping-members">
               {item.members.map(member => (
-                <span key={member.key}>{member.name}</span>
+                <span key={member.key}>{captionOrName(member)}</span>
               ))}
             </div>
           )}
@@ -119,9 +116,7 @@ class GroupingItem extends SidebarCRUDItem {
     const activeItem = this.state.newItem || this.props.item;
     const newItem = activeItem.setLevel(level);
     this.setState({loading: true, members: [], newItem}, () =>
-      fetchMembers(query, level).then(members =>
-        this.setState({loading: false, members})
-      )
+      fetchMembers(query, level).then(members => this.setState({loading: false, members}))
     );
   }
 }

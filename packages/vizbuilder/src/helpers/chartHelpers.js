@@ -1,17 +1,8 @@
 import {assign} from "d3plus-common";
-import {
-  BarChart,
-  Donut,
-  Geomap,
-  LinePlot,
-  Pie,
-  StackedArea,
-  Treemap
-} from "d3plus-react";
-
+import {BarChart, Donut, Geomap, LinePlot, Pie, StackedArea, Treemap} from "d3plus-react";
+import {captionOrName, joinStringsWithCommaAnd} from "./formatting";
 import {getPermutations} from "./sorting";
 import {areMetaMeasuresZero, isValidFilter} from "./validation";
-import {joinStringsWithCommaAnd} from "./formatting";
 
 export const chartComponents = {
   barchart: BarChart,
@@ -39,14 +30,14 @@ export function datagroupToCharts(datagroup, generalConfig) {
 
   const charts = datagroup.charts.reduce((sum, chartType) => {
     const setups = calcChartSetups(datagroup, chartType).map(setup => ({
-        ...datagroup,
-        baseConfig,
-        chartType,
-        component: chartComponents[chartType],
-        setup,
-        topoConfig,
-        userConfig
-      }));
+      ...datagroup,
+      baseConfig,
+      chartType,
+      component: chartComponents[chartType],
+      setup,
+      topoConfig,
+      userConfig
+    }));
     return sum.concat(setups);
   }, []);
 
@@ -153,9 +144,8 @@ export function tooltipGenerator(datagroup) {
   if (Array.isArray(filters)) {
     filters.forEach(filter => {
       if (isValidFilter(filter)) {
-        const filterName = filter.name;
         const formatter = filter.getFormatter();
-        tbody.push([filterName, d => `${formatter(d[filterName])}`]);
+        tbody.push([captionOrName(filter), d => `${formatter(d[filter.name])}`]);
       }
     });
   }

@@ -1,5 +1,6 @@
-import React from "react";
 import classnames from "classnames";
+import React from "react";
+import {captionOrName} from "../../helpers/formatting";
 
 class DeepList extends React.PureComponent {
   constructor(props) {
@@ -35,14 +36,16 @@ class DeepList extends React.PureComponent {
 
     const currentParent = parentChain[0];
     if (currentParent) {
-      items = items.filter(item => item.ancestors[currDepth].name === currentParent);
+      items = items.filter(
+        item => captionOrName(item.ancestors[currDepth]) === currentParent
+      );
     }
 
     if (currDepth > 0) {
       const parentMap = {};
       let n = items.length;
       while (n--) {
-        const label = items[n].ancestors[currDepth - 1].name;
+        const label = captionOrName(items[n].ancestors[currDepth - 1]);
         parentMap[label] = true;
       }
       return Object.keys(parentMap).sort();
@@ -105,6 +108,7 @@ class DeepList extends React.PureComponent {
   itemRenderer(item) {
     const props = this.props;
     const isActive = props.value.find(val => val.key === item.key);
+    const name = captionOrName(item);
 
     return (
       <li key={item.key}>
@@ -112,10 +116,10 @@ class DeepList extends React.PureComponent {
           className={classnames("pt-menu-item select-item", {"pt-active": isActive})}
           onClick={this.selectItemHandler.bind(this, item)}
           tabIndex="0"
-          title={item.name}
+          title={name}
           type="button"
         >
-          <span className="select-label">{item.name}</span>
+          <span className="select-label">{name}</span>
         </button>
       </li>
     );

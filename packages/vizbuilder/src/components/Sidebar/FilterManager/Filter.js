@@ -1,7 +1,7 @@
 import {uuid} from "d3plus-common";
-
+import {captionOrName} from "../../../helpers/formatting";
 import OPERATORS, {LABELS, SYMBOLS} from "../../../helpers/operators";
-import {isValidFilter, isNumeric} from "../../../helpers/validation";
+import {isNumeric, isValidFilter} from "../../../helpers/validation";
 
 class Filter {
   constructor(measure, operator, value) {
@@ -20,6 +20,10 @@ class Filter {
     return this.measure && this.measure.name;
   }
 
+  get caption() {
+    return this.level ? captionOrName(this.level) : undefined;
+  }
+
   get operatorLabel() {
     return LABELS[this.operator];
   }
@@ -33,9 +37,7 @@ class Filter {
   }
 
   serialize() {
-    return (
-      this.measure && [this.measure.name, SYMBOLS[this.operator], this.value]
-    );
+    return this.measure && [this.measure.name, SYMBOLS[this.operator], this.value];
   }
 
   getClone() {

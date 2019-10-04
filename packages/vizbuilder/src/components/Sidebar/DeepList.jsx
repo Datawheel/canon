@@ -1,5 +1,6 @@
-import React from "react";
 import classnames from "classnames";
+import React from "react";
+import {captionOrName} from "../../helpers/formatting";
 
 class DeepList extends React.PureComponent {
   constructor(props) {
@@ -39,7 +40,7 @@ class DeepList extends React.PureComponent {
             {level < 2 && <span className="topic">{state.currTopic}</span>}
             {level < 1 && <span className="subtopic">{state.currSubtopic}</span>}
           </div>
-          <span className="deeplist-spacer"></span>
+          <span className="deeplist-spacer" />
           <button
             type="button"
             className="pt-button pt-small pt-icon-circle-arrow-left"
@@ -92,7 +93,7 @@ class DeepList extends React.PureComponent {
           className={classnames("pt-menu-item select-item", {"pt-active": isActive})}
           onClick={this.selectItemHandler.bind(this, item)}
         >
-          <span className="select-label">{item.name}</span>
+          <span className="select-label">{captionOrName(item)}</span>
           {props.showDimensions && (
             <span className="select-label dims">
               {item.annotations._dim_labels.map(label => (

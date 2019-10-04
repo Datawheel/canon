@@ -1,8 +1,8 @@
-import React from "react";
+import {Spinner} from "@blueprintjs/core";
 import classNames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
-
-import {Spinner} from "@blueprintjs/core";
+import React from "react";
+import {captionOrName} from "../../helpers/formatting";
 import {BaseMultiSelect} from "./CustomSelect";
 
 const spinner = <Spinner className="pt-small" />;
@@ -44,7 +44,7 @@ MemberSelect.defaultProps = {
     query = escapeRegExp(query);
     query = query.replace(/\s+/g, ".+");
     const tester = RegExp(query || ".", "i");
-    return items.filter(item => tester.test(item.caption || item.name));
+    return items.filter(item => tester.test(captionOrName(item)));
   },
   itemRenderer({handleClick, isActive, item, style}) {
     const props = {key: item.key, style};
@@ -81,7 +81,7 @@ MemberSelect.defaultProps = {
   sticky: "_header",
   tagInputProps: {
     ...BaseMultiSelect.defaultProps.tagInputProps,
-    placeholder: "Filter...",
+    placeholder: "Filter..."
   },
   tagRenderer: item => item.caption
 };
