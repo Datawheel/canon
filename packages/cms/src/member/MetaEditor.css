@@ -3,10 +3,11 @@
 /* layout */
 .cms-metadata-page {
   max-height: 100vh;
-  display: flex;
-  flex-direction: column;
 
-  & .meta-editor,
+  & .meta-editor {
+    flex-direction: row;
+  }
+
   & .cms-meta-table-container,
   & .cms-meta-table {
     display: flex;

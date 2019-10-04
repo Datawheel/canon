@@ -26,8 +26,7 @@ export default class Toolbox extends Component {
       currentView: "generators",
       detailView: true,
       recompiling: true,
-      query: "",
-      toolbarVisible: true
+      query: ""
     };
   }
 
@@ -180,9 +179,8 @@ export default class Toolbox extends Component {
   }
 
   render() {
-
-    const {detailView, minData, toolbarVisible, recompiling, query, forceID, forceType, forceOpen} = this.state;
-    const {variables, locale, localeDefault, previews} = this.props;
+    const {detailView, minData, recompiling, query, forceID, forceType, forceOpen} = this.state;
+    const {children, variables, locale, localeDefault, previews, toolboxVisible} = this.props;
 
     if (!minData) {
       return null;
@@ -193,7 +191,7 @@ export default class Toolbox extends Component {
     const defLoaded = locale || variables && !locale && variables[localeDefault];
     const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
 
-    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <div className="cms-toolbox"><h3>Loading...</h3></div>;
+    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <div className="cms-toolbox is-loading"><h3>Loading...</h3></div>;
 
     const generators = minData.generators
       .sort((a, b) => a.name.localeCompare(b.name))
@@ -220,182 +218,166 @@ export default class Toolbox extends Component {
     const showFormatters = minData.formatters.length === 0 || formatters.length > 0;
     const showSelectors = minData.selectors.length === 0 || selectors.length > 0;
 
-    // horrible, dirty hack for styling purposes
-    let El = "div";
-    if (toolbarVisible) El = "aside";
-
     return (
-      <El className={`cms-toolbox ${toolbarVisible ? "is-visible" : "is-hidden"}`}>
-        <div className="cms-toolbox-collapse-wrapper">
-          <Button
-            className="cms-toolbox-collapse-button"
-            fontSize="xs"
-            icon={toolbarVisible ? "caret-right" : "caret-left"}
-            iconOnly
-            namespace="cms"
-            onClick={() => this.setState({toolbarVisible: !toolbarVisible})}
-          >
-            {toolbarVisible ? "hide toolbar" : "show toolbar"}
-          </Button>
-        </div>
+      <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}`}>
 
-        {toolbarVisible && <React.Fragment>
-          <FilterSearch
-            label="filter by name, output, description..."
-            namespace="cms"
-            value={query}
-            onChange={this.filter.bind(this)}
-            onReset={this.onReset.bind(this)}
-          />
+        {children} {/* the toggle toolbox button */}
 
-          <ButtonGroup namespace="cms" buttons={[
-            {
-              onClick: () => this.setState({detailView: true}),
-              active: detailView,
-              namespace: "cms",
-              icon: "th-list",
-              iconPosition: "left",
-              children: "detail view",
-              fontSize: "xs"
-            },
-            {
-              onClick: () => this.setState({detailView: false}),
-              active: !detailView,
-              namespace: "cms",
-              icon: "list",
-              iconPosition: "left",
-              children: "output view",
-              fontSize: "xs"
-            }
-          ]} />
+        <FilterSearch
+          label="filter by name, output, description..."
+          namespace="cms"
+          value={query}
+          onChange={this.filter.bind(this)}
+          onReset={this.onReset.bind(this)}
+        />
 
-          {!detailView &&
-            <ul className="cms-button-list">
-              {Object.keys(variables[localeDefault])
-                .sort((a, b) => a.localeCompare(b))
-                .filter(key => key !== "_genStatus" && key !== "_matStatus")
-                .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
-                .map(key =>
-                  <li key={key} className="cms-button-item">
-                    <Button
-                      onClick={this.openGenerator.bind(this, key)}
-                      namespace="cms"
-                      fontSize="xxs"
-                      fill
-                    >
-                      {key}: <ConsoleVariable value={variables[localeDefault][key]} />
-                    </Button>
-                  </li>
-                )}
-            </ul>
+        <ButtonGroup namespace="cms" buttons={[
+          {
+            onClick: () => this.setState({detailView: true}),
+            active: detailView,
+            namespace: "cms",
+            icon: "th-list",
+            iconPosition: "left",
+            children: "detail view",
+            fontSize: "xs"
+          },
+          {
+            onClick: () => this.setState({detailView: false}),
+            active: !detailView,
+            namespace: "cms",
+            icon: "list",
+            iconPosition: "left",
+            children: "output view",
+            fontSize: "xs"
+          }
+        ]} />
+
+        {!detailView &&
+          <ul className="cms-button-list">
+            {Object.keys(variables[localeDefault])
+              .sort((a, b) => a.localeCompare(b))
+              .filter(key => key !== "_genStatus" && key !== "_matStatus")
+              .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
+              .map(key =>
+                <li key={key} className="cms-button-item">
+                  <Button
+                    onClick={this.openGenerator.bind(this, key)}
+                    namespace="cms"
+                    fontSize="xxs"
+                    fill
+                  >
+                    {key}: <ConsoleVariable value={variables[localeDefault][key]} />
+                  </Button>
+                </li>
+              )}
+          </ul>
+        }
+
+        {/* Hide the panels if not detailView - but SHOW them if forceOpen is set, which means
+          * that someone has clicked an individual variable and wants to view its editor
+          */}
+        <div className={`cms-toolbox-deck-wrapper${detailView || forceOpen ? "" : " is-hidden"}`}>
+
+          {(showGenerators || forceOpen) &&
+            <Deck
+              title="Generators"
+              entity="generator"
+              description="Variables constructed from JSON data calls."
+              addItem={this.addItem.bind(this, "generator")}
+              cards={generators.map(g =>
+                <GeneratorCard
+                  key={g.id}
+                  context="generator"
+                  hidden={!detailView}
+                  item={g}
+                  attr={minData.attr || {}}
+                  locale={localeDefault}
+                  secondaryLocale={locale}
+                  previews={previews}
+                  onSave={this.onSave.bind(this)}
+                  onDelete={this.onDelete.bind(this)}
+                  onClose={this.onClose.bind(this)}
+                  type="generator"
+                  variables={variables[localeDefault]}
+                  secondaryVariables={variables[locale]}
+                  forceOpen={forceType === "generator" && forceID === g.id ? forceOpen : null}
+                />
+              )}
+            />
           }
 
-          {/* Hide the panels if not detailView - but SHOW them if forceOpen is set, which means
-            * that someone has clicked an individual variable and wants to view its editor
-            */}
-          <div className={`cms-toolbox-deck-wrapper${detailView || forceOpen ? "" : " is-hidden"}`}>
+          {(showMaterializers  || forceOpen) &&
+            <Deck
+              title="Materializers"
+              entity="materializer"
+              description="Variables constructed from other variables. No API calls needed."
+              addItem={this.addItem.bind(this, "materializer")}
+              cards={materializers.map(m =>
+                <GeneratorCard
+                  key={m.id}
+                  context="materializer"
+                  hidden={!detailView}
+                  item={m}
+                  locale={localeDefault}
+                  secondaryLocale={locale}
+                  onSave={this.onSave.bind(this)}
+                  onDelete={this.onDelete.bind(this)}
+                  onClose={this.onClose.bind(this)}
+                  type="materializer"
+                  variables={variables[localeDefault]}
+                  secondaryVariables={variables[locale]}
+                  parentArray={minData.materializers}
+                  onMove={this.onMove.bind(this)}
+                  forceOpen={forceType === "materializer" && forceID === m.id ? forceOpen : null}
+                />
+              )}
+            />
+          }
 
-            {(showGenerators || forceOpen) &&
-              <Deck
-                title="Generators"
-                entity="generator"
-                description="Variables constructed from JSON data calls."
-                addItem={this.addItem.bind(this, "generator")}
-                cards={generators.map(g =>
-                  <GeneratorCard
-                    key={g.id}
-                    context="generator"
-                    hidden={!detailView}
-                    item={g}
-                    attr={minData.attr || {}}
-                    locale={localeDefault}
-                    secondaryLocale={locale}
-                    previews={previews}
-                    onSave={this.onSave.bind(this)}
-                    onDelete={this.onDelete.bind(this)}
-                    onClose={this.onClose.bind(this)}
-                    type="generator"
-                    variables={variables[localeDefault]}
-                    secondaryVariables={variables[locale]}
-                    forceOpen={forceType === "generator" && forceID === g.id ? forceOpen : null}
-                  />
-                )}
-              />
-            }
+          { detailView && showSelectors &&
+            <Deck
+              title="Selectors"
+              entity="selector"
+              description="Profile-wide Selectors."
+              addItem={this.addItem.bind(this, "selector")}
+              cards={selectors.map(s =>
+                <SelectorCard
+                  key={s.id}
+                  minData={s}
+                  type="selector"
+                  locale={localeDefault}
+                  onSave={this.updateSelectors.bind(this)}
+                  onDelete={this.onDelete.bind(this)}
+                  variables={variables[localeDefault]}
+                />
+              )}
+            />
+          }
 
-            {(showMaterializers  || forceOpen) &&
-              <Deck
-                title="Materializers"
-                entity="materializer"
-                description="Variables constructed from other variables. No API calls needed."
-                addItem={this.addItem.bind(this, "materializer")}
-                cards={materializers.map(m =>
-                  <GeneratorCard
-                    key={m.id}
-                    context="materializer"
-                    hidden={!detailView}
-                    item={m}
-                    locale={localeDefault}
-                    secondaryLocale={locale}
-                    onSave={this.onSave.bind(this)}
-                    onDelete={this.onDelete.bind(this)}
-                    onClose={this.onClose.bind(this)}
-                    type="materializer"
-                    variables={variables[localeDefault]}
-                    secondaryVariables={variables[locale]}
-                    parentArray={minData.materializers}
-                    onMove={this.onMove.bind(this)}
-                    forceOpen={forceType === "materializer" && forceID === m.id ? forceOpen : null}
-                  />
-                )}
-              />
-            }
-
-            { detailView && showSelectors &&
-              <Deck
-                title="Selectors"
-                entity="selector"
-                description="Profile-wide Selectors."
-                addItem={this.addItem.bind(this, "selector")}
-                cards={selectors.map(s =>
-                  <SelectorCard
-                    key={s.id}
-                    minData={s}
-                    type="selector"
-                    locale={localeDefault}
-                    onSave={this.updateSelectors.bind(this)}
-                    onDelete={this.onDelete.bind(this)}
-                    variables={variables[localeDefault]}
-                  />
-                )}
-              />
-            }
-
-            { detailView && showFormatters &&
-              <Deck
-                title="Formatters"
-                entity="formatter"
-                addItem={this.addItem.bind(this, "formatter")}
-                description="Javascript Formatters for Canon text components"
-                cards={formatters.map(g =>
-                  <GeneratorCard
-                    context="formatter"
-                    key={g.id}
-                    item={g}
-                    onSave={this.onSave.bind(this)}
-                    onDelete={this.onDelete.bind(this)}
-                    type="formatter"
-                    variables={{}}
-                  />
-                )}
-              />
-            }
-          </div>
-        </React.Fragment>}
+          { detailView && showFormatters &&
+            <Deck
+              title="Formatters"
+              entity="formatter"
+              addItem={this.addItem.bind(this, "formatter")}
+              description="Javascript Formatters for Canon text components"
+              cards={formatters.map(g =>
+                <GeneratorCard
+                  context="formatter"
+                  key={g.id}
+                  item={g}
+                  onSave={this.onSave.bind(this)}
+                  onDelete={this.onDelete.bind(this)}
+                  type="formatter"
+                  variables={{}}
+                />
+              )}
+            />
+          }
+        </div>
 
         {/* loading status */}
         <Status recompiling={recompiling} />
-      </El>
+      </aside>
     );
   }
 }

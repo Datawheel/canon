@@ -1,18 +1,10 @@
 @import "./mixins.css";
 
-/* prevent absolute positioned elements (i.e., collapsed toolbars) from breaking outside of the body */
-.cms {
-  position: relative;
-  overflow-x: hidden;
-}
-
 /* --------------------------------------- */
 /* NAV BAR */
 /* --------------------------------------- */
 
 .cms-nav {
-  /* offset main site nav */
-  top: var(--nav-height);
   /* sizing */
   width: 100%;
   min-height: var(--cms-nav-height);
@@ -22,6 +14,7 @@
   display: flex;
   flex-wrap: wrap;
   /* positioning */
+  top: 0;
   z-index: 3;
   /* theming */
   background-color: var(--light-1);
@@ -151,20 +144,30 @@
 /* PANEL MACRO LAYOUT */
 /* --------------------------------------- */
 
-/* main panel wrapper */
-.cms-panel {
-  max-height: calc(100vh - var(--nav-height) - var(--cms-nav-height));
-  top: var(--nav-height);
-  /* overflow container */
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+.cms {
+  /* prevent absolute positioned elements (i.e., collapsed toolbars) from breaking outside of the body */
+  position: relative;
+  max-width: 100vw;
+  min-height: 100vh;
+  /* allow content to fill up the screen, and backgrounds to go beyond the screen */
+  display: flex;
+  flex-direction: column;
 }
 
+/* main panel wrapper */
+.cms-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-self: stretch;
+  flex: 1 1 auto;
+}
 
 /* sidebar */
 .cms-sidebar {
   /* sizing */
   width: 100%;
+  /* positioning */
+  z-index: 1;
   /* theming */
   background-color: var(--light-1);
   color: var(--dark-3);
@@ -190,12 +193,14 @@
 
 /* editor */
 .cms-editor {
-  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
   width: 100%;
   max-width: 100%;
 
-  & .cms-deck:not(:last-of-type) {
-    margin-bottom: 2rem;
+  @mixin max-lg {
+    display: block;
+    height: auto;
   }
 }
 
@@ -204,24 +209,50 @@
   .cms-sidebar {
     width: var(--sidebar-width);
     padding-bottom: 0.75rem;
-    /* positioning */
-    position: fixed;
-    top: calc(var(--nav-height) + var(--cms-nav-height));
-    left: 0;
-    bottom: 0;
-    /* overflow container */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+
+    & .cms-tree {
+      position: sticky;
+      top: 0;
+    }
+
+    /* adjacent editor */
+    & ~ .cms-editor {
+      width: calc(100% - var(--sidebar-width));
+      max-width: calc(100% - var(--sidebar-width));
+    }
   }
-  /* adjacent editor */
-  .cms-sidebar ~ .cms-editor {
-    width: calc(100% - var(--sidebar-width));
-    height: calc(100vh - var(--nav-height) - var(--cms-nav-height));
-    /* offset sidebar */
-    left: var(--sidebar-width);
-    /* overflow container */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+}
+
+/* toolbar layout */
+.cms-editor-inner,
+.cms-toolbox {
+  padding: var(--gutter-md);
+}
+@mixin min-lg {
+  .cms-editor-inner {
+    width: 100%;
+    padding: 2rem;
+    will-change: width;
+    transition: width 0.2s ease-out;
+  }
+  /* make room for toolbox */
+  .cms-multicolumn-editor .cms-editor-inner {
+    width: calc(100% - var(--toolbox-width));
+  }
+  .cms-toolbox {
+    /* sizing */
+    width: var(--toolbox-width);
+    min-width: var(--toolbox-width);
+    height: 100%;
+    max-height: 100vh;
+    /* positioning */
+    position: sticky;
+    top: 0;
+    right: 0;
+    left: auto;
+    z-index: 3; /* needed to keep modals in front */
+    /* handle overflow */
+    @mixin vertical-overflow-container;
   }
 }
 

@@ -63,7 +63,7 @@
   /* needed for ace editor */
   & > .cms-ace-container {
     height: 50vh;
-    overflow-y: auto;
+    @mixin vertical-overflow-container;
   }
 
   & .cms-variable-editor-json {

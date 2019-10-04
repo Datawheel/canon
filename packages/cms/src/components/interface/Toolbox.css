@@ -1,53 +1,11 @@
 @import "../../css/mixins";
 
-/* quick and dirty layout */
-@mixin min-lg {
-  .cms-panel {
-    will-change: width;
-    transition: width 0.2s ease-out 0.2s;
-  }
-  .cms-panel:not(:last-child) {
-    width: calc(100% - var(--toolbox-width));
-    max-width: calc(100% - var(--toolbox-width));
-
-    & ~ .cms-toolbox {
-      position: absolute;
-      width: var(--toolbox-width);
-      padding: 1.25rem;
-      height: 100%;
-      max-height: calc(100vh - (var(--nav-height) + var(--cms-nav-height)));
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
-      box-shadow: -1px 0 0 var(--light-2); /* left "border" */
-      /* positioning */
-      top: var(--nav-height);
-      right: 0;
-      bottom: 0;
-      left: auto;
-    }
-  }
-  /* toolbox is a div */
-  /* TODO: do this in a less hacky way */
-  .cms-panel:nth-last-of-type(2) {
-    width: 100%;
-    max-width: none;
-  }
-}
-@media (min-width: 768px) and (max-width: 1199px) {
-  .cms-toolbox {
-    width: calc(100% - var(--sidebar-width));
-    margin-left: auto;
-  }
-}
-
 .cms-toolbox {
   /* sizing */
-  display: block;
-  /* layout */
-  margin-top: var(--cms-nav-height);
-  padding: 2rem;
+  padding: var(--gutter-md);
   /* theming */
   background-color: var(--light-1);
+  box-shadow: -1px 0 0 var(--light-2); /* left "border" */
   box-shadow: 0 -1px 0 var(--light-2); /* top "border" */
 
   @mixin dark-mode {
@@ -66,63 +24,6 @@
   & .cms-card {
     min-width: 0;
     max-width: 100%;
-  }
-
-  /* collapsed state */
-  &.is-hidden {
-    background: none;
-    box-shadow: none !important;
-    transform: translateX(calc(100% - 2rem));
-    transition:
-      background-color 0.3s ease-out,
-      box-shadow 0.3s ease-out,
-      transform 0.3s ease-out;
-
-    & .cms-toolbox-collapse-wrapper {
-      left: 0.75rem;
-
-      & ~ * {
-        opacity: 0;
-        z-index: -1;
-        transform: translateX(25%);
-        transition:
-          opacity 0.3s ease-out,
-          transform 0.3s ease-out;
-      }
-    }
-    & .cms-toolbox-collapse-button:hover {
-      transform: translateX(-0.125rem);
-    }
-  }
-
-  &.is-visible .cms-toolbox-collapse-button {
-    margin-top: calc(var(--cms-nav-height) + 2.5rem);
-    background: var(--white);
-
-    @mixin dark-mode {
-      background: var(--black);
-    }
-    &:hover {
-      transform: translateX(0.125rem);
-    }
-  }
-}
-
-/* toggle the toolbox */
-.cms .cms-toolbox-collapse-wrapper {
-  @mixin absolute-vertical-center;
-  position: fixed;
-  left: auto;
-  right: calc(var(--toolbox-width) - 0.75rem);
-  z-index: 1;
-}
-.cms-toolbox-collapse-button {
-  box-shadow: none;
-  transition-property: color, border, background-color, box-shadow, transform;
-
-  &:focus {
-    outline: none;
-    border: 1px solid var(--accent);
   }
 }
 
@@ -160,6 +61,82 @@
   }
 }
 
+/* toggle the toolbox */
+.cms-toolbox {
+  transition:
+    background-color 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    transform 0.2s ease-out;
+
+  /* toggle button */
+  & .cms-toolbox-collapse-wrapper {
+    @mixin absolute-vertical-center;
+    position: fixed;
+    left: auto;
+    right: calc(var(--toolbox-width) - 0.75rem);
+    z-index: 1;
+  }
+  & .cms-toolbox-collapse-button {
+    box-shadow: none;
+    transition-property: color, border, background-color, box-shadow, transform;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+  }
+
+  /* collapsible on big screens */
+  @mixin min-lg {
+    margin-left: auto;
+
+    /* collapsed state */
+    &.is-hidden {
+      max-height: 100vh;
+      position: fixed;
+      background: none;
+      box-shadow: none !important;
+      transform: translateX(calc(100% - 2rem));
+      right: 0;
+
+      /* hide toolbar children */
+      & > * ~ * {
+        display: none;
+      }
+
+      /* reposition the button */
+      & .cms-toolbox-collapse-wrapper {
+        left: 0.75rem;
+
+        & ~ * {
+          opacity: 0;
+          z-index: -1;
+          transform: translateX(25%);
+          transition:
+            opacity 0.2s ease-out,
+            transform 0.2s ease-out;
+        }
+      }
+      & .cms-toolbox-collapse-button:hover {
+        transform: translateX(-0.125rem);
+      }
+    }
+  }
+
+  /* open state */
+  &.is-visible .cms-toolbox-collapse-button {
+    background: var(--white);
+
+    @mixin dark-mode {
+      background: var(--black);
+    }
+    &:hover {
+      transform: translateX(0.125rem);
+    }
+  }
+}
+
+/* animations */
 @keyframes pull-up {
   from {
     opacity: 0;

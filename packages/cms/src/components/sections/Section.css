@@ -108,9 +108,9 @@
     align-items: center;
     justify-content: flex-start;
     height: var(--sticky-section-height);
-    overflow-x: auto;
+    /* handle overflow */
+    @mixin horizontal-overflow-container;
     overflow-y: hidden;
-    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
 
     /* hide scrollbar */
     -ms-overflow-style: none;
