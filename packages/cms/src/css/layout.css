@@ -137,6 +137,17 @@
       opacity: 0;
     }
   }
+
+  /* bump up nav z-index when settings panel is open to keep in front of toolbox */
+  &.settings-visible {
+    z-index: 10;
+
+    /* prevent scrolling */
+    & + .cms-panel {
+      max-height: calc(100vh - var(--cms-nav-height));
+      overflow: hidden;
+    }
+  }
 }
 
 
