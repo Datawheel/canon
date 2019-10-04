@@ -94,7 +94,6 @@ export default class Toolbox extends Component {
           forceType = type;
           forceOpen = true;
         }
-        console.log(minData[propMap[type]]);
         this.setState({minData, forceID, forceType, forceOpen}, maybeFetch);
       }
     });

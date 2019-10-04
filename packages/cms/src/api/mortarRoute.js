@@ -210,33 +210,7 @@ module.exports = function(app) {
     return res.json(sortProfile(extractLocaleContent(profile, locale, "profile")));
   });
 
-  const fetchVariables = async(req, res) => {
-    const locale = req.query.locale ? req.query.locale : envLoc;
-    const dims = collate(req.query);
-    req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-    const {pid} = req.params;
-
-    if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${pid}`);
-
-    /** */
-    function createGeneratorFetch(r, attr) {
-      // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
-      let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
-      if (url.indexOf("http") !== 0) {
-        const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
-        url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
-      }
-      return axios.get(url)
-        .then(resp => {
-          if (verbose) console.log("Variable Loaded:", url);
-          return resp;
-        })
-        .catch(() => {
-          if (verbose) console.log("Variable Error:", url);
-          return {};
-        });
-    }
-
+  const fetchAttr = async(pid, dims) => {
     // Fetch the profile itself, along with its meta content. The meta content will be used
     // to determine which levels should be used to filter the search results
     let profile = await db.profile.findOne({where: {id: pid}, include: [{association: "meta"}]}).catch(catcher);
@@ -263,6 +237,46 @@ module.exports = function(app) {
         attr[`${key}${i + 1}`] = thisAttr[key];
       });
     }
+    return attr;
+  };
+
+  /*
+
+  // Get a generator, provide me slugs and ids (i'll get the profile and attr myself)
+  app.get("/api/generator/:id", async(req, res) => await fetchGenerator(req, res));
+  // Post a generator, provide me slugs and ids (post me the attr for swapping to avoid profile/search lookup)
+  app.post("/api/generator/:id", async(req, res) => await fetchGenerator(req, res));
+
+  */
+
+  const fetchVariables = async(req, res) => {
+    const locale = req.query.locale ? req.query.locale : envLoc;
+    const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+    const dims = collate(req.query);
+    req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
+    const {pid} = req.params;
+
+    if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${pid}`);
+
+    const attr = await fetchAttr(pid, dims);
+
+    /** */
+    function createGeneratorFetch(r, attr) {
+      // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
+      let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
+      if (url.indexOf("http") !== 0) {
+        url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
+      }
+      return axios.get(url)
+        .then(resp => {
+          if (verbose) console.log("Variable Loaded:", url);
+          return resp;
+        })
+        .catch(() => {
+          if (verbose) console.log("Variable Error:", url);
+          return {};
+        });
+    }   
     
     const formatters = await db.formatter.findAll().catch(catcher);
     // Create a hash table so the formatters are directly accessible by name
@@ -277,7 +291,7 @@ module.exports = function(app) {
     if (!req.query.materializer) {
       // Allow the user to specify a specific generator only via a query param
       const gid = req.query.generator;
-      const genObj = gid ? {where: {id: gid}} : {where: {profile_id: profile.id}};
+      const genObj = gid ? {where: {id: gid}} : {where: {profile_id: pid}};
       let generators = await db.generator.findAll(genObj).catch(catcher);
       generators = generators.map(g => g.toJSON());
       // Given a profile id and its generators, hit all the API endpoints they provide
@@ -317,7 +331,7 @@ module.exports = function(app) {
     }
 
     const mid = req.query.materializer;
-    const matObj = mid ? {where: {id: mid}} : {where: {profile_id: profile.id}};
+    const matObj = mid ? {where: {id: mid}} : {where: {profile_id: pid}};
     let materializers = await db.materializer.findAll(matObj).catch(catcher);
     materializers = materializers.map(m => m.toJSON());
     // Given the partially built returnVariables and all the materializers for this profile id,

@@ -538,6 +538,14 @@ class ProfileBuilder extends Component {
       this.formatTreeVariables.bind(this)();
     };
     if (force || !variablesHash[currentPid] || variablesHash[currentPid] && locale && !variablesHash[currentPid][locale]) {
+      
+      /*
+      // notes
+      if (!variablesHash[currentPid]) variablesHash[currentPid] = {};
+      if (!variablesHash[currentPid][localeDefault]) variablesHash[currentPid][localeDefault] = {_genStatus: {}, _matStatus: {}};
+      if (locale && !variablesHash[currentPid][locale]) variablesHash[currentPid][locale] = {_genStatus: {}, _matStatus: {}};
+      */
+      
       let paramString = "";
       previews.forEach((p, i) => {
         paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
