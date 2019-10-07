@@ -4,7 +4,7 @@ import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {fetchData} from "@datawheel/canon-core";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Icon} from "@blueprintjs/core";
 
 import libs from "../utils/libs";
 
@@ -185,20 +185,27 @@ class Profile extends Component {
               </div>
             )}
           </main>
-        </div>
-        <Dialog
-          isOpen={modalSection}
-          onClose={() => this.setState({modalSlug: null})}
-          usePortal={false}
-        >
-          <div className="bp3-dialog-body">
+
+          {/* modal sections */}
+          <Dialog
+            className="cp-modal-section-dialog"
+            portalClassName="cp-modal-section-portal"
+            backdropClassName="cp-modal-section-backdrop"
+            isOpen={modalSection}
+            onClose={() => this.setState({modalSlug: null})}
+          >
+            <button className="cp-dialog-close-button" onClick={() => this.setState({modalSlug: null})}>
+              <Icon className="cp-dialog-close-button-icon" icon="cross" />
+              <span className="u-visually-hidden">close section</span>
+            </button>
+
             <Section
               isModal={true}
               contents={modalSection}
               loading={loading}
             />
-          </div>
-        </Dialog>
+          </Dialog>
+        </div>
       </React.Fragment>
     );
   }

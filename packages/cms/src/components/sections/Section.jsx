@@ -232,6 +232,8 @@ class Section extends Component {
             contents.position === "sticky" ? " is-sticky" : ""
           }${
             isStickyIE ? " ie-is-stuck" : ""
+          }${
+            isModal ? " cp-modal-section" : ""
           }`}
           ref={this.section}
           key={`section-${contents.id}`}
