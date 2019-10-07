@@ -1,40 +1,54 @@
 import {Button, MenuItem} from "@blueprintjs/core";
 import {Select} from "@blueprintjs/select";
+import {connect} from "react-redux";
 import classNames from "classnames";
 import memoizeOne from "memoize-one";
-import React from "react";
-
+import React, {Component} from "react";
 import {composePropertyName} from "../helpers/formatting";
+import {selectDimensionList} from "../selectors/listsRaw";
 import CategoryListRenderer from "./CategoryListRenderer";
 
-class UpdatedLevelSelect extends React.Component {
+/**
+ * @typedef OwnProps
+ * @property {boolean} disabled
+ * @property {(item: LevelItem, event?: React.SyntheticEvent<HTMLElement>) => any} onItemSelect
+ * @property {DimensionItem} selectedItem
+ */
+
+/**
+ * @typedef StateProps
+ * @property {DimensionItem[]} items
+ */
+
+/** @extends {Component<OwnProps&StateProps,{}>} */
+class LevelSelector extends Component {
   constructor(props) {
     super(props);
 
     this.renderItemList = this.renderItemList.bind(this);
     this.renderItem = this.renderItem.bind(this);
     this.itemSelectHandler = this.itemSelectHandler.bind(this);
-
-    this.categoryListComposer = memoizeOne((stack, items) => {
-      const depth = stack.length;
-
-      if (depth === 0) {
-        const dimensionMap = {};
-        let n = items.length;
-        while (n--) {
-          const name = items[n].hierarchy.dimension.name;
-          dimensionMap[name] = true;
-        }
-        return Object.keys(dimensionMap).sort();
-      }
-
-      const [dimension] = stack;
-      return items.filter(item => item.hierarchy.dimension.name === dimension);
-    });
   }
 
+  categoryListComposer = memoizeOne((stack, items) => {
+    const depth = stack.length;
+
+    if (depth === 0) {
+      const dimensionMap = {};
+      let n = items.length;
+      while (n--) {
+        const name = items[n].hierarchy.dimension.name;
+        dimensionMap[name] = true;
+      }
+      return Object.keys(dimensionMap).sort();
+    }
+
+    const [dimension] = stack;
+    return items.filter(item => item.hierarchy.dimension.name === dimension);
+  });
+
   render() {
-    const {items, activeItem, disabled} = this.props;
+    const {items, selectedItem, disabled} = this.props;
     const popoverProps = {
       boundary: "viewport",
       minimal: true,
@@ -44,7 +58,7 @@ class UpdatedLevelSelect extends React.Component {
 
     return (
       <Select
-        activeItem={activeItem}
+        activeItem={selectedItem}
         disabled={disabled}
         filterable={false}
         itemListRenderer={this.renderItemList}
@@ -58,8 +72,8 @@ class UpdatedLevelSelect extends React.Component {
           className="measure-select select-option active"
           fill={true}
           rightIcon="double-caret-vertical"
-          text={activeItem ? composePropertyName(activeItem) : "Select..."}
-          title={activeItem.name}
+          text={selectedItem ? composePropertyName(selectedItem) : "Select..."}
+          title={selectedItem.name}
         />
       </Select>
     );
@@ -96,4 +110,11 @@ class UpdatedLevelSelect extends React.Component {
   }
 }
 
-export default UpdatedLevelSelect;
+/** @type {import("react-redux").MapStateToProps<StateProps,OwnProps,GeneralState>} */
+function mapState(state) {
+  return {
+    items: selectDimensionList(state)
+  };
+}
+
+export default connect(mapState)(LevelSelector);

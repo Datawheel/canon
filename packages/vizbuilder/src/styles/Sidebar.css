@@ -1,35 +1,6 @@
 .area-sidebar {
-  & .control {
-    margin: 0 0 1em;
-
-    & .label {
-      margin: 0;
-    }
-
-    & > .control {
-      margin-bottom: 0.8em;
-    }
-  }
-
-  & .grouping-manager .actions,
-  & .filter-manager .actions {
-    margin-top: 0.2rem;
-    text-align: right;
-  }
-
-  & .grouping-item,
-  & .filter-item {
-    padding: 0.3rem;
-    margin: 0 0 0.4rem;
-    border: 1px solid;
-  }
-
   & .grouping-item:only-child .action-delete {
     display: none;
-  }
-
-  & .filter-item .values span {
-    margin-right: 0.5rem;
   }
 
   & .ranking-item {
@@ -57,15 +28,6 @@
     &:empty {
       display: none;
     }
-  }
-
-  & .sources p {
-    margin: 0.5rem 0;
-    font-size: 0.75rem;
-  }
-
-  & .source-link {
-    font-weight: bold;
   }
 
   & .select-target-wrapper {

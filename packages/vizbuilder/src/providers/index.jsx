@@ -1,0 +1,3 @@
+class PropertyProvider extends Component {
+
+}

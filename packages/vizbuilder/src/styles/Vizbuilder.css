@@ -1,0 +1,40 @@
+.vizbuilder {
+  height: 100vh;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: stretch;
+
+  & > .area-sidebar {
+    flex: 0 0 300px;
+    width: 300px;
+  }
+
+  & > .area-sidebar.hidden {
+    display: none;
+  }
+
+  & > .area-chart {
+    flex: 1 0 560px;
+  }
+
+  & > .area-middle {
+    position: relative;
+
+    & .toggle-sidebar {
+      position: absolute;
+    }
+  }
+
+  &.mapmode .levels-manager .grouping-items + button {
+    display: none;
+  }
+}
+
+.area-sidebar,
+.area-chart {
+  overflow: auto;
+
+  & > .wrapper {
+    padding: 15px;
+  }
+}

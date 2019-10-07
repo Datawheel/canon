@@ -1,30 +1,41 @@
-import React from "react";
+import {HTMLSelect} from "@blueprintjs/core";
+import React, {memo} from "react";
+import ConditionalAnchor from "./ConditionalAnchor";
 
-function DatasetSelect(props) {
-  const cubeName = props.value.annotations._vb_cbName;
+/**
+ * @typedef OwnProps
+ * @property {string} [className]
+ * @property {boolean} [fill]
+ * @property {MeasureItem} measure
+ * @property {MeasureItem[]} measures
+ * @property {(event: React.ChangeEvent<HTMLSelectElement>) => void} onChange
+ */
+
+/** @type {React.NamedExoticComponent<OwnProps>} */
+const DatasetSelect = memo(function({className, fill, measure, measures, onChange}) {
+  if (measures.length < 2) {
+    return (
+      <ConditionalAnchor className="source-link" href={measure.datasetHref}>
+        {measure.datasetName}
+      </ConditionalAnchor>
+    );
+  }
+
+  const options = measures.map(measure => ({
+    label: measure.datasetName,
+    value: measure.cube
+  }));
+
   return (
-    <span className="bp3-select bp3-fill">
-      <select
-        className={props.className}
-        name="dataset"
-        onChange={props.onChange}
-        value={cubeName}
-      >
-        {props.items.map(item =>
-          <option
-            key={item.annotations._vb_cbName}
-            value={item.annotations._vb_cbName}
-          >
-            {item.annotations._vb_datasetName}
-          </option>
-        )}
-      </select>
-    </span>
+    <HTMLSelect
+      className={className}
+      fill={fill}
+      name="dataset"
+      onChange={onChange}
+      options={options}
+      value={measure.cube}
+    />
   );
-}
-
-DatasetSelect.defaultProps = {
-  items: []
-};
+});
 
 export default DatasetSelect;

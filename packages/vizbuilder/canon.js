@@ -1,5 +1,7 @@
-/**
-    The object that this file exports is used to set configurations for canon
-    and it's sub-modules.
-*/
-module.exports = {};
+import {vizbuilderMiddleware} from "./src";
+
+export default {
+  reduxMiddleware(applyMiddleware, middleware) {
+    return applyMiddleware(vizbuilderMiddleware, ...middleware)
+  }
+};
