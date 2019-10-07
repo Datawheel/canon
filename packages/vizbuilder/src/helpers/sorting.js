@@ -336,7 +336,7 @@ export function removeDuplicateLevels(array) {
 export function getIncludedMembers(query, dataset) {
   return [].concat(query.levels, query.timeLevel).reduce((members, dd) => {
     if (dd) {
-      const key = dd.name;
+      const key = captionOrName(dd);
       const set = {};
 
       let n = dataset.length;

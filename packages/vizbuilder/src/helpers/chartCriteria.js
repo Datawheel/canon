@@ -1,16 +1,16 @@
-/**
- * The main function here is chartCriteria
- * This function is in charge of deciding which charts will be rendered for each
- * dataset retrieved from the server.
- */
-
 import {isGeoPlusUniqueCutQuery} from "./chartHelpers";
+import {captionOrName} from "./formatting";
 import {getTopTenByYear} from "./sorting";
 
 export const QUIRKS = {
   TOPTEN: "topten"
 };
 
+/**
+ * The main function here is chartCriteria
+ * This function is in charge of deciding which charts will be rendered for each
+ * dataset retrieved from the server.
+ */
 export default function chartCriteria(results, params) {
   /** @type {Datagroup[]} */
   const datagroups = [];
@@ -23,10 +23,10 @@ export default function chartCriteria(results, params) {
     let {members, query} = datagroup;
 
     const measureName = query.measure.name;
-    const levelName = query.level.name;
-    const levelNames = query.levels.map(lvl => lvl.name);
-    const geoLevelName = query.geoLevel && query.geoLevel.name;
-    const timeLevelName = query.timeLevel && query.timeLevel.name;
+    const levelName = captionOrName(query.level);
+    const levelNames = query.levels.map(captionOrName);
+    const geoLevelName = captionOrName(query.geoLevel || "");
+    const timeLevelName = captionOrName(query.timeLevel || "");
 
     const levelMembers = members[levelName] || [];
     const timeLevelMembers = members[timeLevelName] || [];
@@ -95,8 +95,8 @@ export default function chartCriteria(results, params) {
     else if (aggregatorType === "MEDIAN") {
       availableCharts.delete("stacked");
     }
-    /** @see Issue#327 on {@link https://github.com/Datawheel/canon/issues/327 | GitHub} */
     else if (aggregatorType === "NONE") {
+      /** @see Issue#327 on {@link https://github.com/Datawheel/canon/issues/327 | GitHub} */
       availableCharts.delete("stacked");
       availableCharts.delete("barchart");
     }
@@ -109,7 +109,7 @@ export default function chartCriteria(results, params) {
 
     // Hide charts that would show a single shape only
     // (that is, if any drilldown, besides Year, only has 1 member)
-    if (query.levels.every(lvl => members[lvl.name].length === 1)) {
+    if (query.levels.every(lvl => (members[captionOrName(lvl)] || []).length === 1)) {
       availableCharts.delete("barchart");
       availableCharts.delete("stacked");
       availableCharts.delete("treemap");
@@ -118,14 +118,14 @@ export default function chartCriteria(results, params) {
     datagroup.aggType = aggregatorType;
     datagroup.formatter = measureFormatter;
     datagroup.names = {
-      collectionName: query.collection && query.collection.name,
-      lciName: query.lci && query.lci.name,
+      collectionName: captionOrName(query.collection || ""),
+      lciName: captionOrName(query.lci || ""),
       levelName,
       measureName,
-      moeName: query.moe && query.moe.name,
-      sourceName: query.source && query.source.name,
+      moeName: captionOrName(query.moe || ""),
+      sourceName: captionOrName(query.source || ""),
       timeLevelName,
-      uciName: query.uci && query.uci.name,
+      uciName: captionOrName(query.uci || ""),
       levelNames
     };
 
@@ -135,7 +135,10 @@ export default function chartCriteria(results, params) {
      * and creates a new datagroup, lineplot-only, for the new trimmed dataset
      * @see Issue#296 on {@link https://github.com/Datawheel/canon/issues/296 | GitHub}
      */
-    const totalMembers = query.levels.reduce((total, lvl) => total * members[lvl.name].length, 1);
+    const totalMembers = query.levels.reduce(
+      (total, lvl) => total * (members[captionOrName(lvl)] || []).length,
+      1
+    );
     if (availableCharts.has("lineplot") && totalMembers > 60) {
       availableCharts.delete("lineplot");
 
