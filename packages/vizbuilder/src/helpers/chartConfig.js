@@ -1,6 +1,6 @@
 import {assign} from "d3plus-common";
-
 import {labelFunctionGenerator} from "./chartHelpers";
+import {captionOrName} from "./formatting";
 import {relativeStdDev} from "./math";
 import {sortByCustomKey} from "./sorting";
 
@@ -33,7 +33,7 @@ const makeConfig = {
 
     if (timeLevel) {
       config.time = timeLevelName;
-      config.groupBy = [timeLevel.hierarchy.levels[1].name];
+      config.groupBy = timeLevel.hierarchy.levels.slice(1, 2).map(captionOrName);
     }
 
     if (!config.time) {
@@ -41,7 +41,7 @@ const makeConfig = {
     }
 
     if (chart.setup.length > 1) {
-      config.groupBy = [chart.setup[1].name];
+      config.groupBy = chart.setup.slice(1, 2).map(captionOrName);
     }
 
     return config;
@@ -82,7 +82,7 @@ const makeConfig = {
     );
 
     if (chart.setup.length > 1) {
-      config.groupBy = chart.setup.map(lvl => lvl.name);
+      config.groupBy = chart.setup.map(captionOrName);
     }
 
     if (timeLevelName) {
@@ -145,7 +145,7 @@ const makeConfig = {
       {
         discrete: "x",
         confidence: false,
-        groupBy: chart.setup.map(lvl => lvl.name),
+        groupBy: chart.setup.map(captionOrName),
         yConfig: {scale: "linear", title: measureName},
         x: timeLevelName,
         xConfig: {title: timeLevelName},
@@ -188,7 +188,7 @@ const makeConfig = {
     config.yConfig = {scale: "linear", title: measureName};
 
     if (chart.setup.length > 1) {
-      config.groupBy = chart.setup.map(lvl => lvl.name);
+      config.groupBy = chart.setup.map(captionOrName);
     }
 
     return config;
@@ -205,14 +205,14 @@ const makeConfig = {
       {},
       chart.baseConfig,
       {
-        groupBy: levels.slice(1, ddIndex + 1).map(lvl => lvl.name),
-        label: labelFunctionGenerator(...chart.setup.map(lvl => lvl.name))
+        groupBy: levels.slice(1, ddIndex + 1).map(captionOrName),
+        label: labelFunctionGenerator(...chart.setup.map(captionOrName))
       },
       chart.userConfig
     );
 
     if (setup.length > 0) {
-      const additionalLevels = setup.map(lvl => lvl.name);
+      const additionalLevels = setup.map(captionOrName);
       config.groupBy.push(...additionalLevels);
     }
 

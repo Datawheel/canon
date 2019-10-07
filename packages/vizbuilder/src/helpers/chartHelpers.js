@@ -94,7 +94,9 @@ export function calcChartSetups(datagroup, type) {
 
   switch (type) {
     case "treemap": {
-      const relevantLevels = query.levels.filter(lvl => members[lvl.name].length > 1);
+      const relevantLevels = query.levels.filter(
+        lvl => (members[captionOrName(lvl)] || []).length > 1
+      );
       return getPermutations(relevantLevels);
     }
 
