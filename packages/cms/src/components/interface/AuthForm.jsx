@@ -19,7 +19,7 @@ export default class AuthForm extends Component {
 
   render() {
     const {mode} = this.state;
-    const {auth, error} = this.props;
+    const {auth, error, redirect} = this.props;
 
     let modeTitle = "Log in";
     let modeSwitchPrompt = "Don't have an account yet? ";
@@ -50,7 +50,7 @@ export default class AuthForm extends Component {
               : <React.Fragment>
                 <h1 className="cms-auth-form-title">{modeTitle}</h1>
 
-                {mode === "login" ? <LoginForm /> : <SignupForm />}
+                {mode === "login" ? <LoginForm redirect={redirect}/> : <SignupForm redirect={redirect}/>}
 
                 <p className="cms-auth-form-paragraph u-font-xs u-margin-top-md u-margin-bottom-off">
                   {modeSwitchPrompt}
