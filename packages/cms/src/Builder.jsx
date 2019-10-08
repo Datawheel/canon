@@ -136,18 +136,20 @@ class Builder extends Component {
 
   render() {
     const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen, userInit} = this.state;
-    const {isEnabled, env, auth} = this.props;
+    const {isEnabled, env, auth, router} = this.props;
+    let {pathname} = router.location;
+    if (pathname.charAt(0) !== "/") pathname = `/${pathname}`;
     const navLinks = ["profiles", "stories", "metadata"];
 
     const waitingForUser = yn(env.CANON_LOGINS) && !userInit;
 
     if (!isEnabled || waitingForUser) return null;
 
-    if (yn(env.CANON_LOGINS) && !auth.user) return <AuthForm />;
+    if (yn(env.CANON_LOGINS) && !auth.user) return <AuthForm redirect={pathname}/>;
 
     if (yn(env.CANON_LOGINS) && auth.user && auth.user.role < 1) {
       return (
-        <AuthForm error={true} auth={auth} />
+        <AuthForm redirect={pathname} error={true} auth={auth} />
       );
     }
 
