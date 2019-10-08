@@ -600,7 +600,6 @@ class ProfileBuilder extends Component {
             if (Object.keys(variablesHash[currentPid][thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length === gids.length) {
               axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variablesHash[currentPid][thisLocale]}).then(mat => {
                 const incMat = mat.data;
-                console.log("Done, processing Materializers");
                 if (incMat._matStatus) {
                   Object.keys(incMat._matStatus).forEach(mid => {
                     Object.keys(incMat._matStatus[mid]).forEach(k => {

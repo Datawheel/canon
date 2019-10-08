@@ -6,7 +6,6 @@ import ButtonGroup from "../fields/ButtonGroup";
 import FilterSearch from "../fields/FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
 import SelectorCard from "../cards/SelectorCard";
-import Status from "./Status";
 import ConsoleVariable from "../variables/ConsoleVariable";
 import "./Toolbox.css";
 

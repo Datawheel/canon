@@ -1,10 +1,11 @@
 import React, {Component} from "react";
 
+const Quill = typeof window !== "undefined" ? require("react-quill") : null;
+
 class QuillWrapper extends Component {
 
   render() {
     if (typeof window !== "undefined") {
-      const Quill = require("react-quill");
       require("react-quill/dist/quill.snow.css");
       const modules = {
         toolbar: [
