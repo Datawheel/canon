@@ -12,6 +12,7 @@ import CtxMenu from "../components/interface/CtxMenu";
 import SidebarTree from "../components/interface/SidebarTree";
 import Header from "../components/interface/Header";
 import Toolbox from "../components/interface/Toolbox";
+import Status from "../components/interface/Status";
 import nestedObjectAssign from "../utils/nestedObjectAssign";
 import sectionIconLookup from "../utils/sectionIconLookup";
 import toKebabCase from "../utils/formatters/toKebabCase";
@@ -61,13 +62,6 @@ class ProfileBuilder extends Component {
       const cubeData = resp[1].data;
       this.setState({profiles, cubeData}, this.buildNodes.bind(this));
     });
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.locale !== this.props.locale) {
-      const {currentPid} = this.state;
-      if (currentPid) this.fetchVariables.bind(this)();
-    }
   }
 
   /**
@@ -494,7 +488,7 @@ class ProfileBuilder extends Component {
     const {pathObj} = this.props;
     const previews = this.state.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
     this.context.setPath(Object.assign({}, pathObj, {previews}));
-    this.setState({previews}, this.fetchVariables.bind(this));
+    this.setState({previews});
   }
 
   /*
@@ -538,7 +532,7 @@ class ProfileBuilder extends Component {
    * all the editors, each editor has a callback that accesses this function. We store the
    * variables object in a hash that is keyed by the profile id.
    */
-  fetchVariables(callback, query) {
+  fetchVariables(callback, config) {
     const {variablesHash, currentPid, previews} = this.state;
     const {locale, localeDefault} = this.props;
     const maybeCallback = () => {
@@ -549,61 +543,78 @@ class ProfileBuilder extends Component {
     if (!variablesHash[currentPid]) variablesHash[currentPid] = {};
     if (!variablesHash[currentPid][localeDefault]) variablesHash[currentPid][localeDefault] = {_genStatus: {}, _matStatus: {}};
     if (locale && !variablesHash[currentPid][locale]) variablesHash[currentPid][locale] = {_genStatus: {}, _matStatus: {}};
-    
-    let paramString = "";
-    previews.forEach((p, i) => {
-      paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
-    });
-    if (query) {
-      Object.keys(query).forEach(k => {
-        paramString += `&${k}=${query[k]}`;
-      });
-    }
+
     const locales = [localeDefault];
     if (locale) locales.push(locale);
     for (const thisLocale of locales) {
-      let theseVars = variablesHash[currentPid][thisLocale];
-      if (query && query.materializer) {
-        axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: theseVars}).then(mat => {
+
+      if (config && config.type === "materializer") {
+        let paramString = "";
+        previews.forEach((p, i) => {
+          paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+        });
+        const query = {materializer: config.ids[0]};
+        Object.keys(query).forEach(k => {
+          paramString += `&${k}=${query[k]}`;
+        });
+
+        axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variablesHash[currentPid][thisLocale]}).then(mat => {
           const incMat = mat.data;
           if (incMat._matStatus) {
             Object.keys(incMat._matStatus).forEach(mid => {
               Object.keys(incMat._matStatus[mid]).forEach(k => {
-                delete theseVars[k];
+                delete variablesHash[currentPid][thisLocale][k];
               });
-              delete theseVars._matStatus[mid];
+              delete variablesHash[currentPid][thisLocale]._matStatus[mid];
             });
           }
-          theseVars = nestedObjectAssign(theseVars, mat.data);
+          variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], mat.data);
           this.setState({variablesHash}, maybeCallback);
         });
       }
       else {
-        axios.get(`/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
-          const incGen = gen.data;
-          if (incGen._genStatus) {
-            Object.keys(incGen._genStatus).forEach(gid => {
-              Object.keys(incGen._genStatus[gid]).forEach(k => {
-                delete theseVars[k];
-              });
-              delete theseVars._genStatus[gid];
+        const gids = config.ids || [];
+        for (const gid of gids) {
+          if (variablesHash[currentPid][thisLocale]._genStatus[gid]) {
+            Object.keys(variablesHash[currentPid][thisLocale]._genStatus[gid]).forEach(k => {
+              delete variablesHash[currentPid][thisLocale][k];
             });
           }
-          theseVars = nestedObjectAssign(theseVars, gen.data);
-          axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: theseVars}).then(mat => {
-            const incMat = mat.data;
-            if (incMat._matStatus) {
-              Object.keys(incMat._matStatus).forEach(mid => {
-                Object.keys(incMat._matStatus[mid]).forEach(k => {
-                  delete theseVars[k];
-                });
-                delete theseVars._matStatus[mid];
+          delete variablesHash[currentPid][thisLocale]._genStatus[gid];
+        }
+        for (const gid of gids) {
+          const query = {generator: gid};
+          let paramString = "";
+          previews.forEach((p, i) => {
+            paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+          });
+          Object.keys(query).forEach(k => {
+            paramString += `&${k}=${query[k]}`;
+          });
+          axios.get(`/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
+            variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], gen.data);
+            const gensLoaded = Object.keys(variablesHash[currentPid][thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
+            const gensTotal = gids.length;
+            const genLang = thisLocale;
+            this.setState({variablesHash, gensLoaded, gensTotal, genLang}, maybeCallback);
+            if (Object.keys(variablesHash[currentPid][thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length === gids.length) {
+              axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variablesHash[currentPid][thisLocale]}).then(mat => {
+                const incMat = mat.data;
+                console.log("Done, processing Materializers");
+                if (incMat._matStatus) {
+                  Object.keys(incMat._matStatus).forEach(mid => {
+                    Object.keys(incMat._matStatus[mid]).forEach(k => {
+                      delete variablesHash[currentPid][thisLocale][k];
+                    });
+                    delete variablesHash[currentPid][thisLocale]._matStatus[mid];
+                  });
+                }
+                variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], mat.data);
+                this.setState({variablesHash}, maybeCallback);
               });
             }
-            theseVars = nestedObjectAssign(theseVars, mat.data);
-            this.setState({variablesHash}, maybeCallback);
           });
-        });
+        }
       }
     }
   }
@@ -631,11 +642,15 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode, variablesHash, currentPid, previews, profiles, cubeData, nodeToDelete, selectors} = this.state;
+    const {nodes, currentNode, variablesHash, currentPid, gensLoaded, gensTotal, genLang, previews, profiles, cubeData, nodeToDelete, selectors} = this.state;
     const {locale, localeDefault} = this.props;
 
     if (!nodes) return null;
-
+  
+    // Section Editors and Cards don't render until they have variables - Scaffold out some empty placeholders if the
+    // Variables aren't ready yet.
+    // const scaffold = {[localeDefault]: {_genStatus: {}, _matStatus: {}}};
+    // if (locale) scaffold[locale] = {_genStatus: {}, _matStatus: {}};
     const variables = variablesHash[currentPid] ? deepClone(variablesHash[currentPid]) : null;
 
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
@@ -729,6 +744,12 @@ class ProfileBuilder extends Component {
           variables={variables}
           fetchVariables={this.fetchVariables.bind(this)}
           previews={previews}
+        />
+
+        <Status 
+          recompiling={gensLoaded !== gensTotal} 
+          busy={`${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`}
+          done="Variables Loaded"
         />
       </React.Fragment>
     );

@@ -499,6 +499,8 @@ class MetaEditor extends Component {
       url
     } = this.state;
 
+    console.log(this.state.sourceData[0]);
+
     return (
       <div className="cms-panel meta-editor">
         <div className="cms-sidebar cms-meta-header">

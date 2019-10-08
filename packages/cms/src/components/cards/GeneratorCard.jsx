@@ -108,9 +108,9 @@ class GeneratorCard extends Component {
     axios.post(`/api/cms/${type}/update`, minData).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
-        let query = false; 
-        if (type === "generator" || type === "materializer") query = {[type]: minData.id};
-        if (this.props.onSave) this.props.onSave(query);
+        let config;
+        if (type === "generator" || type === "materializer") config = {type, ids: [minData.id]};
+        if (this.props.onSave) this.props.onSave(config);
       }
     });
   }
