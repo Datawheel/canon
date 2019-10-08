@@ -53,8 +53,7 @@ class Builder extends Component {
     else {
       currentTab = "profiles";
       const {pathname} = location;
-      let url = pathname === "/" ? "" : "/";
-      url += "?tab=profiles";
+      const url = `${pathname}?tab=profiles`;
       router.replace(url);
     }
 
@@ -120,8 +119,7 @@ class Builder extends Component {
     pathObj = Object.assign({}, pathObj, {tab: currentTab});
     const {router} = this.props;
     const {pathname} = router.location;
-    let url = pathname === "/" ? "" : "/";
-    url += `${pathname}?tab=${pathObj.tab}`;
+    let url = `${pathname}?tab=${pathObj.tab}`;
     // Profile
     if (pathObj.profile) url += `&profile=${pathObj.profile}`;
     if (pathObj.section) url += `&section=${pathObj.section}`;
