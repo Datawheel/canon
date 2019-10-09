@@ -44,7 +44,9 @@ class TextEditor extends Component {
     }
 
     */
-    const thisLocale = data.content.find(c => c.lang === locale);
+
+    //console.log(data.content);
+    const thisLocale = data.content.find(c => c.locale === locale);
     if (!isDirty && thisLocale[field] !== t) {
       thisLocale[field] = t;
       if (this.props.markAsDirty) this.props.markAsDirty();
