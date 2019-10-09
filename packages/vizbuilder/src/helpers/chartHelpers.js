@@ -176,8 +176,6 @@ export function labelFunctionGenerator() {
 export function isGeoPlusUniqueCutQuery(query) {
   const geoLvl = query.geoLevel;
   const notGeoLvl = query.levels.find(lvl => lvl !== geoLvl);
-  const notGeoLvlFullName = notGeoLvl.fullName;
-  const notGeoLvlCut = query.cuts.find(cut => cut.key === notGeoLvlFullName);
-
-  return notGeoLvlCut && notGeoLvlCut.values.length === 1;
+  const notGeoLvlCut = query.cuts.find(cut => cut.level === notGeoLvl);
+  return notGeoLvlCut && notGeoLvlCut.members.length === 1;
 }
