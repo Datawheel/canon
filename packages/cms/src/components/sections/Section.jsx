@@ -133,10 +133,10 @@ class Section extends Component {
     const mainTitle = <React.Fragment>
       {title &&
         <div className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}>
-          <Parse El={headingLevel} id={slug} className={`cp-section-heading ${layoutClass}-heading`} tabIndex="0">
+          <Parse El={headingLevel} id={slug} className={`cp-section-heading ${layoutClass}-heading${layout !== "Hero" && !isModal ? " cp-section-anchored-heading" : ""}`} tabIndex="0">
             {title}
           </Parse>
-          {!isModal && 
+          {!isModal &&
             <AnchorLink to={slug} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`}>
               #<span className="u-visually-hidden">permalink to section</span>
             </AnchorLink>
@@ -232,6 +232,8 @@ class Section extends Component {
             contents.position === "sticky" ? " is-sticky" : ""
           }${
             isStickyIE ? " ie-is-stuck" : ""
+          }${
+            isModal ? " cp-modal-section" : ""
           }`}
           ref={this.section}
           key={`section-${contents.id}`}

@@ -4,7 +4,7 @@ import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {fetchData} from "@datawheel/canon-core";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Icon} from "@blueprintjs/core";
 
 import libs from "../utils/libs";
 
@@ -52,16 +52,16 @@ class Profile extends Component {
     };
   }
 
-  /** 
+  /**
    * Visualizations have the ability to "break out" and open a modal.
    */
   onOpenModal(modalSlug) {
     this.setState({modalSlug});
   }
 
-  /** 
+  /**
    * Visualizations have the ability to "break out" and override a variable in the variables object.
-   * This requires a server round trip, because the user may have changed a variable that would affect 
+   * This requires a server round trip, because the user may have changed a variable that would affect
    * the "allowed" status of a given section.
    */
   onSetVariables(newVariables) {
@@ -106,10 +106,8 @@ class Profile extends Component {
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
     const heroSection = sections.find(l => l.type === "Hero");
-    // Remove all non-heroes from sections.
-    if (heroSection) sections = sections.filter(l => l.type !== "Hero");
-    // Remove all "modal" sections from normal rendering"
-    sections = sections.filter(l => l.position !== "modal");
+    // Remove all heros & modals from sections.
+    if (heroSection) sections = sections.filter(l => l.type !== "Hero" && l.position !== "modal");
 
     // rename old section names
     sections.forEach(l => {
@@ -187,20 +185,27 @@ class Profile extends Component {
               </div>
             )}
           </main>
-        </div>
-        <Dialog
-          isOpen={modalSection}
-          onClose={() => this.setState({modalSlug: null})}
-          usePortal={false}
-        >
-          <div className="bp3-dialog-body">
+
+          {/* modal sections */}
+          <Dialog
+            className="cp-modal-section-dialog"
+            portalClassName="cp-modal-section-portal"
+            backdropClassName="cp-modal-section-backdrop"
+            isOpen={modalSection}
+            onClose={() => this.setState({modalSlug: null})}
+          >
+            <button className="cp-dialog-close-button" onClick={() => this.setState({modalSlug: null})}>
+              <Icon className="cp-dialog-close-button-icon" icon="cross" />
+              <span className="u-visually-hidden">close section</span>
+            </button>
+
             <Section
               isModal={true}
               contents={modalSection}
               loading={loading}
             />
-          </div>
-        </Dialog>
+          </Dialog>
+        </div>
       </React.Fragment>
     );
   }
