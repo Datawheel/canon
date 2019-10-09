@@ -7,8 +7,6 @@ import "brace/ext/language_tools";
 const langTools = ace.acequire("ace/ext/language_tools");
 */
 
-// const Ace = typeof window !== "undefined" ? require("react-ace").default : null;
-
 export default class AceWrapper extends Component {
 
   /*
@@ -46,8 +44,8 @@ export default class AceWrapper extends Component {
 
   render() {
     if (typeof window !== "undefined") {
-      const {readOnly} = this.props;
       const Ace = require("react-ace").default;
+      const {readOnly} = this.props;
       require("brace/mode/javascript");
       require("brace/theme/kuroir");
       require("brace/theme/idle_fingers");
