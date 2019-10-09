@@ -559,7 +559,8 @@ class MetaEditor extends Component {
             className="cms-meta-table"
             data={data}
             columns={columns}
-            pageSize={data.length > 10 ? 10 : data.length}
+            defaultPageSize={data.length > 20 ? 20 : data.length}
+            showPageSizeOptions={true}
             showPagination={data.length > 10}
           />
         </div>
