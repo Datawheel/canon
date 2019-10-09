@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
@@ -47,18 +47,16 @@ class Section extends Component {
   componentDidMount() {
     const stickySection = this.state.contents.sticky;
     const currentSection = this.section.current;
+    const {isIE} = this.props;
 
     // make sure the section is sticky
-    if (stickySection === true && typeof window !== "undefined") {
-      // check for IE
-      if (/*@cc_on!@*/false || !!document.documentMode) { // eslint-disable-line spaced-comment
-        window.addEventListener("scroll", this.scrollBind);
-        this.setState({
-          // combine the position
-          top: currentSection.getBoundingClientRect().top + document.documentElement.scrollTop,
-          height: currentSection.getBoundingClientRect().height
-        });
-      }
+    if (stickySection === true && isIE) {
+      window.addEventListener("scroll", this.scrollBind);
+      this.setState({
+        // combine the position
+        top: currentSection.getBoundingClientRect().top + document.documentElement.scrollTop,
+        height: currentSection.getBoundingClientRect().height
+      });
     }
   }
 
@@ -130,7 +128,7 @@ class Section extends Component {
     const selectors = contents.selectors || [];
 
     // heading & subhead(s)
-    const mainTitle = <React.Fragment>
+    const mainTitle = <Fragment>
       {title &&
         <div className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}>
           <Parse El={headingLevel} id={slug} className={`cp-section-heading ${layoutClass}-heading`} tabIndex="0">
@@ -141,20 +139,20 @@ class Section extends Component {
           </AnchorLink>
         </div>
       }
-    </React.Fragment>;
+    </Fragment>;
 
-    const subTitle = <React.Fragment>
-    {!contents.sticky && subtitles.map((content, i) =>
-      <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
-        {content.subtitle}
-      </Parse>
-    )}
-    </React.Fragment>;
+    const subTitle = <Fragment>
+      {!contents.sticky && subtitles.map((content, i) =>
+        <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
+          {content.subtitle}
+        </Parse>
+      )}
+    </Fragment>;
 
-    const heading = <React.Fragment>
+    const heading = <Fragment>
       {mainTitle}
       {subTitle}
-    </React.Fragment>;
+    </Fragment>;
 
     // filters
     const filters = selectors.map(selector =>
@@ -224,7 +222,7 @@ class Section extends Component {
     };
 
     return (
-      <React.Fragment>
+      <Fragment>
         <section
           className={`cp-section cp-${toKebabCase(contents.type)}-section${
             contents.sticky ? " is-sticky" : ""
@@ -238,11 +236,11 @@ class Section extends Component {
         </section>
 
         {/* in IE, create empty div set to the height of the stuck element */}
-        {isStickyIE ? <React.Fragment>
+        {isStickyIE ? <Fragment>
           <div className="ie-sticky-spacer" style={{height}} />
           <div className="ie-sticky-section-color-fixer" />
-        </React.Fragment> : ""}
-      </React.Fragment>
+        </Fragment> : ""}
+      </Fragment>
     );
   }
 }

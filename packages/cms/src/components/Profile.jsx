@@ -32,6 +32,15 @@ class Profile extends Component {
     };
   }
 
+  // IE check needed for position: sticky fallback
+  componentDidMount() {
+    if (typeof window !== "undefined") {
+      if (/*@cc_on!@*/false || !!document.documentMode) { // eslint-disable-line spaced-comment
+        this.setState({isIE: true});
+      }
+    }
+  }
+
   getChildContext() {
     const {formatters, locale, router} = this.props;
     const {profile} = this.state;
@@ -95,13 +104,6 @@ class Profile extends Component {
   render() {
     const {isIE, profile, loading} = this.state;
 
-    // IE check needed for position: sticky fallback
-    if (typeof window !== "undefined") {
-      if (/*@cc_on!@*/false || !!document.documentMode) { // eslint-disable-line spaced-comment
-        this.setState({isIE: true});
-      }
-    }
-
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
     const heroSection = sections.find(l => l.type === "Hero");
@@ -164,6 +166,7 @@ class Profile extends Component {
                   contents={innerGrouping[0]}
                   headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
                   loading={loading}
+                  isIE={isIE}
                   key={`${innerGrouping[0].slug}-${ii}`}
                 />
                 // grouped sections
@@ -176,6 +179,7 @@ class Profile extends Component {
                         : "h4"
                       }
                       loading={loading}
+                      isIE={isIE}
                       key={`${section.slug}-${iii}`}
                     />
                   )}
