@@ -1,25 +1,32 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {NonIdealState, Tree, Dialog, Intent, Alert} from "@blueprintjs/core";
-import NewProfile from "./NewProfile";
+import {hot} from "react-hot-loader/root";
+import {NonIdealState, Intent, Alert} from "@blueprintjs/core";
 import ProfileEditor from "./ProfileEditor";
-import TopicEditor from "./TopicEditor";
+import SectionEditor from "./SectionEditor";
 import PropTypes from "prop-types";
-import Search from "../components/Search/Search";
-import CtxMenu from "../components/CtxMenu";
+import DimensionBuilder from "../profile/DimensionBuilder";
+import Button from "../components/fields/Button";
+import CtxMenu from "../components/interface/CtxMenu";
+import SidebarTree from "../components/interface/SidebarTree";
+import Header from "../components/interface/Header";
+import Toolbox from "../components/interface/Toolbox";
+import nestedObjectAssign from "../utils/nestedObjectAssign";
+import sectionIconLookup from "../utils/sectionIconLookup";
+import toKebabCase from "../utils/formatters/toKebabCase";
 
-import varSwap from "../utils/varSwap";
+import varSwapRecursive from "../utils/varSwapRecursive";
 
 import deepClone from "../utils/deepClone.js";
 
 import "./ProfileBuilder.css";
 
-const topicIcons = {
+const sectionIcons = {
   Card: "square",
-  Column: "list",
+  SingleColumn: "list",
   Tabs: "folder-close",
-  TextViz: "list-detail-view"
+  Default: "list-detail-view"
 };
 
 class ProfileBuilder extends Component {
@@ -30,10 +37,19 @@ class ProfileBuilder extends Component {
       nodes: null,
       profiles: null,
       currentNode: null,
-      currentSlug: null,
+      currentPid: null,
       variablesHash: {},
-      preview: "",
-      cubeData: {}
+      selectors: [],
+      previews: [],
+      cubeData: {},
+      query: {}
+    };
+  }
+
+  getChildContext() {
+    return {
+      onSetVariables: this.onSetVariables.bind(this),
+      onSelectPreview: this.onSelectPreview.bind(this)
     };
   }
 
@@ -49,9 +65,8 @@ class ProfileBuilder extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.locale !== this.props.locale) {
-      const {currentSlug, currentNode} = this.state;
-      const id = currentNode ? currentNode.id : null;
-      if (currentSlug) this.fetchVariables.bind(this)(currentSlug, id, true);
+      const {currentPid} = this.state;
+      if (currentPid) this.fetchVariables.bind(this)(true);
     }
   }
 
@@ -69,40 +84,54 @@ class ProfileBuilder extends Component {
     const {profiles} = this.state;
     const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters[localeDefault];
-    // const {profileSlug, topicSlug} = this.props.pathObj;
     const nodes = profiles.map(p => ({
       id: `profile${p.id}`,
       hasCaret: true,
-      label: p.slug,
+      label: p.meta.length > 0 ? p.meta.map(d => d.slug).join("_") : "Add Dimensions",
       itemType: "profile",
-      masterSlug: p.slug,
-      masterDimension: p.dimension,
-      masterLevels: p.levels,
+      masterPid: p.id,
+      masterMeta: p.meta,
       data: p,
-      childNodes: p.topics.map(t => {
-        const defCon = t.content.find(c => c.lang === localeDefault);
+      childNodes: p.sections.map(t => {
+        const defCon = t.content.find(c => c.locale === localeDefault);
         const title = defCon && defCon.title ? defCon.title : t.slug;
         return {
-          id: `topic${t.id}`,
+          id: `section${t.id}`,
           hasCaret: false,
           label: this.decode(stripHTML(title)),
-          itemType: "topic",
-          masterSlug: p.slug,
-          masterDimension: p.dimension,
-          masterLevels: p.levels,
-          data: t
+          itemType: "section",
+          masterPid: p.id,
+          masterMeta: p.meta,
+          data: t,
+          icon: sectionIconLookup(t.type, t.sticky),
+          className: `${toKebabCase(t.type)}-node`
         };
       })
     }));
     if (!openNode) {
-      this.setState({nodes});
+      const {profile, section} = this.props.pathObj;
+      if (section) {
+        const nodeToOpen = this.locateNode("section", section, nodes);
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+      else if (profile) {
+        const nodeToOpen = this.locateNode("profile", profile, nodes);
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+      else {
+        this.setState({nodes});
+      }
     }
     else {
-      let nodeToOpen = nodes[0];
-      /*if (profileSlug) {
-        nodeToOpen = nodes.find(p => p.data.slug === profileSlug);
-      }*/
-      this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      if (typeof openNode !== "boolean") {
+        const nodeToOpen = this.locateProfileNodeByPid(openNode);
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+      else {
+        const nodeToOpen = nodes[0];
+        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+      }
+
     }
   }
 
@@ -118,7 +147,7 @@ class ProfileBuilder extends Component {
     const sorter = (a, b) => a.data.ordering - b.data.ordering;
     n = this.locateNode(n.itemType, n.data.id);
     let parentArray;
-    if (n.itemType === "topic") parentArray = this.locateNode("profile", n.data.profile_id).childNodes;
+    if (n.itemType === "section") parentArray = this.locateNode("profile", n.data.profile_id).childNodes;
     if (n.itemType === "profile") parentArray = nodes;
     if (dir === "up") {
       const old = parentArray.find(node => node.data.ordering === n.data.ordering - 1);
@@ -138,30 +167,19 @@ class ProfileBuilder extends Component {
     this.setState({nodes});
   }
 
+  /**
+   * addItem is only ever used for sections, so lots of section-based assumptions are
+   * made here. if this is ever expanded out again to be a generic "item" adder
+   * then this will need to be generalized.
+   */
   addItem(n, dir) {
     const {nodes} = this.state;
-    const {variablesHash, currentSlug} = this.state;
     const {localeDefault} = this.props;
-    const formatters = this.context.formatters[localeDefault];
-    const {stripHTML} = formatters;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
     n = this.locateNode(n.itemType, n.data.id);
-    let parent;
-    let parentArray;
-    // For topics, it is sufficient to find the Actual Parent - this parent will have
-    // a masterSlug that the newly added item should share
-    if (n.itemType === "topic") {
-      parent = this.locateNode("profile", n.data.profile_id);
-      parentArray = parent.childNodes;
-    }
-    // However, if the user is adding a new profile, there is no top-level profile parent whose slug trickles down,
-    // therefore we must make a small fake object whose only prop is masterSlug. This is used only so that when we
-    // build the new Profile Tree Object, we can set the masterSlug of both new elements (profile, topic)
-    // to "parent.masterSlug" and have that correctly reflect the stub object.
-    else if (n.itemType === "profile") {
-      parent = {masterSlug: "new-profile-slug"};
-      parentArray = nodes;
-    }
+
+    const parent = this.locateNode("profile", n.data.profile_id);
+    const parentArray = parent.childNodes;
+
     let loc = n.data.ordering;
     if (dir === "above") {
       for (const node of parentArray) {
@@ -181,89 +199,37 @@ class ProfileBuilder extends Component {
       }
     }
 
-    // New Topics need to inherit their masterDimension from their parent.
-    // This is not necessary for profiles, as profiles are now only added through the
-    // search scaffold (see onCreateProfile)
+    // New sections need to inherit their masterDimension from their parent.
 
-    const objTopic = {
+    const obj = {
       hasCaret: false,
-      itemType: "topic",
+      itemType: "section",
       data: {}
     };
-    objTopic.data.profile_id = n.data.profile_id;
-    objTopic.data.ordering = loc;
-    objTopic.masterSlug = parent.masterSlug;
-    objTopic.masterDimension = parent.masterDimension;
-    objTopic.masterLevels = parent.masterLevels;
+    obj.data.profile_id = n.data.profile_id;
+    obj.data.ordering = loc;
+    obj.masterPid = parent.masterPid;
+    obj.masterMeta = parent.masterMeta;
 
-    const objProfile = {
-      hasCaret: true,
-      itemType: "profile",
-      data: {}
-    };
-    objProfile.data.ordering = loc;
-    objProfile.masterSlug = parent.masterSlug;
-
-    let obj = null;
-
-    if (n.itemType === "topic") {
-      obj = objTopic;
-    }
-    if (n.itemType === "profile") {
-      obj = objProfile;
-      objTopic.data.ordering = 0;
-      obj.childNodes = [objTopic];
-    }
-  
-    if (obj) {
-
-      const profilePath = "/api/cms/profile/new";
-      const topicPath = "/api/cms/topic/new";
-
-      if (n.itemType === "topic") {
-        axios.post(topicPath, obj.data).then(topic => {
-          if (topic.status === 200) {
-            obj.id = `topic${topic.data.id}`;
-            obj.data = topic.data;
-            const defCon = topic.data.content.find(c => c.lang === localeDefault);
-            const title = defCon && defCon.title ? defCon.title : topic.slug;
-            obj.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
-            const parent = this.locateNode("profile", obj.data.profile_id);
-            parent.childNodes.push(obj);
-            parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
-            this.setState({nodes}, this.handleNodeClick.bind(this, obj));
-          }
-          else {
-            console.log("topic error");
-          }
-        });
+    const sectionPath = "/api/cms/section/new";
+    axios.post(sectionPath, obj.data).then(section => {
+      if (section.status === 200) {
+        obj.id = `section${section.data.id}`;
+        obj.data = section.data;
+        obj.icon = sectionIconLookup(section.data.type, section.data.sticky);
+        obj.className = `${toKebabCase(section.data.type)}-node`;
+        const defCon = section.data.content.find(c => c.locale === localeDefault);
+        const title = defCon && defCon.title ? defCon.title : section.slug;
+        obj.label = this.formatLabel.bind(this)(title);
+        const parent = this.locateNode("profile", obj.data.profile_id);
+        parent.childNodes.push(obj);
+        parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
+        this.setState({nodes}, this.handleNodeClick.bind(this, obj));
       }
-      else if (n.itemType === "profile") {
-        axios.post(profilePath, obj.data).then(profile => {
-          obj.id = `profile${profile.data.id}`;
-          obj.data = profile.data;
-          // obj.label = varSwap(this.decode(stripHTML(obj.data.title)), formatters, variables);
-          obj.label = obj.data.slug;
-          objTopic.data.profile_id = profile.data.id;
-          axios.post(topicPath, objTopic.data).then(topic => {
-            if (topic.status === 200) {
-              objTopic.id = `topic${topic.data.id}`;
-              objTopic.data = topic.data;
-              const defCon = topic.data.content.find(c => c.lang === localeDefault);
-              const title = defCon && defCon.title ? defCon.title : topic.data.slug;
-              objTopic.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
-              const parent = this.locateNode("profile", obj.data.profile_id);
-              parent.childNodes.push(obj);
-              parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
-              this.setState({nodes}, this.handleNodeClick.bind(this, obj));
-            }
-            else {
-              console.log("profile error");
-            }
-          });
-        });
+      else {
+        console.log("section error");
       }
-    }
+    });
   }
 
   confirmDelete(n) {
@@ -273,29 +239,29 @@ class ProfileBuilder extends Component {
   deleteItem(n) {
     const {nodes} = this.state;
     const {localeDefault} = this.props;
-    const {stripHTML} = this.context.formatters[localeDefault];
     // If this method is running, then the user has clicked "Confirm" in the Deletion Alert. Setting the state of
     // nodeToDelete back to false will close the Alert popover.
     const nodeToDelete = false;
     n = this.locateNode(n.itemType, n.data.id);
     // todo: instead of the piecemeal refreshes being done for each of these tiers - is it sufficient to run buildNodes again?
-    if (n.itemType === "topic") {
+    if (n.itemType === "section") {
       const parent = this.locateNode("profile", n.data.profile_id);
-      axios.delete("/api/cms/topic/delete", {params: {id: n.data.id}}).then(resp => {
-        const topics = resp.data.map(topicData => {
-          const defCon = topicData.content.find(c => c.lang === localeDefault);
-          const title = defCon && defCon.title ? defCon.title : topicData.slug;
+      axios.delete("/api/cms/section/delete", {params: {id: n.data.id}}).then(resp => {
+        const sections = resp.data.map(sectionData => {
+          const defCon = sectionData.content.find(c => c.locale === localeDefault);
+          const title = defCon && defCon.title ? defCon.title : sectionData.slug;
           return {
-            id: `topic${topicData.id}`,
+            id: `section${sectionData.id}`,
             hasCaret: false,
-            iconName: topicIcons[topicData.type] || "help",
-            label: this.decode(stripHTML(title)),
-            itemType: "topic",
-            masterSlug: parent.masterSlug,
-            data: topicData
+            iconName: sectionIcons[sectionData.type] || "help",
+            label: this.formatLabel.bind(this)(title),
+            itemType: "section",
+            masterPid: parent.masterPid,
+            masterMeta: parent.masterMeta,
+            data: sectionData
           };
         });
-        parent.childNodes = topics;
+        parent.childNodes = sections;
         this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
       });
     }
@@ -309,15 +275,24 @@ class ProfileBuilder extends Component {
 
   handleNodeClick(node) {
     node = this.locateNode(node.itemType, node.data.id);
-    const {nodes, currentNode} = this.state;
+    const {nodes, currentNode, previews} = this.state;
     let parentLength = 0;
-    if (node.itemType === "topic") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
+    if (node.itemType === "section") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
     if (node.itemType === "profile") parentLength = nodes.length;
     if (!currentNode) {
       node.isSelected = true;
+      // If the node has a parent, it's a section. Expand its parent profile so we can see it.
+      if (node.parent) node.parent.isExpanded = true;
+      node.isExpanded = true;
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
     else if (node.id !== currentNode.id) {
+      // close all profile nodes
+      if (node.itemType === "profile") {
+        nodes.filter(n => n.id !== node.id).forEach(node => node.isExpanded = false);
+      }
+      // select & expand the current node
+      node.isExpanded = true;
       node.isSelected = true;
       currentNode.isSelected = false;
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
@@ -327,20 +302,47 @@ class ProfileBuilder extends Component {
     else if (currentNode && node.id === currentNode.id) {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
-    if (this.props.setPath) this.props.setPath(node);
-    // If the slugs match, the master profile is the same, so keep the same preview
-    if (this.state.currentSlug === node.masterSlug) {
+    const pathObj = {
+      profile: node.itemType === "profile" ? node.data.id : node.parent.data.id,
+      section: node.itemType === "section" ? node.data.id : undefined
+    };
+    // If the pids match, the master profile is the same, so keep the same preview
+    if (this.state.currentPid === node.masterPid) {
+      pathObj.previews = previews;
+      this.context.setPath(pathObj);
       this.setState({currentNode: node});
     }
-    // If they don't match, update the currentSlug and reset the preview
+    // If they don't match, update the currentPid and reset the preview
     else {
       // An empty search string will automatically provide the highest z-index results.
       // Use this to auto-populate the preview when the user changes profiles.
-      const levels = node.masterLevels ? node.masterLevels.join() : false;
-      const levelString = levels ? `&levels=${levels}` : "";
-      axios.get(`/api/search?q=&dimension=${node.masterDimension}${levelString}`).then(resp => {
-        const preview = resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "";
-        this.setState({currentNode: node, currentSlug: node.masterSlug, preview});
+      const requests = node.masterMeta.map((meta, i) => {
+        const levels = meta.levels ? meta.levels.join() : false;
+        const levelString = levels ? `&levels=${levels}` : "";
+        let url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
+        const ps = this.props.pathObj.previews;
+        // If previews is of type string, then it came from the URL permalink. Override
+        // The search to manually choose the exact id for each dimension.
+        if (typeof ps === "string") {
+          const ids = ps.split(",");
+          const id = ids[i];
+          if (id) url += `&id=${id}`;
+        }
+        return axios.get(url);
+      });
+      const previews = [];
+      Promise.all(requests).then(resps => {
+        resps.forEach((resp, i) => {
+          previews.push({
+            slug: node.masterMeta[i].slug,
+            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
+            name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
+            memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
+          });
+        });
+        pathObj.previews = previews;
+        this.context.setPath(pathObj);
+        this.setState({currentNode: node, currentPid: node.masterPid, previews});
       });
     }
   }
@@ -358,100 +360,173 @@ class ProfileBuilder extends Component {
   /**
    *
    */
-  locateProfileNodeBySlug(slug) {
-    return this.state.nodes.find(p => p.data.slug === slug);
+  locateProfileNodeByPid(pid) {
+    return this.state.nodes.find(p => p.data.id === pid);
   }
 
-  /**
-   * Called by the NewProfile Modal Popover. profileData contains special metadata that will need to be passed to
-   * a script that will populate the search table with the appropriate entities.
-   */
-  onCreateProfile(profileData) {
-    profileData.ordering = this.state.nodes.length;
+  createProfile() {
+    const profileData = {
+      ordering: this.state.nodes.length
+    };
     axios.post("/api/cms/profile/newScaffold", profileData).then(resp => {
       const profiles = resp.data;
-      const profileModalOpen = false;
-      this.setState({profiles, profileModalOpen}, this.buildNodes.bind(this));
+      this.setState({profiles}, this.buildNodes.bind(this));
     });
+
+    // wait for the new node to be created
+    setTimeout(() => {
+      // get the last node
+      const {nodes} = this.state;
+      const latestNode = nodes[nodes.length - 1];
+      // switch to the new node
+      this.handleNodeClick(latestNode);
+    }, 70);
   }
 
   /**
-   * Given a node type (profile, topic) and an id, crawl down the tree and fetch a reference to the Tree node with that id
+   * Given a node type (profile, section) and an id, crawl down the tree and fetch a reference to the Tree node with that id
    */
-  locateNode(type, id) {
-    const {nodes} = this.state;
+  locateNode(type, id, pnodes) {
+    const nodes = pnodes || this.state.nodes;
     let node = null;
     if (type === "profile") {
-      node = nodes.find(p => p.data.id === id);
+      node = nodes.find(p => Number(p.data.id) === Number(id));
     }
-    else if (type === "topic") {
+    else if (type === "section") {
       nodes.forEach(p => {
-        const attempt = p.childNodes.find(t => t.data.id === id);
-        if (attempt) node = attempt;
+        const attempt = p.childNodes.find(t => Number(t.data.id) === Number(id));
+        if (attempt) {
+          node = attempt;
+          node.parent = nodes.find(p => Number(p.data.id) === Number(node.masterPid)); // add parent to node
+        }
       });
     }
     return node;
   }
 
   /**
-   * If a save occurred in one of the editors, the user may have changed the slug/title. This callback is responsible for
-   * updating the tree labels accordingly. If the user has changed a slug, the "masterSlug" reference that ALL children
-   * of a profile use must be recursively updated as well.
+   * If a save occurred in the SectionEditor, the user may have changed the slug/title. This callback is responsible for
+   * updating the tree labels accordingly.
    */
-  reportSave(type, id, newValue) {
+  reportSave(id, newValue) {
     const {nodes} = this.state;
-    const {variablesHash, currentSlug} = this.state;
+    const {localeDefault} = this.props;
+    const node = this.locateNode.bind(this)("section", id);
+    // Update the label based on the new value.
+    if (node) {
+      const defCon = node.data.content.find(c => c.locale === localeDefault);
+      if (defCon) defCon.title = newValue;
+      // todo: determine if this could be merged with formatTreeVariables
+      node.label = this.formatLabel.bind(this)(newValue);
+    }
+    this.setState({nodes});
+  }
+
+  onAddDimension(data) {
+    const {currentPid, currentNode} = this.state;
+    const ordering = currentNode.masterMeta.length;
+    const payload = Object.assign({}, data, {profile_id: currentPid, ordering});
+    axios.post("/api/cms/profile/addDimension", payload).then(resp => {
+      const profiles = resp.data;
+      const thisProfile = profiles.find(p => p.id === currentPid);
+      const masterMeta = thisProfile.meta;
+      const requests = masterMeta.map(meta => {
+        const levels = meta.levels ? meta.levels.join() : false;
+        const levelString = levels ? `&levels=${levels}` : "";
+        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
+        return axios.get(url);
+      });
+      const previews = [];
+      Promise.all(requests).then(resps => {
+        resps.forEach((resp, i) => {
+          previews.push({
+            slug: masterMeta[i].slug,
+            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
+            name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
+            memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
+          });
+        });
+        this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
+      });
+    });
+  }
+
+  onDeleteDimension(profiles) {
+    const {currentPid} = this.state;
+    const thisProfile = profiles.find(p => p.id === currentPid);
+    const masterMeta = thisProfile.meta;
+    const requests = masterMeta.map(meta => {
+      const levels = meta.levels ? meta.levels.join() : false;
+      const levelString = levels ? `&levels=${levels}` : "";
+      const url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
+      return axios.get(url);
+    });
+    const previews = [];
+    Promise.all(requests).then(resps => {
+      resps.forEach((resp, i) => {
+        previews.push({
+          slug: masterMeta[i].slug,
+          id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
+          name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
+          memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
+        });
+      });
+      this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
+    });
+  }
+
+  formatLabel(str) {
+    const {variablesHash, currentPid, query, selectors} = this.state;
     const {localeDefault} = this.props;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
-    const node = this.locateNode.bind(this)(type, id);
-    // Update the label based on the new value. If this is a topic, this is the only thing needed
-    if (type === "topic" && node) {
-      const defCon = node.data.content.find(c => c.lang === localeDefault);
-      if (defCon) defCon.title = newValue;
-      // todo: determine if this could be merged with formatTreeVariables
-      node.label = varSwap(this.decode(stripHTML(newValue)), formatters, variables);
-    }
-    // However, if this is a profile changing its slug, then all children must be informed so their masterSlug is up to date.
-    if (type === "profile") {
-      node.masterSlug = newValue;
-      node.data.slug = newValue;
-      node.label = newValue;
-      node.childNodes = node.childNodes.map(t => {
-        t.masterSlug = newValue;
-        return t;
-      });
-    }
-    this.setState({nodes});
+    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : {};
+    str = this.decode(stripHTML(str));
+    str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
+    // str =  <span dangerouslySetInnerHTML={{__html: varSwapRecursive({str, selectors}, formatters, variables, query).str}} />;
+    return str;
   }
 
   /*
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
-  onSelectPreview(preview) {
-    this.setState({preview: preview.id});
+  onSelectPreview(newPreview) {
+    const {pathObj} = this.props;
+    const previews = this.state.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
+    this.context.setPath(Object.assign({}, pathObj, {previews}));
+    this.setState({previews}, this.fetchVariables.bind(this, true));
   }
 
   /*
-   * When the function "fetchVariables" is called (below), it means that something has
+   * Callback for SectionEditor.jsx, when the user selects a dropdown in SelectorUsage.
+   */
+  onSelect(query) {
+    this.setState({query}, this.formatTreeVariables.bind(this));
+  }
+
+  /*
+   * Callback for updating selectors inside Toolbox
+   */
+  updateSelectors(selectors) {
+    this.setState({selectors});
+  }
+
+  /*
+   * When the "fetch Variables" function is called (below), it means that something has
    * happened in one of the editors that requires re-running the generators and storing
    * a new set of variables in the hash. When this happens, it is an opportunity to update
    * all the labels in the tree by varSwapping them, allowing them to appear properly
    * in the sidebar.
    */
   formatTreeVariables() {
-    const {variablesHash, currentSlug, nodes} = this.state;
+    const {currentPid, nodes} = this.state;
     const {localeDefault} = this.props;
-    const formatters = this.context.formatters[localeDefault];
-    const {stripHTML} = formatters;
-    const variables = variablesHash[currentSlug] && variablesHash[currentSlug][localeDefault] ? deepClone(variablesHash[currentSlug][localeDefault]) : null;
-    const p = this.locateProfileNodeBySlug(currentSlug);
-    p.label = varSwap(p.data.slug, formatters, variables);
+    const p = this.locateProfileNodeByPid(currentPid);
+    p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions";
     p.childNodes = p.childNodes.map(t => {
-      const defCon = t.data.content.find(c => c.lang === localeDefault);
+      const defCon = t.data.content.find(c => c.locale === localeDefault);
       const title = defCon && defCon.title ? defCon.title : t.data.slug;
-      t.label = varSwap(this.decode(stripHTML(title)), formatters, variables);
+      t.label = this.formatLabel.bind(this)(title);
       return t;
     });
     this.setState({nodes});
@@ -461,140 +536,244 @@ class ProfileBuilder extends Component {
    * Certain events in the Editors, such as saving a generator, can change the resulting
    * variables object. In order to ensure that this new variables object is passed down to
    * all the editors, each editor has a callback that accesses this function. We store the
-   * variables object in a hash that is keyed by the slug, so we don't re-run the get if
+   * variables object in a hash that is keyed by the profile id, so we don't re-run the get if
    * the variables are already there. However, we provide a "force" option, which editors
-   * can use to say "trust me, I've changed something, you need to re-get the variables get"
+   * can use to say "trust me, I've changed something, you need to re-do the variables get"
    */
-  fetchVariables(slug, id, force, callback) {
-    const {variablesHash} = this.state;
+  fetchVariables(force, callback, query) {
+    const {variablesHash, currentPid, previews} = this.state;
     const {locale, localeDefault} = this.props;
     const maybeCallback = () => {
       if (callback) callback();
       this.formatTreeVariables.bind(this)();
     };
-    if (force || !variablesHash[slug] || variablesHash[slug] && locale && !variablesHash[slug][locale]) {
-      if (id) {
-        axios.get(`/api/variables/${slug}/${id}?locale=${localeDefault}`).then(def => {
-          const defObj = {[localeDefault]: def.data};
-          if (!variablesHash[slug]) {
-            variablesHash[slug] = defObj;
-          }
-          else {
-            variablesHash[slug] = Object.assign(variablesHash[slug], defObj);
-          }
-          if (locale) {
-            axios.get(`/api/variables/${slug}/${id}?locale=${locale}`).then(loc => {
-              const locObj = {[locale]: loc.data};
-              variablesHash[slug] = Object.assign(variablesHash[slug], locObj);
-              this.setState({variablesHash}, maybeCallback);
-            });
-          }
-          else {
-            this.setState({variablesHash}, maybeCallback);
-          }
+    if (force || !variablesHash[currentPid] || variablesHash[currentPid] && locale && !variablesHash[currentPid][locale]) {
+      let url = `/api/variables/${currentPid}/?locale=${localeDefault}`;
+      previews.forEach((p, i) => {
+        url += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+      });
+      if (query) {
+        Object.keys(query).forEach(k => {
+          url += `&${k}=${query[k]}`;
         });
       }
-      else {
-        variablesHash[slug][localeDefault] = {_genStatus: {}, _matStatus: {}};
-        if (locale) variablesHash[slug][locale] = {_genStatus: {}, _matStatus: {}};
-        this.setState({variablesHash}, maybeCallback);
-      }
+      axios.get(url).then(def => {
+        const defObj = {[localeDefault]: def.data};
+        if (!variablesHash[currentPid]) {
+          variablesHash[currentPid] = defObj;
+        }
+        else {
+          // If query.generator was specified, then we are here because an
+          // onSave event Fired. Though we eventually do a nestedObjectAssign
+          // (See below) this is not sufficient if the user DELETED any keys.
+          // Compare the gen status and "pre-delete" the missing keys before
+          // the nestedObjectAssign runs.
+          if (query && query.generator) {
+            const theseVars = variablesHash[currentPid][localeDefault];
+            const current = theseVars._genStatus[query.generator];
+            const incoming = defObj[localeDefault]._genStatus[query.generator];
+            Object.keys(current).forEach(key => {
+              if (current[key] && !incoming.key) {
+                delete theseVars[key];
+                delete current[key];
+              }
+            });
+          }
+          // Further, for any given _genStatus or _matStatus that is incoming,
+          // if the incoming version has no error, we must CLEAR the error from
+          // the current state of the variables.
+          if (variablesHash[currentPid][localeDefault]) {
+            ["_genStatus", "_matStatus"].forEach(status => {
+              const incGens = defObj[localeDefault][status];
+              const curGens = variablesHash[currentPid][localeDefault][status];
+              Object.keys(incGens).forEach(id => {
+                if (!incGens[id].error && curGens[id]) delete curGens[id].error;
+              });
+            });
+          }
+          variablesHash[currentPid] = nestedObjectAssign(variablesHash[currentPid], defObj);
+        }
+        if (locale) {
+          let lurl = `/api/variables/${currentPid}/?locale=${locale}`;
+          previews.forEach((p, i) => {
+            lurl += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+          });
+          if (query) {
+            Object.keys(query).forEach(k => {
+              lurl += `&${k}=${query[k]}`;
+            });
+          }
+          axios.get(lurl).then(loc => {
+            const locObj = {[locale]: loc.data};
+            if (query && query.generator) {
+              const theseVars = variablesHash[currentPid][locale];
+              const current = theseVars._genStatus[query.generator];
+              const incoming = locObj[locale]._genStatus[query.generator];
+              Object.keys(current).forEach(key => {
+                if (current[key] && !incoming.key) {
+                  delete theseVars[key];
+                  delete current[key];
+                }
+              });
+            }
+            if (variablesHash[currentPid][locale]) {
+              ["_genStatus", "_matStatus"].forEach(status => {
+                const incGens = locObj[locale][status];
+                const curGens = variablesHash[currentPid][locale][status];
+                Object.keys(incGens).forEach(id => {
+                  if (!incGens[id].error && curGens[id]) delete curGens[id].error;
+                });
+              });
+            }
+            variablesHash[currentPid] = nestedObjectAssign(variablesHash[currentPid], locObj);
+            this.setState({variablesHash}, maybeCallback);
+          });
+        }
+        else {
+          this.setState({variablesHash}, maybeCallback);
+        }
+      });
     }
     else {
       this.setState({variablesHash}, maybeCallback);
     }
   }
 
+  /**
+   * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
+   * and overrides/sets a variable in the variables object. This does not require a server
+   * round-trip - we need only inject the variables object and trigger a re-render.
+   */
+  onSetVariables(newVariables) {
+    const {variablesHash, currentPid} = this.state;
+    // Users should ONLY call setVariables in a callback - never in the main execution, as this
+    // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
+    // loop by checking if the vars are in there already, only updating if they are not yet set.
+    const alreadySet = Object.keys(variablesHash[currentPid]).every(locale =>
+      Object.keys(newVariables).every(key => variablesHash[currentPid][locale][key] === newVariables[key])
+    );
+    if (!alreadySet) {
+      Object.keys(variablesHash[currentPid]).forEach(locale => {
+        variablesHash[currentPid][locale] = Object.assign({}, variablesHash[currentPid][locale], newVariables);
+      });
+      this.setState({variablesHash});
+    }
+  }
+
   render() {
 
-    const {nodes, currentNode, variablesHash, currentSlug, preview, profileModalOpen, cubeData, nodeToDelete} = this.state;
+    const {nodes, currentNode, variablesHash, currentPid, previews, profiles, cubeData, nodeToDelete, selectors} = this.state;
     const {locale, localeDefault} = this.props;
 
-    if (!nodes) return <div>Loading</div>;
+    if (!nodes) return null;
 
-    const variables = variablesHash[currentSlug] ? deepClone(variablesHash[currentSlug]) : null;
+    const variables = variablesHash[currentPid] ? deepClone(variablesHash[currentPid]) : null;
 
-    let profileSearch = "";
-    if (currentNode && currentSlug) {
-      profileSearch =
-        <div className="cms-profile-search bp3-label">
-          {preview ? `Current data ID: ${preview}` : "Preview profile"}
-          <Search
-            render={d => <span onClick={this.onSelectPreview.bind(this, d)}>{d.name}</span>}
-            dimension={currentNode.masterDimension}
-            levels={currentNode.masterLevels}
-            limit={20}
-          />
-        </div>;
-    }
-
-    const editorTypes = {profile: ProfileEditor, topic: TopicEditor};
+    const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
 
+    // get current node order; used for showing hero section in section layout list
+    let currNodeOrder;
+    if (currentNode && currentNode.data) currNodeOrder = currentNode.data.ordering;
+
     return (
+      <React.Fragment>
+        <div className="cms-panel profile-panel" id="profile-builder">
+          <div className="cms-sidebar" id="tree">
+            {/* new entity */}
+            <div className="cms-button-container">
+              <Button
+                onClick={this.createProfile.bind(this)}
+                namespace="cms"
+                className="cms-add-profile-button"
+                fontSize="xxs"
+                icon="plus"
+                iconPosition="right"
+                fill
+              >
+                add profile
+              </Button>
+            </div>
 
-      <div className="cms-panel profile-panel" id="profile-builder">
-        <div className="cms-sidebar" id="tree">
+            <SidebarTree
+              onNodeClick={this.handleNodeClick.bind(this)}
+              onNodeCollapse={this.handleNodeCollapse.bind(this)}
+              onNodeExpand={this.handleNodeExpand.bind(this)}
+              contents={nodes}
+            />
+          </div>
 
-          {/* new entity */}
-          <button className="cms-button"
-            onClick={() => this.setState({profileModalOpen: true})}>
-              Add profile <span className="bp3-icon bp3-icon-plus" />
-          </button>
+          <div className="cms-editor" id="item-editor">
+            { currentNode
+              ? <Editor
+                id={currentNode.data.id}
+                locale={locale}
+                localeDefault={localeDefault}
+                previews={previews}
+                onSetVariables={this.onSetVariables.bind(this)}
+                variables={variables}
+                selectors={selectors}
+                order={currNodeOrder}
+                onSelect={this.onSelect.bind(this)}
+                reportSave={this.reportSave.bind(this)}
+              >
+                <Header
+                  title={currentNode.label}
+                  parentTitle={currentNode.itemType !== "profile" &&
+                    currentNode.parent.label
+                  }
+                  dimensions={previews}
+                  slug={currentNode.data.slug}
+                />
 
-          <Tree
-            onNodeClick={this.handleNodeClick.bind(this)}
-            onNodeCollapse={this.handleNodeCollapse.bind(this)}
-            onNodeExpand={this.handleNodeExpand.bind(this)}
-            contents={nodes}
-          />
+                <DimensionBuilder
+                  cubeData={cubeData}
+                  meta={currentNode.masterMeta}
+                  takenSlugs={profiles.map(p => p.meta).reduce((acc, d) => acc.concat(d.map(m => m.slug)), [])}
+                  previews={previews}
+                  onAddDimension={this.onAddDimension.bind(this)}
+                  onDeleteDimension={this.onDeleteDimension.bind(this)}
+                />
+              </Editor>
+              : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
+            }
+          </div>
 
+          <Alert
+            isOpen={nodeToDelete}
+            cancelButtonText="Cancel"
+            confirmButtonText="Delete"
+            iconName="trash"
+            intent={Intent.DANGER}
+            onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
+            onCancel={() => this.setState({nodeToDelete: false})}
+          >
+            {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
+          </Alert>
         </div>
-        <Dialog
-          className="profileModal"
-          isOpen={profileModalOpen}
-          usePortal={false}
-          onClose={() => this.setState({profileModalOpen: false})}
-          title="Add New Profile"
-        >
-          <NewProfile cubeData={cubeData} onCreateProfile={this.onCreateProfile.bind(this)}/>
-        </Dialog>
-        <Alert
-          isOpen={nodeToDelete}
-          cancelButtonText="Cancel"
-          confirmButtonText="Delete"
-          iconName="trash"
-          intent={Intent.DANGER}
-          onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
-          onCancel={() => this.setState({nodeToDelete: false})}
-        >
-          {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
-        </Alert>
-        <div className="cms-editor" id="item-editor">
-          { currentNode
-            ? <Editor
-              id={currentNode.data.id}
-              locale={locale}
-              localeDefault={localeDefault}
-              masterSlug={currentNode.masterSlug}
-              preview={preview}
-              fetchVariables={this.fetchVariables.bind(this)}
-              variables={variables}
-              reportSave={this.reportSave.bind(this)}
-            >
-              {profileSearch}
-            </Editor>
-            : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
-          }
-        </div>
 
-      </div>
+        <Toolbox
+          id={currentPid}
+          locale={locale}
+          localeDefault={localeDefault}
+          updateSelectors={this.updateSelectors.bind(this)}
+          variables={variables}
+          fetchVariables={this.fetchVariables.bind(this)}
+          previews={previews}
+        />
+      </React.Fragment>
     );
   }
 }
 
-ProfileBuilder.contextTypes = {
-  formatters: PropTypes.object
+ProfileBuilder.childContextTypes = {
+  onSetVariables: PropTypes.func,
+  onSelectPreview: PropTypes.func
 };
 
-export default connect(state => ({env: state.env}))(ProfileBuilder);
+ProfileBuilder.contextTypes = {
+  formatters: PropTypes.object,
+  setPath: PropTypes.func
+};
+
+export default connect(state => ({env: state.env}))(hot(ProfileBuilder));

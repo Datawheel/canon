@@ -1,8 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
-import {Button, NonIdealState} from "@blueprintjs/core";
 import PropTypes from "prop-types";
-import Loading from "components/Loading";
+import Deck from "../components/interface/Deck";
 
 import GeneratorCard from "../components/cards/GeneratorCard";
 
@@ -46,31 +45,24 @@ class FormatterEditor extends Component {
     const {formatters} = this.state;
 
     return (
-      <div className="cms-panel formatter-panel" id="formatter-editor">
-        <div className="cms-editor">
-
-          <h2 className="cms-section-heading">
-            Formatters
-            <button className="cms-button cms-section-heading-button" onClick={this.addItem.bind(this)}>
-              <span className="bp3-icon bp3-icon-plus" />
-            </button>
-          </h2>
-          <p className="bp3-text-muted">Javascript Formatters for Canon text components.</p>
-          <div className="cms-card-list">
-            { formatters && formatters
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map(g => <GeneratorCard
-                key={g.id}
-                item={g}
-                onSave={this.onSave.bind(this)}
-                onDelete={this.onDelete.bind(this)}
-                type="formatter"
-                variables={{}}
-              />)
-            }
-          </div>
-        </div>
-      </div>
+      <Deck
+        title="Formatters"
+        entity="formatter"
+        addItem={this.addItem.bind(this)}
+        description="Javascript Formatters for Canon text components"
+        cards={formatters && formatters
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(g => <GeneratorCard
+            context="formatter"
+            key={g.id}
+            item={g}
+            onSave={this.onSave.bind(this)}
+            onDelete={this.onDelete.bind(this)}
+            type="formatter"
+            variables={{}}
+          />)
+        }
+      />
     );
   }
 }

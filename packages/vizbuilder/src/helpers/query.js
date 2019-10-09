@@ -2,13 +2,13 @@ import yn from "yn";
 
 import {fetchMembers} from "./fetch";
 import {
-  getCombinationsChoose2,
+  findByName,
   getMeasureMeta,
   getTimeLevel,
   getValidLevels,
   removeDuplicateLevels
 } from "./sorting";
-import {isGeoDimension, isValidGrouping, isValidCut} from "./validation";
+import {isGeoDimension, isValidGrouping} from "./validation";
 
 /**
  * Generates a partial state object, whose elements
@@ -17,7 +17,7 @@ import {isGeoDimension, isValidGrouping, isValidCut} from "./validation";
  * @param {Measure} measure The currently selected Measure
  */
 export function generateBaseState(cubes, measure, geomapLevels) {
-  const cubeName = measure.annotations._cb_name;
+  const cubeName = measure.annotations._vb_cbName;
   const cube = cubes.find(cube => cube.name === cubeName);
 
   const query = getMeasureMeta(cube, measure);
@@ -47,6 +47,14 @@ export function generateBaseState(cubes, measure, geomapLevels) {
   return {options, query, uiParams};
 }
 
+/**
+ * Updates the levels in the groupings of the current query with their namesake
+ * from the cube in newQuery. It also loads and updates the members in the
+ * respective groupings. If there's no level with the same name in the new cube,
+ * deletes the grouping.
+ * @param {VbQuery} query The old query to get the groupings from
+ * @param {VbQuery} newQuery The new query to get the new levels from
+ */
 export function replaceLevelsInGroupings(query, newQuery) {
   const newCube = newQuery.cube;
   const promises = query.groups.map(grouping => {
@@ -56,17 +64,17 @@ export function replaceLevelsInGroupings(query, newQuery) {
       return Promise.resolve(grouping);
     }
 
-    const dimensionName = level.hierarchy.dimension.name;
-    const targetDimension = newCube.dimensions.find(dim => dim.name === dimensionName);
-    console.log(targetDimension.cube.name, targetDimension.name);
-
-    const hierarchyName = level.hierarchy.name;
-    const targetHierarchy = targetDimension.hierarchies.find(hie => hie.name === hierarchyName);
-    console.log(targetHierarchy.dimension.cube.name, targetHierarchy.name);
-
-    const levelName = level.name;
-    const targetLevel = targetHierarchy.levels.find(lvl => lvl.name === levelName);
-    console.log(targetLevel.hierarchy.dimension.cube.name, targetLevel.name);
+    let targetDimension, targetHierarchy, targetLevel;
+    try {
+      const dimensionName = level.hierarchy.dimension.name;
+      targetDimension = newCube.dimensionsByName[dimensionName];
+      targetHierarchy =
+        findByName(level.hierarchy.name, targetDimension.hierarchies) ||
+        findByName(level.name, targetDimension.hierarchies);
+      targetLevel = targetHierarchy.getLevel(level.name);
+    } catch (e) {
+      return Promise.resolve(null);
+    }
 
     const memberList = grouping.members;
     let newGrouping = grouping.setLevel(targetLevel);
@@ -77,19 +85,18 @@ export function replaceLevelsInGroupings(query, newQuery) {
 
     return fetchMembers(newQuery, targetLevel).then(members => {
       const memberKeys = {};
-      for (let member, i = 0; member = members[i]; i++) {
+      for (let member, i = 0; (member = members[i]); i++) {
         memberKeys[member.key] = member;
       }
-      for (let member, i = 0; member = memberList[i]; i++) {
+      for (let member, i = 0; (member = memberList[i]); i++) {
         const newMember = memberKeys[member.key];
         newGrouping = newGrouping.addMember(newMember);
       }
-      console.log(newGrouping.level.hierarchy.dimension.cube.name, newGrouping.level.name)
       return newGrouping;
     });
   });
 
-  return Promise.all(promises);
+  return Promise.all(promises).then(newGroups => newGroups.filter(Boolean));
 }
 
 export function replaceMeasureInFilters(filters, cube) {
@@ -108,7 +115,7 @@ export function replaceMeasureInFilters(filters, cube) {
 export function replaceKeysInString(string, oldList, newList, property) {
   if (typeof string !== "string") return string;
 
-  property = property || 'key';
+  property = property || "key";
 
   for (let i = 0; i < newList.length; i++) {
     if (oldList[i][property] && newList[i][property]) {
@@ -132,8 +139,8 @@ export function generateQueries(params) {
   const validCuts = [];
   const cutMap = new WeakMap();
 
-  const totalGroups = params.groups.length;
-  for (let i = 0; i < totalGroups; i++) {
+  const groupsCount = params.groups.length;
+  for (let i = 0; i < groupsCount; i++) {
     const grouping = params.groups[i];
     if (isValidGrouping(grouping)) {
       validGroups.push(grouping);
@@ -141,69 +148,22 @@ export function generateQueries(params) {
       if (grouping.hasMembers) {
         validCuts.push(grouping);
         cutMap.set(grouping.level, grouping);
-      } else {
+      }
+      else {
         validNotCuts.push(grouping);
       }
     }
   }
-  /*
-  const totalValidGroups = validGroups.length;
 
-  for (let i = 0; i < totalValidGroups; i++) {
-    const grouping = validGroups[i];
-    const level = grouping.level;
+  const levels = validGroups.map(grp => grp.level);
 
-    queries.push({
-      ...params,
-      kind: "s",
-      level,
-      levels: [level],
-      cuts: [grouping].filter(isValidCut)
-    });
-  }
-
-  if (totalValidGroups > 1) {
-    const combinations = getCombinationsChoose2(validGroups);
-
-    while (true) {
-      const combination = combinations.next();
-      if (combination.done) break;
-
-      const groupings = combination.value;
-
-      queries.push({
-        ...params,
-        kind: "d",
-        level: groupings[0].level,
-        levels: groupings.map(grp => grp.level),
-        cuts: groupings.filter(isValidCut)
-      });
-    }
-  }
-*/
-  // if (validCuts.length > 0) {
-    let totalValidGroups = validGroups.length;
-    const ddGroups = [];
-    const ctGroups = [];
-
-    for (let i = 0; i < totalValidGroups; i++) {
-      const group = validGroups[i];
-      const target = group.hasMembers ? ctGroups : ddGroups;
-      target.push(group);
-    }
-
-    if (ddGroups.length === 0) {
-      ddGroups.push(validGroups[0]);
-    }
-
-    queries.push({
-      ...params,
-      kind: "c",
-      level: ddGroups[0].level,
-      levels: ddGroups.map(grp => grp.level),
-      cuts: ctGroups
-    });
-  // }
+  queries.push({
+    ...params,
+    kind: "c",
+    level: levels[0],
+    levels: levels,
+    cuts: validCuts
+  });
 
   return queries;
 }
@@ -216,10 +176,12 @@ export function generateQueries(params) {
 export function queryConverter(params, includeConfidenceInt) {
   const measures = [
     params.measure.name,
-    (includeConfidenceInt && params.moe) && params.moe.name,
-    (includeConfidenceInt && params.lci) && params.lci.name,
-    (includeConfidenceInt && params.uci) && params.uci.name
-  ].filter(Boolean);
+    includeConfidenceInt && params.moe && params.moe.name,
+    includeConfidenceInt && params.lci && params.lci.name,
+    includeConfidenceInt && params.uci && params.uci.name
+  ]
+    .concat(params.filters.map(filter => filter.name))
+    .filter(Boolean);
 
   const drilldownList = []
     .concat(params.levels, params.timeLevel)

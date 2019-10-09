@@ -1,0 +1,164 @@
+@import "../../css/mixins.css";
+
+/* THEMING */
+.cp-section {
+  color: var(--section-text-color);
+}
+/* section (or section grouping) backgrounds */
+.cp-main > *:nth-child(odd),
+.cp-main > *:only-child > *:nth-child(odd) {
+  background-color: var(--section-bg-odd);
+}
+.cp-main > *:nth-child(even),
+.cp-main > *:only-child > *:nth-child(even) {
+  background-color: var(--section-bg-even);
+}
+.cp-section-heading-wrapper {
+  display: flex;
+  align-items: baseline;
+
+  &:last-child > .cp-section-heading {
+    margin-bottom: 0;
+  }
+}
+.cp-section-heading {
+  margin-top: 0;
+  margin-left: -4rem; /* offset anchor */
+  padding-left: 2rem;
+  color: var(--section-heading-color);
+}
+.cp-section-heading-anchor {
+  width: 2rem;
+  min-width: 2rem;
+  text-align: center;
+  position: relative;
+  left: -1.5rem;
+  bottom: 1px;
+  order: -1;
+  font-size: var(--font-md);
+  color: var(--section-heading-color);
+  /* transitions */
+  opacity: 0;
+}
+.cp-section-heading:focus + .cp-section-heading-anchor,
+.cp-section-heading:hover + .cp-section-heading-anchor,
+.cp-section-heading-anchor:hover,
+.cp-section-heading-anchor:focus {
+  opacity: 1;
+}
+
+/* LAYOUT */
+.cp-section {
+  padding: var(--gutter-md);
+  overflow: hidden;
+  height: auto;
+
+  @mixin min-md {
+    padding-top: var(--gutter-lg);
+    padding-bottom: var(--gutter-lg);
+  }
+}
+
+.cp-section-inner {
+  width: var(--container-width);
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cp-section-content {
+  margin-bottom: 0.5em;
+}
+
+/* GRAPHICS */
+.cp-graphic-viz-grid[class] {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  text-align: center;
+
+  & > .cp-graphic-viz-container {
+    flex: 1 0 calc(33.333% - var(--gutter-md));
+    min-width: 8rem;
+    max-width: 100%;
+    padding: var(--gutter-sm);
+  }
+}
+
+/* STICKY */
+.cp-section.is-sticky {
+  background-color: var(--sticky-section-bg-color);
+
+  @mixin min-md {
+    position: relative; /* IE fallback */
+    position: sticky;
+    top: var(--sticky-section-offset);
+    z-index: 2;
+    padding-top: 0;
+    padding-bottom: 0;
+    /* theming */
+    box-shadow: var(--sticky-section-shadow);
+    /* layout */
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    height: var(--sticky-section-height);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+
+    /* hide scrollbar */
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      width: 0;
+      opacity: 0;
+      display: none;
+    }
+
+    /* scale down elements */
+    & .cp-section-heading {
+      @mixin font-sm;
+      /* fudge alignment */
+      position: relative;
+      top: -1px;
+    }
+
+    /* reset default layout */
+    & .cp-default-section-caption {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* further reset default layout */
+    & .cp-section-content > * {
+      display: inline-block;
+      vertical-align: middle;
+      width: auto;
+      margin: 0 var(--gutter-md) 0 0;
+
+      /* justified filters & heading */
+      &.cp-section-heading + * {
+        margin-left: auto;
+      }
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    /* make it work in IE */
+    &.ie-is-stuck {
+      position: fixed;
+      width: calc(100vw - var(--gutter-sm));
+      max-width: calc(100vw - var(--gutter-sm));
+      top: var(--sticky-section-offset);
+      z-index: 1;
+    }
+  }
+
+  @mixin ie-only {
+    top: 0;
+  }
+}

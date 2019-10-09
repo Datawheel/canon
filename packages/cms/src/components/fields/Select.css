@@ -1,0 +1,136 @@
+@import "../../css/mixins.css";
+
+/* shared select styles */
+.cp-select-label,
+.cms-select-label {
+  display: block;
+  &:not(:last-child) {
+    margin-bottom: 1em;
+  }
+}
+
+/* inline lable & select menu */
+.cp-inline-select-label,
+.cms-inline-select-label {
+  display: flex;
+  align-items: baseline;
+
+  & > .cp-select,
+  & > .cms-select {
+    flex: 1 1 auto;
+    padding-right: 1rem;
+  }
+
+  & > [class*="-select-text"] {
+    white-space: nowrap;
+    margin-right: 0.75em;
+  }
+}
+
+/* handle long labels */
+.cp-select-label > .cp-select-text,
+.cms-select-label > .cms-select-text {
+  display: inline-block;
+  line-height: 1.125;
+}
+
+/* the select menu itself */
+.cp-select,
+.cms-select {
+  /* reset select element browser defaults */
+  display: block;
+  width: 100%;
+  appearance: none;
+  /* sizing */
+  padding: var(--field-padding);
+  /* typography */
+  font-weight: var(--field-font-weight);
+  /* transitions */
+  transition: border-color 0.1s ease-out;
+
+  /* hide native IE select icon */
+  &::-ms-expand {
+    display: none;
+  }
+}
+
+/* ▾ */
+.cp-select-icon,
+.cms-select-icon {
+  /* positioning */
+  position: absolute !important;
+  bottom: 0.5em;
+  right: 0.25em;
+  z-index: 1; /* in front of select */
+  /* prevent from obscuring click */
+  pointer-events: none;
+
+  /* sized by label font-size */
+  &, & > svg {
+    width: 1.25em;
+    height: 1.25em;
+  }
+}
+
+
+/* admin panel context */
+.cms-select {
+  @mixin cms-button-theming;
+  border: 1px solid var(--light-3);
+  border-radius: 2px;
+  color: var(--dark-2);
+
+  @mixin dark-mode {
+    border-color: color(var(--black) a(0.333));
+    box-shadow:
+      0 1px 4px color(var(--black) a(0.333)),
+      0 4px 8px color(var(--black) a(0.2)),
+      inset 0 1px 0 color(var(--dark-2) a(0.333));
+    color: var(--gray);
+  }
+}
+
+/* ▾ */
+.cms-select-icon {
+  color: var(--dark-1);
+}
+
+/* interactions */
+.cms-select-label:hover .cms-select {
+  border-color: var(--dark-1);
+}
+.cms-select-label .cms-select:focus {
+  outline: none;
+  border-color: var(--accent-dark);
+}
+
+
+/* profile context */
+.cp-select-label {
+  position: relative;
+}
+.cp-select {
+  background: var(--select-bg-color); /* base */
+  background-image: linear-gradient(
+    180deg,
+    color(var(--field-border-color) a(0.02)) 0%,
+    color(var(--field-color) a(0.02)) 100%
+  );
+  border: var(--field-border-width) solid var(--field-border-color);
+  border-radius: var(--select-border-radius);
+  color: var(--field-color);
+}
+
+/* ▾ */
+.cp-select-icon {
+  color: var(--field-icon-color);
+}
+
+/* interactions */
+.cp-select-label:hover .cp-select {
+  border-color: var(--field-icon-color);
+}
+.cp-select-label .cp-select:focus {
+  outline: none;
+  border-color: var(--field-focus-color);
+}

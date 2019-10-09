@@ -25,3 +25,7 @@ subnav-size: 200px
 nested:
   color1: "red"
   color2: "black"
+
+nested-2:
+  color1: "green"
+  color2: "white"

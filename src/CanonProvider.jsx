@@ -11,6 +11,12 @@ import {Portal, Toaster} from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 
+/**
+blueprint tooltip IE fix; check that the window exists and that we're in IE first
+related issue: https://github.com/DataScienceSquad/open-compass/issues/247
+*/
+if (typeof window !== "undefined" && typeof document !== "undefined" && (/*@cc_on!@*/false || !!document.documentMode)) require("dom4"); // eslint-disable-line spaced-comment
+
 class CanonProvider extends Component {
 
   constructor(props) {

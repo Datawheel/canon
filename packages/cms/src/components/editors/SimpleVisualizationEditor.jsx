@@ -1,7 +1,11 @@
 import axios from "axios";
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
+import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
+import TextButtonGroup from "../fields/TextButtonGroup";
 
 import "./SimpleVisualizationEditor.css";
 
@@ -11,16 +15,19 @@ const vizLookup = {
   BumpChart: ["groupBy", "x", "y"],
   Donut: ["groupBy", "value"],
   Geomap: ["groupBy", "colorScale", "topojson"],
+  Graphic: ["label", "value", "subtitle", "imageURL"],
   LinePlot: ["groupBy", "x", "y"],
   PercentageBar: ["groupBy", "value"],
   Pie: ["groupBy", "value"],
   StackedArea: ["groupBy", "x", "y"],
-  Treemap: ["groupBy", "sum"]
+  Treemap: ["groupBy", "sum"],
+  Table: ["columns"]
 };
 
-const reservedWords = ["topojson"];
+const textFields = ["imageURL", "topojson"];
+const checkboxFields = ["columns"];
 
-export default class SimpleVisualizationEditor extends Component {
+class SimpleVisualizationEditor extends Component {
 
   constructor(props) {
     super(props);
@@ -55,15 +62,23 @@ export default class SimpleVisualizationEditor extends Component {
 
   firstBuild() {
     const {object} = this.state;
-    const {preview, variables} = this.props;
+    const {previews, variables, env} = this.props;
     const {data} = object;
     if (data) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value.
-      const url = urlSwap(data, Object.assign({}, variables, {id: preview}));
+      const lookup = {};
+      previews.forEach((p, i) => {
+        if (i === 0) {
+          lookup.id = p.id;
+        }
+        lookup[`id${i + 1}`] = p.id;
+      });
+      const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
+
         this.setState({payload}, this.compileCode.bind(this));
       }).catch(() => {
         console.log("API error");
@@ -90,7 +105,12 @@ export default class SimpleVisualizationEditor extends Component {
           return `\n  "${k}": \`${fixedUrl}\``;
         }
         else {
-          return `\n  "${k}": "${object[k]}"`;
+          if (k === "columns") {
+            return `\n "${k}": ${JSON.stringify(object[k])}`;
+          }
+          else {
+            return `\n  "${k}": "${object[k]}"`;
+          }
         }
       })
     }\n}`;
@@ -120,6 +140,19 @@ export default class SimpleVisualizationEditor extends Component {
     }
   }
 
+
+  onCheck(field) {
+    const {object} = this.state;
+
+    // if it's there, remove it
+    if (object.columns.find(col => col === field))  {
+      object.columns = object.columns.filter(col => col !== field);
+    }
+    else object.columns.push(field);
+
+    this.setState({object}, this.compileCode.bind(this));
+  }
+
   rebuild() {
     const {object} = this.state;
     const {data, type} = object;
@@ -131,19 +164,40 @@ export default class SimpleVisualizationEditor extends Component {
         type: object.type
       };
       if (vizLookup[type] && firstObj) {
-        vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
+        if (newObject.type === "Table") {
+          newObject.columns = Object.keys(firstObj);
+        }
+        else {
+          vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
+        }
       }
-      this.setState({payload, object: newObject, rebuildAlertOpen: false}, this.compileCode.bind(this));
+      this.setState({
+        payload,
+        object: newObject,
+        rebuildAlertOpen: false
+      }, this.compileCode.bind(this));
     }).catch(() => {
       console.log("API error");
     });
   }
 
   render() {
-
     const {object, rebuildAlertOpen, payload} = this.state;
-
+    const selectedColumns = object.columns || [];
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
+
+    let buttonProps = {
+      children: "Build",
+      disabled: true,
+      namespace: "cms"
+    };
+    if (object.data) {
+      buttonProps = {
+        children: payload.data ? "Rebuild" : "Build",
+        namespace: "cms",
+        onClick: this.maybeRebuild.bind(this)
+      };
+    }
 
     return <div className="cms-viz-editor">
       <Alert
@@ -160,53 +214,91 @@ export default class SimpleVisualizationEditor extends Component {
       </Alert>
 
       {/* data URL */}
-      <div className="cms-field-container">
-        <label className="label" htmlFor="data">Data</label>
-        <div className="cms-field-container-inline bp3-input-group">
-          <input key="data-url" className="bp3-input" value={object.data || ""} onChange={this.onChange.bind(this, "data")} id="data"/>
-          {object.data &&
-            <button key="button-build" className="cms-button bp3-button" onClick={this.maybeRebuild.bind(this)}>
-              {payload.data ? "Rebuild" : "Build"}
-            </button>
-          }
-        </div>
-      </div>
+      <TextButtonGroup
+        namespace="cms"
+        inputProps={{
+          label: "Data endpoint",
+          inline: true,
+          namespace: "cms",
+          value: object.data || "",
+          onChange: this.onChange.bind(this, "data")
+        }}
+        buttonProps={buttonProps}
+      />
 
-      <div className="cms-field-container">
-        Type
-        <div className="bp3-select">
-          <select value={object.type} onChange={this.onChange.bind(this, "type")}>
-            {Object.keys(vizLookup).map(type =>
-              <option key={type} value={type}>{type}</option>
-            )}
-          </select>
-        </div>
+      <div className="cms-field-group">
+        <Select
+          label="Visualization"
+          inline
+          namespace="cms"
+          value={object.type}
+          onChange={this.onChange.bind(this, "type")}
+        >
+          <option value="undefined" default>Select visualization type</option>
+          {Object.keys(vizLookup).map(type =>
+            <option key={type} value={type}>{type}</option>
+          )}
+        </Select>
+        <TextInput
+          label="Title"
+          namespace="cms"
+          inline
+          key="title-text"
+          value={object.title}
+          onChange={this.onChange.bind(this, "title")}
+        />
       </div>
-
 
       {payload.data &&
-        <ul className="viz-dropdown-list">
-          {
-            object.type &&
-              vizLookup[object.type].map(prop =>
-                <li key={prop}>
-                  {prop}:
-                  {reservedWords.includes(prop)
-                    ? <input key={prop} value={object[prop]} onChange={this.onChange.bind(this, prop)} />
-                    : <div className="bp3-select">
-                      <select value={object[prop]} onChange={this.onChange.bind(this, prop)}>
-                        {Object.keys(firstObj).map(type =>
-                          <option key={type} value={type}>{type}</option>
-                        )}
-                      </select>
-                    </div>
+        <div className="viz-select-group">
+          {object.type && vizLookup[object.type] && vizLookup[object.type].map(prop =>
+            // render prop as text input
+            textFields.includes(prop)
+              ? <TextInput
+                label={prop === "imageURL" ? "Image URL" : prop}
+                namespace="cms"
+                fontSize="xs"
+                key={prop}
+                value={object[prop]}
+                onChange={this.onChange.bind(this, prop)}
+              />
+
+              // render payload as checkboxes
+              : checkboxFields.includes(prop)
+                ? <fieldset className="cms-fieldset">
+                  <legend className="u-font-sm">Columns</legend>
+                  {Object.keys(firstObj).map(column =>
+                    <label className="cms-checkbox-label u-font-xs" key={column}>
+                      <input
+                        type="checkbox"
+                        checked={selectedColumns.includes(column)}
+                        onChange={() => this.onCheck(column)}
+                      /> {column}
+                    </label>
+                  )}
+                </fieldset>
+
+                // render prop as select
+                : <Select
+                  label={prop === "groupBy" ? "grouping" : prop}
+                  namespace="cms"
+                  fontSize="xs"
+                  value={object[prop]}
+                  onChange={this.onChange.bind(this, prop)}
+                >
+                  {/* optional fields */}
+                  {object.type === "Graphic"
+                    ? <option key={null} value="">none</option> : ""
                   }
-                </li>
-              )
-          }
-        </ul>
+                  {Object.keys(firstObj).map(type =>
+                    <option key={type} value={type}>{type}</option>
+                  )}
+                </Select>
+          )}
+        </div>
       }
     </div>;
-
   }
 }
+
+export default connect(state => ({env: state.env}))(SimpleVisualizationEditor);

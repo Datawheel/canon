@@ -1,0 +1,303 @@
+@import "../../css/mixins.css";
+
+.cp-table-viz-container .cp-viz-figure {
+  height: auto !important;
+}
+
+/* -----------------------------
+REACT TABLE LAYOUT
+NOTE: ripped from ReactTable
+----------------------------- */
+
+.cp-table {
+  flex-direction: column;
+  min-width: 100%;
+
+  & * {
+    outline: none;
+  }
+}
+
+.rt-table {
+  flex: auto 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: auto;
+  /* entire table can scroll horizontally */
+  overflow-y: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  @mixin hide-scrollbars;
+}
+
+.rt-thead {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  top: 0;
+  left: 0;
+}
+
+.rt-tbody {
+  flex: 99999 1 auto;
+  display: flex;
+  flex-direction: column;
+  max-height: var(--table-height);
+  /* table body can scroll vertically */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  @mixin hide-scrollbars;
+}
+
+.rt-tr-group {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.rt-tr {
+  flex: 1 0 auto;
+  display: inline-flex;
+}
+
+.rt-th, .rt-td,
+.cp-table-header-button {
+  position: relative;
+  flex: 1 0 0px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0.75em 0.625em 0.75em 0.625em;
+  overflow: hidden;
+}
+
+/* -----------------------------
+MODIFIERS
+NOTE: ripped from ReactTable
+----------------------------- */
+
+.rt-expandable {
+  cursor: pointer;
+  text-overflow: clip;
+}
+
+.cp-table-header-button {
+  @mixin absolute-expand;
+  display: flex;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: ns-resize;
+
+  & > .cp-table-header-icon {
+    opacity: 0;
+    margin-left: auto;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    transition:
+      0.1s ease-out opacity,
+      0.1s ease transform;
+  }
+
+  &:focus {
+    background-color: color(var(--white) a(0.125));
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+
+    & > .cp-table-header-icon {
+      opacity: 1;
+    }
+  }
+}
+
+.rt-resizable-header,
+.rt-thead:not(.-headerGroups) .rt-th {
+  padding: 0;
+}
+
+.rt-resizable-header,
+.rt-resizable-header-content,
+.rt-th > [class=""] {
+  min-height: 2rem;
+}
+
+.rt-resizable-header {
+  position: relative;
+  overflow: visible;
+
+  /* interactions */
+  &.-sort-desc, &.-sort-asc,
+  &.rt-th.rt-th:hover {
+    background-color: color(var(--table-thead-bg-color) a(0.875));
+
+    & .cp-table-header-icon {
+      opacity: 1;
+    }
+  }
+}
+
+.rt-resizable-header-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rt-resizing .rt-th,
+.rt-resizing .rt-td {
+  cursor: col-resize;
+}
+
+.rt-th.-sort-asc .cp-table-header-icon {
+  transform: rotate(-180deg);
+}
+
+/* -----------------------------
+THEMING
+----------------------------- */
+
+/* non-empty header group */
+.rt-thead.-headerGroups .rt-th:not(:empty) {
+  background-color: var(--table-hgroup-bg-color);
+  border: 1px solid var(--table-hgroup-border-color);
+  border-bottom: none;
+  color: var(--table-hgroup-text-color);
+  text-align: center;
+  outline: none; /* doesn't do anything; no need to highlight */
+}
+
+/* nested / primary header */
+.rt-thead.-header .rt-th {
+  background-color: var(--table-thead-bg-color);
+  border: 1px solid var(--table-thead-border-color);
+  color: var(--table-thead-text-color);
+}
+
+/* columns */
+.rt-tbody .rt-td {
+  background-color: var(--table-cell-bg-color);
+  border: 1px solid var(--table-cell-border-color);
+  color: var(--table-cell-text-color);
+  border-top: none;
+}
+
+/* remove adjacent borders from all cells */
+.rt-th:not(:last-of-type),
+.rt-td:not(:last-of-type) {
+  border-right-color: transparent !important;
+}
+
+/* nested rows */
+.rt-tr-group > .rt-tr-group .rt-td {
+  background-color: var(--table-nested-cell-bg-color);
+}
+
+/* hide redundant double nested row */
+/* NOTE: remove/override if nested pivots are necessary */
+.rt-tr-group > .rt-tr-group .rt-expandable {
+  cursor: auto;
+}
+.rt-tr-group > .rt-tr-group > .rt-tr-group {
+  display: none;
+}
+
+/* chevron icon for expandable */
+.rt-expander {
+  /* positioning */
+  display: inline-block;
+  color: transparent; /* hide the bullet */
+
+  /* blueprint chevron-right */
+  &:before {
+    content: "\E695";
+    font-family: Icons20,sans-serif;
+    /* positioning */
+    display: inline-block;
+    /* theming */
+    color: var(--table-icon-color);
+    /* transitions */
+    will-change: transform;
+    transition:
+      transform 0.2s ease-out,
+      color 0.2s ease-out;
+  }
+
+  /* expanded state */
+  &.-open:before {
+    transform: rotateZ(90deg);
+  }
+}
+
+/* column resize handle */
+.rt-resizer {
+  /* sizing & positioning */
+  display: inline-block;
+  position: absolute !important;
+  width: 4px;
+  top: 4px;
+  bottom: 4px;
+  right: 0;
+  padding-right: 4px;
+  border-left: 4px dotted var(--table-icon-color);
+  /* transitions */
+  cursor: col-resize;
+  opacity: 0;
+  transform: translateX(50%);
+  transition:
+    0.1s ease-out opacity,
+    0.1s ease-out transform;
+}
+.rt-resizable-header:hover .rt-resizer {
+  opacity: 1;
+  transform: none;
+}
+
+/* footer controls */
+.-pagination {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  padding-top: var(--gutter-sm);
+  padding-bottom: var(--gutter-sm);
+
+  /* space out adjacent elements */
+  & > *:not(:last-child) {
+    margin-right: 1rem;
+  }
+
+  /* hide the page select menu */
+  /* NOTE: only visible when prop `showPageSizeOptions` is false */
+  & .select-wrap {
+    display: none;
+  }
+
+  & .-pageInfo {
+    display: flex;
+    align-items: baseline;
+    color: var(--gray);
+
+    & .-pageJump {
+      margin: 0.25em;
+
+      & input {
+        padding: 0.125em 0.5em 0.25em 0.5em;
+        width: 2rem;
+        text-align: center;
+        font-size: inherit;
+
+        /* hide the pager */
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+          -webkit-appearance: none; /* `display: none` can cause crashes */
+          margin: 0; /* nuke the margin */
+        }
+      }
+    }
+    & .-totalPages {
+      margin-left: 0.25em;
+    }
+  }
+}
+
+[class="-loading"] {
+  display: none;
+}

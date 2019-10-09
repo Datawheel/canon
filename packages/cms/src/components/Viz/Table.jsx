@@ -1,0 +1,148 @@
+import axios from "axios";
+import React, {Component} from "react";
+import abbreviate from "../../utils/formatters/abbreviate";
+
+import {Icon} from "@blueprintjs/core";
+import ReactTable from "react-table";
+
+import "./Table.css";
+
+class Table extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      config: null
+    };
+  }
+
+  componentDidMount() {
+    this.buildConfig.bind(this)();
+  }
+
+  buildConfig() {
+    const propConfig = this.props.config;
+    const {dataFormat} = this.props;
+
+    const defaults = {
+      cellFormat: (key, val) =>
+        isNaN(val) ? val : abbreviate(val),
+      headerFormat: val => val,
+      minRows: 0,
+      showPagination: false
+    };
+
+    const config = Object.assign({}, defaults, propConfig);
+
+    // If the data is an API call, run the axios get and replace .data with its results
+    if (typeof config.data === "string") {
+      axios.get(config.data).then(resp => {
+        config.data = dataFormat(resp.data);
+        this.setState({config});
+      });
+    }
+    else {
+      config.data = dataFormat(config.data);
+      this.setState({config});
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (JSON.stringify(prevProps.config) !== JSON.stringify(this.props.config)) {
+      this.setState({config: null}, this.buildConfig.bind(this));
+    }
+  }
+
+  // determines whether there are any nested arrays at all
+  hasNesting(columns) {
+    // top level contains arrays
+    if (columns && columns.map(col => Array.isArray(col)).filter(c => c).length) {
+      return true;
+    }
+    return false; // no nested columns
+  }
+
+  // render parent header grouping
+  // assumes an array with string followed by an array of columns
+  renderGrouping = currColumn => {
+    const {headerFormat} = this.state.config;
+
+    let groupingTitle, nestedColumns;
+    if (currColumn[0] && typeof currColumn[0] === "string") groupingTitle = currColumn[0];
+    if (currColumn[1] && Array.isArray(currColumn[1])) nestedColumns = currColumn[1];
+
+    if (nestedColumns) {
+      if (typeof nestedColumns[0] === "string") {
+        return Object.assign({}, {
+          Header: headerFormat(groupingTitle),
+          accessor: d => d[nestedColumns[0]],
+          id: groupingTitle,
+          columns: nestedColumns.map(col => this.renderColumn(col))
+        });
+      }
+      else if (Array.isArray(nestedColumns[0])) {
+        return Object.assign({}, {
+          Header: headerFormat(groupingTitle),
+          id: groupingTitle,
+          columns: nestedColumns.map(col => this.renderGrouping(col))
+        });
+      }
+    }
+
+    console.log("Invalid columns config passed to table viz; expected either an array of strings, or an array of arrays, each with a string first (table heading grouping title) and an array of strings.");
+    return undefined;
+  }
+
+  // render ungrouped column
+  renderColumn = col => {
+    const {headerFormat, cellFormat} = this.state.config;
+    return Object.assign({}, {
+      Header: <button className="cp-table-header-button">
+        {headerFormat(col)} <span className="u-visually-hidden">, sort by column</span>
+        <Icon className="cp-table-header-icon" icon="caret-down" />
+      </button>,
+      id: col,
+      accessor: d => d[col],
+      Cell: cell => <span className="cp-table-cell-inner" dangerouslySetInnerHTML={{__html: cellFormat(cell, cell.value)}} />
+    });
+  };
+
+  render() {
+    const {config} = this.state;
+    if (!config) return null;
+
+    const {data} = config;
+
+    // check that we have a valid columns object
+    const columns = config.columns &&
+      // it it's array, use it as-is; otherwise, make it an array
+      Array.isArray(config.columns) ? config.columns : [config.columns] ||
+      // otherwise, make an array from all available columns
+      Object.keys(data[0]);
+
+    const tableStructure = columns.map(col => {
+      // if the current column is a string alone, render the column
+      if (typeof col === "string") {
+        return this.renderColumn(col);
+      }
+      else if (Array.isArray(col)) {
+        return this.renderGrouping(col);
+      }
+      else return {};
+    }).filter(Boolean); // handle malformed tables
+
+    return (
+      <div className="cp-table-wrapper">
+        {tableStructure && tableStructure.length
+          ? <ReactTable
+            {...config}
+            className="cp-table"
+            columns={tableStructure}
+          />
+          : console.log("Error: array with undefined returned in Table `columns` prop")
+        }
+      </div>
+    );
+  }
+}
+
+export default Table;

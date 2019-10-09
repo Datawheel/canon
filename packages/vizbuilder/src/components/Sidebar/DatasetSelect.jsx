@@ -1,9 +1,9 @@
 import React from "react";
 
 function DatasetSelect(props) {
-  const cubeName = props.value.annotations._cb_name;
+  const cubeName = props.value.annotations._vb_cbName;
   return (
-    <span className="pt-select pt-fill">
+    <span className="bp3-select bp3-fill">
       <select
         className={props.className}
         name="dataset"
@@ -12,10 +12,10 @@ function DatasetSelect(props) {
       >
         {props.items.map(item =>
           <option
-            key={item.annotations._cb_name}
-            value={item.annotations._cb_name}
+            key={item.annotations._vb_cbName}
+            value={item.annotations._vb_cbName}
           >
-            {item.annotations._cb_datasetName}
+            {item.annotations._vb_datasetName}
           </option>
         )}
       </select>

@@ -100,7 +100,7 @@ module.exports = function(app) {
     if (!measures.length) res.json({error: "Query must contain at least one measure."});
     else {
 
-      let reserved = ["captions", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year"];
+      let reserved = ["captions", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year", "debug"];
       reserved = reserved.concat(d3Array.merge(reserved.map(r => {
         let alts = aliases[r] || [];
         if (typeof alts === "string") alts = [alts];
@@ -114,6 +114,7 @@ module.exports = function(app) {
       const captions = findKey(req.query, "captions", false);
 
       const {
+        debug = "false",
         parents = "false",
         sort = "desc"
       } = req.query;
@@ -190,7 +191,7 @@ module.exports = function(app) {
           const searchDim = key in dimensionMap ? dimensionMap[key] : key;
 
           ids = await Promise.all(d3Array.merge(ids
-            .split(",")
+            .split(/,(?=[^\s])/g)
             .map(id => {
               if (id.includes(":") && key in relations) {
                 const rels = Object.keys(relations[key]);
@@ -291,6 +292,13 @@ module.exports = function(app) {
             cube.subs = {};
             let allowed = true;
 
+            drilldowns.forEach(d => {
+              const dim = findDimension(flatDims, d);
+              if (dim && dim.caption && !renames.find(o => Object.keys(o)[0] === dim.level)) {
+                renames.push({[dim.level]: dim.caption});
+              }
+            });
+
             for (const dim in dimCuts) {
               if (Object.prototype.hasOwnProperty.call(dimCuts, dim)) {
                 for (const level in dimCuts[dim]) {
@@ -324,6 +332,9 @@ module.exports = function(app) {
                         allowed = false;
                         break;
                       }
+                    }
+                    else if (drilldownDim.caption && !renames.find(o => Object.keys(o)[0] === drilldownDim.level)) {
+                      renames.push({[drilldownDim.level]: drilldownDim.caption});
                     }
                   }
                 }
@@ -547,7 +558,11 @@ module.exports = function(app) {
 
               const p = yn(parents);
               query.option("parents", p);
-              if (p && verbose) console.log("Parents: true");
+              if (verbose) console.log(`Parents: ${p}`);
+
+              const d = yn(debug);
+              query.option("debug", d);
+              if (verbose) console.log(`Debug: ${d}`);
 
               filters
                 .filter(f => cube.measures.includes(f[0]))

@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
+import TextInput from "../fields/TextInput";
+
 class PlainTextEditor extends Component {
 
   constructor(props) {
@@ -20,7 +22,7 @@ class PlainTextEditor extends Component {
   changeField(field, e) {
     const {isDirty, data} = this.state;
     const {locale} = this.props;
-    const thisLocale = data.content.find(c => c.lang === locale);
+    const thisLocale = data.content.find(c => c.locale === locale);
     thisLocale[field] = e.target.value;
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
@@ -39,13 +41,17 @@ class PlainTextEditor extends Component {
 
     if (!data || !fields) return null;
 
-    const thisLocale = data.content.find(c => c.lang === locale); 
+    const thisLocale = data.content.find(c => c.locale === locale);
 
     const inputs = fields.map(f =>
-      <div key={f}>
-        <label htmlFor={f}>{f}</label>
-        <input id={f} className="bp3-input" type="text" value={thisLocale[f]} onChange={this.changeField.bind(this, f)}/>
-      </div>
+      <TextInput
+        label={f}
+        inline
+        namespace="cms"
+        value={thisLocale[f]}
+        onChange={this.changeField.bind(this, f)}
+        key={f}
+      />
     );
 
     return (

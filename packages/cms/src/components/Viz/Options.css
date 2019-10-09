@@ -1,10 +1,14 @@
+@import "../../css/mixins.css";
+
 .Options {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 5px;
   & .option {
-    display: inline-block;
-    margin: 5px 15px 0 0;
+    /* keep tooltips above button (blueprint override) */
+    &.bp3-button,
+    &.bp3-button:focus {
+      z-index: auto;
+    }
   }
 }
 
@@ -80,5 +84,47 @@
         width: 100%;
       }
     }
+  }
+}
+
+/* share dialog */
+.share-dialog {
+  padding: 10px 20px; /* line up with tabs */
+
+  /* facebook & twitter buttons */
+  & .cp-button[href*="facebook"] {
+    background-color: var(--light-1);
+    color: #3B5998;
+    border-color: var(--light-3);
+  }
+  & .cp-button[href*="twitter"] {
+    background-color: var(--light-1);
+    color: #00ACED;
+    border-color: var(--light-3);
+  }
+  & .cp-button > * {
+    vertical-align: middle;
+  }
+  /* space out icon from text */
+  & .cp-button > svg {
+    margin-right: 0.125em;
+    width: 1.5em;
+    height: 1.5em;
+
+    /* let the color of the button define the color of the icon */
+    & path {
+      fill: currentColor;
+    }
+  }
+
+  /* spae out adjacent fields */
+  & > *:not(:last-child) {
+    margin-bottom: 20px;
+  }
+
+  /* space out label text */
+  & .options-label-text {
+    display: block;
+    margin-bottom: 0.25em;
   }
 }

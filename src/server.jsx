@@ -1,5 +1,3 @@
-import "babel-polyfill";
-
 import React from "react";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
@@ -89,7 +87,7 @@ const baseTag = process.env.CANON_BASE_URL === undefined ? ""
 /**
     Returns the default server logic for rendering a page.
 */
-export default function(defaultStore = {}, headerConfig) {
+export default function(defaultStore = {}, headerConfig, reduxMiddleware = false) {
 
   return function(req, res) {
 
@@ -111,7 +109,7 @@ export default function(defaultStore = {}, headerConfig) {
 
     const location = req.url.replace(BASE_URL, "");
     const history = createMemoryHistory({basename, entries: [location]});
-    const store = configureStore({i18n: {locale, resources}, location: windowLocation, ...defaultStore}, history);
+    const store = configureStore({i18n: {locale, resources}, location: windowLocation, ...defaultStore}, history, reduxMiddleware);
     const routes = createRoutes(store);
     const rtl = ["ar", "he"].includes(locale);
 
@@ -148,7 +146,7 @@ export default function(defaultStore = {}, headerConfig) {
             let status = 200;
             for (const key in initialState.data) {
               if ({}.hasOwnProperty.call(initialState.data, key)) {
-                const error = initialState.data[key].error;
+                const error = initialState.data[key] ? initialState.data[key].error : null;
                 if (error && typeof error === "number" && error > status) status = error;
               }
             }

@@ -1,17 +1,8 @@
 import {assign} from "d3plus-common";
-import {
-  BarChart,
-  Donut,
-  Geomap,
-  LinePlot,
-  Pie,
-  StackedArea,
-  Treemap
-} from "d3plus-react";
-
-import {getPermutations} from "./sorting";
-import {areMetaMeasuresZero} from "./validation";
+import {BarChart, Donut, Geomap, LinePlot, Pie, StackedArea, Treemap} from "d3plus-react";
 import {joinStringsWithCommaAnd} from "./formatting";
+import {getPermutations} from "./sorting";
+import {areMetaMeasuresZero, isValidFilter} from "./validation";
 
 export const chartComponents = {
   barchart: BarChart,
@@ -38,15 +29,15 @@ export function datagroupToCharts(datagroup, generalConfig) {
   );
 
   const charts = datagroup.charts.reduce((sum, chartType) => {
-    const setups = calcChartSetups(chartType, datagroup.query).map(setup => ({
-        ...datagroup,
-        baseConfig,
-        chartType,
-        component: chartComponents[chartType],
-        setup,
-        topoConfig,
-        userConfig
-      }));
+    const setups = calcChartSetups(datagroup, chartType).map(setup => ({
+      ...datagroup,
+      baseConfig,
+      chartType,
+      component: chartComponents[chartType],
+      setup,
+      topoConfig,
+      userConfig
+    }));
     return sum.concat(setups);
   }, []);
 
@@ -94,23 +85,17 @@ export function buildBaseConfig(datagroup, params) {
   return config;
 }
 
-export function calcChartSetups(type, query) {
+/**
+ * @param {import("./chartCriteria").Datagroup} datagroup
+ * @param {string} type
+ */
+export function calcChartSetups(datagroup, type) {
+  const {members, query} = datagroup;
+
   switch (type) {
     case "treemap": {
-      const groupings = query.groups;
-      const permutations = getPermutations(query.levels);
-
-      /**
-       * We must remove permutations where the first element is being cut by
-       * 1 member, as these look the same in both orders.
-       * @see Issue#434 on {@link https://github.com/Datawheel/canon/issues/434 | GitHub}
-       */
-      return permutations
-        .filter(setup => {
-          const level = setup[0];
-          const grouping = groupings.find(grp => grp.level === level);
-          return grouping.members.length !== 1;
-        });
+      const relevantLevels = query.levels.filter(lvl => members[lvl.name].length > 1);
+      return getPermutations(relevantLevels);
     }
 
     default: {
@@ -121,11 +106,12 @@ export function calcChartSetups(type, query) {
 
 /**
  * Generates the parameters for the tooltip shown for the current datagroup.
- * @param {Datagroup} datagroup The chart datagroup
+ * @param {import("./chartCriteria").Datagroup} datagroup The chart datagroup
  */
 export function tooltipGenerator(datagroup) {
   const {formatter, names} = datagroup;
   const {levelName, measureName} = names;
+  const {filters} = datagroup.query;
   const shouldShow = areMetaMeasuresZero(names, datagroup.dataset);
 
   const tbody = Object.keys(datagroup.members)
@@ -155,6 +141,16 @@ export function tooltipGenerator(datagroup) {
     tbody.push(["Collection", d => `${d[collectionName]}`]);
   }
 
+  if (Array.isArray(filters)) {
+    filters.forEach(filter => {
+      if (isValidFilter(filter)) {
+        const filterName = filter.name;
+        const formatter = filter.getFormatter();
+        tbody.push([filterName, d => `${formatter(d[filterName])}`]);
+      }
+    });
+  }
+
   return {
     title: d => [].concat(d[levelName]).join(", "),
     tbody
@@ -163,13 +159,13 @@ export function tooltipGenerator(datagroup) {
 
 /**
  * Generates the function to render the labels in the shapes of a chart.
- * @param {string} lvlName1 Name of main level
- * @param {string} lvlName2 Name of secondary level
+ * @param {...string} arguments
  */
-export function labelFunctionGenerator(lvlName1, lvlName2) {
+export function labelFunctionGenerator() {
+  const [lvlName1, lvlName2] = arguments;
   return lvlName2
     ? d => `${d[lvlName1]} (${joinStringsWithCommaAnd(d[lvlName2])})`
-    : d => d[lvlName1];
+    : d => `${d[lvlName1]}`;
 }
 
 /**

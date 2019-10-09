@@ -1,15 +1,32 @@
-#generator-editor {
+@import "../../css/mixins.css";
+
+.generator-editor {
   align-self: stretch;
   display: flex;
   flex-direction: column;
   width: 100%;
+
+  & > *:not(:last-child),
+  & .cms-viz-editor > *:not(:last-child) {
+    margin-bottom: 1.25rem;
+  }
+
+  & .cms-mode-switch-container {
+    position: absolute;
+    bottom: -2.25rem;
+    left: 0;
+  }
+
   & .bp3-label.bp3-inline {
     display: flex;
+
     & .label-text {
       display: inline-block;
       width: 100px;
     }
-    & .bp3-select, & .bp3-input {
+
+    & .bp3-select,
+    & .bp3-input {
       flex: 1;
     }
   }
@@ -17,10 +34,9 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    & .bp3-label {
-      & p:last-child {
-        margin-bottom: 0;
-      }
+
+    & .bp3-label p:last-child {
+      margin-bottom: 0;
     }
     & .editor {
       flex: 1;
@@ -34,4 +50,14 @@
   margin-top: var(--nav-height);
   max-height: calc(100vh - 25px - var(--nav-height));
   max-width: calc(100% - 25px);
+}
+
+/* help text */
+/* TODO: move to tooltip */
+.generator-editor-help > * {
+  margin-top: 0;
+
+  &:not(:last-child) {
+    margin-bottom: 0.125em;
+  }
 }

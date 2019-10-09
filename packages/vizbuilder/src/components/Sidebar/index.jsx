@@ -1,27 +1,26 @@
-import React from "react";
-import PropTypes from "prop-types";
-import classnames from "classnames";
 import {Button, Checkbox} from "@blueprintjs/core";
+import classnames from "classnames";
+import PropTypes from "prop-types";
+import React, {PureComponent} from "react";
 
 import "./style.css";
-import "./select.css";
 
 import {
   generateBaseState,
+  replaceKeysInString,
   replaceLevelsInGroupings,
-  replaceMeasureInFilters,
-  replaceKeysInString
+  replaceMeasureInFilters
 } from "../../helpers/query";
-import {isValidMeasure} from "../../helpers/validation";
 import {getGeoLevel, userTableIdMeasure} from "../../helpers/sorting";
+import {isValidMeasure} from "../../helpers/validation";
 
+import MeasureSelect from "./AllMeasureSelect";
 import ConditionalAnchor from "./ConditionalAnchor";
 import DatasetSelect from "./DatasetSelect";
 import FilterManager from "./FilterManager";
 import GroupingManager from "./GroupingManager";
-import MeasureSelect from "./NewMeasureSelect";
 
-class Sidebar extends React.PureComponent {
+class Sidebar extends PureComponent {
   constructor(props) {
     super(props);
     this.resetDefaults = this.resetDefaults.bind(this);
@@ -44,11 +43,10 @@ class Sidebar extends React.PureComponent {
             <p className="label">Showing</p>
             <MeasureSelect
               className="select-measure"
-              items={options.measures}
               itemMap={options.measureMap}
-              value={query.measure}
-              showDimensions={!options.geomapLevels}
+              items={options.measures}
               onItemSelect={this.setMeasure}
+              selectedItem={query.measure}
             />
             <p className="details">{measureDetails}</p>
             <p className="show-ci" hidden={!query.moe && !(query.lci || query.uci)}>
@@ -80,9 +78,9 @@ class Sidebar extends React.PureComponent {
 
           <div className="control reset-defaults">
             <Button
-              className="pt-fill action-reset"
+              className="bp3-fill action-reset"
               text="Reset to Defaults"
-              iconName="undo"
+              icon="undo"
               disabled={isDefaultQuery}
               onClick={this.resetDefaults}
             />
@@ -159,16 +157,6 @@ class Sidebar extends React.PureComponent {
     const {getDefaultGroup, getDefaultTable} = this.context;
     const {options, query, uiParams} = this.props;
 
-    const areMeasuresFromSameTable = (oldQ, newQ) => {
-      const {table_id} = newQ.cube.annotations;
-      if (!table_id) {
-        return false;
-      }
-      const key = `${table_id}.${newQ.measure.name}`;
-      const measures = options.measureMap[key];
-      return measures.indexOf(oldQ.measure) > -1 && measures.indexOf(newQ.measure) > -1;
-    };
-
     return this.context.loadControl(() => {
       if (getDefaultTable && useTableDefaults) {
         measure = userTableIdMeasure(
@@ -187,41 +175,43 @@ class Sidebar extends React.PureComponent {
         newQuery.groups = query.groups;
         newQuery.filters = query.filters;
         newUiParams.activeChart = uiParams.activeChart;
+        newQuery.geoLevel = getGeoLevel(newQuery);
+        return newState;
       }
-      else if (areMeasuresFromSameTable(query, newQuery)) {
-        newQuery.filters = replaceMeasureInFilters(query.filters, newQuery.cube);
+      else {
         return replaceLevelsInGroupings(query, newQuery).then(newGroups => {
-          newQuery.groups = newGroups;
+          if (newGroups.length === 0) {
+            newQuery.groups = getDefaultGroup(
+              newState.options.levels,
+              measure.annotations.ui_default_drilldown
+            );
+            newQuery.filters = [];
+            newUiParams.activeChart = null;
+          }
+          else {
+            newQuery.groups = newGroups;
+            newQuery.filters = replaceMeasureInFilters(query.filters, newQuery.cube);
+            newUiParams.activeChart = replaceKeysInString(
+              uiParams.activeChart,
+              query.groups,
+              newQuery.groups
+            );
+          }
+
           newQuery.geoLevel = getGeoLevel(newQuery);
-          newUiParams.activeChart = replaceKeysInString(
-            uiParams.activeChart,
-            query.groups,
-            newQuery.groups
-          );
           return newState;
         });
       }
-      else {
-        newQuery.groups = getDefaultGroup(
-          newState.options.levels,
-          measure.annotations.ui_default_drilldown
-        );
-        newQuery.filters = [];
-        newUiParams.activeChart = null;
-      }
-
-      newQuery.geoLevel = getGeoLevel(newQuery);
-      return newState;
     });
   }
 
   setDataset(evt) {
     const cubeName = evt.target.value;
     const {options, query} = this.props;
-    const tableId = query.measure.annotations._cb_table_id;
+    const tableId = query.measure.annotations._vb_cbTableId;
     const key = `${tableId}.${query.measure.name}`;
     const measureList = options.measureMap[key];
-    const measure = measureList.find(item => item.annotations._cb_name == cubeName);
+    const measure = measureList.find(item => item.annotations._vb_cbName == cubeName);
     return this.setMeasure(measure, false);
   }
 

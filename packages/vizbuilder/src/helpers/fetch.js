@@ -3,7 +3,7 @@ import {unique} from "shorthash";
 import yn from "yn";
 
 import * as api from "./api";
-import {TooMuchData} from "./errors";
+import {EmptyDataset, TooMuchData} from "./errors";
 import {generateBaseState, queryBuilder, queryConverter} from "./query";
 import {
   classifyMeasures,
@@ -37,8 +37,7 @@ export function injectCubeInfoOnMeasure(cubes) {
     const cbName = cube.caption || cube.name;
     const cbTableId = cbAnnotations.table_id;
     const cbTopic = cbAnnotations.topic || "Other";
-    const cbSubtopic = cbAnnotations.subtopic;
-    const selectorKey = `${cbTopic}_${cbSubtopic}_`;
+    const cbSubtopic = cbAnnotations.subtopic || "Other";
     // const sourceName = cbAnnotations.source_name;
     const datasetName = cbAnnotations.dataset_name;
     const cbTagline = cbAnnotations.source_name || "";
@@ -66,9 +65,7 @@ export function injectCubeInfoOnMeasure(cubes) {
         while (nLvl--) {
           const level = hierarchy.levels[nLvl];
 
-          level.annotations._key = unique(
-            `${keyPrefix} ${hierarchy.name} ${level.name}`
-          );
+          level.annotations._key = unique(`${keyPrefix} ${hierarchy.name} ${level.name}`);
         }
       }
     }
@@ -87,14 +84,18 @@ export function injectCubeInfoOnMeasure(cubes) {
       const measureLabel = measure.caption || measure.name;
       const msAnnotations = measure.annotations;
 
+      const msTopic = msAnnotations.topic || cbTopic;
+      const msSubtopic = msAnnotations.subtopic || cbSubtopic;
+      const selectorKey = `${msTopic}_${msSubtopic}_`;
+
       msAnnotations._key = unique(`${cbName} ${measure.name}`);
-      msAnnotations._cb_datasetName = datasetName;
-      msAnnotations._cb_name = cbName;
-      msAnnotations._cb_table_id = cbTableId;
-      msAnnotations._cb_tagline = cbTagline;
-      msAnnotations._cb_topic = cbTopic || "Other";
-      msAnnotations._cb_subtopic = cbSubtopic || "Other";
-      // msAnnotations._cb_sourceName = sourceName;
+      msAnnotations._vb_datasetName = datasetName;
+      msAnnotations._vb_cbName = cbName;
+      msAnnotations._vb_cbTableId = cbTableId;
+      msAnnotations._vb_tagline = cbTagline;
+      msAnnotations._vb_topic = msTopic;
+      msAnnotations._vb_subtopic = msSubtopic;
+      // msAnnotations._vb_cbSourceName = sourceName;
       msAnnotations._dim_labels =
         cbLevelNameList.length > 5
           ? [].concat(
@@ -204,6 +205,11 @@ export function fetchQuery(query, params) {
 
   return api.query(mondrianQuery).then(result => {
     const dataset = (result.data || {}).data || [];
+
+    if (dataset.length === 0) {
+      throw new EmptyDataset();
+    }
+
     sort(dataset).desc(measureName);
     const members = getIncludedMembers(query, dataset);
 

@@ -1,36 +1,16 @@
-.generator-card {
-  display: flex;
-  flex-direction: column;
-  margin: 10px 20px 10px 0;
-  padding: 0;
-  width: 250px;
-  & h5 {
-    margin: 7px auto 10px;
-    text-align: center;
-    & .bp3-icon-standard {
-      margin-right: 5px;
-      &.generator {
-        color: #fdd78e;
-      }
-      &.materializer {
-        color: #85c283;
-      }
-    }
-  }
-  & .table {
-    flex: 1;
-    max-height: 90px;
-    overflow-y: scroll;
+@import "../../css/mixins.css";
 
-    & .bp3-table {
-      height: 100%;
-      width: 100%;
-      & td {
-        max-width: 0;
-        overflow-x: hidden;
-        padding: 4px;
-        width: 50%;
-      }
-    }
+/* show variables side by side with language labels */
+.cms-card.is-multilingual .cms-card-locale-group {
+  display: flex;
+  justify-content: space-between;
+
+  & > *:not(:only-child) {
+    width: calc(50% - 0.5rem);
   }
+}
+
+.cms .cms-generator-card .cms-card-description {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
 }

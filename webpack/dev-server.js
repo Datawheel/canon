@@ -3,7 +3,6 @@ const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
-      progress = require("./progress"),
       webpack = require("webpack");
 
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
@@ -30,16 +29,31 @@ module.exports = {
     rules: commonLoaders({extract: true})
   },
   resolve: {
-    modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],
+    modules: [
+      path.join(appDir, "node_modules"),
+      appDir,
+      appPath,
+      path.join(__dirname, "../src"),
+      path.join(__dirname, "../node_modules")
+    ],
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.ProgressPlugin(progress),
+    new webpack.ProgressPlugin({
+      activeModules: false,
+      entries: false,
+      modules: true
+    }),
     new MiniCssExtractPlugin({
       filename: "styles.css"
     }),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
+      environmentHash: {
+        root: appDir,
+        directories: [],
+        files: ["package-lock.json", "yarn.lock", "app/style.yml", ".env", ".envrc"]
+      },
       info: {level: "error"}
     }),
     new HardSourceWebpackPlugin.ExcludeModulePlugin([

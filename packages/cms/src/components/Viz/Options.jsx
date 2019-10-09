@@ -1,8 +1,15 @@
 import React, {Component} from "react";
+import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import {animateScroll} from "react-scroll";
+import ReactTable from "react-table";
+import PropTypes from "prop-types";
+import "./Table.css";
 import "./Options.css";
 
+import {Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
+
+import {max, sum} from "d3-array";
 import {select} from "d3-selection";
 import {saveAs} from "file-saver";
 import JSZip from "jszip";
@@ -10,9 +17,15 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import {Button, Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
-import {Cell, Column, SelectionModes, Table} from "@blueprintjs/table";
-import "@blueprintjs/table/lib/css/table.css";
+import Button from "../fields/Button";
+import ButtonGroup from "../fields/ButtonGroup";
+
+import ShareDirectLink from "./ShareDirectLink";
+import ShareFacebookLink from "./ShareFacebookLink";
+import ShareTwitterLink from "./ShareTwitterLink";
+
+const measureText = str => sum(`${str}`.split("")
+  .map(c => ["I", "i", "l", "."].includes(c) ? 4 : 9));
 
 const filename = str => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/^\-/g, "")
@@ -36,12 +49,15 @@ class Options extends Component {
     super(props);
     this.state = {
       backgroundColor: true,
-      imageContext: "topic",
+      imageContext: "section",
       imageProcessing: false,
+      includeSlug: true,
       loading: false,
       openDialog: false,
+      focusOptions: false, // make button group focusable, but only when closing the dialog
       results: props.data instanceof Array ? props.data : false
     };
+    this.toggleButton = React.createRef();
   }
 
   componentDidUpdate(prevProps) {
@@ -73,14 +89,12 @@ class Options extends Component {
           : val ? `\"${val}\"` : "";
 
       }).join(colDelim);
-
     }
 
     const zip = new JSZip();
     zip.file(`${filename(title)}.csv`, csv);
     zip.generateAsync({type: "blob"})
       .then(content => saveAs(content, `${filename(title)}.zip`));
-
   }
 
   onSave(type) {
@@ -89,7 +103,7 @@ class Options extends Component {
     if (node) {
       this.setState({imageProcessing: true});
       const {backgroundColor} = this.state;
-      if (type === "svg") node = select(node).select("svg").node();
+      if (type === "svg") node = select(node).select(".d3plus-viz").node();
       let background;
       if (backgroundColor) background = getBackground(node);
       saveElement(node,
@@ -109,45 +123,37 @@ class Options extends Component {
     else return false;
   }
 
-  onBlur() {
-    this.input.blur();
-  }
-
-  onFocus() {
-    this.input.select();
-  }
-
   toggleDialog(slug) {
     const {openDialog} = this.state;
     const {transitionDuration} = this.props;
 
-    if (slug && !this.state.openDialog) {
+    if (slug && !openDialog) {
       setTimeout(() => {
-
-        /* IE is the wurst with CSSTransitionGroup */
+        // IE is the wurst with CSSTransitionGroup
         document.getElementsByClassName("options-dialog")[0].style.opacity = 1;
-
-        /* give focus to the correct tab */
+        // give focus to the correct tab
         document.getElementById(`bp3-tab-title_undefined_${slug}`).focus();
-
-      }, transitionDuration + 1000);
+      }, transitionDuration + 200);
     }
+
+    // give focus back to the original button
     else if (!slug) {
+      this.setState({focusOptions: true});
       setTimeout(() => {
-
-        /* give focus back to the original button */
-        document.getElementById(`options-button-${this.props.slug}-${openDialog}`).focus();
-
-      }, transitionDuration + 1000);
+        this.toggleButton.current.focus();
+      }, transitionDuration + 10);
     }
 
     const node = this.getNode.bind(this)();
-    if (node && !this.state.openDialog) {
+
+    if (node && !openDialog) {
       const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
       if (node.offsetTop < scrollTop) animateScroll.scrollTo(node.offsetTop);
     }
+
     this.setState({openDialog: slug});
     const {results, loading} = this.state;
+
     if (slug === "view-table" && !results && !loading) {
       const {data, dataFormat} = this.props;
       this.setState({loading: true});
@@ -157,7 +163,6 @@ class Options extends Component {
           this.setState({loading: false, results});
         });
     }
-
   }
 
   toggleBackground() {
@@ -166,28 +171,52 @@ class Options extends Component {
 
   toggleContext() {
     const {imageContext} = this.state;
-    this.setState({imageContext: imageContext === "topic" ? "viz" : "topic"});
-  }
-
-  onBlur(ref) {
-    this[ref].blur();
+    this.setState({imageContext: imageContext === "section" ? "viz" : "section"});
   }
 
   onFocus(ref) {
     this[ref].select();
   }
 
-  render() {
+  // add the slug, or not
+  handleSectionCheck() {
+    this.setState({includeSlug: !this.state.includeSlug});
+  }
 
-    const {backgroundColor, imageContext, imageProcessing, openDialog, results} = this.state;
-    const {data, location, slug, transitionDuration} = this.props;
+  columnWidths(key) {
+    const {results} = this.state;
+    const data = Array.from(new Set(results.map(d => d[key])))
+      .filter(Boolean)
+      .map(measureText);
+    return max([measureText(key)].concat(data)) + 25;
+  }
+
+  renderColumn = col => Object.assign({}, {
+    Header: <button className="cp-table-header-button">
+      {col} <span className="u-visually-hidden">, sort by column</span>
+      <Icon className="cp-table-header-icon" icon="caret-down" />
+    </button>,
+    id: col,
+    accessor: d => d[col],
+    Cell: cell => <span className="cp-table-cell-inner" dangerouslySetInnerHTML={{__html: cell.value}} />,
+    minWidth: this.columnWidths.bind(this)(col)
+  });
+
+  render() {
+    const {backgroundColor, imageContext, imageProcessing, includeSlug, openDialog, results, focusOptions} = this.state;
+    const {data, iconOnly, slug, t, transitionDuration} = this.props;
+
+    // construct URL from a combination of redux & context (#537)
+    const domain = this.props.location.origin;
+    const path = this.context.router.location.pathname;
+    const shareURL = `${domain}/${path}`;
 
     const node = this.getNode();
-    const svgAvailable = node && select(node).select("svg").size() > 0;
+    const svgAvailable = node && select(node).select(".d3plus-viz").size() > 0;
 
     const ImagePanel = () => imageProcessing
       ? <div className="bp3-dialog-body save-image">
-        <NonIdealState title="Generating Image" visual={<Spinner />} />
+        <NonIdealState title={t("CMS.Options.Generating Image")} visual={<Spinner />} />
       </div>
       : <div className="bp3-dialog-body save-image">
         <div className="save-image-btn" onClick={this.onSave.bind(this, "png")} tabIndex={0}>
@@ -197,89 +226,110 @@ class Options extends Component {
           <Icon icon="code-block" iconSize={28} />SVG
         </div>}
         <div className="image-options">
-          <Checkbox checked={imageContext === "viz"} label="Only Download Visualization" onChange={this.toggleContext.bind(this)} />
-          <Checkbox checked={!backgroundColor} label="Transparent Background" onChange={this.toggleBackground.bind(this)} />
+          <Checkbox checked={imageContext === "viz"} label={t("CMS.Options.Only Download Visualization")} onChange={this.toggleContext.bind(this)} />
+          <Checkbox checked={!backgroundColor} label={t("CMS.Options.Transparent Background")} onChange={this.toggleBackground.bind(this)} />
         </div>
       </div>;
 
     const columns = results ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
 
-    const columnWidths = columns.map(key => {
-      if (key === "Year") return 60;
-      else if (key.includes("Year")) return 150;
-      else if (key.includes("ID ")) return 120;
-      else return 150;
-    });
-
-    const cellRenderer = (rowIndex, columnIndex) => {
-      const key = columns[columnIndex];
-      const val = results[rowIndex][key];
-      return <Cell wrapText={true}>{ val }</Cell>;
-    };
-
     const dataUrl = typeof data === "string"
-      ? data.indexOf("http") === 0 ? data : `${location.origin}${data}`
+      ? data.indexOf("http") === 0 ? data : `${ domain }${ data }`
       : false;
 
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
         <div className="horizontal download">
-          <Button key="data-download" icon="download" className="bp3-minimal" onClick={this.onCSV.bind(this)}>
-            Download as CSV
+          <Button key="data-download" icon="download" fontSize="xxs" onClick={this.onCSV.bind(this)}>
+            {t("CMS.Options.Download as CSV")}
           </Button>
-          { dataUrl && <input key="data-url" type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} onMouseLeave={this.onBlur.bind(this, "dataLink")} readOnly="readonly" value={dataUrl} /> }
+          { dataUrl && <input key="data-url" type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} readOnly="readonly" value={dataUrl} /> }
         </div>
-        <div
-          className="table"
-          tabIndex={0}
-          onFocus={() => document.getElementById("bp3-tab-title_undefined_view-table").focus()}>
-          <Table
-            columnWidths={columnWidths}
-            enableColumnResizing={false}
-            enableMultipleSelection={false}
-            enableRowResizing={false}
-            numRows={ results.length }
-            rowHeights={results.map(() => 40)}
-            selectionModes={SelectionModes.NONE}>
-            { columns.map(c => <Column id={ c } key={ c } name={ c } cellRenderer={ cellRenderer } />) }
-          </Table>
+        <div className="table">
+          <ReactTable
+            data={results}
+            defaultPageSize={results.length}
+            columns={columns.map(col => this.renderColumn(col))}
+            minRows="0"
+            minWidth="300"
+            showPagination={false}
+            resizable={false}
+          />
         </div>
       </div>
       : <div className="bp3-dialog-body view-table">
-        <NonIdealState title="Loading Data" visual={<Spinner />} />
+        <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
       </div>;
 
-    return <div className="Options">
+    const shareLink = `${ shareURL }${ includeSlug && slug ? `#${slug}` : "" }`;
 
-      <Button icon="th" className="bp3-button option view-table" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
-        View Data
-      </Button>
+    const SharePanel = () =>
+      <div className="bp3-dialog-body share-dialog">
 
-      <Button icon="export" className="bp3-button option save-image" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
-        Save Image
-      </Button>
+        {/* to slug or not to slug */}
+        <Checkbox
+          small
+          checked={this.state.includeSlug}
+          label={t("CMS.Options.Scroll to section")}
+          onChange={this.handleSectionCheck.bind(this)}
+        />
+
+        {/* direct link */}
+        <ShareDirectLink link={shareLink} />
+
+        {/* direct link */}
+        <Label>
+          <span className="u-font-xs options-label-text">{t("CMS.Options.Social")}</span>
+          <ButtonGroup fill={true}>
+            <ShareFacebookLink link={shareLink} />
+            <ShareTwitterLink link={shareLink} />
+          </ButtonGroup>
+        </Label>
+      </div>;
+
+
+    return <div className="Options" ref={this.toggleButton} tabIndex={focusOptions ? 0 : -1} onBlur={() => this.setState({focusOptions: false})} aria-label="visualization options">
+      <ButtonGroup>
+        <Button icon="th" key="view-table-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
+          {t("CMS.Options.View Data")}
+        </Button>
+
+        <Button icon="media" key="save-image-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
+          {t("CMS.Options.Save Image")}
+        </Button>
+
+        <Button icon="share" key="share-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
+          {t("CMS.Options.Share")}
+        </Button>
+      </ButtonGroup>
 
       <Dialog className="options-dialog"
-        autoFocus={false}
+        autoFocus={true}
+        enforceFocus={true}
         isOpen={openDialog}
         onClose={this.toggleDialog.bind(this, false)}
         transitionDuration={transitionDuration}>
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
-          <Tab id="view-table" title="View Data" panel={<DataPanel />} />
-          <Tab id="save-image" title="Save Image" panel={<ImagePanel />} />
-          <Button icon="small-cross" aria-label="Close" className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)} />
+          <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
+          <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={<ImagePanel />} />
+          <Tab id="share" title={t("CMS.Options.Share")} panel={<SharePanel />} />
+          <Button icon="small-cross" iconOnly className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)}>
+            Close
+          </Button>
         </Tabs>
       </Dialog>
-
     </div>;
-
   }
 }
 
 Options.defaultProps = {
-  transitionDuration: 100
+  transitionDuration: 100,
+  iconOnly: false
+};
+Options.contextTypes = {
+  router: PropTypes.object
 };
 
-export default connect(state => ({
+export default withNamespaces()(connect(state => ({
   location: state.location
-}))(Options);
+}))(Options));

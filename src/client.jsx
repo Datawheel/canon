@@ -1,5 +1,7 @@
 /* eslint react/display-name:0 */
-import "babel-polyfill";
+
+import {setConfig} from "react-hot-loader";
+setConfig({logLevel: "error", showReactDomPatchNotification: false});
 
 import React from "react";
 import {hydrate} from "react-dom";
@@ -9,6 +11,7 @@ import {syncHistoryWithStore} from "react-router-redux";
 import {animateScroll} from "react-scroll";
 import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
+import {selectAll} from "d3-selection";
 import createRoutes from "routes";
 import configureStore from "./storeConfig";
 import {LOADING_END, LOADING_START} from "./consts";
@@ -16,7 +19,11 @@ import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
 const {basename} = window.__INITIAL_STATE__.location;
 const browserHistory = useRouterHistory(createHistory)({basename});
-const store = configureStore(window.__INITIAL_STATE__, browserHistory);
+
+import canonConfig from "canon.js";
+const reduxMiddleware = canonConfig.reduxMiddleware || false;
+
+const store = configureStore(window.__INITIAL_STATE__, browserHistory, reduxMiddleware);
 const history = syncHistoryWithStore(browserHistory, store);
 const routes = createRoutes(store);
 
@@ -79,13 +86,27 @@ function renderMiddleware() {
     renderRouterContext: (child, props) => {
 
       const needs = props.components.filter(comp => comp && (comp.need || comp.preneed || comp.postneed));
-      const {action, hash, query, state} = props.location;
+      const {action, hash, pathname, query, search, state} = props.location;
+
+      const postRender = function() {
+        if (!window.__SSR__) {
+          if (typeof window.ga === "function") {
+            setTimeout(() => {
+              window.ga("set", "title", document.title);
+              window.ga("set", "page", pathname + search);
+              window.ga("send", "pageview");
+            }, 0);
+          }
+        }
+        if (hash) scrollToHash(hash);
+        else window.scrollTo(0, 0);
+      };
 
       if (action !== "REPLACE" || !Object.keys(query).length) {
+        selectAll(".d3plus-tooltip").remove();
         if (window.__SSR__ || state === "HASH" || !needs.length) {
+          postRender();
           window.__SSR__ = false;
-          if (hash) scrollToHash(hash);
-          else window.scrollTo(0, 0);
         }
         else {
           store.dispatch({type: LOADING_START});
@@ -93,8 +114,7 @@ function renderMiddleware() {
           preRenderMiddleware(store, props)
             .then(() => {
               store.dispatch({type: LOADING_END});
-              if (hash) scrollToHash(hash);
-              else window.scrollTo(0, 0);
+              postRender();
             });
         }
       }
@@ -114,7 +134,7 @@ const helmet = window.__HELMET_DEFAULT__;
 function createElement(Component, props) {
 
   if (props.children && props.route.path === "/") {
-    return <CanonProvider router={props.router} helmet={helmet} i18n={i18n}>
+    return <CanonProvider router={props.router} helmet={helmet} locale={locale}>
       <Component {...props} />
     </CanonProvider>;
   }

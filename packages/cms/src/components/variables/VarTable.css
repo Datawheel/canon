@@ -1,0 +1,44 @@
+@import "../../css/mixins.css";
+
+/* card table for displaying description, preview profile text, etc */
+.cms-var-table {
+  @mixin var-overflow;
+  /* positioning */
+  margin-top: 0.25rem;
+  border-collapse: collapse;
+}
+
+.cms-var-table-body {
+  display: block;
+  width: 100%;
+  max-height: 6rem;
+  padding: 0.125rem 0.25rem; /* padding directly on table messes with overflow */
+  white-space: nowrap;
+
+  @supports (min-width: max-content) {
+    min-width: max-content;
+    overflow-x: hidden;
+  }
+}
+
+/* max height row with overflow */
+.cms-var-table-row {
+  @mixin var-row;
+}
+
+/* error */
+.cms-var-table-error {
+  @mixin error-text;
+  display: block;
+  padding-left: 1em; /* room for icon */
+  line-height: 1.125 !important;
+
+  & > .cms-var-table-error-icon {
+    /* sizing */
+    width: 0.875em;
+    /* positioning */
+    position: absolute;
+    left: -1px;
+    top: -3px;
+  }
+}

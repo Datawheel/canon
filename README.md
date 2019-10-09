@@ -8,6 +8,8 @@ Reusable React environment and components for creating visualization engines.
 * [Deployment](#deployment)
 * [Header/Meta Information](#header-meta-information)
 * [Page Routing](#page-routing)
+  * [Window Location](#window-location)
+* [Hot Module Reloading](#hot-module-reloading)
 * [Redux Store](#redux-store)
 * [Localization](#localization)
   * [Language Detection](#language-detection)
@@ -48,13 +50,24 @@ Once installed, run the following command to create some initial scaffolding:
 npx canon-setup
 ```
 
-Now that the necessary files are in place, simply run `npm run dev` to spin up the development server.
+Now that the necessary files are in place, simply run `npm run dev` to spin up the development server. Once the process finished "Bundling Client Webpack", visit `https://localhost:3300` in the browser and view your beautiful Hello World!
 
-If you encounter an error that causes the node server to keep running in the background, the following command should kill the process:
-
-```bash
-kill -9 $(ps aux | grep @datawheel/canon-core/bin/server.js | grep -v grep | awk '{print $2}')
-```
+All React components are stored in the `app/` directory, with the main entry component being `app/App.jsx`. Here is the initial scaffolding you should see in your project folder:
+* `.vscode/` - VSCode editor settings for code linting
+* `app/` - majority of the front-end site code
+  * `components/` - components that are used by multiple pages
+  * `pages/` - page-specific components (like the homepage and profiles)
+  * > `reducers/` - any redux reducers needed for the react-redux store (required to exist, but unused initially)
+  * `App.jsx` & `App.css` - the main parent component that all pages extend
+  * `d3plus.js` - global d3plus visualization styles
+  * `helmet.js` - default meta information for all pages to be displayed between the `<head>` tags
+  * `routes.jsx` - hook ups for all of the page routes
+  * > `store.js` - default redux store (required to exist, but unused initially)
+  * `style.yml` - global color and style variables
+* `static/` - static files used by the site like images and PDFs
+* `.eslintrc` - javascript style rules used for consistent coding
+* `.gitignore` - development files to exclude from the git repository
+* `canon.js` - contains any canon settings/modifications (empty by default)
 
 ---
 
@@ -113,7 +126,7 @@ As a fallback (mainly related to CMS content), Canon also intercepts all `<a>` t
 When linking to an anchor ID on the current page, use the `<AnchorLink>` component exported by canon to enable a silky smooth scrollto animation:
 
 ```jsx
-import {AnchorLink} from "react-router";
+import {AnchorLink} from "@datawheel/canon-core";
 ...
 <AnchorLink to="economy">Jump to Economy</AnchorLink>
 ...
@@ -141,6 +154,30 @@ class Tile extends Component {
 ```
 
 Notice the different usage of `push` and `replace`. Pushing a new URL to the router effects the push/pop history of the browser (so back and forward buttons work), which replacing the URL simply updates the value without effecting the browser history.
+
+### Window Location
+
+There are 3 preferred ways (each with their use cases) to determine the current page the user is viewing:
+
+1. **redux `state.location`** - for server-side rendering, like if you need the current page in a `render` function when a component mounts. This object is created manually on the server-side to mimic `window.location`, but _does NOT get updated on subsequent react-router page views_.
+2. **`this.props.router.location`** - every top-level component that is connected to a route in `routes.jsx` has access to the main react-router instance, which should be relied on to always contain the currently viewed page.
+3. **`this.context.router.location`** - the current react-router instance is also passed down to every component via context.
+
+---
+
+## Hot Module Reloading
+
+To enable hot module reloading, the component being used on a Route (like `Home.jsx` or `Profile.jsx`) needs to be wrapped with the `hot` wrapper when exporting. Import it like this:
+
+```jsx
+import {hot} from "react-hot-loader/root";
+```
+
+And export it like this:
+
+```jsx
+export default hot(Home);
+```
 
 ---
 

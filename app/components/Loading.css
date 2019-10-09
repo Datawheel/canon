@@ -8,14 +8,14 @@
   top: 0;
   width: 100%;
   z-index: 100;
-  & .pt-non-ideal-state-visual {
+  & .bp3-non-ideal-state {
     max-width: 200px;
     width: 100%;
-    & .pt-progress-meter {
-      background-color: var(--light);
+    & .bp3-progress-meter {
+      background-color: var(--light, rgb(101, 111, 95));
     }
   }
-  & .pt-non-ideal-state-title {
+  & .bp3-heading {
     color: var(--white);
   }
 }

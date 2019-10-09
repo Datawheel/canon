@@ -1,16 +1,46 @@
-const {Client} = require("mondrian-rest-client");
+const Client = require("@datawheel/olap-client").Client;
+const MondrianDataSource = require("@datawheel/olap-client").MondrianDataSource;
+// const TesseractDataSource = require("@datawheel/olap-client").TesseractDataSource;
+
+const collate = require("../utils/collate");
 const d3Array = require("d3-array");
 const sequelize = require("sequelize");
 const shell = require("shelljs");
 const yn = require("yn");
 const path = require("path");
+const {strip} = require("d3plus-text");
 const Op = sequelize.Op;
 
-const client = new Client(process.env.CANON_LOGICLAYER_CUBE);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+const LANGUAGES = process.env.CANON_LANGUAGES ? process.env.CANON_LANGUAGES.split(",") : [envLoc];
+if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
+// Put the default language first in the array. This ensures that slugs that are generated
+// in populateSearch will be made from the default language content.
+LANGUAGES.sort(a => a === envLoc ? -1 : 1);
 
-const topicTypeDir = path.join(__dirname, "../components/topics/");
+const {CANON_CMS_CUBES} = process.env;
+
+/**
+ * There is not a fully-featured way for olap-client to know the difference between a 
+ * Tesseract and a Mondrian Client. Tesseract is more modern/nice in its HTTP codes/responses,
+ * so attempt Tesseract first, and on failure, assume mondrian. 
+ */
+const client = new Client();
+Client.dataSourceFromURL(CANON_CMS_CUBES).then(
+  datasource => {
+    if (verbose) console.log(`Initializing Tesseract at ${CANON_CMS_CUBES}`);
+    client.setDataSource(datasource);
+  },
+  err => {
+    const ds = new MondrianDataSource(CANON_CMS_CUBES);
+    client.setDataSource(ds);
+    if (verbose) console.error(`Tesseract not detected: ${err.message}`);
+    if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
+  }
+);
+
+const sectionTypeDir = path.join(__dirname, "../components/sections/");
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
 
@@ -27,34 +57,46 @@ const catcher = e => {
 };
 
 const profileReqTreeOnly = {
-  attributes: ["id", "slug", "dimension", "levels", "ordering"],
-  include: [{
-    association: "topics", attributes: ["id", "slug", "ordering", "profile_id", "type"], 
-    include: [
-      {association: "content", attributes: ["id", "lang", "title"]}
-    ]
-  }]
+  attributes: ["id", "ordering"],
+  include: [
+    {association: "meta"},
+    {
+      association: "sections", attributes: ["id", "slug", "ordering", "profile_id", "type", "sticky"],
+      include: [
+        {association: "content", attributes: ["id", "locale", "title"]}
+      ]
+    }
+  ]
 };
 
 const storyReqTreeOnly = {
   attributes: ["id", "slug", "ordering"],
   include: [
-    {association: "content", attributes: ["id", "lang", "title"]},
-    {association: "storytopics", attributes: ["id", "slug", "ordering", "story_id", "type"],
-      include: [{association: "content", attributes: ["id", "lang", "title"]}]
+    {association: "content", attributes: ["id", "locale", "title"]},
+    {association: "storysections", attributes: ["id", "slug", "ordering", "story_id", "type"],
+      include: [{association: "content", attributes: ["id", "locale", "title"]}]
     }
   ]
 };
 
 const formatterReqTreeOnly = {
-  attributes: ["id", "name"]
+  attributes: ["id", "name", "description"]
 };
 
 const profileReqProfileOnly = {
   include: [
+    {association: "meta"},
+    {association: "content"}
+  ]
+};
+
+const profileReqToolbox = {
+  include: [
+    {association: "meta"},
     {association: "content"},
-    {association: "generators", attributes: ["id", "name"]},
-    {association: "materializers", attributes: ["id", "name", "ordering"]}
+    {association: "generators", attributes: ["id", "name", "description"]},
+    {association: "materializers", attributes: ["id", "name", "ordering", "description"]},
+    {association: "selectors"}
   ]
 };
 
@@ -67,7 +109,7 @@ const storyReqStoryOnly = {
   ]
 };
 
-const topicReqTopicOnly = {
+const sectionReqSectionOnly = {
   include: [
     {association: "content"},
     {association: "subtitles", attributes: ["id", "ordering"]},
@@ -78,7 +120,7 @@ const topicReqTopicOnly = {
   ]
 };
 
-const storyTopicReqStoryTopicOnly = {
+const storysectionReqStorysectionOnly = {
   include: [
     {association: "content"},
     {association: "subtitles", attributes: ["id", "ordering"]},
@@ -94,29 +136,29 @@ const storyTopicReqStoryTopicOnly = {
  * automatically generate Create, Update, and Delete Routes (as specified later in the get/post methods)
  */
 const cmsTables = [
-  "author", "formatter", "generator", "materializer", "profile",
-  "selector", "story", "story_description", "story_footnote", "storytopic",
-  "storytopic_description", "storytopic_stat", "storytopic_subtitle", "storytopic_visualization",
-  "topic", "topic_description", "topic_stat", "topic_subtitle", "topic_visualization"
+  "author", "formatter", "generator", "materializer", "profile", "profile_meta",
+  "selector", "story", "story_description", "story_footnote", "storysection",
+  "storysection_description", "storysection_stat", "storysection_subtitle", "storysection_visualization",
+  "section", "section_description", "section_stat", "section_subtitle", "section_visualization", "section_selector"
 ];
 
 /**
  * Some tables are translated to different languages using a corresponding "content" table, like "profile_content".
- * As such, some of the following functions need to take compound actions, e.g., insert a metadata record into 
+ * As such, some of the following functions need to take compound actions, e.g., insert a metadata record into
  * profile, THEN insert the "real" data into "profile_content." This list (subset of cmsTables) represents those
  * tables that need corresponding _content updates.
  */
 
 const contentTables = [
-  "author", "profile", "story", "story_description", "story_footnote", "storytopic", "storytopic_description", 
-  "storytopic_stat", "storytopic_subtitle", "topic", "topic_description", "topic_stat", "topic_subtitle"
+  "author", "profile", "story", "story_description", "story_footnote", "storysection", "storysection_description",
+  "storysection_stat", "storysection_subtitle", "section", "section_description", "section_stat", "section_subtitle"
 ];
 
 const sorter = (a, b) => a.ordering - b.ordering;
 
 /**
- * Due to yet-unreproducible edge cases, sometimes elements lose their ordering. 
- * This function sorts an array, then checks if the "ordering" property lines up 
+ * Due to yet-unreproducible edge cases, sometimes elements lose their ordering.
+ * This function sorts an array, then checks if the "ordering" property lines up
  * with the element's place in the array. If not, "patch" the element and send it back
  * to the client, and asynchronously send an update to the db to match it.
  */
@@ -132,13 +174,28 @@ const flatSort = (conn, array) => {
   return array;
 };
 
+const bubbleSortSelectors = (conn, selectors) => {
+  selectors = selectors
+    .map(s => Object.assign({}, s, {ordering: s.section_selector.ordering}))
+    .sort(sorter);
+  selectors.forEach((o, i) => {
+    if (o.ordering !== i) {
+      o.ordering = i;
+      o.section_selector.ordering = i;
+      conn.update({ordering: i}, {where: {id: o.section_selector.id}}).catch(catcher);
+    }
+  });
+  return selectors;
+};
+
 
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. todo: move it up to the query.
 const sortProfileTree = (db, profiles) => {
   profiles = profiles.map(p => p.toJSON());
   profiles = flatSort(db.profile, profiles);
   profiles.forEach(p => {
-    p.topics = flatSort(db.topic, p.topics);
+    p.meta = flatSort(db.profile_meta, p.meta);
+    p.sections = flatSort(db.section, p.sections);
   });
   return profiles;
 };
@@ -147,14 +204,13 @@ const sortStoryTree = (db, stories) => {
   stories = stories.map(s => s.toJSON());
   stories = flatSort(db.story, stories);
   stories.forEach(s => {
-    s.storytopics = flatSort(db.storytopic, s.storytopics);
+    s.storysections = flatSort(db.storysection, s.storysections);
   });
   return stories;
 };
 
-const sortProfile = (db, profile, attr) => {
-  profile = profile.toJSON();
-  profile.attr = attr ? attr.toJSON() : {};
+const sortProfile = (db, profile) => {
+  profile.meta = flatSort(db.profile_meta, profile.meta);
   profile.materializers = flatSort(db.materializer, profile.materializers);
   return profile;
 };
@@ -167,23 +223,24 @@ const sortStory = (db, story) => {
   return story;
 };
 
-const sortTopic = (db, topic) => {
-  topic = topic.toJSON();
-  topic.subtitles = flatSort(db.topic_subtitle, topic.subtitles);
-  topic.visualizations = flatSort(db.topic_visualization, topic.visualizations);
-  topic.stats = flatSort(db.topic_stat, topic.stats);
-  topic.descriptions = flatSort(db.topic_description, topic.descriptions);
-  topic.selectors = flatSort(db.selector, topic.selectors);
-  return topic;
+const sortSection = (db, section) => {
+  section = section.toJSON();
+  section.subtitles = flatSort(db.section_subtitle, section.subtitles);
+  section.visualizations = flatSort(db.section_visualization, section.visualizations);
+  section.stats = flatSort(db.section_stat, section.stats);
+  section.descriptions = flatSort(db.section_description, section.descriptions);
+  // ordering is nested in section_selector - bubble for top-level sorting
+  section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
+  return section;
 };
 
-const sortStoryTopic = (db, storytopic) => {
-  storytopic = storytopic.toJSON();
-  storytopic.subtitles = flatSort(db.storytopic_subtitle, storytopic.subtitles);
-  storytopic.visualizations = flatSort(db.storytopic_visualization, storytopic.visualizations);
-  storytopic.stats = flatSort(db.storytopic_stat, storytopic.stats);
-  storytopic.descriptions = flatSort(db.storytopic_description, storytopic.descriptions);
-  return storytopic;
+const sortStorySection = (db, storysection) => {
+  storysection = storysection.toJSON();
+  storysection.subtitles = flatSort(db.storysection_subtitle, storysection.subtitles);
+  storysection.visualizations = flatSort(db.storysection_visualization, storysection.visualizations);
+  storysection.stats = flatSort(db.storysection_stat, storysection.stats);
+  storysection.descriptions = flatSort(db.storysection_description, storysection.descriptions);
+  return storysection;
 };
 
 const formatter = (members, data, dimension, level) => {
@@ -191,8 +248,7 @@ const formatter = (members, data, dimension, level) => {
   const newData = members.reduce((arr, d) => {
     const obj = {};
     obj.id = `${d.key}`;
-    obj.name = d.name;
-    obj.display = d.caption;
+    obj.name = d.caption || d.name;
     obj.zvalue = data[obj.id] || 0;
     obj.dimension = dimension;
     obj.hierarchy = level;
@@ -207,8 +263,8 @@ const formatter = (members, data, dimension, level) => {
 };
 
 const pruneSearch = async(dimension, levels, db) => {
-  const currentProfiles = await db.profile.findAll().catch(catcher);
-  const currentDimensions = currentProfiles.map(p => p.dimension);
+  const currentMeta = await db.profile_meta.findAll().catch(catcher);
+  const currentDimensions = currentMeta.map(m => m.dimension);
   // To be on the safe side, only clear the search table of dimensions that NO remaining
   // profiles are currently making use of.
   // Don't need to prune levels - they will be filtered automatically in searches.
@@ -217,37 +273,45 @@ const pruneSearch = async(dimension, levels, db) => {
     const resp = await db.search.destroy({where: {dimension}}).catch(catcher);
     if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
   }
+  else {
+    if (verbose) console.log(`Skipped search cleanup - ${dimension} is still in use`);
+  }
 };
 
-const populateSearch = (profileData, db) => {
+const populateSearch = async(profileData, db) => {
 
-  /**
-   *
-   */
-  async function start() {
+  const cubeName = profileData.cubeName;
+  const measure = profileData.measure;
+  const dimension = profileData.dimName || profileData.dimension;
+  const dimLevels = profileData.levels;
 
-    const cubeName = profileData.cubeName;
-    const measure = profileData.measure;
-    const dimension = profileData.dimName;
-    const dimLevels = profileData.levels;
+  const cube = await client.getCube(cubeName).catch(catcher);
 
-    const cube = await client.cube(cubeName).catch(catcher);
+  const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
+    .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
 
-    const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
-      .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
+  for (const locale of LANGUAGES) {
 
     let fullList = [];
     for (let i = 0; i < levels.length; i++) {
 
       const level = levels[i];
-      const members = await client.members(level).catch(catcher);
+      const members = await client.getMembers(level, {locale}).catch(catcher);
 
-      const data = await client.query(cube.query
-        .drilldown(dimension, level.hierarchy.name, level.name)
-        .measure(measure), "jsonrecords")
-        .then(resp => resp.data.data)
+      let data = [];
+
+      const drilldown = {
+        dimension,
+        hierarchy: level.hierarchy.name,
+        level: level.name
+      };
+
+      data = await client.execQuery(cube.query
+        .addDrilldown(drilldown)
+        .addMeasure(measure))
+        .then(resp => resp.data)
         .then(data => data.reduce((obj, d) => {
-          obj[d[`ID ${level.name}`]] = d[measure];
+          obj[d[`ID ${level.name}`] ? d[`ID ${level.name}`] : d[`${level.name} ID`]] = d[measure];
           return obj;
         }, {})).catch(catcher);
 
@@ -255,23 +319,55 @@ const populateSearch = (profileData, db) => {
 
     }
 
+    let slugs = await db.search.findAll().catch(catcher);
+    slugs = slugs.map(s => s.slug).filter(d => d);
+
+    const slugify = (str, id) => {
+      let slug = strip(str).replace(/-{2,}/g, "-").toLowerCase();
+      if (slugs.includes(slug)) slug += `-${id}`;
+      slugs.push(slug);
+      return slug;
+    };
+
+    // Fold over the list of members
     for (let i = 0; i < fullList.length; i++) {
-      const obj = fullList[i];
-      const {id, dimension, hierarchy} = obj;
+      // Extract their properties
+      const {id, name, zvalue, dimension, hierarchy, stem} = fullList[i];
+      // The search table holds the non-translatable props
+      const searchObj = {id, zvalue, dimension, hierarchy, stem};
+      searchObj.slug = slugify(name, id);
+      // Create the member in the search table
       const [row, created] = await db.search.findOrCreate({
         where: {id, dimension, hierarchy},
-        defaults: obj
+        defaults: searchObj
       }).catch(catcher);
-      if (verbose && created) console.log(`Created: ${row.id} ${row.display}`);
+      if (created) {
+        if (verbose) console.log(`Created: ${row.id} ${row.slug}`);
+        // If a new row was created, create its translated content
+        await db.search_content.create({id: row.contentId, locale, name});
+      }
       else {
-        await row.updateAttributes(obj).catch(catcher);
-        if (verbose) console.log(`Updated: ${row.id} ${row.display}`);
+        if (row.slug) delete searchObj.slug;
+        // If it's an update, update everything except the (permanent) slug
+        await row.updateAttributes(searchObj).catch(catcher);
+        if (verbose) {
+          console.log(`Updated: ${row.id} ${row.slug}`);
+          console.log("Updating associated language content:");
+        }
+        const [contentRow, contentCreated] = await db.search_content.findOrCreate({
+          where: {id: row.contentId, locale},
+          defaults: {name}
+        }).catch(catcher);
+        if (contentCreated) {
+          if (verbose) console.log(`Created ${locale} Content: ${contentRow.name}`);
+        }
+        else {
+          await contentRow.updateAttributes({name});
+          if (verbose) console.log(`Updated ${contentRow.id} ${contentRow.locale}: ${contentRow.name}`);
+        }
       }
     }
-
   }
-
-  start();
 
 };
 
@@ -283,10 +379,25 @@ module.exports = function(app) {
 
   /* GETS */
 
+  app.get("/api/cms/meta", async(req, res) => {
+    let meta = await db.profile_meta.findAll().catch(catcher);
+    meta = meta.map(m => m.toJSON());
+    res.json(meta);
+  });
+
   app.get("/api/cms/tree", async(req, res) => {
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     return res.json(profiles);
+  });
+
+  app.get("/api/cms/toolbox/:id", async(req, res) => {
+    const {id} = req.params;
+    const reqObj = Object.assign({}, profileReqToolbox, {where: {id}});
+    let profile = await db.profile.findOne(reqObj).catch(catcher);
+    profile = profile.toJSON();
+    profile.formatters = await db.formatter.findAll(formatterReqTreeOnly);
+    res.json(profile);
   });
 
   app.get("/api/cms/storytree", async(req, res) => {
@@ -295,19 +406,35 @@ module.exports = function(app) {
     return res.json(stories);
   });
 
-  app.get("/api/cms/formattertree", async(req, res) => {
-    const formatters = await db.formatter.findAll(formatterReqTreeOnly).catch(catcher);
-    return res.json(formatters);
-  });
-
   app.get("/api/cms/profile/get/:id", async(req, res) => {
     const {id} = req.params;
+    const dims = collate(req.query);
     const reqObj = Object.assign({}, profileReqProfileOnly, {where: {id}});
-    const profile = await db.profile.findOne(reqObj).catch(catcher);
-    const attr = await db.search.findOne({where: {[sequelize.Op.and]: [{id}, {hierarchy: {[sequelize.Op.in]: profile.levels}}]}}).catch(catcher);
-    // Simpler version of search for cms versions that precede use of levels in profiles
-    // const attr = await db.search.findOne({where: {id}});
-    return res.json(sortProfile(db, profile, attr));
+    let profile = await db.profile.findOne(reqObj).catch(catcher);
+    profile = profile.toJSON();
+    // Create a lookup object of the search rows, of the
+    // pattern (id/id1),id2,id3, so that unary profiles can access it without an integer.
+    let attr = {};
+    for (let i = 0; i < dims.length; i++) {
+      const dim = dims[i];
+      const thisSlug = profile.meta.find(d => d.slug === dim.slug);
+      const levels = thisSlug ? thisSlug.levels : [];
+      let searchReq;
+      if (levels.length === 0) {
+        searchReq = {where: {id: dim.id}};
+      }
+      else {
+        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
+      }
+      let thisAttr = await db.search.findOne(searchReq).catch(catcher);
+      thisAttr = thisAttr ? thisAttr.toJSON() : {};
+      if (i === 0) attr = Object.assign(attr, thisAttr);
+      Object.keys(thisAttr).forEach(key => {
+        attr[`${key}${i + 1}`] = thisAttr[key];
+      });
+    }
+    profile.attr = attr;
+    return res.json(sortProfile(db, profile));
   });
 
   app.get("/api/cms/story/get/:id", async(req, res) => {
@@ -317,41 +444,44 @@ module.exports = function(app) {
     return res.json(sortStory(db, story));
   });
 
-  app.get("/api/cms/topic/get/:id", async(req, res) => {
+  app.get("/api/cms/section/get/:id", async(req, res) => {
     const {id} = req.params;
-    const reqObj = Object.assign({}, topicReqTopicOnly, {where: {id}});
-    let topic = await db.topic.findOne(reqObj).catch(catcher);
-    const topicTypes = [];
-    shell.ls(`${topicTypeDir}*.jsx`).forEach(file => {
+    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id}});
+    let section = await db.section.findOne(reqObj).catch(catcher);
+    const sectionTypes = [];
+    shell.ls(`${sectionTypeDir}*.jsx`).forEach(file => {
       // In Windows, the shell.ls command returns forward-slash separated directories,
       // but the node "path" command returns backslash separated directories. Flip the slashes
       // so the ensuing replace operation works (this should be a no-op for *nix/osx systems)
-      const topicTypeDirFixed = topicTypeDir.replace(/\\/g, "/");
-      const compName = file.replace(topicTypeDirFixed, "").replace(".jsx", "");
-      topicTypes.push(compName);
+      const sectionTypeDirFixed = sectionTypeDir.replace(/\\/g, "/");
+      const compName = file.replace(sectionTypeDirFixed, "").replace(".jsx", "");
+      if (compName !== "Section") sectionTypes.push(compName);
     });
-    topic = sortTopic(db, topic);
-    topic.types = topicTypes;
-    return res.json(topic);
+    section = sortSection(db, section);
+    section.types = sectionTypes;
+    // sections need to know all available selectors so it can choose which to subscribe to
+    const allSelectors = await db.selector.findAll({where: {profile_id: section.profile_id}}).catch(catcher);
+    if (allSelectors) section.allSelectors = allSelectors.map(d => d.toJSON());
+    return res.json(section);
   });
 
-  app.get("/api/cms/storytopic/get/:id", async(req, res) => {
+  app.get("/api/cms/storysection/get/:id", async(req, res) => {
     const {id} = req.params;
-    const reqObj = Object.assign({}, storyTopicReqStoryTopicOnly, {where: {id}});
-    let storytopic = await db.storytopic.findOne(reqObj).catch(catcher);
-    const topicTypes = [];
-    shell.ls(`${topicTypeDir}*.jsx`).forEach(file => {
-      const compName = file.replace(topicTypeDir, "").replace(".jsx", "");
-      topicTypes.push(compName);
+    const reqObj = Object.assign({}, storysectionReqStorysectionOnly, {where: {id}});
+    let storysection = await db.storysection.findOne(reqObj).catch(catcher);
+    const sectionTypes = [];
+    shell.ls(`${sectionTypeDir}*.jsx`).forEach(file => {
+      const compName = file.replace(sectionTypeDir, "").replace(".jsx", "");
+      sectionTypes.push(compName);
     });
-    storytopic = sortStoryTopic(db, storytopic);
-    storytopic.types = topicTypes;
-    return res.json(storytopic);
+    storysection = sortStorySection(db, storysection);
+    storysection.types = sectionTypes;
+    return res.json(storysection);
   });
 
   // Top-level tables have their own special gets, so exclude them from the "simple" gets
   const getList = cmsTables.filter(tableName =>
-    !["profile", "topic", "story", "storytopic"].includes(tableName)
+    !["profile", "section", "story", "storysection"].includes(tableName)
   );
 
   getList.forEach(ref => {
@@ -376,7 +506,7 @@ module.exports = function(app) {
       const newObj = await db[ref].create(req.body).catch(catcher);
       // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
       if (contentTables.includes(ref)) {
-        const payload = Object.assign({}, req.body, {id: newObj.id, lang: envLoc});
+        const payload = Object.assign({}, req.body, {id: newObj.id, locale: envLoc});
         await db[`${ref}_content`].create(payload).catch(catcher);
         const fullObj = await db[ref].findOne({where: {id: newObj.id}, include: [{association: "content"}]}).catch(catcher);
         return res.json(fullObj);
@@ -388,16 +518,34 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
+    const profile = await db.profile.create(req.body).catch(catcher);
+    await db.profile_content.create({id: profile.id, locale: envLoc}).catch(catcher);
+    const section = await db.section.create({ordering: 0, type: "Hero", profile_id: profile.id});
+    await db.section_content.create({id: section.id, locale: envLoc}).catch(catcher);
+    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
+    profiles = sortProfileTree(db, profiles);
+    return res.json(profiles);
+  });
+
+  app.post("/api/cms/profile/addDimension", isEnabled, async(req, res) => {
     const profileData = req.body;
-    const profile = await db.profile.create({slug: profileData.slug, ordering: profileData.ordering, dimension: profileData.dimName, levels: profileData.levels}).catch(catcher);
-    await db.profile_content.create({id: profile.id, lang: envLoc}).catch(catcher);
-    const topic = await db.topic.create({ordering: 0, profile_id: profile.id});
-    await db.topic_content.create({id: topic.id, lang: envLoc}).catch(catcher);
+    profileData.dimension = profileData.dimName;
+    await db.profile_meta.create(profileData);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     populateSearch(profileData, db);
     return res.json(profiles);
   });
+
+  app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
+    const {id} = req.body;
+    let profileData = await db.profile_meta.findOne({where: {id}});
+    profileData = profileData.toJSON();
+    await populateSearch(profileData, db);
+    return res.json({});
+  });
+
+
 
   /* UPDATES */
   // For now, all "update" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.
@@ -407,7 +555,7 @@ module.exports = function(app) {
       const o = await db[ref].update(req.body, {where: {id: req.body.id}}).catch(catcher);
       if (contentTables.includes(ref) && req.body.content) {
         req.body.content.forEach(async content => {
-          await db[`${ref}_content`].upsert(content, {where: {id: req.body.id, lang: content.lang}}).catch(catcher);
+          await db[`${ref}_content`].upsert(content, {where: {id: req.body.id, locale: content.locale}}).catch(catcher);
         });
       }
       return res.json(o);
@@ -421,8 +569,8 @@ module.exports = function(app) {
    */
   const deleteList = [
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
-    {elements: ["topic_subtitle", "topic_description", "topic_stat", "topic_visualization"], parent: "topic_id"},
-    {elements: ["storytopic_subtitle", "storytopic_description", "storytopic_stat", "storytopic_visualization"], parent: "storytopic_id"}
+    {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
+    {elements: ["storysection_subtitle", "storysection_description", "storysection_stat", "storysection_visualization"], parent: "storysection_id"}
   ];
 
   deleteList.forEach(list => {
@@ -439,7 +587,7 @@ module.exports = function(app) {
         where2[list.parent] = row[list.parent];
         const rows = await db[ref].findAll({where: where2, attributes: ["id", "ordering"], order: [["ordering", "ASC"]]}).catch(catcher);
         return res.json(rows);
-      });      
+      });
     });
   });
 
@@ -459,10 +607,62 @@ module.exports = function(app) {
     return res.json(rows);
   });
 
+  app.delete("/api/cms/selector/delete", isEnabled, async(req, res) => {
+    const row = await db.selector.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.selector.destroy({where: {id: req.query.id}});
+    const rows = await db.selector.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
+    return res.json(rows);
+  });
+
+  app.delete("/api/cms/section_selector/delete", isEnabled, async(req, res) => {
+    const {selector_id, section_id} = req.query; // eslint-disable-line camelcase
+    const row = await db.section_selector.findOne({where: {selector_id, section_id}}).catch(catcher);
+    await db.section_selector.update({ordering: sequelize.literal("ordering -1")}, {where: {section_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.section_selector.destroy({where: {selector_id, section_id}});
+    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id: row.section_id}});
+    let section = await db.section.findOne(reqObj).catch(catcher);
+    let rows = [];
+    if (section) {
+      section = section.toJSON();
+      section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
+      rows = section.selectors;
+    }
+    return res.json(rows);
+  });
+
+  app.post("/api/cms/section_selector/swap", isEnabled, async(req, res) => {
+    const {selector_id, section_id} = req.body; // eslint-disable-line camelcase
+    let selectors = await db.section_selector.findAll({where: {section_id}}).catch(catcher);
+    selectors = selectors.map(s => s.toJSON());
+    const selector1 = selectors.find(s => s.selector_id === selector_id); // eslint-disable-line camelcase
+    const selector2 = selectors.find(s => s.ordering === selector1.ordering + 1);
+    await db.section_selector.update({ordering: selector2.ordering}, {where: {id: selector1.id}}).catch(catcher);
+    await db.section_selector.update({ordering: selector1.ordering}, {where: {id: selector2.id}}).catch(catcher);
+    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id: section_id}});
+    let section = await db.section.findOne(reqObj).catch(catcher);
+    let rows = [];
+    if (section) {
+      section = section.toJSON();
+      section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
+      rows = section.selectors;
+    }
+    return res.json(rows);
+  });
+
   app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {
     const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
+    pruneSearch(row.dimension, row.levels, db);
+    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
+    profiles = sortProfileTree(db, profiles);
+    return res.json(profiles);
+  });
+
+  app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
+    const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
     pruneSearch(row.dimension, row.levels, db);
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
@@ -484,30 +684,30 @@ module.exports = function(app) {
     return res.json(rows);
   });
 
-  app.delete("/api/cms/topic/delete", isEnabled, async(req, res) => {
-    const row = await db.topic.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.topic.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.topic.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.topic.findAll({
-      where: {profile_id: row.profile_id}, 
-      attributes: ["id", "slug", "ordering", "profile_id", "type"], 
+  app.delete("/api/cms/section/delete", isEnabled, async(req, res) => {
+    const row = await db.section.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.section.destroy({where: {id: req.query.id}}).catch(catcher);
+    const rows = await db.section.findAll({
+      where: {profile_id: row.profile_id},
+      attributes: ["id", "slug", "ordering", "profile_id", "type"],
       include: [
-        {association: "content", attributes: ["id", "lang", "title"]}
+        {association: "content", attributes: ["id", "locale", "title"]}
       ],
       order: [["ordering", "ASC"]]
     }).catch(catcher);
     return res.json(rows);
   });
 
-  app.delete("/api/cms/storytopic/delete", isEnabled, async(req, res) => {
-    const row = await db.storytopic.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.storytopic.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.storytopic.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.storytopic.findAll({
-      where: {story_id: row.story_id}, 
-      attributes: ["id", "slug", "ordering", "story_id", "type"], 
+  app.delete("/api/cms/storysection/delete", isEnabled, async(req, res) => {
+    const row = await db.storysection.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.storysection.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.storysection.destroy({where: {id: req.query.id}}).catch(catcher);
+    const rows = await db.storysection.findAll({
+      where: {story_id: row.story_id},
+      attributes: ["id", "slug", "ordering", "story_id", "type"],
       include: [
-        {association: "content", attributes: ["id", "lang", "title"]}
+        {association: "content", attributes: ["id", "locale", "title"]}
       ],
       order: [["ordering", "ASC"]]
     }).catch(catcher);
@@ -516,9 +716,9 @@ module.exports = function(app) {
 
   app.delete("/api/cms/selector/delete", isEnabled, async(req, res) => {
     const row = await db.selector.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.selector.update({ordering: sequelize.literal("ordering -1")}, {where: {topic_id: row.topic_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.selector.update({ordering: sequelize.literal("ordering -1")}, {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.selector.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.selector.findAll({where: {topic_id: row.topic_id}, order: [["ordering", "ASC"]]}).catch(catcher);
+    const rows = await db.selector.findAll({where: {section_id: row.section_id}, order: [["ordering", "ASC"]]}).catch(catcher);
     return res.json(rows);
   });
 

@@ -26,6 +26,7 @@ class App extends Component {
       <div className="test-2"></div>
       <div className="box red"></div>
       <div className="box green"></div>
+      <div className="box custom"></div>
       <div>{ children }</div>
       <Footer />
     </div>;

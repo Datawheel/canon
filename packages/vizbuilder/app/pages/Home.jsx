@@ -18,6 +18,12 @@ class Home extends React.Component {
           <li>
             <Link to="/visualize">Vizbuilder</Link>
           </li>
+          <li>
+            <Link to="/select">Select component</Link>
+          </li>
+          <li>
+            <Link to="/multiselect">MultiSelect component</Link>
+          </li>
         </ul>
       </div>
     );

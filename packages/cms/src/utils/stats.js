@@ -169,16 +169,8 @@ function computeMidP(vx, vN, confLevel) {
 function smr(observedVal, expectedVal) {
 
   /* Calculates standard morbidity ratio given observed and expected values */
-  let vx = observedVal;
+  const vx = observedVal;
   const vN = expectedVal;
-
-  // Byar method approximation;
-  if (vx > vN) {
-    vx = vx;
-  }
-  else {
-    vx += 1;
-  }
 
   // Fisher's exact test for poisson distribution ;
   const Obs = vx;

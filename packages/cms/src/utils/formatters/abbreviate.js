@@ -1,4 +1,4 @@
-const libs = require("./libs");
+const libs = require("../libs");
 
 /**
  * Abbreviates a number into a smaller more human-readible number.
@@ -6,7 +6,8 @@ const libs = require("./libs");
 function abbreviate(n) {
   if (typeof n !== "number") return "N/A";
 
-  const length = n.toString().split(".")[0].length;
+  const negative = n < 0;
+  const length = n.toString().split(".")[0].replace("-", "").length;
   let val;
 
   if (n === 0) val = "0";
@@ -19,7 +20,7 @@ function abbreviate(n) {
   else if (length === 3) val = libs.d3.format(",f")(n);
   else val = libs.d3.format(".3g")(n);
 
-  return val
+  return `${negative && val.charAt(0) !== "-" ? "-" : ""}${val}`
     .replace(/(\.[0-9]*[1-9])[0]*$/g, "$1") /* removes any trailing zeros */
     .replace(/[.][0]*$/g, ""); /* removes any trailing decimal point */
 }

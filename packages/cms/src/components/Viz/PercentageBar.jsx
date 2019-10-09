@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
-
+import Button from "../fields/Button";
 import "./PercentageBar.css";
 
 class PercentageBar extends Component {
@@ -21,13 +21,13 @@ class PercentageBar extends Component {
     const {dataFormat} = this.props;
 
     const defaults = {
-      cutoff: 5,
+      cutoff: 2,
       cutoffText: false,
       numberFormat: (d, value, total) => {
         const perc = Number(d[value] / total * 100);
         return isNaN(perc) ? "No Data" : `${perc.toFixed(2)}%`;
       },
-      showText: "Show More",
+      showText: "Show all",
       hideText: "Hide"
     };
 
@@ -53,44 +53,95 @@ class PercentageBar extends Component {
       this.setState({config: null}, this.buildConfig.bind(this));
     }
   }
-
   render() {
-
     const {showAll, config} = this.state;
-
     if (!config) return null;
-
     const {data, cutoff, cutoffText, title, value, groupBy, sort, total, numberFormat, showText, hideText} = config;
-
     const cutoffFunction = typeof cutoff === "number" ? data => data.slice(0, cutoff) : cutoff;
-
     let displayData = showAll ? data : cutoffFunction(data);
 
     if (sort) displayData = displayData.sort(sort);
-  
-    return <div className="PercentageBar">
-      <h3 className="pb-title" dangerouslySetInnerHTML={{__html: title}} />
-      { 
-        displayData.map((d, i) => {
-          const percent = d[value] / total * 100;
-          const label = d[groupBy];
-          return <div key={`pb-${i}`}className="percent-wrapper">
-            <p className="label s-size">{label}</p>
-            <div className="bp3-progress-bar bp3-intent-primary bp3-no-stripes">
-              {!isNaN(percent) && <div className="bp3-progress-meter" style={{width: `${percent}%`}}>
-              </div>}      
-              
-            </div>
-            <p className="percent-label xs-size">{numberFormat(d, value, total)}</p>    
-          </div>;
-        })
-      }
-      <div className="show-more">
-        {!showAll && cutoffText && <div className="cutoff-text">{cutoffText}</div>}
-        {(showAll || data.length > displayData.length) && <button onClick={() => this.setState({showAll: !this.state.showAll})}>{showAll ? hideText : showText}</button>}
-      </div>
-    </div>;
 
+    // Create ticks and labels
+    let labelVal, xPos;
+    const lines = [];
+    const ticks = [];
+    const obj = {};
+    for (let i = 0; i <= 10; i++) {
+      // ensure first line isn't cropped left
+      xPos = i === 0 ? "0.1%" : `${i * 10  }%`;
+
+      // generate arguments for numberFormat
+      obj.tickValue = (total * (i * 0.1)).toFixed(2);
+      labelVal = numberFormat(obj, "tickValue", total);
+
+      lines.push(<line key={i} x1={xPos} x2={xPos} y1="0" y2="100%"/>);
+      ticks.push(<text key={i} x={xPos} y="100%">{labelVal}</text>);
+    }
+
+    return (
+      <>
+      <div className={`percentage-bar-wrapper ${`${labelVal}`.includes("%") ? "is-percent" : ""}`}>
+
+        <div className="precentage-bar-grid-holder">
+          <svg className="percentage-bar-grid">
+            <defs>
+              <clipPath id="percentage-bar-clip">
+                <rect x="0" y="0" width="100%" height={showAll ? "99%" : "88%"} />
+              </clipPath>
+            </defs>
+            <g className="percentage-bar-ticks">
+              {lines}
+            </g>
+            <g className="percentage-bar-labels">
+              {ticks}
+            </g>
+          </svg>
+        </div>
+
+        <ul className="percentage-bar-list">
+          {displayData.filter(d => d).map((d, i) => {
+            const percent = d[value] / total * 100;
+            const label = d[groupBy];
+            return (
+              <li key={`percentage-bar-${i}`} className="percentage-bar-item">
+                <span className="percentage-bar-label label u-font-xs">
+                  {label}
+                </span>
+
+                <span className="percentage-bar-value display u-font-md">
+                  {numberFormat(d, value, total)}
+                </span>
+
+                <span className="u-visually-hidden">: </span>
+                {!isNaN(percent) &&
+                    <span className="percentage-bar-bg">
+                      <span className="percentage-bar" style={{width: `${percent}%`}} />
+                    </span>
+                }
+
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+        <div className="show-more">
+          {!showAll && cutoffText &&
+            <div className="cutoff-text" dangerouslySetInnerHTML={{__html: cutoffText}}></div>
+          }
+          {(showAll || data.length > displayData.length) &&
+            <Button
+              fontSize="xs"
+              iconPosition="left"
+              icon={showAll ? "eye-off" : "eye-open"}
+              onClick={() => this.setState({showAll: !this.state.showAll})}
+            >
+              {showAll ? hideText : showText}
+            </Button>
+          }
+        </div>
+      </>
+    );
   }
 }
 

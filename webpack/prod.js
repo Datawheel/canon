@@ -1,6 +1,7 @@
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin,
       InlineEnviromentVariablesPlugin = require("inline-environment-variables-webpack-plugin"),
       MiniCssExtractPlugin = require("mini-css-extract-plugin"),
+      WebpackBar = require("webpackbar"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
@@ -16,7 +17,12 @@ module.exports = [
     mode: "production",
     devtool: "cheap-module-source-map",
     context: path.join(__dirname, "../src"),
-    entry: {app: "./client"},
+    entry: {
+      app: [
+        "@babel/polyfill",
+        "./client"
+      ]
+    },
     output: {
       path: assetsPath,
       filename: "[name].js",
@@ -26,10 +32,20 @@ module.exports = [
       rules: commonLoaders({extract: true})
     },
     resolve: {
-      modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "..")],
+      modules: [
+        path.join(appDir, "node_modules"),
+        appDir,
+        appPath,
+        path.join(__dirname, ".."),
+        path.join(__dirname, "../node_modules")
+      ],
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
+      new WebpackBar({
+        color: "#fc6",
+        name: "client"
+      }),
       new MiniCssExtractPlugin({
         filename: "styles.css"
       }),
@@ -45,12 +61,7 @@ module.exports = [
         openAnalyzer: false,
         reportFilename: "../reports/webpack-prod-client.html"
       })
-    ],
-    stats: {
-      entrypoints: false,
-      children: false,
-      warnings: false
-    }
+    ]
   },
   {
     name: "server",
@@ -72,6 +83,10 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     plugins: [
+      new WebpackBar({
+        color: "#CB9F2C",
+        name: "server"
+      }),
       new MiniCssExtractPlugin({
         filename: "styles.css"
       }),
@@ -89,11 +104,6 @@ module.exports = [
         openAnalyzer: false,
         reportFilename: "../reports/webpack-prod-server.html"
       })
-    ],
-    stats: {
-      entrypoints: false,
-      children: false,
-      warnings: false
-    }
+    ]
   }
 ];

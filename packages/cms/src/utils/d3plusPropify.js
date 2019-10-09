@@ -3,24 +3,41 @@ import {parse} from "./FUNC";
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-export default (logic, formatters = {}, variables = {}, locale = envLoc) => {
+export default (logic, formatters = {}, variables = {}, locale = envLoc, id = null, setVariables = d => d) => {
 
   let config;
 
-  // The logic provided might be malformed. Wrap it in a try/catch to be sure we don't 
+  // The logic provided might be malformed. Wrap it in a try/catch to be sure we don't
   // crash / RSOD whatever page is making use of propify.
   try {
-    config = parse({vars: ["variables"], logic}, formatters, locale)(variables);
+    config = parse({vars: ["variables"], logic}, formatters, locale, setVariables)(variables);
   }
   // If the javascript fails, return a special error object for the front-end to use.
   catch (e) {
-    console.log(`Parsing Error in propify: ${e}`);
-    return {error: `${e}`};
+    console.error(`Parsing Error in propify (ID: ${id})`);
+    console.error(`Error message: ${e.message}`);
+    const frontEndMessage = "Error Rendering Visualization";
+    return {
+      error: `${e}`,
+      config: {
+        data: [],
+        type: "Treemap",
+        noDataHTML: `<div style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></div>`}
+    };
   }
 
   // strip out the "dataFormat" from config
   const dataFormat = config.dataFormat ? config.dataFormat : d => d.data;
   delete config.dataFormat;
+
+  const linksFormat = config.linksFormat || undefined;
+  delete config.linksFormat;
+
+  const nodesFormat = config.nodesFormat || undefined;
+  delete config.nodesFormat;
+
+  const topojsonFormat = config.topojsonFormat || undefined;
+  delete config.topojsonFormat;
 
   // hides the non-discrete axis, if necessary
   const discrete = config.discrete || "x";
@@ -37,6 +54,6 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc) => {
     }
   });
 
-  return {config, dataFormat};
+  return {config, dataFormat, linksFormat, nodesFormat, topojsonFormat};
 
 };
