@@ -26,7 +26,8 @@ class Profile extends Component {
     this.state = {
       profile: props.profile,
       selectors: {},
-      loading: false
+      loading: false,
+      setVarsLoading: false
     };
   }
 
@@ -55,20 +56,20 @@ class Profile extends Component {
    * the "allowed" status of a given section.
    */
   onSetVariables(newVariables) {
-    const {profile, selectors, loading} = this.state;
+    const {profile, selectors, setVarsLoading} = this.state;
     const {id, variables} = profile;
     const {locale} = this.props;
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
     // loop by checking if the vars are in there already, only updating if they are not yet set.
     const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
-    if (!loading && !alreadySet) {
-      this.setState({loading: true});
+    if (!setVarsLoading && !alreadySet) {
+      this.setState({setVarsLoading: true});
       const url = `/api/profile?profile=${id}&locale=${locale}&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
       const payload = {variables: Object.assign({}, variables, newVariables)};
       axios.post(url, payload)
         .then(resp => {
-          this.setState({profile: resp.data, loading: false});
+          this.setState({profile: resp.data, setVarsLoading: false});
         });
     }
   }
