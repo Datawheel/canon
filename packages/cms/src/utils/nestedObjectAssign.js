@@ -4,7 +4,7 @@ const isArray = item => item && Array.isArray(item);
 /**
  *
  */
-export default function nestedObjectAssign(target, ...sources) {
+const nestedObjectAssign = (target, ...sources) => {
 
   if (!sources.length) return target;
 
@@ -30,4 +30,6 @@ export default function nestedObjectAssign(target, ...sources) {
     }
   }
   return nestedObjectAssign(target, ...sources);
-}
+};
+
+module.exports = nestedObjectAssign;

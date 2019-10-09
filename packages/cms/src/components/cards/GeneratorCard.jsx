@@ -28,8 +28,20 @@ class GeneratorCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.minData && prevProps.variables !== this.props.variables) {
-      this.formatDisplay.bind(this)();
+    if (this.state.minData) {
+      const {id} = this.state.minData;
+      let varTypes = ["variables"];
+      if (this.props.secondaryVariables) varTypes = varTypes.concat("secondaryVariables");
+      const changed = varTypes.some(varType => 
+        ["_genStatus", "_matStatus"].some(status => 
+          prevProps[varType] && 
+          prevProps[varType][status] && 
+          this.props[varType] && 
+          this.props[varType][status] && 
+          JSON.stringify(prevProps[varType][status][id]) !== JSON.stringify(this.props[varType][status][id])
+        )
+      );
+      if (changed) this.formatDisplay.bind(this)();
     }
     if (prevProps.forceOpen !== this.props.forceOpen && this.props.forceOpen) {
       this.openEditor.bind(this)();
@@ -81,10 +93,11 @@ class GeneratorCard extends Component {
   delete() {
     const {type} = this.props;
     const {minData} = this.state;
-    axios.delete(`/api/cms/${type}/delete`, {params: {id: minData.id}}).then(resp => {
+    const {id} = minData;
+    axios.delete(`/api/cms/${type}/delete`, {params: {id}}).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
-        if (this.props.onDelete) this.props.onDelete(type, resp.data);
+        if (this.props.onDelete) this.props.onDelete(type, id, resp.data);
       }
     });
   }
@@ -95,8 +108,9 @@ class GeneratorCard extends Component {
     axios.post(`/api/cms/${type}/update`, minData).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false});
-        const query = type === "generator" ? {generator: minData.id} : false;
-        if (this.props.onSave) this.props.onSave(query);
+        let config;
+        if (type === "generator" || type === "materializer") config = {type, ids: [minData.id]};
+        if (this.props.onSave) this.props.onSave(config);
       }
     });
   }
