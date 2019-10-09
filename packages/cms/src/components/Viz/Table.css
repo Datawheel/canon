@@ -29,6 +29,7 @@ NOTE: ripped from ReactTable
   overflow-x: auto;
   -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
   @mixin hide-scrollbars;
+  -ms-overflow-style: none;
 }
 
 .rt-thead {
@@ -47,7 +48,6 @@ NOTE: ripped from ReactTable
   /* table body can scroll vertically */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
-  @mixin hide-scrollbars;
 }
 
 .rt-tr-group {
