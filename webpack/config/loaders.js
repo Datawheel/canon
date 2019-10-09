@@ -86,6 +86,7 @@ module.exports = props => {
       exclude: [path.join(appDir, "node_modules", "mapbox-gl")],
       include: [
         path.join(appDir, "app"),
+        path.resolve(appDir, "canon.js"),
         path.join(appDir, "src"),
         path.join(appDir, "utils"),
         path.join(appDir, "node_modules"),
