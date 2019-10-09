@@ -166,7 +166,6 @@ class Profile extends Component {
                   contents={innerGrouping[0]}
                   headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
                   loading={loading}
-                  isIE={isIE}
                   key={`${innerGrouping[0].slug}-${ii}`}
                 />
                 // grouped sections
@@ -179,7 +178,6 @@ class Profile extends Component {
                         : "h4"
                       }
                       loading={loading}
-                      isIE={isIE}
                       key={`${section.slug}-${iii}`}
                     />
                   )}

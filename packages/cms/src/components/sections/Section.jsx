@@ -47,16 +47,17 @@ class Section extends Component {
   componentDidMount() {
     const stickySection = this.state.contents.sticky;
     const currentSection = this.section.current;
-    const {isIE} = this.props;
 
     // make sure the section is sticky
-    if (stickySection === true && isIE) {
-      window.addEventListener("scroll", this.scrollBind);
-      this.setState({
-        // combine the position
-        top: currentSection.getBoundingClientRect().top + document.documentElement.scrollTop,
-        height: currentSection.getBoundingClientRect().height
-      });
+    if (stickySection === true && typeof window !== "undefined") {
+      if (/*@cc_on!@*/false || !!document.documentMode) { // eslint-disable-line spaced-comment
+        window.addEventListener("scroll", this.scrollBind);
+        this.setState({
+          // combine the position
+          top: currentSection.getBoundingClientRect().top + document.documentElement.scrollTop,
+          height: currentSection.getBoundingClientRect().height
+        });
+      }
     }
   }
 
