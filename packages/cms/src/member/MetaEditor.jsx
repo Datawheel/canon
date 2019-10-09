@@ -5,6 +5,7 @@ import ReactTable from "react-table";
 import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
 import {Dialog, Icon, EditableText, Spinner} from "@blueprintjs/core";
+import Status from "../components/interface/Status";
 
 import Button from "../components/fields/Button";
 import ButtonGroup from "../components/fields/ButtonGroup";
@@ -182,8 +183,7 @@ class MetaEditor extends Component {
 
   }
 
-  fetchStringifiedSourceData() {
-    const {sourceData} = this.state;
+  fetchStringifiedSourceData(sourceData) {
     return sourceData
       .sort((a, b) => {
         if (a.dimension === b.dimension) {
@@ -251,8 +251,8 @@ class MetaEditor extends Component {
    */
   prepData() {
     const {locale, localeDefault} = this.props;
-    const {epoch, imageEnabled} = this.state;
-    const data = this.fetchStringifiedSourceData.bind(this)();
+    const {epoch, imageEnabled, sourceData} = this.state;
+    const data = this.fetchStringifiedSourceData.bind(this)(sourceData);
     let skip = ["stem", "imageId", "contentId"];
     if (!imageEnabled) skip = skip.concat("image");
     const keySort = ["id", "slug", "content", "zvalue", "dimension", "hierarchy", "image"];
@@ -367,7 +367,7 @@ class MetaEditor extends Component {
    * Then call prepData to turn the sourceData into columns for the table.
    */
   hitDB() {
-    const searchGet = axios.get("/api/search/all");
+    const searchGet = axios.get("/api/search?q=&locale=all");
     const metaGet = axios.get("/api/cms/meta");
     Promise.all([searchGet, metaGet]).then(resp => {
       const sourceData = resp[0].data;
@@ -450,7 +450,27 @@ class MetaEditor extends Component {
     // The user may have clicked either a dimension or a hierarchy. Determine which.
     const filterKey = filterBy.includes("hierarchy_") ? "hierarchy" : "dimension";
     filterBy = filterBy.replace("hierarchy_", "").replace("dimension_", "");
-    const sourceData = this.fetchStringifiedSourceData.bind(this)();
+    let url = "/api/search?locale=all&limit=100";
+    if (query) {
+      url += `&q=${query}`;
+    }
+    if (filterBy !== "all") {
+      if (filterKey === "dimension") {
+        url += `&dimension=${filterBy}`;
+      }
+      else if (filterKey === "hierarchy") {
+        url += `&levels=${filterBy}`; 
+      }
+    }
+    this.setState({loading: true});
+    axios.get(url).then(resp => {
+      const data = this.fetchStringifiedSourceData.bind(this)(resp.data);
+      const page = 0;
+      this.setState({data, filterKey, page, loading: false});
+    });
+    
+    
+    /*
     const data = sourceData
       .filter(d => d[filterKey] === filterBy || filterBy === "all")
       .filter(d =>
@@ -461,7 +481,8 @@ class MetaEditor extends Component {
         d.content.some(c => c.keywords && c.keywords.toLowerCase().includes(query.toLowerCase())) ||
         d.image && d.image.content && d.image.content.some(c => c.meta.toLowerCase().includes(query.toLowerCase()))
       );
-    this.setState({data, filterKey});
+    */
+    
   }
 
   resetFiltering() {
@@ -494,6 +515,7 @@ class MetaEditor extends Component {
       flickrImages,
       isOpen,
       loading,
+      page,
       searching,
       imgIndex,
       url
@@ -556,6 +578,8 @@ class MetaEditor extends Component {
         <div className="cms-editor cms-meta-table-container">
           <h2 className="u-visually-hidden">Members</h2>
           <ReactTable
+            page={page}
+            onPageChange={page => this.setState({page})}
             className="cms-meta-table"
             data={data}
             columns={columns}
@@ -712,6 +736,7 @@ class MetaEditor extends Component {
             }
           </div>
         </Dialog>
+        <Status busy="Searching..." done="Complete!" recompiling={loading}/>
       </div>
     );
   }
