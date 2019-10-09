@@ -151,8 +151,7 @@ class TextCard extends Component {
     axios.post(`/api/cms/${type}/update`, payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false, isDirty: false}, this.formatDisplay.bind(this));
-        // Only broadcast the title update out to the tree if we are updating the default locale
-        if (locale === localeDefault && this.props.onSave) this.props.onSave(minData);
+        this.props.onSave(minData);
       }
     });
   }
