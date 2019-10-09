@@ -30,6 +30,8 @@ export default {
       "Only Download Visualization": "Only Download Visualization",
       "Save Image": "Save Image",
       "Share": "Share",
+      "Copy": "Copy",
+      "Copied": "Copied",
       "Share on Facebook": "Share on Facebook",
       "Share on Twitter": "Share on Twitter",
       "Social": "Social",
