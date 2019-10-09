@@ -177,17 +177,26 @@ module.exports = function(app) {
       if (levels) where.hierarchy = levels.split(",");
       rows = await db.search.findAll({
         where,
-        include: [{model: db.image}, {association: "content"}]
+        include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}]
       });
     } 
     else {
       const searchWhere = {};
       if (q) {
-        where[sequelize.Op.or] = [
-          {name: {[sequelize.Op.iLike]: `%${q}%`}},
-          {keywords: {[sequelize.Op.overlap]: [q]}}
-        ];
-        where.locale = locale;
+        if (locale === "all") {
+          where[sequelize.Op.or] = [
+            {name: {[sequelize.Op.iLike]: `%${q}%`}},
+            {keywords: {[sequelize.Op.overlap]: [q]}}
+            // Todo - search attr and imagecontent for query
+          ];
+        }
+        else {
+          where[sequelize.Op.or] = [
+            {name: {[sequelize.Op.iLike]: `%${q}%`}},
+            {keywords: {[sequelize.Op.overlap]: [q]}}
+          ];
+          where.locale = locale;
+        }
         rows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(rows.map(r => r.id)));
       }
@@ -195,11 +204,17 @@ module.exports = function(app) {
       // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
       if (levels) searchWhere.hierarchy = levels.split(",");
       rows = await db.search.findAll({
-        include: [{model: db.image}, {association: "content"}],
+        include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
         limit,
         order: [["zvalue", "DESC"]],
         where: searchWhere
       });
+    }
+
+    // MetaEditor.jsx makes use of this endpoint, but needs ALL locale content. If locale="all" is set,
+    // Forget about the ensuing sanitazation/prep for front-end searches and just return the raw rows for manipulation in the CMS.
+    if (locale === "all") {
+      return res.json(rows);
     }
 
     /**
@@ -240,7 +255,7 @@ module.exports = function(app) {
       return result;
     });
 
-    res.json({
+    return res.json({
       results,
       query: {dimension, id, limit, q}
     });
