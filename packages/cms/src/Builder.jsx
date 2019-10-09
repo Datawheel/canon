@@ -55,8 +55,7 @@ class Builder extends Component {
     else {
       currentTab = "profiles";
       const {pathname} = location;
-      let url = pathname === "/" ? "" : "/";
-      url += "?tab=profiles";
+      const url = `${pathname}?tab=profiles`;
       router.replace(url);
     }
 
@@ -122,8 +121,7 @@ class Builder extends Component {
     pathObj = Object.assign({}, pathObj, {tab: currentTab});
     const {router} = this.props;
     const {pathname} = router.location;
-    let url = pathname === "/" ? "" : "/";
-    url += `${pathname}?tab=${pathObj.tab}`;
+    let url = `${pathname}?tab=${pathObj.tab}`;
     // Profile
     if (pathObj.profile) url += `&profile=${pathObj.profile}`;
     if (pathObj.section) url += `&section=${pathObj.section}`;
@@ -140,18 +138,20 @@ class Builder extends Component {
 
   render() {
     const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen, userInit} = this.state;
-    const {isEnabled, env, auth} = this.props;
+    const {isEnabled, env, auth, router} = this.props;
+    let {pathname} = router.location;
+    if (pathname.charAt(0) !== "/") pathname = `/${pathname}`;
     const navLinks = ["profiles", "stories", "metadata"];
 
     const waitingForUser = yn(env.CANON_LOGINS) && !userInit;
 
     if (!isEnabled || waitingForUser) return null;
 
-    if (yn(env.CANON_LOGINS) && !auth.user) return <AuthForm />;
+    if (yn(env.CANON_LOGINS) && !auth.user) return <AuthForm redirect={pathname}/>;
 
     if (yn(env.CANON_LOGINS) && auth.user && auth.user.role < 1) {
       return (
-        <AuthForm error={true} auth={auth} />
+        <AuthForm redirect={pathname} error={true} auth={auth} />
       );
     }
 
