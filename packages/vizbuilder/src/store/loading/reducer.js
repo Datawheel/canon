@@ -1,14 +1,15 @@
-import {LOAD_REQUEST, LOAD_SUCCESS, LOAD_FAILURE} from "../actions/load";
+import {LOAD_FAILURE, LOAD_REQUEST, LOAD_SUCCESS} from "./actions";
 
-const initialState = {
-  inProgress: true,
-  total: 1,
+/** @type {LoadingState} */
+export const loadingInitialState = {
   done: 0,
-  error: undefined
+  error: undefined,
+  inProgress: true,
+  total: 1
 };
 
 /** @type {import("redux").Reducer<LoadingState>} */
-function loadReducer(state = initialState, {type, payload}) {
+export function loadingReducer(state = loadingInitialState, {type, payload}) {
   if (type === LOAD_REQUEST) {
     return {
       inProgress: true,
@@ -37,5 +38,3 @@ function loadReducer(state = initialState, {type, payload}) {
 
   return state;
 }
-
-export default loadReducer;

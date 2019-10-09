@@ -1,5 +1,7 @@
 import {MiddlewareAPI, Dispatch, AnyAction} from "redux";
 
+export {MiddlewareActionParams} from "./types"
+
 export function vizbuilderReducer(state: any, action: any): any;
 
 export function vizbuilderMiddleware({

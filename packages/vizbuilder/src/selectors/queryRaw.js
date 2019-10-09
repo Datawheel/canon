@@ -33,18 +33,15 @@ export const selectMeasure = createSelector(
         return measure;
       }
     }
-    throw new Error(`selectMeasure: measure ${measureUri} could not be found.`);
   }
 );
 
 export const selectCube = createSelector(
   [selectCubesState, selectMeasure],
   (cubes, measure) => {
-    const {cube: cubeUri} = measure;
-    const cube = cubes.find(cube => cube.uri === cubeUri);
-    if (!cube) {
-      throw new Error(`selectCube: cube ${cubeUri} could not be found.`);
+    if (measure) {
+      const {cube: cubeUri} = measure;
+      return cubes.find(cube => cube.uri === cubeUri);
     }
-    return cube;
   }
 );

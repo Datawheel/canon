@@ -4,6 +4,7 @@
     "checkJs": true,
     "jsx": "react",
     "moduleResolution": "node",
+    "baseUrl": "./app",
     "rootDirs": [
       "./app/",
       "./node_modules/@datawheel/canon-core/src/",

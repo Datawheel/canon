@@ -1,8 +1,9 @@
 import {createSelector} from "reselect";
-import {selectMeasureList} from "./listsRaw";
-import {selectCube, selectMeasure} from "./queryRaw";
 import {levelIteratorFactory} from "../helpers/arrays";
+import {arrayToMapBy} from "../helpers/transform";
+import {selectMeasureList} from "./listsRaw";
 import {selectIsGeomapMode} from "./props";
+import {selectCube, selectMeasure} from "./queryRaw";
 
 /**
  * Returns a map of table names with an array of associated measures
@@ -41,9 +42,23 @@ export const selectMeasureListByTable = createSelector(
 export const selectMeasureListByCube = createSelector(
   [selectCube, selectIsGeomapMode],
   (cube, isGeomapMode) =>
-    cube.measures.filter(
-      measure => !(isGeomapMode && measure.hideInMap) && !measure.hideInUi
-    )
+    cube ? cube.measures.filter(m => !(isGeomapMode && m.hideInMap) && !m.hideInUi) : []
+);
+
+/**
+ * Returns a map of the dimensions belonging to the current cube.
+ */
+export const selectDimensionMapByCube = createSelector(
+  [selectCube, selectIsGeomapMode],
+  (cube, isGeomapMode) => {
+    if (cube) {
+      const dimensions = isGeomapMode
+        ? cube.dimensions.filter(d => !(isGeomapMode && d.hideInMap) && !d.hideInUi)
+        : cube.dimensions;
+      return arrayToMapBy(dimensions, "name");
+    }
+    return {};
+  }
 );
 
 /**
@@ -53,6 +68,7 @@ export const selectLevelListByCube = createSelector(
   [selectCube, selectIsGeomapMode],
   (cube, isGeomapMode) => {
     const levels = [];
+
     if (cube) {
       const iterator = levelIteratorFactory(cube.dimensions);
       while (true) {
@@ -64,6 +80,7 @@ export const selectLevelListByCube = createSelector(
         }
       }
     }
+
     return levels;
   }
 );

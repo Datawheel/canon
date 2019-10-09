@@ -1,36 +1,26 @@
 import {MultiClient as OLAPClient} from "@datawheel/olap-client";
-import coreActions from "./coreActions";
-import olapActions from "./olapActions";
+import fetchEffects from "./effectFetch";
+import initializeEffects from "./effectInitialize";
+import updateEffects from "./effectUpdate";
+import validateEffects from "./effectValidate";
 
-/**
- * @template T
- * @typedef Action
- * @property {string} type
- * @property {T} payload
- */
-
-/**
- * @template T
- * @typedef MiddlewareActionParams
- * @property {Action<T>} action
- * @property {OLAPClient} client
- * @property {import("redux").Dispatch<import("redux").AnyAction>} dispatch
- * @property {() => GeneralState} getState
- */
-
-const actions = {
-  ...coreActions,
-  ...olapActions
+const effects = {
+  ...fetchEffects,
+  ...initializeEffects,
+  ...updateEffects,
+  ...validateEffects
 };
 
-/** @type {import("redux").Middleware<import("redux").Dispatch<import("redux").AnyAction>, GeneralState>} */
+/** @type {import("redux").Middleware<import("redux").Dispatch, GeneralState>} */
 function vizbuilderMiddleware({dispatch, getState}) {
   const client = new OLAPClient();
 
-  return next => action =>
-    action.type in actions
-      ? actions[action.type]({action, client, dispatch, getState})
-      : next(action);
+  return next => action => {
+    console.log(action);
+    return action.type in effects
+    ? effects[action.type]({action, client, dispatch, getState})
+    : next(action);
+  }
 }
 
 export default vizbuilderMiddleware;

@@ -1,28 +1,33 @@
 import {DimensionType, MultiClient} from "@datawheel/olap-client";
 import yn from "yn";
-import {doChartsUpdate, doCubesUpdate} from "../actions/common";
 import {
   OLAP_FETCHCUBES,
   OLAP_FETCHMEMBERS,
   OLAP_RUNQUERY,
   OLAP_SETUP
-} from "../actions/olap";
-import {ensureArray, findLevel} from "../helpers/arrays";
+} from "./actions";
+import {ensureArray} from "../helpers/arrays";
 import generateCharts from "../helpers/charts";
 import {applyQueryParams} from "../helpers/query";
 import {structCubeBuilder} from "../helpers/structs";
 import {selectGeomapLevels, selectIsGeomapMode} from "../selectors/props";
 import {selectCube, selectMeasure} from "../selectors/queryRaw";
 import {selectQueryState} from "../selectors/state";
+import {doChartsUpdate} from "../store/charts/actions";
+import {doCubesUpdate} from "../store/cubes/actions";
 
 export default {
+  /** @param {MiddlewareActionParams<string | string[]>} param0 */
   [OLAP_SETUP]: ({action, client}) => {
     const urlList = ensureArray(action.payload);
     return MultiClient.dataSourcesFromURL(...urlList).then(dataSources => {
+      // @ts-ignore
+      client.datasources = [];
       client.addDataSource(...dataSources);
     });
   },
 
+  /** @param {MiddlewareActionParams<undefined>} param0 */
   [OLAP_FETCHCUBES]: ({client, dispatch, getState}) => {
     const state = getState();
     const isGeomapMode = selectIsGeomapMode(state);
@@ -56,45 +61,46 @@ export default {
     });
   },
 
-  /** @param {import(".").MiddlewareActionParams<LevelItem>} param0 */
+  /** @param {MiddlewareActionParams<LevelLike>} param0 */
   [OLAP_FETCHMEMBERS]: ({action, client, getState}) => {
     const state = getState();
     const measure = selectMeasure(state);
 
-    if (measure) {
-      const {dimension: dimName, hierarchy: hieName, name: lvlName} = action.payload;
-      return client.getCube(measure.cube).then(cube => {
-        const level = findLevel(
-          cube.dimensions,
-          (lvl, hie, dim) =>
-            lvl.name === lvlName && hie.name === hieName && dim.name === dimName
-        );
-
-        if (!level) {
-          throw new Error(
-            `${OLAP_FETCHMEMBERS}: Level descriptor ${JSON.stringify(
-              action.payload
-            )} doesn't match with a level from cube ${cube.name}`
-          );
-        }
-
-        const query = cube.query
-          .addMeasure(measure.name)
-          .addDrilldown(level)
-          .setOption("nonempty", true)
-          .setOption("distinct", false)
-          .setOption("parents", true)
-          .setOption("debug", false)
-          .setOption("sparse", true);
-        return client.execQuery(query, "aggregate");
-      });
+    if (!measure) {
+      return Promise.reject(`${OLAP_FETCHMEMBERS}: Measure is not defined.`);
     }
 
-    return Promise.reject(`${OLAP_FETCHMEMBERS}: Measure is not defined.`);
+    return client.getCube(measure.cube).then(cube => {
+      const {dimension: dimName, hierarchy: hieName, name: lvlName} = action.payload;
+
+      for (let level of cube.levelIterator) {
+        if (
+          level.name === lvlName &&
+          level.hierarchy.name === hieName &&
+          level.dimension.name === dimName
+        ) {
+          const query = cube.query
+            .addMeasure(measure.name)
+            .addDrilldown(level)
+            .setOption("nonempty", true)
+            .setOption("distinct", false)
+            .setOption("parents", true)
+            .setOption("debug", false)
+            .setOption("sparse", true);
+          return client.execQuery(query, "aggregate");
+        }
+      }
+
+      throw new Error(
+        `${OLAP_FETCHMEMBERS}: Level descriptor ${JSON.stringify(
+          action.payload
+        )} doesn't match with a level from cube ${cube.name}`
+      );
+    });
   },
 
   /**
-   * @param {import(".").MiddlewareActionParams<undefined>} param0
+   * @param {MiddlewareActionParams<undefined>} param0
    */
   [OLAP_RUNQUERY]: ({client, dispatch, getState}) => {
     const state = getState();

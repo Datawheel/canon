@@ -70,11 +70,11 @@ export function levelIteratorFactory(dimensions) {
 /**
  * Ensures some object is always an array, or inside one. If the value is falsey, the array will be empty.
  * @template T
- * @param {T|T[]} obj The object to wrap in an array.
+ * @param {T | T[] | undefined} obj The object to wrap in an array.
  * @param {T[]} target The base array to be used as target.
  * @returns {T[]}
  */
-export const ensureArray = (obj, target = []) => (!obj ? target : target.concat(obj));
+export const ensureArray = (obj, target = []) => (obj == null ? target : target.concat(obj));
 
 /**
  * Iterates over all levels in a dimension array and returns the first that matches according to the `predicate` function.
@@ -114,14 +114,3 @@ export const replaceItem = (needle, haystack, property) => {
   }
   return haystack;
 };
-
-/**
- * @template {{name: string}} T
- * @param {T[]} list
- * @param {{[name: string]: T}} target
- */
-export const mapByName = (list, target = {}) =>
-  list.reduce((target, item) => {
-    target[item.name] = item;
-    return target;
-  }, target);

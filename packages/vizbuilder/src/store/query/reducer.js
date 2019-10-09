@@ -8,13 +8,36 @@ import {
   QUERY_GROUPS_DELETE,
   QUERY_GROUPS_UPDATE,
   QUERY_MEASURE_UPDATE,
-  QUERY_PERIOD_UPDATE
-} from "../actions/query";
-import {replaceItem} from "../helpers/arrays";
-import {queryInitialState} from "./state";
+  QUERY_PERIOD_UPDATE,
+  QUERY_INYECT
+} from "./actions";
+import {replaceItem} from "../../helpers/arrays";
+
+/** @type {QueryState} */
+export const queryInitialState = {
+  activeChart: null,
+  filters: [],
+  groups: [],
+  measure: "",
+  showConfInt: false,
+  timePeriod: 2019
+};
+
+/** @type {import("redux").Reducer<QueryState>} */
+export function queryReducer(state = queryInitialState, {type, payload}) {
+  return type in actions ? actions[type](state, payload) : state;
+}
 
 /** @type {{[action: string]: (state: QueryState, _) => QueryState}} */
 const actions = {
+  /**
+   * @param {Partial<QueryState>} queryState
+   */
+  [QUERY_INYECT]: (state, queryState) => ({
+    ...state,
+    ...queryState
+  }),
+
   /**
    * @param {string | undefined} activeChart
    */
@@ -96,10 +119,3 @@ const actions = {
     timePeriod: timePeriod || null
   })
 };
-
-/** @type {import("redux").Reducer<QueryState>} */
-function queryReducer(state = queryInitialState, {type, payload}) {
-  return type in actions ? actions[type](state, payload) : state;
-}
-
-export default queryReducer;

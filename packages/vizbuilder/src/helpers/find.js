@@ -1,3 +1,5 @@
+import {isSameLevel} from "./validation";
+
 /**
  * If `needle` is a valid value, returns the first element in the `haystack`
  * that matches the annotation._key property.
@@ -36,23 +38,53 @@ export function findByName(needle, haystack, elseFirst = false) {
  * @template {{fullName: string}} T
  * @param {string} needle The key to match
  * @param {T[]} haystack The array where to search for the object.
- * @param {boolean?} elseFirst A flag to return the first element in case of no matching result.
+ * @param {boolean} [elseFirst] A flag to return the first element in case of no matching result.
  */
 export function findByFullName(needle, haystack, elseFirst = false) {
-  const findResult = haystack.find(item => item.fullName.indexOf(needle) > -1);
+  const findResult = needle
+    ? haystack.find(item => item.fullName.indexOf(needle) > -1)
+    : undefined;
   return elseFirst ? findResult || haystack[0] : findResult;
+}
+
+/**
+ * if `needle` is a valid value, returns the first element in the `haystack`
+ * that matches the LevelLike properties of `needle`.
+ * If there's no matches and `elseFirst` is true, returns the first element
+ * in the `haystack`.
+ * @template {LevelLike} T
+ * @param {LevelLike} needle
+ * @param {T[]} haystack
+ * @param {boolean} [elseFirst]
+ */
+export function findByLevelLike(needle, haystack, elseFirst = false) {
+  const findResult = needle
+    ? haystack.find(item => isSameLevel(needle, item))
+    : undefined;
+  return elseFirst ? findResult || haystack[0] : findResult;
+}
+
+/**
+ * Returns the first number it finds in a `string`, else returns `elseValue`.
+ * @param {string} string The string to test
+ * @param {number} elseValue A value to return in case the string doesn't contain any
+ */
+export function findFirstNumber(string, elseValue) {
+  const match = `${string}`.match(/[0-9\.\,]+/);
+  return match ? Number.parseFloat(match[0]) : elseValue;
 }
 
 /**
  * Looks for an element of `needles` in `haystack`, using the `matchingFunction`.
  * If `elseFirst` is true and there's no match, returns the first element in `haystack`.
  * @template T
- * @param {(needle: string, haystack: T[]) => T | undefined} matchingFunction The function to use to find the elements
- * @param {T[]} haystack The array where to search for the object
- * @param {string[]} needles The array of default names to search for
+ * @template U
+ * @param {(needle: T, haystack: U[]) => U | undefined} matchingFunction The function to use to find the elements
+ * @param {T[]} needles The array of default names to search for
+ * @param {U[]} haystack The array where to search for the object
  * @param {boolean} [elseFirst] A flag to return the first element in case of no matching result
  */
-export function multiFinder(matchingFunction, needles, haystack, elseFirst) {
+export function doubleFinder(matchingFunction, needles, haystack, elseFirst = false) {
   needles = needles.slice().reverse();
   let matchResult;
   let n = needles.length;

@@ -28,17 +28,15 @@ interface QueryState {
 
 interface InstanceState {
   datacap: number;
-  defaultGroup?: string[];
+  defaultGroup?: LevelLike[];
   defaultMeasure?: string;
   key: string;
   multipliers: {[key: string]: number};
   permalink: boolean;
-  permalinkKeys?: {
-    enlarged: string;
-    filters: string;
-    groups: string;
-    measure: string;
-  };
+  permalinkEnlarged: string;
+  permalinkFilters: string;
+  permalinkGroups: string;
+  permalinkMeasure: string;
   topojson: string[];
   visualizations: string[];
 }
