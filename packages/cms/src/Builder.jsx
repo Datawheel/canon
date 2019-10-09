@@ -14,6 +14,8 @@ import Select from "./components/fields/Select";
 import Button from "./components/fields/Button";
 import AuthForm from "./components/interface/AuthForm";
 
+import AceWrapper from "./components/editors/AceWrapper";
+
 import "./css/utilities.css";
 import "./css/base.css";
 import "./css/blueprint-overrides.css";
@@ -253,6 +255,13 @@ class Builder extends Component {
             locale={secondaryLocale}
           />
         }
+        {/* 
+          This invisible AceWrapper is necessary, because running the require function in the render cycle of AceWrapper
+          can cause components to remount (notably the toolbox, hitting all generators). By putting this dummy AceWrapper in 
+          the top-level Builder.jsx, we run the require function "once and for all", so future instantiations of AceWrapper
+          do not cause any components to jigger and unmount/remount.
+        */}
+        <div style={{display: "none"}}><AceWrapper /></div>
       </div>
     );
   }
