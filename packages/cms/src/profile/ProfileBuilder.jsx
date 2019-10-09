@@ -649,10 +649,6 @@ class ProfileBuilder extends Component {
 
     if (!nodes) return null;
   
-    // Section Editors and Cards don't render until they have variables - Scaffold out some empty placeholders if the
-    // Variables aren't ready yet.
-    // const scaffold = {[localeDefault]: {_genStatus: {}, _matStatus: {}}};
-    // if (locale) scaffold[locale] = {_genStatus: {}, _matStatus: {}};
     const variables = variablesHash[currentPid] ? deepClone(variablesHash[currentPid]) : null;
 
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
