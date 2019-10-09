@@ -548,26 +548,27 @@ class ProfileBuilder extends Component {
     if (locale) locales.push(locale);
     for (const thisLocale of locales) {
 
+      // If the config is for a materializer, don't run generators. Just use our current variables for the POST action
       if (config && config.type === "materializer") {
         let paramString = "";
         previews.forEach((p, i) => {
           paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
         });
-        const query = {materializer: config.ids[0]};
+        const mid = config.ids[0];
+        const query = {materializer: mid};
         Object.keys(query).forEach(k => {
           paramString += `&${k}=${query[k]}`;
         });
-
+        // However, the user may have deleted a variable from their materializer. Clear out this materializer's variables 
+        // BEFORE we send the variables payload - so they will be filled in again properly from the POST response.
+        if (variablesHash[currentPid][thisLocale]._matStatus[mid]) {
+          Object.keys(variablesHash[currentPid][thisLocale]._matStatus[mid]).forEach(k => {
+            delete variablesHash[currentPid][thisLocale][k]; 
+          });
+          delete variablesHash[currentPid][thisLocale]._matStatus[mid];
+        }
+        // Once pruned, we can POST the variables to the materializer endpoint
         axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variablesHash[currentPid][thisLocale]}).then(mat => {
-          const incMat = mat.data;
-          if (incMat._matStatus) {
-            Object.keys(incMat._matStatus).forEach(mid => {
-              Object.keys(incMat._matStatus[mid]).forEach(k => {
-                delete variablesHash[currentPid][thisLocale][k];
-              });
-              delete variablesHash[currentPid][thisLocale]._matStatus[mid];
-            });
-          }
           variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], mat.data);
           this.setState({variablesHash}, maybeCallback);
         });
@@ -593,21 +594,23 @@ class ProfileBuilder extends Component {
           });
           axios.get(`/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
             variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], gen.data);
-            const gensLoaded = Object.keys(variablesHash[currentPid][thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
+            let gensLoaded = Object.keys(variablesHash[currentPid][thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
             const gensTotal = gids.length;
             const genLang = thisLocale;
+            // If the user is deleting a generator, then this function was called with a single gid (the one that was deleted)
+            // The pruning code above already removed its vars and _genStatus from the original vars, so the loading progress
+            // Can't know what to wait for. In this single instance, use this short-circuit to be instantly done and move onto mats.
+            if (gids.length === 1 && JSON.stringify(gen.data) === "{}") gensLoaded = 1;
             this.setState({variablesHash, gensLoaded, gensTotal, genLang}, maybeCallback);
-            if (Object.keys(variablesHash[currentPid][thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length === gids.length) {
+            if (gensLoaded === gids.length) {
+              // Clean out stale materializers (see above comment)
+              Object.keys(variablesHash[currentPid][thisLocale]._matStatus).forEach(mid => {
+                Object.keys(variablesHash[currentPid][thisLocale]._matStatus[mid]).forEach(k => {
+                  delete variablesHash[currentPid][thisLocale][k]; 
+                });
+                delete variablesHash[currentPid][thisLocale]._matStatus[mid];
+              });
               axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variablesHash[currentPid][thisLocale]}).then(mat => {
-                const incMat = mat.data;
-                if (incMat._matStatus) {
-                  Object.keys(incMat._matStatus).forEach(mid => {
-                    Object.keys(incMat._matStatus[mid]).forEach(k => {
-                      delete variablesHash[currentPid][thisLocale][k];
-                    });
-                    delete variablesHash[currentPid][thisLocale]._matStatus[mid];
-                  });
-                }
                 variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], mat.data);
                 this.setState({variablesHash}, maybeCallback);
               });
