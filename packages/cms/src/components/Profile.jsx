@@ -26,7 +26,8 @@ class Profile extends Component {
     this.state = {
       profile: props.profile,
       selectors: {},
-      loading: false
+      loading: false,
+      isIE: false
     };
   }
 
@@ -49,9 +50,9 @@ class Profile extends Component {
     };
   }
 
-  /** 
+  /**
    * Visualizations have the ability to "break out" and override a variable in the variables object.
-   * This requires a server round trip, because the user may have changed a variable that would affect 
+   * This requires a server round trip, because the user may have changed a variable that would affect
    * the "allowed" status of a given section.
    */
   onSetVariables(newVariables) {
@@ -91,7 +92,14 @@ class Profile extends Component {
   }
 
   render() {
-    const {profile, loading} = this.state;
+    const {isIE, profile, loading} = this.state;
+
+    // IE check needed for position: sticky fallback
+    if (typeof window !== "undefined") {
+      if (/*@cc_on!@*/false || !!document.documentMode) { // eslint-disable-line spaced-comment
+        this.setState({isIE: true});
+      }
+    }
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
@@ -145,7 +153,10 @@ class Profile extends Component {
         {/* main content sections */}
         <main className="cp-main" id="main">
           {groupedSections.map((groupings, i) =>
-            <div className="cp-grouping" key={i}>
+            <div className="cp-grouping" key={i} style={isIE ? {
+              position: "relative",
+              zIndex: i + 1 // in IE, hide sticky sections behind the next grouping
+            } : null}>
               {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                 // ungrouped section
                 ? <Section
