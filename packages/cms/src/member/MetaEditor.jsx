@@ -36,7 +36,10 @@ class MetaEditor extends Component {
       isOpen: false,
       currentRow: {},
       loading: false,
+      querying: false,
       searching: false,
+      typing: false,
+      typingTimeout: null,
       imgIndex: 0,
       url: ""
     };
@@ -462,11 +465,11 @@ class MetaEditor extends Component {
         url += `&levels=${filterBy}`; 
       }
     }
-    this.setState({loading: true});
+    this.setState({querying: true});
     axios.get(url).then(resp => {
       const data = this.fetchStringifiedSourceData.bind(this)(resp.data);
       const page = 0;
-      this.setState({data, filterKey, page, loading: false});
+      this.setState({data, filterKey, page, querying: false});
     });
     
     
@@ -493,7 +496,17 @@ class MetaEditor extends Component {
   }
 
   onChange(field, e) {
-    this.setState({[field]: e.target.value}, this.processFiltering.bind(this));
+    if (field === "query") {
+      let typingTimeout = null;
+      if (this.state.typingTimeout) {
+        clearTimeout(this.state.typingTimeout);
+      }
+      typingTimeout = setTimeout(this.processFiltering.bind(this), 750);
+      this.setState({typingTimeout, [field]: e.target.value});
+    }
+    else {
+      this.setState({[field]: e.target.value}, this.processFiltering.bind(this));
+    }
   }
 
   closeEditor() {
@@ -516,7 +529,9 @@ class MetaEditor extends Component {
       isOpen,
       loading,
       page,
+      querying,
       searching,
+      typing,
       imgIndex,
       url
     } = this.state;
@@ -736,7 +751,7 @@ class MetaEditor extends Component {
             }
           </div>
         </Dialog>
-        <Status busy="Searching..." done="Complete!" recompiling={loading}/>
+        <Status busy="Searching..." done="Complete!" recompiling={querying}/>
       </div>
     );
   }
