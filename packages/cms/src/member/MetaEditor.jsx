@@ -37,8 +37,8 @@ class MetaEditor extends Component {
       currentRow: {},
       loading: false,
       querying: false,
+      rowsPerPage: 10,
       searching: false,
-      typing: false,
       typingTimeout: null,
       imgIndex: 0,
       url: ""
@@ -341,15 +341,6 @@ class MetaEditor extends Component {
           Header: this.renderHeader("preview"),
           accessor: d => this.linkify.bind(this)(d),
           Cell: cell => <ul>{cell.value.map(url => <li key={url}><a href={url}>{url}</a></li>)}</ul>
-          /*
-          Header: this.renderHeader(`${locale} ${prop === "attr" ? "language hints" : prop}`),
-          minWidth: this.columnWidths(prop),
-          accessor: d => {
-            const content = d.content.find(c => c.locale === locale);
-            return content ? content[prop] : null;
-          },
-          Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, locale) : this.renderCell(cell)
-          */
         });
       }
       else if (field === "content") {
@@ -481,7 +472,7 @@ class MetaEditor extends Component {
     // The user may have clicked either a dimension or a hierarchy. Determine which.
     const filterKey = filterBy.includes("hierarchy_") ? "hierarchy" : "dimension";
     filterBy = filterBy.replace("hierarchy_", "").replace("dimension_", "");
-    let url = "/api/search?locale=all&limit=100";
+    let url = "/api/search?locale=all&limit=500";
     if (query) {
       url += `&q=${query}`;
     }
@@ -499,20 +490,6 @@ class MetaEditor extends Component {
       const page = 0;
       this.setState({data, filterKey, page, querying: false});
     });
-    
-    
-    /*
-    const data = sourceData
-      .filter(d => d[filterKey] === filterBy || filterBy === "all")
-      .filter(d =>
-        query === "" ||
-        d.slug && d.slug.includes(query.toLowerCase()) ||
-        d.content.some(c => c.name.toLowerCase().includes(query.toLowerCase())) ||
-        d.content.some(c => c.attr && c.attr.toLowerCase().includes(query.toLowerCase())) ||
-        d.content.some(c => c.keywords && c.keywords.toLowerCase().includes(query.toLowerCase())) ||
-        d.image && d.image.content && d.image.content.some(c => c.meta.toLowerCase().includes(query.toLowerCase()))
-      );
-    */
     
   }
 
@@ -557,9 +534,9 @@ class MetaEditor extends Component {
       isOpen,
       loading,
       page,
+      rowsPerPage,
       querying,
       searching,
-      typing,
       imgIndex,
       url
     } = this.state;
@@ -626,8 +603,10 @@ class MetaEditor extends Component {
             className="cms-meta-table"
             data={data}
             columns={columns}
-            pageSize={data.length > 10 ? 10 : data.length}
-            showPagination={data.length > 10}
+            defaultPageSize={data.length > rowsPerPage ? rowsPerPage : data.length}
+            showPageSizeOptions={true}
+            pageSizeOptions={[rowsPerPage, 25, 50, 100]}
+            showPagination={data.length > rowsPerPage}
           />
         </div>
 
