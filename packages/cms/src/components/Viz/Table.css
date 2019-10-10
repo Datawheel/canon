@@ -264,12 +264,6 @@ THEMING
     margin-right: 1rem;
   }
 
-  /* hide the page select menu */
-  /* NOTE: only visible when prop `showPageSizeOptions` is false */
-  & .select-wrap {
-    display: none;
-  }
-
   & .-pageInfo {
     display: flex;
     align-items: baseline;
