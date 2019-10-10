@@ -32,6 +32,10 @@ class Profile extends Component {
     };
   }
 
+  componentDidMount() {
+    if (isIE) this.setState({isIE: true});
+  }
+
   getChildContext() {
     const {formatters, locale, router} = this.props;
     const {profile} = this.state;
@@ -93,7 +97,7 @@ class Profile extends Component {
   }
 
   render() {
-    const {profile, loading} = this.state;
+    const {profile, loading, isIE} = this.state;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
@@ -147,7 +151,7 @@ class Profile extends Component {
         {/* main content sections */}
         <main className="cp-main" id="main">
           {groupedSections.map((groupings, i) =>
-            <div className="cp-grouping" key={i} style={isIE ? {
+            <div className="cp-grouping" key={i} style={isIE === true ? {
               position: "relative",
               zIndex: i + 1 // in IE, hide sticky sections behind the next grouping
             } : null}>
