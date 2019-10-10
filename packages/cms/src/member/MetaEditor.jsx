@@ -16,6 +16,7 @@ import Select from "../components/fields/Select";
 import "./MetaEditor.css";
 
 const IMAGES_PER_PAGE = 48;
+const ROWS_PER_PAGE = 10;
 
 class MetaEditor extends Component {
 
@@ -36,8 +37,9 @@ class MetaEditor extends Component {
       isOpen: false,
       currentRow: {},
       loading: false,
+      pageIndex: 0,
+      pageSize: ROWS_PER_PAGE,
       querying: false,
-      rowsPerPage: 10,
       searching: false,
       typingTimeout: null,
       imgIndex: 0,
@@ -533,8 +535,8 @@ class MetaEditor extends Component {
       flickrImages,
       isOpen,
       loading,
-      page,
-      rowsPerPage,
+      pageIndex,
+      pageSize,
       querying,
       searching,
       imgIndex,
@@ -598,15 +600,16 @@ class MetaEditor extends Component {
         <div className="cms-editor cms-meta-table-container">
           <h2 className="u-visually-hidden">Members</h2>
           <ReactTable
-            page={page}
-            onPageChange={page => this.setState({page})}
+            page={pageIndex}
+            onPageChange={pageIndex => this.setState({pageIndex})}
             className="cms-meta-table"
             data={data}
             columns={columns}
-            defaultPageSize={data.length > rowsPerPage ? rowsPerPage : data.length}
+            pageSize={pageSize < data.length ? pageSize : data.length}
+            onPageSizeChange={(pageSize, pageIndex) => this.setState({pageSize, pageIndex})}
             showPageSizeOptions={true}
-            pageSizeOptions={[rowsPerPage, 25, 50, 100]}
-            showPagination={data.length > rowsPerPage}
+            pageSizeOptions={[ROWS_PER_PAGE, 25, 50, 100]}
+            showPagination={data.length > pageSize}
           />
         </div>
 
