@@ -89,8 +89,29 @@ class TextCard extends Component {
     });
   }
 
+  determineVariablesUsed() {
+    const {minData} = this.state;
+    return minData.content.reduce((acc, c) => {
+      Object.keys(c).forEach(field => {
+        if (c[field] && typeof c[field] === "string") {
+          const matches = c[field].match(/\{\{([^\}]+)\}\}/g);
+          if (matches) {
+            matches.map(d => d.replace("{{", "").replace("}}", "")).forEach(match => {
+              if (!acc.includes(match)) acc.push(match);
+            });
+          }
+        }
+      });
+      return acc;
+    }, []);
+  }
+
   formatDisplay() {
     const {variables, selectors, locale, query, localeDefault} = this.props;
+
+    // For future use: This is a list of the vars used by this TextCard. Could combine with 
+    // Some selector replacing and create a quick way to open generators in the future.
+    // const theseVars = this.determineVariablesUsed.bind(this)();
 
     const minData = this.populateLanguageContent.bind(this)(this.state.minData);
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
@@ -151,7 +172,7 @@ class TextCard extends Component {
     axios.post(`/api/cms/${type}/update`, payload).then(resp => {
       if (resp.status === 200) {
         this.setState({isOpen: false, isDirty: false}, this.formatDisplay.bind(this));
-        this.props.onSave(minData);
+        if (this.props.onSave) this.props.onSave(minData);
       }
     });
   }
