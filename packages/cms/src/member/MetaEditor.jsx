@@ -249,6 +249,17 @@ class MetaEditor extends Component {
     });
   }
 
+  linkify(member) {
+    const {metaData} = this.state;
+    const links = [];
+    const relevantPids = metaData.filter(p => p.dimension === member.dimension).map(d => d.profile_id);
+    relevantPids.forEach(pid => {
+      const relevantProfile = metaData.filter(p => p.profile_id === pid);
+      links.push(`/profile/${relevantProfile.map(p => `${p.slug}/${member.dimension === p.dimension ? member.id : p.top.id}`).join("/")}`);
+    });
+    return links;
+  }
+
   /**
    * Once sourceData has been set, prepare the two variables that react-table needs: data and columns.
    */
@@ -267,12 +278,14 @@ class MetaEditor extends Component {
     const classColumns = [];
     const searchColumns = [];
     const displayColumns = [];
+    const previewColumns = [];
 
     const columns = [
       {Header: "identification",  columns: idColumns},
       {Header: "classification",  columns: classColumns},
       {Header: "search",          columns: searchColumns},
-      {Header: "display",         columns: displayColumns}
+      {Header: "display",         columns: displayColumns},
+      {Header: "preview",         columns: previewColumns}
     ];
 
     fields.forEach(field => {
@@ -323,6 +336,21 @@ class MetaEditor extends Component {
             Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", locale) : this.renderCell(cell)
           });
         }
+        displayColumns.push({
+          id: field,
+          Header: this.renderHeader("preview"),
+          accessor: d => this.linkify.bind(this)(d),
+          Cell: cell => <ul>{cell.value.map(url => <li key={url}><a href={url}>{url}</a></li>)}</ul>
+          /*
+          Header: this.renderHeader(`${locale} ${prop === "attr" ? "language hints" : prop}`),
+          minWidth: this.columnWidths(prop),
+          accessor: d => {
+            const content = d.content.find(c => c.locale === locale);
+            return content ? content[prop] : null;
+          },
+          Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, locale) : this.renderCell(cell)
+          */
+        });
       }
       else if (field === "content") {
         ["name", "attr", "keywords"].forEach(prop => {
@@ -384,7 +412,7 @@ class MetaEditor extends Component {
           dimensions[meta.dimension] = [...new Set([...dimensions[meta.dimension], ...meta.levels])];
         }
       });
-      this.setState({dimensions, sourceData}, this.prepData.bind(this));
+      this.setState({dimensions, sourceData, metaData}, this.prepData.bind(this));
     });
   }
 
