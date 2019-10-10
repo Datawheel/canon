@@ -131,14 +131,6 @@ module.exports = function(app) {
     return res.json(payload);
   });
 
-  app.get("/api/search/all", async(req, res) => {
-    let rows = await db.search.findAll({include: [
-      {model: db.image, include: [{association: "content"}]}, {association: "content"}
-    ]}).catch(catcher);
-    rows = rows.map(r => r.toJSON());
-    res.json(rows);
-  });
-
   app.post("/api/image_content/update", async(req, res) => {
     const {id, locale} = req.body;
     const defaults = req.body;
