@@ -5,6 +5,7 @@ import {nest} from "d3-collection";
 import {AnchorLink} from "@datawheel/canon-core";
 
 import styles from "style.yml";
+import isIE from "../../utils/isIE.js";
 import throttle from "../../utils/throttle";
 import pxToInt from "../../utils/formatters/pxToInt";
 import toKebabCase from "../../utils/formatters/toKebabCase";
@@ -50,14 +51,12 @@ class Section extends Component {
 
     // make sure the section is sticky
     if (stickySection === true && typeof window !== "undefined") {
-      if (/*@cc_on!@*/false || !!document.documentMode) { // eslint-disable-line spaced-comment
-        window.addEventListener("scroll", this.scrollBind);
-        this.setState({
-          // combine the position
-          top: currentSection.getBoundingClientRect().top + document.documentElement.scrollTop,
-          height: currentSection.getBoundingClientRect().height
-        });
-      }
+      window.addEventListener("scroll", this.scrollBind);
+      this.setState({
+        // combine the position
+        top: currentSection.getBoundingClientRect().top + document.documentElement.scrollTop,
+        height: currentSection.getBoundingClientRect().height
+      });
     }
   }
 
@@ -97,7 +96,7 @@ class Section extends Component {
     const stickySection = this.state.contents.sticky;
 
     // make sure the current section is sticky & the document window exists
-    if (stickySection === true && typeof window !== "undefined") {
+    if (stickySection === true && isIE) {
       const isStickyIE = this.state.isStickyIE;
       const containerTop = this.state.top;
       const screenTop = document.documentElement.scrollTop + pxToInt(styles["sticky-section-offset"] || "50px");

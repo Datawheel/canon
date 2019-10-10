@@ -10,6 +10,7 @@ import libs from "../utils/libs";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
+import isIE from "../utils/isIE.js";
 
 import "../css/utilities.css";
 import "../css/base.css";
@@ -27,18 +28,8 @@ class Profile extends Component {
       profile: props.profile,
       selectors: {},
       loading: false,
-      isIE: false,
       setVarsLoading: false
     };
-  }
-
-  // IE check needed for position: sticky fallback
-  componentDidMount() {
-    if (typeof window !== "undefined") {
-      if (/*@cc_on!@*/false || !!document.documentMode) { // eslint-disable-line spaced-comment
-        this.setState({isIE: true});
-      }
-    }
   }
 
   getChildContext() {
@@ -102,7 +93,7 @@ class Profile extends Component {
   }
 
   render() {
-    const {isIE, profile, loading} = this.state;
+    const {profile, loading} = this.state;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
