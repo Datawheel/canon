@@ -94,6 +94,8 @@ class DimensionEditor extends Component {
     const {profileData, mode} = this.state;
     const {meta} = this.props;
     let {takenSlugs} = this.props;
+    // If editing, then the user provided seed data via "meta". Do not include the given
+    // slug as a taken slug - otherwise we will not be able to save due to a faulty collision.
     if (mode === "edit") takenSlugs = takenSlugs.filter(slug => slug !== meta.slug);
     const Toast = this.context.toast.current;
     if (takenSlugs.includes(profileData.slug)) {
