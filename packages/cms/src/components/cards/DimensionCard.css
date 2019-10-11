@@ -3,6 +3,7 @@
 /* up to three columns */
 .cms-dimension-card {
   flex: 1 1 12rem;
+  z-index: 2;
 
   /* let filter search grow */
   & .cms-definition-item:last-child {
@@ -13,4 +14,6 @@
       flex: 1 1 auto;
     }
   }
+
+
 }
