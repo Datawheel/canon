@@ -8,6 +8,7 @@ Content Management System for Canon sites.
 * [Rendering a Profile](#rendering-a-profile)
 * [Overview and Terminology](#overview-and-terminology)
 * [Environment Variables](#environment-variables)
+* [Advanced Commands](#advanced-commands)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Migration](#migration)
 
@@ -199,6 +200,58 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
 |`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|1400|
 |`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
+
+---
+
+## Advanced Commands
+
+For complex visualizations, it may be necessary to write custom code that causes another event to fire. There are two primary use cases here:
+
+### Opening another visualization
+
+You may want to click an element in a viz and have it open another viz. For example, if you have a Treemap of industries, perhaps you want to be able to click "Cars" and have the page open a secondary chart based on Cars.
+
+For this reason, the `setVariables` function has been added to Visualizations. This function allows you direct edit access to the `variables` object that the CMS uses to swap variables on the page. So, if you wanted a click event to open a secondary viz, you could create a secondary viz with an `allowed` property of `showSecondViz`. In the custom configuration for that secondary viz, you could set its lookup id to `variables.secondaryId`. Then, in the primary viz, you could set the following code in your viz configuration:
+
+```
+ "on": 
+    {
+      "click": d => {
+        setVariables({showSecondViz: true, secondaryId: d.id});
+      }
+    }
+```
+
+Thus, when you click on a section of the primary viz treemap, it calls `setVariables`, sets the two variables, and the page will re-render to show the secondary viz with the appropriate secondary id. 
+
+### Opening a modal window
+
+Alternatively, you may want to click an element in a viz and have something open a modal popover window. Profile sections have a "Positioning" property, which may be set to Default, Sticky, or Modal. If you want a section to be eligible for opening inside a modal popover, set its positioning to Modal, and be sure to remember its slug. This will hide it from the normal rendering of a profile page.
+
+Then, in a viz, you may call the function `openModal(slug)` to embed the section with the provided slug in a popover on the page.
+
+```
+ "on": 
+    {
+      "click": d => {
+        openModal("myModalSlug")
+      }
+    }
+```
+
+Keep in mind that you may combine the two advanced functions! If your planned modal relies on a secondary ID, you could set something like:
+
+```
+ "on": 
+    {
+      "click": d => {
+        setVariables({idForMyModal: d.id})
+        openModal("myModalSlug")
+      }
+    }
+```
+
+You are then welcome, in the `myModalSlug` section, to make use of `idForMyModal` and trust that it will be set when the modal opens.
 
 ---
 
