@@ -10,6 +10,7 @@ import libs from "../utils/libs";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
+import isIE from "../utils/isIE.js";
 
 import "../css/utilities.css";
 import "../css/base.css";
@@ -31,6 +32,10 @@ class Profile extends Component {
     };
   }
 
+  componentDidMount() {
+    if (isIE) this.setState({isIE: true});
+  }
+
   getChildContext() {
     const {formatters, locale, router} = this.props;
     const {profile} = this.state;
@@ -50,9 +55,9 @@ class Profile extends Component {
     };
   }
 
-  /** 
+  /**
    * Visualizations have the ability to "break out" and override a variable in the variables object.
-   * This requires a server round trip, because the user may have changed a variable that would affect 
+   * This requires a server round trip, because the user may have changed a variable that would affect
    * the "allowed" status of a given section.
    */
   onSetVariables(newVariables) {
@@ -92,7 +97,7 @@ class Profile extends Component {
   }
 
   render() {
-    const {profile, loading} = this.state;
+    const {profile, loading, isIE} = this.state;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
@@ -146,7 +151,10 @@ class Profile extends Component {
         {/* main content sections */}
         <main className="cp-main" id="main">
           {groupedSections.map((groupings, i) =>
-            <div className="cp-grouping" key={i}>
+            <div className="cp-grouping" key={i} style={isIE === true ? {
+              position: "relative",
+              zIndex: i + 1 // in IE, hide sticky sections behind the next grouping
+            } : null}>
               {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                 // ungrouped section
                 ? <Section
