@@ -533,10 +533,23 @@ module.exports = function(app) {
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
     const profileData = req.body;
     profileData.dimension = profileData.dimName;
-    await db.profile_meta.upsert(profileData, {where: {id: profileData.id}});
+    const oldmeta = await db.profile_meta.findOne({where: {id: profileData.id}}).catch(catcher);
+    // Inserts are simple
+    if (!oldmeta) {
+      await db.profile_meta.create(profileData);
+      populateSearch(profileData, db);
+    }
+    // Updates are more complex - the user may have changed levels, or even modified the dimension
+    // entirely. We have to prune the search before repopulating it.
+    else {
+      await db.profile_meta.update(profileData, {where: {id: profileData.id}});
+      if (oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
+        pruneSearch(oldmeta.dimension, oldmeta.levels, db);
+        populateSearch(profileData, db);
+      }
+    }
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
-    populateSearch(profileData, db);
     return res.json(profiles);
   });
 
