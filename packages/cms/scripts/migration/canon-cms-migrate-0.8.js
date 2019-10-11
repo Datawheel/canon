@@ -58,7 +58,6 @@ const migrate = async() => {
   ];
 
   for (const tableObj of migrationMap) {
-    console.log(tableObj.old);
     let oldrows = await dbold[tableObj.old].findAll().catch(catcher);
     oldrows = oldrows.map(row => row.toJSON());
     if (tableObj.old === "section") {
