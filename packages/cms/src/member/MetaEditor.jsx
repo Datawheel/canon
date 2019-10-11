@@ -185,7 +185,6 @@ class MetaEditor extends Component {
         }
       }
     }
-
   }
 
   fetchStringifiedSourceData(sourceData) {
@@ -226,14 +225,15 @@ class MetaEditor extends Component {
     return cell.value;
   }
   columnWidths(key) {
-    if (key.includes("keywords") || key.includes("meta") || key.includes("attr")) return 160;
+    if (key.includes("preview")) return 220;
+    else if (key.includes("keywords") || key.includes("meta") || key.includes("attr")) return 160;
     else if (key.includes("zvalue") || key.includes("image") || key.includes("dimension") || key.includes("hierarchy")) return 120;
     else return 90;
   }
   numericSort(a, b) {
     if (!isNaN(a) && !isNaN(b)) {
       return Number(a) - Number(b);
-    } 
+    }
     else return a.localeCompare(b);
   }
   renderColumn(col) {
@@ -340,9 +340,16 @@ class MetaEditor extends Component {
         }
         displayColumns.push({
           id: field,
-          Header: this.renderHeader("preview"),
+          Header: this.renderHeader("preview link"),
+          minWidth: this.columnWidths("preview"),
           accessor: d => this.linkify.bind(this)(d),
-          Cell: cell => <ul>{cell.value.map(url => <li key={url}><a href={url}>{url}</a></li>)}</ul>
+          Cell: cell => <ul className="cms-meta-table-list">
+            {cell.value.map(url =>
+              <li className="cms-meta-table-item" key={url}>
+                <a className="cms-meta-table-link u-font-xxs" href={url}>{url}</a>
+              </li>
+            )}
+          </ul>
         });
       }
       else if (field === "content") {
@@ -483,7 +490,7 @@ class MetaEditor extends Component {
         url += `&dimension=${filterBy}`;
       }
       else if (filterKey === "hierarchy") {
-        url += `&levels=${filterBy}`; 
+        url += `&levels=${filterBy}`;
       }
     }
     this.setState({querying: true});
@@ -492,7 +499,7 @@ class MetaEditor extends Component {
       const page = 0;
       this.setState({data, filterKey, page, querying: false});
     });
-    
+
   }
 
   resetFiltering() {
@@ -500,6 +507,10 @@ class MetaEditor extends Component {
   }
   resetQuery() {
     this.setState({query: ""}, this.processFiltering.bind(this));
+  }
+
+  selectPaginationSize(e) {
+    this.setState({pageSize: e.target.value});
   }
 
   onChange(field, e) {
@@ -546,54 +557,65 @@ class MetaEditor extends Component {
     return (
       <div className="cms-panel meta-editor">
         <div className="cms-sidebar cms-meta-header">
-          <h1 className="u-visually-hidden">Edit entities</h1>
-          <h2 className="cms-meta-header-heading u-margin-top-off u-font-xs">Filters</h2>
-          <Button
-            className="cms-meta-header-button"
-            onClick={this.resetFiltering.bind(this)}
-            disabled={query === "" && filterBy === "all"}
-            namespace="cms"
-            fontSize="xxs"
-            icon="cross"
-            iconOnly
-          >
-            Clear all filters
-          </Button>
-
-          <div className="cms-meta-controls">
-            <FilterSearch
-              label="filter by name, slug, keywords..."
-              onChange={this.onChange.bind(this, "query")}
-              onReset={this.resetQuery.bind(this)}
-              value={query}
+          <div className="cms-meta-header-inner">
+            <h1 className="u-visually-hidden">Edit entities</h1>
+            <h2 className="cms-meta-header-heading u-margin-top-off u-font-xs">Filters</h2>
+            <Button
+              className="cms-meta-header-button"
+              onClick={this.resetFiltering.bind(this)}
+              disabled={query === "" && filterBy === "all"}
               namespace="cms"
-              fontSize="xs"
-            />
-
-            <Select
-              label={filterKey === "dimension" ? "Dimension" : "Subdimension"}
-              inline
-              fontSize="xs"
-              namespace="cms"
-              value={filterBy}
-              onChange={this.onChange.bind(this, "filterBy")}
+              fontSize="xxs"
+              icon="cross"
+              iconOnly
             >
-              <option key="all" value="all">All</option>
-              {Object.keys(dimensions).map(dim =>
-                <optgroup key={dim} label={dim}>
-                  {/* show the dimension as the first option in each group */}
-                  <option key={`dimension_${dim}`} value={`dimension_${dim}`}>{dim}</option>
-                  {/* Show indented subdimensions */}
-                  {dimensions[dim].map(hierarchy =>
-                    !dimensions[dim].includes(dim) || dimensions[dim].length !== 1
-                      ? <option key={`hierarchy_${hierarchy}`} value={`hierarchy_${hierarchy}`}>   {hierarchy}</option>
-                      : ""
-                  )}
-                </optgroup>
+              Clear all filters
+            </Button>
 
-              )}
-            </Select>
+            <div className="cms-meta-controls">
+              <FilterSearch
+                label="filter by name, slug, keywords..."
+                onChange={this.onChange.bind(this, "query")}
+                onReset={this.resetQuery.bind(this)}
+                value={query}
+                namespace="cms"
+                fontSize="xs"
+              />
 
+              <Select
+                label={filterKey === "dimension" ? "Dimension" : "Subdimension"}
+                inline
+                fontSize="xs"
+                namespace="cms"
+                value={filterBy}
+                onChange={this.onChange.bind(this, "filterBy")}
+              >
+                <option key="all" value="all">All</option>
+                {Object.keys(dimensions).map(dim =>
+                  <optgroup key={dim} label={dim}>
+                    {/* show the dimension as the first option in each group */}
+                    <option key={`dimension_${dim}`} value={`dimension_${dim}`}>{dim}</option>
+                    {/* Show indented subdimensions */}
+                    {dimensions[dim].map(hierarchy =>
+                      !dimensions[dim].includes(dim) || dimensions[dim].length !== 1
+                        ? <option key={`hierarchy_${hierarchy}`} value={`hierarchy_${hierarchy}`}>   {hierarchy}</option>
+                        : ""
+                    )}
+                  </optgroup>
+
+                )}
+              </Select>
+
+              <Select
+                label="Number of rows"
+                inline
+                fontSize="xs"
+                namespace="cms"
+                value={pageSize}
+                onChange={e => this.selectPaginationSize(e)}
+                options={[ROWS_PER_PAGE, 25, 50, 100]}
+              />
+            </div>
           </div>
         </div>
 
@@ -607,9 +629,8 @@ class MetaEditor extends Component {
             columns={columns}
             pageSize={pageSize < data.length ? pageSize : data.length}
             onPageSizeChange={(pageSize, pageIndex) => this.setState({pageSize, pageIndex})}
-            showPageSizeOptions={true}
-            pageSizeOptions={[ROWS_PER_PAGE, 25, 50, 100]}
             showPagination={data.length > pageSize}
+            showPageSizeOptions={false}
           />
         </div>
 
