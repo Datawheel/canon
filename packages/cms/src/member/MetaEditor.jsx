@@ -338,19 +338,6 @@ class MetaEditor extends Component {
             Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", locale) : this.renderCell(cell)
           });
         }
-        displayColumns.push({
-          id: field,
-          Header: this.renderHeader("preview link"),
-          minWidth: this.columnWidths("preview"),
-          accessor: d => this.linkify.bind(this)(d),
-          Cell: cell => <ul className="cms-meta-table-list">
-            {cell.value.map(url =>
-              <li className="cms-meta-table-item" key={url}>
-                <a className="cms-meta-table-link u-font-xxs" href={url}>{url}</a>
-              </li>
-            )}
-          </ul>
-        });
       }
       else if (field === "content") {
         ["name", "attr", "keywords"].forEach(prop => {
@@ -380,6 +367,21 @@ class MetaEditor extends Component {
               Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, locale) : this.renderCell(cell)
             });
           }
+        });
+      }
+      else if (field === "id") {
+        displayColumns.push({
+          id: field,
+          Header: this.renderHeader("preview link"),
+          minWidth: this.columnWidths("preview"),
+          accessor: d => this.linkify.bind(this)(d),
+          Cell: cell => <ul className="cms-meta-table-list">
+            {cell.value.map(url =>
+              <li className="cms-meta-table-item" key={url}>
+                <a className="cms-meta-table-link u-font-xxs" href={url}>{url}</a>
+              </li>
+            )}
+          </ul>
         });
       }
       else {
