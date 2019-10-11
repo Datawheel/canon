@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import DimensionCard from "../components/cards/DimensionCard";
-import DimensionCreator from "../components/DimensionCreator";
+import DimensionEditor from "../components/editors/DimensionEditor";
 import Deck from "../components/interface/Deck";
 import {Dialog} from "@blueprintjs/core";
 
@@ -45,7 +45,7 @@ export default class DimensionBuilder extends Component {
         >
 
           <div className="bp3-dialog-body">
-            <DimensionCreator
+            <DimensionEditor
               takenSlugs={takenSlugs}
               cubeData={cubeData}
               onComplete={() => this.setState({isOpen: false})}

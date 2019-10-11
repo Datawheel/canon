@@ -2,7 +2,7 @@ import axios from "axios";
 import React, {Component} from "react";
 import Button from "../fields/Button";
 import DefinitionList from "../variables/DefinitionList";
-import DimensionCreator from "../DimensionCreator";
+import DimensionEditor from "../editors/DimensionEditor";
 import {Dialog} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import PreviewSearch from "../fields/PreviewSearch";
@@ -123,7 +123,7 @@ class DimensionCard extends Component {
         >
 
           <div className="bp3-dialog-body">
-            <DimensionCreator
+            <DimensionEditor
               meta={meta}
               takenSlugs={takenSlugs}
               cubeData={cubeData}

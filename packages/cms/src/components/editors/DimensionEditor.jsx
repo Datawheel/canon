@@ -1,12 +1,12 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import Button from "./fields/Button";
-import Select from "./fields/Select";
-import TextInput from "./fields/TextInput";
+import Button from "../fields/Button";
+import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
 
-import "./DimensionCreator.css";
+import "./DimensionEditor.css";
 
-class DimensionCreator extends Component {
+class DimensionEditor extends Component {
 
   constructor(props) {
     super(props);
@@ -196,9 +196,9 @@ class DimensionCreator extends Component {
   }
 }
 
-DimensionCreator.contextTypes = {
+DimensionEditor.contextTypes = {
   toast: PropTypes.object,
   onDimensionModify: PropTypes.func
 };
 
-export default DimensionCreator;
+export default DimensionEditor;
