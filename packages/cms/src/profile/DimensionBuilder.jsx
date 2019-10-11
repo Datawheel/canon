@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import DimensionCard from "../components/cards/DimensionCard";
-import DimensionCreator from "../components/DimensionCreator";
+import DimensionEditor from "../components/editors/DimensionEditor";
 import Deck from "../components/interface/Deck";
 import {Dialog} from "@blueprintjs/core";
 
@@ -14,21 +14,8 @@ export default class DimensionBuilder extends Component {
     };
   }
 
-  componentDidMount() {
-  }
-
-  onAddDimension(d) {
-    if (this.props.onAddDimension) this.props.onAddDimension(d);
-    this.setState({isOpen: false});
-  }
-
-  onDeleteDimension(profiles) {
-    if (this.props.onDeleteDimension) this.props.onDeleteDimension(profiles);
-    this.setState({isOpen: false});
-  }
-
   render() {
-    const {meta, previews, takenSlugs} = this.props;
+    const {cubeData, meta, previews, takenSlugs} = this.props;
     const {isOpen} = this.state;
 
     return (
@@ -40,9 +27,10 @@ export default class DimensionBuilder extends Component {
           cards={meta.map((m, i) =>
             <DimensionCard
               key={`dc-${i}`}
+              takenSlugs={takenSlugs}
+              cubeData={cubeData}
               meta={meta[i]}
               preview={previews[i]}
-              onDeleteDimension={this.onDeleteDimension.bind(this)}
             />
           )}
         />
@@ -57,10 +45,10 @@ export default class DimensionBuilder extends Component {
         >
 
           <div className="bp3-dialog-body">
-            <DimensionCreator
+            <DimensionEditor
               takenSlugs={takenSlugs}
-              cubeData={this.props.cubeData}
-              onAddDimension={this.onAddDimension.bind(this)}
+              cubeData={cubeData}
+              onComplete={() => this.setState({isOpen: false})}
             />
           </div>
         </Dialog>
@@ -69,3 +57,5 @@ export default class DimensionBuilder extends Component {
   }
 
 }
+
+

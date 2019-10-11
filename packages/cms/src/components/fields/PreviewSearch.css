@@ -174,5 +174,6 @@
     display: block;
     width: 100%;
     text-align: left;
+    z-index: 3; /* above cms-card-cover-button */
   }
 }

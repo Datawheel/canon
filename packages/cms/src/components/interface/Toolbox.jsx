@@ -6,7 +6,6 @@ import ButtonGroup from "../fields/ButtonGroup";
 import FilterSearch from "../fields/FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
 import SelectorCard from "../cards/SelectorCard";
-import Status from "./Status";
 import ConsoleVariable from "../variables/ConsoleVariable";
 import "./Toolbox.css";
 
@@ -35,19 +34,28 @@ export default class Toolbox extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.id !== this.props.id) {
+    if (prevProps.id !== this.props.id || 
+        JSON.stringify(prevProps.previews) !== JSON.stringify(this.props.previews) || 
+        prevProps.locale !== this.props.locale) {
       this.hitDB.bind(this)();
     }
   }
 
-  hitDB(query) {
+  hitDB(config) {
     const {id} = this.props;
     if (id) {
       axios.get(`/api/cms/toolbox/${id}`).then(resp => {
         const minData = resp.data;
         const callback = () => {
           this.updateSelectors.bind(this)();
-          this.fetchVariables.bind(this)(true, query);
+          // If config is set, the user has saved a single generator and we should load just that one.
+          if (config) {
+            this.fetchVariables.bind(this)(config);  
+          }
+          // Otherwise, this is a first load, so run the full list of generators (one a time) to be returned async.
+          else {
+            this.fetchVariables.bind(this)({type: "generator", ids: minData.generators.map(g => g.id)});
+          }
         };
         this.setState({minData, recompiling: true}, callback);
       });
@@ -57,10 +65,10 @@ export default class Toolbox extends Component {
     }
   }
 
-  fetchVariables(force, query) {
+  fetchVariables(config) {
     if (this.props.fetchVariables) {
       const callback = () => this.setState({recompiling: false});
-      this.props.fetchVariables(force, callback, query);
+      this.props.fetchVariables(callback, config);
     }
   }
 
@@ -72,7 +80,8 @@ export default class Toolbox extends Component {
     payload.ordering = minData[propMap[type]].length;
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
       if (resp.status === 200) {
-        const maybeFetch = type === "formatter" ? null : this.fetchVariables.bind(this, true);
+        let maybeFetch = null;
+        if (type === "generator" || type === "materializer") maybeFetch = this.fetchVariables.bind(this, {type, ids: [resp.data.id]});
         // Selectors, unlike the rest of the elements, actually do pass down their entire
         // content to the Card (the others are simply given an id and load the data themselves)
         if (type === "selector") {
@@ -106,9 +115,9 @@ export default class Toolbox extends Component {
    * not out here, where it need be searchable. Though it's slightly overkill, the easiest thing to do
    * is just hit the DB again on save to reload everything.
    */
-  onSave(query) {
+  onSave(type, ids) {
     const forceID = null, forceOpen = null, forceType = null, recompiling = true;
-    this.setState({forceID, forceType, forceOpen, recompiling}, this.hitDB.bind(this, query));
+    this.setState({forceID, forceType, forceOpen, recompiling}, this.hitDB.bind(this, type, ids));
   }
 
   updateSelectors() {
@@ -119,11 +128,14 @@ export default class Toolbox extends Component {
     }
   }
 
-  onDelete(type, newArray) {
+  onDelete(type, id, newArray) {
     const {minData} = this.state;
     minData[propMap[type]] = newArray;
     const recompiling = type === "formatter" ? false : true;
-    const maybeFetch = type === "formatter" ? null : this.fetchVariables.bind(this, true);
+    let maybeFetch = null;
+    // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
+    // is handled gracefully server-side - it prunes the provided id from the variables object and re-runs necessary gens/mats.
+    if (type === "generator" || type === "materializer") maybeFetch = this.fetchVariables.bind(this, {type, ids: [id]});
     this.setState({minData, recompiling}, maybeFetch);
     if (type === "selector") {
       const {selectors} = minData;
@@ -199,7 +211,7 @@ export default class Toolbox extends Component {
       .filter(this.filterFunc.bind(this));
 
     const materializers = minData.materializers
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => a.ordering - b.ordering)
       .map(d => Object.assign({}, {type: "materializer"}, d))
       .filter(this.filterFunc.bind(this));
 

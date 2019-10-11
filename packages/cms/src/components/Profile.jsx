@@ -11,6 +11,7 @@ import libs from "../utils/libs";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
+import isIE from "../utils/isIE.js";
 
 import "../css/utilities.css";
 import "../css/base.css";
@@ -29,7 +30,12 @@ class Profile extends Component {
       selectors: {},
       modalSlug: null,
       loading: false
+      setVarsLoading: false
     };
+  }
+
+  componentDidMount() {
+    if (isIE) this.setState({isIE: true});
   }
 
   getChildContext() {
@@ -65,20 +71,20 @@ class Profile extends Component {
    * the "allowed" status of a given section.
    */
   onSetVariables(newVariables) {
-    const {profile, selectors, loading} = this.state;
+    const {profile, selectors, setVarsLoading} = this.state;
     const {id, variables} = profile;
     const {locale} = this.props;
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
     // loop by checking if the vars are in there already, only updating if they are not yet set.
     const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
-    if (!loading && !alreadySet) {
-      this.setState({loading: true});
+    if (!setVarsLoading && !alreadySet) {
+      this.setState({setVarsLoading: true});
       const url = `/api/profile?profile=${id}&locale=${locale}&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
       const payload = {variables: Object.assign({}, variables, newVariables)};
       axios.post(url, payload)
         .then(resp => {
-          this.setState({profile: resp.data, loading: false});
+          this.setState({profile: resp.data, setVarsLoading: false});
         });
     }
   }
@@ -101,7 +107,7 @@ class Profile extends Component {
   }
 
   render() {
-    const {profile, loading, modalSlug} = this.state;
+    const {profile, loading, modalSlug, isIE} = this.state;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
@@ -158,7 +164,10 @@ class Profile extends Component {
           {/* main content sections */}
           <main className="cp-main" id="main">
             {groupedSections.map((groupings, i) =>
-              <div className="cp-grouping" key={i}>
+              <div className="cp-grouping" key={i} style={isIE === true ? {
+              position: "relative",
+              zIndex: i + 1 // in IE, hide sticky sections behind the next grouping
+            } : null}>
                 {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                   // ungrouped section
                   ? <Section

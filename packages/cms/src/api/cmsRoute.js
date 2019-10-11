@@ -382,6 +382,9 @@ module.exports = function(app) {
   app.get("/api/cms/meta", async(req, res) => {
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(m => m.toJSON());
+    for (const m of meta) {
+      m.top = await db.search.findOne({where: {dimension: m.dimension}, order: [["zvalue", "DESC"]], limit: 1}).catch(catcher);
+    }
     res.json(meta);
   });
 
@@ -527,13 +530,26 @@ module.exports = function(app) {
     return res.json(profiles);
   });
 
-  app.post("/api/cms/profile/addDimension", isEnabled, async(req, res) => {
+  app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
     const profileData = req.body;
     profileData.dimension = profileData.dimName;
-    await db.profile_meta.create(profileData);
+    const oldmeta = await db.profile_meta.findOne({where: {id: profileData.id}}).catch(catcher);
+    // Inserts are simple
+    if (!oldmeta) {
+      await db.profile_meta.create(profileData);
+      populateSearch(profileData, db);
+    }
+    // Updates are more complex - the user may have changed levels, or even modified the dimension
+    // entirely. We have to prune the search before repopulating it.
+    else {
+      await db.profile_meta.update(profileData, {where: {id: profileData.id}});
+      if (oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
+        pruneSearch(oldmeta.dimension, oldmeta.levels, db);
+        populateSearch(profileData, db);
+      }
+    }
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
-    populateSearch(profileData, db);
     return res.json(profiles);
   });
 
@@ -544,8 +560,6 @@ module.exports = function(app) {
     await populateSearch(profileData, db);
     return res.json({});
   });
-
-
 
   /* UPDATES */
   // For now, all "update" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.

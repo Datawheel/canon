@@ -27,7 +27,7 @@ NOTE: ripped from ReactTable
   /* entire table can scroll horizontally */
   @mixin horizontal-overflow-container;
   @mixin hide-scrollbars;
-  overflow-y: hidden;
+  -ms-overflow-style: none;
 }
 
 .rt-thead {
@@ -45,7 +45,6 @@ NOTE: ripped from ReactTable
   max-height: var(--table-height);
   /* table body can scroll vertically */
   @mixin vertical-overflow-container;
-  @mixin hide-scrollbars;
 }
 
 .rt-tr-group {
@@ -260,12 +259,6 @@ THEMING
   /* space out adjacent elements */
   & > *:not(:last-child) {
     margin-right: 1rem;
-  }
-
-  /* hide the page select menu */
-  /* NOTE: only visible when prop `showPageSizeOptions` is false */
-  & .select-wrap {
-    display: none;
   }
 
   & .-pageInfo {

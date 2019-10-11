@@ -1,10 +1,12 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import Button from "./fields/Button";
-import Select from "./fields/Select";
-import TextInput from "./fields/TextInput";
+import Button from "../fields/Button";
+import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
 
-class DimensionCreator extends Component {
+import "./DimensionEditor.css";
+
+class DimensionEditor extends Component {
 
   constructor(props) {
     super(props);
@@ -17,8 +19,28 @@ class DimensionCreator extends Component {
         hierarchies: [],
         levels: []
       },
-      selectedDimension: {}
+      selectedDimension: {},
+      mode: "add"
     };
+  }
+
+  componentDidMount() {
+    const {meta, cubeData} = this.props;
+    if (meta) {
+      const selectedDimension = cubeData.find(d => d.cubeName === meta.cubeName && d.dimName === meta.dimension);
+      const profileData = {
+        id: meta.id,
+        slug: meta.slug,
+        cubeName: meta.cubeName,
+        dimName: meta.dimension,
+        dimension: selectedDimension.name,
+        hierarchies: selectedDimension.hierarchies,
+        levels: meta.levels,
+        measure: meta.measure
+      };
+      const mode = "edit";
+      this.setState({selectedDimension, profileData, mode});
+    }
   }
 
   changeField(field, e) {
@@ -68,9 +90,13 @@ class DimensionCreator extends Component {
     checked ? this.addLevel.bind(this)(level) : this.removeLevel.bind(this)(level);
   }
 
-  createProfile() {
-    const {profileData} = this.state;
-    const {takenSlugs} = this.props;
+  saveProfile() {
+    const {profileData, mode} = this.state;
+    const {meta} = this.props;
+    let {takenSlugs} = this.props;
+    // If editing, then the user provided seed data via "meta". Do not include the given
+    // slug as a taken slug - otherwise we will not be able to save due to a faulty collision.
+    if (mode === "edit") takenSlugs = takenSlugs.filter(slug => slug !== meta.slug);
     const Toast = this.context.toast.current;
     if (takenSlugs.includes(profileData.slug)) {
       Toast.show({
@@ -80,13 +106,14 @@ class DimensionCreator extends Component {
       });
     }
     else {
-      if (this.props.onAddDimension) this.props.onAddDimension(profileData);  
+      this.context.onDimensionModify(mode, profileData);
+      if (this.props.onComplete) this.props.onComplete();
     }
   }
 
   render() {
 
-    const {profileData} = this.state;
+    const {profileData, mode} = this.state;
     const {cubeData} = this.props;
 
     const dimOptions = cubeData.map(d => <option key={d.name} value={d.name}>{d.name}</option>);
@@ -99,6 +126,11 @@ class DimensionCreator extends Component {
 
     return (
       <div className="bp3-dialog-body">
+        {mode === "edit" && 
+          <div className="cms-dimension-creator-warning">
+            <em>Warning: Modifying Dimension Data after creation can break lots of things. Make sure you know what you are doing!</em>
+          </div>
+        }
         <TextInput
           label="slug"
           inline
@@ -150,9 +182,15 @@ class DimensionCreator extends Component {
         }
 
         <div className="cms-field-container">
-          {profileData.dimension && profileData.levels.length > 0 && profileData.measure
-            ? <Button onClick={this.createProfile.bind(this)} namespace="cms" icon="plus">Add dimension</Button>
-            : <Button icon="plus" namespace="cms" disabled>Add dimension</Button>
+          {profileData.dimension && profileData.levels.length > 0 && profileData.measure && profileData.measure !== "default"
+            ? <Button 
+              onClick={this.saveProfile.bind(this)} 
+              namespace="cms" 
+              icon={mode === "edit" ? "edit" : "plus"}
+            >
+              {`${mode === "edit" ? "Modify" : "Add"} dimension`}
+            </Button>
+            : <Button icon="plus" namespace="cms" disabled>{`${mode === "edit" ? "Modify" : "Add"} dimension`}</Button>
           }
         </div>
       </div>
@@ -160,8 +198,9 @@ class DimensionCreator extends Component {
   }
 }
 
-DimensionCreator.contextTypes = {
-  toast: PropTypes.object
+DimensionEditor.contextTypes = {
+  toast: PropTypes.object,
+  onDimensionModify: PropTypes.func
 };
 
-export default DimensionCreator;
+export default DimensionEditor;
