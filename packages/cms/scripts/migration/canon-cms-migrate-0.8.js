@@ -15,7 +15,7 @@ const migrate = async() => {
   const migrationMap = [
     // These ones have no dependencies and can be copied wholesale
     {old: "formatter", new: "formatter"},
-    {old: "images", new: "image"},
+    {old: "image", new: "image"},
     {old: "image_content", new: "image_content"},
     {old: "search", new: "search"},
     {old: "search_content", new: "search_content"},
@@ -58,6 +58,7 @@ const migrate = async() => {
   ];
 
   for (const tableObj of migrationMap) {
+    console.log(tableObj.old);
     let oldrows = await dbold[tableObj.old].findAll().catch(catcher);
     oldrows = oldrows.map(row => row.toJSON());
     if (tableObj.old === "section") {
