@@ -80,7 +80,8 @@ class DimensionCreator extends Component {
       });
     }
     else {
-      if (this.props.onAddDimension) this.props.onAddDimension(profileData);  
+      this.context.onDimensionModify("add", profileData);
+      if (this.props.onComplete) this.props.onComplete();
     }
   }
 
@@ -161,7 +162,8 @@ class DimensionCreator extends Component {
 }
 
 DimensionCreator.contextTypes = {
-  toast: PropTypes.object
+  toast: PropTypes.object,
+  onDimensionModify: PropTypes.func
 };
 
 export default DimensionCreator;
