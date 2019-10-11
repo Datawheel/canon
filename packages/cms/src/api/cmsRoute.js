@@ -382,6 +382,9 @@ module.exports = function(app) {
   app.get("/api/cms/meta", async(req, res) => {
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(m => m.toJSON());
+    for (const m of meta) {
+      m.top = await db.search.findOne({where: {dimension: m.dimension}, order: [["zvalue", "DESC"]], limit: 1}).catch(catcher);
+    }
     res.json(meta);
   });
 

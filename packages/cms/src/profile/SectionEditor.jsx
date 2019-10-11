@@ -9,10 +9,11 @@ import ButtonGroup from "../components/fields/ButtonGroup";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
-import Status from "../components/interface/Status";
 import Deck from "../components/interface/Deck";
 import SelectorUsage from "../components/interface/SelectorUsage";
 import "./SectionEditor.css";
+
+import deepClone from "../utils/deepClone.js";
 
 const propMap = {
   section_stat: "stats",
@@ -135,7 +136,7 @@ class SectionEditor extends Component {
 
   render() {
 
-    const {minData, recompiling, query} = this.state;
+    const {minData, query} = this.state;
     const {variables, previews, selectors, children, locale, localeDefault, order} = this.props;
 
     const dataLoaded = minData;
@@ -168,6 +169,9 @@ class SectionEditor extends Component {
       </option>
     );
 
+    const defaultVariables = variables[localeDefault];
+    const secondaryVariables = variables[locale];
+
     return (
       <div className="cms-editor-inner">
 
@@ -191,7 +195,7 @@ class SectionEditor extends Component {
               onSave={this.onSave.bind(this)}
               type="section"
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              variables={variables[localeDefault]}
+              variables={defaultVariables}
               hideAllowed={true}
             />
           ]}
@@ -287,7 +291,7 @@ class SectionEditor extends Component {
                 query={query}
                 type="section_subtitle"
                 onDelete={this.onDelete.bind(this)}
-                variables={variables[localeDefault]}
+                variables={defaultVariables}
                 selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.subtitles}
                 onMove={this.onMove.bind(this)}
@@ -301,7 +305,7 @@ class SectionEditor extends Component {
             <SelectorUsage
               key="selector-usage"
               minData={minData}
-              variables={variables[localeDefault]}
+              variables={defaultVariables}
               selectors={selectors}
               onSelect={this.onSelect.bind(this)}
             />
@@ -325,7 +329,7 @@ class SectionEditor extends Component {
                 query={query}
                 type="section_stat"
                 onDelete={this.onDelete.bind(this)}
-                variables={variables[localeDefault]}
+                variables={defaultVariables}
                 selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.stats}
                 onMove={this.onMove.bind(this)}
@@ -348,7 +352,7 @@ class SectionEditor extends Component {
                 query={query}
                 type="section_description"
                 onDelete={this.onDelete.bind(this)}
-                variables={variables[localeDefault]}
+                variables={defaultVariables}
                 selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.descriptions}
                 onMove={this.onMove.bind(this)}
@@ -372,8 +376,8 @@ class SectionEditor extends Component {
                 previews={previews}
                 onDelete={this.onDelete.bind(this)}
                 type="section_visualization"
-                variables={variables[localeDefault]}
-                secondaryVariables={variables[locale]}
+                variables={defaultVariables}
+                secondaryVariables={secondaryVariables}
                 selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.visualizations}
                 onMove={this.onMove.bind(this)}
@@ -381,9 +385,6 @@ class SectionEditor extends Component {
             )}
           />
         </React.Fragment>}
-
-        {/* loading status */}
-        <Status recompiling={recompiling} />
       </div>
     );
   }

@@ -2,7 +2,7 @@
 
 /* quick and dirty layout */
 @mixin min-lg {
-  .cms-panel:not(:last-child) {
+  .cms-panel:not(:last-child):not(.meta-editor) {
     width: calc(100% - var(--toolbox-width));
     max-width: calc(100% - var(--toolbox-width));
 
