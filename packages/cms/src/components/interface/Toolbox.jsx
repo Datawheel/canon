@@ -386,9 +386,6 @@ export default class Toolbox extends Component {
             />
           }
         </div>
-
-        {/* loading status */}
-        <Status recompiling={recompiling} />
       </aside>
     );
   }

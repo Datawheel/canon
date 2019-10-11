@@ -107,7 +107,7 @@ class Profile extends Component {
   }
 
   render() {
-    const {profile, loading, modalSlug, isIE} = this.state;
+    const {profile, loading, modalSlug, isIE, setVarsLoading} = this.state;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
@@ -165,9 +165,9 @@ class Profile extends Component {
           <main className="cp-main" id="main">
             {groupedSections.map((groupings, i) =>
               <div className="cp-grouping" key={i} style={isIE === true ? {
-              position: "relative",
-              zIndex: i + 1 // in IE, hide sticky sections behind the next grouping
-            } : null}>
+                position: "relative",
+                zIndex: i + 1 // in IE, hide sticky sections behind the next grouping
+              } : null}>
                 {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                   // ungrouped section
                   ? <Section
@@ -211,7 +211,11 @@ class Profile extends Component {
             <Section
               isModal={true}
               contents={modalSection}
-              loading={loading}
+              // To prevent a "loading flicker" when users call setVariables, normal Sections don't show a "Loading"
+              // when the only thing that updated was from setVariables. HOWEVER, if this is a modal popover, we really
+              // SHOULD wait if setVarsLoading is true, because the config might have called setVariables and then 
+              // called openModal right after, so let's wait for setVars to be done before we consider the loading complete.
+              loading={loading || setVarsLoading}
             />
           </Dialog>
         </div>
