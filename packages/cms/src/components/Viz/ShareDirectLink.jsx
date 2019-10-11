@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {withNamespaces} from "react-i18next";
 import Clipboard from "react-clipboard.js";
 
-import {Icon, Label} from "@blueprintjs/core";
+import {Icon} from "@blueprintjs/core";
 
 import "./ShareDirectLink.css";
 
@@ -36,7 +36,7 @@ class ShareDirectLink extends Component {
     // chop off http:// for display purposes
     const displayText = link.replace("http://", "");
     // copy "button" text
-    const buttonText = !copied ? t("Share.copy") : t("Share.copied");
+    const buttonText = !copied ? t("CMS.Options.Copy") : t("CMS.Options.Copied");
 
     // use label as Clipboard wrapper so that clicking anything within triggers the copy event
     return (
