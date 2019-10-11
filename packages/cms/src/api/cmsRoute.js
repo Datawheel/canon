@@ -530,10 +530,10 @@ module.exports = function(app) {
     return res.json(profiles);
   });
 
-  app.post("/api/cms/profile/addDimension", isEnabled, async(req, res) => {
+  app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
     const profileData = req.body;
     profileData.dimension = profileData.dimName;
-    await db.profile_meta.create(profileData);
+    await db.profile_meta.upsert(profileData, {where: {id: profileData.id}});
     let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     populateSearch(profileData, db);
@@ -547,8 +547,6 @@ module.exports = function(app) {
     await populateSearch(profileData, db);
     return res.json({});
   });
-
-
 
   /* UPDATES */
   // For now, all "update" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.

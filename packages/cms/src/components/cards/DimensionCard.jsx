@@ -72,6 +72,7 @@ class DimensionCard extends Component {
       title: meta.dimension,
       onDelete: this.maybeDelete.bind(this),
       onRefresh: this.rebuildSearch.bind(this),
+      onEdit: () => this.setState({isOpen: !this.state.isOpen}),
       rebuilding,
       // onEdit: this.openEditor.bind(this),
       // onReorder: this.props.onMove ? this.props.onMove.bind(this) : null,
@@ -123,8 +124,10 @@ class DimensionCard extends Component {
 
           <div className="bp3-dialog-body">
             <DimensionCreator
+              meta={meta}
               takenSlugs={takenSlugs}
               cubeData={cubeData}
+              onComplete={() => this.setState({isOpen: false})}
             />
           </div>
         </Dialog>

@@ -27,6 +27,7 @@ export default class DimensionBuilder extends Component {
           cards={meta.map((m, i) =>
             <DimensionCard
               key={`dc-${i}`}
+              takenSlugs={takenSlugs}
               cubeData={cubeData}
               meta={meta[i]}
               preview={previews[i]}

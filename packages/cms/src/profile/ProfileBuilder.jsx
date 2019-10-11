@@ -417,36 +417,7 @@ class ProfileBuilder extends Component {
     this.setState({nodes});
   }
 
-  onAddDimension(data) {
-    const {currentPid, currentNode} = this.state;
-    const ordering = currentNode.masterMeta.length;
-    const payload = Object.assign({}, data, {profile_id: currentPid, ordering});
-    axios.post("/api/cms/profile/addDimension", payload).then(resp => {
-      const profiles = resp.data;
-      const thisProfile = profiles.find(p => p.id === currentPid);
-      const masterMeta = thisProfile.meta;
-      const requests = masterMeta.map(meta => {
-        const levels = meta.levels ? meta.levels.join() : false;
-        const levelString = levels ? `&levels=${levels}` : "";
-        const url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
-        return axios.get(url);
-      });
-      const previews = [];
-      Promise.all(requests).then(resps => {
-        resps.forEach((resp, i) => {
-          previews.push({
-            slug: masterMeta[i].slug,
-            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
-            name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
-            memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
-          });
-        });
-        this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
-      });
-    });
-  }
-
-  onDeleteDimension(profiles) {
+  updateProfilesOnDimensionModify(profiles) {
     const {currentPid} = this.state;
     const thisProfile = profiles.find(p => p.id === currentPid);
     const masterMeta = thisProfile.meta;
@@ -470,8 +441,26 @@ class ProfileBuilder extends Component {
     });
   }
 
-  onEditDimension(tbd) {
-    console.log(tbd);
+  onAddDimension(profileData) {
+    const {currentPid, currentNode} = this.state;
+    const ordering = currentNode.masterMeta.length;
+    const payload = Object.assign({}, profileData, {profile_id: currentPid, ordering});
+    axios.post("/api/cms/profile/upsertDimension", payload).then(resp => {
+      const profiles = resp.data;
+      this.updateProfilesOnDimensionModify.bind(this)(profiles);
+    });
+  }
+
+  onDeleteDimension(profiles) {
+    this.updateProfilesOnDimensionModify.bind(this)(profiles);
+  }
+
+  onEditDimension(profileData) {
+    const payload = profileData;
+    axios.post("api/cms/profile/upsertDimension", payload).then(resp => {
+      const profiles = resp.data;
+      this.updateProfilesOnDimensionModify.bind(this)(profiles);
+    });
   }
 
   onDimensionModify(action, payload) {
