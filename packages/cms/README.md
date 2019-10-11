@@ -211,7 +211,7 @@ For complex visualizations, it may be necessary to write custom code that causes
 
 You may want to click an element in a viz and have it open another viz. For example, if you have a Treemap of industries, perhaps you want to be able to click "Cars" and have the page open a secondary chart based on Cars.
 
-For this reason, the `setVariables` function has been added to Visualizations. This function allows you direct edit access to the `variables` object that the CMS uses to swap variables on the page. So, if you wanted a click event to open a secondary viz, you could create a secondary viz with an `allowed` property of `showSecondViz`. In the custom configuration for that secondary viz, you could set its lookup id to `variables.secondaryId`. Then, in the primary viz, you could set the following code in your viz configuration:
+For this reason, the `setVariables` function has been added to Visualizations. This function allows you edit access to the `variables` object that the CMS uses to swap variables on the page. So, if you wanted a click event to open a secondary viz, you could create a secondary viz with an `allowed` property of `showSecondViz`. In the custom configuration for that secondary viz, you could set its lookup id to `variables.secondaryId`. Then, in the primary viz, you could set the following code in your viz configuration:
 
 ```
  "on": 
@@ -234,7 +234,7 @@ Then, in a viz, you may call the function `openModal(slug)` to embed the section
  "on": 
     {
       "click": d => {
-        openModal("myModalSlug")
+        openModal("myModalSlug");
       }
     }
 ```
@@ -245,8 +245,8 @@ Keep in mind that you may combine the two advanced functions! If your planned mo
  "on": 
     {
       "click": d => {
-        setVariables({idForMyModal: d.id})
-        openModal("myModalSlug")
+        setVariables({idForMyModal: d.id});
+        openModal("myModalSlug");
       }
     }
 ```
