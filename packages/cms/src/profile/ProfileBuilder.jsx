@@ -50,7 +50,8 @@ class ProfileBuilder extends Component {
   getChildContext() {
     return {
       onSetVariables: this.onSetVariables.bind(this),
-      onSelectPreview: this.onSelectPreview.bind(this)
+      onSelectPreview: this.onSelectPreview.bind(this),
+      onDimensionModify: this.onDimensionModify.bind(this)
     };
   }
 
@@ -469,6 +470,16 @@ class ProfileBuilder extends Component {
     });
   }
 
+  onEditDimension(tbd) {
+    console.log(tbd);
+  }
+
+  onDimensionModify(action, payload) {
+    if (action === "add") this.onAddDimension.bind(this)(payload);
+    if (action === "delete") this.onDeleteDimension.bind(this)(payload);
+    if (action === "edit") this.onEditDimension.bind(this)(payload);
+  }
+
   formatLabel(str) {
     const {variablesHash, currentPid, query, selectors} = this.state;
     const {localeDefault} = this.props;
@@ -756,7 +767,8 @@ class ProfileBuilder extends Component {
 
 ProfileBuilder.childContextTypes = {
   onSetVariables: PropTypes.func,
-  onSelectPreview: PropTypes.func
+  onSelectPreview: PropTypes.func,
+  onDimensionModify: PropTypes.func
 };
 
 ProfileBuilder.contextTypes = {
