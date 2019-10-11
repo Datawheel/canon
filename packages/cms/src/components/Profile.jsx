@@ -29,7 +29,7 @@ class Profile extends Component {
       profile: props.profile,
       selectors: {},
       modalSlug: null,
-      loading: false
+      loading: false,
       setVarsLoading: false
     };
   }
