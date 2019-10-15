@@ -114,7 +114,7 @@ class StoryEditor extends Component {
           entity="story"
           cards={<TextCard
             item={minData}
-            locale={localeDefault}
+            locale={locale}
             localeDefault={localeDefault}
             fields={["title", "subtitle"]}
             plainfields={["image"]}
@@ -122,18 +122,6 @@ class StoryEditor extends Component {
             onSave={this.onSave.bind(this)}
             variables={{}}
           />}
-          secondaryCards={locale &&
-            <TextCard
-              item={minData}
-              locale={locale}
-              localeDefault={localeDefault}
-              fields={["title", "subtitle"]}
-              plainfields={["image"]}
-              type="story"
-              onSave={this.onSave.bind(this)}
-              variables={{}}
-            />
-          }
         >
           <div className="cms-editor-header">
             {/* change slug */}
@@ -170,19 +158,6 @@ class StoryEditor extends Component {
           cards={minData.descriptions && minData.descriptions.map(d =>
             <TextCard key={d.id}
               item={d}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              onDelete={this.onDelete.bind(this)}
-              fields={["description"]}
-              type="story_description"
-              variables={{}}
-              parentArray={minData.descriptions}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.descriptions && minData.descriptions.map(d =>
-            <TextCard key={d.id}
-              item={d}
               locale={locale}
               localeDefault={localeDefault}
               onDelete={this.onDelete.bind(this)}
@@ -202,20 +177,6 @@ class StoryEditor extends Component {
           entity="footnote"
           addItem={this.addItem.bind(this, "story_footnote")}
           cards={minData.footnotes && minData.footnotes.map(d =>
-            <TextCard key={d.id}
-              item={d}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              ordering={d.ordering}
-              onDelete={this.onDelete.bind(this)}
-              fields={["title", "description"]}
-              type="story_footnote"
-              variables={{}}
-              parentArray={minData.footnotes}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.footnotes && minData.footnotes.map(d =>
             <TextCard key={d.id}
               item={d}
               locale={locale}
@@ -238,20 +199,6 @@ class StoryEditor extends Component {
           entity="author"
           addItem={this.addItem.bind(this, "author")}
           cards={minData.authors && minData.authors.map(d =>
-            <TextCard key={d.id}
-              item={d}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              onDelete={this.onDelete.bind(this)}
-              fields={["bio"]}
-              plainfields={["name", "title", "image", "twitter"]}
-              type="author"
-              variables={{}}
-              parentArray={minData.authors}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.authors && minData.authors.map(d =>
             <TextCard key={d.id}
               item={d}
               locale={locale}
