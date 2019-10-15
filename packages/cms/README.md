@@ -222,7 +222,7 @@ For this reason, the `setVariables` function has been added to Visualizations. T
     }
 ```
 
-Thus, when you click on a section of the primary viz treemap, it calls `setVariables`, sets the secondaryId, and the page will re-render to update the secondary viz with the appropriate secondary id. 
+Thus, when you click on a section of the primary viz treemap, it calls `setVariables`, sets the `secondaryId`, and the page will re-render to update the secondary viz with the appropriate id (in the above example, the id for Cars). 
 
 
 ### Modifying Page State
