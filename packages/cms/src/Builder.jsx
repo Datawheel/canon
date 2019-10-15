@@ -157,7 +157,7 @@ class Builder extends Component {
 
     return (
       <div className={`cms cms-${currentTab}-page`}>
-        <div className="cms-nav">
+        <div className={`cms-nav${settingsOpen ? " settings-visible" : ""}`}>
           <div className="cms-nav-main">
             {navLinks.map(navLink =>
               <button

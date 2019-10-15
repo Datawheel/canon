@@ -43,7 +43,8 @@ class ProfileBuilder extends Component {
       selectors: [],
       previews: [],
       cubeData: {},
-      query: {}
+      query: {},
+      toolboxVisible: true
     };
   }
 
@@ -98,7 +99,7 @@ class ProfileBuilder extends Component {
           masterPid: p.id,
           masterMeta: p.meta,
           data: t,
-          icon: sectionIconLookup(t.type, t.sticky),
+          icon: sectionIconLookup(t.type, t.position),
           className: `${toKebabCase(t.type)}-node`
         };
       })
@@ -211,7 +212,7 @@ class ProfileBuilder extends Component {
       if (section.status === 200) {
         obj.id = `section${section.data.id}`;
         obj.data = section.data;
-        obj.icon = sectionIconLookup(section.data.type, section.data.sticky);
+        obj.icon = sectionIconLookup(section.data.type, section.data.position);
         obj.className = `${toKebabCase(section.data.type)}-node`;
         const defCon = section.data.content.find(c => c.locale === localeDefault);
         const title = defCon && defCon.title ? defCon.title : section.slug;
@@ -644,7 +645,7 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode, variablesHash, currentPid, gensLoaded, gensTotal, genLang, previews, profiles, cubeData, nodeToDelete, selectors} = this.state;
+    const {nodes, currentNode, variablesHash, currentPid, gensLoaded, gensTotal, genLang, previews, profiles, cubeData, nodeToDelete, selectors, toolboxVisible} = this.state;
     const {locale, localeDefault} = this.props;
 
     if (!nodes) return null;
@@ -685,7 +686,7 @@ class ProfileBuilder extends Component {
             />
           </div>
 
-          <div className="cms-editor" id="item-editor">
+          <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
             { currentNode
               ? <Editor
                 id={currentNode.data.id}
@@ -719,6 +720,36 @@ class ProfileBuilder extends Component {
               </Editor>
               : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
             }
+
+            <Toolbox
+              id={currentPid}
+              locale={locale}
+              localeDefault={localeDefault}
+              updateSelectors={this.updateSelectors.bind(this)}
+              variables={variables}
+              fetchVariables={this.fetchVariables.bind(this)}
+              previews={previews}
+              toolboxVisible={toolboxVisible}
+            >
+              <div className="cms-toolbox-collapse-wrapper u-hide-below-lg">
+                <Button
+                  className="cms-toolbox-collapse-button"
+                  fontSize="xs"
+                  icon={toolboxVisible ? "caret-right" : "caret-left"}
+                  iconOnly
+                  namespace="cms"
+                  onClick={() => this.setState({toolboxVisible: !toolboxVisible})}
+                >
+                  {toolboxVisible ? "hide toolbox" : "show toolbox"}
+                </Button>
+              </div>
+            </Toolbox>
+            
+            <Status 
+	          recompiling={gensLoaded !== gensTotal} 
+	          busy={`${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`}
+	          done="Variables Loaded"
+	        />
           </div>
 
           <Alert
@@ -733,22 +764,6 @@ class ProfileBuilder extends Component {
             {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
           </Alert>
         </div>
-
-        <Toolbox
-          id={currentPid}
-          locale={locale}
-          localeDefault={localeDefault}
-          updateSelectors={this.updateSelectors.bind(this)}
-          variables={variables}
-          fetchVariables={this.fetchVariables.bind(this)}
-          previews={previews}
-        />
-
-        <Status 
-          recompiling={gensLoaded !== gensTotal} 
-          busy={`${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`}
-          done="Variables Loaded"
-        />
       </React.Fragment>
     );
   }

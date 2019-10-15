@@ -25,10 +25,7 @@ NOTE: ripped from ReactTable
   align-items: stretch;
   width: auto;
   /* entire table can scroll horizontally */
-  overflow-y: hidden;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
-  @mixin hide-scrollbars;
+  @mixin horizontal-overflow-container;
   -ms-overflow-style: none;
 }
 
@@ -46,8 +43,7 @@ NOTE: ripped from ReactTable
   flex-direction: column;
   max-height: var(--table-height);
   /* table body can scroll vertically */
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  @mixin vertical-overflow-container;
 }
 
 .rt-tr-group {

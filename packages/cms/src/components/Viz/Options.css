@@ -80,7 +80,7 @@
       & .table {
         height: auto;
         max-height: calc(100vh - 200px);
-        overflow-x: scroll;
+        @mixin horizontal-overflow-container;
         width: 100%;
       }
     }

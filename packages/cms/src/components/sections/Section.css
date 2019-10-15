@@ -23,25 +23,29 @@
 }
 .cp-section-heading {
   margin-top: 0;
+  color: var(--section-heading-color);
+}
+/* anchored headings */
+.cp-section-anchored-heading {
   margin-left: -4rem; /* offset anchor */
   padding-left: 2rem;
-  color: var(--section-heading-color);
+
+  & + .cp-section-heading-anchor {
+    width: 2rem;
+    min-width: 2rem;
+    text-align: center;
+    position: relative;
+    left: -1.5rem;
+    bottom: 1px;
+    order: -1;
+    font-size: var(--font-md);
+    color: var(--section-heading-color);
+    /* transitions */
+    opacity: 0;
+  }
 }
-.cp-section-heading-anchor {
-  width: 2rem;
-  min-width: 2rem;
-  text-align: center;
-  position: relative;
-  left: -1.5rem;
-  bottom: 1px;
-  order: -1;
-  font-size: var(--font-md);
-  color: var(--section-heading-color);
-  /* transitions */
-  opacity: 0;
-}
-.cp-section-heading:focus + .cp-section-heading-anchor,
-.cp-section-heading:hover + .cp-section-heading-anchor,
+.cp-section-anchored-heading:focus + .cp-section-heading-anchor,
+.cp-section-anchored-heading:hover + .cp-section-heading-anchor,
 .cp-section-heading-anchor:hover,
 .cp-section-heading-anchor:focus {
   opacity: 1;
@@ -104,9 +108,9 @@
     align-items: center;
     justify-content: flex-start;
     height: var(--sticky-section-height);
-    overflow-x: auto;
+    /* handle overflow */
+    @mixin horizontal-overflow-container;
     overflow-y: hidden;
-    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
 
     /* hide scrollbar */
     -ms-overflow-style: none;
@@ -167,5 +171,41 @@
 
   @mixin ie-only {
     top: 0;
+  }
+}
+
+/* MODAL */
+[class*="-dialog"].cp-modal-section-dialog { /* specificity bump needed to override blueprint */
+  position: relative; /* needed to position close button */
+  /* sizing */
+  width: var(--container-width);
+  max-width: calc(100% - var(--gutter-lg));
+  padding-bottom: 0;
+}
+.cp-modal-section {
+  padding: var(--gutter-lg); /* equalize padding */
+}
+.cp-dialog-close-button {
+  /* sizing (equal to modal section padding) */
+  width: var(--gutter-lg);
+  height: var(--gutter-lg);
+  /* positioning */
+  position: absolute;
+  top: 0;
+  right: 0;
+  text-align: center;
+  /* theming */
+  @mixin button-reset;
+  color: var(--dark-1);
+  /* transitions */
+  transition:
+    color 0.1s ease-out,
+    opacity 0.1s ease-out,
+    transform 0.1s ease-out;
+
+  /* interactions */
+  &:hover, &:focus {
+    transform: scale(1.5);
+    color: var(--accent-dark);
   }
 }

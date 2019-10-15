@@ -4,6 +4,7 @@ import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {fetchData} from "@datawheel/canon-core";
+import {Dialog, Icon} from "@blueprintjs/core";
 
 import libs from "../utils/libs";
 
@@ -27,6 +28,7 @@ class Profile extends Component {
     this.state = {
       profile: props.profile,
       selectors: {},
+      modalSlug: null,
       loading: false,
       setVarsLoading: false
     };
@@ -50,9 +52,17 @@ class Profile extends Component {
       router,
       onSelector: this.onSelector.bind(this),
       onSetVariables: this.onSetVariables.bind(this),
+      onOpenModal: this.onOpenModal.bind(this),
       variables,
       locale
     };
+  }
+
+  /**
+   * Visualizations have the ability to "break out" and open a modal.
+   */
+  onOpenModal(modalSlug) {
+    this.setState({modalSlug});
   }
 
   /**
@@ -97,17 +107,17 @@ class Profile extends Component {
   }
 
   render() {
-    const {profile, loading, isIE} = this.state;
+    const {profile, loading, modalSlug, isIE, setVarsLoading} = this.state;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
     const heroSection = sections.find(l => l.type === "Hero");
-    // Remove all non-heroes from sections.
-    if (heroSection) sections = sections.filter(l => l.type !== "Hero");
+    // Remove all heros & modals from sections.
+    if (heroSection) sections = sections.filter(l => l.type !== "Hero" && l.position !== "modal");
 
     // rename old section names
     sections.forEach(l => {
-      if (l.type === "TextViz" || l.sticky === true) l.type = "Default";
+      if (l.type === "TextViz" || l.position === "sticky") l.type = "Default";
       if (l.type === "Card") l.type = "InfoCard";
       if (l.type === "Column") l.type = "SingleColumn";
     });
@@ -144,44 +154,72 @@ class Profile extends Component {
       }, []);
     }
 
-    return (
-      <div className="cp">
-        <Hero profile={profile} contents={heroSection || null} />
+    const modalSection = modalSlug ? profile.sections.find(s => s.slug === modalSlug) : null;
 
-        {/* main content sections */}
-        <main className="cp-main" id="main">
-          {groupedSections.map((groupings, i) =>
-            <div className="cp-grouping" key={i} style={isIE === true ? {
-              position: "relative",
-              zIndex: i + 1 // in IE, hide sticky sections behind the next grouping
-            } : null}>
-              {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
-                // ungrouped section
-                ? <Section
-                  contents={innerGrouping[0]}
-                  headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
-                  loading={loading}
-                  key={`${innerGrouping[0].slug}-${ii}`}
-                />
-                // grouped sections
-                : <SectionGrouping layout={innerGrouping[0].type}>
-                  {innerGrouping.map((section, iii) =>
-                    <Section
-                      contents={section}
-                      headingLevel={groupedSections.length === 1 || ii === 0
-                        ? iii === 0 ? "h2" : "h3"
-                        : "h4"
-                      }
-                      loading={loading}
-                      key={`${section.slug}-${iii}`}
-                    />
-                  )}
-                </SectionGrouping>
-              )}
-            </div>
-          )}
-        </main>
-      </div>
+    return (
+      <React.Fragment>
+        <div className="cp">
+          <Hero profile={profile} contents={heroSection || null} />
+
+          {/* main content sections */}
+          <main className="cp-main" id="main">
+            {groupedSections.map((groupings, i) =>
+              <div className="cp-grouping" key={i} style={isIE === true ? {
+                position: "relative",
+                zIndex: i + 1 // in IE, hide sticky sections behind the next grouping
+              } : null}>
+                {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
+                  // ungrouped section
+                  ? <Section
+                    contents={innerGrouping[0]}
+                    headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
+                    loading={loading}
+                    key={`${innerGrouping[0].slug}-${ii}`}
+                  />
+                  // grouped sections
+                  : <SectionGrouping layout={innerGrouping[0].type}>
+                    {innerGrouping.map((section, iii) =>
+                      <Section
+                        contents={section}
+                        headingLevel={groupedSections.length === 1 || ii === 0
+                          ? iii === 0 ? "h2" : "h3"
+                          : "h4"
+                        }
+                        loading={loading}
+                        key={`${section.slug}-${iii}`}
+                      />
+                    )}
+                  </SectionGrouping>
+                )}
+              </div>
+            )}
+          </main>
+
+          {/* modal sections */}
+          <Dialog
+            className="cp-modal-section-dialog"
+            portalClassName="cp-modal-section-portal"
+            backdropClassName="cp-modal-section-backdrop"
+            isOpen={modalSection}
+            onClose={() => this.setState({modalSlug: null})}
+          >
+            <button className="cp-dialog-close-button" onClick={() => this.setState({modalSlug: null})}>
+              <Icon className="cp-dialog-close-button-icon" icon="cross" />
+              <span className="u-visually-hidden">close section</span>
+            </button>
+
+            <Section
+              isModal={true}
+              contents={modalSection}
+              // To prevent a "loading flicker" when users call setVariables, normal Sections don't show a "Loading"
+              // when the only thing that updated was from setVariables. HOWEVER, if this is a modal popover, we really
+              // SHOULD wait if setVarsLoading is true, because the config might have called setVariables and then 
+              // called openModal right after, so let's wait for setVars to be done before we consider the loading complete.
+              loading={loading || setVarsLoading}
+            />
+          </Dialog>
+        </div>
+      </React.Fragment>
     );
   }
 }
@@ -192,7 +230,8 @@ Profile.childContextTypes = {
   router: PropTypes.object,
   variables: PropTypes.object,
   onSelector: PropTypes.func,
-  onSetVariables: PropTypes.func
+  onSetVariables: PropTypes.func,
+  onOpenModal: PropTypes.func
 };
 
 Profile.need = [

@@ -101,7 +101,7 @@ class SectionEditor extends Component {
       slug: minData.slug,
       type: minData.type,
       allowed: minData.allowed,
-      sticky: minData.sticky
+      position: minData.position
     };
     axios.post("/api/cms/section/update", payload).then(resp => {
       if (resp.status === 200) {
@@ -161,7 +161,7 @@ class SectionEditor extends Component {
     let availableLayouts = minData.types.filter(l => l !== "Hero");
     // if this is the first section, add Hero layout to the front
     if (order === 0) availableLayouts = ["Hero"].concat(availableLayouts);
-    if (minData.sticky) availableLayouts = ["Default"];
+    if (minData.position === "sticky") availableLayouts = ["Default"];
 
     const layouts = availableLayouts.map(l =>
       <option key={l} value={l}>
@@ -235,7 +235,7 @@ class SectionEditor extends Component {
             </Select>
 
             {/* layout select */}
-            {!minData.sticky &&
+            {minData.position !== "sticky" &&
               <Select
                 label="Layout"
                 inline
@@ -248,13 +248,13 @@ class SectionEditor extends Component {
               </Select>
             }
 
-            {/* sticky select */}
+            {/* position select */}
             <label className="bp3-label">
               <span className="u-visually-hidden">Positioning</span>
               <ButtonGroup namespace="cms" buttons={[
                 {
-                  onClick: this.selectButton.bind(this, "sticky", true, false),
-                  active: !minData.sticky,
+                  onClick: this.selectButton.bind(this, "position", true, "default"),
+                  active: minData.position === "default",
                   namespace: "cms",
                   fontSize: "xs",
                   icon: "alignment-left",
@@ -262,13 +262,22 @@ class SectionEditor extends Component {
                   children: "default"
                 },
                 {
-                  onClick: this.selectButton.bind(this, "sticky", true, true),
-                  active: minData.sticky,
+                  onClick: this.selectButton.bind(this, "position", true, "sticky"),
+                  active: minData.position === "sticky",
                   namespace: "cms",
                   fontSize: "xs",
                   icon: "alignment-top",
                   iconPosition: "left",
                   children: "sticky"
+                },
+                {
+                  onClick: this.selectButton.bind(this, "position", true, "modal"),
+                  active: minData.position === "modal",
+                  namespace: "cms",
+                  fontSize: "xs",
+                  icon: "applications",
+                  iconPosition: "left",
+                  children: "modal"
                 }
               ]} />
             </label>
@@ -276,7 +285,7 @@ class SectionEditor extends Component {
         </Deck>
 
         {/* subtitles */}
-        {!minData.sticky &&
+        {minData.position !== "sticky" &&
           <Deck
             title="Subtitles"
             entity="subtitle"
@@ -313,7 +322,7 @@ class SectionEditor extends Component {
         }
 
         {/* hide fields that won't be used by sticky sections */}
-        {!minData.sticky && <React.Fragment>
+        {minData.position !== "sticky" && <React.Fragment>
           {/* stats */}
           <Deck
             title="Stats"

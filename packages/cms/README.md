@@ -8,6 +8,7 @@ Content Management System for Canon sites.
 * [Rendering a Profile](#rendering-a-profile)
 * [Overview and Terminology](#overview-and-terminology)
 * [Environment Variables](#environment-variables)
+* [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Migration](#migration)
 
@@ -202,6 +203,76 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 
 ---
 
+## Advanced Visualization Techniques
+
+For complex pages, you may need to communicate between visualizations, or customize other behaviors. There are a few potential use cases here:
+
+### Interacting between visualizations
+
+You may want an event in one visualization to have an effect on another visualization. For example, if you have a Treemap of industries, perhaps you want to be able to click "Cars" in one viz, and have a secondary viz respond to focus in on cars.
+
+For this reason, the `setVariables` function has been added to Visualizations. This function allows you access to the `variables` object that the CMS uses to swap variables on the page. In order to achieve the example above, you could set your secondary viz to make use of a variable called `variables.secondaryId`. Then, in the primary viz, you could set the following code in your viz configuration:
+
+```
+ "on": 
+    {
+      "click": d => {
+        setVariables({secondaryId: d.id});
+      }
+    }
+```
+
+Thus, when you click on a section of the primary viz treemap, it calls `setVariables`, sets the `secondaryId`, and the page will re-render to update the secondary viz with the appropriate id (in the above example, the id for Cars). 
+
+
+### Modifying Page State
+
+Keep in mind that the `setVariables` function accesses the main `variables` object that the entire page has access to. This means ANY entity on the page that makes use of variables is able to listen for changes to this object. 
+
+A potential use case for this may be for an entire viz, stat, or section to be shown or hidden based on a click action inside a viz. Remember, each entity in the CMS has an `allowed` property, a variable whose truthiness determines whether to show this entity or not. If you want to control the visibility of an element, set its `allowed` property to a variable that you intend to override later with a click action. To expand the example above:
+
+```
+ "on": 
+    {
+      "click": d => {
+        setVariables({showSecondaryViz: true, secondaryId: d.id});
+      }
+    }
+```
+
+In this example, you would set the `allowed` property of your second viz to `showSecondaryViz`, which would begin as false (hidden). The click action in your primary viz would set that variable to true (showing the viz) and then setting its `secondaryId` (so the new viz focuses on the desired element).
+
+### Opening a modal window
+
+Alternatively, you may want to click an element in a viz and have something open a modal popover window. Profile sections have a "Positioning" property, which may be set to Default, Sticky, or Modal. If you want a section to be eligible for opening inside a modal popover, set its positioning to Modal, and be sure to remember its slug. This will hide it from the normal rendering of a profile page.
+
+Then, in a viz, you may call the function `openModal(slug)` to embed the section with the provided slug in a popover on the page.
+
+```
+ "on": 
+    {
+      "click": d => {
+        openModal("myModalSlug");
+      }
+    }
+```
+
+Keep in mind that you may combine the two advanced functions! If your planned modal relies on a secondary ID, you could set something like:
+
+```
+ "on": 
+    {
+      "click": d => {
+        setVariables({idForMyModal: d.id});
+        openModal("myModalSlug");
+      }
+    }
+```
+
+You are then welcome, in the `myModalSlug` section, to make use of `idForMyModal` and trust that it will be set when the modal opens.
+
+---
+
 ## Frequently Asked Questions
 
 ### What is the structure of the JavaScipt _Object_ that a visualization returns?
@@ -252,12 +323,13 @@ ___
 
 ## Migration
 
-For upgrading to new versions, there are currently four migration scripts:
+For upgrading to new versions, there are currently several migration scripts:
 
 1) `npx canon-cms-migrate-legacy` (for DataUSA)
 2) `npx canon-cms-migrate-0.1` (for CDC or other 0.1 CMS users)
 3) `npx canon-cms-migrate-0.6` (for 0.6 CMS users)
 4) `npx canon-cms-migrate-0.7` (for 0.7 CMS users)
+5) `npx canon-cms-migrate-0.8` (for 0.8 CMS users)
 
 ### Instructions
 

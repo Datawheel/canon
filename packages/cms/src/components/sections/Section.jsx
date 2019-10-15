@@ -46,7 +46,7 @@ class Section extends Component {
   }
 
   componentDidMount() {
-    const stickySection = this.state.contents.sticky;
+    const stickySection = this.state.contents.position === "sticky";
     const currentSection = this.section.current;
 
     // make sure the section is sticky
@@ -93,7 +93,7 @@ class Section extends Component {
   }
 
   handleScroll() {
-    const stickySection = this.state.contents.sticky;
+    const stickySection = this.state.contents.position === "sticky";
 
     // make sure the current section is sticky & the document window exists
     if (stickySection === true && isIE) {
@@ -116,13 +116,13 @@ class Section extends Component {
 
   render() {
     const {contents, sources, isStickyIE, height} = this.state;
-    const {headingLevel, loading} = this.props;
+    const {headingLevel, loading, isModal} = this.props;
 
     // remap old section names
     const layout = contents.type;
     const layoutClass = `cp-${toKebabCase(layout)}-section`;
 
-    const Layout = contents.sticky ? Default : sectionTypes[layout] || Default; // assign the section layout component
+    const Layout = contents.position === "sticky" ? Default : sectionTypes[layout] || Default; // assign the section layout component
 
     const {descriptions, slug, stats, subtitles, title, visualizations} = contents;
     const selectors = contents.selectors || [];
@@ -131,23 +131,25 @@ class Section extends Component {
     const mainTitle = <Fragment>
       {title &&
         <div className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}>
-          <Parse El={headingLevel} id={slug} className={`cp-section-heading ${layoutClass}-heading`} tabIndex="0">
+          <Parse El={headingLevel} id={slug} className={`cp-section-heading ${layoutClass}-heading${layout !== "Hero" && !isModal ? " cp-section-anchored-heading" : ""}`} tabIndex="0">
             {title}
           </Parse>
-          <AnchorLink to={slug} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`}>
-            #<span className="u-visually-hidden">permalink to section</span>
-          </AnchorLink>
+          {!isModal &&
+            <AnchorLink to={slug} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`}>
+              #<span className="u-visually-hidden">permalink to section</span>
+            </AnchorLink>
+          }
         </div>
       }
     </Fragment>;
 
-    const subTitle = <Fragment>
-      {!contents.sticky && subtitles.map((content, i) =>
+    const subTitle = <React.Fragment>
+      {contents.position !== "sticky" && subtitles.map((content, i) =>
         <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
           {content.subtitle}
         </Parse>
       )}
-    </Fragment>;
+    </React.Fragment>;
 
     const heading = <Fragment>
       {mainTitle}
@@ -167,7 +169,7 @@ class Section extends Component {
     // stats
     let statContent, secondaryStatContent;
 
-    if (!contents.sticky) {
+    if (contents.position !== "sticky") {
       const statGroups = nest().key(d => d.title).entries(stats);
 
       if (stats.length > 0) {
@@ -192,7 +194,7 @@ class Section extends Component {
 
     // paragraphs
     let paragraphs;
-    if (descriptions.length && !contents.sticky) {
+    if (descriptions.length && contents.position !== "sticky") {
       paragraphs = loading
         ? <p>Loading...</p>
         : descriptions.map((content, i) =>
@@ -216,7 +218,7 @@ class Section extends Component {
       secondaryStats: secondaryStatContent,
       sources: sourceContent,
       paragraphs: layout === "Tabs" ? contents.descriptions : paragraphs,
-      visualizations: !contents.sticky ? visualizations : [],
+      visualizations: contents.position !== "sticky" ? visualizations : [],
       vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
       loading
     };
@@ -225,9 +227,11 @@ class Section extends Component {
       <Fragment>
         <section
           className={`cp-section cp-${toKebabCase(contents.type)}-section${
-            contents.sticky ? " is-sticky" : ""
+            contents.position === "sticky" ? " is-sticky" : ""
           }${
             isStickyIE ? " ie-is-stuck" : ""
+          }${
+            isModal ? " cp-modal-section" : ""
           }`}
           ref={this.section}
           key={`section-${contents.id}`}

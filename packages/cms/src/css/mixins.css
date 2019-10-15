@@ -294,6 +294,20 @@ layout
   }
 }
 
+/* overflow with inertia scrolling */
+@define-mixin overflow-container {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@define-mixin vertical-overflow-container {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@define-mixin horizontal-overflow-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 
 /* -----------------------------------
 resets
@@ -339,8 +353,7 @@ VarTable & VarList
   border-radius: 2px;
   /* handle overflow */
   display: block; /* needed to honor overflow */
-  overflow: auto;
-  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  @mixin overflow-container;
   z-index: 1;
   /* theming */
   background-color: transparent;
