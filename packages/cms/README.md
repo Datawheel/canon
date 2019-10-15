@@ -205,7 +205,7 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 
 ## Advanced Visualization Techniques
 
-For complex pages, you may need to communicate between visualizations, or customize other behaviors. There are two primary use cases here:
+For complex pages, you may need to communicate between visualizations, or customize other behaviors. There are a few potential use cases here:
 
 ### Interacting between visualizations
 
