@@ -458,7 +458,7 @@ class ProfileBuilder extends Component {
 
   onEditDimension(profileData) {
     const payload = profileData;
-    axios.post("api/cms/profile/upsertDimension", payload).then(resp => {
+    axios.post("/api/cms/profile/upsertDimension", payload).then(resp => {
       const profiles = resp.data;
       this.updateProfilesOnDimensionModify.bind(this)(profiles);
     });
