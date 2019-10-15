@@ -8,7 +8,7 @@ Content Management System for Canon sites.
 * [Rendering a Profile](#rendering-a-profile)
 * [Overview and Terminology](#overview-and-terminology)
 * [Environment Variables](#environment-variables)
-* [Advanced Commands](#advanced-commands)
+* [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Migration](#migration)
 
@@ -203,26 +203,44 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 
 ---
 
-## Advanced Commands
+## Advanced Visualization Techniques
 
-For complex visualizations, it may be necessary to write custom code that causes another event to fire. There are two primary use cases here:
+For complex pages, you may need to communicate between visualizations, or customize other behaviors. There are two primary use cases here:
 
-### Opening another visualization
+### Interacting between visualizations
 
-You may want to click an element in a viz and have it open another viz. For example, if you have a Treemap of industries, perhaps you want to be able to click "Cars" and have the page open a secondary chart based on Cars.
+You may want an event in one visualization to have an effect on another visualization. For example, if you have a Treemap of industries, perhaps you want to be able to click "Cars" in one viz, and have a secondary viz respond to focus in on cars.
 
-For this reason, the `setVariables` function has been added to Visualizations. This function allows you edit access to the `variables` object that the CMS uses to swap variables on the page. So, if you wanted a click event to open a secondary viz, you could create a secondary viz with an `allowed` property of `showSecondViz`. In the custom configuration for that secondary viz, you could set its lookup id to `variables.secondaryId`. Then, in the primary viz, you could set the following code in your viz configuration:
+For this reason, the `setVariables` function has been added to Visualizations. This function allows you access to the `variables` object that the CMS uses to swap variables on the page. In order to achieve the example above, you could set your secondary viz to make use of a variable called `variables.secondaryId`. Then, in the primary viz, you could set the following code in your viz configuration:
 
 ```
  "on": 
     {
       "click": d => {
-        setVariables({showSecondViz: true, secondaryId: d.id});
+        setVariables({secondaryId: d.id});
       }
     }
 ```
 
-Thus, when you click on a section of the primary viz treemap, it calls `setVariables`, sets the two variables, and the page will re-render to show the secondary viz with the appropriate secondary id. 
+Thus, when you click on a section of the primary viz treemap, it calls `setVariables`, sets the secondaryId, and the page will re-render to update the secondary viz with the appropriate secondary id. 
+
+
+### Modifying Page State
+
+Keep in mind that the `setVariables` function accesses the main `variables` object that the entire page has access to. This means ANY entity on the page that makes use of variables is able to listen for changes to this object. 
+
+A potential use case for this may be for an entire viz, stat, or section to be shown or hidden based on a click action inside a viz. Remember, each entity in the CMS has an `allowed` property, a variable whose truthiness determines whether to show this entity or not. If you want to control the visibility of an element, set its `allowed` property to a variable that you intend to override later with a click action. To expand the example above:
+
+```
+ "on": 
+    {
+      "click": d => {
+        setVariables({showSecondaryViz: true, secondaryId: d.id});
+      }
+    }
+```
+
+In this example, you would set the `allowed` property of your second viz to `showSecondaryViz`, which would begin as false (hidden). The click action in your primary viz would set that variable to true (showing the viz) and then setting its `secondaryId` (so the new viz focuses on the desired element).
 
 ### Opening a modal window
 
