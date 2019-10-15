@@ -80,8 +80,8 @@ class SimpleVisualizationEditor extends Component {
         const payload = resp.data;
 
         this.setState({payload}, this.compileCode.bind(this));
-      }).catch(() => {
-        console.log("API error");
+      }).catch(e => {
+        console.log("API error", e);
       });
     }
   }
@@ -176,8 +176,8 @@ class SimpleVisualizationEditor extends Component {
         object: newObject,
         rebuildAlertOpen: false
       }, this.compileCode.bind(this));
-    }).catch(() => {
-      console.log("API error");
+    }).catch(e => {
+      console.log("API error", e);
     });
   }
 
