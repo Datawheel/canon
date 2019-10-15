@@ -272,9 +272,9 @@ class MetaEditor extends Component {
     let skip = ["stem", "imageId", "contentId"];
     if (!imageEnabled) skip = skip.concat("image");
     const keySort = ["id", "slug", "content", "zvalue", "dimension", "hierarchy", "image"];
-    const fields = Object.keys(data[0])
+    const fields = data[0] ? Object.keys(data[0])
       .filter(d => !skip.includes(d))
-      .sort((a, b) => keySort.indexOf(a) - keySort.indexOf(b));
+      .sort((a, b) => keySort.indexOf(a) - keySort.indexOf(b)) : [];
 
     const idColumns = [];
     const classColumns = [];
