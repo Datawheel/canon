@@ -44,14 +44,16 @@ class Hero extends Component {
       */
 
     const images = [];
-    for (let i = 0; i < dims.length; i++) {
-      if (profile.images[i]) {
-        images.push({
-          src: `/api/image?slug=${dims[i].slug}&id=${dims[i].id}&type=splash`,
-          author: profile.images[i].author,
-          meta: profile.images[i].meta,
-          permalink: profile.images[i].url
-        });
+    if (dims) {
+      for (let i = 0; i < dims.length; i++) {
+        if (profile.images[i]) {
+          images.push({
+            src: `/api/image?slug=${dims[i].slug}&id=${dims[i].id}&type=splash`,
+            author: profile.images[i].author,
+            meta: profile.images[i].meta,
+            permalink: profile.images[i].url
+          });
+        }
       }
     }
 

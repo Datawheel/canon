@@ -7,6 +7,7 @@ import "./Story.css";
 import stripP from "../utils/formatters/stripP";
 import stripHTML from "../utils/formatters/stripHTML";
 import Section from "./sections/Section";
+import Hero from "./sections/Hero";
 
 import libs from "../utils/libs";
 
@@ -28,20 +29,13 @@ class Story extends Component {
   render() {
 
     const {story} = this.props;
-    const {storysections, slug} = story;
-    const title = stripP(this.props.story.title);
+    const {storysections} = story;
     const titleRaw = stripHTML(this.props.story.title);
 
     return (
       <div id="Story">
         <Helmet title={ titleRaw } />
-        <div className="story-header">
-          <div className="bg-image"  style={{backgroundImage: `url(/images/stories/${slug}.png)`}} />
-          <div className="overlay"></div>
-          <div className="text-wrapper">
-            <h1 className="story-headline" dangerouslySetInnerHTML={{__html: title}} />
-          </div>
-        </div>
+        <Hero profile={story} />
         <div className="story-content">
           { storysections.map(section => <Section key={section.slug} contents={section} />) }
         </div>
