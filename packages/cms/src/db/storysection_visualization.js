@@ -18,15 +18,7 @@ module.exports = function(sequelize, db) {
           model: "canon_cms_storysection",
           key: "id"
         }
-      },
-      logic_simple: {
-        type: db.JSON,
-        defaultValue: null
-      },
-      simple: {
-        type: db.BOOLEAN,
-        defaultValue: true
-      },      
+      },     
       ordering: db.INTEGER
     }, 
     {
