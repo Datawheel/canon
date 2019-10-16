@@ -19,6 +19,14 @@ module.exports = function(sequelize, db) {
           key: "id"
         }
       },
+      logic_simple: {
+        type: db.JSON,
+        defaultValue: null
+      },
+      simple: {
+        type: db.BOOLEAN,
+        defaultValue: true
+      },      
       ordering: db.INTEGER
     }, 
     {

@@ -69,12 +69,14 @@ class SimpleVisualizationEditor extends Component {
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value.
       const lookup = {};
-      previews.forEach((p, i) => {
-        if (i === 0) {
-          lookup.id = p.id;
-        }
-        lookup[`id${i + 1}`] = p.id;
-      });
+      if (previews) {
+        previews.forEach((p, i) => {
+          if (i === 0) {
+            lookup.id = p.id;
+          }
+          lookup[`id${i + 1}`] = p.id;
+        });
+      }
       const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
