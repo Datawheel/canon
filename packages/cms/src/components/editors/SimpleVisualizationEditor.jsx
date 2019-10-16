@@ -157,8 +157,19 @@ class SimpleVisualizationEditor extends Component {
 
   rebuild() {
     const {object} = this.state;
+    const {previews, variables, env} = this.props;
     const {data, type} = object;
-    axios.get(data).then(resp => {
+    const lookup = {};
+    if (previews) {
+      previews.forEach((p, i) => {
+        if (i === 0) {
+          lookup.id = p.id;
+        }
+        lookup[`id${i + 1}`] = p.id;
+      });
+    }
+    const url = urlSwap(data, Object.assign({}, env, variables, lookup));
+    axios.get(url).then(resp => {
       const payload = resp.data;
       const firstObj = payload.data[0];
       const newObject = {

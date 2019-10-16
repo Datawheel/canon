@@ -309,13 +309,12 @@ module.exports = function(app) {
   const runMaterializers = async(req, variables, pid) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     let materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
-    if (materializers.length === 0) return {};
+    if (materializers.length === 0) return variables;
     materializers = materializers.map(m => m.toJSON());
 
     // The order of materializers matters because input to later materializers depends on output from earlier materializers
     materializers.sort((a, b) => a.ordering - b.ordering);
     const formatterFunctions = await formatters4eval(db, locale);
-
     let returnVariables = variables;
     const matStatus = {};
     returnVariables = materializers.reduce((acc, m) => {
