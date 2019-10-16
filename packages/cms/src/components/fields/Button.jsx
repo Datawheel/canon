@@ -54,7 +54,7 @@ export default class Button extends Component {
 
         {/* right icon */}
         {icon && iconPosition === "right" &&
-          <Icon className={`${namespace}-button-icon`} icon={icon} />
+          <Icon className={`${namespace}-button-icon`} icon={icon} htmlTitle="" />
         }
       </button>
     );

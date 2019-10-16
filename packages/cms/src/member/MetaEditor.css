@@ -131,7 +131,7 @@
   & .rt-tbody .rt-tr.-even .rt-td { background-color: color(var(--white) a(0.5)); }
   & .rt-tbody                     { @mixin font-xxs; }
   & .-btn                         { @mixin cms-button-style;
-    &[disabled]                   { @mixin disabled-button; }
+    &[disabled]                   { @mixin disabled-button; @mixin cms-disabled-button-style; }
   }
   & .-pageJump > input            { @mixin cms-text-input-style; }
   & .-pageJump > *                { margin: 0 0.125em; }

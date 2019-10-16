@@ -62,9 +62,14 @@
     width: 100%;
   }
 
-  /* disabled state overrides all styles */
+  /* universal disabled state styles */
   &[disabled] {
     @mixin disabled-button;
+  }
+
+  /* rebuilding */
+  &.is-rebuilding > [class*="-button-icon"] {
+    animation: rotate 0.75s infinite ease-in-out;
   }
 }
 
@@ -73,9 +78,8 @@
 .cms-button {
   @mixin cms-button-style;
 
-  /* rebuilding */
-  &.is-rebuilding > .cms-button-icon {
-    animation: rotate 0.75s infinite ease-in-out;
+  &[disabled] {
+    @mixin cms-disabled-button-style;
   }
 }
 

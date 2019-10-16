@@ -215,7 +215,8 @@ theming
 @define-mixin disabled-button {
   cursor: not-allowed;
   pointer-events: none;
-  /* theming */
+}
+@define-mixin cms-disabled-button-style {
   box-shadow: none !important;
   background: var(--light-2) !important;
   color: var(--gray) !important;
