@@ -6,13 +6,9 @@ import {Helmet} from "react-helmet";
 import "./Story.css";
 import stripP from "../utils/formatters/stripP";
 import stripHTML from "../utils/formatters/stripHTML";
-import {timeFormat} from "d3-time-format";
 import Section from "./sections/Section";
-import Hero from "./sections/Hero";
 
 import libs from "../utils/libs";
-
-const formatTime = timeFormat("%B, %Y");
 
 class Story extends Component {
 
@@ -32,14 +28,9 @@ class Story extends Component {
   render() {
 
     const {story} = this.props;
-    const {storysections, date, slug} = story;
+    const {storysections, slug} = story;
     const title = stripP(this.props.story.title);
     const titleRaw = stripHTML(this.props.story.title);
-
-    const sections = storysections.map(d => {
-      d.title = null;
-      return d;
-    });
 
     return (
       <div id="Story">
@@ -49,11 +40,10 @@ class Story extends Component {
           <div className="overlay"></div>
           <div className="text-wrapper">
             <h1 className="story-headline" dangerouslySetInnerHTML={{__html: title}} />
-            <p className="story-subhead u-font-md u-uppercase u-margin-bottom-off">{formatTime(new Date(date))}</p>
           </div>
         </div>
         <div className="story-content">
-          { sections.map(section => <Section key={section.slug} contents={section} />) }
+          { storysections.map(section => <Section key={section.slug} contents={section} />) }
         </div>
       </div>
     );
