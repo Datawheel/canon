@@ -66,7 +66,8 @@ class StoryEditor extends Component {
 
   save() {
     const {minData} = this.state;
-    axios.post("/api/cms/story/update", minData).then(resp => {
+    const payload = {id: minData.id, slug: minData.slug, date: minData.date};
+    axios.post("/api/cms/story/update", payload).then(resp => {
       if (resp.status === 200) {
         console.log("saved");
       }
