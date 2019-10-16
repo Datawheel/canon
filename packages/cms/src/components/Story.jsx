@@ -32,7 +32,7 @@ class Story extends Component {
   render() {
 
     const {story} = this.props;
-    const {storysections, date, slug} = this.props.story;
+    const {storysections, date, slug} = story;
     const title = stripP(this.props.story.title);
     const titleRaw = stripHTML(this.props.story.title);
 
