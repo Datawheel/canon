@@ -52,7 +52,7 @@ class Options extends Component {
     this.state = {
       backgroundColor: true,
       id: uuid(),
-      imageContext: "section",
+      imageContext: "viz",
       imageFormat: "png",
       imageProcessing: false,
       includeSlug: true,
@@ -242,12 +242,17 @@ class Options extends Component {
 
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
+
         <div className="horizontal download">
           <Button key="data-download" icon="download" fontSize="xxs" onClick={this.onCSV.bind(this)}>
             {t("CMS.Options.Download as CSV")}
           </Button>
-          { dataUrl && <input key="data-url" type="text" ref={input => this.dataLink = input} readOnly="readonly" value={dataUrl} /> }
+
+          { dataUrl && 
+            <input key="data-url" type="text" ref={input => this.dataLink = input} readOnly="readonly" value={dataUrl} />
+          }
         </div>
+
         <div className="table">
           <ReactTable
             data={results}
@@ -319,40 +324,67 @@ class Options extends Component {
         transitionDuration={transitionDuration}
         ref={this.dialog}
       >
+        <h2 className="u-visually-hidden">Visualization options</h2>
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={dialogOpen}>
           <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
           <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={
             <div className="bp3-dialog-body save-image">
-              <ButtonGroup className="save-image-button-group">
-                <Button
-                  className="save-image-format-button"
-                  fontSize="xs"
-                  icon="media"
-                  iconPosition="left"
-                  onClick={() => this.setState({imageFormat: "png"})}
-                  active={imageFormat === "png"}
-                >
-                  <span className="u-visually-hidden">Save visualization as </span>PNG
-                </Button>
-                {svgAvailable &&
+
+              <div className="save-image-button-group-wrapper">
+                <h3 className="save-image-button-group-label label u-font-xs">Image format</h3>
+                <ButtonGroup className="save-image-button-group">
                   <Button
                     className="save-image-format-button"
                     fontSize="xs"
-                    icon="code-block"
+                    icon="media"
                     iconPosition="left"
-                    onClick={() => this.setState({imageFormat: "svg"})}
-                    active={imageFormat === "svg"}
+                    onClick={() => this.setState({imageFormat: "png"})}
+                    active={imageFormat === "png"}
                   >
-                    <span className="u-visually-hidden">Save visualization as </span>SVG
+                    <span className="u-visually-hidden">Save visualization as </span>PNG
                   </Button>
-                }
-              </ButtonGroup>
-
-              <div className="save-image-checkbox-group">
-                <Checkbox checked={imageContext === "viz"} label={t("CMS.Options.Only Download Visualization")} onChange={this.toggleContext.bind(this)} className="u-font-xs" />
-
-                <Checkbox checked={!backgroundColor} label={t("CMS.Options.Transparent Background")} onChange={this.toggleBackground.bind(this)} className="u-font-xs" />
+                  {svgAvailable &&
+                    <Button
+                      className="save-image-format-button"
+                      fontSize="xs"
+                      icon="code-block"
+                      iconPosition="left"
+                      onClick={() => this.setState({imageFormat: "svg"})}
+                      active={imageFormat === "svg"}
+                    >
+                      <span className="u-visually-hidden">Save visualization as </span>SVG
+                    </Button>
+                  }
+                </ButtonGroup>
               </div>
+
+              <div className="save-image-button-group-wrapper">
+                <h3 className="save-image-button-group-label label u-font-xs">Image area</h3>
+                <ButtonGroup className="save-image-button-group">
+                  <Button
+                    className="save-image-format-button"
+                    fontSize="xs"
+                    icon="timeline-line-chart"
+                    iconPosition="left"
+                    onClick={() => this.setState({imageContext: "viz"})}
+                    active={imageContext === "viz"}
+                  >
+                    visualization only
+                  </Button>
+                  <Button
+                    className="save-image-format-button"
+                    fontSize="xs"
+                    icon="vertical-distribution"
+                    iconPosition="left"
+                    onClick={() => this.setState({imageContext: "section"})}
+                    active={imageContext === "section"}
+                  >
+                    entire section
+                  </Button>
+                </ButtonGroup>
+              </div>
+
+              <Checkbox checked={!backgroundColor} label={t("CMS.Options.Transparent Background")} onChange={this.toggleBackground.bind(this)} className="u-font-xs" />
 
               <Button
                 className="save-image-download-button"

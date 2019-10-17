@@ -23,8 +23,10 @@
 
   & .close-button {
     position: absolute;
-    right: 5px;
-    top: 5px;
+    right: 0;
+    top: 0;
+    background-color: transparent;
+    border-color: transparent;
   }
 
   & .bp3-tab-list {
@@ -45,7 +47,21 @@
       padding: 20px; /* match blueprint style */
 
       & > *:not(:last-child) {
-        margin-bottom: 1.25em;
+        margin-bottom: 1em;
+      }
+
+      /* label + button group */
+      & .save-image-button-group-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+      }
+      & .save-image-button-group-label {
+        margin-right: var(--gutter-sm);
+      }
+      & .save-image-button-group {
+        width: auto;
+        flex: 1 1 auto;
       }
 
       & .save-image-format-button.is-inactive {
