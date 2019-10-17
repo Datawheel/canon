@@ -19,6 +19,8 @@ import toKebabCase from "../utils/formatters/toKebabCase";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
+import {newProfile} from "../actions/profiles";
+
 import deepClone from "../utils/deepClone.js";
 
 import "./ProfileBuilder.css";
@@ -364,10 +366,17 @@ class ProfileBuilder extends Component {
     const profileData = {
       ordering: this.state.nodes.length
     };
+
+    console.log("sending action");
+
+    /*
     axios.post("/api/cms/profile/newScaffold", profileData).then(resp => {
       const profiles = resp.data;
       this.setState({profiles}, this.buildNodes.bind(this));
     });
+    */
+
+    this.props.newProfile(profileData);
 
     // wait for the new node to be created
     setTimeout(() => {
@@ -780,4 +789,13 @@ ProfileBuilder.contextTypes = {
   setPath: PropTypes.func
 };
 
-export default connect(state => ({env: state.env}))(hot(ProfileBuilder));
+const mapStateToProps = state => ({
+  env: state.env,
+  profiles: state.cms.profiles
+});
+
+const mapDispatchToProps = dispatch => ({
+  newProfile: profile => dispatch(newProfile(profile))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(hot(ProfileBuilder));

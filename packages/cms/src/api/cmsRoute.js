@@ -521,13 +521,15 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
-    const profile = await db.profile.create(req.body).catch(catcher);
+    const maxFetch = await db.profile.findAll({attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
+    const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+    const profile = await db.profile.create({ordering}).catch(catcher);
     await db.profile_content.create({id: profile.id, locale: envLoc}).catch(catcher);
     const section = await db.section.create({ordering: 0, type: "Hero", profile_id: profile.id});
     await db.section_content.create({id: section.id, locale: envLoc}).catch(catcher);
-    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
-    profiles = sortProfileTree(db, profiles);
-    return res.json(profiles);
+    const reqObj = Object.assign({}, profileReqTreeOnly, {where: {id: profile.id}});
+    const newProfile = await db.profile.findOne(reqObj).catch(catcher);
+    return res.json(newProfile);
   });
 
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
