@@ -30,7 +30,7 @@ class Profile extends Component {
     this.state = {
       profile: props.profile,
       // Take a one-time, initial snapshot of the entire variable set at load time to be passed via context.
-      // This is necessary because embedded vizes need a pure untouched variable set, so they can reset
+      // This is necessary because embedded sections need a pure untouched variable set, so they can reset
       // the variables they changed via setVariables back to the original state at load time.
       initialVariables: deepClone(props.profile.variables),
       selectors: {},
@@ -57,7 +57,6 @@ class Profile extends Component {
       }, {}),
       router,
       onSelector: this.onSelector.bind(this),
-      onSetVariables: this.onSetVariables.bind(this),
       onOpenModal: this.onOpenModal.bind(this),
       variables,
       initialVariables,
@@ -179,6 +178,7 @@ class Profile extends Component {
                   // ungrouped section
                   ? <Section
                     contents={innerGrouping[0]}
+                    onSetVariables={this.onSetVariables.bind(this)}
                     headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
                     loading={loading}
                     key={`${innerGrouping[0].slug}-${ii}`}
@@ -188,6 +188,7 @@ class Profile extends Component {
                     {innerGrouping.map((section, iii) =>
                       <Section
                         contents={section}
+                        onSetVariables={this.onSetVariables.bind(this)}
                         headingLevel={groupedSections.length === 1 || ii === 0
                           ? iii === 0 ? "h2" : "h3"
                           : "h4"
@@ -218,6 +219,7 @@ class Profile extends Component {
             <Section
               isModal={true}
               contents={modalSection}
+              onSetVariables={this.onSetVariables.bind(this)}
               // To prevent a "loading flicker" when users call setVariables, normal Sections don't show a "Loading"
               // when the only thing that updated was from setVariables. HOWEVER, if this is a modal popover, we really
               // SHOULD wait if setVarsLoading is true, because the config might have called setVariables and then 
@@ -237,8 +239,7 @@ Profile.childContextTypes = {
   router: PropTypes.object,
   variables: PropTypes.object,
   initialVariables: PropTypes.object,
-  onSelector: PropTypes.func,
-  onSetVariables: PropTypes.func,
+  onSelector: PropTypes.func,  
   onOpenModal: PropTypes.func
 };
 

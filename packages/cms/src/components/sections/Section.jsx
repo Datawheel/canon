@@ -37,7 +37,10 @@ class Section extends Component {
       loading: false,
       isStickyIE: false,
       selectors: {},
-      sources: []
+      sources: [],
+      // Snapshots of the variables that have been changed by onSetVariables
+      // So we can reset these and only these to their original values.
+      changedVariables: {}
     };
 
     // used for IE sticky fallback
@@ -88,8 +91,35 @@ class Section extends Component {
     const {formatters, variables} = this.context;
     return {
       formatters,
-      variables: this.props.variables || variables
+      variables: this.props.variables || variables,
+      onSetVariables: this.onSetVariables.bind(this)
     };
+  }
+
+  /**
+   * Sections has received an onSetVariables function from props. However, this Section needs to 
+   * keep track locally of what it has changed, so that when a "reset" button is clicked, it can set
+   * the variables back to their original state. This local intermediary function, passed down via context,
+   * is responsible for keeping track of that, then in turn calling the props version of the function.
+   */
+  onSetVariables(newVariables) {
+    const initialVariables = this.context.initialVariables || {};
+    const changedVariables = {};
+    Object.keys(newVariables).forEach(key => {
+      changedVariables[key] = initialVariables[key];
+    });
+    this.setState({changedVariables});
+    if (this.props.onSetVariables) this.props.onSetVariables(newVariables);
+  }
+
+  /**
+   * When the user clicks reset, take the snapshot of the variables they changed and use them to 
+   * revert only those variables via the props function. 
+   */ 
+  resetVariables() {
+    const {changedVariables} = this.state;
+    if (this.props.onSetVariables) this.props.onSetVariables(changedVariables);
+    this.setState({changedVariables: {}});
   }
 
   handleScroll() {
@@ -115,7 +145,7 @@ class Section extends Component {
   }
 
   render() {
-    const {contents, sources, isStickyIE, height} = this.state;
+    const {contents, sources, isStickyIE, height, changedVariables} = this.state;
     const {headingLevel, loading, isModal} = this.props;
 
     // remap old section names
@@ -207,6 +237,8 @@ class Section extends Component {
     // sources
     const sourceContent = <SourceGroup sources={sources} />;
 
+    const showReset = Object.keys(changedVariables).length > 0;
+
     const componentProps = {
       slug,
       title,
@@ -237,6 +269,7 @@ class Section extends Component {
           key={`section-${contents.id}`}
         >
           <Layout {...componentProps} />
+          {showReset && <button onClick={this.resetVariables.bind(this)}>Reset</button>} 
         </section>
 
         {/* in IE, create empty div set to the height of the stuck element */}
@@ -256,12 +289,14 @@ Section.defaultProps = {
 Section.contextTypes = {
   formatters: PropTypes.object,
   router: PropTypes.object,
-  variables: PropTypes.object
+  variables: PropTypes.object,
+  initialVariables: PropTypes.object
 };
 
 Section.childContextTypes = {
   formatters: PropTypes.object,
-  variables: PropTypes.object
+  variables: PropTypes.object,
+  onSetVariables: PropTypes.func
 };
 
 export default connect(state => ({
