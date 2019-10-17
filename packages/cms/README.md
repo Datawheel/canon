@@ -206,7 +206,7 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 
 ## Search
 
-The CMS is used to create Profiles based on Dimensions, such as "Geography" or "Industry". The individual entities that make up these dimensions (such as Massachusetts or Metalworkers) are referred to as Members. These members are what make up the slugs/ids in URLS; when visiting `/geo/massachusetts`, `geo` is the profile/dimension slug and `massachusetts` is the member.
+The CMS is used to create Profiles based on Dimensions, such as "Geography" or "Industry". The individual entities that make up these dimensions (such as *Massachusetts* or *Metalworkers*) are referred to as Members. These members are what make up the slugs/ids in URLS; when visiting `/geo/massachusetts`, `geo` is the profile/dimension slug and `massachusetts` is the member.
 
 These members can be viewed and edited in the in the MetaData section of the CMS. However, they can also be searched via an API endpoint, which can be useful for setting up a search feature on your site. The API endpoint is:
 
@@ -220,9 +220,9 @@ Arguments are provided by url paramaters:
 |---|---|
 |`q`|A string query which uses the SQL `LIKE` operator to search the `name` and `keywords` of the member|
 |`dimension`|An exact-match string to filter results to members in the provided dimension|
-|`levels`|A comma-separated list of levels to Filter results to members by the provided levels|
-|`limit`|A number, passed through SQL `LIMIT` to limit results|
-|`id`|Exact match `id` lookup. Keep in mind that member `id`s are not necessarily unique and may require a `dimension` specification|
+|`levels`|A comma-separated list of levels to filter results to members by the provided levels|
+|`limit`|A number, passed through to SQL `LIMIT` to limit results|
+|`id`|Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification|
 
 Example query:
 
