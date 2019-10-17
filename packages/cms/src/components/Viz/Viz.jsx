@@ -16,6 +16,15 @@ const vizTypes = Object.assign({PercentageBar}, {Table}, {Graphic}, d3plus);
 
 class Viz extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      // Snapshots of the variables that have been changed by onSetVariables
+      // So we can reset these and only these to their original values.
+      changedVariables: {}
+    };
+  }
+
   getChildContext() {
     const context = {...this.context};
     context.d3plus = {...defaultConfig, ...context.d3plus};
@@ -27,10 +36,38 @@ class Viz extends Component {
     if (updateSource && resp.source) updateSource(resp.source);
   }
 
+  /**
+   * Viz has received an onSetVariables function from context. However, this Viz needs to 
+   * keep track locally of what it has changed, so that when a "reset" button is clicked, it can set
+   * the variables back to their original state. This local intermediary function is responsible 
+   * for keeping track of that, then calling the context version of the function.
+   */
+  onSetVariables(newVariables) {
+    const initialVariables = this.props.initialVariables || this.context.initialVariables;
+    const changedVariables = {};
+    Object.keys(newVariables).forEach(key => {
+      changedVariables[key] = initialVariables[key];
+    });
+    this.setState({changedVariables});
+    this.context.onSetVariables(newVariables);
+  }
+
+  /**
+   * When the user clicks reset, take the snapshot of the variables they changed and use them to 
+   * revert only those variables via the context function. 
+   */ 
+  resetVariables() {
+    const {changedVariables} = this.state;
+    this.context.onSetVariables(changedVariables);
+    this.setState({changedVariables: {}});
+  }
+
   render() {
     const {sectionTitle} = this.props;
+    const {changedVariables} = this.state;
+    const showReset = Object.keys(changedVariables).length > 0;
     const variables = this.props.variables || this.context.variables;
-    const {onSetVariables} = this.context;
+    const onSetVariables = this.onSetVariables.bind(this);
     // Window opening is only supported on front-end profiles. If onOpenModal didn't come through context,
     // then this Viz is in the CMS, so just replace it with a no-op.
     const onOpenModal = this.context.onOpenModal ? this.context.onOpenModal : d => d;
@@ -86,6 +123,7 @@ class Viz extends Component {
                 {title}
               </Parse> : ""
             }
+            {showReset && <button onClick={this.resetVariables.bind(this)}>Reset</button>}
             {options && !vizProps.error
               ? <Options
                 key="option-key"
@@ -120,8 +158,11 @@ Viz.childContextTypes = {
   d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,
+  // Though onSetVariables, onOpenModal, and intitialVariables aren't explicitly passed down,
+  // they are required to be here because of the object spread in getChildContext.
   onSetVariables: PropTypes.func,
   onOpenModal: PropTypes.func,
+  initialVariables: PropTypes.object,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };
@@ -132,6 +173,7 @@ Viz.contextTypes = {
   locale: PropTypes.string,
   onSetVariables: PropTypes.func,
   onOpenModal: PropTypes.func,
+  initialVariables: PropTypes.object,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };

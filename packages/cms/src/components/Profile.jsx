@@ -13,6 +13,8 @@ import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
 import isIE from "../utils/isIE.js";
 
+import deepClone from "../utils/deepClone.js";
+
 import "../css/utilities.css";
 import "../css/base.css";
 import "../css/blueprint-overrides.css";
@@ -27,6 +29,10 @@ class Profile extends Component {
     super(props);
     this.state = {
       profile: props.profile,
+      // Take a one-time, initial snapshot of the entire variable set at load time to be passed via context.
+      // This is necessary because embedded vizes need a pure untouched variable set, so they can reset
+      // the variables they changed via setVariables back to the original state at load time.
+      initialVariables: deepClone(props.profile.variables),
       selectors: {},
       modalSlug: null,
       loading: false,
@@ -40,7 +46,7 @@ class Profile extends Component {
 
   getChildContext() {
     const {formatters, locale, router} = this.props;
-    const {profile} = this.state;
+    const {profile, initialVariables} = this.state;
     const {variables} = profile;
     return {
       formatters: formatters.reduce((acc, d) => {
@@ -54,6 +60,7 @@ class Profile extends Component {
       onSetVariables: this.onSetVariables.bind(this),
       onOpenModal: this.onOpenModal.bind(this),
       variables,
+      initialVariables,
       locale
     };
   }
@@ -229,6 +236,7 @@ Profile.childContextTypes = {
   locale: PropTypes.string,
   router: PropTypes.object,
   variables: PropTypes.object,
+  initialVariables: PropTypes.object,
   onSelector: PropTypes.func,
   onSetVariables: PropTypes.func,
   onOpenModal: PropTypes.func
