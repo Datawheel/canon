@@ -51,6 +51,7 @@ export default class TextInput extends Component {
         {type === "password" &&
           <Button
             onClick={() => this.setState({showPassword: !showPassword})}
+            className={`${namespace}-input-password-button`}
             namespace={namespace}
             icon={showPassword ? "eye-off" : "eye-open"}
             fontSize="xs"

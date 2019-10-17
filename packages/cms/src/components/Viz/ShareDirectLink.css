@@ -31,10 +31,10 @@
   /* position label next to link */
   & .clipboard-icon {
     /* sizing */
-    min-width: 20px;
+    min-width: 1em;
     /* IE fixes */
-    width: 20px;
-    height: 20px;
+    width: 1em;
+    height: 1em;
     /* positioning */
     margin-left: 10px;
     margin-right: 10px;
@@ -43,8 +43,8 @@
     opacity: 0.5;
 
     & svg {
-      width: 20px;
-      height: 20px;
+      width: 100%;
+      height: auto;
     }
 
     & path {

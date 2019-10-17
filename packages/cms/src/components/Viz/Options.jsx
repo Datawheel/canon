@@ -269,16 +269,16 @@ class Options extends Component {
     const SharePanel = () =>
       <div className="bp3-dialog-body share-dialog">
 
+        {/* direct link */}
+        <ShareDirectLink link={shareLink} />
+
         {/* to slug or not to slug */}
         <Checkbox
-          small
+          className="u-font-xs"
           checked={this.state.includeSlug}
           label={t("CMS.Options.Scroll to section")}
           onChange={this.handleSectionCheck.bind(this)}
         />
-
-        {/* direct link */}
-        <ShareDirectLink link={shareLink} />
 
         {/* direct link */}
         <Label>

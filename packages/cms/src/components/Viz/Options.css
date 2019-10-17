@@ -13,10 +13,13 @@
 
 .options-dialog {
   max-width: calc(100% - 50px);
-  min-width: 400px;
-  overflow: hidden !important;
-  padding: 0 !important;
-  width: auto !important;
+
+  /* override blueprint */
+  &[class*="-dialog"] {
+    width: 36rem;
+    overflow: hidden;
+    padding: 0;
+  }
 
   & .close-button {
     position: absolute;
