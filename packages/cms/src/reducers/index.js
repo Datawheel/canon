@@ -4,6 +4,7 @@
 */
 
 import profiles from "./profiles.js";
+import cubeData from "./cubeData.js";
 
 const initialState = {
   status: {},
@@ -17,6 +18,7 @@ const initialState = {
 /** */
 export default function cmsReducer(state = initialState, action) {
   return {
+    cubeData: cubeData(state.cubeData, action),
     profiles: profiles(state.profiles, action)
   };
 }

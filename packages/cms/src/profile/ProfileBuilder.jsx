@@ -19,7 +19,8 @@ import toKebabCase from "../utils/formatters/toKebabCase";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
-import {newProfile} from "../actions/profiles";
+import {getProfiles, newProfile} from "../actions/profiles";
+import {getCubeData} from "../actions/cubeData";
 
 import deepClone from "../utils/deepClone.js";
 
@@ -38,7 +39,6 @@ class ProfileBuilder extends Component {
     super(props);
     this.state = {
       nodes: null,
-      profiles: null,
       currentNode: null,
       currentPid: null,
       variablesHash: {},
@@ -59,13 +59,15 @@ class ProfileBuilder extends Component {
   }
 
   componentDidMount() {
-    const treeGet = axios.get("/api/cms/tree");
-    const cubeGet = axios.get("/api/cubeData");
-    Promise.all([treeGet, cubeGet]).then(resp => {
-      const profiles = resp[0].data;
-      const cubeData = resp[1].data;
-      this.setState({profiles, cubeData}, this.buildNodes.bind(this));
-    });
+    this.props.getProfiles();
+    this.props.getCubeData();
+  }
+
+  componentDidUpdate(prevProps) {
+    // for now, update when the length changes. expand this.
+    if (this.props.profiles.length !== prevProps.profiles.length) {
+      this.buildNodes.bind(this)();
+    }
   }
 
   /**
@@ -79,7 +81,7 @@ class ProfileBuilder extends Component {
   }
 
   buildNodes(openNode) {
-    const {profiles} = this.state;
+    const {profiles} = this.props;
     const {localeDefault} = this.props;
     const {stripHTML} = this.context.formatters[localeDefault];
     const nodes = profiles.map(p => ({
@@ -363,21 +365,9 @@ class ProfileBuilder extends Component {
   }
 
   createProfile() {
-    const profileData = {
-      ordering: this.state.nodes.length
-    };
-
-    console.log("sending action");
+    this.props.newProfile();
 
     /*
-    axios.post("/api/cms/profile/newScaffold", profileData).then(resp => {
-      const profiles = resp.data;
-      this.setState({profiles}, this.buildNodes.bind(this));
-    });
-    */
-
-    this.props.newProfile(profileData);
-
     // wait for the new node to be created
     setTimeout(() => {
       // get the last node
@@ -386,6 +376,7 @@ class ProfileBuilder extends Component {
       // switch to the new node
       this.handleNodeClick(latestNode);
     }, 70);
+    */
   }
 
   /**
@@ -654,8 +645,8 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode, variablesHash, currentPid, gensLoaded, gensTotal, genLang, previews, profiles, cubeData, nodeToDelete, selectors, toolboxVisible} = this.state;
-    const {locale, localeDefault} = this.props;
+    const {nodes, currentNode, variablesHash, currentPid, gensLoaded, gensTotal, genLang, previews, cubeData, nodeToDelete, selectors, toolboxVisible} = this.state;
+    const {locale, localeDefault, profiles} = this.props;
 
     if (!nodes) return null;
   
@@ -795,7 +786,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  newProfile: profile => dispatch(newProfile(profile))
+  getProfiles: () => dispatch(getProfiles()),
+  newProfile: profile => dispatch(newProfile(profile)),
+  getCubeData: () => dispatch(getCubeData())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(ProfileBuilder));
