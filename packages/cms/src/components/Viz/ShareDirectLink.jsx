@@ -41,7 +41,7 @@ class ShareDirectLink extends Component {
     // use label as Clipboard wrapper so that clicking anything within triggers the copy event
     return (
       <div className="bp3-label share-direct-link-wrapper">
-        <span className="options-label-text">
+        <span className="options-label-text label">
           {label || t("CMS.Options.Direct link")}
         </span>
 

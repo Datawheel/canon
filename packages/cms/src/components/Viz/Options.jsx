@@ -257,15 +257,9 @@ class Options extends Component {
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
 
-        <div className="horizontal download">
-          <Button key="data-download" icon="download" fontSize="xxs" onClick={this.onCSV.bind(this)}>
-            {t("CMS.Options.Download as CSV")}
-          </Button>
-
-          { dataUrl &&
-            <input key="data-url" type="text" ref={input => this.dataLink = input} readOnly="readonly" value={dataUrl} />
-          }
-        </div>
+        { dataUrl &&
+          <ShareDirectLink link={dataUrl} />
+        }
 
         <div className="table">
           <ReactTable
@@ -278,6 +272,10 @@ class Options extends Component {
             resizable={false}
           />
         </div>
+
+        <Button key="data-download" icon="download" fontSize="md" onClick={this.onCSV.bind(this)} fill>
+          {t("CMS.Options.Download as CSV")}
+        </Button>
       </div>
       : <div className="bp3-dialog-body view-table">
         <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
@@ -293,20 +291,20 @@ class Options extends Component {
 
         {/* to slug or not to slug */}
         <Checkbox
-          className="u-font-xs"
+          onChange={this.handleSectionCheck.bind(this)}
           checked={this.state.includeSlug}
           label={t("CMS.Options.Scroll to section")}
-          onChange={this.handleSectionCheck.bind(this)}
+          className="u-font-xs"
         />
 
         {/* direct link */}
-        <Label>
-          <span className="u-font-xs options-label-text">{t("CMS.Options.Social")}</span>
+        <label>
+          <span className="u-font-xs options-label-text label">{t("CMS.Options.Social")}</span>
           <ButtonGroup fill={true}>
             <ShareFacebookLink link={shareLink} />
             <ShareTwitterLink link={shareLink} />
           </ButtonGroup>
-        </Label>
+        </label>
       </div>;
 
     return <div
@@ -385,7 +383,7 @@ class Options extends Component {
                       onClick={() => this.setState({imageFormat: "png"})}
                       active={imageFormat === "png"}
                     >
-                      <span className="u-visually-hidden">Save visualization as </span>png
+                      <span className="u-visually-hidden">Save visualization as </span>PNG
                     </Button>
                     <Button
                       className="save-image-format-button"
@@ -395,13 +393,18 @@ class Options extends Component {
                       onClick={() => this.setState({imageFormat: "svg"})}
                       active={imageFormat === "svg"}
                     >
-                      <span className="u-visually-hidden">Save visualization as </span>svg
+                      <span className="u-visually-hidden">Save visualization as </span>SVG
                     </Button>
                   </ButtonGroup>
                 </div>
               }
 
-              <Checkbox checked={!backgroundColor} label={t("CMS.Options.Transparent Background")} onChange={this.toggleBackground.bind(this)} className="u-font-xs" />
+              <Checkbox
+                onChange={this.toggleBackground.bind(this)}
+                checked={!backgroundColor}
+                label={t("CMS.Options.Transparent Background")}
+                className="u-font-xs"
+              />
 
               <Button
                 className="save-image-download-button"
