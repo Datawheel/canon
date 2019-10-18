@@ -138,10 +138,27 @@ class Options extends Component {
   getNode() {
     const {component} = this.props;
     const {imageContext} = this.state;
-    if (component[imageContext][imageContext]) {
-      const elem = component[imageContext][imageContext];
-      return elem.nodeType ? elem : elem.container || elem._reactInternalInstance._renderedComponent._hostNode;
+
+    let elem = component;
+
+    // get the visualization
+    if (imageContext === "viz" && component.viz.viz) {
+      elem = component.viz.viz;
+
+      // d3plus visualizations render within a container; use it for the image
+      if (elem.container) return elem.container;
+      // custom visualizations need to have their own ref named `viz`
+      else if (elem.viz && elem.viz.current) return elem.viz.current;
+      // neither case is fullfilled
+      else return false;
     }
+
+    // get the section
+    else if (imageContext === "section" && component.section.section) {
+      elem = component.section.section;
+      return elem;
+    }
+
     else return false;
   }
 
@@ -191,11 +208,6 @@ class Options extends Component {
 
   toggleBackground() {
     this.setState({backgroundColor: !this.state.backgroundColor});
-  }
-
-  toggleContext() {
-    const {imageContext} = this.state;
-    this.setState({imageContext: imageContext === "section" ? "viz" : "section"});
   }
 
   // add the slug, or not
@@ -248,7 +260,7 @@ class Options extends Component {
             {t("CMS.Options.Download as CSV")}
           </Button>
 
-          { dataUrl && 
+          { dataUrl &&
             <input key="data-url" type="text" ref={input => this.dataLink = input} readOnly="readonly" value={dataUrl} />
           }
         </div>
@@ -331,34 +343,6 @@ class Options extends Component {
             <div className="bp3-dialog-body save-image">
 
               <div className="save-image-button-group-wrapper">
-                <h3 className="save-image-button-group-label label u-font-xs">Image format</h3>
-                <ButtonGroup className="save-image-button-group">
-                  <Button
-                    className="save-image-format-button"
-                    fontSize="xs"
-                    icon="media"
-                    iconPosition="left"
-                    onClick={() => this.setState({imageFormat: "png"})}
-                    active={imageFormat === "png"}
-                  >
-                    <span className="u-visually-hidden">Save visualization as </span>PNG
-                  </Button>
-                  {svgAvailable &&
-                    <Button
-                      className="save-image-format-button"
-                      fontSize="xs"
-                      icon="code-block"
-                      iconPosition="left"
-                      onClick={() => this.setState({imageFormat: "svg"})}
-                      active={imageFormat === "svg"}
-                    >
-                      <span className="u-visually-hidden">Save visualization as </span>SVG
-                    </Button>
-                  }
-                </ButtonGroup>
-              </div>
-
-              <div className="save-image-button-group-wrapper">
                 <h3 className="save-image-button-group-label label u-font-xs">Image area</h3>
                 <ButtonGroup className="save-image-button-group">
                   <Button
@@ -376,13 +360,44 @@ class Options extends Component {
                     fontSize="xs"
                     icon="vertical-distribution"
                     iconPosition="left"
-                    onClick={() => this.setState({imageContext: "section"})}
+                    onClick={() => this.setState({
+                      imageContext: "section",
+                      imageFormat: "png"
+                    })}
                     active={imageContext === "section"}
                   >
                     entire section
                   </Button>
                 </ButtonGroup>
               </div>
+
+              {svgAvailable && imageContext !== "section" &&
+                <div className="save-image-button-group-wrapper">
+                  <h3 className="save-image-button-group-label label u-font-xs">Image format</h3>
+                  <ButtonGroup className="save-image-button-group">
+                    <Button
+                      className="save-image-format-button"
+                      fontSize="xs"
+                      icon="media"
+                      iconPosition="left"
+                      onClick={() => this.setState({imageFormat: "png"})}
+                      active={imageFormat === "png"}
+                    >
+                      <span className="u-visually-hidden">Save visualization as </span>png
+                    </Button>
+                    <Button
+                      className="save-image-format-button"
+                      fontSize="xs"
+                      icon="code-block"
+                      iconPosition="left"
+                      onClick={() => this.setState({imageFormat: "svg"})}
+                      active={imageFormat === "svg"}
+                    >
+                      <span className="u-visually-hidden">Save visualization as </span>svg
+                    </Button>
+                  </ButtonGroup>
+                </div>
+              }
 
               <Checkbox checked={!backgroundColor} label={t("CMS.Options.Transparent Background")} onChange={this.toggleBackground.bind(this)} className="u-font-xs" />
 
@@ -395,7 +410,7 @@ class Options extends Component {
                 fontSize="md"
                 fill
               >
-                {imageProcessing ? "Processing image" : "Download image"}
+                {imageProcessing ? "Processing image" : `Download ${imageFormat}`}
               </Button>
             </div>
           } />

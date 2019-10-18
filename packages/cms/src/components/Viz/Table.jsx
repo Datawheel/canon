@@ -13,6 +13,8 @@ class Table extends Component {
     this.state = {
       config: null
     };
+
+    this.viz = React.createRef();
   }
 
   componentDidMount() {
@@ -131,7 +133,7 @@ class Table extends Component {
     }).filter(Boolean); // handle malformed tables
 
     return (
-      <div className="cp-table-wrapper">
+      <div className="cp-table-wrapper" ref={this.viz}>
         {tableStructure && tableStructure.length
           ? <ReactTable
             {...config}

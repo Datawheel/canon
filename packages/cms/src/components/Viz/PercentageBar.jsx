@@ -1,6 +1,7 @@
 import axios from "axios";
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import Button from "../fields/Button";
+import Parse from "../sections/components/Parse";
 import "./PercentageBar.css";
 
 class PercentageBar extends Component {
@@ -10,6 +11,8 @@ class PercentageBar extends Component {
     this.state = {
       config: null
     };
+
+    this.viz = React.createRef();
   }
 
   componentDidMount() {
@@ -80,54 +83,52 @@ class PercentageBar extends Component {
     }
 
     return (
-      <>
-      <div className={`percentage-bar-wrapper ${`${labelVal}`.includes("%") ? "is-percent" : ""}`}>
+      <Fragment>
+        <div className={`percentage-bar-wrapper ${`${labelVal}`.includes("%") ? "is-percent" : ""}`} ref={this.viz}>
 
-        <div className="precentage-bar-grid-holder">
-          <svg className="percentage-bar-grid">
-            <defs>
-              <clipPath id="percentage-bar-clip">
-                <rect x="0" y="0" width="100%" height={showAll ? "99%" : "88%"} />
-              </clipPath>
-            </defs>
-            <g className="percentage-bar-ticks">
-              {lines}
-            </g>
-            <g className="percentage-bar-labels">
-              {ticks}
-            </g>
-          </svg>
-        </div>
+          <div className="precentage-bar-grid-holder">
+            <svg className="percentage-bar-grid">
+              <defs>
+                <clipPath id="percentage-bar-clip">
+                  <rect x="0" y="0" width="100%" height={showAll ? "99%" : "88%"} />
+                </clipPath>
+              </defs>
+              <g className="percentage-bar-ticks">
+                {lines}
+              </g>
+              <g className="percentage-bar-labels">
+                {ticks}
+              </g>
+            </svg>
+          </div>
 
-        <ul className="percentage-bar-list">
-          {displayData.filter(d => d).map((d, i) => {
-            const percent = d[value] / total * 100;
-            const label = d[groupBy];
-            return (
-              <li key={`percentage-bar-${i}`} className="percentage-bar-item">
-                <span className="percentage-bar-label label u-font-xs">
-                  {label}
-                </span>
+          <ul className="percentage-bar-list">
+            {displayData.filter(d => d).map((d, i) => {
+              const percent = d[value] / total * 100;
+              const label = d[groupBy];
+              return (
+                <li key={`${this.viz}-percentage-bar-${i}`} className="percentage-bar-item">
+                  <span className="percentage-bar-label label u-font-xs">
+                    {label}<span className="u-visually-hidden">: </span>
+                  </span>
 
-                <span className="percentage-bar-value display u-font-md">
-                  {numberFormat(d, value, total)}
-                </span>
+                  <span className="percentage-bar-value display u-font-md">
+                    {numberFormat(d, value, total)}
+                  </span>
 
-                <span className="u-visually-hidden">: </span>
-                {!isNaN(percent) &&
+                  {!isNaN(percent) &&
                     <span className="percentage-bar-bg">
                       <span className="percentage-bar" style={{width: `${percent}%`}} />
                     </span>
-                }
-
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+                  }
+                </li>
+              );
+            })}
+          </ul>
+        </div>
         <div className="show-more">
           {!showAll && cutoffText &&
-            <div className="cutoff-text" dangerouslySetInnerHTML={{__html: cutoffText}}></div>
+            <Parse className="cutoff-text">{cutoffText}</Parse>
           }
           {(showAll || data.length > displayData.length) &&
             <Button
@@ -140,7 +141,7 @@ class PercentageBar extends Component {
             </Button>
           }
         </div>
-      </>
+      </Fragment>
     );
   }
 }

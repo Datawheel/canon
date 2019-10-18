@@ -64,8 +64,12 @@
         flex: 1 1 auto;
       }
 
+      & .save-image-format-button.is-active {
+        border-color: var(--button-hover-bg-color);
+        z-index: 1;
+      }
       & .save-image-format-button.is-inactive {
-        opacity: 0.666;
+        opacity: 0.75;
 
         &:hover, &:focus {
           opacity: 1;

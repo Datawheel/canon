@@ -3,6 +3,7 @@
 /* shared button styles */
 .cp-button,
 .cms-button {
+  position: relative;
   display: inline-block;
   text-align: center; /* for links disguised as buttons */
   /* transitions */
@@ -95,7 +96,7 @@
   &:hover,
   &:focus {
     background-color: var(--button-hover-bg-color);
-    border-color: var(--button-hover-bg-color);
+    border-color: var(--button-hover-border-color);
     color: var(--button-hover-color);
   }
 }
