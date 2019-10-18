@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, {Component, Fragment} from "react";
+import {hot} from "react-hot-loader/root";
 import Button from "../fields/Button";
 import Parse from "../sections/components/Parse";
 import "./PercentageBar.css";
@@ -78,8 +79,8 @@ class PercentageBar extends Component {
       obj.tickValue = (total * (i * 0.1)).toFixed(2);
       labelVal = numberFormat(obj, "tickValue", total);
 
-      lines.push(<line key={i} x1={xPos} x2={xPos} y1="0" y2="100%"/>);
-      ticks.push(<text key={i} x={xPos} y="100%">{labelVal}</text>);
+      lines.push(<line key={`line-${xPos}-${labelVal}`} x1={xPos} x2={xPos} y1="0" y2="100%"/>);
+      ticks.push(<text key={`tick-${xPos}-${labelVal}`} x={xPos} y="100%">{labelVal}</text>);
     }
 
     return (
@@ -107,7 +108,7 @@ class PercentageBar extends Component {
               const percent = d[value] / total * 100;
               const label = d[groupBy];
               return (
-                <li key={`${this.viz}-percentage-bar-${i}`} className="percentage-bar-item">
+                <li key={`percentage-bar-${label}-${percent}-${i}`} className="percentage-bar-item">
                   <span className="percentage-bar-label label u-font-xs">
                     {label}<span className="u-visually-hidden">: </span>
                   </span>
@@ -130,15 +131,15 @@ class PercentageBar extends Component {
           {!showAll && cutoffText &&
             <Parse className="cutoff-text">{cutoffText}</Parse>
           }
-          {(showAll || data.length > displayData.length) &&
-            <Button
+          {showAll || data.length > displayData.length
+            ? <Button
               fontSize="xs"
               iconPosition="left"
               icon={showAll ? "eye-off" : "eye-open"}
               onClick={() => this.setState({showAll: !this.state.showAll})}
             >
               {showAll ? hideText : showText}
-            </Button>
+            </Button> : ""
           }
         </div>
       </Fragment>
@@ -146,4 +147,4 @@ class PercentageBar extends Component {
   }
 }
 
-export default PercentageBar;
+export default hot(PercentageBar);
