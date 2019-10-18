@@ -113,7 +113,8 @@ class Profile extends Component {
     // Find the first instance of a Hero section (excludes all following instances)
     const heroSection = sections.find(l => l.type === "Hero");
     // Remove all heros & modals from sections.
-    if (heroSection) sections = sections.filter(l => l.type !== "Hero" && l.position !== "modal");
+    if (heroSection) sections = sections.filter(l => l.type !== "Hero");
+    sections = sections.filter(l => l.position !== "modal");
 
     // rename old section names
     sections.forEach(l => {
