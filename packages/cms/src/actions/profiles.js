@@ -52,6 +52,16 @@ export function deleteSection(id) {
   };
 }
 
+/** */
+export function deleteProfile(id) { 
+  return function(dispatch, getStore) {
+    return axios.delete(`${getStore().env.CANON_API}/api/cms/profile/delete`, {params: {id}})
+      .then(({data}) => {
+        dispatch({type: "PROFILE_DELETE", data});
+      });
+  };
+}
+
 /**
  * Certain events in the Editors, such as saving a generator, can change the resulting
  * variables object. In order to ensure that this new variables object is passed down to

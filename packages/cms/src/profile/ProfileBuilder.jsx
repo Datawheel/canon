@@ -17,7 +17,7 @@ import treeify from "../utils/profile/treeify";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
-import {getProfiles, newProfile, swapEntity, newSection, deleteSection} from "../actions/profiles";
+import {getProfiles, newProfile, swapEntity, newSection, deleteSection, deleteProfile} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 import {getCubeData} from "../actions/cubeData";
 
@@ -78,7 +78,7 @@ class ProfileBuilder extends Component {
         this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
       }
       else if (profile) {
-        const nodeToOpen = this.locateNode("profile", profile, nodes);
+        let nodeToOpen = this.locateNode("profile", profile, nodes);
         if (!nodeToOpen) nodeToOpen = nodes[0];
         this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
       }
@@ -117,7 +117,7 @@ class ProfileBuilder extends Component {
 
   deleteItem(n) {
     if (n.itemType === "section") this.props.deleteSection(n.data.id);
-    //if (n.itemType === "profile") this.props.deleteProfile(n.data.id);
+    if (n.itemType === "profile") this.props.deleteProfile(n.data.id);
     this.setState({nodeToDelete: false});
   }
 
@@ -539,6 +539,7 @@ const mapDispatchToProps = dispatch => ({
   newProfile: () => dispatch(newProfile()),
   swapEntity: (type, id, dir) => dispatch(swapEntity(type, id, dir)),
   newSection: pid => dispatch(newSection(pid)),
+  deleteProfile: id => dispatch(deleteProfile(id)),
   deleteSection: id => dispatch(deleteSection(id)),
   setStatus: status => dispatch(setStatus(status)),
   getCubeData: () => dispatch(getCubeData())

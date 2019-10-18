@@ -22,6 +22,8 @@ export default (profiles = [], action) => {
       return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {sections: p.sections.concat([action.data])}) : p);
     case "SECTION_DELETE":
       return profiles.map(p => action.data[0] && p.id === action.data[0].profile_id ? Object.assign({}, p, {sections: action.data}) : p);
+    case "PROFILE_DELETE":
+      return action.data;
     case "VARIABLES_SET":
       return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {variables: deepClone(action.data.variables)}) : p);
     default: return profiles;
