@@ -19,6 +19,8 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
+import isIE from "../../utils/isIE.js";
+
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
 
@@ -170,7 +172,7 @@ class Options extends Component {
 
       setTimeout(() => {
         // IE is the wurst with CSSTransitionGroup
-        document.getElementsByClassName("options-dialog")[0].style.opacity = 1;
+        if (isIE) document.getElementsByClassName("options-dialog")[0].style.opacity = 1;
         // give focus to the correct tab
         document.getElementById(`bp3-tab-title_undefined_${slug}`).focus();
       }, transitionDuration + 200);
@@ -186,7 +188,7 @@ class Options extends Component {
 
     const node = this.getNode.bind(this)();
 
-    if (node && !dialogOpen) {
+    if (isIE && node && !dialogOpen) {
       const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
       if (node.offsetTop < scrollTop) animateScroll.scrollTo(node.offsetTop);
     }
