@@ -18,7 +18,8 @@ import treeify from "../utils/profile/treeify";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
-import {getProfiles, newProfile, swapEntity, newSection, deleteSection, setStatus} from "../actions/profiles";
+import {getProfiles, newProfile, swapEntity, newSection, deleteSection} from "../actions/profiles";
+import {setStatus} from "../actions/status";
 import {getCubeData} from "../actions/cubeData";
 
 import deepClone from "../utils/deepClone.js";
@@ -31,8 +32,6 @@ class ProfileBuilder extends Component {
     super(props);
     this.state = {
       nodes: null,
-      currentNode: null,
-      currentPid: null,
       variablesHash: {},
       selectors: [],
       previews: [],
@@ -141,7 +140,8 @@ class ProfileBuilder extends Component {
 
   handleNodeClick(node) {
     node = this.locateNode(node.itemType, node.data.id);
-    const {nodes, currentNode, previews} = this.state;
+    const {nodes, previews} = this.state;
+    const {currentNode} = this.props.status;
     let parentLength = 0;
     if (node.itemType === "section") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
     if (node.itemType === "profile") parentLength = nodes.length;
@@ -176,7 +176,7 @@ class ProfileBuilder extends Component {
     if (this.state.currentPid === node.masterPid) {
       pathObj.previews = previews;
       this.context.setPath(pathObj);
-      this.setState({currentNode: node});
+      this.props.setStatus({currentNode: node});
     }
     // If they don't match, update the currentPid and reset the preview
     else {
@@ -208,7 +208,8 @@ class ProfileBuilder extends Component {
         });
         pathObj.previews = previews;
         this.context.setPath(pathObj);
-        this.setState({currentNode: node, currentPid: node.masterPid, previews});
+        this.props.setStatus({currentNode: node, currentPid: node.masterPid});
+        // this.setState({previews});
       });
     }
   }
@@ -309,7 +310,7 @@ class ProfileBuilder extends Component {
   }
 
   onAddDimension(profileData) {
-    const {currentPid, currentNode} = this.state;
+    const {currentPid, currentNode} = this.props.status;
     const ordering = currentNode.masterMeta.length;
     const payload = Object.assign({}, profileData, {profile_id: currentPid, ordering});
     axios.post("/api/cms/profile/upsertDimension", payload).then(resp => {
@@ -337,8 +338,9 @@ class ProfileBuilder extends Component {
   }
 
   formatLabel(str) {
-    const {variablesHash, currentPid, query, selectors} = this.state;
+    const {variablesHash, query, selectors} = this.state;
     const {localeDefault} = this.props;
+    const {currentPid} = this.props.status;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
     const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : {};
@@ -380,7 +382,8 @@ class ProfileBuilder extends Component {
    * in the sidebar.
    */
   formatTreeVariables() {
-    const {currentPid, nodes} = this.state;
+    const {nodes} = this.state;
+    const {currentPid} = this.props.status;
     const {localeDefault} = this.props;
     const p = this.locateProfileNodeByPid(currentPid);
     p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions";
@@ -400,7 +403,8 @@ class ProfileBuilder extends Component {
    * variables object in a hash that is keyed by the profile id.
    */
   fetchVariables(callback, config) {
-    const {variablesHash, currentPid, previews} = this.state;
+    const {variablesHash, previews} = this.state;
+    const {currentPid} = this.props.status;
     const {locale, localeDefault} = this.props;
     const maybeCallback = () => {
       if (callback) callback();
@@ -494,7 +498,8 @@ class ProfileBuilder extends Component {
    * round-trip - we need only inject the variables object and trigger a re-render.
    */
   onSetVariables(newVariables) {
-    const {variablesHash, currentPid} = this.state;
+    const {variablesHash} = this.state;
+    const {currentPid} = this.props.status;
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
     // loop by checking if the vars are in there already, only updating if they are not yet set.
@@ -511,8 +516,9 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, currentNode, variablesHash, currentPid, gensLoaded, gensTotal, genLang, previews, cubeData, nodeToDelete, selectors, toolboxVisible} = this.state;
+    const {nodes, variablesHash, gensLoaded, gensTotal, genLang, previews, cubeData, nodeToDelete, selectors, toolboxVisible} = this.state;
     const {locale, localeDefault, profiles} = this.props;
+    const {currentNode, currentPid} = this.props.status;
 
     if (!nodes) return null;
   
@@ -646,7 +652,8 @@ ProfileBuilder.contextTypes = {
 
 const mapStateToProps = state => ({
   env: state.env,
-  profiles: state.cms.profiles
+  profiles: state.cms.profiles,
+  status: state.cms.status
 });
 
 const mapDispatchToProps = dispatch => ({

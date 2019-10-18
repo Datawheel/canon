@@ -5,6 +5,7 @@
 
 import profiles from "./profiles.js";
 import cubeData from "./cubeData.js";
+import status from "./status.js";
 
 const initialState = {
   status: {},
