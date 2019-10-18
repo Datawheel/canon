@@ -14,25 +14,16 @@ import Header from "../components/interface/Header";
 import Toolbox from "../components/interface/Toolbox";
 import Status from "../components/interface/Status";
 import nestedObjectAssign from "../utils/nestedObjectAssign";
-import sectionIconLookup from "../utils/sectionIconLookup";
-import toKebabCase from "../utils/formatters/toKebabCase";
 import treeify from "../utils/profile/treeify";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
-import {getProfiles, newProfile} from "../actions/profiles";
+import {getProfiles, newProfile, swapEntity, newSection, deleteSection, setStatus} from "../actions/profiles";
 import {getCubeData} from "../actions/cubeData";
 
 import deepClone from "../utils/deepClone.js";
 
 import "./ProfileBuilder.css";
-
-const sectionIcons = {
-  Card: "square",
-  SingleColumn: "list",
-  Tabs: "folder-close",
-  Default: "list-detail-view"
-};
 
 class ProfileBuilder extends Component {
 
@@ -65,9 +56,21 @@ class ProfileBuilder extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    
+    /*
     // for now, update when the length changes. expand this.
-    if (this.props.profiles.length !== prevProps.profiles.length) {
+    const lengthChanged = this.props.profiles.length !== prevProps.profiles.length;
+    const orderingChanged = this.props.profiles.map(p => p.id).join() !== prevProps.profiles.map(p => p.id).join();
+    const sectionsBefore = this.props.profiles.reduce((acc, p) => acc += p.sections.map(s => s.id).join(), "");
+    const sectionsAfter = prevProps.profiles.reduce((acc, p) => acc += p.sections.map(s => s.id).join(), "");
+    const sectionOrderingChanged = sectionsBefore !== sectionsAfter;
+    if (lengthChanged || orderingChanged || sectionOrderingChanged) {
       this.buildNodes.bind(this)();
+    }
+    */
+    if (JSON.stringify(this.props.profiles) !== JSON.stringify(prevProps.profiles)) {
+      console.log("rebuilding");
+      this.buildNodes.bind(this)(); 
     }
   }
 
@@ -87,11 +90,13 @@ class ProfileBuilder extends Component {
     if (!openNode) {
       const {profile, section} = this.props.pathObj;
       if (section) {
-        const nodeToOpen = this.locateNode("section", section, nodes);
+        let nodeToOpen = this.locateNode("section", section, nodes);
+        if (!nodeToOpen) nodeToOpen = nodes[0];
         this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
       }
       else if (profile) {
         const nodeToOpen = this.locateNode("profile", profile, nodes);
+        if (!nodeToOpen) nodeToOpen = nodes[0];
         this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
       }
       else {
@@ -111,36 +116,8 @@ class ProfileBuilder extends Component {
     }
   }
 
-  saveNode(node) {
-    const payload = {id: node.data.id, ordering: node.data.ordering};
-    axios.post(`/api/cms/${node.itemType}/update`, payload).then(resp => {
-      resp.status === 200 ? console.log("saved") : console.log("error");
-    });
-  }
-
   moveItem(n, dir) {
-    const {nodes} = this.state;
-    const sorter = (a, b) => a.data.ordering - b.data.ordering;
-    n = this.locateNode(n.itemType, n.data.id);
-    let parentArray;
-    if (n.itemType === "section") parentArray = this.locateNode("profile", n.data.profile_id).childNodes;
-    if (n.itemType === "profile") parentArray = nodes;
-    if (dir === "up") {
-      const old = parentArray.find(node => node.data.ordering === n.data.ordering - 1);
-      old.data.ordering++;
-      n.data.ordering--;
-      this.saveNode(old);
-      this.saveNode(n);
-    }
-    if (dir === "down") {
-      const old = parentArray.find(node => node.data.ordering === n.data.ordering + 1);
-      old.data.ordering--;
-      n.data.ordering++;
-      this.saveNode(old);
-      this.saveNode(n);
-    }
-    parentArray.sort(sorter);
-    this.setState({nodes});
+    this.props.swapEntity(n.itemType, n.data.id, dir);
   }
 
   /**
@@ -148,64 +125,8 @@ class ProfileBuilder extends Component {
    * made here. if this is ever expanded out again to be a generic "item" adder
    * then this will need to be generalized.
    */
-  addItem(n, dir) {
-    const {nodes} = this.state;
-    const {localeDefault} = this.props;
-    n = this.locateNode(n.itemType, n.data.id);
-
-    const parent = this.locateNode("profile", n.data.profile_id);
-    const parentArray = parent.childNodes;
-
-    let loc = n.data.ordering;
-    if (dir === "above") {
-      for (const node of parentArray) {
-        if (node.data.ordering >= n.data.ordering) {
-          node.data.ordering++;
-          this.saveNode(node);
-        }
-      }
-    }
-    if (dir === "below") {
-      loc++;
-      for (const node of parentArray) {
-        if (node.data.ordering >= n.data.ordering + 1) {
-          node.data.ordering++;
-          this.saveNode(node);
-        }
-      }
-    }
-
-    // New sections need to inherit their masterDimension from their parent.
-
-    const obj = {
-      hasCaret: false,
-      itemType: "section",
-      data: {}
-    };
-    obj.data.profile_id = n.data.profile_id;
-    obj.data.ordering = loc;
-    obj.masterPid = parent.masterPid;
-    obj.masterMeta = parent.masterMeta;
-
-    const sectionPath = "/api/cms/section/new";
-    axios.post(sectionPath, obj.data).then(section => {
-      if (section.status === 200) {
-        obj.id = `section${section.data.id}`;
-        obj.data = section.data;
-        obj.icon = sectionIconLookup(section.data.type, section.data.position);
-        obj.className = `${toKebabCase(section.data.type)}-node`;
-        const defCon = section.data.content.find(c => c.locale === localeDefault);
-        const title = defCon && defCon.title ? defCon.title : section.slug;
-        obj.label = this.formatLabel.bind(this)(title);
-        const parent = this.locateNode("profile", obj.data.profile_id);
-        parent.childNodes.push(obj);
-        parent.childNodes.sort((a, b) => a.data.ordering - b.data.ordering);
-        this.setState({nodes}, this.handleNodeClick.bind(this, obj));
-      }
-      else {
-        console.log("section error");
-      }
-    });
+  addItem(n) {
+    this.props.newSection(n.data.profile_id);
   }
 
   confirmDelete(n) {
@@ -213,40 +134,9 @@ class ProfileBuilder extends Component {
   }
 
   deleteItem(n) {
-    const {nodes} = this.state;
-    const {localeDefault} = this.props;
-    // If this method is running, then the user has clicked "Confirm" in the Deletion Alert. Setting the state of
-    // nodeToDelete back to false will close the Alert popover.
-    const nodeToDelete = false;
-    n = this.locateNode(n.itemType, n.data.id);
-    // todo: instead of the piecemeal refreshes being done for each of these tiers - is it sufficient to run buildNodes again?
-    if (n.itemType === "section") {
-      const parent = this.locateNode("profile", n.data.profile_id);
-      axios.delete("/api/cms/section/delete", {params: {id: n.data.id}}).then(resp => {
-        const sections = resp.data.map(sectionData => {
-          const defCon = sectionData.content.find(c => c.locale === localeDefault);
-          const title = defCon && defCon.title ? defCon.title : sectionData.slug;
-          return {
-            id: `section${sectionData.id}`,
-            hasCaret: false,
-            iconName: sectionIcons[sectionData.type] || "help",
-            label: this.formatLabel.bind(this)(title),
-            itemType: "section",
-            masterPid: parent.masterPid,
-            masterMeta: parent.masterMeta,
-            data: sectionData
-          };
-        });
-        parent.childNodes = sections;
-        this.setState({nodes, nodeToDelete}, this.handleNodeClick.bind(this, parent.childNodes[0]));
-      });
-    }
-    else if (n.itemType === "profile") {
-      axios.delete("/api/cms/profile/delete", {params: {id: n.data.id}}).then(resp => {
-        const profiles = resp.data;
-        this.setState({profiles, nodeToDelete}, this.buildNodes.bind(this, true));
-      });
-    }
+    if (n.itemType === "section") this.props.deleteSection(n.data.id);
+    //if (n.itemType === "profile") this.props.deleteProfile(n.data.id);
+    this.setState({nodeToDelete: false});
   }
 
   handleNodeClick(node) {
@@ -690,8 +580,6 @@ class ProfileBuilder extends Component {
                   meta={currentNode.masterMeta}
                   takenSlugs={profiles.map(p => p.meta).reduce((acc, d) => acc.concat(d.map(m => m.slug)), [])}
                   previews={previews}
-                  onAddDimension={this.onAddDimension.bind(this)}
-                  onDeleteDimension={this.onDeleteDimension.bind(this)}
                 />
               </Editor>
               : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
@@ -763,7 +651,11 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getProfiles: () => dispatch(getProfiles()),
-  newProfile: profile => dispatch(newProfile(profile)),
+  newProfile: () => dispatch(newProfile()),
+  swapEntity: (type, id, dir) => dispatch(swapEntity(type, id, dir)),
+  newSection: pid => dispatch(newSection(pid)),
+  deleteSection: id => dispatch(deleteSection(id)),
+  setStatus: status => dispatch(setStatus(status)),
   getCubeData: () => dispatch(getCubeData())
 });
 

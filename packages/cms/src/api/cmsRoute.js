@@ -154,6 +154,30 @@ const contentTables = [
   "storysection_stat", "storysection_subtitle", "section", "section_description", "section_stat", "section_subtitle"
 ];
 
+/**
+ * Some tables need to know their own parents, for help with ordering. This lookup table allows
+ * a given id to find its "siblings" and know where it belongs, ordering-wise
+ */
+
+const parentOrderingTables = {
+  author: "story_id",
+  materializer: "profile_id",
+  profile_meta: "profile_id",
+  section: "profile_id",
+  section_description: "section_id",
+  section_selector: "section_id",
+  section_stat: "section_id",
+  section_subtitle: "section_id",
+  section_visualization: "section_id",
+  story_description: "story_id",
+  story_footnote: "story_id",
+  storysection: "story_id",
+  storysection_description: "storysection_id",
+  storysection_stat: "storysection_id",
+  storysection_subtitle: "storysection_id",
+  storysection_visualization: "storysection_id"
+};
+
 const sorter = (a, b) => a.ordering - b.ordering;
 
 /**
@@ -450,6 +474,7 @@ module.exports = function(app) {
   app.get("/api/cms/section/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id}});
+    console.log("fetching ", id);
     let section = await db.section.findOne(reqObj).catch(catcher);
     const sectionTypes = [];
     shell.ls(`${sectionTypeDir}*.jsx`).forEach(file => {
@@ -505,6 +530,16 @@ module.exports = function(app) {
   const newList = cmsTables;
   newList.forEach(ref => {
     app.post(`/api/cms/${ref}/new`, isEnabled, async(req, res) => {
+      if (parentOrderingTables[ref]) {
+        const obj = {
+          where: {[parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]},
+          attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], 
+          raw: true
+        };
+        const maxFetch = await db[ref].findAll(obj).catch(catcher);
+        const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+        req.body.ordering = ordering;
+      }
       // First, create the metadata object in the top-level table
       const newObj = await db[ref].create(req.body).catch(catcher);
       // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
@@ -576,6 +611,47 @@ module.exports = function(app) {
       }
       return res.json(o);
     });
+  });
+
+  /* SWAPS */
+  // For entities that have ordering, this handles updates for swapping order
+  /**
+   * To streamline swaps, this list contains objects with two properties. "elements" refers to the tables to be modified,
+   * and "parent" refers to the foreign key that need be referenced in the associated where clause.
+   */
+  const swapList = [
+    {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
+    {elements: ["section"], parent: "profile_id"},
+    {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
+    {elements: ["storysection_subtitle", "storysection_description", "storysection_stat", "storysection_visualization"], parent: "storysection_id"}
+  ];
+  swapList.forEach(list => {
+    list.elements.forEach(ref => {
+      app.post(`/api/cms/${ref}/swap`, isEnabled, async(req, res) => {
+        const {id, dir} = req.body;
+        if (dir === "down") {
+          const original = await db[ref].findOne({where: {id}}).catch(catcher);
+          const other = await db[ref].findOne({where: {[list.parent]: original[list.parent], ordering: original.ordering + 1}}).catch(catcher);
+          if (!original || !other) return res.json([]);
+          const newOriginal = await db[ref].update({ordering: sequelize.literal("ordering + 1")}, {where: {id}, returning: true, plain: true}).catch(catcher);
+          const newOther = await db[ref].update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
+          console.log([newOriginal[1], newOther[1]]);
+          return res.json([newOriginal[1], newOther[1]]);
+        }
+        else if (dir === "up") {
+          const original = await db[ref].findOne({where: {id}}).catch(catcher);
+          const other = await db[ref].findOne({where: {[list.parent]: original[list.parent], ordering: original.ordering - 1}}).catch(catcher);
+          if (!original || !other) return res.json([]);
+          const newOriginal = await db[ref].update({ordering: sequelize.literal("ordering - 1")}, {where: {id}, returning: true, plain: true}).catch(catcher);
+          const newOther = await db[ref].update({ordering: sequelize.literal("ordering + 1")}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher); 
+          console.log([newOriginal[1], newOther[1]]);
+          return res.json([newOriginal[1], newOther[1]]);
+        }
+        else {
+          return res.json([]);
+        }
+      });
+    })
   });
 
   /* DELETES */

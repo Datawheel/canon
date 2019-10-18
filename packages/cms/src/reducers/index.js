@@ -18,6 +18,7 @@ const initialState = {
 /** */
 export default function cmsReducer(state = initialState, action) {
   return {
+    status: status(state.status, action),
     cubeData: cubeData(state.cubeData, action),
     profiles: profiles(state.profiles, action)
   };
