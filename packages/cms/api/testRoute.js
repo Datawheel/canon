@@ -10,5 +10,5 @@ module.exports = function(app) {
       {id: "beta",  x: 6, y: 13}
     ]}).end();
   });
-
 };
+

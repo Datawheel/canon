@@ -69,19 +69,21 @@ class SimpleVisualizationEditor extends Component {
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value.
       const lookup = {};
-      previews.forEach((p, i) => {
-        if (i === 0) {
-          lookup.id = p.id;
-        }
-        lookup[`id${i + 1}`] = p.id;
-      });
+      if (previews) {
+        previews.forEach((p, i) => {
+          if (i === 0) {
+            lookup.id = p.id;
+          }
+          lookup[`id${i + 1}`] = p.id;
+        });
+      }
       const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
 
         this.setState({payload}, this.compileCode.bind(this));
-      }).catch(() => {
-        console.log("API error");
+      }).catch(e => {
+        console.log("API error", e);
       });
     }
   }
@@ -155,8 +157,19 @@ class SimpleVisualizationEditor extends Component {
 
   rebuild() {
     const {object} = this.state;
+    const {previews, variables, env} = this.props;
     const {data, type} = object;
-    axios.get(data).then(resp => {
+    const lookup = {};
+    if (previews) {
+      previews.forEach((p, i) => {
+        if (i === 0) {
+          lookup.id = p.id;
+        }
+        lookup[`id${i + 1}`] = p.id;
+      });
+    }
+    const url = urlSwap(data, Object.assign({}, env, variables, lookup));
+    axios.get(url).then(resp => {
       const payload = resp.data;
       const firstObj = payload.data[0];
       const newObject = {
@@ -176,8 +189,8 @@ class SimpleVisualizationEditor extends Component {
         object: newObject,
         rebuildAlertOpen: false
       }, this.compileCode.bind(this));
-    }).catch(() => {
-      console.log("API error");
+    }).catch(e => {
+      console.log("API error", e);
     });
   }
 

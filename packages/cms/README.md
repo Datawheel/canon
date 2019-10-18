@@ -8,6 +8,7 @@ Content Management System for Canon sites.
 * [Rendering a Profile](#rendering-a-profile)
 * [Overview and Terminology](#overview-and-terminology)
 * [Environment Variables](#environment-variables)
+* [Search](#search)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Migration](#migration)
@@ -200,6 +201,34 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
 |`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|1400|
 |`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
+
+---
+
+## Search
+
+The CMS is used to create Profiles based on Dimensions, such as "Geography" or "Industry". The individual entities that make up these dimensions (such as *Massachusetts* or *Metalworkers*) are referred to as Members. These members are what make up the slugs/ids in URLS; when visiting `/geo/massachusetts`, `geo` is the profile/dimension slug and `massachusetts` is the member.
+
+These members can be viewed and edited in the in the MetaData section of the CMS. However, they can also be searched via an API endpoint, which can be useful for setting up a search feature on your site. The API endpoint is:
+
+```
+/api/search
+```
+
+Arguments are provided by url paramaters:
+
+|parameter|description|
+|---|---|
+|`q`|A string query which uses the SQL `LIKE` operator to search the `name` and `keywords` of the member|
+|`dimension`|An exact-match string to filter results to members in the provided dimension|
+|`levels`|A comma-separated list of levels to filter results to members by the provided levels|
+|`limit`|A number, passed through to SQL `LIMIT` to limit results|
+|`id`|Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification|
+
+Example query:
+
+```
+/api/search?q=mass&dimension=Geography
+```
 
 ---
 

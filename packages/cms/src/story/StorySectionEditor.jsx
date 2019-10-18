@@ -111,24 +111,13 @@ class StorySectionEditor extends Component {
           entity="title"
           cards={<TextCard
             item={minData}
-            locale={localeDefault}
+            locale={locale}
             localeDefault={localeDefault}
             fields={["title"]}
             type="storysection"
             onSave={this.onSave.bind(this)}
             variables={{}}
           />}
-          secondaryCards={locale &&
-            <TextCard
-              item={minData}
-              locale={locale}
-              localeDefault={localeDefault}
-              fields={["title"]}
-              type="storysection"
-              onSave={this.onSave.bind(this)}
-              variables={{}}
-            />
-          }
         >
           <div className="cms-editor-header">
             {/* change slug */}
@@ -161,22 +150,8 @@ class StorySectionEditor extends Component {
             <TextCard
               key={s.id}
               item={s}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              fields={["subtitle"]}
-              type="storysection_subtitle"
-              onDelete={this.onDelete.bind(this)}
-              variables={{}}
-              parentArray={minData.subtitles}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.subtitles && minData.subtitles.map(s =>
-            <TextCard
-              key={s.id}
               locale={locale}
               localeDefault={localeDefault}
-              item={s}
               fields={["subtitle"]}
               type="storysection_subtitle"
               onDelete={this.onDelete.bind(this)}
@@ -193,20 +168,6 @@ class StorySectionEditor extends Component {
           entity="stat"
           addItem={this.addItem.bind(this, "storysection_stat")}
           cards={ minData.stats && minData.stats.map(s =>
-            <TextCard
-              key={s.id}
-              item={s}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              fields={["title", "subtitle", "value", "tooltip"]}
-              type="storysection_stat"
-              onDelete={this.onDelete.bind(this)}
-              variables={{}}
-              parentArray={minData.stats}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.stats && minData.stats.map(s =>
             <TextCard
               key={s.id}
               item={s}
@@ -228,20 +189,6 @@ class StorySectionEditor extends Component {
           entity="description"
           addItem={this.addItem.bind(this, "storysection_description")}
           cards={minData.descriptions && minData.descriptions.map(d =>
-            <TextCard
-              key={d.id}
-              item={d}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              fields={["description"]}
-              type="storysection_description"
-              onDelete={this.onDelete.bind(this)}
-              variables={{}}
-              parentArray={minData.descriptions}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.descriptions && minData.descriptions.map(d =>
             <TextCard
               key={d.id}
               item={d}

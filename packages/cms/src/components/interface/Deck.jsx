@@ -76,14 +76,6 @@ export default class Deck extends Component {
                   Add first {entity === "description" ? "paragraph" : entity}
                 </Button>
             }
-
-            {/* TODO: remove once all cards display both languages */}
-            {secondaryCards && (secondaryCards.length || entity === "splash" || entity === "story" || entity === "title")
-              ? <div className="cms-card-list">
-                {secondaryCards}
-              </div>
-              : null
-            }
           </div>
         }
         {children}
