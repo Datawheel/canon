@@ -82,6 +82,7 @@
     position: relative;
     padding-top: var(--viz-aspect-ratio);
     min-height: var(--viz-min-height);
+    margin-bottom: 1.5rem; /* account for viz top/bottom offset */
   }
   & .cp-viz {
     @mixin absolute-expand;
