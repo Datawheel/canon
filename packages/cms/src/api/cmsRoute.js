@@ -474,7 +474,6 @@ module.exports = function(app) {
   app.get("/api/cms/section/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id}});
-    console.log("fetching ", id);
     let section = await db.section.findOne(reqObj).catch(catcher);
     const sectionTypes = [];
     shell.ls(`${sectionTypeDir}*.jsx`).forEach(file => {

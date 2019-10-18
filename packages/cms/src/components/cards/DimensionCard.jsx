@@ -61,7 +61,7 @@ class DimensionCard extends Component {
   }
 
   render() {
-    const {cubeData, meta, preview, takenSlugs} = this.props;
+    const {meta, preview, takenSlugs} = this.props;
     const {rebuilding, alertObj, isOpen} = this.state;
 
     if (!preview) return null;
@@ -126,7 +126,6 @@ class DimensionCard extends Component {
             <DimensionEditor
               meta={meta}
               takenSlugs={takenSlugs}
-              cubeData={cubeData}
               onComplete={() => this.setState({isOpen: false})}
             />
           </div>

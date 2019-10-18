@@ -1,8 +1,8 @@
 import React, {Component} from "react";
 import QuillWrapper from "./QuillWrapper";
 import PropTypes from "prop-types";
+import {connect} from "react-redux";
 
-import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 
 import "./TextEditor.css";
@@ -45,7 +45,8 @@ class TextEditor extends Component {
   render() {
 
     const {data, fields} = this.state;
-    const {contentType, variables, locale} = this.props;
+    const {contentType, locale} = this.props;
+    const variables = this.props.status.variables[locale];
     const formatters = this.context.formatters[locale];
 
     if (!data || !fields || !variables || !formatters) return null;
@@ -74,4 +75,8 @@ TextEditor.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default TextEditor;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(TextEditor);

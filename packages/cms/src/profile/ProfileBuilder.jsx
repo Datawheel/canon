@@ -13,7 +13,6 @@ import SidebarTree from "../components/interface/SidebarTree";
 import Header from "../components/interface/Header";
 import Toolbox from "../components/interface/Toolbox";
 import Status from "../components/interface/Status";
-import nestedObjectAssign from "../utils/nestedObjectAssign";
 import treeify from "../utils/profile/treeify";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
@@ -21,8 +20,6 @@ import varSwapRecursive from "../utils/varSwapRecursive";
 import {getProfiles, newProfile, swapEntity, newSection, deleteSection} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 import {getCubeData} from "../actions/cubeData";
-
-import deepClone from "../utils/deepClone.js";
 
 import "./ProfileBuilder.css";
 
@@ -32,10 +29,7 @@ class ProfileBuilder extends Component {
     super(props);
     this.state = {
       nodes: null,
-      variablesHash: {},
       selectors: [],
-      previews: [],
-      cubeData: {},
       query: {},
       toolboxVisible: true
     };
@@ -55,21 +49,11 @@ class ProfileBuilder extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    
-    /*
-    // for now, update when the length changes. expand this.
-    const lengthChanged = this.props.profiles.length !== prevProps.profiles.length;
-    const orderingChanged = this.props.profiles.map(p => p.id).join() !== prevProps.profiles.map(p => p.id).join();
-    const sectionsBefore = this.props.profiles.reduce((acc, p) => acc += p.sections.map(s => s.id).join(), "");
-    const sectionsAfter = prevProps.profiles.reduce((acc, p) => acc += p.sections.map(s => s.id).join(), "");
-    const sectionOrderingChanged = sectionsBefore !== sectionsAfter;
-    if (lengthChanged || orderingChanged || sectionOrderingChanged) {
-      this.buildNodes.bind(this)();
-    }
-    */
-    if (JSON.stringify(this.props.profiles) !== JSON.stringify(prevProps.profiles)) {
+    const oldTree = prevProps.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, "");    
+    const newTree = this.props.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, ""); 
+    if (oldTree !== newTree) {
       console.log("rebuilding");
-      this.buildNodes.bind(this)(); 
+      this.buildNodes.bind(this)();
     }
   }
 
@@ -111,7 +95,6 @@ class ProfileBuilder extends Component {
         const nodeToOpen = nodes[0];
         this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
       }
-
     }
   }
 
@@ -140,8 +123,8 @@ class ProfileBuilder extends Component {
 
   handleNodeClick(node) {
     node = this.locateNode(node.itemType, node.data.id);
-    const {nodes, previews} = this.state;
-    const {currentNode} = this.props.status;
+    const {nodes} = this.state;
+    const {currentNode, previews} = this.props.status;
     let parentLength = 0;
     if (node.itemType === "section") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
     if (node.itemType === "profile") parentLength = nodes.length;
@@ -208,8 +191,8 @@ class ProfileBuilder extends Component {
         });
         pathObj.previews = previews;
         this.context.setPath(pathObj);
-        this.props.setStatus({currentNode: node, currentPid: node.masterPid});
-        // this.setState({previews});
+        console.log("changing because nodeclick");
+        this.props.setStatus({currentNode: node, currentPid: node.masterPid, previews});
       });
     }
   }
@@ -305,7 +288,8 @@ class ProfileBuilder extends Component {
           memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
         });
       });
-      this.setState({profiles, previews}, this.buildNodes.bind(this, currentPid));
+      this.setState({previews});
+      this.setState({profiles}, this.buildNodes.bind(this, currentPid));
     });
   }
 
@@ -338,15 +322,13 @@ class ProfileBuilder extends Component {
   }
 
   formatLabel(str) {
-    const {variablesHash, query, selectors} = this.state;
+    const {query, selectors} = this.state;
+    const {variables} = this.props.status;
     const {localeDefault} = this.props;
-    const {currentPid} = this.props.status;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
-    const variables = variablesHash[currentPid] && variablesHash[currentPid][localeDefault] ? deepClone(variablesHash[currentPid][localeDefault]) : {};
-    str = this.decode(stripHTML(str));
+    str = stripHTML(str);
     str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
-    // str =  <span dangerouslySetInnerHTML={{__html: varSwapRecursive({str, selectors}, formatters, variables, query).str}} />;
     return str;
   }
 
@@ -355,9 +337,10 @@ class ProfileBuilder extends Component {
    */
   onSelectPreview(newPreview) {
     const {pathObj} = this.props;
-    const previews = this.state.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
+    const previews = this.props.status.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
     this.context.setPath(Object.assign({}, pathObj, {previews}));
-    this.setState({previews});
+    console.log("changing because select");
+    this.props.setStatus({previews});
   }
 
   /*
@@ -397,102 +380,6 @@ class ProfileBuilder extends Component {
   }
 
   /**
-   * Certain events in the Editors, such as saving a generator, can change the resulting
-   * variables object. In order to ensure that this new variables object is passed down to
-   * all the editors, each editor has a callback that accesses this function. We store the
-   * variables object in a hash that is keyed by the profile id.
-   */
-  fetchVariables(callback, config) {
-    const {variablesHash, previews} = this.state;
-    const {currentPid} = this.props.status;
-    const {locale, localeDefault} = this.props;
-    const maybeCallback = () => {
-      if (callback) callback();
-      this.formatTreeVariables.bind(this)();
-    };
-      
-    if (!variablesHash[currentPid]) variablesHash[currentPid] = {};
-    if (!variablesHash[currentPid][localeDefault]) variablesHash[currentPid][localeDefault] = {_genStatus: {}, _matStatus: {}};
-    if (locale && !variablesHash[currentPid][locale]) variablesHash[currentPid][locale] = {_genStatus: {}, _matStatus: {}};
-
-    const locales = [localeDefault];
-    if (locale) locales.push(locale);
-    for (const thisLocale of locales) {
-
-      // If the config is for a materializer, don't run generators. Just use our current variables for the POST action
-      if (config && config.type === "materializer") {
-        let paramString = "";
-        previews.forEach((p, i) => {
-          paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
-        });
-        const mid = config.ids[0];
-        const query = {materializer: mid};
-        Object.keys(query).forEach(k => {
-          paramString += `&${k}=${query[k]}`;
-        });
-        // However, the user may have deleted a variable from their materializer. Clear out this materializer's variables 
-        // BEFORE we send the variables payload - so they will be filled in again properly from the POST response.
-        if (variablesHash[currentPid][thisLocale]._matStatus[mid]) {
-          Object.keys(variablesHash[currentPid][thisLocale]._matStatus[mid]).forEach(k => {
-            delete variablesHash[currentPid][thisLocale][k]; 
-          });
-          delete variablesHash[currentPid][thisLocale]._matStatus[mid];
-        }
-        // Once pruned, we can POST the variables to the materializer endpoint
-        axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variablesHash[currentPid][thisLocale]}).then(mat => {
-          variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], mat.data);
-          this.setState({variablesHash}, maybeCallback);
-        });
-      }
-      else {
-        const gids = config.ids || [];
-        for (const gid of gids) {
-          if (variablesHash[currentPid][thisLocale]._genStatus[gid]) {
-            Object.keys(variablesHash[currentPid][thisLocale]._genStatus[gid]).forEach(k => {
-              delete variablesHash[currentPid][thisLocale][k];
-            });
-          }
-          delete variablesHash[currentPid][thisLocale]._genStatus[gid];
-        }
-        for (const gid of gids) {
-          const query = {generator: gid};
-          let paramString = "";
-          previews.forEach((p, i) => {
-            paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
-          });
-          Object.keys(query).forEach(k => {
-            paramString += `&${k}=${query[k]}`;
-          });
-          axios.get(`/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
-            variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], gen.data);
-            let gensLoaded = Object.keys(variablesHash[currentPid][thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
-            const gensTotal = gids.length;
-            const genLang = thisLocale;
-            // If the user is deleting a generator, then this function was called with a single gid (the one that was deleted)
-            // The pruning code above already removed its vars and _genStatus from the original vars, so the loading progress
-            // Can't know what to wait for. In this single instance, use this short-circuit to be instantly done and move onto mats.
-            if (gids.length === 1 && JSON.stringify(gen.data) === "{}") gensLoaded = 1;
-            this.setState({variablesHash, gensLoaded, gensTotal, genLang}, maybeCallback);
-            if (gensLoaded === gids.length) {
-              // Clean out stale materializers (see above comment)
-              Object.keys(variablesHash[currentPid][thisLocale]._matStatus).forEach(mid => {
-                Object.keys(variablesHash[currentPid][thisLocale]._matStatus[mid]).forEach(k => {
-                  delete variablesHash[currentPid][thisLocale][k]; 
-                });
-                delete variablesHash[currentPid][thisLocale]._matStatus[mid];
-              });
-              axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variablesHash[currentPid][thisLocale]}).then(mat => {
-                variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], mat.data);
-                this.setState({variablesHash}, maybeCallback);
-              });
-            }
-          });
-        }
-      }
-    }
-  }
-
-  /**
    * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
    * and overrides/sets a variable in the variables object. This does not require a server
    * round-trip - we need only inject the variables object and trigger a re-render.
@@ -516,13 +403,11 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, variablesHash, gensLoaded, gensTotal, genLang, previews, cubeData, nodeToDelete, selectors, toolboxVisible} = this.state;
+    const {nodes, nodeToDelete, selectors, toolboxVisible} = this.state;
     const {locale, localeDefault, profiles} = this.props;
-    const {currentNode, currentPid} = this.props.status;
+    const {currentNode, currentPid, previews, gensLoaded, gensTotal, genLang} = this.props.status;
 
     if (!nodes) return null;
-  
-    const variables = variablesHash[currentPid] ? deepClone(variablesHash[currentPid]) : null;
 
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
@@ -564,9 +449,7 @@ class ProfileBuilder extends Component {
                 id={currentNode.data.id}
                 locale={locale}
                 localeDefault={localeDefault}
-                previews={previews}
                 onSetVariables={this.onSetVariables.bind(this)}
-                variables={variables}
                 selectors={selectors}
                 order={currNodeOrder}
                 onSelect={this.onSelect.bind(this)}
@@ -582,10 +465,8 @@ class ProfileBuilder extends Component {
                 />
 
                 <DimensionBuilder
-                  cubeData={cubeData}
                   meta={currentNode.masterMeta}
                   takenSlugs={profiles.map(p => p.meta).reduce((acc, d) => acc.concat(d.map(m => m.slug)), [])}
-                  previews={previews}
                 />
               </Editor>
               : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
@@ -596,9 +477,6 @@ class ProfileBuilder extends Component {
               locale={locale}
               localeDefault={localeDefault}
               updateSelectors={this.updateSelectors.bind(this)}
-              variables={variables}
-              fetchVariables={this.fetchVariables.bind(this)}
-              previews={previews}
               toolboxVisible={toolboxVisible}
             >
               <div className="cms-toolbox-collapse-wrapper u-hide-below-lg">
@@ -616,10 +494,10 @@ class ProfileBuilder extends Component {
             </Toolbox>
             
             <Status 
-	          recompiling={gensLoaded !== gensTotal} 
-	          busy={`${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`}
-	          done="Variables Loaded"
-	        />
+              recompiling={gensLoaded !== gensTotal} 
+              busy={`${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`}
+              done="Variables Loaded"
+            />
           </div>
 
           <Alert

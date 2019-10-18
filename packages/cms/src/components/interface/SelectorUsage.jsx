@@ -1,4 +1,5 @@
 import axios from "axios";
+import {connect} from "react-redux";
 import React, {Component} from "react";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
@@ -81,7 +82,8 @@ class SelectorUsage extends Component {
   render() {
 
     const {minData, currentValues} = this.state;
-    const {variables} = this.props;
+    const {localeDefault} = this.props;
+    const variables = this.props.status.variables[localeDefault];
     const allSelectors = this.props.selectors;
 
     if (!minData) return null;
@@ -199,4 +201,8 @@ class SelectorUsage extends Component {
   }
 }
 
-export default SelectorUsage;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(SelectorUsage);

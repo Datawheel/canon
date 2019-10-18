@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
+import {connect} from "react-redux";
 
 import toSpacedCase from "../utils/formatters/toSpacedCase";
 
@@ -12,8 +13,6 @@ import VisualizationCard from "../components/cards/VisualizationCard";
 import Deck from "../components/interface/Deck";
 import SelectorUsage from "../components/interface/SelectorUsage";
 import "./SectionEditor.css";
-
-import deepClone from "../utils/deepClone.js";
 
 const propMap = {
   section_stat: "stats",
@@ -137,7 +136,8 @@ class SectionEditor extends Component {
   render() {
 
     const {minData, query} = this.state;
-    const {variables, previews, selectors, children, locale, localeDefault, order} = this.props;
+    const {selectors, children, locale, localeDefault, order} = this.props;
+    const {variables, previews} = this.props.status;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
@@ -195,7 +195,6 @@ class SectionEditor extends Component {
               onSave={this.onSave.bind(this)}
               type="section"
               selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              variables={defaultVariables}
               hideAllowed={true}
             />
           ]}
@@ -300,7 +299,6 @@ class SectionEditor extends Component {
                 query={query}
                 type="section_subtitle"
                 onDelete={this.onDelete.bind(this)}
-                variables={defaultVariables}
                 selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.subtitles}
                 onMove={this.onMove.bind(this)}
@@ -314,7 +312,7 @@ class SectionEditor extends Component {
             <SelectorUsage
               key="selector-usage"
               minData={minData}
-              variables={defaultVariables}
+              localeDefault={localeDefault}
               selectors={selectors}
               onSelect={this.onSelect.bind(this)}
             />
@@ -338,7 +336,6 @@ class SectionEditor extends Component {
                 query={query}
                 type="section_stat"
                 onDelete={this.onDelete.bind(this)}
-                variables={defaultVariables}
                 selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.stats}
                 onMove={this.onMove.bind(this)}
@@ -361,7 +358,6 @@ class SectionEditor extends Component {
                 query={query}
                 type="section_description"
                 onDelete={this.onDelete.bind(this)}
-                variables={defaultVariables}
                 selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.descriptions}
                 onMove={this.onMove.bind(this)}
@@ -379,14 +375,9 @@ class SectionEditor extends Component {
                 key={v.id}
                 item={v}
                 locale={localeDefault}
-                localeDefault={localeDefault}
-                secondaryLocale={locale}
                 query={query}
-                previews={previews}
                 onDelete={this.onDelete.bind(this)}
                 type="section_visualization"
-                variables={defaultVariables}
-                secondaryVariables={secondaryVariables}
                 selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.visualizations}
                 onMove={this.onMove.bind(this)}
@@ -403,4 +394,9 @@ SectionEditor.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default SectionEditor;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(SectionEditor);
+

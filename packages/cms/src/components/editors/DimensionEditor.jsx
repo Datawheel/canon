@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
+import {connect} from "react-redux";
 import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
@@ -203,4 +204,8 @@ DimensionEditor.contextTypes = {
   onDimensionModify: PropTypes.func
 };
 
-export default DimensionEditor;
+const mapStateToProps = state => ({
+  cubeData: state.cms.cubeData
+});
+
+export default connect(mapStateToProps)(DimensionEditor);

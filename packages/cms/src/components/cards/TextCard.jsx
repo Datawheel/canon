@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
+import {connect} from "react-redux";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import DefinitionList from "../variables/DefinitionList";
@@ -35,8 +36,9 @@ class TextCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const {localeDefault} = this.props;
     if (this.state.minData && (
-      JSON.stringify(prevProps.variables) !== JSON.stringify(this.props.variables) ||
+      JSON.stringify(prevProps.status.variables[localeDefault]) !== JSON.stringify(this.props.status.variables[localeDefault]) ||
       JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors) ||
       JSON.stringify(this.props.query) !== JSON.stringify(prevProps.query)
     )) {
@@ -107,7 +109,8 @@ class TextCard extends Component {
   }
 
   formatDisplay() {
-    const {variables, selectors, locale, query, localeDefault} = this.props;
+    const {selectors, locale, query, localeDefault} = this.props;
+    const variables = this.props.status.variables[localeDefault];
 
     // For future use: This is a list of the vars used by this TextCard. Could combine with 
     // Some selector replacing and create a quick way to open generators in the future.
@@ -247,7 +250,8 @@ class TextCard extends Component {
 
   render() {
     const {alertObj, thisDisplayData, thatDisplayData, minData, isOpen} = this.state;
-    const {variables, fields, onMove, hideAllowed, plainfields, type, parentArray, item, locale, localeDefault} = this.props;
+    const {fields, onMove, hideAllowed, plainfields, type, parentArray, item, locale, localeDefault} = this.props;
+    const variables = this.props.status.variables[localeDefault];
 
     if (!minData || !thisDisplayData) return <Loading />;
 
@@ -346,14 +350,14 @@ class TextCard extends Component {
                   <LocaleName locale={localeDefault} />
                 }
                 {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={plainfields} />}
-                {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
               </div>
 
               {locale &&
                 <div className="cms-dialog-locale-container">
                   <LocaleName locale={locale} />
                   {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
-                  {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                  {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
                 </div>
               }
             </div>
@@ -385,4 +389,8 @@ TextCard.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default TextCard;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(TextCard);

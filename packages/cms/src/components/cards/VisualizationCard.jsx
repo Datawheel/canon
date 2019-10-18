@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
+import {connect} from "react-redux";
 import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import GeneratorEditor from "../editors/GeneratorEditor";
@@ -109,7 +110,8 @@ class VisualizationCard extends Component {
 
     if (!minData) return <Loading />;
 
-    const {selectors, type, variables, secondaryVariables, parentArray, item, previews, locale, onMove, secondaryLocale} = this.props;
+    const {selectors, type, parentArray, item, locale, onMove} = this.props;
+    const variables = this.props.status.variables[locale];
     const formatters = this.context.formatters[locale];
 
     // TODO: add formatters toggle for secondaryLocale & secondaryVariables
@@ -175,10 +177,9 @@ class VisualizationCard extends Component {
         >
           <div className="bp3-dialog-body">
             <GeneratorEditor
+              locale={locale}
               markAsDirty={this.markAsDirty.bind(this)}
-              previews={previews}
               data={minData}
-              variables={variables}
               type={type}
             />
           </div>
@@ -198,4 +199,8 @@ VisualizationCard.contextTypes = {
   variables: PropTypes.object
 };
 
-export default VisualizationCard;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(VisualizationCard);

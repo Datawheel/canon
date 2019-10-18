@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import FooterButtons from "../editors/components/FooterButtons";
+import {connect} from "react-redux";
 import deepClone from "../../utils/deepClone";
 import LocaleName from "./components/LocaleName";
 import VarTable from "../variables/VarTable";
@@ -30,15 +31,16 @@ class GeneratorCard extends Component {
   componentDidUpdate(prevProps) {
     if (this.state.minData) {
       const {id} = this.state.minData;
-      let varTypes = ["variables"];
-      if (this.props.secondaryVariables) varTypes = varTypes.concat("secondaryVariables");
-      const changed = varTypes.some(varType => 
+      const {locale, localeDefault} = this.props;
+      let locales = [localeDefault];
+      if (this.props.locale) locales = locales.concat([locale]);
+      const changed = locales.some(loc => 
         ["_genStatus", "_matStatus"].some(status => 
-          prevProps[varType] && 
-          prevProps[varType][status] && 
-          this.props[varType] && 
-          this.props[varType][status] && 
-          JSON.stringify(prevProps[varType][status][id]) !== JSON.stringify(this.props[varType][status][id])
+          prevProps.status.variables[loc] && 
+          prevProps.status.variables[loc][status] && 
+          this.props.status.variables[loc] && 
+          this.props.status.variables[loc][status] && 
+          JSON.stringify(prevProps.status.variables[loc][status][id]) !== JSON.stringify(this.props.status.variables[loc][status][id])
         )
       );
       if (changed) this.formatDisplay.bind(this)();
@@ -63,18 +65,20 @@ class GeneratorCard extends Component {
   }
 
   formatDisplay() {
-    const {variables, secondaryVariables, secondaryLocale, type} = this.props;
+    const {localeDefault, locale, type} = this.props;
+    const variables = this.props.status.variables[localeDefault];
+    const secondaryVariables = this.props.status.variables[locale];
     const {id} = this.state.minData;
     let displayData, secondaryDisplayData = {};
     if (type === "generator") {
       displayData = variables._genStatus[id];
-      if (secondaryLocale) {
+      if (locale) {
         secondaryDisplayData = secondaryVariables._genStatus[id];
       }
     }
     else if (type === "materializer") {
       displayData = variables._matStatus[id];
-      if (secondaryLocale) {
+      if (locale) {
         secondaryDisplayData = secondaryVariables._matStatus[id];
       }
     }
@@ -153,7 +157,8 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {attr, context, type, variables, item, hidden, onMove, parentArray, previews, locale, secondaryLocale} = this.props;
+    const {attr, context, type, item, onMove, parentArray, localeDefault, locale} = this.props;
+    const {variables} = this.props.status;
     const {displayData, secondaryDisplayData, minData, isOpen, alertObj} = this.state;
 
     let description = "";
@@ -168,7 +173,7 @@ class GeneratorCard extends Component {
     // define initial/loading props for Card
     const cardProps = {
       cardClass: context,
-      secondaryLocale,
+      locale,
       title: "•••" // placeholder
     };
 
@@ -205,15 +210,15 @@ class GeneratorCard extends Component {
           {context !== "formatter" &&
             <div className="cms-card-locale-group">
               <div className="cms-card-locale-container">
-                {secondaryLocale &&
-                  <LocaleName>{locale}</LocaleName>
+                {locale &&
+                  <LocaleName>{localeDefault}</LocaleName>
                 }
                 <VarTable dataset={displayData} />
               </div>
 
-              {secondaryLocale &&
+              {locale &&
                 <div className="cms-card-locale-container">
-                  <LocaleName>{secondaryLocale}</LocaleName>
+                  <LocaleName>{locale}</LocaleName>
                   <VarTable dataset={secondaryDisplayData} />
                 </div>
               }
@@ -234,11 +239,9 @@ class GeneratorCard extends Component {
           <div className="bp3-dialog-body">
             <GeneratorEditor
               markAsDirty={this.markAsDirty.bind(this)}
-              previews={previews}
               attr={attr}
-              locale={locale}
+              locale={localeDefault}
               data={minData}
-              variables={variables}
               type={type}
             />
           </div>
@@ -256,4 +259,8 @@ GeneratorCard.defaultProps = {
   context: "generator" // mostly a styling hook used for formatter cards
 };
 
-export default GeneratorCard;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(GeneratorCard);

@@ -7,6 +7,10 @@ import FilterSearch from "../fields/FilterSearch";
 import GeneratorCard from "../cards/GeneratorCard";
 import SelectorCard from "../cards/SelectorCard";
 import ConsoleVariable from "../variables/ConsoleVariable";
+
+import {connect} from "react-redux";
+import {fetchVariables} from "../../actions/profiles";
+
 import "./Toolbox.css";
 
 const propMap = {
@@ -16,7 +20,7 @@ const propMap = {
   selector: "selectors"
 };
 
-export default class Toolbox extends Component {
+class Toolbox extends Component {
 
   constructor(props) {
     super(props);
@@ -24,7 +28,6 @@ export default class Toolbox extends Component {
       minData: false,
       currentView: "generators",
       detailView: true,
-      recompiling: true,
       query: ""
     };
   }
@@ -35,7 +38,7 @@ export default class Toolbox extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id || 
-        JSON.stringify(prevProps.previews) !== JSON.stringify(this.props.previews) || 
+        JSON.stringify(prevProps.status.previews) !== JSON.stringify(this.props.status.previews) || 
         prevProps.locale !== this.props.locale) {
       this.hitDB.bind(this)();
     }
@@ -50,14 +53,14 @@ export default class Toolbox extends Component {
           this.updateSelectors.bind(this)();
           // If config is set, the user has saved a single generator and we should load just that one.
           if (config) {
-            this.fetchVariables.bind(this)(config);  
+            this.props.fetchVariables(id, config);  
           }
           // Otherwise, this is a first load, so run the full list of generators (one a time) to be returned async.
           else {
-            this.fetchVariables.bind(this)({type: "generator", ids: minData.generators.map(g => g.id)});
+            this.props.fetchVariables(id, {type: "generator", ids: minData.generators.map(g => g.id)});
           }
         };
-        this.setState({minData, recompiling: true}, callback);
+        this.setState({minData}, callback);
       });
     }
     else {
@@ -65,23 +68,17 @@ export default class Toolbox extends Component {
     }
   }
 
-  fetchVariables(config) {
-    if (this.props.fetchVariables) {
-      const callback = () => this.setState({recompiling: false});
-      this.props.fetchVariables(callback, config);
-    }
-  }
-
   addItem(type) {
     const {minData} = this.state;
+    const {id} = minData;
     const payload = {};
-    payload.profile_id = minData.id;
+    payload.profile_id = id;
     // todo: move this ordering out to axios (let the server concat it to the end)
     payload.ordering = minData[propMap[type]].length;
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
       if (resp.status === 200) {
         let maybeFetch = null;
-        if (type === "generator" || type === "materializer") maybeFetch = this.fetchVariables.bind(this, {type, ids: [resp.data.id]});
+        if (type === "generator" || type === "materializer") maybeFetch = this.props.fetchVariables(id, {type, ids: [resp.data.id]});
         // Selectors, unlike the rest of the elements, actually do pass down their entire
         // content to the Card (the others are simply given an id and load the data themselves)
         if (type === "selector") {
@@ -116,8 +113,8 @@ export default class Toolbox extends Component {
    * is just hit the DB again on save to reload everything.
    */
   onSave(type, ids) {
-    const forceID = null, forceOpen = null, forceType = null, recompiling = true;
-    this.setState({forceID, forceType, forceOpen, recompiling}, this.hitDB.bind(this, type, ids));
+    const forceID = null, forceOpen = null, forceType = null;
+    this.setState({forceID, forceType, forceOpen}, this.hitDB.bind(this, type, ids));
   }
 
   updateSelectors() {
@@ -131,12 +128,11 @@ export default class Toolbox extends Component {
   onDelete(type, id, newArray) {
     const {minData} = this.state;
     minData[propMap[type]] = newArray;
-    const recompiling = type === "formatter" ? false : true;
     let maybeFetch = null;
     // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
     // is handled gracefully server-side - it prunes the provided id from the variables object and re-runs necessary gens/mats.
-    if (type === "generator" || type === "materializer") maybeFetch = this.fetchVariables.bind(this, {type, ids: [id]});
-    this.setState({minData, recompiling}, maybeFetch);
+    if (type === "generator" || type === "materializer") maybeFetch = this.props.fetchVariables(minData.id, {type, ids: [id]});
+    this.setState({minData}, maybeFetch);
     if (type === "selector") {
       const {selectors} = minData;
       if (this.props.updateSelectors) this.props.updateSelectors(selectors);
@@ -172,7 +168,8 @@ export default class Toolbox extends Component {
   }
 
   openGenerator(key) {
-    const {localeDefault, variables} = this.props;
+    const {localeDefault} = this.props;
+    const {variables} = this.props.status;
     const vars = variables[localeDefault];
 
     const gens = Object.keys(vars._genStatus);
@@ -191,8 +188,9 @@ export default class Toolbox extends Component {
   }
 
   render() {
-    const {detailView, minData, recompiling, query, forceID, forceType, forceOpen} = this.state;
-    const {children, variables, locale, localeDefault, previews, toolboxVisible} = this.props;
+    const {detailView, minData, query, forceID, forceType, forceOpen} = this.state;
+    const {children, locale, localeDefault, toolboxVisible} = this.props;
+    const {variables, previews} = this.props.status;
 
     if (!minData) {
       return null;
@@ -303,15 +301,13 @@ export default class Toolbox extends Component {
                   hidden={!detailView}
                   item={g}
                   attr={minData.attr || {}}
-                  locale={localeDefault}
-                  secondaryLocale={locale}
+                  localeDefault={localeDefault}
+                  locale={locale}
                   previews={previews}
                   onSave={this.onSave.bind(this)}
                   onDelete={this.onDelete.bind(this)}
                   onClose={this.onClose.bind(this)}
                   type="generator"
-                  variables={variables[localeDefault]}
-                  secondaryVariables={variables[locale]}
                   forceOpen={forceType === "generator" && forceID === g.id ? forceOpen : null}
                 />
               )}
@@ -330,14 +326,12 @@ export default class Toolbox extends Component {
                   context="materializer"
                   hidden={!detailView}
                   item={m}
-                  locale={localeDefault}
-                  secondaryLocale={locale}
+                  localeDefault={localeDefault}
+                  locale={locale}
                   onSave={this.onSave.bind(this)}
                   onDelete={this.onDelete.bind(this)}
                   onClose={this.onClose.bind(this)}
                   type="materializer"
-                  variables={variables[localeDefault]}
-                  secondaryVariables={variables[locale]}
                   parentArray={minData.materializers}
                   onMove={this.onMove.bind(this)}
                   forceOpen={forceType === "materializer" && forceID === m.id ? forceOpen : null}
@@ -390,3 +384,13 @@ export default class Toolbox extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+const mapDispatchToProps = dispatch => ({
+  fetchVariables: (id, config) => dispatch(fetchVariables(id, config))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Toolbox);

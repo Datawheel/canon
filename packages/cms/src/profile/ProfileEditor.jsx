@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import Loading from "components/Loading";
 import Deck from "../components/interface/Deck";
+import {connect} from "react-redux";
 
 import TextCard from "../components/cards/TextCard";
 
@@ -13,8 +14,7 @@ class ProfileEditor extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      minData: null,
-      variables: null
+      minData: null
     };
   }
 
@@ -26,10 +26,10 @@ class ProfileEditor extends Component {
     if (prevProps.id !== this.props.id) {
       this.hitDB.bind(this)(false);
     }
-    const prevSlugs = prevProps.previews.map(d => d.slug).join();
-    const prevIDs = prevProps.previews.map(d => d.id).join();
-    const newSlugs = this.props.previews.map(d => d.slug).join();
-    const newIDs = this.props.previews.map(d => d.id).join();
+    const prevSlugs = prevProps.status.previews.map(d => d.slug).join();
+    const prevIDs = prevProps.status.previews.map(d => d.id).join();
+    const newSlugs = this.props.status.previews.map(d => d.slug).join();
+    const newIDs = this.props.status.previews.map(d => d.id).join();
     if (prevSlugs !== newSlugs || prevIDs !== newIDs) {
       this.hitDB.bind(this)(true);
     }
@@ -55,7 +55,8 @@ class ProfileEditor extends Component {
   render() {
 
     const {minData} = this.state;
-    const {children, variables, locale, localeDefault} = this.props;
+    const {children, locale, localeDefault} = this.props;
+    const {variables} = this.props.status;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
@@ -84,7 +85,6 @@ class ProfileEditor extends Component {
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"
-              variables={variables[localeDefault]}
               hideAllowed={true}
             />
           }
@@ -98,4 +98,8 @@ ProfileEditor.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default ProfileEditor;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(ProfileEditor);

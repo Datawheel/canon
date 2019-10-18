@@ -8,12 +8,14 @@ import cubeData from "./cubeData.js";
 import status from "./status.js";
 
 const initialState = {
-  status: {},
+  status: {
+    previews: [],
+    variables: {}
+  },
   cubeData: {},
   profiles: [],
   stories: [],
-  formatters: {},
-  locale: {}
+  formatters: {}
 };
 
 /** */
