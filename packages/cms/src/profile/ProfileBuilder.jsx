@@ -16,6 +16,7 @@ import Status from "../components/interface/Status";
 import nestedObjectAssign from "../utils/nestedObjectAssign";
 import sectionIconLookup from "../utils/sectionIconLookup";
 import toKebabCase from "../utils/formatters/toKebabCase";
+import treeify from "../utils/profile/treeify";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
@@ -81,33 +82,8 @@ class ProfileBuilder extends Component {
   }
 
   buildNodes(openNode) {
-    const {profiles} = this.props;
-    const {localeDefault} = this.props;
-    const {stripHTML} = this.context.formatters[localeDefault];
-    const nodes = profiles.map(p => ({
-      id: `profile${p.id}`,
-      hasCaret: true,
-      label: p.meta.length > 0 ? p.meta.map(d => d.slug).join("_") : "Add Dimensions",
-      itemType: "profile",
-      masterPid: p.id,
-      masterMeta: p.meta,
-      data: p,
-      childNodes: p.sections.map(t => {
-        const defCon = t.content.find(c => c.locale === localeDefault);
-        const title = defCon && defCon.title ? defCon.title : t.slug;
-        return {
-          id: `section${t.id}`,
-          hasCaret: false,
-          label: this.decode(stripHTML(title)),
-          itemType: "section",
-          masterPid: p.id,
-          masterMeta: p.meta,
-          data: t,
-          icon: sectionIconLookup(t.type, t.position),
-          className: `${toKebabCase(t.type)}-node`
-        };
-      })
-    }));
+    const {localeDefault, profiles} = this.props;
+    const nodes = treeify(profiles, localeDefault);
     if (!openNode) {
       const {profile, section} = this.props.pathObj;
       if (section) {
