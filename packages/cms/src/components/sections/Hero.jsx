@@ -82,9 +82,7 @@ class Hero extends Component {
         const statGroups = nest().key(d => d.title).entries(contents.stats);
 
         statContent = <div className="cp-stat-group-wrapper cp-hero-stat-group-wrapper">
-          <div className="cp-stat-group cp-hero-stat-group">
-            {statGroups.map(({key, values}) => <StatGroup className="cp-hero-stat" key={key} title={key} stats={values} />)}
-          </div>
+          {statGroups.map(({key, values}) => <StatGroup className="cp-hero-stat" key={key} title={key} stats={values} />)}
         </div>;
       }
 

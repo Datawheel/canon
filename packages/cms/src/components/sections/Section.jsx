@@ -174,20 +174,16 @@ class Section extends Component {
 
       if (stats.length > 0) {
         statContent = <div className="cp-stat-group-wrapper">
-          <div className="cp-stat-group">
-            {statGroups.map(({key, values}, i) => !(layout === "InfoCard" && i > 0) // only push the first stat for cards
-              ? <StatGroup key={key} title={key} stats={values} /> : ""
-            )}
-          </div>
+          {statGroups.map(({key, values}, i) => !(layout === "InfoCard" && i > 0) // only push the first stat for cards
+            ? <StatGroup key={key} title={key} stats={values} /> : ""
+          )}
         </div>;
       }
       if (stats.length > 1 && layout === "InfoCard") {
         secondaryStatContent = <div className="cp-stat-group-wrapper cp-secondary-stat-group-wrapper">
-          <div className="cp-stat-group">
-            {statGroups.map(({key, values}, i) => i > 0 // don't push the first stat again
-              ? <StatGroup key={key} title={key} stats={values} /> : ""
-            )}
-          </div>
+          {statGroups.map(({key, values}, i) => i > 0 // don't push the first stat again
+            ? <StatGroup key={key} title={key} stats={values} /> : ""
+          )}
         </div>;
       }
     }
