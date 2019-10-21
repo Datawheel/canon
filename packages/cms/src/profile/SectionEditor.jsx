@@ -110,7 +110,7 @@ class SectionEditor extends Component {
   }
 
   onSave(minData) {
-    const {localeDefault} = this.props;
+    const {localeDefault} = this.props.status;
     const defCon = minData.content.find(c => c.locale === localeDefault);
     const title = defCon && defCon.title ? defCon.title : minData.slug;
     if (this.props.reportSave) this.props.reportSave(minData.id, title);
@@ -136,13 +136,13 @@ class SectionEditor extends Component {
   render() {
 
     const {minData, query} = this.state;
-    const {selectors, children, locale, localeDefault, order} = this.props;
-    const {variables, previews} = this.props.status;
+    const {selectors, children, order} = this.props;
+    const {variables, localeDefault, localeSecondary} = this.props.status;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
-    const defLoaded = locale || variables && !locale && variables[localeDefault];
-    const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
+    const defLoaded = localeSecondary || variables && !localeSecondary && variables[localeDefault];
+    const locLoaded = !localeSecondary || variables && localeSecondary && variables[localeDefault] && variables[localeSecondary];
 
     if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return false;
 
@@ -169,9 +169,6 @@ class SectionEditor extends Component {
       </option>
     );
 
-    const defaultVariables = variables[localeDefault];
-    const secondaryVariables = variables[locale];
-
     return (
       <div className="cms-editor-inner">
 
@@ -188,8 +185,6 @@ class SectionEditor extends Component {
             <TextCard
               key="title-card"
               item={minData}
-              locale={locale}
-              localeDefault={localeDefault}
               fields={["title"]}
               query={query}
               onSave={this.onSave.bind(this)}
@@ -293,8 +288,6 @@ class SectionEditor extends Component {
               <TextCard
                 key={s.id}
                 item={s}
-                locale={locale}
-                localeDefault={localeDefault}
                 fields={["subtitle"]}
                 query={query}
                 type="section_subtitle"
@@ -312,7 +305,6 @@ class SectionEditor extends Component {
             <SelectorUsage
               key="selector-usage"
               minData={minData}
-              localeDefault={localeDefault}
               selectors={selectors}
               onSelect={this.onSelect.bind(this)}
             />
@@ -330,8 +322,6 @@ class SectionEditor extends Component {
               <TextCard
                 key={s.id}
                 item={s}
-                locale={locale}
-                localeDefault={localeDefault}
                 fields={["title", "subtitle", "value", "tooltip"]}
                 query={query}
                 type="section_stat"
@@ -352,8 +342,6 @@ class SectionEditor extends Component {
               <TextCard
                 key={d.id}
                 item={d}
-                locale={locale}
-                localeDefault={localeDefault}
                 fields={["description"]}
                 query={query}
                 type="section_description"
@@ -374,7 +362,6 @@ class SectionEditor extends Component {
               <VisualizationCard
                 key={v.id}
                 item={v}
-                locale={localeDefault}
                 query={query}
                 onDelete={this.onDelete.bind(this)}
                 type="section_visualization"

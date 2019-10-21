@@ -56,13 +56,13 @@ class MetaEditor extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.locale !== this.props.locale) {
+    if (prevProps.status.localeSecondary !== this.props.status.localeSecondary) {
       this.prepData.bind(this)();
     }
   }
 
   clickCell(cell) {
-    const {localeDefault} = this.props;
+    const {localeDefault} = this.props.status;
     const currentRow = cell.original;
     const url = currentRow.image && currentRow.image.url ? currentRow.image.url : "";
     const isOpen = true;
@@ -266,7 +266,7 @@ class MetaEditor extends Component {
    * Once sourceData has been set, prepare the two variables that react-table needs: data and columns.
    */
   prepData() {
-    const {locale, localeDefault} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
     const {epoch, imageEnabled, sourceData} = this.state;
     const data = this.fetchStringifiedSourceData.bind(this)(sourceData);
     let skip = ["stem", "imageId", "contentId"];
@@ -318,7 +318,7 @@ class MetaEditor extends Component {
         });
         displayColumns.push({
           id: `meta (${localeDefault})`,
-          Header: this.renderHeader(locale ? `${localeDefault} image description` : "image description"),
+          Header: this.renderHeader(localeSecondary ? `${localeDefault} image description` : "image description"),
           minWidth: this.columnWidths("meta"),
           accessor: d => {
             const content = d.image ? d.image.content.find(c => c.locale === localeDefault) : null;
@@ -326,16 +326,16 @@ class MetaEditor extends Component {
           },
           Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", localeDefault) : this.renderCell(cell)
         });
-        if (locale) {
+        if (localeSecondary) {
           displayColumns.push({
-            id: `meta (${locale})`,
-            Header: this.renderHeader(`${locale} image description`),
+            id: `meta (${localeSecondary})`,
+            Header: this.renderHeader(`${localeSecondary} image description`),
             minWidth: this.columnWidths("meta"),
             accessor: d => {
-              const content = d.image ? d.image.content.find(c => c.locale === locale) : null;
+              const content = d.image ? d.image.content.find(c => c.locale === localeSecondary) : null;
               return content ? content.meta : null;
             },
-            Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", locale) : this.renderCell(cell)
+            Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", localeSecondary) : this.renderCell(cell)
           });
         }
       }
@@ -347,7 +347,7 @@ class MetaEditor extends Component {
 
           columnGroup.push({
             id: `${prop} (${localeDefault})`,
-            Header: this.renderHeader(`${locale ? `${localeDefault} ` : ""}${prop === "attr" ? "language hints" : prop}`),
+            Header: this.renderHeader(`${localeSecondary ? `${localeDefault} ` : ""}${prop === "attr" ? "language hints" : prop}`),
             minWidth: this.columnWidths(prop),
             accessor: d => {
               const content = d.content.find(c => c.locale === localeDefault);
@@ -355,16 +355,16 @@ class MetaEditor extends Component {
             },
             Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, localeDefault) : this.renderCell(cell)
           });
-          if (locale) {
+          if (localeSecondary) {
             columnGroup.push({
-              id: `${prop} (${locale})`,
-              Header: this.renderHeader(`${locale} ${prop === "attr" ? "language hints" : prop}`),
+              id: `${prop} (${localeSecondary})`,
+              Header: this.renderHeader(`${localeSecondary} ${prop === "attr" ? "language hints" : prop}`),
               minWidth: this.columnWidths(prop),
               accessor: d => {
-                const content = d.content.find(c => c.locale === locale);
+                const content = d.content.find(c => c.locale === localeSecondary);
                 return content ? content[prop] : null;
               },
-              Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, locale) : this.renderCell(cell)
+              Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, localeSecondary) : this.renderCell(cell)
             });
           }
         });
@@ -796,7 +796,8 @@ MetaEditor.contextTypes = {
 };
 
 const mapStateToProps = state => ({
-  env: state.env
+  env: state.env,
+  status: state.cms.status
 });
 
 export default connect(mapStateToProps)(hot(MetaEditor));

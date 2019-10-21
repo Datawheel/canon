@@ -33,7 +33,7 @@ export function swapEntity(type, id, dir) {
 }
 
 /** */
-export function newSection(profile_id) { 
+export function newSection(profile_id) {  // eslint-disable-line
   return function(dispatch, getStore) {
     return axios.post(`${getStore().env.CANON_API}/api/cms/section/new`, {profile_id})
       .then(({data}) => {
@@ -70,24 +70,19 @@ export function deleteProfile(id) {
  */
 export function fetchVariables(id, config) { 
   return function(dispatch, getStore) {    
-    const {previews} = getStore().cms.status;
+    const {previews, localeDefault, localeSecondary} = getStore().cms.status;
     const currentPid = id;
 
     console.log("FETCHING");
-
-    // **** FIX THIS ***
-    // const {locale, localeDefault} = this.props;
-    const localeDefault = "en";
-    const locale = "es";
 
     const thisProfile = getStore().cms.profiles.find(p => p.id === id);
     let variables = deepClone(thisProfile.variables);
     if (!variables) variables = {};
     if (!variables[localeDefault]) variables[localeDefault] = {_genStatus: {}, _matStatus: {}};
-    if (locale && !variables[locale]) variables[locale] = {_genStatus: {}, _matStatus: {}};
+    if (localeSecondary && !variables[localeSecondary]) variables[localeSecondary] = {_genStatus: {}, _matStatus: {}};
     
     const locales = [localeDefault];
-    if (locale) locales.push(locale);
+    if (localeSecondary) locales.push(localeSecondary);
     for (const thisLocale of locales) {
 
       // If the config is for a materializer, don't run generators. Just use our current variables for the POST action

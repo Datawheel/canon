@@ -3,6 +3,7 @@ import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import ButtonGroup from "../fields/ButtonGroup";
+import {connect} from "react-redux";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -34,7 +35,8 @@ class SelectorEditor extends Component {
 
   addOption() {
     const {data, isDirty} = this.state;
-    const {variables} = this.props;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
     if (!data.options) data.options = [];
     const varList = Object.keys(variables).filter(v => !v.startsWith("_") && !data.options.map(o => o.option).includes(v));
     if (varList.length > 0) {
@@ -207,7 +209,8 @@ class SelectorEditor extends Component {
   render() {
 
     const {data, showCustom} = this.state;
-    const {variables} = this.props;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
 
     if (!data || !variables) return null;
 
@@ -399,4 +402,8 @@ class SelectorEditor extends Component {
   }
 }
 
-export default SelectorEditor;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(SelectorEditor);

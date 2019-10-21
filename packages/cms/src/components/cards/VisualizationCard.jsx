@@ -110,9 +110,10 @@ class VisualizationCard extends Component {
 
     if (!minData) return <Loading />;
 
-    const {selectors, type, parentArray, item, locale, onMove} = this.props;
-    const variables = this.props.status.variables[locale];
-    const formatters = this.context.formatters[locale];
+    const {selectors, type, parentArray, item, onMove} = this.props;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
+    const formatters = this.context.formatters[localeDefault];
 
     // TODO: add formatters toggle for secondaryLocale & secondaryVariables
 
@@ -159,7 +160,7 @@ class VisualizationCard extends Component {
           <Viz
             config={config}
             namespace="cms"
-            locale={locale}
+            locale={localeDefault}
             debug={true}
             variables={variables}
             configOverride={{height, scrollContainer: "#item-editor"}}
@@ -177,7 +178,6 @@ class VisualizationCard extends Component {
         >
           <div className="bp3-dialog-body">
             <GeneratorEditor
-              locale={locale}
               markAsDirty={this.markAsDirty.bind(this)}
               data={minData}
               type={type}

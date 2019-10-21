@@ -107,14 +107,14 @@ class GeneratorEditor extends Component {
   previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
-    const {attr, locale, env} = this.props;
-    const {previews} = this.props.status;
-    const variables = this.props.status.variables[locale];
+    const {attr, env} = this.props;
+    const {previews, localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
     if (api) {
       // The API will have <ids> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value. Same goes for locale
-      const lookup = {locale};
+      const lookup = {locale: localeDefault};
       previews.forEach((p, i) => {
         if (i === 0) {
           lookup.id = p.id;
@@ -214,8 +214,9 @@ class GeneratorEditor extends Component {
   render() {
 
     const {data, payload, simple, alertObj} = this.state;
-    const {type, locale} = this.props;
-    const variables = this.props.status.variables[locale];
+    const {type} = this.props;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
 
     const preMessage = {
       generator: <React.Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</React.Fragment>,
@@ -325,7 +326,7 @@ class GeneratorEditor extends Component {
                   onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null
-              : <SimpleVisualizationEditor key="simp-viz" locale={locale} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
+              : <SimpleVisualizationEditor key="simp-viz" simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
             : <AceWrapper
               key="ace-wrap"
               className="editor"

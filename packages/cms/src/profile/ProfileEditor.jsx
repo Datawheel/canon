@@ -55,13 +55,14 @@ class ProfileEditor extends Component {
   render() {
 
     const {minData} = this.state;
-    const {children, locale, localeDefault} = this.props;
+    const {children} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
     const {variables} = this.props.status;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
-    const defLoaded = locale || variables && !locale && variables[localeDefault];
-    const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
+    const defLoaded = localeSecondary || variables && !localeSecondary && variables[localeDefault];
+    const locLoaded = !localeSecondary || variables && localeSecondary && variables[localeDefault] && variables[localeSecondary];
 
     if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <Loading />;
 
@@ -80,8 +81,6 @@ class ProfileEditor extends Component {
           wrapperClassName="cms-splash-wrapper"
           cards={
             <TextCard
-              locale={locale}
-              localeDefault={localeDefault}
               item={minData}
               fields={["title", "subtitle"]}
               type="profile"

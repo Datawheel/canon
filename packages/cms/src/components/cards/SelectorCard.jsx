@@ -10,6 +10,7 @@ import deepClone from "../../utils/deepClone";
 // import varSwap from "../../utils/varSwap";
 import Card from "./Card";
 import "./SelectorCard.css";
+import {connect} from "react-redux";
 
 /**
  * Card Component for displaying dropdown selectors. Selectors may be singular dropdowns
@@ -106,8 +107,9 @@ class SelectorCard extends Component {
 
   render() {
     const {minData, isOpen, alertObj} = this.state;
-    const {locale, onMove, onSave, parentArray, type, variables} = this.props;
-    const formatters = this.context.formatters[locale];
+    const {onMove, onSave, parentArray, type} = this.props;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
 
     // define initial card props
     const cardProps = {
@@ -189,7 +191,6 @@ class SelectorCard extends Component {
           <div className="bp3-dialog-body">
             <SelectorEditor
               markAsDirty={this.markAsDirty.bind(this)}
-              variables={variables}
               data={minData}
             />
           </div>
@@ -208,4 +209,8 @@ SelectorCard.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default SelectorCard;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(SelectorCard);

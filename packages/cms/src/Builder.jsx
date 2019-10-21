@@ -14,6 +14,8 @@ import Select from "./components/fields/Select";
 import Button from "./components/fields/Button";
 import AuthForm from "./components/interface/AuthForm";
 
+import {setStatus} from "./actions/status";
+
 import AceWrapper from "./components/editors/AceWrapper";
 
 import "./css/utilities.css";
@@ -28,9 +30,6 @@ class Builder extends Component {
     super(props);
     this.state = {
       currentTab: null,
-      locales: false,
-      localeDefault: false,
-      secondaryLocale: false,
       pathObj: {},
       formatters: {},
       userInit: false
@@ -67,11 +66,12 @@ class Builder extends Component {
     formatters[localeDefault] = funcifyFormatterByLocale(this.props.formatters, localeDefault);
     if (env.CANON_LANGUAGES && env.CANON_LANGUAGES.includes(",")) {
       const locales = env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault);
-      const secondaryLocale = locales[0];
+      const localeSecondary = locales[0];
       locales.forEach(locale => {
         formatters[locale] = funcifyFormatterByLocale(this.props.formatters, locale);
       });
-      this.setState({locales, formatters, secondaryLocale, localeDefault, pathObj, currentTab});
+      this.props.setStatus({locales, localeSecondary, localeDefault});
+      this.setState({formatters, pathObj, currentTab});
     }
     else {
       this.setState({localeDefault, formatters, pathObj, currentTab});
@@ -104,9 +104,8 @@ class Builder extends Component {
 
   handleLocaleSelect(e) {
     const val = e.target.value;
-    this.setState({
-      secondaryLocale: val === "none" ? null : val
-      // showLocale: val === "none" ? false : true
+    this.props.setStatus({
+      localeSecondary: val === "none" ? null : val
     });
   }
 
@@ -137,7 +136,8 @@ class Builder extends Component {
   }
 
   render() {
-    const {currentTab, secondaryLocale, locales, localeDefault, pathObj, settingsOpen, userInit} = this.state;
+    const {currentTab, pathObj, settingsOpen, userInit} = this.state;
+    const {locales, localeDefault, localeSecondary} = this.props.status;
     const {isEnabled, env, auth, router} = this.props;
     let {pathname} = router.location;
     if (pathname.charAt(0) !== "/") pathname = `/${pathname}`;
@@ -205,7 +205,7 @@ class Builder extends Component {
                     fontSize="xs"
                     namespace="cms"
                     inline
-                    value={secondaryLocale}
+                    value={localeSecondary}
                     options={locales.map(loc => loc)}
                     onChange={this.handleLocaleSelect.bind(this)}
                     tabIndex={settingsOpen ? null : "-1"}
@@ -237,22 +237,16 @@ class Builder extends Component {
         {currentTab === "profiles" &&
           <ProfileBuilder
             pathObj={pathObj}
-            localeDefault={localeDefault}
-            locale={secondaryLocale}
           />
         }
         {currentTab === "stories" &&
           <StoryBuilder
             pathObj={pathObj}
-            localeDefault={localeDefault}
-            locale={secondaryLocale}
           />
         }
         {currentTab === "metadata" &&
           <MetaEditor
             pathObj={pathObj}
-            localeDefault={localeDefault}
-            locale={secondaryLocale}
           />
         }
         {/* 
@@ -281,11 +275,13 @@ const mapStateToProps = state => ({
   formatters: state.data.formatters,
   env: state.env,
   isEnabled: state.data.isEnabled,
+  status: state.cms.status,
   auth: state.auth
 });
 
 const mapDispatchToProps = dispatch => ({
   dispatch: action => dispatch(action),
+  setStatus: status => dispatch(setStatus(status)),
   isAuthenticated: () => {
     dispatch(isAuthenticated());
   }

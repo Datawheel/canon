@@ -39,7 +39,7 @@ class Toolbox extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id || 
         JSON.stringify(prevProps.status.previews) !== JSON.stringify(this.props.status.previews) || 
-        prevProps.locale !== this.props.locale) {
+        prevProps.status.localeSecondary !== this.props.status.localeSecondary) {
       this.hitDB.bind(this)();
     }
   }
@@ -168,7 +168,7 @@ class Toolbox extends Component {
   }
 
   openGenerator(key) {
-    const {localeDefault} = this.props;
+    const {localeDefault} = this.props.status;
     const {variables} = this.props.status;
     const vars = variables[localeDefault];
 
@@ -189,8 +189,8 @@ class Toolbox extends Component {
 
   render() {
     const {detailView, minData, query, forceID, forceType, forceOpen} = this.state;
-    const {children, locale, localeDefault, toolboxVisible} = this.props;
-    const {variables, previews} = this.props.status;
+    const {children, toolboxVisible} = this.props;
+    const {variables, previews, localeDefault, localeSecondary} = this.props.status;
 
     if (!minData) {
       return null;
@@ -198,8 +198,8 @@ class Toolbox extends Component {
 
     const dataLoaded = minData;
     const varsLoaded = variables;
-    const defLoaded = locale || variables && !locale && variables[localeDefault];
-    const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
+    const defLoaded = localeSecondary || variables && !localeSecondary && variables[localeDefault];
+    const locLoaded = !localeSecondary || variables && localeSecondary && variables[localeDefault] && variables[localeSecondary];
 
     if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return <div className="cms-toolbox is-loading"><h3>Loading...</h3></div>;
 
@@ -301,9 +301,6 @@ class Toolbox extends Component {
                   hidden={!detailView}
                   item={g}
                   attr={minData.attr || {}}
-                  localeDefault={localeDefault}
-                  locale={locale}
-                  previews={previews}
                   onSave={this.onSave.bind(this)}
                   onDelete={this.onDelete.bind(this)}
                   onClose={this.onClose.bind(this)}
@@ -326,8 +323,6 @@ class Toolbox extends Component {
                   context="materializer"
                   hidden={!detailView}
                   item={m}
-                  localeDefault={localeDefault}
-                  locale={locale}
                   onSave={this.onSave.bind(this)}
                   onDelete={this.onDelete.bind(this)}
                   onClose={this.onClose.bind(this)}
@@ -351,10 +346,8 @@ class Toolbox extends Component {
                   key={s.id}
                   minData={s}
                   type="selector"
-                  locale={localeDefault}
                   onSave={this.updateSelectors.bind(this)}
                   onDelete={this.onDelete.bind(this)}
-                  variables={variables[localeDefault]}
                 />
               )}
             />

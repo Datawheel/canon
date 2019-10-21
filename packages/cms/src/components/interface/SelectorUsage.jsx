@@ -82,7 +82,7 @@ class SelectorUsage extends Component {
   render() {
 
     const {minData, currentValues} = this.state;
-    const {localeDefault} = this.props;
+    const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
     const allSelectors = this.props.selectors;
 

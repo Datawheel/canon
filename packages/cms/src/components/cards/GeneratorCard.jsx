@@ -31,9 +31,9 @@ class GeneratorCard extends Component {
   componentDidUpdate(prevProps) {
     if (this.state.minData) {
       const {id} = this.state.minData;
-      const {locale, localeDefault} = this.props;
+      const {localeDefault, localeSecondary} = this.props.status;
       let locales = [localeDefault];
-      if (this.props.locale) locales = locales.concat([locale]);
+      if (this.props.status.localeSecondary) locales = locales.concat([localeSecondary]);
       const changed = locales.some(loc => 
         ["_genStatus", "_matStatus"].some(status => 
           prevProps.status.variables[loc] && 
@@ -65,20 +65,21 @@ class GeneratorCard extends Component {
   }
 
   formatDisplay() {
-    const {localeDefault, locale, type} = this.props;
+    const {type} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
-    const secondaryVariables = this.props.status.variables[locale];
+    const secondaryVariables = this.props.status.variables[localeSecondary];
     const {id} = this.state.minData;
     let displayData, secondaryDisplayData = {};
     if (type === "generator") {
       displayData = variables._genStatus[id];
-      if (locale) {
+      if (localeSecondary) {
         secondaryDisplayData = secondaryVariables._genStatus[id];
       }
     }
     else if (type === "materializer") {
       displayData = variables._matStatus[id];
-      if (locale) {
+      if (localeSecondary) {
         secondaryDisplayData = secondaryVariables._matStatus[id];
       }
     }
@@ -157,7 +158,8 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {attr, context, type, item, onMove, parentArray, localeDefault, locale} = this.props;
+    const {attr, context, type, item, onMove, parentArray} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
     const {variables} = this.props.status;
     const {displayData, secondaryDisplayData, minData, isOpen, alertObj} = this.state;
 
@@ -173,7 +175,7 @@ class GeneratorCard extends Component {
     // define initial/loading props for Card
     const cardProps = {
       cardClass: context,
-      locale,
+      localeSecondary,
       title: "•••" // placeholder
     };
 
@@ -210,15 +212,15 @@ class GeneratorCard extends Component {
           {context !== "formatter" &&
             <div className="cms-card-locale-group">
               <div className="cms-card-locale-container">
-                {locale &&
+                {localeSecondary &&
                   <LocaleName>{localeDefault}</LocaleName>
                 }
                 <VarTable dataset={displayData} />
               </div>
 
-              {locale &&
+              {localeSecondary &&
                 <div className="cms-card-locale-container">
-                  <LocaleName>{locale}</LocaleName>
+                  <LocaleName>{localeSecondary}</LocaleName>
                   <VarTable dataset={secondaryDisplayData} />
                 </div>
               }
@@ -240,7 +242,6 @@ class GeneratorCard extends Component {
             <GeneratorEditor
               markAsDirty={this.markAsDirty.bind(this)}
               attr={attr}
-              locale={localeDefault}
               data={minData}
               type={type}
             />

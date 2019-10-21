@@ -62,9 +62,9 @@ class SimpleVisualizationEditor extends Component {
 
   firstBuild() {
     const {object} = this.state;
-    const {env, locale} = this.props;
-    const {previews} = this.props.status;
-    const variables = this.props.status.variables[locale];
+    const {env} = this.props;
+    const {previews, localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
     const {data} = object;
     if (data) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
@@ -159,9 +159,9 @@ class SimpleVisualizationEditor extends Component {
 
   rebuild() {
     const {object} = this.state;
-    const {env, locale} = this.props;
-    const {previews} = this.props.status;
-    const variables = this.props.status.variables[locale];
+    const {env} = this.props;
+    const {previews, localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
     const {data, type} = object;
     const lookup = {};
     if (previews) {

@@ -49,6 +49,8 @@ class ProfileBuilder extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    // Doing a JSON.Stringify is too expensive here - and we need to ONLY call buildNodes
+    // If certain properties of the profiles obj has changed. Use a DIY stringify to detect changes.
     const oldTree = prevProps.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, "");    
     const newTree = this.props.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, ""); 
     if (oldTree !== newTree) {
@@ -68,7 +70,8 @@ class ProfileBuilder extends Component {
   }
 
   buildNodes(openNode) {
-    const {localeDefault, profiles} = this.props;
+    const {profiles} = this.props;
+    const {localeDefault} = this.props.status;
     const nodes = treeify(profiles, localeDefault);
     if (!openNode) {
       const {profile, section} = this.props.pathObj;
@@ -256,7 +259,7 @@ class ProfileBuilder extends Component {
    */
   reportSave(id, newValue) {
     const {nodes} = this.state;
-    const {localeDefault} = this.props;
+    const {localeDefault} = this.props.status;
     const node = this.locateNode.bind(this)("section", id);
     // Update the label based on the new value.
     if (node) {
@@ -323,8 +326,7 @@ class ProfileBuilder extends Component {
 
   formatLabel(str) {
     const {query, selectors} = this.state;
-    const {variables} = this.props.status;
-    const {localeDefault} = this.props;
+    const {variables, localeDefault} = this.props.status;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
     str = stripHTML(str);
@@ -366,8 +368,7 @@ class ProfileBuilder extends Component {
    */
   formatTreeVariables() {
     const {nodes} = this.state;
-    const {currentPid} = this.props.status;
-    const {localeDefault} = this.props;
+    const {currentPid, localeDefault} = this.props.status;
     const p = this.locateProfileNodeByPid(currentPid);
     p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions";
     p.childNodes = p.childNodes.map(t => {
@@ -404,7 +405,7 @@ class ProfileBuilder extends Component {
   render() {
 
     const {nodes, nodeToDelete, selectors, toolboxVisible} = this.state;
-    const {locale, localeDefault, profiles} = this.props;
+    const {profiles} = this.props;
     const {currentNode, currentPid, previews, gensLoaded, gensTotal, genLang} = this.props.status;
 
     if (!nodes) return null;
@@ -447,8 +448,6 @@ class ProfileBuilder extends Component {
             { currentNode
               ? <Editor
                 id={currentNode.data.id}
-                locale={locale}
-                localeDefault={localeDefault}
                 onSetVariables={this.onSetVariables.bind(this)}
                 selectors={selectors}
                 order={currNodeOrder}
@@ -474,8 +473,6 @@ class ProfileBuilder extends Component {
 
             <Toolbox
               id={currentPid}
-              locale={locale}
-              localeDefault={localeDefault}
               updateSelectors={this.updateSelectors.bind(this)}
               toolboxVisible={toolboxVisible}
             >
