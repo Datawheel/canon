@@ -1,7 +1,10 @@
-import React, {Component} from "react";
-import Viz from "../Viz/Viz";
-// import {AnchorLink} from "@datawheel/canon-core";
+import React, {Component, Fragment} from "react";
+import {hot} from "react-hot-loader/root";
 
+import toSpacedCase from "../../utils/formatters/toSpacedCase";
+import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+
+import Viz from "../Viz/Viz";
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
 import Selector from "./components/Selector";
@@ -10,9 +13,9 @@ import "./Section.css";
 
 import "./Tabs.css";
 
-/** */
+/** config is a string; parse it */
 function findKey(str, key) {
-  const regex = new RegExp(`${key}\\:[\\s]*\\"([^\\"]+)\\"`, "g");
+  const regex = new RegExp(`"${key}"\\:[\\s]*\\"([^\\"]+)\\"`, "g"); // /"tab"\:[\s]*\"([^\"]+)\"/g
   const match = regex.exec(str);
   if (match) return match[1];
   else return match;
@@ -20,7 +23,7 @@ function findKey(str, key) {
 
 const titleKeys = ["tab", "type"];
 
-export default class Tabs extends Component {
+class Tabs extends Component {
 
   constructor(props) {
     super(props);
@@ -56,9 +59,10 @@ export default class Tabs extends Component {
 
     const tabs = visualizations.map((d, i) => {
       let title;
+      // check viz config for button labels via "tab" or "type"
       for (let x = 0; x < titleKeys.length; x++) {
         title = findKey(d.logic, titleKeys[x]);
-        if (title) break;
+        if (title) return upperCaseFirst(toSpacedCase(title)); // convert LinePlot to Line plot
       }
       return title || `Visualization ${i + 1}`;
     });
@@ -70,7 +74,7 @@ export default class Tabs extends Component {
         {filters}
 
         {tabs.length > 1 &&
-          <React.Fragment>
+          <Fragment>
             <p className="u-visually-hidden">Select visualization: </p>
             <ButtonGroup>
               {tabs.map((title, key) =>
@@ -84,7 +88,7 @@ export default class Tabs extends Component {
                 </Button>
               )}
             </ButtonGroup>
-          </React.Fragment>
+          </Fragment>
         }
 
         {tabDescriptions && tabDescriptions.map((content, i) =>
@@ -108,3 +112,5 @@ export default class Tabs extends Component {
     </div>;
   }
 }
+
+export default hot(Tabs);
