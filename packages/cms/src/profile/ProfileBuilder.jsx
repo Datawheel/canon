@@ -17,7 +17,7 @@ import treeify from "../utils/profile/treeify";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
-import {getProfiles, newProfile, swapEntity, newSection, deleteSection, deleteProfile} from "../actions/profiles";
+import {getProfiles, newProfile, swapEntity, newSection, deleteSection, deleteProfile, resetPreviews} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 import {getCubeData} from "../actions/cubeData";
 
@@ -51,9 +51,11 @@ class ProfileBuilder extends Component {
   componentDidUpdate(prevProps) {
     // Doing a JSON.Stringify is too expensive here - and we need to ONLY call buildNodes
     // If certain properties of the profiles obj has changed. Use a DIY stringify to detect changes.
+    const {nodes} = this.state;
     const oldTree = prevProps.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, "");    
     const newTree = this.props.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, ""); 
-    if (oldTree !== newTree) {
+    const changedTree = oldTree !== newTree;
+    if (changedTree || !nodes) {
       console.log("rebuilding");
       this.buildNodes.bind(this)();
     }
@@ -71,10 +73,10 @@ class ProfileBuilder extends Component {
 
   buildNodes(openNode) {
     const {profiles} = this.props;
-    const {localeDefault} = this.props.status;
+    const {localeDefault, pathObj} = this.props.status;
     const nodes = treeify(profiles, localeDefault);
     if (!openNode) {
-      const {profile, section} = this.props.pathObj;
+      const {profile, section} = pathObj;
       if (section) {
         let nodeToOpen = this.locateNode("section", section, nodes);
         if (!nodeToOpen) nodeToOpen = nodes[0];
@@ -127,7 +129,7 @@ class ProfileBuilder extends Component {
   handleNodeClick(node) {
     node = this.locateNode(node.itemType, node.data.id);
     const {nodes} = this.state;
-    const {currentNode, previews} = this.props.status;
+    const {currentNode, currentPid, previews, pathObj} = this.props.status;
     let parentLength = 0;
     if (node.itemType === "section") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
     if (node.itemType === "profile") parentLength = nodes.length;
@@ -154,49 +156,21 @@ class ProfileBuilder extends Component {
     else if (currentNode && node.id === currentNode.id) {
       node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
     }
-    const pathObj = {
+    const newPathObj = {
       profile: node.itemType === "profile" ? node.data.id : node.parent.data.id,
       section: node.itemType === "section" ? node.data.id : undefined
     };
     // If the pids match, the master profile is the same, so keep the same preview
-    if (this.state.currentPid === node.masterPid) {
-      pathObj.previews = previews;
-      this.context.setPath(pathObj);
-      this.props.setStatus({currentNode: node});
+    if (currentPid === node.masterPid) {
+      newPathObj.previews = previews;
+      this.props.setStatus({currentNode: node, pathObj: newPathObj});
     }
     // If they don't match, update the currentPid and reset the preview
     else {
-      // An empty search string will automatically provide the highest z-index results.
-      // Use this to auto-populate the preview when the user changes profiles.
-      const requests = node.masterMeta.map((meta, i) => {
-        const levels = meta.levels ? meta.levels.join() : false;
-        const levelString = levels ? `&levels=${levels}` : "";
-        let url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
-        const ps = this.props.pathObj.previews;
-        // If previews is of type string, then it came from the URL permalink. Override
-        // The search to manually choose the exact id for each dimension.
-        if (typeof ps === "string") {
-          const ids = ps.split(",");
-          const id = ids[i];
-          if (id) url += `&id=${id}`;
-        }
-        return axios.get(url);
-      });
-      const previews = [];
-      Promise.all(requests).then(resps => {
-        resps.forEach((resp, i) => {
-          previews.push({
-            slug: node.masterMeta[i].slug,
-            id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
-            name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
-            memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
-          });
-        });
-        pathObj.previews = previews;
-        this.context.setPath(pathObj);
-        console.log("changing because nodeclick");
-        this.props.setStatus({currentNode: node, currentPid: node.masterPid, previews});
-      });
+      // If previews is a string, we are coming in from the URL permalink. Pass it down to the pathobj.
+      if (typeof pathObj.previews === "string") newPathObj.previews = pathObj.previews;
+      this.props.setStatus({currentNode: node, currentPid: node.masterPid, pathObj: newPathObj});
+      this.props.resetPreviews();
     }
   }
 
@@ -272,7 +246,7 @@ class ProfileBuilder extends Component {
   }
 
   updateProfilesOnDimensionModify(profiles) {
-    const {currentPid} = this.state;
+    const {currentPid} = this.props.status;
     const thisProfile = profiles.find(p => p.id === currentPid);
     const masterMeta = thisProfile.meta;
     const requests = masterMeta.map(meta => {
@@ -338,11 +312,9 @@ class ProfileBuilder extends Component {
    * Callback for Preview.jsx, pass down new preview id to all Editors
    */
   onSelectPreview(newPreview) {
-    const {pathObj} = this.props;
     const previews = this.props.status.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
-    this.context.setPath(Object.assign({}, pathObj, {previews}));
-    console.log("changing because select");
-    this.props.setStatus({previews});
+    const pathObj = Object.assign({}, this.props.status.pathObj, {previews});
+    this.props.setStatus({pathObj, previews});
   }
 
   /*
@@ -521,8 +493,7 @@ ProfileBuilder.childContextTypes = {
 };
 
 ProfileBuilder.contextTypes = {
-  formatters: PropTypes.object,
-  setPath: PropTypes.func
+  formatters: PropTypes.object
 };
 
 const mapStateToProps = state => ({
@@ -538,6 +509,7 @@ const mapDispatchToProps = dispatch => ({
   newSection: pid => dispatch(newSection(pid)),
   deleteProfile: id => dispatch(deleteProfile(id)),
   deleteSection: id => dispatch(deleteSection(id)),
+  resetPreviews: () => dispatch(resetPreviews()),
   setStatus: status => dispatch(setStatus(status)),
   getCubeData: () => dispatch(getCubeData())
 });

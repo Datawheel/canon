@@ -30,7 +30,6 @@ class Builder extends Component {
     super(props);
     this.state = {
       currentTab: null,
-      pathObj: {},
       formatters: {},
       userInit: false
     };
@@ -60,6 +59,8 @@ class Builder extends Component {
 
     const pathObj = {profile, section, previews, story, storysection, tab: currentTab};
 
+    console.log("moutning buildering with ", pathObj);
+
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     const formatters = {};
@@ -70,11 +71,12 @@ class Builder extends Component {
       locales.forEach(locale => {
         formatters[locale] = funcifyFormatterByLocale(this.props.formatters, locale);
       });
-      this.props.setStatus({locales, localeSecondary, localeDefault});
-      this.setState({formatters, pathObj, currentTab});
+      this.props.setStatus({locales, localeSecondary, localeDefault, pathObj});
+      this.setState({formatters, currentTab});
     }
     else {
-      this.setState({localeDefault, formatters, pathObj, currentTab});
+      this.props.setStatus({localeDefault, pathObj});
+      this.setState({formatters, currentTab});
     }
 
   }
@@ -83,14 +85,15 @@ class Builder extends Component {
     if (prevProps.auth.loading && !this.props.auth.loading) {
       this.setState({userInit: true});
     }
+    if (JSON.stringify(prevProps.status.pathObj) !== JSON.stringify(this.props.status.pathObj)) {
+      this.setPath.bind(this)();
+    }
   }
 
   getChildContext() {
     const {formatters} = this.state;
-    const setPath = this.setPath.bind(this);
     return {
-      formatters,
-      setPath
+      formatters
     };
   }
 
@@ -98,7 +101,8 @@ class Builder extends Component {
     const {currentTab} = this.state;
     if (newTab !== currentTab) {
       const newPathObj = {tab: newTab};
-      this.setState({currentTab: newTab, pathObj: newPathObj}, this.setPath.bind(this, newPathObj));
+      this.setState({currentTab: newTab});
+      this.props.setStatus({pathObj: newPathObj});
     }
   }
 
@@ -113,30 +117,32 @@ class Builder extends Component {
     this.setState({settingsOpen: !this.state.settingsOpen});
   }
 
-  setPath(pathObj) {
+  setPath() {
     const {currentTab} = this.state;
     // The underlying Editors don't know about tabs, so they will send pathObjs that don't have a tab in them.
     // Always trust Builder.jsx's current tab, and assign it into whatever the Editors send up.
-    pathObj = Object.assign({}, pathObj, {tab: currentTab});
+    const pathObj = Object.assign({}, this.props.status.pathObj, {tab: currentTab});
     const {router} = this.props;
     const {pathname} = router.location;
     let url = `${pathname}?tab=${pathObj.tab}`;
     // Profile
     if (pathObj.profile) url += `&profile=${pathObj.profile}`;
     if (pathObj.section) url += `&section=${pathObj.section}`;
+    // previews may come in as a string (from the URL) or an array (from the app).
+    // Set the url correctly either way.
     if (pathObj.previews) {
-      const previews = pathObj.previews.map(d => d.id).join();
+      const previews = typeof pathObj.previews === "string" ? pathObj.previews : pathObj.previews.map(d => d.id).join();
       url += `&previews=${previews}`;
     }
     // Story 
     if (pathObj.story) url += `&story=${pathObj.story}`;
     if (pathObj.storysection) url += `&storysection=${pathObj.storysection}`;
     router.replace(url);
-    this.setState({pathObj});
+    // this.props.setStatus({pathObj});
   }
 
   render() {
-    const {currentTab, pathObj, settingsOpen, userInit} = this.state;
+    const {currentTab, settingsOpen, userInit} = this.state;
     const {locales, localeDefault, localeSecondary} = this.props.status;
     const {isEnabled, env, auth, router} = this.props;
     let {pathname} = router.location;
@@ -234,21 +240,9 @@ class Builder extends Component {
           </React.Fragment> }
         </div>
 
-        {currentTab === "profiles" &&
-          <ProfileBuilder
-            pathObj={pathObj}
-          />
-        }
-        {currentTab === "stories" &&
-          <StoryBuilder
-            pathObj={pathObj}
-          />
-        }
-        {currentTab === "metadata" &&
-          <MetaEditor
-            pathObj={pathObj}
-          />
-        }
+        {currentTab === "profiles" && <ProfileBuilder />}
+        {currentTab === "stories" && <StoryBuilder/>}
+        {currentTab === "metadata" && <MetaEditor/>}
         {/* 
           This invisible AceWrapper is necessary, because running the require function in the render cycle of AceWrapper
           can cause components to remount (notably the toolbox, hitting all generators). By putting this dummy AceWrapper in 
@@ -262,8 +256,7 @@ class Builder extends Component {
 }
 
 Builder.childContextTypes = {
-  formatters: PropTypes.object,
-  setPath: PropTypes.func
+  formatters: PropTypes.object
 };
 
 Builder.need = [

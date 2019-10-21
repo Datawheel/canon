@@ -791,8 +791,7 @@ class MetaEditor extends Component {
 }
 
 MetaEditor.contextTypes = {
-  toast: PropTypes.object,
-  setPath: PropTypes.func
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({
