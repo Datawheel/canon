@@ -13,15 +13,17 @@ import "./Section.css";
 
 import "./Tabs.css";
 
+const titleKeys = ["tab", "type"];
+
 /** config is a string; parse it */
 function findKey(str, key) {
-  const regex = new RegExp(`"${key}"\\:[\\s]*\\"([^\\"]+)\\"`, "g"); // /"tab"\:[\s]*\"([^\"]+)\"/g
-  const match = regex.exec(str);
+  // js object keys can be wrapped in single/double quotes; strip those out
+  const strippedStr = str.replace(`"${key}":`, `${key}:`).replace(`'${key}':`, `${key}:`);
+  const regex = new RegExp(`${key}\\:[\\s]*\\"([^\\"]+)\\"`, "g"); // /tab\:[\s]*\"([^\"]+)\"/g
+  const match = regex.exec(strippedStr);
   if (match) return match[1];
   else return match;
 }
-
-const titleKeys = ["tab", "type"];
 
 class Tabs extends Component {
 
