@@ -51,6 +51,9 @@ class Options extends Component {
 
   constructor(props) {
     super(props);
+
+    const hasMultiples = Array.isArray(props.data) && props.data.some(d => typeof d === "string");
+
     this.state = {
       backgroundColor: true,
       id: uuid(),
@@ -61,7 +64,7 @@ class Options extends Component {
       loading: false,
       dialogOpen: false,
       focusOptions: false, // make button group focusable, but only when closing the dialog
-      results: props.data instanceof Array ? props.data : false
+      results: !hasMultiples && Array.isArray(props.data) ? props.data : false // has multiples
     };
     this.toggleButton = React.createRef();
     this.dialog = React.createRef();
@@ -199,12 +202,24 @@ class Options extends Component {
 
     if (slug === "view-table" && !results && !loading) {
       const {data, dataFormat} = this.props;
+      const paths = typeof data === "string" ? [data] : data;
       this.setState({loading: true});
-      axios.get(data)
-        .then(resp => {
-          const results = dataFormat(resp.data);
-          this.setState({loading: false, results});
-        });
+      const loaded = [];
+      paths.forEach(path => {
+        if (typeof path === "string") {
+          axios.get(path)
+            .then(resp => {
+              loaded.push(resp.data);
+              if (loaded.length === paths.length) {
+                const results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
+                this.setState({loading: false, results});
+              }
+            });
+        }
+        else {
+          loaded.push(path);
+        }
+      });
     }
   }
 
@@ -250,16 +265,20 @@ class Options extends Component {
 
     const columns = results ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
 
-    const dataUrl = typeof data === "string"
-      ? data.indexOf("http") === 0 ? data : `${ domain }${ data }`
-      : false;
+    const dataURLs = typeof data === "string"
+      ? [data] : Array.isArray(data)
+        ? data : false;
 
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
 
-        { dataUrl &&
-          <ShareDirectLink link={dataUrl} />
-        }
+        {dataURLs && dataURLs.map((link, i) =>
+          <ShareDirectLink
+            link={data.indexOf("http") === 0 ? link : `${ domain }${ link }`}
+            label={`Endpoint${dataURLs.length > 1 ? ` ${i + 1}` : "" }`}
+            key={link}
+          />
+        )}
 
         <div className="table">
           <ReactTable

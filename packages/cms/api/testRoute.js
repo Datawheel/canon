@@ -13,4 +13,11 @@ module.exports = function(app) {
       // {id: "omega", x: "60000", y: 130000}
     ]}).end();
   });
+  // .get("/api/test2", (req, res) => {
+  //   res.json({data: [
+  //     {id: "james", x: 2, z: 7},
+  //     {id: "james", x: 3, z: 2},
+  //     {id: "james", x: 8, z: 3}
+  //   ]}).end();
+  // });
 };

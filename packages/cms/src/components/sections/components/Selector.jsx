@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
 
 import {Select as BlueprintSelect} from "@blueprintjs/select";
@@ -13,7 +14,8 @@ class Selector extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      comparisons: props.default.split(",").filter(d => d.length)
+      // comparisons: props.default.split(",").filter(d => d.length)
+      comparisons: null
     };
   }
 
@@ -105,4 +107,4 @@ Selector.defaultProps = {
   fontSize: "xxs"
 };
 
-export default Selector;
+export default hot(Selector);
