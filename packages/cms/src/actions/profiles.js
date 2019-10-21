@@ -73,13 +73,17 @@ export function fetchVariables(id, config) {
     const {previews, localeDefault, localeSecondary} = getStore().cms.status;
     const currentPid = id;
 
-    console.log("FETCHING");
-
     const thisProfile = getStore().cms.profiles.find(p => p.id === id);
     let variables = deepClone(thisProfile.variables);
     if (!variables) variables = {};
     if (!variables[localeDefault]) variables[localeDefault] = {_genStatus: {}, _matStatus: {}};
     if (localeSecondary && !variables[localeSecondary]) variables[localeSecondary] = {_genStatus: {}, _matStatus: {}};
+
+    // If we've received a zero-length config of type generator, this is a brand-new profile.
+    // Return the scaffolded empty data.
+    if (config.type === "generator" && config.ids.length === 0) {
+      return dispatch({type: "VARIABLES_SET", data: {id, variables}});
+    }    
     
     const locales = [localeDefault];
     if (localeSecondary) locales.push(localeSecondary);

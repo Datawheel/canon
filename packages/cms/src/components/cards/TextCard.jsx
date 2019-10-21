@@ -52,7 +52,7 @@ class TextCard extends Component {
   populateLanguageContent(minData) {
     const {fields, plainfields} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
-    if (!minData.content.find(c => c.localeSecondary === localeDefault)) {
+    if (!minData.content.find(c => c.locale === localeDefault)) {
       // This is a rare edge case, but in some cases, the DEFAULT
       // Language is not populated. We must scaffold out a fake
       // Starting point with empty strings to base everything on.
@@ -64,7 +64,7 @@ class TextCard extends Component {
     }
     if (!minData.content.find(c => c.locale === localeSecondary)) {
       const defCon = minData.content.find(c => c.locale === localeDefault);
-      const newCon = {id: minData.id, localeSecondary};
+      const newCon = {id: minData.id, locale: localeSecondary};
       if (defCon) {
         Object.keys(defCon).forEach(k => {
           if (k !== "id" && k !== "locale") newCon[k] = defCon[k];
