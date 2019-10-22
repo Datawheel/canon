@@ -14,8 +14,7 @@ class Selector extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // comparisons: props.default.split(",").filter(d => d.length)
-      comparisons: null
+      comparisons: props && props.default ? props.default.split(",").filter(d => d.length) : null
     };
   }
 
