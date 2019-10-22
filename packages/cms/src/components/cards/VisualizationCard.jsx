@@ -159,6 +159,7 @@ class VisualizationCard extends Component {
             namespace="cms"
             locale={locale}
             debug={true}
+            initialVariables={variables}
             variables={variables}
             configOverride={{height, scrollContainer: "#item-editor"}}
             options={false}

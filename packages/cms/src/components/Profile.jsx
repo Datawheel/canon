@@ -13,6 +13,8 @@ import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
 import isIE from "../utils/isIE.js";
 
+import deepClone from "../utils/deepClone.js";
+
 import "../css/utilities.css";
 import "../css/base.css";
 import "../css/blueprint-overrides.css";
@@ -27,6 +29,10 @@ class Profile extends Component {
     super(props);
     this.state = {
       profile: props.profile,
+      // Take a one-time, initial snapshot of the entire variable set at load time to be passed via context.
+      // This is necessary because embedded sections need a pure untouched variable set, so they can reset
+      // the variables they changed via setVariables back to the original state at load time.
+      initialVariables: deepClone(props.profile.variables),
       selectors: {},
       modalSlug: null,
       loading: false,
@@ -40,7 +46,7 @@ class Profile extends Component {
 
   getChildContext() {
     const {formatters, locale, router} = this.props;
-    const {profile} = this.state;
+    const {profile, initialVariables} = this.state;
     const {variables} = profile;
     return {
       formatters: formatters.reduce((acc, d) => {
@@ -51,9 +57,9 @@ class Profile extends Component {
       }, {}),
       router,
       onSelector: this.onSelector.bind(this),
-      onSetVariables: this.onSetVariables.bind(this),
       onOpenModal: this.onOpenModal.bind(this),
       variables,
+      initialVariables,
       locale
     };
   }
@@ -173,6 +179,7 @@ class Profile extends Component {
                   // ungrouped section
                   ? <Section
                     contents={innerGrouping[0]}
+                    onSetVariables={this.onSetVariables.bind(this)}
                     headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
                     loading={loading}
                     key={`${innerGrouping[0].slug}-${ii}`}
@@ -182,6 +189,7 @@ class Profile extends Component {
                     {innerGrouping.map((section, iii) =>
                       <Section
                         contents={section}
+                        onSetVariables={this.onSetVariables.bind(this)}
                         headingLevel={groupedSections.length === 1 || ii === 0
                           ? iii === 0 ? "h2" : "h3"
                           : "h4"
@@ -212,6 +220,7 @@ class Profile extends Component {
             <Section
               isModal={true}
               contents={modalSection}
+              onSetVariables={this.onSetVariables.bind(this)}
               // To prevent a "loading flicker" when users call setVariables, normal Sections don't show a "Loading"
               // when the only thing that updated was from setVariables. HOWEVER, if this is a modal popover, we really
               // SHOULD wait if setVarsLoading is true, because the config might have called setVariables and then 
@@ -230,8 +239,8 @@ Profile.childContextTypes = {
   locale: PropTypes.string,
   router: PropTypes.object,
   variables: PropTypes.object,
-  onSelector: PropTypes.func,
-  onSetVariables: PropTypes.func,
+  initialVariables: PropTypes.object,
+  onSelector: PropTypes.func,  
   onOpenModal: PropTypes.func
 };
 
