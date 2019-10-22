@@ -288,7 +288,7 @@ Used to add, edit, and remove content.
 #### Subtitles
 Short bits of text that appear underneath the section title for added clarification.
 
-#### Stats (entity)
+#### Stats
 Useful for emphasizing bits and pieces of data, stats are made up of the following:
 
 1. **Label**: appears before the number, concisely explaining what it represents.
@@ -319,7 +319,7 @@ Renders data in a [react-table](https://github.com/tannerlinsley/react-table/tre
 🔥**Pro tip**: You can also pass `headerFormat(key)` and `columnFormat(key, val)` to the config.
 
 ##### Graphic
-Renders an image, optionally on top of a [stat](stats-entity). The config looks like:
+Renders an image, optionally on top of a [stat](#stats). The config looks like:
 ```
 config: {
   imageURL: "link/to.image",
