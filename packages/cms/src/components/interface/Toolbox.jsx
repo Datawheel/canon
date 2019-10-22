@@ -53,11 +53,11 @@ class Toolbox extends Component {
           this.updateSelectors.bind(this)();
           // If config is set, the user has saved a single generator and we should load just that one.
           if (config) {
-            this.props.fetchVariables(id, config);  
+            this.props.fetchVariables(config);  
           }
           // Otherwise, this is a first load, so run the full list of generators (one a time) to be returned async.
           else {
-            this.props.fetchVariables(id, {type: "generator", ids: minData.generators.map(g => g.id)});
+            this.props.fetchVariables({type: "generator", ids: minData.generators.map(g => g.id)});
           }
         };
         this.setState({minData}, callback);
@@ -78,7 +78,7 @@ class Toolbox extends Component {
     axios.post(`/api/cms/${type}/new`, payload).then(resp => {
       if (resp.status === 200) {
         let maybeFetch = null;
-        if (type === "generator" || type === "materializer") maybeFetch = this.props.fetchVariables(id, {type, ids: [resp.data.id]});
+        if (type === "generator" || type === "materializer") maybeFetch = this.props.fetchVariables({type, ids: [resp.data.id]});
         // Selectors, unlike the rest of the elements, actually do pass down their entire
         // content to the Card (the others are simply given an id and load the data themselves)
         if (type === "selector") {
@@ -131,7 +131,7 @@ class Toolbox extends Component {
     let maybeFetch = null;
     // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
     // is handled gracefully server-side - it prunes the provided id from the variables object and re-runs necessary gens/mats.
-    if (type === "generator" || type === "materializer") maybeFetch = this.props.fetchVariables(minData.id, {type, ids: [id]});
+    if (type === "generator" || type === "materializer") maybeFetch = this.props.fetchVariables({type, ids: [id]});
     this.setState({minData}, maybeFetch);
     if (type === "selector") {
       const {selectors} = minData;
@@ -383,7 +383,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchVariables: (id, config) => dispatch(fetchVariables(id, config))
+  fetchVariables: config => dispatch(fetchVariables(config))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Toolbox);

@@ -29,10 +29,11 @@ class Viz extends Component {
 
   render() {
     const {sectionTitle} = this.props;
+    // Variables come from props in the CMS, and Context in the Front-end.
     const variables = this.props.variables || this.context.variables;
-    const {onSetVariables} = this.context;
-    // Window opening is only supported on front-end profiles. If onOpenModal didn't come through context,
-    // then this Viz is in the CMS, so just replace it with a no-op.
+    // Window opening and setVariables is only supported on front-end profiles. If they didn't 
+    // come through context, then this Viz is in the CMS, so just replace it with a no-op.
+    const onSetVariables = this.context.onSetVariables ? this.context.onSetVariables : d => d;
     const onOpenModal = this.context.onOpenModal ? this.context.onOpenModal : d => d;
     const locale = this.props.locale || this.context.locale;
 

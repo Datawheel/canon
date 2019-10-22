@@ -82,6 +82,34 @@ export function deleteDimension(id) {
   };
 }
 
+/**
+ * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
+ * and overrides/sets a variable in the variables object. This does not require a server
+ * round-trip - we need only inject the variables object and trigger a re-render.
+ * NOTE: This is currently unused in the CMS. Wrapping Viz.jsx in redux-connect causes 
+ * a race condition not yet understood. Calling setVariables is not as important in the CMS
+ * as it is on the front-end, but this will need to be revisited.
+ */
+export function setVariables(newVariables) { 
+  return function(dispatch, getStore) {
+    const {currentPid} = getStore().cms.status;
+    const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
+    const variables = deepClone(thisProfile.variables);
+    // Users should ONLY call setVariables in a callback - never in the main execution, as this
+    // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
+    // loop by checking if the vars are in there already, only updating if they are not yet set.
+    const alreadySet = Object.keys(variables).every(locale =>
+      Object.keys(newVariables).every(key => variables[locale][key] === newVariables[key])
+    );
+    if (!alreadySet) {
+      Object.keys(variables).forEach(locale => {
+        variables[locale] = Object.assign({}, variables[locale], newVariables);
+      });
+      dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
+    }
+  };
+}
+
 /** */
 export function resetPreviews() { 
   return function(dispatch, getStore) {
@@ -129,12 +157,11 @@ export function resetPreviews() {
  * all the editors, each editor has a callback that accesses this function. We store the
  * variables object in a hash that is keyed by the profile id.
  */
-export function fetchVariables(id, config) { 
+export function fetchVariables(config) { 
   return function(dispatch, getStore) {    
-    const {previews, localeDefault, localeSecondary} = getStore().cms.status;
-    const currentPid = id;
+    const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
 
-    const thisProfile = getStore().cms.profiles.find(p => p.id === id);
+    const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
     let variables = deepClone(thisProfile.variables);
     if (!variables) variables = {};
     if (!variables[localeDefault]) variables[localeDefault] = {_genStatus: {}, _matStatus: {}};
@@ -143,7 +170,7 @@ export function fetchVariables(id, config) {
     // If we've received a zero-length config of type generator, this is a brand-new profile.
     // Return the scaffolded empty data.
     if (config.type === "generator" && config.ids.length === 0) {
-      dispatch({type: "VARIABLES_SET", data: {id, variables}});
+      dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
     }
     else {
       const locales = [localeDefault];
@@ -172,7 +199,7 @@ export function fetchVariables(id, config) {
           // Once pruned, we can POST the variables to the materializer endpoint
           axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
             variables[thisLocale] = nestedObjectAssign({}, variables[thisLocale], mat.data);
-            dispatch({type: "VARIABLES_SET", data: {id, variables}});
+            dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
           });
         }
         else {
@@ -204,7 +231,7 @@ export function fetchVariables(id, config) {
               // Can't know what to wait for. In this single instance, use this short-circuit to be instantly done and move onto mats.
               if (gids.length === 1 && JSON.stringify(gen.data) === "{}") gensLoaded = 1;
               dispatch({type: "STATUS_SET", data: {gensLoaded, gensTotal, genLang}});
-              dispatch({type: "VARIABLES_SET", data: {id, variables}});
+              dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
               if (gensLoaded === gids.length) {
                 // Clean out stale materializers (see above comment)
                 Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
@@ -215,7 +242,7 @@ export function fetchVariables(id, config) {
                 });
                 axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
                   variables[thisLocale] = nestedObjectAssign({}, variables[thisLocale], mat.data);
-                  dispatch({type: "VARIABLES_SET", data: {id, variables}});
+                  dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
                 });
               }
             });

@@ -34,12 +34,6 @@ class ProfileBuilder extends Component {
     };
   }
 
-  getChildContext() {
-    return {
-      onSetVariables: this.onSetVariables.bind(this)
-    };
-  }
-
   componentDidMount() {
     this.props.getProfiles();
     this.props.getCubeData();
@@ -55,24 +49,14 @@ class ProfileBuilder extends Component {
     const oldMeta = JSON.stringify(prevProps.profiles.map(p => JSON.stringify(p.meta)));
     const newMeta = JSON.stringify(this.props.profiles.map(p => JSON.stringify(p.meta)));
     const changedMeta = oldMeta !== newMeta;
-    if (changedMeta) console.log("CHANGED META!!");
     if (!nodes || changedTree) {
-      console.log("rebuilding");
+      console.log("Tree Changed: Rebuilding Tree");
       this.buildNodes.bind(this)();
     }
     if (nodes && changedMeta) {
+      console.log("Meta Changed: Resetting Previews");
       this.props.resetPreviews();
     }
-  }
-
-  /**
-   * Decode HTML elements such as &amp;. Taken from:
-   * https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript
-   */
-  decode(str) {
-    const elem = document.createElement("textarea");
-    elem.innerHTML = str;
-    return elem.value;
   }
 
   buildNodes(openNode) {
@@ -294,28 +278,6 @@ class ProfileBuilder extends Component {
     this.setState({nodes});
   }
 
-  /**
-   * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
-   * and overrides/sets a variable in the variables object. This does not require a server
-   * round-trip - we need only inject the variables object and trigger a re-render.
-   */
-  onSetVariables(newVariables) {
-    const {variablesHash} = this.state;
-    const {currentPid} = this.props.status;
-    // Users should ONLY call setVariables in a callback - never in the main execution, as this
-    // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
-    // loop by checking if the vars are in there already, only updating if they are not yet set.
-    const alreadySet = Object.keys(variablesHash[currentPid]).every(locale =>
-      Object.keys(newVariables).every(key => variablesHash[currentPid][locale][key] === newVariables[key])
-    );
-    if (!alreadySet) {
-      Object.keys(variablesHash[currentPid]).forEach(locale => {
-        variablesHash[currentPid][locale] = Object.assign({}, variablesHash[currentPid][locale], newVariables);
-      });
-      this.setState({variablesHash});
-    }
-  }
-
   render() {
 
     const {nodes, nodeToDelete, selectors, toolboxVisible} = this.state;
@@ -361,7 +323,6 @@ class ProfileBuilder extends Component {
             { currentNode
               ? <Editor
                 id={currentNode.data.id}
-                onSetVariables={this.onSetVariables.bind(this)}
                 selectors={selectors}
                 order={currNodeOrder}
                 onSelect={this.onSelect.bind(this)}
@@ -423,10 +384,6 @@ class ProfileBuilder extends Component {
     );
   }
 }
-
-ProfileBuilder.childContextTypes = {
-  onSetVariables: PropTypes.func
-};
 
 ProfileBuilder.contextTypes = {
   formatters: PropTypes.object
