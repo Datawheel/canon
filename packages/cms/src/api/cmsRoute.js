@@ -568,10 +568,14 @@ module.exports = function(app) {
 
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
     const profileData = req.body;
+    const {profile_id} = profileData;  // eslint-disable-line
     profileData.dimension = profileData.dimName;
     const oldmeta = await db.profile_meta.findOne({where: {id: profileData.id}}).catch(catcher);
     // Inserts are simple
     if (!oldmeta) {
+      const maxFetch = await db.profile_meta.findAll({where: {profile_id}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
+      const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+      profileData.ordering = ordering;
       await db.profile_meta.create(profileData);
       populateSearch(profileData, db);
     }

@@ -63,12 +63,35 @@ export function deleteProfile(id) {
 }
 
 /** */
+export function modifyDimension(payload) { 
+  return function(dispatch) {
+    return axios.post("/api/cms/profile/upsertDimension", payload)
+      .then(({data}) => {
+        dispatch({type: "DIMENSION_MODIFY", data});
+      });
+  };
+}
+
+/** */
+export function deleteDimension(id) { 
+  return function(dispatch) {
+    return axios.delete("/api/cms/profile_meta/delete", {params: {id}})
+      .then(({data}) => {
+        dispatch({type: "DIMENSION_MODIFY", data});
+      });
+  };
+}
+
+/** */
 export function resetPreviews() { 
   return function(dispatch, getStore) {
-    const {currentNode, pathObj} = getStore().cms.status;
+    const {currentPid, pathObj} = getStore().cms.status;
+    const {profiles} = getStore().cms;
+    const thisProfile = profiles.find(p => p.id === currentPid);
+    const profileMeta = thisProfile.meta;
     // An empty search string will automatically provide the highest z-index results.
     // Use this to auto-populate the preview when the user changes profiles.
-    const requests = currentNode.masterMeta.map((meta, i) => {
+    const requests = profileMeta.map((meta, i) => {
       const levels = meta.levels ? meta.levels.join() : false;
       const levelString = levels ? `&levels=${levels}` : "";
       let url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
@@ -87,7 +110,7 @@ export function resetPreviews() {
     Promise.all(requests).then(resps => {
       resps.forEach((resp, i) => {
         previews.push({
-          slug: currentNode.masterMeta[i].slug,
+          slug: profileMeta[i].slug,
           id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
           name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
           memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""

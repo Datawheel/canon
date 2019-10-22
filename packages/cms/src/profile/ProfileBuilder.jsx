@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
@@ -37,9 +36,7 @@ class ProfileBuilder extends Component {
 
   getChildContext() {
     return {
-      onSetVariables: this.onSetVariables.bind(this),
-      onSelectPreview: this.onSelectPreview.bind(this),
-      onDimensionModify: this.onDimensionModify.bind(this)
+      onSetVariables: this.onSetVariables.bind(this)
     };
   }
 
@@ -52,12 +49,19 @@ class ProfileBuilder extends Component {
     // Doing a JSON.Stringify is too expensive here - and we need to ONLY call buildNodes
     // If certain properties of the profiles obj has changed. Use a DIY stringify to detect changes.
     const {nodes} = this.state;
-    const oldTree = prevProps.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, "");    
-    const newTree = this.props.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, ""); 
+    const oldTree = prevProps.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, "");
+    const newTree = this.props.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, "");
     const changedTree = oldTree !== newTree;
-    if (changedTree || !nodes) {
+    const oldMeta = JSON.stringify(prevProps.profiles.map(p => JSON.stringify(p.meta)));
+    const newMeta = JSON.stringify(this.props.profiles.map(p => JSON.stringify(p.meta)));
+    const changedMeta = oldMeta !== newMeta;
+    if (changedMeta) console.log("CHANGED META!!");
+    if (!nodes || changedTree) {
       console.log("rebuilding");
       this.buildNodes.bind(this)();
+    }
+    if (nodes && changedMeta) {
+      this.props.resetPreviews();
     }
   }
 
@@ -245,59 +249,6 @@ class ProfileBuilder extends Component {
     this.setState({nodes});
   }
 
-  updateProfilesOnDimensionModify(profiles) {
-    const {currentPid} = this.props.status;
-    const thisProfile = profiles.find(p => p.id === currentPid);
-    const masterMeta = thisProfile.meta;
-    const requests = masterMeta.map(meta => {
-      const levels = meta.levels ? meta.levels.join() : false;
-      const levelString = levels ? `&levels=${levels}` : "";
-      const url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
-      return axios.get(url);
-    });
-    const previews = [];
-    Promise.all(requests).then(resps => {
-      resps.forEach((resp, i) => {
-        previews.push({
-          slug: masterMeta[i].slug,
-          id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
-          name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
-          memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
-        });
-      });
-      this.setState({previews});
-      this.setState({profiles}, this.buildNodes.bind(this, currentPid));
-    });
-  }
-
-  onAddDimension(profileData) {
-    const {currentPid, currentNode} = this.props.status;
-    const ordering = currentNode.masterMeta.length;
-    const payload = Object.assign({}, profileData, {profile_id: currentPid, ordering});
-    axios.post("/api/cms/profile/upsertDimension", payload).then(resp => {
-      const profiles = resp.data;
-      this.updateProfilesOnDimensionModify.bind(this)(profiles);
-    });
-  }
-
-  onDeleteDimension(profiles) {
-    this.updateProfilesOnDimensionModify.bind(this)(profiles);
-  }
-
-  onEditDimension(profileData) {
-    const payload = profileData;
-    axios.post("/api/cms/profile/upsertDimension", payload).then(resp => {
-      const profiles = resp.data;
-      this.updateProfilesOnDimensionModify.bind(this)(profiles);
-    });
-  }
-
-  onDimensionModify(action, payload) {
-    if (action === "add") this.onAddDimension.bind(this)(payload);
-    if (action === "delete") this.onDeleteDimension.bind(this)(payload);
-    if (action === "edit") this.onEditDimension.bind(this)(payload);
-  }
-
   formatLabel(str) {
     const {query, selectors} = this.state;
     const {variables, localeDefault} = this.props.status;
@@ -306,15 +257,6 @@ class ProfileBuilder extends Component {
     str = stripHTML(str);
     str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
     return str;
-  }
-
-  /*
-   * Callback for Preview.jsx, pass down new preview id to all Editors
-   */
-  onSelectPreview(newPreview) {
-    const previews = this.props.status.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
-    const pathObj = Object.assign({}, this.props.status.pathObj, {previews});
-    this.props.setStatus({pathObj, previews});
   }
 
   /*
@@ -377,7 +319,6 @@ class ProfileBuilder extends Component {
   render() {
 
     const {nodes, nodeToDelete, selectors, toolboxVisible} = this.state;
-    const {profiles} = this.props;
     const {currentNode, currentPid, previews, gensLoaded, gensTotal, genLang} = this.props.status;
 
     if (!nodes) return null;
@@ -435,10 +376,7 @@ class ProfileBuilder extends Component {
                   slug={currentNode.data.slug}
                 />
 
-                <DimensionBuilder
-                  meta={currentNode.masterMeta}
-                  takenSlugs={profiles.map(p => p.meta).reduce((acc, d) => acc.concat(d.map(m => m.slug)), [])}
-                />
+                <DimensionBuilder />
               </Editor>
               : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
             }
@@ -487,9 +425,7 @@ class ProfileBuilder extends Component {
 }
 
 ProfileBuilder.childContextTypes = {
-  onSetVariables: PropTypes.func,
-  onSelectPreview: PropTypes.func,
-  onDimensionModify: PropTypes.func
+  onSetVariables: PropTypes.func
 };
 
 ProfileBuilder.contextTypes = {

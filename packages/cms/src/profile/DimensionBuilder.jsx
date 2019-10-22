@@ -16,8 +16,8 @@ class DimensionBuilder extends Component {
   }
 
   render() {
-    const {meta, takenSlugs} = this.props;
     const {previews} = this.props.status;
+    const {meta} = this.props;
     const {isOpen} = this.state;
 
     return (
@@ -28,8 +28,7 @@ class DimensionBuilder extends Component {
           addItem={() => this.setState({isOpen: !this.state.isOpen})}
           cards={meta.map((m, i) =>
             <DimensionCard
-              key={`dc-${i}`}
-              takenSlugs={takenSlugs}
+              key={`dc-${m.id}`}
               meta={meta[i]}
               preview={previews[i]}
             />
@@ -47,7 +46,6 @@ class DimensionBuilder extends Component {
 
           <div className="bp3-dialog-body">
             <DimensionEditor
-              takenSlugs={takenSlugs}
               onComplete={() => this.setState({isOpen: false})}
             />
           </div>
@@ -59,7 +57,8 @@ class DimensionBuilder extends Component {
 }
 
 const mapStateToProps = state => ({
-  status: state.cms.status
+  status: state.cms.status,
+  meta: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).meta
 });
 
 export default connect(mapStateToProps)(DimensionBuilder);
