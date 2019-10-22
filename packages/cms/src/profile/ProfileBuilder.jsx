@@ -16,7 +16,7 @@ import treeify from "../utils/profile/treeify";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
-import {getProfiles, newProfile, swapEntity, newSection, deleteSection, deleteProfile, resetPreviews} from "../actions/profiles";
+import {getProfiles, newProfile, swapEntity, newSection, deleteSection, deleteProfile, resetPreviews, setVariables} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 import {getCubeData} from "../actions/cubeData";
 
@@ -31,6 +31,15 @@ class ProfileBuilder extends Component {
       selectors: [],
       query: {},
       toolboxVisible: true
+    };
+  }
+
+  /**
+   * Viz.jsx misbehaves when connecting directly to redux. Pass onSetVariables to Viz.jsx via context.
+   */
+  getChildContext() {
+    return {
+      onSetVariables: this.props.setVariables
     };
   }
 
@@ -389,6 +398,10 @@ ProfileBuilder.contextTypes = {
   formatters: PropTypes.object
 };
 
+ProfileBuilder.childContextTypes = {
+  onSetVariables: PropTypes.func 
+};
+
 const mapStateToProps = state => ({
   env: state.env,
   profiles: state.cms.profiles,
@@ -404,7 +417,8 @@ const mapDispatchToProps = dispatch => ({
   deleteSection: id => dispatch(deleteSection(id)),
   resetPreviews: () => dispatch(resetPreviews()),
   setStatus: status => dispatch(setStatus(status)),
-  getCubeData: () => dispatch(getCubeData())
+  getCubeData: () => dispatch(getCubeData()),
+  setVariables: newVariables => dispatch(setVariables(newVariables))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(ProfileBuilder));

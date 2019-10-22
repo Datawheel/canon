@@ -86,9 +86,6 @@ export function deleteDimension(id) {
  * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
  * and overrides/sets a variable in the variables object. This does not require a server
  * round-trip - we need only inject the variables object and trigger a re-render.
- * NOTE: This is currently unused in the CMS. Wrapping Viz.jsx in redux-connect causes 
- * a race condition not yet understood. Calling setVariables is not as important in the CMS
- * as it is on the front-end, but this will need to be revisited.
  */
 export function setVariables(newVariables) { 
   return function(dispatch, getStore) {
