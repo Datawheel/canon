@@ -10,6 +10,8 @@ import throttle from "../../utils/throttle";
 import pxToInt from "../../utils/formatters/pxToInt";
 import toKebabCase from "../../utils/formatters/toKebabCase";
 
+import Button from "../fields/Button";
+
 import SourceGroup from "../Viz/SourceGroup";
 import StatGroup from "../Viz/StatGroup";
 
@@ -40,7 +42,8 @@ class Section extends Component {
       sources: [],
       // Snapshots of the variables that have been changed by onSetVariables
       // So we can reset these and only these to their original values.
-      changedVariables: {}
+      changedVariables: {},
+      showReset: false
     };
 
     // used for IE sticky fallback
@@ -97,7 +100,7 @@ class Section extends Component {
   }
 
   /**
-   * Sections has received an onSetVariables function from props. However, this Section needs to 
+   * Sections has received an onSetVariables function from props. However, this Section needs to
    * keep track locally of what it has changed, so that when a "reset" button is clicked, it can set
    * the variables back to their original state. This local intermediary function, passed down via context,
    * is responsible for keeping track of that, then in turn calling the props version of the function.
@@ -108,18 +111,24 @@ class Section extends Component {
     Object.keys(newVariables).forEach(key => {
       changedVariables[key] = initialVariables[key];
     });
-    this.setState({changedVariables});
+    this.setState({
+      changedVariables,
+      showReset: setTimeout(() => Object.keys(this.state.changedVariables).length > 0, 0)
+    });
     if (this.props.onSetVariables) this.props.onSetVariables(newVariables);
   }
 
   /**
-   * When the user clicks reset, take the snapshot of the variables they changed and use them to 
-   * revert only those variables via the props function. 
-   */ 
+   * When the user clicks reset, take the snapshot of the variables they changed and use them to
+   * revert only those variables via the props function.
+   */
   resetVariables() {
     const {changedVariables} = this.state;
     if (this.props.onSetVariables) this.props.onSetVariables(changedVariables);
-    this.setState({changedVariables: {}});
+    this.setState({
+      changedVariables: {},
+      showReset: false
+    });
   }
 
   handleScroll() {
@@ -145,7 +154,7 @@ class Section extends Component {
   }
 
   render() {
-    const {contents, sources, isStickyIE, height, changedVariables} = this.state;
+    const {contents, sources, isStickyIE, height, showReset} = this.state;
     const {headingLevel, loading, isModal} = this.props;
 
     // remap old section names
@@ -224,6 +233,7 @@ class Section extends Component {
 
     // paragraphs
     let paragraphs;
+
     if (descriptions.length && contents.position !== "sticky") {
       paragraphs = loading
         ? <p>Loading...</p>
@@ -237,7 +247,21 @@ class Section extends Component {
     // sources
     const sourceContent = <SourceGroup sources={sources} />;
 
-    const showReset = Object.keys(changedVariables).length > 0;
+    // reset button
+    const resetButton = [
+      <Button
+        onClick={this.resetVariables.bind(this)}
+        className={`cp-var-reset-button ${layoutClass}-var-reset-button`}
+        fontSize="xs"
+        icon="undo"
+        iconPosition="left"
+        disabled={!showReset}
+        fill={!showReset}
+        key="var-reset-button"
+      >
+        Reset visualization overrides
+      </Button>
+    ];
 
     const componentProps = {
       slug,
@@ -250,6 +274,7 @@ class Section extends Component {
       secondaryStats: secondaryStatContent,
       sources: sourceContent,
       paragraphs: layout === "Tabs" ? contents.descriptions : paragraphs,
+      resetButton,
       visualizations: contents.position !== "sticky" ? visualizations : [],
       vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
       loading
@@ -269,7 +294,6 @@ class Section extends Component {
           key={`section-${contents.id}`}
         >
           <Layout {...componentProps} />
-          {showReset && <button onClick={this.resetVariables.bind(this)}>Reset</button>} 
         </section>
 
         {/* in IE, create empty div set to the height of the stuck element */}
