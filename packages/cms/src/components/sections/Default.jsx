@@ -4,7 +4,7 @@ import "./Default.css";
 
 export default class Default extends Component {
   render() {
-    const {slug, heading, title, paragraphs, loading, filters, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, heading, title, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -18,6 +18,7 @@ export default class Default extends Component {
           {stats}
           {paragraphs}
           {sources}
+          {resetButton}
         </div>
 
         {/* caption */}

@@ -43,7 +43,7 @@ class Tabs extends Component {
   }
 
   render() {
-    const {slug, title, heading, loading, filters, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, title, heading, loading, filters, resetButton, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
     const selectors = filters || [];
     const {panelIndex} = this.state;
 
@@ -109,6 +109,7 @@ class Tabs extends Component {
 
         {stats}
         {sources}
+        {resetButton}
       </div>
 
       <div className={`cp-tabs-section-figure${

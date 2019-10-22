@@ -128,6 +128,8 @@ Viz.childContextTypes = {
   d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,
+  // Though onSetVariables and onOpenModal aren't explicitly passed down,
+  // they are required to be here because of the object spread in getChildContext.
   onSetVariables: PropTypes.func,
   onOpenModal: PropTypes.func,
   updateSource: PropTypes.func,
