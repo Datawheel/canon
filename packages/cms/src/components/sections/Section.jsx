@@ -258,7 +258,7 @@ class Section extends Component {
       fill={!showReset}
       key="var-reset-button"
     >
-      Reset visualization overrides
+      Reset visualizations
     </Button>;
 
     const componentProps = {
