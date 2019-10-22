@@ -113,7 +113,7 @@ class Section extends Component {
     });
     this.setState({
       changedVariables,
-      showReset: setTimeout(() => Object.keys(this.state.changedVariables).length > 0, 0)
+      showReset: Object.keys(changedVariables).length > 0
     });
     if (this.props.onSetVariables) this.props.onSetVariables(newVariables);
   }
@@ -248,20 +248,18 @@ class Section extends Component {
     const sourceContent = <SourceGroup sources={sources} />;
 
     // reset button
-    const resetButton = [
-      <Button
-        onClick={this.resetVariables.bind(this)}
-        className={`cp-var-reset-button ${layoutClass}-var-reset-button`}
-        fontSize="xs"
-        icon="undo"
-        iconPosition="left"
-        disabled={!showReset}
-        fill={!showReset}
-        key="var-reset-button"
-      >
-        Reset visualization overrides
-      </Button>
-    ];
+    const resetButton = <Button
+      onClick={this.resetVariables.bind(this)}
+      className={`cp-var-reset-button ${layoutClass}-var-reset-button`}
+      fontSize="xs"
+      icon="undo"
+      iconPosition="left"
+      disabled={!showReset}
+      fill={!showReset}
+      key="var-reset-button"
+    >
+      Reset visualization overrides
+    </Button>;
 
     const componentProps = {
       slug,
