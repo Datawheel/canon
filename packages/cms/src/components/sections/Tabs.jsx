@@ -55,10 +55,9 @@ class Tabs extends Component {
     // custom selector list defined
     if (selectorConfig) {
       const selectorArray = JSON.parse(selectorConfig[1]);
-      // console.log(selectorArray);
       tabSelectors = selectors
-        .filter(selector => selectorArray.includes(selector.name))
-        .sort((a, b) => selectorArray.indexOf(a.name) - selectorArray.indexOf(b.name));
+        .filter(selector => selectorArray.includes(selector.props.name))
+        .sort((a, b) => selectorArray.indexOf(a.props.name) - selectorArray.indexOf(b.props.name));
     }
     else {
       const selectorsPerViz = Math.ceil(selectors.length / visualizations.length);
@@ -81,7 +80,6 @@ class Tabs extends Component {
       {/* sidebar */}
       <div className="cp-section-content cp-tabs-section-caption">
         {heading}
-        {filters}
 
         {tabs.length > 1 &&
           <Fragment>
@@ -101,6 +99,14 @@ class Tabs extends Component {
           </Fragment>
         }
 
+        {tabSelectors.length > 0 &&
+          <div className="cp-section-selectors">
+            {tabSelectors.map(selector =>
+              <Selector key={selector.props.id} {...selector.props} loading={loading} />
+            )}
+          </div>
+        }
+
         {tabDescriptions && tabDescriptions.map((content, i) =>
           <Parse key={i}>
             {content.description}
@@ -116,9 +122,6 @@ class Tabs extends Component {
         visualizations.filter(viz => viz.logic_simple && viz.logic_simple.type === "Graphic").length ? " cp-graphic-viz-grid" : ""
       }`}>
         <Viz section={this} config={visualization} key={panelIndex} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title}  />
-        {tabSelectors.length > 0 && <div className="cp-section-selectors">
-          {tabSelectors && tabSelectors.map(selector => <Selector key={selector.id} {...selector} loading={loading} />)}
-        </div>}
       </div>
     </div>;
   }
