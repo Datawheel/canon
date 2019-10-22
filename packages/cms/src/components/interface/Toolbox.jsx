@@ -37,9 +37,9 @@ class Toolbox extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.id !== this.props.id || 
-        JSON.stringify(prevProps.status.previews) !== JSON.stringify(this.props.status.previews) || 
-        prevProps.status.localeSecondary !== this.props.status.localeSecondary) {
+    const previewsChanged = JSON.stringify(prevProps.status.previews) !== JSON.stringify(this.props.status.previews);
+    const localeChanged = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
+    if (previewsChanged || localeChanged) {
       this.hitDB.bind(this)();
     }
   }
