@@ -130,7 +130,8 @@ class Options extends Component {
       if (imageFormat === "svg") node = select(node).select(".d3plus-viz").node();
       let background;
       if (backgroundColor) background = getBackground(node);
-      saveElement(node,
+      saveElement(
+        node,
         {filename: filename(title), imageFormat},
         {background, callback: () => this.setState({imageProcessing: false})}
       );
@@ -155,7 +156,7 @@ class Options extends Component {
       // custom visualizations need to have their own ref named `viz`
       else if (elem.viz && elem.viz.current) return elem.viz.current;
       // neither case is fullfilled
-      else return false;
+      else return elem;
     }
 
     // get the section

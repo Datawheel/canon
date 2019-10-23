@@ -76,11 +76,14 @@ class Viz extends Component {
     const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
     return <SizeMe render={({size}) =>
-      <div className={ `${namespace}-viz-container${
-        className ? ` ${className}` : ""
-      }${
-        type ? ` ${namespace}-${toKebabCase(type)}-viz-container` : ""
-      }`}>
+      <div
+        className={ `${namespace}-viz-container${
+          className ? ` ${className}` : ""
+        }${
+          type ? ` ${namespace}-${toKebabCase(type)}-viz-container` : ""
+        }`}
+        ref={ comp => this.viz = comp }
+      >
         {(title && showTitle || options) && type !== "Graphic"
           ? <div className={`${namespace}-viz-header`}>
             {title && showTitle
@@ -104,7 +107,6 @@ class Viz extends Component {
         <div className={`${namespace}-viz-figure${vizConfig.height || type === "Graphic" ? " with-explicit-height" : ""}`}>
           <Visualization
             key="viz-key"
-            ref={ comp => this.viz = comp }
             className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
             dataFormat={resp => {
               const hasMultiples = Array.isArray(vizProps.data) && vizProps.data.some(d => typeof d === "string");
