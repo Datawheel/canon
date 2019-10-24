@@ -82,6 +82,46 @@ export function deleteDimension(id) {
   };
 }
 
+/** */
+export function getToolbox(id) { 
+  return function(dispatch) {
+    return axios.get(`/api/cms/toolbox/${id}`).then(resp => {
+      const toolbox = resp.data;
+      dispatch({type: "TOOLBOX_GET", data: {id, toolbox}});
+    });
+  };
+}
+
+/** */
+export function newEntity(type, payload) { 
+  return function(dispatch) {
+    return axios.post(`/api/cms/${type}/new`, payload)
+      .then(({data}) => {
+        dispatch({type: `${type.toUpperCase()}_NEW`, data});
+      });
+  };
+}
+
+/** */
+export function updateEntity(type, payload) { 
+  return function(dispatch) {
+    return axios.post(`/api/cms/${type}/update`, payload)
+      .then(({data}) => {
+        dispatch({type: `${type.toUpperCase()}_UPDATE`, data});
+      });
+  };
+}
+
+/** */
+export function deleteEntity(type, id) { 
+  return function(dispatch) {
+    axios.delete(`/api/cms/${type}/delete`, {params: {id}})
+      .then(({data}) => {
+        dispatch({type: `${type.toUpperCase()}_DELETE`, data});
+      });
+  };
+}
+
 /**
  * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
  * and overrides/sets a variable in the variables object. This does not require a server

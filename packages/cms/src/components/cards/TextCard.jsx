@@ -57,7 +57,6 @@ class TextCard extends Component {
       // Language is not populated. We must scaffold out a fake
       // Starting point with empty strings to base everything on.
       const defCon = {id: minData.id, locale: localeDefault};
-      console.log(defCon);
       // If for any reason the default was missing fields, set it to a scaffold warning
       fields.forEach(k => !defCon[k] ? defCon[k] = "Missing Default Language Content!" : null);
       if (plainfields) plainfields.forEach(k => !defCon[k] ? defCon[k] = "" : null);

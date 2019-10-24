@@ -8,6 +8,8 @@ import deepClone from "../../utils/deepClone";
 import LocaleName from "./components/LocaleName";
 import VarTable from "../variables/VarTable";
 import Card from "./Card";
+import {deleteEntity, updateEntity, fetchVariables} from "../../actions/profiles";
+import {setStatus} from "../../actions/status";
 import "./GeneratorCard.css";
 
 class GeneratorCard extends Component {
@@ -16,7 +18,6 @@ class GeneratorCard extends Component {
     super(props);
     this.state = {
       minData: null,
-      initialData: null,
       displayData: null,
       secondaryDisplayData: null,
       alertObj: false,
@@ -25,13 +26,27 @@ class GeneratorCard extends Component {
   }
 
   componentDidMount() {
-    this.hitDB.bind(this)();
+    const {minData} = this.props;
+    this.setState({minData: deepClone(minData)});
+    this.formatDisplay.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.minData) {
-      const {id} = this.state.minData;
-      const {localeDefault, localeSecondary} = this.props.status;
+    const {type, minData} = this.props;
+    const {id} = minData;
+    const {localeDefault, localeSecondary} = this.props.status;
+    // If the props we receive from redux have changed, then an update action has occured.
+    if (JSON.stringify(prevProps.minData) !== JSON.stringify(this.props.minData)) {
+      // If a gen/mat was saved, re-run fetchvariables for just this one gen/mat.
+      if (type === "generator" || type === "materializer") {
+        const config = {type, ids: [minData.id]};
+        this.props.fetchVariables(config);
+      }
+      // Clone the new object for manipulation in state.
+      this.setState({minData: deepClone(this.props.minData)});
+    }
+    // If any of the variables for THIS gen/mat has changed, update the display panel
+    if (type === "generator" || type === "materializer") {
       let locales = [localeDefault];
       if (this.props.status.localeSecondary) locales = locales.concat([localeSecondary]);
       const changed = locales.some(loc => 
@@ -45,23 +60,9 @@ class GeneratorCard extends Component {
       );
       if (changed) this.formatDisplay.bind(this)();
     }
-    if (prevProps.forceOpen !== this.props.forceOpen && this.props.forceOpen) {
+    if (this.props.status.forceType === type && !prevProps.status.forceID && this.props.status.forceID === id) {
       this.openEditor.bind(this)();
     }
-  }
-
-  hitDB() {
-    const {item, type, forceOpen} = this.props;
-    const {id} = item;
-    axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      // If this card Mounted at the same time that forceOpen was set, that means
-      // the user created a new card, and we should open it immediately.
-      const callback = () => {
-        this.formatDisplay.bind(this)();
-        if (forceOpen) this.openEditor.bind(this)();
-      };
-      this.setState({minData: resp.data}, callback);
-    });
   }
 
   formatDisplay() {
@@ -69,7 +70,7 @@ class GeneratorCard extends Component {
     const {localeDefault, localeSecondary} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
     const secondaryVariables = this.props.status.variables[localeSecondary];
-    const {id} = this.state.minData;
+    const {id} = this.props.minData;
     let displayData, secondaryDisplayData = {};
     if (type === "generator") {
       displayData = variables._genStatus[id];
@@ -97,34 +98,22 @@ class GeneratorCard extends Component {
 
   delete() {
     const {type} = this.props;
-    const {minData} = this.state;
-    const {id} = minData;
-    axios.delete(`/api/cms/${type}/delete`, {params: {id}}).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false});
-        if (this.props.onDelete) this.props.onDelete(type, id, resp.data);
-      }
-    });
+    const {id} = this.props.minData;
+    this.props.deleteEntity(type, id);
+    this.setState({alertObj: false});
   }
 
   save() {
     const {type} = this.props;
     const {minData} = this.state;
-    axios.post(`/api/cms/${type}/update`, minData).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false});
-        let config;
-        if (type === "generator" || type === "materializer") config = {type, ids: [minData.id]};
-        if (this.props.onSave) this.props.onSave(config);
-      }
-    });
+    this.props.updateEntity(type, minData);
+    this.setState({isOpen: false});
   }
 
   openEditor() {
-    const {minData} = this.state;
-    const initialData = deepClone(minData);
+    const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.setState({initialData, isOpen});
+    this.setState({minData, isOpen});
   }
 
   maybeCloseEditorWithoutSaving() {
@@ -143,13 +132,8 @@ class GeneratorCard extends Component {
   }
 
   closeEditorWithoutSaving() {
-    const {initialData} = this.state;
-    const minData = deepClone(initialData);
-    const isOpen = false;
-    const alertObj = false;
-    const isDirty = false;
-    if (this.props.onClose) this.props.onClose();
-    this.setState({minData, isOpen, alertObj, isDirty});
+    this.setState({isOpen: false, alertObj: false, isDirty: false});
+    this.props.setStatus({forceID: false, forceType: false, forceOpen: false});
   }
 
   markAsDirty() {
@@ -161,7 +145,9 @@ class GeneratorCard extends Component {
     const {attr, context, type, item, onMove, parentArray} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
     const {variables} = this.props.status;
-    const {displayData, secondaryDisplayData, minData, isOpen, alertObj} = this.state;
+    const {displayData, secondaryDisplayData, isOpen, alertObj} = this.state;
+
+    const {minData} = this.props;
 
     let description = "";
     let showDesc = false;
@@ -198,7 +184,7 @@ class GeneratorCard extends Component {
       });
     }
 
-    const {id} = this.props.item;
+    const {id} = this.props;
 
     return (
       <React.Fragment>
@@ -242,7 +228,7 @@ class GeneratorCard extends Component {
             <GeneratorEditor
               markAsDirty={this.markAsDirty.bind(this)}
               attr={attr}
-              data={minData}
+              data={this.state.minData}
               type={type}
             />
           </div>
@@ -260,8 +246,16 @@ GeneratorCard.defaultProps = {
   context: "generator" // mostly a styling hook used for formatter cards
 };
 
-const mapStateToProps = state => ({
-  status: state.cms.status
+const mapStateToProps = (state, ownProps) => ({
+  status: state.cms.status,
+  minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid)[`${ownProps.type}s`].find(g => g.id === ownProps.id)
 });
 
-export default connect(mapStateToProps)(GeneratorCard);
+const mapDispatchToProps = dispatch => ({
+  updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
+  deleteEntity: (type, id) => dispatch(deleteEntity(type, id)),
+  fetchVariables: config => dispatch(fetchVariables(config)),
+  setStatus: status => dispatch(setStatus(status))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(GeneratorCard);

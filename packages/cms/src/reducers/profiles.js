@@ -16,6 +16,30 @@ export default (profiles = [], action) => {
           return match ? Object.assign({}, p, {ordering: match.ordering}) : p;
         }).sort((a, b) => a.ordering - b.ordering);
 
+    // Toolbox
+    case "TOOLBOX_GET": 
+      return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data.toolbox, toolboxLoaded: true}) : p);
+    case "GENERATOR_NEW":
+      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {generators: p.generators.concat([action.data])}) : p);
+    case "GENERATOR_UPDATE":
+      return profiles.map(p => 
+        p.id === action.data.profile_id 
+          ? Object.assign({}, p, {generators: p.generators.map(g => g.id === action.data.id ? action.data : g)})
+          : p
+      );
+    case "GENERATOR_DELETE":
+      return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {deletedGeneratorID: action.data.id, generators: action.data.generators}) : p);
+    case "MATERIALIZER_NEW":
+      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {materializers: p.materializers.concat([action.data])}) : p);
+    case "MATERIALIZER_UPDATE":
+      return profiles.map(p => 
+        p.id === action.data.profile_id 
+          ? Object.assign({}, p, {materializers: p.materializers.map(m => m.id === action.data.id ? action.data : m)})
+          : p
+      );
+    case "MATERIALIZER_DELETE":
+      return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {deletedMaterializerID: action.data.id, materializers: action.data.materializers}) : p);
+
     // Dimensions
     case "DIMENSION_MODIFY": 
       return action.data;

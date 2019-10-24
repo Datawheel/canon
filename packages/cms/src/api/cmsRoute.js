@@ -79,10 +79,6 @@ const storyReqTreeOnly = {
   ]
 };
 
-const formatterReqTreeOnly = {
-  attributes: ["id", "name", "description"]
-};
-
 const profileReqProfileOnly = {
   include: [
     {association: "meta"},
@@ -92,10 +88,8 @@ const profileReqProfileOnly = {
 
 const profileReqToolbox = {
   include: [
-    {association: "meta"},
-    {association: "content"},
-    {association: "generators", attributes: ["id", "name", "description"]},
-    {association: "materializers", attributes: ["id", "name", "ordering", "description"]},
+    {association: "generators"},
+    {association: "materializers"},
     {association: "selectors"}
   ]
 };
@@ -423,7 +417,7 @@ module.exports = function(app) {
     const reqObj = Object.assign({}, profileReqToolbox, {where: {id}});
     let profile = await db.profile.findOne(reqObj).catch(catcher);
     profile = profile.toJSON();
-    profile.formatters = await db.formatter.findAll(formatterReqTreeOnly);
+    profile.formatters = await db.formatter.findAll();
     res.json(profile);
   });
 
@@ -606,13 +600,21 @@ module.exports = function(app) {
   const updateList = cmsTables;
   updateList.forEach(ref => {
     app.post(`/api/cms/${ref}/update`, isEnabled, async(req, res) => {
-      const o = await db[ref].update(req.body, {where: {id: req.body.id}}).catch(catcher);
+      const {id} = req.body;
+      await db[ref].update(req.body, {where: {id}}).catch(catcher);
       if (contentTables.includes(ref) && req.body.content) {
-        req.body.content.forEach(async content => {
-          await db[`${ref}_content`].upsert(content, {where: {id: req.body.id, locale: content.locale}}).catch(catcher);
-        });
+        for (const content of req.body.content) {
+          await db[`${ref}_content`].upsert(content, {where: {id, locale: content.locale}}).catch(catcher);
+        }
       }
-      return res.json(o);
+      if (contentTables.includes(ref)) {
+        const u = await db[ref].findOne({where: {id}, include: {association: "content"}}).catch(catcher);
+        return res.json(u);
+      }
+      else {
+        const u = await db[ref].findOne({where: {id}}).catch(catcher);
+        return res.json(u);
+      }
     });
   });
 
@@ -690,8 +692,8 @@ module.exports = function(app) {
   app.delete("/api/cms/generator/delete", isEnabled, async(req, res) => {
     const row = await db.generator.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.generator.destroy({where: {id: req.query.id}});
-    const rows = await db.generator.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "name"]}).catch(catcher);
-    return res.json(rows);
+    const rows = await db.generator.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
+    return res.json({id: req.query.id, parent_id: row.profile_id, generators: rows});
   });
 
   app.delete("/api/cms/materializer/delete", isEnabled, async(req, res) => {
@@ -699,7 +701,7 @@ module.exports = function(app) {
     await db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.materializer.destroy({where: {id: req.query.id}}).catch(catcher);
     const rows = await db.materializer.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "ordering", "name"], order: [["ordering", "ASC"]]}).catch(catcher);
-    return res.json(rows);
+    return res.json({id: req.query.id, parent_id: row.profile_id, materializers: rows});
   });
 
   app.delete("/api/cms/selector/delete", isEnabled, async(req, res) => {
