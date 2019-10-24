@@ -114,6 +114,7 @@ class Toolbox extends Component {
     const {detailView, query} = this.state;
     const {children, toolboxVisible} = this.props;
     const {profile} = this.props;
+    const formattersAll = this.props.formatters;
     const {variables, localeDefault, localeSecondary, forceOpen} = this.props.status;
 
     const dataLoaded = profile && profile.toolboxLoaded;
@@ -136,7 +137,7 @@ class Toolbox extends Component {
       .map(d => Object.assign({}, {type: "materializer"}, d))
       .filter(this.filterFunc.bind(this));
 
-    const formatters = profile.formatters
+    const formatters = formattersAll
       .sort((a, b) => a.name.localeCompare(b.name))
       .filter(this.filterFunc.bind(this));
 
@@ -148,7 +149,7 @@ class Toolbox extends Component {
     // the ORIGINAL data has length 0, always show it, so the user can add the first one.
     const showGenerators = profile.generators.length === 0 || generators.length > 0;
     const showMaterializers = profile.materializers.length === 0 || materializers.length > 0;
-    const showFormatters = profile.formatters.length === 0 || formatters.length > 0;
+    const showFormatters = formattersAll.length === 0 || formatters.length > 0;
     const showSelectors = profile.selectors.length === 0 || selectors.length > 0;
     
 
@@ -276,12 +277,12 @@ class Toolbox extends Component {
               entity="formatter"
               addItem={this.addItem.bind(this, "formatter")}
               description="Javascript Formatters for Canon text components"
-              cards={formatters.map(g =>
+              cards={formatters.map(f =>
                 <GeneratorCard
                   context="formatter"
-                  key={g.id}
-                  id={g.id}
-                  item={g}
+                  key={f.id}
+                  id={f.id}
+                  item={f}
                   type="formatter"
                   variables={{}}
                 />
@@ -296,7 +297,8 @@ class Toolbox extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   status: state.cms.status,
-  profile: state.cms.profiles.find(p => p.id === ownProps.id)
+  profile: state.cms.profiles.find(p => p.id === ownProps.id),
+  formatters: state.cms.formatters
 });
 
 const mapDispatchToProps = dispatch => ({

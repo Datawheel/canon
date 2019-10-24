@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
@@ -8,8 +7,10 @@ import deepClone from "../../utils/deepClone";
 import LocaleName from "./components/LocaleName";
 import VarTable from "../variables/VarTable";
 import Card from "./Card";
+
 import {deleteEntity, updateEntity, fetchVariables} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
+
 import "./GeneratorCard.css";
 
 class GeneratorCard extends Component {
@@ -248,7 +249,9 @@ GeneratorCard.defaultProps = {
 
 const mapStateToProps = (state, ownProps) => ({
   status: state.cms.status,
-  minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid)[`${ownProps.type}s`].find(g => g.id === ownProps.id)
+  minData: ownProps.type === "formatter" 
+    ? state.cms.formatters.find(f => f.id === ownProps.id) 
+    : state.cms.profiles.find(p => p.id === state.cms.status.currentPid)[`${ownProps.type}s`].find(g => g.id === ownProps.id)
 });
 
 const mapDispatchToProps = dispatch => ({

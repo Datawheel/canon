@@ -777,7 +777,7 @@ module.exports = function(app) {
 
   app.delete("/api/cms/formatter/delete", isEnabled, async(req, res) => {
     await db.formatter.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.formatter.findAll({attributes: ["id", "name", "description"]}).catch(catcher);
+    const rows = await db.formatter.findAll().catch(catcher);
     return res.json(rows);
   });
 
