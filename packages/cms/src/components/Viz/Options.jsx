@@ -141,7 +141,7 @@ class Options extends Component {
 
       // get the mirror, make it visible, and size it
       const mirror = document.body.querySelector(".mirror");
-      mirror.classList.add("is-visible");
+      mirror.classList.add("is-visible", `${imageContext}-context`);
       mirror.classList.remove("is-hidden");
       mirror.style.width = `${width}px`;
       mirror.style.height = `${height}px`;
@@ -173,7 +173,7 @@ class Options extends Component {
           {background, callback: () => {
             // make mirror invisible
             mirror.classList.add("is-hidden");
-            mirror.classList.remove("is-visible");
+            mirror.classList.remove("is-visible", `${imageContext}-context`);
             // remove mirrored content
             mirror.querySelector(".mirror-content-inner").removeChild(node);
             // reset state

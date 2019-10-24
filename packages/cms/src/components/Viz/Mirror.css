@@ -7,11 +7,9 @@
 
 /* position off screen when in use */
 .mirror.is-visible {
-  /* positioning */
   position: fixed;
   top: 0;
   left: 100%;
-  /* left: 0; */
 }
 
 /* layout */
@@ -49,7 +47,7 @@
   text-decoration: underline;
 }
 
-/* logo, when  */
+/* logo, when background-image is set (TODO) */
 .mirror-footer-logo[style*="background-image"] {
   width: 10rem;
   height: 100%;
@@ -73,10 +71,6 @@
 .mirror-content .cp-section-heading-anchor {
   display: none !important;
 }
-/* adjust elements */
-.mirror-content .cp-table-viz-container {
-  width: 100%;
-}
 /* make section headers visible */
 .mirror-content .cp-section-anchored-heading {
   margin-left: 0;
@@ -88,4 +82,9 @@
 }
 .mirror-content .cp-select {
   font-size: inherit;
+}
+/* when we're just mirroring the visualization, make the figure span the whole width (table fix) */
+.mirror.viz-context .cp-default-section-figure,
+.mirror.viz-context .cp-tabs-section-figure {
+  width: 100% !important;
 }
