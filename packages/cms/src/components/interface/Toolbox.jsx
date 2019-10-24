@@ -8,7 +8,7 @@ import GeneratorCard from "../cards/GeneratorCard";
 import SelectorCard from "../cards/SelectorCard";
 import ConsoleVariable from "../variables/ConsoleVariable";
 
-import {fetchVariables, getToolbox, newEntity} from "../../actions/profiles";
+import {fetchVariables, newEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
 import "./Toolbox.css";
@@ -27,10 +27,17 @@ class Toolbox extends Component {
   componentDidUpdate(prevProps) {
     const previewsChanged = JSON.stringify(prevProps.status.previews) !== JSON.stringify(this.props.status.previews);
     const localeChanged = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
-    const firstLoad = prevProps.profile && !prevProps.profile.toolboxLoaded && this.props.profile.toolboxLoaded;
-    const bothLoaded = prevProps.profile && prevProps.profile.toolboxLoaded && this.props.profile && this.props.profile.toolboxLoaded;
+    // const firstLoad = prevProps.profile && !prevProps.profile.toolboxLoaded && this.props.profile && this.props.profile.toolboxLoaded;
+    const bothLoaded = prevProps.profile && this.props.profile;
     const generatorDeleted = bothLoaded && prevProps.profile.generators.length - 1 === this.props.profile.generators.length;
     const materializerDeleted = bothLoaded && prevProps.profile.materializers.length - 1 === this.props.profile.materializers.length;
+
+    if (previewsChanged || localeChanged) {
+      console.log("previews changed, fetching");
+      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
+    }
+    
+    /*
 
     if (previewsChanged) {
       if (!this.props.profile.toolboxLoaded) {
@@ -43,6 +50,8 @@ class Toolbox extends Component {
     if (firstLoad || localeChanged) {
       this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
     }
+
+    */
     // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
     // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
     if (generatorDeleted) {
@@ -109,7 +118,7 @@ class Toolbox extends Component {
     const formattersAll = this.props.formatters;
     const {variables, localeDefault, localeSecondary, forceOpen} = this.props.status;
 
-    const dataLoaded = profile && profile.toolboxLoaded;
+    const dataLoaded = profile;
 
     if (!dataLoaded) return null;
 
@@ -293,7 +302,6 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = dispatch => ({
   fetchVariables: config => dispatch(fetchVariables(config)),
-  getToolbox: id => dispatch(getToolbox(id)),
   newEntity: (type, payload) => dispatch(newEntity(type, payload)),
   setStatus: status => dispatch(setStatus(status))
 });

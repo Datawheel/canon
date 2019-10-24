@@ -1,7 +1,8 @@
 export default (formatters = [], action) => {
   switch (action.type) {
-    case "TOOLBOX_GET": 
-      return action.data.toolbox.formatters;
+    case "FORMATTER_GET": 
+      console.log("hey", action.data);
+      return action.data;
     case "FORMATTER_NEW":
       return formatters.concat([action.data]);
     case "FORMATTER_UPDATE":

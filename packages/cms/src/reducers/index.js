@@ -16,7 +16,7 @@ const initialState = {
   cubeData: {},
   profiles: [],
   stories: [],
-  formatters: {}
+  formatters: []
 };
 
 /** */

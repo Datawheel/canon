@@ -56,6 +56,27 @@ const catcher = e => {
   return [];
 };
 
+const profileReqFull = {
+  include: [
+    {association: "meta"},
+    {association: "content"},
+    {association: "generators"},
+    {association: "materializers"},
+    {association: "selectors"},
+    {
+      association: "sections",
+      include: [
+        {association: "content"},
+        {association: "subtitles", include: [{association: "content"}]},
+        {association: "descriptions", include: [{association: "content"}]},
+        {association: "stats", include: [{association: "content"}]},
+        {association: "visualizations"},
+        {association: "selectors"}
+      ]
+    }
+  ]
+};
+
 const profileReqTreeOnly = {
   attributes: ["id", "ordering"],
   include: [
@@ -242,7 +263,6 @@ const sortStory = (db, story) => {
 };
 
 const sortSection = (db, section) => {
-  section = section.toJSON();
   section.subtitles = flatSort(db.section_subtitle, section.subtitles);
   section.visualizations = flatSort(db.section_visualization, section.visualizations);
   section.stats = flatSort(db.section_stat, section.stats);
@@ -259,6 +279,19 @@ const sortStorySection = (db, storysection) => {
   storysection.stats = flatSort(db.storysection_stat, storysection.stats);
   storysection.descriptions = flatSort(db.storysection_description, storysection.descriptions);
   return storysection;
+};
+
+const getSectionTypes = () => {
+  const sectionTypes = [];
+  shell.ls(`${sectionTypeDir}*.jsx`).forEach(file => {
+    // In Windows, the shell.ls command returns forward-slash separated directories,
+    // but the node "path" command returns backslash separated directories. Flip the slashes
+    // so the ensuing replace operation works (this should be a no-op for *nix/osx systems)
+    const sectionTypeDirFixed = sectionTypeDir.replace(/\\/g, "/");
+    const compName = file.replace(sectionTypeDirFixed, "").replace(".jsx", "");
+    if (compName !== "Section") sectionTypes.push(compName);
+  });
+  return sectionTypes;
 };
 
 const formatter = (members, data, dimension, level) => {
@@ -407,18 +440,23 @@ module.exports = function(app) {
   });
 
   app.get("/api/cms/tree", async(req, res) => {
-    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
+    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
+    const sectionTypes = getSectionTypes();
+    profiles.forEach(profile => {
+      profile.sections = profile.sections.map(section => {
+        section = sortSection(db, section);
+        section.types = sectionTypes;
+        return section;
+      });
+      return profile;
+    });
     return res.json(profiles);
   });
 
-  app.get("/api/cms/toolbox/:id", async(req, res) => {
-    const {id} = req.params;
-    const reqObj = Object.assign({}, profileReqToolbox, {where: {id}});
-    let profile = await db.profile.findOne(reqObj).catch(catcher);
-    profile = profile.toJSON();
-    profile.formatters = await db.formatter.findAll();
-    res.json(profile);
+  app.get("/api/cms/formatter", async(req, res) => {
+    const formatters = await db.formatter.findAll().catch(catcher);
+    res.json(formatters);
   });
 
   app.get("/api/cms/storytree", async(req, res) => {
@@ -427,6 +465,7 @@ module.exports = function(app) {
     return res.json(stories);
   });
 
+  /*
   app.get("/api/cms/profile/get/:id", async(req, res) => {
     const {id} = req.params;
     const dims = collate(req.query);
@@ -457,6 +496,7 @@ module.exports = function(app) {
     profile.attr = attr;
     return res.json(sortProfile(db, profile));
   });
+  */
 
   app.get("/api/cms/story/get/:id", async(req, res) => {
     const {id} = req.params;
@@ -464,6 +504,8 @@ module.exports = function(app) {
     const story = await db.story.findOne(reqObj).catch(catcher);
     return res.json(sortStory(db, story));
   });
+
+  /*
 
   app.get("/api/cms/section/get/:id", async(req, res) => {
     const {id} = req.params;
@@ -485,6 +527,8 @@ module.exports = function(app) {
     if (allSelectors) section.allSelectors = allSelectors.map(d => d.toJSON());
     return res.json(section);
   });
+
+  */
 
   app.get("/api/cms/storysection/get/:id", async(req, res) => {
     const {id} = req.params;
@@ -555,8 +599,15 @@ module.exports = function(app) {
     await db.profile_content.create({id: profile.id, locale: envLoc}).catch(catcher);
     const section = await db.section.create({ordering: 0, type: "Hero", profile_id: profile.id});
     await db.section_content.create({id: section.id, locale: envLoc}).catch(catcher);
-    const reqObj = Object.assign({}, profileReqTreeOnly, {where: {id: profile.id}});
-    const newProfile = await db.profile.findOne(reqObj).catch(catcher);
+    const reqObj = Object.assign({}, profileReqFull, {where: {id: profile.id}});
+    let newProfile = await db.profile.findOne(reqObj).catch(catcher);
+    newProfile = newProfile.toJSON();
+    const sectionTypes = getSectionTypes();
+    newProfile.sections = newProfile.sections.map(section => {
+      section = sortSection(db, section);
+      section.types = sectionTypes;
+      return section;
+    });
     return res.json(newProfile);
   });
 
@@ -751,8 +802,17 @@ module.exports = function(app) {
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
     pruneSearch(row.dimension, row.levels, db);
-    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
+    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
+    const sectionTypes = getSectionTypes();
+    profiles.forEach(profile => {
+      profile.sections = profile.sections.map(section => {
+        section = sortSection(db, section);
+        section.types = sectionTypes;
+        return section;
+      });
+      return profile;
+    });
     return res.json(profiles);
   });
 

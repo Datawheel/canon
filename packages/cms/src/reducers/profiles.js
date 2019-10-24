@@ -17,10 +17,6 @@ export default (profiles = [], action) => {
         }).sort((a, b) => a.ordering - b.ordering);
 
     // Toolbox
-    case "TOOLBOX_GET": 
-      const {generators, materializers, selectors} = action.data.toolbox;
-      const obj = {generators, materializers, selectors};
-      return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {...obj, toolboxLoaded: true}) : p);
     case "GENERATOR_NEW":
       return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {generators: p.generators.concat([action.data])}) : p);
     case "GENERATOR_UPDATE":

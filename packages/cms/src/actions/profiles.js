@@ -23,6 +23,16 @@ export function newProfile() {
 }
 
 /** */
+export function deleteProfile(id) { 
+  return function(dispatch, getStore) {
+    return axios.delete(`${getStore().env.CANON_API}/api/cms/profile/delete`, {params: {id}})
+      .then(({data}) => {
+        dispatch({type: "PROFILE_DELETE", data});
+      });
+  };
+}
+
+/** */
 export function swapEntity(type, id, dir) {
   return function(dispatch, getStore) {
     return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/swap`, {id, dir})
@@ -53,16 +63,6 @@ export function deleteSection(id) {
 }
 
 /** */
-export function deleteProfile(id) { 
-  return function(dispatch, getStore) {
-    return axios.delete(`${getStore().env.CANON_API}/api/cms/profile/delete`, {params: {id}})
-      .then(({data}) => {
-        dispatch({type: "PROFILE_DELETE", data});
-      });
-  };
-}
-
-/** */
 export function modifyDimension(payload) { 
   return function(dispatch) {
     return axios.post("/api/cms/profile/upsertDimension", payload)
@@ -79,16 +79,6 @@ export function deleteDimension(id) {
       .then(({data}) => {
         dispatch({type: "DIMENSION_MODIFY", data});
       });
-  };
-}
-
-/** */
-export function getToolbox(id) { 
-  return function(dispatch) {
-    return axios.get(`/api/cms/toolbox/${id}`).then(resp => {
-      const toolbox = resp.data;
-      dispatch({type: "TOOLBOX_GET", data: {id, toolbox}});
-    });
   };
 }
 

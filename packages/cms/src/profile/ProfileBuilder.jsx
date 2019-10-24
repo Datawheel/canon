@@ -19,6 +19,7 @@ import varSwapRecursive from "../utils/varSwapRecursive";
 import {getProfiles, newProfile, swapEntity, newSection, deleteSection, deleteProfile, resetPreviews, setVariables} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 import {getCubeData} from "../actions/cubeData";
+import {getFormatters} from "../actions/formatters";
 
 import "./ProfileBuilder.css";
 
@@ -45,6 +46,7 @@ class ProfileBuilder extends Component {
 
   componentDidMount() {
     this.props.getProfiles();
+    this.props.getFormatters();
     this.props.getCubeData();
   }
 
@@ -418,6 +420,7 @@ const mapDispatchToProps = dispatch => ({
   resetPreviews: () => dispatch(resetPreviews()),
   setStatus: status => dispatch(setStatus(status)),
   getCubeData: () => dispatch(getCubeData()),
+  getFormatters: () => dispatch(getFormatters()),
   setVariables: newVariables => dispatch(setVariables(newVariables))
 });
 
