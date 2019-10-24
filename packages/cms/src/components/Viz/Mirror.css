@@ -1,0 +1,62 @@
+@import "../../css/mixins.css";
+
+/* visible/hidden states */
+.mirror.is-hidden {
+  display: none;
+}
+
+/* position off screen when in use */
+.mirror.is-visible {
+  /* sizing */
+  width: 100%;
+  height: 100%;
+  /* positioning */
+  position: fixed;
+  /* top: 0;     bottom: 0; */
+  left: 100%; right: -100%;
+  left: 0; right: 0;
+  z-index: 9999; /* always on top */
+}
+
+/* layout */
+.mirror {
+  display: flex;
+  flex-direction: column;
+
+  /* pad out children */
+  & > * {
+    padding: var(--gutter-sm);
+  }
+}
+
+/* let the content take up as much space as needed */
+.mirror-content {
+  flex: 1 1 auto;
+}
+
+/* text left, logo right */
+.mirror-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* make the URL look more like a link */
+.mirror-footer-text-url {
+  text-decoration: underline;
+}
+
+/* logo, when  */
+.mirror-footer-logo[style*="background-image"] {
+  width: 10rem;
+  height: 100%;
+  max-height: 2.5rem;
+  margin: auto 0 auto var(--gutter-md);
+  /* background positioning */
+  background-size: contain;
+  background-position: center right;
+  background-repeat: no-repeat;
+}
+/* no logo */
+.mirror-footer-logo:not([style]) {
+  display: none;
+}
