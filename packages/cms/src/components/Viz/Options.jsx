@@ -150,7 +150,7 @@ class Options extends Component {
       setTimeout(() => {
         mirror.querySelector(".mirror-content-inner").innerHTML = "";
         mirror.querySelector(".mirror-content-inner").appendChild(node);
-        mirror.querySelector(".mirror-footer-text-url").innerHTML = this.props.location.href.replace("");
+        mirror.querySelector(".mirror-footer-text-url").innerHTML = this.props.location.href.replace("http://", "").replace("https://", "");
 
         // select elements aren't being rendered to the canvas; replace them
         const selects = mirror.querySelectorAll(".cp-select");
