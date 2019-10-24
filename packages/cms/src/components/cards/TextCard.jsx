@@ -15,6 +15,9 @@ import formatFieldName from "../../utils/formatters/formatFieldName";
 import PropTypes from "prop-types";
 import LocaleName from "./components/LocaleName";
 import Card from "./Card";
+
+import {updateEntity, deleteEntity} from "../../actions/profiles";
+
 import "./TextCard.css";
 
 class TextCard extends Component {
@@ -32,21 +35,23 @@ class TextCard extends Component {
   }
 
   componentDidMount() {
-    this.hitDB.bind(this)();
+    this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
   }
 
   componentDidUpdate(prevProps) {
     const {localeDefault} = this.props.status;
-    if (this.state.minData && (
-      JSON.stringify(prevProps.status.variables[localeDefault]) !== JSON.stringify(this.props.status.variables[localeDefault]) ||
-      JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors) ||
-      JSON.stringify(this.props.query) !== JSON.stringify(prevProps.query)
-    )) {
+    const contentChanged = prevProps.minData.id !== this.props.minData.id || JSON.stringify(prevProps.minData.content) !== JSON.stringify(this.props.minData.content);
+    const variablesChanged = JSON.stringify(prevProps.status.variables[localeDefault]) !== JSON.stringify(this.props.status.variables[localeDefault])
+    const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
+    const queryChanged = JSON.stringify(this.props.query) !== JSON.stringify(prevProps.query);
+    
+    if (contentChanged) {
+      this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
+    }
+    if (variablesChanged || selectorsChanged || queryChanged) {
       this.formatDisplay.bind(this)();
     }
-    if (prevProps.item.id !== this.props.item.id || prevProps.status.localeSecondary !== this.props.status.localeSecondary) {
-      this.hitDB.bind(this)();
-    }
+    
   }
 
   populateLanguageContent(minData) {
@@ -81,15 +86,6 @@ class TextCard extends Component {
   markAsDirty() {
     const {isDirty} = this.state;
     if (!isDirty) this.setState({isDirty: true});
-  }
-
-  hitDB() {
-    const {item, type} = this.props;
-    const {id} = item;
-    axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      const minData = this.populateLanguageContent.bind(this)(resp.data);
-      this.setState({minData}, this.formatDisplay.bind(this));
-    });
   }
 
   determineVariablesUsed() {
@@ -175,12 +171,8 @@ class TextCard extends Component {
     // allowed is controlled elsewhere. Don't accidentally pave it here.
     if (!hideAllowed) payload.allowed = minData.allowed;
     payload.content = localeSecondary ? [thisLocale, thatLocale] : [thisLocale];
-    axios.post(`/api/cms/${type}/update`, payload).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false, isDirty: false}, this.formatDisplay.bind(this));
-        if (this.props.onSave) this.props.onSave(minData);
-      }
-    });
+    this.props.updateEntity(type, payload);
+    this.setState({isOpen: false, isDirty: false});
   }
 
   maybeDelete() {
@@ -204,10 +196,9 @@ class TextCard extends Component {
   }
 
   openEditor() {
-    const {minData} = this.state;
-    const initialData = deepClone(minData);
+    const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.setState({initialData, isOpen});
+    this.setState({minData, isOpen});
   }
 
   maybeCloseEditorWithoutSaving() {
@@ -226,12 +217,7 @@ class TextCard extends Component {
   }
 
   closeEditorWithoutSaving() {
-    const {initialData} = this.state;
-    const minData = deepClone(initialData);
-    const isOpen = false;
-    const alertObj = false;
-    const isDirty = false;
-    this.setState({minData, isOpen, alertObj, isDirty});
+    this.setState({isOpen: false, alertObj: false, isDirty: false});
   }
 
   upperCaseFirst(str) {
@@ -252,7 +238,8 @@ class TextCard extends Component {
   }
 
   render() {
-    const {alertObj, thisDisplayData, thatDisplayData, minData, isOpen} = this.state;
+    const {alertObj, thisDisplayData, thatDisplayData, isOpen} = this.state;
+    const {minData} = this.props;
     const {fields, onMove, hideAllowed, plainfields, type, parentArray, item} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
@@ -353,15 +340,15 @@ class TextCard extends Component {
                 {localeSecondary &&
                   <LocaleName locale={localeDefault} />
                 }
-                {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={plainfields} />}
-                {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={this.state.minData} locale={localeDefault} fields={plainfields} />}
+                {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={this.state.minData} locale={localeDefault} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
               </div>
 
               {localeSecondary &&
                 <div className="cms-dialog-locale-container">
                   <LocaleName locale={localeSecondary} />
-                  {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeSecondary} fields={plainfields} />}
-                  {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeSecondary} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                  {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={this.state.minData} locale={localeSecondary} fields={plainfields} />}
+                  {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={this.state.minData} locale={localeSecondary} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
                 </div>
               }
             </div>
@@ -397,4 +384,9 @@ const mapStateToProps = state => ({
   status: state.cms.status
 });
 
-export default connect(mapStateToProps)(TextCard);
+const mapDispatchToProps = dispatch => ({
+  updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
+  deleteEntity: (type, id) => dispatch(deleteEntity(type, id))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(TextCard);

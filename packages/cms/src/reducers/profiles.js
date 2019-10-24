@@ -9,6 +9,8 @@ export default (profiles = [], action) => {
       return profiles.concat([action.data]);
     case "PROFILE_DELETE":
       return action.data;
+    case "PROFILE_UPDATE":
+      return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data}) : p);
     case "PROFILE_SWAP":
       return profiles
         .map(p => {

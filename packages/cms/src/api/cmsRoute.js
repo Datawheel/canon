@@ -465,7 +465,6 @@ module.exports = function(app) {
     return res.json(stories);
   });
 
-  /*
   app.get("/api/cms/profile/get/:id", async(req, res) => {
     const {id} = req.params;
     const dims = collate(req.query);
@@ -496,7 +495,6 @@ module.exports = function(app) {
     profile.attr = attr;
     return res.json(sortProfile(db, profile));
   });
-  */
 
   app.get("/api/cms/story/get/:id", async(req, res) => {
     const {id} = req.params;
