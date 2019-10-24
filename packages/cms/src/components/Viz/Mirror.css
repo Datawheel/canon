@@ -7,31 +7,34 @@
 
 /* position off screen when in use */
 .mirror.is-visible {
-  /* sizing */
-  width: 100%;
-  height: 100%;
   /* positioning */
   position: fixed;
-  /* top: 0;     bottom: 0; */
-  left: 100%; right: -100%;
-  left: 0; right: 0;
-  z-index: 9999; /* always on top */
+  top: 0;
+  left: 100%;
+  /* left: 0; */
 }
 
 /* layout */
-.mirror {
+.mirror-inner {
+  /* layout */
   display: flex;
   flex-direction: column;
+  height: 100%;
+  /* positioning */
+  position: relative;
+  margin: auto;
 
   /* pad out children */
   & > * {
-    padding: var(--gutter-sm);
+    padding: 20px;
   }
 }
 
 /* let the content take up as much space as needed */
 .mirror-content {
   flex: 1 1 auto;
+  margin-top: auto;
+  position: relative;
 }
 
 /* text left, logo right */
@@ -39,6 +42,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: auto;
 }
 /* make the URL look more like a link */
 .mirror-footer-text-url {
@@ -59,4 +63,29 @@
 /* no logo */
 .mirror-footer-logo:not([style]) {
   display: none;
+}
+
+/* hide elements */
+.mirror-content .d3plus-zoom-control,
+.mirror-content .options-button-group,
+.mirror-content .options-dialog,
+.mirror-content .cp-var-reset-button,
+.mirror-content .cp-section-heading-anchor {
+  display: none !important;
+}
+/* adjust elements */
+.mirror-content .cp-table-viz-container {
+  width: 100%;
+}
+/* make section headers visible */
+.mirror-content .cp-section-anchored-heading {
+  margin-left: 0;
+  padding-left: 0;
+}
+/* remove section padding */
+.mirror-content .cp-section {
+  padding: 0 !important;
+}
+.mirror-content .cp-select {
+  font-size: inherit;
 }

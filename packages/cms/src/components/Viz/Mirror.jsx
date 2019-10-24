@@ -13,13 +13,17 @@ class Mirror extends Component {
     const {inUse} = this.props;
     return (
       <div className={`mirror ${inUse ? "is-visible" : "is-hidden"}`} aria-hidden="true">
-        <div className="mirror-content" />
-        <div className="mirror-footer">
-          <div className="mirror-footer-text">
-            <p className="mirror-footer-text-description u-font-sm" aria-hidden="true">Hi how are you Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eos fuga, veritatis excepturi facilis, ratione tempore eius odit iusto doloremque nemo repudiandae consequuntur harum cupiditate a, molestias iure aspernatur sapiente distinctio!</p>
-            <p className="mirror-footer-text-url u-font-xxs u-margin-bottom-off" aria-hidden="true">www.butts.com</p>
+        <div className="mirror-inner">
+          <div className="mirror-content">
+            <div className="mirror-content-inner" />
           </div>
-          <div className="mirror-footer-logo" />
+          <div className="mirror-footer">
+            <div className="mirror-footer-text">
+              <p className="mirror-footer-text-description u-font-sm" aria-hidden="true" />
+              <p className="mirror-footer-text-url u-font-xxs u-margin-bottom-off" aria-hidden="true" />
+            </div>
+            <div className="mirror-footer-logo" />
+          </div>
         </div>
       </div>
     );
