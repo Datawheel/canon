@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
 import {connect} from "react-redux";
@@ -41,7 +40,7 @@ class TextCard extends Component {
   componentDidUpdate(prevProps) {
     const {localeDefault} = this.props.status;
     const contentChanged = prevProps.minData.id !== this.props.minData.id || JSON.stringify(prevProps.minData.content) !== JSON.stringify(this.props.minData.content);
-    const variablesChanged = JSON.stringify(prevProps.status.variables[localeDefault]) !== JSON.stringify(this.props.status.variables[localeDefault])
+    const variablesChanged = JSON.stringify(prevProps.status.variables[localeDefault]) !== JSON.stringify(this.props.status.variables[localeDefault]);
     const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
     const queryChanged = JSON.stringify(this.props.query) !== JSON.stringify(prevProps.query);
     
@@ -186,13 +185,8 @@ class TextCard extends Component {
 
   delete() {
     const {type} = this.props;
-    const {minData} = this.state;
-    axios.delete(`/api/cms/${type}/delete`, {params: {id: minData.id}}).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false});
-        if (this.props.onDelete) this.props.onDelete(type, resp.data);
-      }
-    });
+    const {id} = this.props.minData;
+    this.props.deleteEntity(type, id);
   }
 
   openEditor() {
@@ -381,7 +375,8 @@ TextCard.contextTypes = {
 };
 
 const mapStateToProps = state => ({
-  status: state.cms.status
+  status: state.cms.status,
+  selectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
 });
 
 const mapDispatchToProps = dispatch => ({

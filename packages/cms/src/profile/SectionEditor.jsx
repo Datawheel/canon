@@ -1,17 +1,18 @@
-import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
-
 import toSpacedCase from "../utils/formatters/toSpacedCase";
-
 import Select from "../components/fields/Select";
 import ButtonGroup from "../components/fields/ButtonGroup";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
 import TextCard from "../components/cards/TextCard";
+import deepClone from "../utils/deepClone";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Deck from "../components/interface/Deck";
 import SelectorUsage from "../components/interface/SelectorUsage";
+
+import {newEntity, updateEntity} from "../actions/profiles";
+
 import "./SectionEditor.css";
 
 const propMap = {
@@ -33,19 +34,13 @@ class SectionEditor extends Component {
   }
 
   componentDidMount() {
-    this.hitDB.bind(this)();
+    this.setState({minData: deepClone(this.props.minData)});
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id) {
-      this.hitDB.bind(this)();
+      this.setState({minData: deepClone(this.props.minData)});
     }
-  }
-
-  hitDB() {
-    axios.get(`/api/cms/section/get/${this.props.id}`).then(resp => {
-      this.setState({minData: resp.data});
-    });
   }
 
   // Strip leading/trailing spaces and URL-breaking characters
@@ -56,14 +51,9 @@ class SectionEditor extends Component {
   changeField(field, save, e) {
     const {minData} = this.state;
     minData[field] = field === "slug" ? this.urlPrep(e.target.value) : e.target.value;
+    console.log(minData);
     save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
   }
-
-  // checkField(field, save, e) {
-  //   const {minData} = this.state;
-  //   minData[field] = e.target.checked;
-  //   save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
-  // }
 
   selectButton(field, save, val) {
     const {minData} = this.state;
@@ -72,48 +62,14 @@ class SectionEditor extends Component {
   }
 
   addItem(type) {
-    const {minData} = this.state;
-    const payload = {};
-    payload.section_id = minData.id;
-    // todo: move this ordering out to axios (let the server concat it to the end)
-    payload.ordering = minData[propMap[type]].length;
-    axios.post(`/api/cms/${type}/new`, payload).then(resp => {
-      if (resp.status === 200) {
-        // Selectors, unlike the rest of the elements, actually do pass down their entire
-        // content to the Card (the others are simply given an id and load the data themselves)
-        // New selector will behave differently here
-        if (type === "selector") {
-          minData[propMap[type]].push(resp.data);
-        }
-        else {
-          minData[propMap[type]].push({id: resp.data.id, ordering: resp.data.ordering});
-        }
-        this.setState({minData});
-      }
-    });
+    this.props.newEntity(type, {section_id: this.props.minData.id});
   }
 
   save() {
     const {minData} = this.state;
-    const payload = {
-      id: minData.id,
-      slug: minData.slug,
-      type: minData.type,
-      allowed: minData.allowed,
-      position: minData.position
-    };
-    axios.post("/api/cms/section/update", payload).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false});
-      }
-    });
-  }
-
-  onSave(minData) {
-    const {localeDefault} = this.props.status;
-    const defCon = minData.content.find(c => c.locale === localeDefault);
-    const title = defCon && defCon.title ? defCon.title : minData.slug;
-    if (this.props.reportSave) this.props.reportSave(minData.id, title);
+    const {id, slug, type, allowed, position} = minData;
+    const payload = {id, slug, type, allowed, position};
+    this.props.updateEntity("section", payload);
   }
 
   onMove() {
@@ -135,11 +91,14 @@ class SectionEditor extends Component {
 
   render() {
 
-    const {minData, query} = this.state;
+    const {query} = this.state;
+    const {minData} = this.props;
     const {selectors, children, order} = this.props;
     const {variables, localeDefault, localeSecondary} = this.props.status;
 
-    const dataLoaded = minData;
+    const minDataState = this.state.minData;
+
+    const dataLoaded = minData && minDataState;
     const varsLoaded = variables;
     const defLoaded = localeSecondary || variables && !localeSecondary && variables[localeDefault];
     const locLoaded = !localeSecondary || variables && localeSecondary && variables[localeDefault] && variables[localeSecondary];
@@ -184,12 +143,10 @@ class SectionEditor extends Component {
           cards={[
             <TextCard
               key="title-card"
-              item={minData}
+              minData={minData}
               fields={["title"]}
               query={query}
-              onSave={this.onSave.bind(this)}
               type="section"
-              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
               hideAllowed={true}
             />
           ]}
@@ -205,7 +162,7 @@ class SectionEditor extends Component {
                 fontSize: "xs",
                 inline: true,
                 namespace: "cms",
-                value: minData.slug,
+                value: minDataState.slug,
                 onChange: this.changeField.bind(this, "slug", false)
               }}
               buttonProps={{
@@ -222,7 +179,7 @@ class SectionEditor extends Component {
               namespace="cms"
               fontSize="xs"
               inline
-              value={minData.allowed || "always"}
+              value={minDataState.allowed || "always"}
               onChange={this.changeField.bind(this, "allowed", true)}
             >
               {varOptions}
@@ -235,7 +192,7 @@ class SectionEditor extends Component {
                 inline
                 namespace="cms"
                 fontSize="xs"
-                value={minData.type}
+                value={minDataState.type}
                 onChange={this.changeField.bind(this, "type", true)}
               >
                 {layouts}
@@ -248,7 +205,7 @@ class SectionEditor extends Component {
               <ButtonGroup namespace="cms" buttons={[
                 {
                   onClick: this.selectButton.bind(this, "position", true, "default"),
-                  active: minData.position === "default",
+                  active: minDataState.position === "default",
                   namespace: "cms",
                   fontSize: "xs",
                   icon: "alignment-left",
@@ -257,7 +214,7 @@ class SectionEditor extends Component {
                 },
                 {
                   onClick: this.selectButton.bind(this, "position", true, "sticky"),
-                  active: minData.position === "sticky",
+                  active: minDataState.position === "sticky",
                   namespace: "cms",
                   fontSize: "xs",
                   icon: "alignment-top",
@@ -266,7 +223,7 @@ class SectionEditor extends Component {
                 },
                 {
                   onClick: this.selectButton.bind(this, "position", true, "modal"),
-                  active: minData.position === "modal",
+                  active: minDataState.position === "modal",
                   namespace: "cms",
                   fontSize: "xs",
                   icon: "applications",
@@ -287,12 +244,11 @@ class SectionEditor extends Component {
             cards={minData.subtitles && minData.subtitles.map(s =>
               <TextCard
                 key={s.id}
-                item={s}
+                minData={s}
                 fields={["subtitle"]}
                 query={query}
                 type="section_subtitle"
                 onDelete={this.onDelete.bind(this)}
-                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.subtitles}
                 onMove={this.onMove.bind(this)}
               />
@@ -321,12 +277,11 @@ class SectionEditor extends Component {
             cards={minData.stats && minData.stats.map(s =>
               <TextCard
                 key={s.id}
-                item={s}
+                minData={s}
                 fields={["title", "subtitle", "value", "tooltip"]}
                 query={query}
                 type="section_stat"
                 onDelete={this.onDelete.bind(this)}
-                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.stats}
                 onMove={this.onMove.bind(this)}
               />
@@ -341,12 +296,11 @@ class SectionEditor extends Component {
             cards={minData.descriptions && minData.descriptions.map(d =>
               <TextCard
                 key={d.id}
-                item={d}
+                minData={d}
                 fields={["description"]}
                 query={query}
                 type="section_description"
                 onDelete={this.onDelete.bind(this)}
-                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.descriptions}
                 onMove={this.onMove.bind(this)}
               />
@@ -365,7 +319,6 @@ class SectionEditor extends Component {
                 query={query}
                 onDelete={this.onDelete.bind(this)}
                 type="section_visualization"
-                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
                 parentArray={minData.visualizations}
                 onMove={this.onMove.bind(this)}
               />
@@ -381,9 +334,15 @@ SectionEditor.contextTypes = {
   formatters: PropTypes.object
 };
 
-const mapStateToProps = state => ({
-  status: state.cms.status
+const mapStateToProps = (state, ownProps) => ({
+  status: state.cms.status,
+  minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).sections.find(s => s.id === ownProps.id)
 });
 
-export default connect(mapStateToProps)(SectionEditor);
+const mapDispatchToProps = dispatch => ({
+  newEntity: (type, payload) => dispatch(newEntity(type, payload)),
+  updateEntity: (type, payload) => dispatch(updateEntity(type, payload))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SectionEditor);
 

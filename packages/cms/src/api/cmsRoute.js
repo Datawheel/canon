@@ -582,6 +582,9 @@ module.exports = function(app) {
         const payload = Object.assign({}, req.body, {id: newObj.id, locale: envLoc});
         await db[`${ref}_content`].create(payload).catch(catcher);
         const fullObj = await db[ref].findOne({where: {id: newObj.id}, include: [{association: "content"}]}).catch(catcher);
+        if (ref === "section") {
+          fullObj.types = getSectionTypes();
+        }
         return res.json(fullObj);
       }
       else {
@@ -741,23 +744,23 @@ module.exports = function(app) {
   app.delete("/api/cms/generator/delete", isEnabled, async(req, res) => {
     const row = await db.generator.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.generator.destroy({where: {id: req.query.id}});
-    const rows = await db.generator.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
-    return res.json({id: req.query.id, parent_id: row.profile_id, generators: rows});
+    const generators = await db.generator.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
+    return res.json({id: req.query.id, parent_id: row.profile_id, generators});
   });
 
   app.delete("/api/cms/materializer/delete", isEnabled, async(req, res) => {
     const row = await db.materializer.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.materializer.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.materializer.findAll({where: {profile_id: row.profile_id}, attributes: ["id", "ordering", "name"], order: [["ordering", "ASC"]]}).catch(catcher);
-    return res.json({id: req.query.id, parent_id: row.profile_id, materializers: rows});
+    const materializers = await db.materializer.findAll({where: {profile_id: row.profile_id}, order: [["ordering", "ASC"]]}).catch(catcher);
+    return res.json({id: req.query.id, parent_id: row.profile_id, materializers});
   });
 
   app.delete("/api/cms/selector/delete", isEnabled, async(req, res) => {
     const row = await db.selector.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.selector.destroy({where: {id: req.query.id}});
-    const rows = await db.selector.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
-    return res.json({parent_id: row.profile_id, selectors: rows});
+    const selectors = await db.selector.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
+    return res.json({parent_id: row.profile_id, selectors});
   });
 
   app.delete("/api/cms/section_selector/delete", isEnabled, async(req, res) => {
@@ -819,8 +822,17 @@ module.exports = function(app) {
     await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
     pruneSearch(row.dimension, row.levels, db);
-    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
+    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
+    const sectionTypes = getSectionTypes();
+    profiles.forEach(profile => {
+      profile.sections = profile.sections.map(section => {
+        section = sortSection(db, section);
+        section.types = sectionTypes;
+        return section;
+      });
+      return profile;
+    });
     return res.json(profiles);
   });
 
@@ -843,15 +855,14 @@ module.exports = function(app) {
     const row = await db.section.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.section.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.section.findAll({
-      where: {profile_id: row.profile_id},
-      attributes: ["id", "slug", "ordering", "profile_id", "type"],
-      include: [
-        {association: "content", attributes: ["id", "locale", "title"]}
-      ],
-      order: [["ordering", "ASC"]]
-    }).catch(catcher);
-    return res.json(rows);
+    let sections = await db.section.findAll({where: {profile_id: row.profile_id}, include: [{association: "content"}], order: [["ordering", "ASC"]]}).catch(catcher);
+    sections = sections.map(section => {
+      section = section.toJSON();
+      section = sortSection(db, section);
+      section.types = getSectionTypes;
+      return section;
+    });
+    return res.json({parent_id: row.profile_id, sections});
   });
 
   app.delete("/api/cms/storysection/delete", isEnabled, async(req, res) => {

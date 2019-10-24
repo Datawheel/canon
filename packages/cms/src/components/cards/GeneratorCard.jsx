@@ -101,7 +101,6 @@ class GeneratorCard extends Component {
     const {type} = this.props;
     const {id} = this.props.minData;
     this.props.deleteEntity(type, id);
-    this.setState({alertObj: false});
   }
 
   save() {

@@ -40,7 +40,7 @@ class SelectorUsage extends Component {
   addItem(id) {
     const {minData} = this.state;
     const {selectors} = minData;
-    const allSelectors = this.props.selectors;
+    const {allSelectors} = this.props;
     const payload = {
       section_id: minData.id,
       selector_id: id,
@@ -84,7 +84,7 @@ class SelectorUsage extends Component {
     const {minData, currentValues} = this.state;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
-    const allSelectors = this.props.selectors;
+    const {allSelectors} = this.props;
 
     if (!minData) return null;
 
@@ -202,7 +202,8 @@ class SelectorUsage extends Component {
 }
 
 const mapStateToProps = state => ({
-  status: state.cms.status
+  status: state.cms.status,
+  allSelectors: state.cms.profile.find(p => p.id === state.cms.status.currentPid).selectors
 });
 
 export default connect(mapStateToProps)(SelectorUsage);

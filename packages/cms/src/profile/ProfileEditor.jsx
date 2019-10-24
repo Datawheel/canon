@@ -10,13 +10,6 @@ import "./ProfileEditor.css";
 
 class ProfileEditor extends Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      minData: null
-    };
-  }
-
   render() {
 
     const {minData} = this.props;

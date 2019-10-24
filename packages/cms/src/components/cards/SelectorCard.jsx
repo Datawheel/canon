@@ -66,7 +66,6 @@ class SelectorCard extends Component {
   delete() {
     const {id} = this.props.minData;
     this.props.deleteEntity("selector", id);
-    this.setState({alertObj: false});
   }
 
   openEditor() {
