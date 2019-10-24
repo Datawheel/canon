@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import Deck from "./Deck";
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
@@ -7,7 +8,6 @@ import GeneratorCard from "../cards/GeneratorCard";
 import SelectorCard from "../cards/SelectorCard";
 import ConsoleVariable from "../variables/ConsoleVariable";
 
-import {connect} from "react-redux";
 import {fetchVariables, getToolbox, newEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
@@ -56,14 +56,6 @@ class Toolbox extends Component {
 
   addItem(type) {
     this.props.newEntity(type, {profile_id: this.props.profile.id});
-  }
-
-  updateSelectors() {
-    const {minData} = this.state;
-    if (minData) {
-      const {selectors} = minData;
-      if (this.props.updateSelectors) this.props.updateSelectors(selectors);
-    }
   }
 
   onMove() {
@@ -263,9 +255,7 @@ class Toolbox extends Component {
               cards={selectors.map(s =>
                 <SelectorCard
                   key={s.id}
-                  minData={s}
-                  type="selector"
-                  onSave={this.updateSelectors.bind(this)}
+                  id={s.id}
                 />
               )}
             />

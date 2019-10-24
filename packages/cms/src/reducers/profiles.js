@@ -41,6 +41,16 @@ export default (profiles = [], action) => {
       );
     case "MATERIALIZER_DELETE":
       return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {deletedMaterializerID: action.data.id, materializers: action.data.materializers}) : p);
+    case "SELECTOR_NEW":
+      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {selectors: p.selectors.concat([action.data])}) : p);
+    case "SELECTOR_UPDATE":
+      return profiles.map(p => 
+        p.id === action.data.profile_id 
+          ? Object.assign({}, p, {selectors: p.selectors.map(s => s.id === action.data.id ? action.data : s)})
+          : p
+      );
+    case "SELECTOR_DELETE":
+      return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {selectors: action.data.selectors}) : p);
 
     // Dimensions
     case "DIMENSION_MODIFY": 

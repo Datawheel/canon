@@ -1,4 +1,5 @@
 import axios from "axios";
+import {connect} from "react-redux";
 import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
 import PropTypes from "prop-types";
@@ -7,10 +8,11 @@ import SelectorEditor from "../editors/SelectorEditor";
 import DefinitionList from "../variables/DefinitionList";
 import VarList from "../variables/VarList";
 import deepClone from "../../utils/deepClone";
-// import varSwap from "../../utils/varSwap";
 import Card from "./Card";
+
+import {deleteEntity, updateEntity} from "../../actions/profiles";
+
 import "./SelectorCard.css";
-import {connect} from "react-redux";
 
 /**
  * Card Component for displaying dropdown selectors. Selectors may be singular dropdowns
@@ -28,14 +30,16 @@ class SelectorCard extends Component {
     };
   }
 
-  /**
-   * Note that unlike all other cards, the SelectorCard actually has ALL its data from
-   * the start, passed down in props. This was chosen so that the list of options could
-   * be shown on the front of the card. Now that Selectors have titles, it may make sense
-   * to change this to behave like all other cards, i.e., Fetch their own data on mount
-   */
   componentDidMount() {
-    this.setState({minData: this.props.minData});
+    this.setState({minData: deepClone(this.props.minData)});
+  }
+
+  componentDidUpdate(prevProps) {
+    // If the props we receive from redux have changed, then an update action has occured.
+    if (JSON.stringify(prevProps.minData) !== JSON.stringify(this.props.minData)) {
+      // Clone the new object for manipulation in state.
+      this.setState({minData: deepClone(this.props.minData)});
+    }
   }
 
   markAsDirty() {
@@ -44,14 +48,10 @@ class SelectorCard extends Component {
   }
 
   save() {
-    const {type} = this.props;
     const {minData} = this.state;
-    axios.post(`/api/cms/${type}/update`, minData).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false});
-        if (this.props.onSave) this.props.onSave();
-      }
-    });
+    this.props.updateEntity("selector", minData);
+    this.setState({isOpen: false});
+    // update selectors
   }
 
   maybeDelete() {
@@ -64,21 +64,15 @@ class SelectorCard extends Component {
   }
 
   delete() {
-    const {type} = this.props;
-    const {minData} = this.state;
-    axios.delete(`/api/cms/${type}/delete`, {params: {id: minData.id}}).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false});
-        if (this.props.onDelete) this.props.onDelete(type, resp.data);
-      }
-    });
+    const {id} = this.props.minData;
+    this.props.deleteEntity("selector", id);
+    this.setState({alertObj: false});
   }
 
   openEditor() {
-    const {minData} = this.state;
-    const initialData = deepClone(minData);
+    const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.setState({initialData, isOpen});
+    this.setState({minData, isOpen});
   }
 
   maybeCloseEditorWithoutSaving() {
@@ -97,17 +91,12 @@ class SelectorCard extends Component {
   }
 
   closeEditorWithoutSaving() {
-    const {initialData} = this.state;
-    const minData = deepClone(initialData);
-    const isOpen = false;
-    const alertObj = false;
-    const isDirty = false;
-    this.setState({minData, isOpen, alertObj, isDirty});
+    this.setState({isOpen: false, alertObj: false, isDirty: false});
   }
 
   render() {
-    const {minData, isOpen, alertObj} = this.state;
-    const {onMove, onSave, parentArray, type} = this.props;
+    const {isOpen, alertObj} = this.state;
+    const {onMove, parentArray, type, minData} = this.props;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
 
@@ -122,7 +111,7 @@ class SelectorCard extends Component {
       Object.assign(cardProps, {
         // title: varSwap(minData.title, formatters, variables),
         title: minData.name === "newselector" ? "New selector" : minData.name,
-        onEdit: onSave ? this.openEditor.bind(this) : null,
+        onEdit: this.openEditor.bind(this),
         onDelete: this.maybeDelete.bind(this),
         // reorder
         reorderProps: parentArray ? {
@@ -191,7 +180,7 @@ class SelectorCard extends Component {
           <div className="bp3-dialog-body">
             <SelectorEditor
               markAsDirty={this.markAsDirty.bind(this)}
-              data={minData}
+              data={this.state.minData}
             />
           </div>
           <FooterButtons
@@ -209,8 +198,14 @@ SelectorCard.contextTypes = {
   formatters: PropTypes.object
 };
 
-const mapStateToProps = state => ({
-  status: state.cms.status
+const mapStateToProps = (state, ownProps) => ({
+  status: state.cms.status,
+  minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors.find(s => s.id === ownProps.id)
 });
 
-export default connect(mapStateToProps)(SelectorCard);
+const mapDispatchToProps = dispatch => ({
+  updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
+  deleteEntity: (type, id) => dispatch(deleteEntity(type, id))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SelectorCard);

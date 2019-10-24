@@ -656,7 +656,7 @@ module.exports = function(app) {
           return res.json([]);
         }
       });
-    })
+    });
   });
 
   /* DELETES */
@@ -708,7 +708,7 @@ module.exports = function(app) {
     const row = await db.selector.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.selector.destroy({where: {id: req.query.id}});
     const rows = await db.selector.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
-    return res.json(rows);
+    return res.json({parent_id: row.profile_id, selectors: rows});
   });
 
   app.delete("/api/cms/section_selector/delete", isEnabled, async(req, res) => {
