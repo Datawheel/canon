@@ -70,7 +70,7 @@ class SectionEditor extends Component {
 
     const {minData, allSelectors} = this.props;
     const {children, order} = this.props;
-    const {variables, localeDefault, localeSecondary, query} = this.props.status;
+    const {variables, localeDefault, localeSecondary} = this.props.status;
 
     const minDataState = this.state.minData;
 
@@ -282,8 +282,7 @@ class SectionEditor extends Component {
             cards={minData.visualizations && minData.visualizations.map(v =>
               <VisualizationCard
                 key={v.id}
-                item={v}
-                query={query}
+                minData={v}
                 type="section_visualization"
                 parentArray={minData.visualizations}
                 onMove={this.onMove.bind(this)}

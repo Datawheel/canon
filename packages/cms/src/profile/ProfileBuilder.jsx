@@ -74,7 +74,6 @@ class ProfileBuilder extends Component {
   buildNodes(openNode) {
     const {profiles} = this.props;
     const {localeDefault, pathObj} = this.props.status;
-    console.log(profiles);
     const nodes = treeify(profiles, localeDefault);
     if (!openNode) {
       const {profile, section} = pathObj;

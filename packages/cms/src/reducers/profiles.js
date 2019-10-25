@@ -105,7 +105,15 @@ export default (profiles = [], action) => {
     case "SECTION_DESCRIPTION_DELETE":
       return deleteSectionEntity(profiles, action.data, "descriptions");
 
-    // Descriptions
+    // Visualizations
+    case "SECTION_VISUALIZATION_NEW":
+      return addSectionEntity(profiles, action.data, "visualizations");
+    case "SECTION_VISUALIZATION_UPDATE":
+      return updateSectionEntity(profiles, action.data, "visualizations");
+    case "SECTION_VISUALIZATION_DELETE":
+      return deleteSectionEntity(profiles, action.data, "visualizations");
+
+    // Section Selectors
     case "SECTION_SELECTOR_NEW":
       return profiles.map(p => 
         Object.assign({}, p, {sections: p.sections.map(s => 

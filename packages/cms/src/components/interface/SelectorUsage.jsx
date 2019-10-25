@@ -1,4 +1,3 @@
-import {axios} from "axios";
 import {connect} from "react-redux";
 import React, {Component} from "react";
 import Select from "../fields/Select";
@@ -38,18 +37,7 @@ class SelectorUsage extends Component {
   }
 
   swapSelector(index) {
-    const {minData} = this.props;
-    const {selectors} = minData;
-    const payload = {
-      section_id: minData.id,
-      selector_id: selectors[index].id
-    };
-    axios.post("/api/cms/section_selector/swap", payload).then(resp => {
-      if (resp.status === 200) {
-        minData.selectors = resp.data;
-        this.setState({minData});
-      }
-    });
+    console.log("todo: swap me", index);
   }
 
   render() {
