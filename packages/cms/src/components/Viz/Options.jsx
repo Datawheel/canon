@@ -130,57 +130,68 @@ class Options extends Component {
       let background;
       if (backgroundColor) background = getBackground(node);
 
-      // get node dimensions (fudged to account for padding & Mirror footer)
-      const width = node.offsetWidth + 40;
-      const height = node.offsetHeight + 120;
-
-      // grab the d3plus visualization directly
-      if (imageFormat === "svg") node = select(node).select(".d3plus-viz").node();
-      // make a copy of the node so we're not editing the original
-      node = node.parentNode.cloneNode(true);
-
-      // get the mirror, make it visible, and size it
-      const mirror = document.body.querySelector(".mirror");
-      mirror.classList.add("is-visible", `${imageContext}-context`);
-      mirror.classList.remove("is-hidden");
-      mirror.style.width = `${width}px`;
-      mirror.style.height = `${height}px`;
-
-      // once the mirror is visible, clone elements into it
-      setTimeout(() => {
-        mirror.querySelector(".mirror-content-inner").innerHTML = "";
-        mirror.querySelector(".mirror-content-inner").appendChild(node);
-        mirror.querySelector(".mirror-footer-text-url").innerHTML = this.props.location.href.replace("http://", "").replace("https://", "");
-
-        // select elements aren't being rendered to the canvas; replace them
-        const selects = mirror.querySelectorAll(".cp-select");
-        selects.forEach(select => {
-          // create a fake element with properties of the select menu
-          const fake = document.createElement("p");
-          // get the selected option
-          fake.innerHTML = select.options[select.selectedIndex].text;
-          // get the classes from the real select & add them to the fake
-          const classes = select.classList;
-          fake.classList = classes;
-          // I'm the captain now
-          select.parentNode.replaceChild(fake, select);
-        });
-
-        // save!
+      // grab the d3plus visualization directly and save it as-is
+      if (imageFormat === "svg") {
+        node = select(node).select(".d3plus-viz").node();
         saveElement(
-          mirror,
-          {filename: filename(title), imageFormat},
-          {background, callback: () => {
-            // make mirror invisible
-            mirror.classList.add("is-hidden");
-            mirror.classList.remove("is-visible", `${imageContext}-context`);
-            // remove mirrored content
-            mirror.querySelector(".mirror-content-inner").removeChild(node);
-            // reset state
-            this.setState({imageProcessing: false});
-          }}
+          node,
+          {filename: filename(title), type: "svg"},
+          {background, callback: () => this.setState({imageProcessing: false})}
         );
-      });
+      }
+
+      // construct the png image in the mirror
+      else {
+        // get node dimensions (fudged to account for padding & Mirror footer)
+        const width = node.offsetWidth + 40;
+        const height = node.offsetHeight + 120;
+
+        // make a copy of the node so we're not editing the original
+        node = node.parentNode.cloneNode(true);
+
+        // get the mirror, make it visible, and size it
+        const mirror = document.body.querySelector(".mirror");
+        mirror.classList.add("is-visible", `${imageContext}-context`);
+        mirror.classList.remove("is-hidden");
+        mirror.style.width = `${width}px`;
+        mirror.style.height = `${height}px`;
+
+        // once the mirror is visible, clone elements into it
+        setTimeout(() => {
+          mirror.querySelector(".mirror-content-inner").innerHTML = "";
+          mirror.querySelector(".mirror-content-inner").appendChild(node);
+          mirror.querySelector(".mirror-footer-text-url").innerHTML = this.props.location.href.replace("http://", "").replace("https://", "");
+
+          // select elements aren't being rendered to the canvas; replace them
+          const selects = mirror.querySelectorAll(".cp-select");
+          selects.forEach(select => {
+            // create a fake element with properties of the select menu
+            const fake = document.createElement("p");
+            // get the selected option
+            fake.innerHTML = select.options[select.selectedIndex].text;
+            // get the classes from the real select & add them to the fake
+            const classes = select.classList;
+            fake.classList = classes;
+            // I'm the captain now
+            select.parentNode.replaceChild(fake, select);
+          });
+
+          // save!
+          saveElement(
+            mirror,
+            {filename: filename(title), type: imageFormat},
+            {background, callback: () => {
+              // make mirror invisible
+              mirror.classList.add("is-hidden");
+              mirror.classList.remove("is-visible", `${imageContext}-context`);
+              // remove mirrored content
+              mirror.querySelector(".mirror-content-inner").removeChild(node);
+              // reset state
+              this.setState({imageProcessing: false});
+            }}
+          );
+        });
+      }
     }
     else {
       this.setState({imageProcessing: false});
