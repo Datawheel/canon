@@ -42,7 +42,9 @@ class Navbar extends Component {
                 aria-pressed={outlineOpen}
               >
                 <Icon className="cms-navbar-title-button-icon" icon="caret-down" />
-                {currEntity} {currentTab === "profiles" ? "profile" : "story"}
+                <span className="cms-navbar-title-button-text">
+                  {currEntity} {currentTab === "profiles" ? "profile" : "story"}
+                </span>
               </button>
               <button className="cms-navbar-entity-settings-button" onClick={() => onOpenEntitySettings(currEntity)}>
                 <span className="u-visually-hidden">edit {currEntity} metadata</span>

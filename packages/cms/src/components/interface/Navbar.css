@@ -5,8 +5,7 @@
   width: 100%;
   min-height: var(--cms-nav-height);
   /* layout */
-  padding-left: 0.5rem;
-  padding-right: 1rem;
+  padding-right: var(--gutter-sm);
   display: flex;
   flex-wrap: wrap;
   /* positioning */
@@ -17,15 +16,64 @@
   box-shadow: 0 1px 0 var(--light-2);
 
   @mixin dark-mode {
-    background-color: var(--dark-3);
+    background-color: var(--black);
     box-shadow: none;
   }
 }
 
+/* reset buttons */
 .cms-navbar-title-button,
 .cms-navbar-entity-settings-button {
   @mixin button-reset;
   color: inherit;
+}
+
+/* title */
+.cms-navbar-title {
+  display: flex;
+  padding: 0 var(--gutter-md);
+  /* theming */
+  background-color: var(--white);
+  @mixin dark-mode { background-color: var(--dark-3); }
+
+  & [class*="icon"] {
+    color: var(--gray);
+  }
+}
+/* button (profiles/story) */
+.cms-navbar-title-button {
+  padding: 0;
+
+  & > * { top: -1px; } /* fudge baseline */
+
+  & .cms-navbar-title-button-icon {
+    vertical-align: middle;
+    margin-right: 0.125em;
+    /* transitions */
+    transition:
+      color 0.2s ease-out,
+      transform 0.2s ease-out;
+  }
+
+  /* collapsed state */
+  &[aria-pressed="false"] .cms-navbar-title-button-icon {
+    transform: rotate(-90deg);
+  }
+
+  /* interactions */
+  &:focus {
+    outline: none;
+  }
+
+  /* entity settings cog */
+  & .cms-navbar-entity-settings-button-icon {
+    vertical-align: middle;
+    top: -1px;
+  }
+}
+/* h1 (metatdata editor) */
+.cms-navbar-title-heading {
+  margin: auto 0;
 }
 
 /* main nav "links" (they're actually buttons) */
@@ -35,6 +83,7 @@
 }
 .cms-navbar-item {
   display: inline-block;
+  line-height: var(--cms-nav-height);
 }
 .cms-navbar-link {
   /* reset button style */
@@ -55,25 +104,6 @@
 
     @mixin dark-mode {
       color: var(--gray);
-    }
-  }
-
-  /* divider */
-  &:not(:last-of-type):after {
-    content: "";
-    display: block;
-    /* sizing */
-    width: 1px;
-    height: 1.375em;
-    /* positioning */
-    position: absolute;
-    top: 1rem;
-    right: 0;
-    /* theming */
-    background: var(--light-3);
-
-    @mixin dark-mode {
-      background-color: var(--dark-2);
     }
   }
 
