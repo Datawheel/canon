@@ -164,17 +164,40 @@ class Options extends Component {
 
           // select elements aren't being rendered to the canvas; replace them
           const selects = mirror.querySelectorAll(".cp-select");
-          selects.forEach(select => {
-            // create a fake element with properties of the select menu
-            const fake = document.createElement("p");
-            // get the selected option
-            fake.innerHTML = select.options[select.selectedIndex].text;
-            // get the classes from the real select & add them to the fake
-            const classes = select.classList;
-            fake.classList = classes;
-            // I'm the captain now
-            select.parentNode.replaceChild(fake, select);
-          });
+          if (selects) {
+            selects.forEach(select => {
+              // create a fake element with properties of the select menu
+              const fakeSelect = document.createElement("p");
+              // get the selected option
+              fakeSelect.innerHTML = select.options[select.selectedIndex].text;
+              // get the classes from the real select & add them to the fake
+              const classes = select.classList;
+              fakeSelect.classList = classes;
+              // I'm the captain now
+              select.parentNode.replaceChild(fakeSelect, select);
+            });
+          }
+
+          // // swap out table header buttons with spans
+          const tableHeaders = mirror.querySelectorAll(".rt-th");
+          if (tableHeaders) {
+            tableHeaders.forEach(header => {
+              // create a fake element with properties of the header header
+              const fakeHeader = document.createElement("span");
+              // remove header button screen reader text & icon
+              const hiddenText = header.querySelector(".u-visually-hidden");
+              hiddenText.parentNode.removeChild(hiddenText);
+              const icon = header.querySelector(".cp-table-header-icon");
+              icon.parentNode.removeChild(icon);
+              // get header text
+              fakeHeader.innerHTML = header.textContent || header.innerText;
+              // get the classes from the real header & add them to the fake
+              const classes = header.classList;
+              fakeHeader.classList = [classes];
+              // I'm the captain now
+              header.parentNode.replaceChild(fakeHeader, header);
+            });
+          }
 
           // save!
           saveElement(

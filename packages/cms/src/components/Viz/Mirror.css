@@ -68,7 +68,8 @@
 .mirror-content .options-button-group,
 .mirror-content .options-dialog,
 .mirror-content .cp-var-reset-button,
-.mirror-content .cp-section-heading-anchor {
+.mirror-content .cp-section-heading-anchor,
+.mirror-content .show-more {
   display: none !important;
 }
 /* make section headers visible */
@@ -80,11 +81,21 @@
 .mirror-content .cp-section {
   padding: 0 !important;
 }
+/* fix fake select font size */
 .mirror-content .cp-select {
   font-size: inherit;
+}
+/* hide screen reader text */
+.mirror-content .u-visually-hidden {
+  display: none !important;
 }
 /* when we're just mirroring the visualization, make the figure span the whole width (table fix) */
 .mirror.viz-context .cp-default-section-figure,
 .mirror.viz-context .cp-tabs-section-figure {
   width: 100% !important;
+}
+/* table headers */
+.mirror-content .rt-th {
+  padding-top: 0.5em !important;
+  padding-left: 0.625em !important;
 }
