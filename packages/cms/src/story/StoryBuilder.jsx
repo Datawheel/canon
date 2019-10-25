@@ -1,4 +1,5 @@
 import axios from "axios";
+import {connect} from "react-redux";
 import React, {Component} from "react";
 import {hot} from "react-hot-loader/root";
 import {NonIdealState, Alert, Intent} from "@blueprintjs/core";
@@ -8,6 +9,8 @@ import CtxMenu from "../components/interface/CtxMenu";
 import SidebarTree from "../components/interface/SidebarTree";
 import StoryEditor from "./StoryEditor";
 import StorySectionEditor from "./StorySectionEditor";
+
+import {setStatus} from "../actions/status";
 
 const sectionIcons = {
   Card: "square",
@@ -46,7 +49,7 @@ class StoryBuilder extends Component {
 
   buildNodes(openNode) {
     const {stories} = this.state;
-    const {localeDefault} = this.props;
+    const {localeDefault} = this.props.status;
     const {stripHTML} = this.context.formatters[localeDefault];
     const nodes = stories.map(s => {
       const defCon = s.content.find(c => c.locale === localeDefault);
@@ -124,7 +127,7 @@ class StoryBuilder extends Component {
 
   addItem(n, dir) {
     const {nodes} = this.state;
-    const {localeDefault} = this.props;
+    const {localeDefault} = this.props.status;
     const {stripHTML} = this.context.formatters[localeDefault];
     n = this.locateNode(n.itemType, n.data.id);
     let parentArray;
@@ -236,7 +239,7 @@ class StoryBuilder extends Component {
 
   deleteItem(n) {
     const {nodes} = this.state;
-    const {localeDefault} = this.props;
+    const {localeDefault} = this.props.status;
     const {stripHTML} = this.context.formatters[localeDefault];
     n = this.locateNode(n.itemType, n.data.id);
     const nodeToDelete = false;
@@ -366,7 +369,7 @@ class StoryBuilder extends Component {
    */
   reportSave(type, id, newValue) {
     const {nodes} = this.state;
-    const {localeDefault} = this.props;
+    const {localeDefault} = this.props.status;
     const {stripHTML} = this.context.formatters[localeDefault];
     const node = this.locateNode.bind(this)(type, id);
     if (node) {
@@ -381,7 +384,7 @@ class StoryBuilder extends Component {
   render() {
 
     const {nodes, currentNode, nodeToDelete} = this.state;
-    const {locale, localeDefault} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
 
     if (!nodes) return false;
 
@@ -455,4 +458,12 @@ StoryBuilder.contextTypes = {
   setPath: PropTypes.func
 };
 
-export default hot(StoryBuilder);
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+const mapDispatchToProps = dispatch => ({
+  setStatus: status => dispatch(setStatus(status))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(hot(StoryBuilder));
