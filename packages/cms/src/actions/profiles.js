@@ -187,7 +187,7 @@ export function resetPreviews() {
  * all the editors, each editor has a callback that accesses this function. We store the
  * variables object in a hash that is keyed by the profile id.
  */
-export function fetchVariables(config) { 
+export function fetchVariables(config, useCache) { 
   return function(dispatch, getStore) {    
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
     const diffCounter = getStore().cms.status.diffCounter + 1;
@@ -198,9 +198,13 @@ export function fetchVariables(config) {
     if (!variables[localeDefault]) variables[localeDefault] = {_genStatus: {}, _matStatus: {}};
     if (localeSecondary && !variables[localeSecondary]) variables[localeSecondary] = {_genStatus: {}, _matStatus: {}};
 
+    // useCache will be true if the front-end is telling us we have the variables already. Short circuit the gets/puts
+    if (useCache && thisProfile.variables) {
+      dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables)}});
+    }
     // If we've received a zero-length config of type generator, this is a brand-new profile.
     // Return the scaffolded empty data.
-    if (config.type === "generator" && config.ids.length === 0) {
+    else if (config.type === "generator" && config.ids.length === 0) {
       dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
     }
     else {

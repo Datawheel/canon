@@ -25,24 +25,42 @@ class Toolbox extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const previewsChanged = JSON.stringify(prevProps.status.previews) !== JSON.stringify(this.props.status.previews);
+    const oldSlugs = prevProps.status.previews ? prevProps.status.previews.map(p => p.slug).join() : prevProps.status.previews;
+    const newSlugs = this.props.status.previews ? this.props.status.previews.map(p => p.slug).join() : this.props.status.previews;
+    const oldIDs = prevProps.status.previews ? prevProps.status.previews.map(p => p.id).join() : prevProps.status.previews;
+    const newIDs = this.props.status.previews ? this.props.status.previews.map(p => p.id).join() : this.props.status.previews;
+    const changedSinglePreview = oldSlugs === newSlugs && oldIDs !== newIDs;
+    const changedEntireProfile = oldSlugs !== newSlugs;
+    
     const localeChanged = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
-    // const firstLoad = prevProps.profile && !prevProps.profile.toolboxLoaded && this.props.profile && this.props.profile.toolboxLoaded;
     const bothLoaded = prevProps.profile && this.props.profile;
     const generatorDeleted = bothLoaded && prevProps.profile.generators.length - 1 === this.props.profile.generators.length;
     const materializerDeleted = bothLoaded && prevProps.profile.materializers.length - 1 === this.props.profile.materializers.length;
 
-    if (previewsChanged || localeChanged) {
+    if (changedSinglePreview) {
+      console.log("dropdown changed");
+      console.log("====FETCH====");
+      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
+    }
+    if (changedEntireProfile) {
+      console.log("profile changed");
+      console.log("====FETCH====");
+      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)}, true);
+    }
+    if (localeChanged) {
+      console.log("locale changed");
       console.log("====FETCH====");
       this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
     }
     // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
     // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
     if (generatorDeleted) {
+      console.log("generator deleted");
       console.log("====FETCH====");
       this.props.fetchVariables({type: "generator", ids: [this.props.profile.deletedGeneratorID]});
     }
     if (materializerDeleted) {
+      console.log("materializer deleted");
       console.log("====FETCH====");
       this.props.fetchVariables({type: "materializer", ids: [this.props.profile.deletedMaterializerID]});
     }
@@ -287,7 +305,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchVariables: config => dispatch(fetchVariables(config)),
+  fetchVariables: (config, useCache) => dispatch(fetchVariables(config, useCache)),
   newEntity: (type, payload) => dispatch(newEntity(type, payload)),
   setStatus: status => dispatch(setStatus(status))
 });
