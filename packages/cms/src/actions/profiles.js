@@ -86,8 +86,8 @@ export function deleteDimension(id) {
 
 /** */
 export function newEntity(type, payload) { 
-  return function(dispatch) {
-    return axios.post(`/api/cms/${type}/new`, payload)
+  return function(dispatch, getStore) {
+    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/new`, payload)
       .then(({data}) => {
         dispatch({type: `${type.toUpperCase()}_NEW`, data});
       });
@@ -98,7 +98,7 @@ export function newEntity(type, payload) {
 export function updateEntity(type, payload) { 
   return function(dispatch, getStore) {
     const diffCounter = getStore().cms.status.diffCounter + 1;
-    return axios.post(`/api/cms/${type}/update`, payload)
+    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/update`, payload)
       .then(({data}) => {
         dispatch({type: `${type.toUpperCase()}_UPDATE`, data, diffCounter});
       });
@@ -107,8 +107,8 @@ export function updateEntity(type, payload) {
 
 /** */
 export function deleteEntity(type, payload) { 
-  return function(dispatch) {
-    axios.delete(`/api/cms/${type}/delete`, {params: payload})
+  return function(dispatch, getStore) {
+    axios.delete(`${getStore().env.CANON_API}/api/cms/${type}/delete`, {params: payload})
       .then(({data}) => {
         dispatch({type: `${type.toUpperCase()}_DELETE`, data});
       });
@@ -152,7 +152,7 @@ export function resetPreviews() {
     const requests = profileMeta.map((meta, i) => {
       const levels = meta.levels ? meta.levels.join() : false;
       const levelString = levels ? `&levels=${levels}` : "";
-      let url = `/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
+      let url = `${getStore().env.CANON_API}/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
       
       const ps = pathObj.previews;
       // If previews is of type string, then it came from the URL permalink. Override
@@ -228,7 +228,7 @@ export function fetchVariables(config) {
             delete variables[thisLocale]._matStatus[mid];
           }
           // Once pruned, we can POST the variables to the materializer endpoint
-          axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+          axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
             variables[thisLocale] = nestedObjectAssign({}, variables[thisLocale], mat.data);
             dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
           });
@@ -252,7 +252,7 @@ export function fetchVariables(config) {
             Object.keys(query).forEach(k => {
               paramString += `&${k}=${query[k]}`;
             });
-            axios.get(`/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
+            axios.get(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
               variables[thisLocale] = nestedObjectAssign({}, variables[thisLocale], gen.data);
               let gensLoaded = Object.keys(variables[thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
               const gensTotal = gids.length;
@@ -271,7 +271,7 @@ export function fetchVariables(config) {
                   });
                   delete variables[thisLocale]._matStatus[mid];
                 });
-                axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+                axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
                   variables[thisLocale] = nestedObjectAssign({}, variables[thisLocale], mat.data);
                   dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
                 });

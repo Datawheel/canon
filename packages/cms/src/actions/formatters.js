@@ -2,8 +2,8 @@ import axios from "axios";
 
 /** */
 export function getFormatters() { 
-  return function(dispatch) {
-    return axios.get("/api/cms/formatter")
+  return function(dispatch, getStore) {
+    return axios.get(`${getStore().env.CANON_API}/api/cms/formatter`)
       .then(({data}) => {
         dispatch({type: "FORMATTER_GET", data});
       });
@@ -12,8 +12,8 @@ export function getFormatters() {
 
 /** */
 export function newFormatter(payload) { 
-  return function(dispatch) {
-    return axios.post("/api/cms/formatter/new", payload)
+  return function(dispatch, getStore) {
+    return axios.post(`${getStore().env.CANON_API}/api/cms/formatter/new`, payload)
       .then(({data}) => {
         dispatch({type: "FORMATTER_NEW", data});
       });
@@ -22,8 +22,8 @@ export function newFormatter(payload) {
 
 /** */
 export function updateFormatter(payload) { 
-  return function(dispatch) {
-    return axios.post("/api/cms/formatter/update", payload)
+  return function(dispatch, getStore) {
+    return axios.post(`${getStore().env.CANON_API}/api/cms/formatter/update`, payload)
       .then(({data}) => {
         dispatch({type: "FORMATTER_UPDATE", data});
       });
@@ -32,8 +32,8 @@ export function updateFormatter(payload) {
 
 /** */
 export function deleteFormatter(id) { 
-  return function(dispatch) {
-    axios.delete("/api/cms/formatter/delete", {params: {id}})
+  return function(dispatch, getStore) {
+    axios.delete(`${getStore().env.CANON_API}/api/cms/formatter/delete`, {params: {id}})
       .then(({data}) => {
         dispatch({type: "FORMATTER_DELETE", data});
       });
