@@ -15,14 +15,6 @@ import {newEntity, updateEntity} from "../actions/profiles";
 
 import "./SectionEditor.css";
 
-const propMap = {
-  section_stat: "stats",
-  section_description: "descriptions",
-  section_subtitle: "subtitles",
-  section_visualization: "visualizations",
-  selectors: "selectors"
-};
-
 class SectionEditor extends Component {
 
   constructor(props) {
@@ -73,16 +65,6 @@ class SectionEditor extends Component {
 
   onMove() {
     this.forceUpdate();
-  }
-
-  onSelect(selectionObj) {
-    this.setState({query: Object.assign({}, this.state.query, selectionObj)});
-  }
-
-  onDelete(type, newArray) {
-    const {minData} = this.state;
-    minData[propMap[type]] = newArray;
-    this.setState({minData});
   }
 
   render() {
@@ -241,7 +223,6 @@ class SectionEditor extends Component {
                 minData={s}
                 fields={["subtitle"]}
                 type="section_subtitle"
-                onDelete={this.onDelete.bind(this)}
                 parentArray={minData.subtitles}
                 onMove={this.onMove.bind(this)}
               />
@@ -271,7 +252,6 @@ class SectionEditor extends Component {
                 minData={s}
                 fields={["title", "subtitle", "value", "tooltip"]}
                 type="section_stat"
-                onDelete={this.onDelete.bind(this)}
                 parentArray={minData.stats}
                 onMove={this.onMove.bind(this)}
               />
@@ -289,7 +269,6 @@ class SectionEditor extends Component {
                 minData={d}
                 fields={["description"]}
                 type="section_description"
-                onDelete={this.onDelete.bind(this)}
                 parentArray={minData.descriptions}
                 onMove={this.onMove.bind(this)}
               />
@@ -306,7 +285,6 @@ class SectionEditor extends Component {
                 key={v.id}
                 item={v}
                 query={query}
-                onDelete={this.onDelete.bind(this)}
                 type="section_visualization"
                 parentArray={minData.visualizations}
                 onMove={this.onMove.bind(this)}

@@ -29,7 +29,6 @@ class ProfileBuilder extends Component {
     super(props);
     this.state = {
       nodes: null,
-      selectors: [],
       toolboxVisible: true
     };
   }
@@ -246,20 +245,13 @@ class ProfileBuilder extends Component {
   }
 
   formatLabel(str) {
-    const {selectors} = this.state;
+    const {selectors} = this.props;
     const {query, variables, localeDefault} = this.props.status;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
     str = stripHTML(str);
     str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
     return str;
-  }
-
-  /*
-   * Callback for updating selectors inside Toolbox
-   */
-  updateSelectors(selectors) {
-    this.setState({selectors});
   }
 
   /*
@@ -285,7 +277,7 @@ class ProfileBuilder extends Component {
 
   render() {
 
-    const {nodes, nodeToDelete, selectors, toolboxVisible} = this.state;
+    const {nodes, nodeToDelete, toolboxVisible} = this.state;
     const {currentNode, currentPid, previews, gensLoaded, gensTotal, genLang} = this.props.status;
 
     if (!nodes) return null;
@@ -328,7 +320,6 @@ class ProfileBuilder extends Component {
             { currentNode
               ? <Editor
                 id={currentNode.data.id}
-                selectors={selectors}
                 order={currNodeOrder}
                 reportSave={this.reportSave.bind(this)}
               >
@@ -348,7 +339,6 @@ class ProfileBuilder extends Component {
 
             <Toolbox
               id={currentPid}
-              updateSelectors={this.updateSelectors.bind(this)}
               toolboxVisible={toolboxVisible}
             >
               <div className="cms-toolbox-collapse-wrapper u-hide-below-lg">
@@ -400,6 +390,7 @@ ProfileBuilder.childContextTypes = {
 const mapStateToProps = state => ({
   env: state.env,
   profiles: state.cms.profiles,
+  selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : [],
   status: state.cms.status
 });
 
