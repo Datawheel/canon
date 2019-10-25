@@ -64,20 +64,22 @@ export function deleteSection(id) {
 
 /** */
 export function modifyDimension(payload) { 
-  return function(dispatch) {
+  return function(dispatch, getStore) {
+    const diffCounter = getStore().cms.status.diffCounter + 1;
     return axios.post("/api/cms/profile/upsertDimension", payload)
       .then(({data}) => {
-        dispatch({type: "DIMENSION_MODIFY", data});
+        dispatch({type: "DIMENSION_MODIFY", data, diffCounter});
       });
   };
 }
 
 /** */
 export function deleteDimension(id) { 
-  return function(dispatch) {
+  return function(dispatch, getStore) {
+    const diffCounter = getStore().cms.status.diffCounter + 1;
     return axios.delete("/api/cms/profile_meta/delete", {params: {id}})
       .then(({data}) => {
-        dispatch({type: "DIMENSION_MODIFY", data});
+        dispatch({type: "DIMENSION_MODIFY", data, diffCounter});
       });
   };
 }

@@ -65,7 +65,7 @@ export default (profiles = [], action) => {
 
     // Dimensions
     case "DIMENSION_MODIFY": 
-      return action.data;
+      return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data}) : p);
     
     // Sections
     case "SECTION_SWAP":

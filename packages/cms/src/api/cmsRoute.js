@@ -602,7 +602,7 @@ module.exports = function(app) {
     await db.section_content.create({id: section.id, locale: envLoc}).catch(catcher);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile.id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
-    newProfile = newProfile.toJSON();
+    newProfile = sortProfile(db, newProfile.toJSON()); 
     const sectionTypes = getSectionTypes();
     newProfile.sections = newProfile.sections.map(section => {
       section = sortSection(db, section);
@@ -634,9 +634,16 @@ module.exports = function(app) {
         populateSearch(profileData, db);
       }
     }
-    let profiles = await db.profile.findAll(profileReqTreeOnly).catch(catcher);
-    profiles = sortProfileTree(db, profiles);
-    return res.json(profiles);
+    const reqObj = Object.assign({}, profileReqFull, {where: {id: profile_id}});
+    let newProfile = await db.profile.findOne(reqObj).catch(catcher);
+    newProfile = sortProfile(db, newProfile.toJSON());
+    const sectionTypes = getSectionTypes();
+    newProfile.sections = newProfile.sections.map(section => {
+      section = sortSection(db, section);
+      section.types = sectionTypes;
+      return section;
+    });
+    return res.json(newProfile);
   });
 
   app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
@@ -692,7 +699,6 @@ module.exports = function(app) {
           if (!original || !other) return res.json([]);
           const newOriginal = await db[ref].update({ordering: sequelize.literal("ordering + 1")}, {where: {id}, returning: true, plain: true}).catch(catcher);
           const newOther = await db[ref].update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
-          console.log([newOriginal[1], newOther[1]]);
           return res.json([newOriginal[1], newOther[1]]);
         }
         else if (dir === "up") {
@@ -701,7 +707,6 @@ module.exports = function(app) {
           if (!original || !other) return res.json([]);
           const newOriginal = await db[ref].update({ordering: sequelize.literal("ordering - 1")}, {where: {id}, returning: true, plain: true}).catch(catcher);
           const newOther = await db[ref].update({ordering: sequelize.literal("ordering + 1")}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher); 
-          console.log([newOriginal[1], newOther[1]]);
           return res.json([newOriginal[1], newOther[1]]);
         }
         else {
@@ -824,18 +829,16 @@ module.exports = function(app) {
     await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
     pruneSearch(row.dimension, row.levels, db);
-    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
-    profiles = sortProfileTree(db, profiles);
+    const reqObj = Object.assign({}, profileReqFull, {where: {id: row.profile_id}});
+    let newProfile = await db.profile.findOne(reqObj).catch(catcher);
+    newProfile = sortProfile(db, newProfile.toJSON());
     const sectionTypes = getSectionTypes();
-    profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => {
-        section = sortSection(db, section);
-        section.types = sectionTypes;
-        return section;
-      });
-      return profile;
+    newProfile.sections = newProfile.sections.map(section => {
+      section = sortSection(db, section);
+      section.types = sectionTypes;
+      return section;
     });
-    return res.json(profiles);
+    return res.json(newProfile);
   });
 
   app.delete("/api/cms/story/delete", isEnabled, async(req, res) => {
