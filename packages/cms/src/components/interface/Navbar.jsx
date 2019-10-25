@@ -14,6 +14,7 @@ class Navbar extends Component {
       currEntity,           // which entity are we on (profile/story)
       navLinks,             // array of links
       onTabChange,          // callback function for switching tabs
+      onSettingsClose,      // callback function for setting settingsOpen to false
       onSettingsToggle,     // callback function for maintaining settingsOpen
       onOutlineToggle,      // callback function for maintaining outlineOpen
       onOpenEntitySettings, // callback function for editing entity metadata
@@ -53,11 +54,12 @@ class Navbar extends Component {
 
         {/* list of links */}
         <ul className="cms-navbar-list">
-          {navLinks.map(navLink =>
+          {navLinks.map((navLink, i) =>
             <li className="cms-navbar-item" key={navLink.title}>
               <button
                 className={`cms-navbar-link u-font-xs${navLink.title === currentTab ? " is-active" : ""}`}
                 onClick={() => onTabChange(navLink.title)}
+                onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? onSettingsClose() : null}
               >
                 {navLink.title}
               </button>
@@ -67,15 +69,17 @@ class Navbar extends Component {
 
         {/* settings menu & overlay */}
         {settingsAvailable
-          ? <Fragment>
+          ? <div className="cms-navbar-settings-wrapper">
             <div className="cms-navbar-settings-button-container">
               <Button
                 className="cms-navbar-settings-button"
+                id="cms-navbar-settings-button"
                 namespace="cms"
                 icon="cog"
                 fontSize="xs"
                 active={settingsOpen}
                 onClick={() => onSettingsToggle()}
+                aria-label={settingsOpen ? "View settings menu" : "Hide settings menu"}
               >
                 settings
               </Button>
@@ -83,53 +87,52 @@ class Navbar extends Component {
 
             <div className={`cms-navbar-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
               {/* locale select */}
-              {locales &&
-                <Fragment>
-                  <h2 className="cms-navbar-settings-heading u-font-sm">
-                    Languages
-                  </h2>
-                  {/* primary locale */}
-                  {/* NOTE: currently just shows the primary locale in a dropdown */}
-                  <Select
-                    label="Primary"
-                    fontSize="xs"
-                    namespace="cms"
-                    inline
-                    options={[locales.primaryLocale]}
-                    tabIndex={settingsOpen ? null : "-1"}
-                  />
-                  {/* secondary locale */}
-                  <Select
-                    label="Secondary"
-                    fontSize="xs"
-                    namespace="cms"
-                    inline
-                    options={locales.availableLocales.map(locale => locale)}
-                    onChange={e => onLocaleSelect(e)}
-                    tabIndex={settingsOpen ? null : "-1"}
-                  >
-                    <option value="none">none</option>
-                  </Select>
-                </Fragment>
-              }
-              {account &&
-                <Fragment>
-                  <h2 className="cms-navbar-settings-heading u-font-sm u-margin-top-md">
-                    Account
-                  </h2>
-                  <a className="cms-button cms-fill-button u-margin-bottom-xs" href="/auth/logout">
-                    <Icon className="cms-button-icon" icon="log-out" />
-                    <span className="cms-button-text">Log Out</span>
-                  </a>
-                </Fragment>
-              }
+              {locales && <Fragment>
+                <h2 className="cms-navbar-settings-heading u-font-sm">
+                  Languages
+                </h2>
+                {/* primary locale */}
+                {/* NOTE: currently just shows the primary locale in a dropdown */}
+                <Select
+                  label="Primary"
+                  fontSize="xs"
+                  namespace="cms"
+                  inline
+                  options={[locales.primaryLocale]}
+                  tabIndex={settingsOpen ? null : "-1"}
+                />
+                {/* secondary locale */}
+                <Select
+                  label="Secondary"
+                  fontSize="xs"
+                  namespace="cms"
+                  inline
+                  options={locales.availableLocales.map(locale => locale)}
+                  onChange={e => onLocaleSelect(e)}
+                  tabIndex={settingsOpen ? null : "-1"}
+                >
+                  <option value="none">none</option>
+                </Select>
+              </Fragment>}
+
+              {account && <Fragment>
+                <h2 className="cms-navbar-settings-heading u-font-sm u-margin-top-md">
+                  Account
+                </h2>
+                <a className="cms-button cms-fill-button u-margin-bottom-xs" href="/auth/logout">
+                  <Icon className="cms-button-icon" icon="log-out" />
+                  <span className="cms-button-text">Log Out</span>
+                </a>
+              </Fragment>}
             </div>
             <button
               className={`cms-navbar-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
               onClick={() => onSettingsToggle()}
+              onFocus={() => onSettingsClose()}
+              aria-labelledby="cms-navbar-settings-button"
               tabIndex={settingsOpen ? null : "-1"}
             />
-          </Fragment> : ""
+          </div> : ""
         }
       </nav>
     );

@@ -110,6 +110,10 @@ class Builder extends Component {
     });
   }
 
+  // manage open/closed state of settings popover
+  closeSettings() {
+    this.setState({settingsOpen: false});
+  }
   toggleSettings() {
     this.setState({settingsOpen: !this.state.settingsOpen});
   }
@@ -201,6 +205,7 @@ class Builder extends Component {
     const onLocaleSelect        = locale  => this.handleLocaleSelect(locale);
     const onOpenEntitySettings  = entity  => this.editEntitySettings(entity);
     const onOutlineToggle       = val     => this.toggleOutline(val);
+    const onSettingsClose       = val     => this.closeSettings(val);
     const onSettingsToggle      = val     => this.toggleSettings(val);
 
     const navbarProps = {
@@ -213,6 +218,7 @@ class Builder extends Component {
       onLocaleSelect,
       onOpenEntitySettings,
       onOutlineToggle,
+      onSettingsClose,
       onSettingsToggle,
       outlineOpen
     };
