@@ -121,20 +121,100 @@ class Options extends Component {
 
   onSave() {
     const {title} = this.props;
-    const {imageFormat} = this.state;
+    const {backgroundColor, imageContext, imageFormat} = this.state;
     this.setState({imageProcessing: true});
 
     let node = this.getNode();
     if (node) {
-      const {backgroundColor} = this.state;
-      if (imageFormat === "svg") node = select(node).select(".d3plus-viz").node();
+      // config
       let background;
       if (backgroundColor) background = getBackground(node);
-      saveElement(
-        node,
-        {filename: filename(title), imageFormat},
-        {background, callback: () => this.setState({imageProcessing: false})}
-      );
+
+      // grab the d3plus visualization directly and save it as-is
+      if (imageFormat === "svg") {
+        node = select(node).select(".d3plus-viz").node();
+        saveElement(
+          node,
+          {filename: filename(title), type: "svg"},
+          {background, callback: () => this.setState({imageProcessing: false})}
+        );
+      }
+
+      // construct the png image in the mirror
+      else {
+        // get node dimensions (fudged to account for padding & Mirror footer)
+        const width = node.offsetWidth + 40;
+        const height = node.offsetHeight + 120;
+
+        // make a copy of the node so we're not editing the original
+        node = node.parentNode.cloneNode(true);
+
+        // get the mirror, make it visible, and size it
+        const mirror = document.body.querySelector(".mirror");
+        mirror.classList.add("is-visible", `${imageContext}-context`);
+        mirror.classList.remove("is-hidden");
+        mirror.style.width = `${width}px`;
+        mirror.style.height = `${height}px`;
+
+        // once the mirror is visible, clone elements into it
+        setTimeout(() => {
+          mirror.querySelector(".mirror-content-inner").innerHTML = "";
+          mirror.querySelector(".mirror-content-inner").appendChild(node);
+          mirror.querySelector(".mirror-footer-text-url").innerHTML = this.props.location.href.replace("http://", "").replace("https://", "");
+
+          // select elements aren't being rendered to the canvas; replace them
+          const selects = mirror.querySelectorAll(".cp-select");
+          if (selects) {
+            selects.forEach(select => {
+              // create a fake element with properties of the select menu
+              const fakeSelect = document.createElement("p");
+              // get the selected option
+              fakeSelect.innerHTML = select.options[select.selectedIndex].text;
+              // get the classes from the real select & add them to the fake
+              const classes = select.classList;
+              fakeSelect.classList = classes;
+              // I'm the captain now
+              select.parentNode.replaceChild(fakeSelect, select);
+            });
+          }
+
+          // // swap out table header buttons with spans
+          const tableHeaders = mirror.querySelectorAll(".rt-th");
+          if (tableHeaders) {
+            tableHeaders.forEach(header => {
+              // create a fake element with properties of the header header
+              const fakeHeader = document.createElement("span");
+              // remove header button screen reader text & icon
+              const hiddenText = header.querySelector(".u-visually-hidden");
+              hiddenText.parentNode.removeChild(hiddenText);
+              const icon = header.querySelector(".cp-table-header-icon");
+              icon.parentNode.removeChild(icon);
+              // get header text
+              fakeHeader.innerHTML = header.textContent || header.innerText;
+              // get the classes from the real header & add them to the fake
+              const classes = header.classList;
+              fakeHeader.classList = [classes];
+              // I'm the captain now
+              header.parentNode.replaceChild(fakeHeader, header);
+            });
+          }
+
+          // save!
+          saveElement(
+            mirror,
+            {filename: filename(title), type: imageFormat},
+            {background, callback: () => {
+              // make mirror invisible
+              mirror.classList.add("is-hidden");
+              mirror.classList.remove("is-visible", `${imageContext}-context`);
+              // remove mirrored content
+              mirror.querySelector(".mirror-content-inner").removeChild(node);
+              // reset state
+              this.setState({imageProcessing: false});
+            }}
+          );
+        });
+      }
     }
     else {
       this.setState({imageProcessing: false});
@@ -153,16 +233,13 @@ class Options extends Component {
 
       // d3plus visualizations render within a container; use it for the image
       if (elem.container) return elem.container;
-      // custom visualizations need to have their own ref named `viz`
-      else if (elem.viz && elem.viz.current) return elem.viz.current;
-      // neither case is fullfilled
+      // custom visualizations
       else return elem;
     }
 
     // get the section
     else if (imageContext === "section" && component.section.section) {
-      elem = component.section.section;
-      return elem;
+      return component.section.section;
     }
 
     else return false;
