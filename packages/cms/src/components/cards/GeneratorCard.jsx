@@ -100,7 +100,7 @@ class GeneratorCard extends Component {
   delete() {
     const {type} = this.props;
     const {id} = this.props.minData;
-    this.props.deleteEntity(type, id);
+    this.props.deleteEntity(type, {id});
   }
 
   save() {
@@ -255,7 +255,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
-  deleteEntity: (type, id) => dispatch(deleteEntity(type, id)),
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
   fetchVariables: config => dispatch(fetchVariables(config)),
   setStatus: status => dispatch(setStatus(status))
 });

@@ -1,10 +1,11 @@
-import axios from "axios";
+import {axios} from "axios";
 import {connect} from "react-redux";
 import React, {Component} from "react";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
 import stripHTML from "../../utils/formatters/stripHTML";
 
+import {newEntity, deleteEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
 import "./SelectorUsage.css";
@@ -14,49 +15,18 @@ class SelectorUsage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      minData: null,
       currentValues: {}
     };
   }
 
-  componentDidMount() {
-    this.setState({minData: this.props.minData});
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.state.minData && prevProps.minData.id !== this.props.minData.id) {
-      this.setState({minData: this.props.minData});
-    }
-  }
-
   removeItem(id) {
-    const {minData} = this.state;
-    const payload = {params: {section_id: minData.id, selector_id: id}};
-    axios.delete("/api/cms/section_selector/delete", payload).then(resp => {
-      if (resp.status === 200) {
-        minData.selectors = resp.data;
-        this.setState({minData});
-      }
-    });
+    const {minData} = this.props;
+    this.props.deleteEntity("section_selector", {section_id: minData.id, selector_id: id});
   }
 
   addItem(id) {
-    const {minData} = this.state;
-    const {selectors} = minData;
-    const {allSelectors} = this.props;
-    const payload = {
-      section_id: minData.id,
-      selector_id: id,
-      ordering: selectors.length
-    };
-    axios.post("/api/cms/section_selector/new", payload).then(resp => {
-      const toMove = allSelectors.find(d => d.id === id);
-      if (toMove) {
-        toMove.section_selector = resp.data;
-        minData.selectors.push(toMove);
-        this.setState({minData});
-      }
-    });
+    const {minData} = this.props;
+    this.props.newEntity("section_selector", {section_id: minData.id, selector_id: id});
   }
 
   onChange(name, e) {
@@ -68,7 +38,7 @@ class SelectorUsage extends Component {
   }
 
   swapSelector(index) {
-    const {minData} = this.state;
+    const {minData} = this.props;
     const {selectors} = minData;
     const payload = {
       section_id: minData.id,
@@ -84,10 +54,10 @@ class SelectorUsage extends Component {
 
   render() {
 
-    const {minData, currentValues} = this.state;
+    const {currentValues} = this.state;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
-    const {allSelectors} = this.props;
+    const {minData, allSelectors} = this.props;
 
     if (!minData) return null;
 
@@ -210,7 +180,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setStatus: status => dispatch(setStatus(status))
+  setStatus: status => dispatch(setStatus(status)),
+  newEntity: (type, payload) => dispatch(newEntity(type, payload)),
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectorUsage);

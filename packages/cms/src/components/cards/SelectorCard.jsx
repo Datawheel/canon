@@ -1,4 +1,3 @@
-import axios from "axios";
 import {connect} from "react-redux";
 import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
@@ -65,7 +64,7 @@ class SelectorCard extends Component {
 
   delete() {
     const {id} = this.props.minData;
-    this.props.deleteEntity("selector", id);
+    this.props.deleteEntity("selector", {id});
   }
 
   openEditor() {
@@ -204,7 +203,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
-  deleteEntity: (type, id) => dispatch(deleteEntity(type, id))
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectorCard);

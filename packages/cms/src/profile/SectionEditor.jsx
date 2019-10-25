@@ -42,7 +42,6 @@ class SectionEditor extends Component {
   changeField(field, save, e) {
     const {minData} = this.state;
     minData[field] = field === "slug" ? this.urlPrep(e.target.value) : e.target.value;
-    console.log(minData);
     save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
   }
 
@@ -304,7 +303,8 @@ SectionEditor.contextTypes = {
 const mapStateToProps = (state, ownProps) => ({
   status: state.cms.status,
   minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).sections.find(s => s.id === ownProps.id),
-  allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
+  allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors,
+  profiles: state.cms.profiles
 });
 
 const mapDispatchToProps = dispatch => ({

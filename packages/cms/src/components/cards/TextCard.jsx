@@ -186,7 +186,7 @@ class TextCard extends Component {
   delete() {
     const {type} = this.props;
     const {id} = this.props.minData;
-    this.props.deleteEntity(type, id);
+    this.props.deleteEntity(type, {id});
   }
 
   openEditor() {
@@ -383,7 +383,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
-  deleteEntity: (type, id) => dispatch(deleteEntity(type, id))
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TextCard);

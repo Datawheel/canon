@@ -103,9 +103,9 @@ export function updateEntity(type, payload) {
 }
 
 /** */
-export function deleteEntity(type, id) { 
+export function deleteEntity(type, payload) { 
   return function(dispatch) {
-    axios.delete(`/api/cms/${type}/delete`, {params: {id}})
+    axios.delete(`/api/cms/${type}/delete`, {params: payload})
       .then(({data}) => {
         dispatch({type: `${type.toUpperCase()}_DELETE`, data});
       });

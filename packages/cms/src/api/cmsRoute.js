@@ -107,14 +107,6 @@ const profileReqProfileOnly = {
   ]
 };
 
-const profileReqToolbox = {
-  include: [
-    {association: "generators"},
-    {association: "materializers"},
-    {association: "selectors"}
-  ]
-};
-
 const storyReqStoryOnly = {
   include: [
     {association: "content"},
@@ -588,7 +580,15 @@ module.exports = function(app) {
         return res.json(fullObj);
       }
       else {
-        return res.json(newObj);
+        if (ref === "section_selector") {
+          let selector = await db.selector.findOne({where: {id: req.body.selector_id}}).catch(catcher);
+          selector = selector.toJSON();
+          selector.section_selector = newObj.toJSON();
+          return res.json(selector);
+        }
+        else {
+          return res.json(newObj);  
+        }
       }
     });
   });
@@ -778,7 +778,7 @@ module.exports = function(app) {
       section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
       rows = section.selectors;
     }
-    return res.json(rows);
+    return res.json({parent_id: row.section_id, selectors: rows});
   });
 
   app.post("/api/cms/section_selector/swap", isEnabled, async(req, res) => {

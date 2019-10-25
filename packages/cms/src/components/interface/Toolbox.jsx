@@ -33,25 +33,8 @@ class Toolbox extends Component {
     const materializerDeleted = bothLoaded && prevProps.profile.materializers.length - 1 === this.props.profile.materializers.length;
 
     if (previewsChanged || localeChanged) {
-      console.log("previews changed, fetching");
       this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
     }
-    
-    /*
-
-    if (previewsChanged) {
-      if (!this.props.profile.toolboxLoaded) {
-        this.props.getToolbox(this.props.id);  
-      }
-      else {
-        this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
-      }
-    }
-    if (firstLoad || localeChanged) {
-      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
-    }
-
-    */
     // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
     // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
     if (generatorDeleted) {

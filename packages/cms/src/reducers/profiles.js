@@ -105,6 +105,15 @@ export default (profiles = [], action) => {
     case "SECTION_DESCRIPTION_DELETE":
       return deleteSectionEntity(profiles, action.data, "descriptions");
 
+    // Descriptions
+    case "SECTION_SELECTOR_NEW":
+      return profiles.map(p => 
+        Object.assign({}, p, {sections: p.sections.map(s => 
+          s.id === action.data.section_selector.section_id ? Object.assign({}, s, {selectors: s.selectors.concat([action.data])}) : s)}));
+    case "SECTION_SELECTOR_DELETE":
+      return profiles.map(p => 
+        Object.assign({}, p, {sections: p.sections.map(s => 
+          s.id === action.data.parent_id ? Object.assign({}, s, {selectors: action.data.selectors}) : s)}));
 
     // Variables
     case "VARIABLES_SET":

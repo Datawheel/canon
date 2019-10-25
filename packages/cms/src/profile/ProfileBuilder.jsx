@@ -52,6 +52,7 @@ class ProfileBuilder extends Component {
     // Doing a JSON.Stringify is too expensive here - and we need to ONLY call buildNodes
     // If certain properties of the profiles obj has changed. Use a DIY stringify to detect changes.
     const {nodes} = this.state;
+    const {currentPid} = this.props.status;
     const oldTree = prevProps.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, "");
     const newTree = this.props.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, "");
     const changedTree = oldTree !== newTree;
@@ -64,7 +65,7 @@ class ProfileBuilder extends Component {
       console.log("Tree Changed: Rebuilding Tree");
       this.buildNodes.bind(this)();
     }
-    if (nodes && changedMeta) {
+    if (nodes && currentPid && changedMeta) {
       console.log("Meta Changed: Resetting Previews");
       this.props.resetPreviews();
     }
@@ -73,18 +74,20 @@ class ProfileBuilder extends Component {
   buildNodes(openNode) {
     const {profiles} = this.props;
     const {localeDefault, pathObj} = this.props.status;
+    console.log(profiles);
     const nodes = treeify(profiles, localeDefault);
     if (!openNode) {
       const {profile, section} = pathObj;
+      let nodeToOpen;
       if (section) {
-        let nodeToOpen = this.locateNode("section", section, nodes);
+        nodeToOpen = this.locateNode("section", section, nodes);
         if (!nodeToOpen) nodeToOpen = nodes[0];
-        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+        this.setState({nodes}, nodeToOpen ? this.handleNodeClick.bind(this, nodeToOpen) : null);
       }
       else if (profile) {
         let nodeToOpen = this.locateNode("profile", profile, nodes);
         if (!nodeToOpen) nodeToOpen = nodes[0];
-        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
+        this.setState({nodes}, nodeToOpen ? this.handleNodeClick.bind(this, nodeToOpen) : null);
       }
       else {
         this.setState({nodes});
@@ -168,6 +171,7 @@ class ProfileBuilder extends Component {
     else {
       // If previews is a string, we are coming in from the URL permalink. Pass it down to the pathobj.
       if (typeof pathObj.previews === "string") newPathObj.previews = pathObj.previews;
+      console.log("setting", node.masterPid);
       this.props.setStatus({currentNode: node, currentPid: node.masterPid, pathObj: newPathObj});
       this.props.resetPreviews();
     }

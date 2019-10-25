@@ -59,8 +59,6 @@ class Builder extends Component {
 
     const pathObj = {profile, section, previews, story, storysection, tab: currentTab};
 
-    console.log("moutning buildering with ", pathObj);
-
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     const formatters = {};
