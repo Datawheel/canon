@@ -198,9 +198,6 @@ class ProfileBuilder extends Component {
     this.setState({nodes: this.state.nodes});
   }
 
-  /**
-   *
-   */
   locateProfileNodeByPid(pid) {
     return this.state.nodes.find(p => p.data.id === pid);
   }
@@ -252,13 +249,6 @@ class ProfileBuilder extends Component {
     return str;
   }
 
-  /*
-   * When the "fetch Variables" function is called (below), it means that something has
-   * happened in one of the editors that requires re-running the generators and storing
-   * a new set of variables in the hash. When this happens, it is an opportunity to update
-   * all the labels in the tree by varSwapping them, allowing them to appear properly
-   * in the sidebar.
-   */
   formatTreeVariables() {
     const {nodes} = this.state;
     const {currentPid, localeDefault} = this.props.status;
