@@ -1,5 +1,18 @@
 const deepClone = require("../utils/deepClone");
 
+const addSectionEntity = (profiles, data, accessor) => profiles.map(p => 
+  Object.assign({}, p, {sections: p.sections.map(s => 
+    s.id === data.section_id ? Object.assign({}, s, {[accessor]: s[accessor].concat([data])}) : s)}));
+
+const updateSectionEntity = (profiles, data, accessor) => profiles.map(p => 
+  Object.assign({}, p, {sections: p.sections.map(s => 
+    s.id === data.section_id ? Object.assign({}, s, {[accessor]: s[accessor].map(entity => 
+      entity.id === data.id ? Object.assign({}, entity, {...data}) : entity)}) : s)}));
+
+const deleteSectionEntity = (profiles, data, accessor) => profiles.map(p => 
+  Object.assign({}, p, {sections: p.sections.map(s => 
+    s.id === data.parent_id ? Object.assign({}, s, {[accessor]: data.newArray}) : s)}));
+
 export default (profiles = [], action) => {
   switch (action.type) {
     // Profiles
@@ -56,8 +69,8 @@ export default (profiles = [], action) => {
     
     // Sections
     case "SECTION_SWAP":
-      return profiles
-        .map(p => Object.assign({}, p, {sections: p.sections.map(s => {
+      return profiles.map(p => 
+        Object.assign({}, p, {sections: p.sections.map(s => {
           const match = action.data.find(d => d.id === s.id);
           return match ? Object.assign({}, s, {ordering: match.ordering}) : s;  
         }).sort((a, b) => a.ordering - b.ordering)}));
@@ -67,6 +80,31 @@ export default (profiles = [], action) => {
       return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
     case "SECTION_DELETE":
       return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {sections: action.data.sections}) : p);
+    
+    // Subtitles
+    case "SECTION_SUBTITLE_NEW":
+      return addSectionEntity(profiles, action.data, "subtitles");
+    case "SECTION_SUBTITLE_UPDATE":
+      return updateSectionEntity(profiles, action.data, "subtitles");
+    case "SECTION_SUBTITLE_DELETE":
+      return deleteSectionEntity(profiles, action.data, "subtitles");
+
+    // Stats
+    case "SECTION_STAT_NEW":
+      return addSectionEntity(profiles, action.data, "stats");
+    case "SECTION_STAT_UPDATE":
+      return updateSectionEntity(profiles, action.data, "stats");
+    case "SECTION_STAT_DELETE":
+      return deleteSectionEntity(profiles, action.data, "stats");
+
+    // Descriptions
+    case "SECTION_DESCRIPTION_NEW":
+      return addSectionEntity(profiles, action.data, "descriptions");
+    case "SECTION_DESCRIPTION_UPDATE":
+      return updateSectionEntity(profiles, action.data, "descriptions");
+    case "SECTION_DESCRIPTION_DELETE":
+      return deleteSectionEntity(profiles, action.data, "descriptions");
+
 
     // Variables
     case "VARIABLES_SET":

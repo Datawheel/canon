@@ -734,8 +734,10 @@ module.exports = function(app) {
         await db[ref].destroy({where: {id: req.query.id}}).catch(catcher);
         const where2 = {};
         where2[list.parent] = row[list.parent];
-        const rows = await db[ref].findAll({where: where2, attributes: ["id", "ordering"], order: [["ordering", "ASC"]]}).catch(catcher);
-        return res.json(rows);
+        const reqObj = {where: where2, order: [["ordering", "ASC"]]};
+        if (contentTables.includes(ref)) reqObj.include = {association: "content"};
+        const rows = await db[ref].findAll(reqObj).catch(catcher);
+        return res.json({parent_id: row[list.parent], newArray: rows});
       });
     });
   });

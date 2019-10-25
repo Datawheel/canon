@@ -190,7 +190,7 @@ class TextCard extends Component {
   }
 
   openEditor() {
-    const minData = deepClone(this.props.minData);
+    const minData = this.populateLanguageContent.bind(this)(deepClone(this.props.minData));
     const isOpen = true;
     this.setState({minData, isOpen});
   }
@@ -239,6 +239,8 @@ class TextCard extends Component {
     const variables = this.props.status.variables[localeDefault];
 
     if (!minData || !thisDisplayData) return <Loading />;
+
+    const minDataState = this.state.minData;
 
     let cardClass = "splash-card";
     if (["profile_stat", "section_stat"].includes(type)) cardClass = "cms-stat-card";
@@ -334,15 +336,15 @@ class TextCard extends Component {
                 {localeSecondary &&
                   <LocaleName locale={localeDefault} />
                 }
-                {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={this.state.minData} locale={localeDefault} fields={plainfields} />}
-                {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={this.state.minData} locale={localeDefault} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minDataState} locale={localeDefault} fields={plainfields} />}
+                {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minDataState} locale={localeDefault} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
               </div>
 
               {localeSecondary &&
                 <div className="cms-dialog-locale-container">
                   <LocaleName locale={localeSecondary} />
-                  {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={this.state.minData} locale={localeSecondary} fields={plainfields} />}
-                  {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={this.state.minData} locale={localeSecondary} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                  {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minDataState} locale={localeSecondary} fields={plainfields} />}
+                  {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minDataState} locale={localeSecondary} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
                 </div>
               }
             </div>
@@ -351,7 +353,7 @@ class TextCard extends Component {
               <Select
                 label="Visible"
                 namespace="cms"
-                value={minData.allowed || "always"}
+                value={minDataState.allowed || "always"}
                 onChange={this.chooseVariable.bind(this)}
                 inline
               >
