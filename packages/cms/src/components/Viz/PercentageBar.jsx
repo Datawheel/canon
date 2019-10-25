@@ -85,7 +85,7 @@ class PercentageBar extends Component {
 
     return (
       <Fragment>
-        <div className={`percentage-bar-wrapper ${`${labelVal}`.includes("%") ? "is-percent" : ""}`} ref={this.viz}>
+        <div className={`percentage-bar-wrapper ${`${labelVal}`.includes("%") ? "is-percent" : ""}`} ref={this.viz} key="percentage-bar-wrapper">
 
           <div className="precentage-bar-grid-holder">
             <svg className="percentage-bar-grid">
@@ -127,7 +127,7 @@ class PercentageBar extends Component {
             })}
           </ul>
         </div>
-        <div className="show-more">
+        <div className="show-more" key="show-more">
           {!showAll && cutoffText &&
             <Parse className="cutoff-text">{cutoffText}</Parse>
           }
