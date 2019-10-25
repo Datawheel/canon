@@ -69,6 +69,13 @@ class ProfileBuilder extends Component {
       console.log("Meta Changed: Resetting Previews");
       this.props.resetPreviews();
     }
+
+    const changedVariablesOrTitle = prevProps.status.diffCounter !== this.props.status.diffCounter;
+    const changedQuery = JSON.stringify(prevProps.status.query) !== JSON.stringify(this.props.status.query);
+    if (changedVariablesOrTitle || changedQuery) {
+      this.formatTreeVariables.bind(this)();
+    }
+    
   }
 
   buildNodes(openNode) {
@@ -229,27 +236,10 @@ class ProfileBuilder extends Component {
     return node;
   }
 
-  /**
-   * If a save occurred in the SectionEditor, the user may have changed the slug/title. This callback is responsible for
-   * updating the tree labels accordingly.
-   */
-  reportSave(id, newValue) {
-    const {nodes} = this.state;
-    const {localeDefault} = this.props.status;
-    const node = this.locateNode.bind(this)("section", id);
-    // Update the label based on the new value.
-    if (node) {
-      const defCon = node.data.content.find(c => c.locale === localeDefault);
-      if (defCon) defCon.title = newValue;
-      // todo: determine if this could be merged with formatTreeVariables
-      node.label = this.formatLabel.bind(this)(newValue);
-    }
-    this.setState({nodes});
-  }
-
   formatLabel(str) {
     const {selectors} = this.props;
-    const {query, variables, localeDefault} = this.props.status;
+    const {query, localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
     str = stripHTML(str);
@@ -268,12 +258,13 @@ class ProfileBuilder extends Component {
     const {nodes} = this.state;
     const {currentPid, localeDefault} = this.props.status;
     const p = this.locateProfileNodeByPid(currentPid);
+    const thisProfile = this.props.profiles.find(p => p.id === currentPid);
     p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions";
-    p.childNodes = p.childNodes.map(t => {
-      const defCon = t.data.content.find(c => c.locale === localeDefault);
-      const title = defCon && defCon.title ? defCon.title : t.data.slug;
-      t.label = this.formatLabel.bind(this)(title);
-      return t;
+    p.childNodes = p.childNodes.map(n => {
+      const defCon = thisProfile.sections.find(s => s.id === n.data.id).content.find(c => c.locale === localeDefault);
+      const title = defCon && defCon.title ? defCon.title : n.data.slug;
+      n.label = this.formatLabel.bind(this)(title);
+      return n;
     });
     this.setState({nodes});
   }
@@ -324,7 +315,6 @@ class ProfileBuilder extends Component {
               ? <Editor
                 id={currentNode.data.id}
                 order={currNodeOrder}
-                reportSave={this.reportSave.bind(this)}
               >
                 <Header
                   title={currentNode.label}

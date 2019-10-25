@@ -38,9 +38,8 @@ class TextCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {localeDefault} = this.props.status;
     const contentChanged = prevProps.minData.id !== this.props.minData.id || JSON.stringify(prevProps.minData.content) !== JSON.stringify(this.props.minData.content);
-    const variablesChanged = JSON.stringify(prevProps.status.variables[localeDefault]) !== JSON.stringify(this.props.status.variables[localeDefault]);
+    const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
     const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
     const queryChanged = JSON.stringify(this.props.status.query) !== JSON.stringify(prevProps.status.query);
     

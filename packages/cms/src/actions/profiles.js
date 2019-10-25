@@ -94,10 +94,11 @@ export function newEntity(type, payload) {
 
 /** */
 export function updateEntity(type, payload) { 
-  return function(dispatch) {
+  return function(dispatch, getStore) {
+    const diffCounter = getStore().cms.status.diffCounter + 1;
     return axios.post(`/api/cms/${type}/update`, payload)
       .then(({data}) => {
-        dispatch({type: `${type.toUpperCase()}_UPDATE`, data});
+        dispatch({type: `${type.toUpperCase()}_UPDATE`, data, diffCounter});
       });
   };
 }
@@ -187,6 +188,7 @@ export function resetPreviews() {
 export function fetchVariables(config) { 
   return function(dispatch, getStore) {    
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
+    const diffCounter = getStore().cms.status.diffCounter + 1;
 
     const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
     let variables = deepClone(thisProfile.variables);
@@ -226,7 +228,7 @@ export function fetchVariables(config) {
           // Once pruned, we can POST the variables to the materializer endpoint
           axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
             variables[thisLocale] = nestedObjectAssign({}, variables[thisLocale], mat.data);
-            dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
+            dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
           });
         }
         else {
@@ -269,7 +271,7 @@ export function fetchVariables(config) {
                 });
                 axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
                   variables[thisLocale] = nestedObjectAssign({}, variables[thisLocale], mat.data);
-                  dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
+                  dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
                 });
               }
             });

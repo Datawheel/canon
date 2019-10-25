@@ -302,8 +302,7 @@ SectionEditor.contextTypes = {
 const mapStateToProps = (state, ownProps) => ({
   status: state.cms.status,
   minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).sections.find(s => s.id === ownProps.id),
-  allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors,
-  profiles: state.cms.profiles
+  allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
 });
 
 const mapDispatchToProps = dispatch => ({

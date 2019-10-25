@@ -10,6 +10,7 @@ import formatters from "./formatters.js";
 
 const initialState = {
   status: {
+    diffCounter: 0,
     previews: [],
     variables: {},
     query: {}
