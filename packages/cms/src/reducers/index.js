@@ -11,7 +11,8 @@ import formatters from "./formatters.js";
 const initialState = {
   status: {
     previews: [],
-    variables: {}
+    variables: {},
+    query: {}
   },
   cubeData: {},
   profiles: [],

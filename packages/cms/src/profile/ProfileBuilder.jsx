@@ -30,7 +30,6 @@ class ProfileBuilder extends Component {
     this.state = {
       nodes: null,
       selectors: [],
-      query: {},
       toolboxVisible: true
     };
   }
@@ -60,6 +59,8 @@ class ProfileBuilder extends Component {
     const oldMeta = JSON.stringify(prevProps.profiles.map(p => JSON.stringify(p.meta)));
     const newMeta = JSON.stringify(this.props.profiles.map(p => JSON.stringify(p.meta)));
     const changedMeta = oldMeta !== newMeta;
+
+    // todo listen for query change and formattreevariables (?)
     if (!nodes || changedTree) {
       console.log("Tree Changed: Rebuilding Tree");
       this.buildNodes.bind(this)();
@@ -245,20 +246,13 @@ class ProfileBuilder extends Component {
   }
 
   formatLabel(str) {
-    const {query, selectors} = this.state;
-    const {variables, localeDefault} = this.props.status;
+    const {selectors} = this.state;
+    const {query, variables, localeDefault} = this.props.status;
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
     str = stripHTML(str);
     str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
     return str;
-  }
-
-  /*
-   * Callback for SectionEditor.jsx, when the user selects a dropdown in SelectorUsage.
-   */
-  onSelect(query) {
-    this.setState({query}, this.formatTreeVariables.bind(this));
   }
 
   /*
@@ -336,7 +330,6 @@ class ProfileBuilder extends Component {
                 id={currentNode.data.id}
                 selectors={selectors}
                 order={currNodeOrder}
-                onSelect={this.onSelect.bind(this)}
                 reportSave={this.reportSave.bind(this)}
               >
                 <Header

@@ -4,6 +4,9 @@ import React, {Component} from "react";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
 import stripHTML from "../../utils/formatters/stripHTML";
+
+import {setStatus} from "../../actions/status";
+
 import "./SelectorUsage.css";
 
 class SelectorUsage extends Component {
@@ -61,7 +64,7 @@ class SelectorUsage extends Component {
     currentValues[name] = e.target.value;
     this.setState({currentValues});
     const selectionObj = {[name]: e.target.value};
-    if (this.props.onSelect) this.props.onSelect(selectionObj);
+    this.props.setStatus({query: Object.assign({}, this.props.status.query, selectionObj)});
   }
 
   swapSelector(index) {
@@ -203,7 +206,11 @@ class SelectorUsage extends Component {
 
 const mapStateToProps = state => ({
   status: state.cms.status,
-  allSelectors: state.cms.profile.find(p => p.id === state.cms.status.currentPid).selectors
+  allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
 });
 
-export default connect(mapStateToProps)(SelectorUsage);
+const mapDispatchToProps = dispatch => ({
+  setStatus: status => dispatch(setStatus(status))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SelectorUsage);

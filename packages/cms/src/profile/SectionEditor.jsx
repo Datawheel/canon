@@ -28,8 +28,7 @@ class SectionEditor extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      minData: null,
-      query: {}
+      minData: null
     };
   }
 
@@ -77,10 +76,7 @@ class SectionEditor extends Component {
   }
 
   onSelect(selectionObj) {
-    const {query} = this.state;
-    const newQuery = Object.assign({}, query, selectionObj);
-    this.setState({query: newQuery});
-    if (this.props.onSelect) this.props.onSelect(newQuery);
+    this.setState({query: Object.assign({}, this.state.query, selectionObj)});
   }
 
   onDelete(type, newArray) {
@@ -91,10 +87,9 @@ class SectionEditor extends Component {
 
   render() {
 
-    const {query} = this.state;
-    const {minData} = this.props;
-    const {selectors, children, order} = this.props;
-    const {variables, localeDefault, localeSecondary} = this.props.status;
+    const {minData, allSelectors} = this.props;
+    const {children, order} = this.props;
+    const {variables, localeDefault, localeSecondary, query} = this.props.status;
 
     const minDataState = this.state.minData;
 
@@ -145,7 +140,6 @@ class SectionEditor extends Component {
               key="title-card"
               minData={minData}
               fields={["title"]}
-              query={query}
               type="section"
               hideAllowed={true}
             />
@@ -246,7 +240,6 @@ class SectionEditor extends Component {
                 key={s.id}
                 minData={s}
                 fields={["subtitle"]}
-                query={query}
                 type="section_subtitle"
                 onDelete={this.onDelete.bind(this)}
                 parentArray={minData.subtitles}
@@ -256,13 +249,11 @@ class SectionEditor extends Component {
           />
         }
 
-        {selectors && selectors.length > 0 &&
+        {allSelectors && allSelectors.length > 0 &&
           <Deck title="Selector activation" entity="selectorUsage">
             <SelectorUsage
               key="selector-usage"
               minData={minData}
-              selectors={selectors}
-              onSelect={this.onSelect.bind(this)}
             />
           </Deck>
         }
@@ -279,7 +270,6 @@ class SectionEditor extends Component {
                 key={s.id}
                 minData={s}
                 fields={["title", "subtitle", "value", "tooltip"]}
-                query={query}
                 type="section_stat"
                 onDelete={this.onDelete.bind(this)}
                 parentArray={minData.stats}
@@ -298,7 +288,6 @@ class SectionEditor extends Component {
                 key={d.id}
                 minData={d}
                 fields={["description"]}
-                query={query}
                 type="section_description"
                 onDelete={this.onDelete.bind(this)}
                 parentArray={minData.descriptions}
@@ -336,7 +325,8 @@ SectionEditor.contextTypes = {
 
 const mapStateToProps = (state, ownProps) => ({
   status: state.cms.status,
-  minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).sections.find(s => s.id === ownProps.id)
+  minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).sections.find(s => s.id === ownProps.id),
+  allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
 });
 
 const mapDispatchToProps = dispatch => ({

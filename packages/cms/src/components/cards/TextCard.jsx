@@ -42,7 +42,7 @@ class TextCard extends Component {
     const contentChanged = prevProps.minData.id !== this.props.minData.id || JSON.stringify(prevProps.minData.content) !== JSON.stringify(this.props.minData.content);
     const variablesChanged = JSON.stringify(prevProps.status.variables[localeDefault]) !== JSON.stringify(this.props.status.variables[localeDefault]);
     const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
-    const queryChanged = JSON.stringify(this.props.query) !== JSON.stringify(prevProps.query);
+    const queryChanged = JSON.stringify(this.props.status.query) !== JSON.stringify(prevProps.status.query);
     
     if (contentChanged) {
       this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
@@ -105,8 +105,8 @@ class TextCard extends Component {
   }
 
   formatDisplay() {
-    const {selectors, query} = this.props;
-    const {localeDefault, localeSecondary} = this.props.status;
+    const {selectors} = this.props;
+    const {localeDefault, localeSecondary, query} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
 
     // For future use: This is a list of the vars used by this TextCard. Could combine with 
