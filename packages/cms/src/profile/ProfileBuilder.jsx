@@ -169,7 +169,12 @@ class ProfileBuilder extends Component {
       section: node.itemType === "section" ? node.data.id : undefined
     };
     // If the pids match, the master profile is the same, so keep the same preview
-    if (currentPid === node.masterPid) {
+    let clickedPid;
+    if (node.itemType === "profile") clickedPid = node.data.id;
+    if (node.itemType === "section") clickedPid = node.data.profile_id;
+    console.log("clickedPid:", clickedPid);
+    if (currentPid === clickedPid) {
+      console.log("same, not changing");
       newPathObj.previews = previews;
       this.props.setStatus({currentNode: node, pathObj: newPathObj});
     }
@@ -177,8 +182,8 @@ class ProfileBuilder extends Component {
     else {
       // If previews is a string, we are coming in from the URL permalink. Pass it down to the pathobj.
       if (typeof pathObj.previews === "string") newPathObj.previews = pathObj.previews;
-      console.log("setting", node.masterPid);
-      this.props.setStatus({currentNode: node, currentPid: node.masterPid, pathObj: newPathObj});
+      console.log("different! setting", clickedPid);
+      this.props.setStatus({currentNode: node, currentPid: clickedPid, pathObj: newPathObj});
       this.props.resetPreviews();
     }
   }
@@ -229,7 +234,7 @@ class ProfileBuilder extends Component {
         const attempt = p.childNodes.find(t => Number(t.data.id) === Number(id));
         if (attempt) {
           node = attempt;
-          node.parent = nodes.find(p => Number(p.data.id) === Number(node.masterPid)); // add parent to node
+          node.parent = nodes.find(p => Number(p.data.id) === Number(node.data.profile_id)); // add parent to node
         }
       });
     }
@@ -259,7 +264,7 @@ class ProfileBuilder extends Component {
     const {currentPid, localeDefault} = this.props.status;
     const p = this.locateProfileNodeByPid(currentPid);
     const thisProfile = this.props.profiles.find(p => p.id === currentPid);
-    p.label = p.masterMeta.length > 0 ? p.masterMeta.map(d => d.slug).join("_") : "Add Dimensions";
+    p.label = thisProfile.meta.length > 0 ? thisProfile.meta.map(d => d.slug).join("_") : "Add Dimensions";
     p.childNodes = p.childNodes.map(n => {
       const defCon = thisProfile.sections.find(s => s.id === n.data.id).content.find(c => c.locale === localeDefault);
       const title = defCon && defCon.title ? defCon.title : n.data.slug;
