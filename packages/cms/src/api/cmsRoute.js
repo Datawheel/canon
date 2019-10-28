@@ -77,19 +77,6 @@ const profileReqFull = {
   ]
 };
 
-const profileReqTreeOnly = {
-  attributes: ["id", "ordering"],
-  include: [
-    {association: "meta"},
-    {
-      association: "sections", attributes: ["id", "slug", "ordering", "profile_id", "type", "position"],
-      include: [
-        {association: "content", attributes: ["id", "locale", "title"]}
-      ]
-    }
-  ]
-};
-
 const storyReqTreeOnly = {
   attributes: ["id", "slug", "ordering"],
   include: [

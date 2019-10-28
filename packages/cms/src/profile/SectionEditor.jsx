@@ -62,10 +62,6 @@ class SectionEditor extends Component {
     this.props.updateEntity("section", payload);
   }
 
-  onMove() {
-    this.forceUpdate();
-  }
-
   render() {
 
     const {minData, allSelectors} = this.props;
@@ -222,8 +218,7 @@ class SectionEditor extends Component {
                 minData={s}
                 fields={["subtitle"]}
                 type="section_subtitle"
-                parentArray={minData.subtitles}
-                onMove={this.onMove.bind(this)}
+                showReorderButton={minData.subtitles[minData.subtitles.length - 1].id !== s.id}
               />
             )}
           />
@@ -251,8 +246,6 @@ class SectionEditor extends Component {
                 minData={s}
                 fields={["title", "subtitle", "value", "tooltip"]}
                 type="section_stat"
-                parentArray={minData.stats}
-                onMove={this.onMove.bind(this)}
               />
             )}
           />
@@ -268,8 +261,6 @@ class SectionEditor extends Component {
                 minData={d}
                 fields={["description"]}
                 type="section_description"
-                parentArray={minData.descriptions}
-                onMove={this.onMove.bind(this)}
               />
             )}
           />
@@ -284,8 +275,6 @@ class SectionEditor extends Component {
                 key={v.id}
                 minData={v}
                 type="section_visualization"
-                parentArray={minData.visualizations}
-                onMove={this.onMove.bind(this)}
               />
             )}
           />

@@ -233,7 +233,7 @@ class TextCard extends Component {
   render() {
     const {alertObj, thisDisplayData, thatDisplayData, isOpen} = this.state;
     const {minData} = this.props;
-    const {fields, onMove, hideAllowed, plainfields, type, parentArray, item} = this.props;
+    const {fields, hideAllowed, plainfields, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
 
@@ -277,12 +277,10 @@ class TextCard extends Component {
       onEdit: this.openEditor.bind(this),
       onDelete: ["profile", "section", "story", "storysection"].includes(type) ? false : this.maybeDelete.bind(this),
       // reorder
-      reorderProps: parentArray ? {
-        array: parentArray,
-        item,
+      reorderProps: showReorderButton ? {
+        id: minData.id,
         type
       } : null,
-      onReorder: onMove ? onMove.bind(this) : null,
       // alert
       alertObj,
       onAlertCancel: () => this.setState({alertObj: false})

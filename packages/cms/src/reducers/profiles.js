@@ -13,6 +13,14 @@ const deleteSectionEntity = (profiles, data, accessor) => profiles.map(p =>
   Object.assign({}, p, {sections: p.sections.map(s => 
     s.id === data.parent_id ? Object.assign({}, s, {[accessor]: data.newArray}) : s)}));
 
+const swapSectionEntity = (profiles, data, accessor) => profiles.map(p => 
+  Object.assign({}, p, {sections: p.sections.map(s => 
+    Object.assign({}, s, {[accessor]: s[accessor].map(entity => {
+      const match = data.find(d => d.id === entity.id);
+      return match ? Object.assign({}, entity, {ordering: match.ordering}) : entity;
+    }).sort((a, b) => a.ordering - b.ordering)})
+  )}));
+
 export default (profiles = [], action) => {
   switch (action.type) {
     // Profiles
@@ -88,6 +96,9 @@ export default (profiles = [], action) => {
       return updateSectionEntity(profiles, action.data, "subtitles");
     case "SECTION_SUBTITLE_DELETE":
       return deleteSectionEntity(profiles, action.data, "subtitles");
+    case "SECTION_SUBTITLE_SWAP":
+      console.log("swappy", action);
+      return swapSectionEntity(profiles, action.data, "subtitles");
 
     // Stats
     case "SECTION_STAT_NEW":
