@@ -29,7 +29,8 @@
     margin-bottom: 0.25em;
   }
 
-  & > [class*="-button"] {
+  /* password visibility button */
+  & > [class*="-input-password-button"] {
     position: absolute;
     bottom: 0.5em;
     right: 0.5em;

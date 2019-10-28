@@ -3,128 +3,139 @@
 .Options {
   display: flex;
   justify-content: flex-end;
-  & .option {
-    /* keep tooltips above button (blueprint override) */
-    &.bp3-button,
-    &.bp3-button:focus {
-      z-index: auto;
-    }
-  }
 }
 
 .options-dialog {
   max-width: calc(100% - 50px);
-  min-width: 400px;
-  overflow: hidden !important;
-  padding: 0 !important;
-  width: auto !important;
+
+  /* override blueprint */
+  &[class*="-dialog"] {
+    width: 36rem;
+    overflow: hidden;
+    padding: 0;
+  }
   & .close-button {
     position: absolute;
-    right: 5px;
-    top: 5px;
+    right: 0;
+    top: 0;
+    background-color: transparent;
+    border-color: transparent;
   }
   & .bp3-tab-list {
     background: none;
     padding: 10px 20px 0;
     top: 0;
   }
+  /* remove blueprint margin */
+  & [class*="-tab-panel"] {
+    margin-top: 0;
+  }
+
+  /* base blueprint dialog overrides */
   & .bp3-dialog-body {
     margin: 0;
-    &.save-image {
-      height: 200px;
-      text-align: center;
-      & .save-image-btn {
-        color: black;
-        cursor: pointer;
-        display: inline-block;
-        font-size: 13px;
-        margin: 40px 20px;
-        opacity: 0.5;
-        text-align: center;
-        transition: opacity 0.1s;
-        width: 80px;
-        & .bp3-icon {
-          display: block;
-          margin-bottom: 7px;
-          & svg {
-            margin: 0 auto;
-          }
-        }
-        &:hover {
-          opacity: 1;
-        }
-      }
-      & .image-options {
-        align-items: center;
-        display: flex;
-        flex-direction: column;
-        & .bp3-checkbox {
-          margin: 0 auto 10px;
-        }
-      }
+    padding: 20px;
+  }
+
+  /* save DataPanel */
+  & .save-image {
+
+    & > *:not(:last-child) {
+      margin-bottom: 1em;
     }
-    &.view-table {
-      margin-bottom: 0;
-      & .bp3-non-ideal-state {
-        height: 150px;
-        margin-top: 25px;
-      }
-      & .download {
-        display: flex;
-        padding: 0 10px 10px;
-        width: 100%;
-        & input {
-          flex: 1;
-        }
-      }
-      & .table {
-        height: auto;
-        max-height: calc(100vh - 200px);
-        @mixin horizontal-overflow-container;
-        width: 100%;
+
+    /* label + button group */
+    & .save-image-button-group-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+    }
+    & .save-image-button-group-label {
+      margin-right: var(--gutter-sm);
+    }
+    & .save-image-button-group {
+      width: auto;
+      flex: 1 1 auto;
+    }
+
+    & .save-image-format-button.is-active {
+      border-color: var(--button-hover-bg-color);
+      z-index: 1;
+    }
+    & .save-image-format-button.is-inactive {
+      opacity: 0.75;
+
+      &:hover, &:focus {
+        opacity: 1;
       }
     }
   }
-}
 
-/* share dialog */
-.share-dialog {
-  padding: 10px 20px; /* line up with tabs */
+  /* table panel */
+  & .view-table {
+    & > *:not(:last-child) {
+      margin-bottom: 1em;
+    }
 
-  /* facebook & twitter buttons */
-  & .cp-button[href*="facebook"] {
-    background-color: var(--light-1);
-    color: #3B5998;
-    border-color: var(--light-3);
-  }
-  & .cp-button[href*="twitter"] {
-    background-color: var(--light-1);
-    color: #00ACED;
-    border-color: var(--light-3);
-  }
-  & .cp-button > * {
-    vertical-align: middle;
-  }
-  /* space out icon from text */
-  & .cp-button > svg {
-    margin-right: 0.125em;
-    width: 1.5em;
-    height: 1.5em;
+    & .bp3-non-ideal-state {
+      height: 150px;
+      margin-top: 25px;
+    }
 
-    /* let the color of the button define the color of the icon */
-    & path {
-      fill: currentColor;
+    & .download {
+      display: flex;
+      padding: 0 10px 10px;
+      width: 100%;
+
+      & input {
+        flex: 1;
+      }
+    }
+    & .table {
+      height: auto;
+      max-height: calc(100vh - 200px);
+      @mixin horizontal-overflow-container;
+      width: 100%;
     }
   }
 
-  /* spae out adjacent fields */
-  & > *:not(:last-child) {
-    margin-bottom: 20px;
-  }
+  /* share panel */
+  & .share-dialog {
+    /* facebook & twitter buttons */
+    & .cp-button[href*="facebook"] {
+      background-color: var(--light-1);
+      color: #3B5998;
+      border-color: var(--light-3);
+    }
+    & .cp-button[href*="twitter"] {
+      background-color: var(--light-1);
+      color: #00ACED;
+      border-color: var(--light-3);
+    }
+    & .cp-button > * {
+      vertical-align: middle;
+    }
+    /* space out icon from text */
+    & .cp-button > svg {
+      margin-right: 0.125em;
+      width: 1.5em;
+      height: 1.5em;
 
-  /* space out label text */
-  & .options-label-text {
-    display: block;
-    margin-bottom: 0.25em;
+      /* let the color of the button define the color of the icon */
+      & path {
+        fill: currentColor;
+      }
+    }
+
+    /* space out adjacent fields */
+    & > *:not(:last-child) {
+      margin-bottom: 20px;
+    }
+
+    /* space out label text */
+    & .options-label-text {
+      display: block;
+      margin-bottom: 0.25em;
+    }
   }
 }

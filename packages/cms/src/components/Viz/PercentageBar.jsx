@@ -1,6 +1,8 @@
 import axios from "axios";
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
+import {hot} from "react-hot-loader/root";
 import Button from "../fields/Button";
+import Parse from "../sections/components/Parse";
 import "./PercentageBar.css";
 
 class PercentageBar extends Component {
@@ -10,6 +12,8 @@ class PercentageBar extends Component {
     this.state = {
       config: null
     };
+
+    this.viz = React.createRef();
   }
 
   componentDidMount() {
@@ -75,74 +79,72 @@ class PercentageBar extends Component {
       obj.tickValue = (total * (i * 0.1)).toFixed(2);
       labelVal = numberFormat(obj, "tickValue", total);
 
-      lines.push(<line key={i} x1={xPos} x2={xPos} y1="0" y2="100%"/>);
-      ticks.push(<text key={i} x={xPos} y="100%">{labelVal}</text>);
+      lines.push(<line key={`line-${xPos}-${labelVal}`} x1={xPos} x2={xPos} y1="0" y2="100%"/>);
+      ticks.push(<text key={`tick-${xPos}-${labelVal}`} x={xPos} y="100%">{labelVal}</text>);
     }
 
     return (
-      <>
-      <div className={`percentage-bar-wrapper ${`${labelVal}`.includes("%") ? "is-percent" : ""}`}>
+      <Fragment>
+        <div className={`percentage-bar-wrapper ${`${labelVal}`.includes("%") ? "is-percent" : ""}`} ref={this.viz} key="percentage-bar-wrapper">
 
-        <div className="precentage-bar-grid-holder">
-          <svg className="percentage-bar-grid">
-            <defs>
-              <clipPath id="percentage-bar-clip">
-                <rect x="0" y="0" width="100%" height={showAll ? "99%" : "88%"} />
-              </clipPath>
-            </defs>
-            <g className="percentage-bar-ticks">
-              {lines}
-            </g>
-            <g className="percentage-bar-labels">
-              {ticks}
-            </g>
-          </svg>
-        </div>
+          <div className="precentage-bar-grid-holder">
+            <svg className="percentage-bar-grid">
+              <defs>
+                <clipPath id="percentage-bar-clip">
+                  <rect x="0" y="0" width="100%" height={showAll ? "99%" : "88%"} />
+                </clipPath>
+              </defs>
+              <g className="percentage-bar-ticks">
+                {lines}
+              </g>
+              <g className="percentage-bar-labels">
+                {ticks}
+              </g>
+            </svg>
+          </div>
 
-        <ul className="percentage-bar-list">
-          {displayData.filter(d => d).map((d, i) => {
-            const percent = d[value] / total * 100;
-            const label = d[groupBy];
-            return (
-              <li key={`percentage-bar-${i}`} className="percentage-bar-item">
-                <span className="percentage-bar-label label u-font-xs">
-                  {label}
-                </span>
+          <ul className="percentage-bar-list">
+            {displayData.filter(d => d).map((d, i) => {
+              const percent = d[value] / total * 100;
+              const label = d[groupBy];
+              return (
+                <li key={`percentage-bar-${label}-${percent}-${i}`} className="percentage-bar-item">
+                  <span className="percentage-bar-label label u-font-xs">
+                    {label}<span className="u-visually-hidden">: </span>
+                  </span>
 
-                <span className="percentage-bar-value display u-font-md">
-                  {numberFormat(d, value, total)}
-                </span>
+                  <span className="percentage-bar-value display u-font-md">
+                    {numberFormat(d, value, total)}
+                  </span>
 
-                <span className="u-visually-hidden">: </span>
-                {!isNaN(percent) &&
+                  {!isNaN(percent) &&
                     <span className="percentage-bar-bg">
                       <span className="percentage-bar" style={{width: `${percent}%`}} />
                     </span>
-                }
-
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-        <div className="show-more">
+                  }
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <div className="show-more" key="show-more">
           {!showAll && cutoffText &&
-            <div className="cutoff-text" dangerouslySetInnerHTML={{__html: cutoffText}}></div>
+            <Parse className="cutoff-text">{cutoffText}</Parse>
           }
-          {(showAll || data.length > displayData.length) &&
-            <Button
+          {showAll || data.length > displayData.length
+            ? <Button
               fontSize="xs"
               iconPosition="left"
               icon={showAll ? "eye-off" : "eye-open"}
               onClick={() => this.setState({showAll: !this.state.showAll})}
             >
               {showAll ? hideText : showText}
-            </Button>
+            </Button> : ""
           }
         </div>
-      </>
+      </Fragment>
     );
   }
 }
 
-export default PercentageBar;
+export default hot(PercentageBar);

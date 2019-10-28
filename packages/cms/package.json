@@ -51,11 +51,11 @@
     "sharp": "^0.23.0"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "^0.17.59",
+    "@datawheel/canon-core": "^0.17.62",
     "@datawheel/canon-logiclayer": "^0.3.22"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.17.59"
+    "@datawheel/canon-core": "^0.17.62"
   },
   "repository": {
     "type": "git",

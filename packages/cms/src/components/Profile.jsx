@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
@@ -11,6 +11,7 @@ import libs from "../utils/libs";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
+import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
 
 import deepClone from "../utils/deepClone.js";
@@ -164,7 +165,7 @@ class Profile extends Component {
     const modalSection = modalSlug ? profile.sections.find(s => s.slug === modalSlug) : null;
 
     return (
-      <React.Fragment>
+      <Fragment>
         <div className="cp">
           <Hero profile={profile} contents={heroSection || null} />
 
@@ -223,13 +224,15 @@ class Profile extends Component {
               onSetVariables={this.onSetVariables.bind(this)}
               // To prevent a "loading flicker" when users call setVariables, normal Sections don't show a "Loading"
               // when the only thing that updated was from setVariables. HOWEVER, if this is a modal popover, we really
-              // SHOULD wait if setVarsLoading is true, because the config might have called setVariables and then 
+              // SHOULD wait if setVarsLoading is true, because the config might have called setVariables and then
               // called openModal right after, so let's wait for setVars to be done before we consider the loading complete.
               loading={loading || setVarsLoading}
             />
           </Dialog>
         </div>
-      </React.Fragment>
+
+        <Mirror inUse="true" /> {/* for rendering visualization/section to save as image */}
+      </Fragment>
     );
   }
 }
@@ -240,7 +243,7 @@ Profile.childContextTypes = {
   router: PropTypes.object,
   variables: PropTypes.object,
   initialVariables: PropTypes.object,
-  onSelector: PropTypes.func,  
+  onSelector: PropTypes.func,
   onOpenModal: PropTypes.func
 };
 

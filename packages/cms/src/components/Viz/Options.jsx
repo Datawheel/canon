@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {hot} from "react-hot-loader/root";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import {animateScroll} from "react-scroll";
@@ -10,12 +11,15 @@ import "./Options.css";
 import {Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 
 import {max, sum} from "d3-array";
-import {select} from "d3-selection";
+import {event, select} from "d3-selection";
+import {uuid} from "d3plus-common";
 import {saveAs} from "file-saver";
 import JSZip from "jszip";
 import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
+
+import isIE from "../../utils/isIE.js";
 
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
@@ -47,17 +51,23 @@ class Options extends Component {
 
   constructor(props) {
     super(props);
+
+    const hasMultiples = Array.isArray(props.data) && props.data.some(d => typeof d === "string");
+
     this.state = {
       backgroundColor: true,
-      imageContext: "section",
+      id: uuid(),
+      imageContext: "viz",
+      imageFormat: "png",
       imageProcessing: false,
       includeSlug: true,
       loading: false,
-      openDialog: false,
+      dialogOpen: false,
       focusOptions: false, // make button group focusable, but only when closing the dialog
-      results: props.data instanceof Array ? props.data : false
+      results: !hasMultiples && Array.isArray(props.data) ? props.data : false // has multiples
     };
     this.toggleButton = React.createRef();
+    this.dialog = React.createRef();
   }
 
   componentDidUpdate(prevProps) {
@@ -65,6 +75,18 @@ class Options extends Component {
     if (prevProps.data !== data) {
       this.setState({results: data instanceof Array ? data : false});
     }
+  }
+
+  listenForBlur() {
+    select(document).on("keydown", () =>
+      setTimeout(() => {
+        if (this.state.dialogOpen) {
+          if (document.activeElement.matches(".cp-section-heading") || document.activeElement.matches(".options-button")) {
+            this.setState({dialogOpen: false});
+          }
+        }
+      }, 20)
+    );
   }
 
   onCSV() {
@@ -97,40 +119,140 @@ class Options extends Component {
       .then(content => saveAs(content, `${filename(title)}.zip`));
   }
 
-  onSave(type) {
+  onSave() {
     const {title} = this.props;
+    const {backgroundColor, imageContext, imageFormat} = this.state;
+    this.setState({imageProcessing: true});
+
     let node = this.getNode();
     if (node) {
-      this.setState({imageProcessing: true});
-      const {backgroundColor} = this.state;
-      if (type === "svg") node = select(node).select(".d3plus-viz").node();
+      // config
       let background;
       if (backgroundColor) background = getBackground(node);
-      saveElement(node,
-        {filename: filename(title), type},
-        {background, callback: () => this.setState({imageProcessing: false})}
-      );
+
+      // grab the d3plus visualization directly and save it as-is
+      if (imageFormat === "svg") {
+        node = select(node).select(".d3plus-viz").node();
+        saveElement(
+          node,
+          {filename: filename(title), type: "svg"},
+          {background, callback: () => this.setState({imageProcessing: false})}
+        );
+      }
+
+      // construct the png image in the mirror
+      else {
+        // get node dimensions (fudged to account for padding & Mirror footer)
+        const width = node.offsetWidth + 40;
+        const height = node.offsetHeight + 120;
+
+        // make a copy of the node so we're not editing the original
+        node = node.parentNode.cloneNode(true);
+
+        // get the mirror, make it visible, and size it
+        const mirror = document.body.querySelector(".mirror");
+        mirror.classList.add("is-visible", `${imageContext}-context`);
+        mirror.classList.remove("is-hidden");
+        mirror.style.width = `${width}px`;
+        mirror.style.height = `${height}px`;
+
+        // once the mirror is visible, clone elements into it
+        setTimeout(() => {
+          mirror.querySelector(".mirror-content-inner").innerHTML = "";
+          mirror.querySelector(".mirror-content-inner").appendChild(node);
+          mirror.querySelector(".mirror-footer-text-url").innerHTML = this.props.location.href.replace("http://", "").replace("https://", "");
+
+          // select elements aren't being rendered to the canvas; replace them
+          const selects = mirror.querySelectorAll(".cp-select");
+          if (selects) {
+            selects.forEach(select => {
+              // create a fake element with properties of the select menu
+              const fakeSelect = document.createElement("p");
+              // get the selected option
+              fakeSelect.innerHTML = select.options[select.selectedIndex].text;
+              // get the classes from the real select & add them to the fake
+              const classes = select.classList;
+              fakeSelect.className = classes; // .className syntax needed for IE
+              // I'm the captain now
+              select.parentNode.replaceChild(fakeSelect, select);
+            });
+          }
+
+          // // swap out table header buttons with spans
+          const tableHeaders = mirror.querySelectorAll(".rt-th");
+          if (tableHeaders) {
+            tableHeaders.forEach(header => {
+              // create a fake element with properties of the header header
+              const fakeHeader = document.createElement("span");
+              // remove header button screen reader text & icon
+              const hiddenText = header.querySelector(".u-visually-hidden");
+              hiddenText.parentNode.removeChild(hiddenText);
+              const icon = header.querySelector(".cp-table-header-icon");
+              icon.parentNode.removeChild(icon);
+              // get header text
+              fakeHeader.innerHTML = header.textContent || header.innerText;
+              // get the classes from the real header & add them to the fake
+              const classes = header.classList;
+              fakeHeader.className = classes; // .className syntax needed for IE
+              // I'm the captain now
+              header.parentNode.replaceChild(fakeHeader, header);
+            });
+          }
+
+          // save!
+          saveElement(
+            mirror,
+            {filename: filename(title), type: imageFormat},
+            {background, callback: () => {
+              // make mirror invisible
+              mirror.classList.add("is-hidden");
+              mirror.classList.remove("is-visible", `${imageContext}-context`);
+              // remove mirrored content
+              mirror.querySelector(".mirror-content-inner").removeChild(node);
+              // reset state
+              this.setState({imageProcessing: false});
+            }}
+          );
+        });
+      }
+    }
+    else {
+      this.setState({imageProcessing: false});
     }
   }
 
   getNode() {
     const {component} = this.props;
     const {imageContext} = this.state;
-    if (component[imageContext][imageContext]) {
-      const elem = component[imageContext][imageContext];
-      return elem.nodeType ? elem : elem.container || elem._reactInternalInstance._renderedComponent._hostNode;
+
+    let elem = component;
+
+    // get the visualization
+    if (imageContext === "viz" && component.viz.viz) {
+      elem = component.viz.viz;
+
+      // d3plus visualizations render within a container; use it for the image
+      if (elem.container) return elem.container;
+      // custom visualizations
+      else return elem;
     }
+
+    // get the section
+    else if (imageContext === "section" && component.section.section) {
+      return component.section.section;
+    }
+
     else return false;
   }
 
   toggleDialog(slug) {
-    const {openDialog} = this.state;
+    const {dialogOpen} = this.state;
     const {transitionDuration} = this.props;
 
-    if (slug && !openDialog) {
+    if (slug && !dialogOpen) {
       setTimeout(() => {
         // IE is the wurst with CSSTransitionGroup
-        document.getElementsByClassName("options-dialog")[0].style.opacity = 1;
+        if (isIE) document.getElementsByClassName("options-dialog")[0].style.opacity = 1;
         // give focus to the correct tab
         document.getElementById(`bp3-tab-title_undefined_${slug}`).focus();
       }, transitionDuration + 200);
@@ -146,36 +268,40 @@ class Options extends Component {
 
     const node = this.getNode.bind(this)();
 
-    if (node && !openDialog) {
+    if (isIE && node && !dialogOpen) {
       const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
       if (node.offsetTop < scrollTop) animateScroll.scrollTo(node.offsetTop);
     }
 
-    this.setState({openDialog: slug});
+    this.setState({dialogOpen: slug});
+    this.listenForBlur();
     const {results, loading} = this.state;
 
     if (slug === "view-table" && !results && !loading) {
       const {data, dataFormat} = this.props;
+      const paths = typeof data === "string" ? [data] : data;
       this.setState({loading: true});
-      axios.get(data)
-        .then(resp => {
-          const results = dataFormat(resp.data);
-          this.setState({loading: false, results});
-        });
+      const loaded = [];
+      paths.forEach(path => {
+        if (typeof path === "string") {
+          axios.get(path)
+            .then(resp => {
+              loaded.push(resp.data);
+              if (loaded.length === paths.length) {
+                const results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
+                this.setState({loading: false, results});
+              }
+            });
+        }
+        else {
+          loaded.push(path);
+        }
+      });
     }
   }
 
   toggleBackground() {
     this.setState({backgroundColor: !this.state.backgroundColor});
-  }
-
-  toggleContext() {
-    const {imageContext} = this.state;
-    this.setState({imageContext: imageContext === "section" ? "viz" : "section"});
-  }
-
-  onFocus(ref) {
-    this[ref].select();
   }
 
   // add the slug, or not
@@ -203,7 +329,7 @@ class Options extends Component {
   });
 
   render() {
-    const {backgroundColor, imageContext, imageProcessing, includeSlug, openDialog, results, focusOptions} = this.state;
+    const {backgroundColor, imageContext, imageFormat, imageProcessing, includeSlug, dialogOpen, results, focusOptions} = this.state;
     const {data, iconOnly, slug, t, transitionDuration} = this.props;
 
     // construct URL from a combination of redux & context (#537)
@@ -214,37 +340,23 @@ class Options extends Component {
     const node = this.getNode();
     const svgAvailable = node && select(node).select(".d3plus-viz").size() > 0;
 
-    const ImagePanel = () => imageProcessing
-      ? <div className="bp3-dialog-body save-image">
-        <NonIdealState title={t("CMS.Options.Generating Image")} visual={<Spinner />} />
-      </div>
-      : <div className="bp3-dialog-body save-image">
-        <div className="save-image-btn" onClick={this.onSave.bind(this, "png")} tabIndex={0}>
-          <Icon icon="media" iconSize={28} />PNG
-        </div>
-        {svgAvailable && <div className="save-image-btn" onClick={this.onSave.bind(this, "svg")} tabIndex={0}>
-          <Icon icon="code-block" iconSize={28} />SVG
-        </div>}
-        <div className="image-options">
-          <Checkbox checked={imageContext === "viz"} label={t("CMS.Options.Only Download Visualization")} onChange={this.toggleContext.bind(this)} />
-          <Checkbox checked={!backgroundColor} label={t("CMS.Options.Transparent Background")} onChange={this.toggleBackground.bind(this)} />
-        </div>
-      </div>;
-
     const columns = results ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
 
-    const dataUrl = typeof data === "string"
-      ? data.indexOf("http") === 0 ? data : `${ domain }${ data }`
-      : false;
+    const dataURLs = typeof data === "string"
+      ? [data] : Array.isArray(data)
+        ? data : false;
 
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
-        <div className="horizontal download">
-          <Button key="data-download" icon="download" fontSize="xxs" onClick={this.onCSV.bind(this)}>
-            {t("CMS.Options.Download as CSV")}
-          </Button>
-          { dataUrl && <input key="data-url" type="text" ref={input => this.dataLink = input} onClick={this.onFocus.bind(this, "dataLink")} readOnly="readonly" value={dataUrl} /> }
-        </div>
+
+        {dataURLs && dataURLs.map((link, i) =>
+          <ShareDirectLink
+            link={data.indexOf("http") === 0 ? link : `${ domain }${ link }`}
+            label={`Endpoint${dataURLs.length > 1 ? ` ${i + 1}` : "" }`}
+            key={link}
+          />
+        )}
+
         <div className="table">
           <ReactTable
             data={results}
@@ -256,6 +368,10 @@ class Options extends Component {
             resizable={false}
           />
         </div>
+
+        <Button key="data-download" icon="download" fontSize="md" onClick={this.onCSV.bind(this)} fill>
+          {t("CMS.Options.Download as CSV")}
+        </Button>
       </div>
       : <div className="bp3-dialog-body view-table">
         <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
@@ -266,52 +382,139 @@ class Options extends Component {
     const SharePanel = () =>
       <div className="bp3-dialog-body share-dialog">
 
-        {/* to slug or not to slug */}
-        <Checkbox
-          small
-          checked={this.state.includeSlug}
-          label={t("CMS.Options.Scroll to section")}
-          onChange={this.handleSectionCheck.bind(this)}
-        />
-
         {/* direct link */}
         <ShareDirectLink link={shareLink} />
 
+        {/* to slug or not to slug */}
+        <Checkbox
+          onChange={this.handleSectionCheck.bind(this)}
+          checked={this.state.includeSlug}
+          label={t("CMS.Options.Scroll to section")}
+          className="u-font-xs"
+        />
+
         {/* direct link */}
-        <Label>
-          <span className="u-font-xs options-label-text">{t("CMS.Options.Social")}</span>
+        <label>
+          <span className="u-font-xs options-label-text label">{t("CMS.Options.Social")}</span>
           <ButtonGroup fill={true}>
             <ShareFacebookLink link={shareLink} />
             <ShareTwitterLink link={shareLink} />
           </ButtonGroup>
-        </Label>
+        </label>
       </div>;
 
-
-    return <div className="Options" ref={this.toggleButton} tabIndex={focusOptions ? 0 : -1} onBlur={() => this.setState({focusOptions: false})} aria-label="visualization options">
-      <ButtonGroup>
-        <Button icon="th" key="view-table-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
+    return <div
+      className="Options"
+      tabIndex={focusOptions ? 0 : null}
+      aria-label="visualization options"
+      ref={this.toggleButton}
+    >
+      <ButtonGroup className="options-button-group">
+        <Button className="options-button" icon="th" key="view-table-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
           {t("CMS.Options.View Data")}
         </Button>
 
-        <Button icon="media" key="save-image-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
+        <Button className="options-button" icon="media" key="save-image-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-save-image`} onClick={this.toggleDialog.bind(this, "save-image")}>
           {t("CMS.Options.Save Image")}
         </Button>
 
-        <Button icon="share" key="share-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
+        <Button className="options-button" icon="share" key="share-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
           {t("CMS.Options.Share")}
         </Button>
       </ButtonGroup>
 
       <Dialog className="options-dialog"
-        autoFocus={true}
-        enforceFocus={true}
-        isOpen={openDialog}
+        autoFocus={false}
+        enforceFocus={false}
+        usePortal={true}
+        isOpen={dialogOpen}
         onClose={this.toggleDialog.bind(this, false)}
-        transitionDuration={transitionDuration}>
-        <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={openDialog}>
+        transitionDuration={transitionDuration}
+        ref={this.dialog}
+      >
+        <h2 className="u-visually-hidden">Visualization options</h2>
+        <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={dialogOpen}>
           <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
-          <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={<ImagePanel />} />
+          <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={
+            <div className="bp3-dialog-body save-image">
+
+              <div className="save-image-button-group-wrapper">
+                <h3 className="save-image-button-group-label label u-font-xs">Image area</h3>
+                <ButtonGroup className="save-image-button-group">
+                  <Button
+                    className="save-image-format-button"
+                    fontSize="xs"
+                    icon="timeline-line-chart"
+                    iconPosition="left"
+                    onClick={() => this.setState({imageContext: "viz"})}
+                    active={imageContext === "viz"}
+                  >
+                    visualization only
+                  </Button>
+                  <Button
+                    className="save-image-format-button"
+                    fontSize="xs"
+                    icon="vertical-distribution"
+                    iconPosition="left"
+                    onClick={() => this.setState({
+                      imageContext: "section",
+                      imageFormat: "png"
+                    })}
+                    active={imageContext === "section"}
+                  >
+                    entire section
+                  </Button>
+                </ButtonGroup>
+              </div>
+
+              {svgAvailable && imageContext !== "section" &&
+                <div className="save-image-button-group-wrapper">
+                  <h3 className="save-image-button-group-label label u-font-xs">Image format</h3>
+                  <ButtonGroup className="save-image-button-group">
+                    <Button
+                      className="save-image-format-button"
+                      fontSize="xs"
+                      icon="media"
+                      iconPosition="left"
+                      onClick={() => this.setState({imageFormat: "png"})}
+                      active={imageFormat === "png"}
+                    >
+                      <span className="u-visually-hidden">Save visualization as </span>PNG
+                    </Button>
+                    <Button
+                      className="save-image-format-button"
+                      fontSize="xs"
+                      icon="code-block"
+                      iconPosition="left"
+                      onClick={() => this.setState({imageFormat: "svg"})}
+                      active={imageFormat === "svg"}
+                    >
+                      <span className="u-visually-hidden">Save visualization as </span>SVG
+                    </Button>
+                  </ButtonGroup>
+                </div>
+              }
+
+              <Checkbox
+                onChange={this.toggleBackground.bind(this)}
+                checked={!backgroundColor}
+                label={t("CMS.Options.Transparent Background")}
+                className="u-font-xs"
+              />
+
+              <Button
+                className="save-image-download-button"
+                onClick={() => this.onSave()}
+                rebuilding={imageProcessing}
+                disabled={imageProcessing}
+                icon={imageProcessing ? "cog" : "download"}
+                fontSize="md"
+                fill
+              >
+                {imageProcessing ? "Processing image" : `Download ${imageFormat}`}
+              </Button>
+            </div>
+          } />
           <Tab id="share" title={t("CMS.Options.Share")} panel={<SharePanel />} />
           <Button icon="small-cross" iconOnly className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)}>
             Close
@@ -332,4 +535,4 @@ Options.contextTypes = {
 
 export default withNamespaces()(connect(state => ({
   location: state.location
-}))(Options));
+}))(hot(Options)));

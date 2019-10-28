@@ -1,4 +1,5 @@
 import {assign} from "d3plus-common";
+import {dataConcat} from "d3plus-viz";
 import {parse} from "./FUNC";
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
@@ -22,12 +23,21 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
       config: {
         data: [],
         type: "Treemap",
-        noDataHTML: `<div style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></div>`}
+        noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></p>`}
     };
   }
 
   // strip out the "dataFormat" from config
-  const dataFormat = config.dataFormat ? config.dataFormat : d => d.data;
+  const dataFormat = config.dataFormat ? config.dataFormat : resp => {
+
+    const hasMultiples = Array.isArray(config.data) && config.data.some(d => typeof d === "string");
+    const sources = hasMultiples ? resp : [resp];
+
+    // console.log(`d`, d);
+    // console.log(`sources`, sources);
+    // console.log(`dataConcat(sources, "data")`, dataConcat(sources, "data"));
+    return dataConcat(sources, "data");
+  };
   delete config.dataFormat;
 
   const linksFormat = config.linksFormat || undefined;

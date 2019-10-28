@@ -3,6 +3,7 @@
 /* shared button styles */
 .cp-button,
 .cms-button {
+  position: relative;
   display: inline-block;
   text-align: center; /* for links disguised as buttons */
   /* transitions */
@@ -62,9 +63,14 @@
     width: 100%;
   }
 
-  /* disabled state overrides all styles */
+  /* universal disabled state styles */
   &[disabled] {
     @mixin disabled-button;
+  }
+
+  /* rebuilding */
+  &.is-rebuilding > [class*="-button-icon"] {
+    animation: rotate 0.75s infinite ease-in-out;
   }
 }
 
@@ -73,9 +79,8 @@
 .cms-button {
   @mixin cms-button-style;
 
-  /* rebuilding */
-  &.is-rebuilding > .cms-button-icon {
-    animation: rotate 0.75s infinite ease-in-out;
+  &[disabled] {
+    @mixin cms-disabled-button-style;
   }
 }
 
@@ -91,7 +96,7 @@
   &:hover,
   &:focus {
     background-color: var(--button-hover-bg-color);
-    border-color: var(--button-hover-bg-color);
+    border-color: var(--button-hover-border-color);
     color: var(--button-hover-color);
   }
 }

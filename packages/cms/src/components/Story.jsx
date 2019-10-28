@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {fetchData} from "@datawheel/canon-core";
@@ -8,6 +8,7 @@ import stripP from "../utils/formatters/stripP";
 import stripHTML from "../utils/formatters/stripHTML";
 import Section from "./sections/Section";
 import Hero from "./sections/Hero";
+import Mirror from "./Viz/Mirror";
 
 import libs from "../utils/libs";
 
@@ -27,22 +28,26 @@ class Story extends Component {
   }
 
   render() {
-
     const {story} = this.props;
     const {storysections} = story;
     const titleRaw = stripHTML(this.props.story.title);
 
     return (
-      <div id="Story">
-        <Helmet title={ titleRaw } />
-        <Hero profile={story} />
-        <div className="story-content">
-          { storysections.map(section => <Section key={section.slug} contents={section} />) }
+      <Fragment>
+        <div className="cp-story">
+          <Helmet title={titleRaw} />
+          <Hero profile={story} />
+          <main className="cp-story-main" id="main">
+            {storysections.map(section =>
+              <Section key={section.slug} contents={section} />
+            )}
+          </main>
         </div>
-      </div>
+
+        <Mirror /> {/* for rendering visualization/section to save as image */}
+      </Fragment>
     );
   }
-
 }
 
 Story.childContextTypes = {
