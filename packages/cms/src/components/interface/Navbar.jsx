@@ -48,7 +48,7 @@ class Navbar extends Component {
               </button>
               <button className="cms-navbar-entity-settings-button" onClick={() => onOpenEntitySettings(currEntity)}>
                 <span className="u-visually-hidden">edit {currEntity} metadata</span>
-                <Icon icon="cog" />
+                <Icon className="cms-navbar-entity-settings-button-icon" icon="cog" />
               </button>
             </Fragment>
           }
