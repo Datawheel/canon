@@ -27,12 +27,8 @@ class ReorderButton extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  status: state.cms.status
-});
-
 const mapDispatchToProps = dispatch => ({
   swapEntity: (type, id) => dispatch(swapEntity(type, id))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReorderButton);
+export default connect(null, mapDispatchToProps)(ReorderButton);

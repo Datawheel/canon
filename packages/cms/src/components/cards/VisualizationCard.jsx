@@ -97,7 +97,7 @@ class VisualizationCard extends Component {
 
     if (!minData) return <Loading />;
 
-    const {selectors, type, parentArray, item, onMove} = this.props;
+    const {selectors, type} = this.props;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
     const formatters = this.context.formatters[localeDefault];
@@ -128,12 +128,10 @@ class VisualizationCard extends Component {
       onEdit: this.openEditor.bind(this),
       onDelete: this.maybeDelete.bind(this),
       // reorder
-      reorderProps: parentArray ? {
-        array: parentArray,
-        item,
+      reorderProps: showReorderButton ? {
+        id: minData.id,
         type
       } : null,
-      onReorder: onMove ? onMove.bind(this) : null,
       // alert
       alertObj,
       onAlertCancel: () => this.setState({alertObj: false})

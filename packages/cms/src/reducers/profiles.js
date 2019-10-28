@@ -97,7 +97,6 @@ export default (profiles = [], action) => {
     case "SECTION_SUBTITLE_DELETE":
       return deleteSectionEntity(profiles, action.data, "subtitles");
     case "SECTION_SUBTITLE_SWAP":
-      console.log("swappy", action);
       return swapSectionEntity(profiles, action.data, "subtitles");
 
     // Stats
@@ -107,6 +106,8 @@ export default (profiles = [], action) => {
       return updateSectionEntity(profiles, action.data, "stats");
     case "SECTION_STAT_DELETE":
       return deleteSectionEntity(profiles, action.data, "stats");
+    case "SECTION_STAT_SWAP":
+      return swapSectionEntity(profiles, action.data, "stats");
 
     // Descriptions
     case "SECTION_DESCRIPTION_NEW":
@@ -115,6 +116,8 @@ export default (profiles = [], action) => {
       return updateSectionEntity(profiles, action.data, "descriptions");
     case "SECTION_DESCRIPTION_DELETE":
       return deleteSectionEntity(profiles, action.data, "descriptions");
+    case "SECTION_DESCRIPTION_SWAP":
+      return swapSectionEntity(profiles, action.data, "descriptions");
 
     // Visualizations
     case "SECTION_VISUALIZATION_NEW":
@@ -123,6 +126,8 @@ export default (profiles = [], action) => {
       return updateSectionEntity(profiles, action.data, "visualizations");
     case "SECTION_VISUALIZATION_DELETE":
       return deleteSectionEntity(profiles, action.data, "visualizations");
+    case "SECTION_VISUALIZATION_SWAP":
+      return swapSectionEntity(profiles, action.data, "visualizations");
 
     // Section Selectors
     case "SECTION_SELECTOR_NEW":

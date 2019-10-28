@@ -246,6 +246,7 @@ class SectionEditor extends Component {
                 minData={s}
                 fields={["title", "subtitle", "value", "tooltip"]}
                 type="section_stat"
+                showReorderButton={minData.stats[minData.stats.length - 1].id !== s.id}
               />
             )}
           />
@@ -261,6 +262,7 @@ class SectionEditor extends Component {
                 minData={d}
                 fields={["description"]}
                 type="section_description"
+                showReorderButton={minData.descriptions[minData.descriptions.length - 1].id !== d.id}
               />
             )}
           />
@@ -275,6 +277,7 @@ class SectionEditor extends Component {
                 key={v.id}
                 minData={v}
                 type="section_visualization"
+                showReorderButton={minData.visualizations[minData.visualizations.length - 1].id !== v.id}
               />
             )}
           />
