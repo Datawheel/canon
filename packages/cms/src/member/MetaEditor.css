@@ -19,6 +19,10 @@
   & .cms-meta-table {
     justify-content: space-between;
 
+    & > .rt-table {
+      @mixin horizontal-overflow-container;
+    }
+
     /* center no data message */
     & .rt-noData {
       margin: auto;
