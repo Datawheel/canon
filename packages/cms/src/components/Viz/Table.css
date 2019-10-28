@@ -26,7 +26,6 @@ NOTE: ripped from ReactTable
   width: auto;
   /* entire table can scroll horizontally */
   @mixin horizontal-overflow-container;
-  -ms-overflow-style: none;
 }
 
 .rt-thead {
