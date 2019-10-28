@@ -89,7 +89,7 @@ class VisualizationCard extends Component {
 
   render() {
 
-    const {minData} = this.props;
+    const {minData, showReorderButton} = this.props;
     const {isOpen, alertObj} = this.state;
     const {query} = this.props.status;
 
