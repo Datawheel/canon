@@ -33,9 +33,9 @@ export function deleteProfile(id) {
 }
 
 /** */
-export function swapEntity(type, id, dir) {
+export function swapEntity(type, id) {
   return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/swap`, {id, dir})
+    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/swap`, {id})
       .then(({data}) => {
         dispatch({type: `${type.toUpperCase()}_SWAP`, data});
       });

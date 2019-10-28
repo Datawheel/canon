@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import axios from "axios";
 import {connect} from "react-redux";
 import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";

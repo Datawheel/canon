@@ -122,6 +122,10 @@ export default (profiles = [], action) => {
       return profiles.map(p => 
         Object.assign({}, p, {sections: p.sections.map(s => 
           s.id === action.data.parent_id ? Object.assign({}, s, {selectors: action.data.selectors}) : s)}));
+    case "SECTION_SELECTOR_SWAP":
+      return profiles.map(p => 
+        Object.assign({}, p, {sections: p.sections.map(s => 
+          s.id === action.data.parent_id ? Object.assign({}, s, {selectors: action.data.selectors}) : s)}));
 
     // Variables
     case "VARIABLES_SET":

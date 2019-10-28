@@ -60,7 +60,6 @@ class ProfileBuilder extends Component {
     const newMeta = JSON.stringify(this.props.profiles.map(p => JSON.stringify(p.meta)));
     const changedMeta = oldMeta !== newMeta;
 
-    // todo listen for query change and formattreevariables (?)
     if (!nodes || changedTree) {
       console.log("Tree Changed: Rebuilding Tree");
       this.buildNodes.bind(this)();
@@ -111,8 +110,8 @@ class ProfileBuilder extends Component {
     }
   }
 
-  moveItem(n, dir) {
-    this.props.swapEntity(n.itemType, n.data.id, dir);
+  moveItem(n) {
+    this.props.swapEntity(n.itemType, n.data.id);
   }
 
   /**
@@ -385,7 +384,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   getProfiles: () => dispatch(getProfiles()),
   newProfile: () => dispatch(newProfile()),
-  swapEntity: (type, id, dir) => dispatch(swapEntity(type, id, dir)),
+  swapEntity: (type, id) => dispatch(swapEntity(type, id)),
   newSection: pid => dispatch(newSection(pid)),
   deleteProfile: id => dispatch(deleteProfile(id)),
   deleteSection: id => dispatch(deleteSection(id)),

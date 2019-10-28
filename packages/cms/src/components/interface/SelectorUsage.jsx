@@ -4,7 +4,7 @@ import Select from "../fields/Select";
 import Button from "../fields/Button";
 import stripHTML from "../../utils/formatters/stripHTML";
 
-import {newEntity, deleteEntity} from "../../actions/profiles";
+import {newEntity, deleteEntity, swapEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
 import "./SelectorUsage.css";
@@ -36,8 +36,8 @@ class SelectorUsage extends Component {
     this.props.setStatus({query: Object.assign({}, this.props.status.query, selectionObj)});
   }
 
-  swapSelector(index) {
-    console.log("todo: swap me", index);
+  swapSelector(id) {
+    this.props.swapEntity("section_selector", id);
   }
 
   render() {
@@ -141,7 +141,7 @@ class SelectorUsage extends Component {
                   {i !== activeSelectors.length - 1 &&
                     <div className="cms-reorder">
                       <Button
-                        onClick={this.swapSelector.bind(this, i)}
+                        onClick={this.swapSelector.bind(this, s.section_selector.id)}
                         className="cms-reorder-button"
                         namespace="cms"
                         icon="swap-vertical"
@@ -170,7 +170,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   setStatus: status => dispatch(setStatus(status)),
   newEntity: (type, payload) => dispatch(newEntity(type, payload)),
-  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  swapEntity: (type, id) => dispatch(swapEntity(type, id))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectorUsage);

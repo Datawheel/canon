@@ -420,7 +420,25 @@ module.exports = function(app) {
 
   app.get("/api/cms", (req, res) => res.json(cmsCheck()));
 
-  /* GETS */
+  /* BASIC GETS */
+
+  // Top-level tables have their own special gets, so exclude them from the "simple" gets
+  const getList = cmsTables.filter(tableName =>
+    !["profile", "section", "story", "storysection"].includes(tableName)
+  );
+
+  getList.forEach(ref => {
+    app.get(`/api/cms/${ref}/get/:id`, async(req, res) => {
+      if (contentTables.includes(ref)) {
+        const u = await db[ref].findOne({where: {id: req.params.id}, include: {association: "content"}}).catch(catcher);
+        return res.json(u);
+      }
+      else {
+        const u = await db[ref].findOne({where: {id: req.params.id}}).catch(catcher);
+        return res.json(u);
+      }
+    });
+  });
 
   app.get("/api/cms/meta", async(req, res) => {
     let meta = await db.profile_meta.findAll().catch(catcher);
@@ -495,31 +513,6 @@ module.exports = function(app) {
     return res.json(sortStory(db, story));
   });
 
-  /*
-
-  app.get("/api/cms/section/get/:id", async(req, res) => {
-    const {id} = req.params;
-    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id}});
-    let section = await db.section.findOne(reqObj).catch(catcher);
-    const sectionTypes = [];
-    shell.ls(`${sectionTypeDir}*.jsx`).forEach(file => {
-      // In Windows, the shell.ls command returns forward-slash separated directories,
-      // but the node "path" command returns backslash separated directories. Flip the slashes
-      // so the ensuing replace operation works (this should be a no-op for *nix/osx systems)
-      const sectionTypeDirFixed = sectionTypeDir.replace(/\\/g, "/");
-      const compName = file.replace(sectionTypeDirFixed, "").replace(".jsx", "");
-      if (compName !== "Section") sectionTypes.push(compName);
-    });
-    section = sortSection(db, section);
-    section.types = sectionTypes;
-    // sections need to know all available selectors so it can choose which to subscribe to
-    const allSelectors = await db.selector.findAll({where: {profile_id: section.profile_id}}).catch(catcher);
-    if (allSelectors) section.allSelectors = allSelectors.map(d => d.toJSON());
-    return res.json(section);
-  });
-
-  */
-
   app.get("/api/cms/storysection/get/:id", async(req, res) => {
     const {id} = req.params;
     const reqObj = Object.assign({}, storysectionReqStorysectionOnly, {where: {id}});
@@ -534,26 +527,7 @@ module.exports = function(app) {
     return res.json(storysection);
   });
 
-  // Top-level tables have their own special gets, so exclude them from the "simple" gets
-  const getList = cmsTables.filter(tableName =>
-    !["profile", "section", "story", "storysection"].includes(tableName)
-  );
-
-  getList.forEach(ref => {
-    app.get(`/api/cms/${ref}/get/:id`, async(req, res) => {
-      if (contentTables.includes(ref)) {
-        const u = await db[ref].findOne({where: {id: req.params.id}, include: {association: "content"}}).catch(catcher);
-        return res.json(u);
-      }
-      else {
-        const u = await db[ref].findOne({where: {id: req.params.id}}).catch(catcher);
-        return res.json(u);
-      }
-    });
-  });
-
-  /* INSERTS */
-  // For now, all "create" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.
+  /* BASIC INSERTS */
   const newList = cmsTables;
   newList.forEach(ref => {
     app.post(`/api/cms/${ref}/new`, isEnabled, async(req, res) => {
@@ -593,6 +567,7 @@ module.exports = function(app) {
     });
   });
 
+  /* CUSTOM INSERTS */
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
     const maxFetch = await db.profile.findAll({attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
     const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
@@ -603,10 +578,9 @@ module.exports = function(app) {
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile.id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON()); 
-    const sectionTypes = getSectionTypes();
     newProfile.sections = newProfile.sections.map(section => {
       section = sortSection(db, section);
-      section.types = sectionTypes;
+      section.types = getSectionTypes();
       return section;
     });
     return res.json(newProfile);
@@ -637,10 +611,9 @@ module.exports = function(app) {
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile_id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
-    const sectionTypes = getSectionTypes();
     newProfile.sections = newProfile.sections.map(section => {
       section = sortSection(db, section);
-      section.types = sectionTypes;
+      section.types = getSectionTypes();
       return section;
     });
     return res.json(newProfile);
@@ -654,8 +627,7 @@ module.exports = function(app) {
     return res.json({});
   });
 
-  /* UPDATES */
-  // For now, all "update" commands are identical, and don't need a filter (as gets do above), so we may use the whole list.
+  /* BASIC UPDATES */
   const updateList = cmsTables;
   updateList.forEach(ref => {
     app.post(`/api/cms/${ref}/update`, isEnabled, async(req, res) => {
@@ -678,12 +650,12 @@ module.exports = function(app) {
   });
 
   /* SWAPS */
-  // For entities that have ordering, this handles updates for swapping order
   /**
-   * To streamline swaps, this list contains objects with two properties. "elements" refers to the tables to be modified,
+   * To handle swaps, this list contains objects with two properties. "elements" refers to the tables to be modified,
    * and "parent" refers to the foreign key that need be referenced in the associated where clause.
    */
   const swapList = [
+    {elements: ["profile"], parent: null},
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
     {elements: ["section"], parent: "profile_id"},
     {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
@@ -692,28 +664,37 @@ module.exports = function(app) {
   swapList.forEach(list => {
     list.elements.forEach(ref => {
       app.post(`/api/cms/${ref}/swap`, isEnabled, async(req, res) => {
-        const {id, dir} = req.body;
-        if (dir === "down") {
-          const original = await db[ref].findOne({where: {id}}).catch(catcher);
-          const other = await db[ref].findOne({where: {[list.parent]: original[list.parent], ordering: original.ordering + 1}}).catch(catcher);
-          if (!original || !other) return res.json([]);
-          const newOriginal = await db[ref].update({ordering: sequelize.literal("ordering + 1")}, {where: {id}, returning: true, plain: true}).catch(catcher);
-          const newOther = await db[ref].update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
-          return res.json([newOriginal[1], newOther[1]]);
-        }
-        else if (dir === "up") {
-          const original = await db[ref].findOne({where: {id}}).catch(catcher);
-          const other = await db[ref].findOne({where: {[list.parent]: original[list.parent], ordering: original.ordering - 1}}).catch(catcher);
-          if (!original || !other) return res.json([]);
-          const newOriginal = await db[ref].update({ordering: sequelize.literal("ordering - 1")}, {where: {id}, returning: true, plain: true}).catch(catcher);
-          const newOther = await db[ref].update({ordering: sequelize.literal("ordering + 1")}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher); 
-          return res.json([newOriginal[1], newOther[1]]);
-        }
-        else {
-          return res.json([]);
-        }
+        const {id} = req.body;
+        const original = await db[ref].findOne({where: {id}}).catch(catcher);
+        const otherWhere = {ordering: original.ordering + 1};
+        if (list.parent) otherWhere[list.parent] = original[list.parent];
+        const other = await db[ref].findOne({where: otherWhere}).catch(catcher);
+        if (!original || !other) return res.json([]);
+        const newOriginal = await db[ref].update({ordering: sequelize.literal("ordering + 1")}, {where: {id}, returning: true, plain: true}).catch(catcher);
+        const newOther = await db[ref].update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
+        return res.json([newOriginal[1], newOther[1]]);
       });
     });
+  });
+
+  /* CUSTOM SWAPS */
+
+  app.post("/api/cms/section_selector/swap", isEnabled, async(req, res) => {
+    const {id} = req.body;
+    const original = await db.section_selector.findOne({where: {id}}).catch(catcher);
+    const otherWhere = {ordering: original.ordering + 1, section_id: original.section_id};
+    const other = await db.section_selector.findOne({where: otherWhere}).catch(catcher);
+    await db.section_selector.update({ordering: sequelize.literal("ordering + 1")}, {where: {id}}).catch(catcher);
+    await db.section_selector.update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}}).catch(catcher);
+    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id: original.section_id}});
+    let section = await db.section.findOne(reqObj).catch(catcher);
+    let rows = [];
+    if (section) {
+      section = section.toJSON();
+      section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
+      rows = section.selectors;
+    }
+    return res.json({parent_id: original.section_id, selectors: rows});
   });
 
   /* DELETES */
@@ -747,7 +728,7 @@ module.exports = function(app) {
     });
   });
 
-  // Other (More Complex) Elements
+  /* CUSTOM DELETES */ 
   app.delete("/api/cms/generator/delete", isEnabled, async(req, res) => {
     const row = await db.generator.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.generator.destroy({where: {id: req.query.id}});
@@ -784,25 +765,6 @@ module.exports = function(app) {
       rows = section.selectors;
     }
     return res.json({parent_id: row.section_id, selectors: rows});
-  });
-
-  app.post("/api/cms/section_selector/swap", isEnabled, async(req, res) => {
-    const {selector_id, section_id} = req.body; // eslint-disable-line camelcase
-    let selectors = await db.section_selector.findAll({where: {section_id}}).catch(catcher);
-    selectors = selectors.map(s => s.toJSON());
-    const selector1 = selectors.find(s => s.selector_id === selector_id); // eslint-disable-line camelcase
-    const selector2 = selectors.find(s => s.ordering === selector1.ordering + 1);
-    await db.section_selector.update({ordering: selector2.ordering}, {where: {id: selector1.id}}).catch(catcher);
-    await db.section_selector.update({ordering: selector1.ordering}, {where: {id: selector2.id}}).catch(catcher);
-    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id: section_id}});
-    let section = await db.section.findOne(reqObj).catch(catcher);
-    let rows = [];
-    if (section) {
-      section = section.toJSON();
-      section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
-      rows = section.selectors;
-    }
-    return res.json(rows);
   });
 
   app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {
@@ -864,7 +826,7 @@ module.exports = function(app) {
     sections = sections.map(section => {
       section = section.toJSON();
       section = sortSection(db, section);
-      section.types = getSectionTypes;
+      section.types = getSectionTypes();
       return section;
     });
     return res.json({parent_id: row.profile_id, sections});
@@ -882,14 +844,6 @@ module.exports = function(app) {
       ],
       order: [["ordering", "ASC"]]
     }).catch(catcher);
-    return res.json(rows);
-  });
-
-  app.delete("/api/cms/selector/delete", isEnabled, async(req, res) => {
-    const row = await db.selector.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.selector.update({ordering: sequelize.literal("ordering -1")}, {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.selector.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.selector.findAll({where: {section_id: row.section_id}, order: [["ordering", "ASC"]]}).catch(catcher);
     return res.json(rows);
   });
 

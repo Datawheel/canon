@@ -13,14 +13,8 @@ class CtxMenu extends Component {
 
     const menu = <Menu>
       <MenuItem
-        icon="arrow-up"
-        onClick={this.props.moveItem.bind(this, node, "up")}
-        text={`Move ${node.itemType} Up`}
-        disabled={node.data.ordering === 0}
-      />
-      <MenuItem
         icon="arrow-down"
-        onClick={this.props.moveItem.bind(this, node, "down")}
+        onClick={this.props.moveItem.bind(this, node)}
         text={`Move ${node.itemType} Down`}
         disabled={node.data.ordering === this.props.parentLength - 1}
       />
