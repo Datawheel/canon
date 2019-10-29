@@ -60,6 +60,12 @@ export default (profiles = [], action) => {
       );
     case "MATERIALIZER_DELETE":
       return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {deletedMaterializerID: action.data.id, materializers: action.data.materializers}) : p);
+    case "MATERIALIZER_SWAP": 
+      return profiles.map(p => 
+        Object.assign({}, p, {materializers: p.materializers.map(m => {
+          const match = action.data.find(d => d.id === m.id);
+          return match ? Object.assign({}, m, {ordering: match.ordering}) : m;  
+        }).sort((a, b) => a.ordering - b.ordering)}));
     case "SELECTOR_NEW":
       return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {selectors: p.selectors.concat([action.data])}) : p);
     case "SELECTOR_UPDATE":

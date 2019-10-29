@@ -230,7 +230,6 @@ class Toolbox extends Component {
                   id={g.id}
                   context="generator"
                   hidden={!detailView}
-                  item={g}
                   attr={profile.attr || {}}
                   type="generator"
                 />
@@ -250,10 +249,8 @@ class Toolbox extends Component {
                   id={m.id}
                   context="materializer"
                   hidden={!detailView}
-                  item={m}
                   type="materializer"
-                  parentArray={profile.materializers}
-                  onMove={this.onMove.bind(this)}
+                  showReorderButton={materializers[materializers.length - 1].id !== m.id}
                 />
               )}
             />
@@ -285,7 +282,6 @@ class Toolbox extends Component {
                   context="formatter"
                   key={f.id}
                   id={f.id}
-                  item={f}
                   type="formatter"
                   variables={{}}
                 />

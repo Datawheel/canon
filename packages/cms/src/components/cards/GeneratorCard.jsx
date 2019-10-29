@@ -142,7 +142,7 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {attr, context, type, item, onMove, parentArray} = this.props;
+    const {attr, context, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
     const {variables} = this.props.status;
     const {displayData, secondaryDisplayData, isOpen, alertObj} = this.state;
@@ -172,12 +172,10 @@ class GeneratorCard extends Component {
         onEdit: this.openEditor.bind(this),
         onDelete: this.maybeDelete.bind(this),
         // reorder
-        reorderProps: parentArray ? {
-          array: parentArray,
-          item,
+        reorderProps: showReorderButton ? {
+          id: minData.id,
           type
         } : null,
-        onReorder: onMove ? onMove.bind(this) : null,
         // alert
         alertObj,
         onAlertCancel: () => this.setState({alertObj: false})
