@@ -96,12 +96,9 @@ export default class Toolbox extends Component {
             ordering: resp.data.ordering || null
           });
         }
-        let forceID, forceOpen, forceType = null;
-        if (type === "generator" || type === "materializer") {
-          forceID = resp.data.id;
-          forceType = type;
-          forceOpen = true;
-        }
+        const forceID = resp.data.id;
+        const forceType = type;
+        const forceOpen = true;
         this.setState({minData, forceID, forceType, forceOpen}, maybeFetch);
       }
     });
@@ -361,6 +358,7 @@ export default class Toolbox extends Component {
                   onSave={this.updateSelectors.bind(this)}
                   onDelete={this.onDelete.bind(this)}
                   variables={variables[localeDefault]}
+                  forceOpen={forceType === "selector" && forceID === s.id ? forceOpen : null}
                 />
               )}
             />
@@ -381,6 +379,7 @@ export default class Toolbox extends Component {
                   onDelete={this.onDelete.bind(this)}
                   type="formatter"
                   variables={{}}
+                  forceOpen={forceType === "formatter" && forceID === g.id ? forceOpen : null}
                 />
               )}
             />
