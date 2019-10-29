@@ -266,13 +266,6 @@ class Options extends Component {
       }, transitionDuration + 10);
     }
 
-    const node = this.getNode.bind(this)();
-
-    if (isIE && node && !dialogOpen) {
-      const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
-      if (node.offsetTop < scrollTop) animateScroll.scrollTo(node.offsetTop);
-    }
-
     this.setState({dialogOpen: slug});
     this.listenForBlur();
     const {results, loading} = this.state;
