@@ -13,7 +13,7 @@ import SidebarTree from "../components/interface/SidebarTree";
 import Header from "../components/interface/Header";
 import Toolbox from "../components/interface/Toolbox";
 import Status from "../components/interface/Status";
-import nestedObjectAssign from "../utils/nestedObjectAssign";
+import {assign} from "d3plus-common";
 import sectionIconLookup from "../utils/sectionIconLookup";
 import toKebabCase from "../utils/formatters/toKebabCase";
 
@@ -570,7 +570,7 @@ class ProfileBuilder extends Component {
         }
         // Once pruned, we can POST the variables to the materializer endpoint
         axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variablesHash[currentPid][thisLocale]}).then(mat => {
-          variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], mat.data);
+          variablesHash[currentPid][thisLocale] = assign({}, variablesHash[currentPid][thisLocale], mat.data);
           this.setState({variablesHash}, maybeCallback);
         });
       }
@@ -594,7 +594,7 @@ class ProfileBuilder extends Component {
             paramString += `&${k}=${query[k]}`;
           });
           axios.get(`/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
-            variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], gen.data);
+            variablesHash[currentPid][thisLocale] = assign({}, variablesHash[currentPid][thisLocale], gen.data);
             let gensLoaded = Object.keys(variablesHash[currentPid][thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
             const gensTotal = gids.length;
             const genLang = thisLocale;
@@ -612,7 +612,7 @@ class ProfileBuilder extends Component {
                 delete variablesHash[currentPid][thisLocale]._matStatus[mid];
               });
               axios.post(`/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variablesHash[currentPid][thisLocale]}).then(mat => {
-                variablesHash[currentPid][thisLocale] = nestedObjectAssign({}, variablesHash[currentPid][thisLocale], mat.data);
+                variablesHash[currentPid][thisLocale] = assign({}, variablesHash[currentPid][thisLocale], mat.data);
                 this.setState({variablesHash}, maybeCallback);
               });
             }
