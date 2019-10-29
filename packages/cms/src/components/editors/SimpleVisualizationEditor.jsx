@@ -168,30 +168,41 @@ class SimpleVisualizationEditor extends Component {
         lookup[`id${i + 1}`] = p.id;
       });
     }
-    const url = urlSwap(data, Object.assign({}, env, variables, lookup));
-    axios.get(url).then(resp => {
-      const payload = resp.data;
-      const firstObj = payload.data[0];
-      const newObject = {
-        data: object.data,
-        type: object.type
-      };
-      if (vizLookup[type] && firstObj) {
-        if (newObject.type === "Table") {
-          newObject.columns = Object.keys(firstObj);
-        }
-        else {
-          vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
-        }
-      }
+
+    const newObject = {
+      data: object.data,
+      type: object.type
+    };
+
+    if (data) {
+
+      const url = urlSwap(data, Object.assign({}, env, variables, lookup));
+      axios.get(url)
+        .then(resp => {
+          const payload = resp.data;
+          const firstObj = payload.data[0];
+          if (vizLookup[type] && firstObj) {
+            if (newObject.type === "Table") {
+              newObject.columns = Object.keys(firstObj);
+            }
+            else {
+              vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
+            }
+          }
+          this.setState({
+            payload,
+            object: newObject,
+            rebuildAlertOpen: false
+          }, this.compileCode.bind(this));
+        })
+        .catch(e => console.log("API error", e));
+    }
+    else {
       this.setState({
-        payload,
         object: newObject,
         rebuildAlertOpen: false
-      }, this.compileCode.bind(this));
-    }).catch(e => {
-      console.log("API error", e);
-    });
+      });
+    }
   }
 
   render() {

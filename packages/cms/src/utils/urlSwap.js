@@ -6,6 +6,8 @@ const env = {
 
 module.exports = function(url, params) {
 
+  if (typeof url !== "string") return url;
+
   const lookup = Object.assign({}, env, params);
 
   (url.match(/<[^\&\=\/>]+>/g) || []).forEach(variable => {
