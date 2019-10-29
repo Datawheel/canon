@@ -34,7 +34,7 @@ class SimpleVisualizationEditor extends Component {
     this.state = {
       object: {},
       rebuildAlertOpen: false,
-      payload: {}
+      payload: []
     };
   }
 
@@ -60,6 +60,18 @@ class SimpleVisualizationEditor extends Component {
     }
   }
 
+  extractPayload(resp) {
+    if (resp.data.data) {
+      return resp.data.data;
+    }
+    else if (resp.data) {
+      return resp.data;
+    }
+    else {
+      return resp;
+    }
+  }
+
   firstBuild() {
     const {object} = this.state;
     const {previews, variables, env} = this.props;
@@ -79,7 +91,7 @@ class SimpleVisualizationEditor extends Component {
       }
       const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url).then(resp => {
-        const payload = resp.data;
+        const payload = this.extractPayload(resp);
 
         this.setState({payload}, this.compileCode.bind(this));
       }).catch(e => {
@@ -121,7 +133,7 @@ class SimpleVisualizationEditor extends Component {
 
   maybeRebuild() {
     const {payload} = this.state;
-    if (payload.data) {
+    if (payload.length > 0) {
       this.setState({rebuildAlertOpen: true});
     }
     else {
@@ -179,8 +191,8 @@ class SimpleVisualizationEditor extends Component {
       const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url)
         .then(resp => {
-          const payload = resp.data;
-          const firstObj = payload.data[0];
+          const payload = this.extractPayload(resp);
+          const firstObj = payload[0];
           if (vizLookup[type] && firstObj) {
             if (newObject.type === "Table") {
               newObject.columns = Object.keys(firstObj);
@@ -208,7 +220,7 @@ class SimpleVisualizationEditor extends Component {
   render() {
     const {object, rebuildAlertOpen, payload} = this.state;
     const selectedColumns = object.columns || [];
-    const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
+    const firstObj = payload.length > 0 && payload[0] ? payload[0] : object;
 
     let buttonProps = {
       children: "Build",
@@ -217,7 +229,7 @@ class SimpleVisualizationEditor extends Component {
     };
     if (object.data) {
       buttonProps = {
-        children: payload.data ? "Rebuild" : "Build",
+        children: payload.length > 0 ? "Rebuild" : "Build",
         namespace: "cms",
         onClick: this.maybeRebuild.bind(this)
       };
@@ -273,7 +285,7 @@ class SimpleVisualizationEditor extends Component {
         />
       </div>
 
-      {payload.data &&
+      {payload.length > 0 &&
         <div className="viz-select-group">
           {object.type && vizLookup[object.type] && vizLookup[object.type].map(prop =>
             // render prop as text input
