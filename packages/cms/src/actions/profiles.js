@@ -1,5 +1,5 @@
 import axios from "axios";
-import nestedObjectAssign from "../utils/nestedObjectAssign";
+import {assign} from "d3plus-common";
 import deepClone from "../utils/deepClone";
 
 /** */
@@ -233,7 +233,7 @@ export function fetchVariables(config, useCache) {
           }
           // Once pruned, we can POST the variables to the materializer endpoint
           axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-            variables[thisLocale] = nestedObjectAssign({}, variables[thisLocale], mat.data);
+            variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
             dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
           });
         }
@@ -257,7 +257,7 @@ export function fetchVariables(config, useCache) {
               paramString += `&${k}=${query[k]}`;
             });
             axios.get(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
-              variables[thisLocale] = nestedObjectAssign({}, variables[thisLocale], gen.data);
+              variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
               let gensLoaded = Object.keys(variables[thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
               const gensTotal = gids.length;
               const genLang = thisLocale;
@@ -276,7 +276,7 @@ export function fetchVariables(config, useCache) {
                   delete variables[thisLocale]._matStatus[mid];
                 });
                 axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-                  variables[thisLocale] = nestedObjectAssign({}, variables[thisLocale], mat.data);
+                  variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
                   dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
                 });
               }
