@@ -71,10 +71,6 @@ class Toolbox extends Component {
     this.props.newEntity(type, {profile_id: this.props.profile.id});
   }
 
-  onMove() {
-    this.forceUpdate();
-  }
-
   filter(e) {
     this.setState({query: e.target.value});
   }

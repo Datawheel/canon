@@ -5,7 +5,7 @@ export default (status = {}, action) => {
     // Basic assign
     case "STATUS_SET": 
       return Object.assign({}, status, action.data);
-    // When gens/mats are added, force them open for editing. When they are updated, close them.
+    // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW": 
       return Object.assign({}, status, {forceID: action.data.id, forceType: "generator", forceOpen: true});
     case "GENERATOR_UPDATE": 
@@ -13,6 +13,14 @@ export default (status = {}, action) => {
     case "MATERIALIZER_NEW": 
       return Object.assign({}, status, {forceID: action.data.id, forceType: "materializer", forceOpen: true});
     case "MATERIALIZER_UPDATE": 
+      return Object.assign({}, status, {forceID: false, forceType: false, forceOpen: false});
+    case "SELECTOR_NEW": 
+      return Object.assign({}, status, {forceID: action.data.id, forceType: "selector", forceOpen: true});
+    case "SELECTOR_UPDATE": 
+      return Object.assign({}, status, {forceID: false, forceType: false, forceOpen: false});
+    case "FORMATTER_NEW": 
+      return Object.assign({}, status, {forceID: action.data.id, forceType: "formatter", forceOpen: true});
+    case "FORMATTER_UPDATE": 
       return Object.assign({}, status, {forceID: false, forceType: false, forceOpen: false});
     // Updating variables or saving a section or meta means that anything that depends on variables, such as TextCards 
     // Or the tree, needs to know something changed. Instead of running an expensive stringify on variables,

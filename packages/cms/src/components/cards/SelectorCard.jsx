@@ -10,6 +10,7 @@ import deepClone from "../../utils/deepClone";
 import Card from "./Card";
 
 import {deleteEntity, updateEntity} from "../../actions/profiles";
+import {setStatus} from "../../actions/status";
 
 import "./SelectorCard.css";
 
@@ -30,7 +31,9 @@ class SelectorCard extends Component {
   }
 
   componentDidMount() {
+    const {forceType, forceID} = this.props.status;
     this.setState({minData: deepClone(this.props.minData)});
+    if (forceType === "selector" && forceID === this.props.minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
@@ -90,6 +93,7 @@ class SelectorCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
+    this.props.setStatus({forceID: false, forceType: false, forceOpen: false});
   }
 
   render() {
@@ -203,7 +207,8 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
-  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectorCard);

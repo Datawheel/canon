@@ -27,9 +27,11 @@ class GeneratorCard extends Component {
   }
 
   componentDidMount() {
-    const {minData} = this.props;
+    const {minData, type} = this.props;
+    const {forceType, forceID} = this.props.status;
     this.setState({minData: deepClone(minData)});
     this.formatDisplay.bind(this)();
+    if (forceType === type && forceID === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
