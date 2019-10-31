@@ -1,18 +1,18 @@
-import funcifyFormatterByLocale from "./utils/funcifyFormatterByLocale";
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import yn from "yn";
-import {Icon} from "@blueprintjs/core";
 
 import {fetchData} from "@datawheel/canon-core";
 import {isAuthenticated} from "@datawheel/canon-core";
+
+import funcifyFormatterByLocale from "./utils/funcifyFormatterByLocale";
+
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
 import MetaEditor from "./member/MetaEditor";
-import Select from "./components/fields/Select";
-import Button from "./components/fields/Button";
 import AuthForm from "./components/interface/AuthForm";
+import Navbar from "./components/interface/Navbar";
 
 import {setStatus} from "./actions/status";
 
@@ -31,7 +31,8 @@ class Builder extends Component {
     this.state = {
       currentTab: null,
       formatters: {},
-      userInit: false
+      userInit: false,
+      outlineOpen: true
     };
   }
 
@@ -45,7 +46,7 @@ class Builder extends Component {
 
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
-    
+
     let currentTab;
     if (tab) {
       currentTab = tab;
@@ -77,7 +78,6 @@ class Builder extends Component {
       this.props.setStatus({localeDefault, pathObj});
       this.setState({formatters, currentTab});
     }
-
   }
 
   componentDidUpdate(prevProps) {
@@ -112,8 +112,20 @@ class Builder extends Component {
     });
   }
 
+  // manage open/closed state of settings popover
+  closeSettings() {
+    this.setState({settingsOpen: false});
+  }
   toggleSettings() {
     this.setState({settingsOpen: !this.state.settingsOpen});
+  }
+
+  toggleOutline() {
+    this.setState({outlineOpen: !this.state.outlineOpen});
+  }
+
+  editEntitySettings(entity) {
+    console.log(`This should open a dialog for editing ${entity} metadata`);
   }
 
   setPath() {
@@ -133,7 +145,7 @@ class Builder extends Component {
       const previews = typeof pathObj.previews === "string" ? pathObj.previews : pathObj.previews.map(d => d.id).join();
       url += `&previews=${previews}`;
     }
-    // Story 
+    // Story
     if (pathObj.story) url += `&story=${pathObj.story}`;
     if (pathObj.storysection) url += `&storysection=${pathObj.storysection}`;
     router.replace(url);
@@ -141,12 +153,11 @@ class Builder extends Component {
   }
 
   render() {
-    const {currentTab, settingsOpen, userInit} = this.state;
+    const {currentTab, outlineOpen, settingsOpen, userInit} = this.state;
     const {locales, localeDefault, localeSecondary} = this.props.status;
     const {isEnabled, env, auth, router} = this.props;
     let {pathname} = router.location;
     if (pathname.charAt(0) !== "/") pathname = `/${pathname}`;
-    const navLinks = ["profiles", "stories", "metadata"];
 
     const waitingForUser = yn(env.CANON_LOGINS) && !userInit;
 
@@ -160,95 +171,85 @@ class Builder extends Component {
       );
     }
 
+    // placeholder values
+    let currEntity = "metadata";
+    if (currentTab === "profiles") currEntity = "currEntity";
+    if (currentTab === "stories")  currEntity = "currEntity";
+
+    const profileLinks = [
+      {title: "profile1", url: "1"},
+      {title: "profile2", url: "2"},
+      {title: "profile3", url: "3"}
+    ];
+    const storyLinks = [
+      {title: "story1", url: "1"},
+      {title: "story2", url: "2"},
+      {title: "story3", url: "3"}
+    ];
+
+    // non-placeholder values
+    const navLinks = [
+      {title: "profiles", items: profileLinks},
+      {title: "stories",  items: storyLinks},
+      {title: "metadata"}
+    ];
+
+    // render settings when available
+    let settings = {};
+    if (locales) {
+      settings.locales = {
+        primaryLocale: localeDefault,
+        secondaryLocale,
+        availableLocales: locales
+      };
+    }
+    if (auth.user) settings.account = true;
+
+    // callback functions passed down as props
+    const onTabChange           = tab     => this.handleTabChange(tab);
+    const onLocaleSelect        = locale  => this.handleLocaleSelect(locale);
+    const onOpenEntitySettings  = entity  => this.editEntitySettings(entity);
+    const onOutlineToggle       = val     => this.toggleOutline(val);
+    const onSettingsClose       = val     => this.closeSettings(val);
+    const onSettingsToggle      = val     => this.toggleSettings(val);
+
+    const navbarProps = {
+      currentTab,
+      currEntity,
+      navLinks,
+      settings,
+      settingsOpen,
+      onTabChange,
+      onLocaleSelect,
+      onOpenEntitySettings,
+      onOutlineToggle,
+      onSettingsClose,
+      onSettingsToggle,
+      outlineOpen
+    };
+
+    // Define component to render as editor
+    let Editor = MetaEditor;
+    if (currentTab === "profiles") Editor = ProfileBuilder;
+    if (currentTab === "stories")  Editor = StoryBuilder;
+
+    const editorProps = {
+      pathObj,
+      localeDefault,
+      locale: secondaryLocale
+    };
+
+    // This invisible AceWrapper is necessary, because running the require function in the render cycle of AceWrapper
+    // can cause components to remount (notably the toolbox, hitting all generators). By putting this dummy AceWrapper in
+    // the top-level Builder.jsx, we run the require function "once and for all", so future instantiations of AceWrapper
+    // do not cause any components to jigger and unmount/remount.
+    const HiddenAce = <div className="u-visually-hidden"><AceWrapper /></div>;
+
     return (
       <div className={`cms cms-${currentTab}-page`}>
-        <div className={`cms-nav${settingsOpen ? " settings-visible" : ""}`}>
-          <div className="cms-nav-main">
-            {navLinks.map(navLink =>
-              <button
-                key={navLink}
-                className={`cms-nav-link u-font-xs${navLink === currentTab ? " is-active" : ""}`}
-                onClick={this.handleTabChange.bind(this, navLink)}>
-                {navLink}
-              </button>
-            )}
-          </div>
-          {(locales || auth.user) && <React.Fragment>
-            <div className="cms-nav-settings-button-container">
-              <Button
-                className="cms-nav-settings-button"
-                namespace="cms"
-                icon="cog"
-                fontSize="xs"
-                active={settingsOpen}
-                onClick={this.toggleSettings.bind(this)}
-              >
-                settings
-              </Button>
-            </div>
-
-            <div className={`cms-nav-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
-              {/* locale select */}
-              {locales &&
-                <React.Fragment>
-                  <h2 className="cms-nav-settings-heading u-font-sm">
-                    Languages
-                  </h2>
-                  {/* primary locale */}
-                  {/* NOTE: currently just shows the primary locale in a dropdown */}
-                  <Select
-                    label="Primary"
-                    fontSize="xs"
-                    namespace="cms"
-                    inline
-                    options={[localeDefault]}
-                    tabIndex={settingsOpen ? null : "-1"}
-                  />
-                  {/* secondary locale */}
-                  <Select
-                    label="Secondary"
-                    fontSize="xs"
-                    namespace="cms"
-                    inline
-                    value={localeSecondary ? localeSecondary : "none"}
-                    options={locales.map(loc => loc)}
-                    onChange={this.handleLocaleSelect.bind(this)}
-                    tabIndex={settingsOpen ? null : "-1"}
-                  >
-                    <option value="none">none</option>
-                  </Select>
-                </React.Fragment>
-              }
-              {auth.user &&
-                <React.Fragment>
-                  <h2 className="cms-nav-settings-heading u-font-sm u-margin-top-md">
-                    Account
-                  </h2>
-                  <a className="cms-button cms-fill-button u-margin-bottom-xs" href="/auth/logout">
-                    <Icon className="cms-button-icon" icon="log-out" />
-                    <span className="cms-button-text">Log Out</span>
-                  </a>
-                </React.Fragment>
-              }
-            </div>
-            <button
-              className={`cms-nav-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
-              onClick={this.toggleSettings.bind(this)}
-              tabIndex={settingsOpen ? null : "-1"}
-            />
-          </React.Fragment> }
-        </div>
-
-        {currentTab === "profiles" && <ProfileBuilder />}
-        {currentTab === "stories" && <StoryBuilder/>}
-        {currentTab === "metadata" && <MetaEditor/>}
-        {/* 
-          This invisible AceWrapper is necessary, because running the require function in the render cycle of AceWrapper
-          can cause components to remount (notably the toolbox, hitting all generators). By putting this dummy AceWrapper in 
-          the top-level Builder.jsx, we run the require function "once and for all", so future instantiations of AceWrapper
-          do not cause any components to jigger and unmount/remount.
-        */}
-        <div style={{display: "none"}}><AceWrapper /></div>
+        <Navbar {...navbarProps} key="navbar" />
+        <Editor {...editorProps} key="editor" />
+        {HiddenAce}
       </div>
     );
   }

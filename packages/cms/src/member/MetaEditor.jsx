@@ -560,7 +560,6 @@ class MetaEditor extends Component {
       <div className="cms-panel meta-editor">
         <div className="cms-sidebar cms-meta-header">
           <div className="cms-meta-header-inner">
-            <h1 className="u-visually-hidden">Edit entities</h1>
             <h2 className="cms-meta-header-heading u-margin-top-off u-font-xs">Filters</h2>
             <Button
               className="cms-meta-header-button"
