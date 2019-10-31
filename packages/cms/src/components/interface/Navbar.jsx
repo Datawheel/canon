@@ -6,6 +6,8 @@ import {hot} from "react-hot-loader/root";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
 
+import stripHTML from "../../utils/formatters/stripHTML";
+
 import {setStatus} from "../../actions/status";
 
 import "./Navbar.css";
@@ -35,16 +37,14 @@ class Navbar extends Component {
   onSettingsToggle() {
     this.setState({settingsOpen: !this.state.settingsOpen}); 
   }
-  
 
   onOutlineToggle() {}      // callback function for maintaining outlineOpen
   onOpenEntitySettings() {} // callback function for editing entity metadata
   outlineOpen() {}         // whether the profile/story outline is open or not
-  settingsOpen() {}          // whether the settings menu is open or not
 
   render() {
 
-    const {auth, currentTab, onTabChange} = this.props;
+    const {auth, currentTab, onTabChange, profiles, stories} = this.props;
     const {locales, localeDefault, localeSecondary} = this.props.status;
     const {settingsOpen, currEntity, outlineOpen} = this.state;
 
@@ -53,6 +53,26 @@ class Navbar extends Component {
       {title: "stories",  items: []},
       {title: "metadata"}
     ];
+
+    let tree = [];
+    if (currentTab === "profiles") tree = profiles;
+    if (currentTab === "stories") tree = stories;
+
+    const showConsole = false;
+
+    if (showConsole && currentTab === "profiles") {
+      tree.forEach(profile => {
+        console.log("Profile Name: ", profile.meta.map(m => m.slug).join("_"));
+        const sections = profile.sections.map(section => {
+          let title = section.slug;
+          const defaultContent = section.content.find(c => c.locale === localeDefault);
+          if (defaultContent) title = stripHTML(defaultContent.title);
+          return title;
+        }).join();
+        console.log("Has these sections:", sections);
+        console.log("--------");
+      });
+    }
     
     const showLocales = locales;
     const showAccount = auth.user;
@@ -175,7 +195,9 @@ class Navbar extends Component {
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  status: state.cms.status
+  status: state.cms.status,
+  profiles: state.cms.profiles,
+  stories: state.cms.stories
 });
 
 const mapDispatchToProps = dispatch => ({

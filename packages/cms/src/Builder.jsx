@@ -153,9 +153,12 @@ class Builder extends Component {
     };
 
     // Define component to render as editor
-    let Builder = MetaEditor;
+    let Builder;
+    if (currentTab === "metadata") Builder = MetaEditor;
     if (currentTab === "profiles") Builder = ProfileBuilder;
     if (currentTab === "stories")  Builder = StoryBuilder;
+
+    if (!Builder) return null;
 
     // This invisible AceWrapper is necessary, because running the require function in the render cycle of AceWrapper
     // can cause components to remount (notably the toolbox, hitting all generators). By putting this dummy AceWrapper in
