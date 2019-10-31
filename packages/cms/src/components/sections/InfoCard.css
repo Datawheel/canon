@@ -159,7 +159,8 @@
   }
 }
 
-.cp-select-label {
+/* infocard select overrides */
+.cp-info-card-section .cp-select-label {
   display: block;
   text-transform: uppercase;
   flex-direction: column;
@@ -204,7 +205,7 @@
 .cp-info-card-section-main .cp-stat-subtitle {
   @mixin font-sm;
 }
-.cp-stat-subtitle {
+.cp-info-card-section .cp-stat-subtitle {
   color: inherit !important;
 }
 .cp-info-card-section-main .cp-stat-value-text {

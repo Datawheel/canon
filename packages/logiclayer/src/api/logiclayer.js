@@ -9,6 +9,7 @@ const Sequelize = require("sequelize"),
       yn = require("yn");
 
 const logging = process.env.CANON_LOGICLAYER_LOGGING;
+const slugs = yn(process.env.CANON_LOGICLAYER_SLUGS);
 const verbose = yn(logging);
 const errors = logging === "error";
 
@@ -695,17 +696,21 @@ module.exports = function(app) {
         const cross = queryCrosses[i].concat(renames);
 
         const newArray = data.map(row => {
-          for (const dimension in slugLookup) {
-            if ({}.hasOwnProperty.call(slugLookup, dimension)) {
-              const obj = slugLookup[dimension];
-              for (const level in obj) {
-                if ({}.hasOwnProperty.call(obj, level)) {
-                  const slug = obj[level][row[`ID ${level}`]];
-                  if (row[level] && slug) row[`Slug ${level}`] = slug;
+
+          if (slugs) {
+            for (const dimension in slugLookup) {
+              if ({}.hasOwnProperty.call(slugLookup, dimension)) {
+                const obj = slugLookup[dimension];
+                for (const level in obj) {
+                  if ({}.hasOwnProperty.call(obj, level)) {
+                    const slug = obj[level][row[`ID ${level}`]];
+                    if (row[level] && slug) row[`Slug ${level}`] = slug;
+                  }
                 }
               }
             }
           }
+
           cross.forEach(c => {
             const type = Object.keys(c)[0];
             const level = c[type];

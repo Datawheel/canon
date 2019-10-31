@@ -98,13 +98,9 @@ const storyReq = {
   ]
 };
 
-let formatters = null;
-
 const formatters4eval = async(db, locale) => {
 
-  if (!formatters) {
-    formatters = await db.formatter.findAll().catch(catcher);
-  }
+  const formatters = await db.formatter.findAll().catch(catcher);
 
   return formatters.reduce((acc, f) => {
 
@@ -223,7 +219,7 @@ module.exports = function(app) {
     // to determine which levels should be used to filter the search results
     let profile = await db.profile.findOne({where: {id: pid}, include: [{association: "meta"}]}).catch(catcher);
     profile = profile.toJSON();
-    // The attr object is used in createGeneratorFetch to swap things like <id> into the 
+    // The attr object is used in createGeneratorFetch to swap things like <id> into the
     // id that is passed to the fetch. Create a lookup object of the search rows, of the
     // pattern (id/id1),id2,id3, so that unary profiles can access it without an integer.
     let attr = {};
@@ -255,7 +251,7 @@ module.exports = function(app) {
     let generators = await db.generator.findAll(genObj).catch(catcher);
     if (generators.length === 0) return {};
     generators = generators.map(g => g.toJSON());
-    
+
     const attr = await fetchAttr(pid, dims);
 
     /** */
@@ -301,7 +297,7 @@ module.exports = function(app) {
     returnVariables._genStatus = genStatus;
 
     return returnVariables;
-    
+
   };
 
   app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
@@ -344,7 +340,7 @@ module.exports = function(app) {
     returnVariables = await runMaterializers(req, returnVariables, pid);
 
     return res.json(returnVariables);
-  };  
+  };
 
   /* There are two ways to fetch variables:
    * GET - the initial GET operation on CMS or Profile load, performed by a need
@@ -367,10 +363,10 @@ module.exports = function(app) {
     const locale = req.query.locale || envLoc;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
     const localeString = `?locale=${locale}`;
-    
+
     const dims = collate(req.query);
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
-    // Replace that slug with the actual real id from the search table. 
+    // Replace that slug with the actual real id from the search table.
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
       const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
@@ -389,7 +385,7 @@ module.exports = function(app) {
         const t = await db.section.findOne({where}).catch(catcher);
         if (t) {
           pid = t.profile_id;
-        } 
+        }
         else {
           if (verbose) console.error(`Profile not found for section: ${sectionID}`);
           return res.json(`Profile not found for section: ${sectionID}`);
@@ -402,19 +398,19 @@ module.exports = function(app) {
     // Otherwise, we need to reverse lookup the profile id, using the slug combinations
     else {
       // Given a list of dimension slugs, use the meta table to reverse-lookup which profile this is
-      // TODO: In good-dooby land, this should be a massive, complicated sequelize Op.AND lookup. 
+      // TODO: In good-dooby land, this should be a massive, complicated sequelize Op.AND lookup.
       // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
-      let meta = await db.profile_meta.findAll(); 
+      let meta = await db.profile_meta.findAll();
       meta = meta.map(d => d.toJSON());
       const pids = [...new Set(meta.map(d => d.profile_id))];
       const match = dims.map(d => d.slug).join();
-      
+
       pids.forEach(id => {
         const rows = meta.filter(d => d.profile_id === id).sort((a, b) => a.ordering - b.ordering);
         const str = rows.map(d => d.slug).join();
         if (str === match) pid = rows[0].profile_id;
       });
-      if (!pid) { 
+      if (!pid) {
         if (verbose) console.error(`Profile not found for slugs: ${match}`);
         return res.json(`Profile not found for slugs: ${match}`);
       }
@@ -442,7 +438,7 @@ module.exports = function(app) {
 
     const formatterFunctions = await formatters4eval(db, locale);
     // Given the completely built returnVariables and all the formatters (formatters are global)
-    // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare 
+    // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare
     // it to be formatted and regex replaced.
     // See profileReq above to see the sequelize formatting for fetching the entire profile
     const request = await axios.get(`${origin}/api/internalprofile/${pid}${localeString}`).catch(catcher);
@@ -462,7 +458,7 @@ module.exports = function(app) {
     profile.selectors = allSelectors;
     profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
     // If the user provided selectors in the query, then the user has changed a dropdown.
-    // This means that OTHER dropdowns on the page need to be set to match. To accomplish 
+    // This means that OTHER dropdowns on the page need to be set to match. To accomplish
     // this, hijack the "default" property on any matching selector so the dropdowns "start"
     // where we want them to.
     profile.sections.forEach(section => {
@@ -488,7 +484,7 @@ module.exports = function(app) {
     returnObject.variables = variables;
     // The provided ids may have images associated with them, and these images have metadata. Before we send
     // The object, we need to make a request to our /api/image endpoint to get any relevant image data.
-    // Note! Images are strictly ordered to match your strictly ordered slug/id pairs 
+    // Note! Images are strictly ordered to match your strictly ordered slug/id pairs
     const images = [];
     for (const dim of dims) {
       const url = `${origin}/api/image?slug=${dim.slug}&id=${dim.id}&locale=${locale}&type=json`;

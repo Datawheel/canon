@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
 import {SizeMe} from "react-sizeme";
+import {hot} from "react-hot-loader/root";
+
 import Graphic from "./Graphic";
 import PercentageBar from "./PercentageBar";
 import Table from "./Table";
@@ -77,11 +79,14 @@ class Viz extends Component {
     const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
     return <SizeMe render={({size}) =>
-      <div className={ `${namespace}-viz-container${
-        className ? ` ${className}` : ""
-      }${
-        type ? ` ${namespace}-${toKebabCase(type)}-viz-container` : ""
-      }`}>
+      <div
+        className={ `${namespace}-viz-container${
+          className ? ` ${className}` : ""
+        }${
+          type ? ` ${namespace}-${toKebabCase(type)}-viz-container` : ""
+        }`}
+        ref={ comp => this.viz = comp }
+      >
         {(title && showTitle || options) && type !== "Graphic"
           ? <div className={`${namespace}-viz-header`}>
             {title && showTitle
@@ -105,9 +110,14 @@ class Viz extends Component {
         <div className={`${namespace}-viz-figure${vizConfig.height || type === "Graphic" ? " with-explicit-height" : ""}`}>
           <Visualization
             key="viz-key"
-            ref={ comp => this.viz = comp }
             className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
-            dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
+            dataFormat={resp => {
+              const hasMultiples = Array.isArray(vizProps.data) && vizProps.data.some(d => typeof d === "string");
+              const sources = hasMultiples ? resp : [resp];
+              sources.forEach(r => this.analyzeData.bind(this)(r));
+              // console.log(sources);
+              return vizProps.dataFormat(resp);
+            }}
             linksFormat={vizProps.linksFormat}
             nodesFormat={vizProps.nodesFormat}
             topojsonFormat={vizProps.topojsonFormat}
@@ -123,6 +133,8 @@ Viz.childContextTypes = {
   d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,
+  // Though onSetVariables and onOpenModal aren't explicitly passed down,
+  // they are required to be here because of the object spread in getChildContext.
   onSetVariables: PropTypes.func,
   onOpenModal: PropTypes.func,
   updateSource: PropTypes.func,
@@ -149,4 +161,4 @@ Viz.defaultProps = {
   headingLevel: "h3"
 };
 
-export default Viz;
+export default hot(Viz);

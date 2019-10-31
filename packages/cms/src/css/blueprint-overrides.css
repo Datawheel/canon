@@ -34,7 +34,6 @@
   /* dialogs */
   & .bp3-dialog {
     @mixin vertical-overflow-container;
-    @mixin hide-scrollbars;
     width: calc(100vw - 2rem);
     height: auto;
     max-height: calc(100vh - 2rem);

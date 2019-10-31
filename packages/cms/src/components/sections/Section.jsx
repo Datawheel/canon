@@ -10,6 +10,8 @@ import throttle from "../../utils/throttle";
 import pxToInt from "../../utils/formatters/pxToInt";
 import toKebabCase from "../../utils/formatters/toKebabCase";
 
+import Button from "../fields/Button";
+
 import SourceGroup from "../Viz/SourceGroup";
 import StatGroup from "../Viz/StatGroup";
 
@@ -37,7 +39,11 @@ class Section extends Component {
       loading: false,
       isStickyIE: false,
       selectors: {},
-      sources: []
+      sources: [],
+      // Snapshots of the variables that have been changed by onSetVariables
+      // So we can reset these and only these to their original values.
+      changedVariables: {},
+      showReset: false
     };
 
     // used for IE sticky fallback
@@ -88,8 +94,41 @@ class Section extends Component {
     const {formatters, variables} = this.context;
     return {
       formatters,
-      variables: this.props.variables || variables
+      variables: this.props.variables || variables,
+      onSetVariables: this.onSetVariables.bind(this)
     };
+  }
+
+  /**
+   * Sections has received an onSetVariables function from props. However, this Section needs to
+   * keep track locally of what it has changed, so that when a "reset" button is clicked, it can set
+   * the variables back to their original state. This local intermediary function, passed down via context,
+   * is responsible for keeping track of that, then in turn calling the props version of the function.
+   */
+  onSetVariables(newVariables) {
+    const initialVariables = this.context.initialVariables || {};
+    const changedVariables = {};
+    Object.keys(newVariables).forEach(key => {
+      changedVariables[key] = initialVariables[key];
+    });
+    this.setState({
+      changedVariables,
+      showReset: Object.keys(changedVariables).length > 0
+    });
+    if (this.props.onSetVariables) this.props.onSetVariables(newVariables);
+  }
+
+  /**
+   * When the user clicks reset, take the snapshot of the variables they changed and use them to
+   * revert only those variables via the props function.
+   */
+  resetVariables() {
+    const {changedVariables} = this.state;
+    if (this.props.onSetVariables) this.props.onSetVariables(changedVariables);
+    this.setState({
+      changedVariables: {},
+      showReset: false
+    });
   }
 
   handleScroll() {
@@ -115,7 +154,7 @@ class Section extends Component {
   }
 
   render() {
-    const {contents, sources, isStickyIE, height} = this.state;
+    const {contents, sources, isStickyIE, height, showReset} = this.state;
     const {headingLevel, loading, isModal} = this.props;
 
     // remap old section names
@@ -174,26 +213,23 @@ class Section extends Component {
 
       if (stats.length > 0) {
         statContent = <div className="cp-stat-group-wrapper">
-          <div className="cp-stat-group">
-            {statGroups.map(({key, values}, i) => !(layout === "InfoCard" && i > 0) // only push the first stat for cards
-              ? <StatGroup key={key} title={key} stats={values} /> : ""
-            )}
-          </div>
+          {statGroups.map(({key, values}, i) => !(layout === "InfoCard" && i > 0) // only push the first stat for cards
+            ? <StatGroup key={key} title={key} stats={values} /> : ""
+          )}
         </div>;
       }
       if (stats.length > 1 && layout === "InfoCard") {
         secondaryStatContent = <div className="cp-stat-group-wrapper cp-secondary-stat-group-wrapper">
-          <div className="cp-stat-group">
-            {statGroups.map(({key, values}, i) => i > 0 // don't push the first stat again
-              ? <StatGroup key={key} title={key} stats={values} /> : ""
-            )}
-          </div>
+          {statGroups.map(({key, values}, i) => i > 0 // don't push the first stat again
+            ? <StatGroup key={key} title={key} stats={values} /> : ""
+          )}
         </div>;
       }
     }
 
     // paragraphs
     let paragraphs;
+
     if (descriptions.length && contents.position !== "sticky") {
       paragraphs = loading
         ? <p>Loading...</p>
@@ -207,6 +243,20 @@ class Section extends Component {
     // sources
     const sourceContent = <SourceGroup sources={sources} />;
 
+    // reset button
+    const resetButton = <Button
+      onClick={this.resetVariables.bind(this)}
+      className={`cp-var-reset-button ${layoutClass}-var-reset-button`}
+      fontSize="xs"
+      icon="undo"
+      iconPosition="left"
+      disabled={!showReset}
+      fill={!showReset}
+      key="var-reset-button"
+    >
+      Reset visualizations
+    </Button>;
+
     const componentProps = {
       slug,
       title,
@@ -218,6 +268,7 @@ class Section extends Component {
       secondaryStats: secondaryStatContent,
       sources: sourceContent,
       paragraphs: layout === "Tabs" ? contents.descriptions : paragraphs,
+      resetButton,
       visualizations: contents.position !== "sticky" ? visualizations : [],
       vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
       loading
@@ -256,12 +307,14 @@ Section.defaultProps = {
 Section.contextTypes = {
   formatters: PropTypes.object,
   router: PropTypes.object,
-  variables: PropTypes.object
+  variables: PropTypes.object,
+  initialVariables: PropTypes.object
 };
 
 Section.childContextTypes = {
   formatters: PropTypes.object,
-  variables: PropTypes.object
+  variables: PropTypes.object,
+  onSetVariables: PropTypes.func
 };
 
 export default connect(state => ({

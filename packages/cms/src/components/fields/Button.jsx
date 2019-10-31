@@ -6,12 +6,13 @@ export default class Button extends Component {
   render() {
     const {
       active,       // button is currently pressed; useful for button groups
+      ariaHidden,   // will be set if `disabled` is truthy; override with this prop
       fill,         // set `true` to completely fill container width
       children,
       className,
       fontSize,
       namespace,    // "cp" (default) or "cms"
-      disabled,
+      disabled,     // controls `disabled` prop, as well as ariaHidden, tabIndex, and onClick
       rebuilding,   // add a spinning animation
       type,         // pretty much just for "submit"
       ref,
@@ -35,6 +36,7 @@ export default class Button extends Component {
           fill ? ` ${namespace}-fill-button` : ""
         }`}
         disabled={disabled}
+        aria-hidden={disabled || ariaHidden}
         tabIndex={disabled ? "-1" : null}
         onClick={onClick && !disabled ? onClick : null}
         type={type}
@@ -54,7 +56,7 @@ export default class Button extends Component {
 
         {/* right icon */}
         {icon && iconPosition === "right" &&
-          <Icon className={`${namespace}-button-icon`} icon={icon} />
+          <Icon className={`${namespace}-button-icon`} icon={icon} htmlTitle="" />
         }
       </button>
     );
