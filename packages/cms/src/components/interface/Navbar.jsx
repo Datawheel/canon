@@ -13,7 +13,6 @@ import {setStatus} from "../../actions/status";
 import "./Navbar.css";
 
 class Navbar extends Component {
-  
   constructor(props) {
     super(props);
     this.state = {
@@ -27,23 +26,26 @@ class Navbar extends Component {
       localeSecondary: val === "none" ? null : val
     });
   }
-  
-  // callback function for setting settingsOpen to false
-  onSettingsClose() {
+
+  // manage settings menu visibility
+  closeSettings() {
     this.setState({settingsOpen: false});
   }
-
-  // callback function for maintaining settingsOpen
-  onSettingsToggle() {
-    this.setState({settingsOpen: !this.state.settingsOpen}); 
+  toggleSettings() {
+    this.setState({settingsOpen: !this.state.settingsOpen});
   }
 
-  onOutlineToggle() {}      // callback function for maintaining outlineOpen
-  onOpenEntitySettings() {} // callback function for editing entity metadata
-  outlineOpen() {}         // whether the profile/story outline is open or not
+  // manage outline visibility
+  toggleOutline() {
+    this.setState({outlineOpen: !this.state.outlineOpen});
+  }
+
+  // TODO: edit profile title & metadata
+  toggleEntitySettings() {
+    console.log("TODO: edit entity settings");
+  }
 
   render() {
-
     const {auth, currentTab, onTabChange, profiles, stories} = this.props;
     const {locales, localeDefault, localeSecondary} = this.props.status;
     const {settingsOpen, currEntity, outlineOpen} = this.state;
@@ -73,7 +75,7 @@ class Navbar extends Component {
         console.log("--------");
       });
     }
-    
+
     const showLocales = locales;
     const showAccount = auth.user;
     const settingsAvailable = showLocales || showAccount;
@@ -89,7 +91,7 @@ class Navbar extends Component {
             : <Fragment>
               <button
                 className="cms-navbar-title-button heading u-font-lg"
-                onClick={() => this.onOutlineToggle()}
+                onClick={() => this.toggleOutline()}
                 aria-pressed={outlineOpen}
               >
                 <Icon className="cms-navbar-title-button-icon" icon="caret-down" />
@@ -97,7 +99,7 @@ class Navbar extends Component {
                   {currEntity} {currentTab === "profiles" ? "profile" : "story"}
                 </span>
               </button>
-              <button className="cms-navbar-entity-settings-button" onClick={() => this.onOpenEntitySettings(currEntity)}>
+              <button className="cms-navbar-entity-settings-button" onClick={() => this.toggleEntitySettings(currEntity)}>
                 <span className="u-visually-hidden">edit {currEntity} metadata</span>
                 <Icon className="cms-navbar-entity-settings-button-icon" icon="cog" />
               </button>
@@ -112,7 +114,7 @@ class Navbar extends Component {
               <button
                 className={`cms-navbar-link u-font-xs${navLink.title === currentTab ? " is-active" : ""}`}
                 onClick={() => onTabChange(navLink.title)}
-                onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? this.onSettingsClose() : null}
+                onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? this.closeSettings() : null}
               >
                 {navLink.title}
               </button>
@@ -131,7 +133,7 @@ class Navbar extends Component {
                 icon="cog"
                 fontSize="xs"
                 active={settingsOpen}
-                onClick={this.onSettingsToggle.bind(this)}
+                onClick={() => this.toggleSettings()}
                 aria-label={settingsOpen ? "View settings menu" : "Hide settings menu"}
               >
                 settings
@@ -161,11 +163,13 @@ class Navbar extends Component {
                   namespace="cms"
                   inline
                   value={localeSecondary ? localeSecondary : "none"}
-                  options={locales.map(locale => locale)}
-                  onChange={this.handleLocaleSelect.bind(this)}
+                  onChange={e => this.handleLocaleSelect(e)}
                   tabIndex={settingsOpen ? null : "-1"}
                 >
                   <option value="none">none</option>
+                  {locales.map(locale =>
+                    <option value={locale} key={locale}>{locale}</option>
+                  )}
                 </Select>
               </Fragment>}
 
@@ -181,8 +185,8 @@ class Navbar extends Component {
             </div>
             <button
               className={`cms-navbar-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
-              onClick={this.onSettingsToggle.bind(this)}
-              onFocus={this.onSettingsClose.bind(this)}
+              onClick={() => this.toggleSettings()}
+              onFocus={() => this.closeSettings()}
               aria-labelledby="cms-navbar-settings-button"
               tabIndex={settingsOpen ? null : "-1"}
             />
