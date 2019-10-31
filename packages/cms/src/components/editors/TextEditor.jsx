@@ -46,7 +46,8 @@ class TextEditor extends Component {
 
     const {data, fields} = this.state;
     const {contentType, locale} = this.props;
-    const variables = this.props.status.variables[locale];
+    // Stories use TextEditors, but don't need variables.
+    const variables = this.props.status.variables[locale] ? this.props.status.variables[locale] : {}
     const formatters = this.context.formatters[locale];
 
     if (!data || !fields || !variables || !formatters) return null;

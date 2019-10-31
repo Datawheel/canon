@@ -2,7 +2,6 @@ const Client = require("@datawheel/olap-client").Client;
 const MondrianDataSource = require("@datawheel/olap-client").MondrianDataSource;
 // const TesseractDataSource = require("@datawheel/olap-client").TesseractDataSource;
 
-const collate = require("../utils/collate");
 const d3Array = require("d3-array");
 const sequelize = require("sequelize");
 const shell = require("shelljs");
@@ -77,50 +76,43 @@ const profileReqFull = {
   ]
 };
 
-const storyReqTreeOnly = {
-  attributes: ["id", "slug", "ordering"],
+const storyReqFull = {
   include: [
-    {association: "content", attributes: ["id", "locale", "title"]},
-    {association: "storysections", attributes: ["id", "slug", "ordering", "story_id", "type"],
-      include: [{association: "content", attributes: ["id", "locale", "title"]}]
+    {association: "content"},
+    {association: "authors", include: [{association: "content"}]},
+    {association: "descriptions", include: [{association: "content"}]},
+    {association: "footnotes", include: [{association: "content"}]},
+    {
+      association: "storysections",
+      include: [
+        {association: "content"},
+        {association: "subtitles", include: [{association: "content"}]},
+        {association: "descriptions", include: [{association: "content"}]},
+        {association: "stats", include: [{association: "content"}]},
+        {association: "visualizations"}
+      ]
     }
   ]
 };
 
-const profileReqProfileOnly = {
-  include: [
-    {association: "meta"},
-    {association: "content"}
-  ]
-};
-
-const storyReqStoryOnly = {
+const sectionReqFull = {
   include: [
     {association: "content"},
-    {association: "authors", attributes: ["id", "ordering"]},
-    {association: "descriptions", attributes: ["id", "ordering"]},
-    {association: "footnotes", attributes: ["id", "ordering"]}
-  ]
-};
-
-const sectionReqSectionOnly = {
-  include: [
-    {association: "content"},
-    {association: "subtitles", attributes: ["id", "ordering"]},
-    {association: "descriptions", attributes: ["id", "ordering"]},
-    {association: "visualizations", attributes: ["id", "ordering"]},
-    {association: "stats", attributes: ["id", "ordering"]},
+    {association: "subtitles", include: [{association: "content"}]},
+    {association: "descriptions", include: [{association: "content"}]},
+    {association: "stats", include: [{association: "content"}]},
+    {association: "visualizations"},
     {association: "selectors"}
   ]
 };
 
-const storysectionReqStorysectionOnly = {
+const storysectionReqFull = {
   include: [
     {association: "content"},
-    {association: "subtitles", attributes: ["id", "ordering"]},
-    {association: "descriptions", attributes: ["id", "ordering"]},
-    {association: "visualizations", attributes: ["id", "ordering"]},
-    {association: "stats", attributes: ["id", "ordering"]}
+    {association: "subtitles", include: [{association: "content"}]},
+    {association: "descriptions", include: [{association: "content"}]},
+    {association: "stats", include: [{association: "content"}]},
+    {association: "visualizations"}
   ]
 };
 
@@ -234,7 +226,6 @@ const sortProfile = (db, profile) => {
 };
 
 const sortStory = (db, story) => {
-  story = story.toJSON();
   story.descriptions = flatSort(db.story_description, story.descriptions);
   story.footnotes = flatSort(db.story_footnote, story.footnotes);
   story.authors = flatSort(db.author, story.authors);
@@ -252,7 +243,6 @@ const sortSection = (db, section) => {
 };
 
 const sortStorySection = (db, storysection) => {
-  storysection = storysection.toJSON();
   storysection.subtitles = flatSort(db.storysection_subtitle, storysection.subtitles);
   storysection.visualizations = flatSort(db.storysection_visualization, storysection.visualizations);
   storysection.stats = flatSort(db.storysection_stat, storysection.stats);
@@ -416,6 +406,7 @@ module.exports = function(app) {
 
   getList.forEach(ref => {
     app.get(`/api/cms/${ref}/get/:id`, async(req, res) => {
+      console.log("at a get");
       if (contentTables.includes(ref)) {
         const u = await db[ref].findOne({where: {id: req.params.id}, include: {association: "content"}}).catch(catcher);
         return res.json(u);
@@ -439,11 +430,10 @@ module.exports = function(app) {
   app.get("/api/cms/tree", async(req, res) => {
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
-    const sectionTypes = getSectionTypes();
     profiles.forEach(profile => {
       profile.sections = profile.sections.map(section => {
         section = sortSection(db, section);
-        section.types = sectionTypes;
+        section.types = getSectionTypes();
         return section;
       });
       return profile;
@@ -457,61 +447,17 @@ module.exports = function(app) {
   });
 
   app.get("/api/cms/storytree", async(req, res) => {
-    let stories = await db.story.findAll(storyReqTreeOnly).catch(catcher);
+    let stories = await db.story.findAll(storyReqFull).catch(catcher);
     stories = sortStoryTree(db, stories);
-    return res.json(stories);
-  });
-
-  app.get("/api/cms/profile/get/:id", async(req, res) => {
-    const {id} = req.params;
-    const dims = collate(req.query);
-    const reqObj = Object.assign({}, profileReqProfileOnly, {where: {id}});
-    let profile = await db.profile.findOne(reqObj).catch(catcher);
-    profile = profile.toJSON();
-    // Create a lookup object of the search rows, of the
-    // pattern (id/id1),id2,id3, so that unary profiles can access it without an integer.
-    let attr = {};
-    for (let i = 0; i < dims.length; i++) {
-      const dim = dims[i];
-      const thisSlug = profile.meta.find(d => d.slug === dim.slug);
-      const levels = thisSlug ? thisSlug.levels : [];
-      let searchReq;
-      if (levels.length === 0) {
-        searchReq = {where: {id: dim.id}};
-      }
-      else {
-        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
-      }
-      let thisAttr = await db.search.findOne(searchReq).catch(catcher);
-      thisAttr = thisAttr ? thisAttr.toJSON() : {};
-      if (i === 0) attr = Object.assign(attr, thisAttr);
-      Object.keys(thisAttr).forEach(key => {
-        attr[`${key}${i + 1}`] = thisAttr[key];
+    stories.forEach(story => {
+      story.storysections = story.storysections.map(storysection => {
+        storysection = sortStorySection(db, storysection);
+        storysection.types = getSectionTypes();
+        return storysection;
       });
-    }
-    profile.attr = attr;
-    return res.json(sortProfile(db, profile));
-  });
-
-  app.get("/api/cms/story/get/:id", async(req, res) => {
-    const {id} = req.params;
-    const reqObj = Object.assign({}, storyReqStoryOnly, {where: {id}});
-    const story = await db.story.findOne(reqObj).catch(catcher);
-    return res.json(sortStory(db, story));
-  });
-
-  app.get("/api/cms/storysection/get/:id", async(req, res) => {
-    const {id} = req.params;
-    const reqObj = Object.assign({}, storysectionReqStorysectionOnly, {where: {id}});
-    let storysection = await db.storysection.findOne(reqObj).catch(catcher);
-    const sectionTypes = [];
-    shell.ls(`${sectionTypeDir}*.jsx`).forEach(file => {
-      const compName = file.replace(sectionTypeDir, "").replace(".jsx", "");
-      sectionTypes.push(compName);
+      return story;
     });
-    storysection = sortStorySection(db, storysection);
-    storysection.types = sectionTypes;
-    return res.json(storysection);
+    return res.json(stories);
   });
 
   /* BASIC INSERTS */
@@ -534,8 +480,19 @@ module.exports = function(app) {
       if (contentTables.includes(ref)) {
         const payload = Object.assign({}, req.body, {id: newObj.id, locale: envLoc});
         await db[`${ref}_content`].create(payload).catch(catcher);
-        const fullObj = await db[ref].findOne({where: {id: newObj.id}, include: [{association: "content"}]}).catch(catcher);
+        let reqObj;
         if (ref === "section") {
+          reqObj = Object.assign({}, sectionReqFull, {where: {id: newObj.id}});
+        }
+        else if (ref === "storysection") {
+          reqObj = Object.assign({}, storysectionReqFull, {where: {id: newObj.id}});
+        }
+        else {
+          reqObj = {where: {id: newObj.id}, include: {association: "content"}};
+        }
+        let fullObj = await db[ref].findOne(reqObj).catch(catcher);
+        fullObj = fullObj.toJSON();
+        if (ref === "section" || ref === "storysection") {
           fullObj.types = getSectionTypes();
         }
         return res.json(fullObj);
@@ -571,6 +528,24 @@ module.exports = function(app) {
       return section;
     });
     return res.json(newProfile);
+  });
+
+  app.post("/api/cms/story/newScaffold", isEnabled, async(req, res) => {
+    const maxFetch = await db.story.findAll({attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
+    const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+    const story = await db.story.create({ordering}).catch(catcher);
+    await db.story_content.create({id: story.id, locale: envLoc}).catch(catcher);
+    const storysection = await db.storysection.create({ordering: 0, type: "Hero", story_id: story.id});
+    await db.storysection_content.create({id: storysection.id, locale: envLoc}).catch(catcher);
+    const reqObj = Object.assign({}, storyReqFull, {where: {id: story.id}});
+    let newStory = await db.story.findOne(reqObj).catch(catcher);
+    newStory = sortStory(db, newStory.toJSON()); 
+    newStory.storysection = newStory.storysections.map(storysection => {
+      storysection = sortStorySection(db, storysection);
+      storysection.types = getSectionTypes();
+      return storysection;
+    });
+    return res.json(newStory);
   });
 
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
@@ -673,7 +648,7 @@ module.exports = function(app) {
     const other = await db.section_selector.findOne({where: otherWhere}).catch(catcher);
     await db.section_selector.update({ordering: sequelize.literal("ordering + 1")}, {where: {id}}).catch(catcher);
     await db.section_selector.update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}}).catch(catcher);
-    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id: original.section_id}});
+    const reqObj = {where: {id: original.section_id}, include: [{association: "selectors"}]};
     let section = await db.section.findOne(reqObj).catch(catcher);
     let rows = [];
     if (section) {
@@ -743,7 +718,7 @@ module.exports = function(app) {
     const row = await db.section_selector.findOne({where: {selector_id, section_id}}).catch(catcher);
     await db.section_selector.update({ordering: sequelize.literal("ordering -1")}, {where: {section_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.section_selector.destroy({where: {selector_id, section_id}});
-    const reqObj = Object.assign({}, sectionReqSectionOnly, {where: {id: row.section_id}});
+    const reqObj = {where: {id: row.section_id}, include: [{association: "selectors"}]};
     let section = await db.section.findOne(reqObj).catch(catcher);
     let rows = [];
     if (section) {
@@ -794,8 +769,16 @@ module.exports = function(app) {
     const row = await db.story.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.story.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.story.destroy({where: {id: req.query.id}}).catch(catcher);
-    let stories = await db.story.findAll(storyReqTreeOnly).catch(catcher);
+    let stories = await db.story.findAll(storyReqFull).catch(catcher);
     stories = sortStoryTree(db, stories);
+    stories.forEach(story => {
+      story.storysections = story.storysections.map(storysection => {
+        storysection = sortStorySection(db, storysection);
+        storysection.types = getSectionTypes();
+        return storysection;
+      });
+      return story;
+    });
     return res.json(stories);
   });
 
@@ -809,7 +792,8 @@ module.exports = function(app) {
     const row = await db.section.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.section.destroy({where: {id: req.query.id}}).catch(catcher);
-    let sections = await db.section.findAll({where: {profile_id: row.profile_id}, include: [{association: "content"}], order: [["ordering", "ASC"]]}).catch(catcher);
+    const reqObj = Object.assign({}, sectionReqFull, {where: {profile_id: row.profile_id}, order: [["ordering", "ASC"]]});
+    let sections = await db.section.findAll(reqObj).catch(catcher);
     sections = sections.map(section => {
       section = section.toJSON();
       section = sortSection(db, section);
@@ -823,15 +807,15 @@ module.exports = function(app) {
     const row = await db.storysection.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.storysection.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.storysection.destroy({where: {id: req.query.id}}).catch(catcher);
-    const rows = await db.storysection.findAll({
-      where: {story_id: row.story_id},
-      attributes: ["id", "slug", "ordering", "story_id", "type"],
-      include: [
-        {association: "content", attributes: ["id", "locale", "title"]}
-      ],
-      order: [["ordering", "ASC"]]
-    }).catch(catcher);
-    return res.json(rows);
+    const reqObj = Object.assign({}, storysectionReqFull, {where: {story_id: row.story_id}, order: [["ordering", "ASC"]]});
+    let storysections = await db.storysection.findAll(reqObj).catch(catcher);
+    storysections = storysections.map(storysection => {
+      storysection = storysection.toJSON();
+      storysection = sortStorySection(db, storysection);
+      storysection.types = getSectionTypes();
+      return storysection;
+    });
+    return res.json({parent_id: row.story_id, storysections});
   });
 
 };

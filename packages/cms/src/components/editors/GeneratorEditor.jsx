@@ -109,7 +109,8 @@ class GeneratorEditor extends Component {
     const {api} = data;
     const {attr, env} = this.props;
     const {previews, localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    // Stories can use GeneratorEditors, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
     if (api) {
       // The API will have <ids> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
@@ -216,7 +217,9 @@ class GeneratorEditor extends Component {
     const {data, payload, simple, alertObj} = this.state;
     const {type} = this.props;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    
+    // Stories can use GeneratorEditors, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
 
     const preMessage = {
       generator: <React.Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</React.Fragment>,

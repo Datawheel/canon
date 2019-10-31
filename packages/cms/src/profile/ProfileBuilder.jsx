@@ -16,7 +16,7 @@ import treeify from "../utils/profile/treeify";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
-import {getProfiles, newProfile, swapEntity, newSection, deleteSection, deleteProfile, resetPreviews, setVariables} from "../actions/profiles";
+import {getProfiles, newProfile, swapEntity, newEntity, deleteEntity, deleteProfile, resetPreviews, setVariables} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 import {getCubeData} from "../actions/cubeData";
 import {getFormatters} from "../actions/formatters";
@@ -120,7 +120,7 @@ class ProfileBuilder extends Component {
    * then this will need to be generalized.
    */
   addItem(n) {
-    this.props.newSection(n.data.profile_id);
+    this.props.newEntity("section", {profile_id: n.data.profile_id});
   }
 
   confirmDelete(n) {
@@ -128,7 +128,7 @@ class ProfileBuilder extends Component {
   }
 
   deleteItem(n) {
-    if (n.itemType === "section") this.props.deleteSection(n.data.id);
+    if (n.itemType === "section") this.props.deleteEntity("section", {id: n.data.id});
     if (n.itemType === "profile") this.props.deleteProfile(n.data.id);
     this.setState({nodeToDelete: false});
   }
@@ -203,17 +203,6 @@ class ProfileBuilder extends Component {
 
   createProfile() {
     this.props.newProfile();
-
-    /*
-    // wait for the new node to be created
-    setTimeout(() => {
-      // get the last node
-      const {nodes} = this.state;
-      const latestNode = nodes[nodes.length - 1];
-      // switch to the new node
-      this.handleNodeClick(latestNode);
-    }, 70);
-    */
   }
 
   /**
@@ -273,10 +262,6 @@ class ProfileBuilder extends Component {
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
 
-    // get current node order; used for showing hero section in section layout list
-    let currNodeOrder;
-    if (currentNode && currentNode.data) currNodeOrder = currentNode.data.ordering;
-
     return (
       <React.Fragment>
         <div className="cms-panel profile-panel" id="profile-builder">
@@ -308,7 +293,6 @@ class ProfileBuilder extends Component {
             { currentNode
               ? <Editor
                 id={currentNode.data.id}
-                order={currNodeOrder}
               >
                 <Header
                   title={currentNode.label}
@@ -383,14 +367,14 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getProfiles: () => dispatch(getProfiles()),
+  getCubeData: () => dispatch(getCubeData()),
   newProfile: () => dispatch(newProfile()),
-  swapEntity: (type, id) => dispatch(swapEntity(type, id)),
-  newSection: pid => dispatch(newSection(pid)),
   deleteProfile: id => dispatch(deleteProfile(id)),
-  deleteSection: id => dispatch(deleteSection(id)),
+  newEntity: (type, payload) => dispatch(newEntity(type, payload)),
+  swapEntity: (type, id) => dispatch(swapEntity(type, id)),
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
   resetPreviews: () => dispatch(resetPreviews()),
   setStatus: status => dispatch(setStatus(status)),
-  getCubeData: () => dispatch(getCubeData()),
   getFormatters: () => dispatch(getFormatters()),
   setVariables: newVariables => dispatch(setVariables(newVariables))
 });

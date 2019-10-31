@@ -64,7 +64,8 @@ class SimpleVisualizationEditor extends Component {
     const {object} = this.state;
     const {env} = this.props;
     const {previews, localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    // Stories can use Simplevizes, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
     const {data} = object;
     if (data) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
@@ -161,7 +162,8 @@ class SimpleVisualizationEditor extends Component {
     const {object} = this.state;
     const {env} = this.props;
     const {previews, localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    // Stories can use Simplevizes, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
     const {data, type} = object;
     const lookup = {};
     if (previews) {

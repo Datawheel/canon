@@ -65,7 +65,7 @@ class SectionEditor extends Component {
   render() {
 
     const {minData, allSelectors} = this.props;
-    const {children, order} = this.props;
+    const {children} = this.props;
     const {variables, localeDefault, localeSecondary} = this.props.status;
 
     const minDataState = this.state.minData;
@@ -91,7 +91,7 @@ class SectionEditor extends Component {
     // remove Hero from available layouts
     let availableLayouts = minData.types.filter(l => l !== "Hero");
     // if this is the first section, add Hero layout to the front
-    if (order === 0) availableLayouts = ["Hero"].concat(availableLayouts);
+    if (minData.ordering === 0) availableLayouts = ["Hero"].concat(availableLayouts);
     if (minData.position === "sticky") availableLayouts = ["Default"];
 
     const layouts = availableLayouts.map(l =>

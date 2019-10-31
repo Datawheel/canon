@@ -43,26 +43,6 @@ export function swapEntity(type, id) {
 }
 
 /** */
-export function newSection(profile_id) {  // eslint-disable-line
-  return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/cms/section/new`, {profile_id})
-      .then(({data}) => {
-        dispatch({type: "SECTION_NEW", data});
-      });
-  };
-}
-
-/** */
-export function deleteSection(id) { 
-  return function(dispatch, getStore) {
-    return axios.delete(`${getStore().env.CANON_API}/api/cms/section/delete`, {params: {id}})
-      .then(({data}) => {
-        dispatch({type: "SECTION_DELETE", data});
-      });
-  };
-}
-
-/** */
 export function modifyDimension(payload) { 
   return function(dispatch, getStore) {
     const diffCounter = getStore().cms.status.diffCounter + 1;

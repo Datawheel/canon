@@ -106,13 +106,15 @@ class TextCard extends Component {
   formatDisplay() {
     const {selectors} = this.props;
     const {localeDefault, localeSecondary, query} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    // Stories use TextCards, but don't need variables.
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
 
     // For future use: This is a list of the vars used by this TextCard. Could combine with 
     // Some selector replacing and create a quick way to open generators in the future.
     // const theseVars = this.determineVariablesUsed.bind(this)();
 
     const minData = this.populateLanguageContent.bind(this)(this.state.minData);
+
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
     // polluting the object itself
@@ -235,7 +237,8 @@ class TextCard extends Component {
     const {minData} = this.props;
     const {fields, hideAllowed, plainfields, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    // Stories use TextCards, but don't need variables.
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
 
     if (!minData || !thisDisplayData) return <Loading />;
 
@@ -375,7 +378,7 @@ TextCard.contextTypes = {
 
 const mapStateToProps = state => ({
   status: state.cms.status,
-  selectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
+  selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
 });
 
 const mapDispatchToProps = dispatch => ({
