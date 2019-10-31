@@ -24,9 +24,6 @@ NOTE: ripped from ReactTable
   flex-direction: column;
   align-items: stretch;
   width: auto;
-  /* entire table can scroll horizontally */
-  @mixin horizontal-overflow-container;
-  -ms-overflow-style: none;
 }
 
 .rt-thead {
@@ -42,8 +39,6 @@ NOTE: ripped from ReactTable
   display: flex;
   flex-direction: column;
   max-height: var(--table-height);
-  /* table body can scroll vertically */
-  @mixin vertical-overflow-container;
 }
 
 .rt-tr-group {

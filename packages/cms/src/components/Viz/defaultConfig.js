@@ -1,4 +1,4 @@
-import styles from "../../../app/style.yml";
+import styles from "style.yml";
 
 export default {
   legendConfig: {

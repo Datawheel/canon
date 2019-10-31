@@ -172,7 +172,7 @@ class Options extends Component {
               fakeSelect.innerHTML = select.options[select.selectedIndex].text;
               // get the classes from the real select & add them to the fake
               const classes = select.classList;
-              fakeSelect.classList = classes;
+              fakeSelect.className = classes; // .className syntax needed for IE
               // I'm the captain now
               select.parentNode.replaceChild(fakeSelect, select);
             });
@@ -193,7 +193,7 @@ class Options extends Component {
               fakeHeader.innerHTML = header.textContent || header.innerText;
               // get the classes from the real header & add them to the fake
               const classes = header.classList;
-              fakeHeader.classList = [classes];
+              fakeHeader.className = classes; // .className syntax needed for IE
               // I'm the captain now
               header.parentNode.replaceChild(fakeHeader, header);
             });
@@ -250,7 +250,6 @@ class Options extends Component {
     const {transitionDuration} = this.props;
 
     if (slug && !dialogOpen) {
-
       setTimeout(() => {
         // IE is the wurst with CSSTransitionGroup
         if (isIE) document.getElementsByClassName("options-dialog")[0].style.opacity = 1;
@@ -265,13 +264,6 @@ class Options extends Component {
       setTimeout(() => {
         this.toggleButton.current.focus();
       }, transitionDuration + 10);
-    }
-
-    const node = this.getNode.bind(this)();
-
-    if (isIE && node && !dialogOpen) {
-      const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
-      if (node.offsetTop < scrollTop) animateScroll.scrollTo(node.offsetTop);
     }
 
     this.setState({dialogOpen: slug});

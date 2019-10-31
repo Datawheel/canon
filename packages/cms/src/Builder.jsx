@@ -68,7 +68,8 @@ class Builder extends Component {
     formatters[localeDefault] = funcifyFormatterByLocale(this.props.formatters, localeDefault);
     if (env.CANON_LANGUAGES && env.CANON_LANGUAGES.includes(",")) {
       const locales = env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault);
-      const secondaryLocale = locales[0];
+      // Default to no secondary language
+      const secondaryLocale = null;
       locales.forEach(locale => {
         formatters[locale] = funcifyFormatterByLocale(this.props.formatters, locale);
       });
@@ -106,7 +107,6 @@ class Builder extends Component {
     const val = e.target.value;
     this.setState({
       secondaryLocale: val === "none" ? null : val
-      // showLocale: val === "none" ? false : true
     });
   }
 

@@ -93,7 +93,7 @@
     }
     & .table {
       height: auto;
-      max-height: calc(100vh - 200px);
+      max-height: calc(100vh - 260px);
       @mixin horizontal-overflow-container;
       width: 100%;
     }
