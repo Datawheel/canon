@@ -273,9 +273,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   dispatch: action => dispatch(action),
   setStatus: status => dispatch(setStatus(status)),
-  isAuthenticated: () => {
-    dispatch(isAuthenticated());
-  }
+  isAuthenticated: () => dispatch(isAuthenticated())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Builder);
