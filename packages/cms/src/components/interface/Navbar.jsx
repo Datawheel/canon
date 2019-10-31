@@ -1,31 +1,62 @@
 import React, {Component, Fragment} from "react";
+import {connect} from "react-redux";
 import {Icon} from "@blueprintjs/core";
 import {hot} from "react-hot-loader/root";
 
 import Select from "../fields/Select";
 import Button from "../fields/Button";
 
+import {setStatus} from "../../actions/status";
+
 import "./Navbar.css";
 
 class Navbar extends Component {
-  render() {
-    const {
-      currentTab,           // which navLink is active
-      currEntity,           // which entity are we on (profile/story)
-      navLinks,             // array of links
-      onTabChange,          // callback function for switching tabs
-      onSettingsClose,      // callback function for setting settingsOpen to false
-      onSettingsToggle,     // callback function for maintaining settingsOpen
-      onOutlineToggle,      // callback function for maintaining outlineOpen
-      onOpenEntitySettings, // callback function for editing entity metadata
-      onLocaleSelect,       // callback function for changing the secondary locale
-      outlineOpen,          // whether the profile/story outline is open or not
-      settings,             // object containing available settings objects (account, locales)
-      settingsOpen          // whether the settings menu is open or not
-    } = this.props;
+  
+  constructor(props) {
+    super(props);
+    this.state = {
+      settingsOpen: false
+    };
+  }
 
-    const settingsAvailable = Object.keys(settings).length;
-    const {account, locales} = settings;
+  handleLocaleSelect(e) {
+    const val = e.target.value;
+    this.props.setStatus({
+      localeSecondary: val === "none" ? null : val
+    });
+  }
+  
+  // callback function for setting settingsOpen to false
+  onSettingsClose() {
+    this.setState({settingsOpen: false});
+  }
+
+  // callback function for maintaining settingsOpen
+  onSettingsToggle() {
+    this.setState({settingsOpen: !this.state.settingsOpen}); 
+  }
+  
+
+  onOutlineToggle() {}      // callback function for maintaining outlineOpen
+  onOpenEntitySettings() {} // callback function for editing entity metadata
+  outlineOpen() {}         // whether the profile/story outline is open or not
+  settingsOpen() {}          // whether the settings menu is open or not
+
+  render() {
+
+    const {auth, currentTab, onTabChange} = this.props;
+    const {locales, localeDefault, localeSecondary} = this.props.status;
+    const {settingsOpen, currEntity, outlineOpen} = this.state;
+
+    const navLinks = [
+      {title: "profiles", items: []},
+      {title: "stories",  items: []},
+      {title: "metadata"}
+    ];
+    
+    const showLocales = locales;
+    const showAccount = auth.user;
+    const settingsAvailable = showLocales || showAccount;
 
     return (
       <nav className={`cms-navbar${settingsOpen ? " settings-visible" : ""}`}>
@@ -38,7 +69,7 @@ class Navbar extends Component {
             : <Fragment>
               <button
                 className="cms-navbar-title-button heading u-font-lg"
-                onClick={() => onOutlineToggle()}
+                onClick={() => this.onOutlineToggle()}
                 aria-pressed={outlineOpen}
               >
                 <Icon className="cms-navbar-title-button-icon" icon="caret-down" />
@@ -46,7 +77,7 @@ class Navbar extends Component {
                   {currEntity} {currentTab === "profiles" ? "profile" : "story"}
                 </span>
               </button>
-              <button className="cms-navbar-entity-settings-button" onClick={() => onOpenEntitySettings(currEntity)}>
+              <button className="cms-navbar-entity-settings-button" onClick={() => this.onOpenEntitySettings(currEntity)}>
                 <span className="u-visually-hidden">edit {currEntity} metadata</span>
                 <Icon className="cms-navbar-entity-settings-button-icon" icon="cog" />
               </button>
@@ -61,7 +92,7 @@ class Navbar extends Component {
               <button
                 className={`cms-navbar-link u-font-xs${navLink.title === currentTab ? " is-active" : ""}`}
                 onClick={() => onTabChange(navLink.title)}
-                onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? onSettingsClose() : null}
+                onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? this.onSettingsClose() : null}
               >
                 {navLink.title}
               </button>
@@ -80,7 +111,7 @@ class Navbar extends Component {
                 icon="cog"
                 fontSize="xs"
                 active={settingsOpen}
-                onClick={() => onSettingsToggle()}
+                onClick={this.onSettingsToggle.bind(this)}
                 aria-label={settingsOpen ? "View settings menu" : "Hide settings menu"}
               >
                 settings
@@ -89,7 +120,7 @@ class Navbar extends Component {
 
             <div className={`cms-navbar-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
               {/* locale select */}
-              {locales && <Fragment>
+              {showLocales && <Fragment>
                 <h2 className="cms-navbar-settings-heading u-font-sm">
                   Languages
                 </h2>
@@ -100,7 +131,7 @@ class Navbar extends Component {
                   fontSize="xs"
                   namespace="cms"
                   inline
-                  options={[locales.primaryLocale]}
+                  options={[localeDefault]}
                   tabIndex={settingsOpen ? null : "-1"}
                 />
                 {/* secondary locale */}
@@ -109,15 +140,16 @@ class Navbar extends Component {
                   fontSize="xs"
                   namespace="cms"
                   inline
-                  options={locales.availableLocales.map(locale => locale)}
-                  onChange={e => onLocaleSelect(e)}
+                  value={localeSecondary ? localeSecondary : "none"}
+                  options={locales.map(locale => locale)}
+                  onChange={this.handleLocaleSelect.bind(this)}
                   tabIndex={settingsOpen ? null : "-1"}
                 >
                   <option value="none">none</option>
                 </Select>
               </Fragment>}
 
-              {account && <Fragment>
+              {showAccount && <Fragment>
                 <h2 className="cms-navbar-settings-heading u-font-sm u-margin-top-md">
                   Account
                 </h2>
@@ -129,8 +161,8 @@ class Navbar extends Component {
             </div>
             <button
               className={`cms-navbar-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
-              onClick={() => onSettingsToggle()}
-              onFocus={() => onSettingsClose()}
+              onClick={this.onSettingsToggle.bind(this)}
+              onFocus={this.onSettingsClose.bind(this)}
               aria-labelledby="cms-navbar-settings-button"
               tabIndex={settingsOpen ? null : "-1"}
             />
@@ -141,4 +173,13 @@ class Navbar extends Component {
   }
 }
 
-export default hot(Navbar);
+const mapStateToProps = state => ({
+  auth: state.auth,
+  status: state.cms.status
+});
+
+const mapDispatchToProps = dispatch => ({
+  setStatus: status => dispatch(setStatus(status))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(hot(Navbar));

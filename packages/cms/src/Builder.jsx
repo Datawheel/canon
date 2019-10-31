@@ -105,29 +105,6 @@ class Builder extends Component {
     }
   }
 
-  handleLocaleSelect(e) {
-    const val = e.target.value;
-    this.props.setStatus({
-      localeSecondary: val === "none" ? null : val
-    });
-  }
-
-  // manage open/closed state of settings popover
-  closeSettings() {
-    this.setState({settingsOpen: false});
-  }
-  toggleSettings() {
-    this.setState({settingsOpen: !this.state.settingsOpen});
-  }
-
-  toggleOutline() {
-    this.setState({outlineOpen: !this.state.outlineOpen});
-  }
-
-  editEntitySettings(entity) {
-    console.log(`This should open a dialog for editing ${entity} metadata`);
-  }
-
   setPath() {
     const {currentTab} = this.state;
     // The underlying Editors don't know about tabs, so they will send pathObjs that don't have a tab in them.
@@ -153,8 +130,7 @@ class Builder extends Component {
   }
 
   render() {
-    const {currentTab, outlineOpen, settingsOpen, userInit} = this.state;
-    const {locales, localeDefault, localeSecondary} = this.props.status;
+    const {currentTab, userInit} = this.state;
     const {isEnabled, env, auth, router} = this.props;
     let {pathname} = router.location;
     if (pathname.charAt(0) !== "/") pathname = `/${pathname}`;
@@ -171,73 +147,15 @@ class Builder extends Component {
       );
     }
 
-    // placeholder values
-    let currEntity = "metadata";
-    if (currentTab === "profiles") currEntity = "currEntity";
-    if (currentTab === "stories")  currEntity = "currEntity";
-
-    const profileLinks = [
-      {title: "profile1", url: "1"},
-      {title: "profile2", url: "2"},
-      {title: "profile3", url: "3"}
-    ];
-    const storyLinks = [
-      {title: "story1", url: "1"},
-      {title: "story2", url: "2"},
-      {title: "story3", url: "3"}
-    ];
-
-    // non-placeholder values
-    const navLinks = [
-      {title: "profiles", items: profileLinks},
-      {title: "stories",  items: storyLinks},
-      {title: "metadata"}
-    ];
-
-    // render settings when available
-    let settings = {};
-    if (locales) {
-      settings.locales = {
-        primaryLocale: localeDefault,
-        secondaryLocale,
-        availableLocales: locales
-      };
-    }
-    if (auth.user) settings.account = true;
-
-    // callback functions passed down as props
-    const onTabChange           = tab     => this.handleTabChange(tab);
-    const onLocaleSelect        = locale  => this.handleLocaleSelect(locale);
-    const onOpenEntitySettings  = entity  => this.editEntitySettings(entity);
-    const onOutlineToggle       = val     => this.toggleOutline(val);
-    const onSettingsClose       = val     => this.closeSettings(val);
-    const onSettingsToggle      = val     => this.toggleSettings(val);
-
     const navbarProps = {
       currentTab,
-      currEntity,
-      navLinks,
-      settings,
-      settingsOpen,
-      onTabChange,
-      onLocaleSelect,
-      onOpenEntitySettings,
-      onOutlineToggle,
-      onSettingsClose,
-      onSettingsToggle,
-      outlineOpen
+      onTabChange: tab => this.handleTabChange.bind(this)(tab)
     };
 
     // Define component to render as editor
-    let Editor = MetaEditor;
-    if (currentTab === "profiles") Editor = ProfileBuilder;
-    if (currentTab === "stories")  Editor = StoryBuilder;
-
-    const editorProps = {
-      pathObj,
-      localeDefault,
-      locale: secondaryLocale
-    };
+    let Builder = MetaEditor;
+    if (currentTab === "profiles") Builder = ProfileBuilder;
+    if (currentTab === "stories")  Builder = StoryBuilder;
 
     // This invisible AceWrapper is necessary, because running the require function in the render cycle of AceWrapper
     // can cause components to remount (notably the toolbox, hitting all generators). By putting this dummy AceWrapper in
@@ -248,7 +166,7 @@ class Builder extends Component {
     return (
       <div className={`cms cms-${currentTab}-page`}>
         <Navbar {...navbarProps} key="navbar" />
-        <Editor {...editorProps} key="editor" />
+        <Builder key="editor" />
         {HiddenAce}
       </div>
     );
@@ -265,11 +183,11 @@ Builder.need = [
 ];
 
 const mapStateToProps = state => ({
-  formatters: state.data.formatters,
   env: state.env,
-  isEnabled: state.data.isEnabled,
+  auth: state.auth,
   status: state.cms.status,
-  auth: state.auth
+  formatters: state.data.formatters,
+  isEnabled: state.data.isEnabled
 });
 
 const mapDispatchToProps = dispatch => ({
