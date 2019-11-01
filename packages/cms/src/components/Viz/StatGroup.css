@@ -1,51 +1,50 @@
 @import "../../css/mixins.css";
 
-.cp-stat-group-wrapper {
-  width: 100%;
-  overflow-x: hidden;
-}
-.cp-stat-group-wrapper:first-child {
-  margin-top: calc(0px - var(--gutter-xs));
-}
-
-.cp-stat-group:not(:last-of-type) {
-  margin-bottom: var(--gutter-xs);
-}
-
-/* the list of stats */
+/* wrapper for stats (both grouped and single) */
 .cp-stat-group-wrapper {
   display: flex;
   flex-wrap: wrap;
+  overflow-x: hidden;
   width: calc(100% + var(--gutter-md));
-  margin-top: calc(0px - var(--gutter-xs)); /* offset stat margin */
 
+  /* grouped stats */
+  & > .cp-stat-group {
+    /* layout spans 2 columsn by default */
+    flex: 2 0 auto;
+    width: calc(var(--stat-group-stat-width) * 2);
+    max-width: 100%;
+    /* line up labels with single stats */
+    margin-top: var(--gutter-xs);
+    & .cp-stat { margin-top: 0; }
+
+    /* span 3 columns for 3 or 5+ grouped stats */
+    &.cp-3col-stat-group {
+      flex: 3 0 auto;
+      width: calc(var(--stat-group-stat-width) * 3);
+    }
+  }
+
+  /* reset the list and make children flexible */
   & .cp-stat-group-list {
     @mixin list-reset;
     display: flex;
     flex-wrap: wrap;
   }
 
-  & > .cp-stat-group {
-    flex: 1 1 calc(50% - var(--gutter-xs));
-    min-width: calc(50% - var(--gutter-xs));
+  & .cp-stat {
+    flex: 1 0 var(--stat-group-stat-width);
+    min-width: var(--stat-group-stat-width);
     max-width: 100%;
 
-    & .cp-stat {
-      flex: 1 1 10rem;
-      min-width: calc(50% - var(--gutter-xs));
-      max-width: 100%;
-
-      &:not(:only-child) {
-        padding-right: var(--gutter-md);
-      }
-
-      /* three or more stats */
-      &:nth-last-child(n+3),
-      &:nth-last-child(n+3) ~ .cp-stat {
-        flex-basis: calc(33.333% - var(--gutter-xs));
-        min-width: 8rem;
-      }
+    &:not(:only-child) {
+      padding-right: var(--gutter-md);
     }
+  }
+
+  /* stat margin overrides */
+  & .cp-stat-label,
+  & .cp-stat-value-text {
+    margin-right: 0;
   }
 }
 
@@ -56,8 +55,4 @@
   &:not(:last-child) {
     margin-bottom: var(--gutter-md);
   }
-}
-.cp-hero-stat-group > .cp-stat {
-  flex-basis: calc(100% / var(--hero-stat-column-count) - var(--gutter-xs));
-  min-width: var(--hero-stat-column-width);
 }
