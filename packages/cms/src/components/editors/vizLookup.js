@@ -92,24 +92,3 @@ module.exports = [
     ]
   }
 ];
-
-
-/*
-
-module.exports = {
-  AreaPlot: ["groupBy", "x", "y"],
-  BarChart: ["groupBy", "x", "y"],
-  BumpChart: ["groupBy", "x", "y"],
-  Donut: ["groupBy", "value"],
-  Geomap: ["groupBy", "colorScale", "topojson"],
-  Graphic: ["label", "value", "subtitle", "imageURL"],
-  LinePlot: ["groupBy", "x", "y"],
-  PercentageBar: ["groupBy", "value"],
-  Pie: ["groupBy", "value"],
-  // Plot: ["groupBy", "x", "y"],
-  StackedArea: ["groupBy", "x", "y"],
-  Treemap: ["groupBy", "sum"],
-  Table: ["columns"]
-};
-
-*/
