@@ -9,23 +9,7 @@ import TextButtonGroup from "../fields/TextButtonGroup";
 
 import "./SimpleVisualizationEditor.css";
 
-const vizLookup = {
-  AreaPlot: ["groupBy", "x", "y"],
-  BarChart: ["groupBy", "x", "y"],
-  BumpChart: ["groupBy", "x", "y"],
-  Donut: ["groupBy", "value"],
-  Geomap: ["groupBy", "colorScale", "topojson"],
-  Graphic: ["label", "value", "subtitle", "imageURL"],
-  LinePlot: ["groupBy", "x", "y"],
-  PercentageBar: ["groupBy", "value"],
-  Pie: ["groupBy", "value"],
-  StackedArea: ["groupBy", "x", "y"],
-  Treemap: ["groupBy", "sum"],
-  Table: ["columns"]
-};
-
-const textFields = ["imageURL", "topojson"];
-const checkboxFields = ["columns"];
+import vizLookup from "./vizLookup";
 
 class SimpleVisualizationEditor extends Component {
 
@@ -51,7 +35,7 @@ class SimpleVisualizationEditor extends Component {
     // so prepare the interface with a the first viz
     else {
       object = {
-        type: Object.keys(vizLookup)[0]
+        type: vizLookup[0].type
       };
       // If this component is mounting and is NOT provided a simple config, it means the
       // user has just enabled simple mode. This means the parent component must be given
@@ -181,12 +165,12 @@ class SimpleVisualizationEditor extends Component {
         .then(resp => {
           const payload = resp.data;
           const firstObj = payload.data[0];
-          if (vizLookup[type] && firstObj) {
+          if (vizLookup.find(v => v.type === type) && firstObj) {
             if (newObject.type === "Table") {
               newObject.columns = Object.keys(firstObj);
             }
             else {
-              vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
+              vizLookup.find(v => v.type === type).methods.forEach(method => newObject[method.key] = Object.keys(firstObj)[0]);
             }
           }
           this.setState({
@@ -259,8 +243,8 @@ class SimpleVisualizationEditor extends Component {
           onChange={this.onChange.bind(this, "type")}
         >
           <option value="undefined" default>Select visualization type</option>
-          {Object.keys(vizLookup).map(type =>
-            <option key={type} value={type}>{type}</option>
+          {vizLookup.map(viz =>
+            <option key={viz.type} value={viz.type}>{viz.name}</option>
           )}
         </Select>
         <TextInput
@@ -275,20 +259,20 @@ class SimpleVisualizationEditor extends Component {
 
       {payload.data &&
         <div className="viz-select-group">
-          {object.type && vizLookup[object.type] && vizLookup[object.type].map(prop =>
+          {object.type && vizLookup.find(v => v.type === object.type) && vizLookup.find(v => v.type === object.type).methods.map(method =>
             // render prop as text input
-            textFields.includes(prop)
+            method.format === "Input"
               ? <TextInput
-                label={prop === "imageURL" ? "Image URL" : prop}
+                label={method.key === "imageURL" ? "Image URL" : method.key}
                 namespace="cms"
                 fontSize="xs"
-                key={prop}
-                value={object[prop]}
-                onChange={this.onChange.bind(this, prop)}
+                key={method.key}
+                value={object[method.key]}
+                onChange={this.onChange.bind(this, method.key)}
               />
 
               // render payload as checkboxes
-              : checkboxFields.includes(prop)
+              : method.format === "Checkbox"
                 ? <fieldset className="cms-fieldset">
                   <legend className="u-font-sm">Columns</legend>
                   {Object.keys(firstObj).map(column =>
@@ -302,13 +286,13 @@ class SimpleVisualizationEditor extends Component {
                   )}
                 </fieldset>
 
-                // render prop as select
+                // render method.key as select
                 : <Select
-                  label={prop === "groupBy" ? "grouping" : prop}
+                  label={method.key === "groupBy" ? "grouping" : method.key}
                   namespace="cms"
                   fontSize="xs"
-                  value={object[prop]}
-                  onChange={this.onChange.bind(this, prop)}
+                  value={object[method.key]}
+                  onChange={this.onChange.bind(this, method.key)}
                 >
                   {/* optional fields */}
                   {object.type === "Graphic"
