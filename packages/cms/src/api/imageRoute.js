@@ -29,8 +29,13 @@ const getParentMemberWithImage = async(db, member, meta) => {
           where: {dimension, id: parent.value},
           include: {model: db.image, include: [{association: "content"}]}
         }).catch(catcher);
-        parentMember = parentMember.toJSON();
-        if (parentMember.image) return parentMember;
+        if (parentMember) {
+          parentMember = parentMember.toJSON();
+          if (parentMember.image) return parentMember;
+        }
+        else {
+          return null;
+        }
       }
     }
   }
