@@ -3,7 +3,7 @@
  */
 function sectionIconLookup(layout, position) {
   if (position === "sticky") return "pin";
-  if (position === "windowed") return "applications";
+  if (position === "modal") return "applications";
 
   if (layout === "Hero") return "mugshot";
   if (layout === "Grouping") return "caret-right";
