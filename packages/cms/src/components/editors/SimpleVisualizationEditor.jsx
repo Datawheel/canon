@@ -32,7 +32,7 @@ class SimpleVisualizationEditor extends Component {
       this.setState({object}, this.firstBuild.bind(this));
     }
     // If a simple config has not been provided, then the user has never used one before,
-    // so prepare the interface with a the first viz
+    // so prepare the interface with the first viz
     else {
       object = {
         type: vizLookup[0].type
@@ -64,7 +64,6 @@ class SimpleVisualizationEditor extends Component {
       const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url).then(resp => {
         const payload = resp.data;
-
         this.setState({payload}, this.compileCode.bind(this));
       }).catch(e => {
         console.log("API error", e);
@@ -73,8 +72,10 @@ class SimpleVisualizationEditor extends Component {
   }
 
   compileCode() {
-    const {object} = this.state;
-    // If the user has put instances variables between brackets (e.g. <id> or <var>)
+    const {object, payload} = this.state;
+    const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
+    const stripID = d => typeof d === "string" ? d.replace("ID ", "").replace(" ID", "") : d;
+    // If the user has put instance variables between brackets (e.g. <id> or <var>)
     // Then we need to manually create a special template string out of what the user
     // has written. Remember that the "logic" is javascript that will be executed, so
     // if the user has written something like ?id=<id> then the resulting code
@@ -90,13 +91,21 @@ class SimpleVisualizationEditor extends Component {
           });
           return `\n  "${k}": \`${fixedUrl}\``;
         }
-        else {
-          if (k === "columns") {
-            return `\n "${k}": ${JSON.stringify(object[k])}`;
+        else if (k === "groupBy") {
+          // If the user is setting groupBy, we need to implicitly set the label also.
+          const label = Object.keys(firstObj).find(d => d === stripID(object[k]));
+          if (label) {
+            return `\n  "${k}": "${object[k]}",  \n  "label": d => d["${label}"]`;
           }
           else {
             return `\n  "${k}": "${object[k]}"`;
           }
+        }
+        else if (k === "columns") {
+          return `\n "${k}": ${JSON.stringify(object[k])}`;
+        }
+        else {
+          return `\n  "${k}": "${object[k]}"`;
         }
       })
     }\n}`;
@@ -120,7 +129,7 @@ class SimpleVisualizationEditor extends Component {
     if (field === "type") {
       this.setState({object}, this.rebuild.bind(this));
     }
-    // Otherwise they are just changing a drop-down field and we need only recompile the code above.
+    // Otherwise they are just changing a drop-down field
     else {
       this.setState({object}, this.compileCode.bind(this));
     }
@@ -143,6 +152,7 @@ class SimpleVisualizationEditor extends Component {
     const {object} = this.state;
     const {previews, variables, env} = this.props;
     const {data, type} = object;
+    const thisViz = vizLookup.find(v => v.type === type);
     const lookup = {};
     if (previews) {
       previews.forEach((p, i) => {
@@ -165,12 +175,12 @@ class SimpleVisualizationEditor extends Component {
         .then(resp => {
           const payload = resp.data;
           const firstObj = payload.data[0];
-          if (vizLookup.find(v => v.type === type) && firstObj) {
+          if (thisViz && firstObj) {
             if (newObject.type === "Table") {
               newObject.columns = Object.keys(firstObj);
             }
             else {
-              vizLookup.find(v => v.type === type).methods.forEach(method => newObject[method.key] = Object.keys(firstObj)[0]);
+              thisViz.methods.forEach(method => newObject[method.key] = Object.keys(firstObj)[0]);
             }
           }
           this.setState({
@@ -192,7 +202,13 @@ class SimpleVisualizationEditor extends Component {
   render() {
     const {object, rebuildAlertOpen, payload} = this.state;
     const selectedColumns = object.columns || [];
-    const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
+    const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
+
+    const thisViz = vizLookup.find(v => v.type === object.type);
+    const isID = d => d.includes("ID ") || d.includes(" ID");
+    const allFields = Object.keys(firstObj);
+    const plainFields = Object.keys(firstObj).filter(d => !isID(d));
+    const idFields = Object.keys(firstObj).filter(d => isID(d));
 
     let buttonProps = {
       children: "Build",
@@ -259,7 +275,7 @@ class SimpleVisualizationEditor extends Component {
 
       {payload.data &&
         <div className="viz-select-group">
-          {object.type && vizLookup.find(v => v.type === object.type) && vizLookup.find(v => v.type === object.type).methods.map(method =>
+          {object.type && thisViz && thisViz.methods.map(method =>
             // render prop as text input
             method.format === "Input"
               ? <TextInput
@@ -275,7 +291,7 @@ class SimpleVisualizationEditor extends Component {
               : method.format === "Checkbox"
                 ? <fieldset className="cms-fieldset">
                   <legend className="u-font-sm">Columns</legend>
-                  {Object.keys(firstObj).map(column =>
+                  {allFields.map(column =>
                     <label className="cms-checkbox-label u-font-xs" key={column}>
                       <input
                         type="checkbox"
@@ -298,9 +314,15 @@ class SimpleVisualizationEditor extends Component {
                   {object.type === "Graphic"
                     ? <option key={null} value="">none</option> : ""
                   }
-                  {Object.keys(firstObj).map(type =>
-                    <option key={type} value={type}>{type}</option>
-                  )}
+                  {/* remove the ID fields from being displayed in the listing */}
+                  { 
+                    method.typeof === "id"
+                      ? plainFields.map(key => {
+                        const idField = idFields.find(d => d.includes(key));
+                        return <option key={key} value={idField ? idField : key}>{key}</option>;   
+                      })
+                      : allFields.map(key => <option key={key} value={key}>{key}</option>)
+                  }
                 </Select>
           )}
         </div>

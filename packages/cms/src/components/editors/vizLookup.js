@@ -4,7 +4,7 @@ const commonKeys = ["groupBy", "x", "y", "value", "colorScale", "label", "subtit
 const commonMethods = {};
 commonKeys.forEach(key => {
   commonMethods[key] = {
-    key: [key],
+    key,
     format: "Accessor",
     required: true
   };
