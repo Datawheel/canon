@@ -75,6 +75,8 @@ class SimpleVisualizationEditor extends Component {
     const {object, payload} = this.state;
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
     const stripID = d => typeof d === "string" ? d.replace("ID ", "").replace(" ID", "") : d;
+    // Filter out any keys where the user has manually selected none
+    const keys = Object.keys(object).filter(d => object[d] !== "manual-none");
     // If the user has put instance variables between brackets (e.g. <id> or <var>)
     // Then we need to manually create a special template string out of what the user
     // has written. Remember that the "logic" is javascript that will be executed, so
@@ -82,7 +84,7 @@ class SimpleVisualizationEditor extends Component {
     // must be a template string like `/api?id=${variables.id}`
     const code =
     `return {${
-      Object.keys(object).map(k => {
+      keys.map(k => {
         if (k === "data") {
           let fixedUrl = object[k];
           (object[k].match(/<[^\&\=\/>]+>/g) || []).forEach(v => {
@@ -311,9 +313,7 @@ class SimpleVisualizationEditor extends Component {
                   onChange={this.onChange.bind(this, method.key)}
                 >
                   {/* optional fields */}
-                  {object.type === "Graphic"
-                    ? <option key={null} value="">none</option> : ""
-                  }
+                  {!method.required && <option key={null} value="manual-none">none</option>}
                   {/* remove the ID fields from being displayed in the listing */}
                   { 
                     method.typeof === "id"

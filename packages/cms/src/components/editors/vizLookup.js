@@ -47,7 +47,11 @@ module.exports = [
   {
     name: "Graphic", 
     type: "Graphic", 
-    methods: [label, value, subtitle, ...sharedMethods, 
+    methods: [
+      Object.assign({}, label, {required: false}),
+      Object.assign({}, value, {required: false}),
+      Object.assign({}, subtitle, {required: false}),
+      ...sharedMethods, 
       {
         key: "imageURL",
         format: "Input",
@@ -69,6 +73,17 @@ module.exports = [
     name: "Pie Chart", 
     type: "Pie", 
     methods: [groupBy, value, ...sharedMethods]
+  },
+  {
+    name: "Scatter/Bubble", 
+    type: "Plot", 
+    methods: [x, y, ...sharedMethods,
+      {
+        key: "size",
+        format: "Accessor",
+        required: false
+      }
+    ]
   },
   {
     name: "Stacked Area", 
