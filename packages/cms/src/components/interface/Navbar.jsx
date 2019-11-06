@@ -6,6 +6,7 @@ import {hot} from "react-hot-loader/root";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
 
+import sectionIconLookup from "../../utils/sectionIconLookup";
 import stripHTML from "../../utils/formatters/stripHTML";
 
 import {setStatus} from "../../actions/status";
@@ -16,7 +17,8 @@ class Navbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      settingsOpen: false
+      settingsOpen: false,
+      currEntity: null
     };
   }
 
@@ -45,10 +47,24 @@ class Navbar extends Component {
     console.log("TODO: edit entity settings");
   }
 
+  getCurrentEntity(id, tree) {
+    const match = tree.find(t => t.id === id);
+    return match;
+  }
+
+  getNodeTitle(section) {
+    const {localeDefault} = this.props.status;
+    const localeContent = section.content.find(c => c.locale === localeDefault);
+
+    let title = section.slug;
+    if (localeContent) title = stripHTML(localeContent.title);
+    return title;
+  }
+
   render() {
     const {auth, currentTab, onTabChange, profiles, stories} = this.props;
-    const {locales, localeDefault, localeSecondary} = this.props.status;
-    const {settingsOpen, currEntity, outlineOpen} = this.state;
+    const {currentNode, currentPid, locales, localeDefault, localeSecondary} = this.props.status;
+    const {settingsOpen, outlineOpen} = this.state;
 
     const navLinks = [
       {title: "profiles", items: []},
@@ -60,21 +76,32 @@ class Navbar extends Component {
     if (currentTab === "profiles") tree = profiles;
     if (currentTab === "stories") tree = stories;
 
-    const showConsole = false;
+    let currEntity, currTree;
+    if (currentTab === "metadata") currEntity = "metadata"; // done
 
-    if (showConsole && currentTab === "profiles") {
-      tree.forEach(profile => {
-        console.log("Profile Name: ", profile.meta.map(m => m.slug).join("_"));
-        const sections = profile.sections.map(section => {
-          let title = section.slug;
-          const defaultContent = section.content.find(c => c.locale === localeDefault);
-          if (defaultContent) title = stripHTML(defaultContent.title);
-          return title;
-        }).join();
-        console.log("Has these sections:", sections);
-        console.log("--------");
-      });
+    if (currentTab === "profiles") {
+      currEntity = "profile";
+      let currProfile;
+      if (currentPid) currProfile = this.getCurrentEntity(currentPid, tree);
+      if (typeof currProfile === "object") {
+        // profile title
+        currEntity = currProfile.meta.length
+          ? currProfile.meta.map(m => m.slug).join(" / ")
+          : "Unnamed ";
+        // sections
+        currTree = currProfile.sections;
+      }
     }
+    // TODO: match profiles for stories
+    if (currentTab === "stories") {
+      currEntity = "story";
+    }
+
+    // console.log(currTree);
+    // console.log(currentPid);
+    // console.log(currentNode);
+
+    // console.log(this.props.status);
 
     const showLocales = locales;
     const showAccount = auth.user;
@@ -84,9 +111,11 @@ class Navbar extends Component {
       <nav className={`cms-navbar${settingsOpen ? " settings-visible" : ""}`}>
         {/* title */}
         <div className="cms-navbar-title">
-          {currEntity === "metadata"
+          {currEntity === "metadata" || !currentNode
             // metadata; render as h1 with no controls
-            ? <h1 className="cms-navbar-title-heading u-font-lg">Metadata editor</h1>
+            ? <h1 className="cms-navbar-title-heading u-font-lg">
+              {currEntity === "metadata" ? "Metadata editor" : `Choose a ${currEntity}`}
+            </h1>
             // profile/story; render as button to collapse outline
             : <Fragment>
               <button
@@ -96,7 +125,7 @@ class Navbar extends Component {
               >
                 <Icon className="cms-navbar-title-button-icon" icon="caret-down" />
                 <span className="cms-navbar-title-button-text">
-                  {currEntity} {currentTab === "profiles" ? "profile" : "story"}
+                  {currEntity} {currentTab === "profiles" ? "profile" : ""}
                 </span>
               </button>
               <button className="cms-navbar-entity-settings-button" onClick={() => this.toggleEntitySettings(currEntity)}>
@@ -191,6 +220,22 @@ class Navbar extends Component {
               tabIndex={settingsOpen ? null : "-1"}
             />
           </div> : ""
+        }
+
+        {currTree &&
+          <ul className="cms-outline">
+            {currTree.map(node =>
+              <li className="cms-outline-item" key={node.id}>
+                <button
+                  className={`cms-outline-button${node.id === currentNode.data.id ? " is-active" : ""}`}
+                  onClick={() => console.log(`${node.id} clicked`)}
+                >
+                  <Icon icon={sectionIconLookup(node.type, node.position)} />
+                  {this.getNodeTitle(node)}
+                </button>
+              </li>
+            )}
+          </ul>
         }
       </nav>
     );

@@ -6,7 +6,7 @@ function sectionIconLookup(layout, position) {
   if (position === "windowed") return "applications";
 
   if (layout === "Hero") return "mugshot";
-  if (layout === "Grouping") return "projects";
+  if (layout === "Grouping") return "caret-right";
   if (layout === "Card" || layout === "InfoCard") return "id-number";
   if (layout === "Column" || layout === "SingleColumn") return "horizontal-distribution";
   if (layout === "Columns" || layout === "MultiColumn") return "alignment-top";
