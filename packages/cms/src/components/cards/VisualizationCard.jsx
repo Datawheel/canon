@@ -181,6 +181,7 @@ class VisualizationCard extends Component {
               data={minData}
               variables={variables}
               type={type}
+              locale={locale}
             />
           </div>
           <FooterButtons

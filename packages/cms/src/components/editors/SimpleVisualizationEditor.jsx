@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, {Component} from "react";
+import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
@@ -73,10 +74,19 @@ class SimpleVisualizationEditor extends Component {
 
   compileCode() {
     const {object, payload} = this.state;
+    const {type} = object;
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
     const stripID = d => typeof d === "string" ? d.replace("ID ", "").replace(" ID", "") : d;
-    // Filter out any keys where the user has manually selected none
-    const keys = Object.keys(object).filter(d => object[d] !== "manual-none");
+    
+    const keys = Object.keys(object)
+      // Filter out any keys where the user has manually selected none
+      .filter(d => object[d] !== "manual-none")
+      // Filter out the formatters lookup key 
+      .filter(d => d !== "formatters");
+
+    const thisViz = vizLookup.find(v => v.type === type);
+    const tooltipKeys = thisViz.methods.filter(method => method.tooltip).map(d => d.key);
+
     // If the user has put instance variables between brackets (e.g. <id> or <var>)
     // Then we need to manually create a special template string out of what the user
     // has written. Remember that the "logic" is javascript that will be executed, so
@@ -97,7 +107,8 @@ class SimpleVisualizationEditor extends Component {
           // If the user is setting groupBy, we need to implicitly set the label also.
           const label = Object.keys(firstObj).find(d => d === stripID(object[k]));
           if (label) {
-            return `\n  "${k}": "${object[k]}",  \n  "label": d => d["${label}"]`;
+            const formatter = object.formatters ? object.formatters[k] : null;
+            return `\n  "${k}": "${object[k]}",  \n  "label": d => ${formatter ? `formatters.${formatter}(d["${label}"])` : `d["${label}"]`}`;
           }
           else {
             return `\n  "${k}": "${object[k]}"`;
@@ -110,7 +121,15 @@ class SimpleVisualizationEditor extends Component {
           return `\n  "${k}": "${object[k]}"`;
         }
       })
-    }\n}`;
+    },${`
+  "tooltipConfig": {
+    "tbody": [
+      ${tooltipKeys.map(k => {
+    const formatter = object.formatters ? object.formatters[k] : null; 
+    return `["${object[k]}", d => ${formatter ? `formatters.${formatter}(d["${object[k]}"])` : `d["${object[k]}"]`}]`;
+  })}
+    ]
+  }`}\n}`;
     if (this.props.onSimpleChange) this.props.onSimpleChange(code, object);
   }
 
@@ -135,6 +154,18 @@ class SimpleVisualizationEditor extends Component {
     else {
       this.setState({object}, this.compileCode.bind(this));
     }
+  }
+
+  onChangeFormatter(field, e) {
+    const {object} = this.state;
+    if (!object.formatters) object.formatters = {};
+    if (e.target.value === "manual-none") {
+      delete object.formatters[field];
+    }
+    else {
+      object.formatters[field] = e.target.value;
+    }
+    this.setState({object}, this.compileCode.bind(this));
   }
 
 
@@ -203,6 +234,9 @@ class SimpleVisualizationEditor extends Component {
 
   render() {
     const {object, rebuildAlertOpen, payload} = this.state;
+    const {locale} = this.props;
+    const formatters = this.context.formatters[locale];
+    const formatterList = formatters ? Object.keys(formatters) : [];
     const selectedColumns = object.columns || [];
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
 
@@ -305,30 +339,49 @@ class SimpleVisualizationEditor extends Component {
                 </fieldset>
 
                 // render method.key as select
-                : <Select
-                  label={method.key === "groupBy" ? "grouping" : method.key}
-                  namespace="cms"
-                  fontSize="xs"
-                  value={object[method.key]}
-                  onChange={this.onChange.bind(this, method.key)}
-                >
-                  {/* optional fields */}
-                  {!method.required && <option key={null} value="manual-none">none</option>}
-                  {/* remove the ID fields from being displayed in the listing */}
-                  { 
-                    method.typeof === "id"
-                      ? plainFields.map(key => {
-                        const idField = idFields.find(d => d.includes(key));
-                        return <option key={key} value={idField ? idField : key}>{key}</option>;   
-                      })
-                      : allFields.map(key => <option key={key} value={key}>{key}</option>)
-                  }
-                </Select>
+                : <React.Fragment>
+                  <Select
+                    key="cms-key-select"
+                    label={method.key === "groupBy" ? "grouping" : method.key}
+                    namespace="cms"
+                    fontSize="xs"
+                    value={object[method.key]}
+                    onChange={this.onChange.bind(this, method.key)}
+                  >
+                    {/* optional fields */}
+                    {!method.required && <option key={null} value="manual-none">none</option>}
+                    {/* remove the ID fields from being displayed in the listing */}
+                    { 
+                      method.typeof === "id"
+                        ? plainFields.map(key => {
+                          const idField = idFields.find(d => d.includes(key));
+                          return <option key={key} value={idField ? idField : key}>{key}</option>;   
+                        })
+                        : allFields.map(key => <option key={key} value={key}>{key}</option>)
+                    }
+                  </Select>
+                  <Select
+                    key="cms-formatter-select"
+                    label={`${method.key === "groupBy" ? "grouping" : method.key} Formatter`}
+                    namespace="cms"
+                    fontSize="xs"
+                    value={object.formatters ? object.formatters[method.key] : "manual-none"}
+                    onChange={this.onChangeFormatter.bind(this, method.key)}
+                  >
+                    <option key={null} value="manual-none">none</option>
+                    {formatterList.map(f => <option key={f} value={f}>{f}</option>)}
+                  </Select>
+                </React.Fragment>
           )}
         </div>
       }
     </div>;
   }
 }
+
+
+SimpleVisualizationEditor.contextTypes = {
+  formatters: PropTypes.object
+};
 
 export default connect(state => ({env: state.env}))(SimpleVisualizationEditor);

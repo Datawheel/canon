@@ -10,6 +10,10 @@ commonKeys.forEach(key => {
   };
 });
 commonMethods.groupBy.typeof = "id";
+const tooltipKeys = ["x", "y", "value", "sum"];
+tooltipKeys.forEach(key => {
+  commonMethods[key].tooltip = true;
+});
 const {groupBy, x, y, value, colorScale, label, subtitle, sum} = commonMethods;
 
 module.exports = [

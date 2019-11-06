@@ -213,7 +213,7 @@ class GeneratorEditor extends Component {
   render() {
 
     const {data, variables, payload, simple, alertObj} = this.state;
-    const {type, previews} = this.props;
+    const {type, previews, locale} = this.props;
 
     const preMessage = {
       generator: <React.Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</React.Fragment>,
@@ -323,7 +323,7 @@ class GeneratorEditor extends Component {
                   onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null
-              : <SimpleVisualizationEditor key="simp-viz" previews={previews} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
+              : <SimpleVisualizationEditor key="simp-viz" locale={locale} previews={previews} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
             : <AceWrapper
               key="ace-wrap"
               className="editor"
