@@ -1,5 +1,7 @@
+// Placeholder for any future universal keys
 const sharedMethods = [];
 
+// Create a lookup for some commonly used keys
 const commonKeys = ["groupBy", "x", "y", "value", "colorScale", "label", "subtitle", "sum"];
 const commonMethods = {};
 commonKeys.forEach(key => {
@@ -10,12 +12,14 @@ commonKeys.forEach(key => {
     required: true
   };
 });
+// Override some of the labels and types
 commonMethods.groupBy.typeof = "id";
 commonMethods.groupBy.display = "Grouping";
 commonMethods.colorScale.display = "Color Scale";
 commonMethods.value.typeof = "number";
 commonMethods.sum.typeof = "number";
 
+// Create a lookup for some optional keys. Nested properties are handled by dots, e.g. yConfig.title
 const optionalKeys = ["xConfig", "yConfig"];
 optionalKeys.forEach(key => {
   commonMethods[key] = {
@@ -26,6 +30,7 @@ optionalKeys.forEach(key => {
   };
 });
 
+// Promote certain keys to appear in the tooltip by default
 const tooltipKeys = ["x", "y", "value", "sum"];
 tooltipKeys.forEach(key => {
   commonMethods[key].tooltip = true;
