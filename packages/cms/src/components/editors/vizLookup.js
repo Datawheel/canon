@@ -5,19 +5,27 @@ const commonMethods = {};
 commonKeys.forEach(key => {
   commonMethods[key] = {
     key,
+    display: key,
     format: "Accessor",
     required: true
   };
 });
+commonMethods.groupBy.typeof = "id";
+commonMethods.groupBy.display = "Grouping";
+commonMethods.colorScale.display = "Color Scale";
+commonMethods.value.typeof = "number";
+commonMethods.sum.typeof = "number";
+
 const optionalKeys = ["xConfig", "yConfig"];
 optionalKeys.forEach(key => {
   commonMethods[key] = {
     key: `${key}.title`,
+    display: `${key.charAt(0).toUpperCase()} Axis Label`,
     format: "Input",
     required: false
   };
 });
-commonMethods.groupBy.typeof = "id";
+
 const tooltipKeys = ["x", "y", "value", "sum"];
 tooltipKeys.forEach(key => {
   commonMethods[key].tooltip = true;
@@ -51,6 +59,7 @@ module.exports = [
     methods: [groupBy, colorScale, ...sharedMethods, 
       {
         key: "topojson",
+        display: "topojson",
         format: "Input",
         required: true
       }
@@ -66,6 +75,7 @@ module.exports = [
       ...sharedMethods, 
       {
         key: "imageURL",
+        display: "Image URL",
         format: "Input",
         required: true
       }
@@ -92,6 +102,7 @@ module.exports = [
     methods: [x, y, xConfig, yConfig, ...sharedMethods,
       {
         key: "size",
+        display: "Size",
         format: "Accessor",
         required: false
       }
@@ -112,7 +123,8 @@ module.exports = [
     type: "Table", 
     methods: [...sharedMethods, 
       {
-        key: "imageURL",
+        key: "columns",
+        display: "Columns",
         format: "Checkbox",
         required: true
       }

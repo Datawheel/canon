@@ -85,7 +85,12 @@ class SimpleVisualizationEditor extends Component {
       .filter(d => d !== "formatters");
 
     const thisViz = vizLookup.find(v => v.type === type);
-    const tooltipKeys = thisViz.methods.filter(method => method.tooltip).map(d => d.key);
+    const tooltipKeys = thisViz.methods
+      // To build the tooltip, filter our methods to only the tooltip keys
+      .filter(method => method.tooltip)
+      // If this key is already handled by groupBy, remove it from showing in the tooltip
+      .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy) : true)
+      .map(d => d.key);
 
     // If the user has put instance variables between brackets (e.g. <id> or <var>)
     // Then we need to manually create a special template string out of what the user
@@ -332,7 +337,7 @@ class SimpleVisualizationEditor extends Component {
             // render prop as text input
             method.format === "Input"
               ? <TextInput
-                label={method.key === "imageURL" ? "Image URL" : method.key}
+                label={method.display}
                 namespace="cms"
                 fontSize="xs"
                 key={method.key}
@@ -359,7 +364,7 @@ class SimpleVisualizationEditor extends Component {
                 : <React.Fragment>
                   <Select
                     key="cms-key-select"
-                    label={method.key === "groupBy" ? "grouping" : method.key}
+                    label={method.display}
                     namespace="cms"
                     fontSize="xs"
                     value={object[method.key]}
@@ -374,12 +379,14 @@ class SimpleVisualizationEditor extends Component {
                           const idField = idFields.find(d => d.includes(key));
                           return <option key={key} value={idField ? idField : key}>{key}</option>;   
                         })
-                        : allFields.map(key => <option key={key} value={key}>{key}</option>)
+                        : allFields
+                          .filter(key => method.typeof ? typeof firstObj[key] === method.typeof : true)
+                          .map(key => <option key={key} value={key}>{key}</option>)
                     }
                   </Select>
                   <Select
                     key="cms-formatter-select"
-                    label={`${method.key === "groupBy" ? "grouping" : method.key} Formatter`}
+                    label={`${method.display} Formatter`}
                     namespace="cms"
                     fontSize="xs"
                     value={object.formatters ? object.formatters[method.key] : "manual-none"}
