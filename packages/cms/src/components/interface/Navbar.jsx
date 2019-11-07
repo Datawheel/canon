@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import {Icon} from "@blueprintjs/core";
 import {hot} from "react-hot-loader/root";
 
+import Dropdown from "./Dropdown";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
 
@@ -47,16 +48,22 @@ class Navbar extends Component {
     console.log("TODO: edit entity settings");
   }
 
-  getCurrentEntity(id, tree) {
+  getEntityId(id, tree) {
     const match = tree.find(t => t.id === id);
     return match;
   }
 
-  getNodeTitle(section) {
-    const {localeDefault} = this.props.status;
-    const localeContent = section.content.find(c => c.locale === localeDefault);
+  makeTitleFromDimensions(entity) {
+    return entity.meta.length
+      ? entity.meta.map(m => m.slug).join(" / ")
+      : "Unnamed ";
+  }
 
-    let title = section.slug;
+  getNodeTitle(node) {
+    const {localeDefault} = this.props.status;
+    const localeContent = node.content.find(c => c.locale === localeDefault);
+
+    let title = node.slug || "no title";
     if (localeContent) title = stripHTML(localeContent.title);
     return title;
   }
@@ -65,12 +72,6 @@ class Navbar extends Component {
     const {auth, currentTab, onTabChange, profiles, stories} = this.props;
     const {currentNode, currentPid, locales, localeDefault, localeSecondary} = this.props.status;
     const {settingsOpen, outlineOpen} = this.state;
-
-    const navLinks = [
-      {title: "profiles", items: []},
-      {title: "stories",  items: []},
-      {title: "metadata"}
-    ];
 
     let tree = [];
     if (currentTab === "profiles") tree = profiles;
@@ -82,12 +83,10 @@ class Navbar extends Component {
     if (currentTab === "profiles") {
       currEntity = "profile";
       let currProfile;
-      if (currentPid) currProfile = this.getCurrentEntity(currentPid, tree);
+      if (currentPid) currProfile = this.getEntityId(currentPid, profiles);
       if (typeof currProfile === "object") {
         // profile title
-        currEntity = currProfile.meta.length
-          ? currProfile.meta.map(m => m.slug).join(" / ")
-          : "Unnamed ";
+        currEntity = this.makeTitleFromDimensions(currProfile);
         // sections
         currTree = currProfile.sections;
       }
@@ -96,6 +95,29 @@ class Navbar extends Component {
     if (currentTab === "stories") {
       currEntity = "story";
     }
+
+    // genrate list of items to render in nav dropdowns
+    const profileNavItems = [], storyNavItems = [];
+    if (profiles.length) {
+      profiles.map((profile, i) => {
+        profileNavItems[i] = {
+          // get the profile title, or generate it from dimensions
+          title: this.getNodeTitle(profile).toString() !== "New Profile"
+            ? this.getNodeTitle(profile)
+            : this.makeTitleFromDimensions(profile),
+          // TODO: change url, for obvious reasons. ProfileBuilder handleNodeClick logic?
+          url: `/?tab=profiles&profile=${profiles[i].id}`
+        };
+      });
+    }
+
+    const navLinks = [
+      {title: "profiles", items: profileNavItems, dropdown: true},
+      {title: "stories",  items: [], dropdown: true},
+      {title: "metadata"}
+    ];
+
+    console.log(profileNavItems);
 
     // console.log(currTree);
     // console.log(currentPid);
@@ -139,15 +161,22 @@ class Navbar extends Component {
         {/* list of links */}
         <ul className="cms-navbar-list">
           {navLinks.map((navLink, i) =>
-            <li className="cms-navbar-item" key={navLink.title}>
-              <button
-                className={`cms-navbar-link u-font-xs${navLink.title === currentTab ? " is-active" : ""}`}
-                onClick={() => onTabChange(navLink.title)}
-                onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? this.closeSettings() : null}
-              >
-                {navLink.title}
-              </button>
-            </li>
+            navLink.dropdown && Array.isArray(navLink.items) && navLink.items.length
+              // render a dropdown
+              ? <Dropdown
+                title={navLink.title}
+                items={navLink.items}
+              />
+              // render a single link
+              : <li className="cms-navbar-item" key={navLink.title}>
+                <button
+                  className={`cms-navbar-link u-font-xs${navLink.title === currentTab ? " is-active" : ""}`}
+                  onClick={() => onTabChange(navLink.title)}
+                  onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? this.closeSettings() : null}
+                >
+                  {navLink.title}
+                </button>
+              </li>
           )}
         </ul>
 
