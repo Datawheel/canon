@@ -3,11 +3,6 @@
 .cms-navbar {
   /* sizing */
   width: 100%;
-  min-height: var(--cms-nav-height);
-  /* layout */
-  padding-right: var(--gutter-sm);
-  display: flex;
-  flex-wrap: wrap;
   /* positioning */
   top: 0;
   z-index: 3;
@@ -19,6 +14,17 @@
     background-color: var(--black);
     box-shadow: none;
   }
+}
+
+.cms-navbar-inner {
+  /* sizing */
+  min-height: var(--cms-nav-height);
+  width: 100%;
+  /* layout */
+  padding-right: var(--gutter-sm);
+  display: flex;
+  flex-wrap: wrap;
+  
 }
 
 /* reset buttons */

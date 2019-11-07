@@ -1,0 +1,54 @@
+@import "../../css/mixins.css";
+
+.cms-outline {
+  @mixin list-reset;
+  /* sizing */
+  @mixin horizontal-overflow-container;
+  width: 100%;
+  display: flex;
+  padding-left: calc(var(--gutter-sm) + var(--gutter-xs));
+  padding-right: calc(var(--gutter-sm) + var(--gutter-xs));
+  /* theming */
+  border-top: 1px solid var(--light-2);
+  border-bottom: 1px solid var(--light-2);
+
+  @mixin dark-mode {
+    background-color: var(--dark-3);
+    border-color: var(--black);
+  }
+}
+
+.cms-outline-item {
+  flex: 1 0 auto;
+
+  &:last-of-type {
+    padding-right: var(--gutter-md);
+  }
+}
+
+.cms-outline-link {
+  /* sizing */
+  @mixin font-xs;
+  display: block;
+  padding: 0.875em var(--gutter-md);
+  /* theming */
+  @mixin cms-nav-link-theme;
+
+  &:hover, &:focus {
+    text-decoration: none;
+  }
+
+  &.is-selected {
+    background-color: var(--white);
+    @mixin dark-mode { background-color: var(--dark-2); }
+  }
+}
+
+.cms-outline-link-icon {
+  width: 1em;
+  margin-right: 0.5em;
+
+  &[icon*="caret"] {
+    margin-right: 0.25em;
+  }
+}

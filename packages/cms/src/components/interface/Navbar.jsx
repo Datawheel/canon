@@ -13,6 +13,7 @@ import stripHTML from "../../utils/formatters/stripHTML";
 import {setStatus} from "../../actions/status";
 
 import "./Navbar.css";
+import "./Outline.css";
 
 class Navbar extends Component {
   constructor(props) {
@@ -140,138 +141,144 @@ class Navbar extends Component {
 
     return (
       <nav className={`cms-navbar${settingsOpen ? " settings-visible" : ""}`}>
-        {/* title */}
-        <div className="cms-navbar-title">
-          {currEntity === "metadata" || !currentNode
-            // metadata; render as h1 with no controls
-            ? <h1 className="cms-navbar-title-heading u-font-lg">
-              {currEntity === "metadata" ? "Metadata editor" : `Choose a ${currEntity}`}
-            </h1>
-            // profile/story; render as button to collapse outline
-            : <Fragment>
+        {/* main (top) top navbar */}
+        <div className="cms-navbar-inner">
+          {/* title */}
+          <div className="cms-navbar-title">
+            {currEntity === "metadata" || !currentNode
+              // metadata; render as h1 with no controls
+              ? <h1 className="cms-navbar-title-heading u-font-lg">
+                {currEntity === "metadata" ? "Metadata editor" : `Choose a ${currEntity}`}
+              </h1>
+              // profile/story; render as button to collapse outline
+              : <Fragment>
+                <button
+                  className="cms-navbar-title-button heading u-font-lg"
+                  onClick={() => this.toggleOutline()}
+                  aria-pressed={outlineOpen}
+                >
+                  <Icon className="cms-navbar-title-button-icon" icon="caret-down" />
+                  <span className="cms-navbar-title-button-text">
+                    {currEntity}{currentTab === "profiles" ? " profile" : ""}
+                  </span>
+                </button>
+                <button className="cms-navbar-entity-settings-button" onClick={() => this.toggleEntitySettings(currEntity)}>
+                  <span className="u-visually-hidden">edit {currEntity} metadata</span>
+                  <Icon className="cms-navbar-entity-settings-button-icon" icon="cog" />
+                </button>
+              </Fragment>
+            }
+          </div>
+
+          {/* list of links */}
+          <ul className="cms-navbar-list">
+            {navLinks.map((navLink, i) =>
+              navLink.dropdown && Array.isArray(navLink.items) && navLink.items.length
+                // render a dropdown
+                ? <Dropdown
+                  title={navLink.title}
+                  items={navLink.items}
+                  selected={navLink.selected}
+                />
+                // render a single link
+                : <li className="cms-navbar-item" key={navLink.title}>
+                  <button
+                    className={`cms-navbar-link${navLink.title === currentTab ? " is-selected" : ""}`}
+                    onClick={() => onTabChange(navLink.title.toLowerCase())}
+                    onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? this.closeSettings() : null}
+                  >
+                    {navLink.title}
+                  </button>
+                </li>
+            )}
+          </ul>
+
+          {/* settings menu & overlay */}
+          {settingsAvailable
+            ? <div className="cms-navbar-settings-wrapper">
+              <div className="cms-navbar-settings-button-container">
+                <Button
+                  className="cms-navbar-settings-button"
+                  id="cms-navbar-settings-button"
+                  namespace="cms"
+                  icon="cog"
+                  fontSize="xs"
+                  active={settingsOpen}
+                  onClick={() => this.toggleSettings()}
+                  aria-label={settingsOpen ? "View settings menu" : "Hide settings menu"}
+                >
+                  settings
+                </Button>
+              </div>
+
+              <div className={`cms-navbar-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
+                {/* locale select */}
+                {showLocales && <Fragment>
+                  <h2 className="cms-navbar-settings-heading u-font-sm">
+                    Languages
+                  </h2>
+                  {/* primary locale */}
+                  {/* NOTE: currently just shows the primary locale in a dropdown */}
+                  <Select
+                    label="Primary"
+                    fontSize="xs"
+                    namespace="cms"
+                    inline
+                    options={[localeDefault]}
+                    tabIndex={settingsOpen ? null : "-1"}
+                  />
+                  {/* secondary locale */}
+                  <Select
+                    label="Secondary"
+                    fontSize="xs"
+                    namespace="cms"
+                    inline
+                    value={localeSecondary ? localeSecondary : "none"}
+                    onChange={e => this.handleLocaleSelect(e)}
+                    tabIndex={settingsOpen ? null : "-1"}
+                  >
+                    <option value="none">none</option>
+                    {locales.map(locale =>
+                      <option value={locale} key={locale}>{locale}</option>
+                    )}
+                  </Select>
+                </Fragment>}
+
+                {showAccount && <Fragment>
+                  <h2 className="cms-navbar-settings-heading u-font-sm u-margin-top-md">
+                    Account
+                  </h2>
+                  <a className="cms-button cms-fill-button u-margin-bottom-xs" href="/auth/logout">
+                    <Icon className="cms-button-icon" icon="log-out" />
+                    <span className="cms-button-text">Log Out</span>
+                  </a>
+                </Fragment>}
+              </div>
               <button
-                className="cms-navbar-title-button heading u-font-lg"
-                onClick={() => this.toggleOutline()}
-                aria-pressed={outlineOpen}
-              >
-                <Icon className="cms-navbar-title-button-icon" icon="caret-down" />
-                <span className="cms-navbar-title-button-text">
-                  {currEntity}{currentTab === "profiles" ? " profile" : ""}
-                </span>
-              </button>
-              <button className="cms-navbar-entity-settings-button" onClick={() => this.toggleEntitySettings(currEntity)}>
-                <span className="u-visually-hidden">edit {currEntity} metadata</span>
-                <Icon className="cms-navbar-entity-settings-button-icon" icon="cog" />
-              </button>
-            </Fragment>
+                className={`cms-navbar-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
+                onClick={() => this.toggleSettings()}
+                onFocus={() => this.closeSettings()}
+                aria-labelledby="cms-navbar-settings-button"
+                tabIndex={settingsOpen ? null : "-1"}
+              />
+            </div> : ""
           }
         </div>
-
-        {/* list of links */}
-        <ul className="cms-navbar-list">
-          {navLinks.map((navLink, i) =>
-            navLink.dropdown && Array.isArray(navLink.items) && navLink.items.length
-              // render a dropdown
-              ? <Dropdown
-                title={navLink.title}
-                items={navLink.items}
-                selected={navLink.selected}
-              />
-              // render a single link
-              : <li className="cms-navbar-item" key={navLink.title}>
-                <button
-                  className={`cms-navbar-link${navLink.title === currentTab ? " is-selected" : ""}`}
-                  onClick={() => onTabChange(navLink.title.toLowerCase())}
-                  onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? this.closeSettings() : null}
-                >
-                  {navLink.title}
-                </button>
-              </li>
-          )}
-        </ul>
-
-        {/* settings menu & overlay */}
-        {settingsAvailable
-          ? <div className="cms-navbar-settings-wrapper">
-            <div className="cms-navbar-settings-button-container">
-              <Button
-                className="cms-navbar-settings-button"
-                id="cms-navbar-settings-button"
-                namespace="cms"
-                icon="cog"
-                fontSize="xs"
-                active={settingsOpen}
-                onClick={() => this.toggleSettings()}
-                aria-label={settingsOpen ? "View settings menu" : "Hide settings menu"}
-              >
-                settings
-              </Button>
-            </div>
-
-            <div className={`cms-navbar-settings ${settingsOpen ? "is-visible" : "is-hidden"}`}>
-              {/* locale select */}
-              {showLocales && <Fragment>
-                <h2 className="cms-navbar-settings-heading u-font-sm">
-                  Languages
-                </h2>
-                {/* primary locale */}
-                {/* NOTE: currently just shows the primary locale in a dropdown */}
-                <Select
-                  label="Primary"
-                  fontSize="xs"
-                  namespace="cms"
-                  inline
-                  options={[localeDefault]}
-                  tabIndex={settingsOpen ? null : "-1"}
-                />
-                {/* secondary locale */}
-                <Select
-                  label="Secondary"
-                  fontSize="xs"
-                  namespace="cms"
-                  inline
-                  value={localeSecondary ? localeSecondary : "none"}
-                  onChange={e => this.handleLocaleSelect(e)}
-                  tabIndex={settingsOpen ? null : "-1"}
-                >
-                  <option value="none">none</option>
-                  {locales.map(locale =>
-                    <option value={locale} key={locale}>{locale}</option>
-                  )}
-                </Select>
-              </Fragment>}
-
-              {showAccount && <Fragment>
-                <h2 className="cms-navbar-settings-heading u-font-sm u-margin-top-md">
-                  Account
-                </h2>
-                <a className="cms-button cms-fill-button u-margin-bottom-xs" href="/auth/logout">
-                  <Icon className="cms-button-icon" icon="log-out" />
-                  <span className="cms-button-text">Log Out</span>
-                </a>
-              </Fragment>}
-            </div>
-            <button
-              className={`cms-navbar-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
-              onClick={() => this.toggleSettings()}
-              onFocus={() => this.closeSettings()}
-              aria-labelledby="cms-navbar-settings-button"
-              tabIndex={settingsOpen ? null : "-1"}
-            />
-          </div> : ""
-        }
 
         {currTree &&
           <ul className="cms-outline">
             {currTree.map(node =>
               <li className="cms-outline-item" key={node.id}>
-                <button
-                  className={`cms-outline-button${node.id === currentNode.data.id ? " is-active" : ""}`}
-                  onClick={() => console.log(`${node.id} clicked`)}
+                <a
+                  className={`cms-outline-link${node.id === currentNode.data.id ? " is-selected" : ""}`}
+                  href={currentTab === "profiles"
+                    ? `/?tab=profiles&profile=${currentPid}&section=${node.id}`
+                    : "/?tab=stories" // TODO
+                  }
                 >
-                  <Icon icon={sectionIconLookup(node.type, node.position)} />
+                  <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
                   {this.getNodeTitle(node)}
-                </button>
+                </a>
               </li>
             )}
           </ul>

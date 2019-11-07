@@ -117,6 +117,7 @@
 .cms-dropdown-list.is-open,
 .cms-dropdown:hover > .cms-dropdown-list {
   background-color: var(--black);
+  z-index: 1;
 
   @mixin min-sm {
     background-color: var(--dark-3);
