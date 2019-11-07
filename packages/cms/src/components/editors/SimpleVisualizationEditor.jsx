@@ -125,11 +125,13 @@ class SimpleVisualizationEditor extends Component {
           // If this is an axis config, implicitly apply a formatter if there is one.
           if (levels[0] === "xConfig" || levels[0] === "yConfig") {
             const formatter = object.formatters ? object.formatters[levels[0].charAt(0)] : null;
+            // xyConfig titles, when empty strings, need to be false.
+            const value = levels[1] === "title" ? object[k] === "" ? "false" : `"${object[k]}"` : `"${object[k]}"`;
             if (formatter) {
-              return `\n  "${levels[0]}" : {"${levels[1]}": "${object[k]}", "tickFormat": formatters.${formatter}}`;
+              return `\n  "${levels[0]}" : {"${levels[1]}": ${value}, "tickFormat": formatters.${formatter}}`;
             }
             else {
-              return `\n  "${levels[0]}" : {"${levels[1]}": "${object[k]}"}`;  
+              return `\n  "${levels[0]}" : {"${levels[1]}": ${value}}`;  
             }
           }
           else {
@@ -172,6 +174,11 @@ class SimpleVisualizationEditor extends Component {
     if (field === "type") {
       this.setState({object}, this.rebuild.bind(this));
     }
+    // If the user is changing an x or y field, implicitly reset the label for the axis.
+    else if (field === "x" || field === "y") {
+      object[`${field}Config.title`] = e.target.value;
+      this.setState({object}, this.compileCode.bind(this));
+    }
     // Otherwise they are just changing a drop-down field
     else {
       this.setState({object}, this.compileCode.bind(this));
@@ -188,6 +195,29 @@ class SimpleVisualizationEditor extends Component {
       object.formatters[field] = e.target.value;
     }
     this.setState({object}, this.compileCode.bind(this));
+  }
+
+  getOptionList(method) {
+    const {payload} = this.state;
+    const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
+    const isID = d => d.includes("ID ") || d.includes(" ID");
+    const allFields = Object.keys(firstObj);
+    const plainFields = Object.keys(firstObj).filter(d => !isID(d));
+    const idFields = Object.keys(firstObj).filter(d => isID(d));
+    let options = [];
+    if (!method.required) options.push({value: "manual-none", display: "none"});
+    if (method.typeof === "id") {
+      options = options.concat(plainFields.map(key => {
+        const idField = idFields.find(d => d.includes(key));
+        return {value: idField ? idField : key, display: key};
+      }));
+    }
+    else {
+      options = options.concat(allFields
+        .filter(key => method.typeof ? typeof firstObj[key] === method.typeof : true)
+        .map(key => ({value: key, display: key})));
+    }
+    return options;
   }
 
 
@@ -235,7 +265,17 @@ class SimpleVisualizationEditor extends Component {
               newObject.columns = Object.keys(firstObj);
             }
             else {
-              thisViz.methods.forEach(method => newObject[method.key] = Object.keys(firstObj)[0]);
+              thisViz.methods.forEach(method => {
+                if (method.format === "Input") {
+                  newObject[method.key] = "";
+                } 
+                else {
+                  const optionList = this.getOptionList.bind(this)(method);
+                  if (optionList && optionList[0]) {
+                    newObject[method.key] = optionList[0].value;
+                  }
+                }
+              });
             }
           }
           this.setState({
@@ -263,10 +303,7 @@ class SimpleVisualizationEditor extends Component {
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
 
     const thisViz = vizLookup.find(v => v.type === object.type);
-    const isID = d => d.includes("ID ") || d.includes(" ID");
     const allFields = Object.keys(firstObj);
-    const plainFields = Object.keys(firstObj).filter(d => !isID(d));
-    const idFields = Object.keys(firstObj).filter(d => isID(d));
 
     let buttonProps = {
       children: "Build",
@@ -370,19 +407,9 @@ class SimpleVisualizationEditor extends Component {
                     value={object[method.key]}
                     onChange={this.onChange.bind(this, method.key)}
                   >
-                    {/* optional fields */}
-                    {!method.required && <option key={null} value="manual-none">none</option>}
-                    {/* remove the ID fields from being displayed in the listing */}
-                    { 
-                      method.typeof === "id"
-                        ? plainFields.map(key => {
-                          const idField = idFields.find(d => d.includes(key));
-                          return <option key={key} value={idField ? idField : key}>{key}</option>;   
-                        })
-                        : allFields
-                          .filter(key => method.typeof ? typeof firstObj[key] === method.typeof : true)
-                          .map(key => <option key={key} value={key}>{key}</option>)
-                    }
+                    {this.getOptionList.bind(this)(method).map(option => 
+                      <option key={option.value} value={option.value}>{option.display}</option>
+                    )}
                   </Select>
                   <Select
                     key="cms-formatter-select"

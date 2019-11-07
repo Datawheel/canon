@@ -89,7 +89,7 @@ module.exports = [
   {
     name: "Percentage Bar", 
     type: "PercentageBar", 
-    methods: [groupBy, sum, ...sharedMethods]
+    methods: [groupBy, value, ...sharedMethods]
   },
   {
     name: "Pie Chart", 
