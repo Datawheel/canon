@@ -47,10 +47,14 @@
 /* interactions */
 .cms-dropdown:hover > .cms-dropdown-button,
 .cms-dropdown-button.is-active {
+  background-color: var(--white);
+
+  @mixin dark-mode {
   background-color: var(--black);
 
-  @mixin min-sm {
-    background-color: var(--dark-3);
+    @mixin min-sm {
+      background-color: var(--dark-3);
+    }
   }
 }
 
@@ -116,17 +120,20 @@
 /* open/hover state */
 .cms-dropdown-list.is-open,
 .cms-dropdown:hover > .cms-dropdown-list {
-  background-color: var(--black);
+  background-color: var(--white);
   z-index: 1;
 
   @mixin min-sm {
-    background-color: var(--dark-3);
     box-shadow:
       0 0.25em 0.5em color(var(--black) a(0.125)),
       0 0.5em 1em color(var(--black) a(0.125));
     transition:
       opacity 0.2s ease-out,
       transform 0.2s ease-out;
+  }
+
+  @mixin dark-mode {
+    background-color: var(--dark-3);
   }
 }
 /* adjust open state theming & positioning */
@@ -170,12 +177,13 @@
 
   /* interactions */
   &:hover, &:focus {
-    color: var(--white);
-    background-color: var(--black);
+    background-color: var(--white);
+    color: var(--accent-black);
     text-decoration: none;
 
-    @mixin min-sm {
+    @mixin dark-mode {
       background-color: var(--black);
+      color: var(--accent-light);
     }
   }
 }

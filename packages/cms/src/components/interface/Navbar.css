@@ -8,7 +8,6 @@
   z-index: 4;
   /* theming */
   background-color: var(--light-1);
-  box-shadow: 0 1px 0 var(--light-2);
 
   @mixin dark-mode {
     background-color: var(--black);
@@ -85,6 +84,7 @@
 .cms-navbar-list {
   @mixin list-reset;
   margin-left: auto;
+  margin-right: var(--gutter-xs);
 }
 .cms-navbar-item {
   display: inline-block;

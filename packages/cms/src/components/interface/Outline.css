@@ -19,7 +19,7 @@
 }
 
 .cms-outline-item {
-  flex: 1 0 auto;
+  flex: 0 0 auto;
 
   &:last-of-type {
     padding-right: var(--gutter-md);
