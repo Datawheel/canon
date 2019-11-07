@@ -103,10 +103,10 @@ class SimpleVisualizationEditor extends Component {
           });
           return `\n  "${k}": \`${fixedUrl}\``;
         }
+        // If the user is setting groupBy, we need to implicitly set the label also.
         else if (k === "groupBy") {
-          // If the user is setting groupBy, we need to implicitly set the label also.
           const label = Object.keys(firstObj).find(d => d === stripID(object[k]));
-          if (label) {
+          if (label) {         
             const formatter = object.formatters ? object.formatters[k] : null;
             return `\n  "${k}": "${object[k]}",  \n  "label": d => ${formatter ? `formatters.${formatter}(d["${label}"])` : `d["${label}"]`}`;
           }
@@ -114,8 +114,25 @@ class SimpleVisualizationEditor extends Component {
             return `\n  "${k}": "${object[k]}"`;
           }
         }
+        // If the key has a dot, this is an object that needs to be destructured/crawled down
+        else if (k.includes(".")) {
+          const levels = k.split(".");
+          // If this is an axis config, implicitly apply a formatter if there is one.
+          if (levels[0] === "xConfig" || levels[0] === "yConfig") {
+            const formatter = object.formatters ? object.formatters[levels[0].charAt(0)] : null;
+            if (formatter) {
+              return `\n  "${levels[0]}" : {"${levels[1]}": "${object[k]}", "tickFormat": formatters.${formatter}}`;
+            }
+            else {
+              return `\n  "${levels[0]}" : {"${levels[1]}": "${object[k]}"}`;  
+            }
+          }
+          else {
+            return `\n  "${levels[0]}" : {"${levels[1]}": "${object[k]}"}`;
+          }
+        }
         else if (k === "columns") {
-          return `\n "${k}": ${JSON.stringify(object[k])}`;
+          return `\n  "${k}": ${JSON.stringify(object[k])}`;
         }
         else {
           return `\n  "${k}": "${object[k]}"`;

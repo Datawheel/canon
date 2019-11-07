@@ -9,28 +9,36 @@ commonKeys.forEach(key => {
     required: true
   };
 });
+const optionalKeys = ["xConfig", "yConfig"];
+optionalKeys.forEach(key => {
+  commonMethods[key] = {
+    key: `${key}.title`,
+    format: "Input",
+    required: false
+  };
+});
 commonMethods.groupBy.typeof = "id";
 const tooltipKeys = ["x", "y", "value", "sum"];
 tooltipKeys.forEach(key => {
   commonMethods[key].tooltip = true;
 });
-const {groupBy, x, y, value, colorScale, label, subtitle, sum} = commonMethods;
+const {groupBy, x, y, value, colorScale, label, subtitle, sum, xConfig, yConfig} = commonMethods;
 
 module.exports = [
   {
     name: "Area Plot", // the name to be displayed in UI mode
     type: "AreaPlot", // the actual d3plus component (the "type" key)
-    methods: [groupBy, x, y, ...sharedMethods]
+    methods: [groupBy, x, y, xConfig, yConfig, ...sharedMethods]
   },
   {
     name: "Bar Chart", 
     type: "BarChart", 
-    methods: [groupBy, x, y, ...sharedMethods]
+    methods: [groupBy, x, y, xConfig, yConfig, ...sharedMethods]
   },
   {
     name: "Bump Chart", 
     type: "BumpChart", 
-    methods: [groupBy, x, y, ...sharedMethods]
+    methods: [groupBy, x, y, xConfig, yConfig, ...sharedMethods]
   },
   {
     name: "Donut", 
@@ -66,7 +74,7 @@ module.exports = [
   {
     name: "Line Plot", 
     type: "LinePlot", 
-    methods: [groupBy, x, y, ...sharedMethods]
+    methods: [groupBy, x, y, xConfig, yConfig, ...sharedMethods]
   },
   {
     name: "Percentage Bar", 
@@ -81,7 +89,7 @@ module.exports = [
   {
     name: "Scatter/Bubble", 
     type: "Plot", 
-    methods: [x, y, ...sharedMethods,
+    methods: [x, y, xConfig, yConfig, ...sharedMethods,
       {
         key: "size",
         format: "Accessor",
@@ -92,7 +100,7 @@ module.exports = [
   {
     name: "Stacked Area", 
     type: "StackedArea", 
-    methods: [groupBy, x, y, ...sharedMethods]
+    methods: [groupBy, x, y, xConfig, yConfig, ...sharedMethods]
   },
   {
     name: "Treemap", 
