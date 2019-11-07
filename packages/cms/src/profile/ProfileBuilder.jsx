@@ -74,7 +74,7 @@ class ProfileBuilder extends Component {
     if (changedVariablesOrTitle || changedQuery) {
       this.formatTreeVariables.bind(this)();
     }
-    
+
   }
 
   buildNodes(openNode) {
@@ -265,8 +265,7 @@ class ProfileBuilder extends Component {
     return (
       <React.Fragment>
         <div className="cms-panel profile-panel" id="profile-builder">
-          <div className="cms-sidebar" id="tree">
-            {/* new entity */}
+          {/* <div className="cms-sidebar" id="tree">
             <div className="cms-button-container">
               <Button
                 onClick={this.createProfile.bind(this)}
@@ -287,7 +286,7 @@ class ProfileBuilder extends Component {
               onNodeExpand={this.handleNodeExpand.bind(this)}
               contents={nodes}
             />
-          </div>
+          </div> */}
 
           <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
             { currentNode
@@ -325,9 +324,9 @@ class ProfileBuilder extends Component {
                 </Button>
               </div>
             </Toolbox>
-            
-            <Status 
-              recompiling={gensLoaded !== gensTotal} 
+
+            <Status
+              recompiling={gensLoaded !== gensTotal}
               busy={`${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`}
               done="Variables Loaded"
             />
@@ -355,7 +354,7 @@ ProfileBuilder.contextTypes = {
 };
 
 ProfileBuilder.childContextTypes = {
-  onSetVariables: PropTypes.func 
+  onSetVariables: PropTypes.func
 };
 
 const mapStateToProps = state => ({
