@@ -106,23 +106,32 @@ class Navbar extends Component {
             ? this.getNodeTitle(profile)
             : this.makeTitleFromDimensions(profile),
           // TODO: change url, for obvious reasons. ProfileBuilder handleNodeClick logic?
-          url: `/?tab=profiles&profile=${profiles[i].id}`
+          url: `/?tab=profiles&profile=${profile.id}`,
+          selected: currentPid === profile.id
         };
       });
     }
 
+    // generate dropdowns for switching entities
     const navLinks = [
-      {title: "profiles", items: profileNavItems, dropdown: true},
-      {title: "stories",  items: [], dropdown: true},
+      {
+        title: "profiles",
+        items: profileNavItems,
+        selected: currentTab === "profiles" ? true : false,
+        dropdown: true
+      },
+      {
+        title: "stories",
+        items: [], // TODO
+        selected: currentTab === "stories" ? true : false,
+        dropdown: true
+      },
       {title: "metadata"}
     ];
-
-    console.log(profileNavItems);
 
     // console.log(currTree);
     // console.log(currentPid);
     // console.log(currentNode);
-
     // console.log(this.props.status);
 
     const showLocales = locales;
@@ -147,7 +156,7 @@ class Navbar extends Component {
               >
                 <Icon className="cms-navbar-title-button-icon" icon="caret-down" />
                 <span className="cms-navbar-title-button-text">
-                  {currEntity} {currentTab === "profiles" ? "profile" : ""}
+                  {currEntity}{currentTab === "profiles" ? " profile" : ""}
                 </span>
               </button>
               <button className="cms-navbar-entity-settings-button" onClick={() => this.toggleEntitySettings(currEntity)}>
@@ -166,6 +175,7 @@ class Navbar extends Component {
               ? <Dropdown
                 title={navLink.title}
                 items={navLink.items}
+                selected={navLink.selected}
               />
               // render a single link
               : <li className="cms-navbar-item" key={navLink.title}>

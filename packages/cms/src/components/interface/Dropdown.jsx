@@ -35,7 +35,7 @@ class Dropdown extends Component {
     const {namespace, onLinkClick} = this.props;
     return <a
       href={item.url || null}
-      className={`${namespace}-dropdown-link`}
+      className={`${namespace}-dropdown-link${item.selected ? " is-selected" : ""}`}
       onFocus={() => this.setState({isOpen: true})}
       onClick={onLinkClick ? item => onLinkClick(item) : null}
     >
@@ -48,10 +48,11 @@ class Dropdown extends Component {
 
   render() {
     const {
-      className,
+      className,  // bring your own className
       namespace,  // cms (default)
       title,      // clickable title
-      items       // list of items to render; can contain a nested object with items
+      items,      // list of items to render; can contain a nested object with items
+      selected    // whether or not the parent is slected
     } = this.props;
     const {isOpen} = this.state;
 
@@ -59,7 +60,7 @@ class Dropdown extends Component {
       <li className={`${namespace}-dropdown${className ? ` ${className}` : ""}`} onBlur={e => this.onBlur(e)} onClick={() => this.onFocusButton()} key={`${title}-dropdown`}>
         {/* click the title to toggle the menu */}
         <button
-          className={`${namespace}-dropdown-button display ${isOpen ? "is-active" : "is-inactive"}`}
+          className={`${namespace}-dropdown-button display ${isOpen ? "is-active" : "is-inactive"}${selected ? " is-selected" : ""}`}
           onClick={() => this.setState({isOpen: !isOpen})}
           ref={this.toggleButton}
         >
