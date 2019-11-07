@@ -107,7 +107,7 @@ class Navbar extends Component {
             : this.makeTitleFromDimensions(profile),
           // TODO: change url, for obvious reasons. ProfileBuilder handleNodeClick logic?
           url: `/?tab=profiles&profile=${profile.id}`,
-          selected: currentPid === profile.id
+          selected: currentTab === "profiles" && currentPid === profile.id
         };
       });
     }
@@ -115,18 +115,18 @@ class Navbar extends Component {
     // generate dropdowns for switching entities
     const navLinks = [
       {
-        title: "profiles",
+        title: "Profiles",
         items: profileNavItems,
         selected: currentTab === "profiles" ? true : false,
         dropdown: true
       },
       {
-        title: "stories",
+        title: "Stories",
         items: [], // TODO
         selected: currentTab === "stories" ? true : false,
         dropdown: true
       },
-      {title: "metadata"}
+      {title: "Metadata"}
     ];
 
     // console.log(currTree);
@@ -180,8 +180,8 @@ class Navbar extends Component {
               // render a single link
               : <li className="cms-navbar-item" key={navLink.title}>
                 <button
-                  className={`cms-navbar-link u-font-xs${navLink.title === currentTab ? " is-active" : ""}`}
-                  onClick={() => onTabChange(navLink.title)}
+                  className={`cms-navbar-link${navLink.title === currentTab ? " is-selected" : ""}`}
+                  onClick={() => onTabChange(navLink.title.toLowerCase())}
                   onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? this.closeSettings() : null}
                 >
                   {navLink.title}

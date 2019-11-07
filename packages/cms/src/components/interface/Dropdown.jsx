@@ -60,7 +60,7 @@ class Dropdown extends Component {
       <li className={`${namespace}-dropdown${className ? ` ${className}` : ""}`} onBlur={e => this.onBlur(e)} onClick={() => this.onFocusButton()} key={`${title}-dropdown`}>
         {/* click the title to toggle the menu */}
         <button
-          className={`${namespace}-dropdown-button display ${isOpen ? "is-active" : "is-inactive"}${selected ? " is-selected" : ""}`}
+          className={`${namespace}-dropdown-button ${isOpen ? "is-active" : "is-inactive"}${selected ? " is-selected" : ""}`}
           onClick={() => this.setState({isOpen: !isOpen})}
           ref={this.toggleButton}
         >

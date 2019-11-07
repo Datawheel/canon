@@ -86,34 +86,18 @@
   line-height: var(--cms-nav-height);
 }
 .cms-navbar-link {
+  @mixin cms-nav-link-theme;
   /* reset button style */
   @mixin button-reset;
   cursor: pointer; /* it's not a link, but it acts like one */
   /* sizing */
+  @mixin font-sm;
   line-height: var(--cms-nav-height);
-  padding: 0 0.75rem;
-  /* title case */
-  text-transform: capitalize;
-  /* theming */
-  outline: none;
-  color: var(--dark-1);
+  padding: 0 var(--gutter-md);
+  top: -1px;
 
-  &:not(.is-active):hover,
-  &:not(.is-active):focus {
-    color: var(--dark-2);
-
-    @mixin dark-mode {
-      color: var(--gray);
-    }
-  }
-
-  /* current page */
-  &.is-active {
-    color: var(--dark-3);
-
-    @mixin dark-mode {
-      color: var(--white);
-    }
+  @mixin min-md {
+    padding: 0 var(--gutter-sm);
   }
 }
 

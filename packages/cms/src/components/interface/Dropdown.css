@@ -9,41 +9,35 @@
   padding-right: var(--gutter-md);
 
   @mixin min-md {
-    padding: 0 1rem;
+    padding: 0 var(--gutter-sm);
   }
 }
 
 /* tweak display font for cms-dropdown titles & subtitles */
 .cms-dropdown-button,
 .cms-dropdown-subtitle {
-  @mixin font-md;
+  @mixin font-sm;
   font-weight: var(--label-font-weight);
 }
 
 /* the main title is a button */
 .cms-dropdown-button {
+  @mixin cms-nav-link-theme;
   @mixin button-reset;
   width: 100%;
   text-align: left;
   line-height: var(--cms-nav-height);
-  /* theming */
-  color: inherit;
 
   /* adjust theming for small screens */
   @mixin max-sm {
     border-bottom: 1px solid var(--black);
   }
 
-  /* interactions */
-  &:hover path,
-  &.is-active path {
-    fill: var(--white);
-  }
-
   /* align text and icon */
   & > * {
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: baseline;
+    top: -1px;
 
     @mixin max-md {
       margin-top: -6px; /* fudge baseline */
@@ -67,15 +61,10 @@
   /* positioning */
   position: relative;
   margin-left: 0.25em;
-  margin-right: -0.125em;
-  /* never not fudging the baseline */
-  top: -2px;
-  @mixin min-md { top: -1px; }
-  @mixin min-lg { top: -0.0875em; }
+  margin-right: -0.25em;
 
   /* theming */
   & path {
-    fill: var(--accent-light);
     transition: fill 0.2s ease-out;
   }
 }
@@ -101,7 +90,6 @@
     /* sizing */
     width: max-content;
     min-width: 100%;
-    padding-top: var(--gutter-xs);
     padding-bottom: var(--gutter-xs);
 
     /* position below nav bar on non-small screens */
@@ -109,6 +97,7 @@
       /* positioning */
       position: absolute;
       top: var(--cms-nav-height);
+      margin-top: -1px; /* never not fudging the baseline */
     }
 
     /* hidden state */
@@ -167,8 +156,8 @@
 
 /* link theming */
 .cms-dropdown-link {
-  @mixin font-md;
-  color: var(--light-3);
+  @mixin cms-nav-link-theme;
+  @mixin font-sm;
   padding-top: 0.625em;
   padding-bottom: 0.625em;
 
@@ -176,18 +165,6 @@
   @mixin min-sm {
     padding-top: var(--gutter-xs);
     padding-bottom: var(--gutter-xs);
-  }
-  @mixin min-md {
-    @mixin font-sm;
-    padding-top: 0.25em;
-    padding-bottom: 0.25em;
-  }
-
-  /* icon sizing & positioning */
-  & .cms-dropdown-link-icon {
-    width: 0.75em;
-    margin-right: 0.5em;
-    transition: 0.1s ease-out;
   }
 
   /* interactions */
@@ -198,10 +175,6 @@
 
     @mixin min-sm {
       background-color: var(--black);
-    }
-
-    & .cms-dropdown-link-icon {
-      transform: scale(1.25);
     }
   }
 }
