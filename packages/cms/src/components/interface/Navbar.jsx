@@ -44,15 +44,6 @@ class Navbar extends Component {
     this.setState({outlineOpen: !this.state.outlineOpen});
   }
 
-  // TODO: edit profile title & metadata
-  toggleEntitySettings() {
-    console.log("TODO: edit entity settings");
-  }
-
-  createProfile() {
-    console.log("create profile clicked");
-  }
-
   getEntityId(id, tree) {
     const match = tree.find(t => t.id === id);
     return match;
@@ -71,6 +62,22 @@ class Navbar extends Component {
     let title = node.slug || "no title";
     if (localeContent) title = stripHTML(localeContent.title);
     return title;
+  }
+
+  // TODO: add functionality
+  toggleEntitySettings() {
+    console.log("TODO: edit entity settings"); // edit profile title & metadata when clicking the profile gear button
+  }
+  createProfile() {
+    console.log("TODO: create profile"); // create a new profile when clicking the button in the profile dropdown
+  }
+  createSection(id) {
+    const {currentTab} = this.props;
+    console.log(`TODO: add new ${currentTab} section after section ${id}`); // swap positioning of
+  }
+  swapSectionsPosition(id) {
+    const {currentTab} = this.props;
+    console.log(`TODO: move ${currentTab} section ${id} postion down/right by one`); // swap positioning of
   }
 
   render() {
@@ -117,7 +124,7 @@ class Navbar extends Component {
         title: "Create new profile",
         icon: "add",
         onClick: () => this.createProfile()
-      })
+      });
     }
 
     // generate dropdowns for switching entities
@@ -290,6 +297,34 @@ class Navbar extends Component {
                   <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
                   {this.getNodeTitle(node)}
                 </a>
+
+                {/* add section / swap section position buttons */}
+                <div className="cms-outline-item-actions cms-button">
+                  {/* add section */}
+                  <Button
+                    onClick={() => this.createSection(node.id)}
+                    className="cms-outline-item-actions-button"
+                    namespace="cms"
+                    fontSize="xxs"
+                    icon="plus"
+                    iconOnly
+                    key={`${node.id}-add-button`}
+                  >
+                    Add new section
+                  </Button>
+                  {/* swap section positions */}
+                  <Button
+                    onClick={() => this.swapSections(node.id)}
+                    className="cms-outline-item-actions-button"
+                    namespace="cms"
+                    fontSize="xxs"
+                    icon="swap-horizontal"
+                    iconOnly
+                    key={`${node.id}-swap-button`}
+                  >
+                    Swap positioning of current and next sections
+                  </Button>
+                </div>
               </li>
             )}
           </ul>

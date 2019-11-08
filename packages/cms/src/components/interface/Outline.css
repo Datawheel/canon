@@ -22,7 +22,7 @@
   flex: 0 0 auto;
 
   &:last-of-type {
-    padding-right: var(--gutter-md);
+    margin-right: var(--gutter-md);
   }
 }
 
@@ -51,4 +51,81 @@
   &[icon*="caret"] {
     margin-right: 0.25em;
   }
+}
+
+/* action buttons */
+.cms-outline-item .cms-outline-item-actions {
+  @mixin absolute-vertical-center;
+  right: 0;
+  width: 1px;
+  min-width: 1px;
+  height: 1em;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: none;
+  background: var(--light-3);
+
+  @mixin dark-mode {
+    background: var(--dark-2);
+  }
+
+  /* reset buttons */
+  & .cms-outline-item-actions-button {
+    margin: 0;
+    width: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    box-shadow: none;
+    opacity: 0;
+    background: none;
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 0.25s ease-out;
+    overflow: hidden;
+  }
+}
+
+/* visible state */
+@define-mixin outline-action-button-hover {
+  /* sizing */
+  min-width: 2em;
+  height: 100%;
+  /* positioning */
+  transform: translate(1rem, -50%);
+  right: 2px;
+  z-index: 1;
+  /* stacked layout */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* transitions (in only) */
+  transition: all 0.2s ease-out;
+  transition-delay: 0.875s; /* prevent misclicks by delaying transition in */
+  /* override default button style */
+  @mixin cms-button-shadow;
+  background: transparent;
+  border-radius: 0;
+
+  @mixin dark-mode {
+    background: var(--dark-2);
+  }
+
+  /* remove button resets */
+  & .cms-outline-item-actions-button {
+    opacity: 1;
+    width: 100%;
+    pointer-events: auto;
+    z-index: auto;
+    transform: none;
+    transition-delay: 0.875s;
+  }
+}
+.cms-outline-item:hover .cms-outline-item-actions,
+.cms-outline-link:focus + .cms-outline-item-actions,
+.cms-outline-item .cms-outline-item-actions:hover {
+  @mixin outline-action-button-hover;
+}
+/* focus-within needs to be on its own line because browsers that don't support it will throw out all the styles */
+.cms-outline-item .cms-outline-item-actions:focus-within { /* NOTE: this is not rendering, at all. See issue #812 */
+  @mixin outline-action-button-hover;
 }
