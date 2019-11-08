@@ -17,11 +17,6 @@ const {
 
 module.exports = [
   {
-    name: "Area Plot", // the name to be displayed in UI mode
-    type: "AreaPlot", // the actual d3plus component (the "type" key)
-    methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
-  },
-  {
     name: "Bar Chart", 
     type: "BarChart", 
     methods: [groupBy, x, y, xConfigTitle, yConfigTitle]

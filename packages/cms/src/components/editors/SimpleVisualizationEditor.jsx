@@ -201,12 +201,12 @@ class SimpleVisualizationEditor extends Component {
   getOptionList(method) {
     const {payload} = this.state;
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
-    const isID = d => d.includes("ID ") || d.includes(" ID");
+    const isID = d => d.match(/(ID\s|\sID)/g, "");
     const allFields = Object.keys(firstObj);
-    const plainFields = Object.keys(firstObj).filter(d => !isID(d));
-    const idFields = Object.keys(firstObj).filter(d => isID(d));
+    const plainFields = allFields.filter(d => !isID(d));
+    const idFields = allFields.filter(d => isID(d));
     let options = [];
-    if (!method.required) options.push({value: "manual-none", display: "none"});
+    if (!method.required) options.push({value: "manual-none", display: "None"});
     if (method.typeof === "id") {
       options = options.concat(plainFields.map(key => {
         const idField = idFields.find(d => d.includes(key));
@@ -260,6 +260,7 @@ class SimpleVisualizationEditor extends Component {
         newObject[method.key] = object[method.key];
       }
     });
+    if (object.title) newObject.title = object.title;
 
     if (data) {
 
@@ -308,7 +309,7 @@ class SimpleVisualizationEditor extends Component {
     const {object, rebuildAlertOpen, payload} = this.state;
     const {locale} = this.props;
     const formatters = this.context.formatters[locale];
-    const formatterList = formatters ? Object.keys(formatters) : [];
+    const formatterList = formatters ? Object.keys(formatters).sort((a, b) => a.localeCompare(b)) : [];
     const selectedColumns = object.columns || [];
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
 
