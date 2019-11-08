@@ -6,6 +6,7 @@ import urlSwap from "../../utils/urlSwap";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
+import {dataFold} from "d3plus-viz";
 
 import "./SimpleVisualizationEditor.css";
 
@@ -61,14 +62,18 @@ class SimpleVisualizationEditor extends Component {
   }
 
   extractPayload(resp) {
-    if (resp.data.data) {
-      return resp.data.data;
+    const data = resp.data;
+    if (data instanceof Array) {
+      return data;
     }
-    else if (resp.data) {
-      return resp.data;
+    if (data && data.data && data.headers) {
+      return dataFold(data);
+    }
+    else if (data && data.data && data.data instanceof Array) {
+      return data.data;
     }
     else {
-      return resp;
+      return [];
     }
   }
 
