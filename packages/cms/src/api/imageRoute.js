@@ -52,7 +52,8 @@ module.exports = function(app) {
     const locale = req.query.locale || envLoc;
     const jsonError = () => res.json({error: "Not Found"});
     const imageError = () => res.sendFile(`${process.cwd()}/static/images/transparent.png`);
-    const meta = await db.profile_meta.findOne({where: {slug}}).catch(catcher);
+    const reqObj = req.query.dimension ? {where: {dimension: req.query.dimension}} : {where: {slug}};
+    const meta = await db.profile_meta.findOne(reqObj).catch(catcher);
     if (!meta) return type === "json" ? jsonError() : imageError();  
     const {dimension} = meta;
     let member = await db.search.findOne({
