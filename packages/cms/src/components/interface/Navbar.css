@@ -20,9 +20,12 @@
   min-height: var(--cms-nav-height);
   width: 100%;
   /* layout */
-  padding-right: var(--gutter-sm);
   display: flex;
   flex-wrap: wrap;
+
+  @mixin min-sm {
+    padding-right: var(--gutter-sm);
+  }
 }
 
 /* reset buttons */
@@ -35,15 +38,23 @@
 /* title */
 .cms-navbar-title {
   display: flex;
-  padding: 0 var(--gutter-md);
+  padding: 0.75em var(--gutter-xs);
 
   & [class*="icon"] {
     color: var(--gray);
   }
 
-  &.with-node {
-    background-color: var(--white);
-    @mixin dark-mode { background-color: var(--dark-3); }
+  @mixin min-sm {
+    padding: 0 var(--gutter-md);
+
+    &.with-node {
+      background-color: var(--white);
+      @mixin dark-mode { background-color: var(--dark-3); }
+    }
+  }
+
+  @mixin max-sm {
+    flex: 1 0 auto;
   }
 }
 /* button (profiles/story) */
@@ -82,11 +93,61 @@
   margin: auto 0;
 }
 
+.cms-navbar-list-toggle-button {
+  margin: auto var(--gutter-sm);
+}
+
 /* main nav "links" (they're actually buttons) */
 .cms-navbar-list {
   @mixin list-reset;
-  margin-left: auto;
-  margin-right: var(--gutter-xs);
+
+  /* move below title & settings button on small screens */
+  @mixin max-sm {
+    width: 100%;
+    display: flex;
+    order: 1;
+
+    & > * {
+      flex: 1 0 33.333%;
+    }
+
+    & .cms-dropdown-button,
+    & .cms-navbar-item,
+    & .cms-navbar-link {
+      width: 100%;
+      text-align: center;
+    }
+
+    & .cms-dropdown-list.is-open {
+      width: 100%;
+    }
+
+    /* transition in only */
+    &.is-open {
+      background-color: var(--white);
+      transition:
+        background-color 0.2s ease-out,
+        opacity 0.2s ease-out,
+        transform 0.2s ease-out;
+
+      @mixin dark-mode {
+        background-color: var(--dark-3);
+      }
+    }
+
+    &.is-closed {
+      position: absolute;
+      transform: translateY(20%);
+      opacity: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+  }
+
+  @mixin min-sm {
+    margin-left: auto;
+    margin-right: var(--gutter-xs);
+  }
 }
 .cms-navbar-item {
   display: inline-block;
@@ -98,7 +159,7 @@
   @mixin button-reset;
   cursor: pointer; /* it's not a link, but it acts like one */
   /* sizing */
-  @mixin font-sm;
+  @mixin font-xs;
   line-height: var(--cms-nav-height);
   padding: 0 var(--gutter-md);
   top: -1px;
@@ -125,6 +186,10 @@
   &.is-active {
     background: none;
     box-shadow: none;
+  }
+
+  @mixin max-sm {
+    margin-right: var(--gutter-sm);
   }
 }
 

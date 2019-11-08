@@ -16,7 +16,7 @@
 /* tweak display font for cms-dropdown titles & subtitles */
 .cms-dropdown-button,
 .cms-dropdown-subtitle {
-  @mixin font-sm;
+  @mixin font-xs;
   font-weight: var(--label-font-weight);
 }
 
@@ -27,11 +27,6 @@
   width: 100%;
   text-align: left;
   line-height: var(--cms-nav-height);
-
-  /* adjust theming for small screens */
-  @mixin max-sm {
-    border-bottom: 1px solid var(--black);
-  }
 
   /* align text and icon */
   & > * {
@@ -76,7 +71,10 @@
 /* cms-dropdown list */
 .cms-dropdown {
   display: inline-block;
-  position: relative;
+
+  @mixin max-sm {
+    &[class] { position: static; }
+  }
 
   /* prevent the rightmost menu item from getting cropped off the page */
   @mixin max-md {
@@ -95,14 +93,10 @@
     width: max-content;
     min-width: 100%;
     padding-bottom: var(--gutter-xs);
-
-    /* position below nav bar on non-small screens */
-    @mixin min-sm {
-      /* positioning */
-      position: absolute;
-      top: var(--cms-nav-height);
-      margin-top: -1px; /* never not fudging the baseline */
-    }
+    /* position below nav bar */
+    position: absolute;
+    top: var(--cms-nav-height);
+    margin-top: -1px; /* never not fudging the baseline */
 
     /* hidden state */
     &.is-closed {
@@ -169,7 +163,7 @@ button.cms-dropdown-link {
 /* link theming */
 .cms-dropdown-link {
   @mixin cms-nav-link-theme;
-  @mixin font-sm;
+  @mixin font-xs;
   padding-top: 0.625em;
   padding-bottom: 0.625em;
 
@@ -182,6 +176,7 @@ button.cms-dropdown-link {
   /* icon right */
   & .cms-dropdown-link-icon {
     margin-left: 0.5em;
+    width: 0.875em;
     transition: transform 0.15s ease-out;
   }
 

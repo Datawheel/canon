@@ -6,11 +6,14 @@
   @mixin horizontal-overflow-container;
   width: 100%;
   display: flex;
-  padding-left: calc(var(--gutter-sm) + var(--gutter-xs));
   padding-right: calc(var(--gutter-sm) + var(--gutter-xs));
   /* theming */
   border-top: 1px solid var(--light-2);
   border-bottom: 1px solid var(--light-2);
+
+  @mixin min-sm {
+    padding-left: calc(var(--gutter-sm) + var(--gutter-xs));
+  }
 
   @mixin dark-mode {
     background-color: var(--dark-3);

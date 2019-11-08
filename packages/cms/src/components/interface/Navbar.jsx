@@ -20,6 +20,7 @@ class Navbar extends Component {
     super(props);
     this.state = {
       settingsOpen: false,
+      navOpen: false,
       currEntity: null
     };
   }
@@ -37,6 +38,9 @@ class Navbar extends Component {
   }
   toggleSettings() {
     this.setState({settingsOpen: !this.state.settingsOpen});
+  }
+  toggleNav() {
+    this.setState({navOpen: !this.state.navOpen});
   }
 
   // manage outline visibility
@@ -83,7 +87,7 @@ class Navbar extends Component {
   render() {
     const {auth, currentTab, onTabChange, profiles, stories} = this.props;
     const {currentNode, currentPid, locales, localeDefault, localeSecondary} = this.props.status;
-    const {settingsOpen, outlineOpen} = this.state;
+    const {outlineOpen, navOpen, settingsOpen} = this.state;
 
     let currEntity, currTree;
     if (currentTab === "metadata") currEntity = "metadata"; // done
@@ -122,7 +126,7 @@ class Navbar extends Component {
     if (!profileNavItems.find(p => p.title === "Create new profile")) {
       profileNavItems.push({
         title: "Create new profile",
-        icon: "add",
+        icon: "plus",
         onClick: () => this.createProfile()
       });
     }
@@ -184,8 +188,18 @@ class Navbar extends Component {
             }
           </div>
 
+          {/* button for toggling visibility of the list of links on small screens */}
+          <Button
+            className="cms-navbar-list-toggle-button u-hide-above-sm"
+            onClick={() => this.toggleNav()}
+            namespace="cms"
+            icon={navOpen ? "cross" : "menu"}
+            fontSize="xs"
+          >
+            menu
+          </Button>
           {/* list of links */}
-          <ul className="cms-navbar-list">
+          <ul className={`cms-navbar-list ${navOpen ? "is-open" : "is-closed"}`}>
             {navLinks.map((navLink, i) =>
               navLink.dropdown && Array.isArray(navLink.items) && navLink.items.length
                 // render a dropdown
@@ -197,7 +211,7 @@ class Navbar extends Component {
                 // render a single link
                 : <li className="cms-navbar-item" key={navLink.title}>
                   <button
-                    className={`cms-navbar-link${navLink.title === currentTab ? " is-selected" : ""}`}
+                    className={`cms-navbar-link${navLink.title.toLowerCase() === currentTab ? " is-selected" : ""}`}
                     onClick={() => onTabChange(navLink.title.toLowerCase())}
                     onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? this.closeSettings() : null}
                   >
