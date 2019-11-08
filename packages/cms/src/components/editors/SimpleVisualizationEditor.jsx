@@ -252,6 +252,13 @@ class SimpleVisualizationEditor extends Component {
       data: object.data,
       type: object.type
     };
+ 
+    // Copy over any relevant keys from the previous config
+    thisViz.methods.forEach(method => {
+      if (object[method.key]) {
+        newObject[method.key] = object[method.key];
+      }
+    });
 
     if (data) {
 
@@ -266,13 +273,15 @@ class SimpleVisualizationEditor extends Component {
             }
             else {
               thisViz.methods.forEach(method => {
-                if (method.format === "Input") {
-                  newObject[method.key] = "";
-                } 
-                else {
-                  const optionList = this.getOptionList.bind(this)(method);
-                  if (optionList && optionList[0]) {
-                    newObject[method.key] = optionList[0].value;
+                if (!newObject[method.key]) {
+                  if (method.format === "Input") {
+                    newObject[method.key] = "";
+                  }
+                  else {
+                    const optionList = this.getOptionList.bind(this)(method);
+                    if (optionList && optionList[0]) {
+                      newObject[method.key] = optionList[0].value;
+                    }
                   }
                 }
               });
