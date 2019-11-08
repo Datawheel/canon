@@ -77,7 +77,7 @@ class SimpleVisualizationEditor extends Component {
     const {object, payload} = this.state;
     const {type} = object;
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
-    const stripID = d => typeof d === "string" ? d.replace("ID ", "").replace(" ID", "") : d;
+    const stripID = d => typeof d === "string" ? d.replace(/(ID\s|\sID)/g, "") : d;
     
     const keys = Object.keys(object)
       // Filter out any keys where the user has manually selected none
