@@ -161,7 +161,7 @@ class VisualizationCard extends Component {
             debug={true}
             initialVariables={variables}
             variables={variables}
-            configOverride={{height, scrollContainer: ".cms-editor-inner"}}
+            configOverride={{height}}
             options={false}
           />
         }

@@ -93,7 +93,7 @@ class SimpleVisualizationEditor extends Component {
   compileCode() {
     const {object, payload} = this.state;
     const {type} = object;
-    const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
+    const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
     const stripID = d => typeof d === "string" ? d.replace(/(ID\s|\sID)/g, "") : d;
     
     const keys = Object.keys(object)
