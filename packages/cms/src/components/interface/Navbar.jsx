@@ -277,7 +277,11 @@ class Navbar extends Component {
             {currTree.map(node =>
               <li className="cms-outline-item" key={node.id}>
                 <a
-                  className={`cms-outline-link${node.id === currentNode.data.id ? " is-selected" : ""}`}
+                  className={`cms-outline-link${
+                    currentNode.itemType === "section" && node.id === currentNode.data.id
+                      ? " is-selected" // current node
+                      : ""
+                  }`}
                   href={currentTab === "profiles"
                     ? `/?tab=profiles&profile=${currentPid}&section=${node.id}`
                     : "/?tab=stories" // TODO
