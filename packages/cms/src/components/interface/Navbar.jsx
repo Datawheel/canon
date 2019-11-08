@@ -40,6 +40,8 @@ class Navbar extends Component {
   toggleSettings() {
     this.setState({settingsOpen: !this.state.settingsOpen});
   }
+
+  // manage nav visibility (used on small screens only)
   toggleNav() {
     this.setState({navOpen: !this.state.navOpen});
   }
@@ -49,17 +51,20 @@ class Navbar extends Component {
     this.setState({outlineOpen: !this.state.outlineOpen});
   }
 
+  // find an entity by id in a given tree
   getEntityId(id, tree) {
     const match = tree.find(t => t.id === id);
     return match;
   }
 
+  // create a title by joining dimensions together
   makeTitleFromDimensions(entity) {
     return entity.meta.length
       ? entity.meta.map(m => m.slug).join(" / ")
       : "Unnamed";
   }
 
+  // get the title of the current node, in the correct language
   getNodeTitle(node) {
     const {localeDefault} = this.props.status;
     const localeContent = node.content.find(c => c.locale === localeDefault);
@@ -78,11 +83,11 @@ class Navbar extends Component {
   }
   createSection(id) {
     const {currentTab} = this.props;
-    console.log(`TODO: add new ${currentTab} section after section ${id}`); // swap positioning of
+    console.log(`TODO: add new ${currentTab} section after section ${id}`); // add a new section by clicking button adjacent to section node
   }
   swapSectionsPosition(id) {
     const {currentTab} = this.props;
-    console.log(`TODO: move ${currentTab} section ${id} postion down/right by one`); // swap positioning of
+    console.log(`TODO: move ${currentTab} section ${id} postion down/right by one`); // reorder two adjacent sections by clicking button adjacent to first section node
   }
 
   render() {
@@ -93,6 +98,7 @@ class Navbar extends Component {
     let currEntity, currTree;
     if (currentTab === "metadata") currEntity = "metadata"; // done
 
+    // get entity title and sections
     if (currentTab === "profiles") {
       currEntity = "profile";
       let currProfile;
@@ -104,7 +110,8 @@ class Navbar extends Component {
         currTree = currProfile.sections;
       }
     }
-    // TODO: match profiles for stories
+
+    // TODO: get entity title and sections for stories
     if (currentTab === "stories") {
       currEntity = "story";
     }
@@ -132,6 +139,11 @@ class Navbar extends Component {
       });
     }
 
+    // TODO: generate list of nav items for stories
+    // if (stories.length) {
+    //  stories.map((story, i)) => etc
+    // }
+
     // generate dropdowns for switching entities
     const navLinks = [
       {
@@ -142,7 +154,7 @@ class Navbar extends Component {
       },
       {
         title: "Stories",
-        items: [], // TODO
+        items: storyNavItems, // TODO
         selected: currentTab === "stories" ? true : false,
         dropdown: true
       },
