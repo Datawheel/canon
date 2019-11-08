@@ -57,12 +57,18 @@ class Dropdown extends Component {
     const {isOpen} = this.state;
 
     return (
-      <li className={`${namespace}-dropdown${className ? ` ${className}` : ""}`} onBlur={e => this.onBlur(e)} onClick={() => this.onFocusButton()} key={`${title}-dropdown`}>
+      <li
+        className={`${namespace}-dropdown${className ? ` ${className}` : ""}`}
+        onBlur={e => this.onBlur(e)}
+        onClick={() => this.onFocusButton()}
+        key={`${title}-dropdown`}
+      >
         {/* click the title to toggle the menu */}
         <button
           className={`${namespace}-dropdown-button ${isOpen ? "is-active" : "is-inactive"}${selected ? " is-selected" : ""}`}
           onClick={() => this.setState({isOpen: !isOpen})}
           ref={this.toggleButton}
+          key={`${title}-dropdown-button`}
         >
           <span className="u-visually-hidden">{isOpen ? "hide" : "show"} </span>
           <span className={`${namespace}-dropdown-button-text`}>{title} </span>
