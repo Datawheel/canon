@@ -157,7 +157,6 @@ class Toolbox extends Component {
     return (
       <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}${toolboxDialogOpen ? " has-open-dialog" : ""}`}>
 
-        {console.log(forceOpen)}
         {children} {/* the toggle toolbox button */}
 
         <FilterSearch
