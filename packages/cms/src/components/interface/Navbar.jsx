@@ -49,6 +49,10 @@ class Navbar extends Component {
     console.log("TODO: edit entity settings");
   }
 
+  createProfile() {
+    console.log("create profile clicked");
+  }
+
   getEntityId(id, tree) {
     const match = tree.find(t => t.id === id);
     return match;
@@ -73,10 +77,6 @@ class Navbar extends Component {
     const {auth, currentTab, onTabChange, profiles, stories} = this.props;
     const {currentNode, currentPid, locales, localeDefault, localeSecondary} = this.props.status;
     const {settingsOpen, outlineOpen} = this.state;
-
-    let tree = [];
-    if (currentTab === "profiles") tree = profiles;
-    if (currentTab === "stories") tree = stories;
 
     let currEntity, currTree;
     if (currentTab === "metadata") currEntity = "metadata"; // done
@@ -112,6 +112,13 @@ class Navbar extends Component {
         };
       });
     }
+    if (!profileNavItems.find(p => p.title === "Create new profile")) {
+      profileNavItems.push({
+        title: "Create new profile",
+        icon: "add",
+        onClick: () => this.createProfile()
+      })
+    }
 
     // generate dropdowns for switching entities
     const navLinks = [
@@ -144,7 +151,7 @@ class Navbar extends Component {
         {/* main (top) top navbar */}
         <div className="cms-navbar-inner">
           {/* title */}
-          <div className="cms-navbar-title">
+          <div className={`cms-navbar-title ${currentNode ? "with-node" : "without-node" }`}>
             {currEntity === "metadata" || !currentNode
               // metadata; render as h1 with no controls
               ? <h1 className="cms-navbar-title-heading u-font-lg">

@@ -36,12 +36,14 @@
 .cms-navbar-title {
   display: flex;
   padding: 0 var(--gutter-md);
-  /* theming */
-  background-color: var(--white);
-  @mixin dark-mode { background-color: var(--dark-3); }
 
   & [class*="icon"] {
     color: var(--gray);
+  }
+
+  &.with-node {
+    background-color: var(--white);
+    @mixin dark-mode { background-color: var(--dark-3); }
   }
 }
 /* button (profiles/story) */

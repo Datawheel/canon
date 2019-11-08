@@ -162,6 +162,10 @@
   margin-bottom: var(--gutter-sm);
 }
 
+/* when the link is a button */
+button.cms-dropdown-link {
+  @mixin button-reset;
+}
 /* link theming */
 .cms-dropdown-link {
   @mixin cms-nav-link-theme;
@@ -175,6 +179,12 @@
     padding-bottom: var(--gutter-xs);
   }
 
+  /* icon right */
+  & .cms-dropdown-link-icon {
+    margin-left: 0.5em;
+    transition: transform 0.15s ease-out;
+  }
+
   /* interactions */
   &:hover, &:focus {
     background-color: var(--white);
@@ -184,6 +194,10 @@
     @mixin dark-mode {
       background-color: var(--black);
       color: var(--accent-light);
+    }
+
+    & .cms-dropdown-link-icon {
+      transform: scale(1.125);
     }
   }
 }

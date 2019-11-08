@@ -32,18 +32,21 @@ class Dropdown extends Component {
 
   /** the link markup is the same whether it's rendered in a nested list or not */
   renderLink(item) {
-    const {namespace, onLinkClick} = this.props;
-    return <a
-      href={item.url || null}
+    const {namespace} = this.props;
+    let El = "a";
+    if (item.onClick) El = "button";
+
+    return <El
       className={`${namespace}-dropdown-link${item.selected ? " is-selected" : ""}`}
+      href={item.url}
+      onClick={item.onClick}
       onFocus={() => this.setState({isOpen: true})}
-      onClick={onLinkClick ? item => onLinkClick(item) : null}
     >
-      {item.icon &&
-        <img className={`${namespace}-dropdown-link-icon`} src={`/images/icons/${item.icon}.png`} alt="" />
-      }
       {item.title}
-    </a>;
+      {item.icon &&
+        <Icon className={`${namespace}-dropdown-link-icon`} icon={item.icon} />
+      }
+    </El>;
   }
 
   render() {
