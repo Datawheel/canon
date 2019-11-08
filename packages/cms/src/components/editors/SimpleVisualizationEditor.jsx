@@ -198,8 +198,7 @@ class SimpleVisualizationEditor extends Component {
     this.setState({object}, this.compileCode.bind(this));
   }
 
-  getOptionList(method) {
-    const {payload} = this.state;
+  getOptionList(method, payload) {
     const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
     const isID = d => d.match(/(ID\s|\sID)/g, "");
     const allFields = Object.keys(firstObj);
@@ -280,7 +279,7 @@ class SimpleVisualizationEditor extends Component {
                     newObject[method.key] = "";
                   }
                   else {
-                    const optionList = this.getOptionList.bind(this)(method);
+                    const optionList = this.getOptionList.bind(this)(method, payload);
                     if (optionList && optionList[0]) {
                       newObject[method.key] = optionList[0].value;
                     }
@@ -418,7 +417,7 @@ class SimpleVisualizationEditor extends Component {
                     value={object[method.key]}
                     onChange={this.onChange.bind(this, method.key)}
                   >
-                    {this.getOptionList.bind(this)(method).map(option => 
+                    {this.getOptionList.bind(this)(method, payload).map(option => 
                       <option key={option.value} value={option.value}>{option.display}</option>
                     )}
                   </Select>
