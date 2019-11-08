@@ -7,21 +7,21 @@ export default (status = {}, action) => {
       return Object.assign({}, status, action.data);
     // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW": 
-      return Object.assign({}, status, {forceID: action.data.id, forceType: "generator", forceOpen: true});
+      return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "generator", forceOpen: true});
     case "GENERATOR_UPDATE": 
-      return Object.assign({}, status, {forceID: false, forceType: false, forceOpen: false});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
     case "MATERIALIZER_NEW": 
-      return Object.assign({}, status, {forceID: action.data.id, forceType: "materializer", forceOpen: true});
+      return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "materializer", forceOpen: true});
     case "MATERIALIZER_UPDATE": 
-      return Object.assign({}, status, {forceID: false, forceType: false, forceOpen: false});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
     case "SELECTOR_NEW": 
-      return Object.assign({}, status, {forceID: action.data.id, forceType: "selector", forceOpen: true});
+      return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "selector", forceOpen: true});
     case "SELECTOR_UPDATE": 
-      return Object.assign({}, status, {forceID: false, forceType: false, forceOpen: false});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
     case "FORMATTER_NEW": 
-      return Object.assign({}, status, {forceID: action.data.id, forceType: "formatter", forceOpen: true});
+      return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "formatter", forceOpen: true});
     case "FORMATTER_UPDATE": 
-      return Object.assign({}, status, {forceID: false, forceType: false, forceOpen: false});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
     // Updating variables or saving a section or meta means that anything that depends on variables, such as TextCards 
     // Or the tree, needs to know something changed. Instead of running an expensive stringify on variables,
     // Just increment a counter that the various cards can subscribe to.

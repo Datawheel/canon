@@ -116,7 +116,7 @@ class Toolbox extends Component {
     const {children, toolboxVisible} = this.props;
     const {profile} = this.props;
     const formattersAll = this.props.formatters;
-    const {variables, localeDefault, localeSecondary, forceOpen} = this.props.status;
+    const {variables, localeDefault, localeSecondary, forceOpen, toolboxDialogOpen} = this.props.status;
 
     const dataLoaded = profile;
 

@@ -109,12 +109,14 @@ class GeneratorCard extends Component {
     const {type} = this.props;
     const {minData} = this.state;
     this.props.updateEntity(type, minData);
+    this.props.setStatus({toolboxDialogOpen: false});
     this.setState({isOpen: false});
   }
 
   openEditor() {
     const minData = deepClone(this.props.minData);
     const isOpen = true;
+    this.props.setStatus({toolboxDialogOpen: true});
     this.setState({minData, isOpen});
   }
 
@@ -135,7 +137,7 @@ class GeneratorCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
-    this.props.setStatus({forceID: false, forceType: false, forceOpen: false});
+    this.props.setStatus({toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
   }
 
   markAsDirty() {

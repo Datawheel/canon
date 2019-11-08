@@ -52,8 +52,8 @@ class SelectorCard extends Component {
   save() {
     const {minData} = this.state;
     this.props.updateEntity("selector", minData);
+    this.props.setStatus({toolboxDialogOpen: false});
     this.setState({isOpen: false});
-    // update selectors
   }
 
   maybeDelete() {
@@ -73,6 +73,7 @@ class SelectorCard extends Component {
   openEditor() {
     const minData = deepClone(this.props.minData);
     const isOpen = true;
+    this.props.setStatus({toolboxDialogOpen: true});
     this.setState({minData, isOpen});
   }
 
@@ -93,7 +94,7 @@ class SelectorCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
-    this.props.setStatus({forceID: false, forceType: false, forceOpen: false});
+    this.props.setStatus({toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
   }
 
   render() {
