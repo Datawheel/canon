@@ -33,10 +33,11 @@ class SimpleVisualizationEditor extends Component {
       this.setState({object}, this.firstBuild.bind(this));
     }
     // If a simple config has not been provided, then the user has never used one before,
-    // so prepare the interface with the first viz
+    // so prepare the interface with the default/first viz
     else {
+      const defaultViz = vizLookup.find(v => v.default) || vizLookup[0];
       object = {
-        type: vizLookup[0].type
+        type: defaultViz.type
       };
       // If this component is mounting and is NOT provided a simple config, it means the
       // user has just enabled simple mode. This means the parent component must be given

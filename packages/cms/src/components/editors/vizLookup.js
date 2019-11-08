@@ -79,6 +79,7 @@ module.exports = [
   {
     name: "Treemap", 
     type: "Treemap", 
+    default: true,
     methods: [groupBy, sum]
   },
   {
