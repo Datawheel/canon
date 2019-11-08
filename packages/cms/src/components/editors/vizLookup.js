@@ -1,54 +1,35 @@
-// Create a lookup for some commonly used keys
-const commonKeys = ["groupBy", "x", "y", "value", "colorScale", "label", "subtitle", "sum"];
-const commonMethods = {};
-commonKeys.forEach(key => {
-  commonMethods[key] = {
-    key,
-    display: key,
-    format: "Accessor",
-    required: true
-  };
-});
-// Override some of the labels and types
-commonMethods.groupBy.typeof = "id";
-commonMethods.groupBy.display = "Grouping";
-commonMethods.colorScale.display = "Color Scale";
-commonMethods.value.typeof = "number";
-commonMethods.sum.typeof = "number";
-
-// Create a lookup for some optional keys. Nested properties are handled by dots, e.g. yConfig.title
-const optionalKeys = ["xConfig", "yConfig"];
-optionalKeys.forEach(key => {
-  commonMethods[key] = {
-    key: `${key}.title`,
-    display: `${key.charAt(0).toUpperCase()} Axis Label`,
-    format: "Input",
-    required: false
-  };
-});
-
-// Promote certain keys to appear in the tooltip by default
-const tooltipKeys = ["x", "y", "value", "sum"];
-tooltipKeys.forEach(key => {
-  commonMethods[key].tooltip = true;
-});
-const {groupBy, x, y, value, colorScale, label, subtitle, sum, xConfig, yConfig} = commonMethods;
+const {
+  colorScale,
+  columns,
+  groupBy,
+  imageURL,
+  label,
+  size,
+  subtitle,
+  sum,
+  topojson,
+  value,
+  x,
+  xConfigTitle,
+  y,
+  yConfigTitle
+} = require("./vizMethods.js");
 
 module.exports = [
   {
     name: "Area Plot", // the name to be displayed in UI mode
     type: "AreaPlot", // the actual d3plus component (the "type" key)
-    methods: [groupBy, x, y, xConfig, yConfig]
+    methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
     name: "Bar Chart", 
     type: "BarChart", 
-    methods: [groupBy, x, y, xConfig, yConfig]
+    methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
     name: "Bump Chart", 
     type: "BumpChart", 
-    methods: [groupBy, x, y, xConfig, yConfig]
+    methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
     name: "Donut", 
@@ -58,14 +39,7 @@ module.exports = [
   {
     name: "Geo Map", 
     type: "Geomap", 
-    methods: [groupBy, colorScale, 
-      {
-        key: "topojson",
-        display: "topojson",
-        format: "Input",
-        required: true
-      }
-    ]
+    methods: [groupBy, colorScale, topojson]
   },
   {
     name: "Graphic", 
@@ -74,18 +48,13 @@ module.exports = [
       Object.assign({}, label, {required: false}),
       Object.assign({}, value, {required: false}),
       Object.assign({}, subtitle, {required: false}),
-      {
-        key: "imageURL",
-        display: "Image URL",
-        format: "Input",
-        required: true
-      }
+      imageURL
     ]
   },
   {
     name: "Line Plot", 
     type: "LinePlot", 
-    methods: [groupBy, x, y, xConfig, yConfig]
+    methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
     name: "Percentage Bar", 
@@ -100,19 +69,12 @@ module.exports = [
   {
     name: "Scatter/Bubble", 
     type: "Plot", 
-    methods: [x, y, xConfig, yConfig,
-      {
-        key: "size",
-        display: "Size",
-        format: "Accessor",
-        required: false
-      }
-    ]
+    methods: [x, y, xConfigTitle, yConfigTitle, size]
   },
   {
     name: "Stacked Area", 
     type: "StackedArea", 
-    methods: [groupBy, x, y, xConfig, yConfig]
+    methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
     name: "Treemap", 
@@ -122,13 +84,6 @@ module.exports = [
   {
     name: "Table", 
     type: "Table", 
-    methods: [
-      {
-        key: "columns",
-        display: "Columns",
-        format: "Checkbox",
-        required: true
-      }
-    ]
+    methods: [columns]
   }
 ];
