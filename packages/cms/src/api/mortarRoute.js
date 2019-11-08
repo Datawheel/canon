@@ -377,6 +377,8 @@ module.exports = function(app) {
     const profileID = req.query.profile;
 
     let pid = null;
+    // map slugs to dimensions when we query profile_meta below
+    const dimensionMap = {};
     // If the user provided variables, this is a POST request.
     if (req.body.variables) {
       // If the user gave us a section or a profile id, use that to fetch the pid.
@@ -388,7 +390,7 @@ module.exports = function(app) {
         }
         else {
           if (verbose) console.error(`Profile not found for section: ${sectionID}`);
-          return res.json(`Profile not found for section: ${sectionID}`);
+          return res.json({error: `Profile not found for section: ${sectionID}`});
         }
       }
       else if (profileID) {
@@ -402,6 +404,7 @@ module.exports = function(app) {
       // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
       let meta = await db.profile_meta.findAll();
       meta = meta.map(d => d.toJSON());
+      meta.forEach(d => dimensionMap[d.slug] = d.dimension);
       const pids = [...new Set(meta.map(d => d.profile_id))];
       const match = dims.map(d => d.slug).join();
 
@@ -411,8 +414,8 @@ module.exports = function(app) {
         if (str === match) pid = rows[0].profile_id;
       });
       if (!pid) {
-        if (verbose) console.error(`Profile not found for slugs: ${match}`);
-        return res.json(`Profile not found for slugs: ${match}`);
+        if (verbose) console.error(`Profile not found for slug: ${match}`);
+        return res.json({error: `Profile not found for slug: ${match}`});
       }
     }
 
@@ -424,6 +427,15 @@ module.exports = function(app) {
     }
     // If the user has not provided variables, this is a GET request. Run Generators.
     else {
+      // Before we hit the variables endpoint, confirm that all provided ids exist.
+      for (const dim of dims) {
+        const thisDimension = dimensionMap[dim.slug];
+        const searchrow = await db.search.findOne({where: {id: dim.id, dimension: thisDimension}}).catch(catcher);
+        if (!searchrow) {
+          if (verbose) console.error(`Member not found for id: ${dim.id}`);
+          return res.json({error: `Member not found for id: ${dim.id}`});
+        }
+      }
       // Get the variables for this profile by passing the profile id and the content ids
       let url = `${origin}/api/variables/${pid}${localeString}`;
       dims.forEach((dim, i) => {
@@ -513,6 +525,10 @@ module.exports = function(app) {
     // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
     let story = await db.story.findOne(reqObj).catch(catcher);
+    if (!story) {
+      if (verbose) console.error(`Story not found for id: ${id}`);
+      return res.json({error: `Story not found for id: ${id}`});
+    }
     story = sortStory(extractLocaleContent(story, locale, "story"));
     // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
     // Do a naive varswap (with no formatters and no variables) just to access the transpile for vizes.

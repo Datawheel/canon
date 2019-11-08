@@ -64,7 +64,7 @@ class Hero extends Component {
     const {contents, loading, sources, profile} = this.props;
     const {images, creditsVisible} = this.state;
 
-    const title = contents.title || profile.title;
+    const title = (contents || {}).title || profile.title;
     let paragraphs, sourceContent, statContent, subtitleContent;
 
     if (contents) {

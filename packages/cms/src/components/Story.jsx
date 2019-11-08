@@ -29,6 +29,10 @@ class Story extends Component {
 
   render() {
     const {story} = this.props;
+
+    if (!story) return null;
+    if (story.error) return <div>{story.error}</div>;
+
     const {storysections} = story;
     const titleRaw = stripHTML(this.props.story.title);
 

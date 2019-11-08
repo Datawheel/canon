@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from "react";
+import React, {Component} from "react";
 import {hot} from "react-hot-loader/root";
 
 import Stat from "../sections/components/Stat";
@@ -17,8 +17,13 @@ class StatGroup extends Component {
 
     if (!stats.length) return console.log("`stats` array is empty in StatGroup.jsx");
 
-    return (
-      <div className="cp-stat-group">
+    // used by stat groups to assign flex-grow & min-width
+    let colSpan = "2col";
+    if (stats.length === 3 || stats.length >= 5) colSpan = "3col";
+
+    return stats.length > 1
+      // grouped stats
+      ? <div className={`cp-stat-group cp-${colSpan}-stat-group`}>
         {stats.length > 1 &&
           <Parse className="cp-stat-group-title label u-margin-bottom-off">
             {stats[0].title}
@@ -28,7 +33,7 @@ class StatGroup extends Component {
           {stats.map((stat, i) =>
             <Stat
               className={className}
-              label={stats.length === 1 ? sanitize(stat.title) : null}
+              label={null}
               value={sanitize(stat.value)}
               subtitle={sanitize(stat.subtitle)}
               key={i}
@@ -36,7 +41,14 @@ class StatGroup extends Component {
           )}
         </ul>
       </div>
-    );
+      // single stat
+      : <Stat El="p"
+        className={className}
+        label={sanitize(stats[0].title)}
+        value={sanitize(stats[0].value)}
+        subtitle={sanitize(stats[0].subtitle)}
+      />
+    ;
   }
 }
 

@@ -47,9 +47,9 @@ class Tabs extends Component {
     const selectors = filters || [];
     const {panelIndex} = this.state;
 
-    const visualization = visualizations[panelIndex];
+    const visualization = visualizations.length ? visualizations[panelIndex] : false;
 
-    const selectorConfig = stripKeyQuotes(visualization.logic, "selectors").match(/selectors\:[\s]*(\[[^\]]+\])/);
+    const selectorConfig = visualization ? stripKeyQuotes(visualization.logic, "selectors").match(/selectors\:[\s]*(\[[^\]]+\])/) : false;
     let tabSelectors;
 
     // custom selector list defined
@@ -59,14 +59,15 @@ class Tabs extends Component {
         .filter(selector => selectorArray.includes(selector.props.name))
         .sort((a, b) => selectorArray.indexOf(a.props.name) - selectorArray.indexOf(b.props.name));
     }
-    else {
+    else if (visualizations) {
       const selectorsPerViz = Math.ceil(selectors.length / visualizations.length);
       tabSelectors = selectors.slice(selectorsPerViz * panelIndex, selectorsPerViz * (panelIndex + 1));
     }
+    else {
+      tabSelectors = selectors.slice();
+    }
 
-    const tabDescriptions = paragraphs.length === visualizations.length ? [paragraphs[panelIndex]] : paragraphs;
-
-    const tabs = visualizations.map((d, i) => {
+    const tabs = visualizations.length ? visualizations.map((d, i) => {
       let title;
       // check viz config for button labels via "tab" or "type"
       for (let x = 0; x < titleKeys.length; x++) {
@@ -74,7 +75,9 @@ class Tabs extends Component {
         if (title) return upperCaseFirst(toSpacedCase(title)); // convert LinePlot to Line plot
       }
       return title || `Visualization ${i + 1}`;
-    });
+    }) : paragraphs.map((d, i) => `Tab ${i + 1}`);
+
+    const tabDescriptions = paragraphs.length === tabs.length ? [paragraphs[panelIndex]] : paragraphs;
 
     return <div className={`cp-section-inner cp-${slug}-section-inner cp-tabs-section-inner`} ref={comp => this.section = comp}>
       {/* sidebar */}
@@ -83,7 +86,7 @@ class Tabs extends Component {
 
         {tabs.length > 1 &&
           <Fragment>
-            <p className="u-visually-hidden">Select visualization: </p>
+            <p className="u-visually-hidden">Select tab: </p>
             <ButtonGroup>
               {tabs.map((title, key) =>
                 <Button
@@ -118,11 +121,11 @@ class Tabs extends Component {
         {resetButton}
       </div>
 
-      <div className={`cp-tabs-section-figure${
+      { visualization && <div className={`cp-tabs-section-figure${
         visualizations.filter(viz => viz.logic_simple && viz.logic_simple.type === "Graphic").length ? " cp-graphic-viz-grid" : ""
       }`}>
         <Viz section={this} config={visualization} key={panelIndex} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title}  />
-      </div>
+      </div> }
     </div>;
   }
 }

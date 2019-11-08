@@ -7,6 +7,7 @@ import urlSwap from "../../utils/urlSwap";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
+import {dataFold} from "d3plus-viz";
 
 import "./SimpleVisualizationEditor.css";
 
@@ -19,7 +20,7 @@ class SimpleVisualizationEditor extends Component {
     this.state = {
       object: {},
       rebuildAlertOpen: false,
-      payload: {}
+      payload: []
     };
   }
 
@@ -46,6 +47,22 @@ class SimpleVisualizationEditor extends Component {
     }
   }
 
+  extractPayload(resp) {
+    const data = resp.data;
+    if (data instanceof Array) {
+      return data;
+    }
+    if (data && data.data && data.headers) {
+      return dataFold(data);
+    }
+    else if (data && data.data && data.data instanceof Array) {
+      return data.data;
+    }
+    else {
+      return [];
+    }
+  }
+
   firstBuild() {
     const {object} = this.state;
     const {previews, variables, env} = this.props;
@@ -65,7 +82,7 @@ class SimpleVisualizationEditor extends Component {
       }
       const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url).then(resp => {
-        const payload = resp.data;
+        const payload = this.extractPayload(resp);
         this.setState({payload}, this.compileCode.bind(this));
       }).catch(e => {
         console.log("API error", e);
@@ -160,7 +177,7 @@ class SimpleVisualizationEditor extends Component {
 
   maybeRebuild() {
     const {payload} = this.state;
-    if (payload.data) {
+    if (payload.length > 0) {
       this.setState({rebuildAlertOpen: true});
     }
     else {
@@ -199,7 +216,7 @@ class SimpleVisualizationEditor extends Component {
   }
 
   getOptionList(method, payload) {
-    const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
+    const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
     const isID = d => d.match(/(ID\s|\sID)/g, "");
     const allFields = Object.keys(firstObj);
     const plainFields = allFields.filter(d => !isID(d));
@@ -266,8 +283,8 @@ class SimpleVisualizationEditor extends Component {
       const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url)
         .then(resp => {
-          const payload = resp.data;
-          const firstObj = payload.data[0];
+          const payload = this.extractPayload(resp);
+          const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
           if (thisViz && firstObj) {
             if (newObject.type === "Table") {
               newObject.columns = Object.keys(firstObj);
@@ -310,10 +327,10 @@ class SimpleVisualizationEditor extends Component {
     const formatters = this.context.formatters[locale];
     const formatterList = formatters ? Object.keys(formatters).sort((a, b) => a.localeCompare(b)) : [];
     const selectedColumns = object.columns || [];
-    const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : {};
+    const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
 
     const thisViz = vizLookup.find(v => v.type === object.type);
-    const allFields = Object.keys(firstObj);
+    const allFields = Object.keys(firstObj);    
 
     let buttonProps = {
       children: "Build",
@@ -322,7 +339,7 @@ class SimpleVisualizationEditor extends Component {
     };
     if (object.data) {
       buttonProps = {
-        children: payload.data ? "Rebuild" : "Build",
+        children: payload.length > 0 ? "Rebuild" : "Build",
         namespace: "cms",
         onClick: this.maybeRebuild.bind(this)
       };
@@ -378,7 +395,7 @@ class SimpleVisualizationEditor extends Component {
         />
       </div>
 
-      {payload.data &&
+      {payload.length > 0 &&
         <div className="viz-select-group">
           {object.type && thisViz && thisViz.methods.map(method =>
             // render prop as text input
