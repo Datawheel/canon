@@ -134,6 +134,11 @@
       transform: translateX(0.125rem);
     }
   }
+
+  /* when a dialog is opened from inside the toolbox, the toolbox needs to be in front of the nav */
+  &.has-open-dialog {
+    z-index: 20;
+  }
 }
 
 /* animations */

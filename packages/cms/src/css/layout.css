@@ -110,7 +110,6 @@
     top: 0;
     right: 0;
     left: auto;
-    z-index: 3; /* needed to keep modals in front */
     /* handle overflow */
     @mixin vertical-overflow-container;
   }

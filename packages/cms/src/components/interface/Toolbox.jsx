@@ -31,7 +31,7 @@ class Toolbox extends Component {
     const newIDs = this.props.status.previews ? this.props.status.previews.map(p => p.id).join() : this.props.status.previews;
     const changedSinglePreview = oldSlugs === newSlugs && oldIDs !== newIDs;
     const changedEntireProfile = oldSlugs !== newSlugs;
-    
+
     const localeChanged = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
     const bothLoaded = prevProps.profile && this.props.profile;
     const generatorDeleted = bothLoaded && prevProps.profile.generators.length - 1 === this.props.profile.generators.length;
@@ -152,11 +152,12 @@ class Toolbox extends Component {
     const showMaterializers = profile.materializers.length === 0 || materializers.length > 0;
     const showFormatters = formattersAll.length === 0 || formatters.length > 0;
     const showSelectors = profile.selectors.length === 0 || selectors.length > 0;
-    
+
 
     return (
-      <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}`}>
+      <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}${toolboxDialogOpen ? " has-open-dialog" : ""}`}>
 
+        {console.log(forceOpen)}
         {children} {/* the toggle toolbox button */}
 
         <FilterSearch
