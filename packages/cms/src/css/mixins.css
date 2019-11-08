@@ -369,6 +369,19 @@ CMS nav links & dropdowns
     @mixin dark-mode { color: var(--white); }
   }
 }
+@define-mixin cms-nav-toggle-transition {
+  transition:
+    background-color 0.2s ease-out,
+    opacity 0.2s ease-out,
+    transform 0.2s ease-out;
+}
+@define-mixin cms-nav-closed-state {
+  position: absolute;
+  opacity: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* add a transform as well */
+}
 
 /* -----------------------------------
 VarTable & VarList

@@ -19,8 +19,9 @@ class Navbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      settingsOpen: false,
       navOpen: false,
+      outlineOpen: true,
+      settingsOpen: false,
       currEntity: null
     };
   }
@@ -162,7 +163,7 @@ class Navbar extends Component {
         {/* main (top) top navbar */}
         <div className="cms-navbar-inner">
           {/* title */}
-          <div className={`cms-navbar-title ${currentNode ? "with-node" : "without-node" }`}>
+          <div className={`cms-navbar-title ${currentNode ? "with-node" : "without-node" }${!outlineOpen ? " outline-open" : ""}`}>
             {currEntity === "metadata" || !currentNode
               // metadata; render as h1 with no controls
               ? <h1 className="cms-navbar-title-heading u-font-lg">
@@ -293,8 +294,9 @@ class Navbar extends Component {
           }
         </div>
 
+        {/* outline */}
         {currTree &&
-          <ul className="cms-outline">
+          <ul className={`cms-outline ${outlineOpen ? "is-open" : "is-closed"}`}>
             {currTree.map(node =>
               <li className="cms-outline-item" key={node.id}>
                 <a

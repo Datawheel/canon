@@ -19,6 +19,14 @@
     background-color: var(--dark-3);
     border-color: var(--black);
   }
+
+  &.is-open {
+    @mixin cms-nav-toggle-transition;
+  }
+  &.is-closed {
+    @mixin cms-nav-closed-state;
+    transform: translateY(-1rem);
+  }
 }
 
 .cms-outline-item {

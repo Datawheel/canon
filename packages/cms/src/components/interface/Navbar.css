@@ -39,6 +39,7 @@
 .cms-navbar-title {
   display: flex;
   padding: 0.75em var(--gutter-xs);
+  transition: background-color 0.2s ease-out;
 
   & [class*="icon"] {
     color: var(--gray);
@@ -55,6 +56,11 @@
 
   @mixin max-sm {
     flex: 1 0 auto;
+  }
+
+  /* remove the background when the outline is toggled open */
+  &.outline-open {
+    background: none !important;
   }
 }
 /* button (profiles/story) */
@@ -124,11 +130,8 @@
 
     /* transition in only */
     &.is-open {
+      @mixin cms-nav-toggle-transition;
       background-color: var(--white);
-      transition:
-        background-color 0.2s ease-out,
-        opacity 0.2s ease-out,
-        transform 0.2s ease-out;
 
       @mixin dark-mode {
         background-color: var(--dark-3);
@@ -136,11 +139,8 @@
     }
 
     &.is-closed {
-      position: absolute;
+      @mixin cms-nav-closed-state;
       transform: translateY(20%);
-      opacity: 0;
-      z-index: -1;
-      pointer-events: none;
     }
   }
 
