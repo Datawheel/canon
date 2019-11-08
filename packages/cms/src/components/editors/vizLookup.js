@@ -1,6 +1,3 @@
-// Placeholder for any future universal keys
-const sharedMethods = [];
-
 // Create a lookup for some commonly used keys
 const commonKeys = ["groupBy", "x", "y", "value", "colorScale", "label", "subtitle", "sum"];
 const commonMethods = {};
@@ -41,27 +38,27 @@ module.exports = [
   {
     name: "Area Plot", // the name to be displayed in UI mode
     type: "AreaPlot", // the actual d3plus component (the "type" key)
-    methods: [groupBy, x, y, xConfig, yConfig, ...sharedMethods]
+    methods: [groupBy, x, y, xConfig, yConfig]
   },
   {
     name: "Bar Chart", 
     type: "BarChart", 
-    methods: [groupBy, x, y, xConfig, yConfig, ...sharedMethods]
+    methods: [groupBy, x, y, xConfig, yConfig]
   },
   {
     name: "Bump Chart", 
     type: "BumpChart", 
-    methods: [groupBy, x, y, xConfig, yConfig, ...sharedMethods]
+    methods: [groupBy, x, y, xConfig, yConfig]
   },
   {
     name: "Donut", 
     type: "Donut", 
-    methods: [groupBy, value, ...sharedMethods]
+    methods: [groupBy, value]
   },
   {
     name: "Geo Map", 
     type: "Geomap", 
-    methods: [groupBy, colorScale, ...sharedMethods, 
+    methods: [groupBy, colorScale, 
       {
         key: "topojson",
         display: "topojson",
@@ -77,7 +74,6 @@ module.exports = [
       Object.assign({}, label, {required: false}),
       Object.assign({}, value, {required: false}),
       Object.assign({}, subtitle, {required: false}),
-      ...sharedMethods, 
       {
         key: "imageURL",
         display: "Image URL",
@@ -89,22 +85,22 @@ module.exports = [
   {
     name: "Line Plot", 
     type: "LinePlot", 
-    methods: [groupBy, x, y, xConfig, yConfig, ...sharedMethods]
+    methods: [groupBy, x, y, xConfig, yConfig]
   },
   {
     name: "Percentage Bar", 
     type: "PercentageBar", 
-    methods: [groupBy, value, ...sharedMethods]
+    methods: [groupBy, value]
   },
   {
     name: "Pie Chart", 
     type: "Pie", 
-    methods: [groupBy, value, ...sharedMethods]
+    methods: [groupBy, value]
   },
   {
     name: "Scatter/Bubble", 
     type: "Plot", 
-    methods: [x, y, xConfig, yConfig, ...sharedMethods,
+    methods: [x, y, xConfig, yConfig,
       {
         key: "size",
         display: "Size",
@@ -116,17 +112,17 @@ module.exports = [
   {
     name: "Stacked Area", 
     type: "StackedArea", 
-    methods: [groupBy, x, y, xConfig, yConfig, ...sharedMethods]
+    methods: [groupBy, x, y, xConfig, yConfig]
   },
   {
     name: "Treemap", 
     type: "Treemap", 
-    methods: [groupBy, sum, ...sharedMethods]
+    methods: [groupBy, sum]
   },
   {
     name: "Table", 
     type: "Table", 
-    methods: [...sharedMethods, 
+    methods: [
       {
         key: "columns",
         display: "Columns",
