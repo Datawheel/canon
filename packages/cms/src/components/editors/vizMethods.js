@@ -52,7 +52,7 @@ module.exports = {
   },
   topojson: {
     key: "topojson",
-    display: "topojson",
+    display: "TopoJSON URL",
     format: "Input",
     required: true
   },
@@ -66,27 +66,27 @@ module.exports = {
   },
   x: {
     key: "x",
-    display: "x",
+    display: "X-Axis",
     format: "Accessor",
     required: true,
     tooltip: true
   },
   xConfigTitle: {
     key: "xConfig.title",
-    display: "x Axis Label",
+    display: "X-Axis Label",
     format: "Input",
     required: false
   },
   y: {
     key: "y",
-    display: "y",
+    display: "Y-Axis",
     format: "Accessor",
     required: true,
     tooltip: true
   },
   yConfigTitle: {
     key: "yConfig.title",
-    display: "y Axis Label",
+    display: "Y-Axis Label",
     format: "Input",
     required: false
   }
