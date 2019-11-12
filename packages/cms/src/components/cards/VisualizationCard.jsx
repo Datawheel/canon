@@ -161,7 +161,7 @@ class VisualizationCard extends Component {
             debug={true}
             initialVariables={variables}
             variables={variables}
-            configOverride={{height, scrollContainer: "#item-editor"}}
+            configOverride={{height}}
             options={false}
           />
         }
@@ -181,6 +181,7 @@ class VisualizationCard extends Component {
               data={minData}
               variables={variables}
               type={type}
+              locale={locale}
             />
           </div>
           <FooterButtons
