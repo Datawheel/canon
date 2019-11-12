@@ -216,8 +216,6 @@ class SelectorEditor extends Component {
 
     if (!data || !variables) return null;
 
-    console.log(data);
-
     const varOptions = [<option key="always" value="always">Always</option>]
       .concat(Object.keys(variables)
         .filter(key => !key.startsWith("_"))
