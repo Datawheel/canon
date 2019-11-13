@@ -37,16 +37,8 @@ class Navbar extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {currentPid, pathObj} = this.props.status;
-    const oldMeta = JSON.stringify(prevProps.profiles.map(p => JSON.stringify(p.meta)));
-    const newMeta = JSON.stringify(this.props.profiles.map(p => JSON.stringify(p.meta)));
-    const changedMeta = oldMeta !== newMeta;
-
-    if (currentPid && changedMeta) {
-      console.log("Meta Changed: Resetting Previews");
-      this.props.resetPreviews();
-    }
-
+    const {pathObj} = this.props.status;
+    
     const changedVariablesOrTitle = prevProps.status.diffCounter !== this.props.status.diffCounter;
     const changedQuery = JSON.stringify(prevProps.status.query) !== JSON.stringify(this.props.status.query);
     if (changedVariablesOrTitle || changedQuery) {
@@ -145,9 +137,9 @@ class Navbar extends Component {
     return str;
   }
 
-  // TODO: add functionality
   toggleEntitySettings() {
-    console.log("TODO: edit entity settings"); // edit profile title & metadata when clicking the profile gear button
+    const {currentPid} = this.props.status;
+    this.handleClick.bind(this)({profile: currentPid, tab: "profiles"});
   }
   createProfile() {
     console.log("TODO: create profile"); // create a new profile when clicking the button in the profile dropdown

@@ -11,7 +11,7 @@ import Header from "../components/interface/Header";
 import Toolbox from "../components/interface/Toolbox";
 import Status from "../components/interface/Status";
 
-import {setStatus} from "../actions/status";
+import {resetPreviews} from "../actions/profiles";
 
 import "./ProfileBuilder.css";
 
@@ -22,6 +22,18 @@ class ProfileBuilder extends Component {
     this.state = {
       toolboxVisible: true
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const {currentPid} = this.props.status;
+    const oldMeta = JSON.stringify(prevProps.profiles.map(p => JSON.stringify(p.meta)));
+    const newMeta = JSON.stringify(this.props.profiles.map(p => JSON.stringify(p.meta)));
+    const changedMeta = oldMeta !== newMeta;
+
+    if (currentPid && changedMeta) {
+      console.log("Meta Changed: Resetting Previews");
+      this.props.resetPreviews();
+    }
   }
 
   /**
@@ -136,7 +148,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setStatus: status => dispatch(setStatus(status))
+  resetPreviews: () => dispatch(resetPreviews())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(ProfileBuilder));
