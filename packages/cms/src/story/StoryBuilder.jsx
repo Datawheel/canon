@@ -50,39 +50,23 @@ class StoryBuilder extends Component {
   render() {
 
     const {nodeToDelete} = this.state;
-    const {currentStoryNode} = this.props.status;
+    const {currentStoryPid, pathObj, storiesLoaded} = this.props.status;
+
+    const type = pathObj.storysection ? "storysection" : "story";
+    const editorTypes = {story: StoryEditor, storysection: StorySectionEditor};
+    const Editor = editorTypes[type];
+    const id = pathObj.storysection ? Number(pathObj.storysection) : pathObj.story ? Number(pathObj.story) : null;
+
+    if (!storiesLoaded || !currentStoryPid) return null;
+
 
     return (
       <React.Fragment>
         <div className="cms-panel story-panel" id="profile-builder">
-          <div className="cms-sidebar" id="tree">
-            {/* new entity */}
-            <div className="cms-button-container">
-              <Button
-                onClick={this.createStory.bind(this)}
-                className="cms-add-story-button"
-                fontSize="xxs"
-                namespace="cms"
-                icon="plus"
-                iconPosition="right"
-                fill
-              >
-                add story
-              </Button>
-            </div>
-          </div>
           <div className="cms-editor" id="item-editor">
-            { currentStoryNode
-              ? currentStoryNode.itemType === "story"
-                ? <StoryEditor
-                  id={currentStoryNode.data.id}
-                />
-                : currentStoryNode.itemType === "storysection"
-                  ? <StorySectionEditor
-                    id={currentStoryNode.data.id}
-                  />
-                  : null
-              : <NonIdealState title="No Story Selected" description="Please select a Story from the menu on the left." visual="path-search" />
+            { Editor
+              ? <Editor id={id} />
+              : <NonIdealState title="No Story Selected" description="Please select a Story from the menu above." visual="path-search" />
             }
           </div>
         </div>

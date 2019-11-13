@@ -40,6 +40,8 @@ export default (status = {}, action) => {
       return Object.assign({}, status, action.data);
     case "PROFILES_GET":
       return Object.assign({}, status, {profilesLoaded: true});
+    case "STORIES_GET":
+      return Object.assign({}, status, {storiesLoaded: true});
     // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW": 
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "generator", forceOpen: true});

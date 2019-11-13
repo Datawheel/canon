@@ -15,6 +15,7 @@ import {getProfiles, newProfile, swapEntity, newEntity, deleteEntity, deleteProf
 import {setStatus} from "../../actions/status";
 import {getCubeData} from "../../actions/cubeData";
 import {getFormatters} from "../../actions/formatters";
+import {getStories, newStory, deleteStory} from "../../actions/stories";
 
 import "./Navbar.css";
 import "./Outline.css";
@@ -49,6 +50,11 @@ class Navbar extends Component {
 
     if (!prevProps.status.profilesLoaded && this.props.status.profilesLoaded && pathObj.profile) {
       console.log("Profiles loaded, attempting to click", pathObj);
+      this.handleClick.bind(this)(pathObj);
+    }
+
+    if (!prevProps.status.storiesLoaded && this.props.status.storiesLoaded && pathObj.story) {
+      console.log("Stories loaded, attempting to click", pathObj);
       this.handleClick.bind(this)(pathObj);
     }
   }
@@ -101,6 +107,16 @@ class Navbar extends Component {
     return title;
   }
 
+  handleSectionClick(node) {
+    const {tab} = this.props.status.pathObj;
+    if (tab === "profiles") {
+      this.handleClick.bind(this)({profile: node.profile_id, section: node.id, tab: "profiles"});
+    }
+    if (tab === "stories") {
+      this.handleClick.bind(this)({story: node.story_id, storysection: node.id, tab: "stories"});
+    }
+  }
+
   handleClick(pathObj) {
     const newPathObj = {...pathObj};
     if (pathObj.tab === "profiles") {
@@ -114,9 +130,6 @@ class Navbar extends Component {
       }
       // If they don't match, update the currentPid and reset the preview
       else {
-        // If previews is a string, we are coming in from the URL permalink. Pass it down to the pathobj.
-        // todo fix permalinks
-        // if (typeof pathObj.previews === "string") newPathObj.previews = pathObj.previews;
         console.log("different pid! setting", pathObj.profile, "via this object: ", newPathObj);
         this.props.setStatus({currentPid: Number(pathObj.profile), pathObj: newPathObj});
         this.props.resetPreviews();
@@ -147,11 +160,20 @@ class Navbar extends Component {
   }
 
   toggleEntitySettings() {
-    const {currentPid} = this.props.status;
-    this.handleClick.bind(this)({profile: currentPid, tab: "profiles"});
+    const {currentPid, currentStoryPid, pathObj} = this.props.status;
+    const {tab} = pathObj;
+    if (tab === "profiles") {
+      this.handleClick.bind(this)({profile: currentPid, tab: "profiles"});  
+    }
+    if (tab === "stories") {
+      this.handleClick.bind(this)({story: currentStoryPid, tab: "stories"});   
+    }
   }
   createProfile() {
     console.log("TODO: create profile"); // create a new profile when clicking the button in the profile dropdown
+  }
+  createStory() {
+    console.log("TODO: create story"); 
   }
   createSection(id) {
     const {currentTab} = this.props;
@@ -164,7 +186,7 @@ class Navbar extends Component {
 
   render() {
     const {auth, profiles, stories} = this.props;
-    const {currentPid, locales, localeDefault, localeSecondary, pathObj} = this.props.status;
+    const {currentPid, currentStoryPid, locales, localeDefault, localeSecondary, pathObj} = this.props.status;
     const currentTab = pathObj.tab;
     const {outlineOpen, navOpen, settingsOpen} = this.state;
 
@@ -174,9 +196,8 @@ class Navbar extends Component {
     // get entity title and sections
     if (currentTab === "profiles") {
       currEntity = "profile";
-      let currProfile;
-      if (currentPid) currProfile = this.getEntityId(currentPid, profiles);
-      if (typeof currProfile === "object") {
+      const currProfile = currentPid ? this.getEntityId(currentPid, profiles) : null;
+      if (currProfile) {
         // profile title
         currEntity = this.makeTitleFromDimensions(currProfile);
         // sections
@@ -187,9 +208,16 @@ class Navbar extends Component {
     // TODO: get entity title and sections for stories
     if (currentTab === "stories") {
       currEntity = "story";
+      const currStory = currentStoryPid ? this.getEntityId(currentStoryPid, stories) : null;
+      if (currStory) {
+        // profile title
+        currEntity = this.getNodeTitle(currStory);
+        // sections
+        currTree = currStory.storysections;
+      }
     }
 
-    // genrate list of items to render in nav dropdowns
+    // generate list of items to render in nav dropdowns
     const profileNavItems = [], storyNavItems = [];
     if (profiles.length) {
       profiles.map((profile, i) => {
@@ -211,10 +239,23 @@ class Navbar extends Component {
       });
     }
 
-    // TODO: generate list of nav items for stories
-    // if (stories.length) {
-    //  stories.map((story, i)) => etc
-    // }
+    if (stories.length) {
+      stories.map((story, i) => {
+        storyNavItems[i] = {
+          // get the profile title, or generate it from dimensions
+          title: this.getNodeTitle(story),
+          onClick: this.handleClick.bind(this, {story: story.id, tab: "stories"}),
+          selected: currentTab === "stories" && currentStoryPid === story.id
+        };
+      });
+    }
+    if (!storyNavItems.find(p => p.title === "Create new story")) {
+      storyNavItems.push({
+        title: "Create new story",
+        icon: "plus",
+        onClick: () => this.createStory()
+      });
+    }
 
     // generate dropdowns for switching entities
     const navLinks = [
@@ -382,11 +423,11 @@ class Navbar extends Component {
               <li className="cms-outline-item" key={node.id}>
                 <a
                   className={`cms-outline-link${
-                    pathObj.section && Number(pathObj.section) === node.id
+                    pathObj.section && Number(pathObj.section) === node.id || pathObj.storysection && Number(pathObj.storysection === node.id)
                       ? " is-selected" // current node
                       : ""
                   }`}
-                  onClick={() => this.handleClick.bind(this)({profile: node.profile_id, section: node.id, tab: "profiles"})}
+                  onClick={() => this.handleSectionClick.bind(this)(node)}
                 >
                   <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
                   {this.getNodeTitle(node)}
@@ -440,17 +481,26 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  // Profiles 
   getProfiles: () => dispatch(getProfiles()),
-  getCubeData: () => dispatch(getCubeData()),
   newProfile: () => dispatch(newProfile()),
   deleteProfile: id => dispatch(deleteProfile(id)),
+  resetPreviews: () => dispatch(resetPreviews()),
+  // Stories
+  getStories: () => dispatch(getStories()),
+  newStory: () => dispatch(newStory()),
+  deleteStory: id => dispatch(deleteStory(id)),
+  // Entity Operations
   newEntity: (type, payload) => dispatch(newEntity(type, payload)),
   swapEntity: (type, id) => dispatch(swapEntity(type, id)),
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  // Status Operations
   setStatus: status => dispatch(setStatus(status)),
-  getFormatters: () => dispatch(getFormatters()),
   setVariables: newVariables => dispatch(setVariables(newVariables)),
-  resetPreviews: () => dispatch(resetPreviews())
+  // Formatters
+  getFormatters: () => dispatch(getFormatters()),
+  // CubeData
+  getCubeData: () => dispatch(getCubeData())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(Navbar));
