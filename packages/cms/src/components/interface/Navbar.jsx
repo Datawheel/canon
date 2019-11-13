@@ -29,7 +29,7 @@ class Navbar extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {currentPid} = this.props.status;
+    const {currentPid, pathObj} = this.props.status;
     const oldMeta = JSON.stringify(prevProps.profiles.map(p => JSON.stringify(p.meta)));
     const newMeta = JSON.stringify(this.props.profiles.map(p => JSON.stringify(p.meta)));
     const changedMeta = oldMeta !== newMeta;
@@ -42,7 +42,13 @@ class Navbar extends Component {
     const changedVariablesOrTitle = prevProps.status.diffCounter !== this.props.status.diffCounter;
     const changedQuery = JSON.stringify(prevProps.status.query) !== JSON.stringify(this.props.status.query);
     if (changedVariablesOrTitle || changedQuery) {
+      console.log("Changed Name or Dropdown, forcing update");
       this.forceUpdate();
+    }
+
+    if (!prevProps.status.profilesLoaded && this.props.status.profilesLoaded) {
+      console.log("Profiles loaded, attempting to click", pathObj);
+      this.handleClick.bind(this)(pathObj);
     }
   }
 
@@ -95,11 +101,12 @@ class Navbar extends Component {
   }
 
   handleClick(pathObj) {
+    if (!pathObj.profile) return;
     const {currentPid, previews} = this.props.status;
     console.log("clickedPid:", pathObj.profile);
     const newPathObj = {...pathObj};
     // If the pids match, don't reset any previews or variables
-    if (currentPid === pathObj.profile) {
+    if (currentPid === Number(pathObj.profile)) {
       console.log("same pids, not changing");
       newPathObj.previews = previews;
       this.props.setStatus({pathObj: newPathObj});
@@ -109,18 +116,23 @@ class Navbar extends Component {
       // If previews is a string, we are coming in from the URL permalink. Pass it down to the pathobj.
       // todo fix permalinks
       // if (typeof pathObj.previews === "string") newPathObj.previews = pathObj.previews;
-      console.log("different pid! setting", pathObj.profile);
-      this.props.setStatus({currentPid: pathObj.profile, pathObj: newPathObj});
+      console.log("different pid! setting", pathObj.profile, "via this object: ", newPathObj);
+      this.props.setStatus({currentPid: Number(pathObj.profile), pathObj: newPathObj});
       this.props.resetPreviews();
+    }
+    if (pathObj.section) {
+      this.setState({outlineOpen: true});
     }
   }
 
   formatLabel(str) {
-    const {selectors} = this.props;
-    const {query, localeDefault} = this.props.status;
+    const {profiles} = this.props;
+    const {query, localeDefault, currentPid} = this.props.status;
     const variables = this.props.status.variables[localeDefault] || {};
     const formatters = this.context.formatters[localeDefault];
     const {stripHTML} = formatters;
+    const thisProfile = profiles.find(p => p.id === currentPid);
+    const selectors = thisProfile ? thisProfile.selectors : [];
     str = stripHTML(str);
     str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
     return str;
@@ -361,7 +373,7 @@ class Navbar extends Component {
               <li className="cms-outline-item" key={node.id}>
                 <a
                   className={`cms-outline-link${
-                    pathObj.section && pathObj.section === node.id
+                    pathObj.section && Number(pathObj.section) === node.id
                       ? " is-selected" // current node
                       : ""
                   }`}
@@ -415,7 +427,6 @@ const mapStateToProps = state => ({
   auth: state.auth,
   status: state.cms.status,
   profiles: state.cms.profiles,
-  selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : [],
   stories: state.cms.stories
 });
 

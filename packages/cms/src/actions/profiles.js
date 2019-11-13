@@ -155,7 +155,7 @@ export function resetPreviews() {
         });
       });
       const newPathObj = Object.assign({}, pathObj, {previews});
-      console.log("changing pid because nodeclick");
+      console.log("changing pathObj to new previews because nodeclick");
       dispatch({type: "STATUS_SET", data: {previews, pathObj: newPathObj}});
     });
   };

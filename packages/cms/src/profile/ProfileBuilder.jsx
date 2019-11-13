@@ -67,11 +67,14 @@ class ProfileBuilder extends Component {
   render() {
 
     const {nodeToDelete, toolboxVisible} = this.state;
-    const {currentPid, gensLoaded, gensTotal, genLang, pathObj, previews} = this.props.status;
+    const {currentPid, gensLoaded, gensTotal, genLang, pathObj, previews, profilesLoaded} = this.props.status;
 
+    const type = pathObj.section ? "section" : "profile";
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
-    const Editor = pathObj.section ? editorTypes.section : pathObj.profile ? editorTypes.profile : null;
-    const id = pathObj.section ? pathObj.section : pathObj.profile ? pathObj.profile : null;
+    const Editor = editorTypes[type];
+    const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
+
+    if (!profilesLoaded || !currentPid) return null;
 
     return (
       <React.Fragment>
@@ -138,7 +141,6 @@ ProfileBuilder.childContextTypes = {
 const mapStateToProps = state => ({
   env: state.env,
   profiles: state.cms.profiles,
-  selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : [],
   status: state.cms.status
 });
 

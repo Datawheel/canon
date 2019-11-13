@@ -38,12 +38,8 @@ export default (status = {}, action) => {
     // Basic assign
     case "STATUS_SET": 
       return Object.assign({}, status, action.data);
-    
-    /*
     case "PROFILES_GET":
-      const v = extractVariables(action.data);
-      return status;
-    */
+      return Object.assign({}, status, {profilesLoaded: true});
     // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW": 
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "generator", forceOpen: true});
