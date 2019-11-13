@@ -15,9 +15,6 @@ class Table extends Component {
     this.state = {
       config: null
     };
-    this.props = {
-      minRowsForPagination: 15
-    };
 
     this.viz = React.createRef();
   }
@@ -169,5 +166,9 @@ class Table extends Component {
     );
   }
 }
+
+Table.defaultProps = {
+  minRowsForPagination: 15
+};
 
 export default Table;
