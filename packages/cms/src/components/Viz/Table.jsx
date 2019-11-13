@@ -5,6 +5,8 @@ import abbreviate from "../../utils/formatters/abbreviate";
 import {Icon} from "@blueprintjs/core";
 import ReactTable from "react-table";
 
+import Button from "../fields/Button";
+import TextInput from "../fields/TextInput";
 import "./Table.css";
 
 class Table extends Component {
@@ -25,12 +27,28 @@ class Table extends Component {
     const propConfig = this.props.config;
     const {dataFormat} = this.props;
 
+    const paginationButtonProps = {
+      className: "cp-table-pagination-button",
+      fontSize: "xxs",
+      iconOnly: true
+    };
+
     const defaults = {
       cellFormat: (key, val) =>
         isNaN(val) ? val : abbreviate(val),
       headerFormat: val => val,
       minRows: 0,
-      showPagination: false
+      showPagination: false,
+      showPageSizeOptions: false, // good luck
+      // custom next/prev buttons when they've been enabled
+      PreviousComponent: props =>
+        <Button icon="arrow-left" {...paginationButtonProps} {...props}>
+          Go to previous page in table
+        </Button>,
+      NextComponent: props =>
+        <Button icon="arrow-right" {...paginationButtonProps} {...props}>
+          Go to next page in table
+        </Button>
     };
 
     const config = Object.assign({}, defaults, propConfig);
