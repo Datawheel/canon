@@ -16,11 +16,10 @@ function vizbuilderMiddleware({dispatch, getState}) {
   const client = new OLAPClient();
 
   return next => action => {
-    console.log(action);
     return action.type in effects
-    ? effects[action.type]({action, client, dispatch, getState})
-    : next(action);
-  }
+      ? effects[action.type]({action, client, dispatch, getState})
+      : next(action);
+  };
 }
 
 export default vizbuilderMiddleware;

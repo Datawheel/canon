@@ -3,24 +3,28 @@ interface GeneralState {
 }
 
 interface VizbuilderState {
-  charts: Chart[];
-  cubes: CubeItem[];
+  charts: ChartsState;
+  cubes: CubesState;
   instance: InstanceState;
   loading: LoadingState;
   query: QueryState;
 }
 
+type ChartsState = Chart[];
+
+type CubesState = Record<string, CubeItem>;
+
 interface LoadingState {
+  done: number;
+  error: string | undefined;
   inProgress: boolean;
   total: number;
-  done: number;
-  error: Error | undefined;
 }
 
 interface QueryState {
   activeChart: string | null;
-  groups: GroupItem[];
-  filters: FilterItem[];
+  groups: Record<string, GroupItem>;
+  filters: Record<string, FilterItem>;
   measure: string;
   showConfInt: boolean;
   timePeriod: number | null;
@@ -31,12 +35,24 @@ interface InstanceState {
   defaultGroup?: LevelLike[];
   defaultMeasure?: string;
   key: string;
-  multipliers: {[key: string]: number};
+  locale: string;
+  multipliers: Record<string, number>;
   permalink: boolean;
+  permalinkConfint: string;
   permalinkEnlarged: string;
   permalinkFilters: string;
   permalinkGroups: string;
   permalinkMeasure: string;
+  permalinkPeriod: string;
   topojson: string[];
-  visualizations: string[];
+  visualizations: (
+    | "barchart"
+    | "barchartyear"
+    | "donut"
+    | "geomap"
+    | "histogram"
+    | "lineplot"
+    | "pie"
+    | "stacked"
+    | "treemap")[];
 }

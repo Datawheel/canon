@@ -1,23 +1,21 @@
 import {
   QUERY_CHART_UPDATE,
   QUERY_CONFINT_TOGGLE,
-  QUERY_FILTERS_CREATE,
   QUERY_FILTERS_DELETE,
   QUERY_FILTERS_UPDATE,
-  QUERY_GROUPS_CREATE,
   QUERY_GROUPS_DELETE,
   QUERY_GROUPS_UPDATE,
   QUERY_MEASURE_UPDATE,
   QUERY_PERIOD_UPDATE,
-  QUERY_INYECT
+  QUERY_INYECT,
+  QUERY_RESET
 } from "./actions";
-import {replaceItem} from "../../helpers/arrays";
 
 /** @type {QueryState} */
 export const queryInitialState = {
   activeChart: null,
-  filters: [],
-  groups: [],
+  filters: {},
+  groups: {},
   measure: "",
   showConfInt: false,
   timePeriod: 2019
@@ -38,6 +36,8 @@ const actions = {
     ...queryState
   }),
 
+  [QUERY_RESET]: () => queryInitialState,
+
   /**
    * @param {string | undefined} activeChart
    */
@@ -56,53 +56,47 @@ const actions = {
   }),
 
   /**
-   * @param {FilterItem} newFilter
-   */
-  [QUERY_FILTERS_CREATE]: (state, newFilter) => ({
-    ...state,
-    filters: state.filters.concat(newFilter)
-  }),
-
-  /**
-   * @param {QueryState} state
    * @param {FilterItem} filter
    */
-  [QUERY_FILTERS_DELETE]: (state, {key: filterKey}) => ({
-    ...state,
-    filters: state.filters.filter(item => item.key !== filterKey)
-  }),
+  [QUERY_FILTERS_DELETE]: (state, filter) => {
+    const {key: filterKey} = filter;
+    const {[filterKey]: _, ...filters} = state.filters;
+    return {...state, filters};
+  },
 
   /**
    * @param {FilterItem} filter
    */
   [QUERY_FILTERS_UPDATE]: (state, filter) => ({
     ...state,
-    filters: replaceItem(filter, state.filters, "key")
+    filters: {
+      ...state.filters,
+      [filter.key]: filter
+    }
   }),
 
   /**
-   * @param {GroupItem} newGroup
-   */
-  [QUERY_GROUPS_CREATE]: (state, newGroup) => ({
-    ...state,
-    groups: state.groups.concat(newGroup)
-  }),
-
-  /**
-   * @param {QueryState} state
    * @param {GroupItem} group
    */
-  [QUERY_GROUPS_DELETE]: (state, {key: groupKey}) => ({
-    ...state,
-    groups: state.groups.filter(item => (item.key = groupKey))
-  }),
+  [QUERY_GROUPS_DELETE]: (state, group) => {
+    const count = Object.keys(state.groups).length;
+    if (count > 1) {
+      const {key: groupKey} = group;
+      const {[groupKey]: _, ...groups} = state.groups;
+      return {...state, groups};
+    }
+    return state;
+  },
 
   /**
    * @param {GroupItem} group
    */
   [QUERY_GROUPS_UPDATE]: (state, group) => ({
     ...state,
-    groups: replaceItem(group, state.groups, "key")
+    groups: {
+      ...state.groups,
+      [group.key]: group
+    }
   }),
 
   /**

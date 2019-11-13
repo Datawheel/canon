@@ -9,6 +9,12 @@
     align-items: center;
   }
 
+  & > .wrapper {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+  }
+
   & .toolbar-wrapper {
     flex: 0 0 20px;
     position: sticky;
@@ -39,7 +45,6 @@
       flex-flow: column nowrap;
       margin: 0 5px 10px;
       padding: 15px;
-      min-height: 400px;
     }
 
     &:only-child,
@@ -55,6 +60,7 @@
       & > svg {
         display: block;
         max-width: 100%;
+        min-height: 320px;
       }
     }
 

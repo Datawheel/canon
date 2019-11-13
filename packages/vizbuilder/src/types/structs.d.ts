@@ -1,13 +1,22 @@
+interface BaseItem {
+  caption: string;
+  hash: string;
+  hideInMap: boolean;
+  hideInUi: boolean;
+  name: string;
+  server: string;
+  uri: string;
+}
+
 interface CubeItem {
   caption: string;
-  crosswalkDimensions: string[];
   datasetHref: string;
   datasetName: string;
   dimensions: DimensionItem[];
   dimNames: string[];
+  hash: string;
   hideInMap: boolean;
   hideInUi: boolean;
-  key: string;
   measures: MeasureItem[];
   name: string;
   server: string;
@@ -25,16 +34,15 @@ interface DimensionItem {
   cube: string;
   defaultHierarchy: string | undefined;
   defaultYear: number | undefined;
+  hash: string;
   hideInMap: boolean;
   hideInUi: boolean;
   hierarchies: HierarchyItem[];
-  isCrosswalk: boolean;
   isRequired: boolean;
-  key: string;
   levelCount: number;
   name: string;
   server: string;
-  type: string;
+  type: "TIME" | "GEOGRAPHY" | "GENERIC" | string;
   uri: string;
 }
 
@@ -48,6 +56,7 @@ interface FilterItem {
 
 interface GroupItem {
   dimension: string;
+  hash: string;
   hierarchy: string;
   key: string;
   level: string;
@@ -58,25 +67,28 @@ interface HierarchyItem {
   caption: string;
   cube: string;
   dimension: string;
+  hash: string;
   hideInMap: boolean;
   hideInUi: boolean;
-  key: string;
   levels: LevelItem[];
   name: string;
   server: string;
+  type: string;
   uri: string;
 }
 
 interface LevelItem {
   caption: string;
   cube: string;
+  depth: number;
   dimension: string;
+  hash: string;
   hideInMap: boolean;
   hideInUi: boolean;
   hierarchy: string;
-  key: string;
   name: string;
   server: string;
+  type: string;
   uri: string;
 }
 
@@ -89,6 +101,7 @@ interface MeasureItem {
   defaultGroup: string | undefined;
   details: string;
   dimNames: string[];
+  hash: string;
   hideInMap: boolean;
   hideInUi: boolean;
   isCollectionFor: string | undefined;
@@ -96,7 +109,6 @@ interface MeasureItem {
   isMOEFor: string | undefined;
   isSourceFor: string | undefined;
   isUCIFor: string | undefined;
-  key: string;
   name: string;
   searchIndex: string;
   server: string;
@@ -111,8 +123,10 @@ interface MeasureItem {
 }
 
 interface MemberItem {
-  key: string | number;
-  name: string;
   ancestors: MemberItem[];
   children: MemberItem[];
+  fullName: string;
+  key: string | number;
+  name: string;
+  uri: string;
 }

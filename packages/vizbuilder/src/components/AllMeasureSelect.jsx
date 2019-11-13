@@ -1,11 +1,19 @@
-import {Button, Classes, MenuItem} from "@blueprintjs/core";
+import {Button, Classes, MenuItem, Tag} from "@blueprintjs/core";
 import {Select} from "@blueprintjs/select";
 import classNames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 import memoizeOne from "memoize-one";
-import React, {Component} from "react";
+import React, {Component, memo} from "react";
 import CategoryListRenderer from "./CategoryListRenderer";
 import VirtualListRenderer from "./VirtualListRenderer";
+
+/**
+ * @typedef MeasureOptgroup
+ * @property {true} isOptgroup
+ * @property {string} topic
+ * @property {string} subtopic
+ */
+
 
 /**
  * @typedef OwnProps
@@ -28,7 +36,6 @@ class MeasureSelect extends Component {
 
     this.baseListComposer = memoizeOne(
       /** @param {MeasureItem[]} items */
-
       items => {
         // This function supposes the list was previously sorted by headers
         const {selectedItem, itemMap} = this.props;
@@ -105,20 +112,25 @@ class MeasureSelect extends Component {
   }
 
   /**
-   * @type {import("@blueprintjs/select").ItemListPredicate<MeasureItem>}
+   * @type {import("@blueprintjs/select").ItemListPredicate<MeasureItem | MeasureOptgroup>}
    * @param {string} query
-   * @param {MeasureItem[]} items
+   * @param {(MeasureItem | MeasureOptgroup)[]} items
    */
   itemListPredicate(query, items) {
     query = query.trim();
-    query = escapeRegExp(query).replace(/\s+/g, "[^_]+");
+    query = escapeRegExp(query).replace(/\s+/g, "[^|]+");
     const queryTester = RegExp(query || ".", "i");
     return items
-      .filter(item => item.isOptgroup || queryTester.test(item.searchIndex))
+      .filter(item => "isOptgroup" in item || queryTester.test(item.searchIndex))
       .filter(
         (item, index, array) =>
           !item.isOptgroup || (array[index + 1] && !array[index + 1].isOptgroup)
       );
+  }
+
+  itemSelectHandler(item, evt) {
+    const {onItemSelect} = this.props;
+    onItemSelect && onItemSelect(item, evt);
   }
 
   render() {
@@ -151,14 +163,21 @@ class MeasureSelect extends Component {
           className="measure-select select-option active"
           fill={true}
           rightIcon="double-caret-vertical"
-          text={<MeasureMenuItem {...selectedItem} showSource />}
+          text={
+            <MeasureMenuItem {...selectedItem}>
+              <span className="source">{selectedItem.sourceName}</span>
+            </MeasureMenuItem>
+          }
           title={selectedItem.name}
         />
       </Select>
     );
   }
 
-  /** @param {import("@blueprintjs/select").IItemListRendererProps} itemListProps */
+  /**
+   * @type {import("@blueprintjs/select").ItemListRenderer<MeasureItem | MeasureOptgroup>}
+   * @param {import("@blueprintjs/select").IItemListRendererProps<MeasureItem | MeasureOptgroup>} itemListProps
+   */
   renderItemList(itemListProps) {
     if (itemListProps.query) {
       return (
@@ -180,8 +199,13 @@ class MeasureSelect extends Component {
     }
   }
 
+  /**
+   * @type {import("@blueprintjs/select").ItemRenderer<MeasureItem | MeasureOptgroup>}
+   * @param {MeasureItem | MeasureOptgroup} item
+   * @param {import("@blueprintjs/select").IItemRendererProps} itemProps
+   */
   renderItem(item, {handleClick, index, modifiers, query}) {
-    if (item.isOptgroup) {
+    if ("isOptgroup" in item) {
       return (
         <li
           key={`${item.topic} ${item.subtopic}`}
@@ -202,31 +226,43 @@ class MeasureSelect extends Component {
         disabled={modifiers.disabled}
         key={item.uri}
         onClick={handleClick}
-        text={<MeasureMenuItem {...item} showDimensions />}
+        text={
+          <MeasureMenuItem {...item}>
+            <DimensionTagArea dimensions={item.dimNames} />
+          </MeasureMenuItem>
+        }
         title={item.name}
       />
     );
   }
-
-  itemSelectHandler(item, evt) {
-    const {onItemSelect} = this.props;
-    onItemSelect && onItemSelect(item, evt);
-  }
 }
 
-/** @type {React.FC<MeasureItem&{showSource?:boolean}>} */
+/** @type {React.FC<MeasureItem & {showSource?:boolean}>} */
 const MeasureMenuItem = function(props) {
   return (
     <span className="measure-label">
       <span className="name">{props.name}</span>
-      {props.showSource && <span className="source">{props.sourceName}</span>}
-      {props.dimNames.length > 0 && (
-        <span className="dimensions">
-          {props.dimNames.map(label => <span className="bp3-tag">{label}</span>)}
-        </span>
-      )}
+      {props.children}
     </span>
   );
 };
+
+/** @type {React.FC<{dimensions: string[], summaryLabel?: string}>} */
+const DimensionTagArea = memo(function({dimensions, summaryLabel = `plus %d more`}) {
+  if (dimensions.length === 0) {
+    return null;
+  }
+
+  const dimensionsToRender = dimensions.slice(0, 5);
+  if (dimensions.length > 5) {
+    dimensionsToRender[4] = summaryLabel.replace("%d", `${dimensions.length - 4}`);
+  }
+
+  return (
+    <span className="dimensions">
+      {dimensionsToRender.map(label => <Tag className="tag-dim">{label}</Tag>)}
+    </span>
+  );
+});
 
 export default MeasureSelect;

@@ -1,4 +1,8 @@
 import {CUBES_UPDATE} from "./actions";
 
-export const cubesReducer = (state = [], {type, payload}) =>
+/** @type {CubesState} */
+export const cubesInitialState = {};
+
+/** @type {import("redux").Reducer<CubesState>} */
+export const cubesReducer = (state = cubesInitialState, {type, payload}) =>
   type === CUBES_UPDATE ? payload : state;

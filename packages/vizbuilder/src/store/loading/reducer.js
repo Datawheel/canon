@@ -28,11 +28,13 @@ export function loadingReducer(state = loadingInitialState, {type, payload}) {
     };
   }
   else if (type === LOAD_FAILURE) {
+    console.error(payload);
+    debugger;
     return {
       inProgress: false,
       total: state.total,
       done: state.done,
-      error: payload
+      error: payload.message
     };
   }
 

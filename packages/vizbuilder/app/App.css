@@ -1,4 +1,29 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto");
-body {
+
+.demo-scaffold {
   font-family: "Roboto", sans-serif;
+}
+
+.page-home {
+  padding: 0 1rem;
+
+  & .menu {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0;
+  }
+
+  & li {
+    display: block;
+    flex: 1 0 200px;
+    margin: 0.25rem;
+    max-width: 400px;
+
+    & > a {
+      display: block;
+      padding: 6rem 0 0 0.75rem;
+      line-height: 20px;
+      border: 1px solid;
+    }
+  }
 }

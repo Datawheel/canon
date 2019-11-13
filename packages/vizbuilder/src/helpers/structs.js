@@ -13,19 +13,16 @@ export const structCubeBuilder = cube => {
   const uri = cube.toString();
   const cbAnn = cube.annotations || {};
 
-  const splitOrEmpty = content => (content ? content.split(",") : []);
-
   /** @type {CubeItem} */
   const cubeItem = {
     caption: cube.caption,
-    crosswalkDimensions: splitOrEmpty(cbAnn.crosswalk_only_dimensions),
     datasetHref: cbAnn.dataset_link || "",
     datasetName: cbAnn.dataset_name || "",
     dimensions: [],
     dimNames: [],
+    hash: unique(uri),
     hideInMap: yn(cbAnn.hide_in_map) || false,
     hideInUi: yn(cbAnn.hide_in_ui) || false,
-    key: unique(uri),
     measures: [],
     name: cube.name,
     server: cube.server,
@@ -56,13 +53,14 @@ export const structDimensionReducer = (cubeItem, dimension) => {
   const dmAnn = dimension.annotations || {};
 
   const dimensionType = dimension.dimensionType;
-  const type = dmAnn.dim_type
-    ? dmAnn.dim_type
-    : dimensionType === DimType.Geographic || /geography|state/i.test(dimension.name)
-      ? "GEOGRAPHY"
-      : dimensionType === DimType.Time || /date|time/i.test(dimension.name)
-        ? "TIME"
-        : "GENERIC";
+  const type =
+    dimensionType === DimType.Time ||
+    yn(dmAnn.default_year) ||
+    /date|year/i.test(dimension.name)
+      ? "TIME"
+      : dimensionType === DimType.Geographic || /geography|state/i.test(dimension.name)
+        ? "GEOGRAPHY"
+        : dmAnn.dim_type ? dmAnn.dim_type : "GENERIC";
 
   const defaultHierarchy = dimension.defaultHierarchy;
 
@@ -72,12 +70,11 @@ export const structDimensionReducer = (cubeItem, dimension) => {
     cube: cubeItem.name,
     defaultHierarchy: defaultHierarchy ? defaultHierarchy.name : undefined,
     defaultYear: Number.parseInt(`${dmAnn.default_year}`) || undefined,
+    hash: unique(uri),
     hideInMap: dmAnn.hide_in_map ? yn(dmAnn.hide_in_map) || false : cubeItem.hideInMap,
     hideInUi: dmAnn.hide_in_ui ? yn(dmAnn.hide_in_ui) || false : cubeItem.hideInUi,
     hierarchies: [],
-    isCrosswalk: cubeItem.crosswalkDimensions.includes(dimension.name),
     isRequired: yn(dmAnn.is_required) || false,
-    key: unique(uri),
     levelCount: 0,
     name: dimension.name,
     server: cubeItem.server,
@@ -106,14 +103,15 @@ export const structHierarchyReducer = (dimensionItem, hierarchy) => {
     caption: hierarchy.caption,
     cube: dimensionItem.cube,
     dimension: dimensionItem.name,
+    hash: unique(uri),
     hideInMap: hiAnn.hide_in_map
       ? yn(hiAnn.hide_in_map) || false
       : dimensionItem.hideInMap,
     hideInUi: hiAnn.hide_in_ui ? yn(hiAnn.hide_in_ui) || false : dimensionItem.hideInUi,
-    key: unique(uri),
     levels: [],
     name: hierarchy.name,
     server: dimensionItem.server,
+    type: dimensionItem.type,
     uri
   };
 
@@ -130,7 +128,7 @@ export const structHierarchyReducer = (dimensionItem, hierarchy) => {
  * @param {import("@datawheel/olap-client").Level} level
  * @returns {HierarchyItem}
  */
-export const structLevelReducer = (hierarchyItem, level) => {
+export const structLevelReducer = (hierarchyItem, level, depth) => {
   const uri = level.toString();
   const lvAnn = level.annotations;
 
@@ -138,15 +136,17 @@ export const structLevelReducer = (hierarchyItem, level) => {
   const levelItem = {
     caption: level.caption,
     cube: hierarchyItem.cube,
+    depth,
     dimension: hierarchyItem.dimension,
+    hash: unique(uri),
     hideInMap: lvAnn.hide_in_map
       ? yn(lvAnn.hide_in_map) || false
       : hierarchyItem.hideInMap,
     hideInUi: lvAnn.hide_in_ui ? yn(lvAnn.hide_in_ui) || false : hierarchyItem.hideInUi,
     hierarchy: hierarchyItem.name,
-    key: unique(uri),
     name: level.name,
     server: hierarchyItem.server,
+    type: hierarchyItem.type,
     uri
   };
 
@@ -200,6 +200,7 @@ export const structMeasureReducer = (cubeItem, measure) => {
     defaultGroup: msAnn.ui_default_drilldown,
     details: msAnn.details || "",
     dimNames,
+    hash: unique(uri),
     hideInMap: msAnn.hide_in_map ? yn(msAnn.hide_in_map) || false : cubeItem.hideInMap,
     hideInUi: msAnn.hide_in_ui ? yn(msAnn.hide_in_ui) || false : cubeItem.hideInUi,
     isCollectionFor: msAnn.collection_for_measure,
@@ -208,7 +209,6 @@ export const structMeasureReducer = (cubeItem, measure) => {
       error_type === "LCI" || error_type === "UCI" ? undefined : error_for_measure,
     isSourceFor: msAnn.source_for_measure,
     isUCIFor: error_type === "UCI" ? error_for_measure : undefined,
-    key: unique(uri),
     name: measure.name,
     searchIndex,
     server: cubeItem.server,
@@ -227,6 +227,24 @@ export const structMeasureReducer = (cubeItem, measure) => {
 };
 
 /**
+ * Creates a MemberItem object
+ * @param {import("@datawheel/olap-client").Member} member
+ * @returns {MemberItem}
+ */
+export const structMemberBuilder = member => {
+  const uri = member.toString();
+
+  return {
+    ancestors: member.ancestors.map(structMemberBuilder),
+    children: member.children.map(structMemberBuilder),
+    fullName: member.fullName,
+    key: member.key,
+    name: member.name,
+    uri
+  };
+};
+
+/**
  * Creates a GroupItem object
  * @param {any} params
  * @returns {GroupItem}
@@ -234,9 +252,10 @@ export const structMeasureReducer = (cubeItem, measure) => {
 export const structGroup = params => {
   return {
     dimension: params.dimension,
+    hash: params.hash,
     hierarchy: params.hierarchy,
-    level: params.level || params.name,
     key: params.key || Math.random().toString(16).slice(2),
+    level: params.level || params.name,
     members: ensureArray(params.members)
   };
 };

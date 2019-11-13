@@ -1,7 +1,5 @@
-import {assign} from "d3plus-common";
 import {BarChart, Donut, Geomap, LinePlot, Pie, StackedArea, Treemap} from "d3plus-react";
-import {joinStringsWithCommaAnd} from "./formatting";
-import {getPermutations} from "./sorting";
+import {joinStringsWithCommaAnd} from "./format";
 import {areMetaMeasuresZero, isValidFilter} from "./validation";
 
 export const chartComponents = {
@@ -9,143 +7,70 @@ export const chartComponents = {
   barchartyear: BarChart,
   donut: Donut,
   geomap: Geomap,
+  histogram: BarChart,
   lineplot: LinePlot,
   pie: Pie,
   stacked: StackedArea,
   treemap: Treemap
 };
 
-export const ALL_YEARS = "All years";
-
-export function datagroupToCharts(datagroup, generalConfig) {
-  const {measureName, levelName} = datagroup.names;
-
-  const baseConfig = buildBaseConfig(datagroup, generalConfig);
-  const topoConfig = generalConfig.topojson[levelName];
-  const userConfig = assign(
-    {},
-    generalConfig.defaultConfig,
-    generalConfig.measureConfig[measureName] || {}
-  );
-
-  const charts = datagroup.charts.reduce((sum, chartType) => {
-    const setups = calcChartSetups(datagroup, chartType).map(setup => ({
-      ...datagroup,
-      baseConfig,
-      chartType,
-      component: chartComponents[chartType],
-      setup,
-      topoConfig,
-      userConfig
-    }));
-    return sum.concat(setups);
-  }, []);
-
-  return charts;
-}
-
-export function buildBaseConfig(datagroup, params) {
-  const {aggType, formatter, names} = datagroup;
-  const {measure} = datagroup.query;
-  const {levelNames, measureName, timeLevelName} = names;
-  const getMeasureValue = d => d[measureName];
-
-  const config = {
-    legend: false,
-    duration: 0,
-
-    total: false,
-    totalFormat: d => `Total: ${formatter(d)}`,
-
-    xConfig: {title: null},
-    yConfig: {
-      title: measureName,
-      tickFormat: formatter
-    },
-    label: labelFunctionGenerator(...levelNames),
-
-    sum: getMeasureValue,
-    value: getMeasureValue
-  };
-
-  const measureUnit = measure.annotations.units_of_measurement;
-  if (
-    ["Percentage", "Rate"].indexOf(measureUnit) === -1 &&
-    ["SUM", "UNKNOWN"].indexOf(aggType) > -1
-  ) {
-    config.total = getMeasureValue;
-  }
-
-  config.tooltipConfig = tooltipGenerator(datagroup);
-
-  if (timeLevelName && datagroup.members[timeLevelName].length > 1) {
-    config.time = timeLevelName;
-  }
-
-  return config;
-}
-
-/**
- * @param {import("./chartCriteria").Datagroup} datagroup
- * @param {string} type
- */
-export function calcChartSetups(datagroup, type) {
-  const {members, query} = datagroup;
-
-  switch (type) {
-    case "treemap": {
-      const relevantLevels = query.levels.filter(lvl => members[lvl.name].length > 1);
-      return getPermutations(relevantLevels);
-    }
-
-    default: {
-      return [query.levels];
-    }
-  }
-}
-
 /**
  * Generates the parameters for the tooltip shown for the current datagroup.
- * @param {import("./chartCriteria").Datagroup} datagroup The chart datagroup
+ * @param {Chart} chart
+ * @param {object} params
+ * @param {Record<string, (d: number) => string>} params.formatters
+ * @param {Record<string, string>} params.labels
  */
-export function tooltipGenerator(datagroup) {
-  const {formatter, names} = datagroup;
-  const {levelName, measureName} = names;
-  const {filters} = datagroup.query;
-  const shouldShow = areMetaMeasuresZero(names, datagroup.dataset);
+export function tooltipGenerator(chart, {formatters, labels}) {
+  const {filters, measure, levels, collection, source, moe, uci, lci} = chart.params;
 
-  const tbody = Object.keys(datagroup.members)
+  const measureName = measure.name;
+  const levelName = levels[0].name;
+
+  const collectionName = collection ? collection.name : "";
+  const lciName = lci ? lci.name : "";
+  const moeName = moe ? moe.name : "";
+  const sourceName = source ? source.name : "";
+  const uciName = uci ? uci.name : "";
+
+  const formatter = formatters[measureName] || formatters.default;
+
+  const shouldShow = areMetaMeasuresZero(chart.data, {
+    collectionName,
+    lciName,
+    moeName,
+    sourceName,
+    uciName
+  });
+
+  const tbody = Object.keys(chart.members)
     .filter(lvl => lvl !== levelName)
     .map(lvl => [lvl, d => d[lvl]]);
   tbody.push([measureName, d => formatter(d[measureName])]);
 
   if (shouldShow.lci && shouldShow.uci) {
-    const {lciName, uciName} = names;
     tbody.push([
       "Confidence Interval",
       d => `${formatter(d[lciName] * 1 || 0)} - ${formatter(d[uciName] * 1 || 0)}`
     ]);
   }
   else if (shouldShow.moe) {
-    const {moeName} = names;
     tbody.push(["Margin of Error", d => `± ${formatter(d[moeName] * 1 || 0)}`]);
   }
 
   if (shouldShow.src) {
-    const {sourceName} = names;
     tbody.push(["Source", d => `${d[sourceName]}`]);
   }
 
   if (shouldShow.clt) {
-    const {collectionName} = names;
     tbody.push(["Collection", d => `${d[collectionName]}`]);
   }
 
   if (Array.isArray(filters)) {
     filters.forEach(filter => {
       if (isValidFilter(filter)) {
-        const filterName = filter.name;
-        const formatter = filter.getFormatter();
+        const filterName = filter.measure;
+        const formatter = formatters[filterName] || formatters.default;
         tbody.push([filterName, d => `${formatter(d[filterName])}`]);
       }
     });
@@ -159,25 +84,80 @@ export function tooltipGenerator(datagroup) {
 
 /**
  * Generates the function to render the labels in the shapes of a chart.
- * @param {...string} arguments
+ * @param {...string} args
  */
-export function labelFunctionGenerator() {
-  const [lvlName1, lvlName2] = arguments;
+export function labelFunctionGenerator(...args) {
+  const [lvlName1, lvlName2] = args;
   return lvlName2
     ? d => `${d[lvlName1]} (${joinStringsWithCommaAnd(d[lvlName2])})`
     : d => `${d[lvlName1]}`;
 }
 
 /**
- * Validates if the current query consists of a geographic levels along another
- * level with 1 cut.
- * @param {VbQuery} query The current Vizbuilder query object
+ * Returns a common title string from a list of parameters.
+ * @param {Chart} chart
+ * @param {any} uiParams
  */
-export function isGeoPlusUniqueCutQuery(query) {
-  const geoLvl = query.geoLevel;
-  const notGeoLvl = query.levels.find(lvl => lvl !== geoLvl);
-  const notGeoLvlFullName = notGeoLvl.fullName;
-  const notGeoLvlCut = query.cuts.find(cut => cut.key === notGeoLvlFullName);
+// export function chartTitleGenerator(chart, uiParams) {
+//   const {query, setup} = chart;
+//   const {measureName, timeLevelName} = chart.names;
 
-  return notGeoLvlCut && notGeoLvlCut.values.length === 1;
-}
+//   const getName = obj => obj.name;
+//   const levels = setup.map(getName);
+//   const appliedCuts = query.cuts.map(getName);
+
+//   const cuts = [];
+
+//   let n = query.groups.length;
+//   while (n--) {
+//     const group = query.groups[n];
+//     const values = group.members.map(m => m.name);
+
+//     const levelName = group.level.name;
+
+//     let label;
+//     if (appliedCuts.indexOf(levelName) === -1) {
+//       // label = `All ${pluralize(levelName, 2)}`;
+//       continue;
+//     }
+//     else if (values.length > 1) {
+//       label = `the ${values.length} Selected ${pluralize(levelName, values.length)}`;
+//     }
+//     else if (values.length === 1) {
+//       label = values[0];
+//       const levelIndex = levels.indexOf(levelName);
+//       if (levelIndex > -1) {
+//         levels.splice(levelIndex, 1);
+//       }
+//     }
+//     cuts.unshift(label);
+//   }
+
+//   let title = measureName;
+
+//   if (levels.length > 0) {
+//     if (chart.isTopTen) {
+//       title += ` for top 10 ${joinStringsWithCommaAnd(levels, false)}`;
+//     }
+//     else {
+//       title += ` by ${joinStringsWithCommaAnd(levels, false)}`;
+//     }
+//   }
+
+//   if (cuts.length > 0) {
+//     title += `, for ${joinStringsWithCommaAnd(cuts)}`;
+//   }
+
+//   if (timeLevelName) {
+//     if (!uiParams.activeChart && !uiParams.isTimeline) {
+//       title += ` (${uiParams.selectedTime})`;
+//     }
+//     else {
+//       title = title
+//         .replace(measureName, `${measureName} by ${timeLevelName},`)
+//         .replace(",,", ",");
+//     }
+//   }
+
+//   return title;
+// }

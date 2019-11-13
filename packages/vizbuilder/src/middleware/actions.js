@@ -1,11 +1,12 @@
+export const CORE_CREATE_FILTER = "vizbuilder/CORE/CREATE_FILTER";
+export const CORE_CREATE_GROUP = "vizbuilder/CORE/CREATE_GROUP";
 export const CORE_INITIALIZE = "vizbuilder/CORE/INITIALIZE";
 export const CORE_INITIALIZE_MEASURE = "vizbuilder/CORE/INITIALIZE/MEASURE";
-export const CORE_INITIALIZE_PARAMS = "vizbuilder/CORE/INITIALIZE/PARAMS";
+export const CORE_INITIALIZE_PERMALINK = "vizbuilder/CORE/INITIALIZE/PERMALINK";
+export const CORE_RUNQUERY = "vizbuilder/CORE/RUNQUERY";
 export const CORE_UPDATE_CHART = "vizbuilder/CORE/UPDATE_CHART";
 export const CORE_UPDATE_CONFINT = "vizbuilder/CORE/UPDATE_CONFINT";
 export const CORE_UPDATE_DATASET = "vizbuilder/CORE/UPDATE_DATASET";
-export const CORE_UPDATE_FILTER = "vizbuilder/CORE/UPDATE_FILTER";
-export const CORE_UPDATE_GROUP = "vizbuilder/CORE/UPDATE_GROUP";
 export const CORE_UPDATE_MEASURE = "vizbuilder/CORE/UPDATE_MEASURE";
 export const CORE_UPDATE_PERIOD = "vizbuilder/CORE/UPDATE_PERIOD";
 export const CORE_UPDATE_PERMALINK = "vizbuilder/CORE/UPDATE_PERMALINK";
@@ -44,17 +45,17 @@ export const doUpdateDataset = cubeName => ({
   payload: cubeName
 });
 
-/**
- * @param {GroupItem} groupItem
- */
-export const doUpdateGroup = groupItem => ({type: CORE_UPDATE_GROUP, payload: groupItem});
+/** */
+export const doCreateFilter = () => ({type: CORE_CREATE_FILTER});
+
+/** */
+export const doCreateGroup = () => ({type: CORE_CREATE_GROUP});
 
 /** */
 export const doUpdatePermalink = () => ({type: CORE_UPDATE_PERMALINK});
 
 /** */
 export const doValidateParams = () => ({type: CORE_VALIDATE_PARAMS});
-
 
 /**
  * Adds the list of urls to the current client instance.
@@ -69,11 +70,17 @@ export const doFetchCubes = () => ({type: OLAP_FETCHCUBES});
 
 /**
  * Retrieves the full list of members associated to the level item.
- * @param {LevelLike} level
+ * @param {LevelRef} level
  */
 export const doFetchMembers = level => ({type: OLAP_FETCHMEMBERS, payload: level});
 
 /**
+ * Executes the query with the parameters currently set by the user, and shows
+ * the loading screen in the user interface until the load is done.
+*/
+export const doRunQueryCore = () => ({type: CORE_RUNQUERY});
+
+/**
  * Executes the query with the parameters currently set by the user.
 */
-export const doRunQuery = () => ({type: OLAP_RUNQUERY});
+export const doRunQueryOLAP = () => ({type: OLAP_RUNQUERY});

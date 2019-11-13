@@ -1,37 +1,35 @@
-import React from "react";
 import {Button} from "@blueprintjs/core";
+import React from "react";
+import {withNamespaces} from "react-i18next";
 
-class ChartCard extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.handleToggleSelect = this.handleToggleSelect.bind(this);
-  }
+/**
+ * @typedef OwnProps
+ * @property {boolean} active
+ * @property {boolean} [hideToolbar]
+ * @property {() => void} onToggle
+ */
 
-  handleToggleSelect() {
-    this.props.onSelect(this.props.name);
-  }
-
-  render() {
-    const {active} = this.props;
-
-    return (
-      <div className="chart-card">
-        <div className="wrapper">
-          {this.props.children}
-          {!this.props.hideFooter && (
-            <footer>
+/** @type {React.FC<import("react-i18next").WithNamespaces & OwnProps>} */
+const ChartCard = function({active, children, hideToolbar, t: translate, onToggle}) {
+  return (
+    <div className="chart-card">
+      <fieldset className="wrapper">
+        {!hideToolbar && (
+          <legend>
+            <aside className="chart-toolbar">
               <Button
-                className="bp3-minimal"
+                minimal
                 icon={active ? "cross" : "zoom-in"}
-                text={active ? "CLOSE" : "ENLARGE"}
-                onClick={this.handleToggleSelect}
+                text={active ? translate("CLOSE") : translate("ENLARGE")}
+                onClick={onToggle}
               />
-            </footer>
-          )}
-        </div>
-      </div>
-    );
-  }
-}
+            </aside>
+          </legend>
+        )}
+        {children}
+      </fieldset>
+    </div>
+  );
+};
 
-export default ChartCard;
+export default withNamespaces()(ChartCard);

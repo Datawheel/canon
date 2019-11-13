@@ -1,13 +1,13 @@
-import {chartsReducer} from "./charts/reducer";
-import {cubesReducer} from "./cubes/reducer";
+import {chartsInitialState, chartsReducer} from "./charts/reducer";
+import {cubesInitialState, cubesReducer} from "./cubes/reducer";
 import {instanceInitialState, instanceReducer} from "./instance/reducer";
 import {loadingInitialState, loadingReducer} from "./loading/reducer";
 import {queryInitialState, queryReducer} from "./query/reducer";
 
 /** @type {VizbuilderState} */
 export const initialState = {
-  charts: [],
-  cubes: [],
+  charts: chartsInitialState,
+  cubes: cubesInitialState,
   instance: instanceInitialState,
   loading: loadingInitialState,
   query: queryInitialState

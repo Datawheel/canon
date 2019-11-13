@@ -1,12 +1,12 @@
 import {MultiClient} from "@datawheel/olap-client";
 import {AnyAction, Dispatch} from "redux";
 
-interface Action<T> {
+export interface Action<T> {
   type: string;
   payload: T;
 }
 
-interface MiddlewareActionParams<T> {
+export interface MiddlewareActionParams<T> {
   action: Action<T>;
   client: MultiClient;
   dispatch: Dispatch<AnyAction>;

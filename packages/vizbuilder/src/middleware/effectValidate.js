@@ -1,8 +1,8 @@
 import {doubleFinder, findByLevelLike} from "../helpers/find";
 import {structGroup} from "../helpers/structs";
-import {selectLevelListByCube, selectMeasureListByCube} from "../selectors/listsDerived";
-import {selectDefaultGroups} from "../selectors/props";
+import {selectDefaultGroups} from "../store/instance/selectors";
 import {doQueryInyect} from "../store/query/actions";
+import {selectLevelListForCube, selectMeasureListForCube} from "../store/query/selectors";
 import {CORE_VALIDATE_PARAMS} from "./actions";
 
 export default {
@@ -12,34 +12,39 @@ export default {
    * the user config.
    * This action must be performed after every measure update.
    *
-   * @param {import("..").MiddlewareActionParams<any>} param0
+   * @param {import("../types").MiddlewareActionParams<any>} param0
    */
   [CORE_VALIDATE_PARAMS]: ({dispatch, getState}) => {
     const state = getState();
     const queryState = state.vizbuilder.query;
 
-    const levels = selectLevelListByCube(state);
-    const measures = selectMeasureListByCube(state);
+    const levels = selectLevelListForCube(state);
+    const measures = selectMeasureListForCube(state);
 
-    const partialQuery = {
-      groups: queryState.groups.filter(group =>
-        levels.some(
-          level =>
-            level.dimension === group.dimension &&
-            level.hierarchy === group.hierarchy &&
-            level.name === group.level
-        )
-      ),
-      filters: queryState.filters.filter(({measure: measureName}) =>
-        measures.some(measure => measure.name === measureName)
-      )
-    };
+    const partialQuery = {groups: {}, filters: {}};
 
-    if (partialQuery.groups.length === 0) {
+    Object.keys(queryState.groups).forEach(key => {
+      const group = queryState.groups[key];
+      if (levels.some(lvl => lvl.hash === group.hash)) {
+        // Let's hope the member list is the same
+        partialQuery.groups[key] = group;
+      }
+    });
+
+    Object.keys(queryState.filters).forEach(key => {
+      const filter = queryState.filters[key];
+      if (measures.some(measure => measure.name === filter.measure)) {
+        partialQuery.filters[key] = filter;
+      }
+    });
+
+    if (Object.keys(partialQuery.groups).length === 0) {
       const defaultGroup = selectDefaultGroups(state);
-      const drillable = doubleFinder(findByLevelLike, defaultGroup, levels, true);
+      const drillable = defaultGroup
+        ? doubleFinder(findByLevelLike, defaultGroup, levels, true)
+        : levels[0];
       const group = structGroup(drillable);
-      partialQuery.groups.push(group);
+      partialQuery.groups[group.key] = group;
     }
 
     dispatch(doQueryInyect(partialQuery));

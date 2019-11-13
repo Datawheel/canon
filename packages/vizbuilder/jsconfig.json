@@ -4,13 +4,16 @@
     "checkJs": true,
     "jsx": "react",
     "moduleResolution": "node",
-    "baseUrl": "./app",
+    "baseUrl": "app",
     "rootDirs": [
-      "./app/",
+      "app",
       "./node_modules/@datawheel/canon-core/src/",
       "./node_modules/"
     ],
     "strictNullChecks": true,
     "target": "es2015"
-  }
+  },
+  "include": [
+    "src/**/*"
+  ]
 }

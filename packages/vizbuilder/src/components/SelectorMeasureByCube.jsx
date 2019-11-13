@@ -3,7 +3,7 @@ import {Button, MenuItem} from "@blueprintjs/core";
 import {Select} from "@blueprintjs/select";
 import escapeRegExp from "lodash/escapeRegExp";
 import {connect} from "react-redux";
-import {selectMeasureListByCube} from "../selectors/listsDerived";
+import {selectMeasureListForCube} from "../store/query/selectors";
 
 /**
  * @typedef OwnProps
@@ -89,7 +89,7 @@ class MeasureByCubeSelect extends Component {
 /** @type {import("react-redux").MapStateToProps<StateProps,OwnProps,GeneralState>} */
 function mapState(state) {
   return {
-    items: selectMeasureListByCube(state)
+    items: selectMeasureListForCube(state)
   };
 }
 

@@ -1,36 +1,49 @@
 import {Button, Classes, Icon, Menu, Text} from "@blueprintjs/core";
 import classNames from "classnames";
-import React from "react";
+import React, {Component} from "react";
 
-class CategoryListRenderer extends React.Component {
-  constructor(props) {
-    super(props);
+/**
+ * @template T
+ * @typedef OwnProps
+ * @property {(stack: string[], items: T[], maxDepth: number) => string[] | T[]} itemListComposer
+ * @property {number} maxDepth
+ * @property {string} [className]
+ * @property {(stack: string[], backHandler: (event: React.MouseEvent<HTMLElement>) => void) => JSX.Element} [headerRenderer]
+ */
 
-    this.state = {
-      stack: []
-    };
+/**
+ * @typedef OwnState
+ * @property {string[]} stack
+ */
 
-    this.stackPush = item =>
-      this.setState(state => ({stack: [].concat(state.stack, item)}));
+/**
+ * @template T
+ * @extends {Component<import("@blueprintjs/select").IItemListRendererProps<T>&OwnProps<T>, OwnState>}
+ */
+class CategoryListRenderer extends Component {
+  state = {
+    stack: []
+  };
 
-    this.stackPop = () =>
-      this.setState(state => {
-        const stack = state.stack.slice();
-        stack.pop();
-        return {stack};
-      });
-  }
+  stackPush = item => this.setState(state => ({stack: state.stack.concat(item)}));
+
+  stackPop = () =>
+    this.setState(({stack}) => ({stack: stack.slice(0, stack.length - 1)}));
 
   render() {
     const {
+      // activeItem,
       className,
+      // filteredItems,
       headerRenderer = this.renderHeader,
       itemListComposer,
       items,
       itemsParentRef,
       maxDepth,
+      // query,
       renderItem
     } = this.props;
+
     const {stack} = this.state;
 
     if (!itemListComposer) {
@@ -55,7 +68,7 @@ class CategoryListRenderer extends React.Component {
 
     return (
       <div className={classNames("catlist-wrapper", `depth-${depth}`, className)}>
-        {headerRenderer && headerRenderer(stack, this.stackPop)}
+        {typeof headerRenderer === "function" && headerRenderer(stack, this.stackPop)}
         <Menu className="catlist-content" ulRef={itemsParentRef}>
           {itemsToDisplay.map(itemRenderer, this)}
         </Menu>
@@ -63,6 +76,10 @@ class CategoryListRenderer extends React.Component {
     );
   }
 
+  /**
+   * @param {string[]} stack
+   * @param {(event: React.MouseEvent<HTMLElement>) => void} [backHandler]
+   */
   renderHeader(stack, backHandler) {
     return (
       <div className="catlist-header">
@@ -74,6 +91,7 @@ class CategoryListRenderer extends React.Component {
     );
   }
 
+  /** @param {string} item */
   renderMenuItem(item) {
     // this should mimic the output of
     // <MenuItem onclick={} text={item} shouldDismissPopover={false} />

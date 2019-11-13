@@ -1,3 +1,5 @@
+import groupBy from "lodash/groupBy";
+
 /**
  * @template T
  * @param {T[]} list
@@ -74,26 +76,9 @@ export function levelIteratorFactory(dimensions) {
  * @param {T[]} target The base array to be used as target.
  * @returns {T[]}
  */
-export const ensureArray = (obj, target = []) => (obj == null ? target : target.concat(obj));
-
-/**
- * Iterates over all levels in a dimension array and returns the first that matches according to the `predicate` function.
- * TODO: try to use generics
- * @param {any[]} dimensions
- * @param {(level: any, hierarchy: any, dimension: any) => boolean} predicate
- */
-export const findLevel = (dimensions, predicate) => {
-  for (let dimension, d = 0; (dimension = dimensions[d]); d++) {
-    for (let hierarchy, h = 0; (hierarchy = dimension.hierarchies[h]); h++) {
-      for (let level, l = 0; (level = hierarchy.levels[l]); l++) {
-        if (predicate(level, hierarchy, dimension)) {
-          return level;
-        }
-      }
-    }
-  }
-  return undefined;
-};
+export function ensureArray(obj, target = []) {
+  return obj == null ? target : target.concat(obj);
+}
 
 /**
  * Replaces an item in an array of items. The item to replace is picked by the
@@ -104,7 +89,7 @@ export const findLevel = (dimensions, predicate) => {
  * @param {T[]} haystack
  * @param {keyof T} property
  */
-export const replaceItem = (needle, haystack, property) => {
+export function replaceItem(needle, haystack, property) {
   const propValue = needle[property];
   const index = haystack.findIndex(item => item[property] === propValue);
   if (index > -1) {
@@ -113,4 +98,59 @@ export const replaceItem = (needle, haystack, property) => {
     return haystackClone;
   }
   return haystack;
-};
+}
+
+/**
+ * Returns an array of permutations taking 2 elements from the supplied array.
+ * @template T
+ * @param {T[]} set
+ * @param {T[][]} result
+ */
+export function getPermutations(set, result = []) {
+  if (set.length === 0) return [];
+
+  const permute = (arr, m = []) => {
+    if (arr.length === 0) {
+      result.push(m);
+    }
+    else {
+      for (let i = 0; i < arr.length; i++) {
+        let curr = arr.slice();
+        let next = curr.splice(i, 1);
+        permute(curr.slice(), m.concat(next));
+      }
+    }
+  };
+
+  permute(set);
+
+  return result;
+}
+
+/**
+ * @param {any[]} dataset
+ * @param {object} param1
+ * @param {string} param1.levelName1
+ * @param {string} param1.timeLevelName
+ */
+export function getTopTenByYear(dataset, {levelName1, timeLevelName}) {
+  const groups = groupBy(dataset, timeLevelName);
+
+  let newDataset;
+  const topElements = Object.keys(groups).reduce((all, time) => {
+    const top = groups[time].slice(0, 10);
+    return all.concat(top);
+  }, []);
+
+  const topElementsDatasets = groupBy(topElements, levelName1);
+  if (Object.keys(topElementsDatasets).length > 12) {
+    const time = Object.keys(groups).sort().pop();
+    const timeElements = groupBy(groups[time].slice(0, 10), levelName1);
+    newDataset = dataset.filter(item => item[levelName1] in timeElements);
+  }
+  else {
+    newDataset = topElements;
+  }
+
+  return newDataset;
+}
