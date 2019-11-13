@@ -2,6 +2,8 @@ import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {Icon} from "@blueprintjs/core";
 import {hot} from "react-hot-loader/root";
+import PropTypes from "prop-types";
+import varSwapRecursive from "../../utils/varSwapRecursive";
 
 import Dropdown from "./Dropdown";
 import Select from "../fields/Select";
@@ -11,6 +13,7 @@ import sectionIconLookup from "../../utils/sectionIconLookup";
 import stripHTML from "../../utils/formatters/stripHTML";
 
 import {setStatus} from "../../actions/status";
+import {resetPreviews} from "../../actions/profiles";
 
 import "./Navbar.css";
 import "./Outline.css";
@@ -70,8 +73,40 @@ class Navbar extends Component {
     const localeContent = node.content.find(c => c.locale === localeDefault);
 
     let title = node.slug || "no title";
-    if (localeContent) title = stripHTML(localeContent.title);
+    if (localeContent) title = this.formatLabel.bind(this)(localeContent.title);
     return title;
+  }
+
+  handleClick(pathObj) {
+    const {currentPid, previews} = this.props.status;
+    console.log("clickedPid:", pathObj.profile);
+    const newPathObj = {...pathObj};
+    // If the pids match, don't reset any previews or variables
+    if (currentPid === pathObj.profile) {
+      console.log("same pids, not changing");
+      newPathObj.previews = previews;
+      this.props.setStatus({pathObj: newPathObj});
+    }
+    // If they don't match, update the currentPid and reset the preview
+    else {
+      // If previews is a string, we are coming in from the URL permalink. Pass it down to the pathobj.
+      // todo fix permalinks
+      // if (typeof pathObj.previews === "string") newPathObj.previews = pathObj.previews;
+      console.log("different pid! setting", pathObj.profile);
+      this.props.setStatus({currentPid: pathObj.profile, pathObj: newPathObj});
+      this.props.resetPreviews();
+    }
+  }
+
+  formatLabel(str) {
+    const {selectors} = this.props;
+    const {query, localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault] || {};
+    const formatters = this.context.formatters[localeDefault];
+    const {stripHTML} = formatters;
+    str = stripHTML(str);
+    str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
+    return str;
   }
 
   // TODO: add functionality
@@ -92,7 +127,7 @@ class Navbar extends Component {
 
   render() {
     const {auth, currentTab, onTabChange, profiles, stories} = this.props;
-    const {currentNode, currentPid, locales, localeDefault, localeSecondary} = this.props.status;
+    const {currentPid, locales, localeDefault, localeSecondary, pathObj} = this.props.status;
     const {outlineOpen, navOpen, settingsOpen} = this.state;
 
     let currEntity, currTree;
@@ -125,8 +160,7 @@ class Navbar extends Component {
           title: this.getNodeTitle(profile).toString() !== "New Profile"
             ? this.getNodeTitle(profile)
             : this.makeTitleFromDimensions(profile),
-          // TODO: change url, for obvious reasons. ProfileBuilder handleNodeClick logic?
-          url: `/?tab=profiles&profile=${profile.id}`,
+          onClick: this.handleClick.bind(this, {profile: profile.id}),
           selected: currentTab === "profiles" && currentPid === profile.id
         };
       });
@@ -161,22 +195,19 @@ class Navbar extends Component {
       {title: "Metadata"}
     ];
 
-    // console.log(currTree);
-    // console.log(currentPid);
-    // console.log(currentNode);
-    // console.log(this.props.status);
-
     const showLocales = locales;
     const showAccount = auth.user;
     const settingsAvailable = showLocales || showAccount;
+
+    const hasClicked = pathObj.profile || pathObj.story;
 
     return (
       <nav className={`cms-navbar${settingsOpen ? " settings-visible" : ""}`}>
         {/* main (top) top navbar */}
         <div className="cms-navbar-inner">
           {/* title */}
-          <div className={`cms-navbar-title ${currentNode ? "with-node" : "without-node" }${!outlineOpen ? " outline-open" : ""}`}>
-            {currEntity === "metadata" || !currentNode
+          <div className={`cms-navbar-title ${hasClicked ? "with-node" : "without-node" }${!outlineOpen ? " outline-open" : ""}`}>
+            {currEntity === "metadata" || !hasClicked
               // metadata; render as h1 with no controls
               ? <h1 className="cms-navbar-title-heading u-font-lg">
                 {currEntity === "metadata" ? "Metadata editor" : `Choose a ${currEntity}`}
@@ -313,14 +344,11 @@ class Navbar extends Component {
               <li className="cms-outline-item" key={node.id}>
                 <a
                   className={`cms-outline-link${
-                    currentNode.itemType === "section" && node.id === currentNode.data.id
+                    pathObj.section && pathObj.section === node.id
                       ? " is-selected" // current node
                       : ""
                   }`}
-                  href={currentTab === "profiles"
-                    ? `/?tab=profiles&profile=${currentPid}&section=${node.id}`
-                    : "/?tab=stories" // TODO
-                  }
+                  onClick={() => this.handleClick.bind(this)({profile: node.profile_id, section: node.id})}
                 >
                   <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
                   {this.getNodeTitle(node)}
@@ -362,15 +390,21 @@ class Navbar extends Component {
   }
 }
 
+Navbar.contextTypes = {
+  formatters: PropTypes.object
+};
+
 const mapStateToProps = state => ({
   auth: state.auth,
   status: state.cms.status,
   profiles: state.cms.profiles,
+  selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : [],
   stories: state.cms.stories
 });
 
 const mapDispatchToProps = dispatch => ({
-  setStatus: status => dispatch(setStatus(status))
+  setStatus: status => dispatch(setStatus(status)),
+  resetPreviews: () => dispatch(resetPreviews())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(Navbar));

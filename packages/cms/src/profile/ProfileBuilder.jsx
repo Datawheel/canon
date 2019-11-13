@@ -16,7 +16,7 @@ import treeify from "../utils/profile/treeify";
 
 import varSwapRecursive from "../utils/varSwapRecursive";
 
-import {getProfiles, newProfile, swapEntity, newEntity, deleteEntity, deleteProfile, resetPreviews, setVariables} from "../actions/profiles";
+import {getProfiles, newProfile, swapEntity, newEntity, deleteEntity, deleteProfile, setVariables} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 import {getCubeData} from "../actions/cubeData";
 import {getFormatters} from "../actions/formatters";
@@ -133,70 +133,6 @@ class ProfileBuilder extends Component {
     this.setState({nodeToDelete: false});
   }
 
-  handleNodeClick(node) {
-    node = this.locateNode(node.itemType, node.data.id);
-    const {nodes} = this.state;
-    const {currentNode, currentPid, previews, pathObj} = this.props.status;
-    let parentLength = 0;
-    if (node.itemType === "section") parentLength = this.locateNode("profile", node.data.profile_id).childNodes.length;
-    if (node.itemType === "profile") parentLength = nodes.length;
-    if (!currentNode) {
-      node.isSelected = true;
-      // If the node has a parent, it's a section. Expand its parent profile so we can see it.
-      if (node.parent) node.parent.isExpanded = true;
-      node.isExpanded = true;
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
-    }
-    else if (node.id !== currentNode.id) {
-      // close all profile nodes
-      if (node.itemType === "profile") {
-        nodes.filter(n => n.id !== node.id).forEach(node => node.isExpanded = false);
-      }
-      // select & expand the current node
-      node.isExpanded = true;
-      node.isSelected = true;
-      currentNode.isSelected = false;
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
-      currentNode.secondaryLabel = null;
-    }
-    // This case is needed because, even if the same node is reclicked, its CtxMenu MUST update to reflect the new node (it may no longer be in its old location)
-    else if (currentNode && node.id === currentNode.id) {
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
-    }
-    const newPathObj = {
-      profile: node.itemType === "profile" ? node.data.id : node.parent.data.id,
-      section: node.itemType === "section" ? node.data.id : undefined
-    };
-    // If the pids match, the master profile is the same, so keep the same preview
-    let clickedPid;
-    if (node.itemType === "profile") clickedPid = node.data.id;
-    if (node.itemType === "section") clickedPid = node.data.profile_id;
-    console.log("clickedPid:", clickedPid);
-    if (currentPid === clickedPid) {
-      console.log("same, not changing");
-      newPathObj.previews = previews;
-      this.props.setStatus({currentNode: node, pathObj: newPathObj});
-    }
-    // If they don't match, update the currentPid and reset the preview
-    else {
-      // If previews is a string, we are coming in from the URL permalink. Pass it down to the pathobj.
-      if (typeof pathObj.previews === "string") newPathObj.previews = pathObj.previews;
-      console.log("different! setting", clickedPid);
-      this.props.setStatus({currentNode: node, currentPid: clickedPid, pathObj: newPathObj});
-      this.props.resetPreviews();
-    }
-  }
-
-  handleNodeCollapse(node) {
-    node.isExpanded = false;
-    this.setState({nodes: this.state.nodes});
-  }
-
-  handleNodeExpand(node) {
-    node.isExpanded = true;
-    this.setState({nodes: this.state.nodes});
-  }
-
   locateProfileNodeByPid(pid) {
     return this.state.nodes.find(p => p.data.id === pid);
   }
@@ -255,44 +191,23 @@ class ProfileBuilder extends Component {
   render() {
 
     const {nodes, nodeToDelete, toolboxVisible} = this.state;
-    const {currentNode, currentPid, previews, gensLoaded, gensTotal, genLang} = this.props.status;
+    const {currentPid, gensLoaded, gensTotal, genLang, pathObj} = this.props.status;
 
     if (!nodes) return null;
 
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
-    const Editor = currentNode ? editorTypes[currentNode.itemType] : null;
+    const Editor = pathObj.section ? editorTypes.section : pathObj.profile ? editorTypes.profile : null;
+    const id = pathObj.section ? pathObj.section : pathObj.profile ? pathObj.profile : null;
 
     return (
       <React.Fragment>
         <div className="cms-panel profile-panel" id="profile-builder">
-          {/* <div className="cms-sidebar" id="tree">
-            <div className="cms-button-container">
-              <Button
-                onClick={this.createProfile.bind(this)}
-                namespace="cms"
-                className="cms-add-profile-button"
-                fontSize="xxs"
-                icon="plus"
-                iconPosition="right"
-                fill
-              >
-                add profile
-              </Button>
-            </div>
-
-            <SidebarTree
-              onNodeClick={this.handleNodeClick.bind(this)}
-              onNodeCollapse={this.handleNodeCollapse.bind(this)}
-              onNodeExpand={this.handleNodeExpand.bind(this)}
-              contents={nodes}
-            />
-          </div> */}
-
           <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
-            { currentNode
-              ? <Editor
-                id={currentNode.data.id}
-              >
+            { Editor
+              ? <Editor id={id}>
+                {
+                
+                /*
                 <Header
                   title={currentNode.label}
                   parentTitle={currentNode.itemType !== "profile" &&
@@ -301,6 +216,8 @@ class ProfileBuilder extends Component {
                   dimensions={previews}
                   slug={currentNode.data.slug}
                 />
+                */
+                }
 
                 <DimensionBuilder />
               </Editor>
@@ -372,7 +289,6 @@ const mapDispatchToProps = dispatch => ({
   newEntity: (type, payload) => dispatch(newEntity(type, payload)),
   swapEntity: (type, id) => dispatch(swapEntity(type, id)),
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
-  resetPreviews: () => dispatch(resetPreviews()),
   setStatus: status => dispatch(setStatus(status)),
   getFormatters: () => dispatch(getFormatters()),
   setVariables: newVariables => dispatch(setVariables(newVariables))

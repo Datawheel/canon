@@ -84,6 +84,7 @@ class Builder extends Component {
     if (prevProps.auth.loading && !this.props.auth.loading) {
       this.setState({userInit: true});
     }
+    // if location queries change, create new pathobj & set that 
     if (JSON.stringify(prevProps.status.pathObj) !== JSON.stringify(this.props.status.pathObj)) {
       this.setPath.bind(this)();
     }
@@ -126,7 +127,6 @@ class Builder extends Component {
     if (pathObj.story) url += `&story=${pathObj.story}`;
     if (pathObj.storysection) url += `&storysection=${pathObj.storysection}`;
     router.replace(url);
-    // this.props.setStatus({pathObj});
   }
 
   render() {
