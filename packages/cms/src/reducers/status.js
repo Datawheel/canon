@@ -1,10 +1,49 @@
 const deepClone = require("../utils/deepClone");
+// const {isObject} = require("d3plus-common");
+
+/* In Progress here: determining what variables are used by a profile.
+/*
+const extractVariables = (obj, variablesUsed = []) => {
+  Object.keys(obj).forEach(key => {
+    if (typeof obj[key] === "string") {
+      const matches = [];
+      const re = new RegExp(/\{\{([^\}]+)\}\}/g);
+      let match = re.exec(obj[key]);
+      while (match !== null) {
+        match = re.exec(obj[key]);
+        if (match) matches.push(match[1]);
+      }
+      if (matches.length > 0) {
+        matches.forEach(match => {
+          if (!variablesUsed.includes(match)) variablesUsed.push(match);
+        });
+      }
+    }
+    else if (isObject(obj[key])) {
+      return extractVariables(obj[key], variablesUsed);
+    }
+    else if (Array.isArray(obj[key])) {
+      return obj[key].map(d => extractVariables(d, variablesUsed));
+    }
+    else {
+      return 
+    }
+  });
+  return variablesUsed;
+};
+*/
 
 export default (status = {}, action) => {
   switch (action.type) {
     // Basic assign
     case "STATUS_SET": 
       return Object.assign({}, status, action.data);
+    
+    /*
+    case "PROFILES_GET":
+      const v = extractVariables(action.data);
+      return status;
+    */
     // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW": 
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "generator", forceOpen: true});
