@@ -32,6 +32,7 @@ class Navbar extends Component {
 
   componentDidMount() {
     this.props.getProfiles();
+    this.props.getStories();
     this.props.getFormatters();
     this.props.getCubeData();
   }
@@ -101,26 +102,34 @@ class Navbar extends Component {
   }
 
   handleClick(pathObj) {
-    const {currentPid, previews} = this.props.status;
-    console.log("clickedPid:", pathObj.profile);
     const newPathObj = {...pathObj};
-    // If the pids match, don't reset any previews or variables
-    if (currentPid === Number(pathObj.profile)) {
-      console.log("same pids, not changing");
-      newPathObj.previews = previews;
+    if (pathObj.tab === "profiles") {
+      const {currentPid, previews} = this.props.status;
+      console.log("clickedPid:", pathObj.profile);
+      // If the pids match, don't reset any previews or variables
+      if (currentPid === Number(pathObj.profile)) {
+        console.log("same pids, not changing");
+        newPathObj.previews = previews;
+        this.props.setStatus({pathObj: newPathObj});
+      }
+      // If they don't match, update the currentPid and reset the preview
+      else {
+        // If previews is a string, we are coming in from the URL permalink. Pass it down to the pathobj.
+        // todo fix permalinks
+        // if (typeof pathObj.previews === "string") newPathObj.previews = pathObj.previews;
+        console.log("different pid! setting", pathObj.profile, "via this object: ", newPathObj);
+        this.props.setStatus({currentPid: Number(pathObj.profile), pathObj: newPathObj});
+        this.props.resetPreviews();
+      }
+      if (pathObj.section) {
+        this.setState({outlineOpen: true});
+      }
+    }
+    else if (pathObj.tab === "stories") {
+      this.props.setStatus({currentStoryPid: Number(pathObj.story), pathObj: newPathObj});
+    }
+    else if (pathObj.tab === "metadata") {
       this.props.setStatus({pathObj: newPathObj});
-    }
-    // If they don't match, update the currentPid and reset the preview
-    else {
-      // If previews is a string, we are coming in from the URL permalink. Pass it down to the pathobj.
-      // todo fix permalinks
-      // if (typeof pathObj.previews === "string") newPathObj.previews = pathObj.previews;
-      console.log("different pid! setting", pathObj.profile, "via this object: ", newPathObj);
-      this.props.setStatus({currentPid: Number(pathObj.profile), pathObj: newPathObj});
-      this.props.resetPreviews();
-    }
-    if (pathObj.section) {
-      this.setState({outlineOpen: true});
     }
   }
 
