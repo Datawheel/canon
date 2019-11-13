@@ -1,27 +1,16 @@
 import React, {Component} from "react";
 import {EditableText, Icon} from "@blueprintjs/core";
-import Button from "../fields/Button";
 import "./Header.css";
 
 export default class Header extends Component {
-
-  nicknameProfile(value) {
-    console.log(value);
-  }
 
   renameSectionSlug(value) {
     console.log(value);
   }
 
-  renameSection() {
-    console.log("button clicked");
-  }
-
   render() {
     const {
-      parentTitle,
       dimensions,
-      title,
       slug
     } = this.props;
 
@@ -45,32 +34,6 @@ export default class Header extends Component {
 
     return (
       <header className="cms-header">
-        <h1 className="cms-header-title u-font-lg">
-          {!parentTitle
-
-            // profile
-            ? <span className="cms-header-title-main">
-              <EditableText
-                defaultValue={title}
-                confirmOnEnterKey={true}
-                onConfirm={this.nicknameProfile.bind(this)}
-              />
-              <Icon icon="edit" />
-            </span>
-
-            // section
-            : <React.Fragment>
-              <span className="cms-header-title-parent">{parentTitle} </span>
-              <span className="cms-header-title-main">
-                {title}
-                <Button className="cms-header-title-button" namespace="cms" fontSize="xxs" onClick={this.renameSection.bind(this)} icon="cog" iconOnly>
-                  rename section
-                </Button>
-              </span>
-            </React.Fragment>
-          }
-        </h1>
-
         <span className="cms-header-link-container">
           {dimensions && dimensions.length
             // proper URL can be constructed

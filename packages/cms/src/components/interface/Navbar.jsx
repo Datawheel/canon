@@ -10,7 +10,6 @@ import Select from "../fields/Select";
 import Button from "../fields/Button";
 
 import sectionIconLookup from "../../utils/sectionIconLookup";
-import stripHTML from "../../utils/formatters/stripHTML";
 
 import {setStatus} from "../../actions/status";
 import {resetPreviews} from "../../actions/profiles";
@@ -27,6 +26,24 @@ class Navbar extends Component {
       settingsOpen: false,
       currEntity: null
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const {currentPid} = this.props.status;
+    const oldMeta = JSON.stringify(prevProps.profiles.map(p => JSON.stringify(p.meta)));
+    const newMeta = JSON.stringify(this.props.profiles.map(p => JSON.stringify(p.meta)));
+    const changedMeta = oldMeta !== newMeta;
+
+    if (currentPid && changedMeta) {
+      console.log("Meta Changed: Resetting Previews");
+      this.props.resetPreviews();
+    }
+
+    const changedVariablesOrTitle = prevProps.status.diffCounter !== this.props.status.diffCounter;
+    const changedQuery = JSON.stringify(prevProps.status.query) !== JSON.stringify(this.props.status.query);
+    if (changedVariablesOrTitle || changedQuery) {
+      this.forceUpdate();
+    }
   }
 
   handleLocaleSelect(e) {

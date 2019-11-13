@@ -4,11 +4,8 @@ import {hot} from "react-hot-loader/root";
 import {NonIdealState, Alert, Intent} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import Button from "../components/fields/Button";
-import CtxMenu from "../components/interface/CtxMenu";
-import SidebarTree from "../components/interface/SidebarTree";
 import StoryEditor from "./StoryEditor";
 import StorySectionEditor from "./StorySectionEditor";
-import treeifystory from "../utils/profile/treeifystory";
 
 import {swapEntity, newEntity, deleteEntity} from "../actions/profiles";
 import {getStories, newStory, deleteStory} from "../actions/stories";
@@ -20,52 +17,12 @@ class StoryBuilder extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      nodes: null
+      
     };
   }
 
   componentDidMount() {
     this.props.getStories();
-  }
-
-  componentDidUpdate(prevProps) {
-    // Doing a JSON.Stringify is too expensive here - and we need to ONLY call buildNodes
-    // If certain properties of the stories obj has changed. Use a DIY stringify to detect changes.
-    const {nodes} = this.state;
-    const oldTree = prevProps.stories.reduce((acc, p) => `${acc}-${p.id}-${p.storysections.map(s => s.id).join()}`, "");
-    const newTree = this.props.stories.reduce((acc, p) => `${acc}-${p.id}-${p.storysections.map(s => s.id).join()}`, "");
-    const changedTree = oldTree !== newTree;
-    
-    if (!nodes || changedTree) {
-      console.log("Tree Changed: Rebuilding Tree");
-      this.buildNodes.bind(this)();
-    }
-  }
-
-  buildNodes(openNode) {
-    const {stories} = this.props;
-    const {localeDefault, pathObj} = this.props.status;
-    const nodes = treeifystory(stories, localeDefault);
-    if (!openNode) {
-      const {story, storysection} = pathObj;
-      let nodeToOpen;
-      if (storysection) {
-        nodeToOpen = this.locateNode("storysection", storysection, nodes);
-        if (!nodeToOpen) nodeToOpen = nodes[0];
-        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
-      }
-      else if (story) {
-        nodeToOpen = this.locateNode("story", story, nodes);
-        if (!nodeToOpen) nodeToOpen = nodes[0];
-        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
-      }
-      else {
-        this.setState({nodes});
-      }
-    }
-    else {
-      this.setState({nodes}, this.handleNodeClick.bind(this, nodes[0]));
-    }
   }
 
   moveItem(n) {
@@ -86,84 +43,14 @@ class StoryBuilder extends Component {
     this.setState({nodeToDelete: false});
   }
 
-  handleNodeClick(node) {
-    node = this.locateNode(node.itemType, node.data.id);
-    const {nodes} = this.state;
-    const {currentStoryNode} = this.props.status;
-    let parentLength = 0;
-    if (node.itemType === "storysection") parentLength = this.locateNode("story", node.data.story_id).childNodes.length;
-    if (node.itemType === "story") parentLength = nodes.length;
-    if (!currentStoryNode) {
-      // If the node has a parent, it's a section. Expand its parent profile so we can see it.
-      if (node.parent) node.parent.isExpanded = true;
-      node.isSelected = true;
-      node.isExpanded = true;
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
-    }
-    else if (node.id !== currentStoryNode.id) {
-      node.isExpanded = true;
-      node.isSelected = true;
-      currentStoryNode.isSelected = false;
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
-      currentStoryNode.secondaryLabel = null;
-    }
-    // This case is needed becuase, even if the same node is reclicked, its CtxMenu MUST update to reflect the new node (it may no longer be in its old location)
-    else if (currentStoryNode && node.id === currentStoryNode.id) {
-      node.secondaryLabel = <CtxMenu node={node} parentLength={parentLength} moveItem={this.moveItem.bind(this)} addItem={this.addItem.bind(this)} deleteItem={this.confirmDelete.bind(this)} />;
-    }
-    let ssParent;
-    if (node.itemType === "storysection") ssParent = this.locateNode("story", node.data.story_id);
-    const newPathObj = {
-      story: node.itemType === "story" ? node.data.id : ssParent.data.id,
-      storysection: node.itemType === "storysection" ? node.data.id : undefined
-    };
-    let clickedStoryPid;
-    if (node.itemType === "story") clickedStoryPid = node.data.id;
-    if (node.itemType === "storysection") clickedStoryPid = node.data.story_id;
-    this.props.setStatus({currentStoryNode: node, currentStoryPid: clickedStoryPid, pathObj: newPathObj});
-  }
-
   createStory() {
     this.props.newStory();
   }
 
-  handleNodeCollapse(node) {
-    node.isExpanded = false;
-    this.setState({nodes: this.state.nodes});
-  }
-
-  handleNodeExpand(node) {
-    node.isExpanded = true;
-    this.setState({nodes: this.state.nodes});
-  }
-
-  /**
-   * Given a node type (story, storysection) and an id, crawl down the tree and fetch a reference to the Tree node with that id
-   */
-  locateNode(type, id, pnodes) {
-    const nodes = pnodes || this.state.nodes;
-    let node = null;
-    if (type === "story") {
-      node = nodes.find(s => Number(s.data.id) === Number(id));
-    }
-    else if (type === "storysection") {
-      nodes.forEach(s => {
-        const attempt = s.childNodes.find(t => Number(t.data.id) === Number(id));
-        if (attempt) {
-          node = attempt;
-          node.parent = nodes.find(s => Number(s.data.id) === Number(node.data.story_id)); // add parent to node
-        }
-      });
-    }
-    return node;
-  }
-
   render() {
 
-    const {nodes, nodeToDelete} = this.state;
+    const {nodeToDelete} = this.state;
     const {currentStoryNode} = this.props.status;
-
-    if (!nodes) return null;
 
     return (
       <React.Fragment>
@@ -183,14 +70,6 @@ class StoryBuilder extends Component {
                 add story
               </Button>
             </div>
-
-            <SidebarTree
-              onNodeClick={this.handleNodeClick.bind(this)}
-              onNodeCollapse={this.handleNodeCollapse.bind(this)}
-              onNodeExpand={this.handleNodeExpand.bind(this)}
-              contents={nodes}
-            />
-
           </div>
           <div className="cms-editor" id="item-editor">
             { currentStoryNode

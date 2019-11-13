@@ -7,14 +7,9 @@ import SectionEditor from "./SectionEditor";
 import PropTypes from "prop-types";
 import DimensionBuilder from "../profile/DimensionBuilder";
 import Button from "../components/fields/Button";
-import CtxMenu from "../components/interface/CtxMenu";
-import SidebarTree from "../components/interface/SidebarTree";
 import Header from "../components/interface/Header";
 import Toolbox from "../components/interface/Toolbox";
 import Status from "../components/interface/Status";
-import treeify from "../utils/profile/treeify";
-
-import varSwapRecursive from "../utils/varSwapRecursive";
 
 import {getProfiles, newProfile, swapEntity, newEntity, deleteEntity, deleteProfile, setVariables} from "../actions/profiles";
 import {setStatus} from "../actions/status";
@@ -28,7 +23,6 @@ class ProfileBuilder extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      nodes: null,
       toolboxVisible: true
     };
   }
@@ -48,77 +42,10 @@ class ProfileBuilder extends Component {
     this.props.getCubeData();
   }
 
-  componentDidUpdate(prevProps) {
-    // Doing a JSON.Stringify is too expensive here - and we need to ONLY call buildNodes
-    // If certain properties of the profiles obj has changed. Use a DIY stringify to detect changes.
-    const {nodes} = this.state;
-    const {currentPid} = this.props.status;
-    const oldTree = prevProps.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, "");
-    const newTree = this.props.profiles.reduce((acc, p) => `${acc}-${p.id}-${p.sections.map(s => s.id).join()}`, "");
-    const changedTree = oldTree !== newTree;
-    const oldMeta = JSON.stringify(prevProps.profiles.map(p => JSON.stringify(p.meta)));
-    const newMeta = JSON.stringify(this.props.profiles.map(p => JSON.stringify(p.meta)));
-    const changedMeta = oldMeta !== newMeta;
-
-    if (!nodes || changedTree) {
-      console.log("Tree Changed: Rebuilding Tree");
-      this.buildNodes.bind(this)();
-    }
-    if (nodes && currentPid && changedMeta) {
-      console.log("Meta Changed: Resetting Previews");
-      this.props.resetPreviews();
-    }
-
-    const changedVariablesOrTitle = prevProps.status.diffCounter !== this.props.status.diffCounter;
-    const changedQuery = JSON.stringify(prevProps.status.query) !== JSON.stringify(this.props.status.query);
-    if (changedVariablesOrTitle || changedQuery) {
-      this.formatTreeVariables.bind(this)();
-    }
-
-  }
-
-  buildNodes(openNode) {
-    const {profiles} = this.props;
-    const {localeDefault, pathObj} = this.props.status;
-    const nodes = treeify(profiles, localeDefault);
-    if (!openNode) {
-      const {profile, section} = pathObj;
-      let nodeToOpen;
-      if (section) {
-        nodeToOpen = this.locateNode("section", section, nodes);
-        if (!nodeToOpen) nodeToOpen = nodes[0];
-        this.setState({nodes}, nodeToOpen ? this.handleNodeClick.bind(this, nodeToOpen) : null);
-      }
-      else if (profile) {
-        let nodeToOpen = this.locateNode("profile", profile, nodes);
-        if (!nodeToOpen) nodeToOpen = nodes[0];
-        this.setState({nodes}, nodeToOpen ? this.handleNodeClick.bind(this, nodeToOpen) : null);
-      }
-      else {
-        this.setState({nodes});
-      }
-    }
-    else {
-      if (typeof openNode !== "boolean") {
-        const nodeToOpen = this.locateProfileNodeByPid(openNode);
-        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
-      }
-      else {
-        const nodeToOpen = nodes[0];
-        this.setState({nodes}, this.handleNodeClick.bind(this, nodeToOpen));
-      }
-    }
-  }
-
   moveItem(n) {
     this.props.swapEntity(n.itemType, n.data.id);
   }
 
-  /**
-   * addItem is only ever used for sections, so lots of section-based assumptions are
-   * made here. if this is ever expanded out again to be a generic "item" adder
-   * then this will need to be generalized.
-   */
   addItem(n) {
     this.props.newEntity("section", {profile_id: n.data.profile_id});
   }
@@ -133,67 +60,14 @@ class ProfileBuilder extends Component {
     this.setState({nodeToDelete: false});
   }
 
-  locateProfileNodeByPid(pid) {
-    return this.state.nodes.find(p => p.data.id === pid);
-  }
-
   createProfile() {
     this.props.newProfile();
   }
 
-  /**
-   * Given a node type (profile, section) and an id, crawl down the tree and fetch a reference to the Tree node with that id
-   */
-  locateNode(type, id, pnodes) {
-    const nodes = pnodes || this.state.nodes;
-    let node = null;
-    if (type === "profile") {
-      node = nodes.find(p => Number(p.data.id) === Number(id));
-    }
-    else if (type === "section") {
-      nodes.forEach(p => {
-        const attempt = p.childNodes.find(t => Number(t.data.id) === Number(id));
-        if (attempt) {
-          node = attempt;
-          node.parent = nodes.find(p => Number(p.data.id) === Number(node.data.profile_id)); // add parent to node
-        }
-      });
-    }
-    return node;
-  }
-
-  formatLabel(str) {
-    const {selectors} = this.props;
-    const {query, localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
-    const formatters = this.context.formatters[localeDefault];
-    const {stripHTML} = formatters;
-    str = stripHTML(str);
-    str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
-    return str;
-  }
-
-  formatTreeVariables() {
-    const {nodes} = this.state;
-    const {currentPid, localeDefault} = this.props.status;
-    const p = this.locateProfileNodeByPid(currentPid);
-    const thisProfile = this.props.profiles.find(p => p.id === currentPid);
-    p.label = thisProfile.meta.length > 0 ? thisProfile.meta.map(d => d.slug).join("_") : "Add Dimensions";
-    p.childNodes = p.childNodes.map(n => {
-      const defCon = thisProfile.sections.find(s => s.id === n.data.id).content.find(c => c.locale === localeDefault);
-      const title = defCon && defCon.title ? defCon.title : n.data.slug;
-      n.label = this.formatLabel.bind(this)(title);
-      return n;
-    });
-    this.setState({nodes});
-  }
-
   render() {
 
-    const {nodes, nodeToDelete, toolboxVisible} = this.state;
-    const {currentPid, gensLoaded, gensTotal, genLang, pathObj} = this.props.status;
-
-    if (!nodes) return null;
+    const {nodeToDelete, toolboxVisible} = this.state;
+    const {currentPid, gensLoaded, gensTotal, genLang, pathObj, previews} = this.props.status;
 
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = pathObj.section ? editorTypes.section : pathObj.profile ? editorTypes.profile : null;
@@ -205,23 +79,10 @@ class ProfileBuilder extends Component {
           <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
             { Editor
               ? <Editor id={id}>
-                {
-                
-                /*
-                <Header
-                  title={currentNode.label}
-                  parentTitle={currentNode.itemType !== "profile" &&
-                    currentNode.parent.label
-                  }
-                  dimensions={previews}
-                  slug={currentNode.data.slug}
-                />
-                */
-                }
-
+                <Header dimensions={previews}/>
                 <DimensionBuilder />
               </Editor>
-              : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu on the left." visual="path-search" />
+              : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu above." visual="path-search" />
             }
 
             <Toolbox
