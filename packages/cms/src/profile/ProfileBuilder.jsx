@@ -72,12 +72,12 @@ class ProfileBuilder extends Component {
     const {nodeToDelete, toolboxVisible} = this.state;
     const {currentPid, gensLoaded, gensTotal, genLang, pathObj, previews, profilesLoaded} = this.props.status;
 
-    const type = pathObj.section ? "section" : "profile";
+    const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = editorTypes[type];
     const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
 
-    if (!profilesLoaded || !currentPid) return null;
+    if (!profilesLoaded) return null;
 
     return (
       <React.Fragment>
