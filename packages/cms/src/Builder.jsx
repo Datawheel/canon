@@ -29,7 +29,6 @@ class Builder extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentTab: null,
       formatters: {},
       userInit: false,
       outlineOpen: true
@@ -59,7 +58,6 @@ class Builder extends Component {
     }
 
     const pathObj = {profile, section, previews, story, storysection, tab: currentTab};
-    console.log("Loading page with ", pathObj);
 
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
@@ -73,11 +71,11 @@ class Builder extends Component {
         formatters[locale] = funcifyFormatterByLocale(this.props.formatters, locale);
       });
       this.props.setStatus({locales, localeSecondary, localeDefault, pathObj});
-      this.setState({formatters, currentTab});
+      this.setState({formatters});
     }
     else {
       this.props.setStatus({localeDefault, pathObj});
-      this.setState({formatters, currentTab});
+      this.setState({formatters});
     }
   }
 
@@ -98,20 +96,8 @@ class Builder extends Component {
     };
   }
 
-  handleTabChange(newTab) {
-    const {currentTab} = this.state;
-    if (newTab !== currentTab) {
-      const newPathObj = {tab: newTab};
-      this.setState({currentTab: newTab});
-      this.props.setStatus({pathObj: newPathObj});
-    }
-  }
-
   setPath() {
-    const {currentTab} = this.state;
-    // The underlying Editors don't know about tabs, so they will send pathObjs that don't have a tab in them.
-    // Always trust Builder.jsx's current tab, and assign it into whatever the Editors send up.
-    const pathObj = Object.assign({}, this.props.status.pathObj, {tab: currentTab});
+    const {pathObj} = this.props.status;
     const {router} = this.props;
     const {pathname} = router.location;
     let url = `${pathname}?tab=${pathObj.tab}`;
@@ -131,14 +117,16 @@ class Builder extends Component {
   }
 
   render() {
-    const {currentTab, userInit} = this.state;
+    const {userInit} = this.state;
     const {isEnabled, env, auth, router} = this.props;
+    const {pathObj} = this.props.status;
+    const currentTab = pathObj.tab;
     let {pathname} = router.location;
     if (pathname.charAt(0) !== "/") pathname = `/${pathname}`;
 
     const waitingForUser = yn(env.CANON_LOGINS) && !userInit;
 
-    if (!isEnabled || waitingForUser) return null;
+    if (!isEnabled || waitingForUser || !currentTab) return null;
 
     if (yn(env.CANON_LOGINS) && !auth.user) return <AuthForm redirect={pathname}/>;
 
@@ -147,11 +135,6 @@ class Builder extends Component {
         <AuthForm redirect={pathname} error={true} auth={auth} />
       );
     }
-
-    const navbarProps = {
-      currentTab,
-      onTabChange: tab => this.handleTabChange.bind(this)(tab)
-    };
 
     // Define component to render as editor
     let Builder;
@@ -169,7 +152,7 @@ class Builder extends Component {
 
     return (
       <div className={`cms cms-${currentTab}-page`}>
-        <Navbar {...navbarProps} key="navbar" />
+        <Navbar key="navbar" />
         <Builder key="editor" />
         {HiddenAce}
       </div>

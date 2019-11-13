@@ -11,10 +11,7 @@ import Header from "../components/interface/Header";
 import Toolbox from "../components/interface/Toolbox";
 import Status from "../components/interface/Status";
 
-import {getProfiles, newProfile, swapEntity, newEntity, deleteEntity, deleteProfile, setVariables} from "../actions/profiles";
 import {setStatus} from "../actions/status";
-import {getCubeData} from "../actions/cubeData";
-import {getFormatters} from "../actions/formatters";
 
 import "./ProfileBuilder.css";
 
@@ -34,12 +31,6 @@ class ProfileBuilder extends Component {
     return {
       onSetVariables: this.props.setVariables
     };
-  }
-
-  componentDidMount() {
-    this.props.getProfiles();
-    this.props.getFormatters();
-    this.props.getCubeData();
   }
 
   moveItem(n) {
@@ -145,16 +136,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getProfiles: () => dispatch(getProfiles()),
-  getCubeData: () => dispatch(getCubeData()),
-  newProfile: () => dispatch(newProfile()),
-  deleteProfile: id => dispatch(deleteProfile(id)),
-  newEntity: (type, payload) => dispatch(newEntity(type, payload)),
-  swapEntity: (type, id) => dispatch(swapEntity(type, id)),
-  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
-  setStatus: status => dispatch(setStatus(status)),
-  getFormatters: () => dispatch(getFormatters()),
-  setVariables: newVariables => dispatch(setVariables(newVariables))
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(ProfileBuilder));

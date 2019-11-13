@@ -14,7 +14,8 @@ const initialState = {
     diffCounter: 0,
     previews: null,
     variables: {},
-    query: {}
+    query: {},
+    pathObj: {}
   },
   cubeData: {},
   profiles: [],

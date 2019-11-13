@@ -11,8 +11,10 @@ import Button from "../fields/Button";
 
 import sectionIconLookup from "../../utils/sectionIconLookup";
 
+import {getProfiles, newProfile, swapEntity, newEntity, deleteEntity, deleteProfile, setVariables, resetPreviews} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
-import {resetPreviews} from "../../actions/profiles";
+import {getCubeData} from "../../actions/cubeData";
+import {getFormatters} from "../../actions/formatters";
 
 import "./Navbar.css";
 import "./Outline.css";
@@ -26,6 +28,12 @@ class Navbar extends Component {
       settingsOpen: false,
       currEntity: null
     };
+  }
+
+  componentDidMount() {
+    this.props.getProfiles();
+    this.props.getFormatters();
+    this.props.getCubeData();
   }
 
   componentDidUpdate(prevProps) {
@@ -46,7 +54,7 @@ class Navbar extends Component {
       this.forceUpdate();
     }
 
-    if (!prevProps.status.profilesLoaded && this.props.status.profilesLoaded) {
+    if (!prevProps.status.profilesLoaded && this.props.status.profilesLoaded && pathObj.profile) {
       console.log("Profiles loaded, attempting to click", pathObj);
       this.handleClick.bind(this)(pathObj);
     }
@@ -101,7 +109,6 @@ class Navbar extends Component {
   }
 
   handleClick(pathObj) {
-    if (!pathObj.profile) return;
     const {currentPid, previews} = this.props.status;
     console.log("clickedPid:", pathObj.profile);
     const newPathObj = {...pathObj};
@@ -155,8 +162,9 @@ class Navbar extends Component {
   }
 
   render() {
-    const {auth, currentTab, onTabChange, profiles, stories} = this.props;
+    const {auth, profiles, stories} = this.props;
     const {currentPid, locales, localeDefault, localeSecondary, pathObj} = this.props.status;
+    const currentTab = pathObj.tab;
     const {outlineOpen, navOpen, settingsOpen} = this.state;
 
     let currEntity, currTree;
@@ -189,7 +197,7 @@ class Navbar extends Component {
           title: this.getNodeTitle(profile).toString() !== "New Profile"
             ? this.getNodeTitle(profile)
             : this.makeTitleFromDimensions(profile),
-          onClick: this.handleClick.bind(this, {profile: profile.id}),
+          onClick: this.handleClick.bind(this, {profile: profile.id, tab: "profiles"}),
           selected: currentTab === "profiles" && currentPid === profile.id
         };
       });
@@ -285,7 +293,7 @@ class Navbar extends Component {
                 : <li className="cms-navbar-item" key={navLink.title}>
                   <button
                     className={`cms-navbar-link${navLink.title.toLowerCase() === currentTab ? " is-selected" : ""}`}
-                    onClick={() => onTabChange(navLink.title.toLowerCase())}
+                    onClick={() => this.handleClick.bind(this)({tab: navLink.title.toLowerCase()})}
                     onFocus={() => settingsAvailable && settingsOpen && i === navLinks.length - 1 ? this.closeSettings() : null}
                   >
                     {navLink.title}
@@ -377,7 +385,7 @@ class Navbar extends Component {
                       ? " is-selected" // current node
                       : ""
                   }`}
-                  onClick={() => this.handleClick.bind(this)({profile: node.profile_id, section: node.id})}
+                  onClick={() => this.handleClick.bind(this)({profile: node.profile_id, section: node.id, tab: "profiles"})}
                 >
                   <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
                   {this.getNodeTitle(node)}
@@ -431,7 +439,16 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  getProfiles: () => dispatch(getProfiles()),
+  getCubeData: () => dispatch(getCubeData()),
+  newProfile: () => dispatch(newProfile()),
+  deleteProfile: id => dispatch(deleteProfile(id)),
+  newEntity: (type, payload) => dispatch(newEntity(type, payload)),
+  swapEntity: (type, id) => dispatch(swapEntity(type, id)),
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
   setStatus: status => dispatch(setStatus(status)),
+  getFormatters: () => dispatch(getFormatters()),
+  setVariables: newVariables => dispatch(setVariables(newVariables)),
   resetPreviews: () => dispatch(resetPreviews())
 });
 
