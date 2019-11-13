@@ -15,6 +15,9 @@ class Table extends Component {
     this.state = {
       config: null
     };
+    this.props = {
+      minRowsForPagination: 15
+    };
 
     this.viz = React.createRef();
   }
@@ -25,7 +28,7 @@ class Table extends Component {
 
   buildConfig() {
     const propConfig = this.props.config;
-    const {dataFormat} = this.props;
+    const {dataFormat, minRowsForPagination} = this.props;
 
     const paginationButtonProps = {
       className: "cp-table-pagination-button",
@@ -57,11 +60,13 @@ class Table extends Component {
     if (typeof config.data === "string") {
       axios.get(config.data).then(resp => {
         config.data = dataFormat(resp.data);
+        if (config.data && config.data.length >= minRowsForPagination) config.showPagination = true;
         this.setState({config});
       });
     }
     else {
       config.data = dataFormat(config.data);
+      if (config.data && config.data.length >= minRowsForPagination) config.showPagination = true;
       this.setState({config});
     }
   }
