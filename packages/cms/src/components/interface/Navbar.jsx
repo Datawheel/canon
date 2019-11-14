@@ -40,7 +40,7 @@ class Navbar extends Component {
 
   componentDidUpdate(prevProps) {
     const {pathObj} = this.props.status;
-    
+
     // If the user renamed an entity or the variables changed, force an update to redraw the titles
     const changedVariablesOrTitle = prevProps.status.diffCounter !== this.props.status.diffCounter;
     const changedQuery = JSON.stringify(prevProps.status.query) !== JSON.stringify(this.props.status.query);
@@ -65,16 +65,16 @@ class Navbar extends Component {
     const {justCreated} = this.props.status;
     if (JSON.stringify(prevProps.status.justCreated) !== JSON.stringify(justCreated)) {
       if (justCreated.type === "profile") {
-        this.handleClick.bind(this)({profile: justCreated.id, tab: "profiles"});  
+        this.handleClick.bind(this)({profile: justCreated.id, tab: "profiles"});
       }
       if (justCreated.type === "section") {
         this.handleClick.bind(this)({profile: justCreated.profile_id, section: justCreated.id, tab: "profiles"});
       }
       if (justCreated.type === "story") {
-        this.handleClick.bind(this)({story: justCreated.id, tab: "stories"});  
+        this.handleClick.bind(this)({story: justCreated.id, tab: "stories"});
       }
       if (justCreated.type === "storysection") {
-        this.handleClick.bind(this)({story: justCreated.story_id, storysection: justCreated.id, tab: "stories"});  
+        this.handleClick.bind(this)({story: justCreated.story_id, storysection: justCreated.id, tab: "stories"});
       }
     }
 
@@ -184,10 +184,10 @@ class Navbar extends Component {
     const {currentPid, currentStoryPid, pathObj} = this.props.status;
     const {tab} = pathObj;
     if (tab === "profiles") {
-      this.handleClick.bind(this)({profile: currentPid, tab: "profiles"});  
+      this.handleClick.bind(this)({profile: currentPid, tab: "profiles"});
     }
     if (tab === "stories") {
-      this.handleClick.bind(this)({story: currentStoryPid, tab: "stories"});   
+      this.handleClick.bind(this)({story: currentStoryPid, tab: "stories"});
     }
   }
 
@@ -209,14 +209,14 @@ class Navbar extends Component {
       this.props.newEntity("storysection", {story_id: currentStoryPid});
     }
   }
-  
+
   swapSections(id) {
     const {tab} = this.props.status.pathObj;
     if (tab === "profiles") {
       this.props.swapEntity("section", id);
     }
     if (tab === "stories") {
-      this.props.swapEntity("storysection", id); 
+      this.props.swapEntity("storysection", id);
     }
   }
 
@@ -258,10 +258,7 @@ class Navbar extends Component {
     if (profiles.length) {
       profiles.map((profile, i) => {
         profileNavItems[i] = {
-          // get the profile title, or generate it from dimensions
-          title: this.getNodeTitle(profile).toString() !== "New Profile"
-            ? this.getNodeTitle(profile)
-            : this.makeTitleFromDimensions(profile),
+          title: this.makeTitleFromDimensions(profile),
           onClick: this.handleClick.bind(this, {profile: profile.id, tab: "profiles"}),
           selected: currentTab === "profiles" && currentPid === profile.id
         };
@@ -455,7 +452,7 @@ class Navbar extends Component {
         {/* outline */}
         {currTree &&
           <ul className={`cms-outline ${outlineOpen ? "is-open" : "is-closed"}`}>
-            {currTree.map(node =>
+            {currTree.map((node, i) =>
               <li className="cms-outline-item" key={node.id}>
                 <a
                   className={`cms-outline-link${
@@ -483,18 +480,20 @@ class Navbar extends Component {
                   >
                     Add new section
                   </Button>
-                  {/* swap section positions */}
-                  <Button
-                    onClick={() => this.swapSections(node.id)}
-                    className="cms-outline-item-actions-button"
-                    namespace="cms"
-                    fontSize="xxs"
-                    icon="swap-horizontal"
-                    iconOnly
-                    key={`${node.id}-swap-button`}
-                  >
-                    Swap positioning of current and next sections
-                  </Button>
+                  {/* swap section positions (not shown for last section) */}
+                  {i !== currTree.length - 1 &&
+                    <Button
+                      onClick={() => this.swapSections(node.id)}
+                      className="cms-outline-item-actions-button"
+                      namespace="cms"
+                      fontSize="xxs"
+                      icon="swap-horizontal"
+                      iconOnly
+                      key={`${node.id}-swap-button`}
+                    >
+                      Swap positioning of current and next sections
+                    </Button>
+                  }
                 </div>
               </li>
             )}
@@ -517,7 +516,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  // Profiles 
+  // Profiles
   getProfiles: () => dispatch(getProfiles()),
   newProfile: () => dispatch(newProfile()),
   deleteProfile: id => dispatch(deleteProfile(id)),

@@ -43,6 +43,7 @@
 .cms-dropdown:hover > .cms-dropdown-button,
 .cms-dropdown-button.is-active {
   background-color: var(--white);
+  z-index: 2; /* in front of dropdown menu */
 
   @mixin dark-mode {
   background-color: var(--black);

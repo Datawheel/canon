@@ -129,6 +129,11 @@
     z-index: auto;
     transform: none;
     transition-delay: 0.875s;
+
+    /* for sections with only one button (i.e., the last one) */
+    &:only-child {
+      height: 100%;
+    }
   }
 }
 .cms-outline-item:hover .cms-outline-item-actions,
