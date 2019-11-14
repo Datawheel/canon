@@ -57,6 +57,7 @@ class Navbar extends Component {
 
     const profilesLoaded = !prevProps.status.profilesLoaded && this.props.status.profilesLoaded;
     const storiesLoaded = !prevProps.status.storiesLoaded && this.props.status.storiesLoaded;
+    const pathChanged = JSON.stringify(prevProps.status.pathObj) !== JSON.stringify(this.props.status.pathObj);
 
     // If profiles load for the first time and pathObj is already set, this is a permalink. Open the node.
     if (profilesLoaded && pathObj.profile) {
@@ -70,12 +71,8 @@ class Navbar extends Component {
       this.handleClick.bind(this)(pathObj);
     }
 
-    // on first load of profiles or stories, format display
-    if (profilesLoaded || storiesLoaded) {
-      this.formatDisplay();
-    }
-    // when changing the URL, we'll also need to update the display
-    if (JSON.stringify(prevProps.status.pathObj) !== JSON.stringify(this.props.status.pathObj)) {
+    // on first load of profiles or stories, and on path change, format display
+    if (profilesLoaded || storiesLoaded || pathChanged) {
       this.formatDisplay();
     }
 
