@@ -31,7 +31,7 @@ class Navbar extends Component {
       currEntity: null,
       display: {  // see formatDisplay()
         currEntity: "",
-        currTree: "",
+        currTree: [],
         navLinks: []
       }
     };
