@@ -1,14 +1,10 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {Icon} from "@blueprintjs/core";
 import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
+import {Icon} from "@blueprintjs/core";
+
 import varSwapRecursive from "../../utils/varSwapRecursive";
-
-import Dropdown from "./Dropdown";
-import Select from "../fields/Select";
-import Button from "../fields/Button";
-
 import sectionIconLookup from "../../utils/sectionIconLookup";
 
 import {getProfiles, newProfile, swapEntity, newEntity, deleteEntity, deleteProfile, setVariables, resetPreviews} from "../../actions/profiles";
@@ -16,6 +12,10 @@ import {setStatus} from "../../actions/status";
 import {getCubeData} from "../../actions/cubeData";
 import {getFormatters} from "../../actions/formatters";
 import {getStories, newStory, deleteStory} from "../../actions/stories";
+
+import Dropdown from "./Dropdown";
+import Select from "../fields/Select";
+import Button from "../fields/Button";
 
 import "./Navbar.css";
 import "./Outline.css";

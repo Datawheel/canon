@@ -1,18 +1,25 @@
 import React, {Component, Fragment} from "react";
-import {EditableText, Icon} from "@blueprintjs/core";
+import {connect} from "react-redux";
+import {hot} from "react-hot-loader/root";
+import {Icon} from "@blueprintjs/core";
+
+import Button from "../fields/Button";
 import "./Header.css";
 
-export default class Header extends Component {
+class Header extends Component {
 
-  renameSectionSlug(value) {
-    console.log(value);
+  deleteProfile(pid) {
+    console.log(pid);
+  }
+  deleteSection(entity, pid, sectionId) {
+    console.log("entity", entity);
+    console.log("pid", pid);
+    console.log("sectionId", sectionId);
   }
 
   render() {
-    const {
-      dimensions,
-      slug
-    } = this.props;
+    const {dimensions, slug} = this.props;
+    const {currentPid, pathObj} = this.props.status;
 
     let domain = this.props;
     if (typeof domain !== "undefined" && typeof window !== "undefined" && window.document.location.origin) {
@@ -34,10 +41,10 @@ export default class Header extends Component {
 
     return (
       <header className="cms-header">
-        <span className="cms-header-link-container">
+        <span className="cms-header-link-container" key="header-link-container">
           {dimensions && dimensions.length
-            // proper URL can be constructed
-            ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "u-font-xs" : ""}`}>
+            // proper profile URL can be constructed
+            ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "u-font-xs" : ""}`} key="link">
               <Icon className="cms-header-link-icon" icon="link" key="cms-header-link-icon" />
               {/* dimensions & ids */}
               {prettyDomain}/profile{dimensions && dimensions.map(dim =>
@@ -46,26 +53,47 @@ export default class Header extends Component {
                   <span className="cms-header-link-id">{dim.memberSlug || dim.id}</span>
                 </Fragment>
               )}
+
+              {/* slug (not used by profiles) */}
+              {slug &&
+                <Fragment key="slug">#
+                  <span className="cms-header-link-slug">
+                    {slug}
+                  </span>
+                </Fragment>
+              }
             </a>
             // show the domain, but that's it
             : `${prettyDomain}/profile/`
           }
-
-          {/* edit slug button can't be part of link */}
-          {slug && dimensions && dimensions.length
-            ? <Fragment>#
-              <span className="cms-header-link-slug">
-                <EditableText
-                  defaultValue={slug}
-                  confirmOnEnterKey={true}
-                  onConfirm={this.renameSectionSlug.bind(this)}
-                />
-                <Icon icon="edit" />
-              </span>
-            </Fragment> : ""
-          }
         </span>
+
+        {/* delete entity */}
+        {/* TODO: make this a popover once we have more options */}
+        {currentPid && pathObj &&
+          <div className="header-actions-container" key="header-actions-container">
+            <Button
+              onClick={pathObj.tab === "profiles"
+                ? !pathObj.section
+                  ? this.deleteProfile(currentPid)
+                  : this.deleteSection("profile", currentPid, pathObj.section)
+                // stories (TODO)
+                : null}
+              icon="trash"
+              namespace="cms"
+              fontSize="xs"
+            >
+              Delete {pathObj.section ? "section" : "profile"}
+            </Button>
+          </div>
+        }
       </header>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(hot(Header));
