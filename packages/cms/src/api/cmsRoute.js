@@ -710,7 +710,7 @@ module.exports = function(app) {
     const row = await db.selector.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.selector.destroy({where: {id: req.query.id}});
     const selectors = await db.selector.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
-    return res.json({parent_id: row.profile_id, selectors});
+    return res.json({id: row.id, parent_id: row.profile_id, selectors});
   });
 
   app.delete("/api/cms/section_selector/delete", isEnabled, async(req, res) => {
@@ -745,7 +745,7 @@ module.exports = function(app) {
       });
       return profile;
     });
-    return res.json(profiles);
+    return res.json({id: row.id, profiles});
   });
 
   app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
@@ -779,7 +779,7 @@ module.exports = function(app) {
       });
       return story;
     });
-    return res.json(stories);
+    return res.json({id: row.id, stories});
   });
 
   app.delete("/api/cms/formatter/delete", isEnabled, async(req, res) => {
@@ -800,7 +800,7 @@ module.exports = function(app) {
       section.types = getSectionTypes();
       return section;
     });
-    return res.json({parent_id: row.profile_id, sections});
+    return res.json({id: row.id, parent_id: row.profile_id, sections});
   });
 
   app.delete("/api/cms/storysection/delete", isEnabled, async(req, res) => {
@@ -815,7 +815,7 @@ module.exports = function(app) {
       storysection.types = getSectionTypes();
       return storysection;
     });
-    return res.json({parent_id: row.story_id, storysections});
+    return res.json({id: row.id, parent_id: row.story_id, storysections});
   });
 
 };

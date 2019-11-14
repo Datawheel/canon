@@ -33,9 +33,6 @@ class Toolbox extends Component {
     const changedEntireProfile = oldSlugs !== newSlugs;
 
     const localeChanged = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
-    const bothLoaded = prevProps.profile && this.props.profile;
-    const generatorDeleted = bothLoaded && prevProps.profile.generators.length - 1 === this.props.profile.generators.length;
-    const materializerDeleted = bothLoaded && prevProps.profile.materializers.length - 1 === this.props.profile.materializers.length;
 
     if (changedSinglePreview) {
       console.log("dropdown changed");
@@ -52,19 +49,22 @@ class Toolbox extends Component {
       console.log("====FETCH====");
       this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
     }
-    // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
+    // Detect Deletions
+    const {justDeleted} = this.props.status;
+    if (JSON.stringify(prevProps.status.justDeleted) !== JSON.stringify(justDeleted)) {
+      // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
     // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
-    if (generatorDeleted) {
-      console.log("generator deleted");
-      console.log("====FETCH====");
-      this.props.fetchVariables({type: "generator", ids: [this.props.profile.deletedGeneratorID]});
+      if (justDeleted.type === "generator") {
+        console.log("generator deleted: ", justDeleted.id);
+        console.log("====FETCH====");
+        this.props.fetchVariables({type: "generator", ids: [justDeleted.id]});  
+      }
+      else if (justDeleted.type === "materializer") {
+        console.log("materializer deleted: ", justDeleted.id);
+        console.log("====FETCH====");
+        this.props.fetchVariables({type: "materializer", ids: [justDeleted.id]});
+      }
     }
-    if (materializerDeleted) {
-      console.log("materializer deleted");
-      console.log("====FETCH====");
-      this.props.fetchVariables({type: "materializer", ids: [this.props.profile.deletedMaterializerID]});
-    }
-
   }
 
   addItem(type) {

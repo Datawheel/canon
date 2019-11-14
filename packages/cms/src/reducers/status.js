@@ -82,8 +82,19 @@ export default (status = {}, action) => {
     case "DIMENSION_DELETE": 
       return Object.assign({}, status, {diffCounter: action.diffCounter});
     // Deleting a profile requires resetting currentNode/Pid. It will be reset when the jsx picks a new node automatically
+    // We need to set justDeleted so that the NavBar can listen for disappearing nodes, and automatically open a new one.
     case "PROFILE_DELETE": 
-      return Object.assign({}, status, {currentNode: false, currentPid: false});
+      return Object.assign({}, status, {justDeleted: {type: "profile", id: action.data.id}, currentPid: false});
+    case "SECTION_DELETE": 
+      return Object.assign({}, status, {justDeleted: {type: "section", id: action.data.id, parent_id: action.data.parent_id}});
+    case "GENERATOR_DELETE": 
+      return Object.assign({}, status, {justDeleted: {type: "generator", id: action.data.id, parent_id: action.data.parent_id}});
+    case "MATERIALIZER_DELETE": 
+      return Object.assign({}, status, {justDeleted: {type: "materializer", id: action.data.id, parent_id: action.data.parent_id}});
+    case "STORY_DELETE": 
+      return Object.assign({}, status, {justDeleted: {type: "story", id: action.data.id}, currentStoryPid: false});
+    case "STORYSECTION_DELETE": 
+      return Object.assign({}, status, {justDeleted: {type: "storysection", id: action.data.id, parent_id: action.data.parent_id}});
     default: return status;
   }
 };

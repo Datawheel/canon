@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
-import {NonIdealState, Intent, Alert} from "@blueprintjs/core";
+import {NonIdealState} from "@blueprintjs/core";
 import ProfileEditor from "./ProfileEditor";
 import SectionEditor from "./SectionEditor";
 import PropTypes from "prop-types";
@@ -77,13 +77,13 @@ class ProfileBuilder extends Component {
     const Editor = editorTypes[type];
     const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
 
-    if (!profilesLoaded || !currentPid) return null;
+    if (!profilesLoaded) return null;
 
     return (
       <React.Fragment>
         <div className="cms-panel profile-panel" id="profile-builder">
           <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
-            { Editor
+            { Editor && currentPid
               ? <Editor id={id}>
                 <Header dimensions={previews}/>
                 <DimensionBuilder />
@@ -115,18 +115,6 @@ class ProfileBuilder extends Component {
               done="Variables Loaded"
             />
           </div>
-
-          <Alert
-            isOpen={nodeToDelete}
-            cancelButtonText="Cancel"
-            confirmButtonText="Delete"
-            iconName="trash"
-            intent={Intent.DANGER}
-            onConfirm={() => this.deleteItem.bind(this)(nodeToDelete)}
-            onCancel={() => this.setState({nodeToDelete: false})}
-          >
-            {nodeToDelete ? `Are you sure you want to delete the ${nodeToDelete.itemType} "${nodeToDelete.label}" and all its children? This action cannot be undone.` : ""}
-          </Alert>
         </div>
       </React.Fragment>
     );

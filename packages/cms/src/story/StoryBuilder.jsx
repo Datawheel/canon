@@ -57,13 +57,13 @@ class StoryBuilder extends Component {
     const Editor = editorTypes[type];
     const id = pathObj.storysection ? Number(pathObj.storysection) : pathObj.story ? Number(pathObj.story) : null;
 
-    if (!storiesLoaded || !currentStoryPid) return null;
+    if (!storiesLoaded) return null;
 
     return (
       <React.Fragment>
         <div className="cms-panel story-panel" id="profile-builder">
           <div className="cms-editor" id="item-editor">
-            { Editor
+            { Editor && currentStoryPid
               ? <Editor id={id} />
               : <NonIdealState title="No Story Selected" description="Please select a Story from the menu above." visual="path-search" />
             }

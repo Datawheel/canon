@@ -67,17 +67,43 @@ class Navbar extends Component {
       if (justCreated.type === "profile") {
         this.handleClick.bind(this)({profile: justCreated.id, tab: "profiles"});
       }
-      if (justCreated.type === "section") {
+      else if (justCreated.type === "section") {
         this.handleClick.bind(this)({profile: justCreated.profile_id, section: justCreated.id, tab: "profiles"});
       }
-      if (justCreated.type === "story") {
+      else if (justCreated.type === "story") {
         this.handleClick.bind(this)({story: justCreated.id, tab: "stories"});
       }
-      if (justCreated.type === "storysection") {
+      else if (justCreated.type === "storysection") {
         this.handleClick.bind(this)({story: justCreated.story_id, storysection: justCreated.id, tab: "stories"});
       }
     }
 
+    // Handle Entity Deletion
+    const {justDeleted} = this.props.status;
+    if (JSON.stringify(prevProps.status.justDeleted) !== JSON.stringify(justDeleted)) {
+      if (justDeleted.type === "profile") {
+        const firstProfile = this.props.profiles[0];
+        if (firstProfile) this.handleClick({profile: firstProfile.id, tab: "profiles"});
+      }
+      if (justDeleted.type === "section") {
+        const thisProfile = this.props.profiles.find(p => p.id === justDeleted.parent_id);
+        if (thisProfile) {
+          const thisSection = thisProfile.sections[0];
+          if (thisSection) this.handleClick({profile: thisProfile.id, section: thisSection.id, tab: "profiles"}); 
+        }
+      }
+      if (justDeleted.type === "story") {
+        const firstStory = this.props.stories[0];
+        if (firstStory) this.handleClick({story: firstStory.id, tab: "stories"});
+      }
+      if (justDeleted.type === "storysection") {
+        const thisStory = this.props.stories.find(p => p.id === justDeleted.parent_id);
+        if (thisStory) {
+          const thisStorysection = thisStory.storysections[0];
+          if (thisStorysection) this.handleClick({story: thisStory.id, storysection: thisStorysection.id, tab: "stories"}); 
+        }
+      }
+    }
   }
 
   handleLocaleSelect(e) {

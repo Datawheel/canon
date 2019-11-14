@@ -43,7 +43,7 @@ export default (stories = [], action) => {
     case "STORY_NEW":
       return stories.concat([action.data]);
     case "STORY_DELETE":
-      return action.data;
+      return action.data.stories;
     case "STORY_UPDATE":
       return stories.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data}) : p);
     case "STORY_SWAP":

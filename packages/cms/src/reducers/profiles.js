@@ -29,7 +29,7 @@ export default (profiles = [], action) => {
     case "PROFILE_NEW":
       return profiles.concat([action.data]);
     case "PROFILE_DELETE":
-      return action.data;
+      return action.data.profiles;
     case "PROFILE_UPDATE":
       return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data}) : p);
     case "PROFILE_SWAP":
@@ -49,7 +49,7 @@ export default (profiles = [], action) => {
           : p
       );
     case "GENERATOR_DELETE":
-      return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {deletedGeneratorID: action.data.id, generators: action.data.generators}) : p);
+      return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {generators: action.data.generators}) : p);
     case "MATERIALIZER_NEW":
       return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {materializers: p.materializers.concat([action.data])}) : p);
     case "MATERIALIZER_UPDATE":
@@ -59,7 +59,7 @@ export default (profiles = [], action) => {
           : p
       );
     case "MATERIALIZER_DELETE":
-      return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {deletedMaterializerID: action.data.id, materializers: action.data.materializers}) : p);
+      return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {materializers: action.data.materializers}) : p);
     case "MATERIALIZER_SWAP": 
       return profiles.map(p => 
         Object.assign({}, p, {materializers: p.materializers.map(m => {
