@@ -159,6 +159,9 @@
 /* when the link is a button */
 button.cms-dropdown-link {
   @mixin button-reset;
+  display: block;
+  width: 100%;
+  text-align: left;
 }
 /* link theming */
 .cms-dropdown-link {
