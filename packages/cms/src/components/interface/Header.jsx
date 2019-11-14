@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {EditableText, Icon} from "@blueprintjs/core";
 import "./Header.css";
 
@@ -38,12 +38,13 @@ export default class Header extends Component {
           {dimensions && dimensions.length
             // proper URL can be constructed
             ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "u-font-xs" : ""}`}>
+              <Icon className="cms-header-link-icon" icon="link" key="cms-header-link-icon" />
               {/* dimensions & ids */}
               {prettyDomain}/profile{dimensions && dimensions.map(dim =>
-                <React.Fragment key={dim.slug}>/
+                <Fragment key={dim.slug}>/
                   <span className="cms-header-link-dimension">{dim.slug}</span>/
                   <span className="cms-header-link-id">{dim.memberSlug || dim.id}</span>
-                </React.Fragment>
+                </Fragment>
               )}
             </a>
             // show the domain, but that's it
@@ -52,7 +53,7 @@ export default class Header extends Component {
 
           {/* edit slug button can't be part of link */}
           {slug && dimensions && dimensions.length
-            ? <React.Fragment>#
+            ? <Fragment>#
               <span className="cms-header-link-slug">
                 <EditableText
                   defaultValue={slug}
@@ -61,7 +62,7 @@ export default class Header extends Component {
                 />
                 <Icon icon="edit" />
               </span>
-            </React.Fragment> : ""
+            </Fragment> : ""
           }
         </span>
       </header>
