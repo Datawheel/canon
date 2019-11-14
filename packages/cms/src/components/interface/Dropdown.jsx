@@ -39,7 +39,10 @@ class Dropdown extends Component {
     return <El
       className={`${namespace}-dropdown-link${item.selected ? " is-selected" : ""}`}
       href={item.url}
-      onClick={item.onClick}
+      onClick={() => {
+        item.onClick();
+        this.setState({isOpen: false});
+      }}
       onFocus={() => this.setState({isOpen: true})}
     >
       {item.title}

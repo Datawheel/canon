@@ -41,6 +41,7 @@ class Navbar extends Component {
   componentDidUpdate(prevProps) {
     const {pathObj} = this.props.status;
     
+    // If the user renamed an entity or the variables changed, force an update to redraw the titles
     const changedVariablesOrTitle = prevProps.status.diffCounter !== this.props.status.diffCounter;
     const changedQuery = JSON.stringify(prevProps.status.query) !== JSON.stringify(this.props.status.query);
     if (changedVariablesOrTitle || changedQuery) {
@@ -48,14 +49,28 @@ class Navbar extends Component {
       this.forceUpdate();
     }
 
+    // If profiles load for the first time and pathObj is already set, this is a permalink. Open the node.
     if (!prevProps.status.profilesLoaded && this.props.status.profilesLoaded && pathObj.profile) {
       console.log("Profiles loaded, attempting to click", pathObj);
       this.handleClick.bind(this)(pathObj);
     }
 
+    // If stories load for the first time and pathObj is already set, this is a permalink. Open the node.
     if (!prevProps.status.storiesLoaded && this.props.status.storiesLoaded && pathObj.story) {
       console.log("Stories loaded, attempting to click", pathObj);
       this.handleClick.bind(this)(pathObj);
+    }
+
+    // Profile creation
+    if (this.props.status.profilesLoaded && prevProps.profiles.length === this.props.profiles.length - 1) {
+      const newProfile = this.props.profiles[this.props.profiles.length - 1];
+      this.handleClick.bind(this)({profile: newProfile.id, tab: "profiles"});
+    }
+
+    // Story creation
+    if (this.props.status.storiesLoaded && prevProps.stories.length === this.props.stories.length - 1) {
+      const newStory = this.props.stories[this.props.stories.length - 1];
+      this.handleClick.bind(this)({story: newStory.id, tab: "stories"});
     }
   }
 
@@ -169,12 +184,15 @@ class Navbar extends Component {
       this.handleClick.bind(this)({story: currentStoryPid, tab: "stories"});   
     }
   }
+
   createProfile() {
-    console.log("TODO: create profile"); // create a new profile when clicking the button in the profile dropdown
+    this.props.newProfile();
   }
+
   createStory() {
-    console.log("TODO: create story"); 
+    this.props.newStory();
   }
+
   createSection(id) {
     const {currentTab} = this.props;
     console.log(`TODO: add new ${currentTab} section after section ${id}`); // add a new section by clicking button adjacent to section node
