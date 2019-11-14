@@ -70,7 +70,7 @@
   & > * { top: -1px; } /* fudge baseline */
 
   & .cms-navbar-title-button-icon {
-    vertical-align: middle;
+    vertical-align: baseline;
     margin-right: 0.125em;
     /* transitions */
     transition:
