@@ -194,12 +194,18 @@ class Navbar extends Component {
   }
 
   createSection(id) {
-    const {currentTab} = this.props;
-    console.log(`TODO: add new ${currentTab} section after section ${id}`); // add a new section by clicking button adjacent to section node
+    const {tab} = this.props.status.pathObj;
+    console.log(`TODO: add new ${tab} section after section ${id}`); // add a new section by clicking button adjacent to section node
   }
-  swapSectionsPosition(id) {
-    const {currentTab} = this.props;
-    console.log(`TODO: move ${currentTab} section ${id} postion down/right by one`); // reorder two adjacent sections by clicking button adjacent to first section node
+  
+  swapSections(id) {
+    const {tab} = this.props.status.pathObj;
+    if (tab === "profiles") {
+      this.props.swapEntity("section", id);
+    }
+    if (tab === "stories") {
+      this.props.swapEntity("storysection", id); 
+    }
   }
 
   render() {
