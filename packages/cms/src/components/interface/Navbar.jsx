@@ -28,7 +28,12 @@ class Navbar extends Component {
       navOpen: false,
       outlineOpen: true,
       settingsOpen: false,
-      currEntity: null
+      currEntity: null,
+      display: {  // see formatDisplay()
+        currEntity: "",
+        currTree: "",
+        navLinks: []
+      }
     };
   }
 
@@ -50,16 +55,28 @@ class Navbar extends Component {
       this.forceUpdate();
     }
 
+    const profilesLoaded = !prevProps.status.profilesLoaded && this.props.status.profilesLoaded;
+    const storiesLoaded = !prevProps.status.storiesLoaded && this.props.status.storiesLoaded;
+
     // If profiles load for the first time and pathObj is already set, this is a permalink. Open the node.
-    if (!prevProps.status.profilesLoaded && this.props.status.profilesLoaded && pathObj.profile) {
+    if (profilesLoaded && pathObj.profile) {
       console.log("Profiles loaded, attempting to click", pathObj);
       this.handleClick.bind(this)(pathObj);
     }
 
     // If stories load for the first time and pathObj is already set, this is a permalink. Open the node.
-    if (!prevProps.status.storiesLoaded && this.props.status.storiesLoaded && pathObj.story) {
+    if (storiesLoaded && pathObj.story) {
       console.log("Stories loaded, attempting to click", pathObj);
       this.handleClick.bind(this)(pathObj);
+    }
+
+    // on first load of profiles or stories, format display
+    if (profilesLoaded || storiesLoaded) {
+      this.formatDisplay();
+    }
+    // when changing the URL, we'll also need to update the display
+    if (JSON.stringify(prevProps.status.pathObj) !== JSON.stringify(this.props.status.pathObj)) {
+      this.formatDisplay();
     }
 
     // Handle Entity Creation
@@ -90,7 +107,7 @@ class Navbar extends Component {
         const thisProfile = this.props.profiles.find(p => p.id === justDeleted.parent_id);
         if (thisProfile) {
           const thisSection = thisProfile.sections[0];
-          if (thisSection) this.handleClick({profile: thisProfile.id, section: thisSection.id, tab: "profiles"}); 
+          if (thisSection) this.handleClick({profile: thisProfile.id, section: thisSection.id, tab: "profiles"});
         }
       }
       if (justDeleted.type === "story") {
@@ -101,7 +118,7 @@ class Navbar extends Component {
         const thisStory = this.props.stories.find(p => p.id === justDeleted.parent_id);
         if (thisStory) {
           const thisStorysection = thisStory.storysections[0];
-          if (thisStorysection) this.handleClick({story: thisStory.id, storysection: thisStorysection.id, tab: "stories"}); 
+          if (thisStorysection) this.handleClick({story: thisStory.id, storysection: thisStorysection.id, tab: "stories"});
         }
       }
     }
@@ -197,30 +214,11 @@ class Navbar extends Component {
     return str;
   }
 
-  toggleEntitySettings() {
+  /** format the data so it can be displayed/used */
+  formatDisplay() {
+    const {profiles, stories} = this.props;
     const {currentPid, currentStoryPid, pathObj} = this.props.status;
-    const {tab} = pathObj;
-    if (tab === "profiles") {
-      this.handleClick.bind(this)({profile: currentPid, tab: "profiles"});
-    }
-    if (tab === "stories") {
-      this.handleClick.bind(this)({story: currentStoryPid, tab: "stories"});
-    }
-  }
-
-  createProfile() {
-    this.props.newProfile();
-  }
-
-  createStory() {
-    this.props.newStory();
-  }
-
-  render() {
-    const {auth, profiles, stories} = this.props;
-    const {currentPid, currentStoryPid, locales, localeDefault, localeSecondary, pathObj} = this.props.status;
     const currentTab = pathObj.tab;
-    const {outlineOpen, navOpen, settingsOpen} = this.state;
 
     let currEntity, currTree;
     if (currentTab === "metadata") currEntity = "metadata"; // done
@@ -237,7 +235,7 @@ class Navbar extends Component {
       }
     }
 
-    // TODO: get entity title and sections for stories
+    // get entity title and sections for stories
     if (currentTab === "stories") {
       currEntity = "story";
       const currStory = currentStoryPid ? this.getEntityId(currentStoryPid, stories) : null;
@@ -302,6 +300,36 @@ class Navbar extends Component {
       },
       {title: "Metadata"}
     ];
+
+    this.setState({display: {currEntity, currTree, navLinks}});
+    // console.log(this.state.display);
+  }
+
+  toggleEntitySettings() {
+    const {currentPid, currentStoryPid, pathObj} = this.props.status;
+    const {tab} = pathObj;
+    if (tab === "profiles") {
+      this.handleClick.bind(this)({profile: currentPid, tab: "profiles"});
+    }
+    if (tab === "stories") {
+      this.handleClick.bind(this)({story: currentStoryPid, tab: "stories"});
+    }
+  }
+
+  createProfile() {
+    this.props.newProfile();
+  }
+
+  createStory() {
+    this.props.newStory();
+  }
+
+  render() {
+    const {auth} = this.props;
+    const {locales, localeDefault, localeSecondary, pathObj} = this.props.status;
+    const currentTab = pathObj.tab;
+    const {display, outlineOpen, navOpen, settingsOpen} = this.state;
+    const {currEntity, currTree, navLinks} = display;
 
     const showLocales = locales;
     const showAccount = auth.user;
