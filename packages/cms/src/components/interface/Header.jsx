@@ -26,14 +26,14 @@ class Header extends Component {
       const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
       if (type && id) {
         this.setState({itemToDelete: {type, id}});
-      }  
+      }
     }
     else if (pathObj.tab === "stories") {
       const type = pathObj.storysection ? "storysection" : pathObj.story ? "story" : null;
       const id = pathObj.storysection ? Number(pathObj.storysection) : pathObj.story ? Number(pathObj.story) : null;
       if (type && id) {
         this.setState({itemToDelete: {type, id}});
-      }  
+      }
     }
   }
 
@@ -108,10 +108,10 @@ class Header extends Component {
     const showLink = pathObj.tab === "stories" || dimensions && dimensions.length > 0;
 
     return (
-      <React.Fragment>
+      <Fragment>
         <header className="cms-header">
           <span className="cms-header-link-container" key="header-link-container">
-            {showLink 
+            {showLink
               // proper profile URL can be constructed
               ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "u-font-xs" : ""}`} key="link">
                 <Icon className="cms-header-link-icon" icon="link" key="cms-header-link-icon" />
@@ -134,19 +134,21 @@ class Header extends Component {
 
           {/* delete entity */}
           {/* TODO: make this a popover once we have more options */}
-          {showDeleteButton && 
-            <div className="header-actions-container" key="header-actions-container">
+          {showDeleteButton &&
+            <div className="cms-header-actions-container" key="header-actions-container">
               <Button
+                className="cms-header-actions-button cms-header-delete-button"
                 onClick={this.maybeDelete.bind(this)}
                 icon="trash"
                 namespace="cms"
                 fontSize="xs"
               >
-                {`Delete ${entityType}?`}
+                {`Delete ${entityType === "storysection" ? "section" : entityType}`}
               </Button>
             </div>
           }
         </header>
+
         <Alert
           isOpen={itemToDelete}
           cancelButtonText="Cancel"
@@ -158,7 +160,7 @@ class Header extends Component {
         >
           {itemToDelete ? `Are you sure you want to delete this ${itemToDelete.type} and all its children? This action cannot be undone.` : ""}
         </Alert>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }

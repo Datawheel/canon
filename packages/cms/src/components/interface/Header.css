@@ -5,54 +5,24 @@
   align-items: baseline;
   justify-content: space-between;
   flex-wrap: wrap;
+}
 
-  /* main title */
-  & .cms-header-title {
-    margin-top: 0;
-    font-weight: 500;
+/* link to profile */
+.cms-header-link-container {
+  /* sizing (limit max width & account for link icon) */
+  @mixin overflow-ellipsis;
+  max-width: calc(100% + 1.5em);
+  height: 1.5em; /* needed for text-overflow: ellipsis */
+  margin-left: -1.25em;
+  padding-left: 1.25em;
+  /* space out from button(s) when wrapping */
+  margin-bottom: 1.25rem;
+  /* theming */
+  color: var(--dark-2);
+  transition: border 0.2s ease-out;
 
-    /* preceeds section title */
-    & > .cms-header-title-parent {
-      font-weight: 300;
-      color: var(--dark-1);
-    }
-
-    /* main title text */
-    & > .cms-header-title-main {
-      color: var(--accent-black);
-      display: inline-block; /* keep with icon */
-
-      @mixin dark-mode {
-        color: var(--accent-light);
-      }
-    }
-
-    /* edit title button */
-    & .cms-header-title-button {
-      margin-left: 0.5em; /* space out from title */
-      margin-right: 1.25rem; /* space out from link */
-      top: -1px;
-    }
-  }
-
-
-  /* link to profile */
-  & .cms-header-link-container {
-    /* sizing (limit max width & account for link icon) */
-    @mixin overflow-ellipsis;
-    max-width: calc(100% + 1.5em);
-    height: 1.5em; /* needed for text-overflow: ellipsis */
-    margin-left: -1.25em;
-    padding-left: 1.25em;
-    /* space out from button(s) when wrapping */
-    margin-bottom: 1.25rem;
-    /* theming */
-    color: var(--dark-2);
-    transition: border 0.2s ease-out;
-
-    @mixin dark-mode {
-      color: var(--gray);
-    }
+  @mixin dark-mode {
+    color: var(--gray);
   }
 
   /* reset actual link */
@@ -98,5 +68,14 @@
     @mixin dark-mode {
       color: var(--light-1);
     }
+  }
+}
+
+.cms-header-actions-container {
+  margin-bottom: var(--gutter-md);
+
+  & .cms-header-delete-button:hover,
+  & .cms-header-delete-button:focus {
+    @mixin error-text;
   }
 }

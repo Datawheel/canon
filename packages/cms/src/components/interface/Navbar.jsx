@@ -5,20 +5,19 @@ import PropTypes from "prop-types";
 import {Icon} from "@blueprintjs/core";
 
 import varSwapRecursive from "../../utils/varSwapRecursive";
-import sectionIconLookup from "../../utils/sectionIconLookup";
 
-import {getProfiles, newProfile, swapEntity, newEntity, deleteEntity, deleteProfile, setVariables, resetPreviews} from "../../actions/profiles";
+import {getProfiles, newProfile, deleteProfile, setVariables, resetPreviews} from "../../actions/profiles";
+import {getStories, newStory, deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
 import {getCubeData} from "../../actions/cubeData";
 import {getFormatters} from "../../actions/formatters";
-import {getStories, newStory, deleteStory} from "../../actions/stories";
 
 import Dropdown from "./Dropdown";
+import Outline from "./Outline";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
 
 import "./Navbar.css";
-import "./Outline.css";
 
 class Navbar extends Component {
   constructor(props) {
@@ -151,17 +150,8 @@ class Navbar extends Component {
 
     let title = node.slug || "no title";
     if (localeContent) title = this.formatLabel.bind(this)(localeContent.title);
-    return title;
-  }
 
-  handleSectionClick(node) {
-    const {tab} = this.props.status.pathObj;
-    if (tab === "profiles") {
-      this.handleClick.bind(this)({profile: node.profile_id, section: node.id, tab: "profiles"});
-    }
-    if (tab === "stories") {
-      this.handleClick.bind(this)({story: node.story_id, storysection: node.id, tab: "stories"});
-    }
+    return title;
   }
 
   handleClick(pathObj) {
@@ -223,27 +213,6 @@ class Navbar extends Component {
 
   createStory() {
     this.props.newStory();
-  }
-
-  createSection(id) {
-    const {tab} = this.props.status.pathObj;
-    const {currentPid, currentStoryPid} = this.props.status;
-    if (tab === "profiles") {
-      this.props.newEntity("section", {profile_id: currentPid});
-    }
-    if (tab === "stories") {
-      this.props.newEntity("storysection", {story_id: currentStoryPid});
-    }
-  }
-
-  swapSections(id) {
-    const {tab} = this.props.status.pathObj;
-    if (tab === "profiles") {
-      this.props.swapEntity("section", id);
-    }
-    if (tab === "stories") {
-      this.props.swapEntity("storysection", id);
-    }
   }
 
   render() {
@@ -475,56 +444,12 @@ class Navbar extends Component {
           }
         </div>
 
-        {/* outline */}
-        {currTree &&
-          <ul className={`cms-outline ${outlineOpen ? "is-open" : "is-closed"}`}>
-            {currTree.map((node, i) =>
-              <li className="cms-outline-item" key={node.id}>
-                <a
-                  className={`cms-outline-link${
-                    pathObj.section && Number(pathObj.section) === node.id || pathObj.storysection && Number(pathObj.storysection === node.id)
-                      ? " is-selected" // current node
-                      : ""
-                  }`}
-                  onClick={() => this.handleSectionClick.bind(this)(node)}
-                >
-                  <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
-                  {this.getNodeTitle(node)}
-                </a>
-
-                {/* add section / swap section position buttons */}
-                <div className="cms-outline-item-actions cms-button">
-                  {/* add section */}
-                  <Button
-                    onClick={() => this.createSection(node.id)}
-                    className="cms-outline-item-actions-button"
-                    namespace="cms"
-                    fontSize="xxs"
-                    icon="plus"
-                    iconOnly
-                    key={`${node.id}-add-button`}
-                  >
-                    Add new section
-                  </Button>
-                  {/* swap section positions (not shown for last section) */}
-                  {i !== currTree.length - 1 &&
-                    <Button
-                      onClick={() => this.swapSections(node.id)}
-                      className="cms-outline-item-actions-button"
-                      namespace="cms"
-                      fontSize="xxs"
-                      icon="swap-horizontal"
-                      iconOnly
-                      key={`${node.id}-swap-button`}
-                    >
-                      Swap positioning of current and next sections
-                    </Button>
-                  }
-                </div>
-              </li>
-            )}
-          </ul>
-        }
+        <Outline
+          tree={currTree}
+          isOpen={outlineOpen}
+          getNodeTitle={node => this.getNodeTitle(node)}
+          handleClick={pathObj => this.handleClick(pathObj)}
+        />
       </nav>
     );
   }
@@ -551,10 +476,6 @@ const mapDispatchToProps = dispatch => ({
   getStories: () => dispatch(getStories()),
   newStory: () => dispatch(newStory()),
   deleteStory: id => dispatch(deleteStory(id)),
-  // Entity Operations
-  newEntity: (type, payload) => dispatch(newEntity(type, payload)),
-  swapEntity: (type, id) => dispatch(swapEntity(type, id)),
-  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
   // Status Operations
   setStatus: status => dispatch(setStatus(status)),
   setVariables: newVariables => dispatch(setVariables(newVariables)),
