@@ -179,8 +179,9 @@ export function fetchVariables(config, useCache) {
     if (localeSecondary && !variables[localeSecondary]) variables[localeSecondary] = {_genStatus: {}, _matStatus: {}};
 
     // useCache will be true if the front-end is telling us we have the variables already. Short circuit the gets/puts
+    // However, still increment diffCounter so a re-render happens on cards that rely on variables.
     if (useCache && thisProfile.variables) {
-      dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables)}});
+      dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables), diffCounter}});
     }
     // If we've received a zero-length config of type generator, this is a brand-new profile.
     // Return the scaffolded empty data.
