@@ -6,6 +6,7 @@ import {Icon, Alert, Intent} from "@blueprintjs/core";
 import Button from "../fields/Button";
 
 import {deleteEntity, deleteProfile} from "../../actions/profiles";
+import {deleteStory} from "../../actions/stories";
 
 import "./Header.css";
 
@@ -20,10 +21,19 @@ class Header extends Component {
 
   maybeDelete() {
     const {pathObj} = this.props.status;
-    const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
-    const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
-    if (type && id) {
-      this.setState({itemToDelete: {type, id}});
+    if (pathObj.tab === "profiles") {
+      const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
+      const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
+      if (type && id) {
+        this.setState({itemToDelete: {type, id}});
+      }  
+    }
+    else if (pathObj.tab === "stories") {
+      const type = pathObj.storysection ? "storysection" : pathObj.story ? "story" : null;
+      const id = pathObj.storysection ? Number(pathObj.storysection) : pathObj.story ? Number(pathObj.story) : null;
+      if (type && id) {
+        this.setState({itemToDelete: {type, id}});
+      }  
     }
   }
 
@@ -31,13 +41,15 @@ class Header extends Component {
     const {type, id} = itemToDelete;
     if (type === "section") this.props.deleteEntity("section", {id});
     if (type === "profile") this.props.deleteProfile(id);
+    if (type === "storysection") this.props.deleteEntity("storysection", {id});
+    if (type === "story") this.props.deleteStory(id);
     this.setState({itemToDelete: null});
   }
 
   render() {
 
-    const {dimensions, slug, profiles} = this.props;
-    const {currentPid, pathObj} = this.props.status;
+    const {dimensions, slug, profiles, stories} = this.props;
+    const {currentPid, currentStoryPid, pathObj} = this.props.status;
     const {itemToDelete} = this.state;
 
     let domain = this.props;
@@ -50,39 +62,61 @@ class Header extends Component {
       }
     }
 
-    const prettyDomain = domain.replace("http://", "").replace("https://", "");
+    let entityType, prettyURL, previewURL, showDeleteButton;
+    const prettyRoot = domain.replace("http://", "").replace("https://", "");
 
-    // construct URL from domain and dimensions
-    const previewURL = `${domain}/profile/${dimensions
-      .map(dim => `${dim.slug}/${dim.memberSlug || dim.id}/`)
-      .reduce((acc, d) => acc += d, "")
-    }`;
+    if (pathObj.tab === "profiles") {
+      // construct URL from domain and dimensions
+      previewURL = `${domain}/profile/${dimensions
+        .map(dim => `${dim.slug}/${dim.memberSlug || dim.id}/`)
+        .reduce((acc, d) => acc += d, "")
+      }`;
+      prettyURL = <Fragment>
+        {prettyRoot}/profile{dimensions && dimensions.map(dim =>
+          <Fragment key={dim.slug}>/
+            <span className="cms-header-link-dimension">{dim.slug}</span>/
+            <span className="cms-header-link-id">{dim.memberSlug || dim.id}</span>
+          </Fragment>)}
+      </Fragment>;
+      // Only show the delete button if this is not the last entity. You can't have a profile with no sections.
+      if (pathObj.section) {
+        const thisProfile = profiles.find(p => p.id === currentPid);
+        if (currentPid && thisProfile && thisProfile.sections.length > 1) showDeleteButton = true;
+        entityType = "section";
+      }
+      else if (pathObj.profile) {
+        showDeleteButton = currentPid && profiles.length > 1;
+        entityType = "profile";
+      }
+    }
+    else if (pathObj.tab === "stories") {
+      previewURL = `${domain}/story/${pathObj.story}`;
+      prettyURL = `${prettyRoot}/story/${pathObj.story}`;
+      // Only show the delete button if this is not the last entity. You can't have a story with no storysections.
+      if (pathObj.storysection) {
+        const thisStory = stories.find(p => p.id === currentStoryPid);
+        if (currentStoryPid && thisStory && thisStory.storysections.length > 1) showDeleteButton = true;
+        entityType = "storysection";
+      }
+      else if (pathObj.story) {
+        showDeleteButton = currentStoryPid && stories.length > 1;
+        entityType = "story";
+      }
+    }
 
-    let showDeleteButton = false;
-    // Only show the delete button if this is not the last entity. You can't have a profile with no sections.
-    if (pathObj.section) {
-      const thisProfile = profiles.find(p => p.id === currentPid);
-      if (thisProfile && thisProfile.sections.length > 1) showDeleteButton = true;
-    }
-    else if (pathObj.profile) {
-      showDeleteButton = profiles.length > 1;
-    }
+    // Only show the link if this is a story (not requiring dimension) or is a profile that HAS dimensions
+    const showLink = pathObj.tab === "stories" || dimensions && dimensions.length > 0;
 
     return (
       <React.Fragment>
         <header className="cms-header">
           <span className="cms-header-link-container" key="header-link-container">
-            {dimensions && dimensions.length
+            {showLink 
               // proper profile URL can be constructed
               ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "u-font-xs" : ""}`} key="link">
                 <Icon className="cms-header-link-icon" icon="link" key="cms-header-link-icon" />
                 {/* dimensions & ids */}
-                {prettyDomain}/profile{dimensions && dimensions.map(dim =>
-                  <Fragment key={dim.slug}>/
-                    <span className="cms-header-link-dimension">{dim.slug}</span>/
-                    <span className="cms-header-link-id">{dim.memberSlug || dim.id}</span>
-                  </Fragment>
-                )}
+                {prettyURL}
 
                 {/* slug (not used by profiles) */}
                 {slug &&
@@ -94,13 +128,13 @@ class Header extends Component {
                 }
               </a>
               // show the domain, but that's it
-              : `${prettyDomain}/profile/`
+              : `${prettyRoot}/profile/`
             }
           </span>
 
           {/* delete entity */}
           {/* TODO: make this a popover once we have more options */}
-          {currentPid && showDeleteButton && 
+          {showDeleteButton && 
             <div className="header-actions-container" key="header-actions-container">
               <Button
                 onClick={this.maybeDelete.bind(this)}
@@ -108,7 +142,7 @@ class Header extends Component {
                 namespace="cms"
                 fontSize="xs"
               >
-                Delete {pathObj.section ? "section" : "profile"}
+                {`Delete ${entityType}?`}
               </Button>
             </div>
           }
@@ -131,12 +165,14 @@ class Header extends Component {
 
 const mapStateToProps = state => ({
   status: state.cms.status,
-  profiles: state.cms.profiles
+  profiles: state.cms.profiles,
+  stories: state.cms.stories
 });
 
 const mapDispatchToProps = dispatch => ({
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
-  deleteProfile: id => dispatch(deleteProfile(id))
+  deleteProfile: id => dispatch(deleteProfile(id)),
+  deleteStory: id => dispatch(deleteStory(id))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(Header));

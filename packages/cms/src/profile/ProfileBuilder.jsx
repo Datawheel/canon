@@ -45,31 +45,9 @@ class ProfileBuilder extends Component {
     };
   }
 
-  moveItem(n) {
-    this.props.swapEntity(n.itemType, n.data.id);
-  }
-
-  addItem(n) {
-    this.props.newEntity("section", {profile_id: n.data.profile_id});
-  }
-
-  confirmDelete(n) {
-    this.setState({nodeToDelete: n});
-  }
-
-  deleteItem(n) {
-    if (n.itemType === "section") this.props.deleteEntity("section", {id: n.data.id});
-    if (n.itemType === "profile") this.props.deleteProfile(n.data.id);
-    this.setState({nodeToDelete: false});
-  }
-
-  createProfile() {
-    this.props.newProfile();
-  }
-
   render() {
 
-    const {nodeToDelete, toolboxVisible} = this.state;
+    const {toolboxVisible} = this.state;
     const {currentPid, gensLoaded, gensTotal, genLang, pathObj, previews, profilesLoaded} = this.props.status;
 
     const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
@@ -121,16 +99,11 @@ class ProfileBuilder extends Component {
   }
 }
 
-ProfileBuilder.contextTypes = {
-  formatters: PropTypes.object
-};
-
 ProfileBuilder.childContextTypes = {
   onSetVariables: PropTypes.func
 };
 
 const mapStateToProps = state => ({
-  env: state.env,
   profiles: state.cms.profiles,
   status: state.cms.status
 });

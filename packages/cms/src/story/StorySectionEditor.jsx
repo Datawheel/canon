@@ -53,7 +53,7 @@ class StorySectionEditor extends Component {
 
   render() {
 
-    const {minData} = this.props;
+    const {minData, children} = this.props;
 
     const minDataState = this.state.minData;
 
@@ -65,6 +65,9 @@ class StorySectionEditor extends Component {
 
     return (
       <div className="cms-editor-inner">
+
+        {/* header */}
+        {children}
 
         {/* current story options */}
         <Deck

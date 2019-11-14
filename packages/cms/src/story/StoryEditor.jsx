@@ -61,7 +61,7 @@ class StoryEditor extends Component {
   render() {
 
     const {showDate} = this.state;
-    const {minData} = this.props;
+    const {minData, children} = this.props;
 
     const minDataState = this.state.minData;
 
@@ -69,6 +69,9 @@ class StoryEditor extends Component {
 
     return (
       <div className="cms-editor-inner">
+
+        {/* header */}
+        {children}
 
         {/* current story options */}
         <Deck
