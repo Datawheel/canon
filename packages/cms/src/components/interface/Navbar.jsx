@@ -12,6 +12,8 @@ import {setStatus} from "../../actions/status";
 import {getCubeData} from "../../actions/cubeData";
 import {getFormatters} from "../../actions/formatters";
 
+import stripHTML from "../../utils/formatters/stripHTML";
+
 import Dropdown from "./Dropdown";
 import Outline from "./Outline";
 import Select from "../fields/Select";
@@ -188,7 +190,6 @@ class Navbar extends Component {
     const {query, localeDefault, currentPid} = this.props.status;
     const variables = this.props.status.variables[localeDefault] || {};
     const formatters = this.context.formatters[localeDefault];
-    const {stripHTML} = formatters;
     const thisProfile = profiles.find(p => p.id === currentPid);
     const selectors = thisProfile ? thisProfile.selectors : [];
     str = stripHTML(str);
