@@ -50,14 +50,14 @@ class StoryBuilder extends Component {
   render() {
 
     const {nodeToDelete} = this.state;
-    const {pathObj, storiesLoaded} = this.props.status;
+    const {pathObj, storiesLoaded, currentStoryPid} = this.props.status;
 
     const type = pathObj.storysection ? "storysection" : pathObj.story ? "story" : null;
     const editorTypes = {story: StoryEditor, storysection: StorySectionEditor};
     const Editor = editorTypes[type];
     const id = pathObj.storysection ? Number(pathObj.storysection) : pathObj.story ? Number(pathObj.story) : null;
 
-    if (!storiesLoaded) return null;
+    if (!storiesLoaded || !currentStoryPid) return null;
 
     return (
       <React.Fragment>

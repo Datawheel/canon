@@ -77,7 +77,7 @@ class ProfileBuilder extends Component {
     const Editor = editorTypes[type];
     const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
 
-    if (!profilesLoaded) return null;
+    if (!profilesLoaded || !currentPid) return null;
 
     return (
       <React.Fragment>
