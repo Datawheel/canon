@@ -48,7 +48,7 @@ class Header extends Component {
 
   render() {
 
-    const {dimensions, slug, profiles, stories} = this.props;
+    const {dimensions, profiles, stories} = this.props;
     const {currentPid, currentStoryPid, pathObj} = this.props.status;
     const {itemToDelete} = this.state;
 
@@ -62,7 +62,7 @@ class Header extends Component {
       }
     }
 
-    let entityType, prettyURL, previewURL, showDeleteButton;
+    let entityType, prettyURL, previewURL, showDeleteButton, slug;
     const prettyRoot = domain.replace("http://", "").replace("https://", "");
 
     if (pathObj.tab === "profiles") {
@@ -82,6 +82,13 @@ class Header extends Component {
       if (pathObj.section) {
         const thisProfile = profiles.find(p => p.id === currentPid);
         if (currentPid && thisProfile && thisProfile.sections.length > 1) showDeleteButton = true;
+        if (thisProfile) {
+          const thisSection = thisProfile.sections.find(s => s.id === Number(pathObj.section));
+          if (thisSection) {
+            slug = thisSection.slug;
+            previewURL += `#${slug}`;
+          }
+        }
         entityType = "section";
       }
       else if (pathObj.profile) {
@@ -96,6 +103,13 @@ class Header extends Component {
       if (pathObj.storysection) {
         const thisStory = stories.find(p => p.id === currentStoryPid);
         if (currentStoryPid && thisStory && thisStory.storysections.length > 1) showDeleteButton = true;
+        if (thisStory) {
+          const thisStorysection = thisStory.storysections.find(s => s.id === Number(pathObj.storysection));
+          if (thisStorysection) {
+            slug = thisStorysection.slug;
+            previewURL += `#${slug}`;
+          }
+        }
         entityType = "storysection";
       }
       else if (pathObj.story) {
