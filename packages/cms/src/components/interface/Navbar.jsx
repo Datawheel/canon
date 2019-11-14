@@ -61,17 +61,23 @@ class Navbar extends Component {
       this.handleClick.bind(this)(pathObj);
     }
 
-    // Profile creation
-    if (this.props.status.profilesLoaded && prevProps.profiles.length === this.props.profiles.length - 1) {
-      const newProfile = this.props.profiles[this.props.profiles.length - 1];
-      this.handleClick.bind(this)({profile: newProfile.id, tab: "profiles"});
+    // Handle Entity Creation
+    const {justCreated} = this.props.status;
+    if (JSON.stringify(prevProps.status.justCreated) !== JSON.stringify(justCreated)) {
+      if (justCreated.type === "profile") {
+        this.handleClick.bind(this)({profile: justCreated.id, tab: "profiles"});  
+      }
+      if (justCreated.type === "section") {
+        this.handleClick.bind(this)({profile: justCreated.profile_id, section: justCreated.id, tab: "profiles"});
+      }
+      if (justCreated.type === "story") {
+        this.handleClick.bind(this)({story: justCreated.id, tab: "stories"});  
+      }
+      if (justCreated.type === "storysection") {
+        this.handleClick.bind(this)({story: justCreated.story_id, storysection: justCreated.id, tab: "stories"});  
+      }
     }
 
-    // Story creation
-    if (this.props.status.storiesLoaded && prevProps.stories.length === this.props.stories.length - 1) {
-      const newStory = this.props.stories[this.props.stories.length - 1];
-      this.handleClick.bind(this)({story: newStory.id, tab: "stories"});
-    }
   }
 
   handleLocaleSelect(e) {
@@ -195,7 +201,13 @@ class Navbar extends Component {
 
   createSection(id) {
     const {tab} = this.props.status.pathObj;
-    console.log(`TODO: add new ${tab} section after section ${id}`); // add a new section by clicking button adjacent to section node
+    const {currentPid, currentStoryPid} = this.props.status;
+    if (tab === "profiles") {
+      this.props.newEntity("section", {profile_id: currentPid});
+    }
+    if (tab === "stories") {
+      this.props.newEntity("storysection", {story_id: currentStoryPid});
+    }
   }
   
   swapSections(id) {

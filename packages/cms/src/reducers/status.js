@@ -42,6 +42,15 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {profilesLoaded: true});
     case "STORIES_GET":
       return Object.assign({}, status, {storiesLoaded: true});
+    // Creation Detection
+    case "PROFILE_NEW": 
+      return Object.assign({}, status, {justCreated: {type: "profile", id: action.data.id}});
+    case "SECTION_NEW": 
+      return Object.assign({}, status, {justCreated: {type: "section", id: action.data.id, profile_id: action.data.profile_id}});
+    case "STORY_NEW": 
+      return Object.assign({}, status, {justCreated: {type: "story", id: action.data.id}});
+    case "STORYSECTION_NEW": 
+      return Object.assign({}, status, {justCreated: {type: "storysection", id: action.data.id, story_id: action.data.story_id}});
     // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW": 
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "generator", forceOpen: true});

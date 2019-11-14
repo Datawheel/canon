@@ -91,7 +91,6 @@ export default (stories = [], action) => {
           return match ? Object.assign({}, s, {ordering: match.ordering}) : s;  
         }).sort((a, b) => a.ordering - b.ordering)}));
     case "STORYSECTION_NEW":
-      console.log("back with ", action.data);
       return stories.map(p => p.id === action.data.story_id ? Object.assign({}, p, {storysections: p.storysections.concat([action.data])}) : p);
     case "STORYSECTION_UPDATE":
       return stories.map(p => Object.assign({}, p, {storysections: p.storysections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
