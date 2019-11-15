@@ -75,8 +75,51 @@ class Outline extends Component {
     return "";
   }
 
+  /** avoids duplication */
+  renderNode = (node, nodes, sectionKey, tree, i) => (
+    <li className="cms-outline-item" key={node.id}>
+      <a
+        className={`cms-outline-link${this.getSelectedClass(node, nodes, sectionKey)}`}
+        onClick={() => this.handleSectionClick.bind(this)(node)}
+      >
+        <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
+        {this.props.getNodeTitle(node)}
+      </a>
+
+      {/* add section / swap section position buttons */}
+      <div className="cms-outline-item-actions cms-button">
+        {/* add section */}
+        <Button
+          onClick={() => this.createSection(node.id)}
+          className="cms-outline-item-actions-button"
+          namespace="cms"
+          fontSize="xxs"
+          icon="plus"
+          iconOnly
+          key={`${node.id}-add-button`}
+        >
+          Add new section
+        </Button>
+        {/* swap section positions */}
+        {i !== tree.length - 1 &&
+          <Button
+            onClick={() => this.props.swapEntity(sectionKey, node.id)}
+            className="cms-outline-item-actions-button"
+            namespace="cms"
+            fontSize="xxs"
+            icon="swap-horizontal"
+            iconOnly
+            key={`${node.id}-swap-button`}
+          >
+            Swap positioning of current and next sections
+          </Button>
+        }
+      </div>
+    </li>
+  );
+
   render() {
-    const {tree, isOpen, swapEntity} = this.props;
+    const {tree, isOpen} = this.props;
     const {pathObj} = this.props.status;
 
     if (!tree) return null;
@@ -95,90 +138,14 @@ class Outline extends Component {
       {/* top row */}
       <ul className={`cms-outline ${isOpen ? "is-open" : "is-closed"}`} key="outline-main">
         {nodes.map((node, i) =>
-          <li className="cms-outline-item" key={node.id}>
-            <a
-              className={`cms-outline-link${this.getSelectedClass(node, nodes, sectionKey)}`}
-              onClick={() => this.handleSectionClick.bind(this)(node)}
-            >
-              <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
-              {this.props.getNodeTitle(node)}
-            </a>
-
-            {/* add section / swap section position buttons */}
-            <div className="cms-outline-item-actions cms-button">
-              {/* add section */}
-              <Button
-                onClick={() => this.createSection(node.id)}
-                className="cms-outline-item-actions-button"
-                namespace="cms"
-                fontSize="xxs"
-                icon="plus"
-                iconOnly
-                key={`${node.id}-add-button`}
-              >
-                Add new section
-              </Button>
-              {/* swap section positions */}
-              {i !== tree.length - 1 &&
-                <Button
-                  onClick={() => swapEntity(sectionKey, node.id)}
-                  className="cms-outline-item-actions-button"
-                  namespace="cms"
-                  fontSize="xxs"
-                  icon="swap-horizontal"
-                  iconOnly
-                  key={`${node.id}-swap-button`}
-                >
-                  Swap positioning of current and next sections
-                </Button>
-              }
-            </div>
-          </li>
+          this.renderNode(node, nodes, sectionKey, tree, i)
         )}
       </ul>
 
       {/* render nested list with current grouping's sections, if the current section is a grouping or within a group */}
       <ul className={`cms-outline cms-nested-outline ${nestedOutline ? "is-open" : "is-closed"}`} key="outline-nested">
         {nestedOutline && nestedOutline.sections.map((node, i) =>
-          <li className="cms-outline-item" key={node.id}>
-            <a
-              className={`cms-outline-link${this.getSelectedClass(node, nodes, sectionKey)}`}
-              onClick={() => this.handleSectionClick.bind(this)(node)}
-            >
-              <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
-              {this.props.getNodeTitle(node)}
-            </a>
-
-            {/* add section / swap section position buttons */}
-            <div className="cms-outline-item-actions cms-button">
-              {/* add section */}
-              <Button
-                onClick={() => this.createSection(node.id)}
-                className="cms-outline-item-actions-button"
-                namespace="cms"
-                fontSize="xxs"
-                icon="plus"
-                iconOnly
-                key={`${node.id}-add-button`}
-              >
-                Add new section
-              </Button>
-              {/* swap section positions */}
-              {i !== tree.length - 1 &&
-                <Button
-                  onClick={() => swapEntity(sectionKey, node.id)}
-                  className="cms-outline-item-actions-button"
-                  namespace="cms"
-                  fontSize="xxs"
-                  icon="swap-horizontal"
-                  iconOnly
-                  key={`${node.id}-swap-button`}
-                >
-                  Swap positioning of current and next sections
-                </Button>
-              }
-            </div>
-          </li>
+          this.renderNode(node, nodes, sectionKey, tree, i)
         )}
       </ul>
     </Fragment>;
