@@ -280,7 +280,6 @@ class Toolbox extends Component {
                   id={f.id}
                   type="formatter"
                   variables={{}}
-                  forceOpen={forceType === "formatter" && forceID === g.id ? forceOpen : null}
                 />
               )}
             />

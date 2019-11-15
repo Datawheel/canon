@@ -168,7 +168,6 @@ class VisualizationCard extends Component {
               markAsDirty={this.markAsDirty.bind(this)}
               data={minDataState}
               type={type}
-              locale={locale}
             />
           </div>
           <FooterButtons

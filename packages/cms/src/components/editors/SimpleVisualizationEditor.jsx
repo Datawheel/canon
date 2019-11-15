@@ -329,8 +329,8 @@ class SimpleVisualizationEditor extends Component {
 
   render() {
     const {object, rebuildAlertOpen, payload} = this.state;
-    const {locale} = this.props;
-    const formatters = this.context.formatters[locale];
+    const {localeDefault} = this.props.status;
+    const formatters = this.context.formatters[localeDefault];
     const formatterList = formatters ? Object.keys(formatters).sort((a, b) => a.localeCompare(b)) : [];
     const selectedColumns = object.columns || [];
     const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
