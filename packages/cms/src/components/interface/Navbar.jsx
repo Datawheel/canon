@@ -28,12 +28,7 @@ class Navbar extends Component {
       navOpen: false,
       outlineOpen: true,
       settingsOpen: false,
-      currEntity: null,
-      display: {  // see formatDisplay()
-        currEntity: "",
-        currTree: [],
-        navLinks: []
-      }
+      currEntity: null
     };
   }
 
@@ -69,11 +64,6 @@ class Navbar extends Component {
     if (storiesLoaded && pathObj.story) {
       console.log("Stories loaded, attempting to click", pathObj);
       this.handleClick.bind(this)(pathObj);
-    }
-
-    // on first load of profiles or stories, and on path change, format display
-    if (profilesLoaded || storiesLoaded || pathChanged) {
-      this.formatDisplay();
     }
 
     // Handle Entity Creation
@@ -298,8 +288,7 @@ class Navbar extends Component {
       {title: "Metadata"}
     ];
 
-    this.setState({display: {currEntity, currTree, navLinks}});
-    // console.log(this.state.display);
+    return {currEntity, currTree, navLinks};
   }
 
   toggleEntitySettings() {
@@ -325,8 +314,8 @@ class Navbar extends Component {
     const {auth} = this.props;
     const {locales, localeDefault, localeSecondary, pathObj} = this.props.status;
     const currentTab = pathObj.tab;
-    const {display, outlineOpen, navOpen, settingsOpen} = this.state;
-    const {currEntity, currTree, navLinks} = display;
+    const {outlineOpen, navOpen, settingsOpen} = this.state;
+    const {currEntity, currTree, navLinks} = this.formatDisplay();
 
     const showLocales = locales;
     const showAccount = auth.user;
