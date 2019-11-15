@@ -64,10 +64,11 @@ class Hero extends Component {
     const {contents, loading, sources, profile} = this.props;
     const {images, creditsVisible} = this.state;
 
-    const title = (contents || {}).title || profile.title;
+    let title = profile.title;
     let paragraphs, sourceContent, statContent, subtitleContent;
 
     if (contents) {
+      title = contents.title;
       // subtitles
       if (contents.subtitles.length) {
         subtitleContent = contents.subtitles.map((subhead, i) =>

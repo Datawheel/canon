@@ -87,12 +87,24 @@ import {Builder} from "@datawheel/canon-cms";
 <Route path="/cms" component={Builder} />
 ```
 
-#### 5) Start your dev server
+#### 5) Configure Redux 
+
+The CMS state state is managed from the site-wide redux state. In `app/reducers/index.js`, import the reducer function and assign it to the `cms` key:
+
+```js
+import {cmsReducer} from "@datawheel/canon-cms";
+
+export default {
+  cms: cmsReducer
+};
+```
+
+#### 6) Start your dev server
 ```sh
 npm run dev
 ```
 
-#### 6) Navigate to the CMS panel
+#### 7) Navigate to the CMS panel
 
 `http://localhost:3300/cms`
 

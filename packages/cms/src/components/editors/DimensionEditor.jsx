@@ -1,8 +1,10 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
+import {connect} from "react-redux";
 import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
+import {modifyDimension} from "../../actions/profiles";
 
 import "./DimensionEditor.css";
 
@@ -93,7 +95,9 @@ class DimensionEditor extends Component {
   saveProfile() {
     const {profileData, mode} = this.state;
     const {meta} = this.props;
-    let {takenSlugs} = this.props;
+    const {profiles} = this.props;
+    const {currentPid} = this.props.status;
+    let takenSlugs = profiles.map(p => p.meta).reduce((acc, d) => acc.concat(d.map(m => m.slug)), []);
     // If editing, then the user provided seed data via "meta". Do not include the given
     // slug as a taken slug - otherwise we will not be able to save due to a faulty collision.
     if (mode === "edit") takenSlugs = takenSlugs.filter(slug => slug !== meta.slug);
@@ -106,7 +110,7 @@ class DimensionEditor extends Component {
       });
     }
     else {
-      this.context.onDimensionModify(mode, profileData);
+      this.props.modifyDimension(Object.assign({}, profileData, {profile_id: currentPid}));
       if (this.props.onComplete) this.props.onComplete();
     }
   }
@@ -199,8 +203,17 @@ class DimensionEditor extends Component {
 }
 
 DimensionEditor.contextTypes = {
-  toast: PropTypes.object,
-  onDimensionModify: PropTypes.func
+  toast: PropTypes.object
 };
 
-export default DimensionEditor;
+const mapStateToProps = state => ({
+  cubeData: state.cms.cubeData,
+  profiles: state.cms.profiles,
+  status: state.cms.status
+});
+
+const mapDispatchToProps = dispatch => ({
+  modifyDimension: payload => dispatch(modifyDimension(payload))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(DimensionEditor);

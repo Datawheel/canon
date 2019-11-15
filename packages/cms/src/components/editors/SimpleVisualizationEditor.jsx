@@ -29,7 +29,10 @@ class SimpleVisualizationEditor extends Component {
     // If a simple config has been provided, then the user has used simple mode in the past.
     // Populate the simple menu accordingly and make it the default mode.
     let object = {};
-    if (simpleConfig) {
+    // Bug: The deepclone used in GeneratorEditor erroneously logic_simple from NULL to {}
+    // Therefore, detect the blank object as another expression of NULLness
+    const configIsEmptyObject = simpleConfig.constructor === Object && Object.keys(simpleConfig).length === 0;
+    if (simpleConfig && !configIsEmptyObject) {
       object = Object.assign({}, simpleConfig);
       this.setState({object}, this.firstBuild.bind(this));
     }
@@ -65,7 +68,10 @@ class SimpleVisualizationEditor extends Component {
 
   firstBuild() {
     const {object} = this.state;
-    const {previews, variables, env} = this.props;
+    const {env} = this.props;
+    const {previews, localeDefault} = this.props.status;
+    // Stories can use Simplevizes, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
     const {data} = object;
     if (data) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
@@ -103,12 +109,15 @@ class SimpleVisualizationEditor extends Component {
       .filter(d => d !== "formatters");
 
     const thisViz = vizLookup.find(v => v.type === type);
-    const tooltipKeys = thisViz.methods
-      // To build the tooltip, filter our methods to only the tooltip keys
-      .filter(method => method.tooltip)
-      // If this key is already handled by groupBy, remove it from showing in the tooltip
-      .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy) : true)
-      .map(d => d.key);
+    let tooltipKeys = [];
+    if (thisViz) {
+      tooltipKeys = thisViz.methods
+        // To build the tooltip, filter our methods to only the tooltip keys
+        .filter(method => method.tooltip)
+        // If this key is already handled by groupBy, remove it from showing in the tooltip
+        .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy) : true)
+        .map(d => d.key);
+    }
 
     // If the user has put instance variables between brackets (e.g. <id> or <var>)
     // Then we need to manually create a special template string out of what the user
@@ -252,7 +261,10 @@ class SimpleVisualizationEditor extends Component {
 
   rebuild() {
     const {object} = this.state;
-    const {previews, variables, env} = this.props;
+    const {env} = this.props;
+    const {previews, localeDefault} = this.props.status;
+    // Stories can use Simplevizes, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
     const {data, type} = object;
     const thisViz = vizLookup.find(v => v.type === type);
     const lookup = {};
@@ -270,13 +282,15 @@ class SimpleVisualizationEditor extends Component {
       type: object.type
     };
  
-    // Copy over any relevant keys from the previous config
-    thisViz.methods.forEach(method => {
-      if (object[method.key]) {
-        newObject[method.key] = object[method.key];
-      }
-    });
-    if (object.title) newObject.title = object.title;
+    if (thisViz) {
+      // Copy over any relevant keys from the previous config
+      thisViz.methods.forEach(method => {
+        if (object[method.key]) {
+          newObject[method.key] = object[method.key];
+        }
+      });
+      if (object.title) newObject.title = object.title;
+    }
 
     if (data) {
 
@@ -323,8 +337,8 @@ class SimpleVisualizationEditor extends Component {
 
   render() {
     const {object, rebuildAlertOpen, payload} = this.state;
-    const {locale} = this.props;
-    const formatters = this.context.formatters[locale];
+    const {localeDefault} = this.props.status;
+    const formatters = this.context.formatters[localeDefault];
     const formatterList = formatters ? Object.keys(formatters).sort((a, b) => a.localeCompare(b)) : [];
     const selectedColumns = object.columns || [];
     const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
@@ -337,7 +351,7 @@ class SimpleVisualizationEditor extends Component {
       disabled: true,
       namespace: "cms"
     };
-    if (object.data) {
+    if (object.data && object.type) {
       buttonProps = {
         children: payload.length > 0 ? "Rebuild" : "Build",
         namespace: "cms",
@@ -457,9 +471,14 @@ class SimpleVisualizationEditor extends Component {
   }
 }
 
-
 SimpleVisualizationEditor.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default connect(state => ({env: state.env}))(SimpleVisualizationEditor);
+const mapStateToProps = state => ({
+  env: state.env,
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(SimpleVisualizationEditor);
+

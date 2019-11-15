@@ -1,52 +1,37 @@
-import axios from "axios";
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-
+import {connect} from "react-redux";
 import toSpacedCase from "../utils/formatters/toSpacedCase";
-
 import Select from "../components/fields/Select";
 import ButtonGroup from "../components/fields/ButtonGroup";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
 import TextCard from "../components/cards/TextCard";
+import deepClone from "../utils/deepClone";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Deck from "../components/interface/Deck";
 import SelectorUsage from "../components/interface/SelectorUsage";
+
+import {newEntity, updateEntity} from "../actions/profiles";
+
 import "./SectionEditor.css";
-
-import deepClone from "../utils/deepClone.js";
-
-const propMap = {
-  section_stat: "stats",
-  section_description: "descriptions",
-  section_subtitle: "subtitles",
-  section_visualization: "visualizations",
-  selectors: "selectors"
-};
 
 class SectionEditor extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      minData: null,
-      query: {}
+      minData: null
     };
   }
 
   componentDidMount() {
-    this.hitDB.bind(this)();
+    this.setState({minData: deepClone(this.props.minData)});
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id) {
-      this.hitDB.bind(this)();
+      this.setState({minData: deepClone(this.props.minData)});
     }
-  }
-
-  hitDB() {
-    axios.get(`/api/cms/section/get/${this.props.id}`).then(resp => {
-      this.setState({minData: resp.data});
-    });
   }
 
   // Strip leading/trailing spaces and URL-breaking characters
@@ -60,12 +45,6 @@ class SectionEditor extends Component {
     save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
   }
 
-  // checkField(field, save, e) {
-  //   const {minData} = this.state;
-  //   minData[field] = e.target.checked;
-  //   save ? this.setState({minData}, this.save.bind(this)) : this.setState({minData});
-  // }
-
   selectButton(field, save, val) {
     const {minData} = this.state;
     minData[field] = val;
@@ -73,76 +52,28 @@ class SectionEditor extends Component {
   }
 
   addItem(type) {
-    const {minData} = this.state;
-    const payload = {};
-    payload.section_id = minData.id;
-    // todo: move this ordering out to axios (let the server concat it to the end)
-    payload.ordering = minData[propMap[type]].length;
-    axios.post(`/api/cms/${type}/new`, payload).then(resp => {
-      if (resp.status === 200) {
-        // Selectors, unlike the rest of the elements, actually do pass down their entire
-        // content to the Card (the others are simply given an id and load the data themselves)
-        // New selector will behave differently here
-        if (type === "selector") {
-          minData[propMap[type]].push(resp.data);
-        }
-        else {
-          minData[propMap[type]].push({id: resp.data.id, ordering: resp.data.ordering});
-        }
-        this.setState({minData});
-      }
-    });
+    this.props.newEntity(type, {section_id: this.props.minData.id});
   }
 
   save() {
     const {minData} = this.state;
-    const payload = {
-      id: minData.id,
-      slug: minData.slug,
-      type: minData.type,
-      allowed: minData.allowed,
-      position: minData.position
-    };
-    axios.post("/api/cms/section/update", payload).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false});
-      }
-    });
-  }
-
-  onSave(minData) {
-    const {localeDefault} = this.props;
-    const defCon = minData.content.find(c => c.locale === localeDefault);
-    const title = defCon && defCon.title ? defCon.title : minData.slug;
-    if (this.props.reportSave) this.props.reportSave(minData.id, title);
-  }
-
-  onMove() {
-    this.forceUpdate();
-  }
-
-  onSelect(selectionObj) {
-    const {query} = this.state;
-    const newQuery = Object.assign({}, query, selectionObj);
-    this.setState({query: newQuery});
-    if (this.props.onSelect) this.props.onSelect(newQuery);
-  }
-
-  onDelete(type, newArray) {
-    const {minData} = this.state;
-    minData[propMap[type]] = newArray;
-    this.setState({minData});
+    const {id, slug, type, allowed, position} = minData;
+    const payload = {id, slug, type, allowed, position};
+    this.props.updateEntity("section", payload);
   }
 
   render() {
 
-    const {minData, query} = this.state;
-    const {variables, previews, selectors, children, locale, localeDefault, order} = this.props;
+    const {minData, allSelectors} = this.props;
+    const {children} = this.props;
+    const {variables, localeDefault, localeSecondary} = this.props.status;
 
-    const dataLoaded = minData;
+    const minDataState = this.state.minData;
+
+    const dataLoaded = minData && minDataState;
     const varsLoaded = variables;
-    const defLoaded = locale || variables && !locale && variables[localeDefault];
-    const locLoaded = !locale || variables && locale && variables[localeDefault] && variables[locale];
+    const defLoaded = localeSecondary || variables && !localeSecondary && variables[localeDefault];
+    const locLoaded = !localeSecondary || variables && localeSecondary && variables[localeDefault] && variables[localeSecondary];
 
     if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return false;
 
@@ -160,7 +91,7 @@ class SectionEditor extends Component {
     // remove Hero from available layouts
     let availableLayouts = minData.types.filter(l => l !== "Hero");
     // if this is the first section, add Hero layout to the front
-    if (order === 0) availableLayouts = ["Hero"].concat(availableLayouts);
+    if (minData.ordering === 0) availableLayouts = ["Hero"].concat(availableLayouts);
     if (minData.position === "sticky") availableLayouts = ["Default"];
 
     const layouts = availableLayouts.map(l =>
@@ -168,9 +99,6 @@ class SectionEditor extends Component {
         {toSpacedCase(l)}
       </option>
     );
-
-    const defaultVariables = variables[localeDefault];
-    const secondaryVariables = variables[locale];
 
     return (
       <div className="cms-editor-inner">
@@ -187,15 +115,9 @@ class SectionEditor extends Component {
           cards={[
             <TextCard
               key="title-card"
-              item={minData}
-              locale={locale}
-              localeDefault={localeDefault}
+              minData={minData}
               fields={["title"]}
-              query={query}
-              onSave={this.onSave.bind(this)}
               type="section"
-              selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-              variables={defaultVariables}
               hideAllowed={true}
             />
           ]}
@@ -211,7 +133,7 @@ class SectionEditor extends Component {
                 fontSize: "xs",
                 inline: true,
                 namespace: "cms",
-                value: minData.slug,
+                value: minDataState.slug,
                 onChange: this.changeField.bind(this, "slug", false)
               }}
               buttonProps={{
@@ -228,7 +150,7 @@ class SectionEditor extends Component {
               namespace="cms"
               fontSize="xs"
               inline
-              value={minData.allowed || "always"}
+              value={minDataState.allowed || "always"}
               onChange={this.changeField.bind(this, "allowed", true)}
             >
               {varOptions}
@@ -241,7 +163,7 @@ class SectionEditor extends Component {
                 inline
                 namespace="cms"
                 fontSize="xs"
-                value={minData.type}
+                value={minDataState.type}
                 onChange={this.changeField.bind(this, "type", true)}
               >
                 {layouts}
@@ -254,7 +176,7 @@ class SectionEditor extends Component {
               <ButtonGroup namespace="cms" buttons={[
                 {
                   onClick: this.selectButton.bind(this, "position", true, "default"),
-                  active: minData.position === "default",
+                  active: minDataState.position === "default",
                   namespace: "cms",
                   fontSize: "xs",
                   icon: "alignment-left",
@@ -263,7 +185,7 @@ class SectionEditor extends Component {
                 },
                 {
                   onClick: this.selectButton.bind(this, "position", true, "sticky"),
-                  active: minData.position === "sticky",
+                  active: minDataState.position === "sticky",
                   namespace: "cms",
                   fontSize: "xs",
                   icon: "alignment-top",
@@ -272,7 +194,7 @@ class SectionEditor extends Component {
                 },
                 {
                   onClick: this.selectButton.bind(this, "position", true, "modal"),
-                  active: minData.position === "modal",
+                  active: minDataState.position === "modal",
                   namespace: "cms",
                   fontSize: "xs",
                   icon: "applications",
@@ -293,30 +215,20 @@ class SectionEditor extends Component {
             cards={minData.subtitles && minData.subtitles.map(s =>
               <TextCard
                 key={s.id}
-                item={s}
-                locale={locale}
-                localeDefault={localeDefault}
+                minData={s}
                 fields={["subtitle"]}
-                query={query}
                 type="section_subtitle"
-                onDelete={this.onDelete.bind(this)}
-                variables={defaultVariables}
-                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-                parentArray={minData.subtitles}
-                onMove={this.onMove.bind(this)}
+                showReorderButton={minData.subtitles[minData.subtitles.length - 1].id !== s.id}
               />
             )}
           />
         }
 
-        {selectors && selectors.length > 0 &&
+        {allSelectors && allSelectors.length > 0 &&
           <Deck title="Selector activation" entity="selectorUsage">
             <SelectorUsage
               key="selector-usage"
               minData={minData}
-              variables={defaultVariables}
-              selectors={selectors}
-              onSelect={this.onSelect.bind(this)}
             />
           </Deck>
         }
@@ -331,17 +243,10 @@ class SectionEditor extends Component {
             cards={minData.stats && minData.stats.map(s =>
               <TextCard
                 key={s.id}
-                item={s}
-                locale={locale}
-                localeDefault={localeDefault}
+                minData={s}
                 fields={["title", "subtitle", "value", "tooltip"]}
-                query={query}
                 type="section_stat"
-                onDelete={this.onDelete.bind(this)}
-                variables={defaultVariables}
-                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-                parentArray={minData.stats}
-                onMove={this.onMove.bind(this)}
+                showReorderButton={minData.stats[minData.stats.length - 1].id !== s.id}
               />
             )}
           />
@@ -354,17 +259,10 @@ class SectionEditor extends Component {
             cards={minData.descriptions && minData.descriptions.map(d =>
               <TextCard
                 key={d.id}
-                item={d}
-                locale={locale}
-                localeDefault={localeDefault}
+                minData={d}
                 fields={["description"]}
-                query={query}
                 type="section_description"
-                onDelete={this.onDelete.bind(this)}
-                variables={defaultVariables}
-                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-                parentArray={minData.descriptions}
-                onMove={this.onMove.bind(this)}
+                showReorderButton={minData.descriptions[minData.descriptions.length - 1].id !== d.id}
               />
             )}
           />
@@ -377,19 +275,9 @@ class SectionEditor extends Component {
             cards={minData.visualizations && minData.visualizations.map(v =>
               <VisualizationCard
                 key={v.id}
-                item={v}
-                locale={localeDefault}
-                localeDefault={localeDefault}
-                secondaryLocale={locale}
-                query={query}
-                previews={previews}
-                onDelete={this.onDelete.bind(this)}
+                minData={v}
                 type="section_visualization"
-                variables={defaultVariables}
-                secondaryVariables={secondaryVariables}
-                selectors={minData.allSelectors.map(s => Object.assign({}, s))}
-                parentArray={minData.visualizations}
-                onMove={this.onMove.bind(this)}
+                showReorderButton={minData.visualizations[minData.visualizations.length - 1].id !== v.id}
               />
             )}
           />
@@ -403,4 +291,16 @@ SectionEditor.contextTypes = {
   formatters: PropTypes.object
 };
 
-export default SectionEditor;
+const mapStateToProps = (state, ownProps) => ({
+  status: state.cms.status,
+  minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).sections.find(s => s.id === ownProps.id),
+  allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
+});
+
+const mapDispatchToProps = dispatch => ({
+  newEntity: (type, payload) => dispatch(newEntity(type, payload)),
+  updateEntity: (type, payload) => dispatch(updateEntity(type, payload))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SectionEditor);
+

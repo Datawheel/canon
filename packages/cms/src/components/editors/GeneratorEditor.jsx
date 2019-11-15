@@ -18,7 +18,6 @@ class GeneratorEditor extends Component {
     super(props);
     this.state = {
       data: null,
-      variables: [],
       payload: null,
       simple: false,
       alertObj: false,
@@ -27,20 +26,20 @@ class GeneratorEditor extends Component {
   }
 
   componentDidMount() {
-    const {data, variables, type} = this.props;
+    const {data, type} = this.props;
     // If simple has been used in the past and this is a generator, we MUST fetch the payload from the
     // API so that the results for the variables can be filled in.
     if (type === "generator") {
       const maybePreview = () => data.simple ? this.previewPayload(true) : null;
-      this.setState({data, variables}, maybePreview);
+      this.setState({data}, maybePreview);
     }
     // If simple has been used in the past as a visualization, we need only switch to simple mode without payload.
     else if (type.includes("_visualization")) {
       const {simple} = data;
-      this.setState({data, variables, simple});
+      this.setState({data, simple});
     }
     else {
-      this.setState({data, variables});
+      this.setState({data});
     }
   }
 
@@ -108,12 +107,15 @@ class GeneratorEditor extends Component {
   previewPayload(forceSimple) {
     const {data} = this.state;
     const {api} = data;
-    const {attr, previews, variables, locale, env} = this.props;
+    const {attr, env} = this.props;
+    const {previews, localeDefault} = this.props.status;
+    // Stories can use GeneratorEditors, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
     if (api) {
       // The API will have <ids> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value. Same goes for locale
-      const lookup = {locale};
+      const lookup = {locale: localeDefault};
       previews.forEach((p, i) => {
         if (i === 0) {
           lookup.id = p.id;
@@ -212,8 +214,12 @@ class GeneratorEditor extends Component {
 
   render() {
 
-    const {data, variables, payload, simple, alertObj} = this.state;
-    const {type, previews, locale} = this.props;
+    const {data, payload, simple, alertObj} = this.state;
+    const {type} = this.props;
+    const {localeDefault} = this.props.status;
+    
+    // Stories can use GeneratorEditors, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
 
     const preMessage = {
       generator: <React.Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</React.Fragment>,
@@ -323,11 +329,10 @@ class GeneratorEditor extends Component {
                   onSimpleChange={this.onSimpleChange.bind(this)}
                 />
                 : null
-              : <SimpleVisualizationEditor key="simp-viz" locale={locale} previews={previews} variables={variables} simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
+              : <SimpleVisualizationEditor key="simp-viz" simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
             : <AceWrapper
               key="ace-wrap"
               className="editor"
-              variables={variables}
               ref={ comp => this.editor = comp }
               onChange={this.handleEditor.bind(this, "logic")}
               value={data.logic}
@@ -361,4 +366,9 @@ class GeneratorEditor extends Component {
   }
 }
 
-export default connect(state => ({env: state.env}))(GeneratorEditor);
+const mapStateToProps = state => ({
+  env: state.env,
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(GeneratorEditor);

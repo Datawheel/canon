@@ -1,19 +1,14 @@
-import axios from "axios";
 import React, {Component} from "react";
-
+import {connect} from "react-redux";
 import Button from "../components/fields/Button";
 import Select from "../components/fields/Select";
 import Deck from "../components/interface/Deck";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import VisualizationCard from "../components/cards/VisualizationCard";
+import deepClone from "../utils/deepClone";
 
-const propMap = {
-  storysection_stat: "stats",
-  storysection_description: "descriptions",
-  storysection_subtitle: "subtitles",
-  storysection_visualization: "visualizations"
-};
+import {newEntity, updateEntity} from "../actions/profiles";
 
 class StorySectionEditor extends Component {
 
@@ -25,19 +20,13 @@ class StorySectionEditor extends Component {
   }
 
   componentDidMount() {
-    this.hitDB.bind(this)();
+    this.setState({minData: deepClone(this.props.minData)});
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id) {
-      this.hitDB.bind(this)();
+      this.setState({minData: deepClone(this.props.minData)});
     }
-  }
-
-  hitDB() {
-    axios.get(`/api/cms/storysection/get/${this.props.id}`).then(resp => {
-      this.setState({minData: resp.data});
-    });
   }
 
   // Strip leading/trailing spaces and URL-breaking characters
@@ -52,50 +41,23 @@ class StorySectionEditor extends Component {
   }
 
   addItem(type) {
-    const {minData} = this.state;
-    const payload = {};
-    payload.storysection_id = minData.id;
-    // todo: move this ordering out to axios (let the server concat it to the end)
-    payload.ordering = minData[propMap[type]].length;
-    axios.post(`/api/cms/${type}/new`, payload).then(resp => {
-      if (resp.status === 200) {
-        minData[propMap[type]].push({id: resp.data.id, ordering: resp.data.ordering});
-        this.setState({minData});
-      }
-    });
+    this.props.newEntity(type, {storysection_id: this.props.minData.id});
   }
 
   save() {
     const {minData} = this.state;
-    const payload = {id: minData.id, slug: minData.slug, type: minData.type};
-    axios.post("/api/cms/storysection/update", payload).then(() => {
-      console.log("saved");
-    });
-  }
-
-  onSave(minData) {
-    const {localeDefault} = this.props;
-    const defCon = minData.content.find(c => c.locale === localeDefault);
-    const title = defCon && defCon.title ? defCon.title : minData.slug;
-    if (this.props.reportSave) this.props.reportSave("storysection", minData.id, title);
-  }
-
-  onMove() {
-    this.forceUpdate();
-  }
-
-  onDelete(type, newArray) {
-    const {minData} = this.state;
-    minData[propMap[type]] = newArray;
-    this.setState({minData});
+    const {id, slug, type, allowed, position} = minData;
+    const payload = {id, slug, type, allowed, position};
+    this.props.updateEntity("storysection", payload);
   }
 
   render() {
 
-    const {minData} = this.state;
-    const {locale, localeDefault} = this.props;
+    const {minData, children} = this.props;
 
-    if (!minData) return <Loading />;
+    const minDataState = this.state.minData;
+
+    if (!minData || !minDataState) return <Loading />;
 
     const typeOptions = minData.types.map(t =>
       <option key={t} value={t}>{t}</option>
@@ -104,19 +66,19 @@ class StorySectionEditor extends Component {
     return (
       <div className="cms-editor-inner">
 
+        {/* header */}
+        {children}
+
         {/* current story options */}
         <Deck
           title="Story section metadata"
           subtitle="Section title"
           entity="title"
           cards={<TextCard
-            item={minData}
-            locale={locale}
-            localeDefault={localeDefault}
+            key="title-card"
+            minData={minData}
             fields={["title"]}
             type="storysection"
-            onSave={this.onSave.bind(this)}
-            variables={{}}
           />}
         >
           <div className="cms-editor-header">
@@ -124,7 +86,7 @@ class StorySectionEditor extends Component {
             <label className="bp3-label cms-slug">
               Story slug
               <div className="bp3-input-group">
-                <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug", false)}/>
+                <input className="bp3-input" type="text" value={minDataState.slug} onChange={this.changeField.bind(this, "slug", false)}/>
                 <Button namespace="cms" onClick={this.save.bind(this)}>Rename</Button>
               </div>
             </label>
@@ -133,7 +95,7 @@ class StorySectionEditor extends Component {
             <Select
               label="Layout"
               namespace="cms"
-              value={minData.type}
+              value={minDataState.type}
               onChange={this.changeField.bind(this, "type", true)}
             >
               {typeOptions}
@@ -149,15 +111,10 @@ class StorySectionEditor extends Component {
           cards={minData.subtitles && minData.subtitles.map(s =>
             <TextCard
               key={s.id}
-              item={s}
-              locale={locale}
-              localeDefault={localeDefault}
+              minData={s}
               fields={["subtitle"]}
               type="storysection_subtitle"
-              onDelete={this.onDelete.bind(this)}
-              variables={{}}
-              parentArray={minData.subtitles}
-              onMove={this.onMove.bind(this)}
+              showReorderButton={minData.subtitles[minData.subtitles.length - 1].id !== s.id}
             />
           )}
         />
@@ -170,15 +127,10 @@ class StorySectionEditor extends Component {
           cards={ minData.stats && minData.stats.map(s =>
             <TextCard
               key={s.id}
-              item={s}
-              locale={locale}
-              localeDefault={localeDefault}
+              minData={s}
               fields={["title", "subtitle", "value", "tooltip"]}
               type="storysection_stat"
-              onDelete={this.onDelete.bind(this)}
-              variables={{}}
-              parentArray={minData.stats}
-              onMove={this.onMove.bind(this)}
+              showReorderButton={minData.stats[minData.stats.length - 1].id !== s.id}
             />
           )}
         />
@@ -191,15 +143,10 @@ class StorySectionEditor extends Component {
           cards={minData.descriptions && minData.descriptions.map(d =>
             <TextCard
               key={d.id}
-              item={d}
-              locale={locale}
-              localeDefault={localeDefault}
+              minData={d}
               fields={["description"]}
               type="storysection_description"
-              onDelete={this.onDelete.bind(this)}
-              variables={{}}
-              parentArray={minData.descriptions}
-              onMove={this.onMove.bind(this)}
+              showReorderButton={minData.descriptions[minData.descriptions.length - 1].id !== d.id}
             />
           )}
         />
@@ -213,14 +160,9 @@ class StorySectionEditor extends Component {
           cards={minData.visualizations && minData.visualizations.map(v =>
             <VisualizationCard
               key={v.id}
-              item={v}
-              locale={locale}
-              localeDefault={localeDefault}
-              onDelete={this.onDelete.bind(this)}
+              minData={v}
               type="storysection_visualization"
-              variables={{}}
-              parentArray={minData.visualizations}
-              onMove={this.onMove.bind(this)}
+              showReorderButton={minData.visualizations[minData.visualizations.length - 1].id !== v.id}
             />
           )}
         />
@@ -229,4 +171,14 @@ class StorySectionEditor extends Component {
   }
 }
 
-export default StorySectionEditor;
+const mapStateToProps = (state, ownProps) => ({
+  status: state.cms.status,
+  minData: state.cms.stories.find(p => p.id === state.cms.status.currentStoryPid).storysections.find(s => s.id === ownProps.id)
+});
+
+const mapDispatchToProps = dispatch => ({
+  newEntity: (type, payload) => dispatch(newEntity(type, payload)),
+  updateEntity: (type, payload) => dispatch(updateEntity(type, payload))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(StorySectionEditor);
