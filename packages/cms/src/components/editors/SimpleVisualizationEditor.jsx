@@ -29,7 +29,10 @@ class SimpleVisualizationEditor extends Component {
     // If a simple config has been provided, then the user has used simple mode in the past.
     // Populate the simple menu accordingly and make it the default mode.
     let object = {};
-    if (simpleConfig) {
+    // Bug: The deepclone used in GeneratorEditor erroneously logic_simple from NULL to {}
+    // Therefore, detect the blank object as another expression of NULLness
+    const configIsEmptyObject = simpleConfig.constructor === Object && Object.keys(simpleConfig).length === 0;
+    if (simpleConfig && !configIsEmptyObject) {
       object = Object.assign({}, simpleConfig);
       this.setState({object}, this.firstBuild.bind(this));
     }
