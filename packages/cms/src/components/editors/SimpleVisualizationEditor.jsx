@@ -106,12 +106,15 @@ class SimpleVisualizationEditor extends Component {
       .filter(d => d !== "formatters");
 
     const thisViz = vizLookup.find(v => v.type === type);
-    const tooltipKeys = thisViz.methods
-      // To build the tooltip, filter our methods to only the tooltip keys
-      .filter(method => method.tooltip)
-      // If this key is already handled by groupBy, remove it from showing in the tooltip
-      .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy) : true)
-      .map(d => d.key);
+    let tooltipKeys = [];
+    if (thisViz) {
+      tooltipKeys = thisViz.methods
+        // To build the tooltip, filter our methods to only the tooltip keys
+        .filter(method => method.tooltip)
+        // If this key is already handled by groupBy, remove it from showing in the tooltip
+        .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy) : true)
+        .map(d => d.key);
+    }
 
     // If the user has put instance variables between brackets (e.g. <id> or <var>)
     // Then we need to manually create a special template string out of what the user
@@ -343,7 +346,7 @@ class SimpleVisualizationEditor extends Component {
       disabled: true,
       namespace: "cms"
     };
-    if (object.data) {
+    if (object.data && object.type) {
       buttonProps = {
         children: payload.length > 0 ? "Rebuild" : "Build",
         namespace: "cms",
