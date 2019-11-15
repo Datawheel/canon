@@ -1,1 +1,5 @@
-.home {}
+.home {
+  & form:focus-within {
+    background: blue;
+  }
+}

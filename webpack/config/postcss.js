@@ -40,6 +40,7 @@ module.exports = [
     browsers: ["> 1%", "last 2 versions"],
     features: {
       "custom-properties": false,
+      "focus-within-pseudo-class": false,
       "nesting-rules": true
     },
     preserve: false
