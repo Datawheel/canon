@@ -46,23 +46,19 @@ class Navbar extends Component {
     const changedVariablesOrTitle = prevProps.status.diffCounter !== this.props.status.diffCounter;
     const changedQuery = JSON.stringify(prevProps.status.query) !== JSON.stringify(this.props.status.query);
     if (changedVariablesOrTitle || changedQuery) {
-      console.log("Changed Name or Dropdown, forcing update");
       this.forceUpdate();
     }
 
     const profilesLoaded = !prevProps.status.profilesLoaded && this.props.status.profilesLoaded;
     const storiesLoaded = !prevProps.status.storiesLoaded && this.props.status.storiesLoaded;
-    const pathChanged = JSON.stringify(prevProps.status.pathObj) !== JSON.stringify(this.props.status.pathObj);
 
     // If profiles load for the first time and pathObj is already set, this is a permalink. Open the node.
     if (profilesLoaded && pathObj.profile) {
-      console.log("Profiles loaded, attempting to click", pathObj);
       this.handleClick.bind(this)(pathObj);
     }
 
     // If stories load for the first time and pathObj is already set, this is a permalink. Open the node.
     if (storiesLoaded && pathObj.story) {
-      console.log("Stories loaded, attempting to click", pathObj);
       this.handleClick.bind(this)(pathObj);
     }
 
@@ -164,16 +160,13 @@ class Navbar extends Component {
     const newPathObj = {...pathObj};
     if (pathObj.tab === "profiles") {
       const {currentPid, previews} = this.props.status;
-      console.log("clickedPid:", pathObj.profile);
       // If the pids match, don't reset any previews or variables
       if (currentPid === Number(pathObj.profile)) {
-        console.log("same pids, not changing");
         newPathObj.previews = previews;
         this.props.setStatus({pathObj: newPathObj});
       }
       // If they don't match, update the currentPid and reset the preview
       else {
-        console.log("different pid! setting", pathObj.profile, "via this object: ", newPathObj);
         this.props.setStatus({currentPid: Number(pathObj.profile), pathObj: newPathObj});
         this.props.resetPreviews();
       }

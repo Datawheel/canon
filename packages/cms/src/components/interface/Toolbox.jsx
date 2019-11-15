@@ -35,18 +35,12 @@ class Toolbox extends Component {
     const localeChanged = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
 
     if (changedSinglePreview) {
-      console.log("dropdown changed");
-      console.log("====FETCH====");
       this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
     }
     if (changedEntireProfile) {
-      console.log("profile changed");
-      console.log("====FETCH====");
       this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)}, true);
     }
     if (localeChanged) {
-      console.log("locale changed");
-      console.log("====FETCH====");
       this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
     }
     // Detect Deletions
@@ -55,13 +49,9 @@ class Toolbox extends Component {
       // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
     // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
       if (justDeleted.type === "generator") {
-        console.log("generator deleted: ", justDeleted.id);
-        console.log("====FETCH====");
         this.props.fetchVariables({type: "generator", ids: [justDeleted.id]});  
       }
       else if (justDeleted.type === "materializer") {
-        console.log("materializer deleted: ", justDeleted.id);
-        console.log("====FETCH====");
         this.props.fetchVariables({type: "materializer", ids: [justDeleted.id]});
       }
     }
