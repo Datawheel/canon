@@ -52,12 +52,16 @@ class Outline extends Component {
     if (sections.length) {
       // let the grouping begin
       groupedSections = sections.reduce((arr, section) => {
-        // treat the first section as a grouping
-        if (arr.length === 0 || section.type === "Grouping") {
-          section.sections = []; // add emtpty array for following sections to be nested into
-          arr.push(section); // push the section as a grouping
+        // treat every section as a top level section up until the first grouping
+        if (!arr.find(section => section.type === "Grouping" || section.type === "Grouping")) {
+          // add empty array for following sections to be grouped into
+          if (section.type === "Grouping") section.sections = [];
+          // push the section as a grouping
+          arr.push(section);
         }
+        // section follows a grouping; push it into the grouping's sections array
         else arr[arr.length - 1].sections.push(section);
+
         return arr;
       }, []);
     }
