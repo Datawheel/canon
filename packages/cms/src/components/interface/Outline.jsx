@@ -45,12 +45,7 @@ class Outline extends Component {
 
   /** group sections like they're grouped in profiles */
   groupSections() {
-    let sections = this.props.tree;
-
-    // Find the first instance of a Hero section (excludes all following instances)
-    const heroSection = sections.find(l => l.type === "Hero");
-    // Remove all heros from sections.
-    if (heroSection) sections = sections.filter(l => l.type !== "Hero");
+    const sections = this.props.tree;
 
     let groupedSections = [];
     // make sure there are sections to loop through
