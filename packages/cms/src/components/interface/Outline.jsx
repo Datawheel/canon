@@ -143,7 +143,7 @@ class Outline extends Component {
       </ul>
 
       {/* render nested list with current grouping's sections, if the current section is a grouping or within a group */}
-      <ul className={`cms-outline cms-nested-outline ${nestedOutline ? "is-open" : "is-closed"}`} key="outline-nested">
+      <ul className={`cms-outline cms-nested-outline ${nestedOutline && isOpen ? "is-open" : "is-closed"}`} key="outline-nested">
         {nestedOutline && nestedOutline.sections.map((node, i) =>
           this.renderNode(node, nodes, sectionKey, tree, i)
         )}
