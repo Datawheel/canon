@@ -43,7 +43,7 @@ class Outline extends Component {
       // let the grouping begin
       groupedSections = sections.reduce((arr, section) => {
         // treat every section as a top level section up until the first grouping
-        if (!arr.find(section => section.type === "Grouping" || section.type === "Grouping")) {
+        if (!arr.find(section => section.type === "Grouping") || section.type === "Grouping") {
           // add empty array for following sections to be grouped into
           if (section.type === "Grouping") section.sections = [];
           // push the section as a grouping
