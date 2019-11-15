@@ -162,7 +162,7 @@ export default function(defaultStore = {}, headerConfig, reduxMiddleware = false
     ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
 
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/normalize.css'>
-    ${ process.env.NODE_ENV === "production" ? `<link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css'>` : "" }
+    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css'>
     ${hotjarScript}
   </head>
   <body>

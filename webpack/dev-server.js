@@ -26,7 +26,7 @@ module.exports = {
     libraryTarget: "commonjs2"
   },
   module: {
-    rules: commonLoaders({extract: false})
+    rules: commonLoaders({extract: true})
   },
   resolve: {
     modules: [
@@ -44,9 +44,9 @@ module.exports = {
       entries: false,
       modules: true
     }),
-    // new MiniCssExtractPlugin({
-    //   filename: "styles.css"
-    // }),
+    new MiniCssExtractPlugin({
+      filename: "styles.css"
+    }),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
       environmentHash: {
@@ -56,9 +56,9 @@ module.exports = {
       },
       info: {level: "error"}
     }),
-    // new HardSourceWebpackPlugin.ExcludeModulePlugin([
-    //   {test: /mini-css-extract-plugin[\\/]dist[\\/]loader/}
-    // ]),
+    new HardSourceWebpackPlugin.ExcludeModulePlugin([
+      {test: /mini-css-extract-plugin[\\/]dist[\\/]loader/}
+    ]),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))
       .reduce((d, k) => {
