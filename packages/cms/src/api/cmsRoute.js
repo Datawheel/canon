@@ -618,7 +618,7 @@ module.exports = function(app) {
    */
   const swapList = [
     {elements: ["profile"], parent: null},
-    {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
+    {elements: ["author", "story_description", "story_footnote", "storysection"], parent: "story_id"},
     {elements: ["section", "materializer"], parent: "profile_id"},
     {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
     {elements: ["storysection_subtitle", "storysection_description", "storysection_stat", "storysection_visualization"], parent: "storysection_id"}
