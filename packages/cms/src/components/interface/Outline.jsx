@@ -33,16 +33,6 @@ class Outline extends Component {
     }
   }
 
-  swapSections(id) {
-    const {tab} = this.props.status.pathObj;
-    if (tab === "profiles") {
-      this.props.swapEntity("section", id);
-    }
-    if (tab === "stories") {
-      this.props.swapEntity("storysection", id);
-    }
-  }
-
   /** group sections like they're grouped in profiles */
   groupSections() {
     const sections = this.props.tree;
@@ -86,7 +76,7 @@ class Outline extends Component {
   }
 
   render() {
-    const {tree, isOpen} = this.props;
+    const {tree, isOpen, swapEntity} = this.props;
     const {pathObj} = this.props.status;
 
     if (!tree) return null;
@@ -128,10 +118,10 @@ class Outline extends Component {
               >
                 Add new section
               </Button>
-              {/* swap section positions (not shown for last section) */}
+              {/* swap section positions */}
               {i !== tree.length - 1 &&
                 <Button
-                  onClick={() => this.swapSections(node.id)}
+                  onClick={() => swapEntity(sectionKey, node.id)}
                   className="cms-outline-item-actions-button"
                   namespace="cms"
                   fontSize="xxs"
@@ -173,10 +163,10 @@ class Outline extends Component {
               >
                 Add new section
               </Button>
-              {/* swap section positions (not shown for last section) */}
+              {/* swap section positions */}
               {i !== tree.length - 1 &&
                 <Button
-                  onClick={() => this.swapSections(node.id)}
+                  onClick={() => swapEntity(sectionKey, node.id)}
                   className="cms-outline-item-actions-button"
                   namespace="cms"
                   fontSize="xxs"
