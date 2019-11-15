@@ -43,15 +43,43 @@ class Outline extends Component {
     }
   }
 
+  /** group sections like they're grouped in profiles */
+  groupSections() {
+    let sections = this.props.tree;
+
+    // Find the first instance of a Hero section (excludes all following instances)
+    const heroSection = sections.find(l => l.type === "Hero");
+    // Remove all heros from sections.
+    if (heroSection) sections = sections.filter(l => l.type !== "Hero");
+
+    let groupedSections = [];
+    // make sure there are sections to loop through
+    if (sections.length) {
+      // let the grouping begin
+      groupedSections = sections.reduce((arr, section) => {
+        // treat the first section as a grouping
+        if (arr.length === 0 || section.type === "Grouping") {
+          section.sections = []; // add emtpty array for following sections to be nested into
+          arr.push(section); // push the section as a grouping
+        }
+        else arr[arr.length - 1].sections.push(section);
+        return arr;
+      }, []);
+    }
+
+    return groupedSections;
+  }
+
   render() {
     const {tree, isOpen} = this.props;
     const {pathObj} = this.props.status;
 
     if (!tree) return null;
+    const nodes = this.groupSections();
 
     return (
       <ul className={`cms-outline ${isOpen ? "is-open" : "is-closed"}`}>
-        {tree.map((node, i) =>
+        {nodes.map((node, i) =>
           <li className="cms-outline-item" key={node.id}>
             <a
               className={`cms-outline-link${
