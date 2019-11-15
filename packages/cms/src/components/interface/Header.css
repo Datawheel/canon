@@ -11,10 +11,10 @@
 .cms-header-link-container {
   /* sizing (limit max width & account for link icon) */
   @mixin overflow-ellipsis;
-  max-width: calc(100% + 1.5em);
+  max-width: calc(100% + 1.5rem);
   height: 1.5em; /* needed for text-overflow: ellipsis */
-  margin-left: -1.25em;
-  padding-left: 1.25em;
+  margin-left: -1.25rem;
+  padding-left: 1.25rem;
   /* space out from button(s) when wrapping */
   margin-bottom: 1.25rem;
   /* theming */
