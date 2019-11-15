@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
@@ -77,9 +77,69 @@ class Outline extends Component {
     if (!tree) return null;
     const nodes = this.groupSections();
 
-    return (
-      <ul className={`cms-outline ${isOpen ? "is-open" : "is-closed"}`}>
+    let sectionKey = "section";
+    if (pathObj.story) sectionKey = "storysection";
+
+    // when a grouping section is active, or a section nested in the groupings' section array is active
+    const nestedOutline = nodes.find(section =>
+      section.type === "Grouping" && section.id === Number(pathObj[sectionKey]) ||
+      section.sections && section.sections.find(nestedSection => nestedSection.id === Number(pathObj[sectionKey]))
+    );
+
+    return <Fragment>
+      {/* top row */}
+      <ul className={`cms-outline ${isOpen ? "is-open" : "is-closed"}`} key="outline-main">
         {nodes.map((node, i) =>
+          <li className="cms-outline-item" key={node.id}>
+            <a
+              className={`cms-outline-link${
+                pathObj[sectionKey] && Number(pathObj[sectionKey]) === node.id
+                  ? " is-selected" // current node
+                  : ""
+              }`}
+              onClick={() => this.handleSectionClick.bind(this)(node)}
+            >
+              <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
+              {this.props.getNodeTitle(node)}
+            </a>
+
+            {/* add section / swap section position buttons */}
+            <div className="cms-outline-item-actions cms-button">
+              {/* add section */}
+              <Button
+                onClick={() => this.createSection(node.id)}
+                className="cms-outline-item-actions-button"
+                namespace="cms"
+                fontSize="xxs"
+                icon="plus"
+                iconOnly
+                key={`${node.id}-add-button`}
+              >
+                Add new section
+              </Button>
+              {/* swap section positions (not shown for last section) */}
+              {i !== tree.length - 1 &&
+                <Button
+                  onClick={() => this.swapSections(node.id)}
+                  className="cms-outline-item-actions-button"
+                  namespace="cms"
+                  fontSize="xxs"
+                  icon="swap-horizontal"
+                  iconOnly
+                  key={`${node.id}-swap-button`}
+                >
+                  Swap positioning of current and next sections
+                </Button>
+              }
+            </div>
+          </li>
+        )}
+      </ul>
+
+      {/* render nested list with current grouping's sections, if the current section is a grouping or within a group */}
+      {console.log(nestedOutline)}
+      <ul className={`cms-outline cms-nested-outline ${nestedOutline ? "is-open" : "is-closed"}`} key="outline-nested">
+        {nestedOutline && nestedOutline.sections.map((node, i) =>
           <li className="cms-outline-item" key={node.id}>
             <a
               className={`cms-outline-link${
@@ -125,7 +185,7 @@ class Outline extends Component {
           </li>
         )}
       </ul>
-    );
+    </Fragment>;
   }
 }
 
