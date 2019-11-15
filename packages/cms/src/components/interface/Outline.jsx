@@ -65,6 +65,22 @@ class Outline extends Component {
     return groupedSections;
   }
 
+  /** generate the selected className depending on whether or not a node or its descendent are selected */
+  getSelectedClass(node, nodes, sectionKey) {
+    const {pathObj} = this.props.status;
+
+    // node matches the current section id
+    if (node.id === Number(pathObj[sectionKey])) return " is-selected";
+    // nested node is selected
+    else if (
+      node.type === "Grouping" && node.sections &&
+      node.sections.find(nestedSection => Number(nestedSection.id) === Number(pathObj[sectionKey]))
+    ) {
+      return " is-selected-parent";
+    }
+    return "";
+  }
+
   render() {
     const {tree, isOpen} = this.props;
     const {pathObj} = this.props.status;
@@ -75,7 +91,7 @@ class Outline extends Component {
     let sectionKey = "section";
     if (pathObj.story) sectionKey = "storysection";
 
-    // when a grouping section is active, or a section nested in the groupings' section array is active
+    // when a grouping section is active, or a section nested in the grouping's section array is active
     const nestedOutline = nodes.find(section =>
       section.type === "Grouping" && section.id === Number(pathObj[sectionKey]) ||
       section.sections && section.sections.find(nestedSection => nestedSection.id === Number(pathObj[sectionKey]))
@@ -87,11 +103,7 @@ class Outline extends Component {
         {nodes.map((node, i) =>
           <li className="cms-outline-item" key={node.id}>
             <a
-              className={`cms-outline-link${
-                pathObj[sectionKey] && Number(pathObj[sectionKey]) === node.id
-                  ? " is-selected" // current node
-                  : ""
-              }`}
+              className={`cms-outline-link${this.getSelectedClass(node, nodes, sectionKey)}`}
               onClick={() => this.handleSectionClick.bind(this)(node)}
             >
               <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
@@ -132,16 +144,11 @@ class Outline extends Component {
       </ul>
 
       {/* render nested list with current grouping's sections, if the current section is a grouping or within a group */}
-      {console.log(nestedOutline)}
       <ul className={`cms-outline cms-nested-outline ${nestedOutline ? "is-open" : "is-closed"}`} key="outline-nested">
         {nestedOutline && nestedOutline.sections.map((node, i) =>
           <li className="cms-outline-item" key={node.id}>
             <a
-              className={`cms-outline-link${
-                pathObj.section && Number(pathObj.section) === node.id || pathObj.storysection && Number(pathObj.storysection === node.id)
-                  ? " is-selected" // current node
-                  : ""
-              }`}
+              className={`cms-outline-link${this.getSelectedClass(node, nodes, sectionKey)}`}
               onClick={() => this.handleSectionClick.bind(this)(node)}
             >
               <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />

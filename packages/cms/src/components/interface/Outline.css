@@ -10,6 +10,7 @@
   /* theming */
   border-top: 1px solid var(--light-2);
   border-bottom: 1px solid var(--light-2);
+  &:not(:last-child) { border-bottom: none; }
 
   @mixin min-sm {
     padding-left: calc(var(--gutter-sm) + var(--gutter-xs));
@@ -32,8 +33,13 @@
 .cms-outline-item {
   flex: 0 0 auto;
 
+  /* add space for buttons */
   &:last-of-type {
     margin-right: var(--gutter-md);
+  }
+  /* cover up divider line when selected */
+  &:not(:first-of-type) {
+    margin-left: -1px;
   }
 }
 
@@ -44,23 +50,40 @@
   padding: 0.875em var(--gutter-md);
   /* theming */
   @mixin cms-nav-link-theme;
+  transition:
+    color 0.1s ease-out,
+    background-color 0.1s ease-out;
 
   &:hover, &:focus {
     text-decoration: none;
   }
 
-  &.is-selected {
+  &.is-selected, &.is-selected-parent {
     background-color: var(--white);
     @mixin dark-mode { background-color: var(--dark-2); }
+
+    & .cms-outline-link-icon[icon*="caret"] {
+      transform: rotate(90deg);
+    }
+  }
+  &.is-selected {
+    color: var(--accent-dark);
+    @mixin dark-mode { color: var(--accent-light); }
+  }
+  &.is-selected-parent {
+    color: var(--dark-2);
+    @mixin dark-mode { color: var(--white); }
   }
 }
 
 .cms-outline-link-icon {
   width: 1em;
   margin-right: 0.5em;
+  transition: transform 0.1s ease-out;
 
   &[icon*="caret"] {
     margin-right: 0.25em;
+    margin-left: -0.5em;
   }
 }
 
@@ -75,6 +98,7 @@
   overflow: hidden;
   box-shadow: none;
   background: var(--light-3);
+  z-index: -1;
 
   @mixin dark-mode {
     background: var(--dark-2);
@@ -114,7 +138,7 @@
   transition-delay: 0.875s; /* prevent misclicks by delaying transition in */
   /* override default button style */
   @mixin cms-button-shadow;
-  background: transparent;
+  background: var(--white);
   border-radius: 0;
 
   @mixin dark-mode {
