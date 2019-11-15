@@ -279,13 +279,15 @@ class SimpleVisualizationEditor extends Component {
       type: object.type
     };
  
-    // Copy over any relevant keys from the previous config
-    thisViz.methods.forEach(method => {
-      if (object[method.key]) {
-        newObject[method.key] = object[method.key];
-      }
-    });
-    if (object.title) newObject.title = object.title;
+    if (thisViz) {
+      // Copy over any relevant keys from the previous config
+      thisViz.methods.forEach(method => {
+        if (object[method.key]) {
+          newObject[method.key] = object[method.key];
+        }
+      });
+      if (object.title) newObject.title = object.title;
+    }
 
     if (data) {
 
