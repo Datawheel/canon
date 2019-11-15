@@ -183,34 +183,43 @@ export function fetchVariables(config, useCache) {
     if (useCache && thisProfile.variables) {
       dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables), diffCounter}});
     }
-    // If we've received a zero-length config of type generator, this is a brand-new profile.
-    // Return the scaffolded empty data.
-    else if (config.type === "generator" && config.ids.length === 0) {
-      dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
-    }
     else {
       const locales = [localeDefault];
       if (localeSecondary) locales.push(localeSecondary);
       for (const thisLocale of locales) {
-
-        // If the config is for a materializer, don't run generators. Just use our current variables for the POST action
-        if (config && config.type === "materializer") {
+        // If the config is for a materializer, or its for zero-length generators (like in a new profile) 
+        // don't run generators. Just use our current variables for the POST action for materializers
+        if (config.type === "materializer" || config.type === "generator" && config.ids.length === 0) {
           let paramString = "";
           previews.forEach((p, i) => {
             paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
           });
-          const mid = config.ids[0];
-          const query = {materializer: mid};
+          let query = {};
+          if (config.type === "materializer") {
+            const mid = config.ids[0];
+            query = {materializer: mid};
+          }
           Object.keys(query).forEach(k => {
             paramString += `&${k}=${query[k]}`;
           });
-          // However, the user may have deleted a variable from their materializer. Clear out this materializer's variables 
-          // BEFORE we send the variables payload - so they will be filled in again properly from the POST response.
-          if (variables[thisLocale]._matStatus[mid]) {
-            Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
-              delete variables[thisLocale][k]; 
+          if (config.type === "materializer") {
+            // The user may have deleted a variable from their materializer. Clear out this materializer's variables 
+            // BEFORE we send the variables payload - so they will be filled in again properly from the POST response.
+            const mid = config.ids[0];
+            if (variables[thisLocale]._matStatus[mid]) {
+              Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
+                delete variables[thisLocale][k]; 
+              });
+              delete variables[thisLocale]._matStatus[mid];
+            }
+          }
+          else if (config.type === "generator") {
+            Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
+              Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
+                delete variables[thisLocale][k]; 
+              });
+              delete variables[thisLocale]._matStatus[mid];
             });
-            delete variables[thisLocale]._matStatus[mid];
           }
           // Once pruned, we can POST the variables to the materializer endpoint
           axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
