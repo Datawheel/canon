@@ -556,6 +556,22 @@ class MetaEditor extends Component {
       url
     } = this.state;
 
+    // custom pagination buttons
+    const paginationButtonProps = {
+      className: "cms-meta-pagination-button",
+      fontSize: "xxs",
+      iconOnly: true,
+      namespace: "cms"
+    };
+    const PreviousComponent = props =>
+      <Button icon="arrow-left" {...paginationButtonProps} {...props}>
+        Go to previous page in table
+      </Button>;
+    const NextComponent = props =>
+      <Button icon="arrow-right" {...paginationButtonProps} {...props}>
+        Go to next page in table
+      </Button>;
+
     return (
       <div className="cms-panel meta-editor">
         <div className="cms-sidebar cms-meta-header">
@@ -631,6 +647,8 @@ class MetaEditor extends Component {
             pageSize={pageSize < data.length ? pageSize : data.length}
             onPageSizeChange={(pageSize, pageIndex) => this.setState({pageSize, pageIndex})}
             showPagination={data.length > pageSize}
+            PreviousComponent={PreviousComponent}
+            NextComponent={NextComponent}
             showPageSizeOptions={false}
           />
         </div>

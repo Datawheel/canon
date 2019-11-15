@@ -2,6 +2,10 @@
 
 .cp-table-viz-container .cp-viz-figure {
   height: auto !important;
+
+  & .rt-table {
+    @mixin overflow-container;
+  }
 }
 
 /* -----------------------------

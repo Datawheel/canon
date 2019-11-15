@@ -123,6 +123,11 @@ class SelectorEditor extends Component {
       data.options[0].isDefault = true;
       data.default = data.options[0].option;
     }
+    // The user may have deleted an option that was a default in a multiselect.
+    // Recalculate the defaults so that it properly prunes them out.
+    if (data.type === "multi") {
+      data.default = data.options.filter(o => o.isDefault).map(o => o.option).join();
+    }
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
       this.setState({isDirty: true, data});

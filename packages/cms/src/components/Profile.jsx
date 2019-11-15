@@ -116,6 +116,9 @@ class Profile extends Component {
   render() {
     const {profile, loading, modalSlug, isIE, setVarsLoading} = this.state;
 
+    if (!this.state.profile) return null;
+    if (this.state.profile.error) return <div>{this.state.profile.error}</div>;
+
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
     const heroSection = sections.find(l => l.type === "Hero");
