@@ -45,10 +45,6 @@ class Subnav extends Component {
     ) {
       flattenedSections = sections.map(s => s[0][0]);
     }
-    // TODO: remove placeholder icons & shortTitle
-    flattenedSections[0].icon = "error";
-    flattenedSections[1].icon = "kjsdfjklfds";
-    flattenedSections[2].shortTitle = "Custom title babyyy";
 
     return flattenedSections;
   }
@@ -125,7 +121,7 @@ class Subnav extends Component {
                   {section.icon && blueprintIcons.find(i => i === section.icon) &&
                     <Icon className="subnav-link-icon" icon={section.icon} />
                   }
-                  {stripHTML(section.shortTitle || section.title)}
+                  {stripHTML(section.short || section.title)}
                 </AnchorLink>
               </li>
             )}

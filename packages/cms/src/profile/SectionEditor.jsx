@@ -7,6 +7,7 @@ import ButtonGroup from "../components/fields/ButtonGroup";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
 import TextCard from "../components/cards/TextCard";
 import deepClone from "../utils/deepClone";
+import blueprintIcons from "../utils/blueprintIcons";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Deck from "../components/interface/Deck";
 import SelectorUsage from "../components/interface/SelectorUsage";
@@ -89,14 +90,9 @@ class SectionEditor extends Component {
           return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
         }));
 
-    const icons = {
-      fix: "Fix",
-      me: "Me",
-      james: "James Ferrell"
-    };
     const iconList = [<option key="none" value="none">None</option>]
-      .concat(Object.keys(icons).map(icon => 
-        <option key={icon} value={icon}>{icons[icon]}</option>
+      .concat(blueprintIcons.map(icon => 
+        <option key={icon} value={icon}>{icon}</option>
       ));
 
     // remove Hero from available layouts
