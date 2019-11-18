@@ -246,7 +246,7 @@ class TextCard extends Component {
 
     let cardClass = "splash-card";
     if (["profile_stat", "section_stat"].includes(type)) cardClass = "cms-stat-card";
-    const displaySort = ["title", "value", "subtitle", "description", "tooltip"];
+    const displaySort = ["title", "value", "subtitle", "description", "tooltip", "short"];
 
     const thisDisplay = Object.keys(thisDisplayData)
       .filter(k => typeof thisDisplayData[k] === "string" && !["id", "locale", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))

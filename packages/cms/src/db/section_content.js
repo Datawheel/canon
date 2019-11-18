@@ -18,6 +18,10 @@ module.exports = function(sequelize, db) {
       title: {
         type: db.STRING,
         defaultValue: "New Section"
+      },
+      short: {
+        type: db.STRING,
+        defaultValue: "Short Title" 
       }
     }, 
     {

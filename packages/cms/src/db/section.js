@@ -31,6 +31,10 @@ module.exports = function(sequelize, db) {
       position: {
         type: db.STRING,
         defaultValue: "default"
+      },
+      icon: {
+        type: db.STRING,
+        defaultValue: null
       }
     }, 
     {
