@@ -9,14 +9,14 @@ import stripHTML from "../../../utils/formatters/stripHTML";
 import "./Subnav.css";
 
 class Subnav extends Component {
-
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       currSection: false,
       top: false,
       fixed: false
     };
+    this.subnav = React.createRef();
     this.scrollBind = this.handleScroll.bind(this);
   }
 
@@ -35,37 +35,57 @@ class Subnav extends Component {
     window.removeEventListener("scroll", this.scrollBind);
   }
 
+  /** unpack grouped sections from Profile.jsx, only using the first section in each grouping */
+  flattenSections(sections) {
+    let flattenedSections = sections;
+    if (sections &&
+      Array.isArray(sections) &&
+      sections[0] && sections[0][0] &&
+      sections[0][0] === Object(sections[0][0])
+    ) {
+      flattenedSections = sections.map(s => s[0][0]);
+    }
+    return flattenedSections;
+  }
+
+  /** on scroll, determine whether subnav is fixed, and which section we're in */
   handleScroll() {
-    throttle(() => {
-      const {sections} = this.props;
-      const {currSection, fixed} = this.state;
-      const {fixed: fixedProp} = this.props;
-      let newfixed = fixedProp;
-      if (typeof newfixed === "function") newfixed = newfixed.bind(this)();
+    const sections = this.flattenSections(this.props.sections);
 
-      let newSection = false;
-      sections.forEach(section => {
-        const elem = document.getElementById(section[0][0][0].slug);
-        const top = elem ? elem.getBoundingClientRect().top : 1;
-        if (top <= 0) newSection = section;
-      });
+    if (sections) {
+      throttle(() => {
+        const {currSection, fixed} = this.state;
 
-      if (newSection) {
-        (newSection.sections || []).forEach(section => {
-          const elem = document.getElementById(this.getProps(section[0][0][0]).slug);
+        // determine whether
+        let newFixed = fixed;
+        const subnav = this.subnav.current;
+        newFixed = subnav.getBoundingClientRect().top <= 0;
+        // return window.innerHeight < window.scrollY;
+
+        let newSection = false;
+        sections.forEach(section => {
+          const elem = document.getElementById(section.slug);
           const top = elem ? elem.getBoundingClientRect().top : 1;
-          if (top <= 0) newSection = this.getProps(section).slug;
+          if (top <= 0) newSection = section;
         });
-        newSection = newSection.slug;
-      }
 
-      if (fixed !== newfixed || currSection !== newSection) {
-        this.setState({
-          fixed: newfixed,
-          currSection: newSection
-        });
-      }
-    });
+        if (newSection) {
+          (newSection.sections || []).forEach(section => {
+            const elem = document.getElementById(this.getProps(section).slug);
+            const top = elem ? elem.getBoundingClientRect().top : 1;
+            if (top <= 0) newSection = this.getProps(section).slug;
+          });
+          newSection = newSection.slug;
+        }
+
+        if (fixed !== newFixed || currSection !== newSection) {
+          this.setState({
+            fixed: newFixed,
+            currSection: newSection
+          });
+        }
+      });
+    }
   }
 
   getProps(section) {
@@ -76,45 +96,31 @@ class Subnav extends Component {
   }
 
   render() {
-    const {children, sections} = this.props;
+    const {children} = this.props;
     const {currSection, fixed} = this.state;
+    const sections = this.flattenSections(this.props.sections);
 
-    if (!this.props.sections) return null;
+    if (!sections || !Array.isArray(sections)) return null;
 
     return (
-      <nav
-        className={`subnav ${fixed ? "is-fixed" : "is-static"}`}
-        ref={comp => this.container = comp}
-      >
+      <nav className={`subnav ${fixed ? "is-fixed" : "is-static"}`} ref={this.subnav}>
         {children}
 
-        {sections.length && <ol className="subnav-list" key="sections-list">
-          {sections.map(section => section[0] && section[0][0] &&
-            <li className="subnav-item" key={section[0][0].slug}>
+        {sections.length ? <ol className="subnav-list" key="sections-list">
+          {sections.map(section =>
+            <li className="subnav-item" key={section.slug}>
               <AnchorLink
-                className={`subnav-link ${currSection === section[0][0].slug ? "is-active" : "is-inactive"}`}
-                to={section[0][0].slug}
+                className={`subnav-link ${currSection === section.slug ? "is-active" : "is-inactive"}`}
+                to={section.slug}
               >
-                {stripHTML(section[0][0].title)}
+                {stripHTML(section.title)}
               </AnchorLink>
             </li>
           )}
-        </ol>}
+        </ol> : ""}
       </nav>
     );
   }
 }
-
-Subnav.defaultProps = {
-  fixed() {
-    if (!window) return false;
-    const {sections} = this.props;
-    if (sections && Array.isArray(sections) && sections.length) {
-      const elem = document.getElementById(sections[0][0][0].slug);
-      if (elem) return elem.getBoundingClientRect().top <= 0;
-    }
-    return window.innerHeight < window.scrollY;
-  }
-};
 
 export default hot(Subnav);
