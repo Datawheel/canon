@@ -1,5 +1,6 @@
 import React, {Component, Fragment} from "react";
 import {hot} from "react-hot-loader/root";
+import {Icon} from "@blueprintjs/core";
 
 import {AnchorLink} from "@datawheel/canon-core";
 
@@ -43,6 +44,11 @@ class Subnav extends Component {
     ) {
       flattenedSections = sections.map(s => s[0][0]);
     }
+    // TODO: remove placeholder icons & shortTitle
+    flattenedSections[0].icon = "error";
+    flattenedSections[1].icon = "kjsdfjklfds";
+    flattenedSections[2].shortTitle = "Custom title babyyy";
+
     return flattenedSections;
   }
 
@@ -115,7 +121,10 @@ class Subnav extends Component {
                   className={`subnav-link ${currSection.slug === section.slug ? "is-active" : "is-inactive"}`}
                   to={section.slug}
                 >
-                  {stripHTML(section.title)}
+                  {section.icon &&
+                    <Icon className="subnav-link-icon" icon={section.icon} />
+                  }
+                  {stripHTML(section.shortTitle || section.title)}
                 </AnchorLink>
               </li>
             )}
