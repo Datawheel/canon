@@ -1,1 +1,49 @@
 @import "../../../css/mixins.css";
+
+.subnav {
+  padding: var(--gutter-md);
+
+  & + .subnav-dummy.is-hidden {
+    display: none;
+  }
+
+  @mixin min-sm {
+    padding: 0 var(--gutter-md);
+    top: calc(0px - var(--subnav-height));
+    width: 100%;
+
+    &.is-fixed {
+      position: fixed;
+      z-index: 2;
+      top: var(--subnav-height);
+      height: var(--subnav-height);
+    }
+
+    & .subnav-list {
+      height: var(--subnav-height);
+      display: flex;
+      justify-content: space-between;
+      margin-left: calc(0px - var(--gutter-sm)); /* offset link padding */
+    }
+
+    & .subnav-link {
+      line-height: var(--subnav-height);
+      padding-left: var(--gutter-sm);
+      padding-right: var(--gutter-sm);
+    }
+
+    & + .subnav-dummy.is-visible {
+      display: block;
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}
+
+.subnav-list {
+  @mixin list-reset;
+}
+
+.subnav-link {
+  display: block;
+}

@@ -1,10 +1,13 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {hot} from "react-hot-loader/root";
 
 import {AnchorLink} from "@datawheel/canon-core";
 
 import throttle from "../../../utils/throttle";
+import pxToInt from "../../../utils/formatters/pxToInt";
 import stripHTML from "../../../utils/formatters/stripHTML";
+
+import styles from "style.yml";
 
 import "./Subnav.css";
 
@@ -21,13 +24,8 @@ class Subnav extends Component {
   }
 
   componentDidMount() {
-    if (!this.props.sections) return null;
-
-    window.addEventListener("scroll", this.scrollBind);
-    if (this.container) {
-      this.setState({
-        top: this.container.getBoundingClientRect().top + window.scrollY
-      });
+    if (this.props.sections && typeof window !== "undefined") {
+      window.addEventListener("scroll", this.scrollBind);
     }
   }
 
@@ -61,26 +59,33 @@ class Subnav extends Component {
     if (sections) {
       throttle(() => {
         const {currSection, fixed} = this.state;
+        const containerTop = this.state.top;
+        const screenTop = document.documentElement.scrollTop + pxToInt(styles["nav-height"] || "50px");
+        const heroHeight = document.querySelector(".cp-hero").getBoundingClientRect().height;
 
-        // determine whether
-        let newFixed = fixed;
-        const subnav = this.subnav.current;
-        newFixed = subnav.getBoundingClientRect().top <= 0;
-        // return window.innerHeight < window.scrollY;
+        // determine whether subnav is fixed
+        if (screenTop !== containerTop) {
+          if (screenTop > heroHeight && !fixed) {
+            this.setState({fixed: true});
+          }
+          else if (screenTop < heroHeight && fixed) {
+            this.setState({fixed: false});
+          }
+        }
 
+        // deteremine which section we're in
         let newSection = false;
         sections.forEach(section => {
           const elem = this.getSectionWrapper(section.slug);
           const top = elem ? elem.getBoundingClientRect().top : 1;
-          if (top <= 0) newSection = section;
+          if (top <= pxToInt(styles["nav-height"] || "50px") * 2) {
+            newSection = section;
+          }
         });
 
         // update state only when changes detected
-        if (fixed !== newFixed || currSection !== newSection) {
-          this.setState({
-            fixed: newFixed,
-            currSection: newSection
-          });
+        if (currSection !== newSection) {
+          this.setState({currSection: newSection});
         }
       });
     }
@@ -93,23 +98,33 @@ class Subnav extends Component {
 
     if (!sections || !Array.isArray(sections)) return null;
 
-    return (
-      <nav className={`subnav ${fixed ? "is-fixed" : "is-static"}`} ref={this.subnav}>
-        {children}
+    let height = 50;
+    if (typeof window !== "undefined" && this.subnav.current) {
+      height = this.subnav.current.getBoundingClientRect().height;
+    }
 
-        {sections.length ? <ol className="subnav-list" key="sections-list">
-          {sections.map(section =>
-            <li className="subnav-item" key={section.slug}>
-              <AnchorLink
-                className={`subnav-link ${currSection === section.slug ? "is-active" : "is-inactive"}`}
-                to={section.slug}
-              >
-                {stripHTML(section.title)}
-              </AnchorLink>
-            </li>
-          )}
-        </ol> : ""}
-      </nav>
+    return (
+      <Fragment>
+        <nav className={`subnav ${fixed ? "is-fixed" : "is-static"}`} ref={this.subnav} key="s">
+          {children}
+
+          {sections.length ? <ol className="subnav-list" key="l">
+            {sections.map(section =>
+              <li className="subnav-item" key={section.slug}>
+                <AnchorLink
+                  className={`subnav-link ${currSection.slug === section.slug ? "is-active" : "is-inactive"}`}
+                  to={section.slug}
+                >
+                  {stripHTML(section.title)}
+                </AnchorLink>
+              </li>
+            )}
+          </ol> : ""}
+        </nav>
+
+        {/* prevent page jump */}
+        <div className={`subnav-dummy${fixed ? " is-visible" : " is-hidden"}`} style={{height}} key="d" />
+      </Fragment>
     );
   }
 }
