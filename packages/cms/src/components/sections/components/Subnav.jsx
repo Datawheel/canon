@@ -48,6 +48,12 @@ class Subnav extends Component {
     return flattenedSections;
   }
 
+  /** crawl up the tree from the title and grab the section wrapper */
+  getSectionWrapper(slug) {
+    const section = document.getElementById(slug);
+    return section.parentNode.parentNode.parentNode;
+  }
+
   /** on scroll, determine whether subnav is fixed, and which section we're in */
   handleScroll() {
     const sections = this.flattenSections(this.props.sections);
@@ -64,20 +70,12 @@ class Subnav extends Component {
 
         let newSection = false;
         sections.forEach(section => {
-          const elem = document.getElementById(section.slug);
+          const elem = this.getSectionWrapper(section.slug);
           const top = elem ? elem.getBoundingClientRect().top : 1;
           if (top <= 0) newSection = section;
         });
 
-        if (newSection) {
-          (newSection.sections || []).forEach(section => {
-            const elem = document.getElementById(this.getProps(section).slug);
-            const top = elem ? elem.getBoundingClientRect().top : 1;
-            if (top <= 0) newSection = this.getProps(section).slug;
-          });
-          newSection = newSection.slug;
-        }
-
+        // update state only when changes detected
         if (fixed !== newFixed || currSection !== newSection) {
           this.setState({
             fixed: newFixed,
@@ -86,13 +84,6 @@ class Subnav extends Component {
         }
       });
     }
-  }
-
-  getProps(section) {
-    let comp = section;
-    if (comp.component) comp = comp.component;
-    if (comp.WrappedComponent) comp = comp.WrappedComponent;
-    return Object.assign({}, comp.defaultProps || {}, comp.props || {}, section.props || {});
   }
 
   render() {
