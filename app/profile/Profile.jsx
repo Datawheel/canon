@@ -12,7 +12,7 @@ import Viz1 from "./Viz1";
 import Viz2 from "./Viz2";
 import Viz3 from "./Viz3";
 
-import {AnchorLink, CanonProfile, SubNav, TopicTitle} from "../../src";
+import {AnchorLink, CanonProfile, TopicTitle} from "../../src";
 
 const topics = [
   {
@@ -48,12 +48,7 @@ class Profile extends Component {
         <p>Top Crop ID (from &quot;preneed&quot;): { topCrop.crop }</p>
         <p>{ topCrop.crop } Competitors (&quot;need&quot; using &quot;preneed&quot; in URL): { competitors ? competitors.map(c => c.geo_name).join(", ") : "Loading" }</p>
 
-        <SubNav type="scroll" anchor="right">Scroll SubNav</SubNav>
-
         <div className="profile-body">
-
-          <SubNav type="sticky" anchor="left">Sticky SubNav</SubNav>
-
           <div className="offset-content">
             <TopicTitle slug="agriculture">Agriculture</TopicTitle>
             <Viz1 />
