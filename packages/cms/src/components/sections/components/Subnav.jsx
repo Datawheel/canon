@@ -5,6 +5,7 @@ import {Icon} from "@blueprintjs/core";
 import {AnchorLink} from "@datawheel/canon-core";
 
 import throttle from "../../../utils/throttle";
+import blueprintIcons from "../../../utils/blueprintIcons";
 import pxToInt from "../../../utils/formatters/pxToInt";
 import stripHTML from "../../../utils/formatters/stripHTML";
 
@@ -121,7 +122,7 @@ class Subnav extends Component {
                   className={`subnav-link ${currSection.slug === section.slug ? "is-active" : "is-inactive"}`}
                   to={section.slug}
                 >
-                  {section.icon &&
+                  {section.icon && blueprintIcons.find(i => i === section.icon) &&
                     <Icon className="subnav-link-icon" icon={section.icon} />
                   }
                   {stripHTML(section.shortTitle || section.title)}
