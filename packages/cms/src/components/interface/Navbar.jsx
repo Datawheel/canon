@@ -140,7 +140,7 @@ class Navbar extends Component {
 
   // create a title by joining dimensions together
   makeTitleFromDimensions(entity) {
-    return entity.meta.length
+    return entity.meta && entity.meta.length
       ? entity.meta.map(m => m.slug).join(" / ")
       : "Unnamed";
   }
