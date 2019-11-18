@@ -15,6 +15,9 @@ const Home = function() {
         <li>
           <Link to="/datamexico">DataMexico</Link>
         </li>
+        <li>
+          <Link to="/chilecracia">Chilecracia</Link>
+        </li>
       </ul>
     </div>
   );
