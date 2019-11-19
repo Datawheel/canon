@@ -77,8 +77,10 @@ export default (status = {}, action) => {
       return Object.assign({}, status, newStatus);
     case "SECTION_UPDATE": 
       return Object.assign({}, status, {diffCounter: action.diffCounter});
+    case "SEARCH_LOADING": 
+      return Object.assign({}, status, {searchLoading: true});
     case "DIMENSION_MODIFY": 
-      return Object.assign({}, status, {diffCounter: action.diffCounter});
+      return Object.assign({}, status, {diffCounter: action.diffCounter, searchLoading: false});
     case "DIMENSION_DELETE": 
       return Object.assign({}, status, {diffCounter: action.diffCounter});
     // Deleting a profile requires resetting currentNode/Pid. It will be reset when the jsx picks a new node automatically
