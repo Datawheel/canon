@@ -57,19 +57,19 @@ const catcher = e => {
 
 const profileReqFull = {
   include: [
-    {association: "meta"},
-    {association: "content"},
-    {association: "generators"},
-    {association: "materializers"},
-    {association: "selectors"},
+    {association: "meta", separate: true},
+    {association: "content", separate: true},
+    {association: "generators", separate: true},
+    {association: "materializers", separate: true},
+    {association: "selectors", separate: true},
     {
-      association: "sections",
+      association: "sections", separate: true,
       include: [
-        {association: "content"},
-        {association: "subtitles", include: [{association: "content"}]},
-        {association: "descriptions", include: [{association: "content"}]},
-        {association: "stats", include: [{association: "content"}]},
-        {association: "visualizations"},
+        {association: "content", separate: true},
+        {association: "subtitles", include: [{association: "content", separate: true}], separate: true},
+        {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
+        {association: "stats", include: [{association: "content", separate: true}], separate: true},
+        {association: "visualizations", separate: true},
         {association: "selectors"}
       ]
     }
@@ -78,18 +78,18 @@ const profileReqFull = {
 
 const storyReqFull = {
   include: [
-    {association: "content"},
-    {association: "authors", include: [{association: "content"}]},
-    {association: "descriptions", include: [{association: "content"}]},
-    {association: "footnotes", include: [{association: "content"}]},
+    {association: "content", separate: true},
+    {association: "authors", include: [{association: "content", separate: true}], separate: true},
+    {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
+    {association: "footnotes", include: [{association: "content", separate: true}], separate: true},
     {
-      association: "storysections",
+      association: "storysections", separate: true, 
       include: [
-        {association: "content"},
-        {association: "subtitles", include: [{association: "content"}]},
-        {association: "descriptions", include: [{association: "content"}]},
-        {association: "stats", include: [{association: "content"}]},
-        {association: "visualizations"}
+        {association: "content", separate: true},
+        {association: "subtitles", include: [{association: "content", separate: true}], separate: true},
+        {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
+        {association: "stats", include: [{association: "content", separate: true}], separate: true},
+        {association: "visualizations", separate: true}
       ]
     }
   ]
@@ -97,22 +97,22 @@ const storyReqFull = {
 
 const sectionReqFull = {
   include: [
-    {association: "content"},
-    {association: "subtitles", include: [{association: "content"}]},
-    {association: "descriptions", include: [{association: "content"}]},
-    {association: "stats", include: [{association: "content"}]},
-    {association: "visualizations"},
+    {association: "content", separate: true},
+    {association: "subtitles", include: [{association: "content", separate: true}], separate: true},
+    {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
+    {association: "stats", include: [{association: "content", separate: true}], separate: true},
+    {association: "visualizations", separate: true},
     {association: "selectors"}
   ]
 };
 
 const storysectionReqFull = {
   include: [
-    {association: "content"},
-    {association: "subtitles", include: [{association: "content"}]},
-    {association: "descriptions", include: [{association: "content"}]},
-    {association: "stats", include: [{association: "content"}]},
-    {association: "visualizations"}
+    {association: "content", separate: true},
+    {association: "subtitles", include: [{association: "content", separate: true}], separate: true},
+    {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
+    {association: "stats", include: [{association: "content", separate: true}], separate: true},
+    {association: "visualizations", separate: true}
   ]
 };
 

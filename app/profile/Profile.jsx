@@ -49,7 +49,6 @@ class Profile extends Component {
         <p>{ topCrop.crop } Competitors (&quot;need&quot; using &quot;preneed&quot; in URL): { competitors ? competitors.map(c => c.geo_name).join(", ") : "Loading" }</p>
 
         <div className="profile-body">
-
           <div className="offset-content">
             <TopicTitle slug="agriculture">Agriculture</TopicTitle>
             <Viz1 />
