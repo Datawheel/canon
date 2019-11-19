@@ -62,18 +62,15 @@ class Subnav extends Component {
     if (sections) {
       throttle(() => {
         const {currSection, fixed} = this.state;
-        const containerTop = this.state.top;
-        const screenTop = document.documentElement.scrollTop + pxToInt(styles["nav-height"] || "50px") * 2;
+        const screenTop = window.pageYOffset + pxToInt(styles["nav-height"] || "50px") * 2;
         const heroHeight = document.querySelector(".cp-hero").getBoundingClientRect().height;
 
         // determine whether subnav is fixed
-        if (screenTop !== containerTop) {
-          if (screenTop > heroHeight && !fixed) {
-            this.setState({fixed: true});
-          }
-          else if (screenTop < heroHeight && fixed) {
-            this.setState({fixed: false});
-          }
+        if (screenTop > heroHeight && !fixed) {
+          this.setState({fixed: true});
+        }
+        else if (screenTop < heroHeight && fixed) {
+          this.setState({fixed: false});
         }
 
         // deteremine which section we're in

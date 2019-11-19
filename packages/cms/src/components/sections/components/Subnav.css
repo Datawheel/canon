@@ -138,3 +138,8 @@
     }
   }
 }
+
+/* jack up z-index in IE to accomodate for incrementing z-index sticky section hack (see #752) */
+@mixin ie-only {
+  .cp-subnav.is-fixed { z-index: 200; }
+}
