@@ -54,7 +54,17 @@ module.exports = function(app) {
               if (verbose) console.error("CANON_CONST_STORAGE_BUCKET not configured, failed to update image");
             }
             else {
-              // To add a new image, first create a row in the table with the metadata from flickr.
+              // To add a new image, first fetch the image data
+              const sizeObj = await flickr.photos.getSizes({photo_id: id}).then(resp => resp.body).catch(catcher);
+              let image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1600);
+              if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1000);
+              if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
+              if (!image || !image.source) {
+                return res.json({error: "Flickr Source Error, try another image."});
+              }
+              const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
+
+              // Then add a row to the image table with the metadata.
               const payload = {
                 url,
                 author: info.photo.owner.realname || info.photo.owner.username,
@@ -62,14 +72,8 @@ module.exports = function(app) {
               };
               const newImage = await db.image.create(payload).catch(catcher);
               await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);            
-
-              // Then fetch the available sizes from flickr
-              const sizeObj = await flickr.photos.getSizes({photo_id: id}).then(resp => resp.body).catch(catcher);
-              let image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1600);
-              if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1000);
-              if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
-              const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
               
+              // Finally, upload splash and thumb version to google cloud.
               const configs = [
                 {type: "splash", res: splashWidth}, 
                 {type: "thumb", res: thumbWidth}
