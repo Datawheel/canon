@@ -1,9 +1,9 @@
 @import "../../../css/mixins.css";
 
-.subnav {
+.cp-subnav {
   padding: var(--gutter-md);
 
-  & + .subnav-dummy.is-hidden {
+  & + .cp-subnav-dummy.is-hidden {
     display: none;
   }
 
@@ -19,20 +19,20 @@
       height: var(--subnav-height);
     }
 
-    & .subnav-list {
+    & .cp-subnav-list {
       height: var(--subnav-height);
       display: flex;
       justify-content: space-between;
       margin-left: calc(0px - var(--gutter-sm)); /* offset link padding */
     }
 
-    & .subnav-link {
+    & .cp-subnav-link {
       line-height: var(--subnav-height);
       padding-left: var(--gutter-sm);
       padding-right: var(--gutter-sm);
     }
 
-    & + .subnav-dummy.is-visible {
+    & + .cp-subnav-dummy.is-visible {
       display: block;
       opacity: 0;
       pointer-events: none;
@@ -40,10 +40,10 @@
   }
 }
 
-.subnav-list {
+.cp-subnav-list {
   @mixin list-reset;
 }
 
-.subnav-link {
+.cp-subnav-link {
   display: block;
 }

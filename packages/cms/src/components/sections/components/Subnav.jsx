@@ -108,18 +108,18 @@ class Subnav extends Component {
 
     return (
       <Fragment>
-        <nav className={`subnav ${fixed ? "is-fixed" : "is-static"}`} ref={this.subnav} key="s">
+        <nav className={`cp-subnav ${fixed ? "is-fixed" : "is-static"}`} ref={this.subnav} key="s">
           {children}
 
-          {sections.length ? <ol className="subnav-list" key="l">
+          {sections.length ? <ol className="cp-subnav-list" key="l">
             {sections.map(section =>
-              <li className="subnav-item" key={section.slug}>
+              <li className="cp-subnav-item" key={section.slug}>
                 <AnchorLink
-                  className={`subnav-link ${currSection.slug === section.slug ? "is-active" : "is-inactive"}`}
+                  className={`cp-subnav-link ${currSection.slug === section.slug ? "is-active" : "is-inactive"}`}
                   to={section.slug}
                 >
                   {section.icon && blueprintIcons.find(i => i === section.icon) &&
-                    <Icon className="subnav-link-icon" icon={section.icon} />
+                    <Icon className="cp-subnav-link-icon" icon={section.icon} />
                   }
                   {stripHTML(section.short || section.title)}
                 </AnchorLink>
@@ -129,7 +129,7 @@ class Subnav extends Component {
         </nav>
 
         {/* prevent page jump */}
-        <div className={`subnav-dummy${fixed ? " is-visible" : " is-hidden"}`} style={{height}} key="d" />
+        <div className={`cp-subnav-dummy${fixed ? " is-visible" : " is-hidden"}`} style={{height}} key="d" />
       </Fragment>
     );
   }
