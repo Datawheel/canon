@@ -63,7 +63,7 @@ class Subnav extends Component {
       throttle(() => {
         const {currSection, fixed} = this.state;
         const containerTop = this.state.top;
-        const screenTop = document.documentElement.scrollTop + pxToInt(styles["nav-height"] || "50px");
+        const screenTop = document.documentElement.scrollTop + pxToInt(styles["nav-height"] || "50px") * 2;
         const heroHeight = document.querySelector(".cp-hero").getBoundingClientRect().height;
 
         // determine whether subnav is fixed
@@ -90,7 +90,7 @@ class Subnav extends Component {
         if (currSection !== newSection) {
           this.setState({currSection: newSection});
         }
-      });
+      }, 30);
     }
   }
 
@@ -115,7 +115,7 @@ class Subnav extends Component {
             {sections.map(section =>
               <li className="cp-subnav-item" key={section.slug}>
                 <AnchorLink
-                  className={`cp-subnav-link ${currSection.slug === section.slug ? "is-active" : "is-inactive"}`}
+                  className={`cp-subnav-link ${currSection.slug === section.slug ? "is-active" : "is-inactive"} ${sections.length >= 5 ? "u-font-xs" : "u-font-sm" }`}
                   to={section.slug}
                 >
                   {section.icon && blueprintIcons.find(i => i === section.icon) &&
