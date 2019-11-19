@@ -559,7 +559,7 @@ module.exports = function(app) {
       const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
       profileData.ordering = ordering;
       await db.profile_meta.create(profileData);
-      populateSearch(profileData, db);
+      await populateSearch(profileData, db);
     }
     // Updates are more complex - the user may have changed levels, or even modified the dimension
     // entirely. We have to prune the search before repopulating it.
@@ -567,7 +567,7 @@ module.exports = function(app) {
       await db.profile_meta.update(profileData, {where: {id: profileData.id}});
       if (oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
         pruneSearch(oldmeta.dimension, oldmeta.levels, db);
-        populateSearch(profileData, db);
+        await populateSearch(profileData, db);
       }
     }
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile_id}});
