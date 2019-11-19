@@ -21,7 +21,7 @@ module.exports = function(sequelize, db) {
       },
       short: {
         type: db.STRING,
-        defaultValue: "Short Title" 
+        defaultValue: null 
       }
     }, 
     {
