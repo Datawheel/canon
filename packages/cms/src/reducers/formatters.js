@@ -5,7 +5,7 @@ export default (formatters = [], action) => {
     case "FORMATTER_NEW":
       return formatters.concat([action.data]);
     case "FORMATTER_UPDATE":
-      return formatters.map(f => f.id === action.data.id ? action.data : f);
+      return action.data;
     case "FORMATTER_DELETE":
       return action.data;
     default: return formatters;
