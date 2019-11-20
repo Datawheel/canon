@@ -1,28 +1,47 @@
 import React, {Component} from "react";
+import {hot} from "react-hot-loader/root";
+
+import Button from "../../fields/Button";
+
+import "./FooterButtons.css";
 
 class FooterButtons extends Component {
 
   render() {
-
-    const {onDelete, onSave} = this.props;
+    const {children, onDelete, onSave} = this.props;
 
     return (
-      <div id="buttons">
-        <div className="bp3-dialog-footer">
-          <div className="bp3-dialog-footer-actions">
-            {this.props.onDelete &&
-              <button className="cms-dialog-footer-button" onClick={onDelete}>
-                <span className="cms-dialog-footer-button-icon bp3-icon bp3-icon-trash" /> Delete
-              </button>
-            }
-            <button className="cms-dialog-footer-button" onClick={onSave}>
-              <span className="cms-dialog-footer-button-icon bp3-icon bp3-icon-tick-circle" /> Save & close
-            </button>
-          </div>
-        </div>
+      <div className="cms-dialog-footer">
+        {children}
+
+        {onDelete &&
+          <Button
+            className="cms-dialog-footer-button cms-dialog-footer-delete-button"
+            onClick={onDelete}
+            namespace="cms"
+            fontSize="xs"
+            icon="trash"
+            iconPosition="left"
+            key="d"
+          >
+            Delete
+          </Button>
+        }
+
+        <Button
+          className="cms-dialog-footer-button cms-dialog-footer-save-button"
+          onClick={onSave}
+          namespace="cms"
+          fontSize="xs"
+          icon="tick-circle"
+          iconPosition="left"
+          key="s"
+        >
+          Save & close
+        </Button>
       </div>
     );
   }
 }
 
-export default FooterButtons;
+export default hot(FooterButtons);

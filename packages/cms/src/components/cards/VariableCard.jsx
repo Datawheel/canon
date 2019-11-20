@@ -1,20 +1,21 @@
-import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
-import GeneratorEditor from "../editors/GeneratorEditor";
-import FooterButtons from "../editors/components/FooterButtons";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
+import {Dialog} from "@blueprintjs/core";
+
 import deepClone from "../../utils/deepClone";
+import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+
 import LocaleName from "./components/LocaleName";
+import VariableEditor from "../editors/VariableEditor";
 import VarTable from "../variables/VarTable";
 import Card from "./Card";
 
 import {deleteEntity, updateEntity, fetchVariables} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
-import "./GeneratorCard.css";
+import "./VariableCard.css";
 
-class GeneratorCard extends Component {
-
+class VariableCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -52,12 +53,12 @@ class GeneratorCard extends Component {
     if (type === "generator" || type === "materializer") {
       let locales = [localeDefault];
       if (this.props.status.localeSecondary) locales = locales.concat([localeSecondary]);
-      const changed = locales.some(loc => 
-        ["_genStatus", "_matStatus"].some(status => 
-          prevProps.status.variables[loc] && 
-          prevProps.status.variables[loc][status] && 
-          this.props.status.variables[loc] && 
-          this.props.status.variables[loc][status] && 
+      const changed = locales.some(loc =>
+        ["_genStatus", "_matStatus"].some(status =>
+          prevProps.status.variables[loc] &&
+          prevProps.status.variables[loc][status] &&
+          this.props.status.variables[loc] &&
+          this.props.status.variables[loc][status] &&
           JSON.stringify(prevProps.status.variables[loc][status][id]) !== JSON.stringify(this.props.status.variables[loc][status][id])
         )
       );
@@ -146,12 +147,9 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {attr, context, type, showReorderButton} = this.props;
-    const {localeDefault, localeSecondary} = this.props.status;
-    const {variables} = this.props.status;
+    const {attr, id, minData, type, showReorderButton} = this.props;
+    const {localeDefault, localeSecondary, variables} = this.props.status;
     const {displayData, secondaryDisplayData, isOpen, alertObj} = this.state;
-
-    const {minData} = this.props;
 
     let description = "";
     let showDesc = false;
@@ -164,9 +162,26 @@ class GeneratorCard extends Component {
 
     // define initial/loading props for Card
     const cardProps = {
-      cardClass: context,
+      type,
       localeSecondary,
       title: "•••" // placeholder
+    };
+
+    const dialogProps = {
+      isOpen,
+      onClose: this.maybeCloseEditorWithoutSaving.bind(this),
+      title: `${upperCaseFirst(type)} editor`,
+      usePortal: false,
+      icon: false
+    };
+
+    const editorProps = {
+      attr,
+      type,
+      data: this.state.minData,
+      markAsDirty: this.markAsDirty.bind(this),
+      onDelete: this.maybeDelete.bind(this),
+      onSave: this.save.bind(this)
     };
 
     // add additional props once the data is available
@@ -186,10 +201,8 @@ class GeneratorCard extends Component {
       });
     }
 
-    const {id} = this.props;
-
     return (
-      <React.Fragment>
+      <Fragment>
         <Card {...cardProps} key={`${cardProps.title}-${id}`}>
 
           {showDesc &&
@@ -197,7 +210,7 @@ class GeneratorCard extends Component {
           }
 
           {/* show variables, but not for formatter cards */}
-          {context !== "formatter" &&
+          {type !== "formatter" &&
             <div className="cms-card-locale-group">
               <div className="cms-card-locale-container">
                 {localeSecondary &&
@@ -217,41 +230,18 @@ class GeneratorCard extends Component {
         </Card>
 
         {/* open state */}
-        <Dialog
-          className="generator-editor-dialog"
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Variable Editor"
-          usePortal={false}
-          icon={false}
-        >
-
-          <div className="bp3-dialog-body">
-            <GeneratorEditor
-              markAsDirty={this.markAsDirty.bind(this)}
-              attr={attr}
-              data={this.state.minData}
-              type={type}
-            />
-          </div>
-          <FooterButtons
-            onDelete={this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
+        <Dialog className="variable-editor-dialog" {...dialogProps}>
+          <VariableEditor {...editorProps} />
         </Dialog>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }
 
-GeneratorCard.defaultProps = {
-  context: "generator" // mostly a styling hook used for formatter cards
-};
-
 const mapStateToProps = (state, ownProps) => ({
   status: state.cms.status,
-  minData: ownProps.type === "formatter" 
-    ? state.cms.formatters.find(f => f.id === ownProps.id) 
+  minData: ownProps.type === "formatter"
+    ? state.cms.formatters.find(f => f.id === ownProps.id)
     : state.cms.profiles.find(p => p.id === state.cms.status.currentPid)[`${ownProps.type}s`].find(g => g.id === ownProps.id)
 });
 
@@ -262,4 +252,4 @@ const mapDispatchToProps = dispatch => ({
   setStatus: status => dispatch(setStatus(status))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(GeneratorCard);
+export default connect(mapStateToProps, mapDispatchToProps)(VariableCard);

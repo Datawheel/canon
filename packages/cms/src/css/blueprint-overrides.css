@@ -38,11 +38,10 @@
     height: auto;
     max-height: calc(100vh - 2rem);
     padding-bottom: 0;
-    margin: 1rem;
-    margin-bottom: 2rem;
+    margin: var(--gutter-sm);
     border-radius: 4px;
     /* theming */
-    background-color: var(--white);
+    background-color: var(--light-1);
 
     @mixin dark-mode {
       background-color: var(--dark-3);
@@ -92,8 +91,8 @@
     }
   }
   & .bp3-dialog-body {
-    margin: 0;
-    padding: 2.125rem var(--gutter-md);
+    margin: 0 0 -1px 0; /* fix a weird black line bug */
+    padding: var(--gutter-md);
   }
 
   & .inline-radio-group {
@@ -132,6 +131,22 @@
       border-radius: 0 2px 2px 0;
       line-height: 1;
       margin: 5px 0 0 0; /* reset & match blueprint */
+    }
+  }
+
+  /* keep editable text visible */
+  & [class*="editable-text-content"] {
+    color: var(--dark-1);
+    @mixin dark-mode { color: var(--light-3); }
+
+    &:hover, &:focus {
+      color: var(--accent);
+    }
+  }
+
+  @mixin dark-mode {
+    & [class*="-editable-text-input"] {
+      color: var(--black);
     }
   }
 }

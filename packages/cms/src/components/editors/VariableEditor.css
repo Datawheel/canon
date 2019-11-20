@@ -1,6 +1,6 @@
 @import "../../css/mixins.css";
 
-.generator-editor {
+.variable-editor {
   align-self: stretch;
   display: flex;
   flex-direction: column;
@@ -45,16 +45,33 @@
   }
 }
 
-.generator-editor-dialog {
+.variable-editor-dialog {
   height: 100vh;
   margin-top: var(--nav-height);
+  padding-bottom: 2.5rem !important; /* make room for footer */
   max-height: calc(100vh - 25px - var(--nav-height));
   max-width: calc(100% - 25px);
+
+  & [class*="-dialog-body"] {
+    @mixin vertical-overflow-container;
+    max-height: calc(100vh - 10rem);
+  }
+
+  & .cms-ace-container:only-child {
+    margin-bottom: -2rem;
+  }
+
+  & .cms-dialog-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
 }
 
 /* help text */
 /* TODO: move to tooltip */
-.generator-editor-help > * {
+.variable-editor-help > * {
   margin-top: 0;
 
   &:not(:last-child) {

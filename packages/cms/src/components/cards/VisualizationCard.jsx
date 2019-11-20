@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {Dialog} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
-import GeneratorEditor from "../editors/GeneratorEditor";
+import VariableEditor from "../editors/VariableEditor";
 import Loading from "components/Loading";
 import Viz from "../Viz/Viz";
 import FooterButtons from "../editors/components/FooterButtons";
@@ -157,14 +157,14 @@ class VisualizationCard extends Component {
 
         {/* edit mode */}
         <Dialog
-          className="generator-editor-dialog"
+          className="variable-editor-dialog"
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Visualization editor"
           usePortal={false}
         >
           <div className="bp3-dialog-body">
-            <GeneratorEditor
+            <VariableEditor
               markAsDirty={this.markAsDirty.bind(this)}
               data={minDataState}
               type={type}

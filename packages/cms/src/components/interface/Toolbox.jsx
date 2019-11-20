@@ -4,7 +4,7 @@ import Deck from "./Deck";
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
 import FilterSearch from "../fields/FilterSearch";
-import GeneratorCard from "../cards/GeneratorCard";
+import VariableCard from "../cards/VariableCard";
 import SelectorCard from "../cards/SelectorCard";
 import ConsoleVariable from "../variables/ConsoleVariable";
 
@@ -211,7 +211,7 @@ class Toolbox extends Component {
               description="Variables constructed from JSON data calls."
               addItem={this.addItem.bind(this, "generator")}
               cards={generators.map(g =>
-                <GeneratorCard
+                <VariableCard
                   key={g.id}
                   id={g.id}
                   context="generator"
@@ -230,7 +230,7 @@ class Toolbox extends Component {
               description="Variables constructed from other variables. No API calls needed."
               addItem={this.addItem.bind(this, "materializer")}
               cards={materializers.map(m =>
-                <GeneratorCard
+                <VariableCard
                   key={m.id}
                   id={m.id}
                   context="materializer"
@@ -264,7 +264,7 @@ class Toolbox extends Component {
               addItem={this.addItem.bind(this, "formatter")}
               description="Javascript Formatters for Canon text components"
               cards={formatters.map(f =>
-                <GeneratorCard
+                <VariableCard
                   context="formatter"
                   key={f.id}
                   id={f.id}

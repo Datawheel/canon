@@ -89,6 +89,11 @@
       break-inside: avoid;
       padding-top: 1px;
     }
+
+    /* adjust margin on adjacent text button group */
+    & + .cms-text-button-group {
+      margin-top: var(--gutter-xs);
+    }
   }
 
   /* space out adjacent fields & field groups */

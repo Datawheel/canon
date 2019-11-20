@@ -1,0 +1,98 @@
+@import "../../css/mixins.css";
+
+.generator-editor-ui {
+  width: 100%;
+}
+
+.cms-generator-heading-button {
+  margin-top: -0.375em; /* fudge 2nd column into place */
+}
+
+/* equal sized columns */
+.variable-editor .cms-variable-editor-group {
+  display: flex;
+
+  & > * {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.cms-variable-editor-js-outer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+
+  & .cms-variable-editor-js {
+    position: relative;
+    width: 100%;
+    flex: 1 0 auto;
+  }
+
+  & .cms-ace-container {
+    @mixin absolute-expand;
+  }
+}
+
+.cms-variable-editor-json,
+.cms-generator-table-wrapper {
+  height: 100%;
+  background-color: var(--white);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+  }
+}
+
+/* json data */
+.cms-variable-editor-json {
+  padding: var(--gutter-sm);
+}
+
+/* tables */
+.cms-generator-table-wrapper {
+  padding: 0 var(--gutter-sm);
+}
+.cms-generator-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: -0.25rem; /* still more fudging */
+
+  & thead {
+    border-bottom: 1px solid var(--gray);
+    @mixin dark-mode { border-color: var(--dark-2); }
+  }
+
+  /* fake margin, because tables */
+  & tbody {
+    border-top: var(--gutter-sm) solid transparent;
+  }
+
+  & .cms-generator-table-row.is-inactive {
+    opacity: 0.5;
+
+    &:hover, &:focus { opacity: 0.75; }
+  }
+
+  & tr {
+    vertical-align: top;
+    transition: opacity 0.1s ease-out;
+
+    & + tr {
+      border-top: 1px solid var(--light-2);
+      @mixin dark-mode { border-color: var(--dark-2); }
+    }
+  }
+
+  & td {
+    padding: 0.75rem;
+
+    /* override padding on first & last cell */
+    &:first-child { padding-left: 0; }
+    &:last-child  { padding-right: 0; text-align: right;}
+  }
+
+  & .bp3-checkbox {
+    margin-bottom: 0;
+  }
+}

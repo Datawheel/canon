@@ -51,11 +51,11 @@ export default class AceWrapper extends Component {
       require("brace/theme/idle_fingers");
       return <div className="cms-ace-container">
         <Ace theme={readOnly ? "kuroir" : "idle_fingers"}
-          width="auto"
-          height="auto"
+          width="100%"
+          height="100%"
           ref={editor => this.editor = editor}
           wrapEnabled={false}
-          tabSize = {2}
+          tabSize={2}
           mode="javascript"
           setOptions={{
             fontSize: "14px"

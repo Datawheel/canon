@@ -173,7 +173,7 @@ class SelectorCard extends Component {
 
         {/* edit mode */}
         <Dialog
-          className="generator-editor-dialog"
+          className="variable-editor-dialog"
           isOpen={isOpen}
           onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
           title="Selector Editor"
