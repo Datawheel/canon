@@ -8,6 +8,12 @@ export default (resources = {}, action) => {
         formatterFunctions[locale] = funcifyFormatterByLocale(action.data, locale);
       });
       return Object.assign({}, resources, {formatterFunctions});
+    case "FORMATTER_UPDATE": 
+      const updatedFormatterFunctions = {};
+      action.locales.forEach(locale => {
+        updatedFormatterFunctions[locale] = funcifyFormatterByLocale(action.data, locale);
+      });
+      return Object.assign({}, resources, {formatterFunctions: updatedFormatterFunctions});
     default: return resources;
   }
 };
