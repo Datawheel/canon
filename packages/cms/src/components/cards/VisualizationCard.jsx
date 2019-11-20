@@ -92,6 +92,7 @@ class VisualizationCard extends Component {
     const {minData, showReorderButton} = this.props;
     const {isOpen, alertObj} = this.state;
     const {query} = this.props.status;
+    const {formatterFunctions} = this.props.resources;
 
     const minDataState = this.state.minData;
 
@@ -101,7 +102,7 @@ class VisualizationCard extends Component {
     const {localeDefault} = this.props.status;
     // Stories can use VisualizationCards, but don't have variables.
     const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
-    const formatters = this.context.formatters[localeDefault];
+    const formatters = formatterFunctions[localeDefault];
 
     // TODO: add formatters toggle for secondaryLocale & secondaryVariables
 
@@ -182,12 +183,12 @@ class VisualizationCard extends Component {
 }
 
 VisualizationCard.contextTypes = {
-  formatters: PropTypes.object,
   variables: PropTypes.object
 };
 
 const mapStateToProps = state => ({
   status: state.cms.status,
+  resources: state.cms.resources,
   selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
 });
 

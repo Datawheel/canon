@@ -1,11 +1,19 @@
 import axios from "axios";
 
+const getLocales = env => {
+  const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
+  const locales = env.CANON_LANGUAGES ? env.CANON_LANGUAGES.split(",") : [localeDefault];
+  if (!locales.includes(localeDefault)) locales.push(localeDefault);
+  return locales;
+};
+
 /** */
 export function getFormatters() { 
   return function(dispatch, getStore) {
+    const locales = getLocales(getStore().env);
     return axios.get(`${getStore().env.CANON_API}/api/cms/formatter`)
       .then(({data}) => {
-        dispatch({type: "FORMATTER_GET", data});
+        dispatch({type: "FORMATTER_GET", data, locales});
       });
   };
 }

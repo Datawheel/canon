@@ -6,8 +6,6 @@ import yn from "yn";
 import {fetchData} from "@datawheel/canon-core";
 import {isAuthenticated} from "@datawheel/canon-core";
 
-import funcifyFormatterByLocale from "./utils/funcifyFormatterByLocale";
-
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
 import MetaEditor from "./member/MetaEditor";
@@ -15,6 +13,7 @@ import AuthForm from "./components/interface/AuthForm";
 import Navbar from "./components/interface/Navbar";
 
 import {setStatus} from "./actions/status";
+import {getFormatters} from "./actions/formatters";
 
 import AceWrapper from "./components/editors/AceWrapper";
 
@@ -42,6 +41,7 @@ class Builder extends Component {
     const {tab, profile, section, previews, story, storysection} = location.query;
 
     this.props.isAuthenticated();
+    this.props.getFormatters();
 
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
@@ -61,21 +61,14 @@ class Builder extends Component {
 
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
-    const formatters = {};
-    formatters[localeDefault] = funcifyFormatterByLocale(this.props.formatters, localeDefault);
     if (env.CANON_LANGUAGES && env.CANON_LANGUAGES.includes(",")) {
       const locales = env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault);
       // Default to no secondary language
       const localeSecondary = null;
-      locales.forEach(locale => {
-        formatters[locale] = funcifyFormatterByLocale(this.props.formatters, locale);
-      });
       this.props.setStatus({locales, localeSecondary, localeDefault, pathObj});
-      this.setState({formatters});
     }
     else {
       this.props.setStatus({localeDefault, pathObj});
-      this.setState({formatters});
     }
   }
 
@@ -86,6 +79,10 @@ class Builder extends Component {
     // if location queries change, create new pathobj & set that 
     if (JSON.stringify(prevProps.status.pathObj) !== JSON.stringify(this.props.status.pathObj)) {
       this.setPath.bind(this)();
+    }
+    // If the formatters finish loading, put them into state so that they can be sent down via context to Vix.jsx
+    if (!prevProps.status.formattersLoaded && this.props.status.formattersLoaded) {
+      this.setState({formatters: this.props.resources.formatterFunctions});
     }
   }
 
@@ -119,14 +116,14 @@ class Builder extends Component {
   render() {
     const {userInit} = this.state;
     const {isEnabled, env, auth, router} = this.props;
-    const {pathObj} = this.props.status;
+    const {pathObj, formattersLoaded} = this.props.status;
     const currentTab = pathObj.tab;
     let {pathname} = router.location;
     if (pathname.charAt(0) !== "/") pathname = `/${pathname}`;
 
     const waitingForUser = yn(env.CANON_LOGINS) && !userInit;
 
-    if (!isEnabled || waitingForUser || !currentTab) return null;
+    if (!isEnabled || waitingForUser || !currentTab || !formattersLoaded) return null;
 
     if (yn(env.CANON_LOGINS) && !auth.user) return <AuthForm redirect={pathname}/>;
 
@@ -160,12 +157,13 @@ class Builder extends Component {
   }
 }
 
+
 Builder.childContextTypes = {
   formatters: PropTypes.object
 };
 
+
 Builder.need = [
-  fetchData("formatters", "/api/formatters"),
   fetchData("isEnabled", "/api/cms")
 ];
 
@@ -173,13 +171,14 @@ const mapStateToProps = state => ({
   env: state.env,
   auth: state.auth,
   status: state.cms.status,
-  formatters: state.data.formatters,
+  resources: state.cms.resources,
   isEnabled: state.data.isEnabled
 });
 
 const mapDispatchToProps = dispatch => ({
   dispatch: action => dispatch(action),
   setStatus: status => dispatch(setStatus(status)),
+  getFormatters: () => dispatch(getFormatters()),
   isAuthenticated: () => dispatch(isAuthenticated())
 });
 
