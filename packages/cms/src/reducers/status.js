@@ -72,6 +72,8 @@ export default (status = {}, action) => {
     // Updating a formatter means that some formatter logic changed. Bump the diffcounter.
     case "FORMATTER_UPDATE": 
       return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, diffCounter: action.diffCounter});
+    case "FORMATTER_DELETE": 
+      return Object.assign({}, status, {diffCounter: action.diffCounter});
     // Updating variables or saving a section or meta means that anything that depends on variables, such as TextCards 
     // Or the tree, needs to know something changed. Instead of running an expensive stringify on variables,
     // Just increment a counter that the various cards can subscribe to.
