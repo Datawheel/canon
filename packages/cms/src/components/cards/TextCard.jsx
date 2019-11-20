@@ -11,7 +11,6 @@ import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
-import PropTypes from "prop-types";
 import LocaleName from "./components/LocaleName";
 import Card from "./Card";
 
@@ -106,6 +105,7 @@ class TextCard extends Component {
   formatDisplay() {
     const {selectors} = this.props;
     const {localeDefault, localeSecondary, query} = this.props.status;
+    const {formatterFunctions} = this.props.resources;
     // Stories use TextCards, but don't need variables.
     const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
 
@@ -120,7 +120,7 @@ class TextCard extends Component {
     // polluting the object itself
     minData.selectors = selectors;
 
-    const thisFormatters = this.context.formatters[localeDefault];
+    const thisFormatters = formatterFunctions[localeDefault];
     // Swap vars, and extract the actual (multilingual) content
     const content = varSwapRecursive(minData, thisFormatters, variables, query).content;
     const thisLang = content.find(c => c.locale === localeDefault);
@@ -136,7 +136,7 @@ class TextCard extends Component {
 
     if (localeSecondary) {
       thatDisplayData = {};
-      const thatFormatters = this.context.formatters[localeSecondary];
+      const thatFormatters = formatterFunctions[localeSecondary];
       const content = varSwapRecursive(minData, thatFormatters, variables, query).content;
       const thatLang = content.find(c => c.locale === localeSecondary);
 
@@ -372,12 +372,9 @@ class TextCard extends Component {
   }
 }
 
-TextCard.contextTypes = {
-  formatters: PropTypes.object
-};
-
 const mapStateToProps = state => ({
   status: state.cms.status,
+  resources: state.cms.resources,
   selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
 });
 

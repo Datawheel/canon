@@ -1,7 +1,6 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
-import PropTypes from "prop-types";
 import {Icon} from "@blueprintjs/core";
 
 import varSwapRecursive from "../../utils/varSwapRecursive";
@@ -10,7 +9,6 @@ import {getProfiles, newProfile, deleteProfile, setVariables, resetPreviews} fro
 import {getStories, newStory, deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
 import {getCubeData} from "../../actions/cubeData";
-import {getFormatters} from "../../actions/formatters";
 
 import stripHTML from "../../utils/formatters/stripHTML";
 
@@ -35,7 +33,6 @@ class Navbar extends Component {
   componentDidMount() {
     this.props.getProfiles();
     this.props.getStories();
-    this.props.getFormatters();
     this.props.getCubeData();
   }
 
@@ -185,8 +182,9 @@ class Navbar extends Component {
   formatLabel(str) {
     const {profiles} = this.props;
     const {query, localeDefault, currentPid} = this.props.status;
+    const {formatterFunctions} = this.props.resources;
     const variables = this.props.status.variables[localeDefault] || {};
-    const formatters = this.context.formatters[localeDefault];
+    const formatters = formatterFunctions[localeDefault];
     const thisProfile = profiles.find(p => p.id === currentPid);
     const selectors = thisProfile ? thisProfile.selectors : [];
     str = stripHTML(str);
@@ -463,13 +461,10 @@ class Navbar extends Component {
   }
 }
 
-Navbar.contextTypes = {
-  formatters: PropTypes.object
-};
-
 const mapStateToProps = state => ({
   auth: state.auth,
   status: state.cms.status,
+  resources: state.cms.resources,
   profiles: state.cms.profiles,
   stories: state.cms.stories
 });
@@ -487,8 +482,6 @@ const mapDispatchToProps = dispatch => ({
   // Status Operations
   setStatus: status => dispatch(setStatus(status)),
   setVariables: newVariables => dispatch(setVariables(newVariables)),
-  // Formatters
-  getFormatters: () => dispatch(getFormatters()),
   // CubeData
   getCubeData: () => dispatch(getCubeData())
 });

@@ -38,10 +38,13 @@ export default (status = {}, action) => {
     // Basic assign
     case "STATUS_SET": 
       return Object.assign({}, status, action.data);
+    // Report loading completion of stories and profiles
     case "PROFILES_GET":
       return Object.assign({}, status, {profilesLoaded: true});
     case "STORIES_GET":
       return Object.assign({}, status, {storiesLoaded: true});
+    case "FORMATTER_GET":
+      return Object.assign({}, status, {formattersLoaded: true});
     // Creation Detection
     case "PROFILE_NEW": 
       return Object.assign({}, status, {justCreated: {type: "profile", id: action.data.id}});
@@ -75,10 +78,13 @@ export default (status = {}, action) => {
       const newStatus = {variables: deepClone(action.data.variables)};
       if (action.data.diffCounter) newStatus.diffCounter = action.data.diffCounter;
       return Object.assign({}, status, newStatus);
+    // Updating sections could mean the title was updated. Bump a "diffcounter" that the Navbar tree can listen for to jigger a render
     case "SECTION_UPDATE": 
       return Object.assign({}, status, {diffCounter: action.diffCounter});
+    // When the user adds a new dimension, set a status that we are waiting for members to finish populating
     case "SEARCH_LOADING": 
       return Object.assign({}, status, {searchLoading: true});
+    // When the dimension modify returns, 
     case "DIMENSION_MODIFY": 
       return Object.assign({}, status, {diffCounter: action.diffCounter, searchLoading: false});
     case "DIMENSION_DELETE": 

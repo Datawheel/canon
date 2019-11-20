@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import QuillWrapper from "./QuillWrapper";
-import PropTypes from "prop-types";
 import {connect} from "react-redux";
 
 import formatFieldName from "../../utils/formatters/formatFieldName";
@@ -47,10 +46,9 @@ class TextEditor extends Component {
     const {data, fields} = this.state;
     const {contentType, locale} = this.props;
     // Stories use TextEditors, but don't need variables.
-    const variables = this.props.status.variables[locale] ? this.props.status.variables[locale] : {}
-    const formatters = this.context.formatters[locale];
+    const variables = this.props.status.variables[locale] ? this.props.status.variables[locale] : {};
 
-    if (!data || !fields || !variables || !formatters) return null;
+    if (!data || !fields || !variables) return null;
 
     const thisLocale = data.content.find(c => c.locale === locale);
 
@@ -71,10 +69,6 @@ class TextEditor extends Component {
     );
   }
 }
-
-TextEditor.contextTypes = {
-  formatters: PropTypes.object
-};
 
 const mapStateToProps = state => ({
   status: state.cms.status
