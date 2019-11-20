@@ -11,12 +11,6 @@
     margin-bottom: 1.25rem;
   }
 
-  & .cms-mode-switch-container {
-    position: absolute;
-    bottom: -2.25rem;
-    left: 0;
-  }
-
   & .bp3-label.bp3-inline {
     display: flex;
 
@@ -48,7 +42,6 @@
 .variable-editor-dialog {
   height: 100vh;
   margin-top: var(--nav-height);
-  padding-bottom: 2.5rem !important; /* make room for footer */
   max-height: calc(100vh - 25px - var(--nav-height));
   max-width: calc(100% - 25px);
 
@@ -59,13 +52,6 @@
 
   & .cms-ace-container:only-child {
     margin-bottom: -2rem;
-  }
-
-  & .cms-dialog-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
   }
 }
 

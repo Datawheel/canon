@@ -1,16 +1,18 @@
 import axios from "axios";
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
+import {Switch} from "@blueprintjs/core";
+
+import urlSwap from "../../utils/urlSwap";
 
 import AceWrapper from "./AceWrapper";
 import GeneratorEditorUI from "./GeneratorEditorUI";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
-import {Switch, Alert, Intent} from "@blueprintjs/core";
-import urlSwap from "../../utils/urlSwap";
-import Select from "../fields/Select";
-import TextInput from "../fields/TextInput";
-import TextButtonGroup from "../fields/TextButtonGroup";
 import FooterButtons from "./components/FooterButtons";
+import Select from "../fields/Select";
+import TextButtonGroup from "../fields/TextButtonGroup";
+import TextInput from "../fields/TextInput";
+import Alert from "../interface/Alert";
 
 import "./VariableEditor.css";
 
@@ -36,7 +38,7 @@ class VariableEditor extends Component {
       this.setState({data}, maybePreview);
     }
     // If simple has been used in the past as a visualization, we need only switch to simple mode without payload.
-    else if (type.includes("_visualization")) {
+    else if (type.includes("visualization")) {
       const {simple} = data;
       this.setState({data, simple});
     }
@@ -90,8 +92,8 @@ class VariableEditor extends Component {
     if (payload && !payload.error) {
       const alertObj = {
         callback: this.previewPayload.bind(this),
-        message: "Are you sure you want to reload the API results? This will not change your current code, but it may cause some objects to become undefined.",
-        confirm: "Yes, reload the API results"
+        message: "Reloading API results may cause some objects to become undefined.",
+        confirm: "Okay"
       };
       this.setState({alertObj});
     }
@@ -166,14 +168,14 @@ class VariableEditor extends Component {
     if (simple) {
       alertObj = {
         callback: this.switchSimple.bind(this),
-        message: "Are you sure you want to switch to JS mode? This will abandon your UI mode state.",
+        message: "Note: Switching to JS mode will abandon your UI mode state.",
         confirm: "JS mode"
       };
     }
     else {
       alertObj = {
         callback: this.switchSimple.bind(this),
-        message: "Are you sure you want to switch to UI mode? This will abandon your current JS code.",
+        message: "Note: Switching to UI mode will abandon your current JS code.",
         confirm: "UI mode"
       };
     }
@@ -194,7 +196,7 @@ class VariableEditor extends Component {
         this.previewPayload.bind(this)(true);
       }
       // However it's a visualization, no payload is needed. Enable simple mode and switch without an API call.
-      else if (type.includes("_visualization")) {
+      else if (type.includes("visualization")) {
         data.simple = true;
         this.setState({simple: true, data, alertObj: false});
       }
@@ -254,21 +256,8 @@ class VariableEditor extends Component {
 
     return (
       <Fragment>
-        <div className="bp3-dialog-body">
+        <div className="cms-dialog-body bp3-dialog-body">
           <div className="variable-editor">
-            <Alert
-              cancelButtonText="Cancel"
-              confirmButtonText={alertObj.confirm}
-              className="cms-confirm-alert"
-              iconName="bp3-icon-warning-sign"
-              intent={Intent.DANGER}
-              isOpen={alertObj}
-              onConfirm={alertObj.callback}
-              onCancel={() => this.setState({alertObj: false})}
-            >
-              {alertObj.message}
-            </Alert>
-
             {/* name & description fields */}
             {(type === "generator" || type === "materializer" || type === "formatter") &&
               <div className="cms-field-group">
@@ -378,7 +367,7 @@ class VariableEditor extends Component {
         {/* save/delete buttons */}
         <FooterButtons onDelete={onDelete} onSave={onSave}>
           {/* UI/JS mode toggle */}
-          {(type === "generator" || type.includes("_visualization")) &&
+          {(type === "generator" || type.includes("visualization")) &&
             <Switch
               checked={simple}
               className="cms-mode-switch"
@@ -387,6 +376,17 @@ class VariableEditor extends Component {
             />
           }
         </FooterButtons>
+
+        <Alert
+          cancelButtonText="Cancel"
+          confirmButtonText={alertObj.confirm}
+          className="cms-confirm-alert"
+          isOpen={alertObj}
+          onConfirm={alertObj.callback}
+          onCancel={() => this.setState({alertObj: false})}
+        >
+          {alertObj.message}
+        </Alert>
       </Fragment>
     );
   }

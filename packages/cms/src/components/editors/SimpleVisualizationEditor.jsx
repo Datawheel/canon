@@ -1,17 +1,17 @@
 import axios from "axios";
-import React, {Component} from "react";
-import PropTypes from "prop-types";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {Alert, Intent} from "@blueprintjs/core";
+import PropTypes from "prop-types";
+import {dataFold} from "d3plus-viz";
+
+import vizLookup from "./vizLookup";
 import urlSwap from "../../utils/urlSwap";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
-import {dataFold} from "d3plus-viz";
+import Alert from "../interface/Alert";
 
 import "./SimpleVisualizationEditor.css";
-
-import vizLookup from "./vizLookup";
 
 class SimpleVisualizationEditor extends Component {
 
@@ -101,11 +101,11 @@ class SimpleVisualizationEditor extends Component {
     const {type} = object;
     const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
     const stripID = d => typeof d === "string" ? d.replace(/(ID\s|\sID)/g, "") : d;
-    
+
     const keys = Object.keys(object)
       // Filter out any keys where the user has manually selected none
       .filter(d => object[d] !== "manual-none")
-      // Filter out the formatters lookup key 
+      // Filter out the formatters lookup key
       .filter(d => d !== "formatters");
 
     const thisViz = vizLookup.find(v => v.type === type);
@@ -138,7 +138,7 @@ class SimpleVisualizationEditor extends Component {
         // If the user is setting groupBy, we need to implicitly set the label also.
         else if (k === "groupBy") {
           const label = Object.keys(firstObj).find(d => d === stripID(object[k]));
-          if (label) {         
+          if (label) {
             const formatter = object.formatters ? object.formatters[k] : null;
             return `\n  "${k}": "${object[k]}",  \n  "label": d => ${formatter ? `formatters.${formatter}(d["${label}"])` : `d["${label}"]`}`;
           }
@@ -158,7 +158,7 @@ class SimpleVisualizationEditor extends Component {
               return `\n  "${levels[0]}" : {"${levels[1]}": ${value}, "tickFormat": formatters.${formatter}}`;
             }
             else {
-              return `\n  "${levels[0]}" : {"${levels[1]}": ${value}}`;  
+              return `\n  "${levels[0]}" : {"${levels[1]}": ${value}}`;
             }
           }
           else {
@@ -176,7 +176,7 @@ class SimpleVisualizationEditor extends Component {
   "tooltipConfig": {
     "tbody": [
       ${tooltipKeys.map(k => {
-    const formatter = object.formatters ? object.formatters[k] : null; 
+    const formatter = object.formatters ? object.formatters[k] : null;
     return `["${object[k]}", d => ${formatter ? `formatters.${formatter}(d["${object[k]}"])` : `d["${object[k]}"]`}]`;
   })}
     ]
@@ -281,7 +281,7 @@ class SimpleVisualizationEditor extends Component {
       data: object.data,
       type: object.type
     };
- 
+
     if (thisViz) {
       // Copy over any relevant keys from the previous config
       thisViz.methods.forEach(method => {
@@ -344,7 +344,7 @@ class SimpleVisualizationEditor extends Component {
     const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
 
     const thisViz = vizLookup.find(v => v.type === object.type);
-    const allFields = Object.keys(firstObj);    
+    const allFields = Object.keys(firstObj);
 
     let buttonProps = {
       children: "Build",
@@ -364,13 +364,11 @@ class SimpleVisualizationEditor extends Component {
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"
         className="confirm-alert"
-        iconName="bp3-icon-warning-sign"
-        intent={Intent.DANGER}
         isOpen={rebuildAlertOpen}
         onConfirm={this.rebuild.bind(this)}
         onCancel={() => this.setState({rebuildAlertOpen: false})}
       >
-        Are you sure you want to rebuild this visualization using a new data URL?
+        Rebuild visualization using new data URL?
       </Alert>
 
       {/* data URL */}
@@ -439,7 +437,7 @@ class SimpleVisualizationEditor extends Component {
                 </fieldset>
 
                 // render method.key as select
-                : <React.Fragment>
+                : <Fragment>
                   <Select
                     key="cms-key-select"
                     label={method.display}
@@ -448,7 +446,7 @@ class SimpleVisualizationEditor extends Component {
                     value={object[method.key]}
                     onChange={this.onChange.bind(this, method.key)}
                   >
-                    {this.getOptionList.bind(this)(method, payload).map(option => 
+                    {this.getOptionList.bind(this)(method, payload).map(option =>
                       <option key={option.value} value={option.value}>{option.display}</option>
                     )}
                   </Select>
@@ -463,7 +461,7 @@ class SimpleVisualizationEditor extends Component {
                     <option key={null} value="manual-none">none</option>
                     {formatterList.map(f => <option key={f} value={f}>{f}</option>)}
                   </Select>
-                </React.Fragment>
+                </Fragment>
           )}
         </div>
       }
@@ -481,4 +479,3 @@ const mapStateToProps = state => ({
 });
 
 export default connect(mapStateToProps)(SimpleVisualizationEditor);
-

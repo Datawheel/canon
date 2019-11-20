@@ -1,9 +1,10 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
-import {Icon, Alert, Intent} from "@blueprintjs/core";
+import {Icon} from "@blueprintjs/core";
 
 import Button from "../fields/Button";
+import Alert from "../interface/Alert";
 
 import {deleteEntity, deleteProfile} from "../../actions/profiles";
 import {deleteStory} from "../../actions/stories";
@@ -166,13 +167,14 @@ class Header extends Component {
         <Alert
           isOpen={itemToDelete}
           cancelButtonText="Cancel"
-          confirmButtonText="Delete"
-          iconName="trash"
-          intent={Intent.DANGER}
+          confirmButtonText={`Delete ${itemToDelete ? itemToDelete.type : ""}`}
           onConfirm={() => this.delete.bind(this)(itemToDelete)}
           onCancel={() => this.setState({itemToDelete: null})}
         >
-          {itemToDelete ? `Are you sure you want to delete this ${itemToDelete.type} and all its children? This action cannot be undone.` : ""}
+          {itemToDelete && itemToDelete.type === "profile"
+            ? "Delete profile along with all of its sections and content? This action cannot be undone."
+            : "Delete section along with all of its content? This action cannot be undone."
+          }
         </Alert>
       </Fragment>
     );

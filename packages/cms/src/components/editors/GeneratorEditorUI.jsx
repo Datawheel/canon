@@ -1,5 +1,6 @@
 import React, {Component} from "react";
-import {EditableText, Checkbox, Alert, Intent} from "@blueprintjs/core";
+import {EditableText} from "@blueprintjs/core";
+import Alert from "../interface/Alert";
 import Button from "../fields/Button";
 
 import "./GeneratorEditorUI.css";
@@ -195,8 +196,6 @@ export default class GeneratorEditorUI extends Component {
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"
         className="confirm-alert"
-        iconName="bp3-icon-warning-sign"
-        intent={Intent.DANGER}
         isOpen={rebuildAlertOpen}
         onConfirm={this.rebuild.bind(this)}
         onCancel={() => this.setState({rebuildAlertOpen: false})}

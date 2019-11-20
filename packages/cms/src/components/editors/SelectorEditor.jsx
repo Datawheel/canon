@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
@@ -365,7 +365,6 @@ class SelectorEditor extends Component {
           </table>
         }
 
-
         {/* new option */}
         <Button
           onClick={this.addOption.bind(this)}
@@ -377,18 +376,17 @@ class SelectorEditor extends Component {
           {!data.options.length ? "Add first option" : "Add option"}
         </Button>
 
-
         {/* custom default */}
         <label className={`cms-selector-editor-custom ${showCustom ? "is-visible" : "is-hidden"}`}>
           <input
             className="cms-selector-editor-custom-checkbox"
             type="checkbox"
             checked={showCustom}
-            onClick={this.toggleCustom.bind(this)}
+            onChange={this.toggleCustom.bind(this)}
           />
           {!showCustom
             ? "Override default with custom logic"
-            : <React.Fragment>Custom default: 
+            : <Fragment>Custom default: 
               <Select
                 label=" "
                 labelHidden
@@ -399,7 +397,7 @@ class SelectorEditor extends Component {
               >
                 {customOptions}
               </Select>
-            </React.Fragment>
+            </Fragment>
           }
         </label>
       </div>

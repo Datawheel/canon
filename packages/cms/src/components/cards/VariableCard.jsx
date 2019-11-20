@@ -94,8 +94,8 @@ class VariableCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this?",
-      confirm: "Delete"
+      message: `Delete ${this.props.type}?`,
+      confirm: `Delete ${this.props.type}`
     };
     this.setState({alertObj});
   }
@@ -126,8 +126,8 @@ class VariableCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Are you sure you want to abandon changes?",
-        confirm: "Yes, Abandon changes."
+        message: `Close ${upperCaseFirst(this.props.type)} editor and revert changes?`,
+        confirm: "Close editor"
       };
       this.setState({alertObj});
     }

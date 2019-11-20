@@ -38,7 +38,7 @@ class VisualizationCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this?",
+      message: "Delete visualization?",
       confirm: "Delete"
     };
     this.setState({alertObj});
@@ -67,8 +67,8 @@ class VisualizationCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Are you sure you want to abandon changes?",
-        confirm: "Yes, Abandon changes."
+        message: "Close visualization editor and revert changes?",
+        confirm: "Close editor"
       };
       this.setState({alertObj});
     }
@@ -115,7 +115,7 @@ class VisualizationCard extends Component {
     const config = Object.assign({}, minData, {logic});
 
     const cardProps = {
-      cardClass: "visualization",
+      type,
       title: config && config.logic_simple && config.logic_simple.data
         ? `${
           config.logic_simple.type}${
@@ -159,9 +159,11 @@ class VisualizationCard extends Component {
     };
 
     const editorProps = {
-      markAsDirty: this.markAsDirty.bind(this),
+      type: "visualization",
       data: minDataState,
-      type: "visualization"
+      markAsDirty: this.markAsDirty.bind(this),
+      onDelete: this.maybeDelete.bind(this),
+      onSave: this.save.bind(this)
     };
 
     return (
@@ -174,10 +176,6 @@ class VisualizationCard extends Component {
         {/* edit mode */}
         <Dialog {...dialogProps} key="d">
           <VariableEditor {...editorProps} />
-          <FooterButtons
-            onDelete={this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
         </Dialog>
       </Card>
     );

@@ -1,9 +1,12 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import PropTypes from "prop-types";
+import {Icon} from "@blueprintjs/core";
+
 import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
+
 import {modifyDimension} from "../../actions/profiles";
 
 import "./DimensionEditor.css";
@@ -129,12 +132,13 @@ class DimensionEditor extends Component {
       .map(m => <option key={m} value={m}>{m}</option>) : [];
 
     return (
-      <div className="bp3-dialog-body">
-        {mode === "edit" && 
-          <div className="cms-dimension-creator-warning">
-            <em>Warning: Modifying Dimension Data after creation can break lots of things. Make sure you know what you are doing!</em>
-          </div>
+      <div className="cms-dialog-body cms-dimension-editor bp3-dialog-body">
+        {mode === "edit" &&
+          <p className="cms-dimension-editor-warning u-font-xs u-margin-bottom-md" key="a">
+            <Icon icon="warning-sign" /> <strong>Warning</strong>: Modifying dimensions can break the site. Proceed with caution.
+          </p>
         }
+
         <TextInput
           label="slug"
           inline
@@ -187,9 +191,9 @@ class DimensionEditor extends Component {
 
         <div className="cms-field-container">
           {profileData.dimension && profileData.levels.length > 0 && profileData.measure && profileData.measure !== "default"
-            ? <Button 
-              onClick={this.saveProfile.bind(this)} 
-              namespace="cms" 
+            ? <Button
+              onClick={this.saveProfile.bind(this)}
+              namespace="cms"
               icon={mode === "edit" ? "edit" : "plus"}
             >
               {`${mode === "edit" ? "Modify" : "Add"} dimension`}

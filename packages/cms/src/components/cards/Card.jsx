@@ -1,8 +1,10 @@
 import React, {Component} from "react";
-import {Alert, Icon} from "@blueprintjs/core";
+import {Icon} from "@blueprintjs/core";
+
 import stripEntities from "../../utils/formatters/stripEntities";
-import ButtonGroup from "../fields/ButtonGroup";
+import Alert from "../interface/Alert";
 import ReorderButton from "./components/ReorderButton";
+import ButtonGroup from "../fields/ButtonGroup";
 import "./Card.css";
 
 /** Wrapper to generate markup for all admin cards */
@@ -73,7 +75,6 @@ export default class Card extends Component {
         cancelButtonText: "Cancel",
         confirmButtonText: alertObj.confirm,
         className: "cms-confirm-alert",
-        iconName: "warning-sign",
         isOpen: alertObj,
         onConfirm: alertObj.callback,
         onCancel: onAlertCancel

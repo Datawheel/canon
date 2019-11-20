@@ -1,11 +1,22 @@
 @import "../../../css/mixins.css";
 
+.cms-dialog-body {
+  padding-bottom: 2.5rem !important; /* make room for footer */
+}
+
 .cms-dialog-footer {
-  display: flex;
-  align-items: center;
+  /* positioning */
+  &[class] { position: absolute; }
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* sizing */
+  width: 100%;
   height: 2.5rem;
   padding: 0 var(--gutter-md);
-  width: 100%;
+  /* layout */
+  display: flex;
+  align-items: center;
   /* theming */
   background-color: var(--light-2);
 

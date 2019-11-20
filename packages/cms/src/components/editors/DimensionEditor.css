@@ -1,4 +1,14 @@
-.cms-dimension-creator-warning {
-  color: red;
-  margin-bottom: 10px;
+@import "../../css/mixins.css";
+
+.cms-dimension-editor-warning {
+  @mixin description-color;
+  text-align: center;
+
+  & [class*="icon"] {
+    @mixin error-text;
+  }
+  & strong {
+    color: var(--black);
+    @mixin dark-mode { color: var(--white); }
+  }
 }

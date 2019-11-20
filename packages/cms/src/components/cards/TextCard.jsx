@@ -1,19 +1,22 @@
 import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
 import {connect} from "react-redux";
+import PropTypes from "prop-types";
+import {Dialog} from "@blueprintjs/core";
+
 import varSwapRecursive from "../../utils/varSwapRecursive";
-import Loading from "components/Loading";
-import DefinitionList from "../variables/DefinitionList";
-import FooterButtons from "../editors/components/FooterButtons";
-import Select from "./../fields/Select";
-import RichTextEditor from "../editors/RichTextEditor";
-import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
-import PropTypes from "prop-types";
-import LocaleName from "./components/LocaleName";
+import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+
+import Loading from "components/Loading";
 import Card from "./Card";
+import LocaleName from "./components/LocaleName";
+import FooterButtons from "../editors/components/FooterButtons";
+import RichTextEditor from "../editors/RichTextEditor";
+import PlainTextEditor from "../editors/PlainTextEditor";
+import Select from "../fields/Select";
+import DefinitionList from "../variables/DefinitionList";
 
 import {updateEntity, deleteEntity} from "../../actions/profiles";
 
@@ -175,10 +178,11 @@ class TextCard extends Component {
   }
 
   maybeDelete() {
+    const prettyType = this.prettifyType(this.props.type);
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this?",
-      confirm: "Delete"
+      message: `Delete ${prettyType}?`,
+      confirm: `Delete ${prettyType}`
     };
     this.setState({alertObj});
   }
@@ -200,8 +204,8 @@ class TextCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Are you sure you want to abandon changes?",
-        confirm: "Yes, Abandon changes."
+        message: `Close ${this.prettifyType(this.props.type)} editor and revert changes?`,
+        confirm: "Close editor"
       };
       this.setState({alertObj});
     }
@@ -214,15 +218,8 @@ class TextCard extends Component {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
   }
 
-  upperCaseFirst(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
   prettifyType(type) {
-    return this.upperCaseFirst(type
-      .replace("story_", "")
-      .replace("section_", "")
-    );
+    return type.replace("story_", "").replace("section_", "").replace("description", "paragraph");
   }
 
   chooseVariable(e) {
@@ -243,9 +240,6 @@ class TextCard extends Component {
 
     const minDataState = this.state.minData;
 
-    let cardClass = "splash-card";
-    if (["profile_stat", "section_stat"].includes(type)) cardClass = "cms-stat-card";
-
     const entityList = ["profile", "section", "story", "storysection"];
     const availableFields = ["id", "locale", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"];
     const displaySort = ["title", "value", "subtitle", "description", "tooltip"];
@@ -254,7 +248,7 @@ class TextCard extends Component {
       .filter(k => typeof primaryDisplayData[k] === "string" && !availableFields.includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
       .map(k => ({
-        label: formatFieldName(k, this.prettifyType(type)),
+        label: formatFieldName(k, upperCaseFirst(this.prettifyType(type))),
         text: stripHTML(primaryDisplayData[k])
       }));
 
@@ -262,7 +256,7 @@ class TextCard extends Component {
       .filter(k => typeof secondaryDisplayData[k] === "string" && !availableFields.includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
       .map(k => ({
-        label: formatFieldName(k, this.prettifyType(type)),
+        label: formatFieldName(k, upperCaseFirst(this.prettifyType(type))),
         text: stripHTML(secondaryDisplayData[k])
       })) : [];
 
@@ -275,7 +269,7 @@ class TextCard extends Component {
 
     // define props for Card
     const cardProps = {
-      cardClass,
+      type,
       title,
       onEdit: this.openEditor.bind(this),
       onDelete: entityList.includes(type) ? false : this.maybeDelete.bind(this),
@@ -349,7 +343,7 @@ class TextCard extends Component {
 
         {/* edit content */}
         <Dialog {...dialogProps}>
-          <div className="bp3-dialog-body">
+          <div className="cms-dialog-body bp3-dialog-body">
 
             <div className="cms-dialog-locale-group">
               {/* primary locale */}

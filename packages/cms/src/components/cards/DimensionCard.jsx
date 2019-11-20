@@ -48,8 +48,8 @@ class DimensionCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this Dimension?",
-      confirm: "Delete"
+      message: "Delete dimension? This action can break the site.",
+      confirm: "Delete dimension"
     };
     this.setState({alertObj});
   }
@@ -66,8 +66,8 @@ class DimensionCard extends Component {
 
     // define props for Card
     const cardProps = {
-      cardClass: "dimension",
       title: meta.dimension,
+      type: "dimension",
       onDelete: this.maybeDelete.bind(this),
       onRefresh: this.rebuildSearch.bind(this),
       onEdit: () => this.setState({isOpen: !this.state.isOpen}),

@@ -60,8 +60,8 @@ class SelectorCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this?",
-      confirm: "Delete"
+      message: "Delete selector?",
+      confirm: "Delete selector"
     };
     this.setState({alertObj});
   }
@@ -83,8 +83,8 @@ class SelectorCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Are you sure you want to abandon changes?",
-        confirm: "Yes, Abandon changes."
+        message: "Close selector editor and revert changes?",
+        confirm: "Close editor"
       };
       this.setState({alertObj});
     }
@@ -106,7 +106,7 @@ class SelectorCard extends Component {
 
     // define initial card props
     const cardProps = {
-      cardClass: "selector",
+      type: "selector",
       title: "•••"
     };
 
@@ -171,14 +171,14 @@ class SelectorCard extends Component {
 
     return (
       <Fragment>
-        <Card {...cardProps}>
+        <Card {...cardProps} key="c">
           {minData &&
             <Fragment key="dl">
               {/* content preview */}
               <DefinitionList definitions={displayData} key="dd" />
               {/* list of variables */}
               {varList.length && <Fragment key="o">
-                <div className="cms-definition-label">options:</div>
+                <div className="cms-definition-label u-font-xxs">options:</div>
                 <VarList vars={varList} />
               </Fragment>}
             </Fragment>
@@ -187,7 +187,7 @@ class SelectorCard extends Component {
 
         {/* edit mode */}
         <Dialog {...dialogProps} key="d">
-          <div className="bp3-dialog-body">
+          <div className="cms-dialog-body bp3-dialog-body">
             <SelectorEditor {...editorProps} />
           </div>
           <FooterButtons

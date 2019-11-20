@@ -58,43 +58,41 @@ class ProfileBuilder extends Component {
     if (!profilesLoaded) return null;
 
     return (
-      <React.Fragment>
-        <div className="cms-panel profile-panel" id="profile-builder">
-          <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
-            { Editor && currentPid
-              ? <Editor id={id}>
-                <Header dimensions={previews}/>
-                <DimensionBuilder />
-              </Editor>
-              : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu above." visual="path-search" />
-            }
+      <div className="cms-panel profile-panel" id="profile-builder">
+        <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
+          { Editor && currentPid
+            ? <Editor id={id}>
+              <Header dimensions={previews}/>
+              <DimensionBuilder />
+            </Editor>
+            : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu above." visual="path-search" />
+          }
 
-            <Toolbox
-              id={currentPid}
-              toolboxVisible={toolboxVisible}
-            >
-              <div className="cms-toolbox-collapse-wrapper u-hide-below-lg">
-                <Button
-                  className="cms-toolbox-collapse-button"
-                  fontSize="xs"
-                  icon={toolboxVisible ? "caret-right" : "caret-left"}
-                  iconOnly
-                  namespace="cms"
-                  onClick={() => this.setState({toolboxVisible: !toolboxVisible})}
-                >
-                  {toolboxVisible ? "hide toolbox" : "show toolbox"}
-                </Button>
-              </div>
-            </Toolbox>
+          <Toolbox
+            id={currentPid}
+            toolboxVisible={toolboxVisible}
+          >
+            <div className="cms-toolbox-collapse-wrapper u-hide-below-lg">
+              <Button
+                className="cms-toolbox-collapse-button"
+                fontSize="xs"
+                icon={toolboxVisible ? "caret-right" : "caret-left"}
+                iconOnly
+                namespace="cms"
+                onClick={() => this.setState({toolboxVisible: !toolboxVisible})}
+              >
+                {toolboxVisible ? "hide toolbox" : "show toolbox"}
+              </Button>
+            </div>
+          </Toolbox>
 
-            <Status
-              recompiling={gensLoaded !== gensTotal}
-              busy={`${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`}
-              done="Variables Loaded"
-            />
-          </div>
+          <Status
+            recompiling={gensLoaded !== gensTotal}
+            busy={`${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`}
+            done="Variables Loaded"
+          />
         </div>
-      </React.Fragment>
+      </div>
     );
   }
 }

@@ -92,7 +92,7 @@
     }
   }
   & .bp3-dialog-body {
-    margin: 0 0 -1px 0; /* fix a weird black line bug */
+    margin: 0;
     padding: var(--gutter-md);
   }
 
