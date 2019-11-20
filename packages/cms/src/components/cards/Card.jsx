@@ -9,9 +9,9 @@ import "./Card.css";
 export default class Card extends Component {
   render() {
     const {
-      cardClass,       // purely for styling purposes (so far)
       style,           // pretty much just for visualization card height
       title,           // card title
+      type,            // generator, materializer, formatter
       onEdit,          // edit button onClick
       onDelete,        // delete button onClick
       onRefresh,       // rebuilding and/or refreshing
@@ -25,16 +25,17 @@ export default class Card extends Component {
       onAlertCancel    // wipe alert state
     } = this.props;
 
+    // buttons
+    const buttons = [];
     const buttonProps = {
       className: "cms-card-heading-button",
       fontSize: "xxxs",
       namespace: "cms",
       iconOnly: true
     };
+    let deleteButton, refreshButton;
 
-    const buttons = [];
-    let deleteButton, editButton, refreshButton;
-
+    // refresh button
     if (onRefresh) {
       refreshButton = Object.assign({}, {
         children: "refresh",
@@ -48,6 +49,7 @@ export default class Card extends Component {
       buttons.push(refreshButton);
     }
 
+    // delete button
     if (onDelete) {
       deleteButton = Object.assign({}, {
         children: "delete entry",
@@ -60,64 +62,53 @@ export default class Card extends Component {
       buttons.push(deleteButton);
     }
 
-    if (onEdit) {
-      editButton = Object.assign({}, {
-        children: "edit entry",
-        icon: "cog",
-        fontSize: "xxs",
-        onClick: onEdit,
-        disabled: rebuilding,
-        ...buttonProps
-      });
+    // alerts
+    let showAlert = false;
+    if (alertObj && onAlertCancel) showAlert = true;
+
+    let alertProps = {};
+    if (showAlert) {
+      alertProps = {
+        children: alertObj.message,
+        cancelButtonText: "Cancel",
+        confirmButtonText: alertObj.confirm,
+        className: "cms-confirm-alert",
+        iconName: "warning-sign",
+        isOpen: alertObj,
+        onConfirm: alertObj.callback,
+        onCancel: onAlertCancel
+      };
     }
 
     return (
-      <div className={`cms-card cms-${ cardClass }-card${ secondaryLocale ? " is-multilingual" : "" }`} style={style}>
-
+      <div className={`cms-card cms-${type}-card${ secondaryLocale ? " is-multilingual" : "" }`} style={style}>
         {/* cover button */}
         {onEdit &&
-          <button className="cms-card-cover-button" onClick={ onEdit }>
+          <button className="cms-card-cover-button" onClick={onEdit} key="eb">
             <span className="u-visually-hidden">edit {title}</span>
           </button>
         }
 
         {/* header */}
-        <div className="cms-card-heading">
-          {onEdit &&
-            <Icon className="cms-card-heading-icon" icon="cog" />
-          }
-          <h3 className="cms-card-heading-text u-font-xs">{stripEntities(title) || "missing `title` prop in Card.jsx"}</h3>
+        <div className="cms-card-heading" key="h">
+          {/* card is editable */}
+          {onEdit && <Icon className="cms-card-heading-icon" icon="cog" />}
+          {/* card title */}
+          <h3 className="cms-card-heading-text u-font-xs">
+            {stripEntities(title) || "missing `title` prop in Card.jsx"}
+          </h3>
+          {/* buttons show to the right of the title */}
           {buttons.length
-            ? <ButtonGroup namespace="cms" buttons={buttons} />
-            : ""
+            ? <ButtonGroup namespace="cms" buttons={buttons} /> : ""
           }
         </div>
 
-        {/* content preview */}
+        {/* card content preview */}
         {children}
-
-        {/* reorder buttons */}
-        {reorderProps &&
-          <ReorderButton
-            id={reorderProps.id}
-            type={reorderProps.type}
-          />
-        }
-
+        {/* reorder button */}
+        {reorderProps && <ReorderButton {...reorderProps} key="rb"/>}
         {/* are you suuuuuuuuuure */}
-        {alertObj && onAlertCancel &&
-          <Alert
-            cancelButtonText="Cancel"
-            confirmButtonText={alertObj.confirm}
-            className="cms-confirm-alert"
-            iconName="warning-sign"
-            isOpen={alertObj}
-            onConfirm={alertObj.callback}
-            onCancel={onAlertCancel}
-          >
-            {alertObj.message}
-          </Alert>
-        }
+        {showAlert && <Alert {...alertProps} key="a" />}
       </div>
     );
   }
