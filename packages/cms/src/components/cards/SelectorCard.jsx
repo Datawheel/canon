@@ -1,13 +1,15 @@
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
 import PropTypes from "prop-types";
-import FooterButtons from "../editors/components/FooterButtons";
+import {Dialog} from "@blueprintjs/core";
+
+import deepClone from "../../utils/deepClone";
+
+import Card from "./Card";
 import SelectorEditor from "../editors/SelectorEditor";
+import FooterButtons from "../editors/components/FooterButtons";
 import DefinitionList from "../variables/DefinitionList";
 import VarList from "../variables/VarList";
-import deepClone from "../../utils/deepClone";
-import Card from "./Card";
 
 import {deleteEntity, updateEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
@@ -19,7 +21,6 @@ import "./SelectorCard.css";
  * or multiselects
  */
 class SelectorCard extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -140,61 +141,63 @@ class SelectorCard extends Component {
       );
     }
 
-    const {id} = this.props.minData;
+    const dialogProps = {
+      className: "variable-editor-dialog",
+      title: "Selector Editor",
+      isOpen,
+      onClose: this.maybeCloseEditorWithoutSaving.bind(this),
+      icon: false,
+      usePortal: false
+    };
+
+    const editorProps = {
+      markAsDirty: this.markAsDirty.bind(this),
+      data: this.state.minData
+    };
+
+    let displayData = [];
+    if (minData) {
+      displayData = [
+        {
+          label: "label",
+          text: minData.title
+        },
+        {
+          label: "selections",
+          text: minData.type === "single" ? "one" : "multiple"
+        }
+      ];
+    }
 
     return (
-      <React.Fragment>
-        <Card {...cardProps} key={`${cardProps.title}-${id}`}>
-
+      <Fragment>
+        <Card {...cardProps}>
           {minData &&
-            <React.Fragment>
+            <Fragment key="dl">
               {/* content preview */}
-              <DefinitionList definitions={[
-                {
-                  label: "label",
-                  text: minData.title
-                },
-                {
-                  label: "selections",
-                  text: minData.type === "single" ? "one" : "multiple"
-                }
-              ]}
-              />
-
-              {varList.length
-                ? <React.Fragment>
-                  <div className="cms-definition-label u-font-xxxs">options:</div>
-                  <VarList vars={varList} />
-                </React.Fragment> : ""
-              }
-            </React.Fragment>
+              <DefinitionList definitions={displayData} key="dd" />
+              {/* list of variables */}
+              {varList.length && <Fragment key="o">
+                <div className="cms-definition-label">options:</div>
+                <VarList vars={varList} />
+              </Fragment>}
+            </Fragment>
           }
         </Card>
 
         {/* edit mode */}
-        <Dialog
-          className="variable-editor-dialog"
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Selector Editor"
-          icon={false}
-          usePortal={false}
-        >
+        <Dialog {...dialogProps} key="d">
           <div className="bp3-dialog-body">
-            <SelectorEditor
-              markAsDirty={this.markAsDirty.bind(this)}
-              data={this.state.minData}
-            />
+            <SelectorEditor {...editorProps} />
           </div>
           <FooterButtons
             onDelete={this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />
         </Dialog>
-      </React.Fragment>
+      </Fragment>
     );
   }
-
 }
 
 SelectorCard.contextTypes = {

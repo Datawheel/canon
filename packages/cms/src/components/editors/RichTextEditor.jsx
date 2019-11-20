@@ -5,9 +5,9 @@ import {connect} from "react-redux";
 
 import formatFieldName from "../../utils/formatters/formatFieldName";
 
-import "./TextEditor.css";
+import "./RichTextEditor.css";
 
-class TextEditor extends Component {
+class RichTextEditor extends Component {
 
   constructor(props) {
     super(props);
@@ -46,7 +46,7 @@ class TextEditor extends Component {
 
     const {data, fields} = this.state;
     const {contentType, locale} = this.props;
-    // Stories use TextEditors, but don't need variables.
+    // Stories use RichTextEditors, but don't need variables.
     const variables = this.props.status.variables[locale] ? this.props.status.variables[locale] : {}
     const formatters = this.context.formatters[locale];
 
@@ -63,16 +63,14 @@ class TextEditor extends Component {
     );
 
     return (
-      <div id="text-editor">
-
+      <div className="rich-text-editor">
         {quills}
-
       </div>
     );
   }
 }
 
-TextEditor.contextTypes = {
+RichTextEditor.contextTypes = {
   formatters: PropTypes.object
 };
 
@@ -80,4 +78,4 @@ const mapStateToProps = state => ({
   status: state.cms.status
 });
 
-export default connect(mapStateToProps)(TextEditor);
+export default connect(mapStateToProps)(RichTextEditor);

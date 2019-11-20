@@ -2,8 +2,6 @@
 
 /* TODO: genericize */
 .cms-dialog-locale-group {
-  margin-bottom: 2.25rem;
-
   & .cms-dialog-locale-container {
     width: 100%;
     min-width: 12rem;

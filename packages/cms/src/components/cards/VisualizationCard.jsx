@@ -15,7 +15,6 @@ import {deleteEntity, updateEntity} from "../../actions/profiles";
 import "./VisualizationCard.css";
 
 class VisualizationCard extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -88,7 +87,6 @@ class VisualizationCard extends Component {
   }
 
   render() {
-
     const {minData, showReorderButton} = this.props;
     const {isOpen, alertObj} = this.state;
     const {query} = this.props.status;
@@ -138,38 +136,44 @@ class VisualizationCard extends Component {
       onAlertCancel: () => this.setState({alertObj: false})
     };
 
+    let vizProps = {};
+    if (!isOpen) {
+      vizProps = {
+        config,
+        namespace: "cms",
+        locale: localeDefault,
+        debug: true,
+        initialVariables: variables,
+        variables,
+        configOverride: {height},
+        options: false
+      };
+    }
+
+    const dialogProps = {
+      className: "variable-editor-dialog",
+      title: "Visualization editor",
+      isOpen,
+      onClose: this.maybeCloseEditorWithoutSaving.bind(this),
+      usePortal: false
+    };
+
+    const editorProps = {
+      markAsDirty: this.markAsDirty.bind(this),
+      data: minDataState,
+      type: "visualization"
+    };
+
     return (
       <Card {...cardProps}>
-
         {/* viz preview */}
         {!isOpen &&
-          <Viz
-            config={config}
-            namespace="cms"
-            locale={localeDefault}
-            debug={true}
-            initialVariables={variables}
-            variables={variables}
-            configOverride={{height}}
-            options={false}
-          />
+          <Viz {...vizProps} key="v" />
         }
 
         {/* edit mode */}
-        <Dialog
-          className="variable-editor-dialog"
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Visualization editor"
-          usePortal={false}
-        >
-          <div className="bp3-dialog-body">
-            <VariableEditor
-              markAsDirty={this.markAsDirty.bind(this)}
-              data={minDataState}
-              type={type}
-            />
-          </div>
+        <Dialog {...dialogProps} key="d">
+          <VariableEditor {...editorProps} />
           <FooterButtons
             onDelete={this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
@@ -178,7 +182,6 @@ class VisualizationCard extends Component {
       </Card>
     );
   }
-
 }
 
 VisualizationCard.contextTypes = {

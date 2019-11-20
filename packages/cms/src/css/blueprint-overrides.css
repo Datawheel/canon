@@ -84,6 +84,7 @@
     &:hover, &:focus {
       transform: scale(1.25);
       color: var(--accent-black);
+      &[class*="minimal"] { background: none; } /* specificity increase needed */
 
       @mixin dark-mode {
         color: var(--white);

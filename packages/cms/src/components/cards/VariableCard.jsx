@@ -147,7 +147,7 @@ class VariableCard extends Component {
   }
 
   render() {
-    const {attr, id, minData, type, showReorderButton} = this.props;
+    const {attr, minData, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary, variables} = this.props.status;
     const {displayData, secondaryDisplayData, isOpen, alertObj} = this.state;
 
@@ -168,9 +168,10 @@ class VariableCard extends Component {
     };
 
     const dialogProps = {
+      className: "variable-editor-dialog",
+      title: `${upperCaseFirst(type)} editor`,
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
-      title: `${upperCaseFirst(type)} editor`,
       usePortal: false,
       icon: false
     };
@@ -203,15 +204,14 @@ class VariableCard extends Component {
 
     return (
       <Fragment>
-        <Card {...cardProps} key={`${cardProps.title}-${id}`}>
-
+        <Card {...cardProps} key="c">
           {showDesc &&
-            <p className="cms-card-description">{description}</p>
+            <p className="cms-card-description" key="cd">{description}</p>
           }
 
           {/* show variables, but not for formatter cards */}
           {type !== "formatter" &&
-            <div className="cms-card-locale-group">
+            <div className="cms-card-locale-group" key="cl">
               <div className="cms-card-locale-container">
                 {localeSecondary &&
                   <LocaleName>{localeDefault}</LocaleName>
@@ -220,7 +220,7 @@ class VariableCard extends Component {
               </div>
 
               {localeSecondary &&
-                <div className="cms-card-locale-container">
+                <div className="cms-card-locale-container" key="cls">
                   <LocaleName>{localeSecondary}</LocaleName>
                   <VarTable dataset={secondaryDisplayData} />
                 </div>
@@ -230,7 +230,7 @@ class VariableCard extends Component {
         </Card>
 
         {/* open state */}
-        <Dialog className="variable-editor-dialog" {...dialogProps}>
+        <Dialog {...dialogProps} key="d">
           <VariableEditor {...editorProps} />
         </Dialog>
       </Fragment>
