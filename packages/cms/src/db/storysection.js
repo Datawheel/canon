@@ -9,7 +9,7 @@ module.exports = function(sequelize, db) {
       },    
       slug: {
         type: db.STRING,
-        defaultValue: "new-storysection-slug"
+        defaultValue: ""
       },
       story_id: {
         type: db.INTEGER,

@@ -10,7 +10,7 @@ module.exports = function(sequelize, db) {
       ordering: db.INTEGER,
       slug: {
         type: db.STRING,
-        defaultValue: "new-story-slug"
+        defaultValue: ""
       },
       date: {
         type: db.DATE,

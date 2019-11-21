@@ -8,7 +8,8 @@ module.exports = function(sequelize, db) {
         autoIncrement: true
       },
       slug: {
-        type: db.STRING
+        type: db.STRING,
+        defaultValue: ""
       },
       profile_id: {
         type: db.INTEGER,

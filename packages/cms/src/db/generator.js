@@ -8,13 +8,16 @@ module.exports = function(sequelize, db) {
         autoIncrement: true
       },
       name: {
-        type: db.TEXT
+        type: db.TEXT,
+        defaultValue: ""
       },
       api: {
-        type: db.TEXT
+        type: db.TEXT,
+        defaultValue: ""
       },
       description: {
-        type: db.TEXT
+        type: db.TEXT,
+        defaultValue: ""
       },
       logic: {
         type: db.TEXT,

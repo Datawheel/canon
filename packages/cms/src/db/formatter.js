@@ -12,10 +12,12 @@ module.exports = function(sequelize, db) {
         autoIncrement: true
       },
       name: {
-        type: db.STRING
+        type: db.STRING,
+        defaultValue: ""
       },
       description: {
-        type: db.TEXT
+        type: db.TEXT,
+        defaultValue: ""
       },
       logic: {
         type: db.TEXT,

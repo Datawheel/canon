@@ -16,19 +16,24 @@ module.exports = function(sequelize, db) {
         primaryKey: true
       },
       name: {
-        type: db.STRING
+        type: db.STRING,
+        defaultValue: ""
       },
       title: {
-        type: db.STRING
+        type: db.STRING,
+        defaultValue: ""
       },
       image: {
-        type: db.STRING
+        type: db.STRING,
+        defaultValue: ""
       },
       twitter: {
-        type: db.STRING
+        type: db.STRING,
+        defaultValue: ""
       },
       bio: {
-        type: db.TEXT
+        type: db.TEXT,
+        defaultValue: ""
       }
     }, 
     {

@@ -16,7 +16,8 @@ module.exports = function(sequelize, db) {
         }
       },
       slug: {
-        type: db.STRING
+        type: db.STRING,
+        defaultValue: ""
       },
       dimension: db.STRING,
       levels: db.ARRAY(db.TEXT),

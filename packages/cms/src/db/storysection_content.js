@@ -16,7 +16,8 @@ module.exports = function(sequelize, db) {
         primaryKey: true
       },
       title: {
-        type: db.STRING
+        type: db.STRING,
+        defaultValue: "New Section"
       }
     }, 
     {
