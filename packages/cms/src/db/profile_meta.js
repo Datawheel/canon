@@ -16,8 +16,7 @@ module.exports = function(sequelize, db) {
         }
       },
       slug: {
-        type: db.STRING,
-        defaultValue: "new-profile-slug"
+        type: db.STRING
       },
       dimension: db.STRING,
       levels: db.ARRAY(db.TEXT),

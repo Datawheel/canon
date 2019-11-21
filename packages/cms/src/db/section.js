@@ -8,8 +8,7 @@ module.exports = function(sequelize, db) {
         autoIncrement: true
       },
       slug: {
-        type: db.STRING,
-        defaultValue: "new-section-slug"
+        type: db.STRING
       },
       profile_id: {
         type: db.INTEGER,

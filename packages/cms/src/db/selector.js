@@ -24,12 +24,10 @@ module.exports = function(sequelize, db) {
         }
       },
       title: {
-        type: db.STRING,
-        defaultValue: "New Selector"
+        type: db.STRING
       },
       name: {
-        type: db.STRING,
-        defaultValue: "newselector"
+        type: db.STRING
       },
       type: {
         type: db.STRING,

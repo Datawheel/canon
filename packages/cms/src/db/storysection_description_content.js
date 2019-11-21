@@ -16,8 +16,7 @@ module.exports = function(sequelize, db) {
         primaryKey: true
       },
       description: {
-        type: db.TEXT,
-        defaultValue: "New Description"
+        type: db.TEXT
       }
     }, 
     {

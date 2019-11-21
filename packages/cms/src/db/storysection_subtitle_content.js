@@ -16,8 +16,7 @@ module.exports = function(sequelize, db) {
         primaryKey: true
       },
       subtitle: {
-        type: db.TEXT,
-        defaultValue: "New Subtitle"
+        type: db.TEXT
       }
     }, 
     {
