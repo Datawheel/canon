@@ -271,7 +271,7 @@ class TextCard extends Component {
     thisDisplay.forEach(d => {
       if (!title && d.text) title = d.text;
     });
-    if (!title) title = "Missing Title";
+    if (!title) title = "Click to Edit";
 
     // define props for Card
     const cardProps = {

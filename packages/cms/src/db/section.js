@@ -34,7 +34,7 @@ module.exports = function(sequelize, db) {
       },
       icon: {
         type: db.STRING,
-        defaultValue: null
+        defaultValue: ""
       }
     }, 
     {

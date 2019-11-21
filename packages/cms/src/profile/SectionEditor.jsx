@@ -60,7 +60,7 @@ class SectionEditor extends Component {
     const {minData} = this.state;
     const {id, slug, type, allowed, position, icon} = minData;
     const payload = {id, slug, type, allowed, position, icon};
-    if (payload.icon === "none") payload.icon = null;
+    if (payload.icon === "none") payload.icon = "";
     this.props.updateEntity("section", payload);
   }
 
