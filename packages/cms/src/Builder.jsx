@@ -86,6 +86,10 @@ class Builder extends Component {
     }
   }
 
+  /**
+   * Almost every child of Builder makes use of redux "resources" to access formatters. However, Viz.jsx
+   * misbehaves when wrapped in redux-connect, so for Viz.jsx ONLY, we pass it down via context.
+   */
   getChildContext() {
     const {formatters} = this.state;
     return {
