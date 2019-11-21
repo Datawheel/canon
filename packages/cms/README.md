@@ -519,11 +519,11 @@ For upgrading to new versions, there are currently several migration scripts:
 5) `npx canon-cms-migrate-0.8` (for 0.8 CMS users)
 6) `npx canon-cms-migrate-0.9` (for 0.9 CMS users, for upgrade to 0.11 ONLY)
 
-**Note:** Canon CMS Version 0.10.0 did NOT require a database migration, so the `0.9` script will output a `0.11` database.
+**Note:** Canon CMS Version 0.10.0 did **NOT** require a database migration, so the `0.9` script will output a `0.11` database.
 
 ### Instructions
 
-The name of the script represents the version you wish to migrate **FROM**.  So, to upgrade a DB from 0.6 to 0.7, one would use `npx canon-cms-migrate-0.6`.  Currently both `legacy` and `0.1` upgrade directly to `0.6`.  From here on out, versions will upgrade **one dot version at a time**.
+The name of the script represents the version you wish to migrate **FROM**.  So, to upgrade a DB from 0.6 to 0.7, one would use `npx canon-cms-migrate-0.6`.  Currently both `legacy` and `0.1` upgrade directly to `0.6`.  From here on out, versions will upgrade **one dot version at a time** (exception: 0.9 to 0.11).
 
 It is necessary that users spin up an entire new database for any CMS migration.
 
