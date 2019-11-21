@@ -5,8 +5,8 @@
   color: var(--section-text-color);
 }
 /* section (or section grouping) backgrounds */
-.cp-main > *:nth-child(odd),
-.cp-main > *:only-child > *:nth-child(odd) {
+.cp-main > *:nth-child(odd):not(.cp-grouping-section),
+.cp-main > *:only-child > *:nth-child(odd):not(.cp-grouping-section) {
   background-color: var(--section-bg-odd);
 }
 .cp-main > *:nth-child(even),

@@ -8,6 +8,7 @@
 .cp-grouping-section-heading {
   color: var(--grouping-heading-color);
   font-size: var(--grouping-heading-font-size);
+  margin-bottom: 0;
 }
 .cp-grouping-section-heading-anchor {
   color: var(--hero-heading-color);

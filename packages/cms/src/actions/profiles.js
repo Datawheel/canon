@@ -45,6 +45,7 @@ export function swapEntity(type, id) {
 /** */
 export function modifyDimension(payload) { 
   return function(dispatch, getStore) {
+    dispatch({type: "SEARCH_LOADING"});
     const diffCounter = getStore().cms.status.diffCounter + 1;
     return axios.post("/api/cms/profile/upsertDimension", payload)
       .then(({data}) => {
