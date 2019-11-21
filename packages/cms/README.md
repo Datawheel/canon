@@ -12,6 +12,7 @@ Content Management System for Canon sites.
 * [Search](#search)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Frequently Asked Questions](#frequently-asked-questions)
+* [Release Notes](#release-notes)
 * [Migration](#migration)
 
 ---
@@ -491,6 +492,22 @@ At the top of every section editor in the CMS is the "Dimensions" panel. This pa
 
 ___
 
+## Release Notes
+
+Here is a list of Minor CMS versions and their release notes:
+
+- [canon-cms@0.2.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.2.0)
+- [canon-cms@0.3.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.3.0)
+- [canon-cms@0.4.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.4.0)
+- [canon-cms@0.5.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.5.0)
+- [canon-cms@0.6.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.6.0)
+- [canon-cms@0.7.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.7.0)
+- [canon-cms@0.8.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.8.0)
+- [canon-cms@0.9.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.9.0)
+- [canon-cms@0.10.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.10.0)
+
+___
+
 ## Migration
 
 For upgrading to new versions, there are currently several migration scripts:
@@ -500,6 +517,9 @@ For upgrading to new versions, there are currently several migration scripts:
 3) `npx canon-cms-migrate-0.6` (for 0.6 CMS users)
 4) `npx canon-cms-migrate-0.7` (for 0.7 CMS users)
 5) `npx canon-cms-migrate-0.8` (for 0.8 CMS users)
+6) `npx canon-cms-migrate-0.9` (for 0.9 CMS users, for upgrade to 0.11 ONLY)
+
+**Note:** Canon CMS Version 0.10.0 did NOT require a database migration, so the `0.9` script will output a `0.11` database.
 
 ### Instructions
 
