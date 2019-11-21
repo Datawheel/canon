@@ -8,6 +8,7 @@ import cubeData from "./cubeData.js";
 import status from "./status.js";
 import formatters from "./formatters.js";
 import stories from "./stories.js";
+import resources from "./resources.js";
 
 const initialState = {
   status: {
@@ -20,7 +21,10 @@ const initialState = {
   cubeData: {},
   profiles: [],
   stories: [],
-  formatters: []
+  formatters: [],
+  resources: {
+    formatterFunctions: {}
+  }
 };
 
 /** */
@@ -30,6 +34,7 @@ export default function cmsReducer(state = initialState, action) {
     cubeData: cubeData(state.cubeData, action),
     profiles: profiles(state.profiles, action),
     stories: stories(state.stories, action),
-    formatters: formatters(state.formatters, action)
+    formatters: formatters(state.formatters, action),
+    resources: resources(state.resources, action)
   };
 }

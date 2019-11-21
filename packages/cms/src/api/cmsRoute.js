@@ -600,13 +600,20 @@ module.exports = function(app) {
           await db[`${ref}_content`].upsert(content, {where: {id, locale: content.locale}}).catch(catcher);
         }
       }
-      if (contentTables.includes(ref)) {
-        const u = await db[ref].findOne({where: {id}, include: {association: "content"}}).catch(catcher);
-        return res.json(u);
+      // Formatters are a special update case - return the whole list on update (necessary for recompiling them)
+      if (ref === "formatter") {
+        const rows = await db.formatter.findAll().catch(catcher);
+        return res.json(rows);
       }
       else {
-        const u = await db[ref].findOne({where: {id}}).catch(catcher);
-        return res.json(u);
+        if (contentTables.includes(ref)) {
+          const u = await db[ref].findOne({where: {id}, include: {association: "content"}}).catch(catcher);
+          return res.json(u);
+        }
+        else {
+          const u = await db[ref].findOne({where: {id}}).catch(catcher);
+          return res.json(u);
+        }
       }
     });
   });

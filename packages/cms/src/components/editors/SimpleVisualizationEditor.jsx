@@ -1,6 +1,5 @@
 import axios from "axios";
 import React, {Component} from "react";
-import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {Alert, Intent} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
@@ -338,7 +337,8 @@ class SimpleVisualizationEditor extends Component {
   render() {
     const {object, rebuildAlertOpen, payload} = this.state;
     const {localeDefault} = this.props.status;
-    const formatters = this.context.formatters[localeDefault];
+    const {formatterFunctions} = this.props.resources;
+    const formatters = formatterFunctions[localeDefault];
     const formatterList = formatters ? Object.keys(formatters).sort((a, b) => a.localeCompare(b)) : [];
     const selectedColumns = object.columns || [];
     const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
@@ -471,13 +471,10 @@ class SimpleVisualizationEditor extends Component {
   }
 }
 
-SimpleVisualizationEditor.contextTypes = {
-  formatters: PropTypes.object
-};
-
 const mapStateToProps = state => ({
   env: state.env,
-  status: state.cms.status
+  status: state.cms.status,
+  resources: state.cms.resources
 });
 
 export default connect(mapStateToProps)(SimpleVisualizationEditor);

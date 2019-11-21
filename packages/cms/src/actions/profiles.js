@@ -1,6 +1,7 @@
 import axios from "axios";
 import {assign} from "d3plus-common";
 import deepClone from "../utils/deepClone";
+import getLocales from "../utils/getLocales";
 
 /** */
 export function getProfiles() {
@@ -78,10 +79,13 @@ export function newEntity(type, payload) {
 /** */
 export function updateEntity(type, payload) { 
   return function(dispatch, getStore) {
+    // Updates might need to trigger re-running certain displays. Use diffCounter to track changes
     const diffCounter = getStore().cms.status.diffCounter + 1;
+    // Formatters require locales in the payload to know what languages to compile for
+    const locales = getLocales(getStore().env);
     return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/update`, payload)
       .then(({data}) => {
-        dispatch({type: `${type.toUpperCase()}_UPDATE`, data, diffCounter});
+        dispatch({type: `${type.toUpperCase()}_UPDATE`, data, diffCounter, locales});
       });
   };
 }
@@ -89,9 +93,13 @@ export function updateEntity(type, payload) {
 /** */
 export function deleteEntity(type, payload) { 
   return function(dispatch, getStore) {
+    // Deletes might need to trigger re-running certain displays. Use diffCounter to track changes
+    const diffCounter = getStore().cms.status.diffCounter + 1;
+    // Formatters require locales in the payload to know what languages to compile for
+    const locales = getLocales(getStore().env);
     axios.delete(`${getStore().env.CANON_API}/api/cms/${type}/delete`, {params: payload})
       .then(({data}) => {
-        dispatch({type: `${type.toUpperCase()}_DELETE`, data});
+        dispatch({type: `${type.toUpperCase()}_DELETE`, data, diffCounter, locales});
       });
   };
 }
