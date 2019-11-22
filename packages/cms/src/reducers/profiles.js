@@ -28,6 +28,8 @@ export default (profiles = [], action) => {
       return action.data;
     case "PROFILE_NEW":
       return profiles.concat([action.data]);
+    case "PROFILE_DUPLICATE": 
+      return profiles.concat([action.data]);
     case "PROFILE_DELETE":
       return action.data.profiles;
     case "PROFILE_UPDATE":

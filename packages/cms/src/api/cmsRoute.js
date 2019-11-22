@@ -666,6 +666,82 @@ module.exports = function(app) {
     return res.json({parent_id: original.section_id, selectors: rows});
   });
 
+  /* DUPLICATES */
+
+  app.post("/api/cms/profile/duplicate", isEnabled, async(req, res) => {
+    // Fetch the full tree for the provided ID
+    const reqObj = Object.assign({}, profileReqFull, {where: {id: req.body.id}});
+    let oldProfile = await db.profile.findOne(reqObj).catch(catcher);
+    oldProfile = oldProfile.toJSON();
+    const stripID = o => {
+      delete o.id;
+      return o;
+    };
+    // Make a new Profile
+    const maxFetch = await db.profile.findAll({attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
+    const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+    const newProfile = await db.profile.create({ordering}).catch(catcher);
+    // Clone meta with new slugs
+    const newMeta = oldProfile.meta.map(d => Object.assign({}, stripID(d), {profile_id: newProfile.id, slug: `${d.slug}-${newProfile.id}`}));
+    await db.profile_meta.bulkCreate(newMeta).catch(catcher);
+    // Clone language content with new id
+    const newProfileContent = oldProfile.content.map(d => Object.assign({}, d, {id: newProfile.id}));
+    await db.profile_content.bulkCreate(newProfileContent).catch(catcher);
+    // Clone generators, materializers
+    for (const table of ["generator", "materializer"]) {
+      const newRows = oldProfile[`${table}s`].map(d => Object.assign({}, stripID(d), {profile_id: newProfile.id}));
+      await db[table].bulkCreate(newRows).catch(catcher);
+    }
+    // Profile-level selectors are being cloned, and will receive a new id. When we later clone section_selector, it will need
+    // to have its selector_id updated to the NEWLY created selector's id. Create a lookup object for this.
+    const selectorLookup = {};
+    for (const oldSelector of oldProfile.selectors) {
+      const oldid = oldSelector.id;
+      const newSelector = await db.selector.create(Object.assign({}, stripID(oldSelector), {profile_id: newProfile.id})).catch(catcher);
+      selectorLookup[oldid] = newSelector.id;
+    }
+    // Clone Sections
+    for (const oldSection of oldProfile.sections) {
+      // Create a new section, but with the new profile id.
+      const newSection = await db.section.create(Object.assign({}, stripID(oldSection), {profile_id: newProfile.id}));
+      // Clone language content with new id
+      const newSectionContent = oldSection.content.map(d => Object.assign({}, d, {id: newSection.id}));
+      await db.section_content.bulkCreate(newSectionContent).catch(catcher);
+      // Clone subtitles, descriptions, and stats, AND their content
+      for (const entity of ["subtitle", "description", "stat", "visualization", "selector"]) {
+        const newRows = oldSection[`${entity}s`].map(d => {
+          // If the entity is a selector, replace its selector id with the newly cloned selector (created above in lookup)
+          if (entity === "selector") {
+            return Object.assign({}, stripID(d), {section_id: newSection.id, selector_id: selectorLookup[d.selector_id]});
+          }
+          // Otherwise, simple overwrite the section id and delete the id as usual
+          else {
+            return Object.assign({}, stripID(d), {section_id: newSection.id});
+          }
+        });
+        for (const newRow of newRows) {
+          // Insert the actual entity row
+          const newEntity = await db[`section_${entity}`].create(newRow).catch(catcher);
+          // If this entity has content, Insert it.
+          if (["subtitle", "description", "stat"].includes(entity)) {
+            const newEntityContent = newRow.content.map(d => Object.assign({}, d, {id: newEntity.id}));
+            await db[`section_${entity}_content`].bulkCreate(newEntityContent).catch(catcher);
+          }
+        }
+      }
+    }
+    // Now that all the creations are complete, fetch a new hierarchical and sorted profile.
+    const finalReqObj = Object.assign({}, profileReqFull, {where: {id: newProfile.id}});
+    let finalProfile = await db.profile.findOne(finalReqObj).catch(catcher);
+    finalProfile = sortProfile(db, finalProfile.toJSON()); 
+    finalProfile.sections = finalProfile.sections.map(section => {
+      section = sortSection(db, section);
+      section.types = getSectionTypes();
+      return section;
+    });
+    return res.json(finalProfile);
+  });
+
   /* DELETES */
   /**
    * To streamline deletes, this list contains objects with two properties. "elements" refers to the tables to be modified,
