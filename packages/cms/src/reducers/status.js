@@ -48,6 +48,8 @@ export default (status = {}, action) => {
     // Creation Detection
     case "PROFILE_NEW": 
       return Object.assign({}, status, {justCreated: {type: "profile", id: action.data.id}});
+    case "PROFILE_DUPLICATE": 
+      return Object.assign({}, status, {justCreated: {type: "profile", id: action.data.id}});
     case "SECTION_NEW": 
       return Object.assign({}, status, {justCreated: {type: "section", id: action.data.id, profile_id: action.data.profile_id}});
     case "STORY_NEW": 

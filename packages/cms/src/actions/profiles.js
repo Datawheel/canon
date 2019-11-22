@@ -34,6 +34,16 @@ export function deleteProfile(id) {
 }
 
 /** */
+export function duplicateProfile(id) { 
+  return function(dispatch, getStore) {
+    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/duplicate`, {id})
+      .then(({data}) => {
+        dispatch({type: "PROFILE_DUPLICATE", data});
+      });
+  };
+}
+
+/** */
 export function swapEntity(type, id) {
   return function(dispatch, getStore) {
     return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/swap`, {id})

@@ -5,7 +5,7 @@ import {Icon, Alert, Intent} from "@blueprintjs/core";
 
 import Button from "../fields/Button";
 
-import {deleteEntity, deleteProfile} from "../../actions/profiles";
+import {deleteEntity, deleteProfile, duplicateProfile} from "../../actions/profiles";
 import {deleteStory} from "../../actions/stories";
 
 import "./Header.css";
@@ -15,8 +15,32 @@ class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      itemToDelete: null
+      itemToDelete: null,
+      itemToDuplicate: null
     };
+  }
+
+  maybeDuplicate() {
+    const {pathObj} = this.props.status;
+    if (pathObj.tab === "profiles") {
+      const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
+      const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
+      if (type && id) {
+        this.setState({itemToDuplicate: {type, id}});
+      }
+    }
+    else if (pathObj.tab === "stories") {
+      const type = pathObj.storysection ? "storysection" : pathObj.story ? "story" : null;
+      const id = pathObj.storysection ? Number(pathObj.storysection) : pathObj.story ? Number(pathObj.story) : null;
+      if (type && id) {
+        this.setState({itemToDuplicate: {type, id}});
+      }
+    }
+  }
+
+  duplicate(itemToDuplicate) {
+    const {type, id} = itemToDuplicate;
+    if (type === "profile") this.props.duplicateProfile(id);
   }
 
   maybeDelete() {
@@ -50,7 +74,7 @@ class Header extends Component {
 
     const {dimensions, profiles, stories} = this.props;
     const {currentPid, currentStoryPid, pathObj} = this.props.status;
-    const {itemToDelete} = this.state;
+    const {itemToDelete, itemToDuplicate} = this.state;
 
     let domain = this.props;
     if (typeof domain !== "undefined" && typeof window !== "undefined" && window.document.location.origin) {
@@ -146,10 +170,22 @@ class Header extends Component {
             }
           </span>
 
-          {/* delete entity */}
           {/* TODO: make this a popover once we have more options */}
+          {/* duplicate entity */}
+          <div className="cms-header-actions-container" key="header-actions-container-duplicate">
+            <Button
+              className="cms-header-actions-button cms-header-delete-button"
+              onClick={this.maybeDuplicate.bind(this)}
+              icon="duplicate"
+              namespace="cms"
+              fontSize="xs"
+            >
+              {`Duplicate ${entityType === "storysection" ? "section" : entityType}`}
+            </Button>
+          </div>
+          {/* delete entity */}
           {showDeleteButton &&
-            <div className="cms-header-actions-container" key="header-actions-container">
+            <div className="cms-header-actions-container" key="header-actions-container-delete">
               <Button
                 className="cms-header-actions-button cms-header-delete-button"
                 onClick={this.maybeDelete.bind(this)}
@@ -163,6 +199,17 @@ class Header extends Component {
           }
         </header>
 
+        <Alert
+          isOpen={itemToDuplicate}
+          cancelButtonText="Cancel"
+          confirmButtonText="Duplicate"
+          iconName="duplicate"
+          intent={Intent.SUCCESS}
+          onConfirm={() => this.duplicate.bind(this)(itemToDuplicate)}
+          onCancel={() => this.setState({itemToDuplicate: null})}
+        >
+          select a profile from this list maybe
+        </Alert>
         <Alert
           isOpen={itemToDelete}
           cancelButtonText="Cancel"
@@ -188,6 +235,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
   deleteProfile: id => dispatch(deleteProfile(id)),
+  duplicateProfile: id => dispatch(duplicateProfile(id)),
   deleteStory: id => dispatch(deleteStory(id))
 });
 
