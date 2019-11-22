@@ -41,6 +41,7 @@ class Header extends Component {
   duplicate(itemToDuplicate) {
     const {type, id} = itemToDuplicate;
     if (type === "profile") this.props.duplicateProfile(id);
+    this.setState({itemToDuplicate: null});
   }
 
   maybeDelete() {
@@ -208,7 +209,7 @@ class Header extends Component {
           onConfirm={() => this.duplicate.bind(this)(itemToDuplicate)}
           onCancel={() => this.setState({itemToDuplicate: null})}
         >
-          select a profile from this list maybe
+          Duplicate this Profile?
         </Alert>
         <Alert
           isOpen={itemToDelete}
