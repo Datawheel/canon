@@ -718,11 +718,20 @@ module.exports = function(app) {
     const maxFetch = await db.section.findAll({where: {profile_id: pid}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
     const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
     oldSection.ordering = ordering;
-    const newSectionId = await duplicateSection(db, oldSection, pid);
+    let selectorLookup = null;
+    // If this section is being duplicated in the SAME profile as it came from, we DO want to populate its selectors
+    // (We skip selectors if we jump profiles). Populate a dummy lookup so the selector migration works.
+    if (pid === oldSection.profile_id) {
+      selectorLookup = {};
+      oldSection.selectors.forEach(selector => {
+        selectorLookup[selector.section_selector.selector_id] = selector.section_selector.selector_id;
+      });
+    }
+    const newSectionId = await duplicateSection(db, oldSection, pid, selectorLookup);
     const newReqObj = Object.assign({}, sectionReqFull, {where: {id: newSectionId}});
     let newSection = await db.section.findOne(newReqObj).catch(catcher);
     newSection = newSection.toJSON();
-    //newSection = sortSection(db, newSection);
+    newSection = sortSection(db, newSection);
     newSection.types = getSectionTypes();
     return res.json(newSection);
   });
