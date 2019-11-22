@@ -222,6 +222,7 @@ const sortStoryTree = (db, stories) => {
 const sortProfile = (db, profile) => {
   profile.meta = flatSort(db.profile_meta, profile.meta);
   profile.materializers = flatSort(db.materializer, profile.materializers);
+  profile.sections = flatSort(db.section, profile.sections);
   return profile;
 };
 
@@ -712,7 +713,8 @@ module.exports = function(app) {
         const newRows = oldSection[`${entity}s`].map(d => {
           // If the entity is a selector, replace its selector id with the newly cloned selector (created above in lookup)
           if (entity === "selector") {
-            return Object.assign({}, stripID(d), {section_id: newSection.id, selector_id: selectorLookup[d.selector_id]});
+            const s = d.section_selector;
+            return Object.assign({}, stripID(s), {section_id: newSection.id, selector_id: selectorLookup[s.selector_id]});
           }
           // Otherwise, simple overwrite the section id and delete the id as usual
           else {
