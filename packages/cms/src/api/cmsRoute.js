@@ -43,6 +43,11 @@ const sectionTypeDir = path.join(__dirname, "../components/sections/");
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
 
+const stripID = o => {
+  delete o.id;
+  return o;
+};
+
 const isEnabled = (req, res, next) => {
   if (cmsCheck()) return next();
   return res.status(401).send("Not Authorized");
@@ -262,6 +267,41 @@ const getSectionTypes = () => {
     if (compName !== "Section") sectionTypes.push(compName);
   });
   return sectionTypes;
+};
+
+const duplicateSection = async(db, oldSection, pid, selectorLookup) => {
+  // Create a new section, but with the new profile id.
+  const newSection = await db.section.create(Object.assign({}, stripID(oldSection), {profile_id: pid}));
+  // Clone language content with new id
+  const newSectionContent = oldSection.content.map(d => Object.assign({}, d, {id: newSection.id}));
+  await db.section_content.bulkCreate(newSectionContent).catch(catcher);
+  // Clone subtitles, descriptions, and stats, AND their content, and vizes and selectors
+  const entities = ["subtitle", "description", "stat", "visualization"];
+  // Only copy selectors if this is a full profile copy, i.e., selectorLookup was provided.
+  if (selectorLookup) entities.push("selector");
+  for (const entity of entities) {
+    const newRows = oldSection[`${entity}s`].map(d => {
+      // If the entity is a selector, replace its selector id with the newly cloned selector (created above in lookup)
+      if (entity === "selector") {
+        const s = d.section_selector;
+        return Object.assign({}, stripID(s), {section_id: newSection.id, selector_id: selectorLookup[s.selector_id]});
+      }
+      // Otherwise, simple overwrite the section id and delete the id as usual
+      else {
+        return Object.assign({}, stripID(d), {section_id: newSection.id});
+      }
+    });
+    for (const newRow of newRows) {
+      // Insert the actual entity row
+      const newEntity = await db[`section_${entity}`].create(newRow).catch(catcher);
+      // If this entity has content, Insert it.
+      if (["subtitle", "description", "stat"].includes(entity)) {
+        const newEntityContent = newRow.content.map(d => Object.assign({}, d, {id: newEntity.id}));
+        await db[`section_${entity}_content`].bulkCreate(newEntityContent).catch(catcher);
+      }
+    }
+  }
+  return newSection.id;
 };
 
 const formatter = (members, data, dimension, level) => {
@@ -669,15 +709,31 @@ module.exports = function(app) {
 
   /* DUPLICATES */
 
+  app.post("/api/cms/section/duplicate", isEnabled, async(req, res) => {
+    const {id, pid} = req.body;
+    const reqObj = Object.assign({}, sectionReqFull, {where: {id}});
+    let oldSection = await db.section.findOne(reqObj).catch(catcher);
+    oldSection = oldSection.toJSON();
+    // This section could be added to a different profile. Override its ordering to be the last in the list.
+    const maxFetch = await db.section.findAll({where: {profile_id: pid}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
+    const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+    oldSection.ordering = ordering;
+    const newSectionId = await duplicateSection(db, oldSection, pid);
+    const newReqObj = Object.assign({}, sectionReqFull, {where: {id: newSectionId}});
+    let newSection = await db.section.findOne(newReqObj).catch(catcher);
+    newSection = newSection.toJSON();
+    //newSection = sortSection(db, newSection);
+    newSection.types = getSectionTypes();
+    return res.json(newSection);
+  });
+
+
+
   app.post("/api/cms/profile/duplicate", isEnabled, async(req, res) => {
     // Fetch the full tree for the provided ID
     const reqObj = Object.assign({}, profileReqFull, {where: {id: req.body.id}});
     let oldProfile = await db.profile.findOne(reqObj).catch(catcher);
     oldProfile = oldProfile.toJSON();
-    const stripID = o => {
-      delete o.id;
-      return o;
-    };
     // Make a new Profile
     const maxFetch = await db.profile.findAll({attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
     const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
@@ -703,34 +759,7 @@ module.exports = function(app) {
     }
     // Clone Sections
     for (const oldSection of oldProfile.sections) {
-      // Create a new section, but with the new profile id.
-      const newSection = await db.section.create(Object.assign({}, stripID(oldSection), {profile_id: newProfile.id}));
-      // Clone language content with new id
-      const newSectionContent = oldSection.content.map(d => Object.assign({}, d, {id: newSection.id}));
-      await db.section_content.bulkCreate(newSectionContent).catch(catcher);
-      // Clone subtitles, descriptions, and stats, AND their content
-      for (const entity of ["subtitle", "description", "stat", "visualization", "selector"]) {
-        const newRows = oldSection[`${entity}s`].map(d => {
-          // If the entity is a selector, replace its selector id with the newly cloned selector (created above in lookup)
-          if (entity === "selector") {
-            const s = d.section_selector;
-            return Object.assign({}, stripID(s), {section_id: newSection.id, selector_id: selectorLookup[s.selector_id]});
-          }
-          // Otherwise, simple overwrite the section id and delete the id as usual
-          else {
-            return Object.assign({}, stripID(d), {section_id: newSection.id});
-          }
-        });
-        for (const newRow of newRows) {
-          // Insert the actual entity row
-          const newEntity = await db[`section_${entity}`].create(newRow).catch(catcher);
-          // If this entity has content, Insert it.
-          if (["subtitle", "description", "stat"].includes(entity)) {
-            const newEntityContent = newRow.content.map(d => Object.assign({}, d, {id: newEntity.id}));
-            await db[`section_${entity}_content`].bulkCreate(newEntityContent).catch(catcher);
-          }
-        }
-      }
+      await duplicateSection(db, oldSection, newProfile.id, selectorLookup);
     }
     // Now that all the creations are complete, fetch a new hierarchical and sorted profile.
     const finalReqObj = Object.assign({}, profileReqFull, {where: {id: newProfile.id}});
