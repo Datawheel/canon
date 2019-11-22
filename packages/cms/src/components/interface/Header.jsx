@@ -173,7 +173,7 @@ class Header extends Component {
 
           {/* TODO: make this a popover once we have more options */}
           {/* duplicate entity */}
-          <div className="cms-header-actions-container" key="header-actions-container-duplicate">
+          {pathObj.tab === "profiles" && <div className="cms-header-actions-container" key="header-actions-container-duplicate">
             <Button
               className="cms-header-actions-button cms-header-delete-button"
               onClick={this.maybeDuplicate.bind(this)}
@@ -183,7 +183,7 @@ class Header extends Component {
             >
               {`Duplicate ${entityType === "storysection" ? "section" : entityType}`}
             </Button>
-          </div>
+          </div>}
           {/* delete entity */}
           {showDeleteButton &&
             <div className="cms-header-actions-container" key="header-actions-container-delete">

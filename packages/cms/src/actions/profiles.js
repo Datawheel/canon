@@ -44,6 +44,16 @@ export function duplicateProfile(id) {
 }
 
 /** */
+export function duplicateSection(id, pid) { 
+  return function(dispatch, getStore) {
+    return axios.post(`${getStore().env.CANON_API}/api/cms/section/duplicate`, {id, pid})
+      .then(({data}) => {
+        dispatch({type: "SECTION_DUPLICATE", data});
+      });
+  };
+}
+
+/** */
 export function swapEntity(type, id) {
   return function(dispatch, getStore) {
     return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/swap`, {id})
