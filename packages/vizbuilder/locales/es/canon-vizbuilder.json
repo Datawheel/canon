@@ -1,0 +1,57 @@
+{
+  "Loading": {
+    "description": "Cargando {{progress}} de {{total}} datasets",
+    "title": "Espere por favor"
+  },
+  "Vizbuilder": {
+    "action_apply": "Aplicar",
+    "action_back": "Volver",
+    "action_close": "Restaurar",
+    "action_delete": "Eliminar",
+    "action_edit": "Editar",
+    "action_enlarge": "Maximizar",
+    "action_fileissue": "Ingresar un reporte",
+    "action_newfilter": "Add filter",
+    "action_newgroup": "Añadir división",
+    "action_reset": "Revertir",
+    "action_retry": "Reintentar",
+    "action_togglemoe": "Calcular Márgenes de Error",
+    "comparison": {
+      "EQ": "Igual a",
+      "HAS": "Contiene",
+      "HT": "Mayor a",
+      "HTE": "Mayor o igual a",
+      "LT": "Menor a",
+      "LTE": "Menor o igual a",
+      "NEQ": "Distinto de"
+    },
+    "error": {
+      "chartfail_detail": "Este gráfico falló mientras era dibujado. Puedes intentar procesarlo otra vez, y si se repite, infórmanos del problema.",
+      "chartfail_title": "Error al dibujar gráfico",
+      "empty_detail": "El servidor no contiene datos para los parámetros que ha ingresado.\nPor favor intente otra vez con filtros, miembros o divisiones más amplias, o envíenos un reporte.",
+      "empty_title": "Dataset vacío",
+      "internal_detail": "Ocurrió un error en la ejecución de Vizbuilder.\nSi este error se sigue repitiendo, por favor ingrese un reporte incluyendo la URL actual y/o una captura de los parámetros utilizados.",
+      "internal_title": "Error interno",
+      "message": "Detalle del error: \"{{message}}\".",
+      "network_detail": "Revise su conexión a internet e intente de nuevo.",
+      "network_title": "Desconectado",
+      "nocharts_detail": "Probablemente esto sea un problema con la programación de Vizbuilder.\nSiempre estamos actualizando las configuraciones para generar mejores gráficos, por lo que agradeceríamos si nos reporta qué parámetros requirió y qué gráficos esperaba ver con esta data.",
+      "nocharts_title": "No se pudieron interpretar gráficos con estos parámetros.",
+      "overload_detail": "Los parámetros definidos retornaron demasiados elementos, y el navegador podría congelarse al intentar procesarlos. Por favor intente una petición más acotada o con menos granularidad.",
+      "overload_title": "Demasiados datos",
+      "server_detail": "El servidor encontró un problema interno al procesar la petición. Por favor intente más tarde, o si el problema persiste, envíenos un reporte.",
+      "server_title": "Error del servidor de datos",
+      "unknown_detail": "Ocurrió un error inesperado.\nSi este error se sigue repitiendo, por favor ingrese un reporte incluyendo la URL actual y/o una captura de los parámetros utilizados.",
+      "unknown_title": "Error inesperado"
+    },
+    "prefix_dataset": "Dataset: ",
+    "prefix_source": "Fuente: ",
+    "title_bottomten": "Últimos 10 ({{timePeriod}})",
+    "title_filters": "Filtrar por",
+    "title_groups": "Dividir por",
+    "title_measure": "Mostrando",
+    "title_ranking": "Ranking ({{timePeriod}})",
+    "title_source": "Información de la fuente",
+    "title_topten": "Primeros 10 ({{timePeriod}})"
+  }
+}

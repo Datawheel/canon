@@ -1,4 +1,3 @@
-import {AnchorButton, NonIdealState} from "@blueprintjs/core";
 import classNames from "classnames";
 import React, {memo} from "react";
 import {connect} from "react-redux";
@@ -70,18 +69,15 @@ const ChartArea = memo(function({
   return (
     <div
       className={classNames(
-        "wrapper chart-wrapper",
+        "chart-wrapper",
         isSingleChart ? "single" : "multi",
         isUniqueChart && "unique",
         activeChart
       )}
       onScroll={onScroll}
     >
-      {/* <JsonRenderer defaultExpanded name="charts" value={chartsToRender} /> */}
       {chartsToRender.map(chart => {
         const {chartType, key} = chart;
-        const Component = chartComponents[chartType];
-
         const {measure, geoLevel} = chart.params;
         const measureName = measure.name;
         const geoLevelName = geoLevel ? geoLevel.caption : "";
@@ -103,12 +99,12 @@ const ChartArea = memo(function({
         return (
           <ChartCard
             active={key === activeChart || isSingleChart}
+            chart={chartComponents[chartType]}
+            config={config}
             hideToolbar={isUniqueChart}
             key={key}
             onToggle={activeChart ? restoreChartsHandler : () => chartSelectHandler(key)}
-          >
-            <Component config={config} />
-          </ChartCard>
+          />
         );
       })}
     </div>

@@ -3,6 +3,7 @@ import keyBy from "lodash/keyBy";
 import yn from "yn";
 import {ensureArray} from "../helpers/arrays";
 import {chartCombinationReducer} from "../helpers/chartCombination";
+import {errorBuilder} from "../helpers/error";
 import {findHigherCurrentPeriod} from "../helpers/find";
 import {inyectShare, inyectShareByTime} from "../helpers/math";
 import {queryBuilder} from "../helpers/query";
@@ -22,6 +23,46 @@ import {
   selectQueryParamsDrillables
 } from "../store/query/selectors";
 import {OLAP_FETCHCUBES, OLAP_FETCHMEMBERS, OLAP_RUNQUERY, OLAP_SETUP} from "./actions";
+
+/**
+ * This handler catches errors returned by the request to the server,
+ * understands them, and replaces them with a more descriptive error for the
+ * ErrorExposer component to show.
+ *
+ * @param {import("axios").AxiosError} error
+ */
+function fetchErrorHandler(error) {
+  console.error(error);
+  if (error.response) {
+    // Request successful, but the server returned a non 2xx status code
+    const descriptors = {
+      "400": "Bad Request",
+      "401": "Unauthorized",
+      "402": "Payment Required",
+      "403": "Forbidden",
+      "404": "Not Found",
+      "405": "Method Not Allowed",
+      "500": "Internal Server Error",
+      "501": "Not Implemented",
+      "502": "Bad Gateway",
+      "503": "Service Unavailable",
+      "504": "Gateway Timeout",
+    };
+
+    const detail = descriptors[error.response.status] || error.response.data;
+    throw errorBuilder("ServerError", detail);
+  }
+  else if (error.request) {
+    // The request was made but no response was received, `error.request`
+    // is an instance of XMLHttpRequest in the browser and an instance
+    // of http.ClientRequest in Node.js
+    throw errorBuilder("NetworkError");
+  }
+  else {
+    // Something happened in setting up the request and triggered an Error
+    throw error;
+  }
+}
 
 export default {
   /**
@@ -71,7 +112,7 @@ export default {
       const cubeItems = cubes.filter(filterFn).map(structCubeBuilder);
       const cubeMap = keyBy(cubeItems, i => i.uri);
       dispatch(doCubesUpdate(cubeMap));
-    });
+    }, fetchErrorHandler);
   },
 
   /**
@@ -99,7 +140,7 @@ export default {
     };
     return client
       .getMembers(levelDescriptor, {locale: "en", ancestors: true})
-      .then(memberList => memberList.map(structMemberBuilder));
+      .then(memberList => memberList.map(structMemberBuilder), fetchErrorHandler);
   },
 
   /**
@@ -144,6 +185,10 @@ export default {
             let data = aggregation.data;
             let aggregationDatacap = datacap;
 
+            if (data.length === 0) {
+              throw errorBuilder("EmptyDatasetError");
+            }
+
             if (measure.aggregationType === "SUM") {
               // Inyect a new calculated measure as share of total by time period
               data = timeLevel
@@ -159,8 +204,7 @@ export default {
             }
 
             if (data.length > aggregationDatacap) {
-              const msg = `This query returned too many data points. Please try a query with less granularity.`;
-              throw new Error(msg);
+              throw errorBuilder("DataOverloadError");
             }
 
             /** @type {Datagroup} */
@@ -178,7 +222,7 @@ export default {
           .reduce(chartCombinationReducer, []);
 
         if (charts.length === 0) {
-          throw new Error(`No data available at that granularity.`);
+          throw errorBuilder("NoChartsError");
         }
 
         // TODO: remove duplicated charts
@@ -186,6 +230,6 @@ export default {
 
         dispatch(doPeriodUpdate(selectedPeriod));
         dispatch(doChartsUpdate(charts));
-      });
+      }, fetchErrorHandler);
   }
 };

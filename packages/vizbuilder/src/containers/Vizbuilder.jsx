@@ -1,8 +1,9 @@
-import {Button, NonIdealState} from "@blueprintjs/core";
+import {Button} from "@blueprintjs/core";
 import cn from "classnames";
 import LoadingScreen from "components/Loading";
 import debounce from "lodash/debounce";
 import React, {Component} from "react";
+import {hot} from "react-hot-loader/root";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import ButtonTooltip from "../components/ButtonTooltip";
@@ -16,10 +17,10 @@ import {selectLoadingState} from "../store/loading/selectors";
 import {selectFilterKeys, selectGroupKeys} from "../store/query/selectors";
 import ControlMeasure from "./ControlMeasure";
 import ControlSources from "./ControlSources";
+import ErrorExposer from "./ErrorExposer";
 import FilterItem from "./FilterItem";
 import GroupItem from "./GroupItem";
 import Ranking from "./Ranking";
-import {hot} from "react-hot-loader/root";
 
 /**
  * @typedef OwnState
@@ -102,7 +103,8 @@ class Vizbuilder extends Component {
     if (measures.length === 0) {
       return (
         <div className="vizbuilder fetching">
-          <LoadingScreen progress={loadDone} total={loadTotal} />
+          {isLoading && <LoadingScreen progress={loadDone} total={loadTotal} />}
+          {!isLoading && <ErrorExposer />}
         </div>
       );
     }
@@ -176,11 +178,8 @@ class Vizbuilder extends Component {
         <div className="area-chart">
           <div className="wrapper">
             {toolbarArea}
-            {loadError ? (
-              <div className="wrapper chart-wrapper empty">
-                <NonIdealState icon="error" title="Error" description={loadError} />
-              </div>
-            ) : (
+            {loadError && <ErrorExposer />}
+            {!loadError && (
               <ChartArea
                 formatters={formatters}
                 measureConfigs={measureConfig}
@@ -207,7 +206,7 @@ function mapState(state) {
     groups: selectGroupKeys(state),
     isLoading: loading.inProgress,
     loadDone: loading.done,
-    loadError: loading.error,
+    loadError: loading.errorName,
     loadTotal: loading.total,
     measures: selectMeasureList(state)
   };

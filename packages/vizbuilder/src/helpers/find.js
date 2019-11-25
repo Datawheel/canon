@@ -1,6 +1,7 @@
 import escapeRegExp from "lodash/escapeRegExp";
 import {sortNumbers} from "./sort";
 import {isSameLevel} from "./validation";
+import {errorBuilder} from "./error";
 
 /**
  * Returns the first element in `haystack` that matches an element from `needles`,
@@ -119,7 +120,10 @@ export function findLevelByGroup(levels, {dimension, hierarchy, level}) {
   const finderFn = lvl =>
     lvl.dimension === dimension && lvl.hierarchy === hierarchy && lvl.name === level;
   const trebuchet = () => {
-    throw new Error(`Group isn't available in the list of levels provided.`);
+    throw errorBuilder(
+      "InternalError",
+      `Group isn't available in the list of levels provided.`
+    );
   };
   return levels.find(finderFn) || trebuchet();
 }
@@ -136,7 +140,8 @@ export function findParentHierarchy(cube, level) {
       }
     }
   }
-  throw new Error(
+  throw errorBuilder(
+    "InternalError",
     `Couldn't find parent hierarchy of level ${level.uri} in cube ${cube.uri}`
   );
 }

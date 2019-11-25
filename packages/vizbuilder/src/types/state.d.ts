@@ -1,4 +1,16 @@
 interface GeneralState {
+  auth: any;
+  data: any;
+  env: any;
+  i18n: any;
+  legal: any;
+  loading: any;
+  loadingProgress: any;
+  location: any;
+  mailgun: any;
+  routing: any;
+  social: any;
+  instances: any;
   vizbuilder: VizbuilderState;
 }
 
@@ -16,7 +28,8 @@ type CubesState = Record<string, CubeItem>;
 
 interface LoadingState {
   done: number;
-  error: string | undefined;
+  errorMsg: string | undefined;
+  errorName: string | undefined;
   inProgress: boolean;
   total: number;
 }

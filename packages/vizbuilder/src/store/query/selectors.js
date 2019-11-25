@@ -1,6 +1,7 @@
 import keyBy from "lodash/keyBy";
 import {createSelector} from "reselect";
 import {levelIteratorFactory} from "../../helpers/arrays";
+import {errorBuilder} from "../../helpers/error";
 import {findByKey} from "../../helpers/find";
 import {stateToPermalink} from "../../helpers/permalink";
 import {isValidMeasure, removeDuplicateLevels} from "../../helpers/validation";
@@ -224,7 +225,7 @@ export const selectGeoLevelForCube = createSelector(
   [selectGroupList, selectCube],
   (groups, cube) => {
     if (!cube) {
-      throw new Error(`selectGeoLevelForCube: Cube doesn't exist.`);
+      throw errorBuilder("InternalError", `selectGeoLevelForCube: Cube doesn't exist.`);
     }
 
     const geoDimensions = cube.dimensions.filter(dim => dim.type === "GEOGRAPHY");

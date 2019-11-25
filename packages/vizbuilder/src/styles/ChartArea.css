@@ -4,24 +4,15 @@
   justify-content: flex-start;
   align-items: stretch;
 
-  &.empty {
-    justify-content: center;
-    align-items: center;
-  }
-
   & > .wrapper {
     display: flex;
     flex-flow: column nowrap;
     height: 100%;
+    min-height: 320px;
   }
 
-  & .toolbar-wrapper {
-    flex: 0 0 20px;
-    position: sticky;
-
-    &:empty {
-      display: none;
-    }
+  & .error-message {
+    white-space: pre-line;
   }
 
   & .chart-wrapper {
@@ -45,6 +36,7 @@
       flex-flow: column nowrap;
       margin: 0 5px 10px;
       padding: 15px;
+      min-height: 45vh;
     }
 
     &:only-child,
@@ -56,21 +48,12 @@
     & .viz {
       flex: 1 0;
       transform: rotateZ(360deg);
-        min-height: 320px;
+      min-height: 320px;
 
       & > svg {
         display: block;
         max-width: 100%;
       }
-    }
-
-    & footer {
-      flex: 0 0;
-      display: flex;
-      flex-flow: row nowrap;
-      justify-content: flex-end;
-      align-items: center;
-      margin: 1rem 0 0;
     }
   }
 }
