@@ -170,11 +170,11 @@ class Header extends Component {
           confirmButtonText={`Delete ${itemToDelete ? itemToDelete.type : ""}`}
           onConfirm={() => this.delete.bind(this)(itemToDelete)}
           onCancel={() => this.setState({itemToDelete: null})}
-          isModal={false}
+          description="This action cannot be undone."
         >
           {itemToDelete && itemToDelete.type === "profile"
-            ? "Delete profile along with all of its sections and content? This action cannot be undone."
-            : "Delete section along with all of its content? This action cannot be undone."
+            ? "Delete profile along with all of its sections and content?"
+            : "Delete section along with all of its content?"
           }
         </Alert>
       </Fragment>

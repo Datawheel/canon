@@ -10,10 +10,15 @@
   100% { opacity: 1; }
 }
 
+@keyframes scaleIn {
+  0%   { opacity: 0; transform: scale(0); }
+  100% { opacity: 1; transform: none; }
+}
+
 @keyframes appearFromBelow {
   0% {
     opacity: 0;
-    transform: translateY(25%);
+    transform: translateY(15%) scale(0.95);
   }
   100% {
     opacity: 1;

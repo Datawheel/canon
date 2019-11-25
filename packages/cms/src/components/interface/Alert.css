@@ -19,15 +19,10 @@
     @mixin button-reset;
     z-index: -1;
     animation: fadeIn 0.1s ease-out;
-    background-color: color(var(--white) a(0.875));
+    background-color: color(var(--white) a(0.95));
 
     @mixin dark-mode {
-      background-color: color(var(--black) a(0.875));
-    }
-
-    & .cms-alert-inner {
-      width: 34rem;
-      max-width: 100%;
+      background-color: color(var(--black) a(0.95));
     }
 
     &:focus {
@@ -38,10 +33,94 @@
 }
 
 .cms-alert-inner {
-  padding: var(--gutter-xl);
-  animation: appearFromBelow 0.3s ease-out;
+  margin: var(--gutter-sm);
+  padding: var(--gutter-sm);
+  width: 40rem;
+  max-width: 100%;
+  text-align: center;
+  animation: appearFromBelow 0.2s ease-out;
+}
 
-  @mixin min-xs {
-    text-align: center;
+.cms-alert-actions {
+  display: flex;
+  width: 20em;
+  max-width: 100%;
+  margin-top: 1.75em;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cms-alert-actions-button {
+  @mixin button-reset;
+  text-shadow: none;
+  font-weight: var(--heading-font-weight);
+  flex: 1 0 50%;
+  padding: 0.75em 1em 0.875em 1em;
+  background-color: var(--light-1);
+  color: var(--dark-1);
+  transition:
+    color 0.1s ease-out,
+    background-color 0.1s ease-out;
+
+  @mixin dark-mode {
+    background-color: var(--dark-3);
+    color: var(--white);
   }
+
+  &:first-child {
+    margin-right: 2px;
+    border-top-left-radius: 0.25em;
+    border-bottom-left-radius: 0.25em;
+  }
+
+  &:last-child {
+    border-top-right-radius: 0.25em;
+    border-bottom-right-radius: 0.25em;
+  }
+
+  &:hover, &:focus {
+    background-color: var(--light-2);
+    color: var(--black);
+
+    @mixin dark-mode {
+      background-color: var(--dark-2);
+      color: var(--white);
+    }
+  }
+
+  &.danger-theme {
+    color: var(--alert);
+
+    @mixin dark-mode {
+      background-color: var(--alert-dark);
+      color: var(--white);
+    }
+
+    &:hover, &:focus {
+      background-color: var(--alert-dark);
+      color: var(--white);
+
+      @mixin dark-mode {
+        background-color: var(--alert);
+      }
+    }
+  }
+}
+
+.cms-alert-icon {
+  width: 3rem;
+
+  & svg {
+    width: 100%;
+    height: auto;
+  }
+
+  &.danger-theme {
+    color: var(--alert);
+  }
+}
+
+.cms-alert-heading {
+  margin-top: 0.25em;
+  margin-bottom: 0.5em;
 }

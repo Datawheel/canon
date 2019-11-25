@@ -1,7 +1,6 @@
 import React, {Component, Fragment} from "react";
-import ReactDOM from "react-dom";
 import {hot} from "react-hot-loader/root";
-import {Alert as BPAlert, Intent} from "@blueprintjs/core";
+import {Icon} from "@blueprintjs/core";
 
 import Portal from "./Portal";
 import Parse from "../sections/components/Parse";
@@ -33,9 +32,9 @@ class Alert extends Component {
       description,        // when more context is needed
       autoFocusButton,    // set to "confirm" (default), "cancel", or null (if you must)
       confirmButtonText,
-      confirmButtonTheme,
       cancelButtonText,
-      cancelButtonTheme
+      theme,              // defaults to danger
+      icon                // defaults to alert
     } = this.props;
 
     // don't render at all unless we have everything we need
@@ -54,23 +53,27 @@ class Alert extends Component {
           className={`cms-alert${className ? ` ${className}` : ""} ${isModal ? "is-modal" : "is-inline"}`}
           key="a"
         >
-          <div className="cms-alert-inner">
+          <div className={`cms-alert-inner ${theme ? ` ${theme}-theme` : ""}`}>
+            {icon &&
+              <Icon className={`cms-alert-icon ${theme ? ` ${theme}-theme` : ""}`} icon={icon} />
+            }
+
             {/* main alert text */}
             {children &&
-              <Parse El="h2" className="cms-alert-heading" key="h">
+              <Parse El="h2" className="cms-alert-heading u-font-xxl" key="h">
                 {children}
               </Parse>
             }
             {/* optional context */}
             {description &&
-              <Parse El="h2" className="cms-alert-description" key="d">
+              <Parse className="cms-alert-description u-font-lg u-margin-bottom-md" key="d">
                 {description}
               </Parse>
             }
-            <div className="cms-alert-actions">
+            <div className="cms-alert-actions u-font-sm">
               {/* cancel button */}
               <button
-                className={`cms-alert-actions-button ${cancelButtonTheme}-theme`}
+                className="cms-alert-actions-button"
                 onClick={onCancel}
                 autoFocus={autoFocusButton === "cancel"}
               >
@@ -78,8 +81,8 @@ class Alert extends Component {
               </button>
               {/* confirm button */}
               <button
-                className={`cms-alert-actions-button ${confirmButtonTheme}-theme`}
-                onClick={onCancel}
+                className={`cms-alert-actions-button${theme ? ` ${theme}-theme` : ""}`}
+                onClick={onConfirm}
                 autoFocus={autoFocusButton === "confirm"}
               >
                 {confirmButtonText}
@@ -108,9 +111,9 @@ Alert.defaultProps = {
   isModal: true,
   children: "Confirm action",
   confirmButtonText: "Confirm",
-  confirmButtonTheme: "danger",
   cancelButtonText: "Cancel",
-  cancelButtonTheme: "neutral",
+  icon: "warning-sign",
+  theme: "danger",
   autoFocusButton: "confirm"
 };
 

@@ -75,6 +75,7 @@ export default class Card extends Component {
         cancelButtonText: "Cancel",
         confirmButtonText: alertObj.confirm,
         className: "cms-confirm-alert",
+        description: alertObj.description,
         isOpen: alertObj,
         onConfirm: alertObj.callback,
         onCancel: onAlertCancel
