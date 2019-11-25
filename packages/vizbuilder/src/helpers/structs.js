@@ -46,21 +46,18 @@ export const structCubeBuilder = cube => {
  * Creates the base structured object for a vizbuilder dimension
  * @param {CubeItem} cubeItem
  * @param {import("@datawheel/olap-client").Dimension} dimension
+ * @param {number} index
+ * @param {import("@datawheel/olap-client").Dimension[]} dimensions
  * @returns {CubeItem}
  */
-export const structDimensionReducer = (cubeItem, dimension) => {
+export const structDimensionReducer = (cubeItem, dimension, index, dimensions) => {
   const uri = dimension.toString();
   const dmAnn = dimension.annotations || {};
 
   const dimensionType = dimension.dimensionType;
-  const type =
-    dimensionType === DimType.Time ||
-    yn(dmAnn.default_year) ||
-    /date|year/i.test(dimension.name)
-      ? "TIME"
-      : dimensionType === DimType.Geographic || /geography|state/i.test(dimension.name)
-        ? "GEOGRAPHY"
-        : dmAnn.dim_type ? dmAnn.dim_type : "GENERIC";
+  const timeDimHeuristic = dimensions.some(dim => dim.dimensionType === DimType.Time)
+    ? dimensionType === DimType.Time
+    : yn(dmAnn.default_year) || /date|year/i.test(dimension.name);
 
   const defaultHierarchy = dimension.defaultHierarchy;
 
@@ -78,7 +75,11 @@ export const structDimensionReducer = (cubeItem, dimension) => {
     levelCount: 0,
     name: dimension.name,
     server: cubeItem.server,
-    type,
+    type: timeDimHeuristic
+      ? "TIME"
+      : dimensionType === DimType.Geographic || /geography|state/i.test(dimension.name)
+        ? "GEOGRAPHY"
+        : dmAnn.dim_type ? dmAnn.dim_type : "GENERIC",
     uri
   };
 
