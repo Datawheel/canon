@@ -7,19 +7,29 @@ const Home = function() {
       <h1>Vizbuilder Demo Scaffold</h1>
       <ul className="menu">
         <li>
-          <Link to="/datausa/visualize">DataUSA Vizbuilder</Link>
+          <Link className="datausa" to="/datausa/visualize">
+            DataUSA Vizbuilder
+          </Link>
         </li>
         <li>
-          <Link to="/datausa/map">DataUSA Map</Link>
+          <Link className="datausa" to="/datausa/map">
+            DataUSA Map
+          </Link>
         </li>
         <li>
-          <Link to="/datamexico">DataMexico</Link>
+          <Link className="datamexico" to="/datamexico">
+            DataMexico
+          </Link>
         </li>
         <li>
-          <Link to="/chilecracia">Chilecracia</Link>
+          <Link className="chilecracia" to="/chilecracia">
+            Chilecracia
+          </Link>
         </li>
         <li>
-          <Link to="/oec">OEC: The Observatory of Economic Complexity</Link>
+          <Link className="oec" to="/oec">
+            OEC: The Observatory of Economic Complexity
+          </Link>
         </li>
       </ul>
     </div>
