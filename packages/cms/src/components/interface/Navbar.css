@@ -216,7 +216,7 @@
   }
   &.is-visible {
     position: absolute;
-    animation: unfold-from-above 0.1s ease-out;
+    animation: unfoldFromAbove 0.1s ease-out;
   }
 
   /* clickable overlay */

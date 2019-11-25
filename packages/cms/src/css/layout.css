@@ -153,18 +153,3 @@
     }
   }
 }
-
-@keyframes unfold-from-above {
-  0% {
-    transform:
-      scaleX(0.75)
-      scaleY(0.625)
-      translateX(10%)
-      translateY(-10%);
-    opacity: 0;
-  }
-  100% {
-    transform: none;
-    opacity: 1;
-  }
-}

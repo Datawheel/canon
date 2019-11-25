@@ -40,7 +40,7 @@
 /* output view */
 .cms-button-list {
   @mixin list-reset;
-  animation: pull-up 0.25s ease-out;
+  animation: appearFromBelow 0.25s ease-out;
 }
 .cms-button-item {
   &:not(:last-child) {
@@ -138,17 +138,5 @@
   /* when a dialog is opened from inside the toolbox, the toolbox needs to be in front of the nav */
   &.has-open-dialog {
     z-index: 20;
-  }
-}
-
-/* animations */
-@keyframes pull-up {
-  from {
-    opacity: 0;
-    transform: translateY(30%);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }

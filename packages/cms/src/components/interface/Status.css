@@ -58,12 +58,3 @@
   /* positioning */
   margin-right: 0.25em;
 }
-
-@keyframes rotate {
-  0% {
-    transform: none;
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
