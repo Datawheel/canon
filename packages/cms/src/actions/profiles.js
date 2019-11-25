@@ -190,7 +190,7 @@ export function fetchVariables(config, useCache) {
     // useCache will be true if the front-end is telling us we have the variables already. Short circuit the gets/puts
     // However, still increment diffCounter so a re-render happens on cards that rely on variables.
     if (useCache && thisProfile.variables) {
-      dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables), diffCounter}});
+      dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables), diffCounter, thisProfile}});
     }
     else {
       const locales = [localeDefault];
@@ -233,7 +233,7 @@ export function fetchVariables(config, useCache) {
           // Once pruned, we can POST the variables to the materializer endpoint
           axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
             variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-            dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+            dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables, thisProfile}});
           });
         }
         else {
@@ -265,7 +265,7 @@ export function fetchVariables(config, useCache) {
               // Can't know what to wait for. In this single instance, use this short-circuit to be instantly done and move onto mats.
               if (gids.length === 1 && JSON.stringify(gen.data) === "{}") gensLoaded = 1;
               dispatch({type: "STATUS_SET", data: {gensLoaded, gensTotal, genLang}});
-              dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
+              dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables, thisProfile}});
               if (gensLoaded === gids.length) {
                 // Clean out stale materializers (see above comment)
                 Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
@@ -276,7 +276,7 @@ export function fetchVariables(config, useCache) {
                 });
                 axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
                   variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-                  dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+                  dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables, thisProfile}});
                 });
               }
             });

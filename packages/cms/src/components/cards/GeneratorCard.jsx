@@ -148,7 +148,7 @@ class GeneratorCard extends Component {
   render() {
     const {attr, context, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
-    const {variables} = this.props.status;
+    const {variables, variablesUsed} = this.props.status;
     const {displayData, secondaryDisplayData, isOpen, alertObj} = this.state;
 
     const {minData} = this.props;
@@ -188,6 +188,20 @@ class GeneratorCard extends Component {
 
     const {id} = this.props;
 
+    const isGenMat = ["generator", "materializer"].includes(type);
+    const isGenReady = variables && 
+      variables[localeDefault] && 
+      variables[localeDefault]._genStatus && 
+      variables[localeDefault]._genStatus[id];
+    const isMatReady = variables && 
+      variables[localeDefault] && 
+      variables[localeDefault]._matStatus && 
+      variables[localeDefault]._matStatus[id];
+    const inUse = isGenReady && type === "generator" && 
+      Object.keys(variables[localeDefault]._genStatus[id]).some(d => variablesUsed.includes(d)) ||
+      isMatReady && type === "materializer" && 
+      Object.keys(variables[localeDefault]._matStatus[id]).some(d => variablesUsed.includes(d));
+
     return (
       <React.Fragment>
         <Card {...cardProps} key={`${cardProps.title}-${id}`}>
@@ -212,6 +226,7 @@ class GeneratorCard extends Component {
                   <VarTable dataset={secondaryDisplayData} />
                 </div>
               }
+              {isGenMat && !inUse && <span>Warning, not in use</span>}
             </div>
           }
         </Card>

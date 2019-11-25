@@ -1,37 +1,42 @@
 const deepClone = require("../utils/deepClone");
-// const {isObject} = require("d3plus-common");
+const {isObject} = require("d3plus-common");
 
-/* In Progress here: determining what variables are used by a profile.
-/*
+// In Progress here: determining what variables are used by a profile.
+
 const extractVariables = (obj, variablesUsed = []) => {
-  Object.keys(obj).forEach(key => {
-    if (typeof obj[key] === "string") {
-      const matches = [];
-      const re = new RegExp(/\{\{([^\}]+)\}\}/g);
-      let match = re.exec(obj[key]);
-      while (match !== null) {
-        match = re.exec(obj[key]);
-        if (match) matches.push(match[1]);
-      }
-      if (matches.length > 0) {
-        matches.forEach(match => {
-          if (!variablesUsed.includes(match)) variablesUsed.push(match);
-        });
-      }
+  if (typeof obj === "string") {
+    const matches = [];
+    const re = new RegExp(/\{\{([^\}]+)\}\}/g);
+    let match = re.exec(obj);
+    while (match !== null) {
+      if (match) matches.push(match[1]);
+      match = re.exec(obj);
     }
-    else if (isObject(obj[key])) {
-      return extractVariables(obj[key], variablesUsed);
+    if (matches.length > 0) {
+      matches.forEach(match => {
+        if (!variablesUsed.includes(match)) variablesUsed.push(match);
+      });
     }
-    else if (Array.isArray(obj[key])) {
-      return obj[key].map(d => extractVariables(d, variablesUsed));
-    }
-    else {
-      return 
-    }
-  });
+  }
+  else if (Array.isArray(obj)) {
+    obj.forEach(d => {
+      const newVars = extractVariables(d, variablesUsed);
+      newVars.forEach(newVar => {
+        if (!variablesUsed.includes(newVar)) variablesUsed.push(newVar);
+      });
+    });
+  }
+  else if (isObject(obj)) {
+    Object.keys(obj).forEach(key => {
+      const newVars = extractVariables(obj[key], variablesUsed);
+      newVars.forEach(newVar => {
+        if (!variablesUsed.includes(newVar)) variablesUsed.push(newVar);
+      });
+    });
+  }
   return variablesUsed;
 };
-*/
+
 
 export default (status = {}, action) => {
   switch (action.type) {
@@ -78,12 +83,18 @@ export default (status = {}, action) => {
     // Or the tree, needs to know something changed. Instead of running an expensive stringify on variables,
     // Just increment a counter that the various cards can subscribe to.
     case "VARIABLES_SET": 
-      const newStatus = {variables: deepClone(action.data.variables)};
+      const variablesUsed = extractVariables(action.data.thisProfile);
+      console.log("setting ", variablesUsed);
+      const newStatus = {variables: deepClone(action.data.variables), variablesUsed};
       if (action.data.diffCounter) newStatus.diffCounter = action.data.diffCounter;
       return Object.assign({}, status, newStatus);
     // Updating sections could mean the title was updated. Bump a "diffcounter" that the Navbar tree can listen for to jigger a render
     case "SECTION_UPDATE": 
       return Object.assign({}, status, {diffCounter: action.diffCounter});
+    case "SECTION_SUBTITLE_UPDATE":
+      const vs = [...new Set([...extractVariables(action.data), ...status.variablesUsed])];
+      console.log(vs);
+      return Object.assign({}, status, {diffCounter: action.diffCounter, variablesUsed: vs});
     // When the user adds a new dimension, set a status that we are waiting for members to finish populating
     case "SEARCH_LOADING": 
       return Object.assign({}, status, {searchLoading: true});
