@@ -79,10 +79,6 @@ export default {
       })
     );
 
-    if (!permalink) {
-      delete this[CORE_UPDATE_PERMALINK];
-    }
-
     return Promise.resolve()
       .then(() => dispatch(doClientSetup(src)))
       .then(() => dispatch(doFetchCubes()))

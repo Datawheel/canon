@@ -43,5 +43,3 @@ export const config = {
   detectResizeDelay: 100,
   zoomScroll: true
 };
-
-export const permalink = true;
