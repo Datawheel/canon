@@ -18,6 +18,9 @@ const Home = function() {
         <li>
           <Link to="/chilecracia">Chilecracia</Link>
         </li>
+        <li>
+          <Link to="/oec">OEC: The Observatory of Economic Complexity</Link>
+        </li>
       </ul>
     </div>
   );

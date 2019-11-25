@@ -6,6 +6,7 @@ import DataMexico from "./pages/DataMexico";
 import DataUSAMap from "./pages/DataUSAMap";
 import DataUSAViz from "./pages/DataUSAViz";
 import Home from "./pages/Home";
+import OEC from "./pages/OEC";
 
 export default function RouteCreate() {
   return (
@@ -17,6 +18,7 @@ export default function RouteCreate() {
         <Route path="visualize" component={DataUSAViz} />
         <Route path="map" component={DataUSAMap} />
       </Route>
+      <Route path="oec" component={OEC} />
     </Route>
   );
 }
