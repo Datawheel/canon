@@ -1,0 +1,47 @@
+@import "../../css/mixins.css";
+
+.cms-alert.is-modal,
+.cms-alert .cms-alert-overlay {
+  @mixin absolute-expand;
+  position: fixed;
+}
+
+.cms-alert.is-modal {
+  /* layout */
+  @mixin overflow-container;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* sizing */
+  z-index: 100;
+
+  & .cms-alert-overlay {
+    @mixin button-reset;
+    z-index: -1;
+    animation: fadeIn 0.1s ease-out;
+    background-color: color(var(--white) a(0.875));
+
+    @mixin dark-mode {
+      background-color: color(var(--black) a(0.875));
+    }
+
+    & .cms-alert-inner {
+      width: 34rem;
+      max-width: 100%;
+    }
+
+    &:focus {
+      border: 2px solid var(--accent-dark);
+      outline: none;
+    }
+  }
+}
+
+.cms-alert-inner {
+  padding: var(--gutter-xl);
+  animation: appearFromBelow 0.3s ease-out;
+
+  @mixin min-xs {
+    text-align: center;
+  }
+}

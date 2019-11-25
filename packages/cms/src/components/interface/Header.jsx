@@ -170,6 +170,7 @@ class Header extends Component {
           confirmButtonText={`Delete ${itemToDelete ? itemToDelete.type : ""}`}
           onConfirm={() => this.delete.bind(this)(itemToDelete)}
           onCancel={() => this.setState({itemToDelete: null})}
+          isModal={false}
         >
           {itemToDelete && itemToDelete.type === "profile"
             ? "Delete profile along with all of its sections and content? This action cannot be undone."

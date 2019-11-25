@@ -442,7 +442,7 @@ class Navbar extends Component {
                 </Fragment>}
               </div>
               <button
-                className={`cms-navbar-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
+                className={`cms-navbar-settings-overlay cms-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
                 onClick={() => this.toggleSettings()}
                 onFocus={() => this.closeSettings()}
                 aria-labelledby="cms-navbar-settings-button"
