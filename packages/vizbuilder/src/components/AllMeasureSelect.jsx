@@ -14,7 +14,6 @@ import VirtualListRenderer from "./VirtualListRenderer";
  * @property {string} subtopic
  */
 
-
 /**
  * @typedef OwnProps
  * @property {string} className

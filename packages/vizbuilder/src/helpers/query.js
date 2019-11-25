@@ -1,18 +1,18 @@
-import {Comparison, Format} from "@datawheel/olap-client";
-import OPERATORS from "./operators";
+import {Comparison as SymbolComparison, Format} from "@datawheel/olap-client";
+import {Comparison} from "./enums";
 import {isValidCut, isValidFilter, isValidGroup} from "./validation";
 
 const comparisonMap = {
-  [OPERATORS.EQUAL]: Comparison.eq,
-  [OPERATORS.NOTEQUAL]: Comparison.neq,
-  [OPERATORS.HIGHER]: Comparison.gt,
-  [OPERATORS.HIGHEREQUAL]: Comparison.gte,
-  [OPERATORS.LOWER]: Comparison.lt,
-  [OPERATORS.LOWEREQUAL]: Comparison.lte
+  [Comparison.EQ]: SymbolComparison.eq,
+  [Comparison.NEQ]: SymbolComparison.neq,
+  [Comparison.GT]: SymbolComparison.gt,
+  [Comparison.GTE]: SymbolComparison.gte,
+  [Comparison.LT]: SymbolComparison.lt,
+  [Comparison.LTE]: SymbolComparison.lte
 };
 
 /**
- *
+ * Inserts the values of the internal queryState into a olap-client Query object.
  * @param {import("@datawheel/olap-client").Query} query
  * @param {object} pmsr
  * @param {MeasureItem | undefined} [pmsr.collection]

@@ -28,7 +28,7 @@ const Ranking = function({
   chart,
   formatters,
   measure,
-  t: translate,
+  t,
   timeLevel,
   timePeriod
 }) {
@@ -63,7 +63,7 @@ const Ranking = function({
     return (
       <fieldset className="control ranking">
         <legend className="label">
-          {translate(`Ranking ({{timePeriod}})`, {timePeriod})}
+          {t(`Vizbuilder.title_ranking`, {timePeriod})}
         </legend>
         <ol className="ranking-list">{selectedTimeDataset.map(renderListItem)}</ol>
       </fieldset>
@@ -78,13 +78,13 @@ const Ranking = function({
     <Fragment>
       <fieldset className="control ranking upper">
         <legend className="label">
-          {translate(`Top 10 ({{timePeriod}})`, {timePeriod})}
+          {t(`Vizbuilder.title_topten`, {timePeriod})}
         </legend>
         <ol className="ranking-upper">{upperDataset.map(renderListItem)}</ol>
       </fieldset>
       <fieldset className="control ranking lower">
         <legend className="label">
-          {translate(`Bottom 10 ({{timePeriod}})`, {timePeriod})}
+          {t(`Vizbuilder.title_bottomten`, {timePeriod})}
         </legend>
         <ol className="ranking-lower" start={lowerIndex + 1}>
           {lowerDataset.map(renderListItem)}

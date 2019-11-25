@@ -29,22 +29,16 @@ import {
  */
 
 /** @type {React.FC<import("react-i18next").WithNamespaces & OwnProps & StateProps & DispatchProps>} */
-const ControlSources = function({
-  cube,
-  measure,
-  setDatasetHandler,
-  t: translate,
-  tableMeasures
-}) {
+const ControlSources = function({cube, measure, setDatasetHandler, t, tableMeasures}) {
   if (!cube || !measure) {
     return null;
   }
 
   return (
-    <ControlArea className="control sources" title={translate("Source information")}>
+    <ControlArea className="control sources" title={t("Vizbuilder.title_source")}>
       {cube.sourceName && (
         <p>
-          <span>{translate("Source:")}</span>
+          <span>{t("Vizbuilder.prefix_source")}</span>
           <ConditionalAnchor className="source-link" href={cube.sourceHref}>
             {cube.sourceName}
           </ConditionalAnchor>
@@ -55,7 +49,7 @@ const ControlSources = function({
 
       {cube.datasetName && (
         <div>
-          <span>{translate("Dataset:")}</span>
+          <span>{t("Vizbuilder.prefix_dataset")}</span>
           <DatasetSelect
             fill
             measure={measure}

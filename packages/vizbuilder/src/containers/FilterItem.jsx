@@ -1,13 +1,11 @@
-import {Button, ControlGroup, HTMLSelect, Intent, NumericInput} from "@blueprintjs/core";
+import {ControlGroup, HTMLSelect, NumericInput} from "@blueprintjs/core";
 import React, {Component} from "react";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
+import MiniButton from "../components/MiniButton";
 import SimpleSelect from "../components/SimpleSelect";
+import {Comparison} from "../helpers/enums";
 import {fuzzySearch} from "../helpers/find";
-import OPERATORS, {
-  KIND_NUMBER as NUMBER_OPERATORS,
-  LABELS as OPERATOR_LABELS
-} from "../helpers/operators";
 import {structFilter} from "../helpers/structs";
 import {isValidFilter} from "../helpers/validation";
 import {doRunQueryCore} from "../middleware/actions";
@@ -106,7 +104,7 @@ class FilterItemControl extends Component {
 
   renderClosed() {
     const {props, state} = this;
-    const {t: translate} = props;
+    const {t} = props;
     const {interpretedValue, measure, operator} = props.filter;
     const formatter = props.formatters[measure] || (d => `${d}`);
 
@@ -120,19 +118,12 @@ class FilterItemControl extends Component {
           <span className="filter-value">{formatter(interpretedValue)}</span>
         </div>
         <div className="actions">
-          <Button
-            className="action-delete"
-            onClick={this.deleteHandler}
-            small
-            text={translate("Delete")}
-          />
-          <Button
-            className="action-edit"
-            intent={Intent.PRIMARY}
-            onClick={this.editHandler}
-            small
-            text={translate("Edit")}
-          />
+          <MiniButton className="action-delete" onClick={this.deleteHandler}>
+            {t("Vizbuilder.action_delete")}
+          </MiniButton>
+          <MiniButton className="action-edit" onClick={this.editHandler} primary>
+            {t("Vizbuilder.action_edit")}
+          </MiniButton>
         </div>
       </fieldset>
     );
@@ -140,7 +131,7 @@ class FilterItemControl extends Component {
 
   renderEditable() {
     const {props, state} = this;
-    const {t: translate} = props;
+    const {t} = props;
     const {
       nextInputtedValue: inputtedValue,
       nextMeasure: measure,
@@ -154,6 +145,10 @@ class FilterItemControl extends Component {
       : undefined;
 
     const MeasureSelect = SimpleSelect;
+
+    const varButtonText = measure
+      ? t("Vizbuilder.action_reset")
+      : t("Vizbuilder.action_delete");
 
     return (
       <fieldset className="filter-item edit">
@@ -169,32 +164,28 @@ class FilterItemControl extends Component {
         </div>
 
         <ControlGroup fill className="group filter-values">
-          <HTMLSelect
-            fill
-            onChange={this.setOperatorHandler}
-            options={NUMBER_OPERATORS.map(ms => ({
-              label: OPERATOR_LABELS[ms],
-              value: OPERATORS[ms]
-            }))}
-            value={operator}
-          />
+          <HTMLSelect fill onChange={this.setOperatorHandler} value={operator}>
+            <option value={Comparison.EQ}>{t("Vizbuilder.comparison.EQ")}</option>
+            <option value={Comparison.LT}>{t("Vizbuilder.comparison.LT")}</option>
+            <option value={Comparison.LTE}>{t("Vizbuilder.comparison.LTE")}</option>
+            <option value={Comparison.GT}>{t("Vizbuilder.comparison.HT")}</option>
+            <option value={Comparison.GTE}>{t("Vizbuilder.comparison.HTE")}</option>
+          </HTMLSelect>
           <NumericInput fill onValueChange={this.setValueHandler} value={inputtedValue} />
         </ControlGroup>
 
         <div className="group actions">
-          <Button
+          <MiniButton
             className={measure ? "action-reset" : "action-delete"}
             onClick={measure ? this.resetHandler : this.deleteHandler}
-            small
-            text={measure ? translate("Reset") : translate("Delete")}
+            text={varButtonText}
           />
-          <Button
+          <MiniButton
             className="action-apply"
             disabled={!isValidFilter({operator, interpretedValue, measure})}
-            intent={Intent.PRIMARY}
             onClick={this.updateHandler}
-            small
-            text={translate("Apply")}
+            primary
+            text={t("Vizbuilder.action_apply")}
           />
         </div>
       </fieldset>

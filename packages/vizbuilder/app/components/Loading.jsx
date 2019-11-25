@@ -1,6 +1,6 @@
 import React from "react";
 import {connect} from "react-redux";
-import {translate} from "react-i18next";
+import {withNamespaces} from "react-i18next";
 import {NonIdealState, ProgressBar} from "@blueprintjs/core";
 import "./Loading.css";
 
@@ -8,7 +8,6 @@ import "./Loading.css";
  * @typedef OwnProps
  * @property {number} progress
  * @property {number} total
- * @property {(k: any, p?: any) => string} t
  */
 
 /**
@@ -21,15 +20,17 @@ import "./Loading.css";
   This component is displayed when the needs of another component are being
   loaded into the redux store.
 
-  @type {React.FC<OwnProps&StateProps>}
+  @type {React.FC<import("react-i18next").WithNamespaces & OwnProps & StateProps>}
 */
 const Loading = function({progress, t, total}) {
+  const title = t("Loading.title");
+  const description = t("Loading.description", {progress, total});
   return (
     <NonIdealState
       className="loading"
       icon={<ProgressBar value={progress / total} />}
-      title={t("Loading.title")}
-      description={t("Loading.description", {progress, total})}
+      title={title}
+      description={description}
     />
   );
 };
@@ -43,8 +44,8 @@ function mapState(state) {
 }
 
 /** @type {import("react-redux").MergeProps<StateProps, {}, OwnProps, OwnProps>} */
-function mergeProps(stateProps, dispatchProps, ownProps) {
+function mergeProps(stateProps, _, ownProps) {
   return ownProps.total == null ? {...ownProps, ...stateProps} : ownProps;
 }
 
-export default translate()(connect(mapState, null, mergeProps)(Loading));
+export default withNamespaces()(connect(mapState, null, mergeProps)(Loading));

@@ -90,7 +90,7 @@ class Vizbuilder extends Component {
       measureUnitConfig,
       measures,
       sourcesArea,
-      t: translate,
+      t,
       titleArea,
       toolbarArea,
       topojson: topojsonConfig
@@ -121,7 +121,7 @@ class Vizbuilder extends Component {
 
             <ControlArea
               className="control groups-manager"
-              title={translate("Grouped by")}
+              title={t("Vizbuilder.title_groups")}
               items={groups.map((key, index) => (
                 <GroupItem key={key} identifier={key} index={index} />
               ))}
@@ -131,13 +131,13 @@ class Vizbuilder extends Component {
                 fill
                 icon="insert"
                 onClick={createGroupHandler}
-                text={translate("Add grouping")}
+                text={t("Vizbuilder.action_newgroup")}
               />
             </ControlArea>
 
             <ControlArea
               className="control filters-manager"
-              title={translate("Filter by")}
+              title={t("Vizbuilder.title_filters")}
               items={filters.map(key => (
                 <FilterItem
                   formatters={formatters}
@@ -152,7 +152,7 @@ class Vizbuilder extends Component {
                 fill
                 icon="insert"
                 onClick={createFilterHandler}
-                text={translate("Add filter")}
+                text={t("Vizbuilder.action_newfilter")}
               />
             </ControlArea>
 

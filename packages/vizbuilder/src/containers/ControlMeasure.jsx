@@ -43,7 +43,7 @@ const ControlMeasure = function({
   measureMap,
   setMeasureHandler,
   showConfidenceInt,
-  t: translate,
+  t,
   toggleConfIntHandler
 }) {
   if (!measure) {
@@ -51,7 +51,10 @@ const ControlMeasure = function({
   }
 
   return (
-    <ControlArea className="control measure-manager" title={translate("Showing")}>
+    <ControlArea
+      className="control measure-manager"
+      title={t("Vizbuilder.title_measure")}
+    >
       <MeasureSelect
         className="select-measure"
         onItemSelect={setMeasureHandler}
@@ -63,7 +66,7 @@ const ControlMeasure = function({
       <p className="show-ci" hidden={!hasConfInt}>
         <Checkbox
           checked={showConfidenceInt}
-          label={translate("Calculate Margins of Error")}
+          label={t("Vizbuilder.action_togglemoe")}
           onChange={toggleConfIntHandler}
         />
       </p>
