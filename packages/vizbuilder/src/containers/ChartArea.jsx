@@ -20,7 +20,6 @@ import {
  * @property {Record<string, Partial<import("../types/d3plus").D3plusConfig>> | undefined} measureConfigs
  * @property {Record<string, (chart: Chart, uiParams: any) => Partial<import("../types/d3plus").D3plusConfig>> | undefined} measureUnitConfigFactories
  * @property {() => any} onResize
- * @property {() => any} onScroll
  * @property {Partial<import("../types/d3plus").D3plusConfig> | undefined} topojsonConfigs
  * @property {Partial<import("../types/d3plus").D3plusConfig> | undefined} userConfig
  */
@@ -48,7 +47,6 @@ const ChartArea = memo(function({
   formatters,
   locale,
   measureConfigs = {},
-  onScroll,
   restoreChartsHandler,
   chartSelectHandler,
   timeSelectHandler,
@@ -74,7 +72,6 @@ const ChartArea = memo(function({
         isUniqueChart && "unique",
         activeChart
       )}
-      onScroll={onScroll}
     >
       {chartsToRender.map(chart => {
         const {chartType, key} = chart;
@@ -135,25 +132,25 @@ function mapState(state) {
 }
 
 /** @type {import("react-redux").MapDispatchToPropsFunction<DispatchProps,OwnProps>} */
-function mapDispatch(dispatch, props) {
+function mapDispatch(dispatch, {onResize}) {
   return {
     restoreChartsHandler() {
       dispatch(doChartUpdate(null));
       dispatch(doUpdatePermalink());
-      props.onResize && props.onResize();
+      typeof onResize === "function" && onResize();
     },
 
     chartSelectHandler(chartKey) {
       dispatch(doChartUpdate(chartKey));
       dispatch(doUpdatePermalink());
-      props.onResize && props.onResize();
+      typeof onResize === "function" && onResize();
     },
 
     timeSelectHandler(date) {
       const period = date.getUTCFullYear();
       dispatch(doPeriodUpdate(period));
       dispatch(doUpdatePermalink());
-      props.onResize && props.onResize();
+      typeof onResize === "function" && onResize();
     }
   };
 }
