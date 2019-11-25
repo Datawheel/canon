@@ -15,15 +15,14 @@ import {doInstanceUpdate} from "../store/instance/actions";
 import {selectInstanceParams} from "../store/instance/selectors";
 import {loadHandlers} from "../store/loading/actions";
 import {doMeasureUpdate, doQueryInyect, doQueryReset} from "../store/query/actions";
-import {selectPermalinkKeywordsProp} from "../store/query/selectors";
+import {selectPermalinkKeywordsProp, selectQueryState} from "../store/query/selectors";
 import {
   CORE_INITIALIZE,
   CORE_INITIALIZE_MEASURE,
-  CORE_UPDATE_PERMALINK,
   doClientSetup,
   doFetchCubes,
-  doInitializeMeasure,
   doRunQueryOLAP,
+  doSetupMeasure,
   doUpdatePermalink,
   doValidateParams
 } from "./actions";
@@ -87,7 +86,7 @@ export default {
     return Promise.resolve()
       .then(() => dispatch(doClientSetup(src)))
       .then(() => dispatch(doFetchCubes()))
-      .then(() => dispatch(doInitializeMeasure(defaultTable)))
+      .then(() => dispatch(doSetupMeasure(defaultTable)))
       .then(() => dispatch(doRunQueryOLAP()))
       .then(() => dispatch(doUpdatePermalink()))
       .then(loadSuccess, loadFailure);
@@ -111,8 +110,6 @@ export default {
   [CORE_INITIALIZE_MEASURE]: ({action, dispatch, getState}) => {
     const {defaultTable} = action.payload;
     const state = getState();
-    const queryState = state.vizbuilder.query;
-
     const measureList = selectMeasureList(state);
     const instanceParams = selectInstanceParams(state);
 
@@ -162,6 +159,7 @@ export default {
     }
 
     if (!measure) {
+      const queryState = selectQueryState(state);
       // Defaults route
       const defaultMeasure = queryState.measure || instanceParams.defaultMeasure;
 

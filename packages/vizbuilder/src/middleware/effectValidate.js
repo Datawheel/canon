@@ -2,7 +2,11 @@ import {doubleFinder, findByLevelLike} from "../helpers/find";
 import {structGroup} from "../helpers/structs";
 import {selectDefaultGroups} from "../store/instance/selectors";
 import {doQueryInyect} from "../store/query/actions";
-import {selectLevelListForCube, selectMeasureListForCube} from "../store/query/selectors";
+import {
+  selectLevelListForCube,
+  selectMeasureListForCube,
+  selectQueryState
+} from "../store/query/selectors";
 import {CORE_VALIDATE_PARAMS} from "./actions";
 
 export default {
@@ -16,23 +20,23 @@ export default {
    */
   [CORE_VALIDATE_PARAMS]: ({dispatch, getState}) => {
     const state = getState();
-    const queryState = state.vizbuilder.query;
+    const {groups, filters} = selectQueryState(state);
 
     const levels = selectLevelListForCube(state);
     const measures = selectMeasureListForCube(state);
 
     const partialQuery = {groups: {}, filters: {}};
 
-    Object.keys(queryState.groups).forEach(key => {
-      const group = queryState.groups[key];
+    Object.keys(groups).forEach(key => {
+      const group = groups[key];
       if (levels.some(lvl => lvl.hash === group.hash)) {
         // Let's hope the member list is the same
         partialQuery.groups[key] = group;
       }
     });
 
-    Object.keys(queryState.filters).forEach(key => {
-      const filter = queryState.filters[key];
+    Object.keys(filters).forEach(key => {
+      const filter = filters[key];
       if (measures.some(measure => measure.name === filter.measure)) {
         partialQuery.filters[key] = filter;
       }

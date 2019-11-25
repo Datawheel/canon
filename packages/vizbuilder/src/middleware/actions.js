@@ -25,7 +25,7 @@ export const doSetup = props => ({type: CORE_INITIALIZE, payload: props});
 /**
  * @param {(cubes: CubeItem[]) => CubeItem} [defaultTable]
  */
-export const doInitializeMeasure = defaultTable => ({
+export const doSetupMeasure = defaultTable => ({
   type: CORE_INITIALIZE_MEASURE,
   payload: {defaultTable}
 });

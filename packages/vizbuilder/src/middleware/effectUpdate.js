@@ -2,6 +2,7 @@ import shuffle from "lodash/shuffle";
 import {userTableIdMeasure} from "../helpers/find";
 import {structFilter, structGroup} from "../helpers/structs";
 import {selectCubeList, selectMeasureMapByTable} from "../store/cubes/selectors";
+import {selectInstanceParams} from "../store/instance/selectors";
 import {loadHandlers} from "../store/loading/actions";
 import {doFilterUpdate, doGroupUpdate, doMeasureUpdate} from "../store/query/actions";
 import {
@@ -123,20 +124,22 @@ export default {
   [CORE_UPDATE_PERMALINK]: ({getState}) => {
     const state = getState();
 
-    const queryState = selectQueryState(state);
-    const permalink = selectPermalink(state);
+    if (typeof window === "object" && selectInstanceParams(state).permalink) {
+      const queryState = selectQueryState(state);
+      const permalink = selectPermalink(state);
 
-    if (window.location.search.slice(1) !== permalink) {
-      console.groupCollapsed("Permalink changed");
-      console.log("activeChart", queryState.activeChart);
-      console.log("filters", queryState.filters);
-      console.log("groups", queryState.groups);
-      console.log("measure", queryState.measure);
-      console.log("showConfInt", queryState.showConfInt);
-      console.log("timePeriod", queryState.timePeriod);
-      console.groupEnd();
-      const nextLocation = `${window.location.pathname}?${permalink}`;
-      window.history.pushState(queryState, "", nextLocation);
+      if (window.location.search.slice(1) !== permalink) {
+        console.groupCollapsed("Permalink changed");
+        console.log("activeChart", queryState.activeChart);
+        console.log("filters", queryState.filters);
+        console.log("groups", queryState.groups);
+        console.log("measure", queryState.measure);
+        console.log("showConfInt", queryState.showConfInt);
+        console.log("timePeriod", queryState.timePeriod);
+        console.groupEnd();
+        const nextLocation = `${window.location.pathname}?${permalink}`;
+        window.history.pushState(queryState, "", nextLocation);
+      }
     }
 
     return Promise.resolve();
