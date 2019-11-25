@@ -9,14 +9,14 @@ export default class TextButtonGroup extends Component {
   render() {
     const {
       className,
-      context,     // "cp" (default) or "cms"
+      namespace,    // "cp" (default) or "cms"
       inputProps,
       buttonProps
     } = this.props;
 
     return (
       <form
-        className={`${context}-text-button-group${className ? ` ${className}` : ""}`}
+        className={`${namespace}-text-button-group${className ? ` ${className}` : ""}`}
         onSubmit={e => e.preventDefault()}
       >
         <TextInput key={inputProps.label} {...inputProps} />
@@ -27,5 +27,5 @@ export default class TextButtonGroup extends Component {
 }
 
 TextButtonGroup.defaultProps = {
-  context: "cp"
+  namespace: "cp"
 };

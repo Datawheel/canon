@@ -98,25 +98,30 @@ const storyReq = {
   ]
 };
 
-const formatters4eval = (formatters, locale) => formatters.reduce((acc, f) => {
+const formatters4eval = async(db, locale) => {
 
-  const name = f.name === f.name.toUpperCase()
-    ? f.name.toLowerCase()
-    : f.name.replace(/^\w/g, chr => chr.toLowerCase());
+  const formatters = await db.formatter.findAll().catch(catcher);
 
-  // Formatters may be malformed. Wrap in a try/catch to avoid js crashes.
-  try {
-    acc[name] = FUNC.parse({logic: f.logic, vars: ["n"]}, acc, locale);
-  }
-  catch (e) {
-    console.error(`Server-side Malformed Formatter encountered: ${name}`);
-    console.error(`Error message: ${e.message}`);
-    acc[name] = FUNC.parse({logic: "return \"N/A\";", vars: ["n"]}, acc, locale);
-  }
+  return formatters.reduce((acc, f) => {
 
-  return acc;
+    const name = f.name === f.name.toUpperCase()
+      ? f.name.toLowerCase()
+      : f.name.replace(/^\w/g, chr => chr.toLowerCase());
 
-}, {});
+    // Formatters may be malformed. Wrap in a try/catch to avoid js crashes.
+    try {
+      acc[name] = FUNC.parse({logic: f.logic, vars: ["n"]}, acc, locale);
+    }
+    catch (e) {
+      console.error(`Server-side Malformed Formatter encountered: ${name}`);
+      console.error(`Error message: ${e.message}`);
+      acc[name] = FUNC.parse({logic: "return \"N/A\";", vars: ["n"]}, acc, locale);
+    }
+
+    return acc;
+
+  }, {});
+};
 
 const sorter = (a, b) => a.ordering - b.ordering;
 
@@ -158,10 +163,10 @@ const bubbleUp = (obj, locale) => {
       if (!fieldSet.includes(k)) fieldSet.push(k);
     });
   });
-  const defCon = obj.content.find(c => c.lang === envLoc);
-  const thisCon = obj.content.find(c => c.lang === locale);
+  const defCon = obj.content.find(c => c.locale === envLoc);
+  const thisCon = obj.content.find(c => c.locale === locale);
   fieldSet.forEach(k => {
-    if (k !== "id" && k !== "lang") {
+    if (k !== "id" && k !== "locale") {
       thisCon && thisCon[k] ? obj[k] = thisCon[k] : obj[k] = defCon ? defCon[k] : "";
     }
   });
@@ -197,7 +202,6 @@ const extractLocaleContent = (obj, locale, mode) => {
   return obj;
 };
 
-
 module.exports = function(app) {
 
   const {cache, db} = app.settings;
@@ -210,38 +214,12 @@ module.exports = function(app) {
     return res.json(sortProfile(extractLocaleContent(profile, locale, "profile")));
   });
 
-  app.get("/api/variables/:pid", async(req, res) => {
-    const locale = req.query.locale ? req.query.locale : envLoc;
-    const dims = collate(req.query);
-    req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-    const {pid} = req.params;
-
-    if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${pid}`);
-
-    /** */
-    function createGeneratorFetch(r, attr) {
-      // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
-      let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
-      if (url.indexOf("http") !== 0) {
-        const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
-        url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
-      }
-      return axios.get(url)
-        .then(resp => {
-          if (verbose) console.log("Variable Loaded:", url);
-          return resp;
-        })
-        .catch(() => {
-          if (verbose) console.log("Variable Error:", url);
-          return {};
-        });
-    }
-
+  const fetchAttr = async(pid, dims) => {
     // Fetch the profile itself, along with its meta content. The meta content will be used
     // to determine which levels should be used to filter the search results
     let profile = await db.profile.findOne({where: {id: pid}, include: [{association: "meta"}]}).catch(catcher);
     profile = profile.toJSON();
-    // The attr object is used in createGeneratorFetch to swap things like <id> into the 
+    // The attr object is used in createGeneratorFetch to swap things like <id> into the
     // id that is passed to the fetch. Create a lookup object of the search rows, of the
     // pattern (id/id1),id2,id3, so that unary profiles can access it without an integer.
     let attr = {};
@@ -263,21 +241,44 @@ module.exports = function(app) {
         attr[`${key}${i + 1}`] = thisAttr[key];
       });
     }
-    
-    const formatters = await db.formatter.findAll().catch(catcher);
-    // Allow the user to specify a specific generator only via a query param
-    const gid = req.query.generator;
-    const genObj = gid ? {where: {id: gid}} : {where: {profile_id: profile.id}};
-    const generators = await db.generator.findAll(genObj).catch(catcher);
-    // Given a profile id and its generators, hit all the API endpoints they provide
-    // Create a hash table so the formatters are directly accessible by name
-    const formatterFunctions = formatters4eval(formatters, locale);
-    // Deduplicate generators that share an API endpoint
+    return attr;
+  };
+
+  const runGenerators = async(req, pid, id) => {
+    const locale = req.query.locale ? req.query.locale : envLoc;
+    const dims = collate(req.query);
+    const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
+    let generators = await db.generator.findAll(genObj).catch(catcher);
+    if (generators.length === 0) return {};
+    generators = generators.map(g => g.toJSON());
+
+    const attr = await fetchAttr(pid, dims);
+
+    /** */
+    function createGeneratorFetch(r, attr) {
+      // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
+      const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+      let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
+      if (url.indexOf("http") !== 0) {
+        url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
+      }
+      return axios.get(url)
+        .then(resp => {
+          if (verbose) console.log("Variable Loaded:", url);
+          return resp;
+        })
+        .catch(() => {
+          if (verbose) console.log("Variable Error:", url);
+          return {};
+        });
+    }
+
+    const formatterFunctions = await formatters4eval(db, locale);
+
     const requests = Array.from(new Set(generators.map(g => g.api)));
-    const fetches = requests.map(r => throttle.add(createGeneratorFetch.bind(this, r, attr)));
+    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, attr)));
     const results = await Promise.all(fetches).catch(catcher);
-    // Given a profile id, its generators, their API endpoints, and the responses of those endpoints,
-    // start to build a returnVariables object by executing the javascript of each generator on its data
+
     let returnVariables = {};
     const genStatus = {};
     results.forEach((r, i) => {
@@ -294,14 +295,23 @@ module.exports = function(app) {
       }, returnVariables);
     });
     returnVariables._genStatus = genStatus;
-    const mid = req.query.materializer;
-    const matObj = mid ? {where: {id: mid}} : {where: {profile_id: profile.id}};
-    let materializers = await db.materializer.findAll(matObj).catch(catcher);
+
+    return returnVariables;
+
+  };
+
+  app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
+
+  const runMaterializers = async(req, variables, pid) => {
+    const locale = req.query.locale ? req.query.locale : envLoc;
+    let materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+    if (materializers.length === 0) return variables;
     materializers = materializers.map(m => m.toJSON());
-    // Given the partially built returnVariables and all the materializers for this profile id,
-    // Run the materializers and fold their generated variables into returnVariables     
-    // The order of materializers matter because input to later materializers depends on output from earlier materializers
+
+    // The order of materializers matters because input to later materializers depends on output from earlier materializers
     materializers.sort((a, b) => a.ordering - b.ordering);
+    const formatterFunctions = await formatters4eval(db, locale);
+    let returnVariables = variables;
     const matStatus = {};
     returnVariables = materializers.reduce((acc, m) => {
       const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions, locale);
@@ -310,8 +320,37 @@ module.exports = function(app) {
       return {...acc, ...vars};
     }, returnVariables);
     returnVariables._matStatus = matStatus;
+    return returnVariables;
+  };
+
+  app.post("/api/materializers/:pid", async(req, res) => {
+    const {pid} = req.params;
+    const {variables} = req.body;
+    const materializer = await db.materializer.findOne({where: {profile_id: pid}}).catch(catcher);
+    if (!materializer) return res.json({});
+    return res.json(await runMaterializers(req, variables, materializer.profile_id));
+  });
+
+  const fetchVariables = async(req, res) => {
+    const {pid} = req.params;
+
+    if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${pid}`);
+
+    let returnVariables = await runGenerators(req, pid);
+    returnVariables = await runMaterializers(req, returnVariables, pid);
+
     return res.json(returnVariables);
-  });  
+  };
+
+  /* There are two ways to fetch variables:
+   * GET - the initial GET operation on CMS or Profile load, performed by a need
+   * POST - a subsequent reload, caused by a generator change, requiring the user
+   *        to provide the variables object previous received in the GET
+   * The following two endpoints route those two options to the same code.
+  */
+
+  app.get("/api/variables/:pid", async(req, res) => await fetchVariables(req, res));
+  app.post("/api/variables/:pid", async(req, res) => await fetchVariables(req, res));
 
   /* Main API Route to fetch a profile, given a list of slug/id pairs
    * slugs represent the type of page (geo, naics, soc, cip, university)
@@ -324,12 +363,12 @@ module.exports = function(app) {
     const locale = req.query.locale || envLoc;
     const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
     const localeString = `?locale=${locale}`;
-    
+
     const dims = collate(req.query);
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
-    // Replace that slug with the actual real id from the search table. 
+    // Replace that slug with the actual real id from the search table.
     for (let i = 0; i < dims.length; i++) {
-      const dim = dims[0];
+      const dim = dims[i];
       const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
       if (attribute && attribute.id) dim.id = attribute.id;
     }
@@ -338,6 +377,8 @@ module.exports = function(app) {
     const profileID = req.query.profile;
 
     let pid = null;
+    // map slugs to dimensions when we query profile_meta below
+    const dimensionMap = {};
     // If the user provided variables, this is a POST request.
     if (req.body.variables) {
       // If the user gave us a section or a profile id, use that to fetch the pid.
@@ -346,10 +387,10 @@ module.exports = function(app) {
         const t = await db.section.findOne({where}).catch(catcher);
         if (t) {
           pid = t.profile_id;
-        } 
+        }
         else {
           if (verbose) console.error(`Profile not found for section: ${sectionID}`);
-          return res.json(`Profile not found for section: ${sectionID}`);
+          return res.json({error: `Profile not found for section: ${sectionID}`});
         }
       }
       else if (profileID) {
@@ -359,21 +400,22 @@ module.exports = function(app) {
     // Otherwise, we need to reverse lookup the profile id, using the slug combinations
     else {
       // Given a list of dimension slugs, use the meta table to reverse-lookup which profile this is
-      // TODO: In good-dooby land, this should be a massive, complicated sequelize Op.AND lookup. 
+      // TODO: In good-dooby land, this should be a massive, complicated sequelize Op.AND lookup.
       // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
-      let meta = await db.profile_meta.findAll(); 
+      let meta = await db.profile_meta.findAll();
       meta = meta.map(d => d.toJSON());
+      meta.forEach(d => dimensionMap[d.slug] = d.dimension);
       const pids = [...new Set(meta.map(d => d.profile_id))];
       const match = dims.map(d => d.slug).join();
-      
+
       pids.forEach(id => {
         const rows = meta.filter(d => d.profile_id === id).sort((a, b) => a.ordering - b.ordering);
         const str = rows.map(d => d.slug).join();
         if (str === match) pid = rows[0].profile_id;
       });
-      if (!pid) { 
-        if (verbose) console.error(`Profile not found for slugs: ${match}`);
-        return res.json(`Profile not found for slugs: ${match}`);
+      if (!pid) {
+        if (verbose) console.error(`Profile not found for slug: ${match}`);
+        return res.json({error: `Profile not found for slug: ${match}`});
       }
     }
 
@@ -385,6 +427,15 @@ module.exports = function(app) {
     }
     // If the user has not provided variables, this is a GET request. Run Generators.
     else {
+      // Before we hit the variables endpoint, confirm that all provided ids exist.
+      for (const dim of dims) {
+        const thisDimension = dimensionMap[dim.slug];
+        const searchrow = await db.search.findOne({where: {id: dim.id, dimension: thisDimension}}).catch(catcher);
+        if (!searchrow) {
+          if (verbose) console.error(`Member not found for id: ${dim.id}`);
+          return res.json({error: `Member not found for id: ${dim.id}`});
+        }
+      }
       // Get the variables for this profile by passing the profile id and the content ids
       let url = `${origin}/api/variables/${pid}${localeString}`;
       dims.forEach((dim, i) => {
@@ -397,10 +448,9 @@ module.exports = function(app) {
       delete variables._matStatus;
     }
 
-    const formatters = await db.formatter.findAll().catch(catcher);
-    const formatterFunctions = formatters4eval(formatters, locale);
+    const formatterFunctions = await formatters4eval(db, locale);
     // Given the completely built returnVariables and all the formatters (formatters are global)
-    // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare 
+    // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare
     // it to be formatted and regex replaced.
     // See profileReq above to see the sequelize formatting for fetching the entire profile
     const request = await axios.get(`${origin}/api/internalprofile/${pid}${localeString}`).catch(catcher);
@@ -420,7 +470,7 @@ module.exports = function(app) {
     profile.selectors = allSelectors;
     profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
     // If the user provided selectors in the query, then the user has changed a dropdown.
-    // This means that OTHER dropdowns on the page need to be set to match. To accomplish 
+    // This means that OTHER dropdowns on the page need to be set to match. To accomplish
     // this, hijack the "default" property on any matching selector so the dropdowns "start"
     // where we want them to.
     profile.sections.forEach(section => {
@@ -442,7 +492,18 @@ module.exports = function(app) {
       returnObject = Object.assign({}, returnObject, profile);
     }
     returnObject.ids = dims.map(d => d.id).join();
+    returnObject.dims = dims;
     returnObject.variables = variables;
+    // The provided ids may have images associated with them, and these images have metadata. Before we send
+    // The object, we need to make a request to our /api/image endpoint to get any relevant image data.
+    // Note! Images are strictly ordered to match your strictly ordered slug/id pairs
+    const images = [];
+    for (const dim of dims) {
+      const url = `${origin}/api/image?slug=${dim.slug}&id=${dim.id}&locale=${locale}&type=json`;
+      const image = await axios.get(url).then(d => d.data).catch(catcher);
+      images.push(image ? image.image : null);
+    }
+    returnObject.images = images;
     if (verbose) console.log("varSwap complete, sending json...");
     return res.json(returnObject);
   };
@@ -464,6 +525,10 @@ module.exports = function(app) {
     // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
     let story = await db.story.findOne(reqObj).catch(catcher);
+    if (!story) {
+      if (verbose) console.error(`Story not found for id: ${id}`);
+      return res.json({error: `Story not found for id: ${id}`});
+    }
     story = sortStory(extractLocaleContent(story, locale, "story"));
     // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
     // Do a naive varswap (with no formatters and no variables) just to access the transpile for vizes.
@@ -477,7 +542,7 @@ module.exports = function(app) {
     let stories = await db.story.findAll({include: [
       {association: "content"},
       {association: "authors", include: [
-        {association: "content", attributes: ["name", "image", "lang"]}
+        {association: "content", attributes: ["name", "image", "locale"]}
       ]}
     ]}).catch(catcher);
     stories = stories.map(story => extractLocaleContent(story, locale, "story"));

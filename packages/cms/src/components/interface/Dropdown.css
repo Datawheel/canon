@@ -1,0 +1,202 @@
+@import "../../css/mixins.css";
+
+/* reset links */
+.cms-dropdown-link,
+.cms-dropdown-button,
+.cms-dropdown-subtitle {
+  display: block;
+  padding-left: var(--gutter-md);
+  padding-right: var(--gutter-md);
+
+  @mixin min-md {
+    padding: 0 var(--gutter-sm);
+  }
+}
+
+/* tweak display font for cms-dropdown titles & subtitles */
+.cms-dropdown-button,
+.cms-dropdown-subtitle {
+  @mixin font-xs;
+  font-weight: var(--label-font-weight);
+}
+
+/* the main title is a button */
+.cms-dropdown-button {
+  @mixin cms-nav-link-theme;
+  @mixin button-reset;
+  width: 100%;
+  text-align: left;
+  line-height: var(--cms-nav-height);
+
+  /* align text and icon */
+  & > * {
+    display: inline-block;
+    vertical-align: baseline;
+    top: -1px;
+
+    @mixin max-md {
+      margin-top: -6px; /* fudge baseline */
+    }
+  }
+}
+/* interactions */
+.cms-dropdown:hover > .cms-dropdown-button,
+.cms-dropdown-button.is-active {
+  background-color: var(--white);
+  z-index: 2; /* in front of dropdown menu */
+
+  @mixin dark-mode {
+  background-color: var(--black);
+
+    @mixin min-sm {
+      background-color: var(--dark-3);
+    }
+  }
+}
+
+/* 🔻 */
+.cms-dropdown-button-icon {
+  /* sizing */
+  width: 0.75em;
+  /* positioning */
+  position: relative;
+  margin-left: 0.25em;
+  margin-right: -0.25em;
+
+  /* theming */
+  & path {
+    transition: fill 0.2s ease-out;
+  }
+}
+
+/* cms-dropdown list */
+.cms-dropdown {
+  display: inline-block;
+
+  @mixin max-sm {
+    &[class] { position: static; }
+  }
+
+  /* prevent the rightmost menu item from getting cropped off the page */
+  @mixin max-md {
+    &:last-of-type:hover > .cms-dropdown-list,
+    &:last-of-type > .cms-dropdown-list.is-open {
+      right: 0;
+    }
+  }
+}
+.cms-dropdown-list {
+  @mixin list-reset;
+
+  /* absolutely position & size cms-dropdowns */
+  &:not(.cms-dropdown-nested-list) {
+    /* sizing */
+    width: max-content;
+    min-width: 100%;
+    padding-bottom: var(--gutter-xs);
+    /* position below nav bar */
+    position: absolute;
+    top: var(--cms-nav-height);
+    margin-top: -1px; /* never not fudging the baseline */
+
+    /* hidden state */
+    &.is-closed {
+      /* make it invisible */
+      opacity: 0;
+      transform: translateY(-20px);
+      z-index: -1;
+      /* prevent clicks */
+      clip: rect(1px, 1px, 1px, 1px);
+      overflow: hidden;
+      pointer-events: none;
+    }
+  }
+}
+/* open/hover state */
+.cms-dropdown-list.is-open,
+.cms-dropdown:hover > .cms-dropdown-list {
+  background-color: var(--white);
+  z-index: 1;
+
+  @mixin min-sm {
+    box-shadow:
+      0 0.25em 0.5em color(var(--black) a(0.125)),
+      0 0.5em 1em color(var(--black) a(0.125));
+    transition:
+      opacity 0.2s ease-out,
+      transform 0.2s ease-out;
+  }
+
+  @mixin dark-mode {
+    background-color: var(--dark-3);
+  }
+}
+/* adjust open state theming & positioning */
+@mixin max-sm {
+  .cms-dropdown-list.is-closed {
+    position: absolute;
+  }
+}
+/* override closed styles on hover */
+@mixin min-sm {
+  .cms-dropdown:hover > .cms-dropdown-list.is-closed {
+    opacity: 1;
+    transform: none;
+    clip: auto;
+    pointer-events: auto;
+    z-index: 1;
+  }
+}
+
+/* space out subtitles (override blueprint) */
+.cms-dropdown-subtitle {
+  margin-bottom: 0.25rem;
+}
+/* space out adjacent nested lists */
+.cms-dropdown-item:not(:last-child) > .cms-dropdown-nested-list {
+  margin-bottom: var(--gutter-sm);
+}
+
+/* when the link is a button */
+button.cms-dropdown-link {
+  @mixin button-reset;
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+/* link theming */
+.cms-dropdown-link {
+  @mixin cms-nav-link-theme;
+  @mixin font-xs;
+  padding-top: 0.625em;
+  padding-bottom: 0.625em;
+
+  /* adjust padding & font size on bigger screens */
+  @mixin min-sm {
+    padding-top: var(--gutter-xs);
+    padding-bottom: var(--gutter-xs);
+  }
+
+  /* icon right */
+  & .cms-dropdown-link-icon {
+    margin-left: 0.5em;
+    width: 0.875em;
+    transition: transform 0.15s ease-out;
+  }
+
+  /* interactions */
+  &:hover, &:focus {
+    background-color: var(--white);
+    color: var(--accent-black);
+    text-decoration: none;
+
+    @mixin dark-mode {
+      background-color: var(--black);
+      color: var(--accent-light);
+    }
+
+    & .cms-dropdown-link-icon {
+      transform: scale(1.125);
+    }
+  }
+}

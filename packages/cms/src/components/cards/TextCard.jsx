@@ -1,6 +1,6 @@
-import axios from "axios";
 import React, {Component} from "react";
 import {Dialog} from "@blueprintjs/core";
+import {connect} from "react-redux";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import DefinitionList from "../variables/DefinitionList";
@@ -11,9 +11,11 @@ import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
-import PropTypes from "prop-types";
 import LocaleName from "./components/LocaleName";
 import Card from "./Card";
+
+import {updateEntity, deleteEntity} from "../../actions/profiles";
+
 import "./TextCard.css";
 
 class TextCard extends Component {
@@ -31,40 +33,43 @@ class TextCard extends Component {
   }
 
   componentDidMount() {
-    this.hitDB.bind(this)();
+    this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.minData && (
-      JSON.stringify(prevProps.variables) !== JSON.stringify(this.props.variables) ||
-      JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors) ||
-      JSON.stringify(this.props.query) !== JSON.stringify(prevProps.query)
-    )) {
+    const contentChanged = prevProps.minData.id !== this.props.minData.id || JSON.stringify(prevProps.minData.content) !== JSON.stringify(this.props.minData.content);
+    const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
+    const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
+    const queryChanged = JSON.stringify(this.props.status.query) !== JSON.stringify(prevProps.status.query);
+    
+    if (contentChanged) {
+      this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
+    }
+    if (variablesChanged || selectorsChanged || queryChanged) {
       this.formatDisplay.bind(this)();
     }
-    if (prevProps.item.id !== this.props.item.id || prevProps.locale !== this.props.locale) {
-      this.hitDB.bind(this)();
-    }
+    
   }
 
   populateLanguageContent(minData) {
-    const {locale, localeDefault, fields, plainfields} = this.props;
-    if (!minData.content.find(c => c.lang === localeDefault)) {
+    const {fields, plainfields} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
+    if (!minData.content.find(c => c.locale === localeDefault)) {
       // This is a rare edge case, but in some cases, the DEFAULT
       // Language is not populated. We must scaffold out a fake
       // Starting point with empty strings to base everything on.
-      const defCon = {id: minData.id, lang: localeDefault};
+      const defCon = {id: minData.id, locale: localeDefault};
       // If for any reason the default was missing fields, set it to a scaffold warning
       fields.forEach(k => !defCon[k] ? defCon[k] = "Missing Default Language Content!" : null);
       if (plainfields) plainfields.forEach(k => !defCon[k] ? defCon[k] = "" : null);
       minData.content.push(defCon);
     }
-    if (!minData.content.find(c => c.lang === locale)) {
-      const defCon = minData.content.find(c => c.lang === localeDefault);
-      const newCon = {id: minData.id, lang: locale};
+    if (!minData.content.find(c => c.locale === localeSecondary)) {
+      const defCon = minData.content.find(c => c.locale === localeDefault);
+      const newCon = {id: minData.id, locale: localeSecondary};
       if (defCon) {
         Object.keys(defCon).forEach(k => {
-          if (k !== "id" && k !== "lang") newCon[k] = defCon[k];
+          if (k !== "id" && k !== "locale") newCon[k] = defCon[k];
         });
       }
       // If for any reason the default was missing fields, fill the rest with blanks
@@ -80,28 +85,45 @@ class TextCard extends Component {
     if (!isDirty) this.setState({isDirty: true});
   }
 
-  hitDB() {
-    const {item, type} = this.props;
-    const {id} = item;
-    axios.get(`/api/cms/${type}/get/${id}`).then(resp => {
-      const minData = this.populateLanguageContent.bind(this)(resp.data);
-      this.setState({minData}, this.formatDisplay.bind(this));
-    });
+  determineVariablesUsed() {
+    const {minData} = this.state;
+    return minData.content.reduce((acc, c) => {
+      Object.keys(c).forEach(field => {
+        if (c[field] && typeof c[field] === "string") {
+          const matches = c[field].match(/\{\{([^\}]+)\}\}/g);
+          if (matches) {
+            matches.map(d => d.replace("{{", "").replace("}}", "")).forEach(match => {
+              if (!acc.includes(match)) acc.push(match);
+            });
+          }
+        }
+      });
+      return acc;
+    }, []);
   }
 
   formatDisplay() {
-    const {variables, selectors, locale, query, localeDefault} = this.props;
+    const {selectors} = this.props;
+    const {localeDefault, localeSecondary, query} = this.props.status;
+    const {formatterFunctions} = this.props.resources;
+    // Stories use TextCards, but don't need variables.
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+
+    // For future use: This is a list of the vars used by this TextCard. Could combine with 
+    // Some selector replacing and create a quick way to open generators in the future.
+    // const theseVars = this.determineVariablesUsed.bind(this)();
 
     const minData = this.populateLanguageContent.bind(this)(this.state.minData);
+
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
     // polluting the object itself
     minData.selectors = selectors;
 
-    const thisFormatters = this.context.formatters[localeDefault];
+    const thisFormatters = formatterFunctions[localeDefault];
     // Swap vars, and extract the actual (multilingual) content
     const content = varSwapRecursive(minData, thisFormatters, variables, query).content;
-    const thisLang = content.find(c => c.lang === localeDefault);
+    const thisLang = content.find(c => c.locale === localeDefault);
     // Map over each of the default keys, and fetch its equivalent locale version (or default)
     const thisDisplayData = {};
     if (thisLang) {
@@ -112,11 +134,11 @@ class TextCard extends Component {
 
     let thatDisplayData = null;
 
-    if (locale) {
+    if (localeSecondary) {
       thatDisplayData = {};
-      const thatFormatters = this.context.formatters[locale];
+      const thatFormatters = formatterFunctions[localeSecondary];
       const content = varSwapRecursive(minData, thatFormatters, variables, query).content;
-      const thatLang = content.find(c => c.lang === locale);
+      const thatLang = content.find(c => c.locale === localeSecondary);
 
       if (thatLang) {
         Object.keys(thatLang).forEach(k => {
@@ -129,17 +151,18 @@ class TextCard extends Component {
   }
 
   save() {
-    const {type, fields, plainfields, locale, localeDefault, hideAllowed} = this.props;
+    const {type, fields, plainfields, hideAllowed} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
     const {minData} = this.state;
     const payload = {id: minData.id};
 
-    const thisLocale = minData.content.find(c => c.lang === localeDefault);
+    const thisLocale = minData.content.find(c => c.locale === localeDefault);
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
     fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
     if (plainfields) plainfields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
 
-    const thatLocale = minData.content.find(c => c.lang === locale);
+    const thatLocale = minData.content.find(c => c.locale === localeSecondary);
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
     // this to the database - save an empty string instead.
     fields.forEach(field => thisLocale[field] = thisLocale[field] === "<p><br></p>" ? "" : thisLocale[field]);
@@ -147,14 +170,9 @@ class TextCard extends Component {
     // If hideAllowed is true, this TextCard is being used by a top-level Section, whose
     // allowed is controlled elsewhere. Don't accidentally pave it here.
     if (!hideAllowed) payload.allowed = minData.allowed;
-    payload.content = locale ? [thisLocale, thatLocale] : [thisLocale];
-    axios.post(`/api/cms/${type}/update`, payload).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false, isDirty: false}, this.formatDisplay.bind(this));
-        // Only broadcast the title update out to the tree if we are updating the default locale
-        if (locale === localeDefault && this.props.onSave) this.props.onSave(minData);
-      }
-    });
+    payload.content = localeSecondary ? [thisLocale, thatLocale] : [thisLocale];
+    this.props.updateEntity(type, payload);
+    this.setState({isOpen: false, isDirty: false});
   }
 
   maybeDelete() {
@@ -168,20 +186,14 @@ class TextCard extends Component {
 
   delete() {
     const {type} = this.props;
-    const {minData} = this.state;
-    axios.delete(`/api/cms/${type}/delete`, {params: {id: minData.id}}).then(resp => {
-      if (resp.status === 200) {
-        this.setState({isOpen: false});
-        if (this.props.onDelete) this.props.onDelete(type, resp.data);
-      }
-    });
+    const {id} = this.props.minData;
+    this.props.deleteEntity(type, {id});
   }
 
   openEditor() {
-    const {minData} = this.state;
-    const initialData = deepClone(minData);
+    const minData = this.populateLanguageContent.bind(this)(deepClone(this.props.minData));
     const isOpen = true;
-    this.setState({initialData, isOpen});
+    this.setState({minData, isOpen});
   }
 
   maybeCloseEditorWithoutSaving() {
@@ -200,12 +212,7 @@ class TextCard extends Component {
   }
 
   closeEditorWithoutSaving() {
-    const {initialData} = this.state;
-    const minData = deepClone(initialData);
-    const isOpen = false;
-    const alertObj = false;
-    const isDirty = false;
-    this.setState({minData, isOpen, alertObj, isDirty});
+    this.setState({isOpen: false, alertObj: false, isDirty: false});
   }
 
   upperCaseFirst(str) {
@@ -226,17 +233,23 @@ class TextCard extends Component {
   }
 
   render() {
-    const {alertObj, thisDisplayData, thatDisplayData, minData, isOpen} = this.state;
-    const {variables, fields, onMove, hideAllowed, plainfields, type, parentArray, item, locale, localeDefault} = this.props;
+    const {alertObj, thisDisplayData, thatDisplayData, isOpen} = this.state;
+    const {minData} = this.props;
+    const {fields, hideAllowed, plainfields, type, showReorderButton} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
+    // Stories use TextCards, but don't need variables.
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
 
     if (!minData || !thisDisplayData) return <Loading />;
+
+    const minDataState = this.state.minData;
 
     let cardClass = "splash-card";
     if (["profile_stat", "section_stat"].includes(type)) cardClass = "cms-stat-card";
     const displaySort = ["title", "value", "subtitle", "description", "tooltip"];
 
     const thisDisplay = Object.keys(thisDisplayData)
-      .filter(k => typeof thisDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
+      .filter(k => typeof thisDisplayData[k] === "string" && !["id", "locale", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
       .map(k => ({
         label: formatFieldName(k, this.prettifyType(type)),
@@ -245,7 +258,7 @@ class TextCard extends Component {
       }));
 
     const thatDisplay = thatDisplayData ? Object.keys(thatDisplayData)
-      .filter(k => typeof thatDisplayData[k] === "string" && !["id", "lang", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
+      .filter(k => typeof thatDisplayData[k] === "string" && !["id", "locale", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"].includes(k))
       .sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))
       .map(k => ({
         label: formatFieldName(k, this.prettifyType(type)),
@@ -267,12 +280,10 @@ class TextCard extends Component {
       onEdit: this.openEditor.bind(this),
       onDelete: ["profile", "section", "story", "storysection"].includes(type) ? false : this.maybeDelete.bind(this),
       // reorder
-      reorderProps: parentArray ? {
-        array: parentArray,
-        item,
+      reorderProps: showReorderButton ? {
+        id: minData.id,
         type
       } : null,
-      onReorder: onMove ? onMove.bind(this) : null,
       // alert
       alertObj,
       onAlertCancel: () => this.setState({alertObj: false})
@@ -297,15 +308,15 @@ class TextCard extends Component {
         {/* preview content */}
         <div className="cms-locale-group">
           <div className="cms-locale-container">
-            {locale &&
+            {localeSecondary &&
               <LocaleName locale={localeDefault} />
             }
             <DefinitionList definitions={thisDisplay} />
           </div>
 
-          {locale &&
+          {localeSecondary &&
             <div className="cms-locale-container">
-              <LocaleName locale={locale} />
+              <LocaleName locale={localeSecondary} />
               <DefinitionList definitions={thatDisplay} />
             </div>
           }
@@ -322,18 +333,18 @@ class TextCard extends Component {
 
             <div className="cms-dialog-locale-group">
               <div className="cms-dialog-locale-container">
-                {locale &&
+                {localeSecondary &&
                   <LocaleName locale={localeDefault} />
                 }
-                {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} fields={plainfields} />}
-                {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={localeDefault} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minDataState} locale={localeDefault} fields={plainfields} />}
+                {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minDataState} locale={localeDefault} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
               </div>
 
-              {locale &&
+              {localeSecondary &&
                 <div className="cms-dialog-locale-container">
-                  <LocaleName locale={locale} />
-                  {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} fields={plainfields} />}
-                  {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minData} locale={locale} variables={variables} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
+                  <LocaleName locale={localeSecondary} />
+                  {plainfields && <PlainTextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minDataState} locale={localeSecondary} fields={plainfields} />}
+                  {fields && <TextEditor contentType={type} markAsDirty={this.markAsDirty.bind(this)} data={minDataState} locale={localeSecondary} fields={fields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b))} />}
                 </div>
               }
             </div>
@@ -341,8 +352,8 @@ class TextCard extends Component {
             { showVars &&
               <Select
                 label="Visible"
-                context="cms"
-                value={minData.allowed || "always"}
+                namespace="cms"
+                value={minDataState.allowed || "always"}
                 onChange={this.chooseVariable.bind(this)}
                 inline
               >
@@ -361,8 +372,15 @@ class TextCard extends Component {
   }
 }
 
-TextCard.contextTypes = {
-  formatters: PropTypes.object
-};
+const mapStateToProps = state => ({
+  status: state.cms.status,
+  resources: state.cms.resources,
+  selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
+});
 
-export default TextCard;
+const mapDispatchToProps = dispatch => ({
+  updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(TextCard);

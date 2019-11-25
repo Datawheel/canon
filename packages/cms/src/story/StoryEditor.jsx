@@ -1,19 +1,15 @@
-import axios from "axios";
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import Button from "../components/fields/Button";
 import Deck from "../components/interface/Deck";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import {DatePicker} from "@blueprintjs/datetime";
+import deepClone from "../utils/deepClone";
+
+import {newEntity, updateEntity} from "../actions/profiles";
 
 import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-
-const propMap = {
-  author: "authors",
-  story_description: "descriptions",
-  story_subtitle: "subtitles",
-  story_footnote: "footnotes"
-};
 
 class StoryEditor extends Component {
 
@@ -25,26 +21,13 @@ class StoryEditor extends Component {
   }
 
   componentDidMount() {
-    this.hitDB.bind(this)();
+    this.setState({minData: deepClone(this.props.minData)});
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id) {
-      this.hitDB.bind(this)();
-    }
-  }
-
-  hitDB() {
-    axios.get(`/api/cms/story/get/${this.props.id}`).then(resp => {
-      this.setState({minData: resp.data});
-    });
-  }
-
-  onSave(minData) {
-    const {localeDefault} = this.props;
-    const defCon = minData.content.find(c => c.lang === localeDefault);
-    const title = defCon && defCon.title ? defCon.title : minData.slug;
-    if (this.props.reportSave) this.props.reportSave("story", minData.id, title);
+      this.setState({minData: deepClone(this.props.minData)});
+    }    
   }
 
   setDate(date) {
@@ -64,48 +47,31 @@ class StoryEditor extends Component {
     this.setState({minData});
   }
 
+  addItem(type) {
+    this.props.newEntity(type, {story_id: this.props.minData.id});
+  }
+
   save() {
     const {minData} = this.state;
-    axios.post("/api/cms/story/update", minData).then(resp => {
-      if (resp.status === 200) {
-        console.log("saved");
-      }
-    });
-  }
-
-  onDelete(type, newArray) {
-    const {minData} = this.state;
-    minData[propMap[type]] = newArray;
-    this.setState({minData});
-  }
-
-  addItem(type) {
-    const {minData} = this.state;
-    const payload = {};
-    payload.story_id = minData.id;
-    // todo: move this ordering out to axios (let the server concat it to the end)
-    payload.ordering = minData[propMap[type]].length;
-    axios.post(`/api/cms/${type}/new`, payload).then(resp => {
-      if (resp.status === 200) {
-        minData[propMap[type]].push({id: resp.data.id, ordering: resp.data.ordering});
-        this.setState({minData});
-      }
-    });
-  }
-
-  onMove() {
-    this.forceUpdate();
+    const {id, slug, date} = minData;
+    const payload = {id, slug, date};
+    this.props.updateEntity("story", payload);
   }
 
   render() {
 
-    const {minData, showDate} = this.state;
-    const {locale, localeDefault} = this.props;
+    const {showDate} = this.state;
+    const {minData, children} = this.props;
 
-    if (!minData) return <Loading />;
+    const minDataState = this.state.minData;
+
+    if (!minData || !minDataState) return <Loading />;
 
     return (
       <div className="cms-editor-inner">
+
+        {/* header */}
+        {children}
 
         {/* current story options */}
         <Deck
@@ -113,35 +79,20 @@ class StoryEditor extends Component {
           subtitle="Story title"
           entity="story"
           cards={<TextCard
-            item={minData}
-            locale={localeDefault}
-            localeDefault={localeDefault}
+            key="title-card"
+            minData={minData}
             fields={["title", "subtitle"]}
             plainfields={["image"]}
             type="story"
-            onSave={this.onSave.bind(this)}
-            variables={{}}
           />}
-          secondaryCards={locale &&
-            <TextCard
-              item={minData}
-              locale={locale}
-              localeDefault={localeDefault}
-              fields={["title", "subtitle"]}
-              plainfields={["image"]}
-              type="story"
-              onSave={this.onSave.bind(this)}
-              variables={{}}
-            />
-          }
         >
           <div className="cms-editor-header">
             {/* change slug */}
             <label className="bp3-label cms-slug">
               Story slug
               <div className="bp3-input-group">
-                <input className="bp3-input" type="text" value={minData.slug} onChange={this.changeField.bind(this, "slug")}/>
-                <Button context="cms" onClick={this.save.bind(this)}>Rename</Button>
+                <input className="bp3-input" type="text" value={minDataState.slug} onChange={this.changeField.bind(this, "slug")}/>
+                <Button namespace="cms" onClick={this.save.bind(this)}>Rename</Button>
               </div>
             </label>
 
@@ -149,13 +100,13 @@ class StoryEditor extends Component {
             <div className="cms-date">
               <label htmlFor="date-picker" className="bp3-label">Date</label>
               <div className="data-picker-container">
-                {new Date(minData.date).toDateString()} {!showDate &&
+                {new Date(minDataState.date).toDateString()} {!showDate &&
                   <button id="date-picker" onClick={() => this.setState({showDate: true})}>
                     Choose Date...
                   </button>
                 }
                 {showDate &&
-                  <DatePicker value={new Date(minData.date)} onChange={this.setDate.bind(this)} />
+                  <DatePicker value={new Date(minDataState.date)} onChange={this.setDate.bind(this)} />
                 }
               </div>
             </div>
@@ -164,37 +115,19 @@ class StoryEditor extends Component {
 
         {/* descriptions */}
         <Deck
-          title="Descriptions"
+          title="Paragraphs"
           entity="description"
           addItem={this.addItem.bind(this, "story_description")}
           cards={minData.descriptions && minData.descriptions.map(d =>
-            <TextCard key={d.id}
-              item={d}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              onDelete={this.onDelete.bind(this)}
+            <TextCard 
+              key={d.id}
+              minData={d}
               fields={["description"]}
               type="story_description"
-              variables={{}}
-              parentArray={minData.descriptions}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.descriptions && minData.descriptions.map(d =>
-            <TextCard key={d.id}
-              item={d}
-              locale={locale}
-              localeDefault={localeDefault}
-              onDelete={this.onDelete.bind(this)}
-              fields={["description"]}
-              type="story_description"
-              variables={{}}
-              parentArray={minData.descriptions}
-              onMove={this.onMove.bind(this)}
+              showReorderButton={minData.descriptions[minData.descriptions.length - 1].id !== d.id}
             />
           )}
         />
-
 
         {/* footnotes */}
         <Deck
@@ -202,35 +135,15 @@ class StoryEditor extends Component {
           entity="footnote"
           addItem={this.addItem.bind(this, "story_footnote")}
           cards={minData.footnotes && minData.footnotes.map(d =>
-            <TextCard key={d.id}
-              item={d}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              ordering={d.ordering}
-              onDelete={this.onDelete.bind(this)}
+            <TextCard 
+              key={d.id}
+              minData={d}
               fields={["title", "description"]}
               type="story_footnote"
-              variables={{}}
-              parentArray={minData.footnotes}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.footnotes && minData.footnotes.map(d =>
-            <TextCard key={d.id}
-              item={d}
-              locale={locale}
-              localeDefault={localeDefault}
-              ordering={d.ordering}
-              onDelete={this.onDelete.bind(this)}
-              fields={["title", "description"]}
-              type="story_footnote"
-              variables={{}}
-              parentArray={minData.footnotes}
-              onMove={this.onMove.bind(this)}
+              showReorderButton={minData.footnotes[minData.footnotes.length - 1].id !== d.id}
             />
           )}
         />
-
 
         {/* authors */}
         <Deck
@@ -238,31 +151,13 @@ class StoryEditor extends Component {
           entity="author"
           addItem={this.addItem.bind(this, "author")}
           cards={minData.authors && minData.authors.map(d =>
-            <TextCard key={d.id}
-              item={d}
-              locale={localeDefault}
-              localeDefault={localeDefault}
-              onDelete={this.onDelete.bind(this)}
+            <TextCard 
+              key={d.id}
+              minData={d}
               fields={["bio"]}
               plainfields={["name", "title", "image", "twitter"]}
               type="author"
-              variables={{}}
-              parentArray={minData.authors}
-              onMove={this.onMove.bind(this)}
-            />
-          )}
-          secondaryCards={locale && minData.authors && minData.authors.map(d =>
-            <TextCard key={d.id}
-              item={d}
-              locale={locale}
-              localeDefault={localeDefault}
-              onDelete={this.onDelete.bind(this)}
-              fields={["bio"]}
-              plainfields={["name", "title", "image", "twitter"]}
-              type="author"
-              variables={{}}
-              parentArray={minData.authors}
-              onMove={this.onMove.bind(this)}
+              showReorderButton={minData.authors[minData.authors.length - 1].id !== d.id}
             />
           )}
         />
@@ -271,4 +166,14 @@ class StoryEditor extends Component {
   }
 }
 
-export default StoryEditor;
+const mapStateToProps = (state, ownProps) => ({
+  status: state.cms.status,
+  minData: state.cms.stories.find(p => p.id === ownProps.id)
+});
+
+const mapDispatchToProps = dispatch => ({
+  newEntity: (type, payload) => dispatch(newEntity(type, payload)),
+  updateEntity: (type, payload) => dispatch(updateEntity(type, payload))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(StoryEditor);

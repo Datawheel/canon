@@ -1,12 +1,13 @@
 import React, {Component} from "react";
 import DimensionCard from "../components/cards/DimensionCard";
-import DimensionCreator from "../components/DimensionCreator";
+import DimensionEditor from "../components/editors/DimensionEditor";
 import Deck from "../components/interface/Deck";
 import {Dialog} from "@blueprintjs/core";
+import {connect} from "react-redux";
 
 import "./DimensionBuilder.css";
 
-export default class DimensionBuilder extends Component {
+class DimensionBuilder extends Component {
 
   constructor(props) {
     super(props);
@@ -14,25 +15,9 @@ export default class DimensionBuilder extends Component {
     };
   }
 
-  componentDidMount() {
-  }
-
-  onSelectPreview(slug, id) {
-    if (this.props.onSelectPreview) this.props.onSelectPreview(slug, id);
-  }
-
-  onAddDimension(d) {
-    if (this.props.onAddDimension) this.props.onAddDimension(d);
-    this.setState({isOpen: false});
-  }
-
-  onDeleteDimension(profiles) {
-    if (this.props.onDeleteDimension) this.props.onDeleteDimension(profiles);
-    this.setState({isOpen: false});
-  }
-
   render() {
-    const {meta, previews} = this.props;
+    const {previews} = this.props.status;
+    const {meta} = this.props;
     const {isOpen} = this.state;
 
     return (
@@ -43,11 +28,9 @@ export default class DimensionBuilder extends Component {
           addItem={() => this.setState({isOpen: !this.state.isOpen})}
           cards={meta.map((m, i) =>
             <DimensionCard
-              key={`dc-${i}`}
+              key={`dc-${m.id}`}
               meta={meta[i]}
               preview={previews[i]}
-              onSelectPreview={this.onSelectPreview.bind(this)}
-              onDeleteDimension={this.onDeleteDimension.bind(this)}
             />
           )}
         />
@@ -62,9 +45,8 @@ export default class DimensionBuilder extends Component {
         >
 
           <div className="bp3-dialog-body">
-            <DimensionCreator
-              cubeData={this.props.cubeData}
-              onAddDimension={this.onAddDimension.bind(this)}
+            <DimensionEditor
+              onComplete={() => this.setState({isOpen: false})}
             />
           </div>
         </Dialog>
@@ -73,3 +55,11 @@ export default class DimensionBuilder extends Component {
   }
 
 }
+
+const mapStateToProps = state => ({
+  status: state.cms.status,
+  meta: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).meta
+});
+
+export default connect(mapStateToProps)(DimensionBuilder);
+

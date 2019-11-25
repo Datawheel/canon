@@ -19,3 +19,7 @@
 .cp-tabs-section .cp-button-group:not(:last-child) {
   margin-bottom: 0.75rem;
 }
+
+.cp-tabs-section .cp-section-selectors:not(:last-child) {
+  margin-bottom: var(--gutter-xs);
+}

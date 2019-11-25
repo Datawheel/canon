@@ -22,7 +22,7 @@ class PlainTextEditor extends Component {
   changeField(field, e) {
     const {isDirty, data} = this.state;
     const {locale} = this.props;
-    const thisLocale = data.content.find(c => c.lang === locale);
+    const thisLocale = data.content.find(c => c.locale === locale);
     thisLocale[field] = e.target.value;
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
@@ -41,13 +41,13 @@ class PlainTextEditor extends Component {
 
     if (!data || !fields) return null;
 
-    const thisLocale = data.content.find(c => c.lang === locale);
+    const thisLocale = data.content.find(c => c.locale === locale);
 
     const inputs = fields.map(f =>
       <TextInput
         label={f}
         inline
-        context="cms"
+        namespace="cms"
         value={thisLocale[f]}
         onChange={this.changeField.bind(this, f)}
         key={f}

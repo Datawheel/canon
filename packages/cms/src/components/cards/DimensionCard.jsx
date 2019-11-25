@@ -1,30 +1,36 @@
 import axios from "axios";
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import Button from "../fields/Button";
 import DefinitionList from "../variables/DefinitionList";
+import DimensionEditor from "../editors/DimensionEditor";
+import {Dialog} from "@blueprintjs/core";
 import PreviewSearch from "../fields/PreviewSearch";
 import Card from "./Card";
+import {deleteDimension} from "../../actions/profiles";
+import {setStatus} from "../../actions/status";
 import "./DimensionCard.css";
 
-export default class DimensionCard extends Component {
+class DimensionCard extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
       rebuilding: false,
-      alertObj: false
+      alertObj: false,
+      isOpen: false
     };
-  }
-
-  componentDidMount() {
   }
 
   onSelectPreview(result) {
     // todo bivariate - should this slug come from preview or meta? once the user
     // is able to change slug, one of these will have to become the source of truth
     const {slug} = this.props.preview;
-    const {id} = result;
-    if (this.props.onSelectPreview) this.props.onSelectPreview(slug, id);
+    const {id, name, slug: memberSlug} = result;
+    const newPreview = {slug, id, name, memberSlug};
+    const previews = this.props.status.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
+    const pathObj = Object.assign({}, this.props.status.pathObj, {previews});
+    this.props.setStatus({pathObj, previews});
   }
 
   rebuildSearch() {
@@ -47,20 +53,12 @@ export default class DimensionCard extends Component {
   }
 
   delete() {
-    const {meta} = this.props;
-    const {id} = meta;
-    axios.delete("/api/cms/profile_meta/delete", {params: {id}}).then(resp => {
-      if (resp.status === 200) {
-        this.setState({alertObj: false});
-        const profiles = resp.data;
-        if (this.props.onDeleteDimension) this.props.onDeleteDimension(profiles);
-      }
-    });
+    this.props.deleteDimension(this.props.meta.id);
   }
 
   render() {
     const {meta, preview} = this.props;
-    const {rebuilding, alertObj} = this.state;
+    const {rebuilding, alertObj, isOpen} = this.state;
 
     if (!preview) return null;
 
@@ -70,6 +68,7 @@ export default class DimensionCard extends Component {
       title: meta.dimension,
       onDelete: this.maybeDelete.bind(this),
       onRefresh: this.rebuildSearch.bind(this),
+      onEdit: () => this.setState({isOpen: !this.state.isOpen}),
       rebuilding,
       // onEdit: this.openEditor.bind(this),
       // onReorder: this.props.onMove ? this.props.onMove.bind(this) : null,
@@ -79,36 +78,66 @@ export default class DimensionCard extends Component {
     };
 
     return (
-      <Card {...cardProps}>
+      <React.Fragment>
+        <Card key={`dimcard-${meta.slug}`} {...cardProps}>
 
-        <DefinitionList definitions={[
-          {label: "slug", text: meta.slug},
-          {label: "levels", text: meta.levels.join(", ")},
-          {label: "measure", text: meta.measure},
-          {label: "preview ID", text:
-            <PreviewSearch
-              label={preview.id || "search profiles..."}
-              previewing={preview.id}
-              fontSize="xxs"
-              renderResults={d =>
-                <Button
-                  className="cms-search-result-button"
-                  context="cms"
-                  fontSize="xxs" onClick={this.onSelectPreview.bind(this, d)}
-                >
-                  {d.name}
-                </Button>
-              }
-              dimension={meta.dimension}
-              levels={meta.levels}
-              limit={20}
+          <DefinitionList definitions={[
+            {label: "slug", text: meta.slug},
+            {label: "levels", text: meta.levels.join(", ")},
+            {label: "measure", text: meta.measure},
+            {label: "preview ID", text:
+              <PreviewSearch
+                label={preview.name || preview.id || "search profiles..."}
+                previewing={preview.name || preview.id}
+                fontSize="xxs"
+                renderResults={d =>
+                  <Button
+                    className="cms-search-result-button"
+                    namespace="cms"
+                    fontSize="xxs" onClick={this.onSelectPreview.bind(this, d)}
+                  >
+                    {d.name}
+                  </Button>
+                }
+                dimension={meta.dimension}
+                levels={meta.levels}
+                limit={20}
+              />
+            }
+          ]}/>
+
+          {/* TODO: edit mode */}
+        </Card>
+        <Dialog
+          key="dimension-editor-dialog"
+          className="dimension-editor-dialog"
+          isOpen={isOpen}
+          onClose={() => this.setState({isOpen: false})}
+          title="Dimension Creator"
+          usePortal={false}
+          icon={false}
+        >
+
+          <div className="bp3-dialog-body">
+            <DimensionEditor
+              meta={meta}
+              onComplete={() => this.setState({isOpen: false})}
             />
-          }
-        ]}/>
-
-        {/* TODO: edit mode */}
-      </Card>
+          </div>
+        </Dialog>
+      </React.Fragment>
     );
   }
 
 }
+
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+const mapDispatchToProps = dispatch => ({
+  setStatus: status => dispatch(setStatus(status)), 
+  deleteDimension: id => dispatch(deleteDimension(id))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(DimensionCard);

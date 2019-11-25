@@ -18,7 +18,7 @@ module.exports = function(sequelize, db) {
           model: "canon_cms_storysection",
           key: "id"
         }
-      },
+      },     
       ordering: db.INTEGER
     }, 
     {

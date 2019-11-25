@@ -3,4 +3,8 @@
   combined with the internal default canon reducers.
 */
 
-export default {};
+import cmsReducer from "../../src/reducers/index.js";
+
+export default {
+  cms: cmsReducer
+};

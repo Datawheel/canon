@@ -29,7 +29,8 @@
     margin-bottom: 0.25em;
   }
 
-  & > [class*="-button"] {
+  /* password visibility button */
+  & > [class*="-input-password-button"] {
     position: absolute;
     bottom: 0.5em;
     right: 0.5em;
@@ -56,25 +57,7 @@
 
 /* admin panel context */
 .cms-input {
-  /* theming */
-  background-color: var(--white);
-  border: 1px solid var(--light-3);
-  color: var(--dark-2);
-
-  &::placeholder {
-    @mixin font-smoothing;
-    color: var(--gray);
-  }
-
-  @mixin dark-mode {
-    background-color: color(var(--black) a(0.75));
-    border-color: var(--black);
-    color: var(--light-1);
-
-    &::placeholder {
-      color: var(--dark-1);
-    }
-  }
+  @mixin cms-text-input-style;
 }
 
 /* label hover state */

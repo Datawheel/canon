@@ -44,6 +44,8 @@ layout
 .u-margin-bottom-off-children > * { margin-bottom: 0 !important; }
 
 /* show/hide content */
+.u-hide-above-lg { @mixin min-lg { display: none !important; } }
+.u-hide-below-lg { @mixin max-lg { display: none !important; } }
 .u-hide-above-md { @mixin min-md { display: none !important; } }
 .u-hide-below-md { @mixin max-md { display: none !important; } }
 .u-hide-above-sm { @mixin min-sm { display: none !important; } }

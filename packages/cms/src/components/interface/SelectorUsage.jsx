@@ -1,8 +1,12 @@
-import axios from "axios";
+import {connect} from "react-redux";
 import React, {Component} from "react";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
 import stripHTML from "../../utils/formatters/stripHTML";
+
+import {newEntity, deleteEntity, swapEntity} from "../../actions/profiles";
+import {setStatus} from "../../actions/status";
+
 import "./SelectorUsage.css";
 
 class SelectorUsage extends Component {
@@ -10,49 +14,18 @@ class SelectorUsage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      minData: null,
       currentValues: {}
     };
   }
 
-  componentDidMount() {
-    this.setState({minData: this.props.minData});
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.state.minData && prevProps.minData.id !== this.props.minData.id) {
-      this.setState({minData: this.props.minData});
-    }
-  }
-
   removeItem(id) {
-    const {minData} = this.state;
-    const payload = {params: {section_id: minData.id, selector_id: id}};
-    axios.delete("/api/cms/section_selector/delete", payload).then(resp => {
-      if (resp.status === 200) {
-        minData.selectors = resp.data;
-        this.setState({minData});
-      }
-    });
+    const {minData} = this.props;
+    this.props.deleteEntity("section_selector", {section_id: minData.id, selector_id: id});
   }
 
   addItem(id) {
-    const {minData} = this.state;
-    const {selectors} = minData;
-    const allSelectors = this.props.selectors;
-    const payload = {
-      section_id: minData.id,
-      selector_id: id,
-      ordering: selectors.length
-    };
-    axios.post("/api/cms/section_selector/new", payload).then(resp => {
-      const toMove = allSelectors.find(d => d.id === id);
-      if (toMove) {
-        toMove.section_selector = resp.data;
-        minData.selectors.push(toMove);
-        this.setState({minData});
-      }
-    });
+    const {minData} = this.props;
+    this.props.newEntity("section_selector", {section_id: minData.id, selector_id: id});
   }
 
   onChange(name, e) {
@@ -60,29 +33,19 @@ class SelectorUsage extends Component {
     currentValues[name] = e.target.value;
     this.setState({currentValues});
     const selectionObj = {[name]: e.target.value};
-    if (this.props.onSelect) this.props.onSelect(selectionObj);
+    this.props.setStatus({query: Object.assign({}, this.props.status.query, selectionObj)});
   }
 
-  swapSelector(index) {
-    const {minData} = this.state;
-    const {selectors} = minData;
-    const payload = {
-      section_id: minData.id,
-      selector_id: selectors[index].id
-    };
-    axios.post("/api/cms/section_selector/swap", payload).then(resp => {
-      if (resp.status === 200) {
-        minData.selectors = resp.data;
-        this.setState({minData});
-      }
-    });
+  swapSelector(id) {
+    this.props.swapEntity("section_selector", id);
   }
 
   render() {
 
-    const {minData, currentValues} = this.state;
-    const {variables} = this.props;
-    const allSelectors = this.props.selectors;
+    const {currentValues} = this.state;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
+    const {minData, allSelectors} = this.props;
 
     if (!minData) return null;
 
@@ -113,7 +76,7 @@ class SelectorUsage extends Component {
                     <Button
                       className="cms-selector-usage-item-button"
                       fontSize="xxxs"
-                      context="cms"
+                      namespace="cms"
                       icon="plus"
                       iconOnly
                       onClick={this.addItem.bind(this, s.id)}
@@ -144,7 +107,7 @@ class SelectorUsage extends Component {
                       <Button
                         className="cms-card-heading-button"
                         fontSize="xxxs"
-                        context="cms"
+                        namespace="cms"
                         onClick={this.removeItem.bind(this, s.id)}
                         icon="cross"
                         iconOnly
@@ -158,7 +121,7 @@ class SelectorUsage extends Component {
                     <Select
                       label={s.title}
                       fontSize="xs"
-                      context="cms"
+                      namespace="cms"
                       value={currentValues[s.name]}
                       onChange={this.onChange.bind(this, s.name)}
                     >
@@ -178,9 +141,9 @@ class SelectorUsage extends Component {
                   {i !== activeSelectors.length - 1 &&
                     <div className="cms-reorder">
                       <Button
-                        onClick={this.swapSelector.bind(this, i)}
+                        onClick={this.swapSelector.bind(this, s.section_selector.id)}
                         className="cms-reorder-button"
-                        context="cms"
+                        namespace="cms"
                         icon="swap-vertical"
                         iconOnly
                       >
@@ -199,4 +162,16 @@ class SelectorUsage extends Component {
   }
 }
 
-export default SelectorUsage;
+const mapStateToProps = state => ({
+  status: state.cms.status,
+  allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
+});
+
+const mapDispatchToProps = dispatch => ({
+  setStatus: status => dispatch(setStatus(status)),
+  newEntity: (type, payload) => dispatch(newEntity(type, payload)),
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  swapEntity: (type, id) => dispatch(swapEntity(type, id))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SelectorUsage);

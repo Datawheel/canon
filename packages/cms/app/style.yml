@@ -15,9 +15,7 @@
 # VSCode: https://marketplace.visualstudio.com/items?itemName=jaspernorth.vscode-pigments
 
 # GOTCHAS:
-# 1. When aliasing variables in this file (i.e., `section-text-color: "var(--dark-2)"`), these variables will be replaced in css files, but NOT in js files.
-# 2. Currently, after making changes to this file, you will need to clear the cache `rm -rf node_modules/.cache` and then rerun the build. There's an issue for this.
-# 3. Make sure there are no more than 1 empty line at the end of the file, or style.yml will not be recognized and your build will fail. ¯\_(ツ)_/¯
+# Make sure there are no more than 1 empty line at the end of the file, or style.yml will not be recognized and your build will fail. ¯\_(ツ)_/¯
 
 # Finally, if you encounter any bugs, are confused by anything, or wish things were better/different, let @perpetualgrimace know!
 
@@ -66,7 +64,7 @@ type-error:         "#DB64A6"
 type-error-dark:    "#75224D"
 
 # measurements
-cms-nav-height:     "3.125rem"
+cms-nav-height:     "2.75rem"
 sidebar-width:      "17rem"
 toolbox-width:      "22.5rem"
 
@@ -128,6 +126,7 @@ label-letter-spacing:       "0.0125em" # generally, some kerning is helps legibi
 
 # hero AKA header AKA splash
 hero-bg-color:              "var(--dark-3)"
+hero-img-overlay-opacity:   "0.875"
 hero-text-color:            "var(--light-2)"
 hero-paragraph-size:        "var(--font-xs)"
 hero-heading-color:         "var(--white)"
@@ -135,8 +134,6 @@ hero-heading-size:          "var(--font-xxl)"
 hero-subhead-color:         "var(--white)"
 hero-subhead-size:          "var(--font-md)"
 hero-stat-value-color:      "var(--accent)"
-hero-stat-column-count:     "4"
-hero-stat-column-width:     "10rem"
 hero-viz-width:             "20rem"
 
 # sections
@@ -161,7 +158,11 @@ infocard-viz-min-width:     "10rem"
 infocard-border-radius:     "4px"
 infocard-border-width:      "1px"
 infocard-border-color:      "var(--light-2)"
-infocard-header-bg-color:   "var(--light-1)"
+infocard-divider-color:     "var(--dark-3)"
+infocard-subhead-color:     "var(--dark-3)"
+infocard-header-bg-color:   "var(--dark-3)"
+infocard-stat-bg-color:     "var(--accent-light)"
+infocard-header-text-color: "var(--white)"
 infocard-main-bg-color:     "var(--white)"
 # Grouping (intro) section
 grouping-bg-color:          "var(--accent-light)"
@@ -202,11 +203,15 @@ select-bg-color:            "var(--light-1)"
 # visualizations
 viz-aspect-ratio:           "50%"  # set as padding-top on .cp-viz-container, then .cp-viz fills the height
 viz-min-height:             "40vh" # prevent visualizations from getting too squishy
+
 # percentage bar visualization
 percentage-bar-height:      "var(--gutter-xs)"
 percentage-bar-bg-color:    "var(--light-2)"
 percentage-bar-color:       "var(--accent-dark)"
 percentage-bar-radius:      "0.5em"
+percentage-bar-stroke-color: "var(--light-1)"
+percentage-bar-stroke-width: "2px"
+
 # (react-)table visualization
 table-height:               "60vh" # height of table body
 table-hgroup-bg-color:      "var(--light-2)" # top heading in a group of nested headings
@@ -228,3 +233,4 @@ stat-value-font-size:       "var(--font-xl)"
 stat-value-color:           "var(--accent-dark)"
 stat-subtitle-font-size:    "var(--font-xs)"
 stat-subtitle-color:        "var(--dark-1)"
+stat-group-stat-width:      "9rem"

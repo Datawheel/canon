@@ -43,7 +43,7 @@
   --type-error-dark:   #75224D;
 
   /* measurements */
-  --cms-nav-height:    3.125rem;
+  --cms-nav-height:    2.75rem;
   --sidebar-width:     17rem;
   --toolbox-width:     22.5rem;
 
@@ -104,17 +104,16 @@
   --label-letter-spacing:   0.0125em;
 
   /* hero AKA header AKA splash */
-  --hero-bg-color:          var(--dark-3);
-  --hero-text-color:        var(--light-2);
-  --hero-paragraph-size:    var(--font-xs);
-  --hero-heading-color:     var(--white);
-  --hero-heading-size:      var(--font-xxl);
-  --hero-subhead-color:     var(--white);
-  --hero-subhead-size:      var(--font-md);
-  --hero-stat-value-color:  var(--accent);
-  --hero-stat-column-count: 4;
-  --hero-stat-column-width: 10rem;
-  --hero-viz-width:         20rem;
+  --hero-bg-color:            var(--dark-3);
+  --hero-img-overlay-opacity: 0.875;
+  --hero-text-color:          var(--light-2);
+  --hero-paragraph-size:      var(--font-xs);
+  --hero-heading-color:       var(--white);
+  --hero-heading-size:        var(--font-xxl);
+  --hero-subhead-color:       var(--white);
+  --hero-subhead-size:        var(--font-md);
+  --hero-stat-value-color:    var(--accent);
+  --hero-viz-width:           20rem;
 
   /* sections */
   --section-bg-odd:             var(--white);
@@ -138,7 +137,11 @@
   --infocard-border-radius:     4px;
   --infocard-border-width:      1px;
   --infocard-border-color:      var(--light-2);
-  --infocard-header-bg-color:   var(--light-1);
+  --infocard-divider-color:     var(--dark-3);
+  --infocard-subhead-color:     var(--dark-3);
+  --infocard-header-bg-color:   var(--dark-3);
+  --infocard-stat-bg-color:     var(--accent-light);
+  --infocard-header-text-color: var(--white);
   --infocard-main-bg-color:     var(--white);
   /* Grouping (intro) section */
   --grouping-bg-color:          var(--accent-light);
@@ -180,10 +183,12 @@
   --viz-aspect-ratio:           50%;
   --viz-min-height:             40vh;
   /* percentage bar visualization */
-  --percentage-bar-height:      var(--gutter-xs);
-  --percentage-bar-bg-color:    var(--light-2);
-  --percentage-bar-color:       var(--accent-dark);
-  --percentage-bar-radius:      0.5em;
+  --percentage-bar-height:       var(--gutter-xs);
+  --percentage-bar-bg-color:     var(--light-2);
+  --percentage-bar-color:        var(--accent-dark);
+  --percentage-bar-radius:       0.5em;
+  --percentage-bar-stroke-color: var(--light-1);
+  --percentage-bar-stroke-width: 2px;
   /* (react-)table visualization */
   --table-height:               60vh;
   --table-hgroup-bg-color:      var(--light-2);
@@ -205,6 +210,7 @@
   --stat-value-color:           var(--accent-dark);
   --stat-subtitle-font-size:    var(--font-xs);
   --stat-subtitle-color:        var(--dark-1);
+  --stat-group-stat-width:      9rem;
 
 
   /* ------------------------------------------------

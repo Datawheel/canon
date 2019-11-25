@@ -8,6 +8,9 @@ Content Management System for Canon sites.
 * [Rendering a Profile](#rendering-a-profile)
 * [Overview and Terminology](#overview-and-terminology)
 * [Environment Variables](#environment-variables)
+* [Sections](#sections)
+* [Search](#search)
+* [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Migration](#migration)
 
@@ -33,7 +36,7 @@ Canon CMS is a package for `canon`. These instructions assume you have installed
 
 `npm i @datawheel/canon-cms`
 
-#### 2) Configure `canon` vars 
+#### 2) Configure `canon` vars
 
 There are a number of [canon-core environment variables](https://github.com/Datawheel/canon#additional-environment-variables) that `canon-cms` relies on. Ensure that the the following env vars are set.
 
@@ -84,12 +87,24 @@ import {Builder} from "@datawheel/canon-cms";
 <Route path="/cms" component={Builder} />
 ```
 
-#### 5) Start your dev server 
+#### 5) Configure Redux 
+
+The CMS state state is managed from the site-wide redux state. In `app/reducers/index.js`, import the reducer function and assign it to the `cms` key:
+
+```js
+import {cmsReducer} from "@datawheel/canon-cms";
+
+export default {
+  cms: cmsReducer
+};
+```
+
+#### 6) Start your dev server
 ```sh
 npm run dev
 ```
 
-#### 6) Navigate to the CMS panel
+#### 7) Navigate to the CMS panel
 
 `http://localhost:3300/cms`
 
@@ -108,7 +123,7 @@ export CANON_CONST_STORAGE_BUCKET=your_bucketname
 
 #### 2) Create and Download a JSON Token
 
-Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create a JSON token with "Storage -> Storage Object Admin" permissions. 
+Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create a JSON token with "Storage -> Storage Object Admin" permissions.
 
 Save the JSON token to disk and set its permissions to `644`.
 ```sh
@@ -135,11 +150,21 @@ export CANON_CONST_IMAGE_SPLASH_SIZE=1400
 export CANON_CONST_IMAGE_THUMB_SIZE=200
 ```
 
-#### 5) Follow the instructions in the "Members" Tab of the CMS
+#### 5) Follow the instructions in the "Meta Editor" Tab of the CMS
 
-Every member for every profile is listed under the Members tab. Click "+ Add Image" in one of the rows and follow the intructions to upload an image via a flickr share link.
+Every member for every profile is listed under the Meta Editor tab. Click "+ Add Image" in one of the rows and follow the intructions to upload an image via a flickr share link.
 
---- 
+#### 6) Accessing Images
+
+Images will automatically be rendered in the "Hero" section of a profile, which is automatically created upon profile creation. However, if you need direct access to the hosted images, they are reachable via:
+
+```
+/api/image?slug=<slug>&id=<id>
+```
+
+Images default to splash size, but you may set `&size=thumb` for a thumbnail. To retrieve metadata about the image rather than the image itself, add `&type=json` to the params.
+
+---
 
 ## Rendering a Profile
 
@@ -189,6 +214,232 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
 |`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|1400|
 |`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
+
+---
+
+## Sections
+
+Sections are the chunks of content you will use to build a page. Each section contains [metadata](#section-metadata) fields, and various [content entities](#content-entities).
+
+### Section metadata
+Used to customize the way the section behaves. Metadata fields include:
+
+#### Title
+The name of the section. This will be used by the heading tag on the profile, and in the admin panel navigation.
+
+#### Slug
+An ID for referencing the section. This is used to link directly to a section via scrolling anchor links, and is used in the construction of share links. Each section on a page *must* have a unique ID.
+
+#### Visibility
+The truthiness of this value will be used to determine whether or not the section appears on a given profile.
+
+---
+
+#### Layouts
+Change the way the section looks and behaves. Out of the box, the following section layouts are included:
+
+##### Hero layout
+The hero section is typically the first thing a user sees upon visiting a profile. It fills up most of the screen, displays the title in large type, and features an image or set of images in the background. If the section does not include a visualization, the text will be centered. If the section *does* include a visualization, the layout will switch to two columns, with the visualization on the right.
+
+The first section in each profile is automatically assigned this layout, and *only* the first section in a profile can use this layout.
+
+##### Default layout
+The default layout uses most of the available screen real estate for the visuals, with descriptive text and controls grouped into a sidebar. If the section includes multiple visualizations, they will be arranged into rows or columns, depending on the size of the screen.
+
+This layout is ideal for 1-2 visualizations. If no visualizations are included, the text content will appear in a single column.
+
+##### Grouping layout
+A grouping section is used to group related sections together.
+
+Functionally, it creates hierarchy by nesting each following section, until the next grouping section (which in turn, starts a new grouping). In addition, it acts as a sign post for the section, prominently displaying its title.
+
+##### Info card layout
+Used to display a summary of data with a small footprint, the info card is one of the most situational layouts. Since the layout was designed for primarily text content, it's best to use only a single graphic, or simple visualization such as a **gasp** pie chart.
+
+Any adjacent info cards will be automatically grouped together into columns.
+
+##### Multicolumn layout
+The multicolumn layout takes any content you throw at it, and balances it into columns to the best of its ability. It uses [css multi-column layout](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Columns), which has excellent browser support but can get funky when there aren't enough paragraphs to split evenly.
+
+This layout is useful for sections with a lot of text and 0-1 visualizations, such as the about section that typically follows the hero section in our DataCountry sites.
+
+##### Single column layout
+On its own, the single column layout is a simple tube of content. However, like the info card section, adjacent single columns will be automatically grouped together into a grid.
+
+Use this layout when you want multiple, similar, evenly spaced columns, with simple visuals at the bottom.
+
+##### Tabs layout
+At first, this layout may appear to be similar to the [default](#default-layout) layout. However, each visual in the section will become its own *panel*, which can be accessed via the automatically generated button group in the sidebar.
+
+This layout is ideal for displaying similar or related information in one section, while showing one visual at a time.
+
+🔥**Pro tip**: additional tabs section customization can be achieved via the visualization configuration:
+1. label the corresponding tab's button text (`tab: "custom button text"`)
+2. specify an array of selectors for the corresponding tab (`selectors: ["selectorName1", "selectorName2"]`).
+
+---
+
+#### Positioning
+By default, each section will simply appear below the previous section as the user scrolls. In addition, there are two highly situation alternate behaviors:
+
+##### Sticky positioning
+This takes advantage of the `position: sticky` css property — or in the case of Internet Explorer, dirty hacks — and sticks to the top of the screen until the user scrolls to the bottom of the grouping it appears in. This is typically used to keep selectors which effect an entire section grouping visible as you scroll through it.
+
+These sections cannot use certain features of standard sections, due to their added complexity and their need to be space efficient.
+
+##### Modal positioning
+The section will no longer render unless it is called via a function elsewhere. Modals can be assigned any of the standard layouts except for grouping.
+
+For more information, see [Opening a modal window](#opening-a-modal-window)
+
+---
+
+### Content entities
+Used to add, edit, and remove content.
+
+#### Subtitles
+Short bits of text that appear underneath the section title for added clarification.
+
+#### Stats
+Useful for emphasizing bits and pieces of data, stats are made up of the following:
+
+1. **Label**: appears before the number, concisely explaining what it represents.
+2. **Value**: the big number itself
+3. **Subtitle**: appears after/below the number, used for clarification
+
+🔥**Pro tip**: Multiple stats with the same label will be grouped together into columns, and their label will only be displayed once.
+
+#### Paragraphs
+Text rendered into paragraph tags.
+
+#### Visualizations
+Primarily, visualizations utilize [d3plus](http://d3plus.org/). However, we've also added a few custom visualization types:
+
+##### Percentage bar
+Renders a list of bars, each indicating a share.
+
+🔥**Pro tip**: custom config settings for this option include:
+- `cutoff` (integer; number of bars to show before hiding the rest behind a button)
+- `cutoffText` (string; text to print in a paragraph preceding the *show more* button)
+- `showText` & `hideText` (string; show/hide button label text)
+
+##### Table
+Renders data in a [react-table](https://github.com/tannerlinsley/react-table/tree/v6) table. All react-table props are available.
+
+🔥**Pro tip**: we've combined react-table's infinite nesting capability with more accessible table header markup and consistent styles. The config syntax looks like: `columns: ["col1", "col2"]` for a flat array of columns, or `columns: [["header grouping label", ["col1", "col2"]]]` from an array of grouped/named columns. If an item in the array is a *string*, it will simply be converted to a column via that string. If an item in the array is an *array*, we're assuming the first item in the nested array is a string (the name of the column group), followed by an array — which can in turn be an array which contains strings, or an array with a string and an array, and so on.
+
+🔥**Pro tip**: You can also pass `headerFormat(key)` and `columnFormat(key, val)` to the config.
+
+##### Graphic
+Renders an image, optionally on top of a [stat](#stats). The config looks like:
+```
+config: {
+  imageURL: "link/to.image",
+  label: "stat label", // optional
+  value: "stat value", // optional
+  subtitle: "stat subtitle" // optional
+}
+```
+
+🔥**Pro tip**: Multiple graphic visualizations will be automatically grouped together into a grid — but only in the [default](default-layout) and [grouping](grouping-layout) section layouts.
+
+---
+
+## Search
+
+The CMS is used to create Profiles based on Dimensions, such as "Geography" or "Industry". The individual entities that make up these dimensions (such as *Massachusetts* or *Metalworkers*) are referred to as Members. These members are what make up the slugs/ids in URLS; when visiting `/geo/massachusetts`, `geo` is the profile/dimension slug and `massachusetts` is the member.
+
+These members can be viewed and edited in the in the MetaData section of the CMS. However, they can also be searched via an API endpoint, which can be useful for setting up a search feature on your site. The API endpoint is:
+
+```
+/api/search
+```
+
+Arguments are provided by url paramaters:
+
+|parameter|description|
+|---|---|
+|`q`|A string query which uses the SQL `LIKE` operator to search the `name` and `keywords` of the member|
+|`dimension`|An exact-match string to filter results to members in the provided dimension|
+|`levels`|A comma-separated list of levels to filter results to members by the provided levels|
+|`limit`|A number, passed through to SQL `LIMIT` to limit results|
+|`id`|Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification|
+
+Example query:
+
+```
+/api/search?q=mass&dimension=Geography
+```
+
+---
+
+## Advanced Visualization Techniques
+
+For complex pages, you may need to communicate between visualizations, or customize other behaviors. There are a few potential use cases here:
+
+### Interacting between visualizations
+
+You may want an event in one visualization to have an effect on another visualization. For example, if you have a Treemap of industries, perhaps you want to be able to click "Cars" in one viz, and have a secondary viz respond to focus in on cars.
+
+For this reason, the `setVariables` function has been added to Visualizations. This function allows you access to the `variables` object that the CMS uses to swap variables on the page. In order to achieve the example above, you could set your secondary viz to make use of a variable called `variables.secondaryId`. Then, in the primary viz, you could set the following code in your viz configuration:
+
+```
+ "on":
+    {
+      "click": d => {
+        setVariables({secondaryId: d.id});
+      }
+    }
+```
+
+Thus, when you click on a section of the primary viz treemap, it calls `setVariables`, sets the `secondaryId`, and the page will re-render to update the secondary viz with the appropriate id (in the above example, the id for Cars).
+
+
+### Modifying Page State
+
+Keep in mind that the `setVariables` function accesses the main `variables` object that the entire page has access to. This means ANY entity on the page that makes use of variables is able to listen for changes to this object.
+
+A potential use case for this may be for an entire viz, stat, or section to be shown or hidden based on a click action inside a viz. Remember, each entity in the CMS has an `allowed` property, a variable whose truthiness determines whether to show this entity or not. If you want to control the visibility of an element, set its `allowed` property to a variable that you intend to override later with a click action. To expand the example above:
+
+```
+ "on":
+    {
+      "click": d => {
+        setVariables({showSecondaryViz: true, secondaryId: d.id});
+      }
+    }
+```
+
+In this example, you would set the `allowed` property of your second viz to `showSecondaryViz`, which would begin as false (hidden). The click action in your primary viz would set that variable to true (showing the viz) and then setting its `secondaryId` (so the new viz focuses on the desired element).
+
+### Opening a modal window
+
+Alternatively, you may want to click an element in a viz and have something open a modal popover window. Profile sections have a "Positioning" property, which may be set to Default, Sticky, or Modal. If you want a section to be eligible for opening inside a modal popover, set its positioning to Modal, and be sure to remember its slug. This will hide it from the normal rendering of a profile page.
+
+Then, in a viz, you may call the function `openModal(slug)` to embed the section with the provided slug in a popover on the page.
+
+```
+ "on":
+    {
+      "click": d => {
+        openModal("myModalSlug");
+      }
+    }
+```
+
+Keep in mind that you may combine the two advanced functions! If your planned modal relies on a secondary ID, you could set something like:
+
+```
+ "on":
+    {
+      "click": d => {
+        setVariables({idForMyModal: d.id});
+        openModal("myModalSlug");
+      }
+    }
+```
+
+You are then welcome, in the `myModalSlug` section, to make use of `idForMyModal` and trust that it will be set when the modal opens.
 
 ---
 
@@ -242,12 +493,13 @@ ___
 
 ## Migration
 
-For upgrading to new versions, there are currently three migration scripts:
+For upgrading to new versions, there are currently several migration scripts:
 
 1) `npx canon-cms-migrate-legacy` (for DataUSA)
 2) `npx canon-cms-migrate-0.1` (for CDC or other 0.1 CMS users)
 3) `npx canon-cms-migrate-0.6` (for 0.6 CMS users)
 4) `npx canon-cms-migrate-0.7` (for 0.7 CMS users)
+5) `npx canon-cms-migrate-0.8` (for 0.8 CMS users)
 
 ### Instructions
 

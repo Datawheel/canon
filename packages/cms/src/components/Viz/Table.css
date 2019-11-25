@@ -2,6 +2,10 @@
 
 .cp-table-viz-container .cp-viz-figure {
   height: auto !important;
+
+  & .rt-table {
+    @mixin overflow-container;
+  }
 }
 
 /* -----------------------------
@@ -24,11 +28,6 @@ NOTE: ripped from ReactTable
   flex-direction: column;
   align-items: stretch;
   width: auto;
-  /* entire table can scroll horizontally */
-  overflow-y: hidden;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
-  @mixin hide-scrollbars;
 }
 
 .rt-thead {
@@ -44,10 +43,6 @@ NOTE: ripped from ReactTable
   display: flex;
   flex-direction: column;
   max-height: var(--table-height);
-  /* table body can scroll vertically */
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
-  @mixin hide-scrollbars;
 }
 
 .rt-tr-group {
@@ -256,17 +251,12 @@ THEMING
   display: flex;
   align-items: baseline;
   justify-content: center;
-  margin-top: 1rem;
+  padding-top: var(--gutter-sm);
+  padding-bottom: var(--gutter-sm);
 
   /* space out adjacent elements */
   & > *:not(:last-child) {
     margin-right: 1rem;
-  }
-
-  /* hide the page select menu */
-  /* NOTE: only visible when prop `showPageSizeOptions` is false */
-  & .select-wrap {
-    display: none;
   }
 
   & .-pageInfo {
@@ -281,6 +271,7 @@ THEMING
         padding: 0.125em 0.5em 0.25em 0.5em;
         width: 2rem;
         text-align: center;
+        font-size: inherit;
 
         /* hide the pager */
         &::-webkit-outer-spin-button,
@@ -291,7 +282,7 @@ THEMING
       }
     }
     & .-totalPages {
-      margin-left: 0.1em;
+      margin-left: 0.25em;
     }
   }
 }

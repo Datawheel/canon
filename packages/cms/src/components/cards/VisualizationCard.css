@@ -1,5 +1,9 @@
 @import "../../css/mixins.css";
 
+.cms-visualization-card .rt-table {
+  @mixin overflow-container;
+}
+
 /* keep visualizations from breaking out of the container */
 .cms-visualization-card .visualization {
   max-width: 100%;

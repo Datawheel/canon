@@ -1,5 +1,8 @@
 const d3Array = require("d3-array");
 const axios = require("axios");
+const yn = require("yn");
+
+const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 // Older version of CANON_CMS_CUBES had a full path to the cube (path.com/cubes)
 // CANON_CMS_CUBES was changed to be root only, so fix it here so we can handle
@@ -13,10 +16,17 @@ const s = (a, b) => {
   return ta < tb ? -1 : ta > tb ? 1 : 0;
 };
 
+const catcher = e => {
+  if (verbose) {
+    console.error("Error in cubeData.js: ", e);
+  }
+  return [];
+};
+
 module.exports = async function() {
 
 
-  const resp = await axios.get(url).then(resp => resp.data);
+  const resp = await axios.get(url).then(resp => resp.data).catch(catcher);
   const cubes = resp.cubes || [];
 
   const dimensions = [];

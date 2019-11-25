@@ -3,6 +3,8 @@
 .cp-info-card-section-inner {
   display: flex;
   flex-direction: column;
+  border-radius: var(--infocard-border-radius);
+  border: var(--infocard-border-width) solid var(--infocard-border-color);
 
   & > .cp-info-card-section-main {
     align-self: stretch;
@@ -14,13 +16,7 @@
 .cp-info-card-section-main {
   /* sizing */
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  /* theming */
-  border-radius: var(--infocard-border-radius);
-  border: var(--infocard-border-width) solid var(--infocard-border-color);
-  /* layout */
-  padding: var(--gutter-xs) var(--gutter-sm);
 
   @mixin max-sm {
     & > [class][class] {
@@ -29,15 +25,20 @@
     }
   }
 }
-
-/* title left, 1st stat right */
 .cp-info-card-section-header {
-  align-items: baseline;
-  /* theming */
   background-color: var(--infocard-header-bg-color);
-  border-bottom: none;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  @mixin font-md;
+  color: var(--infocard-header-text-color);
+  margin-top: 0;
+  margin-bottom: var(--gutter-xs);
+
+  & .cp-info-card-section-heading{
+    color: var(--infocard-header-text-color);
+  }
+
+  & > .cp-info-card-header {
+    width: 80%;
+  }
 
   & > .cp-section-info-card-header-caption:not(:last-child) {
     flex: 1 0 auto;
@@ -45,59 +46,167 @@
   }
 
   & > .cp-stat-group-wrapper {
-    width: auto;
-    text-align: right; /* will look silly on small screens */
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-right: 6px;
+    width: calc(20% - 6px);
+
+    background-color: var(--infocard-stat-bg-color) !important;
+
+    @media (max-width: 767px) {
+      text-align: center !important;
+    }
 
     & .cp-stat {
       margin-top: 0;
       margin-bottom: 0.25em;
+      padding-right: 0;
     }
   }
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+  }
+}
+
+.cp-info-card-secondary-stats {
+  & .cp-stat-group{
+    flex-direction: column;
+  }
+  & strong {
+    text-transform: uppercase;
+  }
+  & .cp-stat {
+    padding-top: var(--gutter-md);
+  }
+  & .cp-stat:not(:last-child) {
+    padding-bottom: var(--gutter-md);
+    border-bottom:1px solid var(--infocard-divider-color);
+  }
+}
+
+.cp-info-card-title {
+  padding: var(--gutter-sm);
+  display: flex;
 }
 
 /* text & additional stats left, viz right */
 .cp-info-card-section-main {
   align-items: flex-start;
-  /* theming */
   background-color: var(--infocard-main-bg-color);
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 
-  & > * {
-    flex: 1 1 auto;
-  }
-  & > .cp-info-card-section-caption:not(:last-child) {
-    padding-right: var(--gutter-md);
-    margin-bottom: var(--gutter-md);
-  }
-  & > .cp-info-card-section-viz {
-    flex-basis: var(--infocard-viz-min-width);
-    padding: var(--gutter-sm);
+  & > .cp-info-card-section-content {
+    display: flex;
+    padding: var(--gutter-md) var(--gutter-sm);
   }
 }
 
 
-/* rebalance font sizes */
-.cp-info-card-section-heading {
-  @mixin font-md;
-  margin-top: 0;
-  margin-bottom: 0.25em;
+.cp-info-card-paragraphs {
+  width: 80%;
+  padding-right: var(--gutter-sm);
+  border-right: 1px solid var(--black);
 }
-.cp-info-card-section-subhead {
+@media (max-width: 767px) {
+  .cp-info-card-paragraphs{
+    width: 100%;
+    padding-right: 0;
+    border-right: none;
+    padding: 0 var(--gutter-md) var(--gutter-md);
+  }
+}
+
+
+.cp-info-card-secondary-stats {
+  padding: 0 var(--gutter-md) var(--gutter-md);
+
+  & .cp-stat-value {
+    display: flex;
+  }
+  & .cp-stat-value-text {
+    margin-right: var(--gutter-md);
+  }
+  @media (max-width: 767px) {
+    & .cp-stat-label{
+      text-align: center;
+    }
+  }
+}
+
+
+
+/* Filters */
+.cp-info-card-filters {
+  display: flex;
+  align-items: stretch;
+
+  & > .selector{
+    flex-grow: 1;
+    padding: 0 var(--gutter-sm) var(--gutter-sm);
+  }
+  & select{
+    margin-right: 1em;
+  }
+}
+
+@media (max-width: 767px) {
+  .cp-info-card-filters{
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+/* infocard select overrides */
+.cp-info-card-section .cp-select-label {
+  display: block;
+  text-transform: uppercase;
+  flex-direction: column;
+
+  & .cp-select-text {
+    color: var(--infocard-header-text-color);
+    padding-bottom: var(--gutter-xs);
+  }
+}
+
+/* Subtitle */
+.cp-info-card-subtitle {
   @mixin font-xxs;
+  padding: var(--gutter-xs) var(--gutter-sm);
+  background-color: var(--infocard-main-bg-color);
+
+  &.display {
+    text-transform: none !important;
+  }
+}
+.cp-info-card-subtitle p {
+  @mixin font-xxs;
+  font-weight: normal;
+  text-transform: none;
+}
+
+.cp-info-card-section-paragraph strong {
+  @mixin font-sm;
+  color: var(--infocard-subhead-color);
 }
 
 .cp-info-card-section-header .cp-stat-label-text,
 .cp-info-card-section-header .cp-stat-subtitle {
   @mixin font-xxs;
 }
+
 .cp-info-card-section-header .cp-stat-value-text {
-  @mixin font-sm;
+  @mixin font-xxl;
 }
 
 .cp-info-card-section-main .cp-stat-label-text,
 .cp-info-card-section-main .cp-stat-subtitle {
-  @mixin font-xs;
+  @mixin font-sm;
+}
+.cp-info-card-section .cp-stat-subtitle {
+  color: inherit !important;
 }
 .cp-info-card-section-main .cp-stat-value-text {
   @mixin font-md;
