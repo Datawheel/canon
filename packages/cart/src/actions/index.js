@@ -1,7 +1,7 @@
 /* eslint-disable prefer-arrow-callback */
 import localforage from "localforage";
-import {getHashCode, parseQueryToAdd, getLevelDimension, parseLevelDimension} from "../helpers/transformations";
-import {STORAGE_CART_KEY, TYPE_OLAP} from "../helpers/consts";
+import {getHashCode, parseQueryToAdd, getProviderInfo, getLevelDimension, parseLevelDimension, parseQueryParams} from "../helpers/transformations";
+import {STORAGE_CART_KEY, TYPE_OLAP, TYPE_LOGICLAYER} from "../helpers/consts";
 import {MultiClient} from "@datawheel/olap-client";
 import {nest as d3Nest} from "d3-collection";
 
@@ -40,13 +40,55 @@ export const clearCartAction = () => ({
 
 /* Add query to Cart */
 export const ADD_TO_CART = "@@canon-cart/ADD_TO_CART";
+export const addToCartDecideAction = query => async dispatch => {
+
+  const providerObj = getProviderInfo(query);
+
+  if (providerObj.type === TYPE_LOGICLAYER) {
+    const providerObj = getProviderInfo(query);
+    const meta = parseQueryParams(query);
+    const cubeName = meta.params.cube[0];
+    const tesseractCubeUrl = `${providerObj.server}/cubes/${cubeName}/aggregate.jsonrecords?`;
+    const client = await MultiClient.fromURL(providerObj.server);
+    const queryParams = [];
+    client.getCube(cubeName, cubes => cubes.find(c => providerObj.server.indexOf(c.server) > -1))
+      .then(cube => {
+        // Measures
+        queryParams.push(`measures[]=${meta.params.measures.join(",")}`);
+
+        // Drilldowns
+        meta.params.drilldowns.map(drill => {
+          cube.dimensions.map(dim => {
+            for (const level of dim.levelIterator) {
+              if (level.uniqueName === drill) {
+                queryParams.push(`drilldowns[]=${level.fullName}`);
+              }
+            }
+          });
+        });
+
+        // TODO Cuts
+
+        console.log("cube", cube);
+        console.log("meta", meta.params);
+
+        dispatch(addToCartAction(tesseractCubeUrl + queryParams.join("&")));
+      });
+  }
+  else {
+    dispatch(addToCartAction(query));
+  }
+
+};
 export const addToCartAction = query => {
+  console.log("addToCartAction", query);
   const parsed = parseQueryToAdd(query);
   return {
     type: ADD_TO_CART,
     payload: parsed
   };
 };
+
 
 /* Remove query from Cart */
 export const REMOVE_FROM_CART = "@@canon-cart/REMOVE_FROM_CART";

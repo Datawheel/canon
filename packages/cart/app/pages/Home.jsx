@@ -29,18 +29,14 @@ class Home extends Component {
         {title: "Income by Region", query: "https://chilecube.datachile.io/cubes/nesi_income/aggregate.json?drilldown%5B%5D=%5BGeography%5D.%5BRegion%5D&measures%5B%5D=Income&measures%5B%5D=Median+Income&nonempty=true&distinct=false&parents=false&debug=true&sparse=true", tooltip: true}
       ]
     },
-    "DataUSA": {
+    "DataMexico 1": {
       engine: "logiclayer",
       list: [
-        {title: "Median Household Income", query: "https://datausa.io/api/data?measure=Household%20Income%20by%20Race,Household%20Income%20by%20Race%20Moe&Geography=16000US3651000:parents,16000US3651000,16000US3651000:similar", tooltip: false},
-        {title: "Poverty by Age and Gender", query: "https://datausa.io/api/data?Geography=16000US3651000&drilldowns=Age,Gender&measure=Poverty%20Population,Poverty%20Population%20Moe&Poverty%20Status=0", tooltip: true},
-        {title: "Employment by Occupations", query: "https://datausa.io/api/data?Geography=04000US06&measure=Total%20Population,Total%20Population%20MOE%20Appx,Average%20Wage,Average%20Wage%20Appx%20MOE,Record%20Count&Workforce%20Status=true&Record%20Count>=5&drilldowns=Detailed%20Occupation&parents=true", tooltip: true},
-        {title: "Domestic Trade Growth", query: "https://datausa.io/api/data?Origin State=04000US06,04000US06:neighbors&measure=Millions%20Of%20Dollars,Thousands%20Of%20Tons", tooltip: true},
-        {title: "Patient to Clinician Ratios", query: "https://datausa.io/api/data?measure=Patient%20to%20Primary%20Care%20Physician%20Ratio,Patient%20to%20Primary%20Care%20Physician%20Ratio%20Data%20Source%20Years&Geography=04000US36:neighbors,04000US36", tooltip: true},
-        {title: "Health Care Spending", query: "https://datausa.io/api/data?Geography=16000US3651000&measures=Per%20Enrollee%20Private%20Health%20Insurance%20Spending%20on%20Personal%20Health%20Care,Per%20Enrollee%20Medicaid%20Spending%20on%20Personal%20Health%20Care,Per%20Enrollee%20Medicare%20Spending%20on%20Personal%20Health%20Care,Total%20Per%20Capita%20Spending%20on%20Personal%20Health%20Care", tooltip: true}
+        {title: "Products imports Aguascalientes", query: "https://api.datamexico.org/tesseract/data?State=1&cube=economy_foreign_trade_ent&drilldowns=HS4&measures=Trade+Value&parents=true&sparse=false&locale=undefined&Year=2018&Flow=1", tooltip: false},
+        {title: "Markets imports Aguascalientes", query: "https://api.datamexico.org/tesseract/data?State=1&cube=economy_foreign_trade_ent&drilldowns=Country&measures=Trade+Value&parents=true&sparse=false&locale=undefined&Year=2018&Flow=1", tooltip: true}
       ]
     },
-    "DataMexico": {
+    "DataMexico 2": {
       engine: "tesseract",
       list: [
         {title: "Households by Home Type and State", query: "https://api.datamexico.org/tesseract/cubes/inegi_housing/aggregate.jsonrecords?drilldowns%5B%5D=Geography.State&drilldowns%5B%5D=Home+Type.Home+Type&measures%5B%5D=Households&parents=false&sparse=false", tooltip: true},

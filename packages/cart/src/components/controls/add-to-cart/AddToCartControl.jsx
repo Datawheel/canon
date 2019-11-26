@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import {Classes, Tooltip} from "@blueprintjs/core";
 import {getHashCode} from "../../../helpers/transformations";
 
-import {addToCartAction, removeFromCartAction} from "../../../actions";
+import {addToCartDecideAction, removeFromCartAction} from "../../../actions";
 
 import "./AddToCartControl.css";
 
@@ -40,7 +40,7 @@ class AddToCartControl extends React.Component {
     }
     else {
       if (!cartIsFull) {
-        dispatch(addToCartAction(query));
+        dispatch(addToCartDecideAction(query));
       }
     }
   }

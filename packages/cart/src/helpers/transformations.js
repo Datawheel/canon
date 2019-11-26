@@ -1,4 +1,5 @@
 import {TYPE_OLAP, TYPE_LOGICLAYER} from "./consts";
+import {MultiClient} from "@datawheel/olap-client";
 
 /** Java’s String.hashCode() method implemented in Javascript. */
 export const getHashCode = s => {
@@ -9,16 +10,17 @@ export const getHashCode = s => {
   return Math.abs(h);
 };
 
-/** TODO: generate human title from query */
+/** Parse URL */
 export const parseURL = url => {
   const meta = parseQueryParams(url);
   if (meta.params.drilldown) {
     meta.params.drilldown = meta.params.drilldown.map(d => parseLevelDimension(d));
   }
   const sanitizedUrl = sanitizeUrl(url);
+  const providerObj = getProviderInfo(url);
   return {
     title: getHumanTitle(meta),
-    provider: getProviderInfo(url),
+    provider: providerObj,
     cube: getCubeName(meta.base),
     meta,
     query: sanitizedUrl
@@ -55,9 +57,14 @@ export const getProviderInfo = url => {
   }
   else {
     type = TYPE_LOGICLAYER;
-    server = url.split("?")[0];
+    server = url.split("/data?")[0];
   }
   return {type, server};
+};
+
+/** Prepare Query to Aadd */
+export const logicLayerToOLAP = async llUrl => {
+
 };
 
 /** Prepare Query to Aadd */
@@ -101,10 +108,10 @@ export const parseQueryParams = url => {
       let [key, val] = d.split("=");
 
       // Custom fix mondrian query []
-      key = key.replace(/\[\]/g, "");
-      val = val.replace(/\|\|\|/g, ".&[").replace(/\+/g, " ");
+      if (key && val) {
+        key = key.replace(/\[\]/g, "");
+        val = val.replace(/\|\|\|/g, ".&[").replace(/\+/g, " ");
 
-      if (val) {
         obj[key] = val
           .split(/\,([A-z])/g)
           .reduce((arr, d) => {
@@ -114,7 +121,7 @@ export const parseQueryParams = url => {
           }, []);
       }
       else {
-        console.error("BAD key value:", key, val);
+        console.warn("BAD key value:", key, val);
       }
       return obj;
     }, {});
