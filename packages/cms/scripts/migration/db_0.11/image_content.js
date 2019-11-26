@@ -1,13 +1,13 @@
 module.exports = function(sequelize, db) {
 
-  const s = sequelize.define("storysection_subtitle_content",
+  const i = sequelize.define("image_content",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_storysection_subtitle",
+          model: "canon_cms_image",
           key: "id"
         }
       },
@@ -15,18 +15,15 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         primaryKey: true
       },
-      subtitle: {
-        type: db.TEXT,
-        defaultValue: ""
-      }
-    }, 
+      meta: db.TEXT
+    },
     {
-      tableName: "canon_cms_storysection_subtitle_content",
+      tableName: "canon_cms_image_content",
       freezeTableName: true,
       timestamps: false
     }
   );
 
-  return s;
+  return i;
 
 };

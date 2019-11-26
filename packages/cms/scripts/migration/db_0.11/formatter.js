@@ -1,6 +1,6 @@
 module.exports = function(sequelize, db) {
 
-  const m = sequelize.define("materializer",
+  const f = sequelize.define("formatter",
     {
       id: {
         type: db.INTEGER,
@@ -8,7 +8,7 @@ module.exports = function(sequelize, db) {
         autoIncrement: true
       },
       name: {
-        type: db.TEXT,
+        type: db.STRING,
         defaultValue: ""
       },
       description: {
@@ -17,25 +17,16 @@ module.exports = function(sequelize, db) {
       },
       logic: {
         type: db.TEXT,
-        defaultValue: "return {}"
-      },
-      ordering: db.INTEGER,
-      profile_id: {
-        type: db.INTEGER,
-        onDelete: "cascade",
-        references: {
-          model: "canon_cms_profile",
-          key: "id"
-        }
+        defaultValue: "return n;"
       }
     },
     {
-      tableName: "canon_cms_materializer",
+      tableName: "canon_cms_formatter",
       freezeTableName: true,
       timestamps: false
     }
   );
 
-  return m;
+  return f;
 
 };

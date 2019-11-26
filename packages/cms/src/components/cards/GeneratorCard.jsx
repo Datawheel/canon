@@ -157,7 +157,7 @@ class GeneratorCard extends Component {
     let showDesc = false;
     if (minData && minData.description) {
       description = minData.description;
-      if (description.toLowerCase() !== "new description" && description.toLowerCase() !== "") {
+      if (description.toLowerCase() !== "") {
         showDesc = true;
       }
     }

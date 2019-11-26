@@ -76,7 +76,7 @@ class Toolbox extends Component {
     const {query} = this.state;
     const {forceOpen, forceID, forceType} = this.props.status;
     const fields = ["name", "description", "title"];
-    const matched = fields.map(f => d[f] ? d[f].toLowerCase().includes(query) : false).some(d => d);
+    const matched = fields.map(f => d[f] !== undefined ? d[f].toLowerCase().includes(query) : false).some(d => d);
     const opened = d.type === forceType && d.id === forceID && forceOpen;
     return matched || opened;
   }

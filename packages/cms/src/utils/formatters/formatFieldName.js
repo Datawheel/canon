@@ -13,6 +13,10 @@ function formatFieldName(field, contentType) {
     if (field === "tooltip") return "Tooltip text";
   }
 
+  if (contentType.toLowerCase() === "section") {
+    if (field === "short") return "Short title";
+  }
+
   // paragraphs
   if (contentType.toLowerCase() === "description") {
     if (field === "description") return "Paragraph";

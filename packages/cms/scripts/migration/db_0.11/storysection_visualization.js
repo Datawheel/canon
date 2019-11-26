@@ -1,41 +1,33 @@
 module.exports = function(sequelize, db) {
 
-  const m = sequelize.define("materializer",
+  const s = sequelize.define("storysection_visualization",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      name: {
-        type: db.TEXT,
-        defaultValue: ""
-      },
-      description: {
-        type: db.TEXT,
-        defaultValue: ""
-      },
       logic: {
         type: db.TEXT,
         defaultValue: "return {}"
-      },
-      ordering: db.INTEGER,
-      profile_id: {
+      },      
+      storysection_id: {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_profile",
+          model: "canon_cms_storysection",
           key: "id"
         }
-      }
-    },
+      },     
+      ordering: db.INTEGER
+    }, 
     {
-      tableName: "canon_cms_materializer",
+      tableName: "canon_cms_storysection_visualization",
       freezeTableName: true,
       timestamps: false
     }
   );
 
-  return m;
+  return s;
 
 };
