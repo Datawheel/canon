@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-cms",
   "description": "Content Management System for Canon sites.",
-  "version": "0.10.5",
+  "version": "0.11.0",
   "author": "James Mullen",
   "license": "MIT",
   "bin": {
