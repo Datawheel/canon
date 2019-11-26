@@ -52,7 +52,6 @@ class SelectorCard extends Component {
   save() {
     const {minData} = this.state;
     this.props.updateEntity("selector", minData);
-    this.props.setStatus({toolboxDialogOpen: false});
     this.setState({isOpen: false});
   }
 

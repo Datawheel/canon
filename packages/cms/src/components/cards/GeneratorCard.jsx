@@ -109,7 +109,6 @@ class GeneratorCard extends Component {
     const {type} = this.props;
     const {minData} = this.state;
     this.props.updateEntity(type, minData);
-    this.props.setStatus({toolboxDialogOpen: false});
     this.setState({isOpen: false});
   }
 
