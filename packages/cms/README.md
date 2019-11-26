@@ -88,7 +88,7 @@ import {Builder} from "@datawheel/canon-cms";
 <Route path="/cms" component={Builder} />
 ```
 
-#### 5) Configure Redux 
+#### 5) Configure Redux
 
 The CMS state state is managed from the site-wide redux state. In `app/reducers/index.js`, import the reducer function and assign it to the `cms` key:
 
@@ -505,6 +505,7 @@ Here is a list of Minor CMS versions and their release notes:
 - [canon-cms@0.8.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.8.0)
 - [canon-cms@0.9.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.9.0)
 - [canon-cms@0.10.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.10.0)
+- [canon-cms@0.11.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.11.0)
 
 ___
 
