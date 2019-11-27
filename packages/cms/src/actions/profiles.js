@@ -71,6 +71,8 @@ export function modifyDimension(payload) {
     return axios.post("/api/cms/profile/upsertDimension", payload)
       .then(({data}) => {
         dispatch({type: "DIMENSION_MODIFY", data, diffCounter});
+        // TODO: Remove reset previews - have all profiles come from the server 
+        // with their default values already set.
       });
   };
 }
@@ -217,7 +219,7 @@ export function fetchVariables(config, useCache) {
       if (localeSecondary) locales.push(localeSecondary);
       for (const thisLocale of locales) {
         // If the config is for a materializer, or its for zero-length generators (like in a new profile) 
-        // don't run generators. Just use our current variables for the POST action for materializers
+        // don't run custom generators. Just use our current variables for the POST action for materializers
         if (config.type === "materializer" || config.type === "generator" && config.ids.length === 0) {
           let paramString = "";
           previews.forEach((p, i) => {
@@ -227,6 +229,10 @@ export function fetchVariables(config, useCache) {
           if (config.type === "materializer") {
             const mid = config.ids[0];
             query = {materializer: mid};
+          }
+          // Generator 0 is a special short-circuit ID that returns only Attributes variables
+          else if (config.type === "generator") {
+            query = {generator: 0};
           }
           Object.keys(query).forEach(k => {
             paramString += `&${k}=${query[k]}`;
@@ -241,20 +247,30 @@ export function fetchVariables(config, useCache) {
               });
               delete variables[thisLocale]._matStatus[mid];
             }
+            // Once pruned, we can POST the variables to the materializer endpoint
+            axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+              variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+              dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+            });
           }
           else if (config.type === "generator") {
+            // Prune all materializers (as they are all about to be re-run)
             Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
               Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
                 delete variables[thisLocale][k]; 
               });
               delete variables[thisLocale]._matStatus[mid];
             });
+            // We only arrive here in the case of zero-length generators. Zero length generators STILL NEED to run 
+            // the special built-in attribute endpoint, to handle the case of new profiles (and generator-less profiles)
+            axios.get(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
+              variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
+              axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+                variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+                dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+              });
+            });
           }
-          // Once pruned, we can POST the variables to the materializer endpoint
-          axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-            variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-            dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
-          });
         }
         else {
           const gids = config.ids || [];

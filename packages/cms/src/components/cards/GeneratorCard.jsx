@@ -172,8 +172,8 @@ class GeneratorCard extends Component {
     if (minData && variables) {
       Object.assign(cardProps, {
         title: minData.name, // overwrites placeholder
-        onEdit: this.openEditor.bind(this),
-        onDelete: this.maybeDelete.bind(this),
+        onEdit: minData.locked ? null : this.openEditor.bind(this),
+        onDelete: minData.locked ? null : this.maybeDelete.bind(this),
         // reorder
         reorderProps: showReorderButton ? {
           id: minData.id,
@@ -185,7 +185,7 @@ class GeneratorCard extends Component {
       });
     }
 
-    const {id} = this.props;
+    const {id} = this.props.minData;
 
     return (
       <React.Fragment>
@@ -247,11 +247,8 @@ GeneratorCard.defaultProps = {
   context: "generator" // mostly a styling hook used for formatter cards
 };
 
-const mapStateToProps = (state, ownProps) => ({
-  status: state.cms.status,
-  minData: ownProps.type === "formatter" 
-    ? state.cms.formatters.find(f => f.id === ownProps.id) 
-    : state.cms.profiles.find(p => p.id === state.cms.status.currentPid)[`${ownProps.type}s`].find(g => g.id === ownProps.id)
+const mapStateToProps = state => ({
+  status: state.cms.status
 });
 
 const mapDispatchToProps = dispatch => ({
