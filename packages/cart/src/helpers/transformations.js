@@ -13,7 +13,8 @@ export const getHashCode = s => {
 /** Parse URL */
 export const parseURL = url => {
   const meta = parseQueryParams(url);
-  if (meta.params.drilldown) {
+  if (meta.params.drilldown || meta.params.drilldowns) {
+    meta.params.drilldown = meta.params.drilldowns ? meta.params.drilldowns : meta.params.drilldown;
     meta.params.drilldown = meta.params.drilldown.map(d => parseLevelDimension(d));
   }
   const sanitizedUrl = sanitizeUrl(url);
@@ -86,7 +87,7 @@ export const parseQueryToAdd = query => {
 export const parseLevelDimension = string => {
   const parts = string.split(".").map(s => s.replace("[", "").replace("]", ""));
   if (parts.length > 2) {
-    parts.slice(Math.max(parts.length - 2, 1));
+    return {dimension: parts[0], level: parts[2]};
   }
   return {dimension: parts[0], level: parts[1]};
 };

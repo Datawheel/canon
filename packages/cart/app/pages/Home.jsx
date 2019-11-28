@@ -33,7 +33,8 @@ class Home extends Component {
       engine: "logiclayer",
       list: [
         {title: "Products imports Aguascalientes", query: "https://api.datamexico.org/tesseract/data?State=1&cube=economy_foreign_trade_ent&drilldowns=HS4&measures=Trade+Value&parents=true&sparse=false&locale=undefined&Year=2018&Flow=1", tooltip: false},
-        {title: "Markets imports Aguascalientes", query: "https://api.datamexico.org/tesseract/data?State=1&cube=economy_foreign_trade_ent&drilldowns=Country&measures=Trade+Value&parents=true&sparse=false&locale=undefined&Year=2018&Flow=1", tooltip: true}
+        {title: "Occupations by number in Hospitals", query: "https://api.datamexico.org/tesseract/data?cube=inegi_enoe&Industry%20Group=6221&Quarter=20182,20183,20184,20191,20192&drilldowns=Occupation,Quarter&measures=Workforce,Wage&parents=true&sparse=false&locale=es", tooltip: true},
+        {title: "Salary wage", query: "https://api.datamexico.org/tesseract/data?Industry%20Group=6221&cube=inegi_enoe&drilldowns=Salary%20Group,Quarter&measures=Workforce&parents=false&sparse=false", tooltip: false}
       ]
     },
     "DataMexico 2": {

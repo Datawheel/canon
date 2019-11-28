@@ -69,9 +69,6 @@ export const addToCartDecideAction = query => async dispatch => {
 
         // TODO Cuts
 
-        console.log("cube", cube);
-        console.log("meta", meta.params);
-
         dispatch(addToCartAction(tesseractCubeUrl + queryParams.join("&")));
       });
   }
@@ -81,7 +78,6 @@ export const addToCartDecideAction = query => async dispatch => {
 
 };
 export const addToCartAction = query => {
-  console.log("addToCartAction", query);
   const parsed = parseQueryToAdd(query);
   return {
     type: ADD_TO_CART,
