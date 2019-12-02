@@ -37,9 +37,12 @@ class Alert extends Component {
       icon                // defaults to alert
     } = this.props;
 
-    // don't render at all unless we have everything we need
-    if (!isOpen || !onCancel || !onConfirm) {
-      if (!onCancel || !onConfirm) console.log("missing `onCancel` or `onConfirm` prop in Alert.jsx");
+    // don't render unless isOpen is true
+    if (isOpen === false || isOpen === null || typeof isOpen === "undefined") return null;
+
+    // also don't render unless we have onCancel and onConfirm
+    else if (isOpen === true && (!onCancel || !onConfirm)) {
+      console.log("missing `onCancel` or `onConfirm` prop in Alert.jsx");
       return null;
     }
 
