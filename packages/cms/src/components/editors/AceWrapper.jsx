@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import "./AceTheme.css";
 
 /*
 import ace from "brace";
@@ -45,27 +46,30 @@ export default class AceWrapper extends Component {
   render() {
     if (typeof window !== "undefined") {
       const Ace = require("react-ace").default;
-      const {readOnly} = this.props;
       require("brace/mode/javascript");
-      require("brace/theme/kuroir");
-      require("brace/theme/idle_fingers");
+
+      const options = {
+        fontSize: "14px"
+        // enableBasicAutocompletion: true,
+        // enableLiveAutocompletion: true
+      };
+
+      const editorProps = {
+        $blockScrolling: Infinity
+      };
+
       return <div className="cms-ace-container">
-        <Ace theme={readOnly ? "kuroir" : "idle_fingers"}
+        <Ace
           width="100%"
           height="100%"
           ref={editor => this.editor = editor}
           wrapEnabled={false}
           tabSize={2}
           mode="javascript"
-          setOptions={{
-            fontSize: "14px"
-            /*enableBasicAutocompletion: true,
-            enableLiveAutocompletion: true*/
-          }}
-          editorProps={{
-            $blockScrolling: Infinity
-          }}
-          {...this.props} />
+          setOptions={options}
+          editorProps={editorProps}
+          {...this.props}
+        />
       </div>;
     }
     return null;
