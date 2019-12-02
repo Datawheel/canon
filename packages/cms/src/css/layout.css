@@ -12,6 +12,14 @@
   /* allow content to fill up the screen, and backgrounds to go beyond the screen */
   display: flex;
   flex-direction: column;
+
+  /*
+  Fix scrollable empty space to the right of the admin panel
+  NOTE: this will prevent `position: sticky` from working, but we're not using that on small screens
+  */
+  @mixin max-sm {
+    overflow-x: hidden;
+  }
 }
 
 /* main panel wrapper */

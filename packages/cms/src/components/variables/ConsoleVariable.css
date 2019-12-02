@@ -55,11 +55,7 @@
 .cms-variable-editor-group {
   display: flex;
   min-height: 50vh;
-
-  /* make the editor visible when for visualizations */
-  &.single-column {
-    display: block;
-  }
+  margin-bottom: var(--gutter-md);
 
   /* needed for ace editor */
   & > .cms-variable-editor-js {
