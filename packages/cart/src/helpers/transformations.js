@@ -1,5 +1,5 @@
 import {TYPE_OLAP, TYPE_LOGICLAYER} from "./consts";
-import {MultiClient} from "@datawheel/olap-client";
+import decodeUrl from "form-urldecoded";
 
 /** Java’s String.hashCode() method implemented in Javascript. */
 export const getHashCode = s => {
@@ -13,10 +13,6 @@ export const getHashCode = s => {
 /** Parse URL */
 export const parseURL = url => {
   const meta = parseQueryParams(url);
-  if (meta.params.drilldown || meta.params.drilldowns) {
-    meta.params.drilldown = meta.params.drilldowns ? meta.params.drilldowns : meta.params.drilldown;
-    meta.params.drilldown = meta.params.drilldown.map(d => parseLevelDimension(d));
-  }
   const sanitizedUrl = sanitizeUrl(url);
   const providerObj = getProviderInfo(url);
   return {
@@ -34,8 +30,8 @@ export const sanitizeUrl = url => url.replace("aggregate.json?", "aggregate.json
 /** TODO: generate human title from query */
 export const getHumanTitle = meta => {
   let title = meta.params.measure ? meta.params.measure[0] : meta.params.measures[0];
-  if (meta.params.drilldown) {
-    meta.params.drilldown.map(d => {
+  if (meta.params.drilldowns) {
+    meta.params.drilldowns.map(d => {
       title += ` by ${d.dimension}`;
     });
   }
@@ -97,38 +93,35 @@ export const getLevelDimension = level => ({dimension: level.dimension.name, lev
 
 /** Parse query params */
 export const parseQueryParams = url => {
-  let [base, query] = url.split("?");
+  const parts = url.split("?");
 
   // Fix mondrian query '&' in values
-  query = decodeURIComponent(query);
+  let query = decodeURIComponent(parts[1]);
   query = query.replace(/\.&\[/g, "|||");
 
-  // Parans
-  const params = query.split("&")
-    .reduce((obj, d) => {
-      let [key, val] = d.split("=");
+  const params = decodeUrl(url);
 
-      // Custom fix mondrian query []
-      if (key && val) {
-        key = key.replace(/\[\]/g, "");
-        val = val.replace(/\|\|\|/g, ".&[").replace(/\+/g, " ");
+  if (params.drilldown) {
+    params.drilldowns = Array.isArray(params.drilldown) ? params.drilldown : params.drilldown.split(",");
+    params.drilldown = params.drilldowns;
+  }
 
-        obj[key] = val
-          .split(/\,([A-z])/g)
-          .reduce((arr, d) => {
-            if (arr.length && arr[arr.length - 1].length === 1) arr[arr.length - 1] += d;
-            else if (d.length) arr.push(d);
-            return arr;
-          }, []);
-      }
-      else {
-        console.warn("BAD key value:", key, val);
-      }
-      return obj;
-    }, {});
+  if (params.drilldowns) {
+    params.drilldowns = Array.isArray(params.drilldowns) ? params.drilldowns : params.drilldowns.split(",");
+    params.drilldowns = params.drilldowns.map(d => parseLevelDimension(d));
+  }
+
+  if (params.measure) {
+    params.measures = Array.isArray(params.measures) ? params.measures : params.measures.split(",");
+    params.measure = params.measures;
+  }
+
+  params.measures = Array.isArray(params.measures) ? params.measures : params.measures.split(",");
+
+  console.log(params);
 
   return {
-    base,
+    base: parts[0],
     query,
     params
   };

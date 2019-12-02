@@ -41,7 +41,8 @@ class Home extends Component {
       engine: "tesseract",
       list: [
         {title: "Households by Home Type and State", query: "https://api.datamexico.org/tesseract/cubes/inegi_housing/aggregate.jsonrecords?drilldowns%5B%5D=Geography.State&drilldowns%5B%5D=Home+Type.Home+Type&measures%5B%5D=Households&parents=false&sparse=false", tooltip: true},
-        {title: "Population by Job Situation and State", query: "https://api.datamexico.org/tesseract/cubes/inegi_population/aggregate.jsonrecords?drilldowns%5B%5D=Geography.State&drilldowns%5B%5D=JobSituation.JobSituation&measures%5B%5D=Population&parents=false&sparse=false", tooltip: false}
+        {title: "Poverty by State By Year", query: "https://api.datamexico.org/tesseract/cubes/coneval_poverty/aggregate.jsonrecords?drilldowns%5B%5D=Year.Year.Year&drilldowns%5B%5D=Geography.Geography.State&measures%5B%5D=Poverty&measures%5B%5D=Extreme+Poverty&measures%5B%5D=Moderate+Poverty&parents=false&sparse=false", tooltip: false},
+        {title: "Crimes by Affected Good", query: "https://api.datamexico.org/tesseract/cubes/sesnsp_crimes/aggregate.jsonrecords?drilldowns%5B%5D=Geography.Geography.Nation&drilldowns%5B%5D=Type.Type.Affected+Legal+Good&measures%5B%5D=Value&parents=false&sparse=false", tooltip: false}
       ]
     },
     "OEC World": {

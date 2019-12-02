@@ -47,20 +47,24 @@ export const addToCartDecideAction = query => async dispatch => {
   if (providerObj.type === TYPE_LOGICLAYER) {
     const providerObj = getProviderInfo(query);
     const meta = parseQueryParams(query);
-    const cubeName = meta.params.cube[0];
+    const cubeName = meta.params.cube;
     const tesseractCubeUrl = `${providerObj.server}/cubes/${cubeName}/aggregate.jsonrecords?`;
     const client = await MultiClient.fromURL(providerObj.server);
     const queryParams = [];
     client.getCube(cubeName, cubes => cubes.find(c => providerObj.server.indexOf(c.server) > -1))
       .then(cube => {
         // Measures
-        queryParams.push(`measures[]=${meta.params.measures.join(",")}`);
+        meta.params.measures.map(measure => {
+          queryParams.push(`measures[]=${measure}`);
+        });
+
+        console.log("ACTION", meta.params);
 
         // Drilldowns
         meta.params.drilldowns.map(drill => {
           cube.dimensions.map(dim => {
             for (const level of dim.levelIterator) {
-              if (level.uniqueName === drill) {
+              if (level.uniqueName === drill.dimension) {
                 queryParams.push(`drilldowns[]=${level.fullName}`);
               }
             }
@@ -79,6 +83,7 @@ export const addToCartDecideAction = query => async dispatch => {
 };
 export const addToCartAction = query => {
   const parsed = parseQueryToAdd(query);
+  console.log("addToCartAction", query);
   return {
     type: ADD_TO_CART,
     payload: parsed
@@ -257,9 +262,10 @@ const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, share
         query.addDrilldown(dateDimensionsLevel);
       }
 
-      if (datasetObj.query.params.drilldown) {
-        datasetObj.query.params.drilldown.map(drill => {
-          if (!sharedDimensionsLevel || sharedDimensionsLevel.dimension !== drill.dimension) {
+      if (datasetObj.query.params.drilldowns) {
+        datasetObj.query.params.drilldowns.map(drill => {
+          if ((!sharedDimensionsLevel || sharedDimensionsLevel.dimension !== drill.dimension) &&
+            (!dateDimensionsLevel || dateDimensionsLevel.dimension !== drill.dimension)) {
             query.addDrilldown(drill);
           }
         });
