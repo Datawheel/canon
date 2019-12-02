@@ -96,20 +96,6 @@
     padding: var(--gutter-md);
   }
 
-  & .inline-radio-group {
-    & > .bp3-label,
-    & > .bp3-radio {
-      display: inline-block;
-    }
-    & > .bp3-radio {
-      padding-left: 20px;
-
-      &:not(:last-of-type) {
-        margin-right: var(--gutter-sm);
-      }
-    }
-  }
-
   /* input group button overrides */
   & .bp3-input-group {
     display: flex;

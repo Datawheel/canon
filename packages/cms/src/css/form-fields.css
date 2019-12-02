@@ -7,21 +7,14 @@
   }
 
   /* keep select menus from breaking outside of container */
-  & select,
-  & .bp3-select {
+  & select {
     width: 100%;
     max-width: 100%;
   }
 
   /* override blueprint margin & apply to non label elements  */
-  & label,
-  & .bp3-label {
+  & label {
     margin-bottom: 1rem;
-  }
-
-  /* mimic blueprint style for now */
-  & .bp3-label > .cms-button-group {
-    margin-top: 5px;
   }
 
   & ul.cms-field-container {
