@@ -226,19 +226,17 @@ class VariableEditor extends Component {
     const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
 
     const preMessage = {
-      generator: <React.Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</React.Fragment>,
-      materializer: <React.Fragment>You have access to all variables previously created by generators</React.Fragment>,
-      profile_visualization: <React.Fragment>You have access to all variables previously created by generators and materializers.</React.Fragment>,
-      section_visualization: <React.Fragment>You have access to all variables previously created by generators and materializers.</React.Fragment>,
-      formatter: <React.Fragment>You have access to the variable <code>n</code>, which represents the string to be formatted.</React.Fragment>
+      generator: <Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</Fragment>,
+      materializer: <Fragment>You have access to all variables previously created by generators</Fragment>,
+      visualization: <Fragment>You have access to all variables previously created by generators and materializers.</Fragment>,
+      formatter: <Fragment>You have access to the variable <code>n</code>, which represents the string to be formatted.</Fragment>
     };
 
     const postMessage = {
-      generator: <React.Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</React.Fragment>,
-      materalizer: <React.Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</React.Fragment>,
-      profile_visualization: <React.Fragment>Be sure to return a valid config object for a visualization</React.Fragment>,
-      section_visualization: <React.Fragment>Be sure to return a valid config object for a visualization</React.Fragment>,
-      formatter: <React.Fragment>Be sure to return a <strong>string</strong> that represents your formatted content.</React.Fragment>
+      generator: <Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</Fragment>,
+      materalizer: <Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</Fragment>,
+      visualization: <Fragment>Be sure to return a valid config object for a visualization</Fragment>,
+      formatter: <Fragment>Be sure to return a <strong>string</strong> that represents your formatted content.</Fragment>
     };
 
     const varOptions = [<option key="always" value="always">Always</option>]
@@ -297,7 +295,7 @@ class VariableEditor extends Component {
               />
             }
 
-            <div className={`cms-variable-editor-group${!payload ? " single-column u-margin-bottom-xs" : ""}`}>
+            <div className="cms-variable-editor-group u-margin-top-off u-margin-bottom-md">
               {/* json */}
               {payload &&
                 <div className="cms-variable-editor-inner" key="json">
@@ -341,7 +339,7 @@ class VariableEditor extends Component {
 
             {/* callback instructions */}
             {!simple &&
-              <section className="variable-editor-help">
+              <section className="variable-editor-help u-margin-bottom-sm">
                 <h3 className="u-font-xs">Callback</h3>
                 <p className="u-font-xs">{preMessage[type]}</p>
                 <p className="u-font-xs">{postMessage[type]}</p>

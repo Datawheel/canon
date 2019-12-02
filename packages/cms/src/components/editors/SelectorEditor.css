@@ -65,7 +65,8 @@
 .cms-selector-editor-custom {
   display: flex;
   align-items: baseline;
-  margin-top: 3rem;
+  margin-top: var(--gutter-lg);
+  &[class] { margin-bottom: var(--gutter-md); }
 
   & .cms-selector-editor-custom-checkbox {
     margin-right: 0.5rem;
