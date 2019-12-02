@@ -63,7 +63,7 @@ class RichTextEditor extends Component {
     );
 
     return (
-      <div className="rich-text-editor">
+      <div className="cms-rich-text-editor">
         {quills}
       </div>
     );

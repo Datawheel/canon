@@ -112,13 +112,6 @@ strong, [class] > strong,
       color: var(--light-1);
     }
   }
-
-  /* use blueprint theming for quill editor for now */
-  /* TODO: dark theme */
-  & .quill {
-    background-color: #f5f8fa;
-    color: #182026;
-  }
 }
 
 /* highlighted text style */
