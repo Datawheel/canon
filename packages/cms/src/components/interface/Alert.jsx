@@ -10,18 +10,6 @@ import "./Alert.css";
 /** for now, this is just a wrapper around the blueprint Alert */
 class Alert extends Component {
   render() {
-    // const defaultConfig = {
-    //   canOutsideClickCancel: true,
-    //   canEscapeKeyCancel: true,
-    //   intent: Intent.DANGER
-    // };
-    //
-    // // merge the defaults & props
-    // const config = {...defaultConfig, ...this.props};
-
-    // TODO: replace blueprint alert with a custom, non-ugly one
-    // return <BPAlert {...config} />;
-
     const {
       className,
       isModal,            // set to `true` to disable escape key/overlay click close
@@ -56,9 +44,9 @@ class Alert extends Component {
           className={`cms-alert${className ? ` ${className}` : ""} ${isModal ? "is-modal" : "is-inline"}`}
           key="a"
         >
-          <div className={`cms-alert-inner ${theme ? ` ${theme}-theme` : ""}`}>
+          <div className={`cms-alert-inner${theme ? ` ${theme}-theme` : ""}`}>
             {icon &&
-              <Icon className={`cms-alert-icon ${theme ? ` ${theme}-theme` : ""}`} icon={icon} />
+              <Icon className="cms-alert-icon" icon={icon} />
             }
 
             {/* main alert text */}

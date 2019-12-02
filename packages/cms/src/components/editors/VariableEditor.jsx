@@ -169,14 +169,16 @@ class VariableEditor extends Component {
       alertObj = {
         callback: this.switchSimple.bind(this),
         message: "Note: Switching to JS mode will abandon your UI mode state.",
-        confirm: "JS mode"
+        confirm: "JS mode",
+        theme: "caution"
       };
     }
     else {
       alertObj = {
         callback: this.switchSimple.bind(this),
         message: "Note: Switching to UI mode will abandon your current JS code.",
-        confirm: "UI mode"
+        confirm: "UI mode",
+        theme: "caution"
       };
     }
     this.setState({alertObj});
@@ -217,7 +219,6 @@ class VariableEditor extends Component {
   }
 
   render() {
-
     const {data, payload, simple, alertObj} = this.state;
     const {type, onDelete, onSave} = this.props;
     const {localeDefault} = this.props.status;
@@ -379,6 +380,7 @@ class VariableEditor extends Component {
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
+          theme={alertObj.theme}
           isOpen={alertObj}
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
