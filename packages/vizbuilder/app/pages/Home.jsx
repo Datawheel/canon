@@ -12,7 +12,7 @@ const Home = function() {
           </Link>
         </li>
         <li>
-          <Link className="datausa" to="/datausa/map">
+          <Link className="datausa map" to="/datausa/map">
             DataUSA Map
           </Link>
         </li>

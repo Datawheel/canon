@@ -36,5 +36,9 @@
   & .datachile   { background-image: url(/images/datachile.png); }
   & .datamexico  { background-image: url(/images/datamexico.png); }
   & .datausa     { background-image: url(/images/datausa.png); }
+  & .datausa.map {
+    background-position: center, right;
+    background-image: url(/images/datausa.png), url(/images/mapoverlay.svg);
+  }
   & .oec         { background-image: url(/images/oec.png); }
 }
