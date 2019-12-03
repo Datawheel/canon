@@ -63,13 +63,9 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "generator", forceOpen: true});
     case "GENERATOR_UPDATE": 
       return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
-    case "GENERATOR_DELETE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
     case "MATERIALIZER_NEW": 
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "materializer", forceOpen: true});
     case "MATERIALIZER_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
-    case "MATERIALIZER_DELETE": 
       return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
     case "SELECTOR_NEW": 
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "selector", forceOpen: true});
@@ -109,9 +105,15 @@ export default (status = {}, action) => {
     case "SECTION_DELETE": 
       return Object.assign({}, status, {justDeleted: {type: "section", id: action.data.id, parent_id: action.data.parent_id}});
     case "GENERATOR_DELETE": 
-      return Object.assign({}, status, {justDeleted: {type: "generator", id: action.data.id, parent_id: action.data.parent_id}});
+      return Object.assign({}, status, {
+        justDeleted: {type: "generator", id: action.data.id, parent_id: action.data.parent_id},
+        toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false
+      });
     case "MATERIALIZER_DELETE": 
-      return Object.assign({}, status, {justDeleted: {type: "materializer", id: action.data.id, parent_id: action.data.parent_id}});
+      return Object.assign({}, status, {
+        justDeleted: {type: "materializer", id: action.data.id, parent_id: action.data.parent_id},
+        toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false
+      });
     case "STORY_DELETE": 
       return Object.assign({}, status, {justDeleted: {type: "story", id: action.data.id}, currentStoryPid: false});
     case "STORYSECTION_DELETE": 

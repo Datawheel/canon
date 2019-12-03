@@ -199,7 +199,6 @@ export function resetPreviews() {
 export function fetchVariables(config, useCache) { 
   return function(dispatch, getStore) {    
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
-    const diffCounter = getStore().cms.status.diffCounter + 1;
 
     const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
     let variables = deepClone(thisProfile.variables);
@@ -210,6 +209,7 @@ export function fetchVariables(config, useCache) {
     // useCache will be true if the front-end is telling us we have the variables already. Short circuit the gets/puts
     // However, still increment diffCounter so a re-render happens on cards that rely on variables.
     if (useCache && thisProfile.variables) {
+      const diffCounter = getStore().cms.status.diffCounter + 1;
       dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables), diffCounter}});
     }
     else {
@@ -253,6 +253,7 @@ export function fetchVariables(config, useCache) {
           // Once pruned, we can POST the variables to the materializer endpoint
           axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
             variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+            const diffCounter = getStore().cms.status.diffCounter + 1;
             dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
           });
         }
@@ -296,6 +297,7 @@ export function fetchVariables(config, useCache) {
                 });
                 axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
                   variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+                  const diffCounter = getStore().cms.status.diffCounter + 1;
                   dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
                 });
               }
