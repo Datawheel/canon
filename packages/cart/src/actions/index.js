@@ -73,7 +73,7 @@ export const addToCartDecideAction = query => async dispatch => {
 
         // TODO Cuts
 
-        dispatch(addToCartAction(tesseractCubeUrl + queryParams.join("&")));
+        dispatch(addToCartAction(tesseractCubeUrl + queryParams.join("&"), query));
       });
   }
   else {
@@ -81,9 +81,8 @@ export const addToCartDecideAction = query => async dispatch => {
   }
 
 };
-export const addToCartAction = query => {
-  const parsed = parseQueryToAdd(query);
-  console.log("addToCartAction", query);
+export const addToCartAction = (query, logicLayerUrl = false) => {
+  const parsed = parseQueryToAdd(query, logicLayerUrl);
   return {
     type: ADD_TO_CART,
     payload: parsed

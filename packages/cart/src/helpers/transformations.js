@@ -60,16 +60,12 @@ export const getProviderInfo = url => {
 };
 
 /** Prepare Query to Aadd */
-export const logicLayerToOLAP = async llUrl => {
-
-};
-
-/** Prepare Query to Aadd */
-export const parseQueryToAdd = query => {
+export const parseQueryToAdd = (query, logicLayerUrl = false) => {
   const parsed = parseURL(query);
   return {
     id: getHashCode(query),
     url: parsed.query,
+    logicLayerUrl,
     originalUrl: query,
     name: parsed.title,
     query: parsed.meta,
