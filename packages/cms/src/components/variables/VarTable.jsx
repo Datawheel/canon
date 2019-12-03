@@ -6,6 +6,7 @@ import "./VarTable.css";
 export default class VarTable extends Component {
   render() {
     const {dataset} = this.props;
+    const dupes = this.props.dupes || [];
 
     return dataset
       ? dataset.error || Object.values(dataset).length < 1
@@ -16,9 +17,15 @@ export default class VarTable extends Component {
           <tbody className="cms-var-table-body">
             {Object.keys(dataset).map(k =>
               <tr className="cms-var-table-row" key={ k }>
-                <td className="cms-var-table-cell">
-                  { k }:
-                </td>
+                {dupes.includes(k) 
+                  ? <td style={{color: "red"}} className="cms-var-table-cell">
+                    { k }:
+                  </td>
+                  : <td className="cms-var-table-cell">
+                    { k }:
+                  </td>
+                }
+                
                 <td className="cms-var-table-cell">
                   <ConsoleVariable value={ dataset[k] } />
                 </td>
