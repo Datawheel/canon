@@ -90,11 +90,13 @@ class DimensionCard extends Component {
                 label={preview.name || preview.id || "search profiles..."}
                 previewing={preview.name || preview.id}
                 fontSize="xxs"
+                onSelectPreview={this.onSelectPreview.bind(this)}
                 renderResults={d =>
                   <Button
                     className="cms-search-result-button"
                     namespace="cms"
-                    fontSize="xxs" onClick={this.onSelectPreview.bind(this, d)}
+                    fontSize="xxs"
+                    onClick={this.onSelectPreview.bind(this, d)}
                   >
                     {d.name}
                   </Button>
@@ -136,7 +138,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setStatus: status => dispatch(setStatus(status)), 
+  setStatus: status => dispatch(setStatus(status)),
   deleteDimension: id => dispatch(deleteDimension(id))
 });
 
