@@ -1,6 +1,8 @@
 import geoAlbersUsaPr from "./geoAlbersUsaPr";
+import d3plusContext from "./d3plus";
 
 export const config = {
+  ...d3plusContext,
   colorScaleConfig: {
     color: ["#cfdfeb", "#b0cde1", "#90bad8", "#6ea7d2", "#4c96cb", "#3182bd", "#004374"]
   },

@@ -46,6 +46,8 @@
     },
     "prefix_dataset": "Dataset: ",
     "prefix_source": "Fuente: ",
+    "title_areacharts": "Visualizaciones",
+    "title_areasidebar": "Controles para las visualizaciones",
     "title_bottomten": "Últimos 10 ({{timePeriod}})",
     "title_filters": "Filtrar por",
     "title_groups": "Dividir por",

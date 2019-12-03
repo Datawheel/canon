@@ -51,10 +51,8 @@ const ControlMeasure = function({
   }
 
   return (
-    <ControlArea
-      className="control measure-manager"
-      title={t("Vizbuilder.title_measure")}
-    >
+    <div className="control measure-manager">
+      <h3 className="label">{t("Vizbuilder.title_measure")}</h3>
       <MeasureSelect
         className="select-measure"
         onItemSelect={setMeasureHandler}
@@ -70,7 +68,7 @@ const ControlMeasure = function({
           onChange={toggleConfIntHandler}
         />
       </p>
-    </ControlArea>
+    </div>
   );
 };
 

@@ -117,52 +117,56 @@ class Vizbuilder extends Component {
           <div className="wrapper">
             {titleArea}
 
-            <ControlMeasure defaultTable={this.props.defaultTable} />
+            <form className="viz-controls">
+              <h2 className="u-visually-hidden">{t("Vizbuilder.title_areasidebar")}</h2>
 
-            <ControlArea
-              className="control groups-manager"
-              title={t("Vizbuilder.title_groups")}
-              items={groups.map((key, index) => (
-                <GroupItem key={key} identifier={key} index={index} />
-              ))}
-            >
-              <Button
-                className="control-action group-add"
-                fill
-                icon="insert"
-                onClick={createGroupHandler}
-                text={t("Vizbuilder.action_newgroup")}
-              />
-            </ControlArea>
+              <ControlMeasure defaultTable={this.props.defaultTable} />
 
-            <ControlArea
-              className="control filters-manager"
-              title={t("Vizbuilder.title_filters")}
-              items={filters.map(key => (
-                <FilterItem
-                  formatters={formatters}
-                  identifier={key}
-                  key={key}
-                  multipliers={multipliers}
+              <ControlArea
+                className="control groups-manager"
+                title={t("Vizbuilder.title_groups")}
+                items={groups.map((key, index) => (
+                  <GroupItem key={key} identifier={key} index={index} />
+                ))}
+              >
+                <Button
+                  className="control-action group-add"
+                  fill
+                  icon="insert"
+                  onClick={createGroupHandler}
+                  text={t("Vizbuilder.action_newgroup")}
                 />
-              ))}
-            >
-              <Button
-                className="control-action filter-add"
-                fill
-                icon="insert"
-                onClick={createFilterHandler}
-                text={t("Vizbuilder.action_newfilter")}
-              />
-            </ControlArea>
+              </ControlArea>
 
-            {controlsArea}
+              <ControlArea
+                className="control filters-manager"
+                title={t("Vizbuilder.title_filters")}
+                items={filters.map(key => (
+                  <FilterItem
+                    formatters={formatters}
+                    identifier={key}
+                    key={key}
+                    multipliers={multipliers}
+                  />
+                ))}
+              >
+                <Button
+                  className="control-action filter-add"
+                  fill
+                  icon="insert"
+                  onClick={createFilterHandler}
+                  text={t("Vizbuilder.action_newfilter")}
+                />
+              </ControlArea>
 
-            <ControlSources />
+              {controlsArea}
 
-            {sourcesArea}
+              <ControlSources />
 
-            <Ranking formatters={formatters} />
+              {sourcesArea}
+
+              <Ranking formatters={formatters} />
+            </form>
           </div>
         </div>
 
@@ -177,7 +181,10 @@ class Vizbuilder extends Component {
 
         <div className="area-chart" onScroll={this.scrollEnsureHandler}>
           <div className="wrapper">
+            {!loadError && <h2 className="u-visually-hidden">{t("Vizbuilder.title_areacharts")}</h2>}
+
             {toolbarArea}
+
             {loadError && <ErrorExposer />}
             {!loadError && (
               <ChartArea

@@ -46,6 +46,8 @@
     },
     "prefix_dataset": "Dataset: ",
     "prefix_source": "Source: ",
+    "title_areacharts": "Visualizations",
+    "title_areasidebar": "Visualization controls",
     "title_bottomten": "Bottom 10 ({{timePeriod}})",
     "title_filters": "Filter by",
     "title_groups": "Grouped by",

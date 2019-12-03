@@ -10,11 +10,11 @@ import React from "react";
 /** @type {React.FC<OwnProps>} */
 const ControlArea = function({children, className, items, title}) {
   return (
-    <fieldset className={className}>
-      <legend className="label">{title}</legend>
+    <div className={className}>
+      <h4 className="label">{title}</h4>
       {items ? <div className="control-items">{items}</div> : null}
       {children}
-    </fieldset>
+    </div>
   );
 };
 

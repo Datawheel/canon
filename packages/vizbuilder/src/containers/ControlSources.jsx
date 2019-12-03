@@ -35,7 +35,9 @@ const ControlSources = function({cube, measure, setDatasetHandler, t, tableMeasu
   }
 
   return (
-    <ControlArea className="control sources" title={t("Vizbuilder.title_source")}>
+    <div className="control sources">
+      <h3 className="label">{t("Vizbuilder.title_source")}</h3>
+
       {cube.sourceName && (
         <p>
           <span>{t("Vizbuilder.prefix_source")}</span>
@@ -58,7 +60,7 @@ const ControlSources = function({cube, measure, setDatasetHandler, t, tableMeasu
           />
         </div>
       )}
-    </ControlArea>
+    </div>
   );
 };
 

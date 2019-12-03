@@ -61,12 +61,12 @@ const Ranking = function({
 
   if (selectedTimeDataset.length < 20) {
     return (
-      <fieldset className="control ranking">
-        <legend className="label">
+      <div className="control ranking">
+        <h3 className="label">
           {t(`Vizbuilder.title_ranking`, {timePeriod})}
-        </legend>
+        </h3>
         <ol className="ranking-list">{selectedTimeDataset.map(renderListItem)}</ol>
-      </fieldset>
+      </div>
     );
   }
 
@@ -76,20 +76,20 @@ const Ranking = function({
 
   return (
     <Fragment>
-      <fieldset className="control ranking upper">
-        <legend className="label">
+      <div className="control ranking upper">
+        <h3 className="label">
           {t(`Vizbuilder.title_topten`, {timePeriod})}
-        </legend>
+        </h3>
         <ol className="ranking-upper">{upperDataset.map(renderListItem)}</ol>
-      </fieldset>
-      <fieldset className="control ranking lower">
-        <legend className="label">
+      </div>
+      <div className="control ranking lower">
+        <h3 className="label">
           {t(`Vizbuilder.title_bottomten`, {timePeriod})}
-        </legend>
+        </h3>
         <ol className="ranking-lower" start={lowerIndex + 1}>
           {lowerDataset.map(renderListItem)}
         </ol>
-      </fieldset>
+      </div>
     </Fragment>
   );
 };

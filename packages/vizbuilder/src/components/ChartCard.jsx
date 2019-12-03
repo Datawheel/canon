@@ -29,7 +29,7 @@ class ChartCard extends Component {
     if (error) {
       return (
         <div className="chart-card error">
-          <fieldset className="wrapper">
+          <div className="wrapper">
             <h3>{t("Vizbuilder.error.chartfail_title", {chart: ChartComponent.name})}</h3>
             <p>{t("Vizbuilder.error.chartfail_detail")}</p>
             <p>{t("Vizbuilder.error.message", {message: error})}</p>
@@ -41,7 +41,7 @@ class ChartCard extends Component {
               />
               <IssueButton error="ChartFailError" message={error} />
             </p>
-          </fieldset>
+          </div>
         </div>
       );
     }
@@ -53,7 +53,7 @@ class ChartCard extends Component {
 
     return (
       <div className="chart-card">
-        <fieldset className="wrapper">
+        <div className="wrapper">
           {!hideToolbar && (
             <legend>
               <aside className="chart-toolbar">
@@ -62,7 +62,7 @@ class ChartCard extends Component {
             </legend>
           )}
           <ChartComponent config={this.props.config} />
-        </fieldset>
+        </div>
       </div>
     );
   }
