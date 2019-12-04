@@ -18,7 +18,7 @@ export default class VarTable extends Component {
             {Object.keys(dataset).map(k =>
               <tr className="cms-var-table-row" key={ k }>
                 {dupes.includes(k) 
-                  ? <td style={{color: "red"}} className="cms-var-table-cell">
+                  ? <td className="cms-var-table-cell warning">
                     { k }:
                   </td>
                   : <td className="cms-var-table-cell">
