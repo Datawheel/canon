@@ -339,7 +339,7 @@ class TextCard extends Component {
             { !hideAllowed &&
               <AllowedSelector
                 variables={variables}
-                value={minDataState.allowed || "always"}
+                value={minDataState.allowed !== undefined ? minDataState.allowed : "always"}
                 onChange={this.chooseVariable.bind(this)}
               />
             }

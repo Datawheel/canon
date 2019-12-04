@@ -335,7 +335,7 @@ class GeneratorEditor extends Component {
         { type === "section_visualization" &&
           <AllowedSelector
             variables={variables}
-            value={data.allowed || "always"}
+            value={data.allowed !== undefined ? data.allowed : "always"}
             onChange={this.chooseVariable.bind(this)}
           />
         }
