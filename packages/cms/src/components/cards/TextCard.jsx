@@ -5,13 +5,13 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import DefinitionList from "../variables/DefinitionList";
 import FooterButtons from "../editors/components/FooterButtons";
-import Select from "./../fields/Select";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import LocaleName from "./components/LocaleName";
+import AllowedSelector from "../interface/AllowedSelector";
 import Card from "./Card";
 
 import {updateEntity, deleteEntity} from "../../actions/profiles";
@@ -49,7 +49,6 @@ class TextCard extends Component {
     if (variablesChanged || selectorsChanged || queryChanged) {
       this.formatDisplay.bind(this)();
     }
-    
   }
 
   populateLanguageContent(minData) {
@@ -227,10 +226,6 @@ class TextCard extends Component {
     );
   }
 
-  toggleCustom(e) {
-    this.setState({customAllowed: e.target.checked});
-  }
-
   chooseVariable(e) {
     const {minData} = this.state;
     minData.allowed = e.target.value;
@@ -238,7 +233,7 @@ class TextCard extends Component {
   }
 
   render() {
-    const {alertObj, thisDisplayData, thatDisplayData, isOpen, customAllowed} = this.state;
+    const {alertObj, thisDisplayData, thatDisplayData, isOpen} = this.state;
     const {minData} = this.props;
     const {fields, hideAllowed, plainfields, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
@@ -294,19 +289,6 @@ class TextCard extends Component {
       onAlertCancel: () => this.setState({alertObj: false})
     };
 
-    const varOptions = [<option key="always" value="always">Always</option>]
-      .concat(Object.keys(variables)
-        .filter(key => !key.startsWith("_"))
-        .sort((a, b) => a.localeCompare(b))
-        .map(key => {
-          const value = variables[key];
-          const type = typeof value;
-          const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
-          return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
-        }));
-
-    const showVars = Object.keys(variables).length > 0;
-
     return (
       <Card {...cardProps}>
 
@@ -354,29 +336,13 @@ class TextCard extends Component {
               }
             </div>
 
-            { !hideAllowed 
-              ? customAllowed
-                ? <input type="text" />
-                : showVars
-                  ? <Select
-                    label="Visible"
-                    namespace="cms"
-                    value={minDataState.allowed || "always"}
-                    onChange={this.chooseVariable.bind(this)}
-                    inline
-                  >
-                    {varOptions}
-                  </Select>
-                  : null
-              : null
+            { !hideAllowed &&
+              <AllowedSelector
+                variables={variables}
+                value={minDataState.allowed || "always"}
+                onChange={this.chooseVariable.bind(this)}
+              />
             }
-            <label>
-              <input 
-                type="checkbox" 
-                value={customAllowed} 
-                onChange={this.toggleCustom.bind(this)} 
-              /> Override Visible property with custom variable
-            </label>
           </div>
 
           <FooterButtons
