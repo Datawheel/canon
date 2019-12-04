@@ -28,7 +28,8 @@ class TextCard extends Component {
       thatDisplayData: null,
       initialData: null,
       alertObj: false,
-      isDirty: false
+      isDirty: false,
+      customAllowed: false
     };
   }
 
@@ -226,6 +227,10 @@ class TextCard extends Component {
     );
   }
 
+  toggleCustom(e) {
+    this.setState({customAllowed: e.target.checked});
+  }
+
   chooseVariable(e) {
     const {minData} = this.state;
     minData.allowed = e.target.value;
@@ -233,7 +238,7 @@ class TextCard extends Component {
   }
 
   render() {
-    const {alertObj, thisDisplayData, thatDisplayData, isOpen} = this.state;
+    const {alertObj, thisDisplayData, thatDisplayData, isOpen, customAllowed} = this.state;
     const {minData} = this.props;
     const {fields, hideAllowed, plainfields, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
@@ -300,7 +305,7 @@ class TextCard extends Component {
           return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
         }));
 
-    const showVars = Object.keys(variables).length > 0 && !hideAllowed;
+    const showVars = Object.keys(variables).length > 0;
 
     return (
       <Card {...cardProps}>
@@ -349,17 +354,29 @@ class TextCard extends Component {
               }
             </div>
 
-            { showVars &&
-              <Select
-                label="Visible"
-                namespace="cms"
-                value={minDataState.allowed || "always"}
-                onChange={this.chooseVariable.bind(this)}
-                inline
-              >
-                {varOptions}
-              </Select>
+            { !hideAllowed 
+              ? customAllowed
+                ? <input type="text" />
+                : showVars
+                  ? <Select
+                    label="Visible"
+                    namespace="cms"
+                    value={minDataState.allowed || "always"}
+                    onChange={this.chooseVariable.bind(this)}
+                    inline
+                  >
+                    {varOptions}
+                  </Select>
+                  : null
+              : null
             }
+            <label>
+              <input 
+                type="checkbox" 
+                value={customAllowed} 
+                onChange={this.toggleCustom.bind(this)} 
+              /> Override Visible property with custom variable
+            </label>
           </div>
 
           <FooterButtons
