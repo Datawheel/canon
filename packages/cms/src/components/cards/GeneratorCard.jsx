@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Tooltip} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import FooterButtons from "../editors/components/FooterButtons";
 import {connect} from "react-redux";
@@ -220,7 +220,7 @@ class GeneratorCard extends Component {
             </div>
           }
           {dupes.length > 0 && 
-            <div style={{color: "red"}}>Warning: Variables reused!</div>
+            <div style={{color: "red"}}>Warning: Highlighted variables conflict with another generator or materializer</div>
           }
         </Card>
 
