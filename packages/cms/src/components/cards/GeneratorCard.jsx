@@ -220,7 +220,7 @@ class GeneratorCard extends Component {
             </div>
           }
           {dupes.length > 0 && 
-            <div style={{color: "red"}}>Warning: Highlighted variables conflict with another generator or materializer</div>
+            <p className="cms-card-error u-font-xxs">Warning: Highlighted variables conflict with another generator or materializer</p>
           }
         </Card>
 
