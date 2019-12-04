@@ -63,10 +63,9 @@ export const getProviderInfo = url => {
 export const parseQueryToAdd = (query, logicLayerUrl = false) => {
   const parsed = parseURL(query);
   return {
-    id: getHashCode(query),
+    id: getHashCode(logicLayerUrl ? logicLayerUrl : query),
     url: parsed.query,
-    logicLayerUrl,
-    originalUrl: query,
+    originalUrl: logicLayerUrl ? logicLayerUrl : query,
     name: parsed.title,
     query: parsed.meta,
     provider: parsed.provider,
