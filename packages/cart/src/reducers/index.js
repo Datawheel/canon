@@ -4,6 +4,7 @@ import {
   INIT_CART,
   CLEAR_CART,
   ADD_TO_CART,
+  ADDING_TO_CART,
   REMOVE_FROM_CART,
   TOGGLE_CART_SETTING,
   LOAD_DATASETS,
@@ -96,6 +97,17 @@ function cartStateReducer(state = initialState(), action) {
       return newState;
     }
 
+    case ADDING_TO_CART: {
+      newState = {
+        ...state,
+        internal: {
+          ...state.internal,
+          addingUrl: action.payload
+        }
+      };
+      return newState;
+    }
+
     case ADD_TO_CART: {
       newState = {
         ...state,
@@ -105,6 +117,7 @@ function cartStateReducer(state = initialState(), action) {
         },
         internal: {
           ...state.internal,
+          addingUrl: false,
           full: Object.keys(state.list).length === MAX_DATASETS_IN_CART ? true : false
         }
       };

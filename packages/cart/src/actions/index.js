@@ -38,6 +38,13 @@ export const clearCartAction = () => ({
   type: CLEAR_CART
 });
 
+/* Adding query to Cart - loading state if is logic layer */
+export const ADDING_TO_CART = "@@canon-cart/ADDING_TO_CART";
+export const addingToCartAction = query => ({
+  type: ADDING_TO_CART,
+  payload: query
+});
+
 /* Add query to Cart */
 export const ADD_TO_CART = "@@canon-cart/ADD_TO_CART";
 export const addToCartDecideAction = query => async dispatch => {
@@ -45,6 +52,7 @@ export const addToCartDecideAction = query => async dispatch => {
   const providerObj = getProviderInfo(query);
 
   if (providerObj.type === TYPE_LOGICLAYER) {
+    dispatch(addingToCartAction(query));
     const providerObj = getProviderInfo(query);
     const meta = parseQueryParams(query);
     const cubeName = meta.params.cube;
@@ -86,6 +94,8 @@ export const addToCartAction = (query, logicLayerUrl = false) => {
     payload: parsed
   };
 };
+
+
 
 
 /* Remove query from Cart */

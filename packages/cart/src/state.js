@@ -7,7 +7,8 @@ export default function initialStateFactory() {
       processing: false,
       loading: true,
       ready: false,
-      full: false
+      full: false,
+      addingUrl: false
     },
     loadingList: [],
     list: {},

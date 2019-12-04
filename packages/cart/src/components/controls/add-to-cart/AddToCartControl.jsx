@@ -46,10 +46,11 @@ class AddToCartControl extends React.Component {
   }
 
   render() {
-    const {tooltip, query, datasets, cartIsReady, cartIsFull} = this.props;
+    const {tooltip, query, datasets, addingUrl, cartIsReady, cartIsFull} = this.props;
+    const addingState = addingUrl === query;
     const hash = getHashCode(query);
     const canAdd = datasets[`${hash}`] ? false : true;
-    const readyClass = cartIsReady ? "ready" : "no-ready";
+    const readyClass = cartIsReady && !addingState ? "ready" : "no-ready";
     let stateClass = canAdd ? "add-state" : "remove-state";
     stateClass = cartIsFull && canAdd ? "full-state add-state" : stateClass;
 
@@ -59,7 +60,7 @@ class AddToCartControl extends React.Component {
     return <Tooltip
       className={`${Classes.TOOLTIP_INDICATOR  } canon-add-to-cart-control-tooltip`}
       content={tooltipText}
-      disabled={!tooltip && cartIsReady}
+      disabled={!tooltip && cartIsReady && !addingState}
     >
       <div className={`canon-add-to-cart-control-container ${readyClass} ${stateClass}`} onClick={this.onClickAddToCart}>
         <span>{buttonText}</span>
@@ -84,6 +85,7 @@ export default connect(state => {
   return {
     datasets: ct.list,
     cartIsReady: ct.internal.ready,
-    cartIsFull: ct.internal.full
+    cartIsFull: ct.internal.full,
+    addingUrl: ct.internal.addingUrl
   };
 })(AddToCartControl);
