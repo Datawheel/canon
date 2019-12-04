@@ -20,8 +20,8 @@ export const sendInitCartAction = initial => {
   initial = initial ? initial : {};
   if (initial.urls) {
     initial.list = {};
-    initial.urls.map(url => {
-      const parsed = parseQueryToAdd(url);
+    initial.urls.map(urlObj => {
+      const parsed = parseQueryToAdd(urlObj.url, urlObj.originalUrl);
       initial.list[parsed.id] = parsed;
     });
   }
@@ -57,8 +57,6 @@ export const addToCartDecideAction = query => async dispatch => {
         meta.params.measures.map(measure => {
           queryParams.push(`measures[]=${measure}`);
         });
-
-        console.log("ACTION", meta.params);
 
         // Drilldowns
         meta.params.drilldowns.map(drill => {

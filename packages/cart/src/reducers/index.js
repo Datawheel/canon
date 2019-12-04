@@ -26,7 +26,7 @@ function setLocalForageState(newState) {
 
   // Clean calculated urls info, just save in storage the url string
   Object.keys(newInstance.list).map(id => {
-    stateToLocalForage.urls.push(newInstance.list[id].url);
+    stateToLocalForage.urls.push({url: newInstance.list[id].url, originalUrl: newInstance.list[id].originalUrl});
   });
   delete stateToLocalForage.list;
   stateToLocalForage.settings = Object.assign({}, newInstance.settings);

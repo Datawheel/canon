@@ -40,7 +40,6 @@ class AddToCartControl extends React.Component {
     }
     else {
       if (!cartIsFull) {
-        console.log("ADD!", hash);
         dispatch(addToCartDecideAction(query));
       }
     }
