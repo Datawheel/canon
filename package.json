@@ -1,6 +1,6 @@
 {
   "name": "@datawheel/canon-core",
-  "version": "0.17.59",
+  "version": "0.18.1",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "src/index.js",
   "bin": {
@@ -75,6 +75,7 @@
     "eslint": "^5.11.1",
     "eslint-plugin-react": "^7.12.2",
     "express": "^4.16.2",
+    "file-loader": "^4.2.0",
     "grizzly": "^2.1.5",
     "hard-source-webpack-plugin": "^0.13.1",
     "helmet": "^3.9.0",

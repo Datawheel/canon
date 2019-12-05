@@ -13,11 +13,11 @@ module.exports = function(sequelize, db) {
       },
       name: {
         type: db.STRING,
-        defaultValue: "New Formatter"
+        defaultValue: ""
       },
       description: {
         type: db.TEXT,
-        defaultValue: "New Description"
+        defaultValue: ""
       },
       logic: {
         type: db.TEXT,

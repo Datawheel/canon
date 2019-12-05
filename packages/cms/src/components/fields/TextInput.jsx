@@ -13,31 +13,31 @@ export default class TextInput extends Component {
 
   render() {
     const {
-      context,      // "cp" (default) or "cms"
+      namespace,     // "cp" (default) or "cms"
       autoFocus,
       disabled,
       fontSize,
       labelFontSize,
       inline,
-      label,        // the label
-      labelHidden,  // hide the label (label still required)
+      label,         // the label
+      labelHidden,   // hide the label (label still required)
       name,
-      type,         // number, password, etc
-      onChange,     // callback function
-      placeholder,  // placeholder text
-      value         // input value
+      type,          // number, password, etc
+      onChange,      // callback function
+      placeholder,   // placeholder text
+      value          // input value
     } = this.props;
 
     const {showPassword} = this.state;
 
     return (
-      <label className={`${context}-input-label u-font-${fontSize}${inline ? " cms-inline-input-label" : ""}`}>
-        <span className={`${context}-input-text u-font-${labelFontSize || fontSize}${label && labelHidden ? " u-visually-hidden" : "" }`}>
+      <label className={`${namespace}-input-label u-font-${fontSize}${inline ? " cms-inline-input-label" : ""}`}>
+        <span className={`${namespace}-input-text u-font-${labelFontSize || fontSize}${label && labelHidden ? " u-visually-hidden" : "" }`}>
           {label}
         </span>
 
         <input
-          className={`${context}-input u-font-${fontSize}`}
+          className={`${namespace}-input u-font-${fontSize}`}
           value={value}
           onChange={onChange}
           name={name}
@@ -51,7 +51,8 @@ export default class TextInput extends Component {
         {type === "password" &&
           <Button
             onClick={() => this.setState({showPassword: !showPassword})}
-            context={context}
+            className={`${namespace}-input-password-button`}
+            namespace={namespace}
             icon={showPassword ? "eye-off" : "eye-open"}
             fontSize="xs"
             iconOnly
@@ -67,6 +68,6 @@ export default class TextInput extends Component {
 
 TextInput.defaultProps = {
   fontSize: "sm",
-  context: "cp",
+  namespace: "cp",
   label: "missing `label` prop in TextInput.jsx"
 };

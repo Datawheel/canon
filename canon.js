@@ -1,13 +1,14 @@
 /**
   Simple test middleware function
 */
-// function exampleReduxMiddleware(canonMiddleware) {
-//   return canonMiddleware;
-// }
+function exampleReduxMiddleware(canonMiddleware) {
+  return canonMiddleware;
+}
 
 module.exports = {
-  // reduxMiddleware(applyMiddleware, canonMiddleware) {
-  //   console.log("reduxMiddleware from canon.js");
-  //   return applyMiddleware(...exampleReduxMiddleware(canonMiddleware));
-  // }
+  reduxMiddleware(applyMiddleware, canonMiddleware) {
+    const message = "reduxMiddleware from canon.js";
+    console.log(message);
+    return applyMiddleware(...exampleReduxMiddleware(canonMiddleware));
+  }
 };

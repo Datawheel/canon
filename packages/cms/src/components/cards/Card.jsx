@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {Alert, Icon} from "@blueprintjs/core";
+import stripEntities from "../../utils/formatters/stripEntities";
 import ButtonGroup from "../fields/ButtonGroup";
 import ReorderButton from "./components/ReorderButton";
 import "./Card.css";
@@ -18,8 +19,7 @@ export default class Card extends Component {
       children,        // main card content
       secondaryLocale, // two columns
 
-      reorderProps,    // object with {item, array, type} used to configure ReorderButtons
-      onReorder,       // callback for when you reorder
+      reorderProps,    // show reorder button or not
 
       alertObj,        // object with {callback, confirm, message} used to configure alert
       onAlertCancel    // wipe alert state
@@ -28,7 +28,7 @@ export default class Card extends Component {
     const buttonProps = {
       className: "cms-card-heading-button",
       fontSize: "xxxs",
-      context: "cms",
+      namespace: "cms",
       iconOnly: true
     };
 
@@ -86,9 +86,9 @@ export default class Card extends Component {
           {onEdit &&
             <Icon className="cms-card-heading-icon" icon="cog" />
           }
-          <h3 className="cms-card-heading-text u-font-xs">{title || "missing `title` prop in Card.jsx"}</h3>
+          <h3 className="cms-card-heading-text u-font-xs">{stripEntities(title) || "Add a title"}</h3>
           {buttons.length
-            ? <ButtonGroup context="cms" buttons={buttons} />
+            ? <ButtonGroup namespace="cms" buttons={buttons} />
             : ""
           }
         </div>
@@ -97,12 +97,10 @@ export default class Card extends Component {
         {children}
 
         {/* reorder buttons */}
-        {reorderProps && onReorder &&
+        {reorderProps &&
           <ReorderButton
-            item={reorderProps.item}
-            array={reorderProps.array}
+            id={reorderProps.id}
             type={reorderProps.type}
-            onMove={onReorder}
           />
         }
 

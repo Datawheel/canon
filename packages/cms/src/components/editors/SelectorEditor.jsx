@@ -3,6 +3,7 @@ import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import ButtonGroup from "../fields/ButtonGroup";
+import {connect} from "react-redux";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -34,7 +35,8 @@ class SelectorEditor extends Component {
 
   addOption() {
     const {data, isDirty} = this.state;
-    const {variables} = this.props;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
     if (!data.options) data.options = [];
     const varList = Object.keys(variables).filter(v => !v.startsWith("_") && !data.options.map(o => o.option).includes(v));
     if (varList.length > 0) {
@@ -120,6 +122,11 @@ class SelectorEditor extends Component {
     if (data.options.length > 0 && !data.options.map(o => o.isDefault).includes(true)) {
       data.options[0].isDefault = true;
       data.default = data.options[0].option;
+    }
+    // The user may have deleted an option that was a default in a multiselect.
+    // Recalculate the defaults so that it properly prunes them out.
+    if (data.type === "multi") {
+      data.default = data.options.filter(o => o.isDefault).map(o => o.option).join();
     }
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
@@ -207,7 +214,8 @@ class SelectorEditor extends Component {
   render() {
 
     const {data, showCustom} = this.state;
-    const {variables} = this.props;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
 
     if (!data || !variables) return null;
 
@@ -236,7 +244,7 @@ class SelectorEditor extends Component {
 
     const buttonProps = {
       className: "u-font-xs",
-      context: "cms",
+      namespace: "cms",
       iconPosition: "left"
     };
 
@@ -246,19 +254,19 @@ class SelectorEditor extends Component {
         <div className="cms-field-group">
           <TextInput
             label="Selector name"
-            context="cms"
+            namespace="cms"
             value={data.name}
             onChange={this.editName.bind(this)}
           />
           <TextInput
             label="Input label"
-            context="cms"
+            namespace="cms"
             value={data.title}
             onChange={this.editLabel.bind(this)}
           />
         </div>
 
-        <ButtonGroup className="cms-selector-editor-button-group" context="cms" buttons={[
+        <ButtonGroup className="cms-selector-editor-button-group" namespace="cms" buttons={[
           {
             children: "single selection",
             active: data.type === "single",
@@ -304,7 +312,7 @@ class SelectorEditor extends Component {
                     <Select
                       label="option (new)"
                       labelHidden
-                      context="cms"
+                      namespace="cms"
                       value={option.option}
                       onChange={this.chooseOption.bind(this, i)}
                     >
@@ -317,7 +325,7 @@ class SelectorEditor extends Component {
                     <Select
                       label="Visible"
                       labelHidden
-                      context="cms"
+                      namespace="cms"
                       value={option.allowed}
                       onChange={this.chooseAllowed.bind(this, i)}
                     >
@@ -329,7 +337,7 @@ class SelectorEditor extends Component {
                   <td className="cms-selector-editor-cell cms-delete-selector-editor-cell">
                     <Button
                       onClick={this.deleteOption.bind(this, i)}
-                      context="cms"
+                      namespace="cms"
                       icon="trash"
                       iconOnly
                     >
@@ -342,7 +350,7 @@ class SelectorEditor extends Component {
                     <td className="cms-selector-editor-cell cms-reorder">
                       <Button
                         onClick={this.moveDown.bind(this, i)}
-                        context="cms"
+                        namespace="cms"
                         className="cms-reorder-button"
                         icon="swap-vertical"
                         iconOnly
@@ -362,9 +370,9 @@ class SelectorEditor extends Component {
         <Button
           onClick={this.addOption.bind(this)}
           className={!data.options.length ? "u-font-md" : null}
-          context="cms"
+          namespace="cms"
           icon="plus"
-          block
+          fill
         >
           {!data.options.length ? "Add first option" : "Add option"}
         </Button>
@@ -384,7 +392,7 @@ class SelectorEditor extends Component {
               <Select
                 label=" "
                 labelHidden
-                context="cms"
+                namespace="cms"
                 value={data.default}
                 onChange={this.chooseCustom.bind(this)}
                 inline
@@ -399,4 +407,8 @@ class SelectorEditor extends Component {
   }
 }
 
-export default SelectorEditor;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(SelectorEditor);

@@ -30,6 +30,10 @@ class Home extends Component {
           Hello <strong>{{name}}</strong>, you have {{count}} unread message. <Link to="/profile/040AF00182">Click here</Link>.
         </Trans>
         <Button>Fake Button</Button>
+        <form>
+          <label htmlFor="test">Test Input:</label>
+          <input id="test" type="text" />
+        </form>
         <Activate location={this.props.location} />
         <div className="spacer">
           testing

@@ -1,0 +1,145 @@
+@import "../../../css/mixins.css";
+
+.cp-subnav {
+  position: relative;
+  z-index: 1;
+  padding: var(--gutter-sm) var(--gutter-md);
+  transition:
+    background-color 0.1s ease-out,
+    box-shadow 0.2s ease-out;
+}
+
+/* reset list & links */
+.cp-subnav-list { @mixin list-reset; }
+.cp-subnav-link { display: block; }
+
+/* hide the dummy div by default */
+.cp-subnav-dummy { display: none; }
+
+/* link icon sizing & positioning */
+.cp-subnav-link-icon {
+  width: 0.875em;
+  position: relative;
+  margin-right: 0.375em;
+  top: -1px;
+  transition: transform 0.1s ease-out;
+}
+
+/* base theming from hero vars */
+.cp-subnav-link {
+  position: relative; /* contain the "border" */
+  color: var(--hero-text-color);
+  opacity: 0.75;
+  transition:
+    color 0.2s ease-out,
+    opacity 0.2s ease-out;
+
+  /* "border" */
+  &:after {
+    /* sizing */
+    content: "";
+    display: block;
+    width: 100%;
+    height: 2px;
+    /* positioning */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    /* transitions */
+    background-color: transparent;
+    transition: background-color 0.3s ease-out;
+  }
+
+  /* interactions */
+  &:hover, &:focus {
+    color: var(--hero-heading-color);
+    opacity: 1;
+    text-decoration: none;
+
+    & .cp-subnav-link-icon {
+      transform: scale(1.125);
+    }
+  }
+
+  /* current section */
+  &.is-active {
+    color: var(--accent);
+    opacity: 1;
+
+    &:after {
+      background-color: var(--accent);
+    }
+  }
+}
+
+/* stacked layout on small screens */
+@mixin max-sm {
+  /* make links more clickable */
+  .cp-subnav-link {
+    @mixin font-md;
+    padding: 0.375em 0;
+  }
+  /* extend hero bg color on small screens */
+  .cp-subnav {
+    background-color: var(--hero-bg-color);
+  }
+}
+
+/* horizontal layout on big screens */
+@mixin min-sm {
+  .cp-subnav {
+    padding: 0;
+    top: calc(0px - var(--subnav-height));
+    width: 100%;
+
+    /* stuck state */
+    &.is-fixed {
+      position: fixed;
+      z-index: 2;
+      top: var(--subnav-height);
+      height: var(--subnav-height);
+      background-color: var(--hero-bg-color);
+      box-shadow: 0 1px 0.25rem color(var(--black) a(0.333));
+    }
+
+    /* overflow list */
+    & .cp-subnav-list {
+      height: var(--subnav-height);
+      display: flex;
+      margin-left: 0;
+      padding: 0 var(--gutter-sm);
+      margin-right: var(--gutter-sm);
+      @mixin horizontal-overflow-container;
+    }
+
+    /* equally spaced items where possible */
+    & .cp-subnav-item {
+      flex: 1 0 auto;
+      text-align: center;
+    }
+
+    /* links fill the subnav height */
+    & .cp-subnav-link {
+      line-height: var(--subnav-height);
+      padding: 0 var(--gutter-sm);
+    }
+
+    /* show the dummy div */
+    & + .cp-subnav-dummy.is-visible {
+      display: block;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* offset subnav height */
+    & ~ .cp-main {
+      margin-top: calc(0px - var(--subnav-height));
+    }
+  }
+}
+
+/* jack up z-index in IE to accomodate for incrementing z-index sticky section hack (see #752) */
+@mixin ie-only {
+  .cp-subnav.is-fixed { z-index: 200; }
+}

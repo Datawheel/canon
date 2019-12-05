@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
 
@@ -8,6 +7,8 @@ import stripHTML from "../../utils/formatters/stripHTML";
 import Viz from "../Viz/Viz";
 import SourceGroup from "../Viz/SourceGroup";
 import StatGroup from "../Viz/StatGroup";
+
+import Button from "../fields/Button";
 
 import Parse from "./components/Parse";
 
@@ -23,23 +24,52 @@ class Hero extends Component {
       contents: props.contents,
       loading: false,
       selectors: {},
-      sources: []
+      sources: [],
+      images: [],
+      creditsVisible: false
     };
+  }
+
+  componentDidMount() {
+    const {profile} = this.props;
+    const {dims} = profile;
+
+    /** Image Metadata
+      * A profile is a set of one more slug/id pairs. In multi-variate profiles, these pairs are strictly
+      * ordered, for example, /geo/mass/export/coal/import/cars. Each of these slug/id pairs may or may not
+      * have image data associated with it, which makes up the backdrop of the Hero Section. If it does have
+      * an image, then it also will have metadata. The `images` array that I create is a strictly ordered
+      * array of image links and their data. This means, in the example above, if /export/coal is the only
+      * one of the three that have an image, then this image array will be [null, {imageData}, null].
+      */
+
+    const images = [];
+    if (dims) {
+      for (let i = 0; i < dims.length; i++) {
+        if (profile.images[i]) {
+          images.push({
+            src: `/api/image?slug=${dims[i].slug}&id=${dims[i].id}&type=splash`,
+            author: profile.images[i].author,
+            meta: profile.images[i].meta,
+            permalink: profile.images[i].url
+          });
+        }
+      }
+    }
+
+    this.setState({images});
   }
 
   render() {
     const {contents, loading, sources, profile} = this.props;
+    const {images, creditsVisible} = this.state;
 
-    // no hero section; just grab the profile title & subtitle
     let title = profile.title;
-    let subtitleContent = <Parse El="p" className="cp-hero-subtitle">{profile.subtitle}</Parse>;
-    let paragraphs, sourceContent, statContent;
+    let paragraphs, sourceContent, statContent, subtitleContent;
 
-
-    // hero section; grab all the usual section goodness
     if (contents) {
       title = contents.title;
-
+      // subtitles
       if (contents.subtitles.length) {
         subtitleContent = contents.subtitles.map((subhead, i) =>
           <Parse className="cp-section-subhead display cp-hero-subhead" key={`${subhead.subtitle}-subhead-${i}`}>
@@ -53,9 +83,7 @@ class Hero extends Component {
         const statGroups = nest().key(d => d.title).entries(contents.stats);
 
         statContent = <div className="cp-stat-group-wrapper cp-hero-stat-group-wrapper">
-          <div className="cp-stat-group cp-hero-stat-group">
-            {statGroups.map(({key, values}) => <StatGroup className="cp-hero-stat" key={key} title={key} stats={values} />)}
-          </div>
+          {statGroups.map(({key, values}) => <StatGroup className="cp-hero-stat" key={key} title={key} stats={values} />)}
         </div>;
       }
 
@@ -105,6 +133,74 @@ class Hero extends Component {
             </div> : ""
           }
         </div>
+
+        {/* display image credits, and images */}
+        {images && images.length
+          ? <React.Fragment>
+            {/* credits */}
+            <div className={`cp-hero-credits ${creditsVisible ? "is-open" : "is-closed"}`}>
+              <Button
+                className="cp-hero-credits-button"
+                onClick={() => this.setState({creditsVisible: !creditsVisible})}
+                icon={creditsVisible ? "eye-off" : "eye-open"}
+                iconPosition="left"
+                fontSize="xxs"
+                active={creditsVisible}
+              >
+                <span className="u-visually-hidden">
+                  {creditsVisible ? "view " : "hide "}
+                </span>
+                image credits
+              </Button>
+
+              {creditsVisible
+                ? <ul className="cp-hero-credits-list">
+                  {images.map((img, i) =>
+                    <li className="cp-hero-credits-item" key={img.permalink}>
+                      {images.length > 1
+                        ? <h2 className="cp-hero-credits-item-heading u-font-md">
+                          Image {i + 1}
+                        </h2> : ""
+                      }
+
+                      {/* author */}
+                      {img.author
+                        ? <p className="cp-hero-credits-text">
+                          Photograph by <span className="cp-hero-credits-name heading">
+                            {img.author}
+                          </span>
+                        </p> : ""
+                      }
+                      {/* description */}
+                      {img.meta ? <p className="cp-hero-credits-text">
+                        {img.meta}
+                      </p> : ""}
+                      {/* flickr link */}
+                      {img.permalink ? <p className="cp-hero-credits-text u-font-xs">
+                        <span className="u-visually-hidden">Direct link: </span>
+                        <a className="cp-hero-credits-link" href={img.permalink}>
+                          {img.permalink.replace("https://", "")}
+                        </a>
+                      </p> : ""}
+                    </li>
+                  )}
+                </ul> : ""
+              }
+            </div>
+
+            {/* images */}
+            <div className="cp-hero-img-outer">
+              <div className="cp-hero-img-overlay" />
+              <div className="cp-hero-img-grid">
+                {images.map(img => img.src &&
+                  <div className="cp-hero-img-wrapper" key={img.src}>
+                    <img className="cp-hero-img" src={img.src} alt="" draggable="false" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </React.Fragment> : ""
+        }
       </header>
     );
   }

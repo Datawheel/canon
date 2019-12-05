@@ -9,6 +9,11 @@
 
   .cp-default-section-caption {
     width: var(--sidebar-width);
+
+    /* no viz */
+    &:last-child {
+      width: 100%;
+    }
   }
 
   .cp-default-section-figure {

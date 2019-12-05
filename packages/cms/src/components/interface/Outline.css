@@ -1,0 +1,171 @@
+@import "../../css/mixins.css";
+
+.cms-outline {
+  @mixin list-reset;
+  /* sizing */
+  @mixin horizontal-overflow-container;
+  width: 100%;
+  display: flex;
+  padding-right: calc(var(--gutter-sm) + var(--gutter-xs));
+  /* theming */
+  border-top: 1px solid var(--light-2);
+  border-bottom: 1px solid var(--light-2);
+  &:not(:last-child) { border-bottom: none; }
+
+  @mixin min-sm {
+    padding-left: calc(var(--gutter-sm) + var(--gutter-xs));
+  }
+
+  @mixin dark-mode {
+    background-color: var(--dark-3);
+    border-color: var(--black);
+  }
+
+  &.is-open {
+    @mixin cms-nav-toggle-transition;
+  }
+  &.is-closed {
+    @mixin cms-nav-closed-state;
+    transform: translateY(-1rem);
+  }
+}
+
+.cms-outline-item {
+  flex: 0 0 auto;
+
+  /* add space for buttons */
+  &:last-of-type {
+    margin-right: var(--gutter-md);
+  }
+  /* cover up divider line when selected */
+  &:not(:first-of-type) {
+    margin-left: -1px;
+  }
+}
+
+.cms-outline-link {
+  /* sizing */
+  @mixin font-xs;
+  display: block;
+  padding: 0.875em var(--gutter-md);
+  /* theming */
+  @mixin cms-nav-link-theme;
+  transition:
+    color 0.1s ease-out,
+    background-color 0.1s ease-out;
+
+  &:hover, &:focus {
+    text-decoration: none;
+  }
+
+  &.is-selected, &.is-selected-parent {
+    background-color: var(--white);
+    @mixin dark-mode { background-color: var(--dark-2); }
+
+    & .cms-outline-link-icon[icon*="caret"] {
+      transform: rotate(90deg);
+    }
+  }
+  &.is-selected {
+    color: var(--accent-dark);
+    @mixin dark-mode { color: var(--accent-light); }
+  }
+  &.is-selected-parent {
+    color: var(--dark-2);
+    @mixin dark-mode { color: var(--white); }
+  }
+}
+
+.cms-outline-link-icon {
+  width: 1em;
+  margin-right: 0.5em;
+  transition: transform 0.1s ease-out;
+
+  &[icon*="caret"] {
+    margin-right: 0.25em;
+    margin-left: -0.5em;
+  }
+}
+
+/* action buttons */
+.cms-outline-item .cms-outline-item-actions {
+  @mixin absolute-vertical-center;
+  right: 0;
+  width: 1px;
+  min-width: 1px;
+  height: 1em;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: none;
+  background: var(--light-3);
+  z-index: -1;
+
+  @mixin dark-mode {
+    background: var(--dark-2);
+  }
+
+  /* reset buttons */
+  & .cms-outline-item-actions-button {
+    margin: 0;
+    width: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    box-shadow: none;
+    opacity: 0;
+    background: none;
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 0.25s ease-out;
+    overflow: hidden;
+  }
+}
+
+/* visible state */
+@define-mixin outline-action-button-hover {
+  /* sizing */
+  min-width: 2em;
+  height: 100%;
+  /* positioning */
+  transform: translate(1rem, -50%);
+  right: 2px;
+  z-index: 1;
+  /* stacked layout */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* transitions (in only) */
+  transition: all 0.2s ease-out;
+  transition-delay: 0.875s; /* prevent misclicks by delaying transition in */
+  /* override default button style */
+  @mixin cms-button-shadow;
+  background: var(--white);
+  border-radius: 0;
+
+  @mixin dark-mode {
+    background: var(--dark-2);
+  }
+
+  /* remove button resets */
+  & .cms-outline-item-actions-button {
+    opacity: 1;
+    width: 100%;
+    pointer-events: auto;
+    z-index: auto;
+    transform: none;
+    transition-delay: 0.875s;
+
+    /* for sections with only one button (i.e., the last one) */
+    &:only-child {
+      height: 100%;
+    }
+  }
+}
+.cms-outline-item:hover .cms-outline-item-actions,
+.cms-outline-link:focus + .cms-outline-item-actions,
+.cms-outline-item .cms-outline-item-actions:hover {
+  @mixin outline-action-button-hover;
+}
+/* focus-within needs to be on its own line because browsers that don't support it will throw out all the styles */
+.cms-outline-item .cms-outline-item-actions:focus-within { /* NOTE: this is not rendering, at all. See issue #812 */
+  @mixin outline-action-button-hover;
+}

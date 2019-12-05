@@ -11,7 +11,8 @@ export default class Parse extends Component {
       split,     // if there's a <br> tag, create another element (default) or replace it with a space
       className, // class given to each generated element
       id,        // mostly for section anchors
-      children   // content to parse; one blob of content expected
+      children,  // content to parse; one blob of content expected
+      tabIndex   // when you need to make the element focusable
     } = this.props;
 
     let blob = children.replace(/<p><br><\/p>/g, "<br/>");
@@ -41,6 +42,7 @@ export default class Parse extends Component {
           className={className}
           key={`${el}-${El}-${i}`}
           dangerouslySetInnerHTML={{__html: stripOL(el)}}
+          tabIndex={tabIndex}
         />
 
         // unordered list
@@ -49,6 +51,7 @@ export default class Parse extends Component {
             className={className}
             key={`${el}-${El}-${i}`}
             dangerouslySetInnerHTML={{__html: stripUL(el)}}
+            tabIndex={tabIndex}
           />
 
           // inline code block
@@ -57,6 +60,7 @@ export default class Parse extends Component {
               className={className}
               key={`${el}-${El}-${i}`}
               dangerouslySetInnerHTML={{__html: el}}
+              tabIndex={tabIndex}
             />
 
             // quote
@@ -65,6 +69,7 @@ export default class Parse extends Component {
                 className={className}
                 key={`${el}-${El}-${i}`}
                 dangerouslySetInnerHTML={{__html: el}}
+                tabIndex={tabIndex}
               />
 
               // anything else
@@ -73,6 +78,7 @@ export default class Parse extends Component {
                 dangerouslySetInnerHTML={{__html: stripP(el)}}
                 id={id && i === 0 ? id : null}
                 key={`${el}-${El}-${i}`}
+                tabIndex={tabIndex}
               />
     );
   }

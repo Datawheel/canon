@@ -2,6 +2,9 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
 import {SizeMe} from "react-sizeme";
+import {hot} from "react-hot-loader/root";
+
+import Graphic from "./Graphic";
 import PercentageBar from "./PercentageBar";
 import Table from "./Table";
 import Options from "./Options";
@@ -11,9 +14,15 @@ import Parse from "../sections/components/Parse";
 import "./Viz.css";
 import defaultConfig from "./defaultConfig";
 
-const vizTypes = Object.assign({PercentageBar}, {Table}, d3plus);
+const vizTypes = Object.assign({PercentageBar}, {Table}, {Graphic}, d3plus);
 
 class Viz extends Component {
+
+  getChildContext() {
+    const context = {...this.context};
+    context.d3plus = {...defaultConfig, ...context.d3plus};
+    return context;
+  }
 
   analyzeData(resp) {
     const {updateSource} = this.context;
@@ -22,7 +31,14 @@ class Viz extends Component {
 
   render() {
     const {sectionTitle} = this.props;
+    // Variables come from props in the CMS, and Context in the Front-end.
     const variables = this.props.variables || this.context.variables;
+    // onSetVariables will either come from ProfileBuilder (CMS) or Profile (Front-end)
+    // But either way, it is delivered via context. Have a backup no-op just in case.
+    const onSetVariables = this.context.onSetVariables ? this.context.onSetVariables : d => d;
+    // Window opening is only supported on front-end profiles. If they didn't 
+    // come through context, then this Viz is in the CMS, so just replace it with a no-op.
+    const onOpenModal = this.context.onOpenModal ? this.context.onOpenModal : d => d;
     const locale = this.props.locale || this.context.locale;
 
     // This Viz component may be embedded in two ways - as a VisualizationCard in the
@@ -33,11 +49,12 @@ class Viz extends Component {
     // locale-nested format.
     const formatters = this.context.formatters[locale] || this.context.formatters;
 
-    const {config, configOverride, context, className, debug, options, slug, section, showTitle, headingLevel} = this.props;
+    const {config, configOverride, namespace, className, debug, options, slug, section, showTitle, headingLevel} = this.props;
     const {id} = config;
 
     // clone config object to allow manipulation
-    const vizProps = propify(config.logic, formatters, variables, locale, id);
+    const actions = {onSetVariables, onOpenModal};
+    const vizProps = propify(config.logic, formatters, variables, locale, id, actions);
 
     // If the result of propify has an "error" property, then the provided javascript was malformed and propify
     // caught an error. Instead of attempting to render the viz, simply show the error to the user.
@@ -59,18 +76,21 @@ class Viz extends Component {
     const title = vizProps.config.title;
     delete vizProps.config.title;
 
-    const vizConfig = Object.assign({}, defaultConfig, {locale}, vizProps.config);
+    const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
     return <SizeMe render={({size}) =>
-      <div className={ `${context}-viz-container${
-        className ? ` ${className}` : ""
-      }${
-        type ? ` ${context}-${toKebabCase(type)}-viz-container` : ""
-      }`}>
-        {title && showTitle || options
-          ? <div className={`${context}-viz-header`}>
+      <div
+        className={ `${namespace}-viz-container${
+          className ? ` ${className}` : ""
+        }${
+          type ? ` ${namespace}-${toKebabCase(type)}-viz-container` : ""
+        }`}
+        ref={ comp => this.viz = comp }
+      >
+        {(title && showTitle || options) && type !== "Graphic"
+          ? <div className={`${namespace}-viz-header`}>
             {title && showTitle
-              ? <Parse El={headingLevel} className={`${context}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}>
+              ? <Parse El={headingLevel} className={`${namespace}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}>
                 {title}
               </Parse> : ""
             }
@@ -87,16 +107,21 @@ class Viz extends Component {
             }
           </div> : ""
         }
-        <div className={`${context}-viz-figure${vizConfig.height ? " with-explicit-height" : ""}`}>
+        <div className={`${namespace}-viz-figure${vizConfig.height || type === "Graphic" ? " with-explicit-height" : ""}`}>
           <Visualization
             key="viz-key"
-            ref={ comp => this.viz = comp }
-            className={`d3plus ${context}-viz ${context}-${toKebabCase(type)}-viz`}
-            dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
+            className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
+            dataFormat={resp => {
+              const hasMultiples = Array.isArray(vizProps.data) && vizProps.data.some(d => typeof d === "string");
+              const sources = hasMultiples ? resp : [resp];
+              sources.forEach(r => this.analyzeData.bind(this)(r));
+              // console.log(sources);
+              return vizProps.dataFormat(resp);
+            }}
             linksFormat={vizProps.linksFormat}
             nodesFormat={vizProps.nodesFormat}
             topojsonFormat={vizProps.topojsonFormat}
-            config={vizConfig}
+            config={{...vizConfig, variables}}
           />
         </div>
       </div>
@@ -104,9 +129,24 @@ class Viz extends Component {
   }
 }
 
-Viz.contextTypes = {
+Viz.childContextTypes = {
+  d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,
+  // Though onSetVariables and onOpenModal aren't explicitly passed down,
+  // they are required to be here because of the object spread in getChildContext.
+  onSetVariables: PropTypes.func,
+  onOpenModal: PropTypes.func,
+  updateSource: PropTypes.func,
+  variables: PropTypes.object
+};
+
+Viz.contextTypes = {
+  d3plus: PropTypes.object,
+  formatters: PropTypes.object,
+  locale: PropTypes.string,
+  onSetVariables: PropTypes.func,
+  onOpenModal: PropTypes.func,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };
@@ -115,10 +155,10 @@ Viz.defaultProps = {
   className: "",
   config: {},
   configOverride: {},
-  context: "cp",
+  namespace: "cp",
   options: true,
   showTitle: true,
   headingLevel: "h3"
 };
 
-export default Viz;
+export default hot(Viz);

@@ -42,14 +42,10 @@
   }
 
   &.is-recompiling {
-    color: var(--alert-dark);
+    @mixin error-text;
 
     & .cms-status-icon {
       animation: rotate 0.75s infinite ease-in-out;
-    }
-
-    @mixin dark-mode {
-      color: var(--alert-light);
     }
   }
 }

@@ -76,12 +76,6 @@
   }
 }
 
-@mixin dark-mode {
-  .cms-editor .cms-deck-button {
-    background: var(--dark-3);
-  }
-}
-
 .cms-deck-button > .cms-deck-button-icon {
   @mixin absolute-vertical-center;
   width: 0.875rem;
@@ -129,32 +123,6 @@
   flex-wrap: wrap;
 }
 
-/* add padding around containers in main content area */
-.cms-editor .cms-card-container {
-  padding: 1.25rem;
-  /* theming */
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-  background-color: var(--light-1);
-  border: 1px solid var(--light-2);
-  border-top-color: transparent;
-
-  @mixin dark-mode {
-    background-color: var(--dark-2);
-    border-color: var(--dark-2);
-  }
-
-  & > .cms-card-list {
-    border-top: 1px solid var(--light-2);
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-
-    @mixin dark-mode {
-      border-top-color: var(--dark-2);
-    }
-  }
-}
-
 /* card layout */
 .cms-card-list {
   display: flex;
@@ -165,5 +133,45 @@
   &:only-child {
     width: 100%;
     flex-basis: 100%; /* needed because reasons */
+  }
+}
+
+/* decks in main content area */
+.cms-editor-inner {
+  /* add padding & adjust theming */
+  & .cms-card-container {
+    padding: 1.25rem;
+    /* theming */
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    background-color: var(--light-1);
+    border: 1px solid var(--light-2);
+    border-top-color: transparent;
+
+    @mixin dark-mode {
+      background-color: var(--dark-2);
+      border-color: var(--dark-2);
+    }
+
+    & > .cms-card-list {
+      border-top: 1px solid var(--light-2);
+      border-top-left-radius: 2px;
+      border-top-right-radius: 2px;
+
+      @mixin dark-mode {
+        border-top-color: var(--dark-2);
+      }
+    }
+  }
+
+  @mixin dark-mode {
+    & .cms-deck-button {
+      background: var(--dark-3);
+    }
+  }
+
+  /* space out adjacent lists */
+  & .cms-deck:not(:last-of-type) {
+    margin-bottom: 2rem;
   }
 }

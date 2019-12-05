@@ -83,6 +83,7 @@ module.exports = async function() {
                     dimension: parts[0],
                     hierarchy: parts[1],
                     level: parts[2],
+                    caption: l.caption !== parts[2] ? l.caption : null,
                     dimensionType: d.dimensionType,
                     properties: l.properties,
                     annotations: d.annotations

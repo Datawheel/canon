@@ -1,0 +1,259 @@
+@import "../../css/mixins.css";
+
+.cms-navbar {
+  /* sizing */
+  width: 100%;
+  /* positioning */
+  top: 0;
+  z-index: 4;
+  /* theming */
+  background-color: var(--light-1);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+    box-shadow: none;
+  }
+}
+
+.cms-navbar-inner {
+  /* sizing */
+  min-height: var(--cms-nav-height);
+  width: 100%;
+  /* layout */
+  display: flex;
+  flex-wrap: wrap;
+
+  @mixin min-sm {
+    padding-right: var(--gutter-sm);
+  }
+}
+
+/* reset buttons */
+.cms-navbar-title-button,
+.cms-navbar-entity-settings-button {
+  @mixin button-reset;
+  color: inherit;
+}
+
+/* title */
+.cms-navbar-title {
+  display: flex;
+  padding: 0.75em var(--gutter-xs);
+  transition: background-color 0.2s ease-out;
+
+  & [class*="icon"] {
+    color: var(--gray);
+  }
+
+  @mixin min-sm {
+    padding: 0 var(--gutter-md);
+
+    &.with-node {
+      background-color: var(--white);
+      @mixin dark-mode { background-color: var(--dark-3); }
+    }
+  }
+
+  @mixin max-sm {
+    flex: 1 0 auto;
+  }
+
+  /* remove the background when the outline is toggled open */
+  &.outline-open {
+    background: none !important;
+  }
+}
+/* button (profiles/story) */
+.cms-navbar-title-button {
+  padding: 0;
+
+  & > * { top: -1px; } /* fudge baseline */
+
+  & .cms-navbar-title-button-icon {
+    vertical-align: baseline;
+    margin-right: 0.125em;
+    /* transitions */
+    transition:
+      color 0.2s ease-out,
+      transform 0.2s ease-out;
+  }
+
+  /* collapsed state */
+  &[aria-pressed="false"] .cms-navbar-title-button-icon {
+    transform: rotate(-90deg);
+  }
+
+  /* interactions */
+  &:focus {
+    outline: none;
+  }
+
+  /* entity settings cog */
+  & .cms-navbar-entity-settings-button-icon {
+    vertical-align: middle;
+    top: -1px;
+  }
+}
+/* h1 (metatdata editor) */
+.cms-navbar-title-heading {
+  margin: auto 0;
+}
+
+.cms-navbar-list-toggle-button {
+  margin: auto var(--gutter-sm);
+}
+
+/* main nav "links" (they're actually buttons) */
+.cms-navbar-list {
+  @mixin list-reset;
+
+  /* move below title & settings button on small screens */
+  @mixin max-sm {
+    width: 100%;
+    display: flex;
+    order: 1;
+
+    & > * {
+      flex: 1 0 33.333%;
+    }
+
+    & .cms-dropdown-button,
+    & .cms-navbar-item,
+    & .cms-navbar-link {
+      width: 100%;
+      text-align: center;
+    }
+
+    & .cms-dropdown-list.is-open {
+      width: 100%;
+    }
+
+    /* transition in only */
+    &.is-open {
+      @mixin cms-nav-toggle-transition;
+      background-color: var(--white);
+
+      @mixin dark-mode {
+        background-color: var(--dark-3);
+      }
+    }
+
+    &.is-closed {
+      @mixin cms-nav-closed-state;
+      transform: translateY(20%);
+    }
+  }
+
+  @mixin min-sm {
+    margin-left: auto;
+    margin-right: var(--gutter-xs);
+  }
+}
+.cms-navbar-item {
+  display: inline-block;
+  line-height: var(--cms-nav-height);
+}
+.cms-navbar-link {
+  @mixin cms-nav-link-theme;
+  /* reset button style */
+  @mixin button-reset;
+  cursor: pointer; /* it's not a link, but it acts like one */
+  /* sizing */
+  @mixin font-xs;
+  line-height: var(--cms-nav-height);
+  padding: 0 var(--gutter-md);
+  top: -1px;
+
+  @mixin min-md {
+    padding: 0 var(--gutter-sm);
+  }
+}
+
+/* settings */
+.cms-navbar-settings-button-container {
+  display: inline-flex;
+}
+.cms-navbar .cms-navbar-settings-wrapper {
+  position: static; /* fix overlay positioning */
+  display: flex; /* fix button positioning */
+}
+
+.cms-navbar-settings-button {
+  align-self: center;
+  z-index: 3;
+  outline: none;
+
+  &.is-active {
+    background: none;
+    box-shadow: none;
+  }
+
+  @mixin max-sm {
+    margin-right: var(--gutter-sm);
+  }
+}
+
+.cms-navbar-settings {
+  padding: 1.25rem 1.25rem 0.5rem 1.25rem;
+  top: 0;
+  right: 0.375rem;
+  width: 18.75rem;
+  z-index: 2; /* in front of overlay */
+  max-width: calc(100% - 0.75rem);
+  /* theming */
+  border-radius: 4px;
+  background-color: var(--white);
+  border: 1px solid var(--light-2);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+    border-color: var(--dark-3);
+  }
+
+  /* states */
+  &.is-hidden {
+    @mixin visually-hidden;
+  }
+  &.is-visible {
+    position: absolute;
+    animation: unfold-from-above 0.1s ease-out;
+  }
+
+  /* clickable overlay */
+  & + .cms-navbar-settings-overlay {
+    @mixin absolute-expand;
+    @mixin button-reset;
+    position: fixed;
+    z-index: 1;
+    background-color: color(var(--black) a(0.875));
+    transition:
+      opacity 0.2s ease-out,
+      background-color 0.2s ease-out;
+
+    &.is-hidden {
+      width: 0;
+      height: 0;
+      z-index: -1;
+      opacity: 0;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    &.is-visible:focus {
+      border: 2px solid var(--accent-dark);
+    }
+  }
+}
+
+/* bump up nav z-index when settings panel is open to keep in front of toolbox */
+.cms-navbar.settings-visible {
+  z-index: 10;
+
+  /* prevent scrolling */
+  & + .cms-panel {
+    max-height: calc(100vh - var(--cms-nav-height));
+    overflow: hidden;
+  }
+}

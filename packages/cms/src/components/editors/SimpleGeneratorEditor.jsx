@@ -40,7 +40,10 @@ export default class SimpleGeneratorEditor extends Component {
     let pl = payload;
     if (payload.results) pl = payload.results;
     if (payload.data) pl = payload.data;
-    if (simpleConfig) {
+    // Bug: The deepclone used in GeneratorEditor erroneously logic_simple from NULL to {}
+    // Therefore, detect the blank object as another expression of NULLness
+    const configIsEmptyObject = simpleConfig.constructor === Object && Object.keys(simpleConfig).length === 0;
+    if (simpleConfig && !configIsEmptyObject) {
       objects = simpleConfig.map((objArr, i) =>
         objArr.map(o => ({
           use: o.use,
@@ -157,7 +160,7 @@ export default class SimpleGeneratorEditor extends Component {
         Are you sure you want to rebuild your variables from the current payload?
       </Alert>
       <div className="cms-label">
-        Generated variables <Button className="u-font-xxs" onClick={this.maybeRebuild.bind(this)} context="cms" icon="undo" iconOnly>
+        Generated variables <Button className="u-font-xxs" onClick={this.maybeRebuild.bind(this)} namespace="cms" icon="undo" iconOnly>
           Rebuild variables
         </Button>
       </div>
