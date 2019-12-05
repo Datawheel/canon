@@ -79,6 +79,7 @@ class Alert extends Component {
                 className="cms-alert-actions-button"
                 onClick={onCancel}
                 ref={this.cancelButton}
+                key="cancel"
               >
                 {cancelButtonText}
               </button>
@@ -87,6 +88,7 @@ class Alert extends Component {
                 className={`cms-alert-actions-button${theme ? ` ${theme}-theme` : ""}`}
                 onClick={onConfirm}
                 ref={this.confirmButton}
+                key="confirm"
               >
                 {confirmButtonText}
               </button>

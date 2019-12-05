@@ -76,7 +76,7 @@ export default class Card extends Component {
         confirmButtonText: alertObj.confirm,
         className: "cms-confirm-alert",
         description: alertObj.description,
-        isOpen: alertObj,
+        isOpen: showAlert,
         onConfirm: alertObj.callback,
         onCancel: onAlertCancel
       };
@@ -110,7 +110,7 @@ export default class Card extends Component {
         {/* reorder button */}
         {reorderProps && <ReorderButton {...reorderProps} key="rb"/>}
         {/* are you suuuuuuuuuure */}
-        {showAlert && <Alert {...alertProps} key="a" />}
+        <Alert {...alertProps} key="a" />
       </div>
     );
   }
