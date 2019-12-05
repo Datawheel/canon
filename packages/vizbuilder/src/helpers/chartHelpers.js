@@ -19,9 +19,9 @@ export const chartComponents = {
  * @param {Chart} chart
  * @param {object} params
  * @param {Record<string, (d: number) => string>} params.formatters
- * @param {Record<string, string>} params.labels
+ * @param {import("i18next").TFunction} params.t
  */
-export function tooltipGenerator(chart, {formatters, labels}) {
+export function tooltipGenerator(chart, {formatters, t}) {
   const {filters, measure, levels, collection, source, moe, uci, lci} = chart.params;
 
   const measureName = measure.name;
@@ -48,22 +48,33 @@ export function tooltipGenerator(chart, {formatters, labels}) {
     .map(lvl => [lvl, d => d[lvl]]);
   tbody.push([measureName, d => formatter(d[measureName])]);
 
+  if (measure.aggregationType === "SUM") {
+    const percentFormatter = formatters.Rate;
+    tbody.push([
+      t("Vizbuilder.chart_labels.measure_share", {measureName}),
+      d => percentFormatter(d[`${measureName} Share`])
+    ]);
+  }
+
   if (shouldShow.lci && shouldShow.uci) {
     tbody.push([
-      "Confidence Interval",
+      t("Vizbuilder.chart_labels.ci"),
       d => `${formatter(d[lciName] * 1 || 0)} - ${formatter(d[uciName] * 1 || 0)}`
     ]);
   }
   else if (shouldShow.moe) {
-    tbody.push(["Margin of Error", d => `± ${formatter(d[moeName] * 1 || 0)}`]);
+    tbody.push([
+      t("Vizbuilder.chart_labels.moe"),
+      d => `± ${formatter(d[moeName] * 1 || 0)}`
+    ]);
   }
 
   if (shouldShow.src) {
-    tbody.push(["Source", d => `${d[sourceName]}`]);
+    tbody.push([t("Vizbuilder.chart_labels.source"), d => `${d[sourceName]}`]);
   }
 
   if (shouldShow.clt) {
-    tbody.push(["Collection", d => `${d[collectionName]}`]);
+    tbody.push([t("Vizbuilder.chart_labels.collection"), d => `${d[collectionName]}`]);
   }
 
   if (Array.isArray(filters)) {

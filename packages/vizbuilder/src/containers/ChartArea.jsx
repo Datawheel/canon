@@ -20,6 +20,7 @@ import {
  * @property {Record<string, Partial<import("../types/d3plus").D3plusConfig>> | undefined} measureConfigs
  * @property {Record<string, (chart: Chart, uiParams: any) => Partial<import("../types/d3plus").D3plusConfig>> | undefined} measureUnitConfigFactories
  * @property {() => any} onResize
+ * @property {import("i18next").TFunction} t
  * @property {Partial<import("../types/d3plus").D3plusConfig> | undefined} topojsonConfigs
  * @property {Partial<import("../types/d3plus").D3plusConfig> | undefined} userConfig
  */
@@ -35,8 +36,8 @@ import {
 
 /**
  * @typedef DispatchProps
- * @property {() => any} restoreChartsHandler
  * @property {(chartKey: string) => any} chartSelectHandler
+ * @property {() => any} restoreChartsHandler
  * @property {(period: Date) => any} timeSelectHandler
  */
 
@@ -44,14 +45,15 @@ import {
 const ChartArea = memo(function({
   activeChart,
   charts,
+  chartSelectHandler,
   formatters,
   locale,
   measureConfigs = {},
   restoreChartsHandler,
-  chartSelectHandler,
-  timeSelectHandler,
   showConfidenceInt,
+  t,
   timePeriod,
+  timeSelectHandler,
   topojsonConfigs = {},
   userConfig = {}
 }) {
@@ -88,6 +90,7 @@ const ChartArea = memo(function({
           measureConfig: measureConfigs[measureName],
           onTimeChange: timeSelectHandler,
           showConfidenceInt,
+          t,
           timePeriod,
           topojsonConfig: topojsonConfigs[geoLevelName],
           userConfig

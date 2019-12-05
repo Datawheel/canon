@@ -181,7 +181,9 @@ class Vizbuilder extends Component {
 
         <div className="area-chart" onScroll={this.scrollEnsureHandler}>
           <div className="wrapper">
-            {!loadError && <h2 className="u-visually-hidden">{t("Vizbuilder.title_areacharts")}</h2>}
+            {!loadError && (
+              <h2 className="u-visually-hidden">{t("Vizbuilder.title_areacharts")}</h2>
+            )}
 
             {toolbarArea}
 
@@ -192,6 +194,7 @@ class Vizbuilder extends Component {
                 measureConfigs={measureConfig}
                 measureUnitConfigFactories={measureUnitConfig}
                 onResize={this.resizeEnsureHandler}
+                t={t}
                 topojsonConfigs={topojsonConfig}
                 userConfig={userConfig}
               />

@@ -16,6 +16,13 @@
     "action_reset": "Revertir",
     "action_retry": "Reintentar",
     "action_togglemoe": "Calcular Márgenes de Error",
+    "chart_labels": {
+      "ci": "Intervalo de confianza",
+      "moe": "Margen de Error",
+      "source": "Fuente",
+      "collection": "Colección",
+      "measure_share": "{{measureName}} (porcentaje)"
+    },
     "comparison": {
       "EQ": "Igual a",
       "HAS": "Contiene",

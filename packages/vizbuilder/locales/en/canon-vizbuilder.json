@@ -16,6 +16,13 @@
     "action_reset": "Reset",
     "action_retry": "Retry",
     "action_togglemoe": "Calculate Margins of Error",
+    "chart_labels": {
+      "ci": "Confidence Interval",
+      "moe": "Margin of Error",
+      "source": "Source",
+      "collection": "Collection",
+      "measure_share": "{{measureName}} (share)"
+    },
     "comparison": {
       "EQ": "Equal to",
       "HAS": "Contains the term",

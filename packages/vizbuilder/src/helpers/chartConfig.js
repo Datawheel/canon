@@ -14,6 +14,7 @@ import {sortByCustomKey} from "./sort";
  * @property {Partial<import("../types/d3plus").D3plusConfig>} measureConfig
  * @property {(period: Date) => any} onTimeChange
  * @property {boolean} showConfidenceInt
+ * @property {import("i18next").TFunction} t
  * @property {number | undefined} timePeriod
  * @property {Partial<import("../types/d3plus").D3plusConfig>} topojsonConfig
  * @property {Partial<import("../types/d3plus").D3plusConfig>} userConfig
