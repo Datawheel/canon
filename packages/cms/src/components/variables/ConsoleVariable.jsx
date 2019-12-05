@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import "./ConsoleVariable.css";
 
-function evalType(value) {
+const evalType = value => {
   let t = typeof value;
   if (t === "object") {
     if (value === null) return "undefined";
@@ -9,7 +9,7 @@ function evalType(value) {
     else if (["Error", "EvalError", "ReferenceError", "SyntaxError"].includes(value.constructor.name)) t = "error";
   }
   return t;
-}
+};
 
 export default class ConsoleVariable extends Component {
 

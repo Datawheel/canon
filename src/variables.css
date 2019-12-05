@@ -27,7 +27,7 @@
 
   /* UI colors */
   --alert-dark:        #75224D;
-  --alert:             #992C64;
+  --alert:             #C6315C;
   --alert-light:       #DB64A6;
 
   --type-number:       #8EB6FF;
@@ -43,7 +43,7 @@
   --type-error-dark:   #75224D;
 
   /* measurements */
-  --cms-nav-height:    3.125rem;
+  --cms-nav-height:    2.75rem;
   --sidebar-width:     17rem;
   --toolbox-width:     22.5rem;
 
@@ -113,8 +113,6 @@
   --hero-subhead-color:       var(--white);
   --hero-subhead-size:        var(--font-md);
   --hero-stat-value-color:    var(--accent);
-  --hero-stat-column-count:   4;
-  --hero-stat-column-width:   10rem;
   --hero-viz-width:           20rem;
 
   /* sections */
@@ -212,6 +210,7 @@
   --stat-value-color:           var(--accent-dark);
   --stat-subtitle-font-size:    var(--font-xs);
   --stat-subtitle-color:        var(--dark-1);
+  --stat-group-stat-width:      9rem;
 
 
   /* ------------------------------------------------

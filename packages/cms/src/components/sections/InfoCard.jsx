@@ -6,7 +6,7 @@ import "./InfoCard.css";
 export default class InfoCard extends Component {
 
   render() {
-    const {slug, title, heading, mainTitle, subTitle, paragraphs, loading, filters, stats, secondaryStats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, title, heading, mainTitle, subTitle, paragraphs, loading, filters, resetButton, stats, secondaryStats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -44,6 +44,7 @@ export default class InfoCard extends Component {
           {sources}
         </div>
         <div className="cp-info-card-subtitle">{subTitle}</div>
+        {resetButton}
       </div>
     );
   }

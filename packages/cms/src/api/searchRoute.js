@@ -54,7 +54,17 @@ module.exports = function(app) {
               if (verbose) console.error("CANON_CONST_STORAGE_BUCKET not configured, failed to update image");
             }
             else {
-              // To add a new image, first create a row in the table with the metadata from flickr.
+              // To add a new image, first fetch the image data
+              const sizeObj = await flickr.photos.getSizes({photo_id: id}).then(resp => resp.body).catch(catcher);
+              let image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1600);
+              if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1000);
+              if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
+              if (!image || !image.source) {
+                return res.json({error: "Flickr Source Error, try another image."});
+              }
+              const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
+
+              // Then add a row to the image table with the metadata.
               const payload = {
                 url,
                 author: info.photo.owner.realname || info.photo.owner.username,
@@ -62,14 +72,8 @@ module.exports = function(app) {
               };
               const newImage = await db.image.create(payload).catch(catcher);
               await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);            
-
-              // Then fetch the available sizes from flickr
-              const sizeObj = await flickr.photos.getSizes({photo_id: id}).then(resp => resp.body).catch(catcher);
-              let image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1600);
-              if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 1000);
-              if (!image) image = sizeObj.sizes.size.find(d => parseInt(d.width, 10) >= 500);
-              const imageData = await axios.get(image.source, {responseType: "arraybuffer"}).then(d => d.data).catch(catcher);
               
+              // Finally, upload splash and thumb version to google cloud.
               const configs = [
                 {type: "splash", res: splashWidth}, 
                 {type: "thumb", res: thumbWidth}
@@ -131,14 +135,6 @@ module.exports = function(app) {
     return res.json(payload);
   });
 
-  app.get("/api/search/all", async(req, res) => {
-    let rows = await db.search.findAll({include: [
-      {model: db.image, include: [{association: "content"}]}, {association: "content"}
-    ]}).catch(catcher);
-    rows = rows.map(r => r.toJSON());
-    res.json(rows);
-  });
-
   app.post("/api/image_content/update", async(req, res) => {
     const {id, locale} = req.body;
     const defaults = req.body;
@@ -177,17 +173,26 @@ module.exports = function(app) {
       if (levels) where.hierarchy = levels.split(",");
       rows = await db.search.findAll({
         where,
-        include: [{model: db.image}, {association: "content"}]
+        include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}]
       });
     } 
     else {
       const searchWhere = {};
       if (q) {
-        where[sequelize.Op.or] = [
-          {name: {[sequelize.Op.iLike]: `%${q}%`}},
-          {keywords: {[sequelize.Op.overlap]: [q]}}
-        ];
-        where.locale = locale;
+        if (locale === "all") {
+          where[sequelize.Op.or] = [
+            {name: {[sequelize.Op.iLike]: `%${q}%`}},
+            {keywords: {[sequelize.Op.overlap]: [q]}}
+            // Todo - search attr and imagecontent for query
+          ];
+        }
+        else {
+          where[sequelize.Op.or] = [
+            {name: {[sequelize.Op.iLike]: `%${q}%`}},
+            {keywords: {[sequelize.Op.overlap]: [q]}}
+          ];
+          where.locale = locale;
+        }
         rows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(rows.map(r => r.id)));
       }
@@ -195,11 +200,17 @@ module.exports = function(app) {
       // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
       if (levels) searchWhere.hierarchy = levels.split(",");
       rows = await db.search.findAll({
-        include: [{model: db.image}, {association: "content"}],
+        include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
         limit,
         order: [["zvalue", "DESC"]],
         where: searchWhere
       });
+    }
+
+    // MetaEditor.jsx makes use of this endpoint, but needs ALL locale content. If locale="all" is set,
+    // Forget about the ensuing sanitazation/prep for front-end searches and just return the raw rows for manipulation in the CMS.
+    if (locale === "all") {
+      return res.json(rows);
     }
 
     /**
@@ -240,7 +251,7 @@ module.exports = function(app) {
       return result;
     });
 
-    res.json({
+    return res.json({
       results,
       query: {dimension, id, limit, q}
     });

@@ -9,6 +9,7 @@ const Sequelize = require("sequelize"),
       yn = require("yn");
 
 const logging = process.env.CANON_LOGICLAYER_LOGGING;
+const slugs = yn(process.env.CANON_LOGICLAYER_SLUGS);
 const verbose = yn(logging);
 const errors = logging === "error";
 
@@ -128,18 +129,19 @@ module.exports = function(app) {
         limit = parseInt(limit, 10);
       }
 
-      const searchDims = db && db.search ? await db.search
+      const searchDb = db ? db.search || false : false;
+      const searchDims = searchDb ? await searchDb
         .findAll({
           group: ["dimension", "hierarchy"],
           attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("hierarchy")), "hierarchy"], "dimension"],
           where: {}
         })
-        .catch(() => [])
+        .catch(() => ({}))
         .reduce((obj, d) => {
           if (!obj[d.dimension]) obj[d.dimension] = [];
           obj[d.dimension].push(d.hierarchy);
           return obj;
-        }, {}) : [];
+        }, {}) : {};
 
       const cuts = [],
             dimensions = [],
@@ -233,7 +235,14 @@ module.exports = function(app) {
 
           if (ids.length) {
             const strippedKey = key.replace(/\<|\>/g, "");
-            if (strippedKey in cubeMeasures) {
+            if (searchDim in searchDims) {
+              dimensions.push({
+                alternate: key,
+                dimension: searchDim,
+                id: ids
+              });
+            }
+            else if (strippedKey in cubeMeasures) {
               const value = parseFloat(ids[0], 10);
               if (ids.length === 1 && !isNaN(value)) {
                 const operation = key.indexOf("<") === key.length - 1 ? "<="
@@ -242,13 +251,6 @@ module.exports = function(app) {
                 filters.push([strippedKey, operation, value]);
               }
             }
-            else if (searchDim in searchDims) {
-              dimensions.push({
-                alternate: key,
-                dimension: searchDim,
-                id: ids
-              });
-            }
             else {
               cuts.push([key, ids]);
             }
@@ -256,8 +258,8 @@ module.exports = function(app) {
         }
       }
 
-      const searchQueries = db && db.search
-        ? dimensions.map(({dimension, id}) => db.search
+      const searchQueries = searchDb
+        ? dimensions.map(({dimension, id}) => searchDb
           .findAll({where: {dimension, id}})
           .catch(() => [])
         )
@@ -671,7 +673,7 @@ module.exports = function(app) {
           data = newData;
         }
 
-        if (db && db.search) {
+        if (searchDb) {
           const lookupKeys = data.length ? intersect(levels, Object.keys(data[0])) : [];
           for (let x = 0; x < lookupKeys.length; x++) {
             const level = lookupKeys[x];
@@ -684,7 +686,7 @@ module.exports = function(app) {
                 dimension: dim.dimension,
                 hierarchy: dim.hierarchy
               });
-              const attrs = await db.search.findAll({where}).catch(() => []);
+              const attrs = await searchDb.findAll({where}).catch(() => []);
               attrs.forEach(d => {
                 if (d.slug) slugLookup[dim.dimension][dim.hierarchy][d.id] = d.slug;
               });
@@ -695,17 +697,21 @@ module.exports = function(app) {
         const cross = queryCrosses[i].concat(renames);
 
         const newArray = data.map(row => {
-          for (const dimension in slugLookup) {
-            if ({}.hasOwnProperty.call(slugLookup, dimension)) {
-              const obj = slugLookup[dimension];
-              for (const level in obj) {
-                if ({}.hasOwnProperty.call(obj, level)) {
-                  const slug = obj[level][row[`ID ${level}`]];
-                  if (row[level] && slug) row[`Slug ${level}`] = slug;
+
+          if (slugs) {
+            for (const dimension in slugLookup) {
+              if ({}.hasOwnProperty.call(slugLookup, dimension)) {
+                const obj = slugLookup[dimension];
+                for (const level in obj) {
+                  if ({}.hasOwnProperty.call(obj, level)) {
+                    const slug = obj[level][row[`ID ${level}`]];
+                    if (row[level] && slug) row[`Slug ${level}`] = slug;
+                  }
                 }
               }
             }
           }
+
           cross.forEach(c => {
             const type = Object.keys(c)[0];
             const level = c[type];

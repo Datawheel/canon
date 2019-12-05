@@ -38,6 +38,10 @@ const loadModels = (db, modelPath, clear) => {
       const model = db.import(fullPath);
       db[model.name] = model;
     });  
+  // find canon-core's users model
+  const canonUserModelPath = path.join(process.cwd(), "node_modules/@datawheel/canon-core/src/db/users.js");
+  const model = db.import(canonUserModelPath);
+  db[model.name] = model;
   Object.keys(db).forEach(modelName => {
     if ("associate" in db[modelName]) db[modelName].associate(db);
   });

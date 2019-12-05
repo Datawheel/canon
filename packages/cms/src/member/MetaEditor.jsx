@@ -5,6 +5,7 @@ import ReactTable from "react-table";
 import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
 import {Dialog, Icon, EditableText, Spinner} from "@blueprintjs/core";
+import Status from "../components/interface/Status";
 
 import Button from "../components/fields/Button";
 import ButtonGroup from "../components/fields/ButtonGroup";
@@ -15,6 +16,7 @@ import Select from "../components/fields/Select";
 import "./MetaEditor.css";
 
 const IMAGES_PER_PAGE = 48;
+const ROWS_PER_PAGE = 10;
 
 class MetaEditor extends Component {
 
@@ -35,7 +37,11 @@ class MetaEditor extends Component {
       isOpen: false,
       currentRow: {},
       loading: false,
+      pageIndex: 0,
+      pageSize: ROWS_PER_PAGE,
+      querying: false,
       searching: false,
+      typingTimeout: null,
       imgIndex: 0,
       url: ""
     };
@@ -50,13 +56,13 @@ class MetaEditor extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.locale !== this.props.locale) {
+    if (prevProps.status.localeSecondary !== this.props.status.localeSecondary) {
       this.prepData.bind(this)();
     }
   }
 
   clickCell(cell) {
-    const {localeDefault} = this.props;
+    const {localeDefault} = this.props.status;
     const currentRow = cell.original;
     const url = currentRow.image && currentRow.image.url ? currentRow.image.url : "";
     const isOpen = true;
@@ -179,11 +185,9 @@ class MetaEditor extends Component {
         }
       }
     }
-
   }
 
-  fetchStringifiedSourceData() {
-    const {sourceData} = this.state;
+  fetchStringifiedSourceData(sourceData) {
     return sourceData
       .sort((a, b) => {
         if (a.dimension === b.dimension) {
@@ -221,14 +225,15 @@ class MetaEditor extends Component {
     return cell.value;
   }
   columnWidths(key) {
-    if (key.includes("keywords") || key.includes("meta") || key.includes("attr")) return 160;
+    if (key.includes("preview")) return 220;
+    else if (key.includes("keywords") || key.includes("meta") || key.includes("attr")) return 160;
     else if (key.includes("zvalue") || key.includes("image") || key.includes("dimension") || key.includes("hierarchy")) return 120;
     else return 90;
   }
   numericSort(a, b) {
     if (!isNaN(a) && !isNaN(b)) {
       return Number(a) - Number(b);
-    } 
+    }
     else return a.localeCompare(b);
   }
   renderColumn(col) {
@@ -246,30 +251,43 @@ class MetaEditor extends Component {
     });
   }
 
+  linkify(member) {
+    const {metaData} = this.state;
+    const links = [];
+    const relevantPids = metaData.filter(p => p.dimension === member.dimension).map(d => d.profile_id);
+    relevantPids.forEach(pid => {
+      const relevantProfile = metaData.filter(p => p.profile_id === pid);
+      links.push(`/profile/${relevantProfile.map(p => `${p.slug}/${member.dimension === p.dimension ? member.id : p.top.id}`).join("/")}`);
+    });
+    return links;
+  }
+
   /**
    * Once sourceData has been set, prepare the two variables that react-table needs: data and columns.
    */
   prepData() {
-    const {locale, localeDefault} = this.props;
-    const {epoch, imageEnabled} = this.state;
-    const data = this.fetchStringifiedSourceData.bind(this)();
+    const {localeDefault, localeSecondary} = this.props.status;
+    const {epoch, imageEnabled, sourceData} = this.state;
+    const data = this.fetchStringifiedSourceData.bind(this)(sourceData);
     let skip = ["stem", "imageId", "contentId"];
     if (!imageEnabled) skip = skip.concat("image");
     const keySort = ["id", "slug", "content", "zvalue", "dimension", "hierarchy", "image"];
-    const fields = Object.keys(data[0])
+    const fields = data[0] ? Object.keys(data[0])
       .filter(d => !skip.includes(d))
-      .sort((a, b) => keySort.indexOf(a) - keySort.indexOf(b));
+      .sort((a, b) => keySort.indexOf(a) - keySort.indexOf(b)) : [];
 
     const idColumns = [];
     const classColumns = [];
     const searchColumns = [];
     const displayColumns = [];
+    const previewColumns = [];
 
     const columns = [
       {Header: "identification",  columns: idColumns},
       {Header: "classification",  columns: classColumns},
       {Header: "search",          columns: searchColumns},
-      {Header: "display",         columns: displayColumns}
+      {Header: "display",         columns: displayColumns},
+      {Header: "preview",         columns: previewColumns}
     ];
 
     fields.forEach(field => {
@@ -300,7 +318,7 @@ class MetaEditor extends Component {
         });
         displayColumns.push({
           id: `meta (${localeDefault})`,
-          Header: this.renderHeader(locale ? `${localeDefault} image description` : "image description"),
+          Header: this.renderHeader(localeSecondary ? `${localeDefault} image description` : "image description"),
           minWidth: this.columnWidths("meta"),
           accessor: d => {
             const content = d.image ? d.image.content.find(c => c.locale === localeDefault) : null;
@@ -308,16 +326,16 @@ class MetaEditor extends Component {
           },
           Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", localeDefault) : this.renderCell(cell)
         });
-        if (locale) {
+        if (localeSecondary) {
           displayColumns.push({
-            id: `meta (${locale})`,
-            Header: this.renderHeader(`${locale} image description`),
+            id: `meta (${localeSecondary})`,
+            Header: this.renderHeader(`${localeSecondary} image description`),
             minWidth: this.columnWidths("meta"),
             accessor: d => {
-              const content = d.image ? d.image.content.find(c => c.locale === locale) : null;
+              const content = d.image ? d.image.content.find(c => c.locale === localeSecondary) : null;
               return content ? content.meta : null;
             },
-            Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", locale) : this.renderCell(cell)
+            Cell: cell => cell.original.image ? this.renderEditable.bind(this)(cell, "meta", localeSecondary) : this.renderCell(cell)
           });
         }
       }
@@ -329,7 +347,7 @@ class MetaEditor extends Component {
 
           columnGroup.push({
             id: `${prop} (${localeDefault})`,
-            Header: this.renderHeader(`${locale ? `${localeDefault} ` : ""}${prop === "attr" ? "language hints" : prop}`),
+            Header: this.renderHeader(`${localeSecondary ? `${localeDefault} ` : ""}${prop === "attr" ? "language hints" : prop}`),
             minWidth: this.columnWidths(prop),
             accessor: d => {
               const content = d.content.find(c => c.locale === localeDefault);
@@ -337,18 +355,39 @@ class MetaEditor extends Component {
             },
             Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, localeDefault) : this.renderCell(cell)
           });
-          if (locale) {
+          if (localeSecondary) {
             columnGroup.push({
-              id: `${prop} (${locale})`,
-              Header: this.renderHeader(`${locale} ${prop === "attr" ? "language hints" : prop}`),
+              id: `${prop} (${localeSecondary})`,
+              Header: this.renderHeader(`${localeSecondary} ${prop === "attr" ? "language hints" : prop}`),
               minWidth: this.columnWidths(prop),
               accessor: d => {
-                const content = d.content.find(c => c.locale === locale);
+                const content = d.content.find(c => c.locale === localeSecondary);
                 return content ? content[prop] : null;
               },
-              Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, locale) : this.renderCell(cell)
+              Cell: cell => prop !== "name" ? this.renderEditable.bind(this)(cell, prop, localeSecondary) : this.renderCell(cell)
             });
           }
+        });
+      }
+      else if (field === "id") {
+        idColumns.push({
+          id: field,
+          Header: this.renderHeader("id"),
+          minWidth: this.columnWidths("id"),
+          accessor: d => d.id
+        });
+        displayColumns.push({
+          id: `${field}-url`,
+          Header: this.renderHeader("preview link"),
+          minWidth: this.columnWidths("preview"),
+          accessor: d => this.linkify.bind(this)(d),
+          Cell: cell => <ul className="cms-meta-table-list">
+            {cell.value.map(url =>
+              <li className="cms-meta-table-item" key={url}>
+                <a className="cms-meta-table-link u-font-xxs" href={url}>{url}</a>
+              </li>
+            )}
+          </ul>
         });
       }
       else {
@@ -367,7 +406,7 @@ class MetaEditor extends Component {
    * Then call prepData to turn the sourceData into columns for the table.
    */
   hitDB() {
-    const searchGet = axios.get("/api/search/all");
+    const searchGet = axios.get("/api/search?q=&locale=all");
     const metaGet = axios.get("/api/cms/meta");
     Promise.all([searchGet, metaGet]).then(resp => {
       const sourceData = resp[0].data;
@@ -381,7 +420,7 @@ class MetaEditor extends Component {
           dimensions[meta.dimension] = [...new Set([...dimensions[meta.dimension], ...meta.levels])];
         }
       });
-      this.setState({dimensions, sourceData}, this.prepData.bind(this));
+      this.setState({dimensions, sourceData, metaData}, this.prepData.bind(this));
     });
   }
 
@@ -450,18 +489,25 @@ class MetaEditor extends Component {
     // The user may have clicked either a dimension or a hierarchy. Determine which.
     const filterKey = filterBy.includes("hierarchy_") ? "hierarchy" : "dimension";
     filterBy = filterBy.replace("hierarchy_", "").replace("dimension_", "");
-    const sourceData = this.fetchStringifiedSourceData.bind(this)();
-    const data = sourceData
-      .filter(d => d[filterKey] === filterBy || filterBy === "all")
-      .filter(d =>
-        query === "" ||
-        d.slug && d.slug.includes(query.toLowerCase()) ||
-        d.content.some(c => c.name.toLowerCase().includes(query.toLowerCase())) ||
-        d.content.some(c => c.attr && c.attr.toLowerCase().includes(query.toLowerCase())) ||
-        d.content.some(c => c.keywords && c.keywords.toLowerCase().includes(query.toLowerCase())) ||
-        d.image && d.image.content && d.image.content.some(c => c.meta.toLowerCase().includes(query.toLowerCase()))
-      );
-    this.setState({data, filterKey});
+    let url = "/api/search?locale=all&limit=500";
+    if (query) {
+      url += `&q=${query}`;
+    }
+    if (filterBy !== "all") {
+      if (filterKey === "dimension") {
+        url += `&dimension=${filterBy}`;
+      }
+      else if (filterKey === "hierarchy") {
+        url += `&levels=${filterBy}`;
+      }
+    }
+    this.setState({querying: true});
+    axios.get(url).then(resp => {
+      const data = this.fetchStringifiedSourceData.bind(this)(resp.data);
+      const page = 0;
+      this.setState({data, filterKey, page, querying: false});
+    });
+
   }
 
   resetFiltering() {
@@ -471,8 +517,22 @@ class MetaEditor extends Component {
     this.setState({query: ""}, this.processFiltering.bind(this));
   }
 
+  selectPaginationSize(e) {
+    this.setState({pageSize: e.target.value});
+  }
+
   onChange(field, e) {
-    this.setState({[field]: e.target.value}, this.processFiltering.bind(this));
+    if (field === "query") {
+      let typingTimeout = null;
+      if (this.state.typingTimeout) {
+        clearTimeout(this.state.typingTimeout);
+      }
+      typingTimeout = setTimeout(this.processFiltering.bind(this), 750);
+      this.setState({typingTimeout, [field]: e.target.value});
+    }
+    else {
+      this.setState({[field]: e.target.value}, this.processFiltering.bind(this));
+    }
   }
 
   closeEditor() {
@@ -494,73 +554,108 @@ class MetaEditor extends Component {
       flickrImages,
       isOpen,
       loading,
+      pageIndex,
+      pageSize,
+      querying,
       searching,
       imgIndex,
       url
     } = this.state;
 
+    // custom pagination buttons
+    const paginationButtonProps = {
+      className: "cms-meta-pagination-button",
+      fontSize: "xxs",
+      iconOnly: true,
+      namespace: "cms"
+    };
+    const PreviousComponent = props =>
+      <Button icon="arrow-left" {...paginationButtonProps} {...props}>
+        Go to previous page in table
+      </Button>;
+    const NextComponent = props =>
+      <Button icon="arrow-right" {...paginationButtonProps} {...props}>
+        Go to next page in table
+      </Button>;
+
     return (
       <div className="cms-panel meta-editor">
         <div className="cms-sidebar cms-meta-header">
-          <h1 className="u-visually-hidden">Edit entities</h1>
-          <h2 className="cms-meta-header-heading u-margin-top-off u-font-xs">Filters</h2>
-          <Button
-            className="cms-meta-header-button"
-            onClick={this.resetFiltering.bind(this)}
-            disabled={query === "" && filterBy === "all"}
-            namespace="cms"
-            fontSize="xxs"
-            icon="cross"
-            iconOnly
-          >
-            Clear all filters
-          </Button>
-
-          <div className="cms-meta-controls">
-            <FilterSearch
-              label="filter by name, slug, keywords..."
-              onChange={this.onChange.bind(this, "query")}
-              onReset={this.resetQuery.bind(this)}
-              value={query}
+          <div className="cms-meta-header-inner">
+            <h2 className="cms-meta-header-heading u-margin-top-off u-font-xs">Filters</h2>
+            <Button
+              className="cms-meta-header-button"
+              onClick={this.resetFiltering.bind(this)}
+              disabled={query === "" && filterBy === "all"}
               namespace="cms"
-              fontSize="xs"
-            />
-
-            <Select
-              label={filterKey === "dimension" ? "Dimension" : "Subdimension"}
-              inline
-              fontSize="xs"
-              namespace="cms"
-              value={filterBy}
-              onChange={this.onChange.bind(this, "filterBy")}
+              fontSize="xxs"
+              icon="cross"
+              iconOnly
             >
-              <option key="all" value="all">All</option>
-              {Object.keys(dimensions).map(dim =>
-                <optgroup key={dim} label={dim}>
-                  {/* show the dimension as the first option in each group */}
-                  <option key={`dimension_${dim}`} value={`dimension_${dim}`}>{dim}</option>
-                  {/* Show indented subdimensions */}
-                  {dimensions[dim].map(hierarchy =>
-                    !dimensions[dim].includes(dim) || dimensions[dim].length !== 1
-                      ? <option key={`hierarchy_${hierarchy}`} value={`hierarchy_${hierarchy}`}>   {hierarchy}</option>
-                      : ""
-                  )}
-                </optgroup>
+              Clear all filters
+            </Button>
 
-              )}
-            </Select>
+            <div className="cms-meta-controls">
+              <FilterSearch
+                label="filter by name, slug, keywords..."
+                onChange={this.onChange.bind(this, "query")}
+                onReset={this.resetQuery.bind(this)}
+                value={query}
+                namespace="cms"
+                fontSize="xs"
+              />
 
+              <Select
+                label={filterKey === "dimension" ? "Dimension" : "Subdimension"}
+                inline
+                fontSize="xs"
+                namespace="cms"
+                value={filterBy}
+                onChange={this.onChange.bind(this, "filterBy")}
+              >
+                <option key="all" value="all">All</option>
+                {Object.keys(dimensions).map(dim =>
+                  <optgroup key={dim} label={dim}>
+                    {/* show the dimension as the first option in each group */}
+                    <option key={`dimension_${dim}`} value={`dimension_${dim}`}>{dim}</option>
+                    {/* Show indented subdimensions */}
+                    {dimensions[dim].map(hierarchy =>
+                      !dimensions[dim].includes(dim) || dimensions[dim].length !== 1
+                        ? <option key={`hierarchy_${hierarchy}`} value={`hierarchy_${hierarchy}`}>   {hierarchy}</option>
+                        : ""
+                    )}
+                  </optgroup>
+
+                )}
+              </Select>
+
+              <Select
+                label="Number of rows"
+                inline
+                fontSize="xs"
+                namespace="cms"
+                value={pageSize}
+                onChange={e => this.selectPaginationSize(e)}
+                options={[ROWS_PER_PAGE, 25, 50, 100]}
+              />
+            </div>
           </div>
         </div>
 
         <div className="cms-editor cms-meta-table-container">
           <h2 className="u-visually-hidden">Members</h2>
           <ReactTable
+            page={pageIndex}
+            onPageChange={pageIndex => this.setState({pageIndex})}
             className="cms-meta-table"
             data={data}
             columns={columns}
-            pageSize={data.length > 10 ? 10 : data.length}
-            showPagination={data.length > 10}
+            pageSize={pageSize < data.length ? pageSize : data.length}
+            onPageSizeChange={(pageSize, pageIndex) => this.setState({pageSize, pageIndex})}
+            showPagination={data.length > pageSize}
+            PreviousComponent={PreviousComponent}
+            NextComponent={NextComponent}
+            showPageSizeOptions={false}
           />
         </div>
 
@@ -712,18 +807,19 @@ class MetaEditor extends Component {
             }
           </div>
         </Dialog>
+        <Status busy="Searching..." done="Complete!" recompiling={querying}/>
       </div>
     );
   }
 }
 
 MetaEditor.contextTypes = {
-  toast: PropTypes.object,
-  setPath: PropTypes.func
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({
-  env: state.env
+  env: state.env,
+  status: state.cms.status
 });
 
 export default connect(mapStateToProps)(hot(MetaEditor));

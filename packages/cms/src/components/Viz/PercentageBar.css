@@ -49,6 +49,7 @@
 .percentage-bar-list > li {
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
 .percentage-bar-item .label{
   width: 20%;

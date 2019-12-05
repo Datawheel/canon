@@ -4,7 +4,7 @@ import "./Grouping.css";
 
 export default class Grouping extends Component {
   render() {
-    const {slug, title, heading, paragraphs, loading, filters, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, title, heading, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -18,6 +18,7 @@ export default class Grouping extends Component {
           {stats}
           {paragraphs}
           {sources}
+          {resetButton}
         </div>
 
         {/* caption */}

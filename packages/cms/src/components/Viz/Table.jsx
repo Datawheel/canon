@@ -5,6 +5,8 @@ import abbreviate from "../../utils/formatters/abbreviate";
 import {Icon} from "@blueprintjs/core";
 import ReactTable from "react-table";
 
+import Button from "../fields/Button";
+import TextInput from "../fields/TextInput";
 import "./Table.css";
 
 class Table extends Component {
@@ -13,6 +15,8 @@ class Table extends Component {
     this.state = {
       config: null
     };
+
+    this.viz = React.createRef();
   }
 
   componentDidMount() {
@@ -21,14 +25,30 @@ class Table extends Component {
 
   buildConfig() {
     const propConfig = this.props.config;
-    const {dataFormat} = this.props;
+    const {dataFormat, minRowsForPagination} = this.props;
+
+    const paginationButtonProps = {
+      className: "cp-table-pagination-button",
+      fontSize: "xxs",
+      iconOnly: true
+    };
 
     const defaults = {
       cellFormat: (key, val) =>
         isNaN(val) ? val : abbreviate(val),
       headerFormat: val => val,
       minRows: 0,
-      showPagination: false
+      showPagination: false,
+      showPageSizeOptions: false, // good luck
+      // custom next/prev buttons when they've been enabled
+      PreviousComponent: props =>
+        <Button icon="arrow-left" {...paginationButtonProps} {...props}>
+          Go to previous page in table
+        </Button>,
+      NextComponent: props =>
+        <Button icon="arrow-right" {...paginationButtonProps} {...props}>
+          Go to next page in table
+        </Button>
     };
 
     const config = Object.assign({}, defaults, propConfig);
@@ -37,11 +57,13 @@ class Table extends Component {
     if (typeof config.data === "string") {
       axios.get(config.data).then(resp => {
         config.data = dataFormat(resp.data);
+        if (config.data && config.data.length >= minRowsForPagination) config.showPagination = true;
         this.setState({config});
       });
     }
     else {
       config.data = dataFormat(config.data);
+      if (config.data && config.data.length >= minRowsForPagination) config.showPagination = true;
       this.setState({config});
     }
   }
@@ -131,7 +153,7 @@ class Table extends Component {
     }).filter(Boolean); // handle malformed tables
 
     return (
-      <div className="cp-table-wrapper">
+      <div className="cp-table-wrapper" ref={this.viz}>
         {tableStructure && tableStructure.length
           ? <ReactTable
             {...config}
@@ -144,5 +166,9 @@ class Table extends Component {
     );
   }
 }
+
+Table.defaultProps = {
+  minRowsForPagination: 15
+};
 
 export default Table;

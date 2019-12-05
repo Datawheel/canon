@@ -5,49 +5,24 @@
   align-items: baseline;
   justify-content: space-between;
   flex-wrap: wrap;
+}
 
-  /* main title */
-  & .cms-header-title {
-    margin-top: 0;
-    font-weight: 500;
+/* link to profile */
+.cms-header-link-container {
+  /* sizing (limit max width & account for link icon) */
+  @mixin overflow-ellipsis;
+  max-width: calc(100% + 1.5rem);
+  height: 1.5em; /* needed for text-overflow: ellipsis */
+  margin-left: -1.25rem;
+  padding-left: 1.25rem;
+  /* space out from button(s) when wrapping */
+  margin-bottom: 1.25rem;
+  /* theming */
+  color: var(--dark-2);
+  transition: border 0.2s ease-out;
 
-    /* preceeds section title */
-    & > .cms-header-title-parent {
-      font-weight: 300;
-      color: var(--dark-1);
-    }
-
-    /* main title text */
-    & > .cms-header-title-main {
-      color: var(--accent-black);
-      display: inline-block; /* keep with icon */
-
-      @mixin dark-mode {
-        color: var(--accent-light);
-      }
-    }
-
-    /* edit title button */
-    & .cms-header-title-button {
-      margin-left: 0.5em; /* space out from title */
-      margin-right: 1.25rem; /* space out from link */
-      top: -1px;
-    }
-  }
-
-
-  /* link to profile */
-  & .cms-header-link-container {
-    margin-bottom: 1.25rem;
-    color: var(--dark-1);
-    /* transitions */
-    transition: border 0.2s ease-out;
-    /* theming */
-    color: var(--dark-2);
-
-    @mixin dark-mode {
-      color: var(--gray);
-    }
+  @mixin dark-mode {
+    color: var(--gray);
   }
 
   /* reset actual link */
@@ -65,12 +40,21 @@
       background-image: linear-gradient(var(--dark-2) 50%, var(--dark-2) 50%);
     }
 
+    & .cms-header-link-icon {
+      @mixin absolute-vertical-center;
+      width: 1.25em;
+      left: -1.25em;
+      padding-right: 0.25em;
+    }
+
     /* interactions */
     &:hover, &:focus {
       background-image: linear-gradient(var(--accent-dark) 50%, var(--accent-dark) 50%);
+      & .cms-header-link-icon { color: var(--accent-dark) };
 
       @mixin dark-mode {
         background-image: linear-gradient(var(--accent) 50%, var(--accent) 50%);
+        & .cms-header-link-icon { color: var(--accent) };
       }
     }
   }
@@ -85,26 +69,13 @@
       color: var(--light-1);
     }
   }
+}
 
-  /* position non-button icons */
-  & .bp3-editable-text + [class*="icon"] {
-    @mixin absolute-vertical-center;
-    left: auto;
-    right: -0.625em;
-    margin-top: 1px;
-    width: 0.75em;
-  }
+.cms-header-actions-container {
+  margin-bottom: var(--gutter-md);
 
-  /* hide icon when editing */
-  & [class*="-editing"] + [class*="icon"]{
-    opacity: 0;
-  }
-  /* reset font size */
-  & [class*="-editing"] > * {
-    font-size: inherit;
-
-    @mixin dark-mode {
-      color: var(--dark-3);
-    }
+  & .cms-header-delete-button:hover,
+  & .cms-header-delete-button:focus {
+    @mixin error-text;
   }
 }

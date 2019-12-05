@@ -1,14 +1,16 @@
 {
   "name": "@datawheel/canon-cms",
   "description": "Content Management System for Canon sites.",
-  "version": "0.8.14",
+  "version": "0.11.3",
   "author": "James Mullen",
   "license": "MIT",
   "bin": {
     "canon-cms-migrate-legacy": "scripts/migration/canon-cms-migrate-legacy.js",
     "canon-cms-migrate-0.1": "scripts/migration/canon-cms-migrate-0.1.js",
     "canon-cms-migrate-0.6": "scripts/migration/canon-cms-migrate-0.6.js",
-    "canon-cms-migrate-0.7": "scripts/migration/canon-cms-migrate-0.7.js"
+    "canon-cms-migrate-0.7": "scripts/migration/canon-cms-migrate-0.7.js",
+    "canon-cms-migrate-0.8": "scripts/migration/canon-cms-migrate-0.8.js",
+    "canon-cms-migrate-0.9": "scripts/migration/canon-cms-migrate-0.9.js"
   },
   "scripts": {
     "dev": "canon-dev",
@@ -20,7 +22,9 @@
     "canon-cms-migrate-legacy": "node scripts/migration/canon-cms-migrate-legacy.js",
     "canon-cms-migrate-0.1": "node scripts/migration/canon-cms-migrate-0.1.js",
     "canon-cms-migrate-0.6": "node scripts/migration/canon-cms-migrate-0.6.js",
-    "canon-cms-migrate-0.7": "node scripts/migration/canon-cms-migrate-0.7.js"
+    "canon-cms-migrate-0.7": "node scripts/migration/canon-cms-migrate-0.7.js",
+    "canon-cms-migrate-0.8": "node scripts/migration/canon-cms-migrate-0.8.js",
+    "canon-cms-migrate-0.9": "node scripts/migration/canon-cms-migrate-0.9.js"
   },
   "dependencies": {
     "@blueprintjs/datetime": "^3.7.1",
@@ -53,11 +57,11 @@
     "sharp": "^0.23.0"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "^0.17.59",
+    "@datawheel/canon-core": "^0.17.62",
     "@datawheel/canon-logiclayer": "^0.3.22"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.17.59"
+    "@datawheel/canon-core": "^0.17.62"
   },
   "repository": {
     "type": "git",

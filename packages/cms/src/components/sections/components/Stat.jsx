@@ -1,34 +1,61 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
+import {hot} from "react-hot-loader/root";
+
+import stripHTML from "../../../utils/formatters/stripHTML";
 import Parse from "./Parse";
 import "./Stat.css";
 
-export default class Stat extends Component {
+class Stat extends Component {
+
+  /** assigns a class based on the length of the string */
+  generateLengthClass(str) {
+    const length = stripHTML(str).length;
+
+    let className = "length-sm";
+
+    if      (length > 40) className = "length-xxl";
+    else if (length > 30) className = "length-xl";
+    else if (length > 20) className = "length-lg";
+    else if (length > 10) className = "length-md";
+
+    return className;
+  }
+
   render() {
-    const {className, label, value, subtitle} = this.props;
+    const {className, El, label, value, subtitle} = this.props;
 
     return (
-      <dl className={`cp-stat${className ? ` ${className}` : ""}`}>
-        <dt className="cp-stat-label">
-          <Parse El="span" className="cp-stat-label-text label">
-            {label}
-          </Parse>
-        </dt>
+      <El className={`cp-stat${className ? ` ${className}` : ""}`}>
+        {label && <Fragment>
+          <span className="cp-stat-label">
+            <Parse El="span" className={`cp-stat-label-text label ${this.generateLengthClass(label)}`}>
+              {label}
+            </Parse>
+          </span>
+          <span className="u-visually-hidden">: </span>
+        </Fragment>}
 
-        <dd className="cp-stat-value">
-          <Parse El="span" className="cp-stat-value-text heading">
+        <span className="cp-stat-value">
+          <Parse El="span" className={`cp-stat-value-text heading ${this.generateLengthClass(value)}`}>
             {value}
           </Parse>
 
-          {subtitle &&
-            <React.Fragment>
-              <span className="u-visually-hidden">:</span>
-              <Parse El="span" className="cp-stat-subtitle">
+          {subtitle && subtitle !== "<p>New Subtitle</p>" &&
+            <Fragment>
+              <span className="u-visually-hidden">, </span>
+              <Parse El="span" className={`cp-stat-subtitle heading ${this.generateLengthClass(subtitle)}`}>
                 {subtitle}
               </Parse>
-            </React.Fragment>
+            </Fragment>
           }
-        </dd>
-      </dl>
+        </span>
+      </El>
     );
   }
 }
+
+Stat.defaultProps = {
+  El: "li"
+};
+
+export default hot(Stat);

@@ -64,7 +64,7 @@ type-error:         "#DB64A6"
 type-error-dark:    "#75224D"
 
 # measurements
-cms-nav-height:     "3.125rem"
+cms-nav-height:     "2.75rem"
 sidebar-width:      "17rem"
 toolbox-width:      "22.5rem"
 
@@ -214,3 +214,4 @@ stat-value-font-size:       "var(--font-xl)"
 stat-value-color:           "var(--accent-dark)"
 stat-subtitle-font-size:    "var(--font-xs)"
 stat-subtitle-color:        "var(--dark-1)"
+stat-group-stat-width:      "9rem"

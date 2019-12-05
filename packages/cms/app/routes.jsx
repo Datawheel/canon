@@ -5,7 +5,7 @@ import App from "./App";
 import Search from "./pages/Search";
 import Bar from "./pages/Bar";
 
-import {Builder, Profile} from "../src";
+import {Builder, Profile, Story, StoryLanding} from "../src";
 
 /** */
 export default function RouteCreate() {
@@ -15,6 +15,8 @@ export default function RouteCreate() {
       <Route path="/profile/:slug/:id" component={Profile} />
       <Route path="/profile/:slug/:id/:slug2/:id2" component={Profile} />
       <Route path="/profile/:slug/:id/:slug2/:id2/:slug3/:id3" component={Profile} />
+      <Route path="/story/:slug" component={Story} />
+      <Route path="/stories" component={StoryLanding} />
       <Route path="/search" component={Search} />
       <Route path="/bar" component={Bar} />
     </Route>

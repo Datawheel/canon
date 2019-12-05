@@ -1,9 +1,8 @@
 import React, {Component} from "react";
 import QuillWrapper from "./QuillWrapper";
 import DraftWrapper from "./DraftWrapper";
-import PropTypes from "prop-types";
+import {connect} from "react-redux";
 
-import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 
 import "./TextEditor.css";
@@ -61,10 +60,11 @@ class TextEditor extends Component {
   render() {
 
     const {data, fields} = this.state;
-    const {contentType, variables, locale} = this.props;
-    const formatters = this.context.formatters[locale];
+    const {contentType, locale} = this.props;
+    // Stories use TextEditors, but don't need variables.
+    const variables = this.props.status.variables[locale] ? this.props.status.variables[locale] : {};
 
-    if (!data || !fields || !variables || !formatters) return null;
+    if (!data || !fields || !variables) return null;
 
     const thisLocale = data.content.find(c => c.locale === locale);
 
@@ -86,8 +86,8 @@ class TextEditor extends Component {
   }
 }
 
-TextEditor.contextTypes = {
-  formatters: PropTypes.object
-};
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
 
-export default TextEditor;
+export default connect(mapStateToProps)(TextEditor);

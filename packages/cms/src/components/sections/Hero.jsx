@@ -44,14 +44,16 @@ class Hero extends Component {
       */
 
     const images = [];
-    for (let i = 0; i < dims.length; i++) {
-      if (profile.images[i]) {
-        images.push({
-          src: `/api/image?slug=${dims[i].slug}&id=${dims[i].id}&type=splash`,
-          author: profile.images[i].author,
-          meta: profile.images[i].meta,
-          permalink: profile.images[i].url
-        });
+    if (dims) {
+      for (let i = 0; i < dims.length; i++) {
+        if (profile.images[i]) {
+          images.push({
+            src: `/api/image?slug=${dims[i].slug}&id=${dims[i].id}&type=splash`,
+            author: profile.images[i].author,
+            meta: profile.images[i].meta,
+            permalink: profile.images[i].url
+          });
+        }
       }
     }
 
@@ -62,16 +64,12 @@ class Hero extends Component {
     const {contents, loading, sources, profile} = this.props;
     const {images, creditsVisible} = this.state;
 
-    // no hero section; just grab the profile title & subtitle
     let title = profile.title;
-    let subtitleContent = <Parse El="p" className="cp-hero-subtitle">{profile.subtitle}</Parse>;
-    let paragraphs, sourceContent, statContent;
+    let paragraphs, sourceContent, statContent, subtitleContent;
 
-
-    // hero section; grab all the usual section goodness
     if (contents) {
       title = contents.title;
-
+      // subtitles
       if (contents.subtitles.length) {
         subtitleContent = contents.subtitles.map((subhead, i) =>
           <Parse className="cp-section-subhead display cp-hero-subhead" key={`${subhead.subtitle}-subhead-${i}`}>
@@ -85,9 +83,7 @@ class Hero extends Component {
         const statGroups = nest().key(d => d.title).entries(contents.stats);
 
         statContent = <div className="cp-stat-group-wrapper cp-hero-stat-group-wrapper">
-          <div className="cp-stat-group cp-hero-stat-group">
-            {statGroups.map(({key, values}) => <StatGroup className="cp-hero-stat" key={key} title={key} stats={values} />)}
-          </div>
+          {statGroups.map(({key, values}) => <StatGroup className="cp-hero-stat" key={key} title={key} stats={values} />)}
         </div>;
       }
 

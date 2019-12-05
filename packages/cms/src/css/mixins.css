@@ -215,7 +215,8 @@ theming
 @define-mixin disabled-button {
   cursor: not-allowed;
   pointer-events: none;
-  /* theming */
+}
+@define-mixin cms-disabled-button-style {
   box-shadow: none !important;
   background: var(--light-2) !important;
   color: var(--gray) !important;
@@ -289,10 +290,23 @@ layout
 }
 
 @define-mixin hide-scrollbars {
-  -ms-overflow-style: none;
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* overflow with inertia scrolling */
+@define-mixin overflow-container {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@define-mixin vertical-overflow-container {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@define-mixin horizontal-overflow-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 
@@ -332,6 +346,44 @@ print stylesheet helpers
 }
 
 /* -----------------------------------
+CMS nav links & dropdowns
+----------------------------------- */
+@define-mixin cms-nav-link-theme {
+  color: var(--dark-1);
+
+  &:hover, &:focus, &.is-active {
+    color: var(--dark-2);
+    @mixin dark-mode { color: var(--light-2); }
+  }
+
+  /* dropdown toggled open */
+  &.is-active {
+    color: var(--dark-3);
+    @mixin dark-mode { color: var(--light-1); }
+    & path { fill: var(--accent); }
+  }
+
+  /* current page */
+  &.is-selected {
+    color: var(--black);
+    @mixin dark-mode { color: var(--white); }
+  }
+}
+@define-mixin cms-nav-toggle-transition {
+  transition:
+    background-color 0.2s ease-out,
+    opacity 0.2s ease-out,
+    transform 0.2s ease-out;
+}
+@define-mixin cms-nav-closed-state {
+  position: absolute;
+  opacity: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* add a transform as well */
+}
+
+/* -----------------------------------
 VarTable & VarList
 ----------------------------------- */
 @define-mixin var-overflow {
@@ -340,8 +392,7 @@ VarTable & VarList
   border-radius: 2px;
   /* handle overflow */
   display: block; /* needed to honor overflow */
-  overflow: auto;
-  -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
+  @mixin overflow-container;
   z-index: 1;
   /* theming */
   background-color: transparent;

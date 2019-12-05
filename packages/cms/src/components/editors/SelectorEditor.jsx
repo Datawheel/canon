@@ -3,6 +3,7 @@ import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import ButtonGroup from "../fields/ButtonGroup";
+import {connect} from "react-redux";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -34,7 +35,8 @@ class SelectorEditor extends Component {
 
   addOption() {
     const {data, isDirty} = this.state;
-    const {variables} = this.props;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
     if (!data.options) data.options = [];
     const varList = Object.keys(variables).filter(v => !v.startsWith("_") && !data.options.map(o => o.option).includes(v));
     if (varList.length > 0) {
@@ -120,6 +122,11 @@ class SelectorEditor extends Component {
     if (data.options.length > 0 && !data.options.map(o => o.isDefault).includes(true)) {
       data.options[0].isDefault = true;
       data.default = data.options[0].option;
+    }
+    // The user may have deleted an option that was a default in a multiselect.
+    // Recalculate the defaults so that it properly prunes them out.
+    if (data.type === "multi") {
+      data.default = data.options.filter(o => o.isDefault).map(o => o.option).join();
     }
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
@@ -207,7 +214,8 @@ class SelectorEditor extends Component {
   render() {
 
     const {data, showCustom} = this.state;
-    const {variables} = this.props;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
 
     if (!data || !variables) return null;
 
@@ -399,4 +407,8 @@ class SelectorEditor extends Component {
   }
 }
 
-export default SelectorEditor;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+export default connect(mapStateToProps)(SelectorEditor);

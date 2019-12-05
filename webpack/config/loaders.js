@@ -86,6 +86,7 @@ module.exports = props => {
       exclude: [path.join(appDir, "node_modules", "mapbox-gl")],
       include: [
         path.join(appDir, "app"),
+        path.resolve(appDir, "canon.js"),
         path.join(appDir, "src"),
         path.join(appDir, "utils"),
         path.join(appDir, "node_modules"),
@@ -95,6 +96,7 @@ module.exports = props => {
     {
       test: /\.(png|jpeg|jpg|gif|bmp|tif|tiff|svg|woff|woff2|eot|ttf)$/i,
       loader: "url-loader?limit=100000"
+      // fallback defaults to file-loader
     },
     {
       test: /\.(yaml|yml)$/,

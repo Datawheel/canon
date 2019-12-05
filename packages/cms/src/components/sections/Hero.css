@@ -7,7 +7,8 @@
   flex-direction: column;
   position: relative;
   /* fill up the screen, but make room for the nav & subnav */
-  min-height: calc(100vh - var(--nav-height) - var(--subnav-height));
+  min-height: calc(100vh - var(--nav-height));
+  padding-bottom: var(--gutter-lg);
 
   /* IE doesn't really do vertical centering, so remove min-height */
   @mixin ie-only {
@@ -19,7 +20,7 @@
   /* sizing */
   width: var(--hero-container-width);
   padding-top: var(--gutter-xl);
-  padding-bottom: var(--gutter-xl);
+  padding-bottom: calc(var(--gutter-xl) + var(--subnav-height));
   /* positioning */
   margin-top: auto;
   margin-bottom: auto;
@@ -73,17 +74,14 @@
 /* image(s) credits */
 .cp-hero-credits {
   z-index: 2;
-  padding: var(--gutter-md);
+  padding: var(--gutter-sm);
   position: relative;
-
-  @mixin min-md {
-    margin-bottom: calc(0px - var(--gutter-sm));
-  }
 
   /* credits visible state */
   &.is-open {
     background-color: var(--section-bg-even);
     color: var(--section-text-color);
+    top: var(--gutter-sm);
     /* transitions */
     transition: background-color 0.1s ease-out;
 
@@ -102,6 +100,13 @@
     & .cp-hero-credits-button {
       top: calc(0px - var(--gutter-lg));
     }
+  }
+
+  @mixin min-sm {
+    margin-bottom: var(--gutter-xl);
+  }
+  @mixin min-md {
+    margin-bottom: var(--gutter-lg);
   }
 }
 

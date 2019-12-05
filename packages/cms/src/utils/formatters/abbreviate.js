@@ -2,27 +2,9 @@ const libs = require("../libs");
 
 /**
  * Abbreviates a number into a smaller more human-readible number.
+ * https://github.com/d3plus/d3plus-format/blob/master/src/abbreviate.js#L44
  */
 function abbreviate(n) {
-  if (typeof n !== "number") return "N/A";
-
-  const negative = n < 0;
-  const length = n.toString().split(".")[0].replace("-", "").length;
-  let val;
-
-  if (n === 0) val = "0";
-  else if (length >= 3) {
-    const f = libs.d3.format(".3s")(n).replace("G", "B");
-    const num = f.slice(0, -1);
-    const char = f.slice(f.length - 1);
-    val = `${parseFloat(num)}${char}`;
-  }
-  else if (length === 3) val = libs.d3.format(",f")(n);
-  else val = libs.d3.format(".3g")(n);
-
-  return `${negative && val.charAt(0) !== "-" ? "-" : ""}${val}`
-    .replace(/(\.[0-9]*[1-9])[0]*$/g, "$1") /* removes any trailing zeros */
-    .replace(/[.][0]*$/g, ""); /* removes any trailing decimal point */
+  return libs.d3plus.formatAbbreviate(n);
 }
-
 module.exports = abbreviate;

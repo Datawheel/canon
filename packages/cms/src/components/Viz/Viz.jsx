@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
 import {SizeMe} from "react-sizeme";
+import {hot} from "react-hot-loader/root";
+
 import Graphic from "./Graphic";
 import PercentageBar from "./PercentageBar";
 import Table from "./Table";
@@ -29,8 +31,14 @@ class Viz extends Component {
 
   render() {
     const {sectionTitle} = this.props;
+    // Variables come from props in the CMS, and Context in the Front-end.
     const variables = this.props.variables || this.context.variables;
-    const {onSetVariables} = this.context;
+    // onSetVariables will either come from ProfileBuilder (CMS) or Profile (Front-end)
+    // But either way, it is delivered via context. Have a backup no-op just in case.
+    const onSetVariables = this.context.onSetVariables ? this.context.onSetVariables : d => d;
+    // Window opening is only supported on front-end profiles. If they didn't 
+    // come through context, then this Viz is in the CMS, so just replace it with a no-op.
+    const onOpenModal = this.context.onOpenModal ? this.context.onOpenModal : d => d;
     const locale = this.props.locale || this.context.locale;
 
     // This Viz component may be embedded in two ways - as a VisualizationCard in the
@@ -45,7 +53,8 @@ class Viz extends Component {
     const {id} = config;
 
     // clone config object to allow manipulation
-    const vizProps = propify(config.logic, formatters, variables, locale, id, onSetVariables);
+    const actions = {onSetVariables, onOpenModal};
+    const vizProps = propify(config.logic, formatters, variables, locale, id, actions);
 
     // If the result of propify has an "error" property, then the provided javascript was malformed and propify
     // caught an error. Instead of attempting to render the viz, simply show the error to the user.
@@ -70,11 +79,14 @@ class Viz extends Component {
     const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
     return <SizeMe render={({size}) =>
-      <div className={ `${namespace}-viz-container${
-        className ? ` ${className}` : ""
-      }${
-        type ? ` ${namespace}-${toKebabCase(type)}-viz-container` : ""
-      }`}>
+      <div
+        className={ `${namespace}-viz-container${
+          className ? ` ${className}` : ""
+        }${
+          type ? ` ${namespace}-${toKebabCase(type)}-viz-container` : ""
+        }`}
+        ref={ comp => this.viz = comp }
+      >
         {(title && showTitle || options) && type !== "Graphic"
           ? <div className={`${namespace}-viz-header`}>
             {title && showTitle
@@ -98,9 +110,14 @@ class Viz extends Component {
         <div className={`${namespace}-viz-figure${vizConfig.height || type === "Graphic" ? " with-explicit-height" : ""}`}>
           <Visualization
             key="viz-key"
-            ref={ comp => this.viz = comp }
             className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
-            dataFormat={resp => (this.analyzeData.bind(this)(resp), vizProps.dataFormat(resp))}
+            dataFormat={resp => {
+              const hasMultiples = Array.isArray(vizProps.data) && vizProps.data.some(d => typeof d === "string");
+              const sources = hasMultiples ? resp : [resp];
+              sources.forEach(r => this.analyzeData.bind(this)(r));
+              // console.log(sources);
+              return vizProps.dataFormat(resp);
+            }}
             linksFormat={vizProps.linksFormat}
             nodesFormat={vizProps.nodesFormat}
             topojsonFormat={vizProps.topojsonFormat}
@@ -116,7 +133,10 @@ Viz.childContextTypes = {
   d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,
+  // Though onSetVariables and onOpenModal aren't explicitly passed down,
+  // they are required to be here because of the object spread in getChildContext.
   onSetVariables: PropTypes.func,
+  onOpenModal: PropTypes.func,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };
@@ -126,6 +146,7 @@ Viz.contextTypes = {
   formatters: PropTypes.object,
   locale: PropTypes.string,
   onSetVariables: PropTypes.func,
+  onOpenModal: PropTypes.func,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };
@@ -140,4 +161,4 @@ Viz.defaultProps = {
   headingLevel: "h3"
 };
 
-export default Viz;
+export default hot(Viz);

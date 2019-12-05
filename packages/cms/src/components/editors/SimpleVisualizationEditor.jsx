@@ -6,26 +6,11 @@ import urlSwap from "../../utils/urlSwap";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
+import {dataFold} from "d3plus-viz";
 
 import "./SimpleVisualizationEditor.css";
 
-const vizLookup = {
-  AreaPlot: ["groupBy", "x", "y"],
-  BarChart: ["groupBy", "x", "y"],
-  BumpChart: ["groupBy", "x", "y"],
-  Donut: ["groupBy", "value"],
-  Geomap: ["groupBy", "colorScale", "topojson"],
-  Graphic: ["label", "value", "subtitle", "imageURL"],
-  LinePlot: ["groupBy", "x", "y"],
-  PercentageBar: ["groupBy", "value"],
-  Pie: ["groupBy", "value"],
-  StackedArea: ["groupBy", "x", "y"],
-  Treemap: ["groupBy", "sum"],
-  Table: ["columns"]
-};
-
-const textFields = ["imageURL", "topojson"];
-const checkboxFields = ["columns"];
+import vizLookup from "./vizLookup";
 
 class SimpleVisualizationEditor extends Component {
 
@@ -34,7 +19,7 @@ class SimpleVisualizationEditor extends Component {
     this.state = {
       object: {},
       rebuildAlertOpen: false,
-      payload: {}
+      payload: []
     };
   }
 
@@ -43,15 +28,19 @@ class SimpleVisualizationEditor extends Component {
     // If a simple config has been provided, then the user has used simple mode in the past.
     // Populate the simple menu accordingly and make it the default mode.
     let object = {};
-    if (simpleConfig) {
+    // Bug: The deepclone used in GeneratorEditor erroneously logic_simple from NULL to {}
+    // Therefore, detect the blank object as another expression of NULLness
+    const configIsEmptyObject = simpleConfig.constructor === Object && Object.keys(simpleConfig).length === 0;
+    if (simpleConfig && !configIsEmptyObject) {
       object = Object.assign({}, simpleConfig);
       this.setState({object}, this.firstBuild.bind(this));
     }
     // If a simple config has not been provided, then the user has never used one before,
-    // so prepare the interface with a the first viz
+    // so prepare the interface with the default/first viz
     else {
+      const defaultViz = vizLookup.find(v => v.default) || vizLookup[0];
       object = {
-        type: Object.keys(vizLookup)[0]
+        type: defaultViz.type
       };
       // If this component is mounting and is NOT provided a simple config, it means the
       // user has just enabled simple mode. This means the parent component must be given
@@ -60,42 +49,83 @@ class SimpleVisualizationEditor extends Component {
     }
   }
 
+  extractPayload(resp) {
+    const data = resp.data;
+    if (data instanceof Array) {
+      return data;
+    }
+    if (data && data.data && data.headers) {
+      return dataFold(data);
+    }
+    else if (data && data.data && data.data instanceof Array) {
+      return data.data;
+    }
+    else {
+      return [];
+    }
+  }
+
   firstBuild() {
     const {object} = this.state;
-    const {previews, variables, env} = this.props;
+    const {env} = this.props;
+    const {previews, localeDefault} = this.props.status;
+    // Stories can use Simplevizes, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
     const {data} = object;
     if (data) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value.
       const lookup = {};
-      previews.forEach((p, i) => {
-        if (i === 0) {
-          lookup.id = p.id;
-        }
-        lookup[`id${i + 1}`] = p.id;
-      });
+      if (previews) {
+        previews.forEach((p, i) => {
+          if (i === 0) {
+            lookup.id = p.id;
+          }
+          lookup[`id${i + 1}`] = p.id;
+        });
+      }
       const url = urlSwap(data, Object.assign({}, env, variables, lookup));
       axios.get(url).then(resp => {
-        const payload = resp.data;
-
+        const payload = this.extractPayload(resp);
         this.setState({payload}, this.compileCode.bind(this));
-      }).catch(() => {
-        console.log("API error");
+      }).catch(e => {
+        console.log("API error", e);
       });
     }
   }
 
   compileCode() {
-    const {object} = this.state;
-    // If the user has put instances variables between brackets (e.g. <id> or <var>)
+    const {object, payload} = this.state;
+    const {type} = object;
+    const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
+    const stripID = d => typeof d === "string" ? d.replace(/(ID\s|\sID)/g, "") : d;
+    
+    const keys = Object.keys(object)
+      // Filter out any keys where the user has manually selected none
+      .filter(d => object[d] !== "manual-none")
+      // Filter out the formatters lookup key 
+      .filter(d => d !== "formatters");
+
+    const thisViz = vizLookup.find(v => v.type === type);
+    let tooltipKeys = [];
+    if (thisViz) {
+      tooltipKeys = thisViz.methods
+        // To build the tooltip, filter our methods to only the tooltip keys
+        .filter(method => method.tooltip)
+        // If this key is already handled by groupBy, remove it from showing in the tooltip
+        .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy) : true)
+        .map(d => d.key);
+    }
+
+    // If the user has put instance variables between brackets (e.g. <id> or <var>)
     // Then we need to manually create a special template string out of what the user
     // has written. Remember that the "logic" is javascript that will be executed, so
     // if the user has written something like ?id=<id> then the resulting code
     // must be a template string like `/api?id=${variables.id}`
     const code =
     `return {${
-      Object.keys(object).map(k => {
+      keys.map(k => {
         if (k === "data") {
           let fixedUrl = object[k];
           (object[k].match(/<[^\&\=\/>]+>/g) || []).forEach(v => {
@@ -104,22 +134,58 @@ class SimpleVisualizationEditor extends Component {
           });
           return `\n  "${k}": \`${fixedUrl}\``;
         }
-        else {
-          if (k === "columns") {
-            return `\n "${k}": ${JSON.stringify(object[k])}`;
+        // If the user is setting groupBy, we need to implicitly set the label also.
+        else if (k === "groupBy") {
+          const label = Object.keys(firstObj).find(d => d === stripID(object[k]));
+          if (label) {         
+            const formatter = object.formatters ? object.formatters[k] : null;
+            return `\n  "${k}": "${object[k]}",  \n  "label": d => ${formatter ? `formatters.${formatter}(d["${label}"])` : `d["${label}"]`}`;
           }
           else {
             return `\n  "${k}": "${object[k]}"`;
           }
         }
+        // If the key has a dot, this is an object that needs to be destructured/crawled down
+        else if (k.includes(".")) {
+          const levels = k.split(".");
+          // If this is an axis config, implicitly apply a formatter if there is one.
+          if (levels[0] === "xConfig" || levels[0] === "yConfig") {
+            const formatter = object.formatters ? object.formatters[levels[0].charAt(0)] : null;
+            // xyConfig titles, when empty strings, need to be false.
+            const value = levels[1] === "title" ? object[k] === "" ? "false" : `"${object[k]}"` : `"${object[k]}"`;
+            if (formatter) {
+              return `\n  "${levels[0]}" : {"${levels[1]}": ${value}, "tickFormat": formatters.${formatter}}`;
+            }
+            else {
+              return `\n  "${levels[0]}" : {"${levels[1]}": ${value}}`;  
+            }
+          }
+          else {
+            return `\n  "${levels[0]}" : {"${levels[1]}": "${object[k]}"}`;
+          }
+        }
+        else if (k === "columns") {
+          return `\n  "${k}": ${JSON.stringify(object[k])}`;
+        }
+        else {
+          return `\n  "${k}": "${object[k]}"`;
+        }
       })
-    }\n}`;
+    },${`
+  "tooltipConfig": {
+    "tbody": [
+      ${tooltipKeys.map(k => {
+    const formatter = object.formatters ? object.formatters[k] : null; 
+    return `["${object[k]}", d => ${formatter ? `formatters.${formatter}(d["${object[k]}"])` : `d["${object[k]}"]`}]`;
+  })}
+    ]
+  }`}\n}`;
     if (this.props.onSimpleChange) this.props.onSimpleChange(code, object);
   }
 
   maybeRebuild() {
     const {payload} = this.state;
-    if (payload.data) {
+    if (payload.length > 0) {
       this.setState({rebuildAlertOpen: true});
     }
     else {
@@ -134,10 +200,49 @@ class SimpleVisualizationEditor extends Component {
     if (field === "type") {
       this.setState({object}, this.rebuild.bind(this));
     }
-    // Otherwise they are just changing a drop-down field and we need only recompile the code above.
+    // If the user is changing an x or y field, implicitly reset the label for the axis.
+    else if (field === "x" || field === "y") {
+      object[`${field}Config.title`] = e.target.value;
+      this.setState({object}, this.compileCode.bind(this));
+    }
+    // Otherwise they are just changing a drop-down field
     else {
       this.setState({object}, this.compileCode.bind(this));
     }
+  }
+
+  onChangeFormatter(field, e) {
+    const {object} = this.state;
+    if (!object.formatters) object.formatters = {};
+    if (e.target.value === "manual-none") {
+      delete object.formatters[field];
+    }
+    else {
+      object.formatters[field] = e.target.value;
+    }
+    this.setState({object}, this.compileCode.bind(this));
+  }
+
+  getOptionList(method, payload) {
+    const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
+    const isID = d => d.match(/(ID\s|\sID)/g, "");
+    const allFields = Object.keys(firstObj);
+    const plainFields = allFields.filter(d => !isID(d));
+    const idFields = allFields.filter(d => isID(d));
+    let options = [];
+    if (!method.required) options.push({value: "manual-none", display: "None"});
+    if (method.typeof === "id") {
+      options = options.concat(plainFields.map(key => {
+        const idField = idFields.find(d => d.includes(key));
+        return {value: idField ? idField : key, display: key};
+      }));
+    }
+    else {
+      options = options.concat(allFields
+        .filter(key => method.typeof ? typeof firstObj[key] === method.typeof : true)
+        .map(key => ({value: key, display: key})));
+    }
+    return options;
   }
 
 
@@ -155,45 +260,100 @@ class SimpleVisualizationEditor extends Component {
 
   rebuild() {
     const {object} = this.state;
+    const {env} = this.props;
+    const {previews, localeDefault} = this.props.status;
+    // Stories can use Simplevizes, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
     const {data, type} = object;
-    axios.get(data).then(resp => {
-      const payload = resp.data;
-      const firstObj = payload.data[0];
-      const newObject = {
-        data: object.data,
-        type: object.type
-      };
-      if (vizLookup[type] && firstObj) {
-        if (newObject.type === "Table") {
-          newObject.columns = Object.keys(firstObj);
+    const thisViz = vizLookup.find(v => v.type === type);
+    const lookup = {};
+    if (previews) {
+      previews.forEach((p, i) => {
+        if (i === 0) {
+          lookup.id = p.id;
         }
-        else {
-          vizLookup[type].forEach(f => newObject[f] = Object.keys(firstObj)[0]);
+        lookup[`id${i + 1}`] = p.id;
+      });
+    }
+
+    const newObject = {
+      data: object.data,
+      type: object.type
+    };
+ 
+    if (thisViz) {
+      // Copy over any relevant keys from the previous config
+      thisViz.methods.forEach(method => {
+        if (object[method.key]) {
+          newObject[method.key] = object[method.key];
         }
-      }
+      });
+      if (object.title) newObject.title = object.title;
+    }
+
+    if (data) {
+
+      const url = urlSwap(data, Object.assign({}, env, variables, lookup));
+      axios.get(url)
+        .then(resp => {
+          const payload = this.extractPayload(resp);
+          const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
+          if (thisViz && firstObj) {
+            if (newObject.type === "Table") {
+              newObject.columns = Object.keys(firstObj);
+            }
+            else {
+              thisViz.methods.forEach(method => {
+                if (!newObject[method.key]) {
+                  if (method.format === "Input") {
+                    newObject[method.key] = "";
+                  }
+                  else {
+                    const optionList = this.getOptionList.bind(this)(method, payload);
+                    if (optionList && optionList[0]) {
+                      newObject[method.key] = optionList[0].value;
+                    }
+                  }
+                }
+              });
+            }
+          }
+          this.setState({
+            payload,
+            object: newObject,
+            rebuildAlertOpen: false
+          }, this.compileCode.bind(this));
+        })
+        .catch(e => console.log("API error", e));
+    }
+    else {
       this.setState({
-        payload,
         object: newObject,
         rebuildAlertOpen: false
-      }, this.compileCode.bind(this));
-    }).catch(() => {
-      console.log("API error");
-    });
+      });
+    }
   }
 
   render() {
     const {object, rebuildAlertOpen, payload} = this.state;
+    const {localeDefault} = this.props.status;
+    const {formatterFunctions} = this.props.resources;
+    const formatters = formatterFunctions[localeDefault];
+    const formatterList = formatters ? Object.keys(formatters).sort((a, b) => a.localeCompare(b)) : [];
     const selectedColumns = object.columns || [];
-    const firstObj = payload && payload.data && payload.data[0] ? payload.data[0] : object;
+    const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
+
+    const thisViz = vizLookup.find(v => v.type === object.type);
+    const allFields = Object.keys(firstObj);    
 
     let buttonProps = {
       children: "Build",
       disabled: true,
       namespace: "cms"
     };
-    if (object.data) {
+    if (object.data && object.type) {
       buttonProps = {
-        children: payload.data ? "Rebuild" : "Build",
+        children: payload.length > 0 ? "Rebuild" : "Build",
         namespace: "cms",
         onClick: this.maybeRebuild.bind(this)
       };
@@ -235,8 +395,8 @@ class SimpleVisualizationEditor extends Component {
           onChange={this.onChange.bind(this, "type")}
         >
           <option value="undefined" default>Select visualization type</option>
-          {Object.keys(vizLookup).map(type =>
-            <option key={type} value={type}>{type}</option>
+          {vizLookup.map(viz =>
+            <option key={viz.type} value={viz.type}>{viz.name}</option>
           )}
         </Select>
         <TextInput
@@ -249,25 +409,25 @@ class SimpleVisualizationEditor extends Component {
         />
       </div>
 
-      {payload.data &&
+      {payload.length > 0 &&
         <div className="viz-select-group">
-          {object.type && vizLookup[object.type] && vizLookup[object.type].map(prop =>
+          {object.type && thisViz && thisViz.methods.map(method =>
             // render prop as text input
-            textFields.includes(prop)
+            method.format === "Input"
               ? <TextInput
-                label={prop === "imageURL" ? "Image URL" : prop}
+                label={method.display}
                 namespace="cms"
                 fontSize="xs"
-                key={prop}
-                value={object[prop]}
-                onChange={this.onChange.bind(this, prop)}
+                key={method.key}
+                value={object[method.key]}
+                onChange={this.onChange.bind(this, method.key)}
               />
 
               // render payload as checkboxes
-              : checkboxFields.includes(prop)
+              : method.format === "Checkbox"
                 ? <fieldset className="cms-fieldset">
                   <legend className="u-font-sm">Columns</legend>
-                  {Object.keys(firstObj).map(column =>
+                  {allFields.map(column =>
                     <label className="cms-checkbox-label u-font-xs" key={column}>
                       <input
                         type="checkbox"
@@ -278,22 +438,32 @@ class SimpleVisualizationEditor extends Component {
                   )}
                 </fieldset>
 
-                // render prop as select
-                : <Select
-                  label={prop === "groupBy" ? "grouping" : prop}
-                  namespace="cms"
-                  fontSize="xs"
-                  value={object[prop]}
-                  onChange={this.onChange.bind(this, prop)}
-                >
-                  {/* optional fields */}
-                  {object.type === "Graphic"
-                    ? <option key={null} value="">none</option> : ""
-                  }
-                  {Object.keys(firstObj).map(type =>
-                    <option key={type} value={type}>{type}</option>
-                  )}
-                </Select>
+                // render method.key as select
+                : <React.Fragment>
+                  <Select
+                    key="cms-key-select"
+                    label={method.display}
+                    namespace="cms"
+                    fontSize="xs"
+                    value={object[method.key]}
+                    onChange={this.onChange.bind(this, method.key)}
+                  >
+                    {this.getOptionList.bind(this)(method, payload).map(option => 
+                      <option key={option.value} value={option.value}>{option.display}</option>
+                    )}
+                  </Select>
+                  <Select
+                    key="cms-formatter-select"
+                    label={`${method.display} Formatter`}
+                    namespace="cms"
+                    fontSize="xs"
+                    value={object.formatters ? object.formatters[method.key] : "manual-none"}
+                    onChange={this.onChangeFormatter.bind(this, method.key)}
+                  >
+                    <option key={null} value="manual-none">none</option>
+                    {formatterList.map(f => <option key={f} value={f}>{f}</option>)}
+                  </Select>
+                </React.Fragment>
           )}
         </div>
       }
@@ -301,4 +471,11 @@ class SimpleVisualizationEditor extends Component {
   }
 }
 
-export default connect(state => ({env: state.env}))(SimpleVisualizationEditor);
+const mapStateToProps = state => ({
+  env: state.env,
+  status: state.cms.status,
+  resources: state.cms.resources
+});
+
+export default connect(mapStateToProps)(SimpleVisualizationEditor);
+

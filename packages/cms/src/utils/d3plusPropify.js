@@ -1,16 +1,17 @@
 import {assign} from "d3plus-common";
+import {dataConcat} from "d3plus-viz";
 import {parse} from "./FUNC";
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-export default (logic, formatters = {}, variables = {}, locale = envLoc, id = null, setVariables = d => d) => {
+export default (logic, formatters = {}, variables = {}, locale = envLoc, id = null, actions = {}) => {
 
   let config;
 
   // The logic provided might be malformed. Wrap it in a try/catch to be sure we don't
   // crash / RSOD whatever page is making use of propify.
   try {
-    config = parse({vars: ["variables"], logic}, formatters, locale, setVariables)(variables);
+    config = parse({vars: ["variables"], logic}, formatters, locale, actions)(variables);
   }
   // If the javascript fails, return a special error object for the front-end to use.
   catch (e) {
@@ -22,12 +23,21 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
       config: {
         data: [],
         type: "Treemap",
-        noDataHTML: `<div style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></div>`}
+        noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></p>`}
     };
   }
 
   // strip out the "dataFormat" from config
-  const dataFormat = config.dataFormat ? config.dataFormat : d => d.data;
+  const dataFormat = config.dataFormat ? config.dataFormat : resp => {
+
+    const hasMultiples = Array.isArray(config.data) && config.data.some(d => typeof d === "string");
+    const sources = hasMultiples ? resp : [resp];
+
+    // console.log(`d`, d);
+    // console.log(`sources`, sources);
+    // console.log(`dataConcat(sources, "data")`, dataConcat(sources, "data"));
+    return dataConcat(sources, "data");
+  };
   delete config.dataFormat;
 
   const linksFormat = config.linksFormat || undefined;

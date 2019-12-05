@@ -40,7 +40,10 @@ export default class SimpleGeneratorEditor extends Component {
     let pl = payload;
     if (payload.results) pl = payload.results;
     if (payload.data) pl = payload.data;
-    if (simpleConfig) {
+    // Bug: The deepclone used in GeneratorEditor erroneously logic_simple from NULL to {}
+    // Therefore, detect the blank object as another expression of NULLness
+    const configIsEmptyObject = simpleConfig.constructor === Object && Object.keys(simpleConfig).length === 0;
+    if (simpleConfig && !configIsEmptyObject) {
       objects = simpleConfig.map((objArr, i) =>
         objArr.map(o => ({
           use: o.use,
