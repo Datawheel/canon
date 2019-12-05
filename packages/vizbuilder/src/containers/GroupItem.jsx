@@ -61,7 +61,10 @@ class GroupItemControl extends Component {
 
   applyHandler = () => {
     const {props, state} = this;
-    if (props.group.hash !== state.nextHash) {
+    if (
+      props.group.hash !== state.nextHash ||
+      `${props.group.members}` !== `${state.nextMembers}`
+    ) {
       props.onUpdate(
         structGroup({
           dimension: state.nextDimension,

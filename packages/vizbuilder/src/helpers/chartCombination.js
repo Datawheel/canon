@@ -125,7 +125,14 @@ const chartDistiller = {
    */
   geomap(dg) {
     const {geoLevel, levels, cuts} = dg.params;
-    if (!geoLevel) return [];
+
+    if (
+      /** Disable if there's no user-defined topojson config for the geoLevel */
+      !dg.hasTopojsonConfig ||
+      /** Disable if there's no geoLevel in this query */
+      !geoLevel
+    )
+      return [];
 
     const geoLevelName = geoLevel.caption;
     const geoLevelMembers = dg.memberList[geoLevelName] || [];
@@ -140,10 +147,6 @@ const chartDistiller = {
     };
 
     if (
-      /** Disable if there's no user-defined topojson config for the geoLevel */
-      !dg.hasTopojsonConfig ||
-      /** Disable if there's no geoLevel in this query */
-      !geoLevel ||
       /** Disable if the geoLevel has less than 3 regions */
       geoLevelMembers.length < 3 ||
       /** If besides geoLevel, there's another level with only one cut */

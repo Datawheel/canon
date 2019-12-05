@@ -42,6 +42,14 @@ export function sortLabels(list, desc = false) {
 }
 
 /**
+ * @param {string[]} list
+ * @param {boolean} desc
+ */
+export function sortNumericsOrStrings(list, desc = false) {
+  return areKindaNumeric(list) ? sortKindaNumbers(list, desc) : sortLabels(list, desc);
+}
+
+/**
  * Generates a sorting function to be used in `Array.prototype.sort`,
  * based on a certain key.
  * @param {string} key The key to the property to be used as comparison string

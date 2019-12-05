@@ -149,8 +149,8 @@ export default {
   [OLAP_RUNQUERY]: ({client, dispatch, getState}) => {
     const state = getState();
     const cube = selectCube(state);
-    const {datacap, topojson, visualizations} = selectInstanceParams(state);
-    const isGeomapMode = selectIsGeomapMode(state);
+    const {datacap, visualizations} = selectInstanceParams(state);
+    const geomapLevels = selectGeomapLevels(state);
 
     if (!cube) {
       return Promise.reject(`${OLAP_RUNQUERY}: cube is undefined`);
@@ -210,8 +210,7 @@ export default {
             /** @type {Datagroup} */
             const output = {
               dataset: data,
-              hasTopojsonConfig:
-                isGeomapMode || Boolean(geoLevel && topojson.includes(geoLevel.caption)),
+              hasTopojsonConfig: !!geoLevel && geomapLevels.includes(geoLevel.name),
               memberList: memberMap,
               memberCount: countMap,
               params: {cube, ...measureParams, ...drillableParams},

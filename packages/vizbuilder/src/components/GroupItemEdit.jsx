@@ -1,6 +1,6 @@
 import React from "react";
 import {withNamespaces} from "react-i18next";
-import {sortKindaNumbers} from "../helpers/sort";
+import {sortNumericsOrStrings} from "../helpers/sort";
 import LevelSelect from "./LevelSelect";
 import MemberSelect from "./MemberSelect";
 import MiniButton from "./MiniButton";
@@ -50,13 +50,12 @@ const EditGroupItem = function({
   const onMembersAdd = member => {
     if (members.indexOf(member.key) === -1) {
       const nextMembers = members.concat(member.key);
-      sortKindaNumbers(nextMembers);
-      onMembersUpdate(nextMembers);
+      onMembersUpdate(sortNumericsOrStrings(nextMembers));
     }
   };
   const onMembersClear = () => onMembersUpdate([]);
   const onMembersRemove = memberKey =>
-    onMembersUpdate(members.filter(key => key === memberKey));
+    onMembersUpdate(members.filter(key => key !== memberKey));
 
   return (
     <fieldset className="group-item edit">

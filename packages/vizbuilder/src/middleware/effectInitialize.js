@@ -2,6 +2,7 @@ import keyBy from "lodash/keyBy";
 import {ensureArray, levelIteratorFactory} from "../helpers/arrays";
 import {userTableIdMeasure} from "../helpers/find";
 import {permalinkToState} from "../helpers/permalink";
+import {sortNumericsOrStrings} from "../helpers/sort";
 import {structFilter, structGroup} from "../helpers/structs";
 import {fullNameToLevelLike} from "../helpers/transform";
 import {
@@ -131,7 +132,8 @@ export default {
         }
 
         const groups = permalinkQuery.groups.map(item => {
-          const [hash, ...members] = item.split("|");
+          const [hash, ...rawMembers] = item.split("|");
+          const members = sortNumericsOrStrings(rawMembers);
           return structGroup({...levelMap[hash], members});
         });
 

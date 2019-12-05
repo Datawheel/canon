@@ -1,4 +1,3 @@
-import {ensureArray} from "./arrays";
 import {findFirstNumber} from "./find";
 
 /**
@@ -9,11 +8,6 @@ import {findFirstNumber} from "./find";
 export function isTimeDimension(dimensionItem) {
   return dimensionItem.type === "TIME";
 }
-/*
-export function isTimeDimension(dimension) {
-  return dimension.dimensionType === 1 || /year|date/i.test(dimension.name);
-}
-*/
 
 /**
  * Checks if the dimension should be presented in the UI.
@@ -22,11 +16,6 @@ export function isTimeDimension(dimension) {
 export function isValidDimension(dimensionItem) {
   return !isTimeDimension(dimensionItem) && !dimensionItem.hideInUi;
 }
-/*
-export function isValidDimension(dimension) {
-  return !isTimeDimension(dimension) && !yn(dimension.annotations.hide_in_ui);
-}
-*/
 
 /**
  * Checks if a measure is valid to show in Vizbuilder's Measure selector.
