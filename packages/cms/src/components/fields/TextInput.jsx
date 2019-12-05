@@ -38,7 +38,7 @@ export default class TextInput extends Component {
 
         <input
           className={`${namespace}-input u-font-${fontSize}`}
-          value={value}
+          defaultValue={value}
           onChange={onChange}
           name={name}
           placeholder={placeholder}
