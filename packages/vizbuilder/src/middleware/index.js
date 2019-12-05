@@ -1,4 +1,6 @@
 import {MultiClient as OLAPClient} from "@datawheel/olap-client";
+import {doQueryInyect} from "../store/query/actions";
+import {doRunQueryCore, doValidateParams} from "./actions";
 import fetchEffects from "./effectFetch";
 import initializeEffects from "./effectInitialize";
 import updateEffects from "./effectUpdate";
@@ -14,6 +16,13 @@ const effects = {
 /** @type {import("redux").Middleware<import("redux").Dispatch, GeneralState>} */
 function vizbuilderMiddleware({dispatch, getState}) {
   const client = new OLAPClient();
+
+  typeof window === "object" &&
+    window.addEventListener("popstate", function historyIntercepter(evt) {
+      dispatch(doQueryInyect(evt.state));
+      dispatch(doValidateParams());
+      dispatch(doRunQueryCore());
+    });
 
   return next => action => {
     return action.type in effects
