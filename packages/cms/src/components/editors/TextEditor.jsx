@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import QuillWrapper from "./QuillWrapper";
 import DraftWrapper from "./DraftWrapper";
 import {connect} from "react-redux";
 
@@ -26,25 +25,6 @@ class TextEditor extends Component {
   handleEditor(field, t) {
     const {data, isDirty} = this.state;
     const {locale} = this.props;
-    /*
-
-    // When an editor loads a raw string from the DB (like "new title") then the first
-    // thing it does is surround it in p tags, which counts as an "edit" and marks the
-    // editor as dirty. Don't mark dirty in this case.
-    const isFirstLoad = t === `<p>${thisLocale[field]}</p>`;
-    const isSame = t === thisLocale[field];
-    thisLocale[field] = t;
-    if (!isDirty && !isFirstLoad && !isSame) {
-      if (this.props.markAsDirty) this.props.markAsDirty();
-      this.setState({isDirty: true, data});
-    }
-    else {
-      this.setState({data});
-    }
-
-    */
-
-    //console.log(data.content);
     const thisLocale = data.content.find(c => c.locale === locale);
     if (!isDirty && thisLocale[field] !== t) {
       thisLocale[field] = t;
@@ -63,6 +43,7 @@ class TextEditor extends Component {
     const {contentType, locale} = this.props;
     // Stories use TextEditors, but don't need variables.
     const variables = this.props.status.variables[locale] ? this.props.status.variables[locale] : {};
+    const {formatters, selectors} = this.props;
 
     if (!data || !fields || !variables) return null;
 
@@ -72,7 +53,7 @@ class TextEditor extends Component {
       <div className="cms-field-container" key={f}>
         <label htmlFor={f}>{formatFieldName(f, contentType.replace("story_", "").replace("section_", "")
         )}</label>        
-        <DraftWrapper id={f} variables={variables} defaultValue={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
+        <DraftWrapper id={f} selectors={selectors} formatters={formatters} variables={variables} defaultValue={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
       </div>
     );
 
@@ -87,7 +68,9 @@ class TextEditor extends Component {
 }
 
 const mapStateToProps = state => ({
-  status: state.cms.status
+  status: state.cms.status,
+  formatters: state.cms.formatters,
+  selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
 });
 
 export default connect(mapStateToProps)(TextEditor);
