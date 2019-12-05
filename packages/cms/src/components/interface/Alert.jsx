@@ -7,8 +7,21 @@ import Parse from "../sections/components/Parse";
 
 import "./Alert.css";
 
-/** for now, this is just a wrapper around the blueprint Alert */
 class Alert extends Component {
+  constructor(props) {
+    super(props);
+    this.cancelButton = React.createRef();
+    this.confirmButton = React.createRef();
+  }
+
+  componentDidUpdate(prevProps) {
+    const {autoFocusButton, isOpen} = this.props;
+    // when opening the alert, focus either the confirm (default) or cancel button
+    if (!prevProps.isOpen && isOpen && (autoFocusButton === "confirm" || autoFocusButton === "cancel")) {
+      this[`${autoFocusButton}Button`].current.focus();
+    }
+  }
+
   render() {
     const {
       className,
@@ -18,7 +31,6 @@ class Alert extends Component {
       onConfirm,
       children,           // main message
       description,        // when more context is needed
-      autoFocusButton,    // set to "confirm" (default), "cancel", or null (if you must)
       confirmButtonText,
       cancelButtonText,
       theme,              // defaults to danger
@@ -66,7 +78,7 @@ class Alert extends Component {
               <button
                 className="cms-alert-actions-button"
                 onClick={onCancel}
-                autoFocus={autoFocusButton === "cancel"}
+                ref={this.cancelButton}
               >
                 {cancelButtonText}
               </button>
@@ -74,7 +86,7 @@ class Alert extends Component {
               <button
                 className={`cms-alert-actions-button${theme ? ` ${theme}-theme` : ""}`}
                 onClick={onConfirm}
-                autoFocus={autoFocusButton === "confirm"}
+                ref={this.confirmButton}
               >
                 {confirmButtonText}
               </button>
@@ -105,7 +117,7 @@ Alert.defaultProps = {
   cancelButtonText: "Cancel",
   icon: "warning-sign",
   theme: "danger",
-  autoFocusButton: "confirm"
+  autoFocusButton: "confirm"    // also accepts "cancel", or null/false (if you must)
 };
 
 export default hot(Alert);
