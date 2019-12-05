@@ -92,28 +92,30 @@ export const parseQueryParams = url => {
 
   // Fix mondrian query '&' in values
   let query = decodeURIComponent(parts[1]);
-  query = query.replace(/\.&\[/g, "|||");
+  query = query.replace(/\.&\[/g, ".[");
 
   const params = decodeUrl(url);
 
+  // Drilldowns
   if (params.drilldown) {
     params.drilldowns = Array.isArray(params.drilldown) ? params.drilldown : params.drilldown.split(",");
     params.drilldown = params.drilldowns;
   }
-
   if (params.drilldowns) {
     params.drilldowns = Array.isArray(params.drilldowns) ? params.drilldowns : params.drilldowns.split(",");
     params.drilldowns = params.drilldowns.map(d => parseLevelDimension(d));
   }
 
+  // Measures
   if (params.measure) {
     params.measures = Array.isArray(params.measures) ? params.measures : params.measures.split(",");
     params.measure = params.measures;
   }
-
   params.measures = Array.isArray(params.measures) ? params.measures : params.measures.split(",");
 
-  console.log(params);
+  // Cuts
+  console.log("CUT", params.cut);
+  console.log("CUTS", params.cuts);
 
   return {
     base: parts[0],

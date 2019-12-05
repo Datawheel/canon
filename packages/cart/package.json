@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@blueprintjs/select": "^3.10.0",
-    "@datawheel/olap-client": "^1.0.3",
+    "@datawheel/olap-client": "^1.2",
     "file-saver": "^2.0.2",
     "form-urldecoded": "0.0.6",
     "jszip": "^3.2.2",

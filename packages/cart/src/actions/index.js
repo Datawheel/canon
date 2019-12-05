@@ -2,7 +2,7 @@
 import localforage from "localforage";
 import {getHashCode, parseQueryToAdd, getProviderInfo, getLevelDimension, parseLevelDimension, parseQueryParams} from "../helpers/transformations";
 import {STORAGE_CART_KEY, TYPE_OLAP, TYPE_LOGICLAYER} from "../helpers/consts";
-import {MultiClient} from "@datawheel/olap-client";
+import {MultiClient, TesseractDataSource} from "@datawheel/olap-client";
 import {nest as d3Nest} from "d3-collection";
 
 /* Init Cart */
@@ -56,30 +56,13 @@ export const addToCartDecideAction = query => async dispatch => {
     const providerObj = getProviderInfo(query);
     const meta = parseQueryParams(query);
     const cubeName = meta.params.cube;
-    const tesseractCubeUrl = `${providerObj.server}/cubes/${cubeName}/aggregate.jsonrecords?`;
     const client = await MultiClient.fromURL(providerObj.server);
-    const queryParams = [];
+
     client.getCube(cubeName, cubes => cubes.find(c => providerObj.server.indexOf(c.server) > -1))
       .then(cube => {
-        // Measures
-        meta.params.measures.map(measure => {
-          queryParams.push(`measures[]=${measure}`);
-        });
-
-        // Drilldowns
-        meta.params.drilldowns.map(drill => {
-          cube.dimensions.map(dim => {
-            for (const level of dim.levelIterator) {
-              if (level.uniqueName === drill.dimension) {
-                queryParams.push(`drilldowns[]=${level.fullName}`);
-              }
-            }
-          });
-        });
-
-        // TODO Cuts
-
-        dispatch(addToCartAction(tesseractCubeUrl + queryParams.join("&"), query));
+        const queryObj = cube.query;
+        queryObj.parseURL(query);
+        dispatch(addToCartAction(TesseractDataSource.urlAggregate(queryObj), query));
       });
   }
   else {
@@ -94,9 +77,6 @@ export const addToCartAction = (query, logicLayerUrl = false) => {
     payload: parsed
   };
 };
-
-
-
 
 /* Remove query from Cart */
 export const REMOVE_FROM_CART = "@@canon-cart/REMOVE_FROM_CART";
