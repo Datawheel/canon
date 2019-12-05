@@ -58,6 +58,8 @@ export const structDimensionReducer = (cubeItem, dimension, index, dimensions) =
   const timeDimHeuristic = dimensions.some(dim => dim.dimensionType === DimType.Time)
     ? dimensionType === DimType.Time
     : yn(dmAnn.default_year) || /date|year/i.test(dimension.name);
+  const geoDimHeuristic =
+    dimensionType === DimType.Geographic || /geography/i.test(dimension.name);
 
   const defaultHierarchy = dimension.defaultHierarchy;
 
@@ -68,7 +70,9 @@ export const structDimensionReducer = (cubeItem, dimension, index, dimensions) =
     defaultHierarchy: defaultHierarchy ? defaultHierarchy.name : undefined,
     defaultYear: Number.parseInt(`${dmAnn.default_year}`) || undefined,
     hash: unique(uri),
-    hideInMap: dmAnn.hide_in_map ? yn(dmAnn.hide_in_map) || false : cubeItem.hideInMap,
+    hideInMap: dmAnn.hide_in_map
+      ? yn(dmAnn.hide_in_map) || false
+      : !geoDimHeuristic || cubeItem.hideInMap,
     hideInUi: dmAnn.hide_in_ui ? yn(dmAnn.hide_in_ui) || false : cubeItem.hideInUi,
     hierarchies: [],
     isRequired: yn(dmAnn.is_required) || false,
@@ -77,9 +81,7 @@ export const structDimensionReducer = (cubeItem, dimension, index, dimensions) =
     server: cubeItem.server,
     type: timeDimHeuristic
       ? "TIME"
-      : dimensionType === DimType.Geographic || /geography|state/i.test(dimension.name)
-        ? "GEOGRAPHY"
-        : dmAnn.dim_type ? dmAnn.dim_type : "GENERIC",
+      : geoDimHeuristic ? "GEOGRAPHY" : dmAnn.dim_type ? dmAnn.dim_type : "GENERIC",
     uri
   };
 

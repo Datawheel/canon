@@ -11,7 +11,11 @@ import {
   selectMeasureMap,
   selectMeasureMapByTable
 } from "../cubes/selectors";
-import {selectInstanceParams, selectIsGeomapMode} from "../instance/selectors";
+import {
+  selectGeomapLevels,
+  selectInstanceParams,
+  selectIsGeomapMode
+} from "../instance/selectors";
 
 /** @type {(state: GeneralState) => QueryState} */
 export const selectQueryState = state => state.vizbuilder.query;
@@ -166,15 +170,17 @@ export const selectCollectionMeasureForCube = createSelector(
  * Returns a list of levels valid for user handling in the UI.
  */
 export const selectLevelListForCube = createSelector(
-  [selectCube, selectIsGeomapMode],
-  (cube, geomapMode) => {
+  [selectCube, selectIsGeomapMode, selectGeomapLevels],
+  (cube, geomapMode, geomapLevels) => {
     if (!cube) return [];
 
     const levels = [];
     const iterator = levelIteratorFactory(cube.dimensions);
     for (let step = iterator.next(); !step.done; step = iterator.next()) {
       const level = step.value;
-      if (level.type !== "TIME" && !level.hideInUi && (!geomapMode || !level.hideInMap)) {
+      const showIfMap =
+        !geomapMode || (!level.hideInMap && geomapLevels.includes(level.name));
+      if (level.type !== "TIME" && !level.hideInUi && showIfMap) {
         levels.push(step.value);
       }
     }
