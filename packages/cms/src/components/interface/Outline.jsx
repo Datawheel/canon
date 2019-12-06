@@ -22,14 +22,15 @@ class Outline extends Component {
     }
   }
 
-  createSection(id) {
+  createSection(node) {
+    const ordering = node.ordering + 1;
     const {tab} = this.props.status.pathObj;
     const {currentPid, currentStoryPid} = this.props.status;
     if (tab === "profiles") {
-      this.props.newEntity("section", {profile_id: currentPid});
+      this.props.newEntity("section", {profile_id: currentPid, ordering});
     }
     if (tab === "stories") {
-      this.props.newEntity("storysection", {story_id: currentStoryPid});
+      this.props.newEntity("storysection", {story_id: currentStoryPid, ordering});
     }
   }
 
@@ -90,7 +91,7 @@ class Outline extends Component {
       <div className="cms-outline-item-actions cms-button">
         {/* add section */}
         <Button
-          onClick={() => this.createSection(node.id)}
+          onClick={() => this.createSection(node)}
           className="cms-outline-item-actions-button"
           namespace="cms"
           fontSize="xxs"

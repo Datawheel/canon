@@ -1,5 +1,10 @@
+const sorter = (a, b) => a.ordering - b.ordering;
+
 const addStoryEntity = (stories, data, accessor) => stories.map(p => 
-  p.id === data.story_id ? Object.assign({}, p, {[accessor]: p[accessor].concat([data])}) : p);
+  p.id === data.story_id ? Object.assign({}, p, {[accessor]: p[accessor]
+    .map(a => a.ordering >= data.ordering ? Object.assign({}, a, {ordering: a.ordering + 1}) : a)
+    .concat([data])
+    .sort(sorter)}) : p);
 
 const updateStoryEntity = (stories, data, accessor) => stories.map(p => 
   p.id === data.story_id ? Object.assign({}, p, {[accessor]: p[accessor].map(entity => 
@@ -16,7 +21,9 @@ const swapStoryEntity = (stories, data, accessor) => stories.map(p =>
 
 const addStorysectionEntity = (stories, data, accessor) => stories.map(p => 
   Object.assign({}, p, {storysections: p.storysections.map(s => 
-    s.id === data.storysection_id ? Object.assign({}, s, {[accessor]: s[accessor].concat([data])}) : s)}));
+    s.id === data.storysection_id ? Object.assign({}, s, {[accessor]: s[accessor]
+      .map(a => a.ordering >= data.ordering ? Object.assign({}, a, {ordering: a.ordering + 1}) : a)
+      .concat([data])}) : s)}));
 
 const updateStorysectionEntity = (stories, data, accessor) => stories.map(p => 
   Object.assign({}, p, {storysections: p.storysections.map(s => 
@@ -91,7 +98,10 @@ export default (stories = [], action) => {
           return match ? Object.assign({}, s, {ordering: match.ordering}) : s;  
         }).sort((a, b) => a.ordering - b.ordering)}));
     case "STORYSECTION_NEW":
-      return stories.map(p => p.id === action.data.story_id ? Object.assign({}, p, {storysections: p.storysections.concat([action.data])}) : p);
+      return stories.map(p => p.id === action.data.story_id ? Object.assign({}, p, {storysections: p.storysections
+        .map(s => s.ordering >= action.data.ordering ? Object.assign({}, s, {ordering: s.ordering + 1}) : s)
+        .concat([action.data])
+        .sort(sorter)}) : p);
     case "STORYSECTION_UPDATE":
       return stories.map(p => Object.assign({}, p, {storysections: p.storysections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
     case "STORYSECTION_DELETE":

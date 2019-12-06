@@ -505,13 +505,23 @@ module.exports = function(app) {
   const newList = cmsTables;
   newList.forEach(ref => {
     app.post(`/api/cms/${ref}/new`, isEnabled, async(req, res) => {
-      if (parentOrderingTables[ref]) {
-        const obj = {
+      // If the order was provided, we need to bump all siblings up to make room. 
+      if (req.body.ordering) {
+        const where = {
+          ordering: {[Op.gte]: req.body.ordering},
+          [parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]
+        };
+        await db[ref].update({ordering: sequelize.literal("ordering +1")}, {where}).catch(catcher);        
+      }
+      // If it was not provided, but this is a table that needs them, append it to the end and 
+      // insert the derived ordering into req.body
+      else if (parentOrderingTables[ref]) {
+        const where = {
           where: {[parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]},
           attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], 
           raw: true
         };
-        const maxFetch = await db[ref].findAll(obj).catch(catcher);
+        const maxFetch = await db[ref].findAll(where).catch(catcher);
         const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
         req.body.ordering = ordering;
       }
