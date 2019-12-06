@@ -24,12 +24,27 @@ class Outline extends Component {
 
   createSection(node) {
     const ordering = node.ordering + 1;
+    const {type} = node;
     const {tab} = this.props.status.pathObj;
     const {currentPid, currentStoryPid} = this.props.status;
     if (tab === "profiles") {
-      this.props.newEntity("section", {profile_id: currentPid, ordering});
+      const payload = {profile_id: currentPid, ordering};
+      // Groups are special, when adding a new group it should "jump" past all the child sections and 
+      // Add itself before the next grouping, or, if there is none, at the end (but still as a Grouping)
+      if (type === "Grouping") {
+        payload.type = type;
+        const nextGrouping = this.props.tree.find(s => s.type === "Grouping" && s.ordering > node.ordering);
+        payload.ordering = nextGrouping ? nextGrouping.ordering : undefined;
+      }
+      this.props.newEntity("section", payload);
     }
-    if (tab === "stories") {
+    else if (tab === "stories") {
+      const payload = {story_id: currentStoryPid, ordering};
+      if (type === "Grouping") {
+        payload.type = type;
+        const nextGrouping = this.props.tree.find(s => s.type === "Grouping" && s.ordering > node.ordering);
+        payload.ordering = nextGrouping ? nextGrouping.ordering : undefined;
+      }
       this.props.newEntity("storysection", {story_id: currentStoryPid, ordering});
     }
   }
