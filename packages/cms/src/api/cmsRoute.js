@@ -687,11 +687,15 @@ module.exports = function(app) {
         const {id} = req.body;
         const original = await db[ref].findOne({where: {id}}).catch(catcher);
         let otherWhere = {ordering: original.ordering + 1};
-        if (ref === "section") {
+        // If a Group is being swapped, don't swap with its neighbor. 
+        if (ref === "section" && original.type === "Grouping") {
           let sections = await db.section.findAll({where: {profile_id: original.profile_id}}).catch(catcher);
           sections = sections.map(s => s.toJSON());
           const nextGrouping = sections.find(s => s.type === "Grouping" && s.ordering > original.ordering);
-          if (nextGrouping) otherWhere = {ordering: nextGrouping.ordering};
+          if (nextGrouping) {
+            otherWhere = {ordering: nextGrouping.ordering};
+            // also move all sections
+          }
         }
         if (list.parent) otherWhere[list.parent] = original[list.parent];
         const other = await db[ref].findOne({where: otherWhere}).catch(catcher);
