@@ -686,12 +686,20 @@ module.exports = function(app) {
       app.post(`/api/cms/${ref}/swap`, isEnabled, async(req, res) => {
         const {id} = req.body;
         const original = await db[ref].findOne({where: {id}}).catch(catcher);
-        const otherWhere = {ordering: original.ordering + 1};
+        let otherWhere = {ordering: original.ordering + 1};
+        if (ref === "section") {
+          let sections = await db.section.findAll({where: {profile_id: original.profile_id}}).catch(catcher);
+          sections = sections.map(s => s.toJSON());
+          const nextGrouping = sections.find(s => s.type === "Grouping" && s.ordering > original.ordering);
+          if (nextGrouping) otherWhere = {ordering: nextGrouping.ordering};
+        }
         if (list.parent) otherWhere[list.parent] = original[list.parent];
         const other = await db[ref].findOne({where: otherWhere}).catch(catcher);
         if (!original || !other) return res.json([]);
-        const newOriginal = await db[ref].update({ordering: sequelize.literal("ordering + 1")}, {where: {id}, returning: true, plain: true}).catch(catcher);
-        const newOther = await db[ref].update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
+        const originalTarget = other.ordering;
+        const otherTarget = original.ordering;
+        const newOriginal = await db[ref].update({ordering: originalTarget}, {where: {id}, returning: true, plain: true}).catch(catcher);
+        const newOther = await db[ref].update({ordering: otherTarget}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
         return res.json([newOriginal[1], newOther[1]]);
       });
     });
