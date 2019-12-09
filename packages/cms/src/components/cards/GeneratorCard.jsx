@@ -86,9 +86,9 @@ class GeneratorCard extends Component {
       const theseVars = variables[status][id];
       if (theseVars) {
         const otherGens = Object.keys(variables._genStatus).reduce((acc, _id) => 
-          type === "materializer" || Number(id) !== Number(_id) ? Object.assign({}, acc, variables._genStatus[_id]) : acc, {});
+          type === "materializer" || String(id) !== String(_id) ? Object.assign({}, acc, variables._genStatus[_id]) : acc, {});
         const otherMats = Object.keys(variables._matStatus).reduce((acc, _id) => 
-          type === "generator" || Number(id) !== Number(_id) ? Object.assign({}, acc, variables._matStatus[_id]) : acc, {});    
+          type === "generator" || String(id) !== String(_id) ? Object.assign({}, acc, variables._matStatus[_id]) : acc, {});    
         const thoseVars = {...otherGens, ...otherMats};
         dupes = dupes.concat(Object.keys(theseVars).reduce((acc, k) => thoseVars[k] !== undefined ? acc.concat(k) : acc, []));
       }
