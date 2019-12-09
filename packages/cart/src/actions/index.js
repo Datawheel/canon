@@ -255,31 +255,33 @@ const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, share
     if (datasetObj.provider.type === TYPE_OLAP) {
       const query = queries[datasetObj.cube];
 
-      console.log("dataset", datasetObj);
-      console.log("dataset", query.parseURL(datasetObj.url));
-
+      // Add common dimensions
       if (sharedDimensionsLevel) {
         query.addDrilldown(sharedDimensionsLevel);
       }
 
+      // Add common date dimension
       if (dateDimensionsLevel) {
         query.addDrilldown(dateDimensionsLevel);
       }
 
-      if (datasetObj.query.params.drilldowns) {
-        datasetObj.query.params.drilldowns.map(drill => {
-          if ((!sharedDimensionsLevel || sharedDimensionsLevel.dimension !== drill.dimension) &&
-            (!dateDimensionsLevel || dateDimensionsLevel.dimension !== drill.dimension)) {
-            query.addDrilldown(drill);
-          }
-        });
-      }
+      // Add Measures
+      datasetObj.query.params.measures.map(m => {
+        query.addMeasure(m);
+      });
 
-      if (datasetObj.query.params.measures) {
-        datasetObj.query.params.measures.map(m => {
-          query.addMeasure(m);
-        });
-      }
+      // Add extra drilldowns
+      datasetObj.query.params.drilldowns.map(drill => {
+        if ((!sharedDimensionsLevel || sharedDimensionsLevel.dimension !== drill.dimension) &&
+          (!dateDimensionsLevel || dateDimensionsLevel.dimension !== drill.dimension)) {
+          query.addDrilldown(drill);
+        }
+      });
+
+      // Add extra cuts
+      datasetObj.query.params.cuts.map(c => {
+        query.addCut(c, c.members);
+      });
 
       multiClient.execQuery(query)
         .then(aggregation => {

@@ -101,7 +101,7 @@ export const parseCut = string => {
   const levelDimension = parseLevelDimension(string);
   let value = string.split(".").map(s => s.replace("[", "").replace("]", "").replace("&", ""));
   value = value[value.length - 1];
-  return {...levelDimension, value};
+  return {...levelDimension, members: [value]};
 };
 
 /** Get level and dimension from Level object */
