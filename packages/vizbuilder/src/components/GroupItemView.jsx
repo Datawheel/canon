@@ -16,7 +16,7 @@ import {levelNameFormatter} from "../helpers/format";
  */
 
 /** @type {React.FC<import("react-i18next").WithNamespaces & OwnProps>} */
-const ViewGroupItem = function({
+const ViewGroupItem = function ViewGroupItem({
   dimension,
   hierarchy,
   index,
@@ -42,13 +42,11 @@ const ViewGroupItem = function({
         </div>
       </div>
       <div className="group actions">
-        {index > 0 && (
-          <MiniButton
-            className="action-delete"
-            onClick={onDelete}
-            text={t("Vizbuilder.action_delete")}
-          />
-        )}
+        {index > 0 && <MiniButton
+          className="action-delete"
+          onClick={onDelete}
+          text={t("Vizbuilder.action_delete")}
+        />}
         <MiniButton
           className="action-edit"
           primary

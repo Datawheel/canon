@@ -24,7 +24,7 @@ import MiniButton from "./MiniButton";
  */
 
 /** @type {React.FC<import("react-i18next").WithNamespaces & OwnProps>} */
-const EditGroupItem = function({
+const EditGroupItem = function EditGroupItem({
   dimension,
   dimensionNames,
   dirty,
@@ -83,21 +83,16 @@ const EditGroupItem = function({
       </div>
 
       <div className="group actions">
-        {dirty && (
-          <MiniButton
-            className="action-reset"
-            onClick={onReset}
-            text={t("Vizbuilder.action_reset")}
-          />
-        )}
-        {!dirty &&
-        index > 0 && (
-          <MiniButton
-            className="action-delete"
-            onClick={onDelete}
-            text={t("Vizbuilder.action_delete")}
-          />
-        )}
+        {dirty && <MiniButton
+          className="action-reset"
+          onClick={onReset}
+          text={t("Vizbuilder.action_reset")}
+        />}
+        {!dirty && index > 0 && <MiniButton
+          className="action-delete"
+          onClick={onDelete}
+          text={t("Vizbuilder.action_delete")}
+        />}
         <MiniButton
           className="action-update"
           onClick={onUpdate}

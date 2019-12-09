@@ -72,7 +72,7 @@ export const selectMeasure = createSelector(
  */
 export const selectCube = createSelector(
   [selectCubeMap, selectMeasure],
-  (cubeMap, measure) => (measure ? cubeMap[measure.cube] : undefined)
+  (cubeMap, measure) => measure ? cubeMap[measure.cube] : undefined
 );
 
 /**
@@ -93,8 +93,8 @@ export const selectMeasureListForCube = createSelector(
   (cube, geomapMode) =>
     cube
       ? cube.measures.filter(
-          measure => !(geomapMode && measure.hideInMap) && isValidMeasure(measure)
-        )
+        measure => !(geomapMode && measure.hideInMap) && isValidMeasure(measure)
+      )
       : []
 );
 
@@ -109,6 +109,7 @@ export const selectLCIMeasureForCube = createSelector(
       const {name: measureName} = measure;
       return cube.measures.find(msr => msr.isLCIFor === measureName);
     }
+    return undefined;
   }
 );
 
@@ -123,6 +124,7 @@ export const selectUCIMeasureForCube = createSelector(
       const {name: measureName} = measure;
       return cube.measures.find(msr => msr.isUCIFor === measureName);
     }
+    return undefined;
   }
 );
 
@@ -137,6 +139,7 @@ export const selectMOEMeasureForCube = createSelector(
       const {name: measureName} = measure;
       return cube.measures.find(msr => msr.isMOEFor === measureName);
     }
+    return undefined;
   }
 );
 
@@ -150,6 +153,7 @@ export const selectSourceMeasureForCube = createSelector(
       const {name: measureName} = measure;
       return cube.measures.find(msr => msr.isSourceFor === measureName);
     }
+    return undefined;
   }
 );
 
@@ -163,6 +167,7 @@ export const selectCollectionMeasureForCube = createSelector(
       const {name: measureName} = measure;
       return cube.measures.find(msr => msr.isCollectionFor === measureName);
     }
+    return undefined;
   }
 );
 
@@ -179,7 +184,7 @@ export const selectLevelListForCube = createSelector(
     for (let step = iterator.next(); !step.done; step = iterator.next()) {
       const level = step.value;
       const showIfMap =
-        !geomapMode || (!level.hideInMap && geomapLevels.includes(level.name));
+        !geomapMode || !level.hideInMap && geomapLevels.includes(level.name);
       if (level.type !== "TIME" && !level.hideInUi && showIfMap) {
         levels.push(step.value);
       }
@@ -221,6 +226,7 @@ export const selectTimeLevelForCube = createSelector(selectCube, cube => {
       }
     }
   }
+  return undefined;
 });
 
 /**
@@ -231,7 +237,7 @@ export const selectGeoLevelForCube = createSelector(
   [selectGroupList, selectCube],
   (groups, cube) => {
     if (!cube) {
-      throw errorBuilder("InternalError", `selectGeoLevelForCube: Cube doesn't exist.`);
+      throw errorBuilder("InternalError", "selectGeoLevelForCube: Cube doesn't exist.");
     }
 
     const geoDimensions = cube.dimensions.filter(dim => dim.type === "GEOGRAPHY");
@@ -249,6 +255,8 @@ export const selectGeoLevelForCube = createSelector(
         return level;
       }
     }
+
+    return undefined;
   }
 );
 
@@ -291,8 +299,9 @@ export const selectQueryParamMeasures = createSelector(
   ],
   (measures, filters, measure, showConfInt, moe, lci, uci, collection, source) => {
     const filterMeasures = measures.slice(0, 0);
-    for (let item, i = 0; (item = filters[i]); i++) {
-      const measure = measures.find(m => m.name === item.measure);
+    for (let i = 0; i < filters.length; i++) {
+      const measureName = filters[i].measure;
+      const measure = measures.find(m => m.name === measureName);
       if (measure && filterMeasures.indexOf(measure) === -1) {
         filterMeasures.push(measure);
       }
@@ -343,10 +352,10 @@ export const selectQueryParamsDrillables = createSelector(
 
 /**
  * Returns the map of search parameters to use in building the permalink.
+ * @returns {PermalinkKeywordMap}
  */
 export const selectPermalinkKeywordsProp = createSelector(
   selectInstanceParams,
-  /** @returns {PermalinkKeywordMap} */
   instance => ({
     confint: instance.permalinkConfint,
     enlarged: instance.permalinkEnlarged,

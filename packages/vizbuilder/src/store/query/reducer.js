@@ -28,6 +28,7 @@ export function queryReducer(state = queryInitialState, {type, payload}) {
 
 /** @type {{[action: string]: (state: QueryState, _) => QueryState}} */
 const actions = {
+
   /**
    * @param {Partial<QueryState>} queryState
    */
@@ -60,6 +61,7 @@ const actions = {
    */
   [QUERY_FILTERS_DELETE]: (state, filter) => {
     const {key: filterKey} = filter;
+    // eslint-disable-next-line no-unused-vars
     const {[filterKey]: _, ...filters} = state.filters;
     return {...state, filters};
   },
@@ -82,6 +84,7 @@ const actions = {
     const count = Object.keys(state.groups).length;
     if (count > 1) {
       const {key: groupKey} = group;
+      // eslint-disable-next-line no-unused-vars
       const {[groupKey]: _, ...groups} = state.groups;
       return {...state, groups};
     }

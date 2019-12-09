@@ -42,74 +42,79 @@ import {
  */
 
 /** @type {React.FC<OwnProps & StateProps & DispatchProps>} */
-const ChartArea = memo(function({
-  activeChart,
-  charts,
-  chartSelectHandler,
-  formatters,
-  locale,
-  measureConfigs = {},
-  restoreChartsHandler,
-  showConfidenceInt,
-  t,
-  timePeriod,
-  timeSelectHandler,
-  topojsonConfigs = {},
-  userConfig = {}
-}) {
-  const isUniqueChart = charts.length === 1;
+const ChartArea = memo(
+  ({
+    activeChart,
+    charts,
+    chartSelectHandler,
+    formatters,
+    locale,
+    measureConfigs = {},
+    restoreChartsHandler,
+    showConfidenceInt,
+    t,
+    timePeriod,
+    timeSelectHandler,
+    topojsonConfigs = {},
+    userConfig = {}
+  }) => {
+    const isUniqueChart = charts.length === 1;
 
-  const chartsToRender =
-    !isUniqueChart && activeChart
-      ? charts.filter(chart => chart.key === activeChart)
-      : charts;
+    const chartsToRender =
+      !isUniqueChart && activeChart
+        ? charts.filter(chart => chart.key === activeChart)
+        : charts;
 
-  const isSingleChart = chartsToRender.length === 1;
+    const isSingleChart = chartsToRender.length === 1;
 
-  return (
-    <div
-      className={classNames(
-        "chart-wrapper",
-        isSingleChart ? "single" : "multi",
-        isUniqueChart && "unique",
-        activeChart
-      )}
-    >
-      {chartsToRender.map(chart => {
-        const {chartType, key} = chart;
-        const {measure, geoLevel} = chart.params;
-        const measureName = measure.name;
-        const geoLevelName = geoLevel ? geoLevel.caption : "";
+    return (
+      <div
+        className={classNames(
+          "chart-wrapper",
+          isSingleChart ? "single" : "multi",
+          isUniqueChart && "unique",
+          activeChart
+        )}
+      >
+        {chartsToRender.map(chart => {
+          const {chartType, key} = chart;
+          const {measure, geoLevel} = chart.params;
+          const measureName = measure.name;
+          const geoLevelName = geoLevel ? geoLevel.caption : "";
 
-        const config = createChartConfig(chart, {
-          activeChart,
-          formatters,
-          isSingleChart,
-          isUniqueChart,
-          locale,
-          measureConfig: measureConfigs[measureName],
-          onTimeChange: timeSelectHandler,
-          showConfidenceInt,
-          t,
-          timePeriod,
-          topojsonConfig: topojsonConfigs[geoLevelName],
-          userConfig
-        });
+          const config = createChartConfig(chart, {
+            activeChart,
+            formatters,
+            isSingleChart,
+            isUniqueChart,
+            locale,
+            measureConfig: measureConfigs[measureName],
+            onTimeChange: timeSelectHandler,
+            showConfidenceInt,
+            t,
+            timePeriod,
+            topojsonConfig: topojsonConfigs[geoLevelName],
+            userConfig
+          });
 
-        return (
-          <ChartCard
-            active={key === activeChart || isSingleChart}
-            chart={chartComponents[chartType]}
-            config={config}
-            hideToolbar={isUniqueChart}
-            key={key}
-            onToggle={activeChart ? restoreChartsHandler : () => chartSelectHandler(key)}
-          />
-        );
-      })}
-    </div>
-  );
-}, areEqual);
+          return (
+            <ChartCard
+              active={key === activeChart || isSingleChart}
+              chart={chartComponents[chartType]}
+              config={config}
+              hideToolbar={isUniqueChart}
+              key={key}
+              onToggle={
+                activeChart ? restoreChartsHandler : () => chartSelectHandler(key)
+              }
+            />
+          );
+        })}
+      </div>
+    );
+  },
+  areEqual
+);
 
 /**
  * @param {OwnProps & StateProps & DispatchProps} prevProps

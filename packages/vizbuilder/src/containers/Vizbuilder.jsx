@@ -9,7 +9,7 @@ import {connect} from "react-redux";
 import ButtonTooltip from "../components/ButtonTooltip";
 import ControlArea from "../components/ControlArea";
 import ChartArea from "../containers/ChartArea";
-import {DEFAULT_MEASURE_FORMATTERS, DEFAULT_MEASURE_MULTIPLIERS} from "../helpers/format";
+import {DEFAULT_MEASURE_FORMATTERS, DEFAULT_MEASURE_MULTIPLIERS} from "../helpers/enums";
 import {doCreateFilter, doCreateGroup, doSetup} from "../middleware/actions";
 import {selectChartList} from "../store/charts/selectors";
 import {selectMeasureList} from "../store/cubes/selectors";
@@ -125,9 +125,7 @@ class Vizbuilder extends Component {
               <ControlArea
                 className="control groups-manager"
                 title={t("Vizbuilder.title_groups")}
-                items={groups.map((key, index) => (
-                  <GroupItem key={key} identifier={key} index={index} />
-                ))}
+                items={groups.map((key, index) => <GroupItem key={key} identifier={key} index={index} />)}
               >
                 <Button
                   className="control-action group-add"
@@ -141,14 +139,12 @@ class Vizbuilder extends Component {
               <ControlArea
                 className="control filters-manager"
                 title={t("Vizbuilder.title_filters")}
-                items={filters.map(key => (
-                  <FilterItem
-                    formatters={formatters}
-                    identifier={key}
-                    key={key}
-                    multipliers={multipliers}
-                  />
-                ))}
+                items={filters.map(key => <FilterItem
+                  formatters={formatters}
+                  identifier={key}
+                  key={key}
+                  multipliers={multipliers}
+                />)}
               >
                 <Button
                   className="control-action filter-add"
@@ -181,24 +177,20 @@ class Vizbuilder extends Component {
 
         <div className="area-chart" onScroll={this.scrollEnsureHandler}>
           <div className="wrapper">
-            {!loadError && (
-              <h2 className="u-visually-hidden">{t("Vizbuilder.title_areacharts")}</h2>
-            )}
+            {!loadError && <h2 className="u-visually-hidden">{t("Vizbuilder.title_areacharts")}</h2>}
 
             {toolbarArea}
 
             {loadError && <ErrorExposer />}
-            {!loadError && (
-              <ChartArea
-                formatters={formatters}
-                measureConfigs={measureConfig}
-                measureUnitConfigFactories={measureUnitConfig}
-                onResize={this.resizeEnsureHandler}
-                t={t}
-                topojsonConfigs={topojsonConfig}
-                userConfig={userConfig}
-              />
-            )}
+            {!loadError && <ChartArea
+              formatters={formatters}
+              measureConfigs={measureConfig}
+              measureUnitConfigFactories={measureUnitConfig}
+              onResize={this.resizeEnsureHandler}
+              t={t}
+              topojsonConfigs={topojsonConfig}
+              userConfig={userConfig}
+            />}
           </div>
         </div>
       </div>

@@ -36,21 +36,23 @@ function fetchErrorHandler(error) {
   if (error.response) {
     // Request successful, but the server returned a non 2xx status code
     const descriptors = {
-      "400": "Bad Request",
-      "401": "Unauthorized",
-      "402": "Payment Required",
-      "403": "Forbidden",
-      "404": "Not Found",
-      "405": "Method Not Allowed",
-      "500": "Internal Server Error",
-      "501": "Not Implemented",
-      "502": "Bad Gateway",
-      "503": "Service Unavailable",
-      "504": "Gateway Timeout",
+      400: "400 Bad Request",
+      401: "401 Unauthorized",
+      402: "402 Payment Required",
+      403: "403 Forbidden",
+      404: "404 Not Found",
+      405: "405 Method Not Allowed",
+      500: "500 Internal Server Error",
+      501: "501 Not Implemented",
+      502: "502 Bad Gateway",
+      503: "503 Service Unavailable",
+      504: "504 Gateway Timeout"
     };
 
-    const detail = descriptors[error.response.status] || error.response.data;
-    throw errorBuilder("ServerError", detail);
+    const detail = [descriptors[error.response.status], error.response.data]
+      .filter(Boolean)
+      .join(" - ");
+    throw errorBuilder("ServerError", detail || undefined);
   }
   else if (error.request) {
     // The request was made but no response was received, `error.request`
@@ -65,6 +67,7 @@ function fetchErrorHandler(error) {
 }
 
 export default {
+
   /**
    * Setups the datasource URLs on the client.
    *
@@ -94,8 +97,12 @@ export default {
       !yn(cube.annotations.hide_in_map) &&
       cube.dimensions.some(dim => {
         if (dim.dimensionType === DimensionType.Geographic) {
-          for (let hierarchy, h = 0; (hierarchy = dim.hierarchies[h]); h++) {
-            for (let level, l = 0; (level = hierarchy.levels[l]); l++) {
+          const nHie = dim.hierarchies.length;
+          for (let h = 0; h < nHie; h++) {
+            const hierarchy = dim.hierarchies[h];
+            const nLvl = hierarchy.levels.length;
+            for (let l = 0; l < nLvl; l++) {
+              const level = hierarchy.levels[l];
               if (geomapLevels.indexOf(level.name) > -1) {
                 return true;
               }

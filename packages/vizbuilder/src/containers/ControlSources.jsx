@@ -2,7 +2,6 @@ import React from "react";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import ConditionalAnchor from "../components/ConditionalAnchor";
-import ControlArea from "../components/ControlArea";
 import DatasetSelect from "../components/DatasetSelect";
 import {doUpdateDataset} from "../middleware/actions";
 import {
@@ -38,28 +37,24 @@ const ControlSources = function({cube, measure, setDatasetHandler, t, tableMeasu
     <div className="control sources">
       <h3 className="label">{t("Vizbuilder.title_source")}</h3>
 
-      {cube.sourceName && (
-        <p>
-          <span>{t("Vizbuilder.prefix_source")}</span>
-          <ConditionalAnchor className="source-link" href={cube.sourceHref}>
-            {cube.sourceName}
-          </ConditionalAnchor>
-        </p>
-      )}
+      {cube.sourceName && <p>
+        <span>{t("Vizbuilder.prefix_source")}</span>
+        <ConditionalAnchor className="source-link" href={cube.sourceHref}>
+          {cube.sourceName}
+        </ConditionalAnchor>
+      </p>}
 
       {cube.sourceDescription && <p>{cube.sourceDescription}</p>}
 
-      {cube.datasetName && (
-        <div>
-          <span>{t("Vizbuilder.prefix_dataset")}</span>
-          <DatasetSelect
-            fill
-            measure={measure}
-            measures={tableMeasures}
-            onChange={setDatasetHandler}
-          />
-        </div>
-      )}
+      {cube.datasetName && <div>
+        <span>{t("Vizbuilder.prefix_dataset")}</span>
+        <DatasetSelect
+          fill
+          measure={measure}
+          measures={tableMeasures}
+          onChange={setDatasetHandler}
+        />
+      </div>}
     </div>
   );
 };

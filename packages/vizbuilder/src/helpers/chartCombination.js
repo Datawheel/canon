@@ -17,6 +17,7 @@ export function chartCombinationReducer(charts, dg) {
 }
 
 const chartDistiller = {
+
   /**
    * @param {"barchart" | "barchartyear" | "donut" | "geomap" | "histogram" | "lineplot" | "pie" | "stacked" | "treemap"} chartType
    * @param {Datagroup} dg
@@ -46,14 +47,18 @@ const chartDistiller = {
     const firstLevel = levels[0];
 
     if (
+
       /** Barcharts with more than 20 members are hard to read. */
       memberCount[firstLevel.caption] > 20 ||
+
       /** @see {@link https://github.com/Datawheel/canon/issues/327} */
-      "NONE" === measure.aggregationType ||
+      measure.aggregationType === "NONE" ||
+
       /** Disable if all levels, except for timeLevel, have only 1 member. */
       levels.every(lvl => memberCount[lvl.caption] === 1)
-    )
+    ) {
       return [];
+    }
 
     return chartDistiller.default("barchart", dg);
   },
@@ -70,24 +75,29 @@ const chartDistiller = {
     const firstLevel = levels[0];
 
     if (
+
       /**
        * timeLevel is required for obvious reasons
        */
       !timeLevel ||
       memberCount[timeLevel.caption] < 2 ||
+
       /**
        * Stacked bars only work with SUM-aggregated measures
        */
       !["SUM", "UNKNOWN"].includes(measure.aggregationType) ||
+
       /**
        * Barcharts with more than 20 members are hard to read.
        */
       memberCount[firstLevel.caption] > 20 ||
+
       /**
        * If there's more than 1 level, Percentage and Rate should not be stackable
        * @see {@link https://github.com/Datawheel/canon/issues/487}
        */
-      (levels.length > 1 && ["Percentage", "Rate"].includes(measure.unit)) ||
+      levels.length > 1 && ["Percentage", "Rate"].includes(measure.unit) ||
+
       /**
        * Disable if all levels, except for timeLevel, have only 1 member.
        */
@@ -106,6 +116,7 @@ const chartDistiller = {
    */
   donut(dg) {
     if (
+
       /**
        * Donut charts don't work with non-SUM measures
        */
@@ -127,12 +138,15 @@ const chartDistiller = {
     const {geoLevel, levels, cuts} = dg.params;
 
     if (
+
       /** Disable if there's no user-defined topojson config for the geoLevel */
       !dg.hasTopojsonConfig ||
+
       /** Disable if there's no geoLevel in this query */
       !geoLevel
-    )
+    ) {
       return [];
+    }
 
     const geoLevelName = geoLevel.caption;
     const geoLevelMembers = dg.memberList[geoLevelName] || [];
@@ -147,12 +161,15 @@ const chartDistiller = {
     };
 
     if (
+
       /** Disable if the geoLevel has less than 3 regions */
       geoLevelMembers.length < 3 ||
+
       /** If besides geoLevel, there's another level with only one cut */
-      (levels.length === 2 && !isGeoPlusUniqueCutQuery())
-    )
+      levels.length === 2 && !isGeoPlusUniqueCutQuery()
+    ) {
       return [];
+    }
 
     return chartDistiller.default("geomap", dg);
   },
@@ -229,16 +246,21 @@ const chartDistiller = {
     const {levels, timeLevel, drilldowns, measure} = params;
 
     if (
+
       /** timeLevel is required on stacked area charts */
       !timeLevel ||
       memberCount[timeLevel.caption] < 2 ||
+
       /** @see {@link https://github.com/Datawheel/canon/issues/327} */
       ["AVG", "AVERAGE", "MEDIAN", "NONE"].indexOf(measure.aggregationType) > -1 ||
+
       /** Disable if there will be more than 200 shapes in the chart */
       levels.reduce((total, lvl) => total * memberCount[lvl.caption], 1) > 200 ||
+
       /** @see {@link https://github.com/Datawheel/canon/issues/487} */
-      (["Percentage", "Rate"].indexOf(measure.unit) > -1 &&
-        memberCount[levels[0].caption] > 1) ||
+      ["Percentage", "Rate"].indexOf(measure.unit) > -1 &&
+        memberCount[levels[0].caption] > 1 ||
+
       /** Disable if all levels, especially timeLevel, contain only 1 member */
       drilldowns.every(lvl => memberCount[lvl.caption] === 1)
     ) {
@@ -258,16 +280,20 @@ const chartDistiller = {
     const {aggregationType} = params.measure;
 
     if (
+
       /** Treemaps only work with SUM-aggregated measures  */
-      (aggregationType !== "SUM" && aggregationType !== "UNKNOWN") ||
+      aggregationType !== "SUM" && aggregationType !== "UNKNOWN" ||
+
       /**
        * Disable if there will be more than 1000 shapes in the chart
        * TODO: Implement threshold parameters and remove this
        */
       levels.reduce((total, lvl) => total * memberCount[lvl.caption], 1) > 1000 ||
+
       /** @see {@link https://github.com/Datawheel/canon/issues/487} */
-      (["Percentage", "Rate"].indexOf(measure.unit) > -1 &&
-        memberCount[levels[0].caption] > 1) ||
+      ["Percentage", "Rate"].indexOf(measure.unit) > -1 &&
+        memberCount[levels[0].caption] > 1 ||
+
       /** Disable if all levels, except for timeLevel, have only 1 member. */
       params.levels.every(lvl => memberCount[lvl.caption] === 1)
     ) {

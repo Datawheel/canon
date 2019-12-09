@@ -11,7 +11,13 @@ import React from "react";
  */
 
 /** @type {React.FC<OwnProps>} */
-const ButtonTooltip = function({className, title, onClick, position, icon}) {
+const ButtonTooltip = function ButtonTooltip({
+  className,
+  icon,
+  onClick,
+  position,
+  title
+}) {
   return (
     <Tooltip className={className} content={title} position={position}>
       <Button onClick={onClick} icon={icon} />

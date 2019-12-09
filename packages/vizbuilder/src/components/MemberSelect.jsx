@@ -3,7 +3,7 @@ import {MultiSelect} from "@blueprintjs/select";
 import classNames from "classnames";
 import escapeRegExp from "lodash/escapeRegExp";
 import memoizeOne from "memoize-one";
-import keyBy from "lodash/keyBy"
+import keyBy from "lodash/keyBy";
 import React, {Component} from "react";
 
 import CategoryListRenderer from "./CategoryListRenderer";
@@ -29,11 +29,14 @@ import VirtualListRenderer from "./VirtualListRenderer";
 /** @extends {Component<OwnProps, {}>} */
 class MemberSelect extends Component {
   baseListComposer = memoizeOne(
+
     /** @type {(items: MemberItem[]) => (MemberItem | MemberOptgroup)[]} */
     items => {
+      let lastParentCaption;
+
       /** @type {(MemberItem | MemberOptgroup)[]} */
       const target = [];
-      let lastParentCaption;
+
       return items.reduce((output, item) => {
         const ancestor = item.ancestors[0];
         if (ancestor && lastParentCaption !== ancestor.name) {
@@ -47,6 +50,7 @@ class MemberSelect extends Component {
   );
 
   categoryListComposer = memoizeOne(
+
     /** @type {(stack: string[], items: MemberItem[], maxDepth: number) => any} */
     (stack, items, maxDepth) => {
       const depth = stack.length;
@@ -79,27 +83,24 @@ class MemberSelect extends Component {
     const queryTester = RegExp(query || ".", "i");
     return items
       .filter(item => "isOptgroup" in item || queryTester.test(item.name))
-      .filter(
-        (item, index, array) =>
-          !item.isOptgroup || (array[index + 1] && !array[index + 1].isOptgroup)
-      );
+      .filter((item, index, array) => !isOptgroup(item) || !isOptgroup(array[index + 1]));
   };
 
   clearHandler = () => {
     const {onClear} = this.props;
     typeof onClear === "function" && onClear();
-  }
+  };
 
   /** @type {(item: MemberItem, evt?: React.SyntheticEvent<HTMLElement>) => void} */
   itemSelectHandler = (item, evt) => {
     const {onItemSelect} = this.props;
     typeof onItemSelect === "function" && onItemSelect(item, evt);
-  }
+  };
 
   tagRemoveHandler = (_, index) => {
     const {onItemRemove, selectedItems} = this.props;
     typeof onItemRemove === "function" && onItemRemove(selectedItems[index], index);
-  }
+  };
 
   render() {
     const {options, loading, selectedItems} = this.props;
@@ -107,13 +108,11 @@ class MemberSelect extends Component {
 
     const tagInputProps = {
       onRemove: this.tagRemoveHandler,
-      rightElement: loading ? (
-        <Spinner size={Spinner.SIZE_SMALL} intent={Intent.PRIMARY} />
-      ) : selectedItems.length > 0 ? (
-        <Button icon="cross" minimal={true} onClick={this.clearHandler} />
-      ) : (
-        undefined
-      ),
+      rightElement: loading
+        ? <Spinner size={Spinner.SIZE_SMALL} intent={Intent.PRIMARY} />
+        : selectedItems.length > 0
+          ? <Button icon="cross" minimal={true} onClick={this.clearHandler} />
+          : undefined,
       tagProps: {minimal: true}
     };
 
@@ -121,7 +120,7 @@ class MemberSelect extends Component {
 
     return (
       <MultiSelect
-        itemDisabled="isOptgroup"
+        itemDisabled={isOptgroup}
         itemListPredicate={this.itemListPredicate}
         itemListRenderer={this.renderItemList}
         itemRenderer={this.renderItem}
@@ -145,23 +144,13 @@ class MemberSelect extends Component {
   renderItemList = itemListProps => {
     const {maxDepth} = this.props;
 
-    return itemListProps.query ? (
-      <VirtualListRenderer
-        {...itemListProps}
-        itemRenderer={this.renderItem}
-        onItemSelect={this.itemSelectHandler}
-      />
-    ) : (
-      <CategoryListRenderer
-        {...itemListProps}
-        itemListComposer={this.categoryListComposer}
-        maxDepth={maxDepth}
-      />
-    );
+    return itemListProps.query
+      ? <VirtualListRenderer {...itemListProps} itemRenderer={this.renderItem} onItemSelect={this.itemSelectHandler} />
+      : <CategoryListRenderer {...itemListProps} itemListComposer={this.categoryListComposer} maxDepth={maxDepth} />;
   };
 
   /** @type {import("@blueprintjs/select").ItemRenderer<MemberItem | MemberOptgroup>} */
-  renderItem = (item, {handleClick, index, modifiers, query}) => {
+  renderItem = (item, {handleClick, modifiers}) => {
     if ("isOptgroup" in item) {
       return (
         <MenuDivider
@@ -187,6 +176,15 @@ class MemberSelect extends Component {
   renderTag(item) {
     return item.name;
   }
+}
+
+/**
+ * Type guard for optgroups
+ * @param {MemberItem|MemberOptgroup} item
+ * @returns {item is MemberOptgroup}
+ */
+function isOptgroup(item) {
+  return item && "isOptgroup" in item;
 }
 
 /** @type {(member: MemberItem, maxDepth: number, depth: number) => MemberItem} */

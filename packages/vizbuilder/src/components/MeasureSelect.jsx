@@ -1,6 +1,6 @@
-import React from "react";
-import {Select} from "@blueprintjs/select";
 import {Button, MenuItem, Position} from "@blueprintjs/core";
+import {Select} from "@blueprintjs/select";
+import React from "react";
 import {fuzzySearch} from "../helpers/find";
 
 /**
@@ -16,7 +16,7 @@ import {fuzzySearch} from "../helpers/find";
  */
 
 /** @type {React.FC<OwnProps>} */
-const MeasureSelect = function({
+const MeasureSelect = function MeasureSelect({
   className,
   itemListPredicate,
   itemListRenderer,
@@ -47,6 +47,7 @@ const MeasureSelect = function({
 
 MeasureSelect.defaultProps = {
   itemListPredicate: (query, measures) => fuzzySearch(measures, query, "searchIndex"),
+  // eslint-disable-next-line react/display-name
   itemListRenderer: (measure, {handleClick, modifiers}) => {
     if (!modifiers.matchesPredicate) {
       return null;

@@ -79,7 +79,8 @@ export default function createChartConfig(chart, uiParams) {
     const timeLevelName = timeLevel.caption;
     const timePeriod = uiParams.timePeriod;
 
-    config.timeFilter = d => d[timeLevelName] == timePeriod; // eslint-disable-line
+    // eslint-disable-next-line eqeqeq
+    config.timeFilter = d => d[timeLevelName] == timePeriod;
     config.timeline = isEnlarged;
     config.timelineConfig = {
       on: {end: uiParams.onTimeChange}
@@ -102,6 +103,7 @@ export default function createChartConfig(chart, uiParams) {
 }
 
 const makeConfig = {
+
   /**
    * @param {Chart} chart
    * @param {UIParams} uiParams

@@ -29,6 +29,7 @@ import {
 } from "./actions";
 
 export default {
+
   /**
    * Handles the addition of a new FilterItem to the UI.
    * @param {import("../types").MiddlewareActionParams<undefined>} param0
@@ -95,6 +96,7 @@ export default {
    * @param {import("../types").MiddlewareActionParams<{measure: MeasureItem, defaultTable?: ((cubes: CubeItem[]) => CubeItem)}>} param0
    */
   [CORE_UPDATE_MEASURE]: ({action, dispatch, getState}) => {
+    // eslint-disable-next-line prefer-const
     let {measure, defaultTable} = action.payload;
     const state = getState();
 

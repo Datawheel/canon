@@ -8,7 +8,7 @@ import groupBy from "lodash/groupBy";
 export function iteratorFactory(list) {
   let index = 0;
   return {
-    next: function() {
+    next() {
       return index < list.length ? {value: list[index++], done: false} : {done: true};
     }
   };
@@ -22,6 +22,7 @@ export function measureIteratorFactory(cubes = []) {
   let cbIndex = 0;
   let msIndex = 0;
 
+  /** Iteration function */
   function next() {
     if (cbIndex === cubes.length) {
       return {done: true};
@@ -47,6 +48,7 @@ export function levelIteratorFactory(dimensions) {
   let hieIndex = 0;
   let lvlIndex = 0;
 
+  /** Iteration function */
   function next() {
     if (dimIndex === dimensions.length) {
       return {done: true};
@@ -77,6 +79,7 @@ export function levelIteratorFactory(dimensions) {
  * @returns {T[]}
  */
 export function ensureArray(obj, target = []) {
+  // eslint-disable-next-line eqeqeq
   return obj == null ? target : target.concat(obj);
 }
 
@@ -115,8 +118,8 @@ export function getPermutations(set, result = []) {
     }
     else {
       for (let i = 0; i < arr.length; i++) {
-        let curr = arr.slice();
-        let next = curr.splice(i, 1);
+        const curr = arr.slice();
+        const next = curr.splice(i, 1);
         permute(curr.slice(), m.concat(next));
       }
     }

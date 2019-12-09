@@ -12,7 +12,8 @@ import ConditionalAnchor from "./ConditionalAnchor";
  */
 
 /** @type {React.NamedExoticComponent<OwnProps>} */
-const DatasetSelect = memo(function({className, fill, measure, measures, onChange}) {
+// eslint-disable-next-line react/display-name
+const DatasetSelect = memo(({className, fill, measure, measures, onChange}) => {
   if (measures.length < 2) {
     return (
       <ConditionalAnchor className="source-link" href={measure.datasetHref}>

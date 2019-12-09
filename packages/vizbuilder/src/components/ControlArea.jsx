@@ -8,7 +8,7 @@ import React from "react";
  */
 
 /** @type {React.FC<OwnProps>} */
-const ControlArea = function({children, className, items, title}) {
+const ControlArea = function ControlArea({children, className, items, title}) {
   return (
     <div className={className}>
       <h4 className="label">{title}</h4>

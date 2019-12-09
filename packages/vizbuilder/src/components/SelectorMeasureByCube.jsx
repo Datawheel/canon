@@ -19,7 +19,7 @@ import {selectMeasureListForCube} from "../store/query/selectors";
  * @property {MeasureItem[]} items
  */
 
-/** @extends {Component<OwnProps&StateProps,{}>} */
+/** @extends {Component<OwnProps & StateProps, {}>} */
 class MeasureByCubeSelect extends Component {
   static defaultProps = {
     popoverProps: {
@@ -45,10 +45,13 @@ class MeasureByCubeSelect extends Component {
 
   render() {
     const {disabled, items, labelPlaceholderSelect, popoverProps, selectedItem} = this.props;
+
+    /* eslint-disable eqeqeq */
     const selectedItemLabel =
       selectedItem == null
         ? labelPlaceholderSelect
         : typeof selectedItem === "object" ? selectedItem.name : selectedItem;
+    /* eslint-enable eqeqeq */
 
     return (
       <Select
@@ -72,18 +75,14 @@ class MeasureByCubeSelect extends Component {
   }
 
   /** @type {import("@blueprintjs/select").ItemRenderer<MeasureItem>} */
-  renderItem = (item, {handleClick, modifiers}) => {
-    return (
-      <MenuItem
-        className="measure-select option"
-        disabled={modifiers.disabled}
-        key={item.uri}
-        onClick={handleClick}
-        text={item.caption}
-        title={item.name}
-      />
-    );
-  };
+  renderItem = (item, {handleClick, modifiers}) => <MenuItem
+    className="measure-select option"
+    disabled={modifiers.disabled}
+    key={item.uri}
+    onClick={handleClick}
+    text={item.caption}
+    title={item.name}
+  />;
 }
 
 /** @type {import("react-redux").MapStateToProps<StateProps,OwnProps,GeneralState>} */

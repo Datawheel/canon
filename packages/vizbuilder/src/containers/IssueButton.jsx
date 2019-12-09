@@ -24,7 +24,7 @@ const IssueButton = function({error, location, message, permalink, t}) {
       `**Permalink**: ${location.origin + location.pathname}?${permalink}`,
       `**Error**: ${error}`,
       message ? `**Error details:** ${message}\n` : "",
-      `**Detail of the issue:**\n`
+      "**Detail of the issue:**\n"
     ].join("\n"),
     title: `[report/vizbuilder${location.pathname}] `
   });

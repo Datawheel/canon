@@ -13,6 +13,11 @@ export const initialState = {
   query: queryInitialState
 };
 
+/**
+ * Main reducer function for Vizbuilder's redux store.
+ * @param {VizbuilderState} state
+ * @param {import("redux").AnyAction} action
+ */
 export function vizbuilderReducer(state = initialState, action) {
   return {
     charts: chartsReducer(state.charts, action),

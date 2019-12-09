@@ -3,7 +3,6 @@ import React from "react";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import MeasureSelect from "../components/AllMeasureSelect";
-import ControlArea from "../components/ControlArea";
 import {doRunQueryCore, doUpdateMeasure} from "../middleware/actions";
 import {selectMeasureList, selectMeasureMapByTable} from "../store/cubes/selectors";
 import {doConfIntToggle} from "../store/query/actions";

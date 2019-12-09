@@ -1,4 +1,4 @@
-import {ensureArray} from "./arrays";
+import keyBy from "lodash/keyBy";
 
 /**
  * @template T
@@ -6,6 +6,7 @@ import {ensureArray} from "./arrays";
  * @param {keyof T} property
  */
 export function arrayToMapBy(list, property) {
+
   /** @type {Record<string, T>} */
   const target = {};
   return list.reduce((target, item) => {
@@ -20,30 +21,12 @@ export function arrayToMapBy(list, property) {
  * @param {T[]} list
  * @param {keyof T} property
  */
-export function arrayToArrayMapBy(list, property) {
-  /** @type {Record<string, T[]>} */
-  const target = {};
-  return list.reduce((target, item) => {
-    const key = `${item[property]}`;
-    target[key] = ensureArray(target[key]).concat(item);
-    return target;
-  }, target);
-}
-
-/**
- * @template T
- * @param {T[]} list
- * @param {keyof T} property
- */
 export function arrayToPropertySet(list, property) {
-  /** @type {Record<string, number>} */
-  const targetMap = {};
-  for (let item, i = 0; (item = list[i]); i++) {
+  const targetMap = keyBy(list, item => {
     const value = item[property];
-    if (value != null) {
-      targetMap[`${value}`] = 0;
-    }
-  }
+    // eslint-disable-next-line eqeqeq
+    return value != null ? value : undefined;
+  });
   return Object.keys(targetMap);
 }
 
@@ -52,8 +35,10 @@ export function arrayToPropertySet(list, property) {
  * @param {string[]} properties
  */
 export function datasetToMemberMap(dataset, properties) {
+
   /** @type {Record<string, any[]>} */
   const memberMap = {};
+
   /** @type {Record<string, number>} */
   const countMap = {};
 

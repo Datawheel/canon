@@ -47,12 +47,14 @@ export function queryBuilder(
 
   timeLevel && query.addDrilldown(timeLevel.name);
 
-  for (let item, i = 0; (item = groups[i]); i++) {
+  for (let i = 0; i < groups.length; i++) {
+    const item = groups[i];
     isValidGroup(item) && query.addDrilldown(item);
     isValidCut(item) && query.addCut(item, item.members);
   }
 
-  for (let item, i = 0; (item = filters[i]); i++) {
+  for (let i = 0; i < filters.length; i++) {
+    const item = filters[i];
     isValidFilter(item) &&
       query.addFilter(item.measure, comparisonMap[item.operator], item.interpretedValue);
   }

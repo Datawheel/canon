@@ -84,7 +84,7 @@ class CategoryListRenderer extends Component {
     return (
       <div className="catlist-header">
         <div className="catlist-title">
-          {stack.map(item => <span className="title-token">{item}</span>)}
+          {stack.map(item => <span key={item} className="title-token">{item}</span>)}
         </div>
         <Button small={true} icon="circle-arrow-left" onClick={backHandler} text="Back" />
       </div>

@@ -33,38 +33,40 @@ const ErrorExposer = function({errorMsg, errorName, inProgress, t}) {
     return null;
   }
   else if (disconnected || errorName === "NetworkError") {
-    title = t("Vizbuilder.error.network_title");
-    detail = t("Vizbuilder.error.network_detail");
     action = undefined;
+    detail = t("Vizbuilder.error.network_detail");
+    icon = "globe-network";
+    title = t("Vizbuilder.error.network_title");
   }
   else if (errorName === "NoChartsError") {
-    title = t("Vizbuilder.error.nocharts_title");
     detail = t("Vizbuilder.error.nocharts_detail");
+    title = t("Vizbuilder.error.nocharts_title");
   }
   else if (errorName === "DataOverloadError") {
-    title = t("Vizbuilder.error.overload_title");
-    detail = t("Vizbuilder.error.overload_detail");
     action = undefined;
+    detail = t("Vizbuilder.error.overload_detail");
+    title = t("Vizbuilder.error.overload_title");
   }
   else if (errorName === "EmptyDatasetError") {
-    title = t("Vizbuilder.error.empty_title");
     detail = t("Vizbuilder.error.empty_detail");
+    title = t("Vizbuilder.error.empty_title");
   }
   else if (errorName === "ServerError") {
-    title = t("Vizbuilder.error.server_title");
     detail = t("Vizbuilder.error.server_detail");
+    title = t("Vizbuilder.error.server_title");
   }
   else if (errorName === "InternalError") {
-    title = t("Vizbuilder.error.internal_title");
     detail = t("Vizbuilder.error.internal_detail");
+    title = t("Vizbuilder.error.internal_title");
   }
   else {
-    title = t("Vizbuilder.error.unknown_title");
     detail = t("Vizbuilder.error.unknown_detail");
+    title = t("Vizbuilder.error.unknown_title");
+    icon = "warning-sign";
   }
 
   if (errorMsg) {
-    detail = t("Vizbuilder.error.message", {message: errorMsg}) + "\n" + detail;
+    detail = `${t("Vizbuilder.error.message", {message: errorMsg})}\n${detail}`;
   }
 
   return (

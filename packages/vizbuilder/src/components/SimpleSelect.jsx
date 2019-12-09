@@ -17,9 +17,10 @@ import {fuzzySearch} from "../helpers/find";
  */
 
 /**
- * @type {React.FC<OwnProps>}
+ * @template {BaseItem} T
+ * @type {React.FC<OwnProps<T>>}
  */
-const SimpleSelect = function({
+const SimpleSelect = function SimpleSelect({
   className,
   itemListPredicate,
   itemListRenderer,
@@ -55,6 +56,7 @@ const SimpleSelect = function({
 
 SimpleSelect.defaultProps = {
   itemListPredicate: (query, levels) => fuzzySearch(levels, query, "name"),
+  // eslint-disable-next-line react/display-name
   itemListRenderer: (level, {handleClick, modifiers}) => {
     if (!modifiers.matchesPredicate) {
       return null;

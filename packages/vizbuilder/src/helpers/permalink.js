@@ -22,8 +22,8 @@ export function stateToPermalink(keywords, state) {
       .map(item => [item.hash].concat(item.members).join("|")),
     [keywords.filters]: state.filters.length > 0
       ? state.filters
-          .filter(isValidFilter)
-          .map(item => `${item.measure}|${item.operator}|${item.interpretedValue}`)
+        .filter(isValidFilter)
+        .map(item => `${item.measure}|${item.operator}|${item.interpretedValue}`)
       : undefined,
     [keywords.enlarged]: state.activeChart || undefined,
     [keywords.confint]: state.showConfInt || undefined,
@@ -49,6 +49,6 @@ export function permalinkToState(keywords, locationSearch) {
     groups: locationQuery[keywords.groups] || [],
     measure: locationQuery[keywords.measure],
     showConfInt: yn(locationQuery[keywords.confint]) || false,
-    timePeriod: parseInt(locationQuery[keywords.period])
+    timePeriod: Number.parseInt(locationQuery[keywords.period], 10)
   };
 }

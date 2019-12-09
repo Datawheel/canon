@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import {DimensionType as DimType} from "@datawheel/olap-client";
 import {unique} from "shorthash";
 import yn from "yn";
@@ -57,9 +58,9 @@ export const structDimensionReducer = (cubeItem, dimension, index, dimensions) =
   const dimensionType = dimension.dimensionType;
   const timeDimHeuristic = dimensions.some(dim => dim.dimensionType === DimType.Time)
     ? dimensionType === DimType.Time
-    : yn(dmAnn.default_year) || /date|year/i.test(dimension.name);
+    : yn(dmAnn.default_year) || (/date|year/i).test(dimension.name);
   const geoDimHeuristic =
-    dimensionType === DimType.Geographic || /geography/i.test(dimension.name);
+    dimensionType === DimType.Geographic || (/geography/i).test(dimension.name);
 
   const defaultHierarchy = dimension.defaultHierarchy;
 
@@ -68,7 +69,7 @@ export const structDimensionReducer = (cubeItem, dimension, index, dimensions) =
     caption: dimension.caption,
     cube: cubeItem.name,
     defaultHierarchy: defaultHierarchy ? defaultHierarchy.name : undefined,
-    defaultYear: Number.parseInt(`${dmAnn.default_year}`) || undefined,
+    defaultYear: Number.parseInt(`${dmAnn.default_year}`, 10) || undefined,
     hash: unique(uri),
     hideInMap: dmAnn.hide_in_map
       ? yn(dmAnn.hide_in_map) || false
@@ -176,11 +177,11 @@ export const structMeasureReducer = (cubeItem, measure) => {
     cubeItem.dimNames.length > 0
       ? cubeItem.dimNames
       : cubeItem.dimensions
-          .sort((a, b) => {
-            const diff = b.levelCount - a.levelCount;
-            return diff !== 0 ? diff : a.name.localeCompare(b.name);
-          })
-          .map(dim => dim.name);
+        .sort((a, b) => {
+          const diff = b.levelCount - a.levelCount;
+          return diff !== 0 ? diff : a.name.localeCompare(b.name);
+        })
+        .map(dim => dim.name);
   cubeItem.dimNames = dimNames;
 
   const category = [topic, subtopic];
@@ -252,28 +253,24 @@ export const structMemberBuilder = member => {
  * @param {any} params
  * @returns {GroupItem}
  */
-export const structGroup = params => {
-  return {
-    dimension: params.dimension,
-    hash: params.hash,
-    hierarchy: params.hierarchy,
-    key: params.key || Math.random().toString(16).slice(2),
-    level: params.level || params.name,
-    members: ensureArray(params.members)
-  };
-};
+export const structGroup = params => ({
+  dimension: params.dimension,
+  hash: params.hash,
+  hierarchy: params.hierarchy,
+  key: params.key || Math.random().toString(16).slice(2),
+  level: params.level || params.name,
+  members: ensureArray(params.members)
+});
 
 /**
  * Creates a FilterItem object
  * @param {any} params
  * @returns {FilterItem}
  */
-export const structFilter = params => {
-  return {
-    inputtedValue: `${params.inputtedValue || params.value || 0}`,
-    interpretedValue: params.interpretedValue || params.value || 0,
-    key: params.key || Math.random().toString(16).slice(2),
-    measure: params.measure || params.name,
-    operator: params.operator || Comparison.EQ
-  };
-};
+export const structFilter = params => ({
+  inputtedValue: `${params.inputtedValue || params.value || 0}`,
+  interpretedValue: params.interpretedValue || params.value || 0,
+  key: params.key || Math.random().toString(16).slice(2),
+  measure: params.measure || params.name,
+  operator: params.operator || Comparison.EQ
+});

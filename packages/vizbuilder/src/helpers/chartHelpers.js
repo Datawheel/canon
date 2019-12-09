@@ -1,5 +1,4 @@
 import {BarChart, Donut, Geomap, LinePlot, Pie, StackedArea, Treemap} from "d3plus-react";
-import {joinStringsWithCommaAnd} from "./format";
 import {areMetaMeasuresZero, isValidFilter} from "./validation";
 
 export const chartComponents = {
@@ -98,9 +97,9 @@ export function tooltipGenerator(chart, {formatters, t}) {
  * @param {...string} args
  */
 export function labelFunctionGenerator(...args) {
-  const [lvlName1, lvlName2] = args;
-  return lvlName2
-    ? d => `${d[lvlName1]} (${joinStringsWithCommaAnd(d[lvlName2])})`
+  const [lvlName1, ...lvlName2] = args;
+  return Array.isArray(lvlName2) && lvlName2.length > 0
+    ? d => `${d[lvlName1]} (${lvlName2.map(k => d[k]).join(", ")})`
     : d => `${d[lvlName1]}`;
 }
 

@@ -29,6 +29,7 @@ import {
 } from "./actions";
 
 export default {
+
   /**
    * Handles all the initialization procedure.
    *
@@ -62,7 +63,7 @@ export default {
 
     dispatch(
       doInstanceUpdate({
-        datacap: datacap ? Number.parseInt(`${datacap}`) : undefined,
+        datacap: datacap ? Number.parseInt(`${datacap}`, 10) : undefined,
         defaultGroup: ensureArray(defaultGroup).map(fullNameToLevelLike),
         defaultMeasure,
         key: instanceKey,
@@ -76,7 +77,7 @@ export default {
         permalinkConfint: permalinkKeywords.confint,
         permalinkPeriod: permalinkKeywords.period,
         topojson: Object.keys(topojson || {}),
-        visualizations: visualizations
+        visualizations
       })
     );
 

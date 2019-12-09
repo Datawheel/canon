@@ -1,4 +1,5 @@
 import sort from "fast-sort";
+import groupBy from "lodash/groupBy";
 import keyBy from "lodash/keyBy";
 import {createSelector} from "reselect";
 import {isValidDimension, isValidMeasure} from "../../helpers/validation";
@@ -20,6 +21,7 @@ export const selectCubeList = createSelector(selectCubeMap, map => Object.values
 export const selectDimensionList = createSelector(
   [selectCubeList, selectIsGeomapMode],
   (cubes, isGeomapMode) => {
+
     /** @type {DimensionItem[]} */
     const dimensions = [];
 
@@ -51,6 +53,7 @@ export const selectDimensionList = createSelector(
 export const selectMeasureList = createSelector(
   [selectCubeList, selectIsGeomapMode],
   (cubes, isGeomapMode) => {
+
     /** @type {MeasureItem[]} */
     const measures = [];
 
@@ -91,19 +94,8 @@ export const selectMeasureMap = createSelector(selectMeasureList, measures =>
 /**
  * Returns a map of table names with an array of associated measures
  * for each table name.
+ * @returns {Record<string, MeasureItem[]>}
  */
-export const selectMeasureMapByTable = createSelector(selectMeasureList, measures => {
-  /** @type {Record<string, MeasureItem[]>} */
-  const tableMeasureMap = {};
-
-  for (let measure, m = 0; (measure = measures[m]); m++) {
-    const measureTableId = measure.tableId;
-    if (measureTableId) {
-      const target = tableMeasureMap[measureTableId] || [];
-      target.push(measure);
-      tableMeasureMap[measureTableId] = target;
-    }
-  }
-
-  return tableMeasureMap;
-});
+export const selectMeasureMapByTable = createSelector(selectMeasureList, measures =>
+  groupBy(measures, measure => measure.tableId)
+);

@@ -54,13 +54,11 @@ class ChartCard extends Component {
     return (
       <div className="chart-card">
         <div className="wrapper">
-          {!hideToolbar && (
-            <legend>
-              <aside className="chart-toolbar">
-                <Button minimal icon={buttonIcon} text={buttonText} onClick={onToggle} />
-              </aside>
-            </legend>
-          )}
+          {!hideToolbar && <legend>
+            <aside className="chart-toolbar">
+              <Button minimal icon={buttonIcon} text={buttonText} onClick={onToggle} />
+            </aside>
+          </legend>}
           <ChartComponent config={this.props.config} />
         </div>
       </div>

@@ -24,14 +24,7 @@ import {
  */
 
 /** @type {React.FC<import("react-i18next").WithNamespaces & OwnProps & StateProps>} */
-const Ranking = function({
-  chart,
-  formatters,
-  measure,
-  t,
-  timeLevel,
-  timePeriod
-}) {
+const Ranking = function Ranking({chart, formatters, measure, t, timeLevel, timePeriod}) {
   if (!chart || !timePeriod || !timeLevel || !measure || chart.data.length === 0) {
     return null;
   }
@@ -44,15 +37,14 @@ const Ranking = function({
   const levelNames = params.groups.map(group => group.level);
   const getLevelNames = a => levelNames.map(name => a[name]).join(" - ");
 
-  const renderListItem = datapoint => (
-    <li className="ranking-item">
-      <div className="row">
-        <span className="item-label">{getLevelNames(datapoint)}</span>
-        <span className="item-value">{formatter(datapoint[measureName])}</span>
-      </div>
-    </li>
-  );
+  const renderListItem = datapoint => <li className="ranking-item">
+    <div className="row">
+      <span className="item-label">{getLevelNames(datapoint)}</span>
+      <span className="item-value">{formatter(datapoint[measureName])}</span>
+    </div>
+  </li>;
 
+  // eslint-disable-next-line eqeqeq
   const selectedTimeDataset = data.filter(d => d[timeLevelName] == timePeriod);
 
   if (selectedTimeDataset.length === 1) {
@@ -62,9 +54,7 @@ const Ranking = function({
   if (selectedTimeDataset.length < 20) {
     return (
       <div className="control ranking">
-        <h3 className="label">
-          {t(`Vizbuilder.title_ranking`, {timePeriod})}
-        </h3>
+        <h3 className="label">{t("Vizbuilder.title_ranking", {timePeriod})}</h3>
         <ol className="ranking-list">{selectedTimeDataset.map(renderListItem)}</ol>
       </div>
     );
@@ -77,15 +67,11 @@ const Ranking = function({
   return (
     <Fragment>
       <div className="control ranking upper">
-        <h3 className="label">
-          {t(`Vizbuilder.title_topten`, {timePeriod})}
-        </h3>
+        <h3 className="label">{t("Vizbuilder.title_topten", {timePeriod})}</h3>
         <ol className="ranking-upper">{upperDataset.map(renderListItem)}</ol>
       </div>
       <div className="control ranking lower">
-        <h3 className="label">
-          {t(`Vizbuilder.title_bottomten`, {timePeriod})}
-        </h3>
+        <h3 className="label">{t("Vizbuilder.title_bottomten", {timePeriod})}</h3>
         <ol className="ranking-lower" start={lowerIndex + 1}>
           {lowerDataset.map(renderListItem)}
         </ol>

@@ -10,6 +10,7 @@ import {
 import {CORE_VALIDATE_PARAMS} from "./actions";
 
 export default {
+
   /**
    * Checks groups and filters to remove items not related to the cube set at
    * runtime. If no groups pass the filter, a default group is generated from

@@ -26,89 +26,78 @@ import VirtualListRenderer from "./VirtualListRenderer";
 
 /** @extends {Component<OwnProps,{}>} */
 class MeasureSelect extends Component {
-  constructor(props) {
-    super(props);
+  baseListComposer = memoizeOne(
 
-    this.renderItemList = this.renderItemList.bind(this);
-    this.renderItem = this.renderItem.bind(this);
-    this.itemSelectHandler = this.itemSelectHandler.bind(this);
+    /** @param {MeasureItem[]} items */
+    items => {
+      // This function supposes the list was previously sorted by headers
+      const {selectedItem, itemMap} = this.props;
+      let lastSubtopic, lastTopic;
 
-    this.baseListComposer = memoizeOne(
-      /** @param {MeasureItem[]} items */
-      items => {
-        // This function supposes the list was previously sorted by headers
-        const {selectedItem, itemMap} = this.props;
-        let lastTopic, lastSubtopic;
-
-        return items.reduce((output, item) => {
-          // Compose headers by category
-          const topic = item.topic;
-          const subtopic = item.subtopic;
-          if (topic !== lastTopic || subtopic !== lastSubtopic) {
-            lastTopic = topic;
-            lastSubtopic = subtopic;
-            output.push({isOptgroup: true, topic, subtopic});
-          }
-          // Adds the item only if it wasn't added from another dataset previously
-          const tableMap = itemMap[`${item.tableId}`];
-          if (tableMap && tableMap.length > 0) {
-            // if selectedItem is from the current tableMap, use it, else use first
-            const isSelectedInTable = tableMap.indexOf(selectedItem) > -1;
-            const representativeItem = isSelectedInTable ? selectedItem : tableMap[0];
-            if (output.indexOf(representativeItem) === -1) {
-              output.push(representativeItem);
-            }
-          }
-          else {
-            output.push(item);
-          }
-          return output;
-        }, []);
-      }
-    );
-
-    this.categoryListComposer = memoizeOne(
-      /**
-       * @param {any} stack
-       * @param {MeasureItem[]} items
-       */
-      (stack, items) => {
-        const depth = stack.length;
-
-        if (depth === 0) {
-          const topicMap = {};
-          let n = items.length;
-          while (n--) {
-            const measure = items[n];
-            if (measure.isOptgroup) continue;
-            topicMap[measure.topic] = true;
-          }
-          return Object.keys(topicMap).sort();
+      return items.reduce((output, item) => {
+        // Compose headers by category
+        const topic = item.topic;
+        const subtopic = item.subtopic;
+        if (topic !== lastTopic || subtopic !== lastSubtopic) {
+          lastTopic = topic;
+          lastSubtopic = subtopic;
+          output.push({isOptgroup: true, topic, subtopic});
         }
-
-        if (depth === 1) {
-          const topic = stack[0];
-          const subtopicMap = {};
-          let n = items.length;
-          while (n--) {
-            const measure = items[n];
-            if (measure.isOptgroup) continue;
-            if (measure.topic === topic) {
-              subtopicMap[measure.subtopic] = true;
-            }
+        // Adds the item only if it wasn't added from another dataset previously
+        const tableMap = itemMap[`${item.tableId}`];
+        if (tableMap && tableMap.length > 0) {
+          // if selectedItem is from the current tableMap, use it, else use first
+          const isSelectedInTable = tableMap.indexOf(selectedItem) > -1;
+          const representativeItem = isSelectedInTable ? selectedItem : tableMap[0];
+          if (output.indexOf(representativeItem) === -1) {
+            output.push(representativeItem);
           }
-          return Object.keys(subtopicMap).sort();
         }
+        else {
+          output.push(item);
+        }
+        return output;
+      }, []);
+    }
+  );
 
-        const [topic, subtopic] = stack;
-        return items.filter(
-          measure =>
-            !measure.isOptgroup &&
-            (measure.topic === topic && measure.subtopic === subtopic)
-        );
+  categoryListComposer = memoizeOne(
+
+    /** @type {(stack, items: MeasureItem[]) => string[] | MeasureItem[]} */
+    (stack, items) => {
+      const depth = stack.length;
+
+      if (depth === 0) {
+        const topicMap = {};
+        let n = items.length;
+        while (n--) {
+          const measure = items[n];
+          if (isOptgroup(measure)) continue;
+          topicMap[measure.topic] = true;
+        }
+        return Object.keys(topicMap).sort();
       }
-    );
-  }
+
+      if (depth === 1) {
+        const topic = stack[0];
+        const subtopicMap = {};
+        let n = items.length;
+        while (n--) {
+          const measure = items[n];
+          if (isOptgroup(measure)) continue;
+          if (measure.topic === topic) {
+            subtopicMap[measure.subtopic] = true;
+          }
+        }
+        return Object.keys(subtopicMap).sort();
+      }
+
+      const [topic, subtopic] = stack;
+      return items.filter(
+        measure => isOptgroup(measure) && (measure.topic === topic && measure.subtopic === subtopic)
+      );
+    }
+  );
 
   /**
    * @type {import("@blueprintjs/select").ItemListPredicate<MeasureItem | MeasureOptgroup>}
@@ -123,14 +112,14 @@ class MeasureSelect extends Component {
       .filter(item => "isOptgroup" in item || queryTester.test(item.searchIndex))
       .filter(
         (item, index, array) =>
-          !item.isOptgroup || (array[index + 1] && !array[index + 1].isOptgroup)
+          !item.isOptgroup || array[index + 1] && !array[index + 1].isOptgroup
       );
   }
 
-  itemSelectHandler(item, evt) {
+  itemSelectHandler = (item, evt) => {
     const {onItemSelect} = this.props;
     onItemSelect && onItemSelect(item, evt);
-  }
+  };
 
   render() {
     const {items, selectedItem, disabled} = this.props;
@@ -177,49 +166,37 @@ class MeasureSelect extends Component {
    * @type {import("@blueprintjs/select").ItemListRenderer<MeasureItem | MeasureOptgroup>}
    * @param {import("@blueprintjs/select").IItemListRendererProps<MeasureItem | MeasureOptgroup>} itemListProps
    */
-  renderItemList(itemListProps) {
-    if (itemListProps.query) {
-      return (
-        <VirtualListRenderer
-          {...itemListProps}
-          itemRenderer={this.renderItem}
-          onItemSelect={this.itemSelectHandler}
-        />
-      );
-    }
-    else {
-      return (
-        <CategoryListRenderer
-          {...itemListProps}
-          itemListComposer={this.categoryListComposer}
-          maxDepth={2}
-        />
-      );
-    }
-  }
+  renderItemList = itemListProps =>
+    itemListProps.query
+      ? <VirtualListRenderer
+        {...itemListProps}
+        itemRenderer={this.renderItem}
+        onItemSelect={this.itemSelectHandler}
+      />
+      :       <CategoryListRenderer
+        {...itemListProps}
+        itemListComposer={this.categoryListComposer}
+        maxDepth={2}
+      />
+    ;
 
   /**
    * @type {import("@blueprintjs/select").ItemRenderer<MeasureItem | MeasureOptgroup>}
    * @param {MeasureItem | MeasureOptgroup} item
    * @param {import("@blueprintjs/select").IItemRendererProps} itemProps
    */
-  renderItem(item, {handleClick, index, modifiers, query}) {
-    if ("isOptgroup" in item) {
-      return (
-        <li
-          key={`${item.topic} ${item.subtopic}`}
-          className={classNames(Classes.MENU_HEADER, "measure-select optgroup")}
-        >
-          <h4 className="measure-label">
-            <span className="topic">{item.topic}</span>
-            <span className="subtopic">{item.subtopic}</span>
-          </h4>
-        </li>
-      );
-    }
-
-    return (
-      <MenuItem
+  renderItem = (item, {handleClick, modifiers, key}) =>
+    isOptgroup(item)
+      ? <li
+        key={key || `${item.topic} ${item.subtopic}`}
+        className={classNames(Classes.MENU_HEADER, "measure-select optgroup")}
+      >
+        <h4 className="measure-label">
+          <span className="topic">{item.topic}</span>
+          <span className="subtopic">{item.subtopic}</span>
+        </h4>
+      </li>
+      :       <MenuItem
         active={modifiers.active}
         className="measure-select option"
         disabled={modifiers.disabled}
@@ -232,12 +209,11 @@ class MeasureSelect extends Component {
         }
         title={item.name}
       />
-    );
-  }
+    ;
 }
 
 /** @type {React.FC<MeasureItem & {showSource?:boolean}>} */
-const MeasureMenuItem = function(props) {
+const MeasureMenuItem = function MeasureMenuItem(props) {
   return (
     <span className="measure-label">
       <span className="name">{props.name}</span>
@@ -247,7 +223,8 @@ const MeasureMenuItem = function(props) {
 };
 
 /** @type {React.FC<{dimensions: string[], summaryLabel?: string}>} */
-const DimensionTagArea = memo(function({dimensions, summaryLabel = `plus %d more`}) {
+// eslint-disable-next-line react/display-name
+const DimensionTagArea = memo(({dimensions, summaryLabel = "plus %d more"}) => {
   if (dimensions.length === 0) {
     return null;
   }
@@ -259,9 +236,21 @@ const DimensionTagArea = memo(function({dimensions, summaryLabel = `plus %d more
 
   return (
     <span className="dimensions">
-      {dimensionsToRender.map(label => <Tag className="tag-dim">{label}</Tag>)}
+      {dimensionsToRender.map(label =>
+        <Tag key={label} className="tag-dim">
+          {label}
+        </Tag>
+      )}
     </span>
   );
 });
+
+/**
+ * @param {MeasureItem|MeasureOptgroup} item
+ * @returns {item is MeasureOptgroup}
+ */
+function isOptgroup(item) {
+  return item && "isOptgroup" in item;
+}
 
 export default MeasureSelect;

@@ -1,5 +1,9 @@
 import {isValidGroup} from "./validation";
 
+/**
+ * Removes charts too similar to one another, leaving only the first one.
+ * @param {Chart[]} charts
+ */
 export function chartCollision(charts) {
   const chartKeys = {};
   const filteredCharts = [];

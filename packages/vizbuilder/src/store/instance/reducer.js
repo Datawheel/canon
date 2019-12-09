@@ -21,28 +21,28 @@ export const instanceInitialState = {
 export const instanceReducer = (state = instanceInitialState, {type, payload}) =>
   type === INSTANCE_UPDATE
     ? {
-        ...state,
-        datacap: payload.datacap || instanceInitialState.datacap,
-        defaultGroup: payload.defaultGroup,
-        defaultMeasure: payload.defaultMeasure,
-        key: payload.key || instanceInitialState.key,
-        locale: payload.locale || instanceInitialState.locale,
-        multipliers: payload.multipliers || instanceInitialState.multipliers,
-        permalink:
+      ...state,
+      datacap: payload.datacap || instanceInitialState.datacap,
+      defaultGroup: payload.defaultGroup,
+      defaultMeasure: payload.defaultMeasure,
+      key: payload.key || instanceInitialState.key,
+      locale: payload.locale || instanceInitialState.locale,
+      multipliers: payload.multipliers || instanceInitialState.multipliers,
+      permalink:
           typeof payload.permalink === "boolean"
             ? payload.permalink
             : instanceInitialState.permalink,
-        permalinkConfint:
+      permalinkConfint:
           payload.permalinkConfint || instanceInitialState.permalinkConfint,
-        permalinkEnlarged:
+      permalinkEnlarged:
           payload.permalinkEnlarged || instanceInitialState.permalinkEnlarged,
-        permalinkFilters:
+      permalinkFilters:
           payload.permalinkFilters || instanceInitialState.permalinkFilters,
-        permalinkGroups: payload.permalinkGroups || instanceInitialState.permalinkGroups,
-        permalinkMeasure:
+      permalinkGroups: payload.permalinkGroups || instanceInitialState.permalinkGroups,
+      permalinkMeasure:
           payload.permalinkMeasure || instanceInitialState.permalinkMeasure,
-        permalinkPeriod: payload.permalinkPeriod || instanceInitialState.permalinkPeriod,
-        topojson: payload.topojson || instanceInitialState.topojson,
-        visualizations: payload.visualizations || instanceInitialState.visualizations
-      }
+      permalinkPeriod: payload.permalinkPeriod || instanceInitialState.permalinkPeriod,
+      topojson: payload.topojson || instanceInitialState.topojson,
+      visualizations: payload.visualizations || instanceInitialState.visualizations
+    }
     : state;

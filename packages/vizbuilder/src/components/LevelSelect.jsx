@@ -19,6 +19,7 @@ import CategoryListRenderer from "./CategoryListRenderer";
 /** @extends {Component<OwnProps, {}>} */
 class LevelSelect extends Component {
   categoryListComposer = memoizeOne(
+
     /**
      * @param {string[]} stack
      * @param {LevelItem[]} items
@@ -78,18 +79,14 @@ class LevelSelect extends Component {
   }
 
   /** @type {import("@blueprintjs/select").ItemListRenderer<LevelItem>} */
-  renderItemList = listProps => {
-    return (
-      <CategoryListRenderer
-        {...listProps}
-        itemListComposer={this.categoryListComposer}
-        maxDepth={1}
-      />
-    );
-  };
+  renderItemList = listProps => <CategoryListRenderer
+    {...listProps}
+    itemListComposer={this.categoryListComposer}
+    maxDepth={1}
+  />;
 
   /** @type {import("@blueprintjs/select").ItemRenderer<LevelItem>} */
-  renderItem = (item, {handleClick, index, modifiers, query}) => {
+  renderItem = (item, {handleClick, modifiers}) => {
     const fullName = levelNameFormatter(item.dimension, item.hierarchy, item.name);
     return (
       <MenuItem

@@ -122,7 +122,7 @@ export function findLevelByGroup(levels, {dimension, hierarchy, level}) {
   const trebuchet = () => {
     throw errorBuilder(
       "InternalError",
-      `Group isn't available in the list of levels provided.`
+      "Group isn't available in the list of levels provided."
     );
   };
   return levels.find(finderFn) || trebuchet();
@@ -133,8 +133,12 @@ export function findLevelByGroup(levels, {dimension, hierarchy, level}) {
  * @param {LevelItem} level
  */
 export function findParentHierarchy(cube, level) {
-  for (let dimension, d = 0; (dimension = cube.dimensions[d]); d++) {
-    for (let hierarchy, h = 0; (hierarchy = dimension.hierarchies[h]); h++) {
+  const nDim = cube.dimensions.length;
+  for (let d = 0; d < nDim; d++) {
+    const dimension = cube.dimensions[d];
+    const nHie = dimension.hierarchies.length;
+    for (let h = 0; h < nHie; h++) {
+      const hierarchy = dimension.hierarchies[h];
       if (hierarchy.levels.includes(level)) {
         return hierarchy;
       }

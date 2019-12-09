@@ -160,8 +160,8 @@ class GroupItemControl extends Component {
     const {props, state} = this;
     const {group} = props;
 
-    return state.isOpen ? (
-      <GroupItemEdit
+    return state.isOpen
+      ? <GroupItemEdit
         index={props.index}
         dimension={state.nextDimension}
         dimensionNames={props.dimensionNames}
@@ -177,8 +177,7 @@ class GroupItemControl extends Component {
         onReset={this.resetHandler}
         onUpdate={this.applyHandler}
       />
-    ) : (
-      <GroupItemView
+      : <GroupItemView
         dimension={group.dimension}
         hierarchy={group.hierarchy}
         index={props.index}
@@ -187,8 +186,7 @@ class GroupItemControl extends Component {
         members={group.members}
         onDelete={this.deleteHandler}
         onEdit={this.editHandler}
-      />
-    );
+      />;
   }
 }
 

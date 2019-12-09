@@ -41,6 +41,7 @@ import {selectFilterMap, selectMeasureListForCube} from "../store/query/selector
 
 /** @extends {Component<import("react-i18next").WithNamespaces & OwnProps & StateProps & DispatchProps, OwnState>} */
 class FilterItemControl extends Component {
+
   /** @type {OwnState} */
   state = {
     isOpen: true,
@@ -103,10 +104,10 @@ class FilterItemControl extends Component {
   }
 
   renderClosed() {
-    const {props, state} = this;
+    const {props} = this;
     const {t} = props;
     const {interpretedValue, measure, operator} = props.filter;
-    const formatter = props.formatters[measure] || (d => `${d}`);
+    const formatter = props.formatters[measure] || props.formatters.identity;
 
     return (
       <fieldset className="filter-item">

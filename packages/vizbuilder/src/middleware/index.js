@@ -18,17 +18,15 @@ function vizbuilderMiddleware({dispatch, getState}) {
   const client = new OLAPClient();
 
   typeof window === "object" &&
-    window.addEventListener("popstate", function historyIntercepter(evt) {
+    window.addEventListener("popstate", evt => {
       dispatch(doQueryInyect(evt.state));
       dispatch(doValidateParams());
       dispatch(doRunQueryCore());
     });
 
-  return next => action => {
-    return action.type in effects
-      ? effects[action.type]({action, client, dispatch, getState})
-      : next(action);
-  };
+  return next => action => action.type in effects
+    ? effects[action.type]({action, client, dispatch, getState})
+    : next(action);
 }
 
 export default vizbuilderMiddleware;
