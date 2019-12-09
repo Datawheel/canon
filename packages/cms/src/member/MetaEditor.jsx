@@ -382,8 +382,8 @@ class MetaEditor extends Component {
           minWidth: this.columnWidths("preview"),
           accessor: d => this.linkify.bind(this)(d),
           Cell: cell => <ul className="cms-meta-table-list">
-            {cell.value.map(url =>
-              <li className="cms-meta-table-item" key={url}>
+            {cell.value.map((url, i) =>
+              <li className="cms-meta-table-item" key={`${url}-${i}`}>
                 <a className="cms-meta-table-link u-font-xxs" href={url}>{url}</a>
               </li>
             )}
@@ -485,21 +485,19 @@ class MetaEditor extends Component {
 
   processFiltering() {
     const {query} = this.state;
-    let {filterBy} = this.state;
+    const {filterBy} = this.state;
+    const split = filterBy.split("_");
+    const dimension = split[1];
+    const hierarchy = split[3];
     // The user may have clicked either a dimension or a hierarchy. Determine which.
-    const filterKey = filterBy.includes("hierarchy_") ? "hierarchy" : "dimension";
-    filterBy = filterBy.replace("hierarchy_", "").replace("dimension_", "");
+    const filterKey = hierarchy ? "hierarchy" : "dimension";
     let url = "/api/search?locale=all&limit=500";
     if (query) {
       url += `&q=${query}`;
     }
     if (filterBy !== "all") {
-      if (filterKey === "dimension") {
-        url += `&dimension=${filterBy}`;
-      }
-      else if (filterKey === "hierarchy") {
-        url += `&levels=${filterBy}`;
-      }
+      if (dimension) url += `&dimension=${dimension}`;
+      if (hierarchy) url += `&levels=${hierarchy}`;
     }
     this.setState({querying: true});
     axios.get(url).then(resp => {
@@ -621,7 +619,7 @@ class MetaEditor extends Component {
                     {/* Show indented subdimensions */}
                     {dimensions[dim].map(hierarchy =>
                       !dimensions[dim].includes(dim) || dimensions[dim].length !== 1
-                        ? <option key={`hierarchy_${hierarchy}`} value={`hierarchy_${hierarchy}`}>   {hierarchy}</option>
+                        ? <option key={`dimension_${dim}_hierarchy_${hierarchy}`} value={`dimension_${dim}_hierarchy_${hierarchy}`}>   {hierarchy}</option>
                         : ""
                     )}
                   </optgroup>
