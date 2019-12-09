@@ -1,5 +1,24 @@
-import {TYPE_OLAP, TYPE_LOGICLAYER} from "./consts";
+import {TYPE_OLAP, TYPE_LOGICLAYER, TYPE_CANON_STATS} from "./consts";
 import decodeUrl from "form-urldecoded";
+
+/** Prepare Query to Add */
+export const getQueryParsedToAdd = (query, logicLayerUrl = false) => {
+  const meta = parseQueryParams(query);
+
+  return {
+    id: getHashCode(logicLayerUrl ? logicLayerUrl : query),
+    url: sanitizeUrl(query),
+    originalUrl: logicLayerUrl ? logicLayerUrl : query,
+    name: getHumanTitle(meta),
+    query: meta,
+    provider: getProviderInfo(query),
+    cube: getCubeName(query),
+    isLoaded: false
+  };
+};
+
+
+/** SMALL HELPERS HERE  */
 
 /** Java’s String.hashCode() method implemented in Javascript. */
 export const getHashCode = s => {
@@ -10,24 +29,10 @@ export const getHashCode = s => {
   return Math.abs(h);
 };
 
-/** Parse URL */
-export const parseURL = url => {
-  const meta = parseQueryParams(url);
-  const sanitizedUrl = sanitizeUrl(url);
-  const providerObj = getProviderInfo(url);
-  return {
-    title: getHumanTitle(meta),
-    provider: providerObj,
-    cube: getCubeName(meta.base),
-    meta,
-    query: sanitizedUrl
-  };
-};
-
 /** Sanitize UrL */
 export const sanitizeUrl = url => url.replace("aggregate.json?", "aggregate.jsonrecords?");
 
-/** TODO: generate human title from query */
+/** Generate human title from query */
 export const getHumanTitle = meta => {
   let title = meta.params.measure ? meta.params.measure[0] : meta.params.measures[0];
   if (meta.params.drilldowns) {
@@ -40,9 +45,23 @@ export const getHumanTitle = meta => {
 
 /** Parse cube name */
 export const getCubeName = url => {
-  const parts = url.split("/");
-  const aggregateIndex = parts.findIndex(p => p.startsWith("aggregate."));
-  return aggregateIndex ? parts[aggregateIndex - 1] : null;
+  const provider = getProviderInfo(url);
+  let cubeName = "";
+  switch (provider.type) {
+    case TYPE_OLAP:
+      const parts = url.split("/");
+      const aggregateIndex = parts.findIndex(p => p.startsWith("aggregate."));
+      cubeName = aggregateIndex ? parts[aggregateIndex - 1] : null;
+      break;
+    case TYPE_LOGICLAYER:
+      const params = decodeUrl(url);
+      cubeName = params.cube;
+      break;
+    default:
+      cubeName = "";
+      break;
+  }
+  return cubeName;
 };
 
 /** Decide provider based on query */
@@ -52,26 +71,20 @@ export const getProviderInfo = url => {
     type = TYPE_OLAP;
     server = url.split("/cubes/")[0];
   }
-  else {
+  else if (url.indexOf("/data?") > 0) {
     type = TYPE_LOGICLAYER;
     server = url.split("/data?")[0];
   }
+  else if (url.indexOf("/api/stats/") > 0) {
+    type = TYPE_CANON_STATS;
+    server = url.split("/api/stats/")[0];
+  }
+  else {
+    console.warn(`getProviderInfo -> Ignoring ${url}`);
+    type = null;
+    server = url;
+  }
   return {type, server};
-};
-
-/** Prepare Query to Aadd */
-export const parseQueryToAdd = (query, logicLayerUrl = false) => {
-  const parsed = parseURL(query);
-  return {
-    id: getHashCode(logicLayerUrl ? logicLayerUrl : query),
-    url: parsed.query,
-    originalUrl: logicLayerUrl ? logicLayerUrl : query,
-    name: parsed.title,
-    query: parsed.meta,
-    provider: parsed.provider,
-    cube: parsed.cube,
-    isLoaded: false
-  };
 };
 
 /** Parse level and dimension */
@@ -81,6 +94,14 @@ export const parseLevelDimension = string => {
     return {dimension: parts[0], level: parts[2]};
   }
   return {dimension: parts[0], level: parts[1]};
+};
+
+/** Parse cuts */
+export const parseCut = string => {
+  const levelDimension = parseLevelDimension(string);
+  let value = string.split(".").map(s => s.replace("[", "").replace("]", "").replace("&", ""));
+  value = value[value.length - 1];
+  return {...levelDimension, value};
 };
 
 /** Get level and dimension from Level object */
@@ -94,7 +115,7 @@ export const parseQueryParams = url => {
   let query = decodeURIComponent(parts[1]);
   query = query.replace(/\.&\[/g, ".[");
 
-  const params = decodeUrl(url);
+  const params = decodeUrl(query);
 
   // Drilldowns
   if (params.drilldown) {
@@ -114,8 +135,11 @@ export const parseQueryParams = url => {
   params.measures = Array.isArray(params.measures) ? params.measures : params.measures.split(",");
 
   // Cuts
-  console.log("CUT", params.cut);
-  console.log("CUTS", params.cuts);
+  if (params.cut) {
+    params.cuts = Array.isArray(params.cut) ? params.cut : params.cut.split(",");
+    params.cut = params.cuts;
+  }
+  params.cuts = Array.isArray(params.cuts) ? params.cuts.map(d => parseCut(d)) : [];
 
   return {
     base: parts[0],

@@ -1,11 +1,11 @@
-/* eslint-disable prefer-arrow-callback */
 import localforage from "localforage";
-import {getHashCode, parseQueryToAdd, getProviderInfo, getLevelDimension, parseLevelDimension, parseQueryParams} from "../helpers/transformations";
-import {STORAGE_CART_KEY, TYPE_OLAP, TYPE_LOGICLAYER} from "../helpers/consts";
+import {getHashCode, getQueryParsedToAdd, getProviderInfo, getLevelDimension, parseLevelDimension, getCubeName} from "../helpers/transformations";
+import {STORAGE_CART_KEY, TYPE_OLAP, TYPE_LOGICLAYER, TYPE_CANON_STATS} from "../helpers/consts";
 import {MultiClient, TesseractDataSource} from "@datawheel/olap-client";
 import {nest as d3Nest} from "d3-collection";
 
-/* Init Cart */
+/* Init cart: Check if there is data saved in your local storage.
+If not init an empty cart*/
 export const INIT_CART = "@@canon-cart/INIT_CART";
 export const initCartAction = () => dispatch => {
   localforage.getItem(STORAGE_CART_KEY).then(data => {
@@ -16,62 +16,75 @@ export const initCartAction = () => dispatch => {
     dispatch(sendInitCartAction(false));
   });
 };
+
+/* Parse and prepare the urls from local storage, if exists.
+Dispatch the init cart */
 export const sendInitCartAction = initial => {
   initial = initial ? initial : {};
   if (initial.urls) {
     initial.list = {};
     initial.urls.map(urlObj => {
-      const parsed = parseQueryToAdd(urlObj.url, urlObj.originalUrl);
+      const parsed = getQueryParsedToAdd(urlObj.url, urlObj.originalUrl);
       initial.list[parsed.id] = parsed;
     });
   }
-
   return {
     type: INIT_CART,
     payload: initial
   };
 };
 
-/* Clear Cart */
+/* Clean all items in cart Cart no matter why */
 export const CLEAR_CART = "@@canon-cart/CLEAR_CART";
 export const clearCartAction = () => ({
   type: CLEAR_CART
 });
 
-/* Adding query to Cart - loading state if is logic layer */
+/* Adding query to Cart (loading state for add to cart btn) */
 export const ADDING_TO_CART = "@@canon-cart/ADDING_TO_CART";
 export const addingToCartAction = query => ({
   type: ADDING_TO_CART,
   payload: query
 });
 
-/* Add query to Cart */
+/* Decide how to process different types of queries */
 export const ADD_TO_CART = "@@canon-cart/ADD_TO_CART";
 export const addToCartDecideAction = query => async dispatch => {
 
   const providerObj = getProviderInfo(query);
 
-  if (providerObj.type === TYPE_LOGICLAYER) {
-    dispatch(addingToCartAction(query));
-    const providerObj = getProviderInfo(query);
-    const meta = parseQueryParams(query);
-    const cubeName = meta.params.cube;
-    const client = await MultiClient.fromURL(providerObj.server);
+  // Adding process start (disabled add to cart btn).
+  // This loading state will finish when addToCartAction finish.
+  dispatch(addingToCartAction(query));
 
+  // It is a logig layer URL
+  if (providerObj.type === TYPE_LOGICLAYER) {
+
+    // Get data from url
+    const providerObj = getProviderInfo(query);
+    const cubeName = getCubeName(query);
+
+    // Convert url to Tesseract query
+    const client = await MultiClient.fromURL(providerObj.server);
     client.getCube(cubeName, cubes => cubes.find(c => providerObj.server.indexOf(c.server) > -1))
       .then(cube => {
         const queryObj = cube.query;
         queryObj.parseURL(query);
+        // Add new query to cart (send the original for references)
         dispatch(addToCartAction(TesseractDataSource.urlAggregate(queryObj), query));
       });
   }
+  // It is a Mondrian or Tesseract API URL
   else {
+    // Add Query to cart
     dispatch(addToCartAction(query));
   }
 
 };
+
+/* Parse and add query to cart */
 export const addToCartAction = (query, logicLayerUrl = false) => {
-  const parsed = parseQueryToAdd(query, logicLayerUrl);
+  const parsed = getQueryParsedToAdd(query, logicLayerUrl);
   return {
     type: ADD_TO_CART,
     payload: parsed
@@ -95,6 +108,7 @@ export const toggleSettingAction = id => ({
   payload: {id}
 });
 
+/* Load all datasets in cart */
 export const LOAD_DATASETS = "@@canon-cart/LOAD_DATASETS";
 export const loadAllDatasetsAction = () => ({
   type: LOAD_DATASETS
@@ -150,13 +164,12 @@ export const dateDimensionLevelChangedAction = dimId => ({
   payload: {id: dimId}
 });
 
+/** Save raw responses in state */
 export const SAVE_RESPONSES = "@@canon-cart/SAVE_RESPONSES";
 export const saveResponsesAction = responses => ({
   type: SAVE_RESPONSES,
   payload: {responses}
 });
-
-
 
 /** Loading datasets */
 export const loadDatasetsAction = (datasets, sharedDimensionLevelSelected, dateDimensionLevelSelected, settings) => async dispatch => {
@@ -200,13 +213,14 @@ export const loadDatasetsAction = (datasets, sharedDimensionLevelSelected, dateD
             const dateDimensionsList = getDateDimensions(sharedDimensionsList);
             sharedDimensionsList = sharedDimensionsList.filter(sd => !dateDimensionsList.find(dd => dd.name === sd.name));
 
-            // Set results in redux to fill controls
+            // Set results in redux to fill shared dimensions controls
             dispatch(setSharedDimensionListAction(sharedDimensionsList));
             if (sharedDimensionsList[0]) {
               sharedDimensionLevelSelected = getLevelDimension(sharedDimensionsList[0].hierarchies[0].levels[0]);
               dispatch(sharedDimensionLevelChangedAction(sharedDimensionLevelSelected));
             }
 
+            // Set results in redux to fill date dimensions controls
             dispatch(setDateDimensionListAction(dateDimensionsList));
             if (dateDimensionsList[0]) {
               dateDimensionLevelSelected = getLevelDimension(dateDimensionsList[0].hierarchies[0].levels[0]);
@@ -240,6 +254,9 @@ const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, share
 
     if (datasetObj.provider.type === TYPE_OLAP) {
       const query = queries[datasetObj.cube];
+
+      console.log("dataset", datasetObj);
+      console.log("dataset", query.parseURL(datasetObj.url));
 
       if (sharedDimensionsLevel) {
         query.addDrilldown(sharedDimensionsLevel);
