@@ -150,18 +150,20 @@ class Outline extends Component {
       section.sections && section.sections.find(nestedSection => nestedSection.id === Number(pathObj[sectionKey]))
     );
 
+    console.log(nestedOutline);
+
     return <Fragment>
       {/* top row */}
       <ul className={`cms-outline ${isOpen ? "is-open" : "is-closed"}`} key="outline-main">
         {nodes.map((node, i) =>
-          this.renderNode(node, nodes, sectionKey, tree, i)
+          this.renderNode(node, nodes, sectionKey, nodes, i)
         )}
       </ul>
 
       {/* render nested list with current grouping's sections, if the current section is a grouping or within a group */}
       <ul className={`cms-outline cms-nested-outline ${nestedOutline && isOpen ? "is-open" : "is-closed"}`} key="outline-nested">
         {nestedOutline && nestedOutline.sections.map((node, i) =>
-          this.renderNode(node, nodes, sectionKey, tree, i)
+          this.renderNode(node, nodes, sectionKey, nestedOutline.sections, i)
         )}
       </ul>
     </Fragment>;
