@@ -115,7 +115,7 @@ class Cart extends React.Component {
             <div className="canon-cart-sidebar-blocker"/>
           }
           <div className="canon-cart-wrapper">
-            <DatasetList />
+            <DatasetList showOptions={true} />
             <hr />
             <DimensionsPanel />
             <hr />

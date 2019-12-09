@@ -8,6 +8,7 @@
     flex: 0 0 300px;
     width: 300px;
     position: relative;
+    overflow: visible;
     & .canon-cart-sidebar-blocker{
       opacity: 0.5;
       width: 100%;

@@ -1,0 +1,19 @@
+.canon-cart-dataset-list-item{
+  & .canon-cart-dataset-ul{
+    padding: 0;
+    & li{
+      list-style: none;
+      & .canon-cart-dataset-item{
+        & .bp3-menu-item-label{
+          opacity: 0.5;
+          transition: opacity .3s ease;
+        }
+        &:hover{
+          & .bp3-menu-item-label{
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
+}
