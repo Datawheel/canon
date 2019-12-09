@@ -370,8 +370,14 @@ class MetaEditor extends Component {
         });
       }
       else if (field === "id") {
-        displayColumns.push({
+        idColumns.push({
           id: field,
+          Header: this.renderHeader("id"),
+          minWidth: this.columnWidths("id"),
+          accessor: d => d.id
+        });
+        displayColumns.push({
+          id: `${field}-url`,
           Header: this.renderHeader("preview link"),
           minWidth: this.columnWidths("preview"),
           accessor: d => this.linkify.bind(this)(d),

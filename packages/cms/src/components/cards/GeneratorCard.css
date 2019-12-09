@@ -14,3 +14,5 @@
   margin-top: 0.25em;
   margin-bottom: 0.25em;
 }
+
+.cms-card-error { @mixin error-text; }

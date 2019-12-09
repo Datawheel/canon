@@ -31,7 +31,7 @@ const strSwap = (str, formatterFunctions, variables, selectors, isLogic = false,
 */
   
 const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, selectors = []) => {
-  const allowed = obj => variables[obj.allowed] || obj.allowed === null || obj.allowed === undefined || obj.allowed === "always";
+  const allowed = obj => !obj.allowed || obj.allowed === "always" || variables[selSwap(obj.allowed, selectors)];
   const obj = Object.assign({}, sourceObj);
   // If I'm a section and have selectors, extract and prep them for use
   if (obj.selectors) {

@@ -5,13 +5,13 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 import Loading from "components/Loading";
 import DefinitionList from "../variables/DefinitionList";
 import FooterButtons from "../editors/components/FooterButtons";
-import Select from "./../fields/Select";
 import TextEditor from "../editors/TextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import LocaleName from "./components/LocaleName";
+import AllowedSelector from "../interface/AllowedSelector";
 import Card from "./Card";
 
 import {updateEntity, deleteEntity} from "../../actions/profiles";
@@ -28,7 +28,8 @@ class TextCard extends Component {
       thatDisplayData: null,
       initialData: null,
       alertObj: false,
-      isDirty: false
+      isDirty: false,
+      customAllowed: false
     };
   }
 
@@ -48,7 +49,6 @@ class TextCard extends Component {
     if (variablesChanged || selectorsChanged || queryChanged) {
       this.formatDisplay.bind(this)();
     }
-    
   }
 
   populateLanguageContent(minData) {
@@ -289,19 +289,6 @@ class TextCard extends Component {
       onAlertCancel: () => this.setState({alertObj: false})
     };
 
-    const varOptions = [<option key="always" value="always">Always</option>]
-      .concat(Object.keys(variables)
-        .filter(key => !key.startsWith("_"))
-        .sort((a, b) => a.localeCompare(b))
-        .map(key => {
-          const value = variables[key];
-          const type = typeof value;
-          const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
-          return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
-        }));
-
-    const showVars = Object.keys(variables).length > 0 && !hideAllowed;
-
     return (
       <Card {...cardProps}>
 
@@ -349,16 +336,12 @@ class TextCard extends Component {
               }
             </div>
 
-            { showVars &&
-              <Select
-                label="Visible"
-                namespace="cms"
-                value={minDataState.allowed || "always"}
+            { !hideAllowed &&
+              <AllowedSelector
+                variables={variables}
+                value={minDataState.allowed !== undefined ? minDataState.allowed : "always"}
                 onChange={this.chooseVariable.bind(this)}
-                inline
-              >
-                {varOptions}
-              </Select>
+              />
             }
           </div>
 

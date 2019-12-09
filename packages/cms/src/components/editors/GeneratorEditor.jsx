@@ -9,6 +9,7 @@ import urlSwap from "../../utils/urlSwap";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
+import AllowedSelector from "../interface/AllowedSelector";
 
 import "./GeneratorEditor.css";
 
@@ -237,17 +238,6 @@ class GeneratorEditor extends Component {
       formatter: <React.Fragment>Be sure to return a <strong>string</strong> that represents your formatted content.</React.Fragment>
     };
 
-    const varOptions = [<option key="always" value="always">Always</option>]
-      .concat(Object.keys(variables)
-        .filter(key => !key.startsWith("_"))
-        .sort((a, b) => a.localeCompare(b))
-        .map(key => {
-          const value = variables[key];
-          const type = typeof value;
-          const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
-          return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
-        }));
-
     if (!data) return null;
 
     return (
@@ -342,17 +332,12 @@ class GeneratorEditor extends Component {
         </div>
 
         {/* visibility */}
-        { (type === "profile_visualization" || type === "section_visualization") &&
-          <Select
-            label="Visible"
-            inline
-            fontSize="xs"
-            namespace="cms"
-            value={data.allowed || "always"}
+        { type === "section_visualization" &&
+          <AllowedSelector
+            variables={variables}
+            value={data.allowed !== undefined ? data.allowed : "always"}
             onChange={this.chooseVariable.bind(this)}
-          >
-            {varOptions}
-          </Select>
+          />
         }
 
         {/* UI/JS mode toggle */}

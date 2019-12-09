@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Tooltip} from "@blueprintjs/core";
 import GeneratorEditor from "../editors/GeneratorEditor";
 import FooterButtons from "../editors/components/FooterButtons";
 import {connect} from "react-redux";
@@ -22,7 +22,8 @@ class GeneratorCard extends Component {
       displayData: null,
       secondaryDisplayData: null,
       alertObj: false,
-      isDirty: false
+      isDirty: false,
+      dupes: []
     };
   }
 
@@ -37,7 +38,6 @@ class GeneratorCard extends Component {
   componentDidUpdate(prevProps) {
     const {type, minData} = this.props;
     const {id} = minData;
-    const {localeDefault, localeSecondary} = this.props.status;
     // If the props we receive from redux have changed, then an update action has occured.
     if (JSON.stringify(prevProps.minData) !== JSON.stringify(this.props.minData)) {
       // If a gen/mat was saved, re-run fetchvariables for just this one gen/mat.
@@ -48,21 +48,14 @@ class GeneratorCard extends Component {
       // Clone the new object for manipulation in state.
       this.setState({minData: deepClone(this.props.minData)});
     }
-    // If any of the variables for THIS gen/mat has changed, update the display panel
+    // If diffCounter incremented, it means a variables update completed, either from this card saving,
+    // or from ANOTHER card saving. If it was this card, we need to update the front panel, if it was another card,
+    // we may need to update whether this card contains a duplicate. Either way, format the display.
     if (type === "generator" || type === "materializer") {
-      let locales = [localeDefault];
-      if (this.props.status.localeSecondary) locales = locales.concat([localeSecondary]);
-      const changed = locales.some(loc => 
-        ["_genStatus", "_matStatus"].some(status => 
-          prevProps.status.variables[loc] && 
-          prevProps.status.variables[loc][status] && 
-          this.props.status.variables[loc] && 
-          this.props.status.variables[loc][status] && 
-          JSON.stringify(prevProps.status.variables[loc][status][id]) !== JSON.stringify(this.props.status.variables[loc][status][id])
-        )
-      );
-      if (changed) this.formatDisplay.bind(this)();
+      const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
+      if (variablesChanged) this.formatDisplay.bind(this)();
     }
+
     if (this.props.status.forceType === type && !prevProps.status.forceID && this.props.status.forceID === id) {
       this.openEditor.bind(this)();
     }
@@ -75,6 +68,7 @@ class GeneratorCard extends Component {
     const secondaryVariables = this.props.status.variables[localeSecondary];
     const {id} = this.props.minData;
     let displayData, secondaryDisplayData = {};
+    let dupes = [];
     if (type === "generator") {
       displayData = variables._genStatus[id];
       if (localeSecondary) {
@@ -87,7 +81,19 @@ class GeneratorCard extends Component {
         secondaryDisplayData = secondaryVariables._matStatus[id];
       }
     }
-    this.setState({displayData, secondaryDisplayData});
+    if (type === "generator" || type === "materializer") {
+      const status = type === "generator" ? "_genStatus" : "_matStatus";
+      const theseVars = variables[status][id];
+      if (theseVars) {
+        const otherGens = Object.keys(variables._genStatus).reduce((acc, _id) => 
+          type === "materializer" || Number(id) !== Number(_id) ? Object.assign({}, acc, variables._genStatus[_id]) : acc, {});
+        const otherMats = Object.keys(variables._matStatus).reduce((acc, _id) => 
+          type === "generator" || Number(id) !== Number(_id) ? Object.assign({}, acc, variables._matStatus[_id]) : acc, {});    
+        const thoseVars = {...otherGens, ...otherMats};
+        dupes = dupes.concat(Object.keys(theseVars).reduce((acc, k) => thoseVars[k] !== undefined ? acc.concat(k) : acc, []));
+      }
+    }
+    this.setState({displayData, secondaryDisplayData, dupes});
   }
 
   maybeDelete() {
@@ -148,7 +154,7 @@ class GeneratorCard extends Component {
     const {attr, context, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
     const {variables} = this.props.status;
-    const {displayData, secondaryDisplayData, isOpen, alertObj} = this.state;
+    const {displayData, secondaryDisplayData, isOpen, alertObj, dupes} = this.state;
 
     const {minData} = this.props;
 
@@ -202,16 +208,19 @@ class GeneratorCard extends Component {
                 {localeSecondary &&
                   <LocaleName>{localeDefault}</LocaleName>
                 }
-                <VarTable dataset={displayData} />
+                <VarTable dataset={displayData} dupes={dupes}/>
               </div>
 
               {localeSecondary &&
                 <div className="cms-card-locale-container">
                   <LocaleName>{localeSecondary}</LocaleName>
-                  <VarTable dataset={secondaryDisplayData} />
+                  <VarTable dataset={secondaryDisplayData} dupes={dupes} />
                 </div>
               }
             </div>
+          }
+          {dupes.length > 0 && 
+            <p className="cms-card-error u-font-xxs">Warning: Highlighted variables conflict with another generator or materializer</p>
           }
         </Card>
 
