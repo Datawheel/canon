@@ -200,9 +200,8 @@ SelectorCard.contextTypes = {
   formatters: PropTypes.object
 };
 
-const mapStateToProps = (state, ownProps) => ({
-  status: state.cms.status,
-  minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors.find(s => s.id === ownProps.id)
+const mapStateToProps = state => ({
+  status: state.cms.status
 });
 
 const mapDispatchToProps = dispatch => ({

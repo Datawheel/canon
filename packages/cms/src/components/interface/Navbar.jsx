@@ -166,6 +166,8 @@ class Navbar extends Component {
       else {
         this.props.setStatus({currentPid: Number(pathObj.profile), pathObj: newPathObj});
         this.props.resetPreviews();
+        // TODO: Remove reset previews - have all profiles come from the server 
+        // with their default values already set.
       }
       if (pathObj.section) {
         this.setState({outlineOpen: true});
