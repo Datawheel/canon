@@ -45,7 +45,7 @@ class Outline extends Component {
         const nextGrouping = this.props.tree.find(s => s.type === "Grouping" && s.ordering > node.ordering);
         payload.ordering = nextGrouping ? nextGrouping.ordering : undefined;
       }
-      this.props.newEntity("storysection", {story_id: currentStoryPid, ordering});
+      this.props.newEntity("storysection", payload);
     }
   }
 

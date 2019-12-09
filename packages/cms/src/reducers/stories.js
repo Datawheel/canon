@@ -23,7 +23,8 @@ const addStorysectionEntity = (stories, data, accessor) => stories.map(p =>
   Object.assign({}, p, {storysections: p.storysections.map(s => 
     s.id === data.storysection_id ? Object.assign({}, s, {[accessor]: s[accessor]
       .map(a => a.ordering >= data.ordering ? Object.assign({}, a, {ordering: a.ordering + 1}) : a)
-      .concat([data])}) : s)}));
+      .concat([data])
+      .sort(sorter)}) : s)}));
 
 const updateStorysectionEntity = (stories, data, accessor) => stories.map(p => 
   Object.assign({}, p, {storysections: p.storysections.map(s => 
