@@ -677,7 +677,7 @@ module.exports = function(app) {
   const swapList = [
     {elements: ["profile"], parent: null},
     {elements: ["author", "story_description", "story_footnote", "storysection"], parent: "story_id"},
-    {elements: ["section", "materializer"], parent: "profile_id"},
+    {elements: ["materializer"], parent: "profile_id"},
     {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
     {elements: ["storysection_subtitle", "storysection_description", "storysection_stat", "storysection_visualization"], parent: "storysection_id"}
   ];
@@ -686,17 +686,7 @@ module.exports = function(app) {
       app.post(`/api/cms/${ref}/swap`, isEnabled, async(req, res) => {
         const {id} = req.body;
         const original = await db[ref].findOne({where: {id}}).catch(catcher);
-        let otherWhere = {ordering: original.ordering + 1};
-        // If a Group is being swapped, don't swap with its neighbor. 
-        if (ref === "section" && original.type === "Grouping") {
-          let sections = await db.section.findAll({where: {profile_id: original.profile_id}}).catch(catcher);
-          sections = sections.map(s => s.toJSON());
-          const nextGrouping = sections.find(s => s.type === "Grouping" && s.ordering > original.ordering);
-          if (nextGrouping) {
-            otherWhere = {ordering: nextGrouping.ordering};
-            // also move all sections
-          }
-        }
+        const otherWhere = {ordering: original.ordering + 1};
         if (list.parent) otherWhere[list.parent] = original[list.parent];
         const other = await db[ref].findOne({where: otherWhere}).catch(catcher);
         if (!original || !other) return res.json([]);
@@ -710,6 +700,51 @@ module.exports = function(app) {
   });
 
   /* CUSTOM SWAPS */
+
+  app.post("/api/cms/section/swap", isEnabled, async(req, res) => {
+    // Sections can be Groupings, which requires a more complex swap that brings it child sections along with it 
+    const {id} = req.body;
+    const original = await db.section.findOne({where: {id}}).catch(catcher);
+    let sections = await db.section.findAll({where: {profile_id: original.profile_id}, order: [["ordering", "ASC"]]}).catch(catcher);
+    sections = sections.map(s => s.toJSON());
+    // Create a hierarchical array that respects groupings that looks like: [[G1, S1, S2], [G2, S3, S4, S5]] for easy swapping
+    const sectionsGrouped = [];
+    let hitGrouping = false;
+    sections.forEach(section => {
+      if (!hitGrouping || section.type === "Grouping") {
+        sectionsGrouped.push([section]);
+        if (section.type === "Grouping") hitGrouping = true;
+      }
+      else {
+        sectionsGrouped[sectionsGrouped.length - 1].push(section);
+      }
+    });
+    // Sections that come before the Groupings start are technically in groups of their own. 
+    let isGroupLeader = false;
+    sectionsGrouped.forEach(group => {
+      if (group.map(d => d.id).includes(original.id) && group[0].id === original.id) isGroupLeader = true;
+    });
+    let updatedSections = [];
+    if (isGroupLeader) {
+      const ogi = sectionsGrouped.findIndex(group => group[0].id === id);
+      const ngi = ogi + 1;
+      // https://stackoverflow.com/a/872317
+      [sectionsGrouped[ogi], sectionsGrouped[ngi]] = [sectionsGrouped[ngi], sectionsGrouped[ogi]];
+      updatedSections = sectionsGrouped
+        .flat()
+        .map((section, i) => ({...section, ordering: i}));
+    } 
+    else {
+      const oi = original.ordering;
+      const ni = original.ordering + 1;
+      [sections[oi], sections[ni]] = [sections[ni], sections[oi]];
+      updatedSections = sections.map((section, i) => ({...section, ordering: i}));
+    }
+    for (const section of updatedSections) {
+      await db.section.update({ordering: section.ordering}, {where: {id: section.id}});
+    }
+    return res.json(updatedSections.map(d => ({id: d.id, ordering: d.ordering})));
+  });
 
   app.post("/api/cms/section_selector/swap", isEnabled, async(req, res) => {
     const {id} = req.body;
