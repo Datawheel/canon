@@ -247,12 +247,17 @@ module.exports = function(app) {
   const runGenerators = async(req, pid, id) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     const dims = collate(req.query);
+    const attr = await fetchAttr(pid, dims);
+    // Strip the attr object down to just some relevant keys
+    const smallKeys = ["id", "dimension", "hierarchy", "slug"];
+    const smallAttr = Object.keys(attr).reverse().reduce((acc, k) => smallKeys.includes(k.replace(/\d+/g, "")) ? {[k]: attr[k], ...acc} : acc, {});
+    // The id "0" is a special case to retrieve ONLY the Attributes variables (without running any real generators)
+    // Used in fetchVariables for new profiles that have no custom generators but still need to run this function.
+    if (id === "0") return {...smallAttr, _genStatus: {attributes: {...smallAttr}}};
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
     if (generators.length === 0) return {};
     generators = generators.map(g => g.toJSON());
-
-    const attr = await fetchAttr(pid, dims);
 
     /** */
     function createGeneratorFetch(r, attr) {
@@ -279,14 +284,15 @@ module.exports = function(app) {
     const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, attr)));
     const results = await Promise.all(fetches).catch(catcher);
 
-    let returnVariables = {};
+    // Seed the return variables with the stripped-down attr object
+    let returnVariables = {...smallAttr};
     const genStatus = {};
     results.forEach((r, i) => {
       // For every API result, find ONLY the generators that depend on this data
       const requiredGenerators = generators.filter(g => g.api === requests[i]);
       // Build the return object using a reducer, one generator at a time
       returnVariables = requiredGenerators.reduce((acc, g) => {
-        const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale);
+        const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale, smallAttr);
         const {vars} = evalResults;
         // genStatus is used to track the status of each individual generator
         genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
@@ -294,7 +300,10 @@ module.exports = function(app) {
         return {...acc, ...vars};
       }, returnVariables);
     });
+    // Set genstatus for all ids
     returnVariables._genStatus = genStatus;
+    // Inject a special, hard-coded attr genstatus for the front-end
+    returnVariables._genStatus.attributes = smallAttr;
 
     return returnVariables;
 
