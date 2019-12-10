@@ -8,7 +8,6 @@ import formatFieldName from "../../utils/formatters/formatFieldName";
 import "./RichTextEditor.css";
 
 class RichTextEditor extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -43,28 +42,26 @@ class RichTextEditor extends Component {
   }
 
   render() {
-
     const {data, fields} = this.state;
     const {contentType, locale} = this.props;
     // Stories use RichTextEditors, but don't need variables.
-    const variables = this.props.status.variables[locale] ? this.props.status.variables[locale] : {}
+    const variables = this.props.status.variables[locale] ? this.props.status.variables[locale] : {};
     const formatters = this.context.formatters[locale];
 
     if (!data || !fields || !variables || !formatters) return null;
 
     const thisLocale = data.content.find(c => c.locale === locale);
 
-    const quills = fields.map(f =>
-      <div className="cms-field-container" key={f}>
-        <label htmlFor={f}>{formatFieldName(f, contentType.replace("story_", "").replace("section_", "")
-        )}</label>
-        <QuillWrapper id={f} value={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
-      </div>
-    );
-
     return (
       <div className="cms-rich-text-editor">
-        {quills}
+        {fields.map(f =>
+          <div className="cms-field-container" key={f}>
+            <label htmlFor={f}>
+              {formatFieldName(f, contentType.replace("story_", "").replace("section_", ""))}
+            </label>
+            <QuillWrapper id={f} value={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
+          </div>
+        )}
       </div>
     );
   }
