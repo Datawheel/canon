@@ -36,7 +36,7 @@ class DimensionBuilder extends Component {
         />
 
         <Dialog
-          className="dimension-editor-dialog"
+          className="cms-dimension-editor-dialog"
           title="Dimension editor"
           isOpen={isOpen}
           onClose={() => this.setState({isOpen: false})}

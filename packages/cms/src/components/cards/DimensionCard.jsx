@@ -1,9 +1,9 @@
 import axios from "axios";
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {Dialog} from "@blueprintjs/core";
 
 import Card from "./Card";
+import Dialog from "../interface/Dialog";
 import DimensionEditor from "../editors/DimensionEditor";
 import DefinitionList from "../variables/DefinitionList";
 import Button from "../fields/Button";
@@ -78,7 +78,7 @@ class DimensionCard extends Component {
     };
 
     const dialogProps = {
-      className: "dimension-editor-dialog",
+      className: "cms-dimension-editor-dialog",
       title: "Dimension editor",
       isOpen,
       onClose: () => this.setState({isOpen: false}),

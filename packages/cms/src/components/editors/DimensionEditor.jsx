@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {Icon} from "@blueprintjs/core";
@@ -25,7 +25,8 @@ class DimensionEditor extends Component {
         levels: []
       },
       selectedDimension: {},
-      mode: "add"
+      mode: "add",
+      fieldsChanged: false
     };
   }
 
@@ -51,7 +52,7 @@ class DimensionEditor extends Component {
   changeField(field, e) {
     const {profileData} = this.state;
     profileData[field] = e.target.value;
-    this.setState({profileData});
+    this.setState({profileData, fieldsChanged: true});
   }
 
   chooseDimension(e) {
@@ -119,8 +120,7 @@ class DimensionEditor extends Component {
   }
 
   render() {
-
-    const {profileData, mode} = this.state;
+    const {fieldsChanged, profileData, mode} = this.state;
     const {cubeData} = this.props;
 
     const dimOptions = cubeData.map(d => <option key={d.name} value={d.name}>{d.name}</option>);
@@ -131,8 +131,11 @@ class DimensionEditor extends Component {
       .find(c => c.name === profileData.dimension).measures
       .map(m => <option key={m} value={m}>{m}</option>) : [];
 
+    let canSaveChanges = false;
+    if (profileData.dimension && profileData.levels.length > 0 && profileData.measure && profileData.measure !== "default" && fieldsChanged) canSaveChanges = true;
+
     return (
-      <div className="cms-dialog-body cms-dimension-editor bp3-dialog-body">
+      <Fragment>
         {mode === "edit" &&
           <p className="cms-dimension-editor-warning u-font-xs u-margin-bottom-md" key="a">
             <Icon icon="warning-sign" /> <strong>Warning</strong>: Modifying dimensions can break the site. Proceed with caution.
@@ -190,18 +193,16 @@ class DimensionEditor extends Component {
         }
 
         <div className="cms-field-container">
-          {profileData.dimension && profileData.levels.length > 0 && profileData.measure && profileData.measure !== "default"
-            ? <Button
-              onClick={this.saveProfile.bind(this)}
-              namespace="cms"
-              icon={mode === "edit" ? "edit" : "plus"}
-            >
-              {`${mode === "edit" ? "Modify" : "Add"} dimension`}
-            </Button>
-            : <Button icon="plus" namespace="cms" disabled>{`${mode === "edit" ? "Modify" : "Add"} dimension`}</Button>
-          }
+          <Button
+            onClick={canSaveChanges ? this.saveProfile.bind(this) : null}
+            namespace="cms"
+            icon={mode === "edit" ? "tick-circle" : "plus"}
+            disabled={!canSaveChanges}
+          >
+            {`${mode === "edit" ? "Modify" : "Add"} dimension`}
+          </Button>
         </div>
-      </div>
+      </Fragment>
     );
   }
 }
