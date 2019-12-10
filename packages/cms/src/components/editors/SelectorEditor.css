@@ -21,6 +21,7 @@
 /* space out cells */
 .cms-selector-editor-row:not(:last-child) > *:not(.cms-reorder) {
   padding-bottom: 0.5rem;
+  & > * { z-index: 1; } /* in front of reorder buttons */
 }
 
 .cms-selector-editor-cell {
@@ -31,10 +32,10 @@
     width: 4em;
   }
   &:nth-child(2) {
-    padding-right: 1rem;
+    padding-right: var(--gutter-sm);
   }
   &:nth-child(3) {
-    padding-left: 1rem;
+    padding-left: var(--gutter-sm);
   }
   &:nth-child(4) {
     text-align: right;
@@ -66,11 +67,13 @@
   display: flex;
   align-items: baseline;
   margin-top: var(--gutter-lg);
-  &[class] { margin-bottom: var(--gutter-md); }
+
+  /* fudge hidden/visible controls into the same place */
+  &.is-visible { margin-bottom: 0; }
+  &.is-hidden  { margin-bottom: 0.475em; top: 0.2em; }
 
   & .cms-selector-editor-custom-checkbox {
     margin-right: 0.5rem;
-    top: 1px;
   }
 
   /* nested label */

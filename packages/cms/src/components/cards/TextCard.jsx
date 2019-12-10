@@ -12,7 +12,7 @@ import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import Loading from "components/Loading";
 import Card from "./Card";
 import LocaleName from "./components/LocaleName";
-import FooterButtons from "../editors/components/FooterButtons";
+import DialogFooter from "../editors/components/DialogFooter";
 import RichTextEditor from "../editors/RichTextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import Select from "../fields/Select";
@@ -380,7 +380,7 @@ class TextCard extends Component {
             }
           </div>
 
-          <FooterButtons
+          <DialogFooter
             onDelete={entityList.includes(type) ? false : this.maybeDelete.bind(this)}
             onSave={this.save.bind(this)}
           />

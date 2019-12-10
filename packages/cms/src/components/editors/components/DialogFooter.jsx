@@ -3,9 +3,9 @@ import {hot} from "react-hot-loader/root";
 
 import Button from "../../fields/Button";
 
-import "./FooterButtons.css";
+import "./DialogFooter.css";
 
-class FooterButtons extends Component {
+class DialogFooter extends Component {
 
   render() {
     const {children, onDelete, onSave} = this.props;
@@ -44,4 +44,4 @@ class FooterButtons extends Component {
   }
 }
 
-export default hot(FooterButtons);
+export default hot(DialogFooter);

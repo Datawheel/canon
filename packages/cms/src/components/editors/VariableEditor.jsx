@@ -8,7 +8,7 @@ import urlSwap from "../../utils/urlSwap";
 import AceWrapper from "./AceWrapper";
 import GeneratorEditorUI from "./GeneratorEditorUI";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
-import FooterButtons from "./components/FooterButtons";
+import DialogFooter from "./components/DialogFooter";
 import Select from "../fields/Select";
 import TextButtonGroup from "../fields/TextButtonGroup";
 import TextInput from "../fields/TextInput";
@@ -364,7 +364,7 @@ class VariableEditor extends Component {
         </div>
 
         {/* save/delete buttons */}
-        <FooterButtons onDelete={onDelete} onSave={onSave}>
+        <DialogFooter onDelete={onDelete} onSave={onSave}>
           {/* UI/JS mode toggle */}
           {(type === "generator" || type.includes("visualization")) &&
             <Switch
@@ -374,7 +374,7 @@ class VariableEditor extends Component {
               onChange={this.maybeSwitchSimple.bind(this)}
             />
           }
-        </FooterButtons>
+        </DialogFooter>
 
         <Alert
           cancelButtonText="Cancel"

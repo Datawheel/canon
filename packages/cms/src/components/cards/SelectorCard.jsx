@@ -7,7 +7,7 @@ import deepClone from "../../utils/deepClone";
 import Card from "./Card";
 import Dialog from "../interface/Dialog";
 import SelectorEditor from "../editors/SelectorEditor";
-import FooterButtons from "../editors/components/FooterButtons";
+import DialogFooter from "../editors/components/DialogFooter";
 import DefinitionList from "../variables/DefinitionList";
 import VarList from "../variables/VarList";
 

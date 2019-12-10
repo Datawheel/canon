@@ -16,6 +16,11 @@
 
   & .cms-alert-overlay {
     @mixin overlay-theme;
+    background-color: color(var(--white) a(0.95));
+
+    @mixin dark-mode {
+      background-color: color(var(--black) a(0.95));
+    }
   }
 }
 

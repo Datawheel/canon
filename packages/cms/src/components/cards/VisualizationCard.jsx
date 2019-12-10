@@ -6,7 +6,7 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 import VariableEditor from "../editors/VariableEditor";
 import Loading from "components/Loading";
 import Viz from "../Viz/Viz";
-import FooterButtons from "../editors/components/FooterButtons";
+import DialogFooter from "../editors/components/DialogFooter";
 import deepClone from "../../utils/deepClone";
 import Card from "./Card";
 

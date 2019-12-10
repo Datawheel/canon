@@ -64,7 +64,7 @@
   & .cms-field-group {
     columns: 2;
     column-width: 18rem;
-    column-gap: 2rem;
+    column-gap: var(--gutter-sm);
 
     /* multiple proportional columns with a min-width */
     @supports (grid-template-columns: minMax(1px, 1fr)) {
@@ -73,7 +73,7 @@
         auto-fit,
         minmax(18rem, 1fr)
       );
-      grid-gap: var(--gutter-sm) var(--multicolumn-column-gap);
+      grid-gap: var(--gutter-sm) var(--gutter-md);
       margin-bottom: 0;
     }
 

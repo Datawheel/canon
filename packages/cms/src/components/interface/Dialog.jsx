@@ -4,7 +4,7 @@ import {hot} from "react-hot-loader/root";
 import Portal from "./Portal";
 import Button from "../fields/Button";
 import Parse from "../sections/components/Parse";
-import FooterButtons from "../editors/components/FooterButtons";
+import DialogFooter from "../editors/components/DialogFooter";
 
 import "./Dialog.css";
 
@@ -16,9 +16,9 @@ class Dialog extends Component {
       isOpen,
       portalProps,  // spread into Portal component
       onClose,      // close the dialog
-      controls,     // rendered as children in FooterButtons.jsx
-      onDelete,     // callback function passed to FooterButtons.jsx
-      onSave,       // callback function passed to FooterButtons.jsx
+      controls,     // rendered as children in DialogFooter.jsx
+      onDelete,     // callback function passed to DialogFooter.jsx
+      onSave,       // callback function passed to DialogFooter.jsx
       title,        // dialog title
       titleHidden,
       children      // main message
@@ -44,8 +44,8 @@ class Dialog extends Component {
         >
           <div className="cms-dialog-inner">
             <div className={`cms-dialog-header${titleHidden ? " title-hidden" : ""}`}>
-              <Parse El="h2" className="cms-dialog-heading u-font-xxl">{title}</Parse>
-              <Button namespace="cms-dialog-header" onClick={onClose} icon="cross" iconOnly >Cancel</Button>
+              <Parse El="h2" className="cms-dialog-heading u-font-md u-margin-top-off">{title}</Parse>
+              <Button className="cms-dialog-header-button" namespace="cms" onClick={onClose} icon="cross" iconOnly>Cancel</Button>
             </div>
 
             {/* main dialog content */}
@@ -55,9 +55,9 @@ class Dialog extends Component {
 
             {/* footer buttons */}
             {onSave &&
-              <FooterButtons onSave={onSave} onDelete={onDelete} key="fb">
+              <DialogFooter onSave={onSave} onDelete={onDelete} key="fb">
                 {controls}
-              </FooterButtons>
+              </DialogFooter>
             }
           </div>
 

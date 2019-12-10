@@ -9,17 +9,101 @@
 .cms-dialog.is-modal {
   /* layout */
   @mixin overflow-container;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 100;
+
+  & .cms-dialog-inner {
+    width: 50rem;
+    max-width: calc(100% - var(--gutter-lg));
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+
+    & > * {
+      padding-left: var(--gutter-md);
+      padding-right: var(--gutter-md);
+    }
+
+    & .cms-dialog-header,
+    & .cms-dialog-body {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+    }
+    & .cms-dialog-footer,
+    & .cms-dialog-body {
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+  }
+
+  & .cms-dialog-header,
+  & .cms-dialog-footer {
+    /* positioning */
+    position: absolute;
+    width: 100%;
+    left: 0;
+    right: 0;
+    /* sizing */
+    height: 2.5rem;
+    padding: 0 var(--gutter-md);
+    /* layout */
+    display: flex;
+    align-items: center;
+    /* theming */
+    background-color: var(--light-1);
+
+    @mixin dark-mode {
+      background-color: var(--dark-2);
+    }
+
+    & > * {
+      margin: 0;
+    }
+  }
+
+  & .cms-dialog-header { top: 0; }
+  & .cms-dialog-footer { bottom: 0; }
+
+  & .cms-dialog-header-button {
+    margin-left: auto;
+    right: -0.75em;
+  }
 
   & .cms-dialog-overlay {
     @mixin overlay-theme;
+    background-color: color(var(--black) a(0.95));
   }
 }
 
 .cms-dialog-inner {
   max-width: 100%;
+  /* theming */
+  border-radius: 4px;
+  background-color: var(--white);
+
+  @mixin dark-mode {
+    background-color: var(--dark-3);
+  }
 }
 /* transition in */
 [class*="portal"].is-animating .cms-dialog-inner {
   animation: appearFromBelow 0.2s ease-out;
+}
+
+.cms-dialog-header-button,
+.cms-dialog-footer-button {
+  background: none;
+  border: none;
+
+  &, &:hover, &:focus {
+    box-shadow: none;
+  }
+}
+
+.cms-dialog-body {
+  padding-top: var(--gutter-md);
+  padding-bottom: var(--gutter-md);
+  max-height: calc(100vh - var(--gutter-xl) - 5rem);
+  @mixin overflow-container;
 }

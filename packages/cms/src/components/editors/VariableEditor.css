@@ -39,20 +39,8 @@
   }
 }
 
-.variable-editor-dialog {
-  height: 100vh;
-  margin-top: var(--nav-height);
-  max-height: calc(100vh - 25px - var(--nav-height));
-  max-width: calc(100% - 25px);
-
-  & [class*="-dialog-body"] {
-    @mixin vertical-overflow-container;
-    max-height: calc(100vh - 10rem);
-  }
-
-  & .cms-ace-container:only-child {
-    margin-bottom: -2rem;
-  }
+.variable-editor-dialog .cms-ace-container:only-child {
+  margin-bottom: -2rem;
 }
 
 /* help text */
