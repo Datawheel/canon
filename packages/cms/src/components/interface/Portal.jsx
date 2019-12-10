@@ -17,7 +17,7 @@ class Portal extends Component {
   // on mount, add a modifier class for a css transform and then remove it
   componentDidMount() {
     this.setState({isAnimating: true});
-    setTimeout(() => this.setState({isAnimating: false}), 1000);
+    setTimeout(() => this.setState({isAnimating: false}), 200);
   }
 
   componentWillUnmount() {

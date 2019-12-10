@@ -18,7 +18,8 @@ class Alert extends Component {
     const {autoFocusButton, isOpen} = this.props;
     // when opening the alert, focus either the confirm (default) or cancel button
     if (!prevProps.isOpen && isOpen && (autoFocusButton === "confirm" || autoFocusButton === "cancel")) {
-      this[`${autoFocusButton}Button`].current.focus();
+      // after .is-animating is removed from portal
+      setTimeout(() => this[`${autoFocusButton}Button`].current.focus(), 200);
     }
   }
 
