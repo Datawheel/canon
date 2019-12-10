@@ -33,6 +33,9 @@ class Dialog extends Component {
       return null;
     }
 
+    let showFooter = false;
+    if (onSave) showFooter = true;
+
     let Wrapper = Fragment;
     if (isModal) Wrapper = Portal;
 
@@ -42,7 +45,7 @@ class Dialog extends Component {
           className={`cms-dialog${className ? ` ${className}` : ""} ${isModal ? "is-modal" : "is-inline"}`}
           key="a"
         >
-          <div className="cms-dialog-inner">
+          <div className={`cms-dialog-inner${showFooter ? " with-footer" : ""}`}>
             <div className={`cms-dialog-header${titleHidden ? " title-hidden" : ""}`}>
               <Parse El="h2" className="cms-dialog-heading u-font-md u-margin-top-off">{title}</Parse>
               <Button className="cms-dialog-header-button" namespace="cms" onClick={onClose} icon="cross" iconOnly>Cancel</Button>
@@ -54,8 +57,8 @@ class Dialog extends Component {
             </div>
 
             {/* footer buttons */}
-            {onSave &&
-              <DialogFooter onSave={onSave} onDelete={onDelete} key="fb">
+            {showFooter &&
+              <DialogFooter onSave={onSave} onDelete={onDelete} key="f">
                 {controls}
               </DialogFooter>
             }

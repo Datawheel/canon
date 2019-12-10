@@ -18,7 +18,9 @@
     width: 50rem;
     max-width: calc(100% - var(--gutter-lg));
     padding-top: 2.5rem;
-    padding-bottom: 2.5rem;
+
+    /* make room for footer */
+    &.with-footer { padding-bottom: 2.5rem; }
 
     & > * {
       padding-left: var(--gutter-md);
