@@ -11,8 +11,11 @@ import blueprintIcons from "../utils/blueprintIcons";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Deck from "../components/interface/Deck";
 import SelectorUsage from "../components/interface/SelectorUsage";
+import {Dialog, Icon} from "@blueprintjs/core";
+import Section from "../components/sections/Section.jsx";
 
 import {newEntity, updateEntity} from "../actions/profiles";
+import {setStatus} from "../actions/status";
 
 import "./SectionEditor.css";
 
@@ -68,7 +71,7 @@ class SectionEditor extends Component {
 
     const {minData, allSelectors} = this.props;
     const {children} = this.props;
-    const {variables, localeDefault, localeSecondary} = this.props.status;
+    const {variables, localeDefault, localeSecondary, showPreviewModal} = this.props.status;
 
     const minDataState = this.state.minData;
 
@@ -300,6 +303,27 @@ class SectionEditor extends Component {
               />
             )}
           />
+          <Dialog
+            className="cp-modal-section-dialog"
+            portalClassName="cp-modal-section-portal"
+            backdropClassName="cp-modal-section-backdrop"
+            isOpen={showPreviewModal}
+            onClose={() => this.props.setStatus({showPreviewModal: false})}
+          >
+            <button className="cp-dialog-close-button" onClick={() => this.props.setStatus({showPreviewModal: null})}>
+              <Icon className="cp-dialog-close-button-icon" icon="cross" />
+              <span className="u-visually-hidden">close section</span>
+            </button>
+
+
+            <Section
+              isModal={true}
+              contents={<div>oy</div>}
+              onSetVariables={d => d}
+            />
+
+
+          </Dialog>
         </React.Fragment>}
       </div>
     );
@@ -318,7 +342,8 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = dispatch => ({
   newEntity: (type, payload) => dispatch(newEntity(type, payload)),
-  updateEntity: (type, payload) => dispatch(updateEntity(type, payload))
+  updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SectionEditor);

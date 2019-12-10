@@ -8,6 +8,7 @@ import Select from "../fields/Select";
 
 import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection} from "../../actions/profiles";
 import {deleteStory} from "../../actions/stories";
+import {setStatus} from "../../actions/status";
 
 import "./Header.css";
 
@@ -63,6 +64,10 @@ class Header extends Component {
         this.setState({itemToDelete: {type, id}});
       }
     }
+  }
+
+  togglePreview() {
+    this.props.setStatus({showPreviewModal: true});
   }
 
   delete(itemToDelete) {
@@ -179,6 +184,19 @@ class Header extends Component {
           </span>
 
           {/* TODO: make this a popover once we have more options */}
+          {/* preview entity */}
+          <div className="cms-header-actions-container" key="header-actions-container-preview">
+            <Button
+              className="cms-header-actions-button cms-header-delete-button"
+              onClick={this.togglePreview.bind(this)}
+              icon="application"
+              namespace="cms"
+              fontSize="xs"
+            >
+              {`Preview ${entityType === "storysection" ? "section" : entityType}`}
+            </Button>
+          </div>
+
           {/* duplicate entity */}
           {pathObj.tab === "profiles" && <div className="cms-header-actions-container" key="header-actions-container-duplicate">
             <Button
@@ -259,7 +277,8 @@ const mapDispatchToProps = dispatch => ({
   deleteProfile: id => dispatch(deleteProfile(id)),
   duplicateProfile: id => dispatch(duplicateProfile(id)),
   duplicateSection: (id, pid) => dispatch(duplicateSection(id, pid)),
-  deleteStory: id => dispatch(deleteStory(id))
+  deleteStory: id => dispatch(deleteStory(id)),
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(Header));
