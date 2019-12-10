@@ -18,5 +18,8 @@
 
 .cms-dialog-inner {
   max-width: 100%;
+}
+/* transition in */
+[class*="portal"].is-animating .cms-dialog-inner {
   animation: appearFromBelow 0.2s ease-out;
 }

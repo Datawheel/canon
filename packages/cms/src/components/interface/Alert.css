@@ -25,7 +25,6 @@
   width: 40rem;
   max-width: 100%;
   text-align: center;
-  animation: appearFromBelow 0.2s ease-out;
 
   &.danger-theme .cms-alert-icon {
     color: var(--alert);
@@ -33,6 +32,10 @@
   &.caution-theme .cms-alert-icon {
     color: var(--accent);
   }
+}
+/* transition in */
+[class*="portal"].is-animating .cms-alert-inner {
+  animation: appearFromBelow 0.2s ease-out;
 }
 
 .cms-alert-actions {

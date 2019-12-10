@@ -231,7 +231,6 @@ theming
 @define-mixin overlay-theme {
   @mixin button-reset;
   z-index: -1;
-  animation: fadeIn 0.1s ease-out;
   background-color: color(var(--white) a(0.95));
 
   @mixin dark-mode {

@@ -14,6 +14,12 @@ class Portal extends Component {
     };
   }
 
+  // on mount, add a modifier class for a css transform and then remove it
+  componentDidMount() {
+    this.setState({isAnimating: true});
+    setTimeout(() => this.setState({isAnimating: false}), 1000);
+  }
+
   componentWillUnmount() {
     const {rootEl, portalEl} = this.state;
     if (rootEl) rootEl.removeChild(portalEl);
@@ -21,7 +27,7 @@ class Portal extends Component {
 
   render() {
     const {children, namespace, rootElementSelector} = this.props;
-    const {rootEl, portalEl} = this.state;
+    const {rootEl, portalEl, isAnimating} = this.state;
 
     // log errors
     if (!portalEl || !rootEl) {
@@ -31,7 +37,10 @@ class Portal extends Component {
 
     // add classes to root element & portal element
     if (rootEl) rootEl.classList.add("with-portal");
-    if (portalEl) portalEl.className = namespace ? `${namespace}-portal` : "portal";
+    if (portalEl) {
+      portalEl.className = namespace ? `${namespace}-portal` : "portal";
+      if (isAnimating) portalEl.classList.add("is-animating");
+    }
 
     // append the portal element to the document
     if (rootEl && portalEl) rootEl.appendChild(portalEl);
