@@ -173,7 +173,8 @@ class VariableCard extends Component {
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
       usePortal: false,
-      icon: false
+      icon: false,
+      portalProps: {namespace: "cms"}
     };
 
     const editorProps = {

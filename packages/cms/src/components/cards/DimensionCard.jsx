@@ -83,7 +83,8 @@ class DimensionCard extends Component {
       isOpen,
       onClose: () => this.setState({isOpen: false}),
       usePortal: false,
-      icon: false
+      icon: false,
+      portalProps: {namespace: "cms"}
     };
 
     const editorProps = {

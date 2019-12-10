@@ -287,7 +287,8 @@ class TextCard extends Component {
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
       title: type ? `${this.prettifyType(type)} editor` : "Text editor",
-      usePortal: false
+      usePortal: false,
+      portalProps: {namespace: "cms"}
     };
 
     const editorProps = {

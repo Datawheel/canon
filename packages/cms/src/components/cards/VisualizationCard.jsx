@@ -155,7 +155,8 @@ class VisualizationCard extends Component {
       title: "Visualization editor",
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
-      usePortal: false
+      usePortal: false,
+      portalProps: {namespace: "cms"}
     };
 
     const editorProps = {

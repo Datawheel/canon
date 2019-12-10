@@ -12,23 +12,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* sizing */
-  z-index: 100;
+  z-index: 101; /* in front of dialogs */
 
   & .cms-alert-overlay {
-    @mixin button-reset;
-    z-index: -1;
-    animation: fadeIn 0.1s ease-out;
-    background-color: color(var(--white) a(0.95));
-
-    @mixin dark-mode {
-      background-color: color(var(--black) a(0.95));
-    }
-
-    &:focus {
-      border: 2px solid var(--accent-dark);
-      outline: none;
-    }
+    @mixin overlay-theme;
   }
 }
 

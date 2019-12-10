@@ -78,7 +78,8 @@ export default class Card extends Component {
         description: alertObj.description,
         isOpen: showAlert,
         onConfirm: alertObj.callback,
-        onCancel: onAlertCancel
+        onCancel: onAlertCancel,
+        portalProps: {namespace: "cms"}
       };
     }
 

@@ -25,8 +25,9 @@ class Alert extends Component {
   render() {
     const {
       className,
-      isModal,            // set to `true` to disable escape key/overlay click close
       isOpen,
+      isModal,            // set to `true` to disable escape key/overlay click close
+      portalProps,        // spread into Portal component
       onCancel,
       onConfirm,
       children,           // main message
@@ -50,7 +51,7 @@ class Alert extends Component {
     if (isModal) Wrapper = Portal;
 
     return (
-      <Wrapper>
+      <Wrapper {...portalProps}>
         {/* main alert content */}
         <div
           className={`cms-alert${className ? ` ${className}` : ""} ${isModal ? "is-modal" : "is-inline"}`}

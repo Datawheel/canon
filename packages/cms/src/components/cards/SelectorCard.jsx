@@ -1,11 +1,11 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
-import {Dialog} from "@blueprintjs/core";
 
 import deepClone from "../../utils/deepClone";
 
 import Card from "./Card";
+import Dialog from "../interface/Dialog";
 import SelectorEditor from "../editors/SelectorEditor";
 import FooterButtons from "../editors/components/FooterButtons";
 import DefinitionList from "../variables/DefinitionList";
@@ -146,8 +146,9 @@ class SelectorCard extends Component {
       title: "Selector Editor",
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
-      icon: false,
-      usePortal: false
+      onDelete: this.maybeDelete.bind(this),
+      onSave: this.save.bind(this),
+      portalProps: {namespace: "cms"}
     };
 
     const editorProps = {
@@ -187,13 +188,7 @@ class SelectorCard extends Component {
 
         {/* edit mode */}
         <Dialog {...dialogProps} key="d">
-          <div className="cms-dialog-body bp3-dialog-body">
-            <SelectorEditor {...editorProps} />
-          </div>
-          <FooterButtons
-            onDelete={this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
+          <SelectorEditor {...editorProps} />
         </Dialog>
       </Fragment>
     );

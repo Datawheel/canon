@@ -1,0 +1,22 @@
+@import "../../css/mixins.css";
+
+.cms-dialog.is-modal,
+.cms-dialog .cms-dialog-overlay {
+  @mixin absolute-expand;
+  position: fixed;
+}
+
+.cms-dialog.is-modal {
+  /* layout */
+  @mixin overflow-container;
+  z-index: 100;
+
+  & .cms-dialog-overlay {
+    @mixin overlay-theme;
+  }
+}
+
+.cms-dialog-inner {
+  max-width: 100%;
+  animation: appearFromBelow 0.2s ease-out;
+}
