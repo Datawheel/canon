@@ -1,14 +1,15 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
-import {Dialog} from "@blueprintjs/core";
+
 import varSwapRecursive from "../../utils/varSwapRecursive";
-import VariableEditor from "../editors/VariableEditor";
-import Loading from "components/Loading";
-import Viz from "../Viz/Viz";
-import DialogFooter from "../editors/components/DialogFooter";
 import deepClone from "../../utils/deepClone";
+
+import Loading from "components/Loading";
 import Card from "./Card";
+import Viz from "../Viz/Viz";
+import VariableEditor from "../editors/VariableEditor";
+import Dialog from "../interface/Dialog";
 
 import {deleteEntity, updateEntity} from "../../actions/profiles";
 

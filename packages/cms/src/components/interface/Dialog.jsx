@@ -34,7 +34,7 @@ class Dialog extends Component {
     }
 
     let showFooter = false;
-    if (onSave) showFooter = true;
+    if (onSave || controls) showFooter = true;
 
     let Wrapper = Fragment;
     if (isModal) Wrapper = Portal;

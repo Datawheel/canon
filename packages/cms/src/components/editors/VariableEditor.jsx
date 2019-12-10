@@ -6,7 +6,7 @@ import {Switch} from "@blueprintjs/core";
 import urlSwap from "../../utils/urlSwap";
 
 import AceWrapper from "./AceWrapper";
-import GeneratorEditorUI from "./GeneratorEditorUI";
+import VariableEditorUI from "./VariableEditorUI";
 import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
 import DialogFooter from "./components/DialogFooter";
 import Select from "../fields/Select";
@@ -255,112 +255,110 @@ class VariableEditor extends Component {
 
     return (
       <Fragment>
-        <div className="cms-dialog-body bp3-dialog-body">
-          <div className="variable-editor">
-            {/* name & description fields */}
-            {(type === "generator" || type === "materializer" || type === "formatter") &&
-              <div className="cms-field-group">
-                <TextInput
-                  label="Name"
-                  namespace="cms"
-                  inline
-                  value={data.name}
-                  onChange={this.changeField.bind(this, "name")}
-                />
-                <TextInput
-                  label="Description"
-                  namespace="cms"
-                  inline
-                  value={data.description}
-                  onChange={this.changeField.bind(this, "description")}
-                />
+        <div className="cms-variable-editor">
+          {/* name & description fields */}
+          {(type === "generator" || type === "materializer" || type === "formatter") &&
+            <div className="cms-field-group">
+              <TextInput
+                label="Name"
+                namespace="cms"
+                inline
+                value={data.name}
+                onChange={this.changeField.bind(this, "name")}
+              />
+              <TextInput
+                label="Description"
+                namespace="cms"
+                inline
+                value={data.description}
+                onChange={this.changeField.bind(this, "description")}
+              />
+            </div>
+          }
+
+          {type === "generator" &&
+            <TextButtonGroup
+              namespace="cms"
+              inputProps={{
+                label: "API",
+                inline: true,
+                namespace: "cms",
+                value: data.api,
+                onChange: this.changeField.bind(this, "api")
+              }}
+              buttonProps={{
+                children: payload && !payload.error ? "Refetch data" : "Fetch data",
+                namespace: "cms",
+                icon: payload && !payload.error ? "refresh" : "download",
+                onClick: this.maybePreviewPayload.bind(this)
+              }}
+            />
+          }
+
+          <div className={`cms-variable-editor-group u-margin-top-off u-margin-bottom-md ${simple ? "ui-mode" : "js-mode"}`}>
+            {/* json */}
+            {payload &&
+              <div className="cms-variable-editor-inner" key="json">
+                <h3 className="cms-variable-editor-heading u-font-xs">
+                  Fetched data
+                </h3>
+                <pre className="cms-variable-editor-json">
+                  <code className="cms-variable-editor-json-inner">{JSON.stringify(payload, null, 2)}</code>
+                </pre>
               </div>
             }
 
-            { type === "generator" &&
-              <TextButtonGroup
-                namespace="cms"
-                inputProps={{
-                  label: "API",
-                  inline: true,
-                  namespace: "cms",
-                  value: data.api,
-                  onChange: this.changeField.bind(this, "api")
-                }}
-                buttonProps={{
-                  children: payload && !payload.error ? "Refetch data" : "Fetch data",
-                  namespace: "cms",
-                  icon: payload && !payload.error ? "refresh" : "download",
-                  onClick: this.maybePreviewPayload.bind(this)
-                }}
-              />
-            }
-
-            <div className="cms-variable-editor-group u-margin-top-off u-margin-bottom-md">
-              {/* json */}
-              {payload &&
-                <div className="cms-variable-editor-inner" key="json">
-                  <h3 className="cms-generator-heading u-font-xs">
-                    Fetched data
-                  </h3>
-                  <pre className="cms-variable-editor-json">
-                    <code className="cms-variable-editor-json-inner">{JSON.stringify(payload, null, 2)}</code>
-                  </pre>
+            {simple
+              ? type === "generator"
+                ? payload
+                  ? <VariableEditorUI
+                    key="simp-gen"
+                    payload={payload}
+                    simpleConfig={data.logic_simple}
+                    onSimpleChange={this.onSimpleChange.bind(this)}
+                  />
+                  : null
+                : <SimpleVisualizationEditor key="simp-viz" simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
+              : <div className="cms-variable-editor-js-outer">
+                <h3 className="cms-variable-editor-heading u-font-xs">
+                  Javascript
+                </h3>
+                <div className="cms-variable-editor-js">
+                  <AceWrapper
+                    key="ace-wrap"
+                    className="editor"
+                    ref={comp => this.editor = comp}
+                    onChange={this.handleEditor.bind(this, "logic")}
+                    value={data.logic}
+                    {...this.props}
+                  />
                 </div>
-              }
-
-              {simple
-                ? type === "generator"
-                  ? payload
-                    ? <GeneratorEditorUI
-                      key="simp-gen"
-                      payload={payload}
-                      simpleConfig={data.logic_simple}
-                      onSimpleChange={this.onSimpleChange.bind(this)}
-                    />
-                    : null
-                  : <SimpleVisualizationEditor key="simp-viz" simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
-                : <div className="cms-variable-editor-js-outer">
-                  <h3 className="cms-generator-heading u-font-xs">
-                    Javascript
-                  </h3>
-                  <div className="cms-variable-editor-js">
-                    <AceWrapper
-                      key="ace-wrap"
-                      className="editor"
-                      ref={comp => this.editor = comp}
-                      onChange={this.handleEditor.bind(this, "logic")}
-                      value={data.logic}
-                      {...this.props}
-                    />
-                  </div>
-                </div>
-              }
-            </div>
-
-            {/* callback instructions */}
-            {!simple &&
-              <section className="variable-editor-help u-margin-bottom-sm">
-                <h3 className="u-font-xs">Callback</h3>
-                <p className="u-font-xs">{preMessage[type]}</p>
-                <p className="u-font-xs">{postMessage[type]}</p>
-              </section>
-            }
-
-            {/* visibility */}
-            { (type === "profile_visualization" || type === "section_visualization") &&
-              <Select
-                label="Visible"
-                inline
-                fontSize="xs"
-                namespace="cms"
-                value={data.allowed || "always"}
-                onChange={this.chooseVariable.bind(this)}
-              >
-                {varOptions}
-              </Select>
+              </div>
             }
           </div>
+
+          {/* callback instructions */}
+          {!simple &&
+            <section className="cms-variable-editor-help u-margin-bottom-sm">
+              <h3 className="u-font-xs">Callback</h3>
+              <p className="u-font-xs">{preMessage[type]}</p>
+              <p className="u-font-xs">{postMessage[type]}</p>
+            </section>
+          }
+
+          {/* visibility */}
+          {(type === "profile_visualization" || type === "section_visualization") &&
+            <Select
+              label="Visible"
+              inline
+              fontSize="xs"
+              namespace="cms"
+              value={data.allowed || "always"}
+              onChange={this.chooseVariable.bind(this)}
+            >
+              {varOptions}
+            </Select>
+          }
         </div>
 
         {/* save/delete buttons */}

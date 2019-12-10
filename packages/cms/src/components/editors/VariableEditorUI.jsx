@@ -3,9 +3,9 @@ import {EditableText} from "@blueprintjs/core";
 import Alert from "../interface/Alert";
 import Button from "../fields/Button";
 
-import "./GeneratorEditorUI.css";
+import "./VariableEditorUI.css";
 
-export default class GeneratorEditorUI extends Component {
+export default class VariableEditorUI extends Component {
 
   constructor(props) {
     super(props);
@@ -147,7 +147,7 @@ export default class GeneratorEditorUI extends Component {
     const {objects, rebuildAlertOpen} = this.state;
 
     const rebuildButtonProps = {
-      className: "cms-generator-heading-button",
+      className: "cms-variable-editor-heading-button",
       onClick: this.maybeRebuild.bind(this),
       fontSize: "xxs",
       namespace: "cms",
@@ -156,13 +156,13 @@ export default class GeneratorEditorUI extends Component {
       key: "b"
     };
 
-    return <div className="generator-editor-ui">
-      <h3 className="cms-generator-heading u-font-xs">
+    return <div className="cms-variable-editor-ui">
+      <h3 className="cms-variable-editor-heading u-font-xs">
         Generated variables <Button {...rebuildButtonProps}>rebuild</Button>
       </h3>
 
-      <div className="cms-generator-table-wrapper">
-        <table className="cms-generator-table">
+      <div className="cms-variable-table-wrapper">
+        <table className="cms-variable-table">
           <thead>
             <tr>
               <td>use</td>
@@ -174,7 +174,7 @@ export default class GeneratorEditorUI extends Component {
           {objects.map((objArr, i) =>
             <tbody key={objArr.i}>
               {objArr.map(row =>
-                <tr className={`cms-generator-table-row ${row.use ? "is-active" : "is-inactive"}`} key={row.pKey}>
+                <tr className={`cms-variable-table-row ${row.use ? "is-active" : "is-inactive"}`} key={row.pKey}>
                   <td>
                     <input type="checkbox" checked={row.use} onChange={this.changeUse.bind(this, i, row.pKey)} />
                   </td>

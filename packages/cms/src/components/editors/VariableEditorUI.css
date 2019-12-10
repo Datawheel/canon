@@ -1,16 +1,28 @@
 @import "../../css/mixins.css";
 
-.generator-editor-ui {
+.cms-variable-editor-ui {
   width: 100%;
+
+  & .cms-variable-editor-heading {
+    margin-bottom: 0.55em; /* fudged */
+  }
 }
 
-.cms-generator-heading-button {
+.cms-variable-editor-heading-button {
   margin-top: -0.375em; /* fudge 2nd column into place */
 }
 
 /* equal sized columns */
-.variable-editor .cms-variable-editor-group {
+.cms-variable-editor .cms-variable-editor-group {
   display: flex;
+
+  &.ui-mode {
+    padding-bottom: var(--gutter-md);
+  }
+
+  &.js-mode .cms-variable-editor-js-outer {
+    margin-top: var(--gutter-sm);
+  }
 
   & > * {
     display: flex;
@@ -18,24 +30,8 @@
   }
 }
 
-.cms-variable-editor-js-outer {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-
-  & .cms-variable-editor-js {
-    position: relative;
-    width: 100%;
-    flex: 1 0 auto;
-  }
-
-  & .cms-ace-container {
-    @mixin absolute-expand;
-  }
-}
-
 .cms-variable-editor-json,
-.cms-generator-table-wrapper {
+.cms-variable-table-wrapper {
   height: 100%;
   background-color: var(--white);
 
@@ -50,10 +46,10 @@
 }
 
 /* tables */
-.cms-generator-table-wrapper {
+.cms-variable-table-wrapper {
   padding: 0 var(--gutter-sm);
 }
-.cms-generator-table {
+.cms-variable-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: -0.25rem; /* still more fudging */
@@ -68,7 +64,7 @@
     border-top: var(--gutter-sm) solid transparent;
   }
 
-  & .cms-generator-table-row.is-inactive {
+  & .cms-variable-table-row.is-inactive {
     opacity: 0.5;
 
     &:hover, &:focus { opacity: 0.75; }

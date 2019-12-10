@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {Dialog} from "@blueprintjs/core";
 
 import deepClone from "../../utils/deepClone";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -8,6 +7,7 @@ import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import LocaleName from "./components/LocaleName";
 import VariableEditor from "../editors/VariableEditor";
 import VarTable from "../variables/VarTable";
+import Dialog from "../interface/Dialog";
 import Card from "./Card";
 
 import {deleteEntity, updateEntity, fetchVariables} from "../../actions/profiles";
@@ -168,7 +168,7 @@ class VariableCard extends Component {
     };
 
     const dialogProps = {
-      className: "variable-editor-dialog",
+      className: "cms-variable-editor-dialog",
       title: `${upperCaseFirst(type)} editor`,
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
