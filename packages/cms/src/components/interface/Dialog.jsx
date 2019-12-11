@@ -12,16 +12,18 @@ class Dialog extends Component {
   render() {
     const {
       className,
-      isModal,      // set to `true` to disable escape key/overlay click close
+      isModal,        // set to `true` to disable escape key/overlay click close
       isOpen,
-      portalProps,  // spread into Portal component
-      onClose,      // close the dialog
-      controls,     // rendered as children in DialogFooter.jsx
-      onDelete,     // callback function passed to DialogFooter.jsx
-      onSave,       // callback function passed to DialogFooter.jsx
-      title,        // dialog title
+      portalProps,    // spread into Portal component
+      onClose,        // close the dialog
+      headerControls, // additional controls rendered in the header
+      footerControls, // additional controls rendered in the footer
+      controls,       // rendered as children in DialogFooter.jsx
+      onDelete,       // callback function passed to DialogFooter.jsx
+      onSave,         // callback function passed to DialogFooter.jsx
+      title,          // dialog title
       titleHidden,
-      children      // main message
+      children        // main message
     } = this.props;
 
     // don't render unless isOpen is true
@@ -48,6 +50,7 @@ class Dialog extends Component {
           <div className={`cms-dialog-inner${showFooter ? " with-footer" : ""}`}>
             <div className={`cms-dialog-header${titleHidden ? " title-hidden" : ""}`}>
               <Parse El="h2" className="cms-dialog-heading u-font-md u-margin-top-off">{title}</Parse>
+              {headerControls}
               <Button className="cms-dialog-header-button" namespace="cms" onClick={onClose} icon="cross" iconOnly>Cancel</Button>
             </div>
 
@@ -59,7 +62,7 @@ class Dialog extends Component {
             {/* footer buttons */}
             {showFooter &&
               <DialogFooter onSave={onSave} onDelete={onDelete} key="f">
-                {controls}
+                {footerControls}
               </DialogFooter>
             }
           </div>

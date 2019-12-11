@@ -254,8 +254,8 @@ class VariableEditor extends Component {
     if (!data) return null;
 
     // add the UI mode toggle to footer
-    if ((type === "generator" || type.includes("visualization")) && !dialogProps.controls) {
-      dialogProps.controls =
+    if ((type === "generator" || type.includes("visualization")) && !dialogProps.footerControls) {
+      dialogProps.footerControls =
         <Switch
           checked={simple}
           className="cms-mode-switch"
