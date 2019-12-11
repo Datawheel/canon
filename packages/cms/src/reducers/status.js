@@ -120,7 +120,6 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {justDeleted: {type: "storysection", id: action.data.id, parent_id: action.data.parent_id}});
     // Section Preview
     case "SECTION_PREVIEW_FETCH":
-      console.log("GOT", action.data);
       return Object.assign({}, status, {sectionPreview: action.data});
     default: return status;
   }

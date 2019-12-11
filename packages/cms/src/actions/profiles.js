@@ -132,11 +132,9 @@ export function fetchSectionPreview(id, locale) {
     const {currentPid, pathObj} = getStore().cms.status;
     const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
     const variables = thisProfile.variables[locale];
-    console.log(pathObj);
     const {previews} = pathObj;
     const idString = previews.reduce((acc, id, i) => `${acc}&slug${i + 1}=${id.slug}&id${i + 1}=${id.id}`, "");
-    const url = `${getStore().env.CANON_API}/api/profile?section=${id}&locale=${locale}${idString}`;
-    console.log("hitting", url);
+    const url = `${getStore().env.CANON_API}/api/profile?profile=${currentPid}&section=${id}&locale=${locale}${idString}`;
     axios.post(url, {variables})
       .then(({data}) => {
         dispatch({type: "SECTION_PREVIEW_FETCH", data});
@@ -204,7 +202,6 @@ export function resetPreviews() {
         });
       });
       const newPathObj = Object.assign({}, pathObj, {previews});
-      console.log("changing pathObj to new previews because nodeclick");
       dispatch({type: "STATUS_SET", data: {previews, pathObj: newPathObj}});
     });
   };

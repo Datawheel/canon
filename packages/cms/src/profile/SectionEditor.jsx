@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import toSpacedCase from "../utils/formatters/toSpacedCase";
 import Select from "../components/fields/Select";
@@ -12,7 +11,7 @@ import VisualizationCard from "../components/cards/VisualizationCard";
 import Deck from "../components/interface/Deck";
 import SelectorUsage from "../components/interface/SelectorUsage";
 import {Dialog, Icon} from "@blueprintjs/core";
-import Section from "../components/sections/Section.jsx";
+import SectionRenderer from "../components/SectionRenderer.jsx";
 
 import {newEntity, updateEntity} from "../actions/profiles";
 import {setStatus} from "../actions/status";
@@ -69,10 +68,10 @@ class SectionEditor extends Component {
 
   render() {
 
-    const {minData, allSelectors} = this.props;
+    const {minData, allSelectors, formatters} = this.props;
     const {children} = this.props;
+    const {router} = this.context;
     const {variables, localeDefault, localeSecondary, sectionPreview} = this.props.status;
-    const {formatterFunctions} = this.props.resources;
 
     const minDataState = this.state.minData;
 
@@ -317,16 +316,13 @@ class SectionEditor extends Component {
                 <Icon className="cp-dialog-close-button-icon" icon="cross" />
                 <span className="u-visually-hidden">close section</span>
               </button>
-              <Section
-                isModal={true}
-                contents={sectionPreview}
-                variables={variables[localeDefault]}
-                formatters={formatterFunctions}
-                initialVariables={{}}
-                onSetVariables={d => d}
+              <SectionRenderer
+                profile={sectionPreview} // The entire profile, filtered to a single section, as loaded in Header.jsx 
+                formatters={formatters}  // The RAW formatters - ProfileEmbed handles turning them into Functions
+                locale={localeDefault}   // This will need to change based on what language people are previewing in
+                sectionID={minData.id}   // Limit the Profile and its onSelect reloads to the given sectionID
               />
             </React.Fragment>
-
 
           </Dialog>
         </React.Fragment>}
@@ -337,6 +333,7 @@ class SectionEditor extends Component {
 
 const mapStateToProps = (state, ownProps) => ({
   status: state.cms.status,
+  formatters: state.cms.formatters,
   resources: state.cms.resources,
   minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).sections.find(s => s.id === ownProps.id),
   allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
