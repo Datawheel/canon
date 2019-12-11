@@ -129,10 +129,15 @@ export function deleteEntity(type, payload) {
 /** */
 export function fetchSectionPreview(id, locale) { 
   return function(dispatch, getStore) {
-    const {currentPid} = getStore().cms.status;
+    const {currentPid, pathObj} = getStore().cms.status;
     const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
     const variables = thisProfile.variables[locale];
-    axios.post(`${getStore().env.CANON_API}/api/profile?section=${id}&locale=${locale}`, {variables})
+    console.log(pathObj);
+    const {previews} = pathObj;
+    const idString = previews.reduce((acc, id, i) => `${acc}&slug${i + 1}=${id.slug}&id${i + 1}=${id.id}`, "");
+    const url = `${getStore().env.CANON_API}/api/profile?section=${id}&locale=${locale}${idString}`;
+    console.log("hitting", url);
+    axios.post(url, {variables})
       .then(({data}) => {
         dispatch({type: "SECTION_PREVIEW_FETCH", data});
       });

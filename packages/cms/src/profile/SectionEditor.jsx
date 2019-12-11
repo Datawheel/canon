@@ -72,6 +72,7 @@ class SectionEditor extends Component {
     const {minData, allSelectors} = this.props;
     const {children} = this.props;
     const {variables, localeDefault, localeSecondary, sectionPreview} = this.props.status;
+    const {formatterFunctions} = this.props.resources;
 
     const minDataState = this.state.minData;
 
@@ -319,8 +320,8 @@ class SectionEditor extends Component {
               <Section
                 isModal={true}
                 contents={sectionPreview}
-                variables={{}}
-                formatters={{}}
+                variables={variables[localeDefault]}
+                formatters={formatterFunctions}
                 initialVariables={{}}
                 onSetVariables={d => d}
               />
@@ -334,12 +335,9 @@ class SectionEditor extends Component {
   }
 }
 
-SectionEditor.contextTypes = {
-  formatters: PropTypes.object
-};
-
 const mapStateToProps = (state, ownProps) => ({
   status: state.cms.status,
+  resources: state.cms.resources,
   minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).sections.find(s => s.id === ownProps.id),
   allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
 });

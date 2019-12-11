@@ -69,7 +69,6 @@ class Header extends Component {
   togglePreview() {
     const {pathObj} = this.props.status;
     if (pathObj.section) {
-      console.log("going up with", pathObj.section);
       this.props.fetchSectionPreview(pathObj.section, "en");
     }
   }
