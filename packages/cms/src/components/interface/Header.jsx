@@ -6,7 +6,7 @@ import {Icon, Alert, Intent} from "@blueprintjs/core";
 import Button from "../fields/Button";
 import Select from "../fields/Select";
 
-import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection} from "../../actions/profiles";
+import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, fetchSectionPreview} from "../../actions/profiles";
 import {deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
 
@@ -67,7 +67,11 @@ class Header extends Component {
   }
 
   togglePreview() {
-    this.props.setStatus({showPreviewModal: true});
+    const {pathObj} = this.props.status;
+    if (pathObj.section) {
+      console.log("going up with", pathObj.section);
+      this.props.fetchSectionPreview(pathObj.section, "en");
+    }
   }
 
   delete(itemToDelete) {
@@ -277,6 +281,7 @@ const mapDispatchToProps = dispatch => ({
   deleteProfile: id => dispatch(deleteProfile(id)),
   duplicateProfile: id => dispatch(duplicateProfile(id)),
   duplicateSection: (id, pid) => dispatch(duplicateSection(id, pid)),
+  fetchSectionPreview: (id, locale) => dispatch(fetchSectionPreview(id, locale)),
   deleteStory: id => dispatch(deleteStory(id)),
   setStatus: status => dispatch(setStatus(status))
 });

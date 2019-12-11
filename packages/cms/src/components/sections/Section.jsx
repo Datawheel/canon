@@ -90,11 +90,15 @@ class Section extends Component {
     }
   }
 
+  /** 
+   * Sections may be embedded as part of a Front-end Profile OR as a previewed section in the CMS. As a front-end
+   * Profile, formatters and variables come in through context, and as a CMS Preview these come through as props.
+   * (This is similar to Viz.jsx which can also be expressed as a front-end component or a CMS preview)
+   */
   getChildContext() {
-    const {formatters, variables} = this.context;
     return {
-      formatters,
-      variables: this.props.variables || variables,
+      formatters: this.props.formatters || this.context.formatters,
+      variables: this.props.variables || this.context.variables,
       onSetVariables: this.onSetVariables.bind(this)
     };
   }
@@ -106,7 +110,7 @@ class Section extends Component {
    * is responsible for keeping track of that, then in turn calling the props version of the function.
    */
   onSetVariables(newVariables) {
-    const initialVariables = this.context.initialVariables || {};
+    const initialVariables = this.props.initialVariables || this.context.initialVariables || {};
     const changedVariables = {};
     Object.keys(newVariables).forEach(key => {
       changedVariables[key] = initialVariables[key];
@@ -306,7 +310,6 @@ Section.defaultProps = {
 
 Section.contextTypes = {
   formatters: PropTypes.object,
-  router: PropTypes.object,
   variables: PropTypes.object,
   initialVariables: PropTypes.object
 };

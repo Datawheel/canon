@@ -126,6 +126,19 @@ export function deleteEntity(type, payload) {
   };
 }
 
+/** */
+export function fetchSectionPreview(id, locale) { 
+  return function(dispatch, getStore) {
+    const {currentPid} = getStore().cms.status;
+    const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
+    const variables = thisProfile.variables[locale];
+    axios.post(`${getStore().env.CANON_API}/api/profile?section=${id}&locale=${locale}`, {variables})
+      .then(({data}) => {
+        dispatch({type: "SECTION_PREVIEW_FETCH", data});
+      });
+  };
+}
+
 /**
  * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
  * and overrides/sets a variable in the variables object. This does not require a server
@@ -250,6 +263,7 @@ export function fetchVariables(config, useCache) {
             // Once pruned, we can POST the variables to the materializer endpoint
             axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
               variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+              const diffCounter = getStore().cms.status.diffCounter + 1;
               dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
             });
           }

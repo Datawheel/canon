@@ -71,7 +71,7 @@ class SectionEditor extends Component {
 
     const {minData, allSelectors} = this.props;
     const {children} = this.props;
-    const {variables, localeDefault, localeSecondary, showPreviewModal} = this.props.status;
+    const {variables, localeDefault, localeSecondary, sectionPreview} = this.props.status;
 
     const minDataState = this.state.minData;
 
@@ -307,20 +307,24 @@ class SectionEditor extends Component {
             className="cp-modal-section-dialog"
             portalClassName="cp-modal-section-portal"
             backdropClassName="cp-modal-section-backdrop"
-            isOpen={showPreviewModal}
-            onClose={() => this.props.setStatus({showPreviewModal: false})}
+            isOpen={sectionPreview}
+            onClose={() => this.props.setStatus({sectionPreview: null})}
           >
-            <button className="cp-dialog-close-button" onClick={() => this.props.setStatus({showPreviewModal: null})}>
-              <Icon className="cp-dialog-close-button-icon" icon="cross" />
-              <span className="u-visually-hidden">close section</span>
-            </button>
-
-
-            <Section
-              isModal={true}
-              contents={<div>oy</div>}
-              onSetVariables={d => d}
-            />
+            
+            <React.Fragment>
+              <button className="cp-dialog-close-button" onClick={() => this.props.setStatus({sectionPreview: null})}>
+                <Icon className="cp-dialog-close-button-icon" icon="cross" />
+                <span className="u-visually-hidden">close section</span>
+              </button>
+              <Section
+                isModal={true}
+                contents={sectionPreview}
+                variables={{}}
+                formatters={{}}
+                initialVariables={{}}
+                onSetVariables={d => d}
+              />
+            </React.Fragment>
 
 
           </Dialog>
