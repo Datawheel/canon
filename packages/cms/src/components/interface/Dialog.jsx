@@ -9,18 +9,38 @@ import DialogFooter from "../editors/components/DialogFooter";
 import "./Dialog.css";
 
 class Dialog extends Component {
+  constructor(props) {
+    super(props);
+    this.title = React.createRef();
+  }
+
+  componentDidUpdate(prevProps) {
+    const {isOpen} = this.props;
+    // when opening the dialog, focus the title
+    if (!prevProps.isOpen && isOpen) {
+      // after .is-animating is removed from portal
+      setTimeout(() => this.title.current.focus(), 200);
+    }
+  }
+
+  // listen for escape key
+  handleKeyPress(e) {
+    const {onClose} = this.props;
+    const esc = 27;
+    if (e.keyCode === esc && onClose) onClose();
+  }
+
   render() {
     const {
       className,
-      isModal,        // set to `true` to disable escape key/overlay click close
+      isModal,        // set to `false` to render inline
       isOpen,
       portalProps,    // spread into Portal component
       onClose,        // close the dialog
-      headerControls, // additional controls rendered in the header
-      footerControls, // additional controls rendered in the footer
-      controls,       // rendered as children in DialogFooter.jsx
       onDelete,       // callback function passed to DialogFooter.jsx
       onSave,         // callback function passed to DialogFooter.jsx
+      headerControls, // additional controls rendered in the header
+      footerControls, // additional controls rendered in the footer
       title,          // dialog title
       titleHidden,
       children        // main message
@@ -36,7 +56,7 @@ class Dialog extends Component {
     }
 
     let showFooter = false;
-    if (onSave || controls) showFooter = true;
+    if (onSave || footerControls) showFooter = true;
 
     let Wrapper = Fragment;
     if (isModal) Wrapper = Portal;
@@ -45,11 +65,16 @@ class Dialog extends Component {
       <Wrapper {...portalProps}>
         <div
           className={`cms-dialog${className ? ` ${className}` : ""} ${isModal ? "is-modal" : "is-inline"}`}
+          onKeyDown={this.handleKeyPress.bind(this)}
           key="a"
         >
           <div className={`cms-dialog-inner${showFooter ? " with-footer" : ""}`}>
             <div className={`cms-dialog-header${titleHidden ? " title-hidden" : ""}`}>
-              <Parse El="h2" className="cms-dialog-heading u-font-md u-margin-top-off">{title}</Parse>
+              <h2 className="cms-dialog-heading u-font-md u-margin-top-off" tabIndex="0" ref={this.title} key="h">
+                <Parse El="span">
+                  {title}
+                </Parse>
+              </h2>
               {headerControls}
               <Button className="cms-dialog-header-button" namespace="cms" onClick={onClose} icon="cross" iconOnly>Cancel</Button>
             </div>
