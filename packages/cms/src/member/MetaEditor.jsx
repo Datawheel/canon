@@ -256,10 +256,10 @@ class MetaEditor extends Component {
     const {metaData} = this.state;
     const links = [];
     const relevantPids = metaData.filter(p => p.dimension === member.dimension).map(d => d.profile_id);
-    // relevantPids.forEach(pid => {
-    //   const relevantProfile = metaData.filter(p => p.profile_id === pid);
-    //   links.push(`/profile/${relevantProfile.map(p => `${p.slug}/${member.dimension === p.dimension ? member.id : p.top.id}`).join("/")}`);
-    // });
+    relevantPids.forEach(pid => {
+      const relevantProfile = metaData.filter(p => p.profile_id === pid);
+      links.push(`/profile/${relevantProfile.map(p => `${p.slug}/${member.dimension === p.dimension ? member.id : p.top.id}`).join("/")}`);
+    });
     return links;
   }
 
