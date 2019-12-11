@@ -7,8 +7,7 @@ import urlSwap from "../../utils/urlSwap";
 
 import AceWrapper from "./AceWrapper";
 import VariableEditorUI from "./VariableEditorUI";
-import SimpleVisualizationEditor from "./SimpleVisualizationEditor";
-import DialogFooter from "./components/DialogFooter";
+import VisualizationEditorUI from "./VisualizationEditorUI";
 import Select from "../fields/Select";
 import TextButtonGroup from "../fields/TextButtonGroup";
 import TextInput from "../fields/TextInput";
@@ -331,9 +330,9 @@ class VariableEditor extends Component {
                       onSimpleChange={this.onSimpleChange.bind(this)}
                     />
                     : null
-                  : <SimpleVisualizationEditor key="simp-viz" simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
+                  : <VisualizationEditorUI key="simp-viz" simpleConfig={data.logic_simple} onSimpleChange={this.onSimpleChange.bind(this)}/>
                 : <div className="cms-variable-editor-js-outer">
-                  <h3 className="cms-variable-editor-heading u-font-xs">
+                  <h3 className={`cms-variable-editor-heading u-font-xs${ type === "visualization" ? " u-margin-top-off" : "" }`}>
                     Javascript
                   </h3>
                   <div className="cms-variable-editor-js">

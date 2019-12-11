@@ -1,7 +1,6 @@
 @import "../../css/mixins.css";
 
 .cms-viz-editor {
-  margin-top: 1em;
   height: auto; /* override vh */
   width: 100%;
   overflow-x: hidden !important; /* prevent .viz-select-group from overflowing */
@@ -12,14 +11,14 @@
     align-items: flex-start;
     flex-wrap: wrap;
     margin-right: -1.5rem; /* offset select right margin */
+    margin-bottom: calc(0px - var(--gutter-sm));
 
     & > * {
       flex: 1 0 calc(50% - 1.5rem);
       margin-right: 1.5rem; /* create gutter */
     }
 
-    /* TODO: replace with labelled input */
-    & input {
+    & .cms-input-label {
       margin-bottom: 1em;
     }
   }

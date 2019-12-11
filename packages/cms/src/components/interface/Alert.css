@@ -27,7 +27,7 @@
 .cms-alert-inner {
   margin: var(--gutter-sm);
   padding: var(--gutter-sm);
-  width: 40rem;
+  width: 42rem;
   max-width: 100%;
   text-align: center;
 
@@ -45,7 +45,7 @@
 
 .cms-alert-actions {
   display: flex;
-  width: 20em;
+  width: 22em;
   max-width: 100%;
   margin-top: 1.75em;
   margin-left: auto;

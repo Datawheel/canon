@@ -11,9 +11,9 @@ import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
 import Alert from "../interface/Alert";
 
-import "./SimpleVisualizationEditor.css";
+import "./VisualizationEditorUI.css";
 
-class SimpleVisualizationEditor extends Component {
+class VisualizationEditorUI extends Component {
 
   constructor(props) {
     super(props);
@@ -384,7 +384,7 @@ class SimpleVisualizationEditor extends Component {
         buttonProps={buttonProps}
       />
 
-      <div className="cms-field-group">
+      <div className="cms-field-group u-margin-bottom-off">
         <Select
           label="Visualization"
           inline
@@ -408,7 +408,7 @@ class SimpleVisualizationEditor extends Component {
       </div>
 
       {payload.length > 0 &&
-        <div className="viz-select-group">
+        <div className="viz-select-group u-margin-top-xs">
           {object.type && thisViz && thisViz.methods.map(method =>
             // render prop as text input
             method.format === "Input"
@@ -416,6 +416,7 @@ class SimpleVisualizationEditor extends Component {
                 label={method.display}
                 namespace="cms"
                 fontSize="xs"
+                inline
                 key={method.key}
                 value={object[method.key]}
                 onChange={this.onChange.bind(this, method.key)}
@@ -445,6 +446,7 @@ class SimpleVisualizationEditor extends Component {
                     fontSize="xs"
                     value={object[method.key]}
                     onChange={this.onChange.bind(this, method.key)}
+                    inline
                   >
                     {this.getOptionList.bind(this)(method, payload).map(option =>
                       <option key={option.value} value={option.value}>{option.display}</option>
@@ -452,13 +454,15 @@ class SimpleVisualizationEditor extends Component {
                   </Select>
                   <Select
                     key="cms-formatter-select"
-                    label={`${method.display} Formatter`}
+                    label={`${method.display} formatter`}
+                    labelHidden
                     namespace="cms"
                     fontSize="xs"
                     value={object.formatters ? object.formatters[method.key] : "manual-none"}
                     onChange={this.onChangeFormatter.bind(this, method.key)}
+                    inline
                   >
-                    <option key={null} value="manual-none">none</option>
+                    <option key={null} value="manual-none">No formatter</option>
                     {formatterList.map(f => <option key={f} value={f}>{f}</option>)}
                   </Select>
                 </Fragment>
@@ -469,7 +473,7 @@ class SimpleVisualizationEditor extends Component {
   }
 }
 
-SimpleVisualizationEditor.contextTypes = {
+VisualizationEditorUI.contextTypes = {
   formatters: PropTypes.object
 };
 
@@ -478,4 +482,4 @@ const mapStateToProps = state => ({
   status: state.cms.status
 });
 
-export default connect(mapStateToProps)(SimpleVisualizationEditor);
+export default connect(mapStateToProps)(VisualizationEditorUI);

@@ -17,28 +17,28 @@ const {
 
 module.exports = [
   {
-    name: "Bar Chart", 
-    type: "BarChart", 
+    name: "Bar Chart",
+    type: "BarChart",
     methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
-    name: "Bump Chart", 
-    type: "BumpChart", 
+    name: "Bump Chart",
+    type: "BumpChart",
     methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
-    name: "Donut", 
-    type: "Donut", 
+    name: "Donut",
+    type: "Donut",
     methods: [groupBy, value]
   },
   {
-    name: "Geo Map", 
-    type: "Geomap", 
+    name: "Geo Map",
+    type: "Geomap",
     methods: [groupBy, colorScale, topojson]
   },
   {
-    name: "Graphic", 
-    type: "Graphic", 
+    name: "Graphic",
+    type: "Graphic",
     methods: [
       Object.assign({}, label, {required: false}),
       Object.assign({}, value, {required: false}),
@@ -47,39 +47,39 @@ module.exports = [
     ]
   },
   {
-    name: "Line Plot", 
-    type: "LinePlot", 
+    name: "Line Plot",
+    type: "LinePlot",
     methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
-    name: "Percentage Bar", 
-    type: "PercentageBar", 
+    name: "Percentage Bar",
+    type: "PercentageBar",
     methods: [groupBy, value]
   },
   {
-    name: "Pie Chart", 
-    type: "Pie", 
+    name: "Pie Chart",
+    type: "Pie",
     methods: [groupBy, value]
   },
   {
-    name: "Scatter/Bubble", 
-    type: "Plot", 
-    methods: [x, y, xConfigTitle, yConfigTitle, size]
+    name: "Scatter/Bubble",
+    type: "Plot",
+    methods: [x, y, size, xConfigTitle, yConfigTitle]
   },
   {
-    name: "Stacked Area", 
-    type: "StackedArea", 
+    name: "Stacked Area",
+    type: "StackedArea",
     methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
-    name: "Treemap", 
-    type: "Treemap", 
+    name: "Treemap",
+    type: "Treemap",
     default: true,
     methods: [groupBy, sum]
   },
   {
-    name: "Table", 
-    type: "Table", 
+    name: "Table",
+    type: "Table",
     methods: [columns]
   }
 ];

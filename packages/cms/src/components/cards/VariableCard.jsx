@@ -125,8 +125,9 @@ class VariableCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: `Close ${upperCaseFirst(this.props.type)} editor and revert changes?`,
-        confirm: "Close editor"
+        message: `Close ${this.props.type} editor and revert changes?`,
+        confirm: "Close editor",
+        theme: "caution"
       };
       this.setState({alertObj});
     }

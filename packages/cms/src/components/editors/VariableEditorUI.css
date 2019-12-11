@@ -12,35 +12,6 @@
   margin-top: -0.375em; /* fudge 2nd column into place */
 }
 
-/* equal sized columns */
-.cms-variable-editor .cms-variable-editor-group {
-  display: flex;
-
-  &.js-mode .cms-variable-editor-js-outer {
-    margin-top: var(--gutter-sm);
-  }
-
-  & > * {
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-.cms-variable-editor-json,
-.cms-variable-table-wrapper {
-  height: 100%;
-  background-color: var(--white);
-
-  @mixin dark-mode {
-    background-color: var(--black);
-  }
-}
-
-/* json data */
-.cms-variable-editor-json {
-  padding: var(--gutter-sm);
-}
-
 /* tables */
 .cms-variable-table-wrapper {
   padding: 0 var(--gutter-sm);

@@ -205,7 +205,8 @@ class TextCard extends Component {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
         message: `Close ${this.prettifyType(this.props.type)} editor and revert changes?`,
-        confirm: "Close editor"
+        confirm: "Close editor",
+        theme: "caution"
       };
       this.setState({alertObj});
     }

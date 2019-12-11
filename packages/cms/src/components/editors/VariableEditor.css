@@ -1,5 +1,9 @@
 @import "../../css/mixins.css";
 
+.cms-variable-editor-dialog .cms-ace-container:only-child {
+  margin-bottom: -2rem;
+}
+
 .cms-variable-editor {
   align-self: stretch;
   display: flex;
@@ -10,10 +14,35 @@
   & .cms-viz-editor > *:not(:last-child) {
     margin-bottom: 1.25rem;
   }
+
+  & .cms-text-button-group {
+    margin-bottom: var(--gutter-xs);
+  }
 }
 
-.cms-variable-editor-dialog .cms-ace-container:only-child {
-  margin-bottom: -2rem;
+/* equal sized columns */
+.cms-variable-editor .cms-variable-editor-group {
+  display: flex;
+
+  & > * {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.cms-variable-editor-json,
+.cms-variable-table-wrapper {
+  height: 100%;
+  background-color: var(--white);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+  }
+}
+
+/* json data */
+.cms-variable-editor-json {
+  padding: var(--gutter-sm);
 }
 
 .cms-variable-editor-js-outer {
@@ -32,7 +61,7 @@
   }
 
   & .cms-variable-editor-heading {
-    margin-top: 0;
+    margin-top: 1em;
   }
 }
 

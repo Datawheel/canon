@@ -84,7 +84,8 @@ class SelectorCard extends Component {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
         message: "Close selector editor and revert changes?",
-        confirm: "Close editor"
+        confirm: "Close editor",
+        theme: "caution"
       };
       this.setState({alertObj});
     }

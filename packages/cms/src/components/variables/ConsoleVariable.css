@@ -54,7 +54,10 @@
 /* layout */
 .cms-variable-editor-group {
   display: flex;
-  min-height: 50vh;
+
+  &.js-mode {
+    min-height: 50vh;
+  }
 
   /* needed for ace editor */
   & > .cms-variable-editor-js {
