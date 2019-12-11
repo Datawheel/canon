@@ -1,5 +1,9 @@
 @import "../../css/mixins.css";
 
+.cms-dimension-editor-dialog .cms-fieldset {
+  margin-left: 0;
+}
+
 .cms-dimension-editor-warning {
   @mixin description-color;
   text-align: center;

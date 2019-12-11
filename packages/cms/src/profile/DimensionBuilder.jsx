@@ -1,9 +1,10 @@
 import React, {Component, Fragment} from "react";
+import {connect} from "react-redux";
+
 import DimensionCard from "../components/cards/DimensionCard";
 import DimensionEditor from "../components/editors/DimensionEditor";
 import Deck from "../components/interface/Deck";
-import {Dialog} from "@blueprintjs/core";
-import {connect} from "react-redux";
+import Dialog from "../components/interface/Dialog";
 
 import "./DimensionBuilder.css";
 

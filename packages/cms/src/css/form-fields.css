@@ -105,6 +105,11 @@
   & > .cms-checkbox-label {
     display: inline-block;
 
+    & input {
+      top: -1px;
+      margin-right: 0.125em;
+    }
+
     &:not(:last-child) {
       margin-right: 1.5em;
     }

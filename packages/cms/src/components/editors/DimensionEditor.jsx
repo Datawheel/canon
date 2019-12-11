@@ -143,7 +143,7 @@ class DimensionEditor extends Component {
         }
 
         <TextInput
-          label="slug"
+          label="Slug"
           inline
           namespace="cms"
           value={profileData.slug}
@@ -163,15 +163,15 @@ class DimensionEditor extends Component {
 
         {profileData.dimension &&
           <div className="cms-field-container">
-            Subdimensions:
             <fieldset className="cms-fieldset">
-              { levelList.map(level =>
-                <label className="cms-checkbox-label" key={level}>
+              <legend className="cms-fieldset-legend u-font-sm">Subdimensions:</legend>
+              {levelList.map(level =>
+                <label className="cms-checkbox-label u-font-xs" key={level}>
                   <input
                     className="cms-checkbox"
                     type="checkbox"
-                    checked={ profileData.levels.includes(level) }
-                    onChange={ this.toggleLevel.bind(this, level) }
+                    checked={profileData.levels.includes(level)}
+                    onChange={this.toggleLevel.bind(this, level)}
                   /> {level}
                 </label>
               )}
