@@ -38,13 +38,18 @@ class DimensionsPanel extends React.Component {
   onChangeDateDimension(level) {
     this.context.dispatch(dateDimensionLevelChangedAction(getLevelDimension(level)));
   }
-  // onClick={() => this.onChangeSharedDimension(dim.name)}
+
   sharedDimItemRenderer(sDims) {
+    const {controls} = this.context;
+    let selected = false;
+    if (controls.selectedSharedDimensionLevel) {
+      selected = controls.selectedSharedDimensionLevel;
+    }
     return (
       <Menu>
         {sDims.map(dim => <MenuItem key={`d-${dim.name}`} text={dim.name}>
           {dim.hierarchies.map(h => <MenuItem key={`h-${h.name}`} text={h.name}>
-            {h && h.levels.map(level => <MenuItem key={`l-${level.name}`} text={level.name} onClick={() => this.onChangeSharedDimension(level)} />)}
+            {h && h.levels.map(level => <MenuItem key={`l-${level.name}`} text={level.name} disabled={selected && selected.dimension === dim.name && selected.level === level.name} onClick={() => this.onChangeSharedDimension(level)} />)}
           </MenuItem>)}
         </MenuItem>)}
       </Menu>
@@ -52,11 +57,16 @@ class DimensionsPanel extends React.Component {
   }
 
   dateDimItemRenderer(sDims) {
+    const {controls} = this.context;
+    let selected = false;
+    if (controls.selectedDateDimensionLevel) {
+      selected = controls.selectedDateDimensionLevel;
+    }
     return (
       <Menu>
         {sDims.map(dim => <MenuItem key={`d-${dim.name}`} text={dim.name}>
           {dim.hierarchies.map(h => <MenuItem key={`h-${h.name}`} text={h.name}>
-            {h && h.levels.map(level => <MenuItem key={`l-${level.name}`} text={level.name} onClick={() => this.onChangeDateDimension(level)} />)}
+            {h && h.levels.map(level => <MenuItem key={`l-${level.name}`} text={level.name} disabled={selected && selected.dimension === dim.name && selected.level === level.name} onClick={() => this.onChangeDateDimension(level)} />)}
           </MenuItem>)}
         </MenuItem>)}
       </Menu>
@@ -68,8 +78,7 @@ class DimensionsPanel extends React.Component {
   }
 
   render() {
-    const {controls, datasets} = this.context;
-    const emptyCart = Object.keys(datasets).length === 0;
+    const {controls} = this.context;
 
     return (
       <div className={"canon-cart-dimensions-panel"}>

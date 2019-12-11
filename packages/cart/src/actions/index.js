@@ -57,22 +57,18 @@ export const addToCartDecideAction = query => async dispatch => {
   // This loading state will finish when addToCartAction finish.
   dispatch(addingToCartAction(query));
 
-  // It is a logig layer URL
+  // It is a logic layer URL
   if (providerObj.type === TYPE_LOGICLAYER) {
 
     // Get data from url
     const providerObj = getProviderInfo(query);
-    const cubeName = getCubeName(query);
 
     // Convert url to Tesseract query
     const client = await MultiClient.fromURL(providerObj.server);
-    client.getCube(cubeName, cubes => cubes.find(c => providerObj.server.indexOf(c.server) > -1))
-      .then(cube => {
-        const queryObj = cube.query;
-        queryObj.parseURL(query);
-        // Add new query to cart (send the original for references)
-        dispatch(addToCartAction(TesseractDataSource.urlAggregate(queryObj), query));
-      });
+    const queryObj = await client.parseQueryURL(query);
+
+    // Add new Query to cart
+    dispatch(addToCartAction(`${queryObj.toString("aggregate")}`, query));
   }
   // It is a Mondrian or Tesseract API URL
   else {

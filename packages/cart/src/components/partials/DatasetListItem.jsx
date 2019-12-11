@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import {MenuItem, Icon, MenuDivider, Checkbox} from "@blueprintjs/core";
+import {MenuItem, Icon, MenuDivider, Checkbox, Tooltip, Classes, Position} from "@blueprintjs/core";
 
 import {removeFromCartAction, toggleCutAction, toggleDrilldownAction} from "../../actions";
 
@@ -41,19 +41,32 @@ class DatasetListItem extends React.Component {
 
     return (
       <div className={"canon-cart-dataset-list-item"}>
-        <MenuItem multiline={true} className={"canon-cart-dataset-item"} onClick={() => this.onClickRemoveDataset(dataset)} labelElement={<Icon icon="trash" />} text={`${ix + 1}. ${dataset.name}`} />
+        <Tooltip
+          className={`canon-dataset-list-tooltip`}
+          inline={true}
+          position={showOptions?Position.RIGHT:Position.LEFT}
+          content={"Click for remove dataset from Cart"}
+        >
+          <MenuItem multiline={true} className={"canon-cart-dataset-item"} onClick={() => this.onClickRemoveDataset(dataset)} labelElement={<Icon icon="trash" />} text={<strong>{ix + 1}. {dataset.name}</strong>} />
+        </Tooltip>
         {showOptions &&
           <div>
-            <MenuItem multiline={true} disabled={dataset.query.params.cuts.length === 0} className={"canon-cart-dataset-item"} text={`Cuts (${dataset.query.params.cuts.length})`}>
-              {dataset.query.params.cuts.map((c, ix) =>
-                <Checkbox key={`cut-${ix}`} checked={c.selected} label={`${c.dimension}.${c.level} = ${c.members.join(",")}`} onChange={this.onChangeCut.bind(this, dataset.id, c)} />
-              )}
-            </MenuItem>
-            <MenuItem multiline={true} disabled={dataset.query.params.drilldowns.length === 0} className={"canon-cart-dataset-item"} text={`Drilldowns (${dataset.query.params.drilldowns.length})`}>
-              {dataset.query.params.drilldowns.map((d, ix) =>
-                <Checkbox key={`drilldown-${ix}`} checked={d.selected} disabled={!d.available} label={`${d.dimension}.${d.level}`} onChange={this.onChangeDrilldown.bind(this, dataset.id, d)} />
-              )}
-            </MenuItem>
+            {dataset.query.params.cuts.length > 0 &&
+              <MenuItem icon="filter" multiline={true} className={"canon-cart-dataset-item"} text={`Filter by`}>
+                <li class="bp3-menu-header"><h6 class="bp3-heading">Filters</h6></li>
+                {dataset.query.params.cuts.map((c, ix) =>
+                  <MenuItem key={`cut-${ix}`} multiline={true} text={<Checkbox checked={c.selected} label={`${c.dimension}.${c.level} = ${c.members.join(",")}`} onChange={this.onChangeCut.bind(this, dataset.id, c)} />}></MenuItem>
+                )}
+              </MenuItem>
+            }
+            {dataset.query.params.drilldowns.length > 0 &&
+              <MenuItem icon="group-objects" multiline={true} className={"canon-cart-dataset-item"} text={`Grouped by`}>
+                <li class="bp3-menu-header"><h6 class="bp3-heading">Groups</h6></li>
+                {dataset.query.params.drilldowns.map((d, ix) =>
+                  <MenuItem key={`drilldown-${ix}`} multiline={true} text={<Checkbox checked={d.selected} disabled={!d.available} label={`${d.dimension}.${d.level}`} onChange={this.onChangeDrilldown.bind(this, dataset.id, d)} />}></MenuItem>
+                )}
+              </MenuItem>
+            }
             <MenuDivider />
           </div>
         }
