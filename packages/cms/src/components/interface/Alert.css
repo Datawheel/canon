@@ -112,17 +112,13 @@
     color: var(--accent);
 
     @mixin dark-mode {
-      background-color: var(--accent-dark);
+      background-color: var(--accent-black);
       color: var(--white);
     }
 
     &:hover, &:focus {
       background-color: var(--accent-dark);
       color: var(--white);
-
-      @mixin dark-mode {
-        background-color: var(--accent);
-      }
     }
   }
 }
