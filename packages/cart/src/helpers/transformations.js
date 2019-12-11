@@ -91,9 +91,9 @@ export const getProviderInfo = url => {
 export const parseLevelDimension = string => {
   const parts = string.split(".").map(s => s.replace("[", "").replace("]", ""));
   if (parts.length > 2) {
-    return {dimension: parts[0], level: parts[2]};
+    return {dimension: parts[0], level: parts[2], selected: true, available: true};
   }
-  return {dimension: parts[0], level: parts[1]};
+  return {dimension: parts[0], level: parts[1], selected: true, available: true};
 };
 
 /** Parse cuts */
@@ -101,7 +101,7 @@ export const parseCut = string => {
   const levelDimension = parseLevelDimension(string);
   let value = string.split(".").map(s => s.replace("[", "").replace("]", "").replace("&", ""));
   value = value[value.length - 1];
-  return {...levelDimension, members: [value]};
+  return {...levelDimension, members: [value], selected: true, available: true};
 };
 
 /** Get level and dimension from Level object */

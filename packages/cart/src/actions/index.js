@@ -101,6 +101,28 @@ export const removeFromCartAction = query => {
   };
 };
 
+/* Toggle cut selection */
+export const TOGGLE_CUT_SELECTION = "@@canon-cart/TOGGLE_CUT_SELECTION";
+export const toggleCutAction = (datasetId, cut) => ({
+  type: TOGGLE_CUT_SELECTION,
+  payload: {
+    datasetId,
+    dimension: cut.dimension,
+    value: !cut.selected
+  }
+});
+
+/* Toggle drilldown selection */
+export const TOGGLE_DRILLDOWN_SELECTION = "@@canon-cart/TOGGLE_DRILLDOWN_SELECTION";
+export const toggleDrilldownAction = (datasetId, drill) => ({
+  type: TOGGLE_DRILLDOWN_SELECTION,
+  payload: {
+    datasetId,
+    dimension: drill.dimension,
+    value: !drill.selected
+  }
+});
+
 /* Toggle cart setting */
 export const TOGGLE_CART_SETTING = "@@canon-cart/TOGGLE_CART_SETTING";
 export const toggleSettingAction = id => ({

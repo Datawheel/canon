@@ -7,6 +7,8 @@ import {
   ADDING_TO_CART,
   REMOVE_FROM_CART,
   TOGGLE_CART_SETTING,
+  TOGGLE_CUT_SELECTION,
+  TOGGLE_DRILLDOWN_SELECTION,
   LOAD_DATASETS,
   SUCCESS_LOAD_DATASET,
   START_PROCESSING_DATASETS,
@@ -54,6 +56,22 @@ function getLoadingIds(list) {
     }
   });
   return loading;
+}
+
+/** Disable drilldowns based on selected shared/date dimensions */
+function disableDrilldownsBySelected(list, shareDimension, dateDimension) {
+  const shareDim = shareDimension ? shareDimension.dimension : false;
+  const dateDim = dateDimension ? dateDimension.dimension : false;
+  Object.keys(list).map(key => {
+    list[key].query.params.drilldowns = list[key].query.params.drilldowns.map(d => {
+      const match = d.dimension === shareDim || d.dimension === dateDim;
+      return {
+        ... d,
+        ...{available: !match, selected: !match}
+      };
+    });
+  });
+  return list;
 }
 
 /**
@@ -156,6 +174,42 @@ function cartStateReducer(state = initialState(), action) {
       return newState;
     }
 
+    case TOGGLE_CUT_SELECTION: {
+      tempObj = Object.assign({}, state.list[`${action.payload.datasetId}`]);
+      tempObj.query.params.cuts = tempObj.query.params.cuts.map(c => {
+        if (action.payload.dimension === c.dimension) {
+          c.selected = action.payload.value;
+        }
+        return Object.assign({}, c);
+      });
+      newState = {
+        ...state,
+        list: {
+          ...state.list,
+          [`${action.payload.datasetId}`]: tempObj
+        }
+      };
+      return newState;
+    }
+
+    case TOGGLE_DRILLDOWN_SELECTION: {
+      tempObj = Object.assign({}, state.list[`${action.payload.datasetId}`]);
+      tempObj.query.params.drilldowns = tempObj.query.params.drilldowns.map(c => {
+        if (action.payload.dimension === c.dimension) {
+          c.selected = action.payload.value;
+        }
+        return Object.assign({}, c);
+      });
+      newState = {
+        ...state,
+        list: {
+          ...state.list,
+          [`${action.payload.datasetId}`]: tempObj
+        }
+      };
+      return newState;
+    }
+
     case LOAD_DATASETS: {
       tempObj = Object.assign({}, state.list);
       Object.keys(tempObj).map(id => {
@@ -252,8 +306,13 @@ function cartStateReducer(state = initialState(), action) {
     }
 
     case SHARED_DIMENSION_CHANGED: {
+      const tempObj = disableDrilldownsBySelected(state.list, action.payload.id, state.controls.selectedDateDimensionLevel);
+
       newState = {
         ...state,
+        list: {
+          ...tempObj
+        },
         controls: {
           ...state.controls,
           selectedSharedDimensionLevel: action.payload.id
@@ -263,8 +322,13 @@ function cartStateReducer(state = initialState(), action) {
     }
 
     case DATE_DIMENSION_CHANGED: {
+      const tempObj = disableDrilldownsBySelected(state.list, state.controls.selectedSharedDimensionLevel, action.payload.id);
+
       newState = {
         ...state,
+        list: {
+          ...tempObj
+        },
         controls: {
           ...state.controls,
           selectedDateDimensionLevel: action.payload.id
