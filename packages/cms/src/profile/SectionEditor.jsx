@@ -7,6 +7,7 @@ import ButtonGroup from "../components/fields/ButtonGroup";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
 import TextCard from "../components/cards/TextCard";
 import deepClone from "../utils/deepClone";
+import blueprintIcons from "../utils/blueprintIcons";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Deck from "../components/interface/Deck";
 import SelectorUsage from "../components/interface/SelectorUsage";
@@ -57,8 +58,9 @@ class SectionEditor extends Component {
 
   save() {
     const {minData} = this.state;
-    const {id, slug, type, allowed, position} = minData;
-    const payload = {id, slug, type, allowed, position};
+    const {id, slug, type, allowed, position, icon} = minData;
+    const payload = {id, slug, type, allowed, position, icon};
+    if (payload.icon === "none") payload.icon = "";
     this.props.updateEntity("section", payload);
   }
 
@@ -88,6 +90,11 @@ class SectionEditor extends Component {
           return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
         }));
 
+    const iconList = [<option key="none" value="none">None</option>]
+      .concat(blueprintIcons.map(icon => 
+        <option key={icon} value={icon}>{icon}</option>
+      ));
+
     // remove Hero from available layouts
     let availableLayouts = minData.types.filter(l => l !== "Hero");
     // if this is the first section, add Hero layout to the front
@@ -116,7 +123,7 @@ class SectionEditor extends Component {
             <TextCard
               key="title-card"
               minData={minData}
-              fields={["title"]}
+              fields={["title", "short"]}
               type="section"
               hideAllowed={true}
             />
@@ -154,6 +161,18 @@ class SectionEditor extends Component {
               onChange={this.changeField.bind(this, "allowed", true)}
             >
               {varOptions}
+            </Select>
+
+            {/* icon select */}
+            <Select
+              label="Icon"
+              namespace="cms"
+              fontSize="xs"
+              inline
+              value={minDataState.icon || "none"}
+              onChange={this.changeField.bind(this, "icon", true)}
+            >
+              {iconList}
             </Select>
 
             {/* layout select */}

@@ -48,7 +48,7 @@ accent-black: "#7F6516"
 
 # UI colors
 alert-dark:         "#75224D"
-alert:              "#992C64"
+alert:              "#C6315C"
 alert-light:        "#DB64A6"
 
 type-number:        "#8EB6FF"

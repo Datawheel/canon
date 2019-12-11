@@ -42,3 +42,5 @@
     top: -3px;
   }
 }
+
+.cms-var-table-cell.warning { @mixin error-text; }

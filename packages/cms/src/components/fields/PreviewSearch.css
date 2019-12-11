@@ -109,8 +109,10 @@
 /* close button */
 .cms-preview-search > .cms-preview-search-close-button {
   /* positioning */
-  @mixin absolute-vertical-center;
-  right: 0.425em;
+  position: absolute;
+  top: 0.375em;
+  right: 0;
+  z-index: 1;
   /* transitions */
   transition:
     color 0.1s ease-out,
@@ -128,11 +130,12 @@
   /* hidden state */
   &[tabindex="-1"] {
     opacity: 0;
+    z-index: -1;
   }
 
   &:hover, &:focus {
     outline: none;
-    transform: translateY(-50%) scale(1.25); /* scale up while keeping it vertically centered */
+    transform: scale(1.25);
     color: var(--dark-3);
 
     @mixin dark-mode {
@@ -176,4 +179,9 @@
     text-align: left;
     z-index: 3; /* above cms-card-cover-button */
   }
+}
+
+.cms-preview-search .cms-search-error-message {
+  @mixin error-text;
+  padding: 0.25em 1em;
 }

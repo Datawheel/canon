@@ -9,8 +9,10 @@ import AceWrapper from "./AceWrapper";
 import VariableEditorUI from "./VariableEditorUI";
 import VisualizationEditorUI from "./VisualizationEditorUI";
 import Select from "../fields/Select";
+
 import TextButtonGroup from "../fields/TextButtonGroup";
 import TextInput from "../fields/TextInput";
+import AllowedSelector from "../interface/AllowedSelector";
 import Alert from "../interface/Alert";
 import Dialog from "../interface/Dialog";
 
@@ -240,17 +242,6 @@ class VariableEditor extends Component {
       formatter: <Fragment>Be sure to return a <strong>string</strong> that represents your formatted content.</Fragment>
     };
 
-    const varOptions = [<option key="always" value="always">Always</option>]
-      .concat(Object.keys(variables)
-        .filter(key => !key.startsWith("_"))
-        .sort((a, b) => a.localeCompare(b))
-        .map(key => {
-          const value = variables[key];
-          const type = typeof value;
-          const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
-          return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
-        }));
-
     if (!data) return null;
 
     // add the UI mode toggle to footer
@@ -360,16 +351,11 @@ class VariableEditor extends Component {
 
             {/* visibility */}
             {(type === "profile_visualization" || type === "section_visualization") &&
-              <Select
-                label="Visible"
-                inline
-                fontSize="xs"
-                namespace="cms"
-                value={data.allowed || "always"}
+              <AllowedSelector
+                variables={variables}
+                value={data.allowed !== undefined ? data.allowed : "always"}
                 onChange={this.chooseVariable.bind(this)}
-              >
-                {varOptions}
-              </Select>
+              />
             }
           </div>
         </Dialog>

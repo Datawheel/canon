@@ -99,7 +99,7 @@ export default class Card extends Component {
           {onEdit && <Icon className="cms-card-heading-icon" icon="cog" />}
           {/* card title */}
           <h3 className="cms-card-heading-text u-font-xs">
-            {stripEntities(title) || "missing `title` prop in Card.jsx"}
+            {stripEntities(title) || "Add a title"}
           </h3>
           {/* buttons show to the right of the title */}
           {buttons.length

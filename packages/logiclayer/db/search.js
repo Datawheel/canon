@@ -7,23 +7,20 @@ module.exports = function(sequelize, db) {
         type: db.TEXT
       },
       zvalue: db.DOUBLE,
-      dimension: db.TEXT,
-      name: db.TEXT,
-      display: db.TEXT,
-      hierarchy: db.TEXT,
+      dimension: {
+        primaryKey: true,
+        type: db.TEXT
+      },
+      hierarchy: {
+        primaryKey: true,
+        type: db.TEXT
+      },
       stem: db.INTEGER,
-      slug: db.TEXT,
-      keywords: db.ARRAY(db.TEXT),
-      imageId: db.INTEGER
+      slug: db.TEXT
     },
     {
+      tableName: "canon_cms_search",
       freezeTableName: true,
-      indexes: [
-        {
-          unique: true,
-          fields: ["name", "id", "dimension", "hierarchy"]
-        }
-      ],
       timestamps: false
     }
   );

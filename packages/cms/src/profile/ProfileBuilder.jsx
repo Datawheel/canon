@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
 import {NonIdealState} from "@blueprintjs/core";
@@ -48,51 +48,61 @@ class ProfileBuilder extends Component {
   render() {
 
     const {toolboxVisible} = this.state;
-    const {currentPid, gensLoaded, gensTotal, genLang, pathObj, previews, profilesLoaded} = this.props.status;
+    const {currentPid, gensLoaded, gensTotal, genLang, pathObj, previews, profilesLoaded, searchLoading} = this.props.status;
 
     const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = editorTypes[type];
     const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
 
+    const gensRecompiling = gensLoaded !== gensTotal;
+    const gensBusy = `${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`;
+    const gensDone = "Variables Loaded";
+
+    const searchRecompiling = searchLoading;
+    const searchBusy = "Loading Search Members, please wait.";
+    const searchDone = "Members Loaded.";
+
     if (!profilesLoaded) return null;
 
     return (
-      <div className="cms-panel profile-panel" id="profile-builder">
-        <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
-          { Editor && currentPid
-            ? <Editor id={id}>
-              <Header dimensions={previews}/>
-              <DimensionBuilder />
-            </Editor>
-            : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu above." visual="path-search" />
-          }
+      <Fragment>
+        <div className="cms-panel profile-panel" id="profile-builder">
+          <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
+            {Editor && currentPid
+              ? <Editor id={id}>
+                <Header dimensions={previews}/>
+                <DimensionBuilder />
+              </Editor>
+              : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu above." visual="path-search" />
+            }
 
-          <Toolbox
-            id={currentPid}
-            toolboxVisible={toolboxVisible}
-          >
-            <div className="cms-toolbox-collapse-wrapper u-hide-below-lg">
-              <Button
-                className="cms-toolbox-collapse-button"
-                fontSize="xs"
-                icon={toolboxVisible ? "caret-right" : "caret-left"}
-                iconOnly
-                namespace="cms"
-                onClick={() => this.setState({toolboxVisible: !toolboxVisible})}
-              >
-                {toolboxVisible ? "hide toolbox" : "show toolbox"}
-              </Button>
-            </div>
-          </Toolbox>
-
-          <Status
-            recompiling={gensLoaded !== gensTotal}
-            busy={`${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`}
-            done="Variables Loaded"
-          />
+            <Toolbox
+              id={currentPid}
+              toolboxVisible={toolboxVisible}
+            >
+              <div className="cms-toolbox-collapse-wrapper u-hide-below-lg">
+                <Button
+                  className="cms-toolbox-collapse-button"
+                  fontSize="xs"
+                  icon={toolboxVisible ? "caret-right" : "caret-left"}
+                  iconOnly
+                  namespace="cms"
+                  onClick={() => this.setState({toolboxVisible: !toolboxVisible})}
+                >
+                  {toolboxVisible ? "hide toolbox" : "show toolbox"}
+                </Button>
+              </div>
+            </Toolbox>
+          </div>
         </div>
-      </div>
+
+        <Status
+          recompiling={gensRecompiling || searchRecompiling}
+          busy={gensRecompiling ? gensBusy : searchBusy}
+          done={gensRecompiling ? gensDone : searchDone}
+        />
+      </Fragment>
     );
   }
 }

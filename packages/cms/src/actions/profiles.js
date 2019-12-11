@@ -1,6 +1,7 @@
 import axios from "axios";
 import {assign} from "d3plus-common";
 import deepClone from "../utils/deepClone";
+import getLocales from "../utils/getLocales";
 
 /** */
 export function getProfiles() {
@@ -33,6 +34,26 @@ export function deleteProfile(id) {
 }
 
 /** */
+export function duplicateProfile(id) { 
+  return function(dispatch, getStore) {
+    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/duplicate`, {id})
+      .then(({data}) => {
+        dispatch({type: "PROFILE_DUPLICATE", data});
+      });
+  };
+}
+
+/** */
+export function duplicateSection(id, pid) { 
+  return function(dispatch, getStore) {
+    return axios.post(`${getStore().env.CANON_API}/api/cms/section/duplicate`, {id, pid})
+      .then(({data}) => {
+        dispatch({type: "SECTION_DUPLICATE", data});
+      });
+  };
+}
+
+/** */
 export function swapEntity(type, id) {
   return function(dispatch, getStore) {
     return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/swap`, {id})
@@ -45,10 +66,13 @@ export function swapEntity(type, id) {
 /** */
 export function modifyDimension(payload) { 
   return function(dispatch, getStore) {
+    dispatch({type: "SEARCH_LOADING"});
     const diffCounter = getStore().cms.status.diffCounter + 1;
     return axios.post("/api/cms/profile/upsertDimension", payload)
       .then(({data}) => {
         dispatch({type: "DIMENSION_MODIFY", data, diffCounter});
+        // TODO: Remove reset previews - have all profiles come from the server 
+        // with their default values already set.
       });
   };
 }
@@ -77,10 +101,13 @@ export function newEntity(type, payload) {
 /** */
 export function updateEntity(type, payload) { 
   return function(dispatch, getStore) {
+    // Updates might need to trigger re-running certain displays. Use diffCounter to track changes
     const diffCounter = getStore().cms.status.diffCounter + 1;
+    // Formatters require locales in the payload to know what languages to compile for
+    const locales = getLocales(getStore().env);
     return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/update`, payload)
       .then(({data}) => {
-        dispatch({type: `${type.toUpperCase()}_UPDATE`, data, diffCounter});
+        dispatch({type: `${type.toUpperCase()}_UPDATE`, data, diffCounter, locales});
       });
   };
 }
@@ -88,9 +115,13 @@ export function updateEntity(type, payload) {
 /** */
 export function deleteEntity(type, payload) { 
   return function(dispatch, getStore) {
+    // Deletes might need to trigger re-running certain displays. Use diffCounter to track changes
+    const diffCounter = getStore().cms.status.diffCounter + 1;
+    // Formatters require locales in the payload to know what languages to compile for
+    const locales = getLocales(getStore().env);
     axios.delete(`${getStore().env.CANON_API}/api/cms/${type}/delete`, {params: payload})
       .then(({data}) => {
-        dispatch({type: `${type.toUpperCase()}_DELETE`, data});
+        dispatch({type: `${type.toUpperCase()}_DELETE`, data, diffCounter, locales});
       });
   };
 }
@@ -170,7 +201,6 @@ export function resetPreviews() {
 export function fetchVariables(config, useCache) { 
   return function(dispatch, getStore) {    
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
-    const diffCounter = getStore().cms.status.diffCounter + 1;
 
     const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
     let variables = deepClone(thisProfile.variables);
@@ -181,6 +211,7 @@ export function fetchVariables(config, useCache) {
     // useCache will be true if the front-end is telling us we have the variables already. Short circuit the gets/puts
     // However, still increment diffCounter so a re-render happens on cards that rely on variables.
     if (useCache && thisProfile.variables) {
+      const diffCounter = getStore().cms.status.diffCounter + 1;
       dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables), diffCounter}});
     }
     else {
@@ -188,7 +219,7 @@ export function fetchVariables(config, useCache) {
       if (localeSecondary) locales.push(localeSecondary);
       for (const thisLocale of locales) {
         // If the config is for a materializer, or its for zero-length generators (like in a new profile) 
-        // don't run generators. Just use our current variables for the POST action for materializers
+        // don't run custom generators. Just use our current variables for the POST action for materializers
         if (config.type === "materializer" || config.type === "generator" && config.ids.length === 0) {
           let paramString = "";
           previews.forEach((p, i) => {
@@ -198,6 +229,10 @@ export function fetchVariables(config, useCache) {
           if (config.type === "materializer") {
             const mid = config.ids[0];
             query = {materializer: mid};
+          }
+          // Generator 0 is a special short-circuit ID that returns only Attributes variables
+          else if (config.type === "generator") {
+            query = {generator: 0};
           }
           Object.keys(query).forEach(k => {
             paramString += `&${k}=${query[k]}`;
@@ -212,20 +247,31 @@ export function fetchVariables(config, useCache) {
               });
               delete variables[thisLocale]._matStatus[mid];
             }
+            // Once pruned, we can POST the variables to the materializer endpoint
+            axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+              variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+              dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+            });
           }
           else if (config.type === "generator") {
+            // Prune all materializers (as they are all about to be re-run)
             Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
               Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
                 delete variables[thisLocale][k]; 
               });
               delete variables[thisLocale]._matStatus[mid];
             });
+            // We only arrive here in the case of zero-length generators. Zero length generators STILL NEED to run 
+            // the special built-in attribute endpoint, to handle the case of new profiles (and generator-less profiles)
+            axios.get(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
+              variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
+              axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+                variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+                const diffCounter = getStore().cms.status.diffCounter + 1;
+                dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+              });
+            });
           }
-          // Once pruned, we can POST the variables to the materializer endpoint
-          axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-            variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-            dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
-          });
         }
         else {
           const gids = config.ids || [];
@@ -267,6 +313,7 @@ export function fetchVariables(config, useCache) {
                 });
                 axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
                   variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+                  const diffCounter = getStore().cms.status.diffCounter + 1;
                   dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
                 });
               }

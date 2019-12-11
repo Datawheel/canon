@@ -11,6 +11,7 @@ import libs from "../utils/libs";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
+import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
 
@@ -171,6 +172,8 @@ class Profile extends Component {
       <Fragment>
         <div className="cp">
           <Hero profile={profile} contents={heroSection || null} />
+
+          <Subnav sections={groupedSections} />
 
           {/* main content sections */}
           <main className="cp-main" id="main">

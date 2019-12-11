@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import PropTypes from "prop-types";
 import {dataFold} from "d3plus-viz";
 
 import vizLookup from "./vizLookup";
@@ -338,7 +337,8 @@ class VisualizationEditorUI extends Component {
   render() {
     const {object, rebuildAlertOpen, payload} = this.state;
     const {localeDefault} = this.props.status;
-    const formatters = this.context.formatters[localeDefault];
+    const {formatterFunctions} = this.props.resources;
+    const formatters = formatterFunctions[localeDefault];
     const formatterList = formatters ? Object.keys(formatters).sort((a, b) => a.localeCompare(b)) : [];
     const selectedColumns = object.columns || [];
     const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
@@ -473,13 +473,10 @@ class VisualizationEditorUI extends Component {
   }
 }
 
-VisualizationEditorUI.contextTypes = {
-  formatters: PropTypes.object
-};
-
 const mapStateToProps = state => ({
   env: state.env,
-  status: state.cms.status
+  status: state.cms.status,
+  resources: state.cms.resources
 });
 
 export default connect(mapStateToProps)(VisualizationEditorUI);

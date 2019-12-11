@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import PropTypes from "prop-types";
 
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import deepClone from "../../utils/deepClone";
@@ -11,6 +10,7 @@ import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import Loading from "components/Loading";
 import Card from "./Card";
 import LocaleName from "./components/LocaleName";
+import AllowedSelector from "../interface/AllowedSelector";
 import Dialog from "../interface/Dialog";
 import RichTextEditor from "../editors/RichTextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
@@ -30,7 +30,8 @@ class TextCard extends Component {
       secondaryDisplayData: null,
       initialData: null,
       alertObj: false,
-      isDirty: false
+      isDirty: false,
+      customAllowed: false
     };
   }
 
@@ -50,7 +51,6 @@ class TextCard extends Component {
     if (variablesChanged || selectorsChanged || queryChanged) {
       this.formatDisplay.bind(this)();
     }
-
   }
 
   populateLanguageContent(minData) {
@@ -107,6 +107,7 @@ class TextCard extends Component {
   formatDisplay() {
     const {selectors} = this.props;
     const {localeDefault, localeSecondary, query} = this.props.status;
+    const {formatterFunctions} = this.props.resources;
     // Stories use TextCards, but don't need variables.
     const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
 
@@ -121,7 +122,7 @@ class TextCard extends Component {
     // polluting the object itself
     minData.selectors = selectors;
 
-    const primaryFormatters = this.context.formatters[localeDefault];
+    const primaryFormatters = formatterFunctions[localeDefault];
     // Swap vars, and extract the actual (multilingual) content
     const content = varSwapRecursive(minData, primaryFormatters, variables, query).content;
     const primaryLang = content.find(c => c.locale === localeDefault);
@@ -137,7 +138,7 @@ class TextCard extends Component {
 
     if (localeSecondary) {
       secondaryDisplayData = {};
-      const secondaryFormatters = this.context.formatters[localeSecondary];
+      const secondaryFormatters = formatterFunctions[localeSecondary];
       const content = varSwapRecursive(minData, secondaryFormatters, variables, query).content;
       const secondaryLang = content.find(c => c.locale === localeSecondary);
 
@@ -242,7 +243,7 @@ class TextCard extends Component {
 
     const entityList = ["profile", "section", "story", "storysection"];
     const availableFields = ["id", "locale", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"];
-    const displaySort = ["title", "value", "subtitle", "description", "tooltip"];
+    const displaySort = ["title", "value", "subtitle", "description", "tooltip", "short"];
 
     const primaryDisplay = Object.keys(primaryDisplayData)
       .filter(k => typeof primaryDisplayData[k] === "string" && !availableFields.includes(k))
@@ -265,7 +266,7 @@ class TextCard extends Component {
     primaryDisplay.forEach(d => {
       if (!title && d.text) title = d.text;
     });
-    if (!title) title = "Missing Title";
+    if (!title) title = "Click to Edit";
 
     // define props for Card
     const cardProps = {
@@ -374,6 +375,15 @@ class TextCard extends Component {
                 }
               </div>
             }
+
+            {/* visibility */}
+            {!hideAllowed &&
+              <AllowedSelector
+                variables={variables}
+                value={minDataState.allowed !== undefined ? minDataState.allowed : "always"}
+                onChange={this.chooseVariable.bind(this)}
+              />
+            }
           </div>
 
           {showVars &&
@@ -385,12 +395,9 @@ class TextCard extends Component {
   }
 }
 
-TextCard.contextTypes = {
-  formatters: PropTypes.object
-};
-
 const mapStateToProps = state => ({
   status: state.cms.status,
+  resources: state.cms.resources,
   selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
 });
 

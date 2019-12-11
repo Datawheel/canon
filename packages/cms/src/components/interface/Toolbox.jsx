@@ -1,11 +1,13 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import Deck from "./Deck";
+
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
 import FilterSearch from "../fields/FilterSearch";
 import VariableCard from "../cards/VariableCard";
 import SelectorCard from "../cards/SelectorCard";
+
 import ConsoleVariable from "../variables/ConsoleVariable";
 
 import {fetchVariables, newEntity} from "../../actions/profiles";
@@ -37,8 +39,18 @@ class Toolbox extends Component {
     if (changedSinglePreview) {
       this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
     }
+    // TODO: This preview-changing detection is a little janky. Change NavBar.jsx (and all cmsRoute Profile gets)
+    // To always deliver profiles with previews already set, remove ResetPreviews, and just call FetchVariables immediately.
     if (changedEntireProfile) {
-      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)}, true);
+      const prevSlugs = prevProps.status.previews ? prevProps.status.previews.map(p => p.slug) : [];
+      const currSlugs = this.props.status.previews ? this.props.status.previews.map(p => p.slug) : [];
+      const addedDimension = prevSlugs.length === 0 && currSlugs.length === 1;
+      const deletedDimension = prevSlugs.length === 1 && currSlugs.length === 0;
+      // This check is not perfect, and it fires when moving from profiles with 0 to 1 dimensions and vice versa.
+      // However, the only side effect is not using the cache and re-running the generators.
+      const sameProfileButChangedMeta = addedDimension || deletedDimension || prevSlugs.some(slug => currSlugs.includes(slug));
+      const useCache = !sameProfileButChangedMeta;
+      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)}, useCache);
     }
     if (localeChanged) {
       this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
@@ -47,9 +59,9 @@ class Toolbox extends Component {
     const {justDeleted} = this.props.status;
     if (JSON.stringify(prevProps.status.justDeleted) !== JSON.stringify(justDeleted)) {
       // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
-    // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
+      // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
       if (justDeleted.type === "generator") {
-        this.props.fetchVariables({type: "generator", ids: [justDeleted.id]});  
+        this.props.fetchVariables({type: "generator", ids: [justDeleted.id]});
       }
       else if (justDeleted.type === "materializer") {
         this.props.fetchVariables({type: "materializer", ids: [justDeleted.id]});
@@ -76,7 +88,7 @@ class Toolbox extends Component {
     const {query} = this.state;
     const {forceOpen, forceID, forceType} = this.props.status;
     const fields = ["name", "description", "title"];
-    const matched = fields.map(f => d[f] ? d[f].toLowerCase().includes(query) : false).some(d => d);
+    const matched = fields.map(f => d[f] !== undefined ? d[f].toLowerCase().includes(query) : false).some(d => d);
     const opened = d.type === forceType && d.id === forceID && forceOpen;
     return matched || opened;
   }
@@ -118,10 +130,18 @@ class Toolbox extends Component {
 
     if (!varsLoaded || !defLoaded || !locLoaded) return <div className="cms-toolbox is-loading"><h3>Loading...</h3></div>;
 
-    const generators = profile.generators
+    const attrGen = {
+      id: "attributes",
+      name: "Attributes",
+      locked: true
+    };
+
+    let generators = profile.generators
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(d => Object.assign({}, {type: "generator"}, d))
       .filter(this.filterFunc.bind(this));
+
+    if (this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
 
     const materializers = profile.materializers
       .sort((a, b) => a.ordering - b.ordering)
@@ -213,7 +233,7 @@ class Toolbox extends Component {
               cards={generators.map(g =>
                 <VariableCard
                   key={g.id}
-                  id={g.id}
+                  minData={g}
                   context="generator"
                   hidden={!detailView}
                   attr={profile.attr || {}}
@@ -232,7 +252,7 @@ class Toolbox extends Component {
               cards={materializers.map(m =>
                 <VariableCard
                   key={m.id}
-                  id={m.id}
+                  minData={m}
                   context="materializer"
                   hidden={!detailView}
                   type="materializer"
@@ -251,7 +271,7 @@ class Toolbox extends Component {
               cards={selectors.map(s =>
                 <SelectorCard
                   key={s.id}
-                  id={s.id}
+                  minData={s}
                 />
               )}
             />
@@ -267,7 +287,7 @@ class Toolbox extends Component {
                 <VariableCard
                   context="formatter"
                   key={f.id}
-                  id={f.id}
+                  minData={f}
                   type="formatter"
                   variables={{}}
                 />

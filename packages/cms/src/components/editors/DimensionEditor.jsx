@@ -39,8 +39,8 @@ class DimensionEditor extends Component {
         slug: meta.slug,
         cubeName: meta.cubeName,
         dimName: meta.dimension,
-        dimension: selectedDimension.name,
-        hierarchies: selectedDimension.hierarchies,
+        dimension: selectedDimension ? selectedDimension.name : "",
+        hierarchies: selectedDimension ? selectedDimension.hierarchies : "",
         levels: meta.levels,
         measure: meta.measure
       };
@@ -157,7 +157,7 @@ class DimensionEditor extends Component {
           value={profileData.dimension}
           onChange={this.chooseDimension.bind(this)}
         >
-          <option value="default">Choose a selector</option>
+          <option value="default">Choose a Dimension</option>
           {dimOptions}
         </Select>
 

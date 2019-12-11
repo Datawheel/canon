@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import axios from "axios";
-import PropTypes from "prop-types";
 import {Icon} from "@blueprintjs/core";
 import {event, select} from "d3-selection";
 import {uuid} from "d3plus-common";
@@ -46,21 +45,20 @@ class PreviewSearch extends Component {
 
   onSelect(result) {
     setTimeout(() => {
-      this.input.blur();
       this.setState({active: false, userQuery: result.name});
     }, 10);
   }
 
   onToggle() {
     if (this.state.active) {
-      this.input.blur();
-      this.setState({active: false});
+      this.setState({active: false, userQuery: ""});
+      setTimeout(() => this.input.focus());
     }
     else this.input.focus();
   }
 
   componentDidMount() {
-    const {primary, searchEmpty} = this.props;
+    const {primary, searchEmpty, onSelectPreview} = this.props;
     const {id} = this.state;
 
     select(document).on(`mousedown.${id}`, () => {
@@ -70,7 +68,6 @@ class PreviewSearch extends Component {
     });
 
     select(document).on(`keydown.${id}`, () => {
-      const {router} = this.context;
       const {active, results} = this.state;
       const key = event.keyCode;
 
@@ -96,10 +93,11 @@ class PreviewSearch extends Component {
         const d = results[currentIndex];
 
         if (key === ENTER && highlighted) {
-          this.input.blur();
           this.setState({active: false, userQuery: d.name});
-          const anchor = highlighted.querySelector("a");
-          if (anchor) router.push(anchor.href);
+          const button = highlighted.querySelector("button");
+          if (button && onSelectPreview) {
+            onSelectPreview(d); // callback function passed from DimensionCard.jsx
+          }
         }
         else if (key === DOWN || key === UP) {
           if (!highlighted) {
@@ -150,11 +148,19 @@ class PreviewSearch extends Component {
           value={userQuery}
           onChange={this.onChange.bind(this)}
           onFocus={this.onFocus.bind(this)}
+          autoComplete="off"
+          name={Math.random()}
           ref={input => this.input = input}
         />
 
         {/* search icon */}
         <Icon className="cms-preview-search-icon" icon="search" />
+
+        {/* close button */}
+        <button className="cms-preview-search-close-button" tabIndex={ userQuery && userQuery.length ? 0 : -1 } onClick={() => this.onToggle()}>
+          <span className="u-visually-hidden">reset search</span>
+          <Icon className="cms-preview-search-close-button-icon" icon="cross" />
+        </button>
 
         {showResults
           ? <ul className={`cms-search-result-list ${active ? "is-visible" : "is-hidden"}`}>
@@ -163,29 +169,20 @@ class PreviewSearch extends Component {
                 className="cms-search-result-item u-font-xs"
                 onClick={this.onSelect.bind(this, result)}
                 key={result.id}
+                result={result}
               >
                 {renderResults(result, this.props)}
               </li>
             )}
             {!results.length &&
-              <li className="cms-search-error-message u-font-xs">No results found</li>
+              <li className="cms-search-error-message u-font-xxs">No results found</li>
             }
           </ul> : null
         }
-
-        {/* close button */}
-        {/*  <button className="cms-preview-search-close-button" tabIndex={ value && value.length ? 0 : -1 } onClick={onReset}>
-          <span className="u-visually-hidden">reset search</span>
-          <Icon className="cms-preview-search-close-button-icon" icon="cross" />
-        </button>*/}
       </div>
     );
   }
 }
-
-PreviewSearch.contextTypes = {
-  router: PropTypes.object
-};
 
 PreviewSearch.defaultProps = {
   fontSize: "md",

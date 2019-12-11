@@ -4,9 +4,10 @@ import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 
 import Button from "../fields/Button";
+import Select from "../fields/Select";
 import Alert from "../interface/Alert";
 
-import {deleteEntity, deleteProfile} from "../../actions/profiles";
+import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection} from "../../actions/profiles";
 import {deleteStory} from "../../actions/stories";
 
 import "./Header.css";
@@ -16,8 +17,35 @@ class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      itemToDelete: null
+      itemToDelete: null,
+      itemToDuplicate: null
     };
+  }
+
+  maybeDuplicate() {
+    const {pathObj, currentPid} = this.props.status;
+    if (pathObj.tab === "profiles") {
+      const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
+      const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
+      if (type && id) {
+        this.setState({itemToDuplicate: {type, id}, profileTarget: currentPid});
+      }
+    }
+    else if (pathObj.tab === "stories") {
+      const type = pathObj.storysection ? "storysection" : pathObj.story ? "story" : null;
+      const id = pathObj.storysection ? Number(pathObj.storysection) : pathObj.story ? Number(pathObj.story) : null;
+      if (type && id) {
+        this.setState({itemToDuplicate: {type, id}});
+      }
+    }
+  }
+
+  duplicate(itemToDuplicate) {
+    const {type, id} = itemToDuplicate;
+    const {profileTarget} = this.state;
+    if (type === "profile") this.props.duplicateProfile(id);
+    if (type === "section") this.props.duplicateSection(id, profileTarget);
+    this.setState({itemToDuplicate: null});
   }
 
   maybeDelete() {
@@ -47,11 +75,15 @@ class Header extends Component {
     this.setState({itemToDelete: null});
   }
 
+  chooseProfileTarget(e) {
+    this.setState({profileTarget: e.target.value});
+  }
+
   render() {
 
     const {dimensions, profiles, stories} = this.props;
     const {currentPid, currentStoryPid, pathObj} = this.props.status;
-    const {itemToDelete} = this.state;
+    const {itemToDelete, itemToDuplicate, profileTarget} = this.state;
 
     let domain = this.props;
     if (typeof domain !== "undefined" && typeof window !== "undefined" && window.document.location.origin) {
@@ -147,10 +179,22 @@ class Header extends Component {
             }
           </span>
 
-          {/* delete entity */}
           {/* TODO: make this a popover once we have more options */}
+          {/* duplicate entity */}
+          {pathObj.tab === "profiles" && <div className="cms-header-actions-container" key="header-actions-container-duplicate">
+            <Button
+              className="cms-header-actions-button cms-header-delete-button"
+              onClick={this.maybeDuplicate.bind(this)}
+              icon="duplicate"
+              namespace="cms"
+              fontSize="xs"
+            >
+              {`Duplicate ${entityType === "storysection" ? "section" : entityType}`}
+            </Button>
+          </div>}
+          {/* delete entity */}
           {showDeleteButton &&
-            <div className="cms-header-actions-container" key="header-actions-container">
+            <div className="cms-header-actions-container" key="header-actions-container-delete">
               <Button
                 className="cms-header-actions-button cms-header-delete-button"
                 onClick={this.maybeDelete.bind(this)}
@@ -164,6 +208,31 @@ class Header extends Component {
           }
         </header>
 
+        <Alert
+          isOpen={itemToDuplicate}
+          cancelButtonText="Cancel"
+          confirmButtonText="Duplicate"
+          iconName="duplicate"
+          intent={Intent.SUCCESS}
+          onConfirm={() => this.duplicate.bind(this)(itemToDuplicate)}
+          onCancel={() => this.setState({itemToDuplicate: null})}
+        >
+          {entityType === "profile"
+            ? <div>Duplicate this Profile?</div>
+            : <div>
+              Choose a profile in which to duplicate this section:
+              <Select
+                label="Target Profile"
+                namespace="cms"
+                value={profileTarget}
+                onChange={this.chooseProfileTarget.bind(this)}
+                inline
+              >
+                {profiles.map(p => <option key={p.id} value={p.id}>{p.meta.map(m => m.slug).join("/")}</option>)}
+              </Select>
+            </div>
+          }
+        </Alert>
         <Alert
           isOpen={itemToDelete}
           cancelButtonText="Cancel"
@@ -191,6 +260,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
   deleteProfile: id => dispatch(deleteProfile(id)),
+  duplicateProfile: id => dispatch(duplicateProfile(id)),
+  duplicateSection: (id, pid) => dispatch(duplicateSection(id, pid)),
   deleteStory: id => dispatch(deleteStory(id))
 });
 
