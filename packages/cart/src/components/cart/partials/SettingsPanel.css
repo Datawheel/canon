@@ -1,3 +1,5 @@
 .canon-cart-settings-panel{
-
+  & .settings-checkbox-container{
+    margin: 8px;
+  }
 }

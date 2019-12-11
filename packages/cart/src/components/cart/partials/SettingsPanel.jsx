@@ -34,9 +34,9 @@ class SettingsPanel extends React.Component {
 
     return (
       <div className={"canon-cart-settings-panel"}>
-
+        <li className="bp3-menu-header"><h6 className="bp3-heading">Settings</h6></li>
         {Object.keys(settings).map(key =>
-          <div key={key}>
+          <div className="settings-checkbox-container" key={key}>
             <Checkbox checked={settings[key].value} label={settings[key].label} disabled={emptyCart} onChange={this.onChangeSetting.bind(this, key)} />
           </div>
         )}

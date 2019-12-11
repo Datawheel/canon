@@ -37,8 +37,8 @@ class DatasetList extends React.Component {
         }
         {datasetsIds.length > 0 &&
           <div>
-            <p>Datasets: {datasetsIds.length}</p>
             <ul className="canon-cart-dataset-ul">
+              <li className="bp3-menu-header"><h6 className="bp3-heading">Datasets: {datasetsIds.length}</h6></li>
               {datasetsIds.map((did, ix) =>
                 <DatasetListItem key={ix} ix={ix} dataset={datasets[did]} showOptions={showOptions} />
               )}

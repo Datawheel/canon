@@ -1,10 +1,10 @@
-.canon-dataset-list-tooltip{
-  & .bp3-popover-target{
-    width: 100%;
-  }
-}
 .canon-cart-dataset-list-item{
   & .bp3-control{
     margin-bottom: 0px;
+  }
+  & .canon-dataset-list-tooltip{
+    & .bp3-popover-target{
+      width: 100%;
+    }
   }
 }
