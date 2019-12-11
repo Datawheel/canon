@@ -294,15 +294,16 @@ const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, share
 
       // Add extra drilldowns
       datasetObj.query.params.drilldowns.map(drill => {
-        if ((!sharedDimensionsLevel || sharedDimensionsLevel.dimension !== drill.dimension) &&
-          (!dateDimensionsLevel || dateDimensionsLevel.dimension !== drill.dimension)) {
+        if (drill.selected && drill.available) {
           query.addDrilldown(drill);
         }
       });
 
       // Add extra cuts
       datasetObj.query.params.cuts.map(c => {
-        query.addCut(c, c.members);
+        if (c.selected && c.available) {
+          query.addCut(c, c.members);
+        }
       });
 
       multiClient.execQuery(query)

@@ -176,17 +176,27 @@ function cartStateReducer(state = initialState(), action) {
 
     case TOGGLE_CUT_SELECTION: {
       tempObj = Object.assign({}, state.list[`${action.payload.datasetId}`]);
-      tempObj.query.params.cuts = tempObj.query.params.cuts.map(c => {
+      tempObj = tempObj.query.params.cuts.map(c => {
+        const selectedObj = Object.assign({}, c);
         if (action.payload.dimension === c.dimension) {
-          c.selected = action.payload.value;
+          selectedObj.selected = action.payload.value;
         }
-        return Object.assign({}, c);
+        return selectedObj;
       });
       newState = {
         ...state,
         list: {
           ...state.list,
-          [`${action.payload.datasetId}`]: tempObj
+          [`${action.payload.datasetId}`]: {
+            ...state.list[`${action.payload.datasetId}`],
+            query: {
+              ...state.list[`${action.payload.datasetId}`].query,
+              params: {
+                ...state.list[`${action.payload.datasetId}`].query.params,
+                cuts: [...tempObj]
+              }
+            }
+          }
         }
       };
       return newState;
@@ -194,17 +204,27 @@ function cartStateReducer(state = initialState(), action) {
 
     case TOGGLE_DRILLDOWN_SELECTION: {
       tempObj = Object.assign({}, state.list[`${action.payload.datasetId}`]);
-      tempObj.query.params.drilldowns = tempObj.query.params.drilldowns.map(c => {
+      tempObj = tempObj.query.params.drilldowns.map(c => {
+        const selectedObj = Object.assign({}, c);
         if (action.payload.dimension === c.dimension) {
-          c.selected = action.payload.value;
+          selectedObj.selected = action.payload.value;
         }
-        return Object.assign({}, c);
+        return selectedObj;
       });
       newState = {
         ...state,
         list: {
           ...state.list,
-          [`${action.payload.datasetId}`]: tempObj
+          [`${action.payload.datasetId}`]: {
+            ...state.list[`${action.payload.datasetId}`],
+            query: {
+              ...state.list[`${action.payload.datasetId}`].query,
+              params: {
+                ...state.list[`${action.payload.datasetId}`].query.params,
+                drilldowns: [...tempObj]
+              }
+            }
+          }
         }
       };
       return newState;

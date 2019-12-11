@@ -21,6 +21,7 @@ class Cart extends React.Component {
     super(props);
     this.state = {showSidebar: true};
     this.toggleSidebar = this.toggleSidebar.bind(this);
+    this.getArrayOfSelectedExtra = this.getArrayOfSelectedExtra.bind(this);
   }
 
   getChildContext() {
@@ -41,7 +42,17 @@ class Cart extends React.Component {
     this.loadAllDatasets(false);
   }
 
+  getArrayOfSelectedExtra(datasets) {
+    const selectedArray = [];
+    Object.keys(datasets).map(did => {
+      datasets[did].query.params.cuts.map(c => selectedArray.push(c.selected));
+      datasets[did].query.params.drilldowns.map(c => selectedArray.push(c.selected));
+    });
+    return JSON.stringify(selectedArray);
+  }
+
   componentDidUpdate(prevProps) {
+
     const readyAndLoaded = this.props.cartReady && !this.props.cartLoading;
 
     // Datasets changed
@@ -53,7 +64,13 @@ class Cart extends React.Component {
     if (readyAndLoaded) {
       // Dimensions
       const changedDims = prevProps.controls !== this.props.controls;
-      if (changedSettings || changedDims) {
+      if (changedDims) {
+        this.loadAllDatasets(true);
+      }
+
+      // Extra Cuts & Extra Drilldowns changed
+      const changedExtra = this.getArrayOfSelectedExtra(prevProps.datasets) !== this.getArrayOfSelectedExtra(this.props.datasets);
+      if (changedExtra) {
         this.loadAllDatasets(true);
       }
 
