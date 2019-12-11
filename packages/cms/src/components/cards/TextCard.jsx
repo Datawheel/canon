@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
-import {Dialog} from "@blueprintjs/core";
 
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import deepClone from "../../utils/deepClone";
@@ -12,7 +11,7 @@ import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import Loading from "components/Loading";
 import Card from "./Card";
 import LocaleName from "./components/LocaleName";
-import DialogFooter from "../editors/components/DialogFooter";
+import Dialog from "../interface/Dialog";
 import RichTextEditor from "../editors/RichTextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
 import Select from "../fields/Select";
@@ -285,10 +284,13 @@ class TextCard extends Component {
     };
 
     const dialogProps = {
+      className: "cms-text-editor-dialog",
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
-      title: type ? `${this.prettifyType(type)} editor` : "Text editor",
+      title: type ? `${upperCaseFirst(this.prettifyType(type))} editor` : "Text editor",
       usePortal: false,
+      onDelete: entityList.includes(type) ? false : this.maybeDelete.bind(this),
+      onSave: this.save.bind(this),
       portalProps: {namespace: "cms"}
     };
 
@@ -345,46 +347,38 @@ class TextCard extends Component {
 
         {/* edit content */}
         <Dialog {...dialogProps}>
-          <div className="cms-dialog-body bp3-dialog-body">
-
-            <div className="cms-dialog-locale-group">
-              {/* primary locale */}
-              <div className="cms-dialog-locale-container">
-                {/* primary locale indicator only needed when showing two locales */}
-                {localeSecondary &&
-                  <LocaleName locale={localeDefault} key="i1" />
-                }
-                {plainFields &&
-                  <PlainTextEditor locale={localeDefault} fields={plainFields} key="p1" {...editorProps} />
-                }
-                {richFields &&
-                  <RichTextEditor locale={localeDefault} fields={richFieldsSorted} key="r1" {...editorProps} />
-                }
-              </div>
-
-              {/* secondary locale */}
+          <div className="cms-dialog-locale-group">
+            {/* primary locale */}
+            <div className="cms-dialog-locale-container">
+              {/* primary locale indicator only needed when showing two locales */}
               {localeSecondary &&
-                <div className="cms-dialog-locale-container">
-                  <LocaleName locale={localeSecondary} key="i2" />
-                  {plainFields &&
-                    <PlainTextEditor locale={localeSecondary} fields={plainFields} key="p2" {...editorProps} />
-                  }
-                  {richFields &&
-                    <RichTextEditor locale={localeSecondary} fields={richFieldsSorted} key="r2" {...editorProps} />
-                  }
-                </div>
+                <LocaleName locale={localeDefault} key="i1" />
+              }
+              {plainFields &&
+                <PlainTextEditor locale={localeDefault} fields={plainFields} key="p1" {...editorProps} />
+              }
+              {richFields &&
+                <RichTextEditor locale={localeDefault} fields={richFieldsSorted} key="r1" {...editorProps} />
               }
             </div>
 
-            {showVars &&
-              <Select {...selectProps} key="s" />
+            {/* secondary locale */}
+            {localeSecondary &&
+              <div className="cms-dialog-locale-container">
+                <LocaleName locale={localeSecondary} key="i2" />
+                {plainFields &&
+                  <PlainTextEditor locale={localeSecondary} fields={plainFields} key="p2" {...editorProps} />
+                }
+                {richFields &&
+                  <RichTextEditor locale={localeSecondary} fields={richFieldsSorted} key="r2" {...editorProps} />
+                }
+              </div>
             }
           </div>
 
-          <DialogFooter
-            onDelete={entityList.includes(type) ? false : this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
+          {showVars &&
+            <Select {...selectProps} key="s" />
+          }
         </Dialog>
       </Card>
     );
