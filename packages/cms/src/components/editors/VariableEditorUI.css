@@ -16,10 +16,6 @@
 .cms-variable-editor .cms-variable-editor-group {
   display: flex;
 
-  &.ui-mode {
-    padding-bottom: var(--gutter-md);
-  }
-
   &.js-mode .cms-variable-editor-js-outer {
     margin-top: var(--gutter-sm);
   }

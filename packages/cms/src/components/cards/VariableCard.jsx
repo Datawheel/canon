@@ -7,7 +7,6 @@ import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import LocaleName from "./components/LocaleName";
 import VariableEditor from "../editors/VariableEditor";
 import VarTable from "../variables/VarTable";
-import Dialog from "../interface/Dialog";
 import Card from "./Card";
 
 import {deleteEntity, updateEntity, fetchVariables} from "../../actions/profiles";
@@ -168,10 +167,11 @@ class VariableCard extends Component {
     };
 
     const dialogProps = {
-      className: "cms-variable-editor-dialog",
       title: `${upperCaseFirst(type)} editor`,
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
+      onDelete: this.maybeDelete.bind(this),
+      onSave: this.save.bind(this),
       usePortal: false,
       icon: false,
       portalProps: {namespace: "cms"}
@@ -182,8 +182,7 @@ class VariableCard extends Component {
       type,
       data: this.state.minData,
       markAsDirty: this.markAsDirty.bind(this),
-      onDelete: this.maybeDelete.bind(this),
-      onSave: this.save.bind(this)
+      dialogProps
     };
 
     // add additional props once the data is available
@@ -230,10 +229,10 @@ class VariableCard extends Component {
           }
         </Card>
 
-        {/* open state */}
-        <Dialog {...dialogProps} key="d">
-          <VariableEditor {...editorProps} />
-        </Dialog>
+        {/* editor (requires db hit to determine simple mode on mount) */}
+        {isOpen &&
+          <VariableEditor {...editorProps} key="d" />
+        }
       </Fragment>
     );
   }

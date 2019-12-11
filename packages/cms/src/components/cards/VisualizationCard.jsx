@@ -152,10 +152,11 @@ class VisualizationCard extends Component {
     }
 
     const dialogProps = {
-      className: "variable-editor-dialog",
       title: "Visualization editor",
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
+      onDelete: this.maybeDelete.bind(this),
+      onSave: this.save.bind(this),
       usePortal: false,
       portalProps: {namespace: "cms"}
     };
@@ -164,8 +165,7 @@ class VisualizationCard extends Component {
       type: "visualization",
       data: minDataState,
       markAsDirty: this.markAsDirty.bind(this),
-      onDelete: this.maybeDelete.bind(this),
-      onSave: this.save.bind(this)
+      dialogProps
     };
 
     return (
@@ -175,10 +175,10 @@ class VisualizationCard extends Component {
           <Viz {...vizProps} key="v" />
         }
 
-        {/* edit mode */}
-        <Dialog {...dialogProps} key="d">
-          <VariableEditor {...editorProps} />
-        </Dialog>
+        {/* editor (requires db hit to determine simple mode on mount) */}
+        {isOpen &&
+          <VariableEditor {...editorProps} key="e" />
+        }
       </Card>
     );
   }

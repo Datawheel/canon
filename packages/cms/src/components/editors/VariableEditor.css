@@ -10,17 +10,6 @@
   & .cms-viz-editor > *:not(:last-child) {
     margin-bottom: 1.25rem;
   }
-
-  /*
-  Because of the way variable card / editor code is organized, the footer
-  is embedded directly in the dialog-body. This means, positioning is janky.
-  Override `position: absolute` and offset padding with negative margin for now.
-  */
-  & + .cms-dialog-footer {
-    position: relative !important;
-    margin: calc(0px - var(--gutter-md));
-    min-width: calc(100% + (var(--gutter-md) * 2));
-  }
 }
 
 .cms-variable-editor-dialog .cms-ace-container:only-child {
@@ -49,7 +38,6 @@
 
 /* help text */
 /* TODO: move to tooltip */
-.cms-variable-editor-help > *             { margin-top: 0; }
-.cms-variable-editor-help > h3            { margin-bottom: 0.5em; }
-.cms-variable-editor-help > p             { margin-bottom: 0.25em; }
-.cms-variable-editor-help > p:last-child  { margin-bottom: var(--gutter-lg); }
+.cms-variable-editor-help > *                   { margin-bottom: 0; margin-top: 0; }
+.cms-variable-editor-help > h3                  { margin-bottom: 0.5em; }
+.cms-variable-editor-help > p:not(:last-child)  { margin-bottom: 0.25em; }
