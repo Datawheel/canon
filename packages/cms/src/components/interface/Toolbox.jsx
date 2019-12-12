@@ -230,8 +230,9 @@ class Toolbox extends Component {
               entity="generator"
               description="Variables constructed from JSON data calls."
               addItem={this.addItem.bind(this, "generator")}
-              cards={generators.map(g =>
+              cards={generators.map((g, i) =>
                 <VariableCard
+                  className={i === 0 ? "is-read-only" : ""}
                   key={g.id}
                   minData={g}
                   context="generator"

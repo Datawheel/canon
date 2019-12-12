@@ -11,6 +11,7 @@ import "./Card.css";
 export default class Card extends Component {
   render() {
     const {
+      className,       // the className is auto-generated, but you can add additional classes if needed
       style,           // pretty much just for visualization card height
       title,           // card title
       type,            // generator, materializer, formatter
@@ -85,7 +86,7 @@ export default class Card extends Component {
     }
 
     return (
-      <div className={`cms-card cms-${type}-card${ secondaryLocale ? " is-multilingual" : "" }`} style={style}>
+      <div className={`cms-card cms-${type}-card${ secondaryLocale ? " is-multilingual" : "" }${ className ? ` ${className}` : ""}`} style={style}>
         {/* cover button */}
         {onEdit &&
           <button className="cms-card-cover-button" onClick={onEdit} key="eb">

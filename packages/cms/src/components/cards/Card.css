@@ -37,6 +37,15 @@
     @mixin description-color;
     margin-top: 0.5em;
   }
+
+  /* read only (special attributes card) */
+  &.is-read-only {
+    cursor: not-allowed;
+
+    & .cms-var-table {
+      cursor: auto;
+    }
+  }
 }
 
 
