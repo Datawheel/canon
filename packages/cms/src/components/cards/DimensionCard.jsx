@@ -48,7 +48,7 @@ class DimensionCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Delete dimension?",
+      title: "Delete dimension?",
       description: "This action can break the site.",
       confirm: "Delete dimension"
     };

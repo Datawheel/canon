@@ -29,7 +29,7 @@ class Outline extends Component {
     const {currentPid, currentStoryPid} = this.props.status;
     if (tab === "profiles") {
       const payload = {profile_id: currentPid, ordering};
-      // Groups are special, when adding a new group it should "jump" past all the child sections and 
+      // Groups are special, when adding a new group it should "jump" past all the child sections and
       // Add itself before the next grouping, or, if there is none, at the end (but still as a Grouping)
       if (type === "Grouping") {
         payload.type = type;
@@ -149,8 +149,6 @@ class Outline extends Component {
       section.type === "Grouping" && section.id === Number(pathObj[sectionKey]) ||
       section.sections && section.sections.find(nestedSection => nestedSection.id === Number(pathObj[sectionKey]))
     );
-
-    console.log(nestedOutline);
 
     return <Fragment>
       {/* top row */}

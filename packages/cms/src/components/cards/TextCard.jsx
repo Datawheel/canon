@@ -181,7 +181,7 @@ class TextCard extends Component {
     const prettyType = this.prettifyType(this.props.type);
     const alertObj = {
       callback: this.delete.bind(this),
-      message: `Delete ${prettyType}?`,
+      title: `Delete ${prettyType}?`,
       confirm: `Delete ${prettyType}`
     };
     this.setState({alertObj});
@@ -204,7 +204,7 @@ class TextCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: `Close ${this.prettifyType(this.props.type)} editor and revert changes?`,
+        title: `Close ${this.prettifyType(this.props.type)} editor and revert changes?`,
         confirm: "Close editor",
         theme: "caution"
       };

@@ -39,7 +39,7 @@ class VisualizationCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Delete visualization?",
+      title: "Delete visualization?",
       confirm: "Delete"
     };
     this.setState({alertObj});
@@ -68,7 +68,7 @@ class VisualizationCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Close visualization editor and revert changes?",
+        title: "Close visualization editor and revert changes?",
         confirm: "Close editor",
         theme: "caution"
       };

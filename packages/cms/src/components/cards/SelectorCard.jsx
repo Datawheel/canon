@@ -7,7 +7,6 @@ import deepClone from "../../utils/deepClone";
 import Card from "./Card";
 import Dialog from "../interface/Dialog";
 import SelectorEditor from "../editors/SelectorEditor";
-import DialogFooter from "../editors/components/DialogFooter";
 import DefinitionList from "../variables/DefinitionList";
 import VarList from "../variables/VarList";
 
@@ -59,7 +58,7 @@ class SelectorCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Delete selector?",
+      title: "Delete selector?",
       confirm: "Delete selector"
     };
     this.setState({alertObj});
@@ -82,7 +81,7 @@ class SelectorCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Close selector editor and revert changes?",
+        title: "Close selector editor and revert changes?",
         confirm: "Close editor",
         theme: "caution"
       };

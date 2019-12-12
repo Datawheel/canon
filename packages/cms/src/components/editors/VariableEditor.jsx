@@ -94,7 +94,7 @@ class VariableEditor extends Component {
     if (payload && !payload.error) {
       const alertObj = {
         callback: this.previewPayload.bind(this),
-        message: "Reloading API results may cause some objects to become undefined.",
+        title: "Reloading API results may cause some objects to become undefined.",
         confirm: "Okay"
       };
       this.setState({alertObj});
@@ -170,7 +170,7 @@ class VariableEditor extends Component {
     if (simple) {
       alertObj = {
         callback: this.switchSimple.bind(this),
-        message: "Note: Switching to JS mode will abandon your UI mode state.",
+        title: "Note: Switching to JS mode will abandon your UI mode state.",
         confirm: "JS mode",
         theme: "caution"
       };
@@ -178,7 +178,7 @@ class VariableEditor extends Component {
     else {
       alertObj = {
         callback: this.switchSimple.bind(this),
-        message: "Note: Switching to UI mode will abandon your current JS code.",
+        title: "Note: Switching to UI mode will abandon your current JS code.",
         confirm: "UI mode",
         theme: "caution"
       };
@@ -361,6 +361,7 @@ class VariableEditor extends Component {
         </Dialog>
 
         <Alert
+          title={alertObj.title}
           cancelButtonText="Cancel"
           confirmButtonText={alertObj.confirm}
           className="cms-confirm-alert"
@@ -369,9 +370,7 @@ class VariableEditor extends Component {
           onConfirm={alertObj.callback}
           onCancel={() => this.setState({alertObj: false})}
           key="a"
-        >
-          {alertObj.message}
-        </Alert>
+        />
       </Fragment>
     );
   }

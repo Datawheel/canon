@@ -31,10 +31,11 @@ class Alert extends Component {
       portalProps,        // spread into Portal component
       onCancel,
       onConfirm,
-      children,           // main message
+      title,              // main message
       description,        // when more context is needed
       confirmButtonText,
       cancelButtonText,
+      controls,           // for when a title, description, and two buttons aren't enough
       theme,              // defaults to danger
       icon                // defaults to alert
     } = this.props;
@@ -64,17 +65,20 @@ class Alert extends Component {
             }
 
             {/* main alert text */}
-            {children &&
-              <Parse El="h2" className="cms-alert-heading u-font-xxl" key="h">
-                {children}
-              </Parse>
+            {title &&
+              <h2 className="cms-alert-heading u-font-xxl" key="h">
+                {title}
+              </h2>
             }
             {/* optional context */}
             {description &&
-              <Parse className="cms-alert-description u-font-lg u-margin-bottom-md" key="d">
+              <p className="cms-alert-description u-font-lg u-margin-bottom-md" key="d">
                 {description}
-              </Parse>
+              </p>
             }
+            {/* additional functionality */}
+            {controls}
+
             <div className="cms-alert-actions u-font-sm">
               {/* cancel button */}
               <button
@@ -116,7 +120,7 @@ class Alert extends Component {
 
 Alert.defaultProps = {
   isModal: true,
-  children: "Confirm action",
+  title: "Confirm action",
   confirmButtonText: "Confirm",
   cancelButtonText: "Cancel",
   icon: "warning-sign",

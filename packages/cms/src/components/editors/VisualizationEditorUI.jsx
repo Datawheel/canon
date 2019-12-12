@@ -361,15 +361,14 @@ class VisualizationEditorUI extends Component {
 
     return <div className="cms-viz-editor">
       <Alert
+        title="Rebuild visualization using new data URL?"
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"
         className="confirm-alert"
         isOpen={rebuildAlertOpen}
         onConfirm={this.rebuild.bind(this)}
         onCancel={() => this.setState({rebuildAlertOpen: false})}
-      >
-        Rebuild visualization using new data URL?
-      </Alert>
+      />
 
       {/* data URL */}
       <TextButtonGroup

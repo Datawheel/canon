@@ -209,43 +209,38 @@ class Header extends Component {
         </header>
 
         <Alert
+          title={`Duplicate ${entityType}?`}
           isOpen={itemToDuplicate}
-          cancelButtonText="Cancel"
-          confirmButtonText="Duplicate"
-          iconName="duplicate"
-          intent={Intent.SUCCESS}
+          confirmButtonText={`Duplicate ${entityType}`}
           onConfirm={() => this.duplicate.bind(this)(itemToDuplicate)}
           onCancel={() => this.setState({itemToDuplicate: null})}
-        >
-          {entityType === "profile"
-            ? <div>Duplicate this Profile?</div>
-            : <div>
-              Choose a profile in which to duplicate this section:
-              <Select
-                label="Target Profile"
-                namespace="cms"
-                value={profileTarget}
-                onChange={this.chooseProfileTarget.bind(this)}
-                inline
-              >
-                {profiles.map(p => <option key={p.id} value={p.id}>{p.meta.map(m => m.slug).join("/")}</option>)}
-              </Select>
-            </div>
+          controls={entityType === "section"
+            ? <Select
+              label="Duplicate section to which profile?"
+              labelHidden
+              namespace="cms"
+              fontSize="md"
+              value={profileTarget}
+              onChange={this.chooseProfileTarget.bind(this)}
+            >
+              {profiles.map(p => <option key={p.id} value={p.id}>
+                {p.meta.map(m => m.slug).join("/")} profile
+              </option>)}
+            </Select> : null
           }
-        </Alert>
+        />
+
         <Alert
+          title={itemToDelete && itemToDelete.type === "profile"
+            ? "Delete profile along with all of its sections and content?"
+            : "Delete section along with all of its content?"}
           isOpen={itemToDelete}
           cancelButtonText="Cancel"
           confirmButtonText={`Delete ${itemToDelete ? itemToDelete.type : ""}`}
           onConfirm={() => this.delete.bind(this)(itemToDelete)}
           onCancel={() => this.setState({itemToDelete: null})}
           description="This action cannot be undone."
-        >
-          {itemToDelete && itemToDelete.type === "profile"
-            ? "Delete profile along with all of its sections and content?"
-            : "Delete section along with all of its content?"
-          }
-        </Alert>
+        />
       </Fragment>
     );
   }

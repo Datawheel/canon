@@ -71,7 +71,7 @@ export default class Card extends Component {
     let alertProps = {};
     if (showAlert) {
       alertProps = {
-        children: alertObj.message,
+        title: alertObj.title,
         cancelButtonText: "Cancel",
         confirmButtonText: alertObj.confirm,
         className: "cms-confirm-alert",

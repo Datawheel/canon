@@ -99,7 +99,7 @@ class VariableCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: `Delete ${this.props.type}?`,
+      title: `Delete ${this.props.type}?`,
       confirm: `Delete ${this.props.type}`
     };
     this.setState({alertObj});
@@ -130,7 +130,7 @@ class VariableCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: `Close ${this.props.type} editor and revert changes?`,
+        title: `Close ${this.props.type} editor and revert changes?`,
         confirm: "Close editor",
         theme: "caution"
       };
@@ -208,8 +208,6 @@ class VariableCard extends Component {
       });
     }
 
-    const {id} = this.props.minData;
-
     return (
       <Fragment>
         <Card {...cardProps} key="c">
@@ -249,11 +247,8 @@ class VariableCard extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  status: state.cms.status,
-  minData: ownProps.type === "formatter"
-    ? state.cms.formatters.find(f => f.id === ownProps.id)
-    : state.cms.profiles.find(p => p.id === state.cms.status.currentPid)[`${ownProps.type}s`].find(g => g.id === ownProps.id)
+const mapStateToProps = state => ({
+  status: state.cms.status
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -193,15 +193,14 @@ export default class VariableEditorUI extends Component {
       </div>
 
       <Alert
+        title="Rebuild variables from the current payload?"
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"
         className="confirm-alert"
         isOpen={rebuildAlertOpen}
         onConfirm={this.rebuild.bind(this)}
         onCancel={() => this.setState({rebuildAlertOpen: false})}
-      >
-        Rebuild variables from the current payload?
-      </Alert>
+      />
     </div>;
   }
 }
