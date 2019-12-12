@@ -1,5 +1,6 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
+import {Icon} from "@blueprintjs/core";
 
 import deepClone from "../../utils/deepClone";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -233,8 +234,11 @@ class VariableCard extends Component {
               }
             </div>
           }
+
           {dupes.length > 0 &&
-            <p className="cms-card-error u-font-xxs">Warning: Highlighted variables conflict with another generator or materializer</p>
+            <p className="cms-card-error u-font-xxs u-margin-top-xs">
+              <Icon className="cms-card-error-icon" icon="warning-sign" /> Highlighted variables conflict with another generator or materializer
+            </p>
           }
         </Card>
 

@@ -37,7 +37,7 @@ class Alert extends Component {
       cancelButtonText,
       controls,           // for when a title, description, and two buttons aren't enough
       theme,              // defaults to danger
-      icon                // defaults to alert
+      icon                // defaults to warning-sign
     } = this.props;
 
     // don't render unless isOpen is true
