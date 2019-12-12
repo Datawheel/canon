@@ -65,15 +65,16 @@ class VisibleSelector extends Component {
               onChange={this.props.onChange}
             />
           </label>
-          : <Select
-            label="Visible"
-            namespace="cms"
-            value={value || "always"}
-            onChange={this.props.onChange}
-            inline
-          >
-            {varOptions}
-          </Select>
+          : showVars
+            ? <Select
+              label="Visible"
+              namespace="cms"
+              value={value || "always"}
+              onChange={this.props.onChange}
+              inline
+            >
+              {varOptions}
+            </Select> : ""
         }
 
         <label className="cms-visible-selector-checkbox-label cms-checkbox-label u-font-xs u-margin-bottom-off">
