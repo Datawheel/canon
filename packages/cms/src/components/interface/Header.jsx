@@ -4,6 +4,7 @@ import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 
 import Button from "../fields/Button";
+import ButtonGroup from "../fields/ButtonGroup";
 import Select from "../fields/Select";
 import Alert from "../interface/Alert";
 
@@ -12,8 +13,14 @@ import {deleteStory} from "../../actions/stories";
 
 import "./Header.css";
 
-class Header extends Component {
+// spread into header action buttons
+const buttonProps = {
+  iconPosition: "left",
+  namespace: "cms",
+  fontSize: "xxs"
+};
 
+class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -80,7 +87,6 @@ class Header extends Component {
   }
 
   render() {
-
     const {dimensions, profiles, stories} = this.props;
     const {currentPid, currentStoryPid, pathObj} = this.props.status;
     const {itemToDelete, itemToDuplicate, profileTarget} = this.state;
@@ -154,6 +160,9 @@ class Header extends Component {
     // Only show the link if this is a story (not requiring dimension) or is a profile that HAS dimensions
     const showLink = pathObj.tab === "stories" || dimensions && dimensions.length > 0;
 
+    let showDuplicateButton = false;
+    if (pathObj.tab === "profiles") showDuplicateButton = true;
+
     return (
       <Fragment>
         <header className="cms-header">
@@ -180,31 +189,39 @@ class Header extends Component {
           </span>
 
           {/* TODO: make this a popover once we have more options */}
-          {/* duplicate entity */}
-          {pathObj.tab === "profiles" && <div className="cms-header-actions-container" key="header-actions-container-duplicate">
-            <Button
-              className="cms-header-actions-button cms-header-delete-button"
-              onClick={this.maybeDuplicate.bind(this)}
-              icon="duplicate"
-              namespace="cms"
-              fontSize="xs"
-            >
-              {`Duplicate ${entityType === "storysection" ? "section" : entityType}`}
-            </Button>
-          </div>}
-          {/* delete entity */}
-          {showDeleteButton &&
-            <div className="cms-header-actions-container" key="header-actions-container-delete">
-              <Button
-                className="cms-header-actions-button cms-header-delete-button"
-                onClick={this.maybeDelete.bind(this)}
-                icon="trash"
-                namespace="cms"
-                fontSize="xs"
-              >
-                {`Delete ${entityType === "storysection" ? "section" : entityType}`}
-              </Button>
-            </div>
+          {showDuplicateButton || showDeleteButton
+            ? <div className="cms-header-actions-container" key="ac">
+              <ButtonGroup className="cms-header-actions-button-group">
+                {/* duplicate entity */}
+                {showDuplicateButton &&
+                  <Button
+                    className="cms-header-actions-button cms-header-duplicate-button"
+                    onClick={this.maybeDuplicate.bind(this)}
+                    icon="duplicate"
+                    key="db1"
+                    {...buttonProps}
+                  >
+                    Duplicate <span className="u-visually-hidden">
+                      {entityType === "storysection" ? "section" : entityType}
+                    </span>
+                  </Button>
+                }
+                {/* delete entity */}
+                {showDeleteButton &&
+                  <Button
+                    className="cms-header-actions-button cms-header-delete-button"
+                    onClick={this.maybeDelete.bind(this)}
+                    icon="trash"
+                    key="db2"
+                    {...buttonProps}
+                  >
+                    Delete <span className="u-visually-hidden">
+                      {entityType === "storysection" ? "section" : entityType}
+                    </span>
+                  </Button>
+                }
+              </ButtonGroup>
+            </div> : ""
           }
         </header>
 
@@ -228,6 +245,7 @@ class Header extends Component {
               </option>)}
             </Select> : null
           }
+          theme="caution"
         />
 
         <Alert
