@@ -13,6 +13,14 @@
         width: 50%;
         padding: 0 15px;
       }
+      & .col-third{
+        width: 33.33%;
+        padding: 0 15px;
+      }
+      & .col-quarter{
+        width: 25%;
+        padding: 0 15px;
+      }
     }
   }
 }
