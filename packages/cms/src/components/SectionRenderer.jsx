@@ -117,7 +117,7 @@ class SectionRenderer extends Component {
 
   render() {
     const {profile, loading, modalSlug, isIE, setVarsLoading} = this.state;
-    const {sectionID} = this.props;
+    const {isModal, sectionID} = this.props;
 
     if (!this.state.profile) return null;
     if (this.state.profile.error) return <div>{this.state.profile.error}</div>;
@@ -175,7 +175,7 @@ class SectionRenderer extends Component {
         <div className="cp">
           {!sectionID && <Hero profile={profile} contents={heroSection || null} />}
 
-          <Subnav sections={groupedSections} />
+          {!sectionID && <Subnav sections={groupedSections} />}
 
           {/* main content sections */}
           <main className="cp-main" id="main">
@@ -187,6 +187,7 @@ class SectionRenderer extends Component {
                 {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                   // ungrouped section
                   ? <Section
+                    isModal={isModal}
                     contents={innerGrouping[0]}
                     onSetVariables={this.onSetVariables.bind(this)}
                     headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
@@ -197,6 +198,7 @@ class SectionRenderer extends Component {
                   : <SectionGrouping layout={innerGrouping[0].type}>
                     {innerGrouping.map((section, iii) =>
                       <Section
+                        isModal={isModal}
                         contents={section}
                         onSetVariables={this.onSetVariables.bind(this)}
                         headingLevel={groupedSections.length === 1 || ii === 0

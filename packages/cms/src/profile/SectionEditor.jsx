@@ -9,6 +9,7 @@ import deepClone from "../utils/deepClone";
 import blueprintIcons from "../utils/blueprintIcons";
 import VisualizationCard from "../components/cards/VisualizationCard";
 import Deck from "../components/interface/Deck";
+import PreviewHeader from "../components/interface/PreviewHeader";
 import SelectorUsage from "../components/interface/SelectorUsage";
 import {Dialog, Icon} from "@blueprintjs/core";
 import SectionRenderer from "../components/SectionRenderer.jsx";
@@ -70,7 +71,6 @@ class SectionEditor extends Component {
 
     const {minData, allSelectors, formatters} = this.props;
     const {children} = this.props;
-    const {router} = this.context;
     const {variables, localeDefault, localeSecondary, sectionPreview} = this.props.status;
 
     const minDataState = this.state.minData;
@@ -310,13 +310,14 @@ class SectionEditor extends Component {
             isOpen={sectionPreview}
             onClose={() => this.props.setStatus({sectionPreview: null})}
           >
-            
             <React.Fragment>
               <button className="cp-dialog-close-button" onClick={() => this.props.setStatus({sectionPreview: null})}>
                 <Icon className="cp-dialog-close-button-icon" icon="cross" />
                 <span className="u-visually-hidden">close section</span>
               </button>
+              <PreviewHeader />
               <SectionRenderer
+                isModal={true}
                 profile={sectionPreview} // The entire profile, filtered to a single section, as loaded in Header.jsx 
                 formatters={formatters}  // The RAW formatters - ProfileEmbed handles turning them into Functions
                 locale={localeDefault}   // This will need to change based on what language people are previewing in
