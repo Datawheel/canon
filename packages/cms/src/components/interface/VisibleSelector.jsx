@@ -1,18 +1,20 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import Select from "../fields/Select";
+import TextInput from "../fields/TextInput";
 
-class AllowedSelector extends Component {
+import "./VisibleSelector.css";
 
+class VisibleSelector extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      customAllowed: false
+      customVisible: false
     };
   }
 
   componentDidMount() {
-    const customAllowed = this.determineAllowed.bind(this)();
-    this.setState({customAllowed});
+    const customVisible = this.determineAllowed.bind(this)();
+    this.setState({customVisible});
   }
 
   determineAllowed() {
@@ -27,14 +29,14 @@ class AllowedSelector extends Component {
     if (!e.target.checked) {
       if (this.determineAllowed.bind(this)()) {
         this.props.onChange({target: {value: "always"}});
-      } 
+      }
     }
-    this.setState({customAllowed: e.target.checked});
+    this.setState({customVisible: e.target.checked});
   }
 
   render() {
 
-    const {customAllowed} = this.state;
+    const {customVisible} = this.state;
     const {variables, value} = this.props;
 
     const varOptions = [<option key="always" value="always">Always</option>]
@@ -49,38 +51,43 @@ class AllowedSelector extends Component {
         }));
 
     const showVars = Object.keys(variables).length > 0;
-  
+
     return (
-      <React.Fragment>
-        { customAllowed
+      <fieldset className="cms-fieldset">
+
+        {customVisible
           ? <label>
-            Enter a variable name, using <code>[[selectors]]</code> if desired.<br/><br/>
-            <code>{"{{"}</code><input type="text" value={value} onChange={this.props.onChange}/><code>{"}}"}</code><br/><br/>
-          </label>
-          : showVars
-            ? <Select
-              label="Visible"
+            <TextInput
+              className="cms-visible-selector-input"
+              label={<Fragment>Enter a variable name, using <code className="u-font-xs">[[selectors]]</code> if desired.</Fragment>}
               namespace="cms"
-              value={value || "always"}
+              value={value}
               onChange={this.props.onChange}
-              inline
-            >
-              {varOptions}
-            </Select>
-            : null
+            />
+          </label>
+          : <Select
+            label="Visible"
+            namespace="cms"
+            value={value || "always"}
+            onChange={this.props.onChange}
+            inline
+          >
+            {varOptions}
+          </Select>
         }
-        <label>
-          <input 
-            type="checkbox" 
-            checked={customAllowed} 
-            onChange={this.toggleCustom.bind(this)} 
-          /> Override Visible property with custom variable
+
+        <label className="cms-visible-selector-checkbox-label cms-checkbox-label u-font-xs u-margin-bottom-off">
+          <input
+            className="cms-checkbox"
+            type="checkbox"
+            checked={customVisible}
+            onChange={this.toggleCustom.bind(this)}
+          /> Override visible property with custom variable
         </label>
-      </React.Fragment>
+      </fieldset>
     );
   }
 
 }
 
-export default AllowedSelector;
-
+export default VisibleSelector;

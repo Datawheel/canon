@@ -1,0 +1,37 @@
+@import "../../css/mixins.css";
+
+.cms-visible-selector-input {
+
+  & code[class] {
+    padding-left: 0.125em;
+    padding-right: 0.125em;
+  }
+
+  &:before, &:after {
+    display: block;
+    position: absolute;
+    bottom: 0.5em;
+    opacity: 0.333;
+    pointer-events: none;
+  }
+  &:before {
+    content: "{{";
+    left: 0.375em;
+    z-index: 1;
+  }
+  &:after {
+    content: "}}";
+    right: 0.375em;
+    z-index: 1;
+  }
+
+  & .cms-input {
+    padding-left: 1.25em;
+    padding-right: 1.25em;
+  }
+}
+
+.cms-visible-selector-checkbox-label {
+  display: block;
+  margin-top: -0.5em;
+}

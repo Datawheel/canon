@@ -10,7 +10,7 @@ import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import Loading from "components/Loading";
 import Card from "./Card";
 import LocaleName from "./components/LocaleName";
-import AllowedSelector from "../interface/AllowedSelector";
+import VisibleSelector from "../interface/VisibleSelector";
 import Dialog from "../interface/Dialog";
 import RichTextEditor from "../editors/RichTextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
@@ -375,19 +375,15 @@ class TextCard extends Component {
                 }
               </div>
             }
-
-            {/* visibility */}
-            {!hideAllowed &&
-              <AllowedSelector
-                variables={variables}
-                value={minDataState.allowed !== undefined ? minDataState.allowed : "always"}
-                onChange={this.chooseVariable.bind(this)}
-              />
-            }
           </div>
 
-          {showVars &&
-            <Select {...selectProps} key="s" />
+          {/* visibility */}
+          {!hideAllowed &&
+            <VisibleSelector
+              variables={variables}
+              value={minDataState.allowed !== undefined ? minDataState.allowed : "always"}
+              onChange={this.chooseVariable.bind(this)}
+            />
           }
         </Dialog>
       </Card>

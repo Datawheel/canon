@@ -13,6 +13,7 @@ export default class TextInput extends Component {
 
   render() {
     const {
+      className,
       namespace,     // "cp" (default) or "cms"
       autoFocus,
       disabled,
@@ -31,7 +32,7 @@ export default class TextInput extends Component {
     const {showPassword} = this.state;
 
     return (
-      <label className={`${namespace}-input-label u-font-${fontSize}${inline ? " cms-inline-input-label" : ""}`}>
+      <label className={`${namespace}-input-label u-font-${fontSize}${inline ? " cms-inline-input-label" : ""}${className ? ` ${className}` : ""}`}>
         <span className={`${namespace}-input-text u-font-${labelFontSize || fontSize}${label && labelHidden ? " u-visually-hidden" : "" }`}>
           {label}
         </span>

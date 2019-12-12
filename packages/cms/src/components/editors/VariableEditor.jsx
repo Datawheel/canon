@@ -12,7 +12,7 @@ import Select from "../fields/Select";
 
 import TextButtonGroup from "../fields/TextButtonGroup";
 import TextInput from "../fields/TextInput";
-import AllowedSelector from "../interface/AllowedSelector";
+import VisibleSelector from "../interface/VisibleSelector";
 import Alert from "../interface/Alert";
 import Dialog from "../interface/Dialog";
 
@@ -351,7 +351,7 @@ class VariableEditor extends Component {
 
             {/* visibility */}
             {(type === "profile_visualization" || type === "section_visualization") &&
-              <AllowedSelector
+              <VisibleSelector
                 variables={variables}
                 value={data.allowed !== undefined ? data.allowed : "always"}
                 onChange={this.chooseVariable.bind(this)}
