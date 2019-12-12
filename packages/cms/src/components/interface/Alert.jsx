@@ -26,6 +26,7 @@ class Alert extends Component {
   render() {
     const {
       className,
+      usePortal,          // good luck
       isOpen,
       isModal,            // set to `true` to disable escape key/overlay click close
       portalProps,        // spread into Portal component
@@ -50,7 +51,7 @@ class Alert extends Component {
     }
 
     let Wrapper = Fragment;
-    if (isModal) Wrapper = Portal;
+    if (usePortal) Wrapper = Portal;
 
     return (
       <Wrapper {...portalProps}>

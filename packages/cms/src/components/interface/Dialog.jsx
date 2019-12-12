@@ -26,14 +26,21 @@ class Dialog extends Component {
   // listen for escape key
   handleKeyPress(e) {
     const {onClose} = this.props;
+
     const esc = 27;
     if (e.keyCode === esc && onClose) onClose();
+
+    else {
+      const target = e.currentTarget;
+      setTimeout(() => target.focus());
+    }
   }
 
   render() {
     const {
       className,
-      isModal,        // set to `false` to render inline
+      usePortal,      // good luck
+      isModal,        // not inline
       isOpen,
       portalProps,    // spread into Portal component
       onClose,        // close the dialog
@@ -59,12 +66,12 @@ class Dialog extends Component {
     if (onSave || footerControls) showFooter = true;
 
     let Wrapper = Fragment;
-    if (isModal) Wrapper = Portal;
+    if (usePortal) Wrapper = Portal;
 
     return (
-      <Wrapper {...portalProps}>
+      <Wrapper {...portalProps} key="dw">
         <div
-          className={`cms-dialog${className ? ` ${className}` : ""} ${isModal ? "is-modal" : "is-inline"}`}
+          className={`cms-dialog${className ? ` ${className}` : ""} ${isModal ? "is-modal" : "is-inline"}${usePortal ? " in-portal" : ""}`}
           onKeyDown={this.handleKeyPress.bind(this)}
           key="a"
         >

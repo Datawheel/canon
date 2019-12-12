@@ -235,6 +235,7 @@ theming
   &:focus {
     border: 2px solid var(--accent-dark);
     outline: none;
+    transition-delay: 0.5s;
   }
 }
 

@@ -31,7 +31,6 @@ const postMessage = {
 };
 
 class VariableEditor extends Component {
-
   constructor(props) {
     super(props);
     this.state = {

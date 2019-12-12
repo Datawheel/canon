@@ -39,6 +39,10 @@
   }
 }
 /* transition in */
+.cms-alert:not(.in-portal) [class*="overlay"] {
+  animation: fadeIn 0.1s ease-out;
+}
+.cms-alert:not(.in-portal) .cms-alert-inner,
 [class*="portal"].is-animating .cms-alert-inner {
   animation: appearFromBelow 0.2s ease-out;
 }

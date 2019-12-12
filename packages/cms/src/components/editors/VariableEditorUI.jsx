@@ -180,7 +180,7 @@ export default class VariableEditorUI extends Component {
                   </td>
                   <td>
                     <EditableText
-                      defaultValue={row.keyName}
+                      value={row.keyName}
                       onChange={this.changeKey.bind(this, i, row.pKey)} />
                   </td>
                   <td>{row.pKey}</td>
