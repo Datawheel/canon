@@ -2,21 +2,20 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PreviewSearch from "../fields/PreviewSearch";
 import Select from "../fields/Select";
+import {setStatus} from "../../actions/status";
 
 class PreviewHeader extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      locale: props.status.localeDefault
     };
   }
 
   render() {
 
-    const {locales, localeDefault, previews} = this.props.status;
+    const {locales, localeDefault, previews, localeSectionPreview} = this.props.status;
     const {meta} = this.props;
-    const {locale} = this.state;
 
     const localeList = locales.concat([localeDefault]);
 
@@ -34,16 +33,16 @@ class PreviewHeader extends Component {
             limit={20}
           />
         )}
-        <Select
+        {localeList.length > 1 && <Select
           label="Language"
           namespace="cms"
           fontSize="xs"
           inline
-          value={locale}
-          onChange={e => this.setState({locale: e.target.value})}
+          value={localeSectionPreview}
+          onChange={e => this.props.setStatus({localeSectionPreview: e.target.value})}
         >
           {localeList.map(d => <option key={d} value={d}>{d}</option>)}
-        </Select>
+        </Select>}
 
       </div>
       
@@ -58,7 +57,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(PreviewHeader);

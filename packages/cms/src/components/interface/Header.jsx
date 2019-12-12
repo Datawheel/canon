@@ -67,9 +67,9 @@ class Header extends Component {
   }
 
   togglePreview() {
-    const {pathObj} = this.props.status;
+    const {pathObj, localeSectionPreview} = this.props.status;
     if (pathObj.section) {
-      this.props.fetchSectionPreview(pathObj.section, "en");
+      this.props.fetchSectionPreview(pathObj.section, localeSectionPreview);
     }
   }
 

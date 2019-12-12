@@ -36,11 +36,11 @@ class SectionEditor extends Component {
     if (prevProps.id !== this.props.id) {
       this.setState({minData: deepClone(this.props.minData)});
     }
-    // If the diffCounter has fired, then the variables have changed for some reason (usually due to the user changing
-    // either the preview or the locale). If the sectionPreview is open, then this change was made from PreviewHeader, 
-    // and we need to re-run its fetch with the new variables that were calculated.
+    // If the sectionPreview is open, then the user may use PreviewHeader to change the previews or the language.
+    // Changing either option will fetch new variables, and in turn, cause diffCounter to increment. Upon catching
+    // That, kick off a new fetch of the section using the freshly calculated variables.
     if (this.props.status.sectionPreview && prevProps.status.diffCounter !== this.props.status.diffCounter) {
-      this.props.fetchSectionPreview(this.props.status.pathObj.section, "en");
+      this.props.fetchSectionPreview(this.props.status.pathObj.section, this.props.status.localeSectionPreview);
     }
   }
 

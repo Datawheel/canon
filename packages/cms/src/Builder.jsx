@@ -61,14 +61,15 @@ class Builder extends Component {
 
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
+    const localeSectionPreview = localeDefault;
     if (env.CANON_LANGUAGES && env.CANON_LANGUAGES.includes(",")) {
       const locales = env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault);
       // Default to no secondary language
       const localeSecondary = null;
-      this.props.setStatus({locales, localeSecondary, localeDefault, pathObj});
+      this.props.setStatus({locales, localeSecondary, localeDefault, localeSectionPreview, pathObj});
     }
     else {
-      this.props.setStatus({localeDefault, pathObj});
+      this.props.setStatus({localeDefault, localeSectionPreview, pathObj});
     }
   }
 
