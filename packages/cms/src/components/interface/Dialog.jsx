@@ -42,7 +42,6 @@ class Dialog extends Component {
       usePortal,      // good luck
       isModal,        // not inline
       isOpen,
-      portalProps,    // spread into Portal component
       onClose,        // close the dialog
       onDelete,       // callback function passed to DialogFooter.jsx
       onSave,         // callback function passed to DialogFooter.jsx
@@ -65,8 +64,11 @@ class Dialog extends Component {
     let showFooter = false;
     if (onSave || footerControls) showFooter = true;
 
+    // either a Portal with portalProps spread in, or a Fragment
     let Wrapper = Fragment;
+    let {portalProps} = this.props;
     if (usePortal) Wrapper = Portal;
+    else portalProps = null;
 
     return (
       <Wrapper {...portalProps} key="dw">

@@ -29,7 +29,6 @@ class Alert extends Component {
       usePortal,          // good luck
       isOpen,
       isModal,            // set to `true` to disable escape key/overlay click close
-      portalProps,        // spread into Portal component
       onCancel,
       onConfirm,
       title,              // main message
@@ -50,8 +49,11 @@ class Alert extends Component {
       return null;
     }
 
+    // either a Portal with portalProps spread in, or a Fragment
     let Wrapper = Fragment;
+    let {portalProps} = this.props;
     if (usePortal) Wrapper = Portal;
+    else portalProps = null;
 
     return (
       <Wrapper {...portalProps}>
