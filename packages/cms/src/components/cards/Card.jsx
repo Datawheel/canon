@@ -11,7 +11,6 @@ import "./Card.css";
 export default class Card extends Component {
   render() {
     const {
-      className,       // the className is auto-generated, but you can add additional classes if needed
       style,           // pretty much just for visualization card height
       title,           // card title
       type,            // generator, materializer, formatter
@@ -21,6 +20,7 @@ export default class Card extends Component {
       rebuilding,      // disable all buttons when true
       children,        // main card content
       secondaryLocale, // two columns
+      readOnly,        // when you can't edit the card
 
       reorderProps,    // show reorder button or not
 
@@ -86,7 +86,7 @@ export default class Card extends Component {
     }
 
     return (
-      <div className={`cms-card cms-${type}-card${ secondaryLocale ? " is-multilingual" : "" }${ className ? ` ${className}` : ""}`} style={style}>
+      <div className={`cms-card cms-${type}-card${ secondaryLocale ? " is-multilingual" : "" }${ readOnly ? " is-read-only" : "" }`} style={style}>
         {/* cover button */}
         {onEdit &&
           <button className="cms-card-cover-button" onClick={onEdit} key="eb">

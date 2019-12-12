@@ -232,13 +232,13 @@ class Toolbox extends Component {
               addItem={this.addItem.bind(this, "generator")}
               cards={generators.map((g, i) =>
                 <VariableCard
-                  className={i === 0 ? "is-read-only" : ""}
                   key={g.id}
                   minData={g}
                   context="generator"
                   hidden={!detailView}
                   attr={profile.attr || {}}
                   type="generator"
+                  readOnly={i === 0}
                 />
               )}
             />

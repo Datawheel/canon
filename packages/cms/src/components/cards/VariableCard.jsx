@@ -153,7 +153,7 @@ class VariableCard extends Component {
   }
 
   render() {
-    const {attr, className, minData, type, showReorderButton} = this.props;
+    const {attr, readOnly, minData, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary, variables} = this.props.status;
     const {displayData, secondaryDisplayData, isOpen, alertObj, dupes} = this.state;
 
@@ -169,7 +169,7 @@ class VariableCard extends Component {
     // define initial/loading props for Card
     const cardProps = {
       type,
-      className, // currently only used for attributes card
+      readOnly, // currently only used for attributes card
       localeSecondary,
       title: "•••" // placeholder
     };
