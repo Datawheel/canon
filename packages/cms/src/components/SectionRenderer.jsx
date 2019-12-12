@@ -44,6 +44,18 @@ class SectionRenderer extends Component {
     if (isIE) this.setState({isIE: true});
   }
 
+  componentDidUpdate(prevProps) {
+    const {isModal, sectionID} = this.props;
+    // If this is a modal with a sectionID, then this component is being rendered as a section preview
+    // in the CMS. When that is the case, the profile could be updated from the OUTSIDE, i.e., the user
+    // changes a dropdown in PreviewHeader.jsx. In that case, listen for a new profile from props.
+    if (isModal && sectionID) {
+      if (JSON.stringify(prevProps.profile) !== JSON.stringify(this.props.profile)) {
+        this.setState({profile: this.props.profile});
+      }
+    }
+  }
+
   getChildContext() {
     const {formatters, locale} = this.props;
     const {router} = this.context;

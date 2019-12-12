@@ -14,7 +14,7 @@ import SelectorUsage from "../components/interface/SelectorUsage";
 import {Dialog, Icon} from "@blueprintjs/core";
 import SectionRenderer from "../components/SectionRenderer.jsx";
 
-import {newEntity, updateEntity} from "../actions/profiles";
+import {newEntity, updateEntity, fetchSectionPreview} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 
 import "./SectionEditor.css";
@@ -35,6 +35,12 @@ class SectionEditor extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id) {
       this.setState({minData: deepClone(this.props.minData)});
+    }
+    // If the diffCounter has fired, then the variables have changed for some reason (usually due to the user changing
+    // either the preview or the locale). If the sectionPreview is open, then this change was made from PreviewHeader, 
+    // and we need to re-run its fetch with the new variables that were calculated.
+    if (this.props.status.sectionPreview && prevProps.status.diffCounter !== this.props.status.diffCounter) {
+      this.props.fetchSectionPreview(this.props.status.pathObj.section, "en");
     }
   }
 
@@ -319,7 +325,7 @@ class SectionEditor extends Component {
               <SectionRenderer
                 isModal={true}
                 profile={sectionPreview} // The entire profile, filtered to a single section, as loaded in Header.jsx 
-                formatters={formatters}  // The RAW formatters - ProfileEmbed handles turning them into Functions
+                formatters={formatters}  // The RAW formatters - SectionRenderer handles turning them into Functions
                 locale={localeDefault}   // This will need to change based on what language people are previewing in
                 sectionID={minData.id}   // Limit the Profile and its onSelect reloads to the given sectionID
               />
@@ -343,6 +349,7 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = dispatch => ({
   newEntity: (type, payload) => dispatch(newEntity(type, payload)),
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
+  fetchSectionPreview: (id, locale) => dispatch(fetchSectionPreview(id, locale)),
   setStatus: status => dispatch(setStatus(status))
 });
 
