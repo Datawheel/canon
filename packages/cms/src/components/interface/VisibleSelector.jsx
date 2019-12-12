@@ -53,7 +53,7 @@ class VisibleSelector extends Component {
     const showVars = Object.keys(variables).length > 0;
 
     return (
-      <fieldset className="cms-fieldset">
+      <fieldset className="cms-visible-selector-fieldset cms-fieldset">
 
         {customVisible
           ? <label>

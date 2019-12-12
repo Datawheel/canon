@@ -101,17 +101,18 @@
   /* override browser defaults */
   border: none;
   padding: 0.25rem 0 0 0;
-}
+  margin-left: 0;
 
-.cms-checkbox-label {
-  display: inline-block;
+  & .cms-checkbox-label {
+    display: inline-block;
 
-  & input {
-    top: -1px;
-    margin-right: 0.125em;
-  }
+    & input {
+      top: -1px;
+      margin-right: 0.125em;
+    }
 
-  &:not(:last-child) {
-    margin-right: 1.5em;
+    &:not(:last-child) {
+      margin-right: 1.5em;
+    }
   }
 }
