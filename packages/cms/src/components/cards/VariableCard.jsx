@@ -6,6 +6,7 @@ import deepClone from "../../utils/deepClone";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 
 import LocaleName from "./components/LocaleName";
+import Dialog from "../interface/Dialog";
 import VariableEditor from "../editors/VariableEditor";
 import VarTable from "../variables/VarTable";
 import Card from "./Card";
@@ -175,6 +176,7 @@ class VariableCard extends Component {
     };
 
     const dialogProps = {
+      className: "cms-variable-editor-dialog",
       title: `${upperCaseFirst(type)} editor`,
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
@@ -189,8 +191,7 @@ class VariableCard extends Component {
       attr,
       type,
       data: this.state.minData,
-      markAsDirty: this.markAsDirty.bind(this),
-      dialogProps
+      markAsDirty: this.markAsDirty.bind(this)
     };
 
     // add additional props once the data is available
@@ -243,10 +244,10 @@ class VariableCard extends Component {
           }
         </Card>
 
-        {/* editor (requires db hit to determine simple mode on mount) */}
-        {isOpen &&
-          <VariableEditor {...editorProps} key="d" />
-        }
+        {/* editor */}
+        <Dialog {...dialogProps} key="d">
+          <VariableEditor {...editorProps} />
+        </Dialog>
       </Fragment>
     );
   }

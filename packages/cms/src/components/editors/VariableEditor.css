@@ -30,6 +30,25 @@
   }
 }
 
+.cms-variable-editor .cms-variable-editor-switcher {
+  position: absolute;
+  top: 0;
+  margin-top: -1px;
+  right: 0;
+  z-index: 1;
+  flex-direction: row;
+  align-items: center;
+
+  &.cms-generator-variable-editor-switcher {
+    top: 1em;
+  }
+
+  & .bp3-control-indicator {
+    max-width: 1em;
+    top: 1px;
+  }
+}
+
 .cms-variable-editor-json,
 .cms-variable-table-wrapper {
   height: 100%;

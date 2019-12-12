@@ -166,8 +166,7 @@ class VisualizationCard extends Component {
     const editorProps = {
       type: "visualization",
       data: minDataState,
-      markAsDirty: this.markAsDirty.bind(this),
-      dialogProps
+      markAsDirty: this.markAsDirty.bind(this)
     };
 
     return (
@@ -177,10 +176,10 @@ class VisualizationCard extends Component {
           <Viz {...vizProps} key="v" />
         }
 
-        {/* editor (requires db hit to determine simple mode on mount) */}
-        {isOpen &&
-          <VariableEditor {...editorProps} key="e" />
-        }
+        {/* editor */}
+        <Dialog {...dialogProps} key="d">
+          <VariableEditor {...editorProps} />
+        </Dialog>
       </Card>
     );
   }

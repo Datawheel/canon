@@ -335,6 +335,7 @@ class VisualizationEditorUI extends Component {
   }
 
   render() {
+    const {modeSwitcher} = this.props;
     const {object, rebuildAlertOpen, payload} = this.state;
     const {localeDefault} = this.props.status;
     const {formatterFunctions} = this.props.resources;
@@ -406,68 +407,70 @@ class VisualizationEditorUI extends Component {
         />
       </div>
 
-      {payload.length > 0 &&
-        <div className="viz-select-group u-margin-top-xs">
-          {object.type && thisViz && thisViz.methods.map(method =>
-            // render prop as text input
-            method.format === "Input"
-              ? <TextInput
-                label={method.display}
-                namespace="cms"
-                fontSize="xs"
-                inline
-                key={method.key}
-                value={object[method.key]}
-                onChange={this.onChange.bind(this, method.key)}
-              />
+      {/* mode switcher & additional viz options */}
+      <div className="viz-select-group u-margin-top-xs">
 
-              // render payload as checkboxes
-              : method.format === "Checkbox"
-                ? <fieldset className="cms-fieldset">
-                  <legend className="u-font-sm">Columns</legend>
-                  {allFields.map(column =>
-                    <label className="cms-checkbox-label u-font-xs" key={column}>
-                      <input
-                        type="checkbox"
-                        checked={selectedColumns.includes(column)}
-                        onChange={() => this.onCheck(column)}
-                      /> {column}
-                    </label>
+        {modeSwitcher}
+
+        {payload.length > 0 && object.type && thisViz && thisViz.methods.map(method =>
+          // render prop as text input
+          method.format === "Input"
+            ? <TextInput
+              label={method.display}
+              namespace="cms"
+              fontSize="xs"
+              inline
+              key={method.key}
+              value={object[method.key]}
+              onChange={this.onChange.bind(this, method.key)}
+            />
+
+            // render payload as checkboxes
+            : method.format === "Checkbox"
+              ? <fieldset className="cms-fieldset">
+                <legend className="u-font-sm">Columns</legend>
+                {allFields.map(column =>
+                  <label className="cms-checkbox-label u-font-xs" key={column}>
+                    <input
+                      type="checkbox"
+                      checked={selectedColumns.includes(column)}
+                      onChange={() => this.onCheck(column)}
+                    /> {column}
+                  </label>
+                )}
+              </fieldset>
+
+              // render method.key as select
+              : <Fragment>
+                <Select
+                  key="cms-key-select"
+                  label={method.display}
+                  namespace="cms"
+                  fontSize="xs"
+                  value={object[method.key]}
+                  onChange={this.onChange.bind(this, method.key)}
+                  inline
+                >
+                  {this.getOptionList.bind(this)(method, payload).map(option =>
+                    <option key={option.value} value={option.value}>{option.display}</option>
                   )}
-                </fieldset>
-
-                // render method.key as select
-                : <Fragment>
-                  <Select
-                    key="cms-key-select"
-                    label={method.display}
-                    namespace="cms"
-                    fontSize="xs"
-                    value={object[method.key]}
-                    onChange={this.onChange.bind(this, method.key)}
-                    inline
-                  >
-                    {this.getOptionList.bind(this)(method, payload).map(option =>
-                      <option key={option.value} value={option.value}>{option.display}</option>
-                    )}
-                  </Select>
-                  <Select
-                    key="cms-formatter-select"
-                    label={`${method.display} formatter`}
-                    labelHidden
-                    namespace="cms"
-                    fontSize="xs"
-                    value={object.formatters ? object.formatters[method.key] : "manual-none"}
-                    onChange={this.onChangeFormatter.bind(this, method.key)}
-                    inline
-                  >
-                    <option key={null} value="manual-none">No formatter</option>
-                    {formatterList.map(f => <option key={f} value={f}>{f}</option>)}
-                  </Select>
-                </Fragment>
-          )}
-        </div>
-      }
+                </Select>
+                <Select
+                  key="cms-formatter-select"
+                  label={`${method.display} formatter`}
+                  labelHidden
+                  namespace="cms"
+                  fontSize="xs"
+                  value={object.formatters ? object.formatters[method.key] : "manual-none"}
+                  onChange={this.onChangeFormatter.bind(this, method.key)}
+                  inline
+                >
+                  <option key={null} value="manual-none">No formatter</option>
+                  {formatterList.map(f => <option key={f} value={f}>{f}</option>)}
+                </Select>
+              </Fragment>
+        )}
+      </div>
     </div>;
   }
 }
