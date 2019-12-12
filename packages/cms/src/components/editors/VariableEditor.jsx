@@ -60,33 +60,14 @@ class VariableEditor extends Component {
     }
   }
 
-  changeField(field, e) {
+  // handles changes in text, code editor, or visibility
+  changeData(field, e) {
     const {isDirty, data} = this.state;
-    data[field] = e.target.value;
-    if (!isDirty) {
-      if (this.props.markAsDirty) this.props.markAsDirty();
-      this.setState({isDirty: true, data});
-    }
-    else {
-      this.setState({data});
-    }
-  }
 
-  handleEditor(field, t) {
-    const {isDirty, data} = this.state;
-    data[field] = t;
-    if (!isDirty) {
-      if (this.props.markAsDirty) this.props.markAsDirty();
-      this.setState({isDirty: true, data});
-    }
-    else {
-      this.setState({data});
-    }
-  }
+    let target = e; // target is already a string
+    if (typeof e === "object" && e.target) target = e.target.value; // grab the value from the event
+    data[field] = target; // set the field
 
-  chooseVariable(e) {
-    const {isDirty, data} = this.state;
-    data.allowed = e.target.value;
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
       this.setState({isDirty: true, data});
@@ -264,14 +245,14 @@ class VariableEditor extends Component {
                 namespace="cms"
                 inline
                 value={data.name}
-                onChange={this.changeField.bind(this, "name")}
+                onChange={this.changeData.bind(this, "name")}
               />
               <TextInput
                 label="Description"
                 namespace="cms"
                 inline
                 value={data.description}
-                onChange={this.changeField.bind(this, "description")}
+                onChange={this.changeData.bind(this, "description")}
               />
             </div>
           }
@@ -284,7 +265,7 @@ class VariableEditor extends Component {
                 inline: true,
                 namespace: "cms",
                 value: data.api,
-                onChange: this.changeField.bind(this, "api")
+                onChange: this.changeData.bind(this, "api")
               }}
               buttonProps={{
                 children: payload && !payload.error ? "Refetch data" : "Fetch data",
@@ -336,7 +317,7 @@ class VariableEditor extends Component {
                     key="ace-wrap"
                     className="editor"
                     ref={comp => this.editor = comp}
-                    onChange={this.handleEditor.bind(this, "logic")}
+                    onChange={this.changeData.bind(this, "logic")}
                     value={data.logic}
                     {...this.props}
                   />
@@ -361,7 +342,7 @@ class VariableEditor extends Component {
             <VisibleSelector
               variables={variables}
               value={data.allowed !== undefined ? data.allowed : "always"}
-              onChange={this.chooseVariable.bind(this)}
+              onChange={this.changeData.bind(this, "allowed")}
             />
           }
         </div>
