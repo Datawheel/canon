@@ -47,13 +47,13 @@ class Subnav extends Component {
       if (sections.length === 1) {
         flattenedSections = sections[0]
           .map(s => s[0])
-          .filter(s => s.type.toLowerCase() !== "grouping"); // only show groupings
+          .filter(s => s.type.toLowerCase() !== "grouping"); // don't show groupings
       }
       // we got groupings
       else {
         flattenedSections = sections
           .map(s => s[0][0])
-          .filter(s => s.type.toLowerCase() === "grouping"); // don't show groupings
+          .filter(s => s.type.toLowerCase() === "grouping"); // only show groupings
       }
     }
 
