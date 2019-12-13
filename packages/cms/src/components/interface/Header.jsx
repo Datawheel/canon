@@ -189,7 +189,7 @@ class Header extends Component {
 
           {/* TODO: make this a popover once we have more options */}
           {/* preview entity */}
-          <div className="cms-header-actions-container" key="header-actions-container-preview">
+          {pathObj.section && <div className="cms-header-actions-container" key="header-actions-container-preview">
             <Button
               className="cms-header-actions-button cms-header-delete-button"
               onClick={this.togglePreview.bind(this)}
@@ -199,7 +199,7 @@ class Header extends Component {
             >
               {`Preview ${entityType === "storysection" ? "section" : entityType}`}
             </Button>
-          </div>
+          </div>}
 
           {/* duplicate entity */}
           {pathObj.tab === "profiles" && <div className="cms-header-actions-container" key="header-actions-container-duplicate">
