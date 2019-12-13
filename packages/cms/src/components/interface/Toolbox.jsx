@@ -34,7 +34,6 @@ class Toolbox extends Component {
     const newIDs = this.props.status.previews ? this.props.status.previews.map(p => p.id).join() : this.props.status.previews;
     const changedSinglePreview = oldSlugs === newSlugs && oldIDs !== newIDs;
     const changedEntireProfile = oldSlugs !== newSlugs;
-
     const localeChanged = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
 
     if (changedSinglePreview) {

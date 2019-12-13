@@ -14,7 +14,7 @@ import SelectorUsage from "../components/interface/SelectorUsage";
 import {Dialog, Icon} from "@blueprintjs/core";
 import SectionRenderer from "../components/SectionRenderer.jsx";
 
-import {newEntity, updateEntity, fetchSectionPreview} from "../actions/profiles";
+import {newEntity, updateEntity} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 
 import "./SectionEditor.css";
@@ -35,12 +35,6 @@ class SectionEditor extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id) {
       this.setState({minData: deepClone(this.props.minData)});
-    }
-    // If the sectionPreview is open, then the user may use PreviewHeader to change the previews or the language.
-    // Changing either option will fetch new variables, and in turn, cause diffCounter to increment. Upon catching
-    // That, kick off a new fetch of the section using the freshly calculated variables.
-    if (this.props.status.sectionPreview && prevProps.status.diffCounter !== this.props.status.diffCounter) {
-      this.props.fetchSectionPreview(this.props.status.pathObj.section, this.props.status.localeSectionPreview);
     }
   }
 
@@ -77,7 +71,7 @@ class SectionEditor extends Component {
 
     const {minData, allSelectors, formatters} = this.props;
     const {children} = this.props;
-    const {variables, localeDefault, localeSecondary, sectionPreview} = this.props.status;
+    const {variables, localeDefault, localeSecondary, useLocaleSecondary, sectionPreview} = this.props.status;
 
     const minDataState = this.state.minData;
 
@@ -323,10 +317,10 @@ class SectionEditor extends Component {
               </button>
               <PreviewHeader />
               <SectionRenderer
-                isModal={true}
+                isModal={true}           // isModal hides anchor tags, header, other cruft
                 profile={sectionPreview} // The entire profile, filtered to a single section, as loaded in Header.jsx 
                 formatters={formatters}  // The RAW formatters - SectionRenderer handles turning them into Functions
-                locale={localeDefault}   // This will need to change based on what language people are previewing in
+                locale={useLocaleSecondary ? localeSecondary : localeDefault}   
                 sectionID={minData.id}   // Limit the Profile and its onSelect reloads to the given sectionID
               />
             </React.Fragment>
@@ -349,7 +343,6 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = dispatch => ({
   newEntity: (type, payload) => dispatch(newEntity(type, payload)),
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
-  fetchSectionPreview: (id, locale) => dispatch(fetchSectionPreview(id, locale)),
   setStatus: status => dispatch(setStatus(status))
 });
 

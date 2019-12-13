@@ -67,9 +67,10 @@ class Header extends Component {
   }
 
   togglePreview() {
-    const {pathObj, localeSectionPreview} = this.props.status;
+    const {pathObj, localeDefault, localeSecondary, useLocaleSecondary} = this.props.status;
+    const locale = useLocaleSecondary ? localeSecondary : localeDefault;
     if (pathObj.section) {
-      this.props.fetchSectionPreview(pathObj.section, localeSectionPreview);
+      this.props.fetchSectionPreview(pathObj.section, locale);
     }
   }
 
