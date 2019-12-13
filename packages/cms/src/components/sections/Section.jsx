@@ -212,7 +212,7 @@ class Section extends Component {
       const statGroups = nest().key(d => d.title).entries(stats);
 
       if (stats.length > 0) {
-        statContent = <div className="cp-stat-group-wrapper">
+        statContent = <div className={`cp-stat-group-wrapper${stats.length === 1 ? " single-stat" : ""}`}>
           {statGroups.map(({key, values}, i) => !(layout === "InfoCard" && i > 0) // only push the first stat for cards
             ? <StatGroup key={key} title={key} stats={values} /> : ""
           )}
