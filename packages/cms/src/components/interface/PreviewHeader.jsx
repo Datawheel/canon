@@ -46,7 +46,7 @@ class PreviewHeader extends Component {
 
   render() {
 
-    const {locales, localeDefault, localeSecondary, useLocaleSecondary, previews} = this.props.status;
+    const {locales, localeDefault, localeSecondary, useLocaleSecondary, previews, fetchingVariables, fetchingSectionPreview} = this.props.status;
     const {meta} = this.props;
     const locale = useLocaleSecondary ? localeSecondary : localeDefault;
 
@@ -54,6 +54,8 @@ class PreviewHeader extends Component {
 
     return (
       <div>
+        {fetchingVariables && <span style={{color: "red"}}>Loading Variables...</span>}
+        {fetchingSectionPreview && <span style={{color: "red"}}>Fetching Preview...</span>}
         {meta.map((m, i) => 
           <PreviewSearch
             key={`ps-${m.slug}`}
