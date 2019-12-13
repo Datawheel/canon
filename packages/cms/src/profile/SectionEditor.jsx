@@ -80,7 +80,9 @@ class SectionEditor extends Component {
     const defLoaded = localeSecondary || variables && !localeSecondary && variables[localeDefault];
     const locLoaded = !localeSecondary || variables && localeSecondary && variables[localeDefault] && variables[localeSecondary];
 
-    if (!dataLoaded || !varsLoaded || !defLoaded || !locLoaded) return false;
+    if (!dataLoaded) return null;
+
+    const allLoaded = dataLoaded && varsLoaded && defLoaded && locLoaded;
 
     const varOptions = [<option key="always" value="always">Always</option>]
       .concat(Object.keys(variables[localeDefault])
@@ -114,7 +116,7 @@ class SectionEditor extends Component {
       <div className="cms-editor-inner">
 
         {/* dimensions */}
-        {children}
+        {allLoaded && children}
 
         {/* section name */}
         {/* TODO: convert to fields */}
@@ -246,7 +248,7 @@ class SectionEditor extends Component {
           />
         }
 
-        {allSelectors && allSelectors.length > 0 &&
+        {allSelectors && allSelectors.length > 0 && allLoaded &&
           <Deck title="Selector activation" entity="selectorUsage">
             <SelectorUsage
               key="selector-usage"
