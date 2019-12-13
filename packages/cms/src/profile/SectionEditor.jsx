@@ -96,7 +96,7 @@ class SectionEditor extends Component {
         }));
 
     const iconList = [<option key="none" value="none">None</option>]
-      .concat(blueprintIcons.map(icon => 
+      .concat(blueprintIcons.map(icon =>
         <option key={icon} value={icon}>{icon}</option>
       ));
 
@@ -349,4 +349,3 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SectionEditor);
-

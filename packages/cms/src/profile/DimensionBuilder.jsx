@@ -1,17 +1,18 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
+import {connect} from "react-redux";
+
 import DimensionCard from "../components/cards/DimensionCard";
 import DimensionEditor from "../components/editors/DimensionEditor";
 import Deck from "../components/interface/Deck";
-import {Dialog} from "@blueprintjs/core";
-import {connect} from "react-redux";
+import Dialog from "../components/interface/Dialog";
 
 import "./DimensionBuilder.css";
 
 class DimensionBuilder extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
+      isOpen: false
     };
   }
 
@@ -21,7 +22,7 @@ class DimensionBuilder extends Component {
     const {isOpen} = this.state;
 
     return (
-      <React.Fragment>
+      <Fragment>
         <Deck
           title="Dimensions"
           entity="dimension"
@@ -36,24 +37,20 @@ class DimensionBuilder extends Component {
         />
 
         <Dialog
-          className="dimension-editor-dialog"
+          className="cms-dimension-editor-dialog"
+          title="Dimension editor"
           isOpen={isOpen}
           onClose={() => this.setState({isOpen: false})}
-          title="Dimension Creator"
           usePortal={false}
           icon={false}
         >
-
-          <div className="bp3-dialog-body">
-            <DimensionEditor
-              onComplete={() => this.setState({isOpen: false})}
-            />
-          </div>
+          <DimensionEditor
+            onComplete={() => this.setState({isOpen: false})}
+          />
         </Dialog>
-      </React.Fragment>
+      </Fragment>
     );
   }
-
 }
 
 const mapStateToProps = state => ({
@@ -62,4 +59,3 @@ const mapStateToProps = state => ({
 });
 
 export default connect(mapStateToProps)(DimensionBuilder);
-

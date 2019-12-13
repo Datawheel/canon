@@ -1,10 +1,12 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
-import {Icon, Alert, Intent} from "@blueprintjs/core";
+import {Icon} from "@blueprintjs/core";
 
 import Button from "../fields/Button";
+import ButtonGroup from "../fields/ButtonGroup";
 import Select from "../fields/Select";
+import Alert from "../interface/Alert";
 
 import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, fetchSectionPreview} from "../../actions/profiles";
 import {deleteStory} from "../../actions/stories";
@@ -12,8 +14,14 @@ import {setStatus} from "../../actions/status";
 
 import "./Header.css";
 
-class Header extends Component {
+// spread into header action buttons
+const buttonProps = {
+  iconPosition: "left",
+  namespace: "cms",
+  fontSize: "xxs"
+};
 
+class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -88,7 +96,6 @@ class Header extends Component {
   }
 
   render() {
-
     const {dimensions, profiles, stories} = this.props;
     const {currentPid, currentStoryPid, pathObj} = this.props.status;
     const {itemToDelete, itemToDuplicate, profileTarget} = this.state;
@@ -162,6 +169,9 @@ class Header extends Component {
     // Only show the link if this is a story (not requiring dimension) or is a profile that HAS dimensions
     const showLink = pathObj.tab === "stories" || dimensions && dimensions.length > 0;
 
+    let showDuplicateButton = false;
+    if (pathObj.tab === "profiles") showDuplicateButton = true;
+
     return (
       <Fragment>
         <header className="cms-header">
@@ -188,83 +198,76 @@ class Header extends Component {
           </span>
 
           {/* TODO: make this a popover once we have more options */}
-          {/* preview entity */}
-          {pathObj.section && <div className="cms-header-actions-container" key="header-actions-container-preview">
-            <Button
-              className="cms-header-actions-button cms-header-delete-button"
-              onClick={this.togglePreview.bind(this)}
-              icon="application"
-              namespace="cms"
-              fontSize="xs"
-            >
-              {`Preview ${entityType === "storysection" ? "section" : entityType}`}
-            </Button>
-          </div>}
-
-          {/* duplicate entity */}
-          {pathObj.tab === "profiles" && <div className="cms-header-actions-container" key="header-actions-container-duplicate">
-            <Button
-              className="cms-header-actions-button cms-header-delete-button"
-              onClick={this.maybeDuplicate.bind(this)}
-              icon="duplicate"
-              namespace="cms"
-              fontSize="xs"
-            >
-              {`Duplicate ${entityType === "storysection" ? "section" : entityType}`}
-            </Button>
-          </div>}
-          {/* delete entity */}
-          {showDeleteButton &&
-            <div className="cms-header-actions-container" key="header-actions-container-delete">
-              <Button
-                className="cms-header-actions-button cms-header-delete-button"
-                onClick={this.maybeDelete.bind(this)}
-                icon="trash"
-                namespace="cms"
-                fontSize="xs"
-              >
-                {`Delete ${entityType === "storysection" ? "section" : entityType}`}
-              </Button>
-            </div>
+          {showDuplicateButton || showDeleteButton
+            ? <div className="cms-header-actions-container" key="ac">
+              <ButtonGroup className="cms-header-actions-button-group">
+                {/* duplicate entity */}
+                {showDuplicateButton &&
+                  <Button
+                    className="cms-header-actions-button cms-header-duplicate-button"
+                    onClick={this.maybeDuplicate.bind(this)}
+                    icon="duplicate"
+                    key="db1"
+                    {...buttonProps}
+                  >
+                    Duplicate <span className="u-visually-hidden">
+                      {entityType === "storysection" ? "section" : entityType}
+                    </span>
+                  </Button>
+                }
+                {/* delete entity */}
+                {showDeleteButton &&
+                  <Button
+                    className="cms-header-actions-button cms-header-delete-button"
+                    onClick={this.maybeDelete.bind(this)}
+                    icon="trash"
+                    key="db2"
+                    {...buttonProps}
+                  >
+                    Delete <span className="u-visually-hidden">
+                      {entityType === "storysection" ? "section" : entityType}
+                    </span>
+                  </Button>
+                }
+              </ButtonGroup>
+            </div> : ""
           }
         </header>
 
         <Alert
+          title={`Duplicate ${entityType}?`}
           isOpen={itemToDuplicate}
-          cancelButtonText="Cancel"
-          confirmButtonText="Duplicate"
-          iconName="duplicate"
-          intent={Intent.SUCCESS}
+          confirmButtonText={`Duplicate ${entityType}`}
           onConfirm={() => this.duplicate.bind(this)(itemToDuplicate)}
           onCancel={() => this.setState({itemToDuplicate: null})}
-        >
-          {entityType === "profile" 
-            ? <div>Duplicate this Profile?</div>
-            : <div>
-              Choose a profile in which to duplicate this section:
-              <Select
-                label="Target Profile"
-                namespace="cms"
-                value={profileTarget}
-                onChange={this.chooseProfileTarget.bind(this)}
-                inline
-              >
-                {profiles.map(p => <option key={p.id} value={p.id}>{p.meta.map(m => m.slug).join("/")}</option>)}
-              </Select>
-            </div>
+          controls={entityType === "section"
+            ? <Select
+              label="Duplicate section to which profile?"
+              labelHidden
+              namespace="cms"
+              fontSize="md"
+              value={profileTarget}
+              onChange={this.chooseProfileTarget.bind(this)}
+            >
+              {profiles.map(p => <option key={p.id} value={p.id}>
+                {p.meta.map(m => m.slug).join("/")} profile
+              </option>)}
+            </Select> : null
           }
-        </Alert>
+          theme="caution"
+        />
+
         <Alert
+          title={itemToDelete && itemToDelete.type === "profile"
+            ? "Delete profile along with all of its sections and content?"
+            : "Delete section along with all of its content?"}
           isOpen={itemToDelete}
           cancelButtonText="Cancel"
-          confirmButtonText="Delete"
-          iconName="trash"
-          intent={Intent.DANGER}
+          confirmButtonText={`Delete ${itemToDelete ? itemToDelete.type : ""}`}
           onConfirm={() => this.delete.bind(this)(itemToDelete)}
           onCancel={() => this.setState({itemToDelete: null})}
-        >
-          {itemToDelete ? `Are you sure you want to delete this ${itemToDelete.type} and all its children? This action cannot be undone.` : ""}
-        </Alert>
+          description="This action cannot be undone."
+        />
       </Fragment>
     );
   }

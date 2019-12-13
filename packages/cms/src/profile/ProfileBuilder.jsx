@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
 import {NonIdealState} from "@blueprintjs/core";
@@ -66,10 +66,10 @@ class ProfileBuilder extends Component {
     if (!profilesLoaded) return null;
 
     return (
-      <React.Fragment>
+      <Fragment>
         <div className="cms-panel profile-panel" id="profile-builder">
           <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
-            { Editor && currentPid
+            {Editor && currentPid
               ? <Editor id={id}>
                 <Header dimensions={previews}/>
                 <DimensionBuilder />
@@ -94,15 +94,15 @@ class ProfileBuilder extends Component {
                 </Button>
               </div>
             </Toolbox>
-
-            <Status
-              recompiling={gensRecompiling || searchRecompiling}
-              busy={gensRecompiling ? gensBusy : searchBusy}
-              done={gensRecompiling ? gensDone : searchDone}
-            />
           </div>
         </div>
-      </React.Fragment>
+
+        <Status
+          recompiling={gensRecompiling || searchRecompiling}
+          busy={gensRecompiling ? gensBusy : searchBusy}
+          done={gensRecompiling ? gensDone : searchDone}
+        />
+      </Fragment>
     );
   }
 }

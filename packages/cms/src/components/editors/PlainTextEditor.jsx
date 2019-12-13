@@ -43,20 +43,18 @@ class PlainTextEditor extends Component {
 
     const thisLocale = data.content.find(c => c.locale === locale);
 
-    const inputs = fields.map(f =>
-      <TextInput
-        label={f}
-        inline
-        namespace="cms"
-        value={thisLocale[f]}
-        onChange={this.changeField.bind(this, f)}
-        key={f}
-      />
-    );
-
     return (
       <div id="text-editor">
-        {inputs}
+        {fields.map(f =>
+          <TextInput
+            label={f}
+            inline
+            namespace="cms"
+            value={thisLocale[f]}
+            onChange={this.changeField.bind(this, f)}
+            key={f}
+          />
+        )}
       </div>
     );
   }

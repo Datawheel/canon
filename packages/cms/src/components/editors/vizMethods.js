@@ -1,7 +1,7 @@
 module.exports = {
   colorScale: {
     key: "colorScale",
-    display: "Color Scale",
+    display: "Color scale",
     format: "Accessor",
     required: true
   },
@@ -66,27 +66,27 @@ module.exports = {
   },
   x: {
     key: "x",
-    display: "X-Axis",
+    display: "X-axis",
     format: "Accessor",
     required: true,
     tooltip: true
   },
   xConfigTitle: {
     key: "xConfig.title",
-    display: "X-Axis Label",
+    display: "X-axis label",
     format: "Input",
     required: false
   },
   y: {
     key: "y",
-    display: "Y-Axis",
+    display: "Y-axis",
     format: "Accessor",
     required: true,
     tooltip: true
   },
   yConfigTitle: {
     key: "yConfig.title",
-    display: "Y-Axis Label",
+    display: "Y-axis label",
     format: "Input",
     required: false
   }

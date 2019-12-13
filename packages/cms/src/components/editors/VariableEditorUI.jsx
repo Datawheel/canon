@@ -1,10 +1,11 @@
 import React, {Component} from "react";
-import {EditableText, Checkbox, Alert, Intent} from "@blueprintjs/core";
+import {EditableText} from "@blueprintjs/core";
+import Alert from "../interface/Alert";
 import Button from "../fields/Button";
 
-import "./SimpleGeneratorEditor.css";
+import "./VariableEditorUI.css";
 
-export default class SimpleGeneratorEditor extends Component {
+export default class VariableEditorUI extends Component {
 
   constructor(props) {
     super(props);
@@ -40,7 +41,7 @@ export default class SimpleGeneratorEditor extends Component {
     let pl = payload;
     if (payload.results) pl = payload.results;
     if (payload.data) pl = payload.data;
-    // Bug: The deepclone used in GeneratorEditor erroneously logic_simple from NULL to {}
+    // Bug: The deepclone used in VariableEditor erroneously logic_simple from NULL to {}
     // Therefore, detect the blank object as another expression of NULLness
     const configIsEmptyObject = simpleConfig.constructor === Object && Object.keys(simpleConfig).length === 0;
     if (simpleConfig && !configIsEmptyObject) {
@@ -143,56 +144,63 @@ export default class SimpleGeneratorEditor extends Component {
   }
 
   render() {
-
     const {objects, rebuildAlertOpen} = this.state;
 
-    return <div className="simple-generator-editor">
+    const rebuildButtonProps = {
+      className: "cms-variable-editor-heading-button",
+      onClick: this.maybeRebuild.bind(this),
+      fontSize: "xxs",
+      namespace: "cms",
+      icon: "undo",
+      iconPosition: "left",
+      key: "b"
+    };
+
+    return <div className="cms-variable-editor-ui">
+      <h3 className="cms-variable-editor-heading u-font-xs">
+        Generated variables <Button {...rebuildButtonProps}>rebuild</Button>
+      </h3>
+
+      <div className="cms-variable-table-wrapper">
+        <table className="cms-variable-table">
+          <thead>
+            <tr>
+              <td>use</td>
+              <td>custom name</td>
+              <td>key</td>
+              <td>value</td>
+            </tr>
+          </thead>
+          {objects.map((objArr, i) =>
+            <tbody key={objArr.i}>
+              {objArr.map(row =>
+                <tr className={`cms-variable-table-row ${row.use ? "is-active" : "is-inactive"}`} key={row.pKey}>
+                  <td>
+                    <input type="checkbox" checked={row.use} onChange={this.changeUse.bind(this, i, row.pKey)} />
+                  </td>
+                  <td>
+                    <EditableText
+                      value={row.keyName}
+                      onChange={this.changeKey.bind(this, i, row.pKey)} />
+                  </td>
+                  <td>{row.pKey}</td>
+                  <td>{String(row.pVal)}</td>
+                </tr>
+              )}
+            </tbody>
+          )}
+        </table>
+      </div>
+
       <Alert
+        title="Rebuild variables from the current payload?"
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"
         className="confirm-alert"
-        iconName="bp3-icon-warning-sign"
-        intent={Intent.DANGER}
         isOpen={rebuildAlertOpen}
         onConfirm={this.rebuild.bind(this)}
         onCancel={() => this.setState({rebuildAlertOpen: false})}
-      >
-        Are you sure you want to rebuild your variables from the current payload?
-      </Alert>
-      <div className="cms-label">
-        Generated variables <Button className="u-font-xxs" onClick={this.maybeRebuild.bind(this)} namespace="cms" icon="undo" iconOnly>
-          Rebuild variables
-        </Button>
-      </div>
-
-      {/* <tr key={i} className="obj">
-          <td>
-            {`Object ${i}`}
-          </td>
-          <td>
-            <Checkbox checked={objArr.every(r => r.use)} onChange={this.changeAll.bind(this, i)}/>
-          </td>
-      </tr>*/}
-      <table className="cms-generator-table">
-        {objects.map((objArr, i) =>
-          <tbody key={objArr.i}>
-            {objArr.map(row =>
-              <tr key={row.pKey}>
-                <td>
-                  <Checkbox checked={row.use} onChange={this.changeUse.bind(this, i, row.pKey)}/>
-                </td>
-                <td>
-                  <EditableText
-                    defaultValue={row.keyName}
-                    onChange={this.changeKey.bind(this, i, row.pKey)} />
-                </td>
-                <td>{row.pKey}</td>
-                <td>{String(row.pVal)}</td>
-              </tr>
-            )}
-          </tbody>
-        )}
-      </table>
+      />
     </div>;
   }
 }

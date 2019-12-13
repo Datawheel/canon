@@ -214,30 +214,13 @@
 .cms-meta-popover {
   will-change: width;
   transition: width 0.1s ease-out;
-
-  /* override blueprint */
-  & .cms-meta-popover-inner {
-    padding: var(--gutter-md);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
-  }
-}
-
-/* header with title and tabs */
-.cms-meta-popover-header {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
 }
 
 /* button group */
 .cms-meta-popover-button-group {
-  @mixin absolute-horizontal-center;
+  @mixin absolute-center;
   position: absolute !important;
   box-shadow: none !important;
-  top: 0;
-  min-height: 2.75rem;
   width: auto;
 
   & .cms-button {

@@ -1,21 +1,21 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
-import {Dialog} from "@blueprintjs/core";
+
 import varSwapRecursive from "../../utils/varSwapRecursive";
-import GeneratorEditor from "../editors/GeneratorEditor";
-import Loading from "components/Loading";
-import Viz from "../Viz/Viz";
-import FooterButtons from "../editors/components/FooterButtons";
 import deepClone from "../../utils/deepClone";
+
+import Loading from "components/Loading";
 import Card from "./Card";
+import Viz from "../Viz/Viz";
+import VariableEditor from "../editors/VariableEditor";
+import Dialog from "../interface/Dialog";
 
 import {deleteEntity, updateEntity} from "../../actions/profiles";
 
 import "./VisualizationCard.css";
 
 class VisualizationCard extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -39,7 +39,7 @@ class VisualizationCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this?",
+      title: "Delete visualization?",
       confirm: "Delete"
     };
     this.setState({alertObj});
@@ -68,8 +68,9 @@ class VisualizationCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Are you sure you want to abandon changes?",
-        confirm: "Yes, Abandon changes."
+        title: "Close visualization editor and revert changes?",
+        confirm: "Close editor",
+        theme: "caution"
       };
       this.setState({alertObj});
     }
@@ -88,7 +89,6 @@ class VisualizationCard extends Component {
   }
 
   render() {
-
     const {minData, showReorderButton} = this.props;
     const {isOpen, alertObj} = this.state;
     const {query} = this.props.status;
@@ -118,7 +118,7 @@ class VisualizationCard extends Component {
     const config = Object.assign({}, minData, {logic});
 
     const cardProps = {
-      cardClass: "visualization",
+      type,
       title: config && config.logic_simple && config.logic_simple.data
         ? `${
           config.logic_simple.type}${
@@ -139,47 +139,50 @@ class VisualizationCard extends Component {
       onAlertCancel: () => this.setState({alertObj: false})
     };
 
+    let vizProps = {};
+    if (!isOpen) {
+      vizProps = {
+        config,
+        namespace: "cms",
+        locale: localeDefault,
+        debug: true,
+        initialVariables: variables,
+        variables,
+        configOverride: {height},
+        options: false
+      };
+    }
+
+    const dialogProps = {
+      title: "Visualization editor",
+      isOpen,
+      onClose: this.maybeCloseEditorWithoutSaving.bind(this),
+      onDelete: this.maybeDelete.bind(this),
+      onSave: this.save.bind(this),
+      usePortal: false,
+      portalProps: {namespace: "cms"}
+    };
+
+    const editorProps = {
+      type: "visualization",
+      data: minDataState,
+      markAsDirty: this.markAsDirty.bind(this)
+    };
+
     return (
       <Card {...cardProps}>
-
         {/* viz preview */}
         {!isOpen &&
-          <Viz
-            config={config}
-            namespace="cms"
-            locale={localeDefault}
-            debug={true}
-            initialVariables={variables}
-            variables={variables}
-            configOverride={{height}}
-            options={false}
-          />
+          <Viz {...vizProps} key="v" />
         }
 
-        {/* edit mode */}
-        <Dialog
-          className="generator-editor-dialog"
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Visualization editor"
-          usePortal={false}
-        >
-          <div className="bp3-dialog-body">
-            <GeneratorEditor
-              markAsDirty={this.markAsDirty.bind(this)}
-              data={minDataState}
-              type={type}
-            />
-          </div>
-          <FooterButtons
-            onDelete={this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
+        {/* editor */}
+        <Dialog {...dialogProps} key="d">
+          <VariableEditor {...editorProps} />
         </Dialog>
       </Card>
     );
   }
-
 }
 
 VisualizationCard.contextTypes = {

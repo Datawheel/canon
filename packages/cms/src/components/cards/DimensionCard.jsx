@@ -1,16 +1,17 @@
 import axios from "axios";
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import DefinitionList from "../variables/DefinitionList";
-import DimensionEditor from "../editors/DimensionEditor";
-import {Dialog} from "@blueprintjs/core";
-import PreviewSearch from "../fields/PreviewSearch";
 import Card from "./Card";
+import Dialog from "../interface/Dialog";
+import DimensionEditor from "../editors/DimensionEditor";
+import DefinitionList from "../variables/DefinitionList";
+import Button from "../fields/Button";
+import PreviewSearch from "../fields/PreviewSearch";
+
 import {deleteDimension} from "../../actions/profiles";
 import "./DimensionCard.css";
 
 class DimensionCard extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -33,8 +34,9 @@ class DimensionCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this Dimension?",
-      confirm: "Delete"
+      title: "Delete dimension?",
+      description: "This action can break the site.",
+      confirm: "Delete dimension"
     };
     this.setState({alertObj});
   }
@@ -51,23 +53,34 @@ class DimensionCard extends Component {
 
     // define props for Card
     const cardProps = {
-      cardClass: "dimension",
       title: meta.dimension,
+      type: "dimension",
       onDelete: this.maybeDelete.bind(this),
       onRefresh: this.rebuildSearch.bind(this),
       onEdit: () => this.setState({isOpen: !this.state.isOpen}),
       rebuilding,
-      // onEdit: this.openEditor.bind(this),
-      // onReorder: this.props.onMove ? this.props.onMove.bind(this) : null,
-      // alert
       alertObj,
       onAlertCancel: () => this.setState({alertObj: false})
     };
 
-    return (
-      <React.Fragment>
-        <Card key={`dimcard-${meta.slug}`} {...cardProps}>
+    const dialogProps = {
+      className: "cms-dimension-editor-dialog",
+      title: "Dimension editor",
+      isOpen,
+      onClose: () => this.setState({isOpen: false}),
+      usePortal: false,
+      icon: false,
+      portalProps: {namespace: "cms"}
+    };
 
+    const editorProps = {
+      meta,
+      onComplete: () => this.setState({isOpen: false})
+    };
+
+    return (
+      <Fragment>
+        <Card {...cardProps} key="c">
           <DefinitionList definitions={[
             {label: "slug", text: meta.slug},
             {label: "levels", text: meta.levels.join(", ")},
@@ -84,30 +97,15 @@ class DimensionCard extends Component {
               />
             }
           ]}/>
-
-          {/* TODO: edit mode */}
         </Card>
-        <Dialog
-          key="dimension-editor-dialog"
-          className="dimension-editor-dialog"
-          isOpen={isOpen}
-          onClose={() => this.setState({isOpen: false})}
-          title="Dimension Creator"
-          usePortal={false}
-          icon={false}
-        >
 
-          <div className="bp3-dialog-body">
-            <DimensionEditor
-              meta={meta}
-              onComplete={() => this.setState({isOpen: false})}
-            />
-          </div>
+        {/* open state */}
+        <Dialog {...dialogProps} key="d">
+          <DimensionEditor {...editorProps} />
         </Dialog>
-      </React.Fragment>
+      </Fragment>
     );
   }
-
 }
 
 const mapStateToProps = state => ({

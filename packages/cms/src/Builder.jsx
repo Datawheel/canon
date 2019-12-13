@@ -22,6 +22,7 @@ import "./css/base.css";
 import "./css/blueprint-overrides.css";
 import "./css/form-fields.css";
 import "./css/layout.css";
+import "./css/keyframes.css";
 
 class Builder extends Component {
 
@@ -76,7 +77,7 @@ class Builder extends Component {
     if (prevProps.auth.loading && !this.props.auth.loading) {
       this.setState({userInit: true});
     }
-    // if location queries change, create new pathobj & set that 
+    // if location queries change, create new pathobj & set that
     if (JSON.stringify(prevProps.status.pathObj) !== JSON.stringify(this.props.status.pathObj)) {
       this.setPath.bind(this)();
     }

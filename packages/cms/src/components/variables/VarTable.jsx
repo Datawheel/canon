@@ -16,16 +16,11 @@ export default class VarTable extends Component {
         : <table className="cms-var-table">
           <tbody className="cms-var-table-body">
             {Object.keys(dataset).map(k =>
-              <tr className="cms-var-table-row" key={ k }>
-                {dupes.includes(k) 
-                  ? <td className="cms-var-table-cell warning">
-                    { k }:
-                  </td>
-                  : <td className="cms-var-table-cell">
-                    { k }:
-                  </td>
-                }
-                
+              <tr className={`cms-var-table-row${ dupes.includes(k) ? " warning" : "" }`} key={ k }>
+                <td className="cms-var-table-cell">
+                  { k }:
+                </td>
+
                 <td className="cms-var-table-cell">
                   <ConsoleVariable value={ dataset[k] } />
                 </td>
