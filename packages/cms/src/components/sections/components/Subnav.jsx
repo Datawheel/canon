@@ -43,7 +43,18 @@ class Subnav extends Component {
       sections[0] && sections[0][0] &&
       sections[0][0] === Object(sections[0][0])
     ) {
-      flattenedSections = sections.map(s => s[0][0]);
+      // the hierarchy is flat (i.e., <= 1 grouping)
+      if (sections.length === 1) {
+        flattenedSections = sections[0]
+          .map(s => s[0])
+          .filter(s => s.type.toLowerCase() !== "grouping"); // only show groupings
+      }
+      // we got groupings
+      else {
+        flattenedSections = sections
+          .map(s => s[0][0])
+          .filter(s => s.type.toLowerCase() === "grouping"); // don't show groupings
+      }
     }
 
     return flattenedSections;
@@ -96,7 +107,7 @@ class Subnav extends Component {
     const {currSection, fixed} = this.state;
     const sections = this.flattenSections(this.props.sections);
 
-    if (!sections || !Array.isArray(sections)) return null;
+    if (!sections || !Array.isArray(sections) || sections.length < 3) return null;
 
     let height = 50;
     if (typeof window !== "undefined" && this.subnav.current) {
