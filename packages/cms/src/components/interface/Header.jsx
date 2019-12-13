@@ -169,8 +169,8 @@ class Header extends Component {
     // Only show the link if this is a story (not requiring dimension) or is a profile that HAS dimensions
     const showLink = pathObj.tab === "stories" || dimensions && dimensions.length > 0;
 
-    let showDuplicateButton = false;
-    if (pathObj.tab === "profiles") showDuplicateButton = true;
+    const showDuplicateButton = pathObj.tab === "profiles";
+    const showPreviewButton = pathObj.section;
 
     return (
       <Fragment>
@@ -201,13 +201,25 @@ class Header extends Component {
           {showDuplicateButton || showDeleteButton
             ? <div className="cms-header-actions-container" key="ac">
               <ButtonGroup className="cms-header-actions-button-group">
+                {/* preview entity */}
+                {showPreviewButton && 
+                  <Button
+                    className="cms-header-actions-button cms-header-preview-button"
+                    onClick={this.togglePreview.bind(this)}
+                    icon="application"
+                    key="db1"
+                    {...buttonProps}
+                  >
+                    Preview Section
+                  </Button>
+                }
                 {/* duplicate entity */}
                 {showDuplicateButton &&
                   <Button
                     className="cms-header-actions-button cms-header-duplicate-button"
                     onClick={this.maybeDuplicate.bind(this)}
                     icon="duplicate"
-                    key="db1"
+                    key="db2"
                     {...buttonProps}
                   >
                     Duplicate <span className="u-visually-hidden">
@@ -221,7 +233,7 @@ class Header extends Component {
                     className="cms-header-actions-button cms-header-delete-button"
                     onClick={this.maybeDelete.bind(this)}
                     icon="trash"
-                    key="db2"
+                    key="db3"
                     {...buttonProps}
                   >
                     Delete <span className="u-visually-hidden">

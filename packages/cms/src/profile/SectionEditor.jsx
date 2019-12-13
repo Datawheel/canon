@@ -85,7 +85,7 @@ class SectionEditor extends Component {
     const allLoaded = dataLoaded && varsLoaded && defLoaded && locLoaded;
 
     const varOptions = [<option key="always" value="always">Always</option>]
-      .concat(Object.keys(variables[localeDefault])
+      .concat(Object.keys(variables[localeDefault] || {})
         .filter(key => !key.startsWith("_"))
         .sort((a, b) => a.localeCompare(b))
         .map(key => {
