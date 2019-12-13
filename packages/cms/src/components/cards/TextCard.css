@@ -2,12 +2,17 @@
 
 /* TODO: genericize */
 .cms-dialog-locale-group {
-  margin-bottom: 2.25rem;
-
+  & .cms-locale-name {
+    margin-top: 0;
+  }
   & .cms-dialog-locale-container {
     width: 100%;
     min-width: 12rem;
     max-width: 100%;
+  }
+
+  & ~ .cms-select-label:last-child {
+    margin-bottom: 0;
   }
 }
 

@@ -5,8 +5,7 @@ import Deck from "./Deck";
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
 import FilterSearch from "../fields/FilterSearch";
-
-import GeneratorCard from "../cards/GeneratorCard";
+import VariableCard from "../cards/VariableCard";
 import SelectorCard from "../cards/SelectorCard";
 
 import ConsoleVariable from "../variables/ConsoleVariable";
@@ -42,7 +41,7 @@ class Toolbox extends Component {
     }
     // TODO: This preview-changing detection is a little janky. Change NavBar.jsx (and all cmsRoute Profile gets)
     // To always deliver profiles with previews already set, remove ResetPreviews, and just call FetchVariables immediately.
-    if (changedEntireProfile) { 
+    if (changedEntireProfile) {
       const prevSlugs = prevProps.status.previews ? prevProps.status.previews.map(p => p.slug) : [];
       const currSlugs = this.props.status.previews ? this.props.status.previews.map(p => p.slug) : [];
       const addedDimension = prevSlugs.length === 0 && currSlugs.length === 1;
@@ -62,7 +61,7 @@ class Toolbox extends Component {
       // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
       // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
       if (justDeleted.type === "generator") {
-        this.props.fetchVariables({type: "generator", ids: [justDeleted.id]});  
+        this.props.fetchVariables({type: "generator", ids: [justDeleted.id]});
       }
       else if (justDeleted.type === "materializer") {
         this.props.fetchVariables({type: "materializer", ids: [justDeleted.id]});
@@ -231,14 +230,15 @@ class Toolbox extends Component {
               entity="generator"
               description="Variables constructed from JSON data calls."
               addItem={this.addItem.bind(this, "generator")}
-              cards={generators.map(g =>
-                <GeneratorCard
+              cards={generators.map((g, i) =>
+                <VariableCard
                   key={g.id}
                   minData={g}
                   context="generator"
                   hidden={!detailView}
                   attr={profile.attr || {}}
                   type="generator"
+                  readOnly={i === 0}
                 />
               )}
             />
@@ -251,7 +251,7 @@ class Toolbox extends Component {
               description="Variables constructed from other variables. No API calls needed."
               addItem={this.addItem.bind(this, "materializer")}
               cards={materializers.map(m =>
-                <GeneratorCard
+                <VariableCard
                   key={m.id}
                   minData={m}
                   context="materializer"
@@ -285,7 +285,7 @@ class Toolbox extends Component {
               addItem={this.addItem.bind(this, "formatter")}
               description="Javascript Formatters for Canon text components"
               cards={formatters.map(f =>
-                <GeneratorCard
+                <VariableCard
                   context="formatter"
                   key={f.id}
                   minData={f}

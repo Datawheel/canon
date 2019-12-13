@@ -1,0 +1,42 @@
+@import "./mixins.css";
+
+@keyframes rotate {
+  0%    { transform: none; }
+  100%  { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  0%   { opacity: 0; transform: scale(0); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes appearFromBelow {
+  0% {
+    opacity: 0;
+    transform: translateY(15%) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes unfoldFromAbove {
+  0% {
+    transform:
+      scaleX(0.75)
+      scaleY(0.625)
+      translateX(10%)
+      translateY(-10%);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}

@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import Deck from "../components/interface/Deck";
 
-import GeneratorCard from "../components/cards/GeneratorCard";
+import VariableCard from "../components/cards/VariableCard";
 
 class FormatterEditor extends Component {
 
@@ -52,7 +52,7 @@ class FormatterEditor extends Component {
         description="Javascript Formatters for Canon text components"
         cards={formatters && formatters
           .sort((a, b) => a.name.localeCompare(b.name))
-          .map(g => <GeneratorCard
+          .map(g => <VariableCard
             context="formatter"
             key={g.id}
             item={g}

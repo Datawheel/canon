@@ -34,51 +34,36 @@ export default class Parse extends Component {
       blob = Array.of(blob.replace(/\<br\>/g, " "));
     }
 
+    // props to spread
+    const commonProps = {
+      className,
+      tabIndex
+    };
+
     // loop through all elements in the blob
     return blob.map((el, i) =>
       // ordered list
       el.indexOf("<ol>") !== -1
-        ? <ol
-          className={className}
-          key={`${el}-${El}-${i}`}
-          dangerouslySetInnerHTML={{__html: stripOL(el)}}
-          tabIndex={tabIndex}
-        />
+        ? <ol dangerouslySetInnerHTML={{__html: stripOL(el)}} key={`${el}-${El}-${i}`} {...commonProps} />
 
         // unordered list
         : el.indexOf("<ul>") !== -1
-          ? <ul
-            className={className}
-            key={`${el}-${El}-${i}`}
-            dangerouslySetInnerHTML={{__html: stripUL(el)}}
-            tabIndex={tabIndex}
-          />
+          ? <ul dangerouslySetInnerHTML={{__html: stripUL(el)}} key={`${el}-${El}-${i}`} {...commonProps} />
 
           // inline code block
           : el.indexOf(`<pre class="ql-syntax" spellcheck="false">`) !== -1
-            ? <p
-              className={className}
-              key={`${el}-${El}-${i}`}
-              dangerouslySetInnerHTML={{__html: el}}
-              tabIndex={tabIndex}
-            />
+            ? <p dangerouslySetInnerHTML={{__html: el}} key={`${el}-${El}-${i}`} {...commonProps} />
 
             // quote
             : el.indexOf("<blockquote>") !== -1
-              ? <blockquote
-                className={className}
-                key={`${el}-${El}-${i}`}
-                dangerouslySetInnerHTML={{__html: el}}
-                tabIndex={tabIndex}
-              />
+              ? <blockquote dangerouslySetInnerHTML={{__html: el}} key={`${el}-${El}-${i}`} {...commonProps} />
 
               // anything else
               : <El
-                className={className}
                 dangerouslySetInnerHTML={{__html: stripP(el)}}
                 id={id && i === 0 ? id : null}
                 key={`${el}-${El}-${i}`}
-                tabIndex={tabIndex}
+                {...commonProps}
               />
     );
   }

@@ -10,9 +10,18 @@
   }
 }
 
-.cms .cms-generator-card .cms-card-description {
+.cms .cms-variable-card .cms-card-description {
   margin-top: 0.25em;
   margin-bottom: 0.25em;
 }
 
-.cms-card-error { @mixin error-text; }
+.cms-card-error {
+  @mixin error-text;
+  display: flex;
+
+  & .cms-card-error-icon {
+    margin-left: -0.375em;
+    margin-right: 0.5em;
+    width: 1.125em;
+  }
+}

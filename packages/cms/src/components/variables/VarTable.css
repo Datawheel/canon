@@ -24,6 +24,11 @@
 /* max height row with overflow */
 .cms-var-table-row {
   @mixin var-row;
+
+  &.warning * {
+    @mixin error-text;
+    font-weight: var(--bold-weight);
+  }
 }
 
 /* error */
@@ -42,5 +47,3 @@
     top: -3px;
   }
 }
-
-.cms-var-table-cell.warning { @mixin error-text; }
