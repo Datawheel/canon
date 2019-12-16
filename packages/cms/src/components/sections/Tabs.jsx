@@ -77,7 +77,9 @@ class Tabs extends Component {
       return title || `Visualization ${i + 1}`;
     }) : paragraphs.map((d, i) => `Tab ${i + 1}`);
 
-    const tabDescriptions = paragraphs.length === tabs.length ? [paragraphs[panelIndex]] : paragraphs;
+    const tabDescriptions = paragraphs.length === tabs.length
+      ? [paragraphs[panelIndex]]
+      : paragraphs;
 
     return <div className={`cp-section-inner cp-${slug}-section-inner cp-tabs-section-inner`} ref={comp => this.section = comp}>
       {/* sidebar */}
@@ -110,10 +112,11 @@ class Tabs extends Component {
           </div>
         }
 
-        {tabDescriptions && tabDescriptions.map((content, i) =>
-          <Parse key={i}>
-            {content.description}
-          </Parse>
+        {tabDescriptions.map((content, i) =>
+          content && content.description &&
+            <Parse key={i}>
+              {content.description}
+            </Parse>
         )}
 
         {stats}
