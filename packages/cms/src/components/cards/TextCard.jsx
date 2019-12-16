@@ -159,10 +159,11 @@ class TextCard extends Component {
     const payload = {id: minData.id};
 
     const primaryLocale = minData.content.find(c => c.locale === localeDefault);
-    // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
-    // this to the database - save an empty string instead.
-    fields.forEach(field => primaryLocale[field] = primaryLocale[field] === "<p><br></p>" ? "" : primaryLocale[field]);
-    if (plainFields) plainFields.forEach(field => primaryLocale[field] = primaryLocale[field] === "<p><br></p>" ? "" : primaryLocale[field]);
+    // If a draftjs editor field ends with a trailing space, a &nbsp; is glommed onto the end of the field.
+    // Before persisting this to the db, strip out the trailing space if necessary
+    const stripTrail = d => typeof d === "string" ? d.replace(/\&nbsp;<\/p>/g, "</p>") : d;
+    fields.forEach(field => primaryLocale[field] = stripTrail(primaryLocale[field]));
+    if (plainFields) plainFields.forEach(field => primaryLocale[field] = stripTrail(primaryLocale[field]));
 
     const secondaryLocale = minData.content.find(c => c.locale === localeSecondary);
     // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
