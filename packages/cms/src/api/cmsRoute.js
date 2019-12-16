@@ -778,10 +778,6 @@ module.exports = function(app) {
     const reqObj = Object.assign({}, sectionReqFull, {where: {id}});
     let oldSection = await db.section.findOne(reqObj).catch(catcher);
     oldSection = oldSection.toJSON();
-    // This section could be added to a different profile. Override its ordering to be the last in the list.
-    const maxFetch = await db.section.findAll({where: {profile_id: pid}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
-    const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
-    oldSection.ordering = ordering;
     let selectorLookup = null;
     // If this section is being duplicated in the SAME profile as it came from, we DO want to populate its selectors
     // (We skip selectors if we jump profiles). Populate a dummy lookup so the selector migration works.
@@ -790,6 +786,17 @@ module.exports = function(app) {
       oldSection.selectors.forEach(selector => {
         selectorLookup[selector.section_selector.selector_id] = selector.section_selector.selector_id;
       });
+      // Because this is the same profile, we want its ordering to be after the duplication source.
+      // Slide up all of the other sections to make room
+      await db.section.update({ordering: sequelize.literal("ordering +1")}, {where: {profile_id: pid, ordering: {[Op.gte]: oldSection.ordering}}}).catch(catcher);
+      // Then override the ordering of oldSection to be after the source one (i.e., one higher)
+      oldSection.ordering++;
+    }
+    else {
+      // If this section is being added to a different profile, override its ordering to be the last in the list.
+      const maxFetch = await db.section.findAll({where: {profile_id: pid}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
+      const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+      oldSection.ordering = ordering;
     }
     const newSectionId = await duplicateSection(db, oldSection, pid, selectorLookup);
     const newReqObj = Object.assign({}, sectionReqFull, {where: {id: newSectionId}});
@@ -799,8 +806,6 @@ module.exports = function(app) {
     newSection.types = getSectionTypes();
     return res.json(newSection);
   });
-
-
 
   app.post("/api/cms/profile/duplicate", isEnabled, async(req, res) => {
     // Fetch the full tree for the provided ID
