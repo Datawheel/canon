@@ -1,17 +1,22 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import toSpacedCase from "../utils/formatters/toSpacedCase";
-import Select from "../components/fields/Select";
-import ButtonGroup from "../components/fields/ButtonGroup";
-import TextButtonGroup from "../components/fields/TextButtonGroup";
-import TextCard from "../components/cards/TextCard";
-import deepClone from "../utils/deepClone";
+import {Dialog, Icon} from "@blueprintjs/core";
+
 import blueprintIcons from "../utils/blueprintIcons";
-import VisualizationCard from "../components/cards/VisualizationCard";
+import deepClone from "../utils/deepClone";
+import toSpacedCase from "../utils/formatters/toSpacedCase";
+
+import ButtonGroup from "../components/fields/ButtonGroup";
+import Select from "../components/fields/Select";
+import TextButtonGroup from "../components/fields/TextButtonGroup";
+
 import Deck from "../components/interface/Deck";
 import PreviewHeader from "../components/interface/PreviewHeader";
 import SelectorUsage from "../components/interface/SelectorUsage";
-import {Dialog, Icon} from "@blueprintjs/core";
+
+import TextCard from "../components/cards/TextCard";
+import VisualizationCard from "../components/cards/VisualizationCard";
+
 import SectionRenderer from "../components/SectionRenderer.jsx";
 
 import {newEntity, updateEntity} from "../actions/profiles";
@@ -111,6 +116,13 @@ class SectionEditor extends Component {
         {toSpacedCase(l)}
       </option>
     );
+
+    const sectionProps = {
+      profile: sectionPreview,  // The entire profile, filtered to a single section, as loaded in Header.jsx
+      sectionID: minData.id,    // Limit the Profile and its onSelect reloads to the given sectionID
+      formatters,               // The RAW formatters - SectionRenderer handles turning them into Functions
+      locale: useLocaleSecondary ? localeSecondary : localeDefault
+    };
 
     return (
       <div className="cms-editor-inner">
@@ -305,28 +317,18 @@ class SectionEditor extends Component {
               />
             )}
           />
+
+          {/* preview section dialog */}
           <Dialog
-            className="cp-modal-section-dialog"
-            portalClassName="cp-modal-section-portal"
-            backdropClassName="cp-modal-section-backdrop"
             isOpen={sectionPreview}
             onClose={() => this.props.setStatus({sectionPreview: null})}
           >
-            <React.Fragment>
-              <button className="cp-dialog-close-button" onClick={() => this.props.setStatus({sectionPreview: null})}>
-                <Icon className="cp-dialog-close-button-icon" icon="cross" />
-                <span className="u-visually-hidden">close section</span>
-              </button>
-              <PreviewHeader />
-              <SectionRenderer
-                isModal={true}           // isModal hides anchor tags, header, other cruft
-                profile={sectionPreview} // The entire profile, filtered to a single section, as loaded in Header.jsx 
-                formatters={formatters}  // The RAW formatters - SectionRenderer handles turning them into Functions
-                locale={useLocaleSecondary ? localeSecondary : localeDefault}   
-                sectionID={minData.id}   // Limit the Profile and its onSelect reloads to the given sectionID
-              />
-            </React.Fragment>
-
+            <button className="cp-dialog-close-button" onClick={() => this.props.setStatus({sectionPreview: null})}>
+              <Icon className="cp-dialog-close-button-icon" icon="cross" />
+              <span className="u-visually-hidden">close section</span>
+            </button>
+            <PreviewHeader />
+            <SectionRenderer {...sectionProps} />
           </Dialog>
         </React.Fragment>}
       </div>
