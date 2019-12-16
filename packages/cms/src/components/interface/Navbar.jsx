@@ -166,6 +166,8 @@ class Navbar extends Component {
       else {
         this.props.setStatus({currentPid: Number(pathObj.profile), pathObj: newPathObj});
         this.props.resetPreviews();
+        // TODO: Remove reset previews - have all profiles come from the server 
+        // with their default values already set.
       }
       if (pathObj.section) {
         this.setState({outlineOpen: true});
@@ -440,7 +442,7 @@ class Navbar extends Component {
                 </Fragment>}
               </div>
               <button
-                className={`cms-navbar-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
+                className={`cms-navbar-settings-overlay cms-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
                 onClick={() => this.toggleSettings()}
                 onFocus={() => this.closeSettings()}
                 aria-labelledby="cms-navbar-settings-button"

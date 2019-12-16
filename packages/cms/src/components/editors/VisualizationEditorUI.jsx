@@ -1,18 +1,18 @@
 import axios from "axios";
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {Alert, Intent} from "@blueprintjs/core";
+import {dataFold} from "d3plus-viz";
+
+import vizLookup from "./vizLookup";
 import urlSwap from "../../utils/urlSwap";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
-import {dataFold} from "d3plus-viz";
+import Alert from "../interface/Alert";
 
-import "./SimpleVisualizationEditor.css";
+import "./VisualizationEditorUI.css";
 
-import vizLookup from "./vizLookup";
-
-class SimpleVisualizationEditor extends Component {
+class VisualizationEditorUI extends Component {
 
   constructor(props) {
     super(props);
@@ -28,7 +28,7 @@ class SimpleVisualizationEditor extends Component {
     // If a simple config has been provided, then the user has used simple mode in the past.
     // Populate the simple menu accordingly and make it the default mode.
     let object = {};
-    // Bug: The deepclone used in GeneratorEditor erroneously logic_simple from NULL to {}
+    // Bug: The deepclone used in VariableEditor erroneously logic_simple from NULL to {}
     // Therefore, detect the blank object as another expression of NULLness
     const configIsEmptyObject = simpleConfig.constructor === Object && Object.keys(simpleConfig).length === 0;
     if (simpleConfig && !configIsEmptyObject) {
@@ -100,11 +100,11 @@ class SimpleVisualizationEditor extends Component {
     const {type} = object;
     const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
     const stripID = d => typeof d === "string" ? d.replace(/(ID\s|\sID)/g, "") : d;
-    
+
     const keys = Object.keys(object)
       // Filter out any keys where the user has manually selected none
       .filter(d => object[d] !== "manual-none")
-      // Filter out the formatters lookup key 
+      // Filter out the formatters lookup key
       .filter(d => d !== "formatters");
 
     const thisViz = vizLookup.find(v => v.type === type);
@@ -137,7 +137,7 @@ class SimpleVisualizationEditor extends Component {
         // If the user is setting groupBy, we need to implicitly set the label also.
         else if (k === "groupBy") {
           const label = Object.keys(firstObj).find(d => d === stripID(object[k]));
-          if (label) {         
+          if (label) {
             const formatter = object.formatters ? object.formatters[k] : null;
             return `\n  "${k}": "${object[k]}",  \n  "label": d => ${formatter ? `formatters.${formatter}(d["${label}"])` : `d["${label}"]`}`;
           }
@@ -157,7 +157,7 @@ class SimpleVisualizationEditor extends Component {
               return `\n  "${levels[0]}" : {"${levels[1]}": ${value}, "tickFormat": formatters.${formatter}}`;
             }
             else {
-              return `\n  "${levels[0]}" : {"${levels[1]}": ${value}}`;  
+              return `\n  "${levels[0]}" : {"${levels[1]}": ${value}}`;
             }
           }
           else {
@@ -175,7 +175,7 @@ class SimpleVisualizationEditor extends Component {
   "tooltipConfig": {
     "tbody": [
       ${tooltipKeys.map(k => {
-    const formatter = object.formatters ? object.formatters[k] : null; 
+    const formatter = object.formatters ? object.formatters[k] : null;
     return `["${object[k]}", d => ${formatter ? `formatters.${formatter}(d["${object[k]}"])` : `d["${object[k]}"]`}]`;
   })}
     ]
@@ -280,7 +280,7 @@ class SimpleVisualizationEditor extends Component {
       data: object.data,
       type: object.type
     };
- 
+
     if (thisViz) {
       // Copy over any relevant keys from the previous config
       thisViz.methods.forEach(method => {
@@ -335,6 +335,7 @@ class SimpleVisualizationEditor extends Component {
   }
 
   render() {
+    const {modeSwitcher} = this.props;
     const {object, rebuildAlertOpen, payload} = this.state;
     const {localeDefault} = this.props.status;
     const {formatterFunctions} = this.props.resources;
@@ -344,7 +345,7 @@ class SimpleVisualizationEditor extends Component {
     const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
 
     const thisViz = vizLookup.find(v => v.type === object.type);
-    const allFields = Object.keys(firstObj);    
+    const allFields = Object.keys(firstObj);
 
     let buttonProps = {
       children: "Build",
@@ -361,17 +362,14 @@ class SimpleVisualizationEditor extends Component {
 
     return <div className="cms-viz-editor">
       <Alert
+        title="Rebuild visualization using new data URL?"
         cancelButtonText="Cancel"
         confirmButtonText="Rebuild"
         className="confirm-alert"
-        iconName="bp3-icon-warning-sign"
-        intent={Intent.DANGER}
         isOpen={rebuildAlertOpen}
         onConfirm={this.rebuild.bind(this)}
         onCancel={() => this.setState({rebuildAlertOpen: false})}
-      >
-        Are you sure you want to rebuild this visualization using a new data URL?
-      </Alert>
+      />
 
       {/* data URL */}
       <TextButtonGroup
@@ -386,7 +384,7 @@ class SimpleVisualizationEditor extends Component {
         buttonProps={buttonProps}
       />
 
-      <div className="cms-field-group">
+      <div className="cms-field-group u-margin-bottom-off">
         <Select
           label="Visualization"
           inline
@@ -409,64 +407,70 @@ class SimpleVisualizationEditor extends Component {
         />
       </div>
 
-      {payload.length > 0 &&
-        <div className="viz-select-group">
-          {object.type && thisViz && thisViz.methods.map(method =>
-            // render prop as text input
-            method.format === "Input"
-              ? <TextInput
-                label={method.display}
-                namespace="cms"
-                fontSize="xs"
-                key={method.key}
-                value={object[method.key]}
-                onChange={this.onChange.bind(this, method.key)}
-              />
+      {/* mode switcher & additional viz options */}
+      <div className="viz-select-group u-margin-top-xs">
 
-              // render payload as checkboxes
-              : method.format === "Checkbox"
-                ? <fieldset className="cms-fieldset">
-                  <legend className="u-font-sm">Columns</legend>
-                  {allFields.map(column =>
-                    <label className="cms-checkbox-label u-font-xs" key={column}>
-                      <input
-                        type="checkbox"
-                        checked={selectedColumns.includes(column)}
-                        onChange={() => this.onCheck(column)}
-                      /> {column}
-                    </label>
+        {modeSwitcher}
+
+        {payload.length > 0 && object.type && thisViz && thisViz.methods.map(method =>
+          // render prop as text input
+          method.format === "Input"
+            ? <TextInput
+              label={method.display}
+              namespace="cms"
+              fontSize="xs"
+              inline
+              key={method.key}
+              value={object[method.key]}
+              onChange={this.onChange.bind(this, method.key)}
+            />
+
+            // render payload as checkboxes
+            : method.format === "Checkbox"
+              ? <fieldset className="cms-fieldset">
+                <legend className="u-font-sm">Columns</legend>
+                {allFields.map(column =>
+                  <label className="cms-checkbox-label u-font-xs" key={column}>
+                    <input
+                      type="checkbox"
+                      checked={selectedColumns.includes(column)}
+                      onChange={() => this.onCheck(column)}
+                    /> {column}
+                  </label>
+                )}
+              </fieldset>
+
+              // render method.key as select
+              : <Fragment>
+                <Select
+                  key="cms-key-select"
+                  label={method.display}
+                  namespace="cms"
+                  fontSize="xs"
+                  value={object[method.key]}
+                  onChange={this.onChange.bind(this, method.key)}
+                  inline
+                >
+                  {this.getOptionList.bind(this)(method, payload).map(option =>
+                    <option key={option.value} value={option.value}>{option.display}</option>
                   )}
-                </fieldset>
-
-                // render method.key as select
-                : <React.Fragment>
-                  <Select
-                    key="cms-key-select"
-                    label={method.display}
-                    namespace="cms"
-                    fontSize="xs"
-                    value={object[method.key]}
-                    onChange={this.onChange.bind(this, method.key)}
-                  >
-                    {this.getOptionList.bind(this)(method, payload).map(option => 
-                      <option key={option.value} value={option.value}>{option.display}</option>
-                    )}
-                  </Select>
-                  <Select
-                    key="cms-formatter-select"
-                    label={`${method.display} Formatter`}
-                    namespace="cms"
-                    fontSize="xs"
-                    value={object.formatters ? object.formatters[method.key] : "manual-none"}
-                    onChange={this.onChangeFormatter.bind(this, method.key)}
-                  >
-                    <option key={null} value="manual-none">none</option>
-                    {formatterList.map(f => <option key={f} value={f}>{f}</option>)}
-                  </Select>
-                </React.Fragment>
-          )}
-        </div>
-      }
+                </Select>
+                <Select
+                  key="cms-formatter-select"
+                  label={`${method.display} formatter`}
+                  labelHidden
+                  namespace="cms"
+                  fontSize="xs"
+                  value={object.formatters ? object.formatters[method.key] : "manual-none"}
+                  onChange={this.onChangeFormatter.bind(this, method.key)}
+                  inline
+                >
+                  <option key={null} value="manual-none">No formatter</option>
+                  {formatterList.map(f => <option key={f} value={f}>{f}</option>)}
+                </Select>
+              </Fragment>
+        )}
+      </div>
     </div>;
   }
 }
@@ -477,5 +481,4 @@ const mapStateToProps = state => ({
   resources: state.cms.resources
 });
 
-export default connect(mapStateToProps)(SimpleVisualizationEditor);
-
+export default connect(mapStateToProps)(VisualizationEditorUI);

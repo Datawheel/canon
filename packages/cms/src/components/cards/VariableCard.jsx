@@ -1,20 +1,22 @@
-import React, {Component} from "react";
-import {Dialog, Tooltip} from "@blueprintjs/core";
-import GeneratorEditor from "../editors/GeneratorEditor";
-import FooterButtons from "../editors/components/FooterButtons";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
+import {Icon} from "@blueprintjs/core";
+
 import deepClone from "../../utils/deepClone";
+import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+
 import LocaleName from "./components/LocaleName";
+import Dialog from "../interface/Dialog";
+import VariableEditor from "../editors/VariableEditor";
 import VarTable from "../variables/VarTable";
 import Card from "./Card";
 
 import {deleteEntity, updateEntity, fetchVariables} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
-import "./GeneratorCard.css";
+import "./VariableCard.css";
 
-class GeneratorCard extends Component {
-
+class VariableCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -85,10 +87,10 @@ class GeneratorCard extends Component {
       const status = type === "generator" ? "_genStatus" : "_matStatus";
       const theseVars = variables[status][id];
       if (theseVars) {
-        const otherGens = Object.keys(variables._genStatus).reduce((acc, _id) => 
-          type === "materializer" || Number(id) !== Number(_id) ? Object.assign({}, acc, variables._genStatus[_id]) : acc, {});
-        const otherMats = Object.keys(variables._matStatus).reduce((acc, _id) => 
-          type === "generator" || Number(id) !== Number(_id) ? Object.assign({}, acc, variables._matStatus[_id]) : acc, {});    
+        const otherGens = Object.keys(variables._genStatus).reduce((acc, _id) =>
+          type === "materializer" || String(id) !== String(_id) ? Object.assign({}, acc, variables._genStatus[_id]) : acc, {});
+        const otherMats = Object.keys(variables._matStatus).reduce((acc, _id) =>
+          type === "generator" || String(id) !== String(_id) ? Object.assign({}, acc, variables._matStatus[_id]) : acc, {});
         const thoseVars = {...otherGens, ...otherMats};
         dupes = dupes.concat(Object.keys(theseVars).reduce((acc, k) => thoseVars[k] !== undefined ? acc.concat(k) : acc, []));
       }
@@ -99,8 +101,8 @@ class GeneratorCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this?",
-      confirm: "Delete"
+      title: `Delete ${this.props.type}?`,
+      confirm: `Delete ${this.props.type}`
     };
     this.setState({alertObj});
   }
@@ -130,8 +132,9 @@ class GeneratorCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Are you sure you want to abandon changes?",
-        confirm: "Yes, Abandon changes."
+        title: `Close ${this.props.type} editor and revert changes?`,
+        confirm: "Close editor",
+        theme: "caution"
       };
       this.setState({alertObj});
     }
@@ -151,12 +154,9 @@ class GeneratorCard extends Component {
   }
 
   render() {
-    const {attr, context, type, showReorderButton} = this.props;
-    const {localeDefault, localeSecondary} = this.props.status;
-    const {variables} = this.props.status;
+    const {attr, readOnly, minData, type, showReorderButton} = this.props;
+    const {localeDefault, localeSecondary, variables} = this.props.status;
     const {displayData, secondaryDisplayData, isOpen, alertObj, dupes} = this.state;
-
-    const {minData} = this.props;
 
     let description = "";
     let showDesc = false;
@@ -169,17 +169,37 @@ class GeneratorCard extends Component {
 
     // define initial/loading props for Card
     const cardProps = {
-      cardClass: context,
+      type,
+      readOnly, // currently only used for attributes card
       localeSecondary,
       title: "•••" // placeholder
+    };
+
+    const dialogProps = {
+      className: "cms-variable-editor-dialog",
+      title: `${upperCaseFirst(type)} editor`,
+      isOpen,
+      onClose: this.maybeCloseEditorWithoutSaving.bind(this),
+      onDelete: this.maybeDelete.bind(this),
+      onSave: this.save.bind(this),
+      usePortal: false,
+      icon: false,
+      portalProps: {namespace: "cms"}
+    };
+
+    const editorProps = {
+      attr,
+      type,
+      data: this.state.minData,
+      markAsDirty: this.markAsDirty.bind(this)
     };
 
     // add additional props once the data is available
     if (minData && variables) {
       Object.assign(cardProps, {
         title: minData.name, // overwrites placeholder
-        onEdit: this.openEditor.bind(this),
-        onDelete: this.maybeDelete.bind(this),
+        onEdit: minData.locked ? null : this.openEditor.bind(this),
+        onDelete: minData.locked ? null : this.maybeDelete.bind(this),
         // reorder
         reorderProps: showReorderButton ? {
           id: minData.id,
@@ -191,19 +211,16 @@ class GeneratorCard extends Component {
       });
     }
 
-    const {id} = this.props;
-
     return (
-      <React.Fragment>
-        <Card {...cardProps} key={`${cardProps.title}-${id}`}>
-
+      <Fragment>
+        <Card {...cardProps} key="c">
           {showDesc &&
-            <p className="cms-card-description">{description}</p>
+            <p className="cms-card-description" key="cd">{description}</p>
           }
 
           {/* show variables, but not for formatter cards */}
-          {context !== "formatter" &&
-            <div className="cms-card-locale-group">
+          {type !== "formatter" &&
+            <div className="cms-card-locale-group" key="cl">
               <div className="cms-card-locale-container">
                 {localeSecondary &&
                   <LocaleName>{localeDefault}</LocaleName>
@@ -212,55 +229,32 @@ class GeneratorCard extends Component {
               </div>
 
               {localeSecondary &&
-                <div className="cms-card-locale-container">
+                <div className="cms-card-locale-container" key="cls">
                   <LocaleName>{localeSecondary}</LocaleName>
                   <VarTable dataset={secondaryDisplayData} dupes={dupes} />
                 </div>
               }
             </div>
           }
-          {dupes.length > 0 && 
-            <p className="cms-card-error u-font-xxs">Warning: Highlighted variables conflict with another generator or materializer</p>
+
+          {dupes.length > 0 &&
+            <p className="cms-card-error u-font-xxs u-margin-top-xs">
+              <Icon className="cms-card-error-icon" icon="warning-sign" /> Highlighted variables conflict with another generator or materializer
+            </p>
           }
         </Card>
 
-        {/* open state */}
-        <Dialog
-          className="generator-editor-dialog"
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Variable Editor"
-          usePortal={false}
-          icon={false}
-        >
-
-          <div className="bp3-dialog-body">
-            <GeneratorEditor
-              markAsDirty={this.markAsDirty.bind(this)}
-              attr={attr}
-              data={this.state.minData}
-              type={type}
-            />
-          </div>
-          <FooterButtons
-            onDelete={this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
+        {/* editor */}
+        <Dialog {...dialogProps} key="d">
+          <VariableEditor {...editorProps} />
         </Dialog>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }
 
-GeneratorCard.defaultProps = {
-  context: "generator" // mostly a styling hook used for formatter cards
-};
-
-const mapStateToProps = (state, ownProps) => ({
-  status: state.cms.status,
-  minData: ownProps.type === "formatter" 
-    ? state.cms.formatters.find(f => f.id === ownProps.id) 
-    : state.cms.profiles.find(p => p.id === state.cms.status.currentPid)[`${ownProps.type}s`].find(g => g.id === ownProps.id)
+const mapStateToProps = state => ({
+  status: state.cms.status
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -270,4 +264,4 @@ const mapDispatchToProps = dispatch => ({
   setStatus: status => dispatch(setStatus(status))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(GeneratorCard);
+export default connect(mapStateToProps, mapDispatchToProps)(VariableCard);

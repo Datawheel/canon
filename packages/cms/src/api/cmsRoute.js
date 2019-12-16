@@ -505,13 +505,23 @@ module.exports = function(app) {
   const newList = cmsTables;
   newList.forEach(ref => {
     app.post(`/api/cms/${ref}/new`, isEnabled, async(req, res) => {
-      if (parentOrderingTables[ref]) {
-        const obj = {
+      // If the order was provided, we need to bump all siblings up to make room. 
+      if (req.body.ordering) {
+        const where = {
+          ordering: {[Op.gte]: req.body.ordering},
+          [parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]
+        };
+        await db[ref].update({ordering: sequelize.literal("ordering +1")}, {where}).catch(catcher);        
+      }
+      // If it was not provided, but this is a table that needs them, append it to the end and 
+      // insert the derived ordering into req.body
+      else if (parentOrderingTables[ref]) {
+        const where = {
           where: {[parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]},
           attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], 
           raw: true
         };
-        const maxFetch = await db[ref].findAll(obj).catch(catcher);
+        const maxFetch = await db[ref].findAll(where).catch(catcher);
         const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
         req.body.ordering = ordering;
       }
@@ -666,8 +676,8 @@ module.exports = function(app) {
    */
   const swapList = [
     {elements: ["profile"], parent: null},
-    {elements: ["author", "story_description", "story_footnote", "storysection"], parent: "story_id"},
-    {elements: ["section", "materializer"], parent: "profile_id"},
+    {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
+    {elements: ["materializer"], parent: "profile_id"},
     {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
     {elements: ["storysection_subtitle", "storysection_description", "storysection_stat", "storysection_visualization"], parent: "storysection_id"}
   ];
@@ -680,14 +690,68 @@ module.exports = function(app) {
         if (list.parent) otherWhere[list.parent] = original[list.parent];
         const other = await db[ref].findOne({where: otherWhere}).catch(catcher);
         if (!original || !other) return res.json([]);
-        const newOriginal = await db[ref].update({ordering: sequelize.literal("ordering + 1")}, {where: {id}, returning: true, plain: true}).catch(catcher);
-        const newOther = await db[ref].update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
+        const originalTarget = other.ordering;
+        const otherTarget = original.ordering;
+        const newOriginal = await db[ref].update({ordering: originalTarget}, {where: {id}, returning: true, plain: true}).catch(catcher);
+        const newOther = await db[ref].update({ordering: otherTarget}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
         return res.json([newOriginal[1], newOther[1]]);
       });
     });
   });
 
   /* CUSTOM SWAPS */
+
+  const sectionSwapList = [
+    {ref: "section", parent: "profile_id"},
+    {ref: "storysection", parent: "story_id"}
+  ];
+  sectionSwapList.forEach(swap => {
+    app.post(`/api/cms/${swap.ref}/swap`, isEnabled, async(req, res) => {
+      // Sections can be Groupings, which requires a more complex swap that brings it child sections along with it 
+      const {id} = req.body;
+      const original = await db[swap.ref].findOne({where: {id}}).catch(catcher);
+      let sections = await db[swap.ref].findAll({where: {[swap.parent]: original[swap.parent]}, order: [["ordering", "ASC"]]}).catch(catcher);
+      sections = sections.map(s => s.toJSON());
+      // Create a hierarchical array that respects groupings that looks like: [[G1, S1, S2], [G2, S3, S4, S5]] for easy swapping
+      const sectionsGrouped = [];
+      let hitGrouping = false;
+      sections.forEach(section => {
+        if (!hitGrouping || section.type === "Grouping") {
+          sectionsGrouped.push([section]);
+          if (section.type === "Grouping") hitGrouping = true;
+        }
+        else {
+          sectionsGrouped[sectionsGrouped.length - 1].push(section);
+        }
+      });
+      // Sections that come before the Groupings start are technically in groups of their own. 
+      let isGroupLeader = false;
+      sectionsGrouped.forEach(group => {
+        if (group.map(d => d.id).includes(original.id) && group[0].id === original.id) isGroupLeader = true;
+      });
+      let updatedSections = [];
+      if (isGroupLeader) {
+        const ogi = sectionsGrouped.findIndex(group => group[0].id === id);
+        const ngi = ogi + 1;
+        // https://stackoverflow.com/a/872317
+        [sectionsGrouped[ogi], sectionsGrouped[ngi]] = [sectionsGrouped[ngi], sectionsGrouped[ogi]];
+        updatedSections = sectionsGrouped
+          .flat()
+          .map((section, i) => ({...section, ordering: i}));
+      } 
+      else {
+        const oi = original.ordering;
+        const ni = original.ordering + 1;
+        [sections[oi], sections[ni]] = [sections[ni], sections[oi]];
+        updatedSections = sections.map((section, i) => ({...section, ordering: i}));
+      }
+      for (const section of updatedSections) {
+        await db[swap.ref].update({ordering: section.ordering}, {where: {id: section.id}});
+      }
+      return res.json(updatedSections.map(d => ({id: d.id, ordering: d.ordering})));
+    });
+  });
+
 
   app.post("/api/cms/section_selector/swap", isEnabled, async(req, res) => {
     const {id} = req.body;

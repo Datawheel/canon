@@ -1,8 +1,13 @@
 const deepClone = require("../utils/deepClone");
 
+const sorter = (a, b) => a.ordering - b.ordering;
+
 const addSectionEntity = (profiles, data, accessor) => profiles.map(p => 
   Object.assign({}, p, {sections: p.sections.map(s => 
-    s.id === data.section_id ? Object.assign({}, s, {[accessor]: s[accessor].concat([data])}) : s)}));
+    s.id === data.section_id ? Object.assign({}, s, {[accessor]: s[accessor]
+      .map(a => a.ordering >= data.ordering ? Object.assign({}, a, {ordering: a.ordering + 1}) : a)
+      .concat([data])
+      .sort(sorter)}) : s)}));
 
 const updateSectionEntity = (profiles, data, accessor) => profiles.map(p => 
   Object.assign({}, p, {sections: p.sections.map(s => 
@@ -18,7 +23,7 @@ const swapSectionEntity = (profiles, data, accessor) => profiles.map(p =>
     Object.assign({}, s, {[accessor]: s[accessor].map(entity => {
       const match = data.find(d => d.id === entity.id);
       return match ? Object.assign({}, entity, {ordering: match.ordering}) : entity;
-    }).sort((a, b) => a.ordering - b.ordering)})
+    }).sort(sorter)})
   )}));
 
 export default (profiles = [], action) => {
@@ -91,7 +96,10 @@ export default (profiles = [], action) => {
           return match ? Object.assign({}, s, {ordering: match.ordering}) : s;  
         }).sort((a, b) => a.ordering - b.ordering)}));
     case "SECTION_NEW":
-      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {sections: p.sections.concat([action.data])}) : p);
+      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {sections: p.sections
+        .map(s => s.ordering >= action.data.ordering ? Object.assign({}, s, {ordering: s.ordering + 1}) : s)
+        .concat([action.data])
+        .sort(sorter)}) : p);
     case "SECTION_DUPLICATE":
       return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {sections: p.sections.concat([action.data])}) : p);
     case "SECTION_UPDATE":
@@ -143,7 +151,10 @@ export default (profiles = [], action) => {
     case "SECTION_SELECTOR_NEW":
       return profiles.map(p => 
         Object.assign({}, p, {sections: p.sections.map(s => 
-          s.id === action.data.section_selector.section_id ? Object.assign({}, s, {selectors: s.selectors.concat([action.data])}) : s)}));
+          s.id === action.data.section_selector.section_id ? Object.assign({}, s, {selectors: s.selectors
+            .map(sel => sel.ordering >= action.data.ordering ? Object.assign({}, sel, {ordering: sel.ordering + 1}) : sel)
+            .concat([action.data])
+            .sort(sorter)}) : s)}));
     case "SECTION_SELECTOR_DELETE":
       return profiles.map(p => 
         Object.assign({}, p, {sections: p.sections.map(s => 

@@ -227,6 +227,18 @@ theming
   }
 }
 
+/* dialog/alert overlay */
+@define-mixin overlay-theme {
+  @mixin button-reset;
+  z-index: -1;
+
+  &:focus {
+    border: 2px solid var(--accent-dark);
+    outline: none;
+    transition-delay: 0.5s;
+  }
+}
+
 /* text input */
 @define-mixin cms-text-input-style {
   /* theming */

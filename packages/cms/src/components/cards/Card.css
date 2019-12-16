@@ -32,9 +32,19 @@
     border-bottom-right-radius: 2px;
   }
 
-  & .cms-card-description[class] {
+  & .cms-card-description {
     @mixin font-xxs;
+    @mixin description-color;
     margin-top: 0.5em;
+  }
+
+  /* read only (special attributes card) */
+  &.is-read-only {
+    cursor: not-allowed;
+
+    & .cms-var-table {
+      cursor: auto;
+    }
   }
 }
 
@@ -64,7 +74,7 @@
   }
 
   /* adjacent preview content */
-  & ~ *:not(.cms-reorder) {
+  & ~ *:not([class*="u-font-"]) {
     @mixin font-xs; /* default font size */
   }
 }

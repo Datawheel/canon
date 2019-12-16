@@ -1,13 +1,14 @@
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
 import PropTypes from "prop-types";
-import FooterButtons from "../editors/components/FooterButtons";
+
+import deepClone from "../../utils/deepClone";
+
+import Card from "./Card";
+import Dialog from "../interface/Dialog";
 import SelectorEditor from "../editors/SelectorEditor";
 import DefinitionList from "../variables/DefinitionList";
 import VarList from "../variables/VarList";
-import deepClone from "../../utils/deepClone";
-import Card from "./Card";
 
 import {deleteEntity, updateEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
@@ -19,7 +20,6 @@ import "./SelectorCard.css";
  * or multiselects
  */
 class SelectorCard extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -58,8 +58,8 @@ class SelectorCard extends Component {
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this?",
-      confirm: "Delete"
+      title: "Delete selector?",
+      confirm: "Delete selector"
     };
     this.setState({alertObj});
   }
@@ -81,8 +81,9 @@ class SelectorCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Are you sure you want to abandon changes?",
-        confirm: "Yes, Abandon changes."
+        title: "Close selector editor and revert changes?",
+        confirm: "Close editor",
+        theme: "caution"
       };
       this.setState({alertObj});
     }
@@ -104,7 +105,7 @@ class SelectorCard extends Component {
 
     // define initial card props
     const cardProps = {
-      cardClass: "selector",
+      type: "selector",
       title: "•••"
     };
 
@@ -139,70 +140,66 @@ class SelectorCard extends Component {
       );
     }
 
-    const {id} = this.props.minData;
+    const dialogProps = {
+      className: "variable-editor-dialog",
+      title: "Selector Editor",
+      isOpen,
+      onClose: this.maybeCloseEditorWithoutSaving.bind(this),
+      onDelete: this.maybeDelete.bind(this),
+      onSave: this.save.bind(this),
+      portalProps: {namespace: "cms"}
+    };
+
+    const editorProps = {
+      markAsDirty: this.markAsDirty.bind(this),
+      data: this.state.minData
+    };
+
+    let displayData = [];
+    if (minData) {
+      displayData = [
+        {
+          label: "label",
+          text: minData.title
+        },
+        {
+          label: "selections",
+          text: minData.type === "single" ? "one" : "multiple"
+        }
+      ];
+    }
 
     return (
-      <React.Fragment>
-        <Card {...cardProps} key={`${cardProps.title}-${id}`}>
-
+      <Fragment>
+        <Card {...cardProps} key="c">
           {minData &&
-            <React.Fragment>
+            <Fragment key="dl">
               {/* content preview */}
-              <DefinitionList definitions={[
-                {
-                  label: "label",
-                  text: minData.title
-                },
-                {
-                  label: "selections",
-                  text: minData.type === "single" ? "one" : "multiple"
-                }
-              ]}
-              />
-
-              {varList.length
-                ? <React.Fragment>
-                  <div className="cms-definition-label u-font-xxxs">options:</div>
-                  <VarList vars={varList} />
-                </React.Fragment> : ""
-              }
-            </React.Fragment>
+              <DefinitionList definitions={displayData} key="dd" />
+              {/* list of variables */}
+              {varList.length && <Fragment key="o">
+                <div className="cms-definition-label u-font-xxs">options:</div>
+                <VarList vars={varList} />
+              </Fragment>}
+            </Fragment>
           }
         </Card>
 
         {/* edit mode */}
-        <Dialog
-          className="generator-editor-dialog"
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Selector Editor"
-          icon={false}
-          usePortal={false}
-        >
-          <div className="bp3-dialog-body">
-            <SelectorEditor
-              markAsDirty={this.markAsDirty.bind(this)}
-              data={this.state.minData}
-            />
-          </div>
-          <FooterButtons
-            onDelete={this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
+        <Dialog {...dialogProps} key="d">
+          <SelectorEditor {...editorProps} />
         </Dialog>
-      </React.Fragment>
+      </Fragment>
     );
   }
-
 }
 
 SelectorCard.contextTypes = {
   formatters: PropTypes.object
 };
 
-const mapStateToProps = (state, ownProps) => ({
-  status: state.cms.status,
-  minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors.find(s => s.id === ownProps.id)
+const mapStateToProps = state => ({
+  status: state.cms.status
 });
 
 const mapDispatchToProps = dispatch => ({

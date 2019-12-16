@@ -22,14 +22,30 @@ class Outline extends Component {
     }
   }
 
-  createSection(id) {
+  createSection(node) {
+    const ordering = node.ordering + 1;
+    const {type} = node;
     const {tab} = this.props.status.pathObj;
     const {currentPid, currentStoryPid} = this.props.status;
     if (tab === "profiles") {
-      this.props.newEntity("section", {profile_id: currentPid});
+      const payload = {profile_id: currentPid, ordering};
+      // Groups are special, when adding a new group it should "jump" past all the child sections and
+      // Add itself before the next grouping, or, if there is none, at the end (but still as a Grouping)
+      if (type === "Grouping") {
+        payload.type = type;
+        const nextGrouping = this.props.tree.find(s => s.type === "Grouping" && s.ordering > node.ordering);
+        payload.ordering = nextGrouping ? nextGrouping.ordering : undefined;
+      }
+      this.props.newEntity("section", payload);
     }
-    if (tab === "stories") {
-      this.props.newEntity("storysection", {story_id: currentStoryPid});
+    else if (tab === "stories") {
+      const payload = {story_id: currentStoryPid, ordering};
+      if (type === "Grouping") {
+        payload.type = type;
+        const nextGrouping = this.props.tree.find(s => s.type === "Grouping" && s.ordering > node.ordering);
+        payload.ordering = nextGrouping ? nextGrouping.ordering : undefined;
+      }
+      this.props.newEntity("storysection", payload);
     }
   }
 
@@ -90,7 +106,7 @@ class Outline extends Component {
       <div className="cms-outline-item-actions cms-button">
         {/* add section */}
         <Button
-          onClick={() => this.createSection(node.id)}
+          onClick={() => this.createSection(node)}
           className="cms-outline-item-actions-button"
           namespace="cms"
           fontSize="xxs"
@@ -138,14 +154,14 @@ class Outline extends Component {
       {/* top row */}
       <ul className={`cms-outline ${isOpen ? "is-open" : "is-closed"}`} key="outline-main">
         {nodes.map((node, i) =>
-          this.renderNode(node, nodes, sectionKey, tree, i)
+          this.renderNode(node, nodes, sectionKey, nodes, i)
         )}
       </ul>
 
       {/* render nested list with current grouping's sections, if the current section is a grouping or within a group */}
       <ul className={`cms-outline cms-nested-outline ${nestedOutline && isOpen ? "is-open" : "is-closed"}`} key="outline-nested">
         {nestedOutline && nestedOutline.sections.map((node, i) =>
-          this.renderNode(node, nodes, sectionKey, tree, i)
+          this.renderNode(node, nodes, sectionKey, nestedOutline.sections, i)
         )}
       </ul>
     </Fragment>;

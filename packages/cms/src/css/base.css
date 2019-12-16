@@ -112,13 +112,6 @@ strong, [class] > strong,
       color: var(--light-1);
     }
   }
-
-  /* use blueprint theming for quill editor for now */
-  /* TODO: dark theme */
-  & .quill {
-    background-color: #f5f8fa;
-    color: #182026;
-  }
 }
 
 /* highlighted text style */
@@ -126,45 +119,4 @@ strong, [class] > strong,
 .cp ::selection {
   color: var(--black);
   background-color: color(var(--accent-light) a(0.75));
-}
-
-
-
-/* TODO: move to Dialog wrapper component */
-.cms-dialog-footer-button {
-  background-color: transparent;
-  border: none;
-  padding: 0;
-  /* TODO: adjust the container margin, not button margin */
-  margin-top: -2.25rem;
-  /* theming */
-  color: var(--dark-3);
-
-  @mixin dark-mode {
-    color: var(--light-1);
-  }
-
-  & .cms-dialog-footer-button-icon {
-    top: -2px;
-    color: var(--dark-1);
-
-    @mixin dark-mode {
-      color: var(--gray);
-    }
-  }
-
-  /* interactions */
-  &:hover, &:focus {
-    & .cms-dialog-footer-button-icon {
-      color: var(--dark-3);
-
-      @mixin dark-mode {
-        color: var(--light-1);
-      }
-    }
-  }
-
-  &:not(:last-of-type) {
-    margin-right: 1.5em;
-  }
 }

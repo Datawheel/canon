@@ -4,7 +4,6 @@ let Quill;
 
 if (typeof window !== "undefined") {
   Quill = require("react-quill");
-  require("react-quill/dist/quill.snow.css");
 }
 
 class QuillWrapper extends Component {
@@ -13,8 +12,8 @@ class QuillWrapper extends Component {
     if (Quill) {
       const modules = {
         toolbar: [
-          ["bold", "italic", "underline", "code", "blockquote", "code-block", "link"],
-          [{list: "ordered"}, {list: "bullet"}],
+          ["bold", "italic", "underline"],
+          ["blockquote", "link"],
           ["clean"]
         ],
         clipboard: {
@@ -27,7 +26,6 @@ class QuillWrapper extends Component {
         }
       };
       return <Quill
-        theme="snow"
         modules={modules}
         onChangeSelection={range => range ? this.setState({currentRange: range}) : null}
         ref={c => this.quillRef = c}
