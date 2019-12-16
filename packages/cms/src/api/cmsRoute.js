@@ -788,7 +788,7 @@ module.exports = function(app) {
       });
       // Because this is the same profile, we want its ordering to be after the duplication source.
       // Slide up all of the other sections to make room
-      await db.section.update({ordering: sequelize.literal("ordering +1")}, {where: {profile_id: pid, ordering: {[Op.gte]: oldSection.ordering}}}).catch(catcher);
+      await db.section.update({ordering: sequelize.literal("ordering +1")}, {where: {profile_id: pid, ordering: {[Op.gt]: oldSection.ordering}}}).catch(catcher);
       // Then override the ordering of oldSection to be after the source one (i.e., one higher)
       oldSection.ordering++;
     }
