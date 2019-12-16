@@ -172,6 +172,8 @@ class Header extends Component {
     const showDuplicateButton = pathObj.tab === "profiles";
     const showPreviewButton = pathObj.section;
 
+    const showButtons = showDuplicateButton || showDeleteButton || showPreviewButton;
+
     return (
       <Fragment>
         <header className="cms-header">
@@ -198,11 +200,11 @@ class Header extends Component {
           </span>
 
           {/* TODO: make this a popover once we have more options */}
-          {showDuplicateButton || showDeleteButton
+          {showButtons
             ? <div className="cms-header-actions-container" key="ac">
               <ButtonGroup className="cms-header-actions-button-group">
                 {/* preview entity */}
-                {showPreviewButton && 
+                {showPreviewButton &&
                   <Button
                     className="cms-header-actions-button cms-header-preview-button"
                     onClick={this.togglePreview.bind(this)}
@@ -246,6 +248,7 @@ class Header extends Component {
           }
         </header>
 
+        {/* duplicate alert */}
         <Alert
           title={`Duplicate ${entityType}?`}
           isOpen={itemToDuplicate}
@@ -269,6 +272,7 @@ class Header extends Component {
           theme="caution"
         />
 
+        {/* delete alert */}
         <Alert
           title={itemToDelete && itemToDelete.type === "profile"
             ? "Delete profile along with all of its sections and content?"
