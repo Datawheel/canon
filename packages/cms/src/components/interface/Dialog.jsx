@@ -42,6 +42,7 @@ class Dialog extends Component {
       usePortal,      // good luck
       isModal,        // not inline
       isOpen,
+      fullWidth,      // take up the entire width of the screen
       onClose,        // close the dialog
       onDelete,       // callback function passed to DialogFooter.jsx
       onSave,         // callback function passed to DialogFooter.jsx
@@ -77,7 +78,7 @@ class Dialog extends Component {
           onKeyDown={this.handleKeyPress.bind(this)}
           key="a"
         >
-          <div className={`cms-dialog-inner${showFooter ? " with-footer" : ""}`}>
+          <div className={`cms-dialog-inner${ showFooter ? " with-footer" : "" }${ fullWidth ? " is-fullwidth" : "" }`}>
             <div className={`cms-dialog-header${titleHidden ? " title-hidden" : ""}`}>
               <h2 className="cms-dialog-heading u-font-md u-margin-top-off" tabIndex="0" ref={this.title} key="h">
                 <Parse El="span">
