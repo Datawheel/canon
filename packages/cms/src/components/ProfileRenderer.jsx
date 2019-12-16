@@ -23,7 +23,7 @@ import "../css/layout.css";
 
 import "./Profile.css";
 
-class SectionRenderer extends Component {
+class ProfileRenderer extends Component {
 
   constructor(props) {
     super(props);
@@ -259,11 +259,11 @@ class SectionRenderer extends Component {
   }
 }
 
-SectionRenderer.contextTypes = {
+ProfileRenderer.contextTypes = {
   router: PropTypes.object
 };
 
-SectionRenderer.childContextTypes = {
+ProfileRenderer.childContextTypes = {
   formatters: PropTypes.object,
   locale: PropTypes.string,
   router: PropTypes.object,
@@ -273,4 +273,4 @@ SectionRenderer.childContextTypes = {
   onOpenModal: PropTypes.func
 };
 
-export default hot(SectionRenderer);
+export default hot(ProfileRenderer);

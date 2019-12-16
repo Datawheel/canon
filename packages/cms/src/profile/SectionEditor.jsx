@@ -17,7 +17,7 @@ import SelectorUsage from "../components/interface/SelectorUsage";
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 
-import SectionRenderer from "../components/SectionRenderer.jsx";
+import ProfileRenderer from "../components/ProfileRenderer.jsx";
 
 import {newEntity, updateEntity} from "../actions/profiles";
 import {setStatus} from "../actions/status";
@@ -120,7 +120,7 @@ class SectionEditor extends Component {
     const sectionProps = {
       profile: sectionPreview,  // The entire profile, filtered to a single section, as loaded in Header.jsx
       sectionID: minData.id,    // Limit the Profile and its onSelect reloads to the given sectionID
-      formatters,               // The RAW formatters - SectionRenderer handles turning them into Functions
+      formatters,               // The RAW formatters - ProfileRenderer handles turning them into Functions
       locale: useLocaleSecondary ? localeSecondary : localeDefault
     };
 
@@ -328,7 +328,7 @@ class SectionEditor extends Component {
               <span className="u-visually-hidden">close section</span>
             </button>
             <PreviewHeader />
-            <SectionRenderer {...sectionProps} />
+            <ProfileRenderer {...sectionProps} />
           </Dialog>
         </React.Fragment>}
       </div>

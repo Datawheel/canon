@@ -3,7 +3,7 @@ import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import {fetchData} from "@datawheel/canon-core";
 import PropTypes from "prop-types";
-import SectionRenderer from "./SectionRenderer";
+import ProfileRenderer from "./ProfileRenderer";
 
 class Profile extends Component {
 
@@ -19,7 +19,7 @@ class Profile extends Component {
     const {profile, formatters, locale} = this.props;
 
     return (
-      <SectionRenderer
+      <ProfileRenderer
         profile={profile}
         formatters={formatters}
         locale={locale}
