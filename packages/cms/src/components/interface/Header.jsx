@@ -210,7 +210,7 @@ class Header extends Component {
                     key="db1"
                     {...buttonProps}
                   >
-                    Preview Section
+                    Preview <span className="u-visually-hidden">section</span>
                   </Button>
                 }
                 {/* duplicate entity */}
