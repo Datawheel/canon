@@ -166,10 +166,9 @@ class TextCard extends Component {
     if (plainFields) plainFields.forEach(field => primaryLocale[field] = stripTrail(primaryLocale[field]));
 
     const secondaryLocale = minData.content.find(c => c.locale === localeSecondary);
-    // For some reason, an empty quill editor reports its contents as <p><br></p>. Do not save
-    // this to the database - save an empty string instead.
-    fields.forEach(field => primaryLocale[field] = primaryLocale[field] === "<p><br></p>" ? "" : primaryLocale[field]);
-    if (plainFields) plainFields.forEach(field => primaryLocale[field] = primaryLocale[field] === "<p><br></p>" ? "" : primaryLocale[field]);
+    
+    fields.forEach(field => secondaryLocale[field] = stripTrail(secondaryLocale[field]));
+    if (plainFields) plainFields.forEach(field => secondaryLocale[field] = stripTrail(secondaryLocale[field]));
     // If hideAllowed is true, this TextCard is being used by a top-level Section, whose
     // allowed is controlled elsewhere. Don't accidentally pave it here.
     if (!hideAllowed) payload.allowed = minData.allowed;
