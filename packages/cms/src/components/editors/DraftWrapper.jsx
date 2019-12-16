@@ -56,7 +56,7 @@ class DraftWrapper extends Component {
   constructor(props) {
     super(props);
     this.mentionPlugin = createMentionPlugin({
-      mentionTrigger: "{",
+      mentionTrigger: "{{",
       mentionComponent: mentionProps => 
         <span>{mentionProps.children}</span>
     });
@@ -66,7 +66,7 @@ class DraftWrapper extends Component {
         <span>{mentionProps.children}</span>
     });
     this.mentionPluginSelector = createMentionPlugin({
-      mentionTrigger: "[",
+      mentionTrigger: "[[",
       mentionComponent: mentionProps => 
         <span>{mentionProps.children}</span>
     });
