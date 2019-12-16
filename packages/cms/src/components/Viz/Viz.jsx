@@ -30,13 +30,26 @@ class Viz extends Component {
   }
 
   render() {
-    const {sectionTitle} = this.props;
+    const {
+      config,
+      configOverride,
+      className,
+      debug,
+      headingLevel,
+      hideOptions,
+      namespace,
+      slug,
+      section,
+      sectionTitle,
+      showTitle
+    } = this.props;
+
     // Variables come from props in the CMS, and Context in the Front-end.
     const variables = this.props.variables || this.context.variables;
     // onSetVariables will either come from ProfileBuilder (CMS) or Profile (Front-end)
     // But either way, it is delivered via context. Have a backup no-op just in case.
     const onSetVariables = this.context.onSetVariables ? this.context.onSetVariables : d => d;
-    // Window opening is only supported on front-end profiles. If they didn't 
+    // Window opening is only supported on front-end profiles. If they didn't
     // come through context, then this Viz is in the CMS, so just replace it with a no-op.
     const onOpenModal = this.context.onOpenModal ? this.context.onOpenModal : d => d;
     const locale = this.props.locale || this.context.locale;
@@ -49,7 +62,6 @@ class Viz extends Component {
     // locale-nested format.
     const formatters = this.context.formatters[locale] || this.context.formatters;
 
-    const {config, configOverride, namespace, className, debug, options, slug, section, showTitle, headingLevel} = this.props;
     const {id} = config;
 
     // clone config object to allow manipulation
@@ -78,34 +90,37 @@ class Viz extends Component {
 
     const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
+    // whether to show the title and/or visualization options
+    const showHeader = ((title && showTitle) || !hideOptions) && type !== "Graphic";
+
     return <SizeMe render={({size}) =>
       <div
-        className={ `${namespace}-viz-container${
+        className={`${namespace}-viz-container${
           className ? ` ${className}` : ""
         }${
           type ? ` ${namespace}-${toKebabCase(type)}-viz-container` : ""
         }`}
         ref={ comp => this.viz = comp }
       >
-        {(title && showTitle || options) && type !== "Graphic"
-          ? <div className={`${namespace}-viz-header`}>
+        {showHeader &&
+          <div className={`${namespace}-viz-header`}>
             {title && showTitle
               ? <Parse El={headingLevel} className={`${namespace}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}>
                 {title}
               </Parse> : ""
             }
-            {options && !vizProps.error
+            {!hideOptions && !vizProps.error
               ? <Options
                 key="option-key"
                 component={{section, viz: this}}
-                data={ vizConfig.data }
-                dataFormat={ vizProps.dataFormat }
-                slug={ slug }
-                title={ title || sectionTitle || slug }
+                data={vizConfig.data}
+                dataFormat={vizProps.dataFormat}
+                slug={slug }
+                title={title || sectionTitle || slug}
                 iconOnly={size && size.width < 320 ? true : false}
               /> : ""
             }
-          </div> : ""
+          </div>
         }
         <div className={`${namespace}-viz-figure${vizConfig.height || type === "Graphic" ? " with-explicit-height" : ""}`}>
           <Visualization
@@ -156,7 +171,6 @@ Viz.defaultProps = {
   config: {},
   configOverride: {},
   namespace: "cp",
-  options: true,
   showTitle: true,
   headingLevel: "h3"
 };

@@ -43,7 +43,7 @@ class Tabs extends Component {
   }
 
   render() {
-    const {slug, title, heading, loading, filters, resetButton, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, title, heading, hideOptions, loading, filters, resetButton, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
     const selectors = filters || [];
     const {panelIndex} = this.state;
 
@@ -127,7 +127,15 @@ class Tabs extends Component {
       { visualization && <div className={`cp-tabs-section-figure${
         visualizations.filter(viz => viz.logic_simple && viz.logic_simple.type === "Graphic").length ? " cp-graphic-viz-grid" : ""
       }`}>
-        <Viz section={this} config={visualization} key={panelIndex} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title}  />
+        <Viz
+          section={this}
+          config={visualization}
+          key={panelIndex}
+          slug={slug}
+          headingLevel={vizHeadingLevel}
+          hideOptions={hideOptions}
+          sectionTitle={title}
+        />
       </div> }
     </div>;
   }

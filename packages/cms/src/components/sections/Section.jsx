@@ -159,7 +159,7 @@ class Section extends Component {
 
   render() {
     const {contents, sources, isStickyIE, height, showReset} = this.state;
-    const {headingLevel, hideAnchor, isModal, loading} = this.props;
+    const {headingLevel, hideAnchor, hideOptions, isModal, loading} = this.props;
 
     // remap old section names
     const layout = contents.type;
@@ -278,6 +278,7 @@ class Section extends Component {
       resetButton,
       visualizations: contents.position !== "sticky" ? visualizations : [],
       vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
+      hideOptions,
       loading
     };
 

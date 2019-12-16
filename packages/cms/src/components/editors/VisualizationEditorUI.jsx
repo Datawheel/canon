@@ -245,7 +245,6 @@ class VisualizationEditorUI extends Component {
     return options;
   }
 
-
   onCheck(field) {
     const {object} = this.state;
 

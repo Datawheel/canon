@@ -129,7 +129,12 @@ class ProfileRenderer extends Component {
 
   render() {
     const {profile, loading, modalSlug, isIE, setVarsLoading} = this.state;
-    const {isModal, sectionID} = this.props;
+    const {
+      hideAnchor,   // strip out heading anchor link
+      hideOptions,  // strip out visualization options buttons
+      hideHero,     // strip out the hero section
+      hideSubnav    // strip out the subnav
+    } = this.props;
 
     if (!this.state.profile) return null;
     if (this.state.profile.error) return <div>{this.state.profile.error}</div>;
@@ -182,12 +187,27 @@ class ProfileRenderer extends Component {
 
     const modalSection = modalSlug ? profile.sections.find(s => s.slug === modalSlug) : null;
 
+    // To prevent a "loading flicker" when users call setVariables, normal Sections don't show a "Loading"
+    // when the only thing that updated was from setVariables. HOWEVER, if this is a modal popover, we really
+    // SHOULD wait if setVarsLoading is true, because the config might have called setVariables and then
+    // called openModal right after, so let's wait for setVars to be done before we consider the loading complete.
+    const modalSectionLoading = loading || setVarsLoading;
+
+    const hideElements = {
+      hideAnchor,
+      hideOptions
+    };
+
     return (
       <Fragment>
         <div className="cp">
-          {!sectionID && <Hero profile={profile} contents={heroSection || null} />}
+          {!hideHero &&
+            <Hero profile={profile} contents={heroSection || null} {...hideElements} />
+          }
 
-          {!sectionID && <Subnav sections={groupedSections} />}
+          {!hideSubnav &&
+            <Subnav sections={groupedSections} />
+          }
 
           {/* main content sections */}
           <main className="cp-main" id="main">
@@ -199,18 +219,17 @@ class ProfileRenderer extends Component {
                 {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                   // ungrouped section
                   ? <Section
-                    isModal={isModal}
                     contents={innerGrouping[0]}
                     onSetVariables={this.onSetVariables.bind(this)}
                     headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
                     loading={loading}
                     key={`${innerGrouping[0].slug}-${ii}`}
+                    {...hideElements}
                   />
                   // grouped sections
                   : <SectionGrouping layout={innerGrouping[0].type}>
                     {innerGrouping.map((section, iii) =>
                       <Section
-                        isModal={isModal}
                         contents={section}
                         onSetVariables={this.onSetVariables.bind(this)}
                         headingLevel={groupedSections.length === 1 || ii === 0
@@ -219,6 +238,7 @@ class ProfileRenderer extends Component {
                         }
                         loading={loading}
                         key={`${section.slug}-${iii}`}
+                        {...hideElements}
                       />
                     )}
                   </SectionGrouping>
@@ -235,20 +255,17 @@ class ProfileRenderer extends Component {
             isOpen={modalSection}
             onClose={() => this.setState({modalSlug: null})}
           >
-            <button className="cp-dialog-close-button" onClick={() => this.setState({modalSlug: null})}>
+            <button className="cp-dialog-close-button" onClick={() => this.setState({modalSlug: null})} key="db">
               <Icon className="cp-dialog-close-button-icon" icon="cross" />
               <span className="u-visually-hidden">close section</span>
             </button>
 
             <Section
-              isModal={true}
               contents={modalSection}
+              loading={modalSectionLoading}
               onSetVariables={this.onSetVariables.bind(this)}
-              // To prevent a "loading flicker" when users call setVariables, normal Sections don't show a "Loading"
-              // when the only thing that updated was from setVariables. HOWEVER, if this is a modal popover, we really
-              // SHOULD wait if setVarsLoading is true, because the config might have called setVariables and then
-              // called openModal right after, so let's wait for setVars to be done before we consider the loading complete.
-              loading={loading || setVarsLoading}
+              key="ds"
+              {...hideElements}
             />
           </Dialog>
         </div>

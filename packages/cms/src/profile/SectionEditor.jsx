@@ -1,16 +1,17 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {Dialog, Icon} from "@blueprintjs/core";
 
 import blueprintIcons from "../utils/blueprintIcons";
 import deepClone from "../utils/deepClone";
 import toSpacedCase from "../utils/formatters/toSpacedCase";
+import stripHTML from "../utils/formatters/stripHTML";
 
 import ButtonGroup from "../components/fields/ButtonGroup";
 import Select from "../components/fields/Select";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
 
 import Deck from "../components/interface/Deck";
+import Dialog from "../components/interface/Dialog";
 import PreviewHeader from "../components/interface/PreviewHeader";
 import SelectorUsage from "../components/interface/SelectorUsage";
 
@@ -24,8 +25,13 @@ import {setStatus} from "../actions/status";
 
 import "./SectionEditor.css";
 
-class SectionEditor extends Component {
+const buttonGroupProps = {
+  namespace: "cms",
+  fontSize: "xs",
+  iconPosition: "left"
+};
 
+class SectionEditor extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -73,8 +79,7 @@ class SectionEditor extends Component {
   }
 
   render() {
-
-    const {minData, allSelectors, formatters} = this.props;
+    const {minData, allSelectors, formatters, setStatus} = this.props;
     const {children} = this.props;
     const {variables, localeDefault, localeSecondary, useLocaleSecondary, sectionPreview} = this.props.status;
 
@@ -117,18 +122,37 @@ class SectionEditor extends Component {
       </option>
     );
 
-    const sectionProps = {
+    // mini profile with one section
+    const profileRendererProps = {
       profile: sectionPreview,  // The entire profile, filtered to a single section, as loaded in Header.jsx
       sectionID: minData.id,    // Limit the Profile and its onSelect reloads to the given sectionID
       formatters,               // The RAW formatters - ProfileRenderer handles turning them into Functions
+      isModal: true,            // only used by componentDidUpdate
+      hideAnchor: true,
+      hideHero: false,
+      hideSubnav: true,
+      hideOptions: true,
       locale: useLocaleSecondary ? localeSecondary : localeDefault
     };
 
+    // additional config based on preview profile
+    let previewTitle = null;
+    if (profileRendererProps.profile && profileRendererProps.profile.sections) {
+      const previewSection = profileRendererProps.profile.sections[0];
+      // used in dialog title
+      previewTitle = stripHTML(previewSection.title);
+      // if the preview section is a hero section, we need to render it
+      profileRendererProps.hideHero = previewSection.type.toLowerCase() !== "hero";
+      // it's already in a modal
+      if (previewSection.position === "modal") previewSection.position = "default";
+    }
+
     return (
       <div className="cms-editor-inner">
-
         {/* dimensions */}
-        {allLoaded && children}
+        {allLoaded &&
+          children
+        }
 
         {/* section name */}
         {/* TODO: convert to fields */}
@@ -213,29 +237,23 @@ class SectionEditor extends Component {
                 {
                   onClick: this.selectButton.bind(this, "position", true, "default"),
                   active: minDataState.position === "default",
-                  namespace: "cms",
-                  fontSize: "xs",
                   icon: "alignment-left",
-                  iconPosition: "left",
-                  children: "default"
+                  children: "default",
+                  ...buttonGroupProps
                 },
                 {
                   onClick: this.selectButton.bind(this, "position", true, "sticky"),
                   active: minDataState.position === "sticky",
-                  namespace: "cms",
-                  fontSize: "xs",
                   icon: "alignment-top",
-                  iconPosition: "left",
-                  children: "sticky"
+                  children: "sticky",
+                  ...buttonGroupProps
                 },
                 {
                   onClick: this.selectButton.bind(this, "position", true, "modal"),
                   active: minDataState.position === "modal",
-                  namespace: "cms",
-                  fontSize: "xs",
                   icon: "applications",
-                  iconPosition: "left",
-                  children: "modal"
+                  children: "modal",
+                  ...buttonGroupProps
                 }
               ]} />
             </label>
@@ -270,67 +288,67 @@ class SectionEditor extends Component {
         }
 
         {/* hide fields that won't be used by sticky sections */}
-        {minData.position !== "sticky" && <React.Fragment>
-          {/* stats */}
-          <Deck
-            title="Stats"
-            entity="stat"
-            addItem={this.addItem.bind(this, "section_stat")}
-            cards={minData.stats && minData.stats.map(s =>
-              <TextCard
-                key={s.id}
-                minData={s}
-                fields={["title", "subtitle", "value", "tooltip"]}
-                type="section_stat"
-                showReorderButton={minData.stats[minData.stats.length - 1].id !== s.id}
-              />
-            )}
-          />
+        {minData.position !== "sticky" &&
+          <Fragment>
+            {/* stats */}
+            <Deck
+              title="Stats"
+              entity="stat"
+              addItem={this.addItem.bind(this, "section_stat")}
+              cards={minData.stats && minData.stats.map(s =>
+                <TextCard
+                  key={s.id}
+                  minData={s}
+                  fields={["title", "subtitle", "value", "tooltip"]}
+                  type="section_stat"
+                  showReorderButton={minData.stats[minData.stats.length - 1].id !== s.id}
+                />
+              )}
+            />
 
-          {/* descriptions */}
-          <Deck
-            title="Paragraphs"
-            entity="description"
-            addItem={this.addItem.bind(this, "section_description")}
-            cards={minData.descriptions && minData.descriptions.map(d =>
-              <TextCard
-                key={d.id}
-                minData={d}
-                fields={["description"]}
-                type="section_description"
-                showReorderButton={minData.descriptions[minData.descriptions.length - 1].id !== d.id}
-              />
-            )}
-          />
+            {/* descriptions */}
+            <Deck
+              title="Paragraphs"
+              entity="description"
+              addItem={this.addItem.bind(this, "section_description")}
+              cards={minData.descriptions && minData.descriptions.map(d =>
+                <TextCard
+                  key={d.id}
+                  minData={d}
+                  fields={["description"]}
+                  type="section_description"
+                  showReorderButton={minData.descriptions[minData.descriptions.length - 1].id !== d.id}
+                />
+              )}
+            />
 
-          {/* visualizations */}
-          <Deck
-            title="Visualizations"
-            entity="visualization"
-            addItem={this.addItem.bind(this, "section_visualization")}
-            cards={minData.visualizations && minData.visualizations.map(v =>
-              <VisualizationCard
-                key={v.id}
-                minData={v}
-                type="section_visualization"
-                showReorderButton={minData.visualizations[minData.visualizations.length - 1].id !== v.id}
-              />
-            )}
-          />
+            {/* visualizations */}
+            <Deck
+              title="Visualizations"
+              entity="visualization"
+              addItem={this.addItem.bind(this, "section_visualization")}
+              cards={minData.visualizations && minData.visualizations.map(v =>
+                <VisualizationCard
+                  key={v.id}
+                  minData={v}
+                  type="section_visualization"
+                  showReorderButton={minData.visualizations[minData.visualizations.length - 1].id !== v.id}
+                />
+              )}
+            />
+          </Fragment>
+        }
 
-          {/* preview section dialog */}
-          <Dialog
-            isOpen={sectionPreview}
-            onClose={() => this.props.setStatus({sectionPreview: null})}
-          >
-            <button className="cp-dialog-close-button" onClick={() => this.props.setStatus({sectionPreview: null})}>
-              <Icon className="cp-dialog-close-button-icon" icon="cross" />
-              <span className="u-visually-hidden">close section</span>
-            </button>
-            <PreviewHeader />
-            <ProfileRenderer {...sectionProps} />
-          </Dialog>
-        </React.Fragment>}
+        {/* preview section dialog */}
+        <Dialog
+          title={`Section preview: ${previewTitle}`}
+          isOpen={sectionPreview}
+          onClose={() => setStatus({sectionPreview: null})}
+          fullWidth
+        >
+          <PreviewHeader />
+          <ProfileRenderer {...profileRendererProps} />
+        </Dialog>
       </div>
     );
   }
