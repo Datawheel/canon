@@ -1,12 +1,16 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
+
 import PreviewSearch from "../fields/PreviewSearch";
 import Select from "../fields/Select";
+import Status from "../interface/Status";
+
 import {setStatus} from "../../actions/status";
 import {fetchSectionPreview} from "../../actions/profiles";
 
-class PreviewHeader extends Component {
+import "./PreviewHeader.css";
 
+class PreviewHeader extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -34,9 +38,9 @@ class PreviewHeader extends Component {
     }
     else if (e.target.value === localeSecondary) {
       this.props.fetchSectionPreview(pathObj.section, e.target.value);
-      this.props.setStatus({useLocaleSecondary: true}); 
+      this.props.setStatus({useLocaleSecondary: true});
     }
-    // If the preview language is a new (non default, non secondary) locale, SET the secondaryLocale to that, 
+    // If the preview language is a new (non default, non secondary) locale, SET the secondaryLocale to that,
     // So when the user closes the window, it has been set in the settings. (note that this will eventually call
     // fetchSectionPreview in componentDidUpdate)
     else {
@@ -45,7 +49,6 @@ class PreviewHeader extends Component {
   }
 
   render() {
-
     const {locales, localeDefault, localeSecondary, useLocaleSecondary, previews, fetchingVariables, fetchingSectionPreview} = this.props.status;
     const {meta} = this.props;
     const locale = useLocaleSecondary ? localeSecondary : localeDefault;
@@ -53,37 +56,44 @@ class PreviewHeader extends Component {
     const localeList = locales.concat([localeDefault]);
 
     return (
-      <div>
-        {fetchingVariables && <span style={{color: "red"}}>Loading Variables...</span>}
-        {fetchingSectionPreview && <span style={{color: "red"}}>Fetching Preview...</span>}
-        {meta.map((m, i) => 
-          <PreviewSearch
-            key={`ps-${m.slug}`}
-            label={previews[i].name || previews[i].id || "search profiles..."}
-            previewing={previews[i].name || previews[i].id}
-            fontSize="xxs"
-            slug={m.slug}
-            dimension={m.dimension}
-            levels={m.levels}
-            limit={20}
-          />
-        )}
-        {localeList.length > 1 && <Select
-          label="Language"
-          namespace="cms"
-          fontSize="xs"
-          inline
-          value={locale}
-          onChange={this.onChange.bind(this)}
-        >
-          {localeList.map(d => <option key={d} value={d}>{d}</option>)}
-        </Select>}
+      <Fragment>
+        <div className="cms-preview-header">
+          {console.log(meta)}
+          {meta.map((m, i) =>
+            <PreviewSearch
+              key={`ps-${m.slug}`}
+              label={previews[i].name || previews[i].id || "search profiles..."}
+              previewing={previews[i].name || previews[i].id}
+              fontSize="xxs"
+              slug={m.slug}
+              dimension={m.dimension}
+              levels={m.levels}
+              limit={20}
+            />
+          )}
+          {localeList.length > 1 &&
+            <Select
+              label="Language"
+              namespace="cms"
+              fontSize="xxs"
+              inline
+              value={locale}
+              onChange={this.onChange.bind(this)}
+            >
+              {localeList.map(d =>
+                <option key={d} value={d}>{d}</option>
+              )}
+            </Select>
+          }
+        </div>
 
-      </div>
-      
+        <Status
+          recompiling={fetchingVariables || fetchingSectionPreview}
+          busy={fetchingVariables ? "Updating variables" : "Updating section preview content"}
+        />
+      </Fragment>
     );
   }
-
 }
 
 const mapStateToProps = state => ({

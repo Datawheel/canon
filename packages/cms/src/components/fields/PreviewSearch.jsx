@@ -25,7 +25,7 @@ class PreviewSearch extends Component {
     const newPreview = {slug, id, name, memberSlug};
     const previews = this.props.status.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
     const pathObj = Object.assign({}, this.props.status.pathObj, {previews});
-    this.props.setStatus({pathObj, previews});
+    this.props.setStatus({pathObj, previews, userQuery: ""});
   }
 
   onChange(e) {
@@ -131,7 +131,7 @@ class PreviewSearch extends Component {
     }, false);
 
     if (searchEmpty) this.onChange.bind(this)();
-  }               
+  }
 
   render() {
     const {
@@ -147,12 +147,15 @@ class PreviewSearch extends Component {
 
     return (
       <div
-        className={`cms-preview-search u-font-${fontSize} ${previewing ? "is-value" : "is-placeholder"}`}
+        className={`cms-preview-search u-font-${fontSize} ${previewing ? "is-value" : "is-placeholder"} ${active ? "is-active" : "is-inactive"}`}
         ref={comp => this.container = comp}
       >
-        <label className="u-visually-hidden cms-preview-search-text" htmlFor={`${label}-search-label`}>{label}</label>
+        <label className="u-visually-hidden cms-preview-search-text" htmlFor={`${label}-search`}>
+          {label}
+        </label>
         <input
-          id={`${label}-search-label`}
+          id={`${label}-search`}
+          name={`${label}-search`}
           key="input-bar"
           className="cms-preview-search-input"
           placeholder={label}
@@ -160,7 +163,6 @@ class PreviewSearch extends Component {
           onChange={this.onChange.bind(this)}
           onFocus={this.onFocus.bind(this)}
           autoComplete="off"
-          name={Math.random()}
           ref={input => this.input = input}
         />
 

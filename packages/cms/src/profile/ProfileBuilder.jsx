@@ -60,8 +60,8 @@ class ProfileBuilder extends Component {
     const gensDone = "Variables Loaded";
 
     const searchRecompiling = searchLoading;
-    const searchBusy = "Loading Search Members, please wait.";
-    const searchDone = "Members Loaded.";
+    const searchBusy = "Loading search members…";
+    const searchDone = "Members loaded";
 
     if (!profilesLoaded) return null;
 
