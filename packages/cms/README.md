@@ -210,10 +210,12 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |`CANON_CMS_CUBES`|Path to the mondrian or tesseract|`undefined (required)`|
 |`CANON_CMS_ENABLE`|Setting this env var to `true` allows access to the cms in production builds.|`false`|
 |`CANON_CMS_LOGGING`|Enable verbose logging in console.|`false`|
+|`CANON_CMS_REQUESTS_PER_SECOND`|Sets the `requestsPerSecond` value in [promise-throttle](https://www.npmjs.com/package/promise-throttle) library, used for rate-limiting Generator requests|20|
 |`FLICKR_API_KEY`|Used to configure Flickr Authentication|`undefined`|
 |`GOOGLE_APPLICATION_CREDENTIALS`|Path to JSON token file for Cloud Storage|`undefined`|
 |`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
 |`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|1400|
+|`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
 |`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
 
 ---

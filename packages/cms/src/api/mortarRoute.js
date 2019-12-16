@@ -22,6 +22,7 @@ const LANGUAGES = process.env.CANON_LANGUAGES || LANGUAGE_DEFAULT;
 const LOGINS = process.env.CANON_LOGINS || false;
 const PORT = process.env.CANON_PORT || 3300;
 const NODE_ENV = process.env.NODE_ENV || "development";
+const REQUESTS_PER_SECOND = process.env.CANON_CMS_REQUESTS_PER_SECOND ? parseInt(process.env.CANON_CMS_REQUESTS_PER_SECOND, 10) : 20;
 
 const canonVars = {
   CANON_API: process.env.CANON_API,
@@ -41,7 +42,7 @@ Object.keys(process.env).forEach(k => {
 });
 
 const throttle = new PromiseThrottle({
-  requestsPerSecond: 10,
+  requestsPerSecond: REQUESTS_PER_SECOND,
   promiseImplementation: Promise
 });
 
