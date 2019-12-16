@@ -101,7 +101,10 @@ export default (profiles = [], action) => {
         .concat([action.data])
         .sort(sorter)}) : p);
     case "SECTION_DUPLICATE":
-      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {sections: p.sections.concat([action.data])}) : p);
+      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {sections: p.sections
+        .map(s => s.ordering >= action.data.ordering ? Object.assign({}, s, {ordering: s.ordering + 1}) : s)
+        .concat([action.data])
+        .sort(sorter)}) : p);
     case "SECTION_UPDATE":
       return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
     case "SECTION_DELETE":
