@@ -102,7 +102,8 @@ class VariableCard extends Component {
     const alertObj = {
       callback: this.delete.bind(this),
       title: `Delete ${this.props.type}?`,
-      confirm: `Delete ${this.props.type}`
+      confirm: `Delete ${this.props.type}`,
+      usePortal: this.props.usePortalForAlert
     };
     this.setState({alertObj});
   }
