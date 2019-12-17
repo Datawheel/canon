@@ -1,0 +1,14 @@
+@import "../../css/mixins.css";
+
+.cms-ace-container .cms-ace-button {
+  position: absolute;
+  top: var(--gutter-xs);
+  right: var(--gutter-xs);
+  z-index: 3;
+}
+
+.cms-ace-container.is-fullscreen {
+  @mixin absolute-expand;
+  position: fixed !important;
+  z-index: 5;
+}
