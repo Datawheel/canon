@@ -43,7 +43,7 @@ class Tabs extends Component {
   }
 
   render() {
-    const {slug, title, heading, loading, filters, resetButton, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, title, heading, hideOptions, loading, filters, resetButton, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
     const selectors = filters || [];
     const {panelIndex} = this.state;
 
@@ -77,7 +77,9 @@ class Tabs extends Component {
       return title || `Visualization ${i + 1}`;
     }) : paragraphs.map((d, i) => `Tab ${i + 1}`);
 
-    const tabDescriptions = paragraphs.length === tabs.length ? [paragraphs[panelIndex]] : paragraphs;
+    const tabDescriptions = paragraphs.length === tabs.length
+      ? [paragraphs[panelIndex]]
+      : paragraphs;
 
     return <div className={`cp-section-inner cp-${slug}-section-inner cp-tabs-section-inner`} ref={comp => this.section = comp}>
       {/* sidebar */}
@@ -110,10 +112,11 @@ class Tabs extends Component {
           </div>
         }
 
-        {tabDescriptions && tabDescriptions.map((content, i) =>
-          <Parse key={i}>
-            {content.description}
-          </Parse>
+        {tabDescriptions.map((content, i) =>
+          content && content.description &&
+            <Parse key={i}>
+              {content.description}
+            </Parse>
         )}
 
         {stats}
@@ -124,7 +127,15 @@ class Tabs extends Component {
       { visualization && <div className={`cp-tabs-section-figure${
         visualizations.filter(viz => viz.logic_simple && viz.logic_simple.type === "Graphic").length ? " cp-graphic-viz-grid" : ""
       }`}>
-        <Viz section={this} config={visualization} key={panelIndex} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title}  />
+        <Viz
+          section={this}
+          config={visualization}
+          key={panelIndex}
+          slug={slug}
+          headingLevel={vizHeadingLevel}
+          hideOptions={hideOptions}
+          sectionTitle={title}
+        />
       </div> }
     </div>;
   }

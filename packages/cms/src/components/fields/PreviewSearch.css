@@ -185,3 +185,12 @@
   @mixin error-text;
   padding: 0.25em 1em;
 }
+
+/* open state positioning */
+.cms-preview-search.is-active > * {
+  z-index: 4; /* in front of results list */
+}
+.cms-preview-search.is-active .cms-search-result-list {
+  position: absolute;
+  z-index: 3; /* in front of section preview hero content */
+}

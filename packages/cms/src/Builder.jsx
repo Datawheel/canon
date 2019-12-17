@@ -90,11 +90,15 @@ class Builder extends Component {
   /**
    * Almost every child of Builder makes use of redux "resources" to access formatters. However, Viz.jsx
    * misbehaves when wrapped in redux-connect, so for Viz.jsx ONLY, we pass it down via context.
+   * Router is required because SectionEditor embeds a ProfileEmbed, which contains vizes, which 
+   * contain Options.jsx, which has need of router.
    */
   getChildContext() {
     const {formatters} = this.state;
+    const {router} = this.props;
     return {
-      formatters
+      formatters,
+      router
     };
   }
 
@@ -164,7 +168,8 @@ class Builder extends Component {
 
 
 Builder.childContextTypes = {
-  formatters: PropTypes.object
+  formatters: PropTypes.object,
+  router: PropTypes.object
 };
 
 

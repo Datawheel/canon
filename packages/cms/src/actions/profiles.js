@@ -126,6 +126,23 @@ export function deleteEntity(type, payload) {
   };
 }
 
+/** */
+export function fetchSectionPreview(id, locale) { 
+  return function(dispatch, getStore) {
+    dispatch({type: "SECTION_PREVIEW_FETCH"});
+    const {currentPid, pathObj} = getStore().cms.status;
+    const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
+    const variables = thisProfile.variables[locale];
+    const {previews} = pathObj;
+    const idString = previews.reduce((acc, id, i) => `${acc}&slug${i + 1}=${id.slug}&id${i + 1}=${id.id}`, "");
+    const url = `${getStore().env.CANON_API}/api/profile?profile=${currentPid}&section=${id}&locale=${locale}${idString}`;
+    axios.post(url, {variables})
+      .then(({data}) => {
+        dispatch({type: "SECTION_PREVIEW_SET", data});
+      });
+  };
+}
+
 /**
  * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
  * and overrides/sets a variable in the variables object. This does not require a server
@@ -186,7 +203,6 @@ export function resetPreviews() {
         });
       });
       const newPathObj = Object.assign({}, pathObj, {previews});
-      console.log("changing pathObj to new previews because nodeclick");
       dispatch({type: "STATUS_SET", data: {previews, pathObj: newPathObj}});
     });
   };
@@ -200,6 +216,7 @@ export function resetPreviews() {
  */
 export function fetchVariables(config, useCache) { 
   return function(dispatch, getStore) {    
+    dispatch({type: "VARIABLES_FETCH"});
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
 
     const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
@@ -250,6 +267,7 @@ export function fetchVariables(config, useCache) {
             // Once pruned, we can POST the variables to the materializer endpoint
             axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
               variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+              const diffCounter = getStore().cms.status.diffCounter + 1;
               dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
             });
           }

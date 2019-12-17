@@ -1,0 +1,16 @@
+@import "../../css/mixins.css";
+
+.cms-preview-header {
+  display: flex;
+  flex-wrap: wrap;
+  /* offset child margin */
+  margin:
+    calc(0px - var(--gutter-md))
+    calc(0px - var(--gutter-sm) - 0.125em)
+    -0.25rem;
+
+  & > * {
+    flex: 1 0 auto;
+    margin: var(--gutter-sm);
+  }
+}

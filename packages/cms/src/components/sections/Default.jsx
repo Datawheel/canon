@@ -4,7 +4,7 @@ import "./Default.css";
 
 export default class Default extends Component {
   render() {
-    const {slug, heading, title, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, heading, hideOptions, title, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -29,7 +29,15 @@ export default class Default extends Component {
             visualizations.filter(viz => viz.logic_simple && viz.logic_simple.type === "Graphic").length ? " cp-graphic-viz-grid" : ""
           }`}>
             {visualizations.map((visualization, ii) =>
-              <Viz section={this} config={visualization} headingLevel={vizHeadingLevel} sectionTitle={title} slug={slug} key={ii} />
+              <Viz
+                section={this}
+                config={visualization}
+                headingLevel={vizHeadingLevel}
+                sectionTitle={title}
+                slug={slug}
+                hideOptions={hideOptions}
+                key={ii}
+              />
             )}
           </div> : ""
         }

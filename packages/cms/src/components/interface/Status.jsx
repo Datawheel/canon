@@ -9,7 +9,7 @@ export default class Status extends Component {
     return (
       <p className={`cms-status ${recompiling ? "is-recompiling" : "is-done"}`}>
         <Icon className="cms-status-icon" icon={ recompiling ? "refresh" : "tick"} />
-        { recompiling ? busy || "Updating variables" : done || "Variables loaded" }
+        { recompiling ? busy || "Updating variables…" : done || "Variables loaded" }
       </p>
     );
   }

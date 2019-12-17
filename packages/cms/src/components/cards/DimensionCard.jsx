@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-
 import Card from "./Card";
 import Dialog from "../interface/Dialog";
 import DimensionEditor from "../editors/DimensionEditor";
@@ -10,8 +9,6 @@ import Button from "../fields/Button";
 import PreviewSearch from "../fields/PreviewSearch";
 
 import {deleteDimension} from "../../actions/profiles";
-import {setStatus} from "../../actions/status";
-
 import "./DimensionCard.css";
 
 class DimensionCard extends Component {
@@ -22,17 +19,6 @@ class DimensionCard extends Component {
       alertObj: false,
       isOpen: false
     };
-  }
-
-  onSelectPreview(result) {
-    // todo bivariate - should this slug come from preview or meta? once the user
-    // is able to change slug, one of these will have to become the source of truth
-    const {slug} = this.props.preview;
-    const {id, name, slug: memberSlug} = result;
-    const newPreview = {slug, id, name, memberSlug};
-    const previews = this.props.status.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
-    const pathObj = Object.assign({}, this.props.status.pathObj, {previews});
-    this.props.setStatus({pathObj, previews});
   }
 
   rebuildSearch() {
@@ -104,17 +90,7 @@ class DimensionCard extends Component {
                 label={preview.name || preview.id || "search profiles..."}
                 previewing={preview.name || preview.id}
                 fontSize="xxs"
-                onSelectPreview={this.onSelectPreview.bind(this)}
-                renderResults={d =>
-                  <Button
-                    className="cms-search-result-button"
-                    namespace="cms"
-                    fontSize="xxs"
-                    onClick={this.onSelectPreview.bind(this, d)}
-                  >
-                    {d.name}
-                  </Button>
-                }
+                slug={meta.slug}
                 dimension={meta.dimension}
                 levels={meta.levels}
                 limit={20}
@@ -137,7 +113,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setStatus: status => dispatch(setStatus(status)),
   deleteDimension: id => dispatch(deleteDimension(id))
 });
 

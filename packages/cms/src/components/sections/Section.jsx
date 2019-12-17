@@ -90,11 +90,15 @@ class Section extends Component {
     }
   }
 
+  /**
+   * Sections may be embedded as part of a Front-end Profile OR as a previewed section in the CMS. As a front-end
+   * Profile, formatters and variables come in through context, and as a CMS Preview these come through as props.
+   * (This is similar to Viz.jsx which can also be expressed as a front-end component or a CMS preview)
+   */
   getChildContext() {
-    const {formatters, variables} = this.context;
     return {
-      formatters,
-      variables: this.props.variables || variables,
+      formatters: this.props.formatters || this.context.formatters,
+      variables: this.props.variables || this.context.variables,
       onSetVariables: this.onSetVariables.bind(this)
     };
   }
@@ -106,7 +110,7 @@ class Section extends Component {
    * is responsible for keeping track of that, then in turn calling the props version of the function.
    */
   onSetVariables(newVariables) {
-    const initialVariables = this.context.initialVariables || {};
+    const initialVariables = this.props.initialVariables || this.context.initialVariables || {};
     const changedVariables = {};
     Object.keys(newVariables).forEach(key => {
       changedVariables[key] = initialVariables[key];
@@ -155,7 +159,7 @@ class Section extends Component {
 
   render() {
     const {contents, sources, isStickyIE, height, showReset} = this.state;
-    const {headingLevel, loading, isModal} = this.props;
+    const {headingLevel, hideAnchor, hideOptions, isModal, loading} = this.props;
 
     // remap old section names
     const layout = contents.type;
@@ -166,14 +170,17 @@ class Section extends Component {
     const {descriptions, slug, stats, subtitles, title, visualizations} = contents;
     const selectors = contents.selectors || [];
 
+    let showAnchor = true;
+    if (isModal || hideAnchor) showAnchor = false;
+
     // heading & subhead(s)
     const mainTitle = <Fragment>
       {title &&
         <div className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}>
-          <Parse El={headingLevel} id={slug} className={`cp-section-heading ${layoutClass}-heading${layout !== "Hero" && !isModal ? " cp-section-anchored-heading" : ""}`} tabIndex="0">
+          <Parse El={headingLevel} id={slug} className={`cp-section-heading ${layoutClass}-heading${layout !== "Hero" && showAnchor ? " cp-section-anchored-heading" : ""}`} tabIndex="0">
             {title}
           </Parse>
-          {!isModal &&
+          {showAnchor &&
             <AnchorLink to={slug} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`}>
               #<span className="u-visually-hidden">permalink to section</span>
             </AnchorLink>
@@ -182,13 +189,13 @@ class Section extends Component {
       }
     </Fragment>;
 
-    const subTitle = <React.Fragment>
+    const subTitle = <Fragment>
       {contents.position !== "sticky" && subtitles.map((content, i) =>
         <Parse className={`cp-section-subhead display ${layoutClass}-subhead`} key={`${content.subtitle}-subhead-${i}`}>
           {content.subtitle}
         </Parse>
       )}
-    </React.Fragment>;
+    </Fragment>;
 
     const heading = <Fragment>
       {mainTitle}
@@ -271,6 +278,7 @@ class Section extends Component {
       resetButton,
       visualizations: contents.position !== "sticky" ? visualizations : [],
       vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
+      hideOptions,
       loading
     };
 
@@ -306,7 +314,6 @@ Section.defaultProps = {
 
 Section.contextTypes = {
   formatters: PropTypes.object,
-  router: PropTypes.object,
   variables: PropTypes.object,
   initialVariables: PropTypes.object
 };

@@ -80,11 +80,13 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, diffCounter: action.diffCounter});
     case "FORMATTER_DELETE": 
       return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, diffCounter: action.diffCounter});
+    case "VARIABLES_FETCH":
+      return Object.assign({}, status, {fetchingVariables: true});
     // Updating variables or saving a section or meta means that anything that depends on variables, such as TextCards 
     // Or the tree, needs to know something changed. Instead of running an expensive stringify on variables,
     // Just increment a counter that the various cards can subscribe to.
     case "VARIABLES_SET": 
-      const newStatus = {variables: deepClone(action.data.variables)};
+      const newStatus = {variables: deepClone(action.data.variables), fetchingVariables: false};
       if (action.data.diffCounter) newStatus.diffCounter = action.data.diffCounter;
       return Object.assign({}, status, newStatus);
     // Updating sections could mean the title was updated. Bump a "diffcounter" that the Navbar tree can listen for to jigger a render
@@ -118,6 +120,11 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {justDeleted: {type: "story", id: action.data.id}, currentStoryPid: false});
     case "STORYSECTION_DELETE": 
       return Object.assign({}, status, {justDeleted: {type: "storysection", id: action.data.id, parent_id: action.data.parent_id}});
+    // Section Preview
+    case "SECTION_PREVIEW_FETCH": 
+      return Object.assign({}, status, {fetchingSectionPreview: true});
+    case "SECTION_PREVIEW_SET":
+      return Object.assign({}, status, {sectionPreview: action.data, fetchingSectionPreview: false});
     default: return status;
   }
 };

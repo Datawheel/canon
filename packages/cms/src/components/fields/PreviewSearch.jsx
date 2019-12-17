@@ -1,8 +1,11 @@
 import React, {Component} from "react";
 import axios from "axios";
 import {Icon} from "@blueprintjs/core";
+import {connect} from "react-redux";
 import {event, select} from "d3-selection";
+import Button from "../fields/Button";
 import {uuid} from "d3plus-common";
+import {setStatus} from "../../actions/status";
 import "./PreviewSearch.css";
 
 class PreviewSearch extends Component {
@@ -14,6 +17,15 @@ class PreviewSearch extends Component {
       results: [],
       userQuery: ""
     };
+  }
+
+  onSelectPreview(result) {
+    const {slug} = this.props;
+    const {id, name, slug: memberSlug} = result;
+    const newPreview = {slug, id, name, memberSlug};
+    const previews = this.props.status.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
+    const pathObj = Object.assign({}, this.props.status.pathObj, {previews});
+    this.props.setStatus({pathObj, previews, userQuery: ""});
   }
 
   onChange(e) {
@@ -58,7 +70,7 @@ class PreviewSearch extends Component {
   }
 
   componentDidMount() {
-    const {primary, searchEmpty, onSelectPreview} = this.props;
+    const {primary, searchEmpty} = this.props;
     const {id} = this.state;
 
     select(document).on(`mousedown.${id}`, () => {
@@ -95,8 +107,8 @@ class PreviewSearch extends Component {
         if (key === ENTER && highlighted) {
           this.setState({active: false, userQuery: d.name});
           const button = highlighted.querySelector("button");
-          if (button && onSelectPreview) {
-            onSelectPreview(d); // callback function passed from DimensionCard.jsx
+          if (button) {
+            this.onSelectPreview.bind(this)(d);
           }
         }
         else if (key === DOWN || key === UP) {
@@ -126,7 +138,6 @@ class PreviewSearch extends Component {
       fontSize,
       label,
       previewing,
-      renderResults,
       searchEmpty
     } = this.props;
 
@@ -136,12 +147,15 @@ class PreviewSearch extends Component {
 
     return (
       <div
-        className={`cms-preview-search u-font-${fontSize} ${previewing ? "is-value" : "is-placeholder"}`}
+        className={`cms-preview-search u-font-${fontSize} ${previewing ? "is-value" : "is-placeholder"} ${active ? "is-active" : "is-inactive"}`}
         ref={comp => this.container = comp}
       >
-        <label className="u-visually-hidden cms-preview-search-text" htmlFor={`${label}-search-label`}>{label}</label>
+        <label className="u-visually-hidden cms-preview-search-text" htmlFor={`${label}-search`}>
+          {label}
+        </label>
         <input
-          id={`${label}-search-label`}
+          id={`${label}-search`}
+          name={`${label}-search`}
           key="input-bar"
           className="cms-preview-search-input"
           placeholder={label}
@@ -149,7 +163,6 @@ class PreviewSearch extends Component {
           onChange={this.onChange.bind(this)}
           onFocus={this.onFocus.bind(this)}
           autoComplete="off"
-          name={Math.random()}
           ref={input => this.input = input}
         />
 
@@ -171,7 +184,14 @@ class PreviewSearch extends Component {
                 key={result.id}
                 result={result}
               >
-                {renderResults(result, this.props)}
+                <Button
+                  className="cms-search-result-button"
+                  namespace="cms"
+                  fontSize="xxs"
+                  onClick={this.onSelectPreview.bind(this, result)}
+                >
+                  {result.name}
+                </Button>
               </li>
             )}
             {!results.length &&
@@ -196,9 +216,16 @@ PreviewSearch.defaultProps = {
   limit: 10,
   placeholder: "Search",
   primary: false,
-  renderResults: d => d.name,
   searchEmpty: false,
   url: "/api/search"
 };
 
-export default PreviewSearch;
+const mapStateToProps = state => ({
+  status: state.cms.status
+});
+
+const mapDispatchToProps = dispatch => ({
+  setStatus: status => dispatch(setStatus(status))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(PreviewSearch);

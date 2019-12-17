@@ -492,15 +492,11 @@ module.exports = function(app) {
         }
       });
     });
-    // If the user provided a section ID in the query, that's all they want. Find & Return just that.
+    // If the user provided a section ID in the query, that's all they want. Filter to return just that.
     if (sectionID) {
-      const section = profile.sections.find(t => Number(t.id) === Number(sectionID) || t.slug === sectionID);
-      returnObject = Object.assign({}, returnObject, section);
+      profile.sections = profile.sections.filter(t => Number(t.id) === Number(sectionID) || t.slug === sectionID);
     }
-    // Otherwise, it's just a top-level profile request
-    else {
-      returnObject = Object.assign({}, returnObject, profile);
-    }
+    returnObject = Object.assign({}, returnObject, profile);
     returnObject.ids = dims.map(d => d.id).join();
     returnObject.dims = dims;
     returnObject.variables = variables;

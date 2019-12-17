@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
 
@@ -104,12 +104,12 @@ class Hero extends Component {
 
 
     // heading & subhead(s)
-    const heading = <React.Fragment>
+    const heading = <Fragment>
       <Parse El="h1" id={contents ? contents.slug : `${stripHTML(profile.title)}-hero`} className="cp-section-heading cp-hero-heading u-font-xxl">
         {title}
       </Parse>
       {subtitleContent}
-    </React.Fragment>;
+    </Fragment>;
 
 
     return (
@@ -127,7 +127,15 @@ class Hero extends Component {
           {contents && contents.visualizations && contents.visualizations.length
             ? <div className="cp-hero-figure">
               {contents.visualizations.map((visualization, ii) => ii === 0
-                ? <Viz section={this} config={visualization} showTitle={false} sectionTitle={title} options={false} slug={contents.slug} key={ii} />
+                ? <Viz
+                  section={this}
+                  config={visualization}
+                  showTitle={false}
+                  sectionTitle={title}
+                  hideOptions
+                  slug={contents.slug}
+                  key={ii}
+                />
                 : ""
               )}
             </div> : ""
@@ -136,7 +144,7 @@ class Hero extends Component {
 
         {/* display image credits, and images */}
         {images && images.length
-          ? <React.Fragment>
+          ? <Fragment>
             {/* credits */}
             <div className={`cp-hero-credits ${creditsVisible ? "is-open" : "is-closed"}`}>
               <Button
@@ -199,7 +207,7 @@ class Hero extends Component {
                 )}
               </div>
             </div>
-          </React.Fragment> : ""
+          </Fragment> : ""
         }
       </header>
     );

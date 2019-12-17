@@ -8,8 +8,9 @@ import ButtonGroup from "../fields/ButtonGroup";
 import Select from "../fields/Select";
 import Alert from "../interface/Alert";
 
-import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection} from "../../actions/profiles";
+import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, fetchSectionPreview} from "../../actions/profiles";
 import {deleteStory} from "../../actions/stories";
+import {setStatus} from "../../actions/status";
 
 import "./Header.css";
 
@@ -70,6 +71,14 @@ class Header extends Component {
       if (type && id) {
         this.setState({itemToDelete: {type, id}});
       }
+    }
+  }
+
+  togglePreview() {
+    const {pathObj, localeDefault, localeSecondary, useLocaleSecondary} = this.props.status;
+    const locale = useLocaleSecondary ? localeSecondary : localeDefault;
+    if (pathObj.section) {
+      this.props.fetchSectionPreview(pathObj.section, locale);
     }
   }
 
@@ -160,8 +169,10 @@ class Header extends Component {
     // Only show the link if this is a story (not requiring dimension) or is a profile that HAS dimensions
     const showLink = pathObj.tab === "stories" || dimensions && dimensions.length > 0;
 
-    let showDuplicateButton = false;
-    if (pathObj.tab === "profiles") showDuplicateButton = true;
+    const showDuplicateButton = pathObj.tab === "profiles";
+    const showPreviewButton = pathObj.section;
+
+    const showButtons = showDuplicateButton || showDeleteButton || showPreviewButton;
 
     return (
       <Fragment>
@@ -189,16 +200,28 @@ class Header extends Component {
           </span>
 
           {/* TODO: make this a popover once we have more options */}
-          {showDuplicateButton || showDeleteButton
+          {showButtons
             ? <div className="cms-header-actions-container" key="ac">
               <ButtonGroup className="cms-header-actions-button-group">
+                {/* preview entity */}
+                {showPreviewButton &&
+                  <Button
+                    className="cms-header-actions-button cms-header-preview-button"
+                    onClick={this.togglePreview.bind(this)}
+                    icon="application"
+                    key="db1"
+                    {...buttonProps}
+                  >
+                    Preview <span className="u-visually-hidden">section</span>
+                  </Button>
+                }
                 {/* duplicate entity */}
                 {showDuplicateButton &&
                   <Button
                     className="cms-header-actions-button cms-header-duplicate-button"
                     onClick={this.maybeDuplicate.bind(this)}
                     icon="duplicate"
-                    key="db1"
+                    key="db2"
                     {...buttonProps}
                   >
                     Duplicate <span className="u-visually-hidden">
@@ -212,7 +235,7 @@ class Header extends Component {
                     className="cms-header-actions-button cms-header-delete-button"
                     onClick={this.maybeDelete.bind(this)}
                     icon="trash"
-                    key="db2"
+                    key="db3"
                     {...buttonProps}
                   >
                     Delete <span className="u-visually-hidden">
@@ -225,6 +248,7 @@ class Header extends Component {
           }
         </header>
 
+        {/* duplicate alert */}
         <Alert
           title={`Duplicate ${entityType}?`}
           isOpen={itemToDuplicate}
@@ -248,6 +272,7 @@ class Header extends Component {
           theme="caution"
         />
 
+        {/* delete alert */}
         <Alert
           title={itemToDelete && itemToDelete.type === "profile"
             ? "Delete profile along with all of its sections and content?"
@@ -275,7 +300,9 @@ const mapDispatchToProps = dispatch => ({
   deleteProfile: id => dispatch(deleteProfile(id)),
   duplicateProfile: id => dispatch(duplicateProfile(id)),
   duplicateSection: (id, pid) => dispatch(duplicateSection(id, pid)),
-  deleteStory: id => dispatch(deleteStory(id))
+  fetchSectionPreview: (id, locale) => dispatch(fetchSectionPreview(id, locale)),
+  deleteStory: id => dispatch(deleteStory(id)),
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(Header));

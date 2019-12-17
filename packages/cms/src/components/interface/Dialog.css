@@ -19,6 +19,8 @@
     max-width: calc(100% - var(--gutter-lg));
     padding-top: 2.5rem;
 
+    &.is-fullwidth { width: 100%; }
+
     /* make room for footer */
     &.with-footer { padding-bottom: 2.5rem; }
 
@@ -108,8 +110,12 @@
 }
 
 .cms-dialog-body {
+  @mixin overflow-container;
   padding-top: var(--gutter-md);
   padding-bottom: var(--gutter-md);
+  max-height: calc(100vh - var(--gutter-xl) - var(--gutter-md));
+}
+/* make more room for footer */
+.cms-dialog-inner.with-footer .cms-dialog-body {
   max-height: calc(100vh - var(--gutter-xl) - 5rem);
-  @mixin overflow-container;
 }
