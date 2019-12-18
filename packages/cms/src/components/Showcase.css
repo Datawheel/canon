@@ -1,0 +1,37 @@
+@import "../css/mixins.css";
+
+.showcase-nav-list,
+.showcase-list {
+  @mixin list-reset;
+}
+
+.showcase {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  & > * {
+    margin: 0;
+    padding: var(--gutter-md);
+  }
+}
+
+.showcase-header {
+  flex: 1 0 var(--sidebar-width);
+
+  @mixin min-sm {
+    position: sticky;
+    top: 0;
+  }
+}
+
+.showcase-list {
+  flex: 4 0 calc(100% - var(--sidebar-width));
+  min-width: calc(var(--sidebar-width) * 2);
+  max-width: 100%;
+}
+
+.showcase-item {
+  margin-top: var(--gutter-md);
+  margin-bottom: var(--gutter-md);
+}
