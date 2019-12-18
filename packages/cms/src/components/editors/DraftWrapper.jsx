@@ -3,16 +3,18 @@ import {EditorState, ContentState, convertFromHTML, RichUtils} from "draft-js";
 import Editor from "draft-js-plugins-editor";
 import {stateToHTML} from "draft-js-export-html";
 import createMentionPlugin, {defaultSuggestionsFilter} from "draft-js-mention-plugin";
+
 import "./DraftWrapper.css";
 
-import "draft-js-mention-plugin/lib/plugin.css";
+// import "draft-js-mention-plugin/lib/plugin.css";
 
+/* eslint-disable no-unused-vars */
 const Entry = props => {
   const {
     mention,
     theme,
-    searchValue, // eslint-disable-line no-unused-vars
-    isFocused, // eslint-disable-line no-unused-vars
+    searchValue,
+    isFocused,
     ...parentProps
   } = props;
 
@@ -21,29 +23,10 @@ const Entry = props => {
       <div className={theme.mentionSuggestionsEntryContainer}>
         <div className={theme.mentionSuggestionsEntryContainerLeft}>
           <div className={theme.mentionSuggestionsEntryText}>
-            {`${mention.name.replace(/[{}]/g, "")}: ${mention.value}`}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const EntrySelector = props => {
-  const {
-    mention,
-    theme,
-    searchValue, // eslint-disable-line no-unused-vars
-    isFocused, // eslint-disable-line no-unused-vars
-    ...parentProps
-  } = props;
-
-  return (
-    <div {...parentProps}>
-      <div className={theme.mentionSuggestionsEntryContainer}>
-        <div className={theme.mentionSuggestionsEntryContainerLeft}>
-          <div className={theme.mentionSuggestionsEntryText}>
-            {mention.name.replace(/[\[\]]/g, "")}
+            {props.entryComponentSelector
+              ? mention.name.replace(/[\[\]]/g, "")
+              : `${mention.name.replace(/[{}]/g, "")}: ${mention.value}`
+            }
           </div>
         </div>
       </div>
@@ -52,22 +35,21 @@ const EntrySelector = props => {
 };
 
 class DraftWrapper extends Component {
-
   constructor(props) {
     super(props);
     this.mentionPlugin = createMentionPlugin({
       mentionTrigger: "{{",
-      mentionComponent: mentionProps => 
+      mentionComponent: mentionProps =>
         <span>{mentionProps.children}</span>
     });
     this.mentionPluginFormatter = createMentionPlugin({
       mentionTrigger: "@",
-      mentionComponent: mentionProps => 
+      mentionComponent: mentionProps =>
         <span>{mentionProps.children}</span>
     });
     this.mentionPluginSelector = createMentionPlugin({
       mentionTrigger: "[[",
-      mentionComponent: mentionProps => 
+      mentionComponent: mentionProps =>
         <span>{mentionProps.children}</span>
     });
     let editorState = EditorState.createEmpty();
@@ -92,7 +74,7 @@ class DraftWrapper extends Component {
       this.setState({editorState});
       const html = stateToHTML(editorState.getCurrentContent());
       if (this.props.onChange) this.props.onChange(html);
-    }; 
+    };
     this.onSearchChange = ({value}) => {
       this.setState({
         suggestions: defaultSuggestionsFilter(value, suggestions)
@@ -122,46 +104,45 @@ class DraftWrapper extends Component {
   }
 
   render() {
-
     const MentionSuggestions = this.mentionPlugin.MentionSuggestions;
     const MentionSuggestionsFormatter = this.mentionPluginFormatter.MentionSuggestions;
     const MentionSuggestionsSelector = this.mentionPluginSelector.MentionSuggestions;
     const plugins = [this.mentionPlugin, this.mentionPluginFormatter, this.mentionPluginSelector];
 
-    return <div>
+    return (
       <div className="draft-editor" onClick={this.focus}>
-        <Editor 
-          key="draft-editor"
-          editorState={this.state.editorState} 
+        <Editor
+          editorState={this.state.editorState}
           handleKeyCommand={this.handleKeyCommand}
+          onChange={this.onChange}
           plugins={plugins}
           ref={c => this.editor = c}
-          onChange={this.onChange} 
+          key="draft-editor"
         />
         <MentionSuggestions
-          key="mentions"
+          entryComponent={Entry}
+          onAddMention={this.onAddMention}
           onSearchChange={this.onSearchChange}
           suggestions={this.state.suggestions}
-          onAddMention={this.onAddMention}
-          entryComponent={Entry}
+          key="mentions"
         />
         <MentionSuggestionsFormatter
-          key="mentionsFormatter"
+          onAddMention={this.onAddMention}
           onSearchChange={this.onSearchChangeFormatter}
           suggestions={this.state.suggestionsFormatter}
-          onAddMention={this.onAddMention}
+          key="mentionsFormatter"
         />
         <MentionSuggestionsSelector
-          key="mentionsSelector"
+          entryComponent={Entry}
+          entryComponentSelector
+          onAddMention={this.onAddMention}
           onSearchChange={this.onSearchChangeSelector}
           suggestions={this.state.suggestionsSelector}
-          onAddMention={this.onAddMention}
-          entryComponent={EntrySelector}
+          key="mentionsSelector"
         />
       </div>
-    </div>;
+    );
   }
-
 }
 
 export default DraftWrapper;

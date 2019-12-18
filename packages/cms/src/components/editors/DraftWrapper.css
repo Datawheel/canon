@@ -1,4 +1,4 @@
-.draft-editor {
+/* .draft-editor {
   box-sizing: border-box;
   border: 1px solid #ddd;
   cursor: text;
@@ -63,7 +63,6 @@
 }
 
 .mentionSuggestionsEntryFocused {
-  /*composes: mentionSuggestionsEntry;*/
   background-color: #e6f3ff;
 }
 
@@ -87,4 +86,4 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-}
+} */

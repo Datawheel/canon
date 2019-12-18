@@ -54,7 +54,14 @@ class RichTextEditor extends Component {
             <label htmlFor={f}>
               {formatFieldName(f, contentType.replace("story_", "").replace("section_", ""))}
             </label>
-            <DraftWrapper id={f} selectors={selectors} formatters={formatters} variables={variables} defaultValue={thisLocale[f] || ""} onChange={this.handleEditor.bind(this, f)} />
+            <DraftWrapper
+              id={f}
+              selectors={selectors}
+              formatters={formatters}
+              variables={variables}
+              defaultValue={thisLocale[f] || ""}
+              onChange={this.handleEditor.bind(this, f)}
+            />
           </div>
         )}
       </div>
