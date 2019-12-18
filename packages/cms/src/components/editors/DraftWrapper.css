@@ -1,89 +1,57 @@
-/* .draft-editor {
-  box-sizing: border-box;
-  border: 1px solid #ddd;
-  cursor: text;
-  padding: 16px;
-  border-radius: 2px;
-  margin-bottom: 2em;
-  box-shadow: inset 0px 1px 8px -3px #ABABAB;
-  background: #fefefe;
-}
+@import "../../css/mixins.css";
 
-.draft-editor :global(.public-DraftEditor-content) {
-  min-height: 70px;
-}
-
-.draft-editor .draftJsMentionPlugin__mentionSuggestions__2DWjA {
-  position: absolute;
-}
-
-.mention {
-  color: #4a85bb;
-  text-decoration: none;
-}
-
-.mentionSuggestions {
-  border-top: 1px solid #eee;
-  background: #fff;
-  border-radius: 2px;
-  cursor: pointer;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  transform-origin: 50% 0%;
-  transform: scaleY(0);
-  margin: -16px;
-}
-
-.mentionSuggestionsEntryContainer {
-  display: table;
+/* the "textarea" */
+.cms-draft-wrapper [contenteditable] {
+  @mixin cms-text-input-style;
+  line-height: 1.125;
+  border-radius: var(--field-border-radius);
+  /* sizing */
   width: 100%;
+  padding: var(--field-padding);
+  /* transitions */
+  transition:
+    border-color 0.3s ease-out,
+    box-shadow 0.3s ease-out,
+    color 0.3s ease-out;
+
+  @mixin max-sm {
+    font-size: 14px; /* prevent zooming on mobile */
+  }
+
+  /* interactions */
+  &:hover {
+    border-color: var(--accent-dark);
+
+    @mixin dark-mode {
+      border-color: var(--accent);
+    }
+  }
+  &:focus {
+    border-color: var(--accent-dark);
+    box-shadow: 0 0 0 1px var(--accent-dark);
+    outline: none;
+
+    @mixin dark-mode {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+  }
 }
 
-.mentionSuggestionsEntryContainerLeft,
-.mentionSuggestionsEntryContainerRight {
-  display: table-cell;
-  vertical-align: middle;
-}
+/* the typed word */
+.cms-draft-trigger {
+  font-family: 'Menlo', monospace;
 
-.mentionSuggestionsEntryContainerRight {
-  width: 100%;
-  padding-left: 8px;
+  &.cms-variable-draft-trigger {
+    color: var(--type-string-dark);
+    @mixin dark-mode { color: var(--type-string); }
+  }
+  &.cms-formatter-draft-trigger {
+    color: var(--type-number-dark);
+    @mixin dark-mode { color: var(--type-number); }
+  }
+  &.cms-selector-draft-trigger {
+    color: var(--type-boolean-dark);
+    @mixin dark-mode { color: var(--type-boolean); }
+  }
 }
-
-.mentionSuggestionsEntry {
-  padding: 7px 10px 3px 10px;
-  transition: background-color 0.4s cubic-bezier(.27,1.27,.48,.56);
-}
-
-.mentionSuggestionsEntry:active {
-  background-color: #cce7ff;
-}
-
-.mentionSuggestionsEntryFocused {
-  background-color: #e6f3ff;
-}
-
-.mentionSuggestionsEntryText,
-.mentionSuggestionsEntryTitle {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.mentionSuggestionsEntryText {
-}
-
-.mentionSuggestionsEntryTitle {
-  font-size: 80%;
-  color: #a7a7a7;
-}
-
-.mentionSuggestionsEntryAvatar {
-  display: block;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-} */
