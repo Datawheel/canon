@@ -1,22 +1,28 @@
 import React, {Component} from "react";
 import {Navbar, Alignment} from "@blueprintjs/core";
 import {NavCartControl} from "../src/";
+import {connect} from "react-redux";
+
 import "./App.css";
 
-export default class App extends Component {
+class App extends Component {
 
   render() {
+    const {activeSite, exampleList} = this.props;
+    const mainClass = exampleList[activeSite] ? exampleList[activeSite].slug:'';
     return (
-      <div>
+      <div id={mainClass}>
         <Navbar>
           <Navbar.Group align={Alignment.LEFT}>
             <Navbar.Heading>
               <a href="/">
-                Test canon-cart package
+                {`${activeSite ? activeSite + ' Cart Test' :'🧪 Canon Cart Test'}`}
               </a>
             </Navbar.Heading>
             <Navbar.Divider />
-            <a className="bp3-minimal" href="/cart">Go to cart link!</a>
+            <a className="bp3-minimal" href="/">Home</a>
+            <Navbar.Divider />
+            <a className="bp3-minimal" href="/cart">Go to cart</a>
           </Navbar.Group>
           <Navbar.Group align={Alignment.RIGHT}>
             <NavCartControl cartRoute={"/cart"} />
@@ -30,3 +36,10 @@ export default class App extends Component {
   }
 
 }
+
+export default connect(state => {
+  return {
+    activeSite: state.example.site,
+    exampleList: state.example.exampleList
+  };
+})(App);

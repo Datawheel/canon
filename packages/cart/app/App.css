@@ -2,3 +2,64 @@
 body {
   font-family: "Roboto", sans-serif;
 }
+
+#datachile-style{
+  background-color: tomato;
+  & .canon-add-to-cart-control-container{
+    background-color: darkblue;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    &.remove-state{
+      background-color: darkblue;
+      color: #ccc;
+    }
+  }
+  & .canon-cart-container {
+    & .bp3-icon{
+      & path{
+        fill: white;
+      }
+    }
+  }
+}
+
+#datamexico-style{
+  background-color: seagreen;
+  & .canon-add-to-cart-control-container{
+    background-color: tomato;
+    color: white;
+    padding: 15px 20px;
+    &.remove-state{
+      background-color: tomato;
+      color: #ccc;
+    }
+  }
+  & .canon-cart-container {
+    & .bp3-icon{
+      & path{
+        fill: white;
+      }
+    }
+  }
+}
+
+#oec-style{
+  background-color: steelblue;
+  & .canon-add-to-cart-control-container{
+    background-color: steelblue;
+    color: white;
+    padding: 5px 10px;
+    &.remove-state{
+      background-color: steelblue;
+      color: #ccc;
+    }
+  }
+  & .canon-cart-container {
+    & .bp3-icon{
+      & path{
+        fill: white;
+      }
+    }
+  }
+}

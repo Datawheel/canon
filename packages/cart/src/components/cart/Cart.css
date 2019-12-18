@@ -30,8 +30,12 @@
   & > .canon-cart-area-middle {
     position: relative;
 
+
     & .toggle-sidebar {
       position: absolute;
+      & .bp3-button{
+        background-color: transparent;
+      }
     }
   }
 }

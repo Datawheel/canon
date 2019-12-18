@@ -3,6 +3,8 @@ import {Menu, MenuItem, Position, Popover, Button, Card, Elevation} from "@bluep
 
 import {AddToCartControl, clearCartAction} from "../../src/";
 
+import {setExample, setExampleVizBuilder} from "../actions/example";
+
 import {connect} from "react-redux";
 
 import "./Home.css";
@@ -11,59 +13,30 @@ class Home extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      source: null,
-      selectedQuery: false
-    };
-
     this.changeSource = this.changeSource.bind(this);
     this.changeExampleVisBuilder = this.changeExampleVisBuilder.bind(this);
   }
 
-  exampleList = {
-    "🇨🇱 DataChile": {
-      engine: "Mondrian",
-      list: [
-        {title: "Crimes by Crime Group in Region Metropolitana", query: "https://chilecube.datachile.io/cubes/crimes/aggregate.json?drilldown%5B%5D=%5BGeography%5D.%5BRegion%5D&drilldown%5B%5D=%5BCrime%5D.%5BCrime+Group%5D&cut%5B%5D=%5BGeography%5D.%5BGeography%5D.%5BRegion%5D.%26%5B13%5D&measures%5B%5D=Cases&nonempty=true&distinct=false&parents=false&debug=true&sparse=true", tooltip: true},
-        {title: "Number of Visas in Region Valparaiso", query: "https://chilecube.datachile.io/cubes/immigration/aggregate.jsonrecords?drilldown%5B%5D=%5BGeography%5D.%5BRegion%5D&cut%5B%5D=%5BGeography%5D.%5BGeography%5D.%5BRegion%5D.%26%5B5%5D&measures%5B%5D=Number+of+visas&nonempty=true&distinct=false&parents=false&debug=true&sparse=true", tooltip: true},
-        {title: "Income by Region", query: "https://chilecube.datachile.io/cubes/nesi_income/aggregate.json?drilldown%5B%5D=%5BGeography%5D.%5BRegion%5D&measures%5B%5D=Income&measures%5B%5D=Median+Income&nonempty=true&distinct=false&parents=false&debug=true&sparse=true", tooltip: true}
-      ]
-    },
-    "🇲🇽 DataMexico": {
-      engine: "Tesseract + LogicLayer",
-      list: [
-        {title: "[LogicLayer] Products imports Aguascalientes", query: "https://api.datamexico.org/tesseract/data?State=1&cube=economy_foreign_trade_ent&drilldowns=HS4&measures=Trade+Value&parents=true&sparse=false&locale=undefined&Year=2018&Flow=1", tooltip: true},
-        {title: "[LogicLayer] Occupations by number in Hospitals", query: "https://api.datamexico.org/tesseract/data?cube=inegi_enoe&Industry%20Group=6221&Quarter=20182,20183,20184,20191,20192&drilldowns=Occupation,Quarter&measures=Workforce,Wage&parents=true&sparse=false&locale=es", tooltip: true},
-        {title: "[LogicLayer] Salary wage", query: "https://api.datamexico.org/tesseract/data?Industry%20Group=6221&cube=inegi_enoe&drilldowns=Salary%20Group,Quarter&measures=Workforce&parents=false&sparse=false", tooltip: true},
-        {title: "[Tesseract] Households by Home Type and State", query: "https://api.datamexico.org/tesseract/cubes/inegi_housing/aggregate.jsonrecords?drilldowns%5B%5D=Geography.State&drilldowns%5B%5D=Home+Type.Home+Type&measures%5B%5D=Households&parents=false&sparse=false", tooltip: true},
-        {title: "[Tesseract] Poverty by State By Year", query: "https://api.datamexico.org/tesseract/cubes/coneval_poverty/aggregate.jsonrecords?drilldowns%5B%5D=Year.Year.Year&drilldowns%5B%5D=Geography.Geography.State&measures%5B%5D=Poverty&measures%5B%5D=Extreme+Poverty&measures%5B%5D=Moderate+Poverty&parents=false&sparse=false", tooltip: true},
-        {title: "[Tesseract] Crimes by Affected Good", query: "https://api.datamexico.org/tesseract/cubes/sesnsp_crimes/aggregate.jsonrecords?drilldowns%5B%5D=Geography.Geography.Nation&drilldowns%5B%5D=Type.Type.Affected+Legal+Good&measures%5B%5D=Value&parents=false&sparse=false", tooltip: true},
-        //{title: "[Stats] RCA Calculation", query: "https://dev.datamexico.org/api/stats/relatedness?cube=economy_foreign_trade_mun&rca=State,Chapter,Trade%20Value&Year=2018", tooltip: true}
-      ]
-    },
-    "🌐 OEC World": {
-      engine: "Tesseract",
-      list: [
-        {title: "Product Exports from Kyrgyzstan", query: "https://api.oec.world/tesseract/data?cube=trade_i_baci_a_92&Exporter+Country=askgz&drilldowns=HS4&measures=Trade+Value&parents=true&time=year.latest&sparse=false", tooltip: true},
-        {title: "Product Imports from Argentina", query: "https://api.oec.world/tesseract/data?cube=trade_i_baci_a_92&Importer%20Country=saarg&Year=2017&drilldowns=Exporter+Country&locale=&measures=Trade+Value&parents=true&sparse=false&properties=Exporter+Country+ISO+3", tooltip: true}
-      ]
-    }
-  };
-
   changeSource = source => {
-    this.props.dispatch(clearCartAction());
-    this.setState({source, selectedQuery: this.exampleList[source].list[0]});
+    const {dispatch, exampleList, activeSite} = this.props;
+    if (activeSite !== source){
+      dispatch(clearCartAction());
+      dispatch(setExample(source));
+      dispatch(setExampleVizBuilder(exampleList[source].list[0]));
+    }
   }
 
   changeExampleVisBuilder = item => {
-    this.setState({selectedQuery: item});
+    const {dispatch} = this.props;
+    dispatch(setExampleVizBuilder(item));
   }
 
   render() {
-    const {source, selectedQuery} = this.state;
+    const {activeSite, vizBuilderUrl, exampleList} = this.props;
     let queryList = [];
-    if (this.exampleList[source]) {
-      queryList = this.exampleList[source].list;
+
+    if (exampleList[activeSite]) {
+      queryList = exampleList[activeSite].list;
     }
 
     return (
@@ -71,29 +44,29 @@ class Home extends Component {
         <div className="content">
           <div className="row">
             <div className="col-full">
-              <h2>Select an example links:</h2>
+              <h2>Select an example site:</h2>
             </div>
           </div>
           <div className="row">
-            {Object.keys(this.exampleList).map((s, ix) =>
+            {Object.keys(exampleList).map((s, ix) =>
               <div className="col-third">
-                <Card key={ix} interactive={true} elevation={s===source?Elevation.FOUR:Elevation.ZERO} onClick={() => this.changeSource(s)}>
-                    <h2>{s}</h2>
-                    <p>Engine: {this.exampleList[s].engine}</p>
+                <Card key={ix} interactive={true} elevation={s === activeSite ? Elevation.FOUR:Elevation.ZERO} onClick={() => this.changeSource(s)}>
+                  <h2>{s}</h2>
+                  <p>Engine: {exampleList[s].engine}</p>
                 </Card>
               </div>
             )}
           </div>
           <hr/>
-          {this.exampleList[source] && <div className="row">
+          {exampleList[activeSite] && <div className="row">
             <div className="col-full">
-              <h1>{source}</h1>
+              <h1>{activeSite}</h1>
             </div>
-            </div> }
+          </div> }
           <div className="row">
             <div className="col-half">
-              {this.exampleList[source] && <div>
-                <h2>Multiple instances of AddToCartControl like a profile has embeded in charts</h2>
+              {exampleList[activeSite] && <div>
+                <h2>Profile</h2>
                 {queryList.map((q, ix) =>
                   <Card key={ix}>
                     <h3>{q.title}</h3>
@@ -103,14 +76,14 @@ class Home extends Component {
               </div>}
             </div>
             <div className="col-half">
-              {this.exampleList[source] && <div>
-                <h2>Single instance of AddToCartControl and change the query prop like VisBuilder do</h2>
+              {exampleList[activeSite] && <div>
+                <h2>VisBuilder</h2>
                 <Card>
                   {queryList.map((q, ix) =>
-                    <Button key={ix} text={q.title} active={selectedQuery.query === q.query} onClick={() => this.changeExampleVisBuilder(q)} />
+                    <Button key={ix} text={q.title} active={vizBuilderUrl.query === q.query} onClick={() => this.changeExampleVisBuilder(q)} />
                   )}
-                  <h3>{selectedQuery.title}</h3>
-                  <AddToCartControl query={selectedQuery.query} tooltip={selectedQuery.tooltip} />
+                  <h3>{vizBuilderUrl.title}</h3>
+                  <AddToCartControl query={vizBuilderUrl.query} tooltip={vizBuilderUrl.tooltip} />
                 </Card>
               </div>}
             </div>
@@ -122,4 +95,9 @@ class Home extends Component {
 
 }
 
-export default connect()(Home);
+export default
+  connect(state => ({
+    activeSite: state.example.site,
+    vizBuilderUrl: state.example.vizBuilderUrl,
+    exampleList: state.example.exampleList
+  }))(Home);

@@ -2,5 +2,6 @@
   width: 100%;
   & .canon-cart-dimensions-ul{
     padding: 0;
+    background-color: transparent;
   }
 }

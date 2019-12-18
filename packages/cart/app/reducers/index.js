@@ -1,3 +1,4 @@
+import exampleReducer from "./example";
 import {cartStateReducer} from "../../src/index";
 
 /**
@@ -6,5 +7,6 @@ import {cartStateReducer} from "../../src/index";
 */
 
 export default {
+  example: exampleReducer,
   cart: cartStateReducer
 };
