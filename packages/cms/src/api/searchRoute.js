@@ -271,11 +271,10 @@ module.exports = function(app) {
     
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(d => d.toJSON());
-    console.log(meta);
     const relevantPids = meta.filter(p => dimensions.includes(p.dimension)).map(d => d.profile_id);
-    console.log(relevantPids);
+    let profiles = await db.profile.findAll({where: {id: relevantPids}, include: {association: "meta"}}).catch(catcher);
 
-    return res.json(results);
+    return res.json(profiles);
 
   });
 
