@@ -27,6 +27,9 @@ const catcher = e => {
 const splashWidth = Number(process.env.CANON_CONST_IMAGE_SPLASH_WIDTH) || 1400;
 const thumbWidth = Number(process.env.CANON_CONST_IMAGE_THUMB_WIDTH) || 400;
 
+let deepsearchAPI = process.env.CANON_CMS_DEEPSEARCH_API;
+if (deepsearchAPI) deepsearchAPI = deepsearchAPI.replace(/\/$/, "");
+
 module.exports = function(app) {
 
   const {db, cache} = app.settings;
@@ -255,6 +258,24 @@ module.exports = function(app) {
       results,
       query: {dimension, id, limit, q}
     });
+
+  });
+
+  app.get("/api/deepsearch", async(req, res) => {
+
+    const url = `${deepsearchAPI}/search?${Object.keys(req.query).map(k => `${k}=${req.query[k]}`).join("&")}`;
+
+    const results = await axios.get(url).then(d => d.data).catch(catcher);
+
+    const dimensions = Object.keys(results.results).filter(k => results.results[k].length > 0);
+    
+    let meta = await db.profile_meta.findAll().catch(catcher);
+    meta = meta.map(d => d.toJSON());
+    console.log(meta);
+    const relevantPids = meta.filter(p => dimensions.includes(p.dimension)).map(d => d.profile_id);
+    console.log(relevantPids);
+
+    return res.json(results);
 
   });
 
