@@ -7,6 +7,8 @@ import {setExample, setExampleVizBuilder} from "../actions/example";
 
 import {connect} from "react-redux";
 
+import CustomAddUrls from "../components/CustomAddUrls";
+
 import "./Home.css";
 
 class Home extends Component {
@@ -69,7 +71,7 @@ class Home extends Component {
             </div>
             <div className="row">
               <div className="col-half">
-                {exampleList[activeSite] && <div>
+                <div>
                   <h2>Profile</h2>
                   {queryList.map((q, ix) =>
                     <Card key={ix}>
@@ -77,10 +79,10 @@ class Home extends Component {
                       <AddToCartControl query={q.query} tooltip={q.tooltip} />
                     </Card>
                   )}
-                </div>}
+                </div>
               </div>
               <div className="col-half">
-                {exampleList[activeSite] && <div>
+                <div>
                   <h2>VisBuilder</h2>
                   <Card>
                     {queryList.map((q, ix) =>
@@ -89,7 +91,11 @@ class Home extends Component {
                     <h3>{vizBuilderUrl.title}</h3>
                     <AddToCartControl query={vizBuilderUrl.query} tooltip={vizBuilderUrl.tooltip} />
                   </Card>
-                </div>}
+                  <h2>Add custom urls</h2>
+                  <Card>
+                    <CustomAddUrls/>
+                  </Card>
+                </div>
               </div>
             </div>
           </div>}

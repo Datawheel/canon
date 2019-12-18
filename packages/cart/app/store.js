@@ -7,6 +7,7 @@ export default {
     exampleList: {
       "🇨🇱 DataChile": {
         slug: "datachile-style",
+        base: "https://chilecube.datachile.io",
         engine: "Mondrian",
         list: [
           {title: "Crimes by Crime Group in Region Metropolitana", query: "https://chilecube.datachile.io/cubes/crimes/aggregate.json?drilldown%5B%5D=%5BGeography%5D.%5BRegion%5D&drilldown%5B%5D=%5BCrime%5D.%5BCrime+Group%5D&cut%5B%5D=%5BGeography%5D.%5BGeography%5D.%5BRegion%5D.%26%5B13%5D&measures%5B%5D=Cases&nonempty=true&distinct=false&parents=false&debug=true&sparse=true", tooltip: true},
@@ -16,6 +17,7 @@ export default {
       },
       "🇲🇽 DataMexico": {
         slug: "datamexico-style",
+        base: "https://api.datamexico.org",
         engine: "Tesseract + LogicLayer",
         list: [
           {title: "[LogicLayer] Products imports Aguascalientes", query: "https://api.datamexico.org/tesseract/data?State=1&cube=economy_foreign_trade_ent&drilldowns=HS4&measures=Trade+Value&parents=true&sparse=false&locale=undefined&Year=2018&Flow=1", tooltip: true},
@@ -29,6 +31,7 @@ export default {
       },
       "🌐 OEC World": {
         slug: "oec-style",
+        base: "https://api.oec.world",
         engine: "Tesseract",
         list: [
           {title: "Product Exports from Kyrgyzstan", query: "https://api.oec.world/tesseract/data?cube=trade_i_baci_a_92&Exporter+Country=askgz&drilldowns=HS4&measures=Trade+Value&parents=true&time=year.latest&sparse=false", tooltip: true},
