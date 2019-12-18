@@ -273,6 +273,17 @@ module.exports = function(app) {
     meta = meta.map(d => d.toJSON());
     const relevantPids = meta.filter(p => dimensions.includes(p.dimension)).map(d => d.profile_id);
     let profiles = await db.profile.findAll({where: {id: relevantPids}, include: {association: "meta"}}).catch(catcher);
+    profiles = profiles.map(d => d.toJSON());
+
+    const top = await axios.get("/top?limit=5").then(d => d.data).catch(catcher);
+
+    results.profiles = {};
+
+    for (const profile of profiles) {
+      for (const result of results.results) {
+
+      }
+    }
 
     return res.json(profiles);
 
