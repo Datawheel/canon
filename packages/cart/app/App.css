@@ -3,8 +3,45 @@ body {
   font-family: "Roboto", sans-serif;
 }
 
+
+.default-style {
+  transition: background-color 1s ease;
+  & .bp3-navbar{
+    transition: background-color 1s ease;
+    & a{
+      transition: color 1s ease;
+    }
+    & .bp3-navbar-divider{
+      transition: background-color 1s ease;
+    }
+  }
+  & #cart-test-container{
+    transition: background-color 1s ease;
+  }
+  & .canon-add-to-cart-control-container{
+    transition: background-color 1s ease, color 1s ease, padding 1s ease;
+    &.remove-state{
+      transition: background-color 1s ease, color 1s ease;
+    }
+  }
+}
+
+/* Custom styles */
+
 #datachile-style{
-  background-color: tomato;
+  background-color: #eee;
+  & .bp3-navbar{
+    background-color: darkblue;
+    & a{
+      color: white;
+    }
+    & .bp3-navbar-divider{
+      border-left-color: tomato;
+    }
+  }
+  & #cart-test-container{
+    background-color: tomato;
+  }
   & .canon-add-to-cart-control-container{
     background-color: darkblue;
     color: white;
@@ -16,6 +53,9 @@ body {
     }
   }
   & .canon-cart-container {
+    & .canon-cart-area-sidebar {
+      background-color: darkblue;
+    }
     & .bp3-icon{
       & path{
         fill: white;
@@ -25,7 +65,19 @@ body {
 }
 
 #datamexico-style{
-  background-color: seagreen;
+  background-color: #eee;
+  & .bp3-navbar{
+    background-color: tomato;
+    & a{
+      color: white;
+    }
+    & .bp3-navbar-divider{
+      border-left-color: seagreen;
+    }
+  }
+  & #cart-test-container{
+    background-color: seagreen;
+  }
   & .canon-add-to-cart-control-container{
     background-color: tomato;
     color: white;
@@ -36,6 +88,9 @@ body {
     }
   }
   & .canon-cart-container {
+    & .canon-cart-area-sidebar {
+      background-color: tomato;
+    }
     & .bp3-icon{
       & path{
         fill: white;
@@ -45,7 +100,19 @@ body {
 }
 
 #oec-style{
-  background-color: steelblue;
+  background-color: #eee;
+  & .bp3-navbar{
+    background-color: steelblue;
+    & a{
+      color: white;
+    }
+    & .bp3-navbar-divider{
+      border-left-color: white;
+    }
+  }
+  & #cart-test-container{
+    background-color: steelblue;
+  }
   & .canon-add-to-cart-control-container{
     background-color: steelblue;
     color: white;
@@ -56,6 +123,9 @@ body {
     }
   }
   & .canon-cart-container {
+    & .canon-cart-area-sidebar {
+      background-color: steelblue;
+    }
     & .bp3-icon{
       & path{
         fill: white;

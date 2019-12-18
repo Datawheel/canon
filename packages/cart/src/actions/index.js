@@ -49,12 +49,12 @@ export const addingToCartAction = query => ({
 
 /* Decide how to process different types of queries */
 export const ADD_TO_CART = "@@canon-cart/ADD_TO_CART";
-export const addToCartDecideAction = query => async dispatch => {
+export const addToCartAction = query => async dispatch => {
 
   const providerObj = getProviderInfo(query);
 
   // Adding process start (disabled add to cart btn).
-  // This loading state will finish when addToCartAction finish.
+  // This loading state will finish when actuallyAddToCartAction finish.
   dispatch(addingToCartAction(query));
 
   // It is a logic layer URL
@@ -68,18 +68,18 @@ export const addToCartDecideAction = query => async dispatch => {
     const queryObj = await client.parseQueryURL(query);
 
     // Add new Query to cart
-    dispatch(addToCartAction(`${queryObj.toString("aggregate")}`, query));
+    dispatch(actuallyAddToCartAction(`${queryObj.toString("aggregate")}`, query));
   }
   // It is a Mondrian or Tesseract API URL
   else {
     // Add Query to cart
-    dispatch(addToCartAction(query));
+    dispatch(actuallyAddToCartAction(query));
   }
 
 };
 
 /* Parse and add query to cart */
-export const addToCartAction = (query, logicLayerUrl = false) => {
+export const actuallyAddToCartAction = (query, logicLayerUrl = false) => {
   const parsed = getQueryParsedToAdd(query, logicLayerUrl);
   return {
     type: ADD_TO_CART,

@@ -11,7 +11,7 @@ class App extends Component {
     const {activeSite, exampleList} = this.props;
     const mainClass = exampleList[activeSite] ? exampleList[activeSite].slug:'';
     return (
-      <div id={mainClass}>
+      <div id={mainClass} className="default-style">
         <Navbar>
           <Navbar.Group align={Alignment.LEFT}>
             <Navbar.Heading>

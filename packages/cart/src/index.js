@@ -7,4 +7,5 @@ export {default as NavCartControl} from "./components/controls/nav-cart/NavCartC
 export {default as cartStateReducer} from "./reducers";
 
 /* Actions */
-export {clearCartAction} from "./actions";
+export {clearCartAction, addToCartAction, removeFromCartAction} from "./actions";
+

@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Menu, MenuItem, Position, Popover, Button, Card, Elevation} from "@blueprintjs/core";
+import {Button, Card, Elevation} from "@blueprintjs/core";
 
 import {AddToCartControl, clearCartAction} from "../../src/";
 
@@ -19,10 +19,13 @@ class Home extends Component {
 
   changeSource = source => {
     const {dispatch, exampleList, activeSite} = this.props;
+    dispatch(clearCartAction());
     if (activeSite !== source){
-      dispatch(clearCartAction());
       dispatch(setExample(source));
       dispatch(setExampleVizBuilder(exampleList[source].list[0]));
+    } else {
+      dispatch(setExample(false));
+      dispatch(setExampleVizBuilder(false));
     }
   }
 
@@ -58,36 +61,38 @@ class Home extends Component {
             )}
           </div>
           <hr/>
-          {exampleList[activeSite] && <div className="row">
-            <div className="col-full">
-              <h1>{activeSite}</h1>
+          {exampleList[activeSite] && <div id="cart-test-container">
+            <div className="row">
+              <div className="col-full">
+                <h1>{activeSite}</h1>
+              </div>
             </div>
-          </div> }
-          <div className="row">
-            <div className="col-half">
-              {exampleList[activeSite] && <div>
-                <h2>Profile</h2>
-                {queryList.map((q, ix) =>
-                  <Card key={ix}>
-                    <h3>{q.title}</h3>
-                    <AddToCartControl query={q.query} tooltip={q.tooltip} />
-                  </Card>
-                )}
-              </div>}
-            </div>
-            <div className="col-half">
-              {exampleList[activeSite] && <div>
-                <h2>VisBuilder</h2>
-                <Card>
+            <div className="row">
+              <div className="col-half">
+                {exampleList[activeSite] && <div>
+                  <h2>Profile</h2>
                   {queryList.map((q, ix) =>
-                    <Button key={ix} text={q.title} active={vizBuilderUrl.query === q.query} onClick={() => this.changeExampleVisBuilder(q)} />
+                    <Card key={ix}>
+                      <h3>{q.title}</h3>
+                      <AddToCartControl query={q.query} tooltip={q.tooltip} />
+                    </Card>
                   )}
-                  <h3>{vizBuilderUrl.title}</h3>
-                  <AddToCartControl query={vizBuilderUrl.query} tooltip={vizBuilderUrl.tooltip} />
-                </Card>
-              </div>}
+                </div>}
+              </div>
+              <div className="col-half">
+                {exampleList[activeSite] && <div>
+                  <h2>VisBuilder</h2>
+                  <Card>
+                    {queryList.map((q, ix) =>
+                      <Button key={ix} text={q.title} active={vizBuilderUrl.query === q.query} onClick={() => this.changeExampleVisBuilder(q)} />
+                    )}
+                    <h3>{vizBuilderUrl.title}</h3>
+                    <AddToCartControl query={vizBuilderUrl.query} tooltip={vizBuilderUrl.tooltip} />
+                  </Card>
+                </div>}
+              </div>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
     );
