@@ -64,6 +64,15 @@ class RichTextEditor extends Component {
             />
           </div>
         )}
+
+        <p className="cms-rich-text-help u-font-xs">
+          <span className="heading">Pro tip: </span>
+          You can type
+          <code className="cms-rich-text-code cms-variable-code">{"{{variable name}}"}</code>,
+          <code className="cms-rich-text-code cms-selector-code">[[selector name]]</code>, or
+          <code className="cms-rich-text-code cms-formatter-code">@formatter name</code>
+          for a list of respective entities.
+        </p>
       </div>
     );
   }
