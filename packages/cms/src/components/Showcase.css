@@ -37,8 +37,11 @@
 }
 
 .showcase-item {
-  margin-top: var(--gutter-md);
-  margin-bottom: var(--gutter-md);
+  margin-top: var(--gutter-lg);
+  margin-bottom: var(--gutter-lg);
+
+  &:first-of-type { margin-top: var(--gutter-md); }
+  &:last-of-type { margin-bottom: var(--gutter-md); }
 
   & * {
     position: relative;
@@ -51,6 +54,9 @@
   background-color: var(--light-1);
   min-height: 100vh;
 }
+.cms .showcase-item-heading {
+  color: var(--dark-1);
+}
 .showcase-nav-link {
   color: var(--dark-1);
   &:hover, &:focus { color: var(--accent-dark); }
@@ -60,6 +66,7 @@
 @mixin dark-mode {
   .cms .showcase-list { background-color: var(--dark-3); }
   .cms .showcase-header { background-color: var(--dark-2); }
+  .cms .showcase-item-heading { color: var(--dark-1); }
   .cms .showcase-nav-link {
     color: var(--gray);
     &:hover, &:focus { color: var(--accent); }

@@ -8,6 +8,9 @@ import styles from "style.yml";
 
 import Button from "./fields/Button";
 import ButtonGroup from "./fields/ButtonGroup";
+import Select from "./fields/Select";
+import TextInput from "./fields/TextInput";
+import TextButtonGroup from "./fields/TextButtonGroup";
 import FilterSearch from "./fields/FilterSearch";
 
 import "./Showcase.css";
@@ -46,16 +49,57 @@ class Showcase extends Component {
                   namespace,
                   active: namespace === "cms",
                   onClick: () => this.setState({namespace: "cms"}),
-                  fontSize: "xs",
                   children: "cms"
                 },
                 {
                   namespace,
                   active: namespace === "cp",
                   onClick: () => this.setState({namespace: "cp"}),
-                  fontSize: "xs",
                   children: "cp"
                 }
+              ]
+            }
+          },
+          {
+            name: "TextInput",
+            Component: TextInput,
+            props: {
+              label: "What's ur password?",
+              inline: true,
+              type: "password",
+              onChange: () => console.log("`onChange` triggered")
+            }
+          },
+          {
+            name: "TextButtonGroup",
+            Component: TextButtonGroup,
+            props: {
+              inputProps: {
+                label: "TextInput + Button in a form",
+                placeholder: "focus me & hit enter",
+                inline: true,
+                namespace
+              },
+              buttonProps: {
+                children: "I don't really do anything",
+                icon: "star",
+                iconOnly: true,
+                onClick: () => alert("`buttonProps.onClick` triggered"),
+                namespace
+              }
+            }
+          },
+          {
+            name: "Select",
+            Component: Select,
+            props: {
+              label: "label",
+              inline: true,
+              onChange: () => console.log("`onChange` triggered"),
+              options: [
+                "options generated from array passed to `options` prop",
+                "or pass options as children",
+                "or both if you want"
               ]
             }
           },
@@ -118,7 +162,7 @@ class Showcase extends Component {
               <ul className="showcase-nested-list" key={`${group.name}-list`}>
                 {group.components.map(c =>
                   <li className="showcase-item" id={toKebabCase(c.name)} key={c.name}>
-                    <h3 className="heading u-font-xs u-margin-bottom-xs">{c.name}</h3>
+                    <h3 className="showcase-item-heading u-font-xs u-margin-bottom-xs">{c.name}</h3>
                     <c.Component namespace={namespace} {...c.props} />
                   </li>
                 )}
