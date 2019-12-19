@@ -290,7 +290,8 @@ module.exports = function(app) {
     // For each profile type that was found
     for (const profile of profiles) {
       const isUnary = profile.meta.length === 1;
-      const slug = profile.meta.map(d => d.slug).join("__");
+      const slug = profile.meta.map(d => d.slug).join("/");
+      if (slug === "ComercioBilateral/Year/Exporter") continue;
       
       // Gather a list of results that map to each slug in this profile
       const relevantResults = profile.meta.reduce((acc, m) => {
@@ -312,7 +313,16 @@ module.exports = function(app) {
       }, []);
       
       let combinedResults = cartesian(...relevantResults);
-      if (isUnary) combinedResults = combinedResults.filter(d => !d.top);
+      if (isUnary) {
+        combinedResults = combinedResults.filter(d => !d.top);
+      }
+      else {
+        combinedResults = combinedResults.filter(d => {
+          const ids = d.map(o => o.id);
+          return (new Set(ids)).size === ids.length;
+        });
+      }
+
       results.profiles[slug] = combinedResults;
     }
 
