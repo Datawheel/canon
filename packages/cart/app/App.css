@@ -54,7 +54,7 @@ body {
   }
   & .canon-cart-container {
     & .canon-cart-area-sidebar {
-      background-color: darkblue;
+      background-color: tomato;
     }
     & .bp3-icon{
       & path{
