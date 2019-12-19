@@ -1,7 +1,8 @@
 @import "../css/mixins.css";
 
 .showcase-nav-list,
-.showcase-list {
+.showcase-list,
+.showcase-nested-list {
   @mixin list-reset;
 }
 
@@ -26,12 +27,41 @@
 }
 
 .showcase-list {
-  flex: 4 0 calc(100% - var(--sidebar-width));
-  min-width: calc(var(--sidebar-width) * 2);
+  flex: 1 0 100%;
   max-width: 100%;
+
+  @mixin min-sm {
+    flex: 4 0 calc(100% - var(--sidebar-width));
+    width: calc(var(--sidebar-width) * 2);
+  }
 }
 
 .showcase-item {
   margin-top: var(--gutter-md);
   margin-bottom: var(--gutter-md);
+
+  & * {
+    position: relative;
+  }
+}
+
+
+/* default theming */
+.showcase-list {
+  background-color: var(--light-1);
+  min-height: 100vh;
+}
+.showcase-nav-link {
+  color: var(--dark-1);
+  &:hover, &:focus { color: var(--accent-dark); }
+}
+
+/* cms dark mode theming */
+@mixin dark-mode {
+  .cms .showcase-list { background-color: var(--dark-3); }
+  .cms .showcase-header { background-color: var(--dark-2); }
+  .cms .showcase-nav-link {
+    color: var(--gray);
+    &:hover, &:focus { color: var(--accent); }
+  }
 }

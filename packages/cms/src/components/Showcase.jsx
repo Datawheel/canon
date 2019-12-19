@@ -1,11 +1,14 @@
 import React, {Component, Fragment} from "react";
 import {hot} from "react-hot-loader/root";
-import styles from "style.yml";
 
 import {AnchorLink} from "@datawheel/canon-core";
 
+import toKebabCase from "../utils/formatters/toKebabCase";
+import styles from "style.yml";
+
 import Button from "./fields/Button";
 import ButtonGroup from "./fields/ButtonGroup";
+import FilterSearch from "./fields/FilterSearch";
 
 import "./Showcase.css";
 
@@ -28,7 +31,9 @@ class Showcase extends Component {
             name: "Button",
             Component: Button,
             props: {
-              children: "children",
+              children: "children as button text",
+              icon: "tick",
+              iconPosition: "left",
               onClick: () => alert("`onClick` triggered")
             }
           },
@@ -53,6 +58,15 @@ class Showcase extends Component {
                 }
               ]
             }
+          },
+          {
+            name: "FilterSearch",
+            Component: FilterSearch,
+            props: {
+              label: "Label is also placeholder text",
+              onChange: () => console.log("`onChange` triggered"),
+              onReset: e => e.target.value = ""
+            }
           }
         ]
       }
@@ -67,6 +81,8 @@ class Showcase extends Component {
         <header className="showcase-header">
           <h1 className="showcase-header-heading u-margin-top-off">All the components</h1>
 
+          {console.log(FilterSearch)}
+
           {/* list of links */}
           <nav className="showcase-nav">
             {components.map(group =>
@@ -79,7 +95,7 @@ class Showcase extends Component {
                 <ul className="showcase-nav-list">
                   {group.components.map(c =>
                     <li className="showcase-nav-item" key={`${c.name}-nav-nav`}>
-                      <AnchorLink className="showcase-nav-link" to={c.name}>
+                      <AnchorLink className="showcase-nav-link u-font-xs" to={toKebabCase(c.name)}>
                         {c.name}
                       </AnchorLink>
                     </li>
@@ -99,9 +115,9 @@ class Showcase extends Component {
                 {group.name}
               </h2>
               {/* group components */}
-              <ul className="showcase-list showcase-nested-list">
+              <ul className="showcase-nested-list" key={`${group.name}-list`}>
                 {group.components.map(c =>
-                  <li className="showcase-item" id={c.name} key={c.name}>
+                  <li className="showcase-item" id={toKebabCase(c.name)} key={c.name}>
                     <h3 className="heading u-font-xs u-margin-bottom-xs">{c.name}</h3>
                     <c.Component namespace={namespace} {...c.props} />
                   </li>
