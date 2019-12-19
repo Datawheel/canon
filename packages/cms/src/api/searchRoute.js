@@ -283,35 +283,36 @@ module.exports = function(app) {
     profiles = profiles.map(d => d.toJSON());
     profiles = profiles.map(p => ({...p, meta: p.meta.map(fixMeta)}));
 
-    // const top = await axios.get(`${deepsearchAPI}/top?limit=100`).then(d => d.data.results).catch(catcher);
+    const top = await axios.get(`${deepsearchAPI}/top?limit=5`).then(d => d.data.results).catch(catcher);
 
     results.profiles = {};
 
     // For each profile type that was found
     for (const profile of profiles) {
+      const isUnary = profile.meta.length === 1;
       const slug = profile.meta.map(d => d.slug).join("__");
       
       // Gather a list of results that map to each slug in this profile
       const relevantResults = profile.meta.reduce((acc, m) => {
-        const theseResults = results.results[m.dimension];
+        let theseResults = results.results[m.dimension];
         if (theseResults) {
-          acc.push(theseResults.map(r => ({
+          if (top[m.dimension]) {
+            theseResults = theseResults.concat(top[m.dimension].map(d => ({...d, top: true})));
+          }
+          const finalResults = theseResults.map(r => ({
             slug: m.slug,
             id: r.id,
             memberSlug: r.metadata.slug,
-            name: r.name
-          })));
+            name: r.name,
+            top: r.top
+          }));
+          acc.push(finalResults);
         }
         return acc;
       }, []);
       
-      /*
-      const maxLength = Math.max(...relevantResults.map(d => d.length));
-      relavantResults.forEach(d => {
-        if (relevantResults.length < maxLength) relevantResults += top[dimension]
-      })
-      */
-      const combinedResults = cartesian(...relevantResults);
+      let combinedResults = cartesian(...relevantResults);
+      if (isUnary) combinedResults = combinedResults.filter(d => !d.top);
       results.profiles[slug] = combinedResults;
     }
 
