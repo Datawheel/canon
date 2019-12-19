@@ -1,0 +1,39 @@
+@import "../../../css/mixins.css";
+
+/* dropdown wrapper */
+.cms-draft-entry {
+  top: 0.25em;
+  position: fixed !important; /* child container will be positioned correctly */
+  z-index: 10;
+
+  /* the dropdown */
+  & [role="listbox"] {
+    width: max-content;
+    max-width: 20rem;
+    padding: 0.5em 0;
+    left: 1em;
+    /* theming */
+    @mixin cms-button-shadow;
+    border-radius: 4px;
+    background-color: var(--white);
+    border: 1px solid var(--light-2);
+    transition: opacity 0.15s ease-out !important; /* override inline style */
+
+    @mixin dark-mode {
+      background-color: var(--black);
+      border-color: var(--dark-3);
+    }
+
+    & > * {
+      line-height: 1.25;
+      padding: 0.25em 1em;
+      cursor: default;
+
+      /* interactions */
+      &:hover, &[aria-selected] {
+        color: var(--accent-black);
+        @mixin dark-mode { color: var(--accent-light); }
+      }
+    }
+  }
+}

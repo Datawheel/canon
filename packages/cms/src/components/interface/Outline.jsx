@@ -99,7 +99,7 @@ class Outline extends Component {
         onClick={() => this.handleSectionClick.bind(this)(node)}
       >
         <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
-        {this.props.getNodeTitle(node)}
+        <span className="cms-outline-link-text" dangerouslySetInnerHTML={{__html: this.props.getNodeTitle(node)}} />
       </a>
 
       {/* add section / swap section position buttons */}

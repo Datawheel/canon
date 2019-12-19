@@ -1,6 +1,6 @@
 @import "../../css/mixins.css";
 
-.cms-rich-text-editor label + .quill {
+.cms-rich-text-editor label + .cms-draft-wrapper {
   margin-top: var(--gutter-xs);
 }
 
@@ -98,5 +98,42 @@
   /* hidden state */
   &.ql-hidden {
     display: none;
+  }
+}
+
+.cms-rich-text-help {
+  @mixin description-color;
+  margin-bottom: 0;
+
+  & .heading {
+    color: var(--black);
+    @mixin dark-mode { color: var(--white); }
+  }
+}
+
+.cms-rich-text-code {
+  margin-left: 0.25em;
+  &:last-of-type { margin-right: 0.25em; }
+  /* theming */
+  border-radius: var(--button-border-radius);
+  background-color: var(--light-1);
+  outline: 1px solid var(--light-2);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+    outline: none;
+  }
+
+  &.cms-variable-code {
+    color: var(--type-string-dark);
+    @mixin dark-mode { color: var(--type-string); }
+  }
+  &.cms-formatter-code {
+    color: var(--type-number-dark);
+    @mixin dark-mode { color: var(--type-number); }
+  }
+  &.cms-selector-code {
+    color: var(--type-boolean-dark);
+    @mixin dark-mode { color: var(--type-boolean); }
   }
 }

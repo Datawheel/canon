@@ -59,7 +59,8 @@ class SelectorCard extends Component {
     const alertObj = {
       callback: this.delete.bind(this),
       title: "Delete selector?",
-      confirm: "Delete selector"
+      confirm: "Delete selector",
+      usePortal: this.props.usePortalForAlert
     };
     this.setState({alertObj});
   }
