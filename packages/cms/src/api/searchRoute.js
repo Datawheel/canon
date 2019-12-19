@@ -29,6 +29,8 @@ const thumbWidth = Number(process.env.CANON_CONST_IMAGE_THUMB_WIDTH) || 400;
 
 let deepsearchAPI = process.env.CANON_CMS_DEEPSEARCH_API;
 if (deepsearchAPI) deepsearchAPI = deepsearchAPI.replace(/\/$/, "");
+const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
+const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
 
 module.exports = function(app) {
 
@@ -263,29 +265,57 @@ module.exports = function(app) {
 
   app.get("/api/deepsearch", async(req, res) => {
 
+    // Pass through search params to deepsearch and extract results
     const url = `${deepsearchAPI}/search?${Object.keys(req.query).map(k => `${k}=${req.query[k]}`).join("&")}`;
-
     const results = await axios.get(url).then(d => d.data).catch(catcher);
 
+    // Results are keyed by dimension. Use nonzero length dimension results to find out which profiles are a match
     const dimensions = Object.keys(results.results).filter(k => results.results[k].length > 0);
-    
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(d => d.toJSON());
+    
+    // todo: fix this hack!
+    const fixMeta = d => ({...d, dimension: d.dimension === "Exporter" ? "Country" : d.dimension})
+    meta = meta.map(fixMeta);
+    
     const relevantPids = meta.filter(p => dimensions.includes(p.dimension)).map(d => d.profile_id);
     let profiles = await db.profile.findAll({where: {id: relevantPids}, include: {association: "meta"}}).catch(catcher);
     profiles = profiles.map(d => d.toJSON());
+    profiles = profiles.map(p => ({...p, meta: p.meta.map(fixMeta)}));
 
-    const top = await axios.get("/top?limit=5").then(d => d.data).catch(catcher);
+    // const top = await axios.get(`${deepsearchAPI}/top?limit=100`).then(d => d.data.results).catch(catcher);
 
     results.profiles = {};
 
+    // For each profile type that was found
     for (const profile of profiles) {
-      for (const result of results.results) {
-
-      }
+      const slug = profile.meta.map(d => d.slug).join("__");
+      
+      // Gather a list of results that map to each slug in this profile
+      const relevantResults = profile.meta.reduce((acc, m) => {
+        const theseResults = results.results[m.dimension];
+        if (theseResults) {
+          acc.push(theseResults.map(r => ({
+            slug: m.slug,
+            id: r.id,
+            memberSlug: r.metadata.slug,
+            name: r.name
+          })));
+        }
+        return acc;
+      }, []);
+      
+      /*
+      const maxLength = Math.max(...relevantResults.map(d => d.length));
+      relavantResults.forEach(d => {
+        if (relevantResults.length < maxLength) relevantResults += top[dimension]
+      })
+      */
+      const combinedResults = cartesian(...relevantResults);
+      results.profiles[slug] = combinedResults;
     }
 
-    return res.json(profiles);
+    return res.json(results);
 
   });
 
