@@ -5,7 +5,8 @@
 export default {
   example:{
     exampleList: {
-      "🇨🇱 DataChile": {
+      "datachile": {
+        name: "🇨🇱 DataChile",
         slug: "datachile-style",
         base: "https://chilecube.datachile.io",
         engine: "Mondrian",
@@ -15,7 +16,8 @@ export default {
           {title: "Income by Region", query: "https://chilecube.datachile.io/cubes/nesi_income/aggregate.json?drilldown%5B%5D=%5BGeography%5D.%5BRegion%5D&measures%5B%5D=Income&measures%5B%5D=Median+Income&nonempty=true&distinct=false&parents=false&debug=true&sparse=true", tooltip: true}
         ]
       },
-      "🇲🇽 DataMexico": {
+      "datamexico": {
+        name: "🇲🇽 DataMexico",
         slug: "datamexico-style",
         base: "https://api.datamexico.org",
         engine: "Tesseract + LogicLayer",
@@ -29,7 +31,8 @@ export default {
           // {title: "[Stats] RCA Calculation", query: "https://dev.datamexico.org/api/stats/relatedness?cube=economy_foreign_trade_mun&rca=State,Chapter,Trade%20Value&Year=2018", tooltip: true}
         ]
       },
-      "🌐 OEC World": {
+      "oec": {
+        name: "🌐 OEC World",
         slug: "oec-style",
         base: "https://api.oec.world",
         engine: "Tesseract",

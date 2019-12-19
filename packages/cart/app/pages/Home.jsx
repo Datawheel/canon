@@ -3,31 +3,36 @@ import {Button, Card, Elevation} from "@blueprintjs/core";
 
 import {AddToCartControl, clearCartAction} from "../../src/";
 
-import {setExample, setExampleVizBuilder} from "../actions/example";
+import {setExampleVizBuilder, clearCustomList} from "../actions/example";
 
 import {connect} from "react-redux";
 
 import CustomAddUrls from "../components/CustomAddUrls";
 
 import "./Home.css";
+import {DISABLED} from "@blueprintjs/core/lib/esm/common/classes";
 
 class Home extends Component {
 
   constructor(props) {
     super(props);
-    this.changeSource = this.changeSource.bind(this);
+    this.navigateExample = this.navigateExample.bind(this);
     this.changeExampleVisBuilder = this.changeExampleVisBuilder.bind(this);
   }
 
-  changeSource = source => {
-    const {dispatch, exampleList, activeSite} = this.props;
-    dispatch(clearCartAction());
-    if (activeSite !== source){
-      dispatch(setExample(source));
-      dispatch(setExampleVizBuilder(exampleList[source].list[0]));
-    } else {
-      dispatch(setExample(false));
-      dispatch(setExampleVizBuilder(false));
+  componentDidMount(){
+    const {dispatch, data} = this.props;
+    if(data){
+      dispatch(setExampleVizBuilder(data.list[0]));
+    }
+  }
+
+  navigateExample(newId){
+    const {data, dispatch, router} = this.props;
+    if(newId !== data.id){
+      dispatch(clearCartAction());
+      dispatch(clearCustomList());
+      router.push('/home/' + newId);
     }
   }
 
@@ -37,12 +42,7 @@ class Home extends Component {
   }
 
   render() {
-    const {activeSite, vizBuilderUrl, exampleList} = this.props;
-    let queryList = [];
-
-    if (exampleList[activeSite]) {
-      queryList = exampleList[activeSite].list;
-    }
+    const {vizBuilderUrl, exampleList, data} = this.props;
 
     return (
       <div id="home">
@@ -55,25 +55,25 @@ class Home extends Component {
           <div className="row">
             {Object.keys(exampleList).map((s, ix) =>
               <div className="col-third">
-                <Card key={ix} interactive={true} elevation={s === activeSite ? Elevation.FOUR:Elevation.ZERO} onClick={() => this.changeSource(s)}>
-                  <h2>{s}</h2>
+                <Card key={ix} interactive={true} elevation={s === data.id ? Elevation.FOUR : Elevation.ZERO} onClick={()=>this.navigateExample(s)}>
+                  <h2>{exampleList[s].name}</h2>
                   <p>Engine: {exampleList[s].engine}</p>
                 </Card>
               </div>
             )}
           </div>
           <hr/>
-          {exampleList[activeSite] && <div id="cart-test-container">
+          {data && <div id="cart-test-container">
             <div className="row">
               <div className="col-full">
-                <h1>{activeSite}</h1>
+                <h1>{data.name}</h1>
               </div>
             </div>
             <div className="row">
               <div className="col-half">
                 <div>
                   <h2>Profile</h2>
-                  {queryList.map((q, ix) =>
+                  {data.list.map((q, ix) =>
                     <Card key={ix}>
                       <h3>{q.title}</h3>
                       <AddToCartControl query={q.query} tooltip={q.tooltip} />
@@ -82,10 +82,10 @@ class Home extends Component {
                 </div>
               </div>
               <div className="col-half">
-                <div>
+                {vizBuilderUrl && <div>
                   <h2>VisBuilder</h2>
                   <Card>
-                    {queryList.map((q, ix) =>
+                    {data.list.map((q, ix) =>
                       <Button key={ix} text={q.title} active={vizBuilderUrl.query === q.query} onClick={() => this.changeExampleVisBuilder(q)} />
                     )}
                     <h3>{vizBuilderUrl.title}</h3>
@@ -95,7 +95,7 @@ class Home extends Component {
                   <Card>
                     <CustomAddUrls/>
                   </Card>
-                </div>
+                </div>}
               </div>
             </div>
           </div>}
@@ -106,9 +106,25 @@ class Home extends Component {
 
 }
 
+Home.need = [function (params, store) {
+  const promise = new Promise((resolve, reject) => {
+    resolve({
+      key: "home_data",
+      data: params.id ? {...store.example.exampleList[params.id],id:params.id}:false
+    });
+  });
+
+  return {
+    type: "GET_DATA",
+    promise: promise
+  };
+}];
+
 export default
-  connect(state => ({
-    activeSite: state.example.site,
-    vizBuilderUrl: state.example.vizBuilderUrl,
-    exampleList: state.example.exampleList
-  }))(Home);
+  connect(state => {
+    return {
+      data: state.data.home_data ? state.data.home_data:false,
+      vizBuilderUrl: state.example.vizBuilderUrl,
+      exampleList: state.example.exampleList
+    }
+  })(Home);

@@ -9,7 +9,8 @@ export default function RouteCreate() {
   return (
     <Route path="/" component={App} history={browserHistory}>
       <IndexRoute component={Home} />
-      <Route path="/cart" component={CartPage} />
+      <Route path="/home/:id" component={Home} />
+      <Route path="/cart/:id" component={CartPage} />
     </Route>
   );
 }

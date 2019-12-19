@@ -8,24 +8,30 @@ import "./App.css";
 class App extends Component {
 
   render() {
-    const {activeSite, exampleList} = this.props;
-    const mainClass = exampleList[activeSite] ? exampleList[activeSite].slug:'';
+    const {exampleList} = this.props;
+    const mainClass = this.props.params.id ? this.props.params.id+'-style' :'';
+
+    const exampleId = this.props.params.id?this.props.params.id:false;
+
+    const homeLink = exampleId ? '/home/' + exampleId : '/';
+    const cartLink = exampleId ? '/cart/' + exampleId : '/cart';
+
     return (
       <div id={mainClass} className="default-style">
         <Navbar>
           <Navbar.Group align={Alignment.LEFT}>
             <Navbar.Heading>
-              <a href="/">
-                {`${activeSite ? activeSite + ' Cart Test' :'🧪 Canon Cart Test'}`}
+              <a href={homeLink}>
+                {`🧪 Canon Cart Test`}
               </a>
             </Navbar.Heading>
             <Navbar.Divider />
-            <a className="bp3-minimal" href="/">Home</a>
+            <a className="bp3-minimal" href={homeLink}>Home</a>
             <Navbar.Divider />
-            <a className="bp3-minimal" href="/cart">Go to cart</a>
+            <a className="bp3-minimal" href={cartLink}>Go to cart</a>
           </Navbar.Group>
           <Navbar.Group align={Alignment.RIGHT}>
-            <NavCartControl cartRoute={"/cart"} />
+            <NavCartControl cartRoute={cartLink} />
           </Navbar.Group>
         </Navbar>
         <div>
@@ -39,7 +45,6 @@ class App extends Component {
 
 export default connect(state => {
   return {
-    activeSite: state.example.site,
     exampleList: state.example.exampleList
   };
 })(App);

@@ -1,15 +1,3 @@
-/** EXAMPLE */
-export function setExample(example) {
-  return dispatch => {
-    dispatch(setExampleSite(example));
-  };
-}
-export const SET_EXAMPLE_SITE = "SET_EXAMPLE_SITE";
-export const setExampleSite = (example) => ({
-  type: SET_EXAMPLE_SITE,
-  payload: example
-});
-
 /** EXAMPLE url*/
 export function setExampleVizBuilder(url) {
   return dispatch => {
@@ -45,3 +33,15 @@ export const removeCustomUrlAction = (url) => ({
   type: REMOVE_CUSTOM_URL,
   payload: url
 });
+
+export function clearCustomList(url) {
+  return dispatch => {
+    dispatch(clearCustomUrlListAction(url));
+  };
+}
+export const CLEAR_CUSTOM_URL_LIST = "CLEAR_CUSTOM_URL_LIST";
+export const clearCustomUrlListAction = (url) => ({
+  type: CLEAR_CUSTOM_URL_LIST,
+  payload: url
+});
+

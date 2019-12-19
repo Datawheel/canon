@@ -77,23 +77,25 @@ class CustomAddUrls extends Component {
       />
       <p>Must start with "{activeSiteObject.base}"</p>
       <hr/>
-      <p>{customUrls.length} urls</p>
-      <hr/>
-      {customUrls.map(url=>
-        <InputGroup
-          large={true}
-          leftIcon="link"
-          disabled={true}
-          rightElement={this.removeButton(url)}
-          value={url}
-        />
-      )}
+      {customUrls && <div>
+        <p>{customUrls.length} urls</p>
+        <hr/>
+        {customUrls.map(url=>
+          <InputGroup
+            large={true}
+            leftIcon="link"
+            disabled={true}
+            rightElement={this.removeButton(url)}
+            value={url}
+          />
+        )}
+        </div>}
     </div>);
   }
 }
 
 export default
   connect(state => ({
-    activeSiteObject: state.example.exampleList[state.example.site] ? state.example.exampleList[state.example.site]:false,
+    activeSiteObject: state.data.home_data ? state.data.home_data : false,
     customUrls: state.example.customUrls
   }))(CustomAddUrls);
