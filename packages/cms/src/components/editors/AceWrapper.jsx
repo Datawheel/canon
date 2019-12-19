@@ -1,49 +1,26 @@
 import React, {Component} from "react";
+import Button from "../fields/Button";
 import "./AceTheme.css";
-
-/*
-import ace from "brace";
-import "brace/ext/language_tools";
-
-const langTools = ace.acequire("ace/ext/language_tools");
-*/
+import "./AceWrapper.css";
 
 export default class AceWrapper extends Component {
-
-  /*
-  componentDidMount() {
-    this.updateCompleter.bind(this)();
-  }
-
-  updateCompleter() {
-    const wordList = Object.keys(this.props.variables || {}).sort();
-    const completer = {
-      getCompletions: (editor, session, pos, prefix, callback) => {
-        callback(null, wordList.map(word => ({
-          caption: word,
-          value: word,
-          meta: "variable"
-        })));
-      }
+  constructor(props) {
+    super(props);
+    this.state = {
+      isFullscreen: false
     };
-    langTools.setCompleters([completer]);
   }
-  */
 
-  componentDidUpdate(/*prevProps*/) {
+  componentDidUpdate() {
     if (this.editor) {
       clearTimeout(this.resize);
       this.resize = setTimeout(editor => editor.resize(), 400, this.editor.editor);
     }
-
-    /*
-    if (this.editor && prevProps.variables !== this.props.variables) {
-      this.updateCompleter.bind(this)();
-    }
-    */
   }
 
   render() {
+    const {isFullscreen} = this.state;
+
     if (typeof window !== "undefined") {
       const Ace = require("react-ace").default;
       require("brace/mode/javascript");
@@ -58,19 +35,33 @@ export default class AceWrapper extends Component {
         $blockScrolling: Infinity
       };
 
-      return <div className="cms-ace-container">
-        <Ace
-          width="100%"
-          height="100%"
-          ref={editor => this.editor = editor}
-          wrapEnabled={false}
-          tabSize={2}
-          mode="javascript"
-          setOptions={options}
-          editorProps={editorProps}
-          {...this.props}
-        />
-      </div>;
+      return (
+        <div className={`cms-ace-container${isFullscreen ? " is-fullscreen" : ""}`}>
+          <Button
+            className="cms-ace-button"
+            namespace="cms"
+            iconOnly
+            active={isFullscreen}
+            icon={isFullscreen ? "minimize" : "fullscreen"}
+            onClick={() => this.setState({isFullscreen: !isFullscreen})}
+            key="b"
+          >
+            Toggle fullscreen
+          </Button>
+          <Ace
+            width="100%"
+            height="100%"
+            ref={editor => this.editor = editor}
+            wrapEnabled={false}
+            tabSize={2}
+            mode="javascript"
+            setOptions={options}
+            editorProps={editorProps}
+            key="e"
+            {...this.props}
+          />
+        </div>
+      );
     }
     return null;
   }

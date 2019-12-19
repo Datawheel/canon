@@ -238,6 +238,7 @@ class Toolbox extends Component {
                   attr={profile.attr || {}}
                   type="generator"
                   readOnly={i === 0}
+                  usePortalForAlert
                 />
               )}
             />
@@ -257,6 +258,7 @@ class Toolbox extends Component {
                   hidden={!detailView}
                   type="materializer"
                   showReorderButton={materializers[materializers.length - 1].id !== m.id}
+                  usePortalForAlert
                 />
               )}
             />
@@ -272,6 +274,7 @@ class Toolbox extends Component {
                 <SelectorCard
                   key={s.id}
                   minData={s}
+                  usePortalForAlert
                 />
               )}
             />
@@ -290,6 +293,7 @@ class Toolbox extends Component {
                   minData={f}
                   type="formatter"
                   variables={{}}
+                  usePortalForAlert
                 />
               )}
             />

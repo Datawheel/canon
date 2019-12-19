@@ -1,0 +1,57 @@
+@import "../../css/mixins.css";
+
+/* the "textarea" */
+.cms-draft-wrapper [contenteditable] {
+  @mixin cms-text-input-style;
+  line-height: 1.125;
+  border-radius: var(--field-border-radius);
+  /* sizing */
+  width: 100%;
+  padding: var(--field-padding);
+  /* transitions */
+  transition:
+    border-color 0.3s ease-out,
+    box-shadow 0.3s ease-out,
+    color 0.3s ease-out;
+
+  @mixin max-sm {
+    font-size: 14px; /* prevent zooming on mobile */
+  }
+
+  /* interactions */
+  &:hover {
+    border-color: var(--accent-dark);
+
+    @mixin dark-mode {
+      border-color: var(--accent);
+    }
+  }
+  &:focus {
+    border-color: var(--accent-dark);
+    box-shadow: 0 0 0 1px var(--accent-dark);
+    outline: none;
+
+    @mixin dark-mode {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+  }
+}
+
+/* the typed word */
+.cms-draft-trigger {
+  font-family: 'Menlo', monospace;
+
+  &.cms-variable-draft-trigger {
+    color: var(--type-string-dark);
+    @mixin dark-mode { color: var(--type-string); }
+  }
+  &.cms-formatter-draft-trigger {
+    color: var(--type-number-dark);
+    @mixin dark-mode { color: var(--type-number); }
+  }
+  &.cms-selector-draft-trigger {
+    color: var(--type-boolean-dark);
+    @mixin dark-mode { color: var(--type-boolean); }
+  }
+}

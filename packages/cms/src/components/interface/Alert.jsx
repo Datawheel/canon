@@ -3,7 +3,6 @@ import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 
 import Portal from "./Portal";
-import Parse from "../sections/components/Parse";
 
 import "./Alert.css";
 
@@ -59,7 +58,7 @@ class Alert extends Component {
       <Wrapper {...portalProps}>
         {/* main alert content */}
         <div
-          className={`cms-alert${className ? ` ${className}` : ""} ${isModal ? "is-modal" : "is-inline"}`}
+          className={`cms-alert${ className ? ` ${className}` : "" } ${ isModal ? "is-modal" : "is-inline" }${ usePortal ? " in-portal" : "" }`}
           key="a"
         >
           <div className={`cms-alert-inner${theme ? ` ${theme}-theme` : ""}`}>

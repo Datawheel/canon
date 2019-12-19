@@ -25,7 +25,6 @@ import "./css/layout.css";
 import "./css/keyframes.css";
 
 class Builder extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -46,6 +45,9 @@ class Builder extends Component {
 
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
+
+    // Prevent accidental back swipes while working in the admin panel
+    if (typeof window !== "undefined") document.querySelector("body").setAttribute("style", "overscroll-behavior-x: contain;");
 
     let currentTab;
     if (tab) {
@@ -90,7 +92,7 @@ class Builder extends Component {
   /**
    * Almost every child of Builder makes use of redux "resources" to access formatters. However, Viz.jsx
    * misbehaves when wrapped in redux-connect, so for Viz.jsx ONLY, we pass it down via context.
-   * Router is required because SectionEditor embeds a ProfileEmbed, which contains vizes, which 
+   * Router is required because SectionEditor embeds a ProfileEmbed, which contains vizes, which
    * contain Options.jsx, which has need of router.
    */
   getChildContext() {

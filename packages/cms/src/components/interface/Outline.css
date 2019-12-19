@@ -87,6 +87,16 @@
   }
 }
 
+/* handle images in titles */
+.cms-outline-link-text img {
+  /* prevent button size from increasing */
+  max-height: 1em;
+  /* positioning */
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.25em;
+}
+
 /* action buttons */
 .cms-outline-item .cms-outline-item-actions {
   @mixin absolute-vertical-center;

@@ -15,7 +15,7 @@ export default class Parse extends Component {
       tabIndex   // when you need to make the element focusable
     } = this.props;
 
-    let blob = children.replace(/<p><br><\/p>/g, "<br/>");
+    let blob = children.toString().replace(/<p><br><\/p>/g, "<br/>");
 
     // By default, split into separate elements at br tags. If there is a br tag. Unless it's a heading tag.
     if (split === true &&
@@ -72,5 +72,5 @@ export default class Parse extends Component {
 Parse.defaultProps = {
   El: "p",
   split: true,
-  children: "missing `children` prop in Parse.jsx; single blob of Quill content expected"
+  children: "missing `children` prop in Parse.jsx; single blob of DraftJS content expected"
 };

@@ -25,6 +25,7 @@ export default class Card extends Component {
       reorderProps,    // show reorder button or not
 
       alertObj,        // object with {callback, confirm, message} used to configure alert
+      usePortal,       // whether or not to render alert into a portal
       onAlertCancel    // wipe alert state
     } = this.props;
 
@@ -80,6 +81,7 @@ export default class Card extends Component {
         isOpen: showAlert,
         onConfirm: alertObj.callback,
         onCancel: onAlertCancel,
+        usePortal: usePortal || alertObj.usePortal,
         portalProps: {namespace: "cms"},
         theme: alertObj.theme || "danger"
       };
