@@ -15,6 +15,8 @@ import FilterSearch from "./fields/FilterSearch";
 
 import "./Showcase.css";
 
+const baseDir = "https://github.com/Datawheel/canon/blob/master/packages/cms/src/components";
+
 class Showcase extends Component {
   constructor(props) {
     super(props);
@@ -33,6 +35,7 @@ class Showcase extends Component {
           {
             name: "Button",
             Component: Button,
+            link: `${baseDir}/fields/Button.jsx`,
             props: {
               children: "children as button text",
               icon: "tick",
@@ -43,6 +46,7 @@ class Showcase extends Component {
           {
             name: "ButtonGroup",
             Component: ButtonGroup,
+            link: `${baseDir}/fields/ButtonGroup.jsx`,
             props: {
               buttons: [
                 {
@@ -63,6 +67,7 @@ class Showcase extends Component {
           {
             name: "TextInput",
             Component: TextInput,
+            link: `${baseDir}/fields/TextInput.jsx`,
             props: {
               label: "What's ur password?",
               inline: true,
@@ -73,6 +78,7 @@ class Showcase extends Component {
           {
             name: "TextButtonGroup",
             Component: TextButtonGroup,
+            link: `${baseDir}/fields/TextButtonGroup.jsx`,
             props: {
               inputProps: {
                 label: "TextInput + Button in a form",
@@ -92,6 +98,7 @@ class Showcase extends Component {
           {
             name: "Select",
             Component: Select,
+            link: `${baseDir}/fields/Select.jsx`,
             props: {
               label: "label",
               inline: true,
@@ -106,6 +113,7 @@ class Showcase extends Component {
           {
             name: "FilterSearch",
             Component: FilterSearch,
+            link: `${baseDir}/fields/FilterSearch.jsx`,
             props: {
               label: "Label is also placeholder text",
               onChange: () => console.log("`onChange` triggered"),
@@ -124,8 +132,6 @@ class Showcase extends Component {
         {/* header */}
         <header className="showcase-header">
           <h1 className="showcase-header-heading u-margin-top-off">All the components</h1>
-
-          {console.log(FilterSearch)}
 
           {/* list of links */}
           <nav className="showcase-nav">
@@ -162,7 +168,11 @@ class Showcase extends Component {
               <ul className="showcase-nested-list" key={`${group.name}-list`}>
                 {group.components.map(c =>
                   <li className="showcase-item" id={toKebabCase(c.name)} key={c.name}>
-                    <h3 className="showcase-item-heading u-font-xs u-margin-bottom-xs">{c.name}</h3>
+                    <h3 className="showcase-item-heading u-font-xxs u-margin-top-off u-margin-bottom-xs">
+                      <a className="showcase-item-heading-link" href={c.link}>
+                        {c.name}
+                      </a>
+                    </h3>
                     <c.Component namespace={namespace} {...c.props} />
                   </li>
                 )}
