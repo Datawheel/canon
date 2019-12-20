@@ -20,6 +20,9 @@ import Dialog from "./interface/Dialog";
 import Dropdown from "./interface/Dropdown";
 import Status from "./interface/Status";
 
+import Parse from "./sections/components/Parse";
+import Stat from "./sections/components/Stat";
+
 import "./Showcase.css";
 
 const baseDir = "https://github.com/Datawheel/canon/blob/master/packages/cms/src/components";
@@ -236,6 +239,33 @@ class Showcase extends Component {
               recompiling: statusIsOpen,
               busy: "Doing some stuff…",
               done: "We're finished"
+            }
+          }
+        ]
+      },
+      {
+        name: "Miscellaneous",
+        components: [
+          {
+            name: "Parse",
+            Component: Parse,
+            link: `${baseDir}/sections/components/Parse.jsx`,
+            props: {
+              El: "h2",
+              id: "more-like-dangerously-set-inner-shut-up-react-amirite",
+              className: "custom-class",
+              children: "The rich text editor wants me to be a <em>p</em> tag, but I’m a <strong>heading</strong><p><br></p>…or I can be whatever <code>El</code> you want"
+            }
+          },
+          {
+            name: "Stat",
+            Component: Stat,
+            link: `${baseDir}/sections/components/Stat.jsx`,
+            props: {
+              El: "p",
+              label: "Stat `label`",
+              value: "100% real",
+              subtitle: "More context via the `subtitle` prop"
             }
           }
         ]
