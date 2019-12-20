@@ -393,7 +393,7 @@ class Showcase extends Component {
                 {group.components.map(c =>
                   <li className="showcase-item" id={toKebabCase(c.name)} key={`${c.name}-item`}>
                     {/* heading + github link*/}
-                    <h3 className="showcase-item-heading u-font-xxs u-margin-top-off u-margin-bottom-xs" key={`${c.name}h`}>
+                    <h3 className="showcase-item-heading u-font-xxs u-margin-top-off u-margin-bottom-md" key={`${c.name}h`}>
                       <a className="showcase-item-heading-link" href={c.link}>
                         {c.name}
                       </a>

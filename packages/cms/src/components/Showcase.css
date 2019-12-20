@@ -60,9 +60,9 @@
 }
 
 .showcase-item {
-  margin-top: var(--gutter-md);
-  margin-bottom: var(--gutter-md);
-  padding: var(--gutter-xs) var(--gutter-sm) var(--gutter-sm) var(--gutter-sm);
+  margin-top: var(--gutter-sm);
+  margin-bottom: var(--gutter-sm);
+  padding: var(--gutter-xs) var(--gutter-md) var(--gutter-lg) var(--gutter-md);
 
   &:first-of-type { margin-top: var(--gutter-sm); }
   &:last-of-type { margin-bottom: 0; }
@@ -93,7 +93,7 @@
 .showcase-item-props-button {
   position: absolute;
   top: 0.25em;
-  left: -1em;
+  left: 0;
   transform: scale(0.75);
 }
 
