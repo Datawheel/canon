@@ -15,6 +15,7 @@ import TextButtonGroup from "./fields/TextButtonGroup";
 import FilterSearch from "./fields/FilterSearch";
 
 import Alert from "./interface/Alert";
+import Dialog from "./interface/Dialog";
 
 import "./Showcase.css";
 
@@ -25,7 +26,8 @@ class Showcase extends Component {
     super(props);
     this.state = {
       namespace: "cms",
-      alertIsOpen: false
+      alertIsOpen: false,
+      dialogIsOpen: false
     };
   }
 
@@ -38,7 +40,7 @@ class Showcase extends Component {
   }
 
   render() {
-    const {namespace, alertIsOpen} = this.state;
+    const {namespace, alertIsOpen, dialogIsOpen} = this.state;
 
     const components = [
       {
@@ -151,6 +153,25 @@ class Showcase extends Component {
               theme: "caution",
               isOpen: alertIsOpen
             }
+          },
+          {
+            name: "Dialog",
+            Component: Dialog,
+            link: `${baseDir}/interface/Dialog.jsx`,
+            props: {
+              title: "Dialog title",
+              description: "Nicely done 👏",
+              onClose: () => this.setState({dialogIsOpen: false}),
+              onSave: () => alert("`onSave` triggered"),
+              onDelete: () => alert("`onDelete` triggered"),
+              theme: "caution",
+              isOpen: dialogIsOpen,
+              fullWidth: false,
+              children: <Fragment>
+                <h2>Render whatever you want here in the body with <code>children</code></h2>
+                <p>You can also add elements to the dialog header and footer with the <code>headerControls</code> & <code>footerControls</code> props</p>
+              </Fragment>
+            }
           }
         ]
       }
@@ -191,18 +212,21 @@ class Showcase extends Component {
           {components.map(group =>
             <Fragment key={`${group.name}-group`}>
               {/* group title */}
-              <h2 className="u-font-md u-margin-top-xs" key={`${group.name}-title`}>
+              <h2 className="u-font-md" key={`${group.name}-title`}>
                 {group.name}
               </h2>
               {/* group components */}
               <ul className="showcase-nested-list" key={`${group.name}-list`}>
                 {group.components.map(c =>
                   <li className="showcase-item" id={toKebabCase(c.name)} key={`${c.name}-item`}>
+                    {/* heading + github link*/}
                     <h3 className="showcase-item-heading u-font-xxs u-margin-top-off u-margin-bottom-xs" key={`${c.name}h`}>
                       <a className="showcase-item-heading-link" href={c.link}>
                         {c.name}
                       </a>
                     </h3>
+
+                    {/* log current props */}
                     <Button
                       className="showcase-item-props-button"
                       onClick={() => this.logProps(c)}
@@ -215,6 +239,7 @@ class Showcase extends Component {
                       Copy props
                     </Button>
 
+                    {/* for components that need to be triggered */}
                     {(c.name === "Alert" || c.name === "Dialog") &&
                       <Button
                         className="showcase-trigger-button"
@@ -229,6 +254,7 @@ class Showcase extends Component {
                       </Button>
                     }
 
+                    {/* the component */}
                     <c.Component namespace={namespace} {...c.props} key={`${c}c`} />
                   </li>
                 )}
