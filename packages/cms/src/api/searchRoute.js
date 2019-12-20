@@ -266,7 +266,7 @@ module.exports = function(app) {
   app.get("/api/deepsearch", async(req, res) => {
 
     // Pass through search params to deepsearch and extract results
-    const url = `${deepsearchAPI}/search?${Object.keys(req.query).map(k => `${k}=${req.query[k]}`).join("&")}`;
+    const url = `${deepsearchAPI}/search?${Object.keys(req.query).map(k => `${k}=${req.query[k]}`).join("&")}&language=en`;
     const results = await axios.get(url).then(d => d.data).catch(catcher);
 
     // Results are keyed by dimension. Use nonzero length dimension results to find out which profiles are a match
@@ -274,8 +274,8 @@ module.exports = function(app) {
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(d => d.toJSON());
     
-    // todo: fix this hack!
-    const fixMeta = d => ({...d, dimension: d.dimension === "Exporter" ? "Country" : d.dimension})
+    // todo: fix this OEC hack!
+    const fixMeta = d => ({...d, dimension: d.dimension === "Exporter" ? "Country" : d.dimension});
     meta = meta.map(fixMeta);
     
     const relevantPids = meta.filter(p => dimensions.includes(p.dimension)).map(d => d.profile_id);
@@ -283,9 +283,13 @@ module.exports = function(app) {
     profiles = profiles.map(d => d.toJSON());
     profiles = profiles.map(p => ({...p, meta: p.meta.map(fixMeta)}));
 
-    const top = await axios.get(`${deepsearchAPI}/top?limit=5`).then(d => d.data.results).catch(catcher);
+    // When searching for half a bilateral profile, what should be put in the other half?
+    // For now, do a "top by zvalue" search so that bilateral profiles have something to show.
+    // const top = await axios.get(`${deepsearchAPI}/top?limit=5`).then(d => d.data.results).catch(catcher);
+    const top = {};
 
     results.profiles = {};
+    results.grouped = [];
 
     // For each profile type that was found
     for (const profile of profiles) {
@@ -305,7 +309,8 @@ module.exports = function(app) {
             id: r.id,
             memberSlug: r.metadata.slug,
             name: r.name,
-            top: r.top
+            top: r.top,
+            ranking: r.confidence
           }));
           acc.push(finalResults);
         }
@@ -314,7 +319,7 @@ module.exports = function(app) {
       
       let combinedResults = cartesian(...relevantResults);
       if (isUnary) {
-        combinedResults = combinedResults.filter(d => !d.top);
+        combinedResults = combinedResults.filter(d => !d.top).map(d => [d]);
       }
       else {
         combinedResults = combinedResults.filter(d => {
@@ -323,7 +328,15 @@ module.exports = function(app) {
         });
       }
 
-      results.profiles[slug] = combinedResults;
+      results.profiles[slug] = combinedResults.filter(d => req.query.query.includes(" ") ? true : d.length === 1);
+      results.grouped = results.grouped
+        .concat(combinedResults)
+        .filter(d => req.query.query.includes(" ") ? true : d.length === 1)
+        .map(d => {
+          const avg = d.reduce((acc, d) => acc += d.ranking, 0) / d.length;
+          return d.map(o => ({...o, avg}));
+        })
+        .sort((a, b) => b[0].avg - a[0].avg);
     }
 
     return res.json(results);
