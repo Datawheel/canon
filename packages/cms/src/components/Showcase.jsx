@@ -11,6 +11,7 @@ import Button from "./fields/Button";
 import ButtonGroup from "./fields/ButtonGroup";
 import Select from "./fields/Select";
 import TextInput from "./fields/TextInput";
+import Textarea from "./fields/Textarea";
 import TextButtonGroup from "./fields/TextButtonGroup";
 import FilterSearch from "./fields/FilterSearch";
 
@@ -102,6 +103,17 @@ class Showcase extends Component {
             }
           },
           {
+            name: "Textarea",
+            Component: Textarea,
+            link: `${baseDir}/fields/Textarea.jsx`,
+            props: {
+              label: "It’s like a TextInput, but for multiple lines",
+              inline: false,
+              type: "password",
+              onChange: () => this.updateStatus("`onChange` triggered")
+            }
+          },
+          {
             name: "TextButtonGroup",
             Component: TextButtonGroup,
             link: `${baseDir}/fields/TextButtonGroup.jsx`,
@@ -156,29 +168,25 @@ class Showcase extends Component {
             Component: Dropdown,
             link: `${baseDir}/interface/Dropdown.jsx`,
             props: {
-              title: "toggle me",
+              title: "I’m a nav-style list of links",
               items: [
                 {
-                  title: "I’m a nav-style list of links",
-                  items: [
-                    {
-                      title: "each object in the `items` array needs a `title`"
-                    },
-                    {
-                      title: "`icon` prop is optional",
-                      icon: "airplane"
-                    },
-                    {
-                      title: "I’m a link because I have a `url`",
-                      url: "https://css-tricks.com/use-button-element/",
-                      icon: "link"
-                    },
-                    {
-                      title: "I'm a button because I don't leave the page",
-                      onClick: () => this.updateStatus("items[0].items[1].onClick triggered"),
-                      icon: "tick"
-                    }
-                  ]
+                  title: "each object in the `items` array needs a `title`",
+                  icon: "arrow-right"
+                },
+                {
+                  title: "`icon` prop is optional",
+                  icon: "airplane"
+                },
+                {
+                  title: "I’m a link because I have a `url`",
+                  url: "https://css-tricks.com/use-button-element/",
+                  icon: "link"
+                },
+                {
+                  title: "I'm a button because I don't leave the page",
+                  onClick: () => this.updateStatus("items[0].items[1].onClick triggered"),
+                  icon: "tick"
                 }
               ]
             }
