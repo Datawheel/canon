@@ -20,6 +20,11 @@ import Dialog from "./interface/Dialog";
 import Dropdown from "./interface/Dropdown";
 import Status from "./interface/Status";
 
+import ConsoleVariable from "./variables/ConsoleVariable";
+import DefinitionList from "./variables/DefinitionList";
+import VarList from "./variables/VarList";
+import VarTable from "./variables/VarTable";
+
 import Parse from "./sections/components/Parse";
 import Stat from "./sections/components/Stat";
 
@@ -266,6 +271,57 @@ class Showcase extends Component {
               label: "Stat `label`",
               value: "100% real",
               subtitle: "More context via the `subtitle` prop"
+            }
+          },
+          {
+            name: "DefinitionList",
+            Component: DefinitionList,
+            link: `${baseDir}/variables/DefinitionList.jsx`,
+            props: {
+              definitions: [
+                {label: "label", text: "text"},
+                {label: "butts", text: "farts"}
+              ]
+            }
+          },
+          {
+            name: "ConsoleVariable",
+            Component: ConsoleVariable,
+            link: `${baseDir}/variables/ConsoleVariable.jsx`,
+            props: {
+              value: function butts() {
+                return "farts";
+              }
+            }
+          },
+          {
+            name: "VarTable",
+            Component: VarTable,
+            link: `${baseDir}/variables/VarTable.jsx`,
+            props: {
+              dataset: {
+                buttsFunc: function butts() {
+                  return "farts";
+                },
+                booleanVar: true,
+                stringVar: "hello",
+                numeralVar: 5318008,
+                anArray: ["one", 2]
+              }
+            }
+          },
+          {
+            name: "VarList",
+            Component: VarList,
+            link: `${baseDir}/variables/VarList.jsx`,
+            props: {
+              vars: [
+                function butts() {
+                  return "farts";
+                },
+                true,
+                "hello"
+              ]
             }
           }
         ]
