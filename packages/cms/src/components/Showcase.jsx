@@ -17,6 +17,7 @@ import FilterSearch from "./fields/FilterSearch";
 import Alert from "./interface/Alert";
 import Dialog from "./interface/Dialog";
 import Dropdown from "./interface/Dropdown";
+import Status from "./interface/Status";
 
 import "./Showcase.css";
 
@@ -27,22 +28,31 @@ class Showcase extends Component {
     super(props);
     this.state = {
       namespace: "cms",
+      toastAlert: false,
       alertIsOpen: false,
-      dialogIsOpen: false
+      dialogIsOpen: false,
+      statusIsOpen: false
     };
   }
 
+  /** logs the current props in the console, including the currently selected namespace */
   logProps(c) {
     if (c.Component && c.props) {
-      alert("current props logged in console");
+      this.updateStatus("current props logged in console");
       const namespacedProps = {...c.props, ...{namespace: this.state.namespace}};
       console.log({props: namespacedProps});
     }
     return null;
   }
 
+  /** injects a message into Status, then removes it */
+  updateStatus(message) {
+    this.setState({toastAlert: message});
+    setTimeout(() => this.setState({toastAlert: false}), 2000);
+  }
+
   render() {
-    const {namespace, alertIsOpen, dialogIsOpen} = this.state;
+    const {namespace, toastAlert, alertIsOpen, dialogIsOpen, statusIsOpen} = this.state;
 
     const components = [
       {
@@ -56,7 +66,7 @@ class Showcase extends Component {
               children: "children as button text",
               icon: "tick",
               iconPosition: "left",
-              onClick: () => alert("`onClick` triggered")
+              onClick: () => this.updateStatus("`onClick` triggered")
             }
           },
           {
@@ -88,7 +98,7 @@ class Showcase extends Component {
               label: "What's ur password?",
               inline: true,
               type: "password",
-              onChange: () => console.log("`onChange` triggered")
+              onChange: () => this.updateStatus("`onChange` triggered")
             }
           },
           {
@@ -106,7 +116,7 @@ class Showcase extends Component {
                 children: "I don't really do anything",
                 icon: "star",
                 iconOnly: true,
-                onClick: () => alert("`buttonProps.onClick` triggered"),
+                onClick: () => this.updateStatus("`buttonProps.onClick` triggered"),
                 namespace
               }
             }
@@ -118,7 +128,7 @@ class Showcase extends Component {
             props: {
               label: "label",
               inline: true,
-              onChange: () => console.log("`onChange` triggered"),
+              onChange: () => this.updateStatus("`onChange` triggered"),
               options: [
                 "options generated from array passed to `options` prop",
                 "or pass options as children",
@@ -132,7 +142,7 @@ class Showcase extends Component {
             link: `${baseDir}/fields/FilterSearch.jsx`,
             props: {
               label: "Label is also placeholder text",
-              onChange: () => console.log("`onChange` triggered"),
+              onChange: () => this.updateStatus("`onChange` triggered"),
               onReset: e => e.target.value = ""
             }
           }
@@ -165,7 +175,7 @@ class Showcase extends Component {
                     },
                     {
                       title: "I'm a button because I don't leave the page",
-                      onClick: () => alert("items[0].items[1].onClick triggered"),
+                      onClick: () => this.updateStatus("items[0].items[1].onClick triggered"),
                       icon: "tick"
                     }
                   ]
@@ -196,8 +206,11 @@ class Showcase extends Component {
               title: "Dialog title",
               description: "Nicely done 👏",
               onClose: () => this.setState({dialogIsOpen: false}),
-              onSave: () => alert("`onSave` triggered"),
-              onDelete: () => alert("`onDelete` triggered"),
+              onSave: () => {
+                this.updateStatus("`onSave` triggered");
+                this.setState({dialogIsOpen: false});
+              },
+              onDelete: () => this.updateStatus("`onDelete` triggered"),
               theme: "caution",
               isOpen: dialogIsOpen,
               fullWidth: false,
@@ -205,6 +218,16 @@ class Showcase extends Component {
                 <h2>Render whatever you want here in the body with <code>children</code></h2>
                 <p>You can also add elements to the dialog header and footer with the <code>headerControls</code> & <code>footerControls</code> props</p>
               </Fragment>
+            }
+          },
+          {
+            name: "Status",
+            Component: Status,
+            link: `${baseDir}/interface/Status.jsx`,
+            props: {
+              recompiling: statusIsOpen,
+              busy: "Doing some stuff…",
+              done: "We're finished"
             }
           }
         ]
@@ -274,7 +297,7 @@ class Showcase extends Component {
                     </Button>
 
                     {/* for components that need to be triggered */}
-                    {(c.name === "Alert" || c.name === "Dialog") &&
+                    {(c.name === "Alert" || c.name === "Dialog" || c.name === "Status") &&
                       <Button
                         className="showcase-trigger-button"
                         namespace={namespace}
@@ -284,7 +307,7 @@ class Showcase extends Component {
                         })}
                         key={`${c.name}tb`}
                       >
-                        Open {lowerCaseFirst(c.name)}
+                        {this.state[lowerCaseFirst(`${c.name}IsOpen`)] ? "Close" : "Open"} {lowerCaseFirst(c.name)}
                       </Button>
                     }
 
@@ -296,6 +319,9 @@ class Showcase extends Component {
             </Fragment>
           )}
         </ul>
+
+        {/* nicer than a standard browser alert() */}
+        <Status recompiling={toastAlert} busy={toastAlert} done="okay thx bye" />
       </div>
     );
   }
