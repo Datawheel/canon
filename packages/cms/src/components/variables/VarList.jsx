@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import "./VarList.css";
 
-export default class VarTable extends Component {
+export default class VarList extends Component {
   render() {
     const {vars} = this.props;
 
