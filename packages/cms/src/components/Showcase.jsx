@@ -16,6 +16,7 @@ import FilterSearch from "./fields/FilterSearch";
 
 import Alert from "./interface/Alert";
 import Dialog from "./interface/Dialog";
+import Dropdown from "./interface/Dropdown";
 
 import "./Showcase.css";
 
@@ -140,6 +141,38 @@ class Showcase extends Component {
       {
         name: "Interface",
         components: [
+          {
+            name: "Dropdown",
+            Component: Dropdown,
+            link: `${baseDir}/interface/Dropdown.jsx`,
+            props: {
+              title: "toggle me",
+              items: [
+                {
+                  title: "I’m a nav-style list of links",
+                  items: [
+                    {
+                      title: "each object in the `items` array needs a `title`"
+                    },
+                    {
+                      title: "`icon` prop is optional",
+                      icon: "airplane"
+                    },
+                    {
+                      title: "I’m a link because I have a `url`",
+                      url: "https://css-tricks.com/use-button-element/",
+                      icon: "link"
+                    },
+                    {
+                      title: "I'm a button because I don't leave the page",
+                      onClick: () => alert("items[0].items[1].onClick triggered"),
+                      icon: "tick"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
           {
             name: "Alert",
             Component: Alert,
