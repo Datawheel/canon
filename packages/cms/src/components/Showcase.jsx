@@ -40,7 +40,8 @@ class Showcase extends Component {
       toastAlert: false,
       alertIsOpen: false,
       dialogIsOpen: false,
-      statusIsOpen: false
+      statusIsOpen: false,
+      filter: ""
     };
   }
 
@@ -54,6 +55,11 @@ class Showcase extends Component {
     return null;
   }
 
+  /** filter down list of components */
+  setFilter(e) {
+    this.setState({filter: e.target.value});
+  }
+
   /** injects a message into Status, then removes it */
   updateStatus(message) {
     this.setState({toastAlert: message});
@@ -61,7 +67,7 @@ class Showcase extends Component {
   }
 
   render() {
-    const {namespace, toastAlert, alertIsOpen, dialogIsOpen, statusIsOpen} = this.state;
+    const {namespace, filter, toastAlert, alertIsOpen, dialogIsOpen, statusIsOpen} = this.state;
 
     const components = [
       {
@@ -328,6 +334,13 @@ class Showcase extends Component {
       }
     ];
 
+    let filteredComponents = components; // eslint-disable-line prefer-const
+    if (filter) {
+      filteredComponents.map(g =>
+        g.components = g.components.filter(c => c.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1)
+      );
+    }
+
     return (
       <div className={`showcase ${namespace}`}>
 
@@ -335,10 +348,19 @@ class Showcase extends Component {
         <header className="showcase-header">
           <h1 className="showcase-header-heading u-margin-top-off">All the components</h1>
 
+          <FilterSearch
+            label="filter components"
+            fontSize="sm"
+            namespace={namespace}
+            value={filter}
+            onChange={e => this.setFilter(e)}
+            onReset={() => this.setState({filter: ""})}
+          />
+
           {/* list of links */}
           <nav className="showcase-nav">
-            {components.map(group =>
-              <Fragment key={`${group.name}-nav-group`}>
+            {filteredComponents && filteredComponents.map(group => group.components.length
+              ? <Fragment key={`${group.name}-nav-group`}>
                 {/* group title */}
                 <h2 className="showcase-nav-heading u-font-xs display" key={`${group.name}-nav-title`}>
                   {group.name}
@@ -353,15 +375,15 @@ class Showcase extends Component {
                     </li>
                   )}
                 </ul>
-              </Fragment>
+              </Fragment> : ""
             )}
           </nav>
         </header>
 
         {/* list of components */}
         <ul className="showcase-list">
-          {components.map(group =>
-            <Fragment key={`${group.name}-group`}>
+          {filteredComponents && filteredComponents.map(group => group.components.length
+            ? <Fragment key={`${group.name}-group`}>
               {/* group title */}
               <h2 className="showcase-list-heading display u-font-md" key={`${group.name}-title`}>
                 {group.name}
@@ -410,7 +432,7 @@ class Showcase extends Component {
                   </li>
                 )}
               </ul>
-            </Fragment>
+            </Fragment> : ""
           )}
         </ul>
 

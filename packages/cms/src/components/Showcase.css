@@ -19,6 +19,8 @@
 
 .showcase-header {
   flex: 1 0 var(--sidebar-width);
+
+  & .cp-filter-search { position: relative; }
 }
 
 .showcase-nav {
