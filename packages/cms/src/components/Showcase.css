@@ -19,11 +19,24 @@
 
 .showcase-header {
   flex: 1 0 var(--sidebar-width);
+}
 
+.showcase-nav {
   @mixin min-sm {
     position: sticky;
-    top: 0;
+    top: var(--gutter-md);
   }
+}
+
+.showcase-nav-heading {
+  margin-top: var(--gutter-md);
+  margin-bottom: var(--gutter-xs);
+}
+
+.showcase-nav-link {
+  display: block;
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
 }
 
 .showcase-list {
@@ -36,6 +49,14 @@
   }
 }
 
+.showcase-list-heading {
+  margin-top: var(--gutter-xs);
+}
+
+.showcase-nested-list + .showcase-list-heading {
+  margin-top: var(--gutter-lg);
+}
+
 .showcase-item {
   margin-top: var(--gutter-md);
   margin-bottom: var(--gutter-md);
@@ -45,7 +66,7 @@
   &:last-of-type { margin-bottom: 0; }
 
   /* resets */
-  & * { position: relative; }
+  &, & * { position: relative; }
   & label { margin-bottom: 0; }
 }
 

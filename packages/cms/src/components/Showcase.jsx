@@ -189,7 +189,7 @@ class Showcase extends Component {
             {components.map(group =>
               <Fragment key={`${group.name}-nav-group`}>
                 {/* group title */}
-                <h2 className="u-font-xs display" key={`${group.name}-nav-title`}>
+                <h2 className="showcase-nav-heading u-font-xs display" key={`${group.name}-nav-title`}>
                   {group.name}
                 </h2>
                 {/* group components */}
@@ -212,7 +212,7 @@ class Showcase extends Component {
           {components.map(group =>
             <Fragment key={`${group.name}-group`}>
               {/* group title */}
-              <h2 className="u-font-md" key={`${group.name}-title`}>
+              <h2 className="showcase-list-heading display u-font-md" key={`${group.name}-title`}>
                 {group.name}
               </h2>
               {/* group components */}
