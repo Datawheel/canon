@@ -4,6 +4,7 @@ import {hot} from "react-hot-loader/root";
 import {AnchorLink} from "@datawheel/canon-core";
 
 import toKebabCase from "../utils/formatters/toKebabCase";
+import lowerCaseFirst from "../utils/formatters/lowerCaseFirst";
 import styles from "style.yml";
 
 import Button from "./fields/Button";
@@ -13,6 +14,8 @@ import TextInput from "./fields/TextInput";
 import TextButtonGroup from "./fields/TextButtonGroup";
 import FilterSearch from "./fields/FilterSearch";
 
+import Alert from "./interface/Alert";
+
 import "./Showcase.css";
 
 const baseDir = "https://github.com/Datawheel/canon/blob/master/packages/cms/src/components";
@@ -21,12 +24,21 @@ class Showcase extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      namespace: "cms"
+      namespace: "cms",
+      alertIsOpen: false
     };
   }
 
+  logProps(c) {
+    if (c.Component && c.props) {
+      alert("current props logged in console");
+      console.log({props: c.props});
+    }
+    return null;
+  }
+
   render() {
-    const {namespace} = this.state;
+    const {namespace, alertIsOpen} = this.state;
 
     const components = [
       {
@@ -121,10 +133,28 @@ class Showcase extends Component {
             }
           }
         ]
+      },
+      {
+        name: "Interface",
+        components: [
+          {
+            name: "Alert",
+            Component: Alert,
+            link: `${baseDir}/interface/Alert.jsx`,
+            props: {
+              title: "You've opened the alert",
+              description: "Nicely done 👏",
+              onCancel: () => this.setState({alertIsOpen: false}),
+              onConfirm: () => this.setState({alertIsOpen: false}),
+              cancelButtonText: "custom cancel text",
+              confirmButtonText: "custom confirm text",
+              theme: "caution",
+              isOpen: alertIsOpen
+            }
+          }
+        ]
       }
     ];
-
-    // console.log(this);
 
     return (
       <div className={`showcase ${namespace}`}>
@@ -167,13 +197,39 @@ class Showcase extends Component {
               {/* group components */}
               <ul className="showcase-nested-list" key={`${group.name}-list`}>
                 {group.components.map(c =>
-                  <li className="showcase-item" id={toKebabCase(c.name)} key={c.name}>
-                    <h3 className="showcase-item-heading u-font-xxs u-margin-top-off u-margin-bottom-xs">
+                  <li className="showcase-item" id={toKebabCase(c.name)} key={`${c.name}-item`}>
+                    <h3 className="showcase-item-heading u-font-xxs u-margin-top-off u-margin-bottom-xs" key={`${c.name}h`}>
                       <a className="showcase-item-heading-link" href={c.link}>
                         {c.name}
                       </a>
                     </h3>
-                    <c.Component namespace={namespace} {...c.props} />
+                    <Button
+                      className="showcase-item-props-button"
+                      onClick={() => this.logProps(c)}
+                      icon="console"
+                      fontSize="xxs"
+                      namespace={namespace}
+                      iconOnly
+                      key={`${c.name}pb`}
+                    >
+                      Copy props
+                    </Button>
+
+                    {(c.name === "Alert" || c.name === "Dialog") &&
+                      <Button
+                        className="showcase-trigger-button"
+                        namespace={namespace}
+                        fill
+                        onClick={() => this.setState({
+                          [lowerCaseFirst(`${c.name}IsOpen`)]: !this.state[lowerCaseFirst(`${c.name}IsOpen`)]
+                        })}
+                        key={`${c.name}tb`}
+                      >
+                        Open {lowerCaseFirst(c.name)}
+                      </Button>
+                    }
+
+                    <c.Component namespace={namespace} {...c.props} key={`${c}c`} />
                   </li>
                 )}
               </ul>

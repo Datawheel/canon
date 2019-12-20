@@ -67,6 +67,13 @@
   transform: none;
 }
 
+.showcase-item-props-button {
+  position: absolute;
+  top: 0.25em;
+  left: -1em;
+  transform: scale(0.75);
+}
+
 
 /* default theming */
 .showcase-list {
