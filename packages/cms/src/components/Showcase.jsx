@@ -34,7 +34,8 @@ class Showcase extends Component {
   logProps(c) {
     if (c.Component && c.props) {
       alert("current props logged in console");
-      console.log({props: c.props});
+      const namespacedProps = {...c.props, ...{namespace: this.state.namespace}};
+      console.log({props: namespacedProps});
     }
     return null;
   }
