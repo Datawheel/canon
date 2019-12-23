@@ -285,8 +285,8 @@ module.exports = function(app) {
 
     // When searching for half a bilateral profile, what should be put in the other half?
     // For now, do a "top by zvalue" search so that bilateral profiles have something to show.
+    // Commented out for now as folding in top elements is a little confusing in results
     // const top = await axios.get(`${deepsearchAPI}/top?limit=5`).then(d => d.data.results).catch(catcher);
-    const top = {};
 
     results.profiles = {};
     results.grouped = [];
@@ -299,17 +299,13 @@ module.exports = function(app) {
       
       // Gather a list of results that map to each slug in this profile
       const relevantResults = profile.meta.reduce((acc, m) => {
-        let theseResults = results.results[m.dimension];
+        const theseResults = results.results[m.dimension];
         if (theseResults) {
-          if (top[m.dimension]) {
-            theseResults = theseResults.concat(top[m.dimension].map(d => ({...d, top: true})));
-          }
           const finalResults = theseResults.map(r => ({
             slug: m.slug,
             id: r.id,
             memberSlug: r.metadata.slug,
             name: r.name,
-            top: r.top,
             ranking: r.confidence
           }));
           acc.push(finalResults);
@@ -317,10 +313,16 @@ module.exports = function(app) {
         return acc;
       }, []);
       
+      // Take the cartesian product of the list of lists of results. For example, if you have 5 geos and
+      // 5 products, create a list of 25 geo_prod results
       let combinedResults = cartesian(...relevantResults);
+      // The cartesian product doesn't return a list of lists when only one array is given to it, as in the
+      // case for unary profiles, so wrap the results in an array.
       if (isUnary) {
-        combinedResults = combinedResults.filter(d => !d.top).map(d => [d]);
+        combinedResults = combinedResults.map(d => [d]);
       }
+      // In the case of a bilateral profile, make sure the ids DON'T match for a given profile.
+      // This prevents pages like "Germany / Germany" from being returned.
       else {
         combinedResults = combinedResults.filter(d => {
           const ids = d.map(o => o.id);
@@ -328,10 +330,14 @@ module.exports = function(app) {
         });
       }
 
-      results.profiles[slug] = combinedResults.filter(d => req.query.query.includes(" ") ? true : d.length === 1);
+      // If there is no space in the query, Limit results to one-dimensional profiles.
+      const singleFilter = d => req.query.query.includes(" ") ? true : d.length === 1;
+      // Save the results under a slug key for the separated-out search results. 
+      results.profiles[slug] = combinedResults.filter(singleFilter);
+      // But combine them together for grouped results, sorted by the avg of their confidence score.
       results.grouped = results.grouped
         .concat(combinedResults)
-        .filter(d => req.query.query.includes(" ") ? true : d.length === 1)
+        .filter(singleFilter)
         .map(d => {
           const avg = d.reduce((acc, d) => acc += d.ranking, 0) / d.length;
           return d.map(o => ({...o, avg}));
