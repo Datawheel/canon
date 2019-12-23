@@ -37,7 +37,7 @@ class MetaEditor extends Component {
       imageEnabled: false,
       isOpen: false,
       currentRow: {},
-      loading: false,
+      loading: true,
       pageIndex: 0,
       pageSize: ROWS_PER_PAGE,
       querying: false,
@@ -421,7 +421,7 @@ class MetaEditor extends Component {
           dimensions[meta.dimension] = [...new Set([...dimensions[meta.dimension], ...meta.levels])];
         }
       });
-      this.setState({dimensions, sourceData, metaData}, this.prepData.bind(this));
+      this.setState({dimensions, sourceData, metaData, loading: false}, this.prepData.bind(this));
     });
   }
 
@@ -655,6 +655,7 @@ class MetaEditor extends Component {
             PreviousComponent={PreviousComponent}
             NextComponent={NextComponent}
             showPageSizeOptions={false}
+            noDataText={loading ? "Loading data…" : "No data found"}
           />
         </div>
 
