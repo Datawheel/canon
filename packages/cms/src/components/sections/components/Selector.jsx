@@ -7,6 +7,8 @@ import {MenuItem} from "@blueprintjs/core";
 
 import stripHTML from "../../../utils/formatters/stripHTML";
 
+import Button from "../../fields/Button";
+import ButtonGroup from "../../fields/ButtonGroup";
 import Select from "../../fields/Select";
 
 class Selector extends Component {
@@ -50,7 +52,7 @@ class Selector extends Component {
   render() {
     const {comparisons} = this.state;
     const {onSelector, variables} = this.context;
-    const {default: defaultValue, fontSize, id, loading, options, name, title, type} = this.props;
+    const {default: activeValue, fontSize, id, loading, options, name, title, type} = this.props;
     const slug = `${name}-${id}`;
 
     // multi select
@@ -81,8 +83,24 @@ class Selector extends Component {
       </div>;
     }
 
-    // standard dropdown
+    // single selector
     else if (options && options.length >= 2) {
+      // 2–3 options; button group
+      if (options.length <= 3) {
+        return <ButtonGroup className="cp-selector-button-group">
+          {options.map(b =>
+            <Button
+              className="cp-selector-button"
+              onClick={() => onSelector(name, stripHTML(b.option))}
+              key={stripHTML(b.option)}
+              active={b.option === activeValue}
+            >
+              {stripHTML(variables[b.option])}
+            </Button>
+          )}
+        </ButtonGroup>;
+      }
+      // 4+ options; select menu
       return <Select
         label={title}
         inline
@@ -90,7 +108,7 @@ class Selector extends Component {
         id={slug}
         onChange={d => onSelector(name, d.target.value)}
         disabled={loading}
-        value={defaultValue}
+        value={activeValue}
       >
         {options.map(({option}) => <option value={option} key={option}>
           {stripHTML(variables[option])}
