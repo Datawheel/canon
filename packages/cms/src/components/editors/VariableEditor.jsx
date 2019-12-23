@@ -38,7 +38,8 @@ class VariableEditor extends Component {
       payload: null,
       simple: false,
       alertObj: false,
-      isDirty: false
+      isDirty: false,
+      url: null
     };
   }
 
@@ -130,7 +131,7 @@ class VariableEditor extends Component {
           simple = true;
           data.simple = true;
         }
-        this.setState({payload, simple, data, alertObj: false});
+        this.setState({payload, simple, data, url, alertObj: false});
       }).catch(() => {
         const payload = {error: "Please enter a valid API URL."};
         let {simple} = this.state;
@@ -213,7 +214,7 @@ class VariableEditor extends Component {
   }
 
   render() {
-    const {data, payload, simple, alertObj} = this.state;
+    const {data, payload, simple, alertObj, url} = this.state;
     const {type} = this.props;
     const {localeDefault} = this.props.status;
 
@@ -257,7 +258,7 @@ class VariableEditor extends Component {
             </div>
           }
 
-          {type === "generator" &&
+          {type === "generator" && <Fragment key="gf">
             <TextButtonGroup
               namespace="cms"
               inputProps={{
@@ -274,7 +275,12 @@ class VariableEditor extends Component {
                 onClick: this.maybePreviewPayload.bind(this)
               }}
             />
-          }
+            {url &&
+              <p className="cms-generator-variable-editor-url u-font-xxs u-margin-bottom-xs" key="u">
+                Compiled URL: <a className="cms-generator-variable-editor-url-link" href={url}>{url}</a>
+              </p>
+            }
+          </Fragment>}
 
           <div className={`cms-variable-editor-group u-margin-top-off ${simple ? "ui-mode" : "js-mode"}`}>
 
