@@ -92,8 +92,9 @@ class Selector extends Component {
             <Button
               className="cp-selector-button"
               onClick={() => onSelector(name, stripHTML(b.option))}
-              key={stripHTML(b.option)}
               active={b.option === activeValue}
+              fontSize={fontSize}
+              key={stripHTML(b.option)}
             >
               {stripHTML(variables[b.option])}
             </Button>
