@@ -4,6 +4,7 @@ import {STORAGE_CART_KEY, TYPE_OLAP, TYPE_LOGICLAYER, TYPE_CANON_STATS} from "..
 import {MultiClient} from "@datawheel/olap-client";
 import {nest as d3Nest} from "d3-collection";
 import {FORMATTERS, isIDColName, isMOEColName} from "../helpers/formatters";
+import React from "react";
 
 /* Init cart: Check if there is data saved in your local storage.
 If not init an empty cart*/
@@ -388,11 +389,12 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
   cols = cols.map(field => {
     const headerData = getHeaderData(field);
     return {
-      Header: <div className="cart-table-header"><span>{headerData.field}</span><small>{headerData.extra}</small></div>,
+      Header() {
+        return <div className="cart-table-header"><span>{headerData.field}</span><small>{headerData.extra}</small></div>;
+      },
       accessor: field,
       width: 200,
-      // eslint-disable-next-line react/display-name
-      Cell: row => {
+      Cell(row) {
         let formatted = row.value;
         let align = "left";
         if (row.value) {
