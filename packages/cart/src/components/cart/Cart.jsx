@@ -143,7 +143,7 @@ class Cart extends React.Component {
         </div>
         <div className="canon-cart-area-middle">
           <Tooltip
-            className="toggle-sidebar"
+            className={`toggle-sidebar ${showSidebar ? "hide-controls" : "show-controls"}`}
             content={showSidebar ? "Hide Controls" : "Show Controls"}
             placement="auto"
           >

@@ -29,12 +29,19 @@
 
   & > .canon-cart-area-middle {
     position: relative;
-
-
     & .toggle-sidebar {
       position: absolute;
+      transition: left 0.5s ease;
+      z-index: 1;
+      &.hide-controls{
+        left:-30px;
+      }
+      &.show-controls{
+        left:0px;
+      }
       & .bp3-button{
-        background-color: transparent;
+        background-color: #ccc;
+        background-image: none;
       }
     }
   }

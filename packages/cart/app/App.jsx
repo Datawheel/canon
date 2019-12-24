@@ -8,13 +8,10 @@ import "./App.css";
 class App extends Component {
 
   render() {
-    const {exampleList} = this.props;
-    const mainClass = this.props.params.id ? this.props.params.id+'-style' :'';
-
-    const exampleId = this.props.params.id?this.props.params.id:false;
-
-    const homeLink = exampleId ? '/home/' + exampleId : '/';
-    const cartLink = exampleId ? '/cart/' + exampleId : '/cart';
+    const mainClass = this.props.params.id ? `${this.props.params.id}-style` : "";
+    const exampleId = this.props.params.id ? this.props.params.id : false;
+    const homeLink = exampleId ? `/home/${exampleId}` : "/";
+    const cartLink = exampleId ? `/cart/${exampleId}` : "/cart";
 
     return (
       <div id={mainClass} className="default-style">
@@ -22,7 +19,7 @@ class App extends Component {
           <Navbar.Group align={Alignment.LEFT}>
             <Navbar.Heading>
               <a href={homeLink}>
-                {`🧪 Canon Cart Test`}
+                {"🧪 Canon Cart Test"}
               </a>
             </Navbar.Heading>
             <Navbar.Divider />
@@ -43,8 +40,6 @@ class App extends Component {
 
 }
 
-export default connect(state => {
-  return {
-    exampleList: state.example.exampleList
-  };
-})(App);
+export default connect(state => ({
+
+}))(App);

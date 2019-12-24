@@ -28,9 +28,17 @@ class Table extends React.Component {
     return (
       <div className={"canon-cart-table-panel"}>
         <ReactTable
+          className="-striped -highlight"
           columns={cols}
           data={data}
+          showPagination={false}
+          defaultPageSize={data.length}
+          style={{
+            height: "500px" // This will force the table body to overflow and scroll, since there is not enough room
+          }}
         />
+        <hr/>
+        <p>{data.length} records</p>
       </div>
     );
   }

@@ -1,3 +1,14 @@
 .canon-cart-table-panel{
-
+  & .rt-thead {
+    overflow-y: scroll;
+  }
+  & .cart-table-header{
+    & span{
+      font-weight: bold;
+    }
+    & small{
+      color: #444444;
+      padding-left: 5px;
+    }
+  }
 }

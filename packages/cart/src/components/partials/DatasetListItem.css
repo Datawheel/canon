@@ -5,6 +5,7 @@
   & .canon-dataset-list-tooltip{
     & .bp3-popover-target{
       width: 100%;
+      display: block;
     }
   }
 }

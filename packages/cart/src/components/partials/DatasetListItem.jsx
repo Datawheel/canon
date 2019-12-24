@@ -42,9 +42,11 @@ class DatasetListItem extends React.Component {
     return (
       <div className={"canon-cart-dataset-list-item"}>
         <Tooltip
-          className={`canon-dataset-list-tooltip`}
+          className={"canon-dataset-list-tooltip"}
           inline={true}
-          position={showOptions?Position.RIGHT:Position.LEFT}
+          autoFocus={false}
+          openOnTargetFocus={false}
+          position={showOptions ? Position.RIGHT : Position.LEFT}
           content={"Click for remove dataset from Cart"}
         >
           <MenuItem multiline={true} className={"canon-cart-dataset-item"} onClick={() => this.onClickRemoveDataset(dataset)} labelElement={<Icon icon="trash" />} text={`${ix + 1}. ${dataset.name}`} />
@@ -52,7 +54,7 @@ class DatasetListItem extends React.Component {
         {showOptions &&
           <div>
             {dataset.query.params.cuts.length > 0 &&
-              <MenuItem icon="filter" multiline={true} className={"canon-cart-dataset-item"} text={`Filter by`}>
+              <MenuItem icon="filter" multiline={true} className={"canon-cart-dataset-item"} text={"Filter by"}>
                 <li className="bp3-menu-header"><h6 className="bp3-heading">Filters</h6></li>
                 {dataset.query.params.cuts.map((c, ix) =>
                   <MenuItem key={`cut-${ix}`} multiline={true} text={<Checkbox checked={c.selected} label={`${c.dimension}.${c.level} = ${c.members.join(",")}`} onChange={this.onChangeCut.bind(this, dataset.id, c)} />}></MenuItem>
@@ -60,7 +62,7 @@ class DatasetListItem extends React.Component {
               </MenuItem>
             }
             {dataset.query.params.drilldowns.length > 0 &&
-              <MenuItem icon="group-objects" multiline={true} className={"canon-cart-dataset-item"} text={`Grouped by`}>
+              <MenuItem icon="group-objects" multiline={true} className={"canon-cart-dataset-item"} text={"Grouped by"}>
                 <li className="bp3-menu-header"><h6 className="bp3-heading">Groups</h6></li>
                 {dataset.query.params.drilldowns.map((d, ix) =>
                   <MenuItem key={`drilldown-${ix}`} multiline={true} text={<Checkbox checked={d.selected} disabled={!d.available} label={`${d.dimension}.${d.level}`} onChange={this.onChangeDrilldown.bind(this, dataset.id, d)} />}></MenuItem>

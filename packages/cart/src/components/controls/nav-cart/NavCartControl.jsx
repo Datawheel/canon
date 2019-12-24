@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
-import {Popover, PopoverInteractionKind, Classes, Button} from "@blueprintjs/core";
+import {Popover, PopoverInteractionKind, Classes, Button, Tooltip, Position} from "@blueprintjs/core";
 
 import {clearCartAction, initCartAction} from "../../../actions";
 
@@ -61,8 +61,26 @@ class NavCartControl extends React.Component {
         <DatasetList showOptions={false} />
         <hr/>
         <div className={"canon-cart-nav-control-button-container"}>
-          <a className={"bp3-button bp3-fill bp3-minimal canon-cart-nav-control-button"} href={cartRoute}>View Data</a>
-          <Button onClick={this.onClickClearCart} fill={true} minimal={true} disabled={qty === 0}>Clear Data</Button>
+          <Tooltip
+            className={"canon-dataset-list-tooltip bp3-fill"}
+            autoFocus={false}
+            inline={false}
+            openOnTargetFocus={false}
+            position={Position.LEFT}
+            content={"Navigate to Data Cart"}
+          >
+            <a className={"bp3-button bp3-fill bp3-minimal canon-cart-nav-control-button"} href={cartRoute}>View Data</a>
+          </Tooltip>
+          <Tooltip
+            className={"canon-dataset-list-tooltip"}
+            autoFocus={false}
+            inline={false}
+            openOnTargetFocus={false}
+            position={Position.LEFT}
+            content={"Remove all datasets from Cart"}
+          >
+            <Button onClick={this.onClickClearCart} fill={true} minimal={true} disabled={qty === 0}>Clear Data</Button>
+          </Tooltip>
         </div>
       </div>
     ;

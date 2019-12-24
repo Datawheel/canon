@@ -1,8 +1,9 @@
 import localforage from "localforage";
-import {getHashCode, getQueryParsedToAdd, getProviderInfo, getLevelDimension, parseLevelDimension, getCubeName} from "../helpers/transformations";
+import {getHashCode, getQueryParsedToAdd, getProviderInfo, getLevelDimension, parseLevelDimension, getHeaderHTML} from "../helpers/transformations";
 import {STORAGE_CART_KEY, TYPE_OLAP, TYPE_LOGICLAYER, TYPE_CANON_STATS} from "../helpers/consts";
-import {MultiClient, TesseractDataSource} from "@datawheel/olap-client";
+import {MultiClient} from "@datawheel/olap-client";
 import {nest as d3Nest} from "d3-collection";
+import {FORMATTERS, isIDColName, isMOEColName} from "../helpers/formatters";
 
 /* Init cart: Check if there is data saved in your local storage.
 If not init an empty cart*/
@@ -305,6 +306,7 @@ const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, share
       multiClient.execQuery(query)
         .then(aggregation => {
 
+          // Single dataset loaded success
           dispatch(successLoadDatasetAction(datasetId));
           loaded += 1;
           loadedData[datasetId] = aggregation;
@@ -315,6 +317,8 @@ const queryAndProcessDatasets = (dispatch, datasets, multiClient, queries, share
             joinResultsAndShow(loadedData, sharedDimensionsLevel, dateDimensionsLevel, settings)(dispatch);
           }
 
+        }).catch(error => {
+          console.error(error);
         });
 
     }
@@ -371,20 +375,38 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
   // If hide ID cols
   if (!settings.showID.value) {
     cols = cols
-      .filter(field => !(field.toLowerCase().startsWith("id ") || field.toLowerCase().endsWith(" id")));
+      .filter(field => !isIDColName(field));
   }
 
   // If hide MOE cols
   if (!settings.showMOE.value) {
     cols = cols
-      .filter(field => !(field.toLowerCase().startsWith("moe ") || field.toLowerCase().endsWith(" moe")));
+      .filter(field => !isMOEColName(field));
   }
 
   // Create react-table ready cols config
-  cols = cols.map(field => ({
-    Header: field,
-    accessor: field
-  }));
+  cols = cols.map(field => {
+    const headerHTML = getHeaderHTML(field);
+    return {
+      Header: headerHTML,
+      accessor: field,
+      width: 200,
+      // eslint-disable-next-line react/display-name
+      Cell: row => {
+        let formatted = row.value;
+        let align = "left";
+        if (row.value) {
+          if (!isNaN(row.value)) {
+            align = "right";
+            if (!dateDimensionsLevel || field !== dateDimensionsLevel.level) {
+              formatted = isIDColName(field) ? FORMATTERS.round(`${row.value}`) : FORMATTERS.commasDecimal(`${row.value}`);
+            }
+          }
+        }
+        return <div style={{textAlign: align}}>{formatted}</div>;
+      }
+    };
+  });
 
   setTimeout(() => {
     dispatch(endProcessingAction(cols, data));
@@ -396,7 +418,7 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
 const getPlainBigList = (mapItem, settings, dateDimensionsLevel, measuresList) => {
   let rows = [];
   let cols = [];
-  mapItem.each((value, key, map) => {
+  mapItem.each(value => {
     if (value.length) { // It's an array of records! Last leaf!
       let record = {};
       if (settings.pivotYear.value) {

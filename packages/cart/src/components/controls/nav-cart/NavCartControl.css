@@ -3,8 +3,15 @@
     width: 310px;
     & .canon-cart-nav-control-button-container{
       width: 100%;
-      & .canon-cart-nav-control-button{
+      & .canon-dataset-list-tooltip{
+        width: 100%;
+        & .bp3-popover-target{
+          display: block;
+          width: 100%;
+        }
+        & .canon-cart-nav-control-button{
 
+        }
       }
     }
     & .canon-cart-nav-control-dataset-container{
