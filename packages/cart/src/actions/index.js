@@ -1,5 +1,5 @@
 import localforage from "localforage";
-import {getHashCode, getQueryParsedToAdd, getProviderInfo, getLevelDimension, parseLevelDimension, getHeaderHTML} from "../helpers/transformations";
+import {getHashCode, getQueryParsedToAdd, getProviderInfo, getLevelDimension, parseLevelDimension, getHeaderData} from "../helpers/transformations";
 import {STORAGE_CART_KEY, TYPE_OLAP, TYPE_LOGICLAYER, TYPE_CANON_STATS} from "../helpers/consts";
 import {MultiClient} from "@datawheel/olap-client";
 import {nest as d3Nest} from "d3-collection";
@@ -386,9 +386,9 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
 
   // Create react-table ready cols config
   cols = cols.map(field => {
-    const headerHTML = getHeaderHTML(field);
+    const headerData = getHeaderData(field);
     return {
-      Header: headerHTML,
+      Header: <div className="cart-table-header"><span>{headerData.field}</span><small>{headerData.extra}</small></div>,
       accessor: field,
       width: 200,
       // eslint-disable-next-line react/display-name

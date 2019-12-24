@@ -148,10 +148,13 @@ export const parseQueryParams = url => {
   };
 };
 
-export const getHeaderHTML = field => {
+export const getHeaderData = field => {
   const regExp = /\(([^)]+)\)/;
   const matches = regExp.exec(field);
   const yearString = matches ? matches[1] : "";
   const fieldString = matches ? field.replace(`(${yearString})`, "") : field;
-  return <div className="cart-table-header"><span>{fieldString.trim()}</span><small>{yearString.trim()}</small></div>;
+  return {
+    field: fieldString.trim(),
+    extra: yearString.trim()
+  };
 };
