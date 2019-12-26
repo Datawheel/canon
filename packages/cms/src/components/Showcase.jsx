@@ -41,7 +41,8 @@ class Showcase extends Component {
       alertIsOpen: false,
       dialogIsOpen: false,
       statusIsOpen: false,
-      filter: ""
+      filter: "",
+      currentView: "components"
     };
   }
 
@@ -67,7 +68,7 @@ class Showcase extends Component {
   }
 
   render() {
-    const {namespace, filter, toastAlert, alertIsOpen, dialogIsOpen, statusIsOpen} = this.state;
+    const {namespace, currentView, filter, toastAlert, alertIsOpen, dialogIsOpen, statusIsOpen} = this.state;
 
     const components = [
       {
@@ -318,10 +319,20 @@ class Showcase extends Component {
 
         {/* header */}
         <header className="showcase-header">
-          <h1 className="showcase-header-heading u-margin-top-off">All the components</h1>
+          <h1 className="showcase-header-heading u-margin-top-off u-font-md">
+            All the <Select
+              className="showcase-header-heading-select"
+              options={["components", "design tokens"]}
+              onChange={e => this.setState({currentView: e.target.value})}
+              namespace={namespace}
+              fontSize="md"
+              label="select view"
+              labelHidden
+            />
+          </h1>
 
           <FilterSearch
-            label="filter components"
+            label={`filter ${currentView}`}
             fontSize="sm"
             namespace={namespace}
             value={filter}

@@ -23,6 +23,18 @@
   & .cp-filter-search { position: relative; }
 }
 
+.showcase-header-heading {
+  display: flex;
+  align-items: baseline;
+
+  & .showcase-header-heading-select {
+    flex: 1 1 auto;
+    display: inline-block;
+    margin-left: 0.5em;
+    margin-bottom: 0;
+  }
+}
+
 .showcase-nav {
   @mixin min-sm {
     position: sticky;
