@@ -6,7 +6,6 @@ import PropTypes from "prop-types";
 import ProfileRenderer from "./ProfileRenderer";
 
 class Profile extends Component {
-
   getChildContext() {
     const {router} = this.props;
     return {
@@ -15,7 +14,6 @@ class Profile extends Component {
   }
 
   render() {
-
     const {profile, formatters, locale} = this.props;
 
     return (

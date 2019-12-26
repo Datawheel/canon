@@ -10,6 +10,7 @@ import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import SectionGrouping from "./sections/components/SectionGrouping";
 import Subnav from "./sections/components/Subnav";
+import Tile from "./sections/components/Tile";
 import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
 
@@ -246,6 +247,10 @@ class ProfileRenderer extends Component {
               </div>
             )}
           </main>
+
+          <Tile
+            
+          />
 
           {/* modal sections */}
           <Dialog
