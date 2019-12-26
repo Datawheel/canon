@@ -178,34 +178,6 @@ class Showcase extends Component {
         name: "Interface",
         components: [
           {
-            name: "Dropdown",
-            Component: Dropdown,
-            link: `${baseDir}/interface/Dropdown.jsx`,
-            props: {
-              title: "I’m a nav-style list of links",
-              items: [
-                {
-                  title: "each object in the `items` array needs a `title`",
-                  icon: "arrow-right"
-                },
-                {
-                  title: "`icon` prop is optional",
-                  icon: "airplane"
-                },
-                {
-                  title: "I’m a link because I have a `url`",
-                  url: "https://css-tricks.com/use-button-element/",
-                  icon: "link"
-                },
-                {
-                  title: "I'm a button because I don't leave the page",
-                  onClick: () => this.updateStatus("items[0].items[1].onClick triggered"),
-                  icon: "tick"
-                }
-              ]
-            }
-          },
-          {
             name: "Alert",
             Component: Alert,
             link: `${baseDir}/interface/Alert.jsx`,
@@ -383,7 +355,7 @@ class Showcase extends Component {
         {/* list of components */}
         <ul className="showcase-list">
           {filteredComponents && filteredComponents.map(group => group.components.length
-            ? <Fragment key={`${group.name}-group`}>
+            ? <li className="showcase-list-group" key={`${group.name}-group`}>
               {/* group title */}
               <h2 className="showcase-list-heading display u-font-md" key={`${group.name}-title`}>
                 {group.name}
@@ -392,7 +364,7 @@ class Showcase extends Component {
               <ul className="showcase-nested-list" key={`${group.name}-list`}>
                 {group.components.map(c =>
                   <li className="showcase-item" id={toKebabCase(c.name)} key={`${c.name}-item`}>
-                    {/* heading + github link*/}
+                    {/* heading + github link */}
                     <h3 className="showcase-item-heading u-font-xxs u-margin-top-off u-margin-bottom-md" key={`${c.name}h`}>
                       <a className="showcase-item-heading-link" href={c.link}>
                         {c.name}
@@ -413,8 +385,8 @@ class Showcase extends Component {
                     </Button>
 
                     {/* for components that need to be triggered */}
-                    {(c.name === "Alert" || c.name === "Dialog" || c.name === "Status") &&
-                      <Button
+                    {c.name === "Alert" || c.name === "Dialog" || c.name === "Status"
+                      ? <Button
                         className="showcase-trigger-button"
                         namespace={namespace}
                         fill
@@ -424,7 +396,7 @@ class Showcase extends Component {
                         key={`${c.name}tb`}
                       >
                         {this.state[lowerCaseFirst(`${c.name}IsOpen`)] ? "Close" : "Open"} {lowerCaseFirst(c.name)}
-                      </Button>
+                      </Button> : ""
                     }
 
                     {/* the component */}
@@ -432,7 +404,7 @@ class Showcase extends Component {
                   </li>
                 )}
               </ul>
-            </Fragment> : ""
+            </li> : ""
           )}
         </ul>
 
