@@ -1,8 +1,6 @@
 @import "../../../css/mixins.css";
 
 .cp-tile {
-  /* sizing */
-  height: 9rem;
   /* positioning */
   position: relative;
   overflow: hidden;
@@ -12,6 +10,14 @@
   background-color: var(--black);
   color: var(--white);
 
+  /* proportionately sized tiles via padding-top */
+  &:after {
+    display: block;
+    content: "";
+    padding-top: 50%; /* set the height */
+    z-index: -1; /* prevent from obscuring link */
+  }
+
   & .cp-tile-link {
     /* sizing */
     @mixin absolute-expand;
@@ -19,8 +25,7 @@
     /* layout */
     display: flex;
     /* theming */
-    background-color: color(var(--black) a(0.125));
-    border: 1px solid var(--dark-1);
+    background-color: color(var(--black) a(0.75));
     color: inherit;
     transition:
       background-color 0.3s ease-out,
@@ -33,24 +38,38 @@
     }
 
     /* div with bg image */
-    & .cp-tile-cover-img {
+    & .cp-tile-img-grid {
       @mixin absolute-expand;
-      z-index: -1; /* behind content */
-      background-size: cover;
-      transition: transform 0.3s ease-out;
+      display: flex;
+      flex-wrap: nowrap;
+
+      & > .cp-tile-img-wrapper {
+        position: relative;
+        flex: 1 0 33.333%;
+
+        & > .cp-tile-img {
+          @mixin absolute-expand;
+          z-index: -1; /* behind content */
+          background-size: cover;
+          background-position: center;
+          transition: transform 0.3s ease-out;
+        }
+      }
     }
 
     /* interactions */
-    &:hover { border-color: var(--white); }
-    &:focus { border-color: var(--accent); }
     &:hover, &:focus {
       text-decoration: none;
       color: var(--white);
-      background-color: color(var(--black) a(0.25));
+      background-color: color(var(--black) a(0.666));
 
-      & .cp-tile-cover-img {
+      & .cp-tile-img {
         transform: scale(1.05);
       }
+    }
+    &:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
     }
   }
 }

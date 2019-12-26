@@ -10,9 +10,9 @@ import libs from "../utils/libs";
 
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
+import Related from "./sections/Related";
 import SectionGrouping from "./sections/components/SectionGrouping";
 import Subnav from "./sections/components/Subnav";
-import Tile from "./sections/components/Tile";
 import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
 
@@ -27,7 +27,6 @@ import "../css/layout.css";
 import "./Profile.css";
 
 class ProfileRenderer extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -208,6 +207,9 @@ class ProfileRenderer extends Component {
       hideOptions
     };
 
+    // TODO: replace me with an array of actual related profiles
+    const relatedProfiles = [profile, profile, profile];
+
     return (
       <Fragment>
         <div className="cp">
@@ -252,11 +254,10 @@ class ProfileRenderer extends Component {
                 )}
               </div>
             )}
+            {!hideHero && relatedProfiles &&
+              <Related profiles={relatedProfiles} />
+            }
           </main>
-
-          <Tile
-            
-          />
 
           {/* modal sections */}
           <Dialog
