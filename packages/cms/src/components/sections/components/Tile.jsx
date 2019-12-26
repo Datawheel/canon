@@ -5,12 +5,11 @@ import "./Tile.css";
 class Tile extends Component {
   render() {
     const {
-      El,           // the element used as the container (it's an li by default)
-      link,         // direct link
-      slug,         // profile type
-      id,           // profile id
-      title,        // profile name
-      theme         // can be used for style overrides
+      El,     // the element used as the container (it's an li by default)
+      link,   // direct link
+      images, // list of images
+      title,  // profile name
+      theme   // can be used for style overrides
     } = this.props;
 
     return (
@@ -23,7 +22,19 @@ class Tile extends Component {
           }`} title={title}>
             {title}
           </span>
-          <div className="cp-tile-cover-img" style={{backgroundImage: `url(/api/image?slug=${slug}&id=${id})`}} />
+
+          <div className="cp-tile-img-outer">
+            <div className="cp-tile-img-overlay" />
+            {images && images.length &&
+              <div className="cp-tile-img-grid">
+                {images.map(img => img.src &&
+                  <div className="cp-tile-img-wrapper" key={img.src}>
+                    <div className="cp-tile-img" style={{backgroundImage: `url(${img.src})`}} />
+                  </div>
+                )}
+              </div>
+            }
+          </div>
         </a>
       </El>
     );
