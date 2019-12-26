@@ -3,9 +3,9 @@
   store with any static values you may need.
 */
 export default {
-  example:{
+  example: {
     exampleList: {
-      "datachile": {
+      datachile: {
         name: "🇨🇱 DataChile",
         slug: "datachile-style",
         base: "https://chilecube.datachile.io",
@@ -16,7 +16,7 @@ export default {
           {title: "Income by Region", query: "https://chilecube.datachile.io/cubes/nesi_income/aggregate.json?drilldown%5B%5D=%5BGeography%5D.%5BRegion%5D&measures%5B%5D=Income&measures%5B%5D=Median+Income&nonempty=true&distinct=false&parents=false&debug=true&sparse=true", tooltip: true}
         ]
       },
-      "datamexico": {
+      datamexico: {
         name: "🇲🇽 DataMexico",
         slug: "datamexico-style",
         base: "https://api.datamexico.org",
@@ -31,7 +31,7 @@ export default {
           // {title: "[Stats] RCA Calculation", query: "https://dev.datamexico.org/api/stats/relatedness?cube=economy_foreign_trade_mun&rca=State,Chapter,Trade%20Value&Year=2018", tooltip: true}
         ]
       },
-      "oec": {
+      oec: {
         name: "🌐 OEC World",
         slug: "oec-style",
         base: "https://api.oec.world",

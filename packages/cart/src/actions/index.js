@@ -1,6 +1,6 @@
 import localforage from "localforage";
 import {getHashCode, getQueryParsedToAdd, getProviderInfo, getLevelDimension, parseLevelDimension, getHeaderData} from "../helpers/transformations";
-import {STORAGE_CART_KEY, TYPE_OLAP, TYPE_LOGICLAYER, TYPE_CANON_STATS} from "../helpers/consts";
+import {STORAGE_CART_KEY, TYPE_OLAP, TYPE_LOGICLAYER} from "../helpers/consts";
 import {MultiClient} from "@datawheel/olap-client";
 import {nest as d3Nest} from "d3-collection";
 import {FORMATTERS, isIDColName, isMOEColName} from "../helpers/formatters";
@@ -336,13 +336,29 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
   let dims = [];
   let bigList = [];
   let measuresList = [];
+  let newMeasuresList = [];
+  let shortList = [];
   if (sharedDimensionsLevel) {
     dims = [sharedDimensionsLevel];
   }
-  Object.keys(responses).map(key => {
+  Object.keys(responses).sort().map((key, ix) => {
     const queryObject = responses[key].query;
-    measuresList = measuresList.concat(queryObject.measures.map(me => me.name));
-    bigList = bigList.concat(responses[key].data);
+    newMeasuresList = queryObject.measures.map(me => ({datasetId: key, key: ix + 1, field: me.name}));
+    measuresList = measuresList.concat(newMeasuresList);
+
+    // Replace measures names
+    shortList = responses[key].data.map(d => {
+      newMeasuresList.map(ms => {
+        d[`${ms.key}*${ms.field}`] = d[ms.field];
+        // delete d[ms.field];
+      });
+      return d;
+    });
+
+    // Add to big List
+    bigList = bigList.concat(shortList);
+
+    // Drilldowns cals
     let dim, drilldownLevel;
     queryObject.drilldowns.map(drill => {
       drilldownLevel = parseLevelDimension(drill.fullName);
@@ -390,7 +406,7 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
     const headerData = getHeaderData(field);
     return {
       Header() {
-        return <div className="cart-table-header"><span>{headerData.field}</span><small>{headerData.extra}</small></div>;
+        return <div className="cart-table-header"><span>{headerData.field}</span><sup>{headerData.reference}</sup><small>{headerData.extra}</small></div>;
       },
       accessor: field,
       width: 200,
@@ -427,12 +443,13 @@ const getPlainBigList = (mapItem, settings, dateDimensionsLevel, measuresList) =
         record = getPivotedRecord(value, dateDimensionsLevel, measuresList);
       }
       else {
-        record = getNonPivotedRecord(value);
+        record = getNonPivotedRecord(value, measuresList);
       }
       rows.push(record);
       cols = cols.concat(Object.keys(record));
+
     }
-    else { // It's a map, in the branch yet run recursion
+    else { // It's a map. In the branch yet, run recursion
       const tempResults = getPlainBigList(value, settings, dateDimensionsLevel, measuresList);
       rows = rows.concat(tempResults.rows);
       cols = cols.concat(tempResults.cols);
@@ -471,9 +488,11 @@ const getPivotedRecord = (records, dateLevel, measuresList) => {
   records.map(record => {
     const pivoted = {...record};
     measuresList.map(measure => {
-      if (typeof pivoted[measure] !== "undefined") {
-        pivoted[`${measure}(${pivoted[dateLevel]})`] = pivoted[measure];
-        delete pivoted[measure];
+      const measureName = `${measure.key}*${measure.field}`;
+      if (typeof pivoted[measureName] !== "undefined") {
+        pivoted[`${measureName}(${pivoted[dateLevel]})`] = pivoted[measureName];
+        delete pivoted[measureName];
+        delete pivoted[measure.field];
       }
     });
     if (dateLevel) {
@@ -491,4 +510,13 @@ const getPivotedRecord = (records, dateLevel, measuresList) => {
   return finalPivotedRecord;
 };
 
-const getNonPivotedRecord = recordList => recordList.reduce((nonPivoted, item) => ({...nonPivoted, ...item}), {});
+const getNonPivotedRecord = (recordList, measuresList) => recordList.reduce((originalRecord, item) => {
+  const nonPivoted = {...originalRecord};
+  measuresList.map(measure => {
+    const measureName = `${measure.key}*${measure.field}`;
+    if (typeof item[measureName] !== "undefined") {
+      delete item[measure.field];
+    }
+  });
+  return {...nonPivoted, ...item};
+}, {});

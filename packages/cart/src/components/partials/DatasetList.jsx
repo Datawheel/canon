@@ -39,7 +39,7 @@ class DatasetList extends React.Component {
           <div>
             <ul className="canon-cart-dataset-ul">
               <li className="bp3-menu-header"><h6 className="bp3-heading">Datasets: {datasetsIds.length}</h6></li>
-              {datasetsIds.map((did, ix) =>
+              {datasetsIds.sort().map((did, ix) =>
                 <DatasetListItem key={ix} ix={ix} dataset={datasets[did]} showOptions={showOptions} />
               )}
             </ul>

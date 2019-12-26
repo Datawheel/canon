@@ -152,9 +152,17 @@ export const getHeaderData = field => {
   const regExp = /\(([^)]+)\)/;
   const matches = regExp.exec(field);
   const yearString = matches ? matches[1] : "";
-  const fieldString = matches ? field.replace(`(${yearString})`, "") : field;
+  let fieldString = matches ? field.replace(`(${yearString})`, "") : field;
+
+  const parts = fieldString.split("*");
+  let referenceString = parts.length > 1 ? parts[0] : "";
+  referenceString = isNaN(referenceString) ? "" : referenceString;
+
+  fieldString = parts[1] ? parts[1] : fieldString;
+
   return {
     field: fieldString.trim(),
-    extra: yearString.trim()
+    extra: yearString.trim(),
+    reference: referenceString.trim()
   };
 };
