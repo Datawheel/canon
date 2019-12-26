@@ -1,0 +1,56 @@
+@import "../../../css/mixins.css";
+
+.cp-tile {
+  /* sizing */
+  height: 9rem;
+  /* positioning */
+  position: relative;
+  overflow: hidden;
+  padding: var(--gutter-xs);
+  z-index: 1;
+  /* theming */
+  background-color: var(--black);
+  color: var(--white);
+
+  & .cp-tile-link {
+    /* sizing */
+    @mixin absolute-expand;
+    padding: var(--gutter-sm);
+    /* layout */
+    display: flex;
+    /* theming */
+    background-color: color(var(--black) a(0.125));
+    border: 1px solid var(--dark-1);
+    color: inherit;
+    transition:
+      background-color 0.3s ease-out,
+      border-color 0.3s ease-out;
+
+    /* center title */
+    & .cp-tile-title {
+      margin: auto auto auto 0;
+      text-align: left;
+    }
+
+    /* div with bg image */
+    & .cp-tile-cover-img {
+      @mixin absolute-expand;
+      z-index: -1; /* behind content */
+      background-size: cover;
+      transition: transform 0.3s ease-out;
+    }
+
+    /* interactions */
+    &:hover { border-color: var(--white); }
+    &:focus { border-color: var(--accent); }
+    &:hover, &:focus {
+      text-decoration: none;
+      color: var(--white);
+      background-color: color(var(--black) a(0.25));
+
+      & .cp-tile-cover-img {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
