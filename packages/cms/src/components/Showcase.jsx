@@ -1,5 +1,6 @@
 import React, {Component, Fragment} from "react";
 import {hot} from "react-hot-loader/root";
+import Clipboard from "react-clipboard.js";
 
 import {AnchorLink} from "@datawheel/canon-core";
 
@@ -488,7 +489,12 @@ class Showcase extends Component {
                 {/* group components */}
                 <ul className="showcase-nested-list" key={`${group.name}-token-list`}>
                   {group.tokens.map(token => 
-                    <li className="showcase-token u-font-xxs">
+                    <Clipboard
+                      className="showcase-token u-font-xxs"
+                      data-clipboard-text={`var(--${token[0]})`}
+                      component="li"
+                      onSuccess={() => this.updateStatus("variable copied!")}
+                    >
                       {this.getTokenColor(token) &&
                         <span className="showcase-token-swatch" style={{backgroundColor: this.getTokenColor(token)}} />
                       }
@@ -499,7 +505,7 @@ class Showcase extends Component {
                           <span className="showcase-token-alias u-font-xxs"> ({token[2]})</span> 
                         }
                       </span>
-                    </li>
+                    </Clipboard>
                   )}
                 </ul>
             </li>
