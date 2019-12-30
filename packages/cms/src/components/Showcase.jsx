@@ -80,7 +80,7 @@ class Showcase extends Component {
   }
 
   /** checks whether the token is a color or not, and returns the color */
-  getTokenColor(t) {
+  getTokenColor(token) {
     if (token[1].indexOf("#") === 0) return token[1];
     else if (token[2] && token[2].indexOf("#") === 0) return token[2];
     return null;
@@ -398,7 +398,7 @@ class Showcase extends Component {
               <ul className="showcase-nav-list">
                 {groupedTokens.map(group => group.tokens.length &&
                   <li className="showcase-nav-item" key={`${group.name}-nav-nav`}>
-                    <AnchorLink className="showcase-nav-link display u-font-xs" to={toKebabCase(group.name)}>
+                    <AnchorLink className="showcase-nav-link display u-font-xs u-margin-top-xs" to={toKebabCase(group.name)}>
                       {group.name}
                     </AnchorLink>
                   </li>
@@ -408,7 +408,7 @@ class Showcase extends Component {
           </nav>
         </header>
 
-        <ul className="showcase-list">
+        <ul className={`showcase-list showcase-${currentView === "components" ? "component" : "token"}-list`}>
           {/* list of components */}
           {currentView === "components" && filteredComponents && filteredComponents.map(group => group.components.length
             ? <li className="showcase-list-group" key={`${group.name}-group`}>
@@ -464,18 +464,27 @@ class Showcase extends Component {
           )}
           {/* list of design tokens */}
           {currentView === "design tokens" && filteredTokens && filteredTokens.map(group => 
-            <li className="showcase-list-group" key={`${group.name}-token-group`}>
+            <li className="showcase-list-group showcase-item" key={`${group.name}-token-group`}>
               {/* group title */}
                 <h2 id={toKebabCase(group.name)} className="showcase-list-heading display u-font-md" key={`${group.name}-token-title`}>
                   {group.name}
                 </h2>
                 {/* group components */}
                 <ul className="showcase-nested-list" key={`${group.name}-token-list`}>
-                  {group.tokens.map(token => <li className="showcase-token">
-                    {token[0]}: {token[1]} {token[2] &&
-                      <span className="showcase-token-alias u-font-xs"> ({token[2]})</span> 
-                    }
-                  </li>)}
+                  {group.tokens.map(token => 
+                    <li className="showcase-token u-font-xxs">
+                      {this.getTokenColor(token) &&
+                        <span className="showcase-token-swatch" style={{backgroundColor: this.getTokenColor(token)}} />
+                      }
+                      <span className="showcase-token-label">{token[0]}</span> 
+                      <span className="showcase-token-value">
+                        {token[1]}
+                        {token[2] &&
+                          <span className="showcase-token-alias u-font-xxs"> ({token[2]})</span> 
+                        }
+                      </span>
+                    </li>
+                  )}
                 </ul>
             </li>
           )}

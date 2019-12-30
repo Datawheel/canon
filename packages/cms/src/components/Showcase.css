@@ -72,11 +72,10 @@
 }
 
 .showcase-item {
-  margin-top: var(--gutter-sm);
+  margin-top: 0;
   margin-bottom: var(--gutter-sm);
-  padding: var(--gutter-xs) var(--gutter-md) var(--gutter-lg) var(--gutter-md);
+  padding: var(--gutter-xs) var(--gutter-md) var(--gutter-md) var(--gutter-md);
 
-  &:first-of-type { margin-top: var(--gutter-sm); }
   &:last-of-type { margin-bottom: 0; }
 
   /* resets */
@@ -109,6 +108,72 @@
   transform: scale(0.75);
 }
 
+/* component overrides */
+.showcase-component-list .showcase-nested-list {
+  column-width: 22rem;
+  column-gap: var(--gutter-sm);
+
+  & > * {
+    break-inside: avoid;
+  }
+}
+
+/* design token overrides */
+.showcase-token-list .showcase-list-group {
+  padding-bottom: var(--gutter-md);
+
+  &:not(:first-child) {
+    margin-top: var(--gutter-md);
+  }
+}
+/* show tokens in columns where space is available */
+.showcase-token-list .showcase-nested-list {
+  column-width: 22rem;
+  column-gap: var(--gutter-xl);
+  column-rule: 1px solid color(var(--gray) a(0.125));
+
+  & > * {
+    break-inside: avoid;
+  }
+}
+/* line up token keys & values */
+.showcase-token {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  grid-gap: var(--gutter-md);
+  line-height: 2;
+
+  &:before {
+    position: absolute;
+    top: 0; right: -1.125em; bottom: 0; left: -1.125em;
+    content: "";
+    display: block;
+    background-color: color(var(--gray) a(0.125));
+    opacity: 0;
+    transition: opacity 0.05s ease-out;
+  }
+  &:hover:before { opacity: 1; }
+}
+.showcase-token-swatch {
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  width: 0.75em;
+  left: calc(0px - var(--gutter-md));
+  border: 1px solid color(var(--gray) a(0.125));
+}
+.showcase-token-label {
+  font-weight: var(--heading-font-weight);
+}
+.showcase-token-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.showcase-token-alias {
+  margin-top: -0.5em;
+}
 
 /* default theming */
 .showcase-list {
@@ -126,6 +191,9 @@
 .showcase-item-heading-link {
   color: var(--dark-1);
   &:hover, &:focus { color: var(--accent-dark); }
+}
+.showcase-token-alias {
+  color: var(--gray);
 }
 
 /* cms dark mode theming */
