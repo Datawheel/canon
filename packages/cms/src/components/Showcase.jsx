@@ -35,7 +35,9 @@ const tokens = Object.entries(styles);
 
 const groupedTokens = [
   {name: "colors", tokens: []},
-  {name: "measurements", tokens: []},
+  {name: "typography", tokens: []},
+  {name: "spacing", tokens: []},
+  {name: "miscellaneous", tokens: []}
 ];
 
 tokens.map((t, i) => {
@@ -46,11 +48,25 @@ tokens.map((t, i) => {
   };
   tokens[i][2] = styles[[aliasedVar]];
 
-  // group of tokens into colors and measurements
+  // group into colors
   if (t[1].indexOf("#") === 0 || (t[2] && t[2].indexOf("#") === 0)) {
     groupedTokens[0].tokens.push(t);
   }
-  else (groupedTokens[1].tokens.push(t));
+  // group into typography
+  else if (
+    t[0].indexOf("font")    !== -1 || 
+    t[0].indexOf("letter")  !== -1 || 
+    t[0].indexOf("text")    !== -1 || 
+    t[0].indexOf("weight")  !== -1
+  ) {
+    groupedTokens[1].tokens.push(t);
+  }
+  // group into spacing
+  else if (t[0].indexOf("gutter") !== -1) {
+    groupedTokens[2].tokens.push(t);
+  }
+  // group into measurements
+  else (groupedTokens[3].tokens.push(t));
 });
 
 const baseDir = "https://github.com/Datawheel/canon/blob/master/packages/cms/src/components";

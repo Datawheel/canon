@@ -145,7 +145,7 @@
 
   &:before {
     position: absolute;
-    top: 0; right: -1.125em; bottom: 0; left: -1.125em;
+    top: 0; right: calc(0px - var(--gutter-md)); bottom: 0; left: calc(0px - var(--gutter-md));
     content: "";
     display: block;
     background-color: color(var(--gray) a(0.125));
