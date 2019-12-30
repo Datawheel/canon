@@ -30,6 +30,29 @@ import Stat from "./sections/components/Stat";
 
 import "./Showcase.css";
 
+// convert styles object to array of key-value pairs
+const tokens = Object.entries(styles);
+
+const groupedTokens = [
+  {name: "colors", tokens: []},
+  {name: "measurements", tokens: []},
+];
+
+tokens.map((t, i) => {
+  // add the value of any aliased tokens as a third item in the array
+  let aliasedVar = null;
+  if (t[1].indexOf("var(--") !== -1) {
+    aliasedVar = t[1].replace("var(--", "").replace(")", "")
+  };
+  tokens[i][2] = styles[[aliasedVar]];
+
+  // group of tokens into colors and measurements
+  if (t[1].indexOf("#") === 0 || (t[2] && t[2].indexOf("#") === 0)) {
+    groupedTokens[0].tokens.push(t);
+  }
+  else (groupedTokens[1].tokens.push(t));
+});
+
 const baseDir = "https://github.com/Datawheel/canon/blob/master/packages/cms/src/components";
 
 class Showcase extends Component {
@@ -53,6 +76,13 @@ class Showcase extends Component {
       const namespacedProps = {...c.props, ...{namespace: this.state.namespace}};
       console.log({props: namespacedProps});
     }
+    return null;
+  }
+
+  /** checks whether the token is a color or not, and returns the color */
+  getTokenColor(t) {
+    if (token[1].indexOf("#") === 0) return token[1];
+    else if (token[2] && token[2].indexOf("#") === 0) return token[2];
     return null;
   }
 
@@ -314,6 +344,8 @@ class Showcase extends Component {
       );
     }
 
+    let filteredTokens = groupedTokens;
+
     return (
       <div className={`showcase ${namespace}`}>
 
@@ -342,7 +374,8 @@ class Showcase extends Component {
 
           {/* list of links */}
           <nav className="showcase-nav">
-            {filteredComponents && filteredComponents.map(group => group.components.length
+            {/* list of components */}
+            {currentView === "components" && filteredComponents && filteredComponents.map(group => group.components.length
               ? <Fragment key={`${group.name}-nav-group`}>
                 {/* group title */}
                 <h2 className="showcase-nav-heading u-font-xs display" key={`${group.name}-nav-title`}>
@@ -360,12 +393,24 @@ class Showcase extends Component {
                 </ul>
               </Fragment> : ""
             )}
+            {/* list of tokens */}
+            {currentView === "design tokens" && 
+              <ul className="showcase-nav-list">
+                {groupedTokens.map(group => group.tokens.length &&
+                  <li className="showcase-nav-item" key={`${group.name}-nav-nav`}>
+                    <AnchorLink className="showcase-nav-link display u-font-xs" to={toKebabCase(group.name)}>
+                      {group.name}
+                    </AnchorLink>
+                  </li>
+                )}
+              </ul>
+            }
           </nav>
         </header>
 
-        {/* list of components */}
         <ul className="showcase-list">
-          {filteredComponents && filteredComponents.map(group => group.components.length
+          {/* list of components */}
+          {currentView === "components" && filteredComponents && filteredComponents.map(group => group.components.length
             ? <li className="showcase-list-group" key={`${group.name}-group`}>
               {/* group title */}
               <h2 className="showcase-list-heading display u-font-md" key={`${group.name}-title`}>
@@ -416,6 +461,23 @@ class Showcase extends Component {
                 )}
               </ul>
             </li> : ""
+          )}
+          {/* list of design tokens */}
+          {currentView === "design tokens" && filteredTokens && filteredTokens.map(group => 
+            <li className="showcase-list-group" key={`${group.name}-token-group`}>
+              {/* group title */}
+                <h2 id={toKebabCase(group.name)} className="showcase-list-heading display u-font-md" key={`${group.name}-token-title`}>
+                  {group.name}
+                </h2>
+                {/* group components */}
+                <ul className="showcase-nested-list" key={`${group.name}-token-list`}>
+                  {group.tokens.map(token => <li className="showcase-token">
+                    {token[0]}: {token[1]} {token[2] &&
+                      <span className="showcase-token-alias u-font-xs"> ({token[2]})</span> 
+                    }
+                  </li>)}
+                </ul>
+            </li>
           )}
         </ul>
 
