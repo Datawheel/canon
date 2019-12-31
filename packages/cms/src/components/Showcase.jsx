@@ -50,16 +50,11 @@ tokens.map((t, i) => {
   tokens[i][2] = styles[[aliasedVar]];
 
   // group into colors
-  if (t[1].indexOf("#") === 0 || (t[2] && t[2].indexOf("#") === 0)) {
+  if (t[0].indexOf("color") !== -1 || t[1].indexOf("#") === 0 || (t[2] && t[2].indexOf("#") === 0)) {
     groupedTokens[0].tokens.push(t);
   }
   // group into typography
-  else if (
-    t[0].indexOf("font")    !== -1 || 
-    t[0].indexOf("letter")  !== -1 || 
-    t[0].indexOf("text")    !== -1 || 
-    t[0].indexOf("weight")  !== -1
-  ) {
+  else if (t[0].match(/(font|letter|text|weight|heading-size|paragraph-size|subhead-size)/)) {
     groupedTokens[1].tokens.push(t);
   }
   // group into spacing
@@ -82,6 +77,7 @@ class Showcase extends Component {
       dialogIsOpen: false,
       statusIsOpen: false,
       filter: "",
+      filteredTokens: groupedTokens,
       currentView: "components"
     };
   }
@@ -105,7 +101,15 @@ class Showcase extends Component {
 
   /** filter down list of components */
   setFilter(e) {
-    this.setState({filter: e.target.value});
+    const filter = typeof e === "string" ? e : e.target.value;
+
+    let filteredTokens = [];
+    groupedTokens.forEach((g, i) => {
+      filteredTokens[i] = Object.assign({}, g);
+      filteredTokens[i].tokens = g.tokens.filter(t => t.join().indexOf(filter.toLowerCase()) !== -1);
+    });
+
+    this.setState({filter, filteredTokens});
   }
 
   /** injects a message into Status, then removes it */
@@ -115,7 +119,7 @@ class Showcase extends Component {
   }
 
   render() {
-    const {namespace, currentView, filter, toastAlert, alertIsOpen, dialogIsOpen, statusIsOpen} = this.state;
+    const {namespace, currentView, filter, filteredTokens, toastAlert, alertIsOpen, dialogIsOpen, statusIsOpen} = this.state;
 
     const components = [
       {
@@ -354,14 +358,18 @@ class Showcase extends Component {
       }
     ];
 
-    let filteredComponents = components; // eslint-disable-line prefer-const
-    if (filter) {
-      filteredComponents.map(g =>
-        g.components = g.components.filter(c => c.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1)
-      );
-    }
+    let filteredComponents = components;
 
-    let filteredTokens = groupedTokens;
+    filteredComponents.map(g =>
+      g.components = g.components.filter(c => c.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1)
+    );
+
+    // const groupedTokens = [
+    //   {name: "colors", tokens: []},
+    //   {name: "typography", tokens: []},
+    //   {name: "spacing", tokens: []},
+    //   {name: "miscellaneous", tokens: []}
+    // ];
 
     return (
       <div className={`showcase ${namespace}`}>
@@ -386,13 +394,13 @@ class Showcase extends Component {
             namespace={namespace}
             value={filter}
             onChange={e => this.setFilter(e)}
-            onReset={() => this.setState({filter: ""})}
+            onReset={() => this.setFilter("")}
           />
 
           {/* list of links */}
           <nav className="showcase-nav">
             {/* list of components */}
-            {currentView === "components" && filteredComponents && filteredComponents.map(group => group.components.length
+            {currentView === "components" && filteredComponents.map(group => group.components.length
               ? <Fragment key={`${group.name}-nav-group`}>
                 {/* group title */}
                 <h2 className="showcase-nav-heading u-font-xs display" key={`${group.name}-nav-title`}>
@@ -412,13 +420,13 @@ class Showcase extends Component {
             )}
             {/* list of tokens */}
             {currentView === "design tokens" && 
-              <ul className="showcase-nav-list">
-                {groupedTokens.map(group => group.tokens.length &&
-                  <li className="showcase-nav-item" key={`${group.name}-nav-nav`}>
+              <ul className="showcase-nav-list u-margin-top-md">
+                {filteredTokens.map(group => group.tokens && group.tokens.length
+                  ? <li className="showcase-nav-item" key={`${group.name}-nav-nav`}>
                     <AnchorLink className="showcase-nav-link display u-font-xs u-margin-top-xs" to={toKebabCase(group.name)}>
                       {group.name}
                     </AnchorLink>
-                  </li>
+                  </li> : ""
                 )}
               </ul>
             }
@@ -427,7 +435,7 @@ class Showcase extends Component {
 
         <ul className={`showcase-list showcase-${currentView === "components" ? "component" : "token"}-list`}>
           {/* list of components */}
-          {currentView === "components" && filteredComponents && filteredComponents.map(group => group.components.length
+          {currentView === "components" && filteredComponents.map(group => group.components.length
             ? <li className="showcase-list-group" key={`${group.name}-group`}>
               {/* group title */}
               <h2 className="showcase-list-heading display u-font-md" key={`${group.name}-title`}>
@@ -480,8 +488,8 @@ class Showcase extends Component {
             </li> : ""
           )}
           {/* list of design tokens */}
-          {currentView === "design tokens" && filteredTokens && filteredTokens.map(group => 
-            <li className="showcase-list-group showcase-item" key={`${group.name}-token-group`}>
+          {currentView === "design tokens" && filteredTokens.map(group => group.tokens && group.tokens.length
+            ? <li className="showcase-list-group showcase-item" key={`${group.name}-token-group`}>
               {/* group title */}
                 <h2 id={toKebabCase(group.name)} className="showcase-list-heading display u-font-md" key={`${group.name}-token-title`}>
                   {group.name}
@@ -508,7 +516,7 @@ class Showcase extends Component {
                     </Clipboard>
                   )}
                 </ul>
-            </li>
+            </li> : ""
           )}
         </ul>
 
