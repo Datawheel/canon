@@ -1,6 +1,6 @@
 @import "../../css/mixins.css";
 
-.cms .cms-status {
+[class] .cms-status {
   position: fixed; /* override default of relative */
 }
 
