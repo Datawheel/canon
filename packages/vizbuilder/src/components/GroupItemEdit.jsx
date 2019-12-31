@@ -1,3 +1,4 @@
+/* eslint-disable func-style */
 import React from "react";
 import {withNamespaces} from "react-i18next";
 import {sortNumericsOrStrings} from "../helpers/sort";
@@ -63,8 +64,9 @@ const EditGroupItem = function EditGroupItem({
       <div className="group group-level">
         {/* <label>{t("Divide data by")}</label> */}
         <LevelSelect
+          items={freeLevels}
           onItemSelect={onDrillableUpdate}
-          options={freeLevels}
+          placeholder={t("Vizbuilber.placeholder_select")}
           selectedItem={selectedLevel}
         />
       </div>
@@ -72,13 +74,13 @@ const EditGroupItem = function EditGroupItem({
       <div className="group group-members">
         {/* <label>{t("Show only")}</label> */}
         <MemberSelect
-          options={memberOptions}
+          items={memberOptions}
           loading={loadingMembers}
-          selectedItems={members}
           maxDepth={0}
           onClear={onMembersClear}
-          onItemSelect={onMembersAdd}
           onItemRemove={onMembersRemove}
+          onItemSelect={onMembersAdd}
+          selectedItems={members}
         />
       </div>
 

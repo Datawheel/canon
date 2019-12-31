@@ -1,3 +1,4 @@
+/* eslint-disable func-style */
 import React from "react";
 import {Select} from "@blueprintjs/select";
 import {Button, MenuItem, Position} from "@blueprintjs/core";
@@ -9,10 +10,10 @@ import {fuzzySearch} from "../helpers/find";
  * @property {string} [className]
  * @property {boolean} [filterable]
  * @property {import("@blueprintjs/select").ItemListPredicate<T>} [itemListPredicate]
- * @property {import("@blueprintjs/select").ItemRenderer<T>} [itemListRenderer]
+ * @property {import("@blueprintjs/select").ItemRenderer<T>} [itemRenderer]
  * @property {(item: T, event?: React.SyntheticEvent<HTMLElement>) => void} onItemSelect
  * @property {T[]} options
- * @property {string} placeholder
+ * @property {string} [placeholder]
  * @property {T | undefined} [selectedItem]
  */
 
@@ -23,7 +24,7 @@ import {fuzzySearch} from "../helpers/find";
 const SimpleSelect = function SimpleSelect({
   className,
   itemListPredicate,
-  itemListRenderer,
+  itemRenderer,
   onItemSelect,
   options,
   placeholder,
@@ -35,15 +36,10 @@ const SimpleSelect = function SimpleSelect({
       className={className}
       filterable={filterable}
       itemListPredicate={itemListPredicate}
-      itemRenderer={itemListRenderer}
+      itemRenderer={itemRenderer}
       items={options}
       onItemSelect={onItemSelect}
-      popoverProps={{
-        boundary: "viewport",
-        minimal: true,
-        targetTagName: "div",
-        wrapperTagName: "div"
-      }}
+      popoverProps={{boundary: "viewport", fill: true, minimal: true}}
     >
       <Button
         alignText={Position.LEFT}
@@ -55,18 +51,18 @@ const SimpleSelect = function SimpleSelect({
 };
 
 SimpleSelect.defaultProps = {
-  itemListPredicate: (query, levels) => fuzzySearch(levels, query, "name"),
+  itemListPredicate: (query, items) => fuzzySearch(items, query, "name"),
   // eslint-disable-next-line react/display-name
-  itemListRenderer: (level, {handleClick, modifiers}) => {
+  itemRenderer: (item, {handleClick, modifiers}) => {
     if (!modifiers.matchesPredicate) {
       return null;
     }
     return (
       <MenuItem
         active={modifiers.active}
-        key={level.uri}
+        key={item.uri}
         onClick={handleClick}
-        text={level.caption}
+        text={item.caption}
       />
     );
   }

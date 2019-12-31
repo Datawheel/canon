@@ -1,8 +1,9 @@
+/* eslint-disable func-style */
 import {Checkbox} from "@blueprintjs/core";
 import React from "react";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
-import MeasureSelect from "../components/AllMeasureSelect";
+import MeasureSelect from "../components/MainMeasureSelect";
 import {doRunQueryCore, doUpdateMeasure} from "../middleware/actions";
 import {selectMeasureList, selectMeasureMapByTable} from "../store/cubes/selectors";
 import {doConfIntToggle} from "../store/query/actions";
@@ -24,7 +25,7 @@ import {
  * @property {boolean} hasConfInt
  * @property {MeasureItem?} measure
  * @property {MeasureItem[]} measureList
- * @property {{[tableId: string]: MeasureItem[]}} measureMap
+ * @property {{[tableId: string]: MeasureItem[]}} measureTableMap
  * @property {boolean} showConfidenceInt
  */
 
@@ -39,7 +40,7 @@ const ControlMeasure = function({
   hasConfInt,
   measure,
   measureList,
-  measureMap,
+  measureTableMap,
   setMeasureHandler,
   showConfidenceInt,
   t,
@@ -54,10 +55,11 @@ const ControlMeasure = function({
       <h3 className="label">{t("Vizbuilder.title_measure")}</h3>
       <MeasureSelect
         className="select-measure"
-        onItemSelect={setMeasureHandler}
-        selectedItem={measure}
-        itemMap={measureMap}
         items={measureList}
+        onItemSelect={setMeasureHandler}
+        placeholder={t("Vizbuilber.placeholder_select")}
+        selectedItem={measure}
+        tableMap={measureTableMap}
       />
       <p className="details">{measure.details}</p>
       <p className="show-ci" hidden={!hasConfInt}>
@@ -81,7 +83,7 @@ function mapState(state) {
     ),
     measure: selectMeasure(state) || null,
     measureList: selectMeasureList(state),
-    measureMap: selectMeasureMapByTable(state),
+    measureTableMap: selectMeasureMapByTable(state),
     showConfidenceInt: selectShowConfInt(state)
   };
 }

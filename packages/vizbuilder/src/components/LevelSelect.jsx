@@ -1,104 +1,84 @@
-import {Button, MenuItem} from "@blueprintjs/core";
+/* eslint-disable func-style */
+import {Button} from "@blueprintjs/core";
 import {Select} from "@blueprintjs/select";
-import classNames from "classnames";
-import memoizeOne from "memoize-one";
-import React, {Component} from "react";
+import escapeRegExp from "lodash/escapeRegExp";
+import React from "react";
 import {levelNameFormatter} from "../helpers/format";
-import {arrayToPropertySet} from "../helpers/transform";
-import CategoryListRenderer from "./CategoryListRenderer";
+import FilterList from "./FilterList";
+import {MenuItem} from "./MenuItem";
+import NavigationList from "./NavigationList";
 
 /**
  * @typedef OwnProps
- * @property {boolean} [disabled]
- * @property {(item: LevelItem, event?: React.SyntheticEvent<HTMLElement>) => any} onItemSelect
- * @property {LevelItem | undefined} [selectedItem]
- * @property {LevelItem[]} options
- * @property {string} [placeholder]
+ * @property {LevelItem[]} items
+ * @property {(item: LevelItem, event?: React.SyntheticEvent<HTMLElement> | undefined) => void} onItemSelect
+ * @property {string} placeholder
+ * @property {LevelItem | undefined} selectedItem
  */
 
-/** @extends {Component<OwnProps, {}>} */
-class LevelSelect extends Component {
-  categoryListComposer = memoizeOne(
+/** @type {React.FC<OwnProps>} */
+const LevelSelect = function({
+  items,
+  onItemSelect,
+  placeholder = "Select...",
+  selectedItem
+}) {
+  const targetText = selectedItem
+    ? levelNameFormatter(selectedItem.dimension, selectedItem.hierarchy, selectedItem.name)
+    : placeholder;
 
-    /**
-     * @param {string[]} stack
-     * @param {LevelItem[]} items
-     * @returns {string[] | LevelItem[]}
-     */
-    (stack, items) => {
-      const depth = stack.length;
-
-      if (depth === 0) {
-        return arrayToPropertySet(items, "dimension").sort();
-      }
-
-      const [dimension] = stack;
-      return items.filter(item => item.dimension === dimension);
-    }
-  );
-
-  /** @type {(item: LevelItem, event?: React.SyntheticEvent<HTMLElement> | undefined) => void} */
-  itemSelectHandler = (item, evt) => {
-    const {onItemSelect} = this.props;
-    typeof onItemSelect === "function" && onItemSelect(item, evt);
-  };
-
-  render() {
-    const {disabled, options, placeholder = "Select...", selectedItem: item} = this.props;
-
-    const targetText = item
-      ? levelNameFormatter(item.dimension, item.hierarchy, item.name)
-      : placeholder;
-
-    return (
-      <Select
-        disabled={disabled}
-        filterable={false}
-        itemListRenderer={this.renderItemList}
-        itemRenderer={this.renderItem}
-        items={options}
-        onItemSelect={this.itemSelectHandler}
-        popoverProps={{
-          boundary: "viewport",
-          minimal: true,
-          targetTagName: "div",
-          wrapperTagName: "div"
-        }}
+  return (
+    <Select
+      itemListPredicate={itemListPredicate}
+      itemListRenderer={renderItemList}
+      itemRenderer={renderItem}
+      items={items}
+      onItemSelect={onItemSelect}
+      popoverProps={{boundary: "viewport", fill: true, minimal: true}}
+    >
+      <Button
+        alignText="left"
+        className="level-select select-option active"
+        fill={true}
+        rightIcon="double-caret-vertical"
+        title={targetText}
       >
-        <Button
-          alignText="left"
-          className="measure-select select-option active"
-          disabled={disabled}
-          fill
-          rightIcon="double-caret-vertical"
-          text={targetText}
-          title={targetText}
-        />
-      </Select>
-    );
-  }
+        {targetText}
+      </Button>
+    </Select>
+  );
+};
 
-  /** @type {import("@blueprintjs/select").ItemListRenderer<LevelItem>} */
-  renderItemList = listProps => <CategoryListRenderer
-    {...listProps}
-    itemListComposer={this.categoryListComposer}
-    maxDepth={1}
-  />;
+/** @type {import("@blueprintjs/select").ItemListPredicate<LevelItem>} */
+function itemListPredicate(query, items) {
+  query = query.trim();
+  query = escapeRegExp(query).replace(/\s+/g, "[^|]+");
+  const queryTester = RegExp(query || ".", "i");
+  return items.filter(item => queryTester.test(item.caption));
+}
 
-  /** @type {import("@blueprintjs/select").ItemRenderer<LevelItem>} */
-  renderItem = (item, {handleClick, modifiers}) => {
-    const fullName = levelNameFormatter(item.dimension, item.hierarchy, item.name);
-    return (
-      <MenuItem
-        className={classNames("level-select option", {active: modifiers.active})}
-        disabled={modifiers.disabled}
-        key={fullName}
-        onClick={handleClick}
-        text={item.name}
-        title={fullName}
-      />
-    );
-  };
+/** @type {import("@blueprintjs/select").ItemRenderer<LevelItem>} */
+function renderItem(item, {handleClick, modifiers}) {
+  return (
+    <MenuItem
+      active={modifiers.active}
+      className="level-select option"
+      disabled={modifiers.disabled}
+      key={item.uri}
+      onClick={handleClick}
+      text={item.name}
+    />
+  );
+}
+
+const levelGetter = [d => d.dimension, d => d.hierarchy];
+
+/** @type {import("@blueprintjs/select").ItemListRenderer<LevelItem>} */
+function renderItemList(itemListProps) {
+  return itemListProps.query
+    ? <FilterList {...itemListProps} levels={levelGetter} />
+    : <NavigationList {...itemListProps} levels={levelGetter} />
+  ;
 }
 
 export default LevelSelect;

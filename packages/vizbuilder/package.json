@@ -17,7 +17,7 @@
     "release": "canon-release"
   },
   "dependencies": {
-    "@datawheel/olap-client": "^1.2.0",
+    "@datawheel/olap-client": "^1.2.1",
     "classnames": "^2.2.6",
     "d3-array": "^1.2.4",
     "d3plus-common": "^0.6.60",
@@ -25,22 +25,22 @@
     "d3plus-react": "^0.5.7",
     "fast-sort": "^1.5.3",
     "form-urldecoded": "0.0.6",
-    "form-urlencoded": "^4.1.0",
+    "form-urlencoded": "^4.1.1",
     "memoize-one": "^5.1.1",
     "pluralize": "^8.0.0",
     "prop-types": "^15.7.2",
-    "react-windowed-list": "^3.0.2",
+    "react-viewport-list": "^1.1.0",
     "reselect": "^4.0.0",
     "shorthash": "^0.0.2"
   },
   "peerDependencies": {
-    "@blueprintjs/core": "^3.19.1",
-    "@blueprintjs/select": "^3.11.1",
+    "@blueprintjs/core": "^3.22.0",
+    "@blueprintjs/select": "^3.11.0",
     "lodash": "^4.17.15"
   },
   "devDependencies": {
-    "@blueprintjs/core": "^3.22.0",
-    "@blueprintjs/select": "^3.11.2",
+    "@blueprintjs/core": "^3.22.3",
+    "@blueprintjs/select": "^3.11.0",
     "@datawheel/canon-core": "^0.17.66",
     "@types/react-router": "^3.0.20",
     "lodash": "^4.17.15",

@@ -1,3 +1,4 @@
+/* eslint-disable func-style */
 import {NonIdealState} from "@blueprintjs/core";
 import React from "react";
 import {withNamespaces} from "react-i18next";
@@ -32,8 +33,13 @@ const ErrorExposer = function({errorMsg, errorName, inProgress, t}) {
   if (inProgress) {
     return null;
   }
-  else if (disconnected || errorName === "NetworkError") {
+  else if (disconnected) {
     action = undefined;
+    detail = t("Vizbuilder.error.disconnected_detail");
+    icon = "globe-network";
+    title = t("Vizbuilder.error.disconnected_title");
+  }
+  else if (errorName === "NetworkError") {
     detail = t("Vizbuilder.error.network_detail");
     icon = "globe-network";
     title = t("Vizbuilder.error.network_title");

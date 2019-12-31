@@ -55,9 +55,8 @@ function fetchErrorHandler(error) {
     throw errorBuilder("ServerError", detail || undefined);
   }
   else if (error.request) {
-    // The request was made but no response was received, `error.request`
-    // is an instance of XMLHttpRequest in the browser and an instance
-    // of http.ClientRequest in Node.js
+    // The request was made but no response was received
+    // `error.request` is an instance of XMLHttpRequest in the browser
     throw errorBuilder("NetworkError");
   }
   else {

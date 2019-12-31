@@ -1,5 +1,4 @@
 @import "./Vizbuilder.css";
-@import "./CategoryListRenderer.css";
 @import "./ChartArea.css";
 @import "./Sidebar.css";
-@import "./VirtualListRenderer.css";
+@import "./selectors.css";
