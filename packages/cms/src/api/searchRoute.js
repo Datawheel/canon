@@ -332,12 +332,13 @@ module.exports = function(app) {
 
       // If there is no space in the query, Limit results to one-dimensional profiles.
       const singleFilter = d => req.query.query.includes(" ") ? true : d.length === 1;
+      
       // Save the results under a slug key for the separated-out search results. 
-      results.profiles[slug] = combinedResults.filter(singleFilter);
-      // But combine them together for grouped results, sorted by the avg of their confidence score.
+      const filteredResults = combinedResults.filter(singleFilter);
+      if (filteredResults.length > 0) results.profiles[slug] = filteredResults;
+      // Also, combine the results together for grouped results, sorted by the avg of their confidence score.
       results.grouped = results.grouped
-        .concat(combinedResults)
-        .filter(singleFilter)
+        .concat(filteredResults)
         .map(d => {
           const avg = d.reduce((acc, d) => acc += d.ranking, 0) / d.length;
           return d.map(o => ({...o, avg}));
