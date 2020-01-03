@@ -2,33 +2,19 @@ import React, {Component} from "react";
 import axios from "axios";
 import "./ProfileSearch.css";
 import {Icon} from "@blueprintjs/core";
+import {uuid} from "d3plus-common";
 
 class ProfileSearch extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
+      id: uuid(),
       query: "",
-      results: false
+      results: false,
+      timeout: 0,
+      url: false
     };
-  }
-
-  search() {
-    const {query} = this.state;
-
-    if (query) {
-      axios.get(`/api/deepsearch?query=${query}`)
-        .then(resp => {
-          this.setState({results: resp.data});
-        });
-    }
-    else {
-      this.setState({results: false});
-    }
-  }
-
-  keyPress(e) {
-    if (e.keyCode === 13) this.search.bind(this)();
   }
 
   linkify(result) {
@@ -37,7 +23,52 @@ class ProfileSearch extends Component {
     return <a href={link}>{`${name} (${result[0].avg || result[0].ranking})`}</a>;
   }
 
-  resetSearch() {
+  onChange(e) {
+
+    const {timeout} = this.state;
+    const {minQueryLength} = this.props;
+    const query = e ? e.target.value : this.state.query;
+    clearTimeout(timeout);
+
+    if (query.length < minQueryLength) {
+      this.setState({results: false, query});
+    }
+    else {
+
+      const url = `/api/deepsearch?query=${query}`;
+
+      // handle the query
+      this.setState({
+        // set query separately to avoid input lag
+        query,
+        // make the request on a timeout
+        timeout: setTimeout(() => {
+
+          axios.get(url)
+            .then(resp => {
+              if (url === this.state.url) this.setState({results: resp.data});
+            });
+
+        }, 200),
+        url
+      });
+    }
+  }
+
+
+
+  onKeyDown(e) {
+
+    switch(e.keyCode) {
+      case 13: // ENTER
+        return this.onChange.bind(this)();
+      case 27: // ESC
+        return this.resetSearch.bind(this)();
+    }
+
+  }
+
+  resetSearch(e) {
     this.setState({
       query: "",
       results: false
@@ -50,7 +81,6 @@ class ProfileSearch extends Component {
 
     const {display, inputFontSize} = this.props;
 
-    const inline = true;
     return (
       <div className="cms-profilesearch">
 
@@ -65,9 +95,8 @@ class ProfileSearch extends Component {
             className={`cp-input u-font-${inputFontSize}`}
             placeholder="Search profiles..."
             value={query}
-            // onChange={this.onChange.bind(this) }
-            onChange={e => this.setState({query: e.target.value})}
-            onKeyDown={this.keyPress.bind(this)}
+            onChange={this.onChange.bind(this)}
+            onKeyDown={this.onKeyDown.bind(this)}
             ref={input => this.textInput = input}
             key="sli"
             type="text"
@@ -88,7 +117,6 @@ class ProfileSearch extends Component {
           </button>
         </label>
 
-        <button onClick={this.search.bind(this)} >SEARCH</button>
         <div className="cms-profilesearch-container">
           {
             results
@@ -131,7 +159,8 @@ class ProfileSearch extends Component {
 
 ProfileSearch.defaultProps = {
   display: "list",
-  inputFontSize: "xxl"
+  inputFontSize: "xxl",
+  minQueryLength: 1
 };
 
 export default ProfileSearch;
