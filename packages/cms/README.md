@@ -405,7 +405,7 @@ If you would prefer to build your own search component, the DeepSearch API is av
 |`limit`|Maximum number of results to return|
 
 
-Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be round in the `grouped` key of the response object.
+Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
 
 ---
 

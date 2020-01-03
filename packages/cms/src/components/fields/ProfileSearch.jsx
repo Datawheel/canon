@@ -1,5 +1,7 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
 import axios from "axios";
+import linkify from "../../utils/linkify";
 import "./ProfileSearch.css";
 import {Icon} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
@@ -17,8 +19,9 @@ class ProfileSearch extends Component {
     };
   }
 
-  linkify(result) {
-    const link = result.reduce((acc, d) => acc.concat(`/${d.slug}/${d.memberSlug}`), "/profile");
+  createLink(result) {
+    const {router} = this.context;
+    const link = linkify(router, result);
     const name = result.map(d => d.name).join("/");
     return <a href={link}>{`${name} (${result[0].avg || result[0].ranking})`}</a>;
   }
@@ -131,7 +134,7 @@ class ProfileSearch extends Component {
                         <h3>{profile}</h3>
                         <ul className="cms-profilesearch-list">
                           {(results.profiles[profile] || []).map((result, j) =>
-                            <li key={`r-${j}`}>{this.linkify(result)}</li>
+                            <li key={`r-${j}`}>{this.createLink(result)}</li>
                           )}
                         </ul>
                       </div>
@@ -141,7 +144,7 @@ class ProfileSearch extends Component {
                 default:
                   return (
                     <ul className="cms-profilesearch-list">
-                      {(results.grouped || []).map((result, i) => <li key={`r-${i}`}>{this.linkify(result)}</li>)}
+                      {(results.grouped || []).map((result, i) => <li key={`r-${i}`}>{this.createLink(result)}</li>)}
                     </ul>
                   );
 
@@ -156,6 +159,10 @@ class ProfileSearch extends Component {
   }
 
 }
+
+ProfileSearch.contextTypes = {
+  router: PropTypes.object
+};
 
 ProfileSearch.defaultProps = {
   display: "list",
