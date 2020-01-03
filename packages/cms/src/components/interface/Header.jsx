@@ -12,6 +12,9 @@ import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, fetchSe
 import {deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
 
+import PropTypes from "prop-types";
+import linkify from "../../utils/linkify";
+
 import "./Header.css";
 
 // spread into header action buttons
@@ -99,6 +102,7 @@ class Header extends Component {
     const {dimensions, profiles, stories} = this.props;
     const {currentPid, currentStoryPid, pathObj} = this.props.status;
     const {itemToDelete, itemToDuplicate, profileTarget} = this.state;
+    const {router} = this.context;
 
     let domain = this.props;
     if (typeof domain !== "undefined" && typeof window !== "undefined" && window.document.location.origin) {
@@ -115,17 +119,8 @@ class Header extends Component {
 
     if (pathObj.tab === "profiles") {
       // construct URL from domain and dimensions
-      previewURL = `${domain}/profile/${dimensions
-        .map(dim => `${dim.slug}/${dim.memberSlug || dim.id}/`)
-        .reduce((acc, d) => acc += d, "")
-      }`;
-      prettyURL = <Fragment>
-        {prettyRoot}/profile{dimensions && dimensions.map(dim =>
-          <Fragment key={dim.slug}>/
-            <span className="cms-header-link-dimension">{dim.slug}</span>/
-            <span className="cms-header-link-id">{dim.memberSlug || dim.id}</span>
-          </Fragment>)}
-      </Fragment>;
+      previewURL = linkify(router, dimensions);
+      prettyURL = `${prettyRoot}${previewURL}`;
       // Only show the delete button if this is not the last entity. You can't have a profile with no sections.
       if (pathObj.section) {
         const thisProfile = profiles.find(p => p.id === currentPid);
@@ -288,6 +283,10 @@ class Header extends Component {
     );
   }
 }
+
+Header.contextTypes = {
+  router: PropTypes.object
+};
 
 const mapStateToProps = state => ({
   status: state.cms.status,

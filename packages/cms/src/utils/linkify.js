@@ -28,7 +28,7 @@ module.exports = (router, profile) => {
       profile.forEach((p, i) => {
         const reSlug = new RegExp(`:slug${i === 0 ? "" : i + 1}`);
         const reId = new RegExp(`:id${i === 0 ? "" : i + 1}`);
-        link = link.replace(reSlug, p.slug).replace(reId, p.memberSlug);
+        link = link.replace(reSlug, p.slug).replace(reId, p.memberSlug ? p.memberSlug : p.id);
       });
       return link;  
     }
