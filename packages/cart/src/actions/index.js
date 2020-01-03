@@ -341,6 +341,7 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
   if (sharedDimensionsLevel) {
     dims = [sharedDimensionsLevel];
   }
+  console.log("keys", Object.keys(responses));
   Object.keys(responses).sort().map((key, ix) => {
     const queryObject = responses[key].query;
     newMeasuresList = queryObject.measures.map(me => ({datasetId: key, key: ix + 1, field: me.name}));
@@ -351,6 +352,7 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
       newMeasuresList.map(ms => {
         d[`${ms.key}*${ms.field}`] = d[ms.field];
         // delete d[ms.field];
+        return ms;
       });
       return d;
     });
@@ -358,7 +360,7 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
     // Add to big List
     bigList = bigList.concat(shortList);
 
-    // Drilldowns cals
+    // Drilldowns calcs
     let dim, drilldownLevel;
     queryObject.drilldowns.map(drill => {
       drilldownLevel = parseLevelDimension(drill.fullName);

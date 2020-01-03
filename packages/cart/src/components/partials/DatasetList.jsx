@@ -25,7 +25,7 @@ class DatasetList extends React.Component {
   render() {
     const {showOptions} = this.props;
     const {datasets} = this.context;
-    const datasetsIds = Object.keys(datasets);
+    const datasetsIds = Object.keys(datasets).sort();
 
     return (
       <div className={"canon-cart-dataset-list"}>
@@ -39,8 +39,8 @@ class DatasetList extends React.Component {
           <div>
             <ul className="canon-cart-dataset-ul">
               <li className="bp3-menu-header"><h6 className="bp3-heading">Datasets: {datasetsIds.length}</h6></li>
-              {datasetsIds.sort().map((did, ix) =>
-                <DatasetListItem key={ix} ix={ix} dataset={datasets[did]} showOptions={showOptions} />
+              {datasetsIds.map((did, ix) =>
+                <DatasetListItem key={ix} ix={`${ix + 1}`} dataset={datasets[did]} showOptions={showOptions} />
               )}
             </ul>
           </div>

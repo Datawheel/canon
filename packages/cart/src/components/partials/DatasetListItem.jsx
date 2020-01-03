@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import {MenuItem, Icon, MenuDivider, Checkbox, Tooltip, Classes, Position} from "@blueprintjs/core";
+import {MenuItem, Icon, MenuDivider, Checkbox, Tooltip, Position} from "@blueprintjs/core";
 
 import {removeFromCartAction, toggleCutAction, toggleDrilldownAction} from "../../actions";
 
@@ -49,7 +49,7 @@ class DatasetListItem extends React.Component {
           position={showOptions ? Position.RIGHT : Position.LEFT}
           content={"Click for remove dataset from Cart"}
         >
-          <MenuItem multiline={true} className={"canon-cart-dataset-item"} onClick={() => this.onClickRemoveDataset(dataset)} labelElement={<Icon icon="trash" />} text={`${ix + 1}. ${dataset.name}`} />
+          <MenuItem multiline={true} className={"canon-cart-dataset-item"} onClick={() => this.onClickRemoveDataset(dataset)} labelElement={<Icon icon="trash" />} text={`${ix}. ${dataset.name}`} />
         </Tooltip>
         {showOptions &&
           <div>

@@ -29,9 +29,11 @@ class ActionsPanel extends React.Component {
 
     if (data) {
 
+      // CSV Headers
       const columns = cols.map(c => c.accessor);
-      let csv = cols.map(c => c.Header).map(val => `\"${val}\"`).join(colDelim);
+      let csv = columns.map(val => `\"${val}\"`).join(colDelim);
 
+      // CSV Data
       data.map(datum => {
         csv += rowDelim;
         csv += columns.map(key => {
@@ -41,6 +43,7 @@ class ActionsPanel extends React.Component {
         }).join(colDelim);
       });
 
+      // CSV File
       const zip = new JSZip();
       const filename = this.buildFileName();
       zip.file(`${filename}.csv`, csv);
