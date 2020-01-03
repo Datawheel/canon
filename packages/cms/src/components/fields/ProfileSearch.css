@@ -1,9 +1,11 @@
 @import "../../css/mixins.css";
 
 .cms-profilesearch {
+  display: flex;
+  flex-direction: column;
   width: 100%;
 
-  & .search-column-list {
+  & .cms-profilesearch-container {
     flex: 1 1 auto;
     @mixin vertical-overflow-container;
   }
