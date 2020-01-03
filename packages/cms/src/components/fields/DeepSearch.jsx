@@ -1,8 +1,10 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
 import axios from "axios";
+import linkify from "../../utils/linkify";
 import "./DeepSearch.css";
 
-export default class DeepSearch extends Component {
+class DeepSearch extends Component {
 
   constructor(props) {
     super(props);
@@ -24,8 +26,9 @@ export default class DeepSearch extends Component {
     if (e.keyCode === 13) this.search.bind(this)();
   }
 
-  linkify(result) {
-    const link = result.reduce((acc, d) => acc.concat(`/${d.slug}/${d.memberSlug}`), "/profile");
+  createLink(result) {
+    const {router} = this.context;
+    const link = linkify(router, result);
     const name = result.map(d => d.name).join("/");
     return <a href={link}>{`${name} (${result[0].avg || result[0].ranking})`}</a>;
   }
@@ -46,7 +49,7 @@ export default class DeepSearch extends Component {
                 <h3>{profile}</h3>
                 <ul className="cms-deepsearch-list">
                   {results.profiles[profile].map((result, j) => 
-                    <li key={`r-${j}`}>{this.linkify(result)}</li>
+                    <li key={`r-${j}`}>{this.createLink(result)}</li>
                   )}
                 </ul>
               </div>
@@ -56,7 +59,7 @@ export default class DeepSearch extends Component {
         { grouped && results.grouped && 
           <div className="cms-deepsearch-container">
             <ul className="cms-deepsearch-list">
-              {results.grouped.map((result, i) => <li key={`r-${i}`}>{this.linkify(result)}</li>)}
+              {results.grouped.map((result, i) => <li key={`r-${i}`}>{this.createLink(result)}</li>)}
             </ul>
           </div>
         }
@@ -65,3 +68,9 @@ export default class DeepSearch extends Component {
   }
 
 }
+
+DeepSearch.contextTypes = {
+  router: PropTypes.object
+};
+
+export default DeepSearch;
