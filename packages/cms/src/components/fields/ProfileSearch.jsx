@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import axios from "axios";
 import "./ProfileSearch.css";
+import {Icon} from "@blueprintjs/core";
 
 class ProfileSearch extends Component {
 
@@ -36,15 +37,57 @@ class ProfileSearch extends Component {
     return <a href={link}>{`${name} (${result[0].avg || result[0].ranking})`}</a>;
   }
 
+  resetSearch() {
+    this.setState({
+      query: "",
+      results: false
+    });
+  }
+
   render() {
 
     const {query, results} = this.state;
-    const {display} = this.props;
-    console.log(results);
 
+    const {display, inputFontSize} = this.props;
+
+    const inline = true;
     return (
       <div className="cms-profilesearch">
-        <input type="text" value={query} onKeyDown={this.keyPress.bind(this)} onChange={e => this.setState({query: e.target.value})}/>
+
+        <label className="cp-input-label">
+          {/* accessibility text */}
+          <span className="u-visually-hidden" key="slt">
+            Search profiles
+          </span>
+
+          {/* the input */}
+          <input
+            className={`cp-input u-font-${inputFontSize}`}
+            placeholder="Search profiles..."
+            value={query}
+            // onChange={this.onChange.bind(this) }
+            onChange={e => this.setState({query: e.target.value})}
+            onKeyDown={this.keyPress.bind(this)}
+            ref={input => this.textInput = input}
+            key="sli"
+            type="text"
+          />
+
+          {/* search icon (keep after input so it can be easily styled input hover/focus) */}
+          <Icon className="cms-profilesearch-icon u-font-xxl" icon="search" key="slii" />
+
+          {/* close button */}
+          <button
+            className={`cms-profilesearch-reset-button ${query ? "is-visible" : "is-hidden"}`}
+            tabIndex={query ? 0 : -1}
+            onClick={this.resetSearch.bind(this)}
+            key="slb"
+          >
+            <Icon className="cms-profilesearch-reset-button-icon" icon="cross" />
+            <span className="cms-profilesearch-reset-button-text">reset</span>
+          </button>
+        </label>
+
         <button onClick={this.search.bind(this)} >SEARCH</button>
         <div className="cms-profilesearch-container">
           {
@@ -87,7 +130,8 @@ class ProfileSearch extends Component {
 }
 
 ProfileSearch.defaultProps = {
-  display: "list"
+  display: "list",
+  inputFontSize: "xxl"
 };
 
 export default ProfileSearch;

@@ -1,7 +1,180 @@
-.cms-profilesearch-container {
-  display: flex;
+@import "../../css/mixins.css";
+
+.cms-profilesearch {
+  width: 100%;
+
+  & .search-column-list {
+    flex: 1 1 auto;
+    @mixin vertical-overflow-container;
+  }
+
+  & .cp-input-label {
+    position: relative;
+    display: block;
+  }
+
+  /* the main input */
+  & .cp-input {
+    /* sizing */
+    padding: 0.25em 3em 0.375em 1.5em;
+    width: 100%;
+    /* theming */
+    font-weight: var(--base-font-weight);
+    background-color: transparent;
+    /* border: 2px solid var(--dark-2); */
+    border-radius: 1em; /* fully rounded */
+    /* color: var(--white); */
+    transition:
+      border 0.2s ease-out,
+      color 0.2s ease-out;
+
+    &::placeholder {
+      /* color: var(--gray); */
+    }
+
+    /* IE fix */
+    &::-ms-clear {
+      opacity: 0;
+    }
+
+    /* interactions */
+    &:hover {
+      border-color: var(--dark-1);
+
+      & + .search-icon path {
+        fill: var(--gray);
+      }
+    }
+    &[class]:focus {
+      outline: none;
+      border-color: var(--accent);
+
+      & + .search-icon path {
+        fill: var(--accent);
+      }
+    }
+  }
+
+  /* search icon */
+  & .cms-profilesearch-icon {
+    /* sizing & positioning */
+    @mixin absolute-vertical-center;
+    width: 0.625em;
+    left: 0.5em;
+    /* prevent from obscuring click */
+    pointer-events: none;
+    transition: color 0.2s ease-out;
+
+    & svg {
+      width: 100%;
+      height: auto;
+    }
+
+    & path {
+      fill: var(--dark-1);
+      transition: fill 0.15s ease-out;
+    }
+  }
+
+  /* reset search button */
+  & .cms-profilesearch-reset-button {
+    @mixin absolute-vertical-center;
+    @mixin button-reset;
+    padding: 0.5em 1em 0.625em 1em;
+    right: 1em;
+    /* theming */
+    border-radius: 2em;
+    background-color: var(--black);
+    color: var(--white);
+    transition:
+      background-color 0.15s ease-out,
+      opacity 0.15s ease-out,
+      transform 0.15s ease-out;
+
+    & > * {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    & .cms-profilesearch-reset-button-icon {
+      position: relative;
+      width: 1em;
+      left: -0.25em;
+
+      & svg {
+        width: 100%;
+        height: auto;
+      }
+    }
+
+    /* interactions */
+    &:hover, &:focus {
+      opacity: 1;
+      background-color: var(--accent-black);
+
+      & .cms-profilesearch-reset-button-icon {
+        transform: scale(1.25);
+      }
+    }
+
+    /* hidden state */
+    &.is-hidden  {
+      z-index: -1;
+      opacity: 0;
+      transform: scale(0.75) translateY(-50%);
+    }
+  }
 }
 
-.cms-profilesearch-list {
-  outline: 1px solid black;
+/* filters */
+.search-filter-container {
+  margin-top: -1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  padding-right: 1rem; /* make room for search close button */
+  transition:
+    opacity 0.25s ease-out,
+    transform 0.25s ease-out;
+
+  /* hidden state */
+  &.is-hidden {
+    z-index: -1;
+    opacity: 0.25;
+    pointer-events: none;
+  }
+}
+.search-filter-heading {
+  margin: 0 0.5em 0 0;
+}
+.search-filter-button {
+  @mixin button-reset;
+  padding: 0.5em;
+  color: var(--light-3);
+  border-bottom: 1px solid var(--dark-1);
+  transition:
+    border-color 0.1s ease-out,
+    color 0.1s ease-out;
+
+  &:hover, &:focus {
+    color: var(--white);
+  }
+
+  &[aria-pressed="true"] {
+    border-color: var(--light-3);
+    color: var(--white);
+  }
+}
+
+.search-column-list {
+  display: flex;
+  flex-wrap: wrap;
+  width: calc(100% + var(--gutter-lg)); /* offset column margin */
+
+  & .search-column {
+    flex: 1 0 calc(25% - var(--gutter-lg));
+    min-width: 14rem;
+    max-width: 100%;
+    margin-right: var(--gutter-lg);
+  }
 }
