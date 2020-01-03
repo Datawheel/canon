@@ -1,0 +1,7 @@
+.cms-profilesearch-container {
+  display: flex;
+}
+
+.cms-profilesearch-list {
+  outline: 1px solid black;
+}
