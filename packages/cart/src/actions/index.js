@@ -341,7 +341,7 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
   if (sharedDimensionsLevel) {
     dims = [sharedDimensionsLevel];
   }
-  console.log("keys", Object.keys(responses));
+
   Object.keys(responses).sort().map((key, ix) => {
     const queryObject = responses[key].query;
     newMeasuresList = queryObject.measures.map(me => ({datasetId: key, key: ix + 1, field: me.name}));
@@ -350,7 +350,7 @@ export const joinResultsAndShow = (responses, sharedDimensionsLevel, dateDimensi
     // Replace measures names
     shortList = responses[key].data.map(d => {
       newMeasuresList.map(ms => {
-        d[`${ms.key}*${ms.field}`] = d[ms.field];
+        d[`${ms.field}*${ms.key}`] = d[ms.field];
         // delete d[ms.field];
         return ms;
       });
@@ -490,7 +490,7 @@ const getPivotedRecord = (records, dateLevel, measuresList) => {
   records.map(record => {
     const pivoted = {...record};
     measuresList.map(measure => {
-      const measureName = `${measure.key}*${measure.field}`;
+      const measureName = `${measure.field}*${measure.key}`;
       if (typeof pivoted[measureName] !== "undefined") {
         pivoted[`${measureName}(${pivoted[dateLevel]})`] = pivoted[measureName];
         delete pivoted[measureName];
@@ -513,12 +513,14 @@ const getPivotedRecord = (records, dateLevel, measuresList) => {
 };
 
 const getNonPivotedRecord = (recordList, measuresList) => recordList.reduce((originalRecord, item) => {
-  const nonPivoted = {...originalRecord};
+  let finalNonPivotedRecord = {...nonPivoted};
+  const nonPivoted = {...item};
   measuresList.map(measure => {
-    const measureName = `${measure.key}*${measure.field}`;
-    if (typeof item[measureName] !== "undefined") {
-      delete item[measure.field];
+    const measureName = `${measure.field}*${measure.key}`;
+    if (typeof nonPivoted[measureName] !== "undefined") {
+      delete nonPivoted[measure.field];
     }
   });
-  return {...nonPivoted, ...item};
+  finalNonPivotedRecord = {...finalNonPivotedRecord, ...nonPivoted};
+  return finalNonPivotedRecord;
 }, {});

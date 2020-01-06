@@ -34,10 +34,11 @@ export const sanitizeUrl = url => url.replace("aggregate.json?", "aggregate.json
 
 /** Generate human title from query */
 export const getHumanTitle = meta => {
-  let title = meta.params.measure ? meta.params.measure[0] : meta.params.measures[0];
+  const measuresList = meta.params.measure ? meta.params.measure : meta.params.measures;
+  let title = measuresList.join(" & ");
   if (meta.params.drilldowns) {
     meta.params.drilldowns.map(d => {
-      title += ` by ${d.dimension}`;
+      title += ` by ${d.dimension}→${d.level}`;
     });
   }
   return title;
@@ -155,10 +156,10 @@ export const getHeaderData = field => {
   let fieldString = matches ? field.replace(`(${yearString})`, "") : field;
 
   const parts = fieldString.split("*");
-  let referenceString = parts.length > 1 ? parts[0] : "";
-  referenceString = isNaN(referenceString) ? "" : referenceString;
+  fieldString = parts[0];
 
-  fieldString = parts[1] ? parts[1] : fieldString;
+  let referenceString = parts.length > 1 ? parts[1] : "";
+  referenceString = isNaN(referenceString) ? "" : referenceString;
 
   return {
     field: fieldString.trim(),
