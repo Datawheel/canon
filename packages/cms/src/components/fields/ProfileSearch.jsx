@@ -62,7 +62,7 @@ class ProfileSearch extends Component {
     }
     else {
 
-      const url = `/api/deepsearch?query=${query}`;
+      const url = `/api/profilesearch?query=${query}&limit=100`;
 
       // handle the query
       this.setState({
