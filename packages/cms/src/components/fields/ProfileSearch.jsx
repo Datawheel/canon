@@ -12,7 +12,6 @@ import {titleCase} from "d3plus-text";
 
 /** Creates column titles */
 function columnTitle(data) {
-  console.log(data[0].map(d => d.slug).join("/"), data[0]);
   return data[0].map(d => {
     let slug = d.slug;
     const dim = d.memberDimension;

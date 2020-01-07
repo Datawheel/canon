@@ -33,16 +33,18 @@
       border-color 0.25s ease-out,
       background-color 0.25s ease-out;
 
-    & .cms-profilesearch-tile-link-title {
+    & .cms-profilesearch-tile-link-text {
       cursor: pointer; /* ie fix */
       padding: 0 var(--gutter);
       flex: 1 1 100%;
       transition: transform 0.2s ease-out;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 5;
-      -webkit-box-orient: vertical;
+      & .cms-profilesearch-tile-link-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        -webkit-box-orient: vertical;
+      }
     }
 
     /* interactions */
@@ -52,7 +54,7 @@
       color: var(--white);
       text-decoration: none;
 
-      & .cms-profilesearch-tile-link-title { transform: scale(1.03); }
+      & .cms-profilesearch-tile-link-text { transform: scale(1.03); }
       & + .cms-profilesearch-tile-image-container { transform: none; }
     }
 

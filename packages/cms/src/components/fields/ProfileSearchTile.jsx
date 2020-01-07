@@ -34,9 +34,10 @@ class ProfileSearchTile extends Component {
             return (
               <React.Fragment>
                 { i > 0 && <span className="cms-profilesearch-joiner u-font-md">{joiner}</span> }
-                <span className={`cms-profilesearch-tile-link-title heading u-font-${titleSize(title)}`}>
-                  {title}
-                </span>
+                <div className="cms-profilesearch-tile-link-text">
+                  <div className={`cms-profilesearch-tile-link-title heading u-font-${titleSize(title)}`}>{title}</div>
+                  <div className="cms-profilesearch-tile-link-sub u-margin-top-xs u-font-xs">{r.memberHierarchy}</div>
+                </div>
               </React.Fragment>
             );
           })}
