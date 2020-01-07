@@ -8,6 +8,24 @@ import profileTitleFormat from "../../utils/profileTitleFormat";
 import ProfileSearchTile from "./ProfileSearchTile";
 import {Icon, NonIdealState} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
+import {titleCase} from "d3plus-text";
+
+/** Creates column titles */
+function columnTitle(data) {
+  console.log(data[0].map(d => d.slug).join("/"), data[0]);
+  return data[0].map(d => {
+    let slug = d.slug;
+    const dim = d.memberDimension;
+    if (data[0].length === 1 && dim.toLowerCase() !== slug.toLowerCase()) {
+      if (slug.match(/[A-z]{1,}/g).join("").length < 4) {
+        slug = slug.toUpperCase();
+      }
+      else slug = titleCase(slug);
+      return `${dim} (${slug})`;
+    }
+    return dim;
+  }).join("/");
+}
 
 class ProfileSearch extends Component {
 
@@ -54,8 +72,6 @@ class ProfileSearch extends Component {
       });
     }
   }
-
-
 
   onKeyDown(e) {
 
@@ -142,10 +158,9 @@ class ProfileSearch extends Component {
                     <ul className="cms-profilesearch-columns">
                       {Object.keys((results.profiles || {})).map((profile, i) => {
                         const data = (results.profiles[profile] || []).slice(0, limit);
-
                         return (
                           <li key={`p-${i}`} className="cms-profilesearch-column">
-                            <h3 className="cms-profilesearch-column-title">{profile}</h3>
+                            <h3 className="cms-profilesearch-column-title">{columnTitle(data)}</h3>
                             <ul className="cms-profilesearch-column-list">
                               {data.map((result, j) =>
                                 <ProfileSearchTile key={`r-${j}`} {...this.props} data={result} />)}
