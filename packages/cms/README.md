@@ -351,7 +351,7 @@ config: {
 
 ## Search
 
-#### Basic Search API
+#### Legacy Search API (Dimensions only)
 
 The CMS is used to create Profiles based on Dimensions, such as "Geography" or "Industry". The individual entities that make up these dimensions (such as *Massachusetts* or *Metalworkers*) are referred to as Members. These members are what make up the slugs/ids in URLS; when visiting `/geo/massachusetts`, `geo` is the profile/dimension slug and `massachusetts` is the member.
 
@@ -377,33 +377,36 @@ Example query:
 /api/search?q=mass&dimension=Geography
 ```
 
-#### DeepSearch Component
+#### Profile Search API
 
-The CMS can also be configured to work with DeepSearch, running on a separate server. You can configure the CMS to point to an installation of DeepSearch using the following environment variable:
+The legacy search above is only used for searching singular dimensions, not for returning actual profiles in your CMS installation. The Profile Search still returns matching members, but more importantly, returns a list of Profiles that contain those members.
+
+It is recommended that this search be performed using DeepSearch, running on a separate server. You can configure the CMS to point to an installation of DeepSearch using the following environment variable:
 
 ```sh
 export CANON_CMS_DEEPSEARCH_API=some-api.com:88/deepsearch
 ```
 
-You may then import the Search Component:
+However, if you choose not to run a DeepSearch server, the ProfileSearch API and component will fall back on a simple `LIKE` query on the members in the search table.
+
+You may then import the ProfileSearch Component:
 
 ```jsx
-import {DeepSearch} from "@datawheel/canon-cms";
+import {ProfileSearch} from "@datawheel/canon-cms";
 
 ...
 
-<DeepSearch />
+<ProfileSearch />
 ```
 
-If you would prefer to build your own search component, the DeepSearch API is available at `/deepsearch`. Arguments pass-through directly to the underlying DeepSearch API, and are as follows:
+If you would prefer to build your own search component, the DeepSearch API is available at `/api/profilesearch`. Arguments are as follows:
 
 |parameter|description|
 |---|---|
 |`query`|Query to search for|
-|`min_confidence`|Confidence threshold|
-|`language`|Language for results|
+|`locale`|Language for results|
 |`limit`|Maximum number of results to return|
-
+|`min_confidence`|Confidence threshold (Deepsearch Only)|
 
 Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
 

@@ -161,17 +161,6 @@ module.exports = function(app) {
 
   const profileSearch = async(req, res) => {
 
-    // Unified API Arguments:
-    // =====================
-    // query
-    // dimension
-    // hierarchy
-    // limit
-    // id 
-    // min_confidence
-    // locale
-    // =====================
-
     if (!req.query.query) return res.json({error: "Please provide a query"});
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
