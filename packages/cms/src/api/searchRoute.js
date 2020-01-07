@@ -166,14 +166,19 @@ module.exports = function(app) {
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
     let results = {};
 
+    // If deepsearch is configured, attempt to connect and query
     if (deepsearchAPI) {
       req.query.language = locale;
       // Pass through search params to deepsearch and extract results
       const url = `${deepsearchAPI}/search?${Object.keys(req.query).map(k => `${k}=${req.query[k]}`).join("&")}`;
-      results = await axios.get(url).then(d => d.data).catch(catcher);
-      results.origin = "deepsearch";
+      results = await axios.get(url).then(d => d.data).catch(e => {
+        console.error(`Error connecting to Deepsearch, defaulting to Postgres: ${e}`);
+        return false;        
+      });
+      if (results) results.origin = "deepsearch";
     }
-    else {
+    if (!deepsearchAPI || deepsearchAPI && !results) {
+      results = {};
       const {query} = req.query;
       const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10; 
       const where = {};
