@@ -172,7 +172,7 @@ module.exports = function(app) {
       // Pass through search params to deepsearch and extract results
       const url = `${deepsearchAPI}/search?${Object.keys(req.query).map(k => `${k}=${req.query[k]}`).join("&")}`;
       results = await axios.get(url).then(d => d.data).catch(e => {
-        console.error(`Error connecting to Deepsearch, defaulting to Postgres: ${e}`);
+        if (verbose) console.error(`Error connecting to Deepsearch, defaulting to Postgres: ${e}`);
         return false;        
       });
       if (results) results.origin = "deepsearch";
