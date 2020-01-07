@@ -252,6 +252,8 @@ module.exports = function(app) {
             slug: m.slug,
             id: r.id,
             memberSlug: r.metadata.slug,
+            memberDimension: m.dimension,
+            memberHierarchy: r.metadata.hierarchy,
             name: r.name,
             ranking: r.confidence
           }));
