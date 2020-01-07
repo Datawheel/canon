@@ -202,11 +202,14 @@
   & .cms-profilesearch-list {
     @mixin list-reset;
     & .cms-profilesearch-list-item {
-      background-color: var(--white);
-      padding: 0.5rem;
-      transition: background-color 0.15s ease-out;
-      &:hover {
-        background-color: var(--light-2);
+      & .cms-profilesearch-list-item-link {
+        background-color: var(--white);
+        display: block;
+        padding: 0.5rem;
+        transition: background-color 0.15s ease-out;
+        &:hover {
+          background-color: var(--light-2);
+        }
       }
     }
   }

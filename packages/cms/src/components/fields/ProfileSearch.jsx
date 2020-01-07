@@ -176,8 +176,9 @@ class ProfileSearch extends Component {
                     <ul className="cms-profilesearch-list">
                       {(results.grouped || []).slice(0, limit).map((result, j) =>
                         <li key={`r-${j}`} className="cms-profilesearch-list-item">
-                          <Link to={linkify(router, result)}>
+                          <Link to={linkify(router, result)} className="cms-profilesearch-list-item-link">
                             {result.map(d => profileTitleFormat(d.name)).join(` ${joiner} `)}
+                            <div className="cms-profilesearch-list-item-sub u-font-xs">{columnTitle([result])}</div>
                           </Link>
                         </li>
                       )}
