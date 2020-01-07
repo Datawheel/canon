@@ -6,7 +6,7 @@ import "./ProfileSearch.css";
 import linkify from "../../utils/linkify";
 import profileTitleFormat from "../../utils/profileTitleFormat";
 import ProfileSearchTile from "./ProfileSearchTile";
-import {Icon, NonIdealState} from "@blueprintjs/core";
+import {Icon, NonIdealState, Spinner} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
 import {titleCase} from "d3plus-text";
 
@@ -33,10 +33,10 @@ class ProfileSearch extends Component {
     super(props);
     this.state = {
       id: uuid(),
+      loading: false,
       query: "",
       results: false,
-      timeout: 0,
-      url: false
+      timeout: 0
     };
   }
 
@@ -56,19 +56,20 @@ class ProfileSearch extends Component {
 
       // handle the query
       this.setState({
+        loading: url,
         // set query separately to avoid input lag
         query,
+        results: false,
         // make the request on a timeout
         timeout: setTimeout(() => {
 
           axios.get(url)
             .then(resp => {
-              if (url === this.state.url) this.setState({results: resp.data});
+              if (url === this.state.loading) this.setState({results: resp.data, loading: false});
             })
             .catch(() => {});
 
-        }, 200),
-        url
+        }, 500)
       });
     }
   }
@@ -94,15 +95,8 @@ class ProfileSearch extends Component {
   render() {
 
     const {router} = this.context;
-
-    const {query, results} = this.state;
-
-    const {
-      display,
-      inputFontSize,
-      joiner,
-      limit
-    } = this.props;
+    const {loading, query, results} = this.state;
+    const {display, inputFontSize, joiner, limit} = this.props;
 
     console.log(results);
 
@@ -188,6 +182,8 @@ class ProfileSearch extends Component {
               }
 
             })()
+            : loading
+            ? <NonIdealState icon={<Spinner />} title="Loading results..." />
             : <NonIdealState icon="search" title="Please enter a search term" />
           }
         </div>
