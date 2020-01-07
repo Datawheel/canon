@@ -53,7 +53,7 @@ class ProfileSearch extends Component {
   onChange(e) {
 
     const {timeout} = this.state;
-    const {minQueryLength} = this.props;
+    const {limit, minQueryLength} = this.props;
     const query = e ? e.target.value : this.state.query;
     clearTimeout(timeout);
 
@@ -62,7 +62,7 @@ class ProfileSearch extends Component {
     }
     else {
 
-      const url = `/api/profilesearch?query=${query}&limit=100`;
+      const url = `/api/profilesearch?query=${query}&limit=${limit}`;
 
       // handle the query
       this.setState({
@@ -109,6 +109,7 @@ class ProfileSearch extends Component {
     const {
       display,
       inputFontSize,
+      joiner,
       limit
     } = this.props;
 
@@ -174,7 +175,7 @@ class ProfileSearch extends Component {
                                         const title = formatTitle(r.name);
                                         return (
                                           <React.Fragment>
-                                            { i > 0 && <span className="cms-profilesearch-joiner u-font-md">&amp;</span> }
+                                            { i > 0 && <span className="cms-profilesearch-joiner u-font-md">{joiner}</span> }
                                             <span className={`cms-profilesearch-tile-link-title heading u-font-${titleSize(title)}`}>
                                               {title}
                                             </span>
@@ -222,6 +223,7 @@ ProfileSearch.contextTypes = {
 ProfileSearch.defaultProps = {
   display: "list",
   inputFontSize: "xxl",
+  joiner: "&",
   limit: 10,
   minQueryLength: 1
 };
