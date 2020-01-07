@@ -4,7 +4,7 @@ import {Link} from "react-router";
 import axios from "axios";
 import linkify from "../../utils/linkify";
 import "./ProfileSearch.css";
-import {Icon} from "@blueprintjs/core";
+import {Icon, NonIdealState} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
 import {titleCase} from "d3plus-text";
 import {max} from "d3-array";
@@ -156,18 +156,23 @@ class ProfileSearch extends Component {
             results
             ? (() => {
 
+              if (!results.grouped.length) {
+                return <NonIdealState icon="zoom-out" title={`No results matching "${query}"`} />;
+              }
+
               switch(display) {
 
                 case "columns":
                   return (
                     <ul className="cms-profilesearch-columns">
                       {Object.keys((results.profiles || {})).map((profile, i) => {
-                        const data = (results.profiles[profile] || []);
+                        const data = (results.profiles[profile] || []).slice(0, limit);
+
                         return (
-                          <li key={`p-${i}`} className={`cms-profilesearch-column ${data.length > 0 ? "is-active" : "is-empty"}`}>
+                          <li key={`p-${i}`} className="cms-profilesearch-column">
                             <h3 className="cms-profilesearch-column-title">{profile}</h3>
                             <ul className="cms-profilesearch-column-list">
-                              {data.slice(0, limit).map((result, j) => {
+                              {data.map((result, j) => {
                                 return (
                                   <li key={`r-${j}`} className="cms-profilesearch-tile">
                                     <Link to={this.createLink(result)} className="cms-profilesearch-tile-link">
@@ -207,7 +212,7 @@ class ProfileSearch extends Component {
               }
 
             })()
-            : <span>Please Search</span>
+            : <NonIdealState icon="search" title="Please enter a search term" />
           }
         </div>
       </div>
