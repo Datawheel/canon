@@ -31,7 +31,7 @@
       color 0.2s ease-out;
 
     &::placeholder {
-      /* color: var(--gray); */
+      color: var(--gray);
     }
 
     /* IE fix */
@@ -67,6 +67,11 @@
     pointer-events: none;
     transition: color 0.2s ease-out;
 
+    @mixin max-sm {
+      width: 0.35em;
+      left: 0.22em;
+    }
+
     & svg {
       width: 100%;
       height: auto;
@@ -92,6 +97,14 @@
       background-color 0.15s ease-out,
       opacity 0.15s ease-out,
       transform 0.15s ease-out;
+
+    @mixin max-sm {
+      padding: 0 0em 0.25em 0.55em;
+      right: 0.25em;
+      & .cms-profilesearch-reset-button-text {
+        display: none;
+      }
+    }
 
     & > * {
       display: inline-block;
@@ -126,17 +139,119 @@
       transform: scale(0.75) translateY(-50%);
     }
   }
-}
 
-.search-column-list {
-  display: flex;
-  flex-wrap: wrap;
-  width: calc(100% + var(--gutter-lg)); /* offset column margin */
+  & .cms-profilesearch-columns {
+    @mixin list-reset;
+    display: flex;
+    flex-wrap: wrap;
+    width: calc(100% + var(--gutter-lg)); /* offset column margin */
 
-  & .search-column {
-    flex: 1 0 calc(25% - var(--gutter-lg));
-    min-width: 14rem;
-    max-width: 100%;
-    margin-right: var(--gutter-lg);
+    & .cms-profilesearch-column {
+      @mixin list-reset;
+      flex: 1 0 calc(25% - var(--gutter-lg));
+      min-width: 10rem;
+      max-width: 100%;
+      margin-right: var(--gutter-lg);
+      position: relative;
+      padding-bottom: var(--gutter-lg);
+
+      /* list entity title */
+      & .cms-profilesearch-column-title {
+        /* positioning */
+        position: sticky;
+        top: 0;
+        z-index: 2; /* above tile & tile title */
+        margin: 0;
+        /* sizing */
+        height: var(--nav-height);
+        padding: 1rem 0;
+        /* hide tiles as they pass through */
+        background-color: var(--white);
+      }
+
+      /* list of tiles */
+      & .cms-profilesearch-column-list {
+        column-width: 14rem;
+        column-gap: var(--gutter);
+        padding: 0;
+      }
+
+      /* container */
+      & .cms-profilesearch-tile {
+        break-inside: avoid;
+        position: relative;
+        padding-top: 50%;
+        overflow: hidden;
+        background-color: var(--black);
+
+        /* space out adjacent tiles */
+        &:not(:last-child) {
+          margin-bottom: var(--gutter);
+        }
+      }
+
+      /* link */
+      & .cms-profilesearch-tile-link {
+        /* sizing & positioning */
+        @mixin absolute-expand;
+        padding: 0;
+        /* layout */
+        align-items: center;
+        display: flex;
+        text-align: center;
+        z-index: 1;
+        /* theming */
+        background-color: color(var(--black) a(0.666));
+        border: 1px solid var(--dark-2);
+        color: var(--light-3);
+        /* transitions */
+        transition:
+          color 0.25s ease-out,
+          border-color 0.25s ease-out,
+          background-color 0.25s ease-out;
+
+        & .cms-profilesearch-tile-link-title {
+          cursor: pointer; /* ie fix */
+          padding: 0 var(--gutter);
+          flex: 1 1 100%;
+          transition: transform 0.2s ease-out;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 5;
+          -webkit-box-orient: vertical;
+        }
+
+        /* interactions */
+        &:hover, &:focus {
+          background-color: color(var(--black) a(0.5));
+          border-color: var(--gray);
+          color: var(--white);
+          text-decoration: none;
+
+          & .cms-profilesearch-tile-link-title { transform: scale(1.03); }
+          & + .cms-profilesearch-tile-image-container { transform: none; }
+        }
+
+        &:focus {
+          outline: none;
+          border-color: var(--accent);
+        }
+      }
+
+      /* div with a background image */
+      & .cms-profilesearch-tile-image-container {
+        @mixin absolute-expand;
+        display: flex;
+        transform: scale(1.05);
+        transition: 0.3s ease-out;
+        & .cms-profilesearch-tile-image {
+          background-size: cover;
+          flex: 1;
+        }
+      }
+
+    }
+
   }
 }
