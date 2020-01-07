@@ -1,0 +1,62 @@
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import {Link} from "react-router";
+import linkify from "../../utils/linkify";
+import profileTitleFormat from "../../utils/profileTitleFormat";
+import {max} from "d3-array";
+import "./ProfileSearchTile.css";
+
+/** Determines font-size based on title */
+function titleSize(title) {
+  const length = title.length;
+  const longestWord = max(title.match(/\w+/g).map(t => t.length));
+  if (length > 30 || longestWord > 25) return "sm";
+  if (length > 20 || longestWord > 15) return "md";
+  return "lg";
+}
+
+class ProfileSearchTile extends Component {
+
+  render() {
+
+    const {router} = this.context;
+
+    const {
+      data,
+      joiner
+    } = this.props;
+
+    return (
+      <li className="cms-profilesearch-tile">
+        <Link to={linkify(router, data)} className="cms-profilesearch-tile-link">
+          {data.map((r, i) => {
+            const title = profileTitleFormat(r.name);
+            return (
+              <React.Fragment>
+                { i > 0 && <span className="cms-profilesearch-joiner u-font-md">{joiner}</span> }
+                <span className={`cms-profilesearch-tile-link-title heading u-font-${titleSize(title)}`}>
+                  {title}
+                </span>
+              </React.Fragment>
+            );
+          })}
+        </Link>
+        <div className="cms-profilesearch-tile-image-container">
+          {data.map(r => <div className="cms-profilesearch-tile-image"
+            style={{backgroundImage: `url(api/image?slug=${r.slug}&id=${r.id}&size=thumb)`}} />)}
+        </div>
+      </li>
+    );
+  }
+
+}
+
+ProfileSearchTile.contextTypes = {
+  router: PropTypes.object
+};
+
+ProfileSearchTile.defaultProps = {
+  joiner: "&"
+};
+
+export default ProfileSearchTile;

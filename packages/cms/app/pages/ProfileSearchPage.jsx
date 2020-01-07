@@ -11,12 +11,12 @@ class ProfileSearchPage extends Component {
     return (
       <React.Fragment>
         <h2>Columns Display</h2>
-        <div className="profilesearchpage-area">
+        <div className="profilesearchpage-area columns">
           <ProfileSearch display="columns" />
         </div>
         <h2>List Display</h2>
-        <div className="profilesearchpage-area">
-          <ProfileSearch display="list" />
+        <div className="profilesearchpage-area list">
+          <ProfileSearch inputFontSize="md" display="list" />
         </div>
       </React.Fragment>
     );

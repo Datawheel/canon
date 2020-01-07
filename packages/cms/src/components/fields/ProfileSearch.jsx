@@ -2,34 +2,12 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {Link} from "react-router";
 import axios from "axios";
-import linkify from "../../utils/linkify";
 import "./ProfileSearch.css";
+import linkify from "../../utils/linkify";
+import profileTitleFormat from "../../utils/profileTitleFormat";
+import ProfileSearchTile from "./ProfileSearchTile";
 import {Icon, NonIdealState} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
-import {titleCase} from "d3plus-text";
-import {max} from "d3-array";
-
-const lowercase = ["a", "an", "and", "as", "at", "but", "by", "for", "from", "if", "in", "into", "near", "nor", "of", "on", "onto", "or", "per", "that", "the", "to", "with", "via", "vs", "vs."];
-const uppercase = ["CEO", "CFO", "CNC", "COO", "CPU", "GDP", "HVAC", "ID", "IT", "R&D", "TV", "UI"];
-
-/** Sanitizes Titles */
-function formatTitle(title) {
-  const focusWords = title.match(/\w+/g)
-    .filter(t => !lowercase.includes(t) && !uppercase.includes(t));
-  const allUppercase = focusWords.every(t => t.toUpperCase() === t);
-  const allLowercase = focusWords.every(t => t.toLowerCase() === t);
-  if (allLowercase || allUppercase) return titleCase(title);
-  return title;
-}
-
-/** Determines font-size based on title */
-function titleSize(title) {
-  const length = title.length;
-  const longestWord = max(title.match(/\w+/g).map(t => t.length));
-  if (length > 30 || longestWord > 25) return "sm";
-  if (length > 20 || longestWord > 15) return "md";
-  return "lg";
-}
 
 class ProfileSearch extends Component {
 
@@ -42,12 +20,6 @@ class ProfileSearch extends Component {
       timeout: 0,
       url: false
     };
-  }
-
-  createLink(result) {
-    const {router} = this.context;
-    const link = linkify(router, result);
-    return link;
   }
 
   onChange(e) {
@@ -74,7 +46,8 @@ class ProfileSearch extends Component {
           axios.get(url)
             .then(resp => {
               if (url === this.state.url) this.setState({results: resp.data});
-            });
+            })
+            .catch(() => {});
 
         }, 200),
         url
@@ -104,6 +77,8 @@ class ProfileSearch extends Component {
 
   render() {
 
+    const {router} = this.context;
+
     const {query, results} = this.state;
 
     const {
@@ -118,7 +93,7 @@ class ProfileSearch extends Component {
     return (
       <div className="cms-profilesearch">
 
-        <label className="cp-input-label">
+        <label className={`cp-input-label inputFontSize-${inputFontSize}`}>
           {/* accessibility text */}
           <span className="u-visually-hidden" key="slt">
             Search profiles
@@ -172,29 +147,8 @@ class ProfileSearch extends Component {
                           <li key={`p-${i}`} className="cms-profilesearch-column">
                             <h3 className="cms-profilesearch-column-title">{profile}</h3>
                             <ul className="cms-profilesearch-column-list">
-                              {data.map((result, j) => {
-                                return (
-                                  <li key={`r-${j}`} className="cms-profilesearch-tile">
-                                    <Link to={this.createLink(result)} className="cms-profilesearch-tile-link">
-                                      {result.map((r, i) => {
-                                        const title = formatTitle(r.name);
-                                        return (
-                                          <React.Fragment>
-                                            { i > 0 && <span className="cms-profilesearch-joiner u-font-md">{joiner}</span> }
-                                            <span className={`cms-profilesearch-tile-link-title heading u-font-${titleSize(title)}`}>
-                                              {title}
-                                            </span>
-                                          </React.Fragment>
-                                        );
-                                      })}
-                                    </Link>
-                                    <div className="cms-profilesearch-tile-image-container">
-                                      {result.map(r => <div className="cms-profilesearch-tile-image"
-                                        style={{backgroundImage: `url(api/image?slug=${r.slug}&id=${r.id}&size=thumb)`}} />)}
-                                    </div>
-                                  </li>
-                                );
-                              })}
+                              {data.map((result, j) =>
+                                <ProfileSearchTile key={`r-${j}`} {...this.props} data={result} />)}
                             </ul>
                           </li>
                         );
@@ -205,7 +159,13 @@ class ProfileSearch extends Component {
                 case "list":
                   return (
                     <ul className="cms-profilesearch-list">
-                      {(results.grouped || []).slice(0, limit).map((result, i) => <li key={`r-${i}`}>{this.createLink(result)}</li>)}
+                      {(results.grouped || []).slice(0, limit).map((result, j) =>
+                        <li key={`r-${j}`} className="cms-profilesearch-list-item">
+                          <Link to={linkify(router, result)}>
+                            {result.map(d => profileTitleFormat(d.name)).join(` ${joiner} `)}
+                          </Link>
+                        </li>
+                      )}
                     </ul>
                   );
 

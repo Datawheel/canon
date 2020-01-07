@@ -2,4 +2,7 @@
   display: flex;
   height: 500px;
   width: 100%;
+  &.list {
+    width: 300px;
+  }
 }

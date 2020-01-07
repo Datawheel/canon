@@ -1,0 +1,77 @@
+@import "../../css/mixins.css";
+
+/* container */
+.cms-profilesearch-tile {
+  break-inside: avoid;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--black);
+  padding-top: 50%;
+
+  /* space out adjacent tiles */
+  &:not(:last-child) {
+    margin-bottom: var(--gutter);
+  }
+
+  /* link */
+  & .cms-profilesearch-tile-link {
+    /* sizing & positioning */
+    @mixin absolute-expand;
+    padding: 0;
+    /* layout */
+    align-items: center;
+    display: flex;
+    text-align: center;
+    z-index: 1;
+    /* theming */
+    background-color: color(var(--black) a(0.666));
+    border: 1px solid var(--dark-2);
+    color: var(--light-3);
+    /* transitions */
+    transition:
+      color 0.25s ease-out,
+      border-color 0.25s ease-out,
+      background-color 0.25s ease-out;
+
+    & .cms-profilesearch-tile-link-title {
+      cursor: pointer; /* ie fix */
+      padding: 0 var(--gutter);
+      flex: 1 1 100%;
+      transition: transform 0.2s ease-out;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;
+    }
+
+    /* interactions */
+    &:hover, &:focus {
+      background-color: color(var(--black) a(0.5));
+      border-color: var(--gray);
+      color: var(--white);
+      text-decoration: none;
+
+      & .cms-profilesearch-tile-link-title { transform: scale(1.03); }
+      & + .cms-profilesearch-tile-image-container { transform: none; }
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+  }
+
+  /* div with a background image */
+  & .cms-profilesearch-tile-image-container {
+    @mixin absolute-expand;
+    display: flex;
+    transform: scale(1.05);
+    transition: 0.3s ease-out;
+    & .cms-profilesearch-tile-image {
+      background-size: cover;
+      flex: 1;
+    }
+  }
+
+}
