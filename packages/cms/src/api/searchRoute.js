@@ -161,70 +161,96 @@ module.exports = function(app) {
 
   const profileSearch = async(req, res) => {
 
-    if (!req.query.query) return res.json({error: "Please provide a query"});
+    let meta = await db.profile_meta.findAll().catch(catcher);
+    meta = meta.map(d => d.toJSON());
+    // todo: fix this OEC hack!
+    const fixMeta = d => ({...d, dimension: d.dimension === "Exporter" ? "Country" : d.dimension});
+    meta = meta.map(fixMeta);
+    const dims = [...new Set(meta.map(d => d.dimension))];
+    const dimCount = dims.length;
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
+    const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10; 
     let results = {};
 
-    // If deepsearch is configured, attempt to connect and query
-    if (deepsearchAPI) {
-      req.query.language = locale;
-      // Pass through search params to deepsearch and extract results
-      const url = `${deepsearchAPI}/search?${Object.keys(req.query).map(k => `${k}=${req.query[k]}`).join("&")}`;
-      results = await axios.get(url).then(d => d.data).catch(e => {
-        if (verbose) console.error(`Error connecting to Deepsearch, defaulting to Postgres: ${e}`);
-        return false;        
-      });
-      if (results) results.origin = "deepsearch";
-    }
-    if (!deepsearchAPI || deepsearchAPI && !results) {
-      results = {};
-      const {query} = req.query;
-      const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10; 
-      const where = {};
-      const searchWhere = {};
-      const terms = query.split(" ");
-      const orArray = [];
-      terms.forEach(term => {
-        orArray.push({name: {[sequelize.Op.iLike]: `%${term}%`}});
-        orArray.push({keywords: {[sequelize.Op.overlap]: [query]}});
-      });
-      where[sequelize.Op.or] = orArray;
-      where.locale = locale;
-      const contentRows = await db.search_content.findAll({where}).catch(catcher);
-      searchWhere.contentId = Array.from(new Set(contentRows.map(r => r.id)));
-      const rows = await db.search.findAll({
-        include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
-        limit,
-        order: [["zvalue", "DESC"]],
-        where: searchWhere
-      });
+    const rowToResult = row => {
+      const content = row.content.find(c => c.locale === locale);
+      return {
+        name: content ? content.name : "",
+        confidence: row.zvalue,
+        metadata: {
+          slug: row.slug,
+          hierarchy: row.hierarchy
+        },
+        id: row.id,
+        keywords: content && content.keywords ? content.keywords.join : ""
+      };
+    };
+
+    // If the user has provided no query, gather a sampling of top zvalue members for every possible profile
+    if (!req.query.query || req.query.query === "") {
       results.origin = "legacy";
       results.results = {};
-      rows.forEach(row => {
-        if (!results.results[row.dimension]) results.results[row.dimension] = [];
-        const content = row.content.find(c => c.locale === locale);
-        results.results[row.dimension].push({
-          name: content ? content.name : "",
-          confidence: row.zvalue,
-          metadata: {
-            slug: row.slug,
-            hierarchy: row.hierarchy
-          },
-          id: row.id,
-          keywords: content && content.keywords ? content.keywords.join : ""
+      for (const dim of dims) {
+        const rows = await db.search.findAll({
+          where: {dimension: dim},
+          include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
+          order: [["zvalue", "DESC"]],
+          limit
         });
-      });
+        rows.forEach(row => {
+          if (!results.results[row.dimension]) results.results[row.dimension] = [];
+          results.results[row.dimension].push(rowToResult(row));
+        });
+      }
+    }
+    else {
+      // If deepsearch is configured, attempt to connect and query
+      if (deepsearchAPI) {
+        req.query.language = locale;
+        // Pass through search params to deepsearch and extract results
+        const url = `${deepsearchAPI}/search?${Object.keys(req.query).map(k => `${k}=${req.query[k]}`).join("&")}`;
+        results = await axios.get(url).then(d => d.data).catch(e => {
+          if (verbose) console.error(`Error connecting to Deepsearch, defaulting to Postgres: ${e}`);
+          return false;        
+        });
+        if (results) results.origin = "deepsearch";
+      }
+      if (!deepsearchAPI || deepsearchAPI && !results) {
+        results = {};
+        const {query} = req.query;
+        const where = {};
+        const searchWhere = {};
+        const terms = query.split(" ");
+        const orArray = [];
+        terms.forEach(term => {
+          orArray.push({name: {[sequelize.Op.iLike]: `%${term}%`}});
+          orArray.push({keywords: {[sequelize.Op.overlap]: [query]}});
+        });
+        where[sequelize.Op.or] = orArray;
+        where.locale = locale;
+        const contentRows = await db.search_content.findAll({where}).catch(catcher);
+        searchWhere.contentId = Array.from(new Set(contentRows.map(r => r.id)));
+        const rows = await db.search.findAll({
+          include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
+          // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
+          // Pad out the limit by multiplying by the number of unique dimensions, then limit (slice) them later.
+          // Not perfect, could probably revisit the logic here.
+          limit: limit * dimCount,
+          order: [["zvalue", "DESC"]],
+          where: searchWhere
+        });
+        results.origin = "legacy";
+        results.results = {};
+        rows.forEach(row => {
+          if (!results.results[row.dimension]) results.results[row.dimension] = [];
+          results.results[row.dimension].push(rowToResult(row));
+        });
+      }
     }
 
     // Results are keyed by dimension. Use nonzero length dimension results to find out which profiles are a match
     const dimensions = Object.keys(results.results).filter(k => results.results[k].length > 0);
-    let meta = await db.profile_meta.findAll().catch(catcher);
-    meta = meta.map(d => d.toJSON());
-    
-    // todo: fix this OEC hack!
-    const fixMeta = d => ({...d, dimension: d.dimension === "Exporter" ? "Country" : d.dimension});
-    meta = meta.map(fixMeta);
     
     const relevantPids = meta.filter(p => dimensions.includes(p.dimension)).map(d => d.profile_id);
     let profiles = await db.profile.findAll({where: {id: relevantPids}, include: {association: "meta"}}).catch(catcher);
@@ -256,7 +282,7 @@ module.exports = function(app) {
             memberHierarchy: r.metadata.hierarchy,
             name: r.name,
             ranking: r.confidence
-          }));
+          })).slice(0, limit);
           acc.push(finalResults);
         }
         else {
@@ -285,7 +311,7 @@ module.exports = function(app) {
       }
 
       // If there is no space in the query, Limit results to one-dimensional profiles.
-      const singleFilter = d => req.query.query.includes(" ") ? true : d.length === 1;
+      const singleFilter = d => !req.query.query || req.query.query.includes(" ") ? true : d.length === 1;
       
       // Save the results under a slug key for the separated-out search results. 
       const filteredResults = combinedResults.filter(singleFilter);
@@ -297,7 +323,8 @@ module.exports = function(app) {
           const avg = d.reduce((acc, d) => acc += d.ranking, 0) / d.length;
           return d.map(o => ({...o, avg}));
         })
-        .sort((a, b) => b[0].avg - a[0].avg);
+        .sort((a, b) => b[0].avg - a[0].avg)
+        .slice(0, limit);
     }
 
     return res.json(results);
