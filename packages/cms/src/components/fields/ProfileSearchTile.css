@@ -24,8 +24,8 @@
     text-align: center;
     z-index: 1;
     /* theming */
-    background-color: color(var(--black) a(0.666));
-    border: 1px solid var(--dark-2);
+    background-color: color(var(--black) a(0.75));
+    border: 2px solid var(--dark-2);
     color: var(--light-3);
     /* transitions */
     transition:
@@ -47,14 +47,22 @@
       }
     }
 
+    & .cms-profilesearch-tile-link-joiner {
+      display: inline-block;
+      margin-left: -5px;
+      margin-right: -5px;
+      text-align: center;
+      width: 20px;
+    }
+
     /* interactions */
     &:hover, &:focus {
-      background-color: color(var(--black) a(0.5));
+      background-color: color(var(--black) a(0.25));
       border-color: var(--gray);
       color: var(--white);
       text-decoration: none;
 
-      & .cms-profilesearch-tile-link-text { transform: scale(1.03); }
+      & .cms-profilesearch-tile-link-text { transform: scale(1.05); }
       & + .cms-profilesearch-tile-image-container { transform: none; }
     }
 
