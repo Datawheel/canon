@@ -8,6 +8,7 @@
   & .cms-profilesearch-container {
     flex: 1 1 auto;
     @mixin vertical-overflow-container;
+    overflow-x: hidden;
   }
 
   & .cp-input-label {
@@ -207,7 +208,7 @@
         display: block;
         padding: 0.5rem;
         transition: background-color 0.15s ease-out;
-        &:hover {
+        &:hover, &:focus {
           background-color: var(--light-2);
         }
       }

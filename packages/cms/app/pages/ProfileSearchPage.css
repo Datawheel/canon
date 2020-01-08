@@ -1,6 +1,7 @@
 .profilesearchpage-area {
   display: flex;
-  height: 500px;
+  height: 600px;
+  padding: 50px;
   width: 100%;
   &.list {
     width: 300px;

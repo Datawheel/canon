@@ -9,6 +9,8 @@ import ProfileSearchTile from "./ProfileSearchTile";
 import {Icon, NonIdealState, Spinner} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
 import {titleCase} from "d3plus-text";
+import {event, select} from "d3-selection";
+import styles from "style.yml";
 
 /** Creates column titles */
 function columnTitle(data) {
@@ -26,6 +28,60 @@ function columnTitle(data) {
   }).join("/");
 }
 
+function isDescendant(parent, child) {
+  let node = child.parentNode;
+  while (node !== null) {
+    if (node === parent) return true;
+    node = node.parentNode;
+  }
+  return false;
+}
+
+function findSibling(elem, dir = "next") {
+
+  let node = elem.parentNode;
+  while (node.tagName.toLowerCase() !== "li") node = node.parentNode;
+
+  let sibling = node[`${dir}Sibling`];
+
+  if (!sibling) {
+    const list = node.parentNode.parentNode;
+    if (list.tagName.toLowerCase() === "li") {
+      const column = list[`${dir}Sibling`];
+      const items = select(column).selectAll("li")
+      sibling = dir === "next" ? select(column).select("li").node()
+        : items.nodes()[items.size() - 1];
+    }
+  }
+
+  return sibling ? select(sibling).select("a").node() : sibling;
+}
+
+function findNeighbor(elem, dir = "next") {
+
+  let node = elem.parentNode;
+  while (node.tagName.toLowerCase() !== "li") node = node.parentNode;
+  const nodeBounds = node.getBoundingClientRect();
+  const columnX = nodeBounds.left;
+  const nodeY = nodeBounds.top
+  const list = node.parentNode.parentNode;
+  let nextColumns = Array.from(select(list).selectAll("li").nodes())
+    .filter(d => dir === "next" ? d.getBoundingClientRect().left > columnX : d.getBoundingClientRect().left < columnX);
+  if (dir === "previous") nextColumns = nextColumns.reverse();
+  let sibling = nextColumns.find((d, i) => d.getBoundingClientRect().top === nodeY || i === nextColumns.length - 1);
+
+  if (!sibling) {
+    const column = list[`${dir}Sibling`];
+    nextColumns = Array.from(select(column).selectAll("li").nodes())
+      .filter(d => dir === "next" ? d.getBoundingClientRect().left > columnX : d.getBoundingClientRect().left < columnX);
+    if (dir === "previous") nextColumns = nextColumns.reverse();
+    sibling = nextColumns.find((d, i) => d.getBoundingClientRect().top === nodeY);
+    if (!sibling && nextColumns.length) sibling = nextColumns[dir === "previous" ? 0 : nextColumns.length - 1];
+  }
+
+  return sibling ? select(sibling).select("a").node() : sibling;
+}
+
 class ProfileSearch extends Component {
 
   constructor(props) {
@@ -37,6 +93,86 @@ class ProfileSearch extends Component {
       results: false,
       timeout: 0
     };
+  }
+
+  componentDidMount() {
+
+    const {id} = this.state;
+
+    select(document).on(`keydown.${id}`, () => {
+
+      const {router} = this.context;
+      const {activeKey, display} = this.props;
+      const activeKeyCode = activeKey !== false
+        ? typeof activeKey === "string" && activeKey.length === 1
+          ? activeKey.toUpperCase().charCodeAt(0)
+          : activeKey
+        : false;
+
+      const key = event.keyCode;
+      const DOWN = 40,
+            ENTER = 13,
+            ESC = 27,
+            LEFT = 37,
+            UP = 38,
+            RIGHT = 39;
+
+      const arrowKeys = display === "columns" ? [LEFT, UP, RIGHT, DOWN] : [UP, DOWN];
+      const linkHighlighted = isDescendant(this.resultContainer, event.target);
+      const tagName = event.target.tagName.toLowerCase();
+
+      if (activeKeyCode !== false && key === activeKeyCode && !["input", "textarea"].includes(tagName)) {
+        event.preventDefault();
+        this.textInput.focus();
+      }
+      else if (key === ESC && event.target === this.textInput) {
+        event.preventDefault();
+        this.textInput.blur();
+      }
+      else if (key === DOWN && event.target === this.textInput) {
+        event.preventDefault();
+        const firstLink = select(this.resultContainer).select("a");
+        if (firstLink.size()) firstLink.node().focus();
+      }
+      else if (arrowKeys.includes(key) && linkHighlighted) {
+
+        event.preventDefault();
+
+        if (key === DOWN) {
+          const nextLink = findSibling(event.target, "next");
+          if (nextLink) this.scrollToLink.bind(this)(nextLink);
+        }
+        else if (key === UP) {
+          const previousLink = findSibling(event.target, "previous");
+          if (previousLink) this.scrollToLink.bind(this)(previousLink);
+          else this.textInput.focus();
+        }
+        else if (key === RIGHT) {
+          const nextLink = findNeighbor(event.target, "next");
+          if (nextLink) this.scrollToLink.bind(this)(nextLink);
+        }
+        else if (key === LEFT) {
+          const previousLink = findNeighbor(event.target, "previous");
+          if (previousLink) this.scrollToLink.bind(this)(previousLink);
+        }
+
+      }
+      else if (key === ENTER && linkHighlighted) {
+        const url = event.target.getAttribute("href");
+        if (url) router.push(url);
+      }
+
+    }, false);
+
+  }
+
+  scrollToLink(elem) {
+    const {display} = this.props;
+    const topOffset = display === "columns" ? parseFloat(styles["nav-height"], 10) : 0;
+    elem.scrollIntoView({block: "nearest"});
+    const top = elem.getBoundingClientRect().top - this.resultContainer.getBoundingClientRect().top;
+    if (topOffset && top < topOffset) this.resultContainer.scrollTop -= (topOffset - top);
+    elem.focus();
   }
 
   onChange(e) {
@@ -73,17 +209,6 @@ class ProfileSearch extends Component {
     }
   }
 
-  onKeyDown(e) {
-
-    switch(e.keyCode) {
-      case 13: // ENTER
-        return this.onChange.bind(this)();
-      case 27: // ESC
-        return this.resetSearch.bind(this)();
-    }
-
-  }
-
   resetSearch(e) {
     this.setState({
       query: "",
@@ -102,7 +227,7 @@ class ProfileSearch extends Component {
     return (
       <div className="cms-profilesearch">
 
-        <label className={`cp-input-label inputFontSize-${inputFontSize}`}>
+        <label key="input" className={`cp-input-label inputFontSize-${inputFontSize}`}>
           {/* accessibility text */}
           <span className="u-visually-hidden" key="slt">
             Search profiles
@@ -114,7 +239,6 @@ class ProfileSearch extends Component {
             placeholder="Search profiles..."
             value={query}
             onChange={this.onChange.bind(this)}
-            onKeyDown={this.onKeyDown.bind(this)}
             ref={input => this.textInput = input}
             key="sli"
             type="text"
@@ -135,20 +259,20 @@ class ProfileSearch extends Component {
           </button>
         </label>
 
-        <div className="cms-profilesearch-container">
+        <div className="cms-profilesearch-container" key="container" ref={comp => this.resultContainer = comp}>
           {
             results
             ? (() => {
 
               if (!results.grouped.length) {
-                return <NonIdealState icon="zoom-out" title={`No results matching "${query}"`} />;
+                return <NonIdealState key="empty" icon="zoom-out" title={`No results matching "${query}"`} />;
               }
 
               switch(display) {
 
                 case "columns":
                   return (
-                    <ul className="cms-profilesearch-columns">
+                    <ul key="columns" className="cms-profilesearch-columns">
                       {Object.keys((results.profiles || {})).map((profile, i) => {
                         const data = (results.profiles[profile] || []).slice(0, limit);
                         return (
@@ -166,7 +290,7 @@ class ProfileSearch extends Component {
 
                 case "list":
                   return (
-                    <ul className="cms-profilesearch-list">
+                    <ul key="list" className="cms-profilesearch-list">
                       {(results.grouped || []).slice(0, limit).map((result, j) =>
                         <li key={`r-${j}`} className="cms-profilesearch-list-item">
                           <Link to={linkify(router, result)} className="cms-profilesearch-list-item-link">
@@ -182,8 +306,8 @@ class ProfileSearch extends Component {
 
             })()
             : loading
-            ? <NonIdealState icon={<Spinner />} title="Loading results..." />
-            : <NonIdealState icon="search" title="Please enter a search term" />
+            ? <NonIdealState key="loading" icon={<Spinner />} title="Loading results..." />
+            : <NonIdealState key="start" icon="search" title="Please enter a search term" />
           }
         </div>
       </div>
@@ -197,6 +321,7 @@ ProfileSearch.contextTypes = {
 };
 
 ProfileSearch.defaultProps = {
+  activateKey: false,
   display: "list",
   inputFontSize: "xxl",
   joiner: "&",
