@@ -2,8 +2,14 @@ import React, {Component} from "react";
 import {EditableText} from "@blueprintjs/core";
 import Alert from "../interface/Alert";
 import Button from "../fields/Button";
+import ButtonGroup from "../fields/ButtonGroup";
 
 import "./VariableEditorUI.css";
+
+const buttonProps = {
+  namespace: "cms",
+  fontSize: "xxs"
+};
 
 export default class VariableEditorUI extends Component {
 
@@ -119,6 +125,18 @@ export default class VariableEditorUI extends Component {
     this.setState({objects}, this.compileCode.bind(this));
   }
 
+  useAll() {
+    let {objects} = this.state;
+    objects = objects.map(object => object.map(o => Object.assign({}, o, {use: true})));
+    this.setState({objects}, this.compileCode.bind(this));
+  }
+
+  useNone() {
+    let {objects} = this.state;
+    objects = objects.map(object => object.map(o => Object.assign({}, o, {use: false})));
+    this.setState({objects}, this.compileCode.bind(this));
+  }
+
   maybeRebuild() {
     this.setState({rebuildAlertOpen: true});
   }
@@ -165,7 +183,21 @@ export default class VariableEditorUI extends Component {
         <table className="cms-variable-table">
           <thead>
             <tr>
-              <td>use</td>
+              <td>use <ButtonGroup className="cms-variable-table-button-group">
+                <Button
+                  onClick={() => this.useAll()}
+                  {...buttonProps}
+                >
+                  <span className="u-visually-hidden">use</span> all
+                </Button>
+                <Button
+                  onClick={() => this.useNone()}
+                  {...buttonProps}
+                >
+                  <span className="u-visually-hidden">use</span> none
+                </Button>
+              </ButtonGroup>
+              </td>
               <td>custom name</td>
               <td>key</td>
               <td>value</td>
