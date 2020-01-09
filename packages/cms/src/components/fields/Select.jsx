@@ -5,6 +5,7 @@ import "./Select.css";
 export default class Select extends Component {
   render() {
     const {
+      className,
       namespace,   // "cp" (default) or "cms"
       fontSize,
       inline,
@@ -21,7 +22,7 @@ export default class Select extends Component {
     const filteredOptions = options && options.filter(option => option !== "");
 
     return (options && options.length) || children
-      ? <label className={`${namespace}-select-label u-font-${fontSize}${inline ? " cms-inline-select-label" : ""}`}>
+      ? <label className={`${className ? `${className} ` : ""}${namespace}-select-label u-font-${fontSize}${inline ? " cms-inline-select-label" : ""}`}>
         <span className={`${namespace}-select-text${label && labelHidden ? " u-visually-hidden" : "" }`}>
           {label || "missing `label` prop in Select.jsx"}
         </span>

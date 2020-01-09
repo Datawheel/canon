@@ -22,6 +22,19 @@ class Alert extends Component {
     }
   }
 
+  // listen for escape key
+  handleKeyPress(e) {
+    const {onCancel} = this.props;
+
+    const esc = 27;
+    if (e.keyCode === esc && onCancel) onCancel();
+
+    else {
+      const target = e.currentTarget;
+      setTimeout(() => target.focus());
+    }
+  }
+
   render() {
     const {
       className,
@@ -59,6 +72,7 @@ class Alert extends Component {
         {/* main alert content */}
         <div
           className={`cms-alert${ className ? ` ${className}` : "" } ${ isModal ? "is-modal" : "is-inline" }${ usePortal ? " in-portal" : "" }`}
+          onKeyDown={this.handleKeyPress.bind(this)}
           key="a"
         >
           <div className={`cms-alert-inner${theme ? ` ${theme}-theme` : ""}`}>

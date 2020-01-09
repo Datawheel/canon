@@ -1,0 +1,213 @@
+@import "../css/mixins.css";
+
+.showcase-nav-list,
+.showcase-list,
+.showcase-nested-list {
+  @mixin list-reset;
+}
+
+.showcase {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  & > * {
+    margin: 0;
+    padding: var(--gutter-md);
+  }
+}
+
+.showcase-header {
+  flex: 1 0 var(--sidebar-width);
+
+  & .cp-filter-search { position: relative; }
+}
+
+.showcase-header-heading {
+  display: flex;
+  align-items: baseline;
+
+  & .showcase-header-heading-select {
+    flex: 1 1 auto;
+    display: inline-block;
+    margin-left: 0.5em;
+    margin-bottom: 0;
+  }
+}
+
+.showcase-nav {
+  @mixin min-sm {
+    position: sticky;
+    top: var(--gutter-md);
+  }
+}
+
+.showcase-nav-heading {
+  margin-top: var(--gutter-md);
+  margin-bottom: var(--gutter-xs);
+}
+
+.showcase-nav-link {
+  display: block;
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
+}
+
+.showcase-list {
+  flex: 1 0 100%;
+  max-width: 100%;
+
+  @mixin min-sm {
+    flex: 4 0 calc(100% - var(--sidebar-width));
+    width: calc(var(--sidebar-width) * 2);
+  }
+}
+
+.showcase-list-heading {
+  margin-top: var(--gutter-xs);
+}
+
+.showcase-list-group + .showcase-list-group {
+  margin-top: var(--gutter-lg);
+}
+
+.showcase-item {
+  margin-top: 0;
+  margin-bottom: var(--gutter-sm);
+  padding: var(--gutter-xs) var(--gutter-md) var(--gutter-md) var(--gutter-md);
+
+  &:last-of-type { margin-bottom: 0; }
+
+  /* resets */
+  &, & * { position: relative; }
+  & label { margin-bottom: 0; }
+}
+
+.showcase-item-heading-link:after {
+  font-size: 0.625em;
+  vertical-align: top;
+  content: " Github →";
+  display: inline-block;
+  margin-left: 0.25em;
+  opacity: 0;
+  transform: scale(0.875) translateX(-0.25em);
+  transition:
+    opacity 0.1s ease-out,
+    transform 0.1s ease-out;
+}
+.showcase-item-heading-link:hover:after,
+.showcase-item-heading-link:focus:after {
+  opacity: 1;
+  transform: none;
+}
+
+.showcase-item-props-button {
+  position: absolute;
+  top: 0.25em;
+  left: 0;
+  transform: scale(0.75);
+}
+
+/* component overrides */
+.showcase-component-list .showcase-nested-list {
+  column-width: 22rem;
+  column-gap: var(--gutter-sm);
+
+  & > * {
+    break-inside: avoid;
+  }
+}
+
+/* design token overrides */
+.showcase-token-list .showcase-list-group {
+  padding-bottom: var(--gutter-md);
+
+  &:not(:first-child) {
+    margin-top: var(--gutter-md);
+  }
+}
+/* show tokens in columns where space is available */
+.showcase-token-list .showcase-nested-list {
+  column-width: 22rem;
+  column-gap: var(--gutter-xl);
+  column-rule: 1px solid color(var(--gray) a(0.125));
+
+  & > * {
+    break-inside: avoid;
+  }
+}
+/* line up token keys & values */
+.showcase-token {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  grid-gap: var(--gutter-md);
+  line-height: 2;
+
+  &:before {
+    position: absolute;
+    top: 0; right: calc(0px - var(--gutter-md)); bottom: 0; left: calc(0px - var(--gutter-md));
+    content: "";
+    display: block;
+    background-color: color(var(--gray) a(0.125));
+    opacity: 0;
+    transition: opacity 0.05s ease-out;
+  }
+  &:hover:before { opacity: 1; }
+}
+.showcase-token-swatch {
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  width: 0.75em;
+  left: calc(0px - var(--gutter-md));
+  border: 1px solid color(var(--gray) a(0.125));
+}
+.showcase-token-label {
+  font-weight: var(--heading-font-weight);
+}
+.showcase-token-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.showcase-token-alias {
+  margin-top: -0.5em;
+}
+
+/* default theming */
+.showcase-list {
+  background-color: var(--light-1);
+  min-height: 100vh;
+}
+.showcase-item {
+  background-color: var(--white);
+  border: 1px solid var(--light-2);
+}
+.cms .showcase-item-heading {
+  color: var(--dark-1);
+}
+.showcase-nav-link,
+.showcase-item-heading-link {
+  color: var(--dark-1);
+  &:hover, &:focus { color: var(--accent-dark); }
+}
+.showcase-token-alias {
+  color: var(--gray);
+}
+
+/* cms dark mode theming */
+@mixin dark-mode {
+  .cms .showcase-list { background-color: var(--black); }
+  .cms .showcase-item {
+    background-color: var(--dark-3);
+    border-color: var(--dark-3);
+  }
+  .cms .showcase-header { background-color: var(--dark-2); }
+  .cms .showcase-item-heading { color: var(--dark-1); }
+  .cms .showcase-nav-link,
+  .cms .showcase-item-heading-link {
+    color: var(--gray);
+    &:hover, &:focus { color: var(--accent); }
+  }
+}

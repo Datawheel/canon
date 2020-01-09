@@ -21,6 +21,12 @@
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
+
+  & > [class*="-button"] {
+    height: auto; /* let flex handle it */
+    width: 2.5em;
+    margin-left: calc(0px - var(--button-border-width));
+  }
 }
 
 
