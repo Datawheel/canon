@@ -61,7 +61,7 @@ class Table extends Component {
         this.setState({config});
       });
     }
-    else {
+    else if (Array.isArray(config.data)) {
       config.data = dataFormat(config.data);
       if (config.data && config.data.length >= minRowsForPagination) config.showPagination = true;
       this.setState({config});
