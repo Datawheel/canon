@@ -4,8 +4,8 @@ const uppercase = ["CEO", "CFO", "CNC", "COO", "CPU", "GDP", "HVAC", "ID", "IT",
 
 /** Sanitizes Titles */
 export default function formatTitle(title) {
-  const focusWords = title.match(/\w+/g)
-    .filter(t => !lowercase.includes(t) && !uppercase.includes(t));
+  const focusWords = title.length ? title.match(/\w+/g)
+    .filter(t => !lowercase.includes(t) && !uppercase.includes(t)) : [];
   const allUppercase = focusWords.every(t => t.toUpperCase() === t);
   const allLowercase = focusWords.every(t => t.toLowerCase() === t);
   if (allLowercase || allUppercase) return titleCase(title);

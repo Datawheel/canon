@@ -18,7 +18,7 @@ function columnTitle(data) {
     let slug = d.slug;
     const dim = d.memberDimension;
     if (data[0].length === 1 && dim.toLowerCase() !== slug.toLowerCase()) {
-      if (slug.match(/[A-z]{1,}/g).join("").length < 4) {
+      if (slug && slug.match(/[A-z]{1,}/g).join("").length < 4) {
         slug = slug.toUpperCase();
       }
       else slug = titleCase(slug);
@@ -90,6 +90,11 @@ class ProfileSearch extends Component {
   componentDidMount() {
 
     const {id} = this.state;
+    const {showExamples} = this.props;
+
+    if (showExamples) {
+      this.onChange.bind(this)();
+    }
 
     select(document).on(`mousedown.${id}`, () => {
       const {active} = this.state;
@@ -179,11 +184,14 @@ class ProfileSearch extends Component {
   onChange(e) {
 
     const {timeout} = this.state;
-    const {limit, minQueryLength} = this.props;
-    const query = e ? e.target.value : this.state.query;
+    const {limit, minQueryLength, showExamples} = this.props;
+
+    let query = e ? e.target.value : this.state.query;
+    if (query.length < minQueryLength) query = "";
+
     clearTimeout(timeout);
 
-    if (query.length < minQueryLength) {
+    if (!showExamples && !query.length) {
       this.setState({results: false, query});
     }
     else {
@@ -335,7 +343,7 @@ class ProfileSearch extends Component {
               }
 
             })()
-            : loading
+            : loading && (position !== "absolute" || active)
             ? <NonIdealState key="loading" icon={<Spinner />} title="Loading results..." />
             : position !== "absolute" ? <NonIdealState key="start" icon="search" title="Please enter a search term" /> : null
           }
@@ -359,7 +367,8 @@ ProfileSearch.defaultProps = {
   joiner: "&",
   limit: 10,
   minQueryLength: 1,
-  position: "static"
+  position: "static",
+  showExamples: false
 };
 
 export default ProfileSearch;

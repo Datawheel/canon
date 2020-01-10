@@ -16,6 +16,7 @@ class ProfileSearchPage extends Component {
           <ProfileSearch
             display="columns"
             activeKey="s"
+            showExamples={true}
             columnOrder={["hs92", "country"]}
             columnTitles={{country: "Cool Locations"}}
             />
@@ -27,6 +28,7 @@ class ProfileSearchPage extends Component {
           <ProfileSearch
             inputFontSize="xl"
             display="list"
+            showExamples={true}
             position="absolute" />
 
         </div>

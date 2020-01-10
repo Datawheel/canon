@@ -9,7 +9,7 @@ import "./ProfileSearchTile.css";
 /** Determines font-size based on title */
 function titleSize(title) {
   const length = title.length;
-  const longestWord = max(title.match(/\w+/g).map(t => t.length));
+  const longestWord = max(length ? title.match(/\w+/g).map(t => t.length) : 0);
   if (length > 30 || longestWord > 25) return "sm";
   if (length > 20 || longestWord > 15) return "md";
   return "lg";
