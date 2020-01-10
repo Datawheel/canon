@@ -11,7 +11,7 @@ Content Management System for Canon sites.
 * [Sections](#sections)
 * [Search](#search)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
-* [Authentication](#authentication})
+* [Authentication](#authentication)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Release Notes](#release-notes)
 * [Migration](#migration)
