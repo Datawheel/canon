@@ -442,7 +442,14 @@ module.exports = function(app) {
     // If the user has provided variables, this is a POST request. Use those variables,
     // And skip the entire variable fetching process.
     if (req.body.variables) {
-      variables = req.body.variables;
+      // If the forceMats option was provided, use the POSTed variables to run
+      // Materializers. Used for Login in ProfileRenderer.jsx
+      if (req.query.forceMats === "true") {
+        variables = await runMaterializers(req, req.body.variables, pid);
+      }
+      else {
+        variables = req.body.variables;
+      }
     }
     // If the user has not provided variables, this is a GET request. Run Generators.
     else {
