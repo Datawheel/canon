@@ -235,7 +235,7 @@ class ProfileSearch extends Component {
       position
     } = this.props;
 
-    console.log("results", results);
+    // console.log("results", results);
 
     return (
       <div className="cms-profilesearch">
