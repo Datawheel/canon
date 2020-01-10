@@ -11,6 +11,7 @@ Content Management System for Canon sites.
 * [Sections](#sections)
 * [Search](#search)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
+* [Authentication](#authentication})
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Release Notes](#release-notes)
 * [Migration](#migration)
@@ -443,6 +444,16 @@ Keep in mind that you may combine the two advanced functions! If your planned mo
 ```
 
 You are then welcome, in the `myModalSlug` section, to make use of `idForMyModal` and trust that it will be set when the modal opens.
+
+---
+
+## Authentication
+
+Canon CMS makes use of the [User Management](https://github.com/Datawheel/canon#user-management) from Canon Core. If `CANON_LOGINS` is set to true, the CMS will require a user of `role` of `1` or higher to access the CMS.
+
+The CMS also exports the `user` object and a `userRole` boolean for the currently logged in user in the Locked Attributes Generator for every profile. You can make use of these variables to hide, show, or limit information based on the role of the currently logged in user.
+
+**Note:** If you create new variables from the user data (e.g., `const isPro = role >= 1`), these operations **must** be performed in materializers to have any effect.
 
 ---
 
