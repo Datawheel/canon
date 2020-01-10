@@ -12,15 +12,29 @@ class ProfileSearchPage extends Component {
       <React.Fragment>
         <h2>Columns Display</h2>
         <div className="profilesearchpage-area columns">
+
           <ProfileSearch
             display="columns"
             activeKey="s"
             columnOrder={["hs92", "country"]}
-            columnTitles={{country: "Cool Locations"}} />
+            columnTitles={{country: "Cool Locations"}}
+            />
+
+        </div>
+        <h2>Popup Display</h2>
+        <div className="profilesearchpage-area popup">
+
+          <ProfileSearch
+            inputFontSize="xl"
+            display="list"
+            position="absolute" />
+
         </div>
         <h2>List Display</h2>
         <div className="profilesearchpage-area list">
+
           <ProfileSearch inputFontSize="md" display="list" />
+
         </div>
       </React.Fragment>
     );

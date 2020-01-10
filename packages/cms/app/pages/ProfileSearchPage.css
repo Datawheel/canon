@@ -4,6 +4,9 @@
   padding: 50px;
   width: 100%;
   &.list {
-    width: 300px;
+    width: 400px;
+  }
+  &.popup {
+    height: 200px;
   }
 }

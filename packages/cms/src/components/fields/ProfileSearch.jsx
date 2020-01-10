@@ -28,15 +28,6 @@ function columnTitle(data) {
   }).join("/");
 }
 
-function isDescendant(parent, child) {
-  let node = child.parentNode;
-  while (node !== null) {
-    if (node === parent) return true;
-    node = node.parentNode;
-  }
-  return false;
-}
-
 function findSibling(elem, dir = "next") {
 
   let node = elem.parentNode;
@@ -87,6 +78,7 @@ class ProfileSearch extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      active: false,
       id: uuid(),
       loading: false,
       query: "",
@@ -98,6 +90,15 @@ class ProfileSearch extends Component {
   componentDidMount() {
 
     const {id} = this.state;
+
+    select(document).on(`mousedown.${id}`, () => {
+      const {active} = this.state;
+      const {position} = this.props;
+      const container = this.resultContainer;
+      if (position === "absolute" && active && container && !container.contains(event.target)) {
+        this.onToggle.bind(this)();
+      }
+    });
 
     select(document).on(`keydown.${id}`, () => {
 
@@ -118,16 +119,16 @@ class ProfileSearch extends Component {
             RIGHT = 39;
 
       const arrowKeys = display === "columns" ? [LEFT, UP, RIGHT, DOWN] : [UP, DOWN];
-      const linkHighlighted = isDescendant(this.resultContainer, event.target);
+      const linkHighlighted = this.resultContainer && this.resultContainer.contains(event.target);
       const tagName = event.target.tagName.toLowerCase();
 
       if (activeKeyCode !== false && key === activeKeyCode && !["input", "textarea"].includes(tagName)) {
         event.preventDefault();
-        this.textInput.focus();
+        this.onToggle.bind(this)();
       }
       else if (key === ESC && event.target === this.textInput) {
         event.preventDefault();
-        this.textInput.blur();
+        this.onToggle.bind(this)();
       }
       else if (key === DOWN && event.target === this.textInput) {
         event.preventDefault();
@@ -216,20 +217,33 @@ class ProfileSearch extends Component {
     });
   }
 
+  onFocus() {
+    this.setState({active: true});
+  }
+
+  onToggle() {
+
+    const {active} = this.state;
+    this.textInput[active ? "blur" : "focus"]();
+    this.setState({active: !active});
+
+  }
+
   render() {
 
     const {router} = this.context;
-    const {loading, query, results} = this.state;
+    const {active, loading, query, results} = this.state;
     const {
       display,
       columnOrder,
       columnTitles,
       inputFontSize,
       joiner,
-      limit
+      limit,
+      position
     } = this.props;
 
-    console.log(results);
+    // console.log("results", results);
 
     return (
       <div className="cms-profilesearch">
@@ -246,6 +260,7 @@ class ProfileSearch extends Component {
             placeholder="Search profiles..."
             value={query}
             onChange={this.onChange.bind(this)}
+            onFocus={this.onFocus.bind(this)}
             ref={input => this.textInput = input}
             key="sli"
             type="text"
@@ -266,9 +281,9 @@ class ProfileSearch extends Component {
           </button>
         </label>
 
-        <div className="cms-profilesearch-container" key="container" ref={comp => this.resultContainer = comp}>
+        <div className={`cms-profilesearch-container cms-profilesearch-container-${position}`} key="container" ref={comp => this.resultContainer = comp}>
           {
-            results
+            (position !== "absolute" || active) && results
             ? (() => {
 
               if (!results.grouped.length) {
@@ -322,7 +337,7 @@ class ProfileSearch extends Component {
             })()
             : loading
             ? <NonIdealState key="loading" icon={<Spinner />} title="Loading results..." />
-            : <NonIdealState key="start" icon="search" title="Please enter a search term" />
+            : position !== "absolute" ? <NonIdealState key="start" icon="search" title="Please enter a search term" /> : null
           }
         </div>
       </div>
@@ -343,7 +358,8 @@ ProfileSearch.defaultProps = {
   inputFontSize: "xxl",
   joiner: "&",
   limit: 10,
-  minQueryLength: 1
+  minQueryLength: 1,
+  position: "static"
 };
 
 export default ProfileSearch;

@@ -6,9 +6,25 @@
   width: 100%;
 
   & .cms-profilesearch-container {
-    flex: 1 1 auto;
     @mixin vertical-overflow-container;
+    flex: 1 1 auto;
     overflow-x: hidden;
+    &.cms-profilesearch-container-absolute {
+      overflow: visible;
+      position: relative;
+      & > * {
+        @mixin vertical-overflow-container;
+        background: var(--white);
+        box-shadow:
+          0 0 0 1px rgba(16, 22, 26, 0.1),
+          0 2px 4px rgba(16, 22, 26, 0.2),
+          0 8px 24px rgba(16, 22, 26, 0.2);
+        height: 300px;
+        position: absolute;
+        width: 100%;
+        z-index: 2;
+      }
+    }
   }
 
   & .cp-input-label {
@@ -18,6 +34,7 @@
     /* the main input */
     & .cp-input {
       /* sizing */
+      margin-bottom: 2px;
       padding: 0.25em 3em 0.375em 1.5em;
       width: 100%;
       /* theming */
@@ -127,6 +144,32 @@
       }
     }
 
+    &.inputFontSize-xl {
+      & .cms-profilesearch-icon {
+        width: 0.5em;
+        left: 0.35em;
+        top: 50%;
+      }
+      & .cms-profilesearch-reset-button {
+        right: 0.5em;
+      }
+    }
+
+    &.inputFontSize-lg {
+      & .cms-profilesearch-icon {
+        width: 0.5em;
+        left: 0.35em;
+        top: 50%;
+      }
+      & .cms-profilesearch-reset-button {
+        right: 0.5em;
+        padding: 0 0 0.25em 0.55em;
+        & .cms-profilesearch-reset-button-text {
+          display: none;
+        }
+      }
+    }
+
     &.inputFontSize-md {
       & .cms-profilesearch-icon {
         width: 0.4em;
@@ -134,7 +177,7 @@
         top: 47%;
       }
       & .cms-profilesearch-reset-button {
-        padding: 0 0em 0.25em 0.55em;
+        padding: 0 0 0.25em 0.55em;
         right: 0.25em;
         & .cms-profilesearch-reset-button-text {
           display: none;
@@ -142,13 +185,13 @@
       }
     }
 
-    @mixin max-sm {
+    &.inputFontSize-sm, @mixin max-sm {
       & .cms-profilesearch-icon {
         width: 0.35em;
         left: 0.22em;
       }
       & .cms-profilesearch-reset-button {
-        padding: 0 0em 0.25em 0.55em;
+        padding: 0 0 0.25em 0.55em;
         right: 0.25em;
         & .cms-profilesearch-reset-button-text {
           display: none;
