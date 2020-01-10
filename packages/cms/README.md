@@ -387,16 +387,28 @@ It is recommended that this search be performed using DeepSearch, running on a s
 export CANON_CMS_DEEPSEARCH_API=some-api.com:88/deepsearch
 ```
 
-However, if you choose not to run a DeepSearch server, the ProfileSearch API and component will fall back on a simple `LIKE` query on the members in the search table.
+However, if you choose not to run a DeepSearch server, the ProfileSearch API and component will fall back on a simple `%LIKE%` query on the members in the search table.
 
-You may then import the ProfileSearch Component:
+You may then import the ProfileSearch component, shown here with the default props:
 
 ```jsx
 import {ProfileSearch} from "@datawheel/canon-cms";
 
 ...
 
-<ProfileSearch />
+<ProfileSearch
+  activateKey={false} // a keyboard character that will enable the search from anywhere on the page (ie . "s")
+  availableProfiles={[]} // limit the type of profile results to show (ie. ["hs92", "country"])
+  columnOrder={[]} // the order of the "columns" display (ie. ["hs92", "country"])
+  columnTitles={{}} // overrides for the default "columns" display titles (ie. {hs92: "Products"})
+  display={"list"} // available options are "list" or "columns"
+  inputFontSize={"xxl"} // the CSS size for the input box ("sm", "md", "lg", "xl", "xxl")
+  joiner={"&"} // the character used when joining titles in multi-dimensional profiles
+  limit={10} // how many results to show
+  minQueryLength={1} // when the search query is below this number, no API requests will be made
+  position={"static"} // either "static" or "absolute" (for a pop-up result window)
+  showExamples={false} // setting this to `true` will display results when no query has been entered
+/>
 ```
 
 If you would prefer to build your own search component, the DeepSearch API is available at `/api/profilesearch`. Arguments are as follows:
