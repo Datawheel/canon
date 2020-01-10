@@ -17,6 +17,7 @@ class ProfileSearchPage extends Component {
             display="columns"
             activeKey="s"
             showExamples={true}
+            // availableProfiles={["country", "hs92"]}
             columnOrder={["hs92", "country"]}
             columnTitles={{country: "Cool Locations"}}
             />
@@ -35,7 +36,11 @@ class ProfileSearchPage extends Component {
         <h2>List Display</h2>
         <div className="profilesearchpage-area list">
 
-          <ProfileSearch inputFontSize="md" display="list" />
+          <ProfileSearch
+            inputFontSize="md"
+            display="list"
+            availableProfiles={["country", "hs92"]}
+             />
 
         </div>
       </React.Fragment>

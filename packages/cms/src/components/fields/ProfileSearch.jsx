@@ -242,6 +242,7 @@ class ProfileSearch extends Component {
     const {router} = this.context;
     const {active, loading, query, results} = this.state;
     const {
+      availableProfiles,
       display,
       columnOrder,
       columnTitles,
@@ -251,7 +252,7 @@ class ProfileSearch extends Component {
       position
     } = this.props;
 
-    // console.log("results", results);
+    console.log("results", results);
 
     return (
       <div className="cms-profilesearch">
@@ -301,17 +302,17 @@ class ProfileSearch extends Component {
               switch(display) {
 
                 case "columns":
+                  const columnProfiles = Object.keys((results.profiles || {}))
+                    .filter(d => !availableProfiles.length || availableProfiles.includes(d))
+                    .sort((a, b) => {
+                      const aIndex = columnOrder.includes(a) ? columnOrder.indexOf(a) : columnOrder.length + 1;
+                      const bIndex = columnOrder.includes(b) ? columnOrder.indexOf(b) : columnOrder.length + 1;
+                      return aIndex - bIndex;
+                    });
                   return (
                     <ul key="columns" className="cms-profilesearch-columns">
-                      {
-                      Object.keys((results.profiles || {}))
-                        .sort((a, b) => {
-                          const aIndex = columnOrder.includes(a) ? columnOrder.indexOf(a) : columnOrder.length + 1;
-                          const bIndex = columnOrder.includes(b) ? columnOrder.indexOf(b) : columnOrder.length + 1;
-                          return aIndex - bIndex;
-                        })
-                        .map((profile, i) => {
-                          const data = (results.profiles[profile] || []).slice(0, limit);
+                      { columnProfiles.map((profile, i) => {
+                          const data = (results.profiles[profile] || []);
                           return (
                             <li key={`p-${i}`} className="cms-profilesearch-column">
                               <h3 className="cms-profilesearch-column-title">{columnTitles[profile] || columnTitle(data)}</h3>
@@ -327,9 +328,11 @@ class ProfileSearch extends Component {
                   );
 
                 case "list":
+                  const listProfiles = (results.grouped || [])
+                    .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
                   return (
                     <ul key="list" className="cms-profilesearch-list">
-                      {(results.grouped || []).slice(0, limit).map((result, j) =>
+                      {listProfiles.map((result, j) =>
                         <li key={`r-${j}`} className="cms-profilesearch-list-item">
                           <Link to={linkify(router, result)} className="cms-profilesearch-list-item-link">
                             {result.map(d => profileTitleFormat(d.name)).join(` ${joiner} `)}
@@ -360,6 +363,7 @@ ProfileSearch.contextTypes = {
 
 ProfileSearch.defaultProps = {
   activateKey: false,
+  availableProfiles: [],
   columnOrder: [],
   columnTitles: {},
   display: "list",
