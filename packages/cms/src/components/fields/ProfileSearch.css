@@ -201,47 +201,6 @@
 
   }
 
-  & .cms-profilesearch-columns {
-    @mixin list-reset;
-    display: flex;
-    flex-wrap: wrap;
-    width: calc(100% + var(--gutter-lg)); /* offset column margin */
-
-    & .cms-profilesearch-column {
-      @mixin list-reset;
-      flex: 1 0 calc(25% - var(--gutter-lg));
-      min-width: 10rem;
-      max-width: 100%;
-      margin-right: var(--gutter-lg);
-      position: relative;
-      padding-bottom: var(--gutter-lg);
-
-      /* list entity title */
-      & .cms-profilesearch-column-title {
-        /* positioning */
-        position: sticky;
-        text-align: center;
-        top: 0;
-        z-index: 2; /* above tile & tile title */
-        margin: 0;
-        /* sizing */
-        height: var(--nav-height);
-        padding: 1rem 0;
-        /* hide tiles as they pass through */
-        background-color: var(--white);
-      }
-
-      /* "column" layout */
-      & .cms-profilesearch-column-list {
-        column-width: 14rem;
-        column-gap: var(--gutter);
-        padding: 0;
-      }
-
-    }
-
-  }
-
   /* "list" layout */
   & .cms-profilesearch-list {
     @mixin list-reset;

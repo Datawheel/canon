@@ -4,29 +4,12 @@ import {Link} from "react-router";
 import axios from "axios";
 import "./ProfileSearch.css";
 import linkify from "../../utils/linkify";
-import profileTitleFormat from "../../utils/profileTitleFormat";
-import ProfileTile from "./ProfileTile";
+import {formatCategory, formatTitle} from "../../utils/profileTitleFormat";
 import {Icon, NonIdealState, Spinner} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
-import {titleCase} from "d3plus-text";
 import {event, select} from "d3-selection";
 import styles from "style.yml";
-
-/** Creates column titles */
-function columnTitle(data) {
-  return data[0].map(d => {
-    let slug = d.slug;
-    const dim = d.memberDimension;
-    if (data[0].length === 1 && dim.toLowerCase() !== slug.toLowerCase()) {
-      if (slug && slug.match(/[A-z]{1,}/g).join("").length < 4) {
-        slug = slug.toUpperCase();
-      }
-      else slug = titleCase(slug);
-      return `${dim} (${slug})`;
-    }
-    return dim;
-  }).join("/");
-}
+import ProfileColumns from "./ProfileColumns";
 
 function findSibling(elem, dir = "next") {
 
@@ -308,24 +291,9 @@ class ProfileSearch extends Component {
                       const aIndex = columnOrder.includes(a) ? columnOrder.indexOf(a) : columnOrder.length + 1;
                       const bIndex = columnOrder.includes(b) ? columnOrder.indexOf(b) : columnOrder.length + 1;
                       return aIndex - bIndex;
-                    });
-                  return (
-                    <ul key="columns" className="cms-profilesearch-columns">
-                      { columnProfiles.map((profile, i) => {
-                          const data = (results.profiles[profile] || []);
-                          return (
-                            <li key={`p-${i}`} className="cms-profilesearch-column">
-                              <h3 className="cms-profilesearch-column-title">{columnTitles[profile] || columnTitle(data)}</h3>
-                              <ul className="cms-profilesearch-column-list">
-                                {data.map((result, j) =>
-                                  <ProfileTile key={`r-${j}`} {...this.props} data={result} />)}
-                              </ul>
-                            </li>
-                          );
-                        })
-                      }
-                    </ul>
-                  );
+                    })
+                    .map(profile => results.profiles[profile] || []);
+                  return <ProfileColumns columnTitles={columnTitles} tileProps={{joiner}} data={columnProfiles} />;
 
                 case "list":
                   const listProfiles = (results.grouped || [])
@@ -335,8 +303,8 @@ class ProfileSearch extends Component {
                       {listProfiles.map((result, j) =>
                         <li key={`r-${j}`} className="cms-profilesearch-list-item">
                           <Link to={linkify(router, result)} className="cms-profilesearch-list-item-link">
-                            {result.map(d => profileTitleFormat(d.name)).join(` ${joiner} `)}
-                            <div className="cms-profilesearch-list-item-sub u-font-xs">{columnTitle([result])}</div>
+                            {result.map(d => formatTitle(d.name)).join(` ${joiner} `)}
+                            <div className="cms-profilesearch-list-item-sub u-font-xs">{formatCategory([result])}</div>
                           </Link>
                         </li>
                       )}
