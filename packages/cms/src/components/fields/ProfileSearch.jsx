@@ -5,7 +5,7 @@ import axios from "axios";
 import "./ProfileSearch.css";
 import linkify from "../../utils/linkify";
 import profileTitleFormat from "../../utils/profileTitleFormat";
-import ProfileSearchTile from "./ProfileSearchTile";
+import ProfileTile from "./ProfileTile";
 import {Icon, NonIdealState, Spinner} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
 import {titleCase} from "d3plus-text";
@@ -318,7 +318,7 @@ class ProfileSearch extends Component {
                               <h3 className="cms-profilesearch-column-title">{columnTitles[profile] || columnTitle(data)}</h3>
                               <ul className="cms-profilesearch-column-list">
                                 {data.map((result, j) =>
-                                  <ProfileSearchTile key={`r-${j}`} {...this.props} data={result} />)}
+                                  <ProfileTile key={`r-${j}`} {...this.props} data={result} />)}
                               </ul>
                             </li>
                           );

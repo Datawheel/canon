@@ -4,7 +4,7 @@ import {Link} from "react-router";
 import linkify from "../../utils/linkify";
 import profileTitleFormat from "../../utils/profileTitleFormat";
 import {max} from "d3-array";
-import "./ProfileSearchTile.css";
+import "./ProfileTile.css";
 
 /** Determines font-size based on title */
 function titleSize(title) {
@@ -15,7 +15,7 @@ function titleSize(title) {
   return "lg";
 }
 
-class ProfileSearchTile extends Component {
+class ProfileTile extends Component {
 
   render() {
 
@@ -52,12 +52,12 @@ class ProfileSearchTile extends Component {
 
 }
 
-ProfileSearchTile.contextTypes = {
+ProfileTile.contextTypes = {
   router: PropTypes.object
 };
 
-ProfileSearchTile.defaultProps = {
+ProfileTile.defaultProps = {
   joiner: "&"
 };
 
-export default ProfileSearchTile;
+export default ProfileTile;
