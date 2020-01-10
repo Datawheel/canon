@@ -43,7 +43,7 @@ class ProfileRenderer extends Component {
   }
 
   componentDidMount() {
-    this.props.isAuthenticated();
+    if (!this.props.auth.user) this.props.isAuthenticated();
     if (isIE) this.setState({isIE: true});
   }
 
