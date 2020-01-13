@@ -55,7 +55,7 @@ const isEnabled = (req, res, next) => {
 
 const catcher = e => {
   if (verbose) {
-    console.error("Error in cmsRoute: ", e);
+    console.error("Error in cmsRoute: ", e.message);
   }
   return [];
 };
@@ -348,12 +348,22 @@ const populateSearch = async(profileData, db) => {
 
   const cube = await client.getCube(cubeName).catch(catcher);
 
-  const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
-    .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
+  const levels = [];
+
+  for (const hierarchy of cube.dimensionsByName[dimension].hierarchies) {
+    for (const level of hierarchy.levels) {
+      if (!levels.map(d => d.name).includes(level.name) && level.name !== "(All)" && dimLevels.includes(level.name)) levels.push(level);
+    }
+  }
+
+  if (verbose) console.log("INITIATING SEARCH INGEST...");  
 
   for (const locale of LANGUAGES) {
 
+    if (verbose) console.log(`============================\nStarting ingest for locale: ${locale}...`);
+
     let fullList = [];
+    
     for (let i = 0; i < levels.length; i++) {
 
       const level = levels[i];
@@ -380,56 +390,61 @@ const populateSearch = async(profileData, db) => {
 
     }
 
-    let slugs = await db.search.findAll().catch(catcher);
-    slugs = slugs.map(s => s.slug).filter(d => d);
+    if (verbose) console.log(`Fetched ${fullList.length} members from the cube.`);
 
-    const slugify = (str, id) => {
-      let slug = strip(str).replace(/-{2,}/g, "-").toLowerCase();
-      if (slugs.includes(slug)) slug += `-${id}`;
-      slugs.push(slug);
-      return slug;
-    };
+    if (fullList.length > 0) {
 
-    // Fold over the list of members
-    for (let i = 0; i < fullList.length; i++) {
-      // Extract their properties
-      const {id, name, zvalue, dimension, hierarchy, stem} = fullList[i];
-      // The search table holds the non-translatable props
-      const searchObj = {id, zvalue, dimension, hierarchy, stem};
-      searchObj.slug = slugify(name, id);
-      // Create the member in the search table
-      const [row, created] = await db.search.findOrCreate({
-        where: {id, dimension, hierarchy},
-        defaults: searchObj
-      }).catch(catcher);
-      if (created) {
-        if (verbose) console.log(`Created: ${row.id} ${row.slug}`);
-        // If a new row was created, create its translated content
-        await db.search_content.create({id: row.contentId, locale, name});
-      }
-      else {
-        if (row.slug) delete searchObj.slug;
-        // If it's an update, update everything except the (permanent) slug
-        await row.updateAttributes(searchObj).catch(catcher);
-        if (verbose) {
-          console.log(`Updated: ${row.id} ${row.slug}`);
-          console.log("Updating associated language content:");
-        }
-        const [contentRow, contentCreated] = await db.search_content.findOrCreate({
-          where: {id: row.contentId, locale},
-          defaults: {name}
-        }).catch(catcher);
-        if (contentCreated) {
-          if (verbose) console.log(`Created ${locale} Content: ${contentRow.name}`);
-        }
-        else {
-          await contentRow.updateAttributes({name});
-          if (verbose) console.log(`Updated ${contentRow.id} ${contentRow.locale}: ${contentRow.name}`);
-        }
-      }
+      let slugs = await db.search.findAll().catch(catcher);
+      slugs = slugs.map(s => s.slug).filter(d => d);
+
+      const slugify = str => strip(str).replace(/-{2,}/g, "-").toLowerCase();
+
+      // Add a generated slug to the write payload
+      if (verbose) console.log("Generating slugs...");
+      const searchList = fullList.map(member => ({slug: slugify(member.name, member.id), ...member}));
+      // Find a way to handle slugify uniques here!!
+
+      if (verbose) console.log("Slug generation complete.");
+
+      const searchInsertKeys = Object.keys(searchList[0]).filter(d => d !== "name");
+      const searchUpdateKeys = searchInsertKeys.filter(d => d !== "slug");
+
+      let searchQuery = `INSERT INTO canon_cms_search (${searchInsertKeys.join(", ")})\nVALUES `;
+      searchList.forEach((obj, i) => {
+        searchQuery += `${i ? "," : ""}\n(${searchInsertKeys.map(key => `\'${`${obj[key]}`.replace(/\'/g, "''")}\'`)})`;
+      });
+      searchQuery += `\nON CONFLICT (id, dimension, hierarchy)\nDO UPDATE SET (${searchUpdateKeys.join(", ")}) = (${searchUpdateKeys.map(key => `EXCLUDED.${key}`).join(", ")})\nRETURNING *;`;
+
+      if (verbose) console.log("Upserting search table...");
+      const [searchRows] = await db.query(searchQuery).catch(catcher);
+      if (verbose) console.log(`Upserted ${searchRows.length} rows.`);
+
+      const searchLookup = searchList.reduce((obj, d) => {
+        obj[`${d.id}-${d.dimension}-${d.hierarchy}`] = d;
+        return obj;
+      }, {});
+      
+      const contentList = searchRows.map(member => {
+        const original = searchLookup[`${member.id}-${member.dimension}-${member.hierarchy}`];
+        return {name: original.name, id: member.contentId, locale};
+      });
+
+      const contentKeys = ["id", "locale", "name"];
+
+      let contentQuery = `INSERT INTO canon_cms_search_content (${contentKeys.join(", ")})\nVALUES `;
+      contentList.forEach((obj, i) => {
+        contentQuery += `${i ? "," : ""}\n(${contentKeys.map(key => `\'${`${obj[key]}`.replace(/\'/g, "''")}\'`)})`;
+      });
+      contentQuery += `\nON CONFLICT (id, locale)\nDO UPDATE SET (${contentKeys.join(", ")}) = (${contentKeys.map(key => `EXCLUDED.${key}`).join(", ")})\nRETURNING *;`;
+
+      if (verbose) console.log(`Upserting content table for ${locale}...`);
+      const [contentRows] = await db.query(contentQuery).catch(catcher);
+      if (verbose) console.log(`Upserted ${contentRows.length} content rows for locale: ${locale}.`);
+
     }
   }
 
+  if (verbose) console.log("SEARCH INGEST COMPLETE");  
 };
 
 module.exports = function(app) {
