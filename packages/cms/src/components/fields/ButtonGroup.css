@@ -7,6 +7,11 @@
   width: 100%;
   display: flex;
 
+  & > [class*="-button-group-label"] {
+    white-space: nowrap;
+    margin-right: 0.75em;
+  }
+
   & > [class*="-button"] {
     flex: 1 1 auto;
 
