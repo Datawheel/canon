@@ -37,7 +37,8 @@ class MetaEditor extends Component {
       imageEnabled: false,
       isOpen: false,
       currentRow: {},
-      loading: true,
+      loading: false,
+      pageLoading: true,
       pageIndex: 0,
       pageSize: ROWS_PER_PAGE,
       querying: false,
@@ -421,7 +422,7 @@ class MetaEditor extends Component {
           dimensions[meta.dimension] = [...new Set([...dimensions[meta.dimension], ...meta.levels])];
         }
       });
-      this.setState({dimensions, sourceData, metaData, loading: false}, this.prepData.bind(this));
+      this.setState({dimensions, sourceData, metaData, pageLoading: false}, this.prepData.bind(this));
     });
   }
 
@@ -553,6 +554,7 @@ class MetaEditor extends Component {
       flickrImages,
       isOpen,
       loading,
+      pageLoading,
       pageIndex,
       pageSize,
       querying,
@@ -655,7 +657,7 @@ class MetaEditor extends Component {
             PreviousComponent={PreviousComponent}
             NextComponent={NextComponent}
             showPageSizeOptions={false}
-            noDataText={loading ? "Loading data…" : "No data found"}
+            noDataText={pageLoading ? "Loading data…" : "No data found"}
           />
         </div>
 
