@@ -360,7 +360,7 @@ const populateSearch = async(profileData, db) => {
 
   for (const locale of LANGUAGES) {
 
-    if (verbose) console.log(`============================\nStarting ingest for locale: ${locale}...`);
+    if (verbose) console.log(`Starting ingest for locale: ${locale}...`);
 
     let fullList = [];
     
@@ -412,6 +412,7 @@ const populateSearch = async(profileData, db) => {
       if (verbose) console.log("Slug generation complete.");
 
       const searchInsertKeys = Object.keys(searchList[0]).filter(d => d !== "name");
+      // On conflict (update), do not attempt to change the slug
       const searchUpdateKeys = searchInsertKeys.filter(d => d !== "slug");
 
       let searchQuery = `INSERT INTO canon_cms_search (${searchInsertKeys.join(", ")})\nVALUES `;
@@ -445,10 +446,8 @@ const populateSearch = async(profileData, db) => {
       if (verbose) console.log(`Upserting content table for ${locale}...`);
       const [contentRows] = await db.query(contentQuery).catch(catcher);
       if (verbose) console.log(`Upserted ${contentRows.length} content rows for locale: ${locale}.`);
-
     }
   }
-
   if (verbose) console.log("SEARCH INGEST COMPLETE");  
 };
 
@@ -620,6 +619,7 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
+    req.setTimeout(1000 * 60 * 5);
     const profileData = req.body;
     const {profile_id} = profileData;  // eslint-disable-line
     profileData.dimension = profileData.dimName;

@@ -5,7 +5,6 @@ import Card from "./Card";
 import Dialog from "../interface/Dialog";
 import DimensionEditor from "../editors/DimensionEditor";
 import DefinitionList from "../variables/DefinitionList";
-import Button from "../fields/Button";
 import PreviewSearch from "../fields/PreviewSearch";
 
 import {deleteDimension} from "../../actions/profiles";
