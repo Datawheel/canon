@@ -402,9 +402,9 @@ const populateSearch = async(profileData, db) => {
 
       const slugify = str => strip(str).replace(/-{2,}/g, "-").toLowerCase();
 
-      // Add a generated slug to the write payload
       if (verbose) console.log("Generating slugs...");
-      const searchList = fullList.map(member => ({slug: slugify(member.name, member.id), ...member}));
+      // Add a generated slug to the write payload
+      const searchList = fullList.map(member => ({slug: slugify(member.name), ...member}));
       if (verbose) console.log("Deduping slugs...");
       searchList.forEach(member => {
         usedSlugs[member.slug] ? member.slug = `${member.slug}-${member.id}` : usedSlugs[member.slug] = true;
