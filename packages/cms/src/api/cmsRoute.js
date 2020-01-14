@@ -394,16 +394,21 @@ const populateSearch = async(profileData, db) => {
 
     if (fullList.length > 0) {
 
-      let slugs = await db.search.findAll().catch(catcher);
-      slugs = slugs.map(s => s.slug).filter(d => d);
+      const slugs = await db.search.findAll().catch(catcher);
+      const usedSlugs = {};
+      slugs.forEach(s => {
+        if (s.slug) usedSlugs[s.slug] = true;
+      });
 
       const slugify = str => strip(str).replace(/-{2,}/g, "-").toLowerCase();
 
       // Add a generated slug to the write payload
       if (verbose) console.log("Generating slugs...");
       const searchList = fullList.map(member => ({slug: slugify(member.name, member.id), ...member}));
-      // Find a way to handle slugify uniques here!!
-
+      if (verbose) console.log("Deduping slugs...");
+      searchList.forEach(member => {
+        usedSlugs[member.slug] ? member.slug = `${member.slug}-${member.id}` : usedSlugs[member.slug] = true;
+      });
       if (verbose) console.log("Slug generation complete.");
 
       const searchInsertKeys = Object.keys(searchList[0]).filter(d => d !== "name");
@@ -648,6 +653,7 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
+    req.setTimeout(1000 * 60 * 5);
     const {id} = req.body;
     let profileData = await db.profile_meta.findOne({where: {id}});
     profileData = profileData.toJSON();
