@@ -91,7 +91,7 @@ class Selector extends Component {
           {options.map(b =>
             <Button
               className="cp-selector-button"
-              onClick={() => onSelector(name, stripHTML(b.option))}
+              onClick={() => onSelector(name, b.option)}
               active={b.option === activeValue}
               fontSize={fontSize}
               key={stripHTML(b.option)}

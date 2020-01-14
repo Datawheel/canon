@@ -110,6 +110,8 @@ class ProfileRenderer extends Component {
   }
 
   onSelector(name, value) {
+
+    console.log(name, value);
     const {profile, selectors} = this.state;
     const {id, variables} = profile;
     const {locale, sectionID} = this.props;
