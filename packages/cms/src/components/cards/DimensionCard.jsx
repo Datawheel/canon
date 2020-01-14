@@ -25,8 +25,9 @@ class DimensionCard extends Component {
     const {meta} = this.props;
     const {id} = meta;
     const url = "/api/cms/repopulateSearch/";
+    const timeout = 1000 * 60 * 5;
     this.setState({rebuilding: true});
-    axios.post(url, {id}).then(() => {
+    axios.post(url, {id}, {timeout}).then(() => {
       this.setState({rebuilding: false});
     });
   }
