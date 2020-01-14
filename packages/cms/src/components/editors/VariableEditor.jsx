@@ -122,6 +122,7 @@ class VariableEditor extends Component {
         lookup[`id${i + 1}`] = p.id;
       });
       const url = urlSwap(api, Object.assign({}, attr, env, variables, lookup));
+      this.setState({url});
       axios.get(url).then(resp => {
         const payload = resp.data;
         let {simple} = this.state;
@@ -131,7 +132,7 @@ class VariableEditor extends Component {
           simple = true;
           data.simple = true;
         }
-        this.setState({payload, simple, data, url, alertObj: false});
+        this.setState({payload, simple, data, alertObj: false});
       }).catch(() => {
         const payload = {error: "Please enter a valid API URL."};
         let {simple} = this.state;
