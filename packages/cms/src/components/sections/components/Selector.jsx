@@ -94,7 +94,7 @@ class Selector extends Component {
               onClick={() => onSelector(name, b.option)}
               active={b.option === activeValue}
               fontSize={fontSize}
-              key={stripHTML(b.option)}
+              key={b.option}
             >
               {stripHTML(variables[b.option])}
             </Button>
