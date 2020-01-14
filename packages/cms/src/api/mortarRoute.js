@@ -252,6 +252,15 @@ module.exports = function(app) {
     // Strip the attr object down to just some relevant keys
     const smallKeys = ["id", "dimension", "hierarchy", "slug"];
     const smallAttr = Object.keys(attr).reverse().reduce((acc, k) => smallKeys.includes(k.replace(/\d+/g, "")) ? {[k]: attr[k], ...acc} : acc, {});
+    // Retrieve user login data
+    smallAttr.user = false;
+    if (LOGINS && req.user) {
+      // Extract sensitive data
+      const {password, salt, ...user} = req.user; // eslint-disable-line
+      smallAttr.user = user;
+      // Bubble up userRole for easy access in front end (for hiding sections based on role)
+      smallAttr.userRole = user.role;
+    }
     // The id "0" is a special case to retrieve ONLY the Attributes variables (without running any real generators)
     // Used in fetchVariables for new profiles that have no custom generators but still need to run this function.
     if (id === "0") return {...smallAttr, _genStatus: {attributes: {...smallAttr}}};
@@ -433,7 +442,14 @@ module.exports = function(app) {
     // If the user has provided variables, this is a POST request. Use those variables,
     // And skip the entire variable fetching process.
     if (req.body.variables) {
-      variables = req.body.variables;
+      // If the forceMats option was provided, use the POSTed variables to run
+      // Materializers. Used for Login in ProfileRenderer.jsx
+      if (req.query.forceMats === "true") {
+        variables = await runMaterializers(req, req.body.variables, pid);
+      }
+      else {
+        variables = req.body.variables;
+      }
     }
     // If the user has not provided variables, this is a GET request. Run Generators.
     else {

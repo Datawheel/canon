@@ -11,6 +11,7 @@ Content Management System for Canon sites.
 * [Sections](#sections)
 * [Search](#search)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
+* [Authentication](#authentication)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Release Notes](#release-notes)
 * [Migration](#migration)
@@ -211,6 +212,7 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |`CANON_CMS_ENABLE`|Setting this env var to `true` allows access to the cms in production builds.|`false`|
 |`CANON_CMS_LOGGING`|Enable verbose logging in console.|`false`|
 |`CANON_CMS_REQUESTS_PER_SECOND`|Sets the `requestsPerSecond` value in the [promise-throttle](https://www.npmjs.com/package/promise-throttle) library, used for rate-limiting Generator requests|20|
+|`CANON_CMS_DEEPSEARCH_API`|Server location of Deepsearch API|`undefined`|
 |`FLICKR_API_KEY`|Used to configure Flickr Authentication|`undefined`|
 |`GOOGLE_APPLICATION_CREDENTIALS`|Path to JSON token file for Cloud Storage|`undefined`|
 |`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
@@ -350,6 +352,8 @@ config: {
 
 ## Search
 
+#### Legacy Search API (Dimensions only)
+
 The CMS is used to create Profiles based on Dimensions, such as "Geography" or "Industry". The individual entities that make up these dimensions (such as *Massachusetts* or *Metalworkers*) are referred to as Members. These members are what make up the slugs/ids in URLS; when visiting `/geo/massachusetts`, `geo` is the profile/dimension slug and `massachusetts` is the member.
 
 These members can be viewed and edited in the in the MetaData section of the CMS. However, they can also be searched via an API endpoint, which can be useful for setting up a search feature on your site. The API endpoint is:
@@ -373,6 +377,51 @@ Example query:
 ```
 /api/search?q=mass&dimension=Geography
 ```
+
+#### Profile Search API
+
+The legacy search above is only used for searching singular dimensions, not for returning actual profiles in your CMS installation. The Profile Search still returns matching members, but more importantly, returns a list of Profiles that contain those members.
+
+It is recommended that this search be performed using DeepSearch, running on a separate server. You can configure the CMS to point to an installation of DeepSearch using the following environment variable:
+
+```sh
+export CANON_CMS_DEEPSEARCH_API=some-api.com:88/deepsearch
+```
+
+However, if you choose not to run a DeepSearch server, the ProfileSearch API and component will fall back on a simple `%LIKE%` query on the members in the search table.
+
+You may then import the ProfileSearch component, shown here with the default props:
+
+```jsx
+import {ProfileSearch} from "@datawheel/canon-cms";
+
+...
+
+<ProfileSearch
+  activateKey={false} // a keyboard character that will enable the search from anywhere on the page (ie . "s")
+  availableProfiles={[]} // limit the type of profile results to show (ie. ["hs92", "country"])
+  columnOrder={[]} // the order of the "columns" display (ie. ["hs92", "country"])
+  columnTitles={{}} // overrides for the default "columns" display titles (ie. {hs92: "Products"})
+  display={"list"} // available options are "list" or "columns"
+  inputFontSize={"xxl"} // the CSS size for the input box ("sm", "md", "lg", "xl", "xxl")
+  joiner={"&"} // the character used when joining titles in multi-dimensional profiles
+  limit={10} // how many results to show
+  minQueryLength={1} // when the search query is below this number, no API requests will be made
+  position={"static"} // either "static" or "absolute" (for a pop-up result window)
+  showExamples={false} // setting this to `true` will display results when no query has been entered
+/>
+```
+
+If you would prefer to build your own search component, the DeepSearch API is available at `/api/profilesearch`. Arguments are as follows:
+
+|parameter|description|
+|---|---|
+|`query`|Query to search for|
+|`locale`|Language for results|
+|`limit`|Maximum number of results to return|
+|`min_confidence`|Confidence threshold (Deepsearch Only)|
+
+Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
 
 ---
 
@@ -443,6 +492,16 @@ Keep in mind that you may combine the two advanced functions! If your planned mo
 ```
 
 You are then welcome, in the `myModalSlug` section, to make use of `idForMyModal` and trust that it will be set when the modal opens.
+
+---
+
+## Authentication
+
+Canon CMS makes use of the [User Management](https://github.com/Datawheel/canon#user-management) from Canon Core. If `CANON_LOGINS` is set to true, the CMS will require a user of `role` of `1` or higher to access the CMS.
+
+The CMS also exports the `user` object and a `userRole` boolean for the currently logged in user in the Locked Attributes Generator for every profile. You can make use of these variables to hide, show, or limit information based on the role of the currently logged in user.
+
+**Note:** If you create new variables from the user data (e.g., `const isPro = role >= 1`), these operations **must** be performed in materializers to have any effect.
 
 ---
 
