@@ -49,6 +49,14 @@
   }
 }
 
+/* compiled generator link */
+.cms-generator-variable-editor-url {
+  @mixin description-color;
+}
+.cms-generator-variable-editor-url-link {
+  @mixin link-theme;
+}
+
 .cms-variable-editor-json,
 .cms-variable-table-wrapper {
   height: 100%;
