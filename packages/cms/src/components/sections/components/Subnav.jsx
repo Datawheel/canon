@@ -63,7 +63,7 @@ class Subnav extends Component {
   /** crawl up the tree from the title and grab the section wrapper */
   getSectionWrapper(slug) {
     const section = document.getElementById(slug);
-    return section.parentNode.parentNode.parentNode;
+    return section ? section.parentNode.parentNode.parentNode : false;
   }
 
   /** on scroll, determine whether subnav is fixed, and which section we're in */
