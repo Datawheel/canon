@@ -34,7 +34,7 @@ class ProfileTile extends Component {
           {data.map((r, i) => {
             const title = formatTitle(r.name);
             return (
-              <React.Fragment>
+              <React.Fragment key={`tile-entity-${i}`}>
                 { i > 0 && <span className="cms-profilesearch-tile-link-joiner u-font-md">{joiner}</span> }
                 <div className="cms-profilesearch-tile-link-text">
                   <div className={`cms-profilesearch-tile-link-title heading u-font-${titleSize(title)}`}>{title}</div>
@@ -45,7 +45,8 @@ class ProfileTile extends Component {
           })}
         </Link>
         <div className="cms-profilesearch-tile-image-container">
-          {data.map(r => <div className="cms-profilesearch-tile-image"
+          {data.map(r => <div key={`tile-image-${r.id}`}
+            className="cms-profilesearch-tile-image"
             style={{backgroundImage: `url(api/image?slug=${r.slug}&id=${r.id}&size=thumb)`}} />)}
         </div>
       </li>

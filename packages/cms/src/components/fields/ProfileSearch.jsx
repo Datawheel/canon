@@ -12,6 +12,7 @@ import {event, select} from "d3-selection";
 import styles from "style.yml";
 import ProfileColumns from "./ProfileColumns";
 
+/** used for up/down arrow movement */
 function findSibling(elem, dir = "next") {
 
   let node = elem.parentNode;
@@ -23,7 +24,7 @@ function findSibling(elem, dir = "next") {
     const list = node.parentNode.parentNode;
     if (list.tagName.toLowerCase() === "li") {
       const column = list[`${dir}Sibling`];
-      const items = select(column).selectAll("li")
+      const items = select(column).selectAll("li");
       sibling = dir === "next" ? select(column).select("li").node()
         : items.nodes()[items.size() - 1];
     }
@@ -32,13 +33,14 @@ function findSibling(elem, dir = "next") {
   return sibling ? select(sibling).select("a").node() : sibling;
 }
 
+/** used for left/right arrow movement */
 function findNeighbor(elem, dir = "next") {
 
   let node = elem.parentNode;
   while (node.tagName.toLowerCase() !== "li") node = node.parentNode;
   const nodeBounds = node.getBoundingClientRect();
   const columnX = nodeBounds.left;
-  const nodeY = nodeBounds.top
+  const nodeY = nodeBounds.top;
   const list = node.parentNode.parentNode;
   let nextColumns = Array.from(select(list).selectAll("li").nodes())
     .filter(d => dir === "next" ? d.getBoundingClientRect().left > columnX : d.getBoundingClientRect().left < columnX);
@@ -50,7 +52,7 @@ function findNeighbor(elem, dir = "next") {
     nextColumns = Array.from(select(column).selectAll("li").nodes())
       .filter(d => dir === "next" ? d.getBoundingClientRect().left > columnX : d.getBoundingClientRect().left < columnX);
     if (dir === "previous") nextColumns = nextColumns.reverse();
-    sibling = nextColumns.find((d, i) => d.getBoundingClientRect().top === nodeY);
+    sibling = nextColumns.find(d => d.getBoundingClientRect().top === nodeY);
     if (!sibling && nextColumns.length) sibling = nextColumns[dir === "previous" ? 0 : nextColumns.length - 1];
   }
 
@@ -104,8 +106,8 @@ class ProfileSearch extends Component {
             ENTER = 13,
             ESC = 27,
             LEFT = 37,
-            UP = 38,
-            RIGHT = 39;
+            RIGHT = 39,
+            UP = 38;
 
       const arrowKeys = display === "columns" ? [LEFT, UP, RIGHT, DOWN] : [UP, DOWN];
       const linkHighlighted = this.resultContainer && this.resultContainer.contains(event.target);
@@ -161,7 +163,7 @@ class ProfileSearch extends Component {
     const topOffset = display === "columns" ? parseFloat(styles["nav-height"], 10) : 0;
     elem.scrollIntoView({block: "nearest"});
     const top = elem.getBoundingClientRect().top - this.resultContainer.getBoundingClientRect().top;
-    if (topOffset && top < topOffset) this.resultContainer.scrollTop -= (topOffset - top);
+    if (topOffset && top < topOffset) this.resultContainer.scrollTop -= topOffset - top;
     elem.focus();
   }
 
@@ -202,7 +204,7 @@ class ProfileSearch extends Component {
     }
   }
 
-  resetSearch(e) {
+  resetSearch() {
     this.setState({
       query: "",
       results: false
@@ -233,7 +235,6 @@ class ProfileSearch extends Component {
       columnTitles,
       inputFontSize,
       joiner,
-      limit,
       position
     } = this.props;
 
@@ -276,47 +277,47 @@ class ProfileSearch extends Component {
         <div className={`cms-profilesearch-container cms-profilesearch-container-${position}`} key="container" ref={comp => this.resultContainer = comp}>
           {
             (position !== "absolute" || active) && results
-            ? (() => {
+              ? (() => {
 
-              if (!results.grouped.length) {
-                return <NonIdealState key="empty" icon="zoom-out" title={`No results matching "${query}"`} />;
-              }
+                if (!results.grouped.length) {
+                  return <NonIdealState key="empty" icon="zoom-out" title={`No results matching "${query}"`} />;
+                }
 
-              switch(display) {
+                switch (display) {
 
-                case "columns":
-                  const columnProfiles = Object.keys((results.profiles || {}))
-                    .filter(d => !availableProfiles.length || availableProfiles.includes(d))
-                    .sort((a, b) => {
-                      const aIndex = columnOrder.includes(a) ? columnOrder.indexOf(a) : columnOrder.length + 1;
-                      const bIndex = columnOrder.includes(b) ? columnOrder.indexOf(b) : columnOrder.length + 1;
-                      return aIndex - bIndex;
-                    })
-                    .map(profile => results.profiles[profile] || []);
-                  return <ProfileColumns columnTitles={columnTitles} tileProps={{joiner}} data={columnProfiles} />;
+                  case "columns":
+                    const columnProfiles = Object.keys(results.profiles || {})
+                      .filter(d => !availableProfiles.length || availableProfiles.includes(d))
+                      .sort((a, b) => {
+                        const aIndex = columnOrder.includes(a) ? columnOrder.indexOf(a) : columnOrder.length + 1;
+                        const bIndex = columnOrder.includes(b) ? columnOrder.indexOf(b) : columnOrder.length + 1;
+                        return aIndex - bIndex;
+                      })
+                      .map(profile => results.profiles[profile] || []);
+                    return <ProfileColumns columnTitles={columnTitles} tileProps={{joiner}} data={columnProfiles} />;
 
-                case "list":
-                  const listProfiles = (results.grouped || [])
-                    .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
-                  return (
-                    <ul key="list" className="cms-profilesearch-list">
-                      {listProfiles.map((result, j) =>
-                        <li key={`r-${j}`} className="cms-profilesearch-list-item">
-                          <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
-                            {result.map(d => formatTitle(d.name)).join(` ${joiner} `)}
-                            <div className="cms-profilesearch-list-item-sub u-font-xs">{formatCategory([result])}</div>
-                          </Link>
-                        </li>
-                      )}
-                    </ul>
-                  );
+                  default:
+                    const listProfiles = (results.grouped || [])
+                      .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
+                    return (
+                      <ul key="list" className="cms-profilesearch-list">
+                        {listProfiles.map((result, j) =>
+                          <li key={`r-${j}`} className="cms-profilesearch-list-item">
+                            <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
+                              {result.map(d => formatTitle(d.name)).join(` ${joiner} `)}
+                              <div className="cms-profilesearch-list-item-sub u-font-xs">{formatCategory([result])}</div>
+                            </Link>
+                          </li>
+                        )}
+                      </ul>
+                    );
 
-              }
+                }
 
-            })()
-            : loading && (position !== "absolute" || active)
-            ? <NonIdealState key="loading" icon={<Spinner />} title="Loading results..." />
-            : position !== "absolute" ? <NonIdealState key="start" icon="search" title="Please enter a search term" /> : null
+              })()
+              : loading && (position !== "absolute" || active)
+                ? <NonIdealState key="loading" icon={<Spinner />} title="Loading results..." />
+                : position !== "absolute" ? <NonIdealState key="start" icon="search" title="Please enter a search term" /> : null
           }
         </div>
       </div>
