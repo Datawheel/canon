@@ -1,6 +1,8 @@
 import axios from "axios";
+import {connect} from "react-redux";
 import React, {Component, Fragment} from "react";
 import {hot} from "react-hot-loader/root";
+import {isAuthenticated} from "@datawheel/canon-core";
 import PropTypes from "prop-types";
 import {Dialog, Icon} from "@blueprintjs/core";
 
@@ -41,11 +43,17 @@ class ProfileRenderer extends Component {
   }
 
   componentDidMount() {
+    if (!this.props.auth.user) this.props.isAuthenticated();
     if (isIE) this.setState({isIE: true});
   }
 
   componentDidUpdate(prevProps) {
     const {isModal, sectionID} = this.props;
+    if (!prevProps.auth.user && this.props.auth.user) {
+      const {user} = this.props.auth;
+      const userRole = user.role;
+      this.onSetVariables.bind(this)({user, userRole}, true);
+    }
     // If this is a modal with a sectionID, then this component is being rendered as a section preview
     // in the CMS. When that is the case, the profile could be updated from the OUTSIDE, i.e., the user
     // changes a dropdown in PreviewHeader.jsx. In that case, listen for a new profile from props.
@@ -89,7 +97,7 @@ class ProfileRenderer extends Component {
    * This requires a server round trip, because the user may have changed a variable that would affect
    * the "allowed" status of a given section.
    */
-  onSetVariables(newVariables) {
+  onSetVariables(newVariables, forceMats) {
     const {profile, selectors, setVarsLoading} = this.state;
     const {id, variables} = profile;
     const {locale, sectionID} = this.props;
@@ -101,6 +109,7 @@ class ProfileRenderer extends Component {
       this.setState({setVarsLoading: true});
       let url = `/api/profile?profile=${id}&locale=${locale}&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
       if (sectionID) url += `&section=${sectionID}`;
+      if (forceMats) url += "&forceMats=true";
       const payload = {variables: Object.assign({}, variables, newVariables)};
       axios.post(url, payload)
         .then(resp => {
@@ -287,4 +296,12 @@ ProfileRenderer.childContextTypes = {
   onOpenModal: PropTypes.func
 };
 
-export default hot(ProfileRenderer);
+const mapStateToProps = state => ({
+  auth: state.auth
+});
+
+const mapDispatchToProps = dispatch => ({
+  isAuthenticated: () => dispatch(isAuthenticated())
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(hot(ProfileRenderer));

@@ -27,6 +27,11 @@ const catcher = e => {
 const splashWidth = Number(process.env.CANON_CONST_IMAGE_SPLASH_WIDTH) || 1400;
 const thumbWidth = Number(process.env.CANON_CONST_IMAGE_THUMB_WIDTH) || 400;
 
+let deepsearchAPI = process.env.CANON_CMS_DEEPSEARCH_API;
+if (deepsearchAPI) deepsearchAPI = deepsearchAPI.replace(/\/$/, "");
+const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
+const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
+
 module.exports = function(app) {
 
   const {db, cache} = app.settings;
@@ -154,7 +159,178 @@ module.exports = function(app) {
     res.json(update);
   });
 
-  app.get("/api/search", async(req, res) => {
+  const profileSearch = async(req, res) => {
+
+    let meta = await db.profile_meta.findAll().catch(catcher);
+    meta = meta.map(d => d.toJSON());
+    // todo: fix this OEC hack!
+    const fixMeta = d => ({...d, dimension: d.dimension === "Exporter" ? "Country" : d.dimension});
+    meta = meta.map(fixMeta);
+    const dims = [...new Set(meta.map(d => d.dimension))];
+    const dimCount = dims.length;
+
+    const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
+    const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10; 
+    let results = {};
+
+    const rowToResult = row => {
+      const content = row.content.find(c => c.locale === locale);
+      return {
+        name: content ? content.name : "",
+        confidence: row.zvalue,
+        metadata: {
+          slug: row.slug,
+          hierarchy: row.hierarchy
+        },
+        id: row.id,
+        keywords: content && content.keywords ? content.keywords.join : ""
+      };
+    };
+
+    // If the user has provided no query, gather a sampling of top zvalue members for every possible profile
+    if (!req.query.query || req.query.query === "") {
+      results.origin = "legacy";
+      results.results = {};
+      for (const dim of dims) {
+        const rows = await db.search.findAll({
+          where: {dimension: dim},
+          include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
+          order: [["zvalue", "DESC"]],
+          limit
+        });
+        rows.forEach(row => {
+          if (!results.results[row.dimension]) results.results[row.dimension] = [];
+          results.results[row.dimension].push(rowToResult(row));
+        });
+      }
+    }
+    else {
+      // If deepsearch is configured, attempt to connect and query
+      if (deepsearchAPI) {
+        req.query.language = locale;
+        // Pass through search params to deepsearch and extract results
+        const url = `${deepsearchAPI}/search?${Object.keys(req.query).map(k => `${k}=${req.query[k]}`).join("&")}`;
+        results = await axios.get(url).then(d => d.data).catch(e => {
+          if (verbose) console.error(`Error connecting to Deepsearch, defaulting to Postgres: ${e}`);
+          return false;        
+        });
+        if (results) results.origin = "deepsearch";
+      }
+      if (!deepsearchAPI || deepsearchAPI && !results) {
+        results = {};
+        const {query} = req.query;
+        const where = {};
+        const searchWhere = {};
+        const terms = query.split(" ");
+        const orArray = [];
+        terms.forEach(term => {
+          orArray.push({name: {[sequelize.Op.iLike]: `%${term}%`}});
+          orArray.push({keywords: {[sequelize.Op.overlap]: [query]}});
+        });
+        where[sequelize.Op.or] = orArray;
+        where.locale = locale;
+        const contentRows = await db.search_content.findAll({where}).catch(catcher);
+        searchWhere.contentId = Array.from(new Set(contentRows.map(r => r.id)));
+        const rows = await db.search.findAll({
+          include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
+          // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
+          // Pad out the limit by multiplying by the number of unique dimensions, then limit (slice) them later.
+          // Not perfect, could probably revisit the logic here.
+          limit: limit * dimCount,
+          order: [["zvalue", "DESC"]],
+          where: searchWhere
+        });
+        results.origin = "legacy";
+        results.results = {};
+        rows.forEach(row => {
+          if (!results.results[row.dimension]) results.results[row.dimension] = [];
+          results.results[row.dimension].push(rowToResult(row));
+        });
+      }
+    }
+
+    // Results are keyed by dimension. Use nonzero length dimension results to find out which profiles are a match
+    const dimensions = Object.keys(results.results).filter(k => results.results[k].length > 0);
+    
+    const relevantPids = meta.filter(p => dimensions.includes(p.dimension)).map(d => d.profile_id);
+    let profiles = await db.profile.findAll({where: {id: relevantPids}, include: {association: "meta"}}).catch(catcher);
+    profiles = profiles.map(d => d.toJSON());
+    profiles = profiles.map(p => ({...p, meta: p.meta.map(fixMeta)}));
+
+    // When searching for half a bilateral profile, what should be put in the other half?
+    // For now, do a "top by zvalue" search so that bilateral profiles have something to show.
+    // Commented out for now as folding in top elements is a little confusing in results
+    // const top = await axios.get(`${deepsearchAPI}/top?limit=5`).then(d => d.data.results).catch(catcher);
+
+    results.profiles = {};
+    results.grouped = [];
+
+    // For each profile type that was found
+    for (const profile of profiles) {
+      const slug = profile.meta.map(d => d.slug).join("/");
+      if (slug === "ComercioBilateral/Year/Exporter") continue;
+      
+      // Gather a list of results that map to each slug in this profile
+      const relevantResults = profile.meta.reduce((acc, m) => {
+        const theseResults = results.results[m.dimension];
+        if (theseResults) {
+          const finalResults = theseResults.map(r => ({
+            slug: m.slug,
+            id: r.id,
+            memberSlug: r.metadata.slug,
+            memberDimension: m.dimension,
+            memberHierarchy: r.metadata.hierarchy,
+            name: r.name,
+            ranking: r.confidence
+          })).slice(0, limit);
+          acc.push(finalResults);
+        }
+        else {
+          acc.push([]);
+        }
+        return acc;
+      }, []);
+
+      // Take the cartesian product of the list of lists of results. For example, if you have 5 geos and
+      // 5 products, create a list of 25 geo_prod results
+      let combinedResults = cartesian(...relevantResults);
+
+      // The cartesian product doesn't return a list of lists when only one array is given to it, as in the
+      // case for unary profiles, so wrap the results in an array.
+      const isUnary = profile.meta.length === 1;
+      if (isUnary) {
+        combinedResults = combinedResults.map(d => [d]);
+      }
+      // In the case of a bilateral profile, make sure the ids DON'T match for a given profile.
+      // This prevents pages like "Germany / Germany" from being returned.
+      else {
+        combinedResults = combinedResults.filter(d => {
+          const ids = d.map(o => o.id);
+          return (new Set(ids)).size === ids.length;
+        });
+      }
+
+      // If there is no space in the query, Limit results to one-dimensional profiles.
+      const singleFilter = d => !req.query.query || req.query.query.includes(" ") ? true : d.length === 1;
+      
+      // Save the results under a slug key for the separated-out search results. 
+      const filteredResults = combinedResults.filter(singleFilter);
+      if (filteredResults.length > 0) results.profiles[slug] = filteredResults;
+      // Also, combine the results together for grouped results, sorted by the avg of their confidence score.
+      results.grouped = results.grouped
+        .concat(filteredResults)
+        .map(d => {
+          const avg = d.reduce((acc, d) => acc += d.ranking, 0) / d.length;
+          return d.map(o => ({...o, avg}));
+        })
+        .sort((a, b) => b[0].avg - a[0].avg)
+        .slice(0, limit);
+    }
+
+    return res.json(results);
+  };
+
+  const search = async(req, res) => {
 
     const where = {};
 
@@ -255,7 +431,10 @@ module.exports = function(app) {
       results,
       query: {dimension, id, limit, q}
     });
+  };
 
-  });
+  app.get("/api/profilesearch", async(req, res) => await profileSearch(req, res));
+
+  app.get("/api/search", async(req, res) => await search(req, res));
 
 };

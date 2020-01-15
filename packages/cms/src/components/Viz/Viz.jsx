@@ -127,7 +127,7 @@ class Viz extends Component {
             key="viz-key"
             className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
             dataFormat={resp => {
-              const hasMultiples = Array.isArray(vizProps.data) && vizProps.data.some(d => typeof d === "string");
+              const hasMultiples = vizProps.data && Array.isArray(vizProps.data) && vizProps.data.some(d => typeof d === "string");
               const sources = hasMultiples ? resp : [resp];
               sources.forEach(r => this.analyzeData.bind(this)(r));
               // console.log(sources);

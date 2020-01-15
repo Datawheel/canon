@@ -399,6 +399,24 @@ CMS nav links & dropdowns
 }
 
 /* -----------------------------------
+Link styles
+----------------------------------- */
+@define-mixin link-theme {
+  font-weight: var(--display-font-weight);
+  letter-spacing: 0.01em;
+  color: var(--accent);
+
+  &:hover, &:focus {
+    text-decoration: underline;
+    color: var(--accent-dark);
+
+    @mixin dark-mode {
+      color: var(--accent-light);
+    }
+  }
+}
+
+/* -----------------------------------
 VarTable & VarList
 ----------------------------------- */
 @define-mixin var-overflow {

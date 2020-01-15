@@ -59,3 +59,9 @@
     margin-bottom: 0;
   }
 }
+
+.cms-variable-table-button-group {
+  display: inline-flex;
+  width: auto;
+  margin: -0.25em -1em 0 0.25em;
+}
