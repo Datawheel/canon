@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {Link} from "react-router";
 import linkify from "../../utils/linkify";
@@ -20,6 +21,7 @@ class ProfileTile extends Component {
   render() {
 
     const {router} = this.context;
+    const {locale} = this.props;
 
     const {
       data,
@@ -28,7 +30,7 @@ class ProfileTile extends Component {
 
     return (
       <li className="cms-profilesearch-tile">
-        <Link to={linkify(router, data)} className="cms-profilesearch-tile-link">
+        <Link to={linkify(router, data, locale)} className="cms-profilesearch-tile-link">
           {data.map((r, i) => {
             const title = formatTitle(r.name);
             return (
@@ -60,4 +62,6 @@ ProfileTile.defaultProps = {
   joiner: "&"
 };
 
-export default ProfileTile;
+export default connect(state => ({
+  locale: state.i18n.locale
+}))(ProfileTile);

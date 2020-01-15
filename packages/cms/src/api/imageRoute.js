@@ -14,6 +14,13 @@ const catcher = e => {
   return [];
 };
 
+const imgCatcher = e => {
+  if (verbose) {
+    console.error("Error in imageRoute (Broken cloud link): ", e.message);
+  }
+  return false;
+};
+
 const getParentMemberWithImage = async(db, member, meta) => {
   const {id, hierarchy} = member;
   const {dimension, cubeName} = meta;
@@ -88,7 +95,8 @@ module.exports = function(app) {
         if (imageId) {
           let url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
           if (t) url += `?t=${t}`;
-          const imgData = await axios.get(url, {responseType: "arraybuffer"}).then(resp => resp.data).catch(catcher);
+          const imgData = await axios.get(url, {responseType: "arraybuffer"}).then(resp => resp.data).catch(imgCatcher);
+          if (!imgData) return imageError();
           res.writeHead(200,  {"Content-Type": "image/jpeg"});
           return res.end(imgData, "binary");  
         }

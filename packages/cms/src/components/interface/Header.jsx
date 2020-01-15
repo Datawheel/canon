@@ -100,7 +100,7 @@ class Header extends Component {
 
   render() {
     const {dimensions, profiles, stories} = this.props;
-    const {currentPid, currentStoryPid, pathObj} = this.props.status;
+    const {currentPid, currentStoryPid, pathObj, localeDefault} = this.props.status;
     const {itemToDelete, itemToDuplicate, profileTarget} = this.state;
     const {router} = this.context;
 
@@ -119,7 +119,7 @@ class Header extends Component {
 
     if (pathObj.tab === "profiles") {
       // construct URL from domain and dimensions
-      previewURL = linkify(router, dimensions);
+      previewURL = linkify(router, dimensions, localeDefault);
       prettyURL = `${prettyRoot}${previewURL}`;
       // Only show the delete button if this is not the last entity. You can't have a profile with no sections.
       if (pathObj.section) {
