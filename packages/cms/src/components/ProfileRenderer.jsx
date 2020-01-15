@@ -154,7 +154,7 @@ class ProfileRenderer extends Component {
     });
 
     const groupableSections = ["InfoCard", "SingleColumn"]; // sections to be grouped together
-    let innerGroupedSections = []; // array for sections to be accumulated into
+    const innerGroupedSections = []; // array for sections to be accumulated into
     let groupedSections = [];
 
     // make sure there are sections to loop through (issue #700)
@@ -201,13 +201,10 @@ class ProfileRenderer extends Component {
     return (
       <Fragment>
         <div className="cp">
-          {!hideHero &&
-            <Hero profile={profile} contents={heroSection || null} {...hideElements} />
-          }
 
-          {!hideSubnav &&
-            <Subnav sections={groupedSections} />
-          }
+          {!hideHero && <Hero key="cp-hero" profile={profile} contents={heroSection || null} {...hideElements} />}
+
+          {!hideSubnav && <Subnav sections={groupedSections} />}
 
           {/* main content sections */}
           <main className="cp-main" id="main">
