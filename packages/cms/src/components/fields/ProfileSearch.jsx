@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {Link} from "react-router";
 import axios from "axios";
@@ -226,6 +227,7 @@ class ProfileSearch extends Component {
 
     const {router} = this.context;
     const {active, loading, query, results} = this.state;
+    const {locale} = this.props;
     const {
       availableProfiles,
       display,
@@ -235,8 +237,6 @@ class ProfileSearch extends Component {
       joiner,
       position
     } = this.props;
-
-    // console.log("results", results);
 
     return (
       <div className="cms-profilesearch">
@@ -303,7 +303,7 @@ class ProfileSearch extends Component {
                       <ul key="list" className="cms-profilesearch-list">
                         {listProfiles.map((result, j) =>
                           <li key={`r-${j}`} className="cms-profilesearch-list-item">
-                            <Link to={linkify(router, result)} className="cms-profilesearch-list-item-link">
+                            <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
                               {result.map(d => formatTitle(d.name)).join(` ${joiner} `)}
                               <div className="cms-profilesearch-list-item-sub u-font-xs">{formatCategory([result])}</div>
                             </Link>
@@ -344,4 +344,6 @@ ProfileSearch.defaultProps = {
   showExamples: false
 };
 
-export default ProfileSearch;
+export default connect(state => ({
+  locale: state.i18n.locale
+}))(ProfileSearch);
