@@ -20,7 +20,7 @@ export default class Select extends Component {
     // remove stringified nulls
     const filteredOptions = options && options.filter(option => option !== "");
 
-    return (options && options.length) || children
+    return options && options.length || children
       ? <label className={`${namespace}-select-label u-font-${fontSize}${inline ? " cms-inline-select-label" : ""}`}>
         <span className={`${namespace}-select-text${label && labelHidden ? " u-visually-hidden" : "" }`}>
           {label || "missing `label` prop in Select.jsx"}

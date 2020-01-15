@@ -87,7 +87,7 @@ class Selector extends Component {
     else if (options && options.length >= 2) {
       // 2–3 options; button group
       if (options.length <= 3) {
-        return <ButtonGroup label={title} className="cp-selector-button-group">
+        return <ButtonGroup label={title} className="cp-selector-button-group" fontSize={fontSize}>
           {options.map(b =>
             <Button
               className="cp-selector-button"
