@@ -12,17 +12,17 @@ class ProfileColumns extends Component {
     return (
       <ul key="columns" className="cms-profilecolumns">
         { data.map((data, i) => {
-            const profile = data[0].map(d => d.slug).join("/");
-            return (
-              <li key={`p-${i}`} className="cms-profilecolumn">
-                <h3 className="cms-profilecolumn-title" dangerouslySetInnerHTML={{__html: columnTitles[profile] || formatCategory(data)}} />
-                <ul className="cms-profilecolumn-list">
-                  {data.map((result, j) =>
-                    <ProfileTile key={`r-${j}`} {...tileProps} data={result} />)}
-                </ul>
-              </li>
-            );
-          })
+          const profile = data[0].map(d => d.slug).join("/");
+          return (
+            <li key={`p-${i}`} className="cms-profilecolumn">
+              <h3 className="cms-profilecolumn-title" dangerouslySetInnerHTML={{__html: columnTitles[profile] || formatCategory(data)}} />
+              <ul className="cms-profilecolumn-list">
+                {data.map((result, j) =>
+                  <ProfileTile key={`r-${j}`} {...tileProps} data={result} />)}
+              </ul>
+            </li>
+          );
+        })
         }
       </ul>
     );
