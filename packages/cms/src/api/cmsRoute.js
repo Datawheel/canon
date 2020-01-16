@@ -42,6 +42,7 @@ Client.dataSourceFromURL(CANON_CMS_CUBES).then(
 const sectionTypeDir = path.join(__dirname, "../components/sections/");
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
+const cmsMinRole = () => process.env.CANON_CMS_MINIMUM_ROLE ? Number(process.env.CANON_CMS_MINIMUM_ROLE) : 1;
 
 const stripID = o => {
   delete o.id;
@@ -456,6 +457,7 @@ module.exports = function(app) {
   const {db} = app.settings;
 
   app.get("/api/cms", (req, res) => res.json(cmsCheck()));
+  app.get("/api/cms/minRole", (req, res) => res.json(cmsMinRole()));
 
   /* BASIC GETS */
 
