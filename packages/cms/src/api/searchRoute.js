@@ -315,7 +315,7 @@ module.exports = function(app) {
       
       // Save the results under a slug key for the separated-out search results. 
       const filteredResults = combinedResults.filter(singleFilter);
-      if (filteredResults.length > 0) results.profiles[slug] = filteredResults;
+      if (filteredResults.length > 0) results.profiles[slug] = filteredResults.slice(0, limit);
       // Also, combine the results together for grouped results, sorted by the avg of their confidence score.
       results.grouped = results.grouped
         .concat(filteredResults)
