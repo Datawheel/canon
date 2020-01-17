@@ -51,7 +51,6 @@ const formatter = (members, data, dimension, level) => {
     obj.zvalue = data[obj.id] || 0;
     obj.dimension = dimension;
     obj.hierarchy = level;
-    obj.stem = -1;
     arr.push(obj);
     return arr;
   }, []);
@@ -61,7 +60,7 @@ const formatter = (members, data, dimension, level) => {
   return newData;
 };
 
-const populateSearch = async(profileData, db) => {
+const populateSearch = async(profileData, db, imgLookup = false) => {
 
   const cubeName = profileData.cubeName;
   const measure = profileData.measure;
@@ -125,8 +124,16 @@ const populateSearch = async(profileData, db) => {
       const slugify = str => strip(str).replace(/-{2,}/g, "-").toLowerCase();
 
       if (verbose) console.log("Generating slugs...");
-      // Add a generated slug to the write payload
-      const searchList = fullList.map(member => ({slug: slugify(member.name), ...member}));
+      // Add a generated slug and the originating cubeName to the write payload
+      const searchList = fullList.map(d => {
+        const member = {slug: slugify(d.name), cubeName, ...d};
+        // If imgLookup was provided, this is a migration. Attempt to bring images from an old db
+        if (imgLookup) {
+          member.imageId = null;
+          if (imgLookup[`${d.id}-${d.dimension}-${d.hierarchy}`]) member.imageId = imgLookup[`${d.id}-${d.dimension}-${d.hierarchy}`];
+        }
+        return member;
+      });
       if (verbose) console.log("Deduping slugs...");
       searchList.forEach(member => {
         usedSlugs[member.slug] ? member.slug = `${member.slug}-${member.id}` : usedSlugs[member.slug] = true;
@@ -134,14 +141,16 @@ const populateSearch = async(profileData, db) => {
       if (verbose) console.log("Slug generation complete.");
 
       const searchInsertKeys = Object.keys(searchList[0]).filter(d => d !== "name");
+      // If imgLookup was provided, this is a migration. Make sure the insert SQL processes the insert
+      if (imgLookup && !searchInsertKeys.includes("imageId")) searchInsertKeys.push("imageId");
       // On conflict (update), do not attempt to change the slug
       const searchUpdateKeys = searchInsertKeys.filter(d => d !== "slug");
 
-      let searchQuery = `INSERT INTO canon_cms_search (${searchInsertKeys.join(", ")})\nVALUES `;
+      let searchQuery = `INSERT INTO canon_cms_search (${searchInsertKeys.map(d => `"${d}"`).join(", ")})\nVALUES `;
       searchList.forEach((obj, i) => {
-        searchQuery += `${i ? "," : ""}\n(${searchInsertKeys.map(key => `\'${`${obj[key]}`.replace(/\'/g, "''")}\'`)})`;
+        searchQuery += `${i ? "," : ""}\n(${searchInsertKeys.map(key => obj[key] === null ? "NULL" : `\'${`${obj[key]}`.replace(/\'/g, "''")}\'`)})`;
       });
-      searchQuery += `\nON CONFLICT (id, dimension, hierarchy)\nDO UPDATE SET (${searchUpdateKeys.join(", ")}) = (${searchUpdateKeys.map(key => `EXCLUDED.${key}`).join(", ")})\nRETURNING *;`;
+      searchQuery += `\nON CONFLICT ("id", "dimension", "hierarchy", "cubeName")\nDO UPDATE SET (${searchUpdateKeys.map(d => `"${d}"`).join(", ")}) = (${searchUpdateKeys.map(key => `EXCLUDED."${key}"`).join(", ")})\nRETURNING *;`;
 
       if (verbose) console.log("Upserting search table...");
       const [searchRows] = await db.query(searchQuery).catch(catcher);
