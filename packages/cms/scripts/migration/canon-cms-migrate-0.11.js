@@ -6,6 +6,8 @@ const shell = require("shelljs");
 const oldDBName = process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
 const newDBName = process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
 
+const populateSearch = require("../../src/utils/populateSearch");
+
 const migrate = async() => {
 
   const dbold = await fetchOldModel("/db_0.11", false);
@@ -69,16 +71,19 @@ const migrate = async() => {
     if (tableObj.old === "search") {
       // To regenerate search tables, first find a list of all cubes in use by this installation
       let meta = await dbold.profile_meta.findAll().catch(catcher);
-      meta = meta.forEach(row => row.toJSON());
+      meta = meta.map(row => row.toJSON());
       // We need to preserve images. Create a hashmap of images keyed by the id/dimension/hierarchy
       const imgLookup = oldrows.reduce((obj, d) => {
-        obj[`${d.id}-${d.dimension}-${d.hierarchy}`] = d;
+        obj[`${d.id}-${d.dimension}-${d.hierarchy}`] = d.imageId;
         return obj;
       }, {});
-
-      
+      for (const m of meta) {
+        await populateSearch(m, dbnew, imgLookup);
+      }
     }
-    await dbnew[tableObj.new].bulkCreate(oldrows).catch(catcher);
+    else {
+      await dbnew[tableObj.new].bulkCreate(oldrows).catch(catcher);
+    }
     const idColumns = Object.keys(dbnew[tableObj.new].attributes).filter(d => d.toLowerCase().includes("id"));
     for (const column of idColumns) {
       await resetSequence(dbnew, tableObj.new, column);

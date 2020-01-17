@@ -22,7 +22,10 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         unique: true
       },
-      cubeName: db.TEXT
+      cubeName: {
+        primaryKey: true,
+        type: db.TEXT
+      }
     },
     {
       tableName: "canon_cms_search",
