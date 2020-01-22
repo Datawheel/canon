@@ -58,7 +58,6 @@ class PreviewHeader extends Component {
     return (
       <Fragment>
         <div className="cms-preview-header">
-          {console.log(meta)}
           {meta.map((m, i) =>
             <PreviewSearch
               key={`ps-${m.slug}`}
@@ -68,6 +67,7 @@ class PreviewHeader extends Component {
               slug={m.slug}
               dimension={m.dimension}
               levels={m.levels}
+              cubeName={m.cubeName}
               limit={20}
             />
           )}

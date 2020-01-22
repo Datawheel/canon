@@ -274,19 +274,20 @@ const duplicateSection = async(db, oldSection, pid, selectorLookup) => {
   return newSection.id;
 };
 
-const pruneSearch = async(dimension, levels, db) => {
+const pruneSearch = async(cubeName, dimension, levels, db) => {
   const currentMeta = await db.profile_meta.findAll().catch(catcher);
-  const currentDimensions = currentMeta.map(m => m.dimension);
+  const dimensionCubePairs = currentMeta.reduce((acc, d) => acc.concat(`${d.dimension}-${d.cubeName}`), []);
+
   // To be on the safe side, only clear the search table of dimensions that NO remaining
   // profiles are currently making use of.
   // Don't need to prune levels - they will be filtered automatically in searches.
   // If it gets unwieldy in size however, an optimization could be made here
-  if (!currentDimensions.includes(dimension)) {
-    const resp = await db.search.destroy({where: {dimension}}).catch(catcher);
+  if (!dimensionCubePairs.includes(`${dimension}-${cubeName}`)) {
+    const resp = await db.search.destroy({where: {dimension, cubeName}}).catch(catcher);
     if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
   }
   else {
-    if (verbose) console.log(`Skipped search cleanup - ${dimension} is still in use`);
+    if (verbose) console.log(`Skipped search cleanup - ${dimension}/${cubeName} is still in use`);
   }
 };
 
@@ -321,7 +322,7 @@ module.exports = function(app) {
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(m => m.toJSON());
     for (const m of meta) {
-      m.top = await db.search.findOne({where: {dimension: m.dimension}, order: [["zvalue", "DESC"]], limit: 1}).catch(catcher);
+      m.top = await db.search.findOne({where: {dimension: m.dimension, cubeName: m.cubeName}, order: [["zvalue", "DESC"]], limit: 1}).catch(catcher);
     }
     res.json(meta);
   });
@@ -475,8 +476,8 @@ module.exports = function(app) {
     // entirely. We have to prune the search before repopulating it.
     else {
       await db.profile_meta.update(profileData, {where: {id: profileData.id}});
-      if (oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
-        pruneSearch(oldmeta.dimension, oldmeta.levels, db);
+      if (oldmeta.cubeName !== profileData.cubeName || oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
+        pruneSearch(oldmeta.cubeName, oldmeta.dimension, oldmeta.levels, db);
         await populateSearch(profileData, db);
       }
     }
@@ -785,7 +786,8 @@ module.exports = function(app) {
     const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
-    pruneSearch(row.dimension, row.levels, db);
+    // Todo: This prunesearch is outdated - need to call it multiple times for each meta row. 
+    // pruneSearch(row.dimension, row.levels, db);
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     const sectionTypes = getSectionTypes();
@@ -804,7 +806,7 @@ module.exports = function(app) {
     const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
-    pruneSearch(row.dimension, row.levels, db);
+    pruneSearch(row.cubeName, row.dimension, row.levels, db);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: row.profile_id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());

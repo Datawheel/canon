@@ -180,7 +180,7 @@ export function resetPreviews() {
     const requests = profileMeta.map((meta, i) => {
       const levels = meta.levels ? meta.levels.join() : false;
       const levelString = levels ? `&levels=${levels}` : "";
-      let url = `${getStore().env.CANON_API}/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
+      let url = `${getStore().env.CANON_API}/api/search?q=&dimension=${meta.dimension}${levelString}&cubeName=${meta.cubeName}&limit=1`;
       
       const ps = pathObj.previews;
       // If previews is of type string, then it came from the URL permalink. Override
