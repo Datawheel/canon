@@ -93,6 +93,7 @@ class DimensionCard extends Component {
                 slug={meta.slug}
                 dimension={meta.dimension}
                 levels={meta.levels}
+                cubeName={meta.cubeName}
                 limit={20}
               />
             }
