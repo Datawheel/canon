@@ -86,13 +86,13 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
 
   const levels = [];
 
+  if (verbose) console.log(`INITIATING SEARCH INGEST (${dimension}, ${dimLevels}, ${measure}, ${cubeName})...`);
+
   for (const hierarchy of cube.dimensionsByName[dimension].hierarchies) {
     for (const level of hierarchy.levels) {
       if (!levels.map(d => d.name).includes(level.name) && level.name !== "(All)" && dimLevels.includes(level.name)) levels.push(level);
     }
   }
-
-  if (verbose) console.log("INITIATING SEARCH INGEST...");  
 
   for (const locale of LANGUAGES) {
 
@@ -143,7 +143,7 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
       const searchList = fullList.map(d => {
         const member = {slug: slugify(d.name), cubeName, ...d};
         // If metaLookup was provided, this is a migration. Attempt to bring image from an old db
-        if (metaLookup) {
+        if (metaLookup && metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`]) {
           member.imageId = metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`].imageId;
           // member.imageId = null;
           // if (metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`].imageId) member.imageId = metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`].imageId;
@@ -187,11 +187,13 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
         // If metaLookup was provided, this is a migration. There may be keywords/attr to migrate.
         if (metaLookup) {
           const oldmeta = metaLookup[`${member.id}-${member.dimension}-${member.hierarchy}`];
-          const {content} = oldmeta;
-          if (content) {
-            const loc = content.find(c => c.locale === locale);
-            if (loc) {
-              obj = {...obj, attr: loc.attr, keywords: loc.keywords};
+          if (oldmeta) {
+            const {content} = oldmeta;
+            if (content) {
+              const loc = content.find(c => c.locale === locale);
+              if (loc) {
+                obj = {...obj, attr: loc.attr, keywords: loc.keywords};
+              }
             }
           }
         }
