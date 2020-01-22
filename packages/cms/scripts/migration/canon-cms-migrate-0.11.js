@@ -65,23 +65,25 @@ const migrate = async() => {
   ];
 
   for (const tableObj of migrationMap) {
-    let oldrows = await dbold[tableObj.old].findAll().catch(catcher);
-    oldrows = oldrows.map(row => row.toJSON());
     // The search table needs to be deduplicated and routed to origin cubes
     if (tableObj.old === "search") {
-      // To regenerate search tables, first find a list of all cubes in use by this installation
+      let oldmembers = await dbold.search.findAll({include: {association: "content"}});
+      oldmembers = oldmembers.map(d => d.toJSON());
+      // To regenerate search tables, find a list of all cubes in use by this installation
       let meta = await dbold.profile_meta.findAll().catch(catcher);
       meta = meta.map(row => row.toJSON());
-      // We need to preserve images. Create a hashmap of images keyed by the id/dimension/hierarchy
-      const imgLookup = oldrows.reduce((obj, d) => {
-        obj[`${d.id}-${d.dimension}-${d.hierarchy}`] = d.imageId;
+      // We need to preserve images, keywords, and attr. Create a hashmap of old members, keyed by the id/dimension/hierarchy
+      const metaLookup = oldmembers.reduce((obj, d) => {
+        obj[`${d.id}-${d.dimension}-${d.hierarchy}`] = d;
         return obj;
       }, {});
       for (const m of meta) {
-        await populateSearch(m, dbnew, imgLookup);
+        await populateSearch(m, dbnew, metaLookup);
       }
     }
     else {
+      let oldrows = await dbold[tableObj.old].findAll().catch(catcher);
+      oldrows = oldrows.map(row => row.toJSON());
       await dbnew[tableObj.new].bulkCreate(oldrows).catch(catcher);
     }
     const idColumns = Object.keys(dbnew[tableObj.new].attributes).filter(d => d.toLowerCase().includes("id"));
