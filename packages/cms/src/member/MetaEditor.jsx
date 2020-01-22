@@ -25,6 +25,8 @@ class MetaEditor extends Component {
     super(props);
     this.state = {
       sourceData: [],
+      cubes: [],
+      currentCube: "",
       data: [],
       query: "",
       columns: [],
@@ -256,7 +258,7 @@ class MetaEditor extends Component {
   linkify(member) {
     const {metaData} = this.state;
     const links = [];
-    const relevantPids = metaData.filter(p => p.dimension === member.dimension).map(d => d.profile_id);
+    const relevantPids = metaData.filter(p => p.cubeName === member.cubeName).map(d => d.profile_id);
     relevantPids.forEach(pid => {
       const relevantProfile = metaData.filter(p => p.profile_id === pid).sort((a, b) => a.ordering - b.ordering);
       links.push(`/profile/${relevantProfile.map(p => `${p.slug}/${member.dimension === p.dimension ? member.id : p.top.id}`).join("/")}`);
@@ -413,6 +415,7 @@ class MetaEditor extends Component {
     Promise.all([searchGet, metaGet]).then(resp => {
       const sourceData = resp[0].data;
       const metaData = resp[1].data;
+      const cubes = [...new Set([...metaData.map(d => d.cubeName)])];
       const dimensions = {};
       metaData.forEach(meta => {
         if (!dimensions[meta.dimension]) {
@@ -422,7 +425,7 @@ class MetaEditor extends Component {
           dimensions[meta.dimension] = [...new Set([...dimensions[meta.dimension], ...meta.levels])];
         }
       });
-      this.setState({dimensions, sourceData, metaData, pageLoading: false}, this.prepData.bind(this));
+      this.setState({cubes, dimensions, sourceData, metaData, pageLoading: false}, this.prepData.bind(this));
     });
   }
 
@@ -487,7 +490,7 @@ class MetaEditor extends Component {
 
   processFiltering() {
     const {query} = this.state;
-    const {filterBy} = this.state;
+    const {filterBy, currentCube} = this.state;
     const split = filterBy.split("_");
     const dimension = split[1];
     const hierarchy = split[3];
@@ -496,6 +499,9 @@ class MetaEditor extends Component {
     let url = "/api/search?locale=all&limit=500";
     if (query) {
       url += `&q=${query}`;
+    }
+    if (currentCube !== "all") {
+      url += `&cubeName=${currentCube}`;
     }
     if (filterBy !== "all") {
       if (dimension) url += `&dimension=${dimension}`;
@@ -521,6 +527,11 @@ class MetaEditor extends Component {
     this.setState({pageSize: e.target.value});
   }
 
+  onChooseCube(e) {
+    const currentCube = e.target.value;
+    this.setState({currentCube}, this.processFiltering.bind(this));
+  }
+
   onChange(field, e) {
     if (field === "query") {
       let typingTimeout = null;
@@ -542,6 +553,8 @@ class MetaEditor extends Component {
   render() {
     const {
       columns,
+      cubes,
+      currentCube,
       currentRow,
       data,
       dialogMode,
@@ -628,6 +641,18 @@ class MetaEditor extends Component {
                   </optgroup>
 
                 )}
+              </Select>
+
+              <Select
+                label="Cube (optional)"
+                inline
+                fontSize="xs"
+                namespace="cms"
+                value={currentCube}
+                onChange={this.onChooseCube.bind(this)}
+              >
+                <option key="all" value="all">All</option>
+                {cubes.map(cube => <option key={cube} value={cube}>{cube}</option>)}
               </Select>
 
               <Select
