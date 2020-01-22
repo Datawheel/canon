@@ -34,12 +34,27 @@ Client.dataSourceFromURL(CANON_CMS_CUBES).then(
   }
 );
 
-
 const catcher = e => {
   if (verbose) {
     console.error("Error in populateSearch: ", e.message);
   }
   return [];
+};
+
+const isObject = d => !Array.isArray(d) && typeof d === "object";
+const fixObjForPostgres = d => {
+  if (!d) {
+    return "NULL";
+  }
+  if (isObject(d)) {
+    return `'${JSON.stringify(d)}'`;
+  }
+  else if (Array.isArray(d)) {
+    return `ARRAY[${d.map(o => `'${o}'`).join(",")}]`;
+  }
+  else {
+    return `\'${`${d}`.replace(/\'/g, "''")}\'`;
+  }
 };
 
 const formatter = (members, data, dimension, level) => {
@@ -60,7 +75,7 @@ const formatter = (members, data, dimension, level) => {
   return newData;
 };
 
-const populateSearch = async(profileData, db, imgLookup = false) => {
+const populateSearch = async(profileData, db, metaLookup = false) => {
 
   const cubeName = profileData.cubeName;
   const measure = profileData.measure;
@@ -111,7 +126,7 @@ const populateSearch = async(profileData, db, imgLookup = false) => {
 
     }
 
-    if (verbose) console.log(`Fetched ${fullList.length} members from the cube.`);
+    if (verbose) console.log(`Fetched ${fullList.length} members from cube: ${cubeName}.`);
 
     if (fullList.length > 0) {
 
@@ -127,10 +142,11 @@ const populateSearch = async(profileData, db, imgLookup = false) => {
       // Add a generated slug and the originating cubeName to the write payload
       const searchList = fullList.map(d => {
         const member = {slug: slugify(d.name), cubeName, ...d};
-        // If imgLookup was provided, this is a migration. Attempt to bring images from an old db
-        if (imgLookup) {
-          member.imageId = null;
-          if (imgLookup[`${d.id}-${d.dimension}-${d.hierarchy}`]) member.imageId = imgLookup[`${d.id}-${d.dimension}-${d.hierarchy}`];
+        // If metaLookup was provided, this is a migration. Attempt to bring image from an old db
+        if (metaLookup) {
+          member.imageId = metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`].imageId;
+          // member.imageId = null;
+          // if (metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`].imageId) member.imageId = metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`].imageId;
         }
         return member;
       });
@@ -141,36 +157,57 @@ const populateSearch = async(profileData, db, imgLookup = false) => {
       if (verbose) console.log("Slug generation complete.");
 
       const searchInsertKeys = Object.keys(searchList[0]).filter(d => d !== "name");
-      // If imgLookup was provided, this is a migration. Make sure the insert SQL processes the insert
-      if (imgLookup && !searchInsertKeys.includes("imageId")) searchInsertKeys.push("imageId");
+      // If metaLookup was provided, this is a migration. Make sure the insert SQL processes the insert
+      if (metaLookup && !searchInsertKeys.includes("imageId")) searchInsertKeys.push("imageId");
       // On conflict (update), do not attempt to change the slug
       const searchUpdateKeys = searchInsertKeys.filter(d => d !== "slug");
 
       let searchQuery = `INSERT INTO canon_cms_search (${searchInsertKeys.map(d => `"${d}"`).join(", ")})\nVALUES `;
       searchList.forEach((obj, i) => {
-        searchQuery += `${i ? "," : ""}\n(${searchInsertKeys.map(key => obj[key] === null ? "NULL" : `\'${`${obj[key]}`.replace(/\'/g, "''")}\'`)})`;
+        searchQuery += `${i ? "," : ""}\n(${searchInsertKeys.map(key => fixObjForPostgres(obj[key]))})`;
       });
       searchQuery += `\nON CONFLICT ("id", "dimension", "hierarchy", "cubeName")\nDO UPDATE SET (${searchUpdateKeys.map(d => `"${d}"`).join(", ")}) = (${searchUpdateKeys.map(key => `EXCLUDED."${key}"`).join(", ")})\nRETURNING *;`;
 
       if (verbose) console.log("Upserting search table...");
+      // Capture the newly inserted rows for use later, their new contentIds will be needed to hook up language content
       const [searchRows] = await db.query(searchQuery).catch(catcher);
       if (verbose) console.log(`Upserted ${searchRows.length} rows.`);
 
+      // Iterate over the members from the cube and store them in a hash keyed by id/dim/hier
       const searchLookup = searchList.reduce((obj, d) => {
         obj[`${d.id}-${d.dimension}-${d.hierarchy}`] = d;
         return obj;
       }, {});
       
+      // We now need to COMBINE the name from the cube (searchLookup) and the newly generated contentId from the 
+      // new inserts (searchRows) so that the language content matches up with the proper row.
       const contentList = searchRows.map(member => {
         const original = searchLookup[`${member.id}-${member.dimension}-${member.hierarchy}`];
-        return {name: original.name, id: member.contentId, locale};
+        let obj = {name: original.name, id: member.contentId, locale};
+        // If metaLookup was provided, this is a migration. There may be keywords/attr to migrate.
+        if (metaLookup) {
+          const oldmeta = metaLookup[`${member.id}-${member.dimension}-${member.hierarchy}`];
+          const {content} = oldmeta;
+          if (content) {
+            const loc = content.find(c => c.locale === locale);
+            if (loc) {
+              obj = {...obj, attr: loc.attr, keywords: loc.keywords};
+            }
+          }
+        }
+        return obj;
       });
 
       const contentKeys = ["id", "locale", "name"];
+      // If metaLookup was provided, this is a migration. Make sure the insert SQL processes the attr/keywords insert
+      if (metaLookup) {
+        if (!contentKeys.includes("attr")) contentKeys.push("attr");
+        if (!contentKeys.includes("keywords")) contentKeys.push("keywords");
+      }
 
       let contentQuery = `INSERT INTO canon_cms_search_content (${contentKeys.join(", ")})\nVALUES `;
       contentList.forEach((obj, i) => {
-        contentQuery += `${i ? "," : ""}\n(${contentKeys.map(key => `\'${`${obj[key]}`.replace(/\'/g, "''")}\'`)})`;
+        contentQuery += `${i ? "," : ""}\n(${contentKeys.map(key => fixObjForPostgres(obj[key]))})`;
       });
       contentQuery += `\nON CONFLICT (id, locale)\nDO UPDATE SET (${contentKeys.join(", ")}) = (${contentKeys.map(key => `EXCLUDED.${key}`).join(", ")})\nRETURNING *;`;
 
