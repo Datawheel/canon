@@ -371,6 +371,7 @@ Arguments are provided by url paramaters:
 |`dimension`|An exact-match string to filter results to members in the provided dimension|
 |`levels`|A comma-separated list of levels to filter results to members by the provided levels|
 |`cubeName`|An exact-match string to filter results to members from the provided cube|
+|`pslug`|If the cubeName is not known, you may provide the unique slug of the desired dimension to limit results to that profile|
 |`limit`|A number, passed through to SQL `LIMIT` to limit results|
 |`id`|Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification|
 
