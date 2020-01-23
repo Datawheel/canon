@@ -226,14 +226,15 @@ module.exports = function(app) {
     let attr = {};
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
-      const thisSlug = profile.meta.find(d => d.slug === dim.slug);
-      const levels = thisSlug ? thisSlug.levels : [];
+      const thisMeta = profile.meta.find(d => d.slug === dim.slug);
+      const levels = thisMeta ? thisMeta.levels : [];
+      const cubeName = thisMeta ? thisMeta.cubeName : null;
       let searchReq;
       if (levels.length === 0) {
-        searchReq = {where: {id: dim.id}};
+        searchReq = {where: {id: dim.id, cubeName}};
       }
       else {
-        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
+        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id, cubeName}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
       }
       let thisAttr = await db.search.findOne(searchReq).catch(catcher);
       thisAttr = thisAttr ? thisAttr.toJSON() : {};
@@ -388,7 +389,7 @@ module.exports = function(app) {
     // Replace that slug with the actual real id from the search table.
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
-      const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
+      const attribute = await db.search.findOne({where: {slug: dim.id}}).catch(catcher);
       if (attribute && attribute.id) dim.id = attribute.id;
     }
 
@@ -396,8 +397,8 @@ module.exports = function(app) {
     const profileID = req.query.profile;
 
     let pid = null;
-    // map slugs to dimensions when we query profile_meta below
-    const dimensionMap = {};
+    // map slugs to their profile_meta row, for when we query profile_meta below
+    const slugMap = {};
     // If the user provided variables, this is a POST request.
     if (req.body.variables) {
       // If the user gave us a section or a profile id, use that to fetch the pid.
@@ -423,7 +424,7 @@ module.exports = function(app) {
       // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
       let meta = await db.profile_meta.findAll();
       meta = meta.map(d => d.toJSON());
-      meta.forEach(d => dimensionMap[d.slug] = d.dimension);
+      meta.forEach(d => slugMap[d.slug] = d);
       const pids = [...new Set(meta.map(d => d.profile_id))];
       const match = dims.map(d => d.slug).join();
 
@@ -455,9 +456,16 @@ module.exports = function(app) {
     else {
       // Before we hit the variables endpoint, confirm that all provided ids exist.
       for (const dim of dims) {
-        const thisDimension = dimensionMap[dim.slug];
-        const searchrow = await db.search.findOne({where: {id: dim.id, dimension: thisDimension}}).catch(catcher);
-        if (!searchrow) {
+        const thisMeta = slugMap[dim.slug];
+        if (thisMeta) {
+          const {dimension, cubeName} = thisMeta;
+          const searchrow = await db.search.findOne({where: {id: dim.id, dimension, cubeName}}).catch(catcher);
+          if (!searchrow) {
+            if (verbose) console.error(`Member not found for id: ${dim.id}`);
+            return res.json({error: `Member not found for id: ${dim.id}`});
+          }
+        }
+        else {
           if (verbose) console.error(`Member not found for id: ${dim.id}`);
           return res.json({error: `Member not found for id: ${dim.id}`});
         }
