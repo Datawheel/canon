@@ -145,8 +145,6 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
         // If metaLookup was provided, this is a migration. Attempt to bring image from an old db
         if (metaLookup && metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`]) {
           member.imageId = metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`].imageId;
-          // member.imageId = null;
-          // if (metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`].imageId) member.imageId = metaLookup[`${d.id}-${d.dimension}-${d.hierarchy}`].imageId;
         }
         return member;
       });
