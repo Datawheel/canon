@@ -126,7 +126,7 @@ class Builder extends Component {
 
   render() {
     const {userInit} = this.state;
-    const {isEnabled, env, auth, router} = this.props;
+    const {isEnabled, env, auth, router, minRole} = this.props;
     const {pathObj, formattersLoaded} = this.props.status;
     const currentTab = pathObj.tab;
     let {pathname} = router.location;
@@ -138,7 +138,7 @@ class Builder extends Component {
 
     if (yn(env.CANON_LOGINS) && !auth.user) return <AuthForm redirect={pathname}/>;
 
-    if (yn(env.CANON_LOGINS) && auth.user && auth.user.role < 1) {
+    if (yn(env.CANON_LOGINS) && auth.user && !isNaN(minRole) && auth.user.role < minRole) {
       return (
         <AuthForm redirect={pathname} error={true} auth={auth} />
       );
@@ -176,7 +176,8 @@ Builder.childContextTypes = {
 
 
 Builder.need = [
-  fetchData("isEnabled", "/api/cms")
+  fetchData("isEnabled", "/api/cms"),
+  fetchData("minRole", "/api/cms/minRole")
 ];
 
 const mapStateToProps = state => ({
@@ -184,7 +185,8 @@ const mapStateToProps = state => ({
   auth: state.auth,
   status: state.cms.status,
   resources: state.cms.resources,
-  isEnabled: state.data.isEnabled
+  isEnabled: state.data.isEnabled,
+  minRole: state.data.minRole
 });
 
 const mapDispatchToProps = dispatch => ({

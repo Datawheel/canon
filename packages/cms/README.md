@@ -210,6 +210,7 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |---|---|---|
 |`CANON_CMS_CUBES`|Path to the mondrian or tesseract|`undefined (required)`|
 |`CANON_CMS_ENABLE`|Setting this env var to `true` allows access to the cms in production builds.|`false`|
+|`CANON_CMS_MINIMUM_ROLE`|The minimum integer value for a Canon user `role` to access the CMS|`1`|
 |`CANON_CMS_LOGGING`|Enable verbose logging in console.|`false`|
 |`CANON_CMS_REQUESTS_PER_SECOND`|Sets the `requestsPerSecond` value in the [promise-throttle](https://www.npmjs.com/package/promise-throttle) library, used for rate-limiting Generator requests|20|
 |`CANON_CMS_DEEPSEARCH_API`|Server location of Deepsearch API|`undefined`|
@@ -499,6 +500,8 @@ You are then welcome, in the `myModalSlug` section, to make use of `idForMyModal
 ## Authentication
 
 Canon CMS makes use of the [User Management](https://github.com/Datawheel/canon#user-management) from Canon Core. If `CANON_LOGINS` is set to true, the CMS will require a user of `role` of `1` or higher to access the CMS.
+
+To configure the minimum role for CMS access, use the `CANON_CMS_MINIMUM_ROLE` environment variable.
 
 The CMS also exports the `user` object and a `userRole` boolean for the currently logged in user in the Locked Attributes Generator for every profile. You can make use of these variables to hide, show, or limit information based on the role of the currently logged in user.
 
