@@ -339,7 +339,7 @@ module.exports = function(app) {
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-    const {id, q, dimension, levels, cubeName} = req.query;
+    const {id, q, dimension, levels, cubeName, pslug} = req.query;
 
     let rows = [];
 
@@ -347,6 +347,10 @@ module.exports = function(app) {
       where.id = id.includes(",") ? id.split(",") : id;
       if (dimension) where.dimension = dimension;
       if (levels) where.hierarchy = levels.split(",");
+      if (pslug) {
+        const thisMeta = await db.profile_meta.findOne({where: {slug: pslug}});
+        if (thisMeta && thisMeta.cubeName) where.cubeName = thisMeta.cubeName;
+      }
       if (cubeName) where.cubeName = cubeName;
       rows = await db.search.findAll({
         where,
@@ -376,6 +380,10 @@ module.exports = function(app) {
       if (dimension) searchWhere.dimension = dimension;
       // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
       if (levels) searchWhere.hierarchy = levels.split(",");
+      if (pslug) {
+        const thisMeta = await db.profile_meta.findOne({where: {slug: pslug}});
+        if (thisMeta && thisMeta.cubeName) searchWhere.cubeName = thisMeta.cubeName;
+      }
       if (cubeName) searchWhere.cubeName = cubeName;
       rows = await db.search.findAll({
         include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
