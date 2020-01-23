@@ -369,6 +369,7 @@ Arguments are provided by url paramaters:
 |`q`|A string query which uses the SQL `LIKE` operator to search the `name` and `keywords` of the member|
 |`dimension`|An exact-match string to filter results to members in the provided dimension|
 |`levels`|A comma-separated list of levels to filter results to members by the provided levels|
+|`cubeName`|An exact-match string to filter results to members from the provided cube|
 |`limit`|A number, passed through to SQL `LIMIT` to limit results|
 |`id`|Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification|
 
@@ -580,8 +581,17 @@ For upgrading to new versions, there are currently several migration scripts:
 4) `npx canon-cms-migrate-0.7` (for 0.7 CMS users)
 5) `npx canon-cms-migrate-0.8` (for 0.8 CMS users)
 6) `npx canon-cms-migrate-0.9` (for 0.9 CMS users, for upgrade to 0.11 ONLY)
+7) `npx canon-cms-migrate-0.11` (for 0.10 or 0.11 CMS users, for upgrade to 0.12 ONLY)
 
 **Note:** Canon CMS Version 0.10.0 did **NOT** require a database migration, so the `0.9` script will output a `0.11` database.
+
+**Note:** Unlike all other migrations, the `0.11` -> `0.12` migration script performs a total search re-ingest from the source cubes. This means that the following env vars MUST be set in the environment where are you running the migration, AND they must match your production credentials to ensure a proper ingest.
+
+- `CANON_CMS_CUBES` - Required for connecting to the Cube
+- `CANON_LANGUAGES` - Required for cube ingest so language data can be populated. Make sure this matches your prod setup!
+- `CANON_LANGUAGE_DEFAULT` - Required for slug generation - slugs for search members are generated based on the default language.
+- `CANON_CMS_LOGGING` - Not required, but recommended to turn on to observe the migration for any errors.
+
 
 ### Instructions
 
