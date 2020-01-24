@@ -163,9 +163,6 @@ module.exports = function(app) {
 
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(d => d.toJSON());
-    // todo: fix this OEC hack!
-    const fixMeta = d => ({...d, dimension: d.dimension === "Exporter" ? "Country" : d.dimension});
-    meta = meta.map(fixMeta);
     const dims = [...new Set(meta.map(d => d.dimension))];
     const dimCount = dims.length;
 
@@ -212,7 +209,7 @@ module.exports = function(app) {
         const url = `${deepsearchAPI}/search?${Object.keys(req.query).map(k => `${k}=${req.query[k]}`).join("&")}`;
         results = await axios.get(url).then(d => d.data).catch(e => {
           if (verbose) console.error(`Error connecting to Deepsearch, defaulting to Postgres: ${e}`);
-          return false;        
+          return false;
         });
         if (results) results.origin = "deepsearch";
       }
@@ -250,12 +247,20 @@ module.exports = function(app) {
     }
 
     // Results are keyed by dimension. Use nonzero length dimension results to find out which profiles are a match
-    const dimensions = Object.keys(results.results).filter(k => results.results[k].length > 0);
+    // const dimensions = Object.keys(results.results).filter(k => results.results[k].length > 0);
+    const dimCubes = [];
+    Object.keys(results.results).forEach(dim => {
+      if (results.results[dim].length > 0) {
+        const cubes = [...new Set(results.results[dim].map(d => d.metadata.cube_name))];
+        cubes.forEach(cube => {
+          dimCubes.push(`${dim}/${cube}`);
+        });
+      }
+    });
     
-    const relevantPids = meta.filter(p => dimensions.includes(p.dimension)).map(d => d.profile_id);
+    const relevantPids = meta.filter(p => dimCubes.includes(`${p.dimension}/${p.cubeName}`)).map(d => d.profile_id);
     let profiles = await db.profile.findAll({where: {id: relevantPids}, include: {association: "meta"}}).catch(catcher);
     profiles = profiles.map(d => d.toJSON());
-    profiles = profiles.map(p => ({...p, meta: p.meta.map(fixMeta)}));
 
     // When searching for half a bilateral profile, what should be put in the other half?
     // For now, do a "top by zvalue" search so that bilateral profiles have something to show.
@@ -268,11 +273,10 @@ module.exports = function(app) {
     // For each profile type that was found
     for (const profile of profiles) {
       const slug = profile.meta.map(d => d.slug).join("/");
-      if (slug === "ComercioBilateral/Year/Exporter") continue;
       
       // Gather a list of results that map to each slug in this profile
       const relevantResults = profile.meta.reduce((acc, m) => {
-        const theseResults = results.results[m.dimension];
+        const theseResults = results.results[m.dimension].filter(d => d.metadata.cube_name === m.cubeName);
         if (theseResults) {
           const finalResults = theseResults.map(r => ({
             slug: m.slug,
