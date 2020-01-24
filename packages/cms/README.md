@@ -572,6 +572,7 @@ Here is a list of Minor CMS versions and their release notes:
 - [canon-cms@0.9.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.9.0)
 - [canon-cms@0.10.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.10.0)
 - [canon-cms@0.11.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.11.0)
+- [canon-cms@0.12.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.12.0)
 
 ___
 
