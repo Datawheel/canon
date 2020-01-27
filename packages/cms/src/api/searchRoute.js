@@ -163,8 +163,10 @@ module.exports = function(app) {
 
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(d => d.toJSON());
-    const dims = [...new Set(meta.map(d => d.dimension))];
-    const dimCount = dims.length;
+    const allDimCubes = [];
+    meta.forEach(m => {
+      if (!allDimCubes.find(d => d.dimension === m.dimension && d.cubeName === m.cubeName)) allDimCubes.push(m);
+    });
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10; 
@@ -177,7 +179,8 @@ module.exports = function(app) {
         confidence: row.zvalue,
         metadata: {
           slug: row.slug,
-          hierarchy: row.hierarchy
+          hierarchy: row.hierarchy,
+          cube_name: row.cubeName
         },
         id: row.id,
         keywords: content && content.keywords ? content.keywords.join : ""
@@ -188,9 +191,9 @@ module.exports = function(app) {
     if (!req.query.query || req.query.query === "") {
       results.origin = "legacy";
       results.results = {};
-      for (const dim of dims) {
+      for (const dc of allDimCubes) {
         const rows = await db.search.findAll({
-          where: {dimension: dim},
+          where: {dimension: dc.dimension, cubeName: dc.cubeName},
           include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
           order: [["zvalue", "DESC"]],
           limit
@@ -233,7 +236,7 @@ module.exports = function(app) {
           // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
           // Pad out the limit by multiplying by the number of unique dimensions, then limit (slice) them later.
           // Not perfect, could probably revisit the logic here.
-          limit: limit * dimCount,
+          limit: limit * allDimCubes.length,
           order: [["zvalue", "DESC"]],
           where: searchWhere
         });
@@ -247,7 +250,6 @@ module.exports = function(app) {
     }
 
     // Results are keyed by dimension. Use nonzero length dimension results to find out which profiles are a match
-    // const dimensions = Object.keys(results.results).filter(k => results.results[k].length > 0);
     const dimCubes = [];
     Object.keys(results.results).forEach(dim => {
       if (results.results[dim].length > 0) {
