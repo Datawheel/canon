@@ -278,7 +278,7 @@ module.exports = function(app) {
       
       // Gather a list of results that map to each slug in this profile
       const relevantResults = profile.meta.reduce((acc, m) => {
-        const theseResults = results.results[m.dimension].filter(d => d.metadata.cube_name === m.cubeName);
+        const theseResults = results.results[m.dimension] ? results.results[m.dimension].filter(d => d.metadata.cube_name === m.cubeName) : false;
         if (theseResults) {
           const finalResults = theseResults.map(r => ({
             slug: m.slug,
