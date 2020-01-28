@@ -24,6 +24,12 @@ module.exports = {
     format: "Accessor",
     required: true
   },
+  html: {
+    key: "HTML",
+    display: "HTML",
+    format: "Input",
+    required: true
+  },
   imageURL: {
     key: "imageURL",
     display: "Image URL",
