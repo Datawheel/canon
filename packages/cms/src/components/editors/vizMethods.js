@@ -25,7 +25,7 @@ module.exports = {
     required: true
   },
   html: {
-    key: "HTML",
+    key: "html",
     display: "HTML",
     format: "Input",
     required: true
