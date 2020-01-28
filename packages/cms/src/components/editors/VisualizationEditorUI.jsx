@@ -126,7 +126,7 @@ class VisualizationEditorUI extends Component {
     const code =
     `return {${
       keys.map(k => {
-        if (k === "data") {
+        if (k === "data" && object[k]) {
           let fixedUrl = object[k];
           (object[k].match(/<[^\&\=\/>]+>/g) || []).forEach(v => {
             const strippedVar = v.replace("<", "").replace(">", "");
@@ -346,6 +346,22 @@ class VisualizationEditorUI extends Component {
     const thisViz = vizLookup.find(v => v.type === object.type);
     const allFields = Object.keys(firstObj);
 
+    const requiresPayload = !["Graphic", "HTML"].includes(object.type);
+
+    // Stories can use Simplevizes, but don't have variables
+    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const varOptions = Object.keys(variables)
+      .filter(key => !key.startsWith("_"))
+      .filter(key => typeof variables[key] !== "object")
+      .sort((a, b) => a.localeCompare(b))
+      .map(key => {
+        const value = variables[key];
+        const type = typeof value;
+        const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
+        return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
+      });
+
+
     let buttonProps = {
       children: "Build",
       disabled: true,
@@ -371,17 +387,19 @@ class VisualizationEditorUI extends Component {
       />
 
       {/* data URL */}
-      <TextButtonGroup
-        namespace="cms"
-        inputProps={{
-          label: "Data endpoint",
-          inline: true,
-          namespace: "cms",
-          value: object.data || "",
-          onChange: this.onChange.bind(this, "data")
-        }}
-        buttonProps={buttonProps}
-      />
+      { requiresPayload && 
+        <TextButtonGroup
+          namespace="cms"
+          inputProps={{
+            label: "Data endpoint",
+            inline: true,
+            namespace: "cms",
+            value: object.data || "",
+            onChange: this.onChange.bind(this, "data")
+          }}
+          buttonProps={buttonProps}
+        />
+      }
 
       <div className="cms-field-group u-margin-bottom-off">
         <Select
@@ -411,7 +429,7 @@ class VisualizationEditorUI extends Component {
 
         {modeSwitcher}
 
-        {payload.length > 0 && object.type && thisViz && thisViz.methods.map(method =>
+        {(!requiresPayload || payload.length > 0) && object.type && thisViz && thisViz.methods.map(method =>
           // render prop as text input
           method.format === "Input"
             ? <TextInput

@@ -16,7 +16,7 @@ class HTML extends Component {
 
     return (
       <div className="cp-html">
-        <div dangerouslySetInnerHTML={{_html: config.html}} />
+        <div dangerouslySetInnerHTML={{__html: config.html}} />
       </div>
     );
   }

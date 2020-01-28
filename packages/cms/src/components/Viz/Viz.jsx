@@ -6,6 +6,7 @@ import {hot} from "react-hot-loader/root";
 
 import Graphic from "./Graphic";
 import PercentageBar from "./PercentageBar";
+import HTML from "./HTML";
 import Table from "./Table";
 import Options from "./Options";
 import toKebabCase from "../../utils/formatters/toKebabCase";
@@ -14,7 +15,7 @@ import Parse from "../sections/components/Parse";
 import "./Viz.css";
 import defaultConfig from "./defaultConfig";
 
-const vizTypes = Object.assign({PercentageBar}, {Table}, {Graphic}, d3plus);
+const vizTypes = Object.assign({PercentageBar, Table, Graphic, HTML}, d3plus);
 
 class Viz extends Component {
 
@@ -91,7 +92,7 @@ class Viz extends Component {
     const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
     // whether to show the title and/or visualization options
-    const showHeader = ((title && showTitle) || !hideOptions) && type !== "Graphic";
+    const showHeader = ((title && showTitle) || !hideOptions) && type !== "Graphic" && type !== "HTML";
 
     return <SizeMe render={({size}) =>
       <div
