@@ -2,6 +2,7 @@ const {
   colorScale,
   columns,
   groupBy,
+  html,
   imageURL,
   label,
   size,
@@ -45,6 +46,11 @@ module.exports = [
       Object.assign({}, subtitle, {required: false}),
       imageURL
     ]
+  },
+  {
+    name: "HTML",
+    type: "HTML",
+    methods: [html]
   },
   {
     name: "Line Plot",
