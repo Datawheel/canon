@@ -59,12 +59,12 @@ module.exports = function(app) {
     const locale = req.query.locale || envLoc;
     const jsonError = () => res.json({error: "Not Found"});
     const imageError = () => res.sendFile(`${process.cwd()}/static/images/transparent.png`);
-    const reqObj = req.query.dimension ? {where: {dimension: req.query.dimension}} : {where: {slug}};
+    const reqObj = req.query.dimension && req.query.cubeName ? {where: {dimension: req.query.dimension, cubeName: req.query.cubeName}} : {where: {slug}};
     const meta = await db.profile_meta.findOne(reqObj).catch(catcher);
     if (!meta) return type === "json" ? jsonError() : imageError();  
-    const {dimension} = meta;
+    const {dimension, cubeName} = meta;
     let member = await db.search.findOne({
-      where: {dimension, [sequelize.Op.or]: {id, slug: id}},
+      where: {dimension, cubeName, [sequelize.Op.or]: {id, slug: id}},
       include: {model: db.image, include: [{association: "content"}]}
     }).catch(catcher);
     if (!member) return type === "json" ? jsonError() : imageError();
