@@ -96,7 +96,7 @@ class Options extends Component {
     const colDelim = ",";
     const rowDelim = "\r\n";
 
-    const columns = Object.keys(results[0]);
+    const columns = results && results[0] ? Object.keys(results[0]) : [];
     let csv = columns.map(val => `\"${val}\"`).join(colDelim);
 
     for (let i = 0; i < results.length; i++) {
@@ -333,7 +333,7 @@ class Options extends Component {
     const node = this.getNode();
     const svgAvailable = node && select(node).select(".d3plus-viz").size() > 0;
 
-    const columns = results ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
+    const columns = results && results[0] ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
 
     const dataURLs = typeof data === "string"
       ? [data] : Array.isArray(data)
