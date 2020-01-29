@@ -145,6 +145,11 @@ class VisualizationEditorUI extends Component {
             return `\n  "${k}": "${object[k]}"`;
           }
         }
+        // If the user is setting HTML, they are referencing a variables dropdown
+        else if (k === "html") {
+          const formatter = object.formatters ? object.formatters[k] : null;
+          return formatter ? `\n  "${k}": formatters.${formatter}(variables["${object[k]}"])` : `\n  "${k}": variables["${object[k]}"]`;
+        }
         // If the key has a dot, this is an object that needs to be destructured/crawled down
         else if (k.includes(".")) {
           const levels = k.split(".");
@@ -361,7 +366,6 @@ class VisualizationEditorUI extends Component {
         return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
       });
 
-
     let buttonProps = {
       children: "Build",
       disabled: true,
@@ -468,9 +472,13 @@ class VisualizationEditorUI extends Component {
                   onChange={this.onChange.bind(this, method.key)}
                   inline
                 >
-                  {this.getOptionList.bind(this)(method, payload).map(option =>
-                    <option key={option.value} value={option.value}>{option.display}</option>
-                  )}
+                  {
+                    method.format === "Variable"
+                      ? varOptions
+                      : this.getOptionList.bind(this)(method, payload).map(option =>
+                        <option key={option.value} value={option.value}>{option.display}</option>
+                      )
+                  }
                 </Select>
                 <Select
                   key="cms-formatter-select"
