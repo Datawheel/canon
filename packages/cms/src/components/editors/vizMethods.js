@@ -27,7 +27,7 @@ module.exports = {
   html: {
     key: "html",
     display: "HTML",
-    format: "Input",
+    format: "Variable",
     required: true
   },
   imageURL: {
