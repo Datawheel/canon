@@ -6,6 +6,7 @@ import {dataFold} from "d3plus-viz";
 import vizLookup from "./vizLookup";
 import urlSwap from "../../utils/urlSwap";
 import Select from "../fields/Select";
+import Button from "../fields/Button";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
 import Alert from "../interface/Alert";
@@ -209,6 +210,24 @@ class VisualizationEditorUI extends Component {
     else {
       this.setState({object}, this.compileCode.bind(this));
     }
+  }
+
+  onKeyAdd(key) {
+    const {object, payload} = this.state;
+    // const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
+    if (typeof object[key] === "string") {
+      object[key] = [object[key], object[key]];
+    }
+    else if (Array.isArray(object[key])) {
+      object[key] = object[key].concat(object[key]);
+    }
+    this.setState({object});
+  }
+
+  onKeyRemove(key) {
+    const {object} = this.state;
+    if (Array.isArray(object[key])) object[key].splice(1, -1);
+    this.setState({object});
   }
 
   onChangeFormatter(field, e) {
