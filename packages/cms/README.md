@@ -511,6 +511,15 @@ return {
 }
 ```
 
+This visualization type can even be used to embed entire iframes:
+
+```js
+return {
+  type: "HTML",
+  html: '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0"></iframe>'
+}
+```
+
 ---
 
 ## Authentication
