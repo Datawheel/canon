@@ -7,6 +7,7 @@ const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const frontEndMessage = "Error Rendering Visualization";
 const errorStub = {
   data: [],
+  dataFormat: d => d,
   type: "Treemap",
   noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></p>`
 };

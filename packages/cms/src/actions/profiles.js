@@ -230,6 +230,7 @@ export function fetchVariables(config, useCache) {
     if (useCache && thisProfile.variables) {
       const diffCounter = getStore().cms.status.diffCounter + 1;
       dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables), diffCounter}});
+      dispatch({type: "VARIABLES_FETCHED"});
     }
     else {
       const locales = [localeDefault];
@@ -269,6 +270,7 @@ export function fetchVariables(config, useCache) {
               variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
               const diffCounter = getStore().cms.status.diffCounter + 1;
               dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+              dispatch({type: "VARIABLES_FETCHED"});
             });
           }
           else if (config.type === "generator") {
@@ -287,6 +289,7 @@ export function fetchVariables(config, useCache) {
                 variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
                 const diffCounter = getStore().cms.status.diffCounter + 1;
                 dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+                dispatch({type: "VARIABLES_FETCHED"});
               });
             });
           }
@@ -333,6 +336,7 @@ export function fetchVariables(config, useCache) {
                   variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
                   const diffCounter = getStore().cms.status.diffCounter + 1;
                   dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+                  dispatch({type: "VARIABLES_FETCHED"});
                 });
               }
             });
