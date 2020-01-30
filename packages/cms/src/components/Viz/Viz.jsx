@@ -130,8 +130,15 @@ class Viz extends Component {
               const hasMultiples = vizProps.data && Array.isArray(vizProps.data) && vizProps.data.some(d => typeof d === "string");
               const sources = hasMultiples ? resp : [resp];
               sources.forEach(r => this.analyzeData.bind(this)(r));
-              // console.log(sources);
-              return vizProps.dataFormat(resp);
+              let data;
+              try {
+                data = vizProps.dataFormat(resp);
+              }
+              catch (e) {
+                console.log("Error in dataFormat: ", e);
+                data = [];
+              }
+              return data;
             }}
             linksFormat={vizProps.linksFormat}
             nodesFormat={vizProps.nodesFormat}
