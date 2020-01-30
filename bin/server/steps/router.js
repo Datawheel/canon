@@ -45,7 +45,6 @@ module.exports = function(config) {
 
   const {json, urlencoded} = (canonConfig.express || {}).bodyParser || {};
   const jsonConfig = Object.assign({limit: "50mb"}, json);
-  console.log("jsonConfig", jsonConfig);
   router.use(bodyParser.json(jsonConfig));
   const urlConfig = Object.assign({extended: true, limit: "50mb"}, urlencoded);
   router.use(bodyParser.urlencoded(urlConfig));
