@@ -166,7 +166,7 @@ class Navbar extends Component {
       else {
         this.props.setStatus({currentPid: Number(pathObj.profile), pathObj: newPathObj});
         this.props.resetPreviews();
-        // TODO: Remove reset previews - have all profiles come from the server 
+        // TODO: Remove reset previews - have all profiles come from the server
         // with their default values already set.
       }
       if (pathObj.section) {
@@ -237,6 +237,7 @@ class Navbar extends Component {
           selected: currentTab === "profiles" && currentPid === profile.id
         };
       });
+      profileNavItems.sort((a, b) => a.title.localeCompare(b.title));
     }
     if (!profileNavItems.find(p => p.title === "Create new profile")) {
       profileNavItems.push({
