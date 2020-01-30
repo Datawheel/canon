@@ -11,14 +11,10 @@ class HTML extends Component {
 
   render() {
     const {config} = this.props;
-    
+
     if (!config || !config.html) return null;
 
-    return (
-      <div className="cp-html">
-        <div dangerouslySetInnerHTML={{__html: config.html}} />
-      </div>
-    );
+    return <div className="cp-viz cp-html" dangerouslySetInnerHTML={{__html: config.html}} />;
   }
 }
 
