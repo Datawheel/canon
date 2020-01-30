@@ -117,6 +117,7 @@ class Table extends Component {
   // render ungrouped column
   renderColumn = col => {
     const {headerFormat, cellFormat} = this.state.config;
+    const defaultCellFormat = (key, val) => isNaN(val) ? val : abbreviate(val);
     return Object.assign({}, {
       Header: <button className="cp-table-header-button">
         {headerFormat(col)} <span className="u-visually-hidden">, sort by column</span>
@@ -124,7 +125,17 @@ class Table extends Component {
       </button>,
       id: col,
       accessor: d => d[col],
-      Cell: cell => <span className="cp-table-cell-inner" dangerouslySetInnerHTML={{__html: cellFormat(cell, cell.value)}} />
+      Cell: cell => {
+        let html;
+        try {
+          html = cellFormat(cell, cell.value);
+        }
+        catch (e) {
+          console.log("Error in cellFormat: ", e);
+          html = defaultCellFormat(cell, cell.value);
+        }
+        return <span className="cp-table-cell-inner" dangerouslySetInnerHTML={{__html: html}} />;
+      }
     });
   };
 
