@@ -6,7 +6,6 @@ import {Icon} from "@blueprintjs/core";
 import ReactTable from "react-table";
 
 import Button from "../fields/Button";
-import TextInput from "../fields/TextInput";
 import "./Table.css";
 
 class Table extends Component {
