@@ -29,18 +29,18 @@ class Builder extends Component {
     super(props);
     this.state = {
       formatters: {},
-      userInit: false,
+      userInit: props.auth.user ? true : false,
       outlineOpen: true
     };
   }
 
   componentDidMount() {
-    const {isEnabled, env} = this.props;
+    const {auth, isEnabled, env} = this.props;
     const {router} = this.props;
     const {location} = router;
     const {tab, profile, section, previews, story, storysection} = location.query;
 
-    this.props.isAuthenticated();
+    if (!auth.loading && !auth.user) this.props.isAuthenticated();
     this.props.getFormatters();
 
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
