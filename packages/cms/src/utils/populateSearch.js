@@ -1,5 +1,6 @@
 const Client = require("@datawheel/olap-client").Client;
 const MondrianDataSource = require("@datawheel/olap-client").MondrianDataSource;
+const jwt = require("jsonwebtoken");
 
 const d3Array = require("d3-array");
 const yn = require("yn");
@@ -13,21 +14,28 @@ if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
 // in populateSearch will be made from the default language content.
 LANGUAGES.sort(a => a === envLoc ? -1 : 1);
 
-const {CANON_CMS_CUBES} = process.env;
+const {CANON_CMS_CUBES, OLAP_PROXY_SECRET} = process.env;
 
 /**
- * There is not a fully-featured way for olap-client to know the difference between a 
+ * There is not a fully-featured way for olap-client to know the difference between a
  * Tesseract and a Mondrian Client. Tesseract is more modern/nice in its HTTP codes/responses,
- * so attempt Tesseract first, and on failure, assume mondrian. 
+ * so attempt Tesseract first, and on failure, assume mondrian.
  */
 const client = new Client();
-Client.dataSourceFromURL(CANON_CMS_CUBES).then(
+
+const config = {url: CANON_CMS_CUBES};
+if (OLAP_PROXY_SECRET) {
+  const apiToken = jwt.sign({sub: "server", status: "valid"}, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+  config.headers = {"x-tesseract-jwt-token": apiToken};
+}
+
+Client.dataSourceFromURL(config).then(
   datasource => {
     if (verbose) console.log(`Initializing Tesseract at ${CANON_CMS_CUBES}`);
     client.setDataSource(datasource);
   },
   err => {
-    const ds = new MondrianDataSource(CANON_CMS_CUBES);
+    const ds = new MondrianDataSource(config);
     client.setDataSource(ds);
     if (verbose) console.error(`Tesseract not detected: ${err.message}`);
     if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
@@ -99,7 +107,7 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
     if (verbose) console.log(`Starting ingest for locale: ${locale}...`);
 
     let fullList = [];
-    
+
     for (let i = 0; i < levels.length; i++) {
 
       const level = levels[i];
@@ -176,8 +184,8 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
         obj[`${d.id}-${d.dimension}-${d.hierarchy}`] = d;
         return obj;
       }, {});
-      
-      // We now need to COMBINE the name from the cube (searchLookup) and the newly generated contentId from the 
+
+      // We now need to COMBINE the name from the cube (searchLookup) and the newly generated contentId from the
       // new inserts (searchRows) so that the language content matches up with the proper row.
       const contentList = searchRows.map(member => {
         const original = searchLookup[`${member.id}-${member.dimension}-${member.hierarchy}`];
@@ -216,7 +224,7 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
       if (verbose) console.log(`Upserted ${contentRows.length} content rows for locale: ${locale}.`);
     }
   }
-  if (verbose) console.log("SEARCH INGEST COMPLETE");  
+  if (verbose) console.log("SEARCH INGEST COMPLETE");
 };
 
 module.exports = populateSearch;

@@ -1,13 +1,20 @@
 const d3Array = require("d3-array");
 const axios = require("axios");
 const yn = require("yn");
+const jwt = require("jsonwebtoken");
 
-const verbose = yn(process.env.CANON_CMS_LOGGING);
+const {
+  CANON_CMS_CUBES,
+  CANON_CMS_LOGGING,
+  OLAP_PROXY_SECRET
+} = process.env;
+
+const verbose = yn(CANON_CMS_LOGGING);
 
 // Older version of CANON_CMS_CUBES had a full path to the cube (path.com/cubes)
 // CANON_CMS_CUBES was changed to be root only, so fix it here so we can handle
 // both the new style and the old style
-const url = process.env.CANON_CMS_CUBES
+const url = CANON_CMS_CUBES
   .replace(/[\/]{0,}(cubes){0,}[\/]{0,}$/, "/cubes");
 
 const s = (a, b) => {
@@ -25,8 +32,13 @@ const catcher = e => {
 
 module.exports = async function() {
 
+  const config = {};
+  if (OLAP_PROXY_SECRET) {
+    const apiToken = jwt.sign({sub: "server", status: "valid"}, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+    config.headers = {"x-tesseract-jwt-token": apiToken};
+  }
 
-  const resp = await axios.get(url).then(resp => resp.data).catch(catcher);
+  const resp = await axios.get(url, config).then(resp => resp.data).catch(catcher);
   const cubes = resp.cubes || [];
 
   const dimensions = [];

@@ -220,6 +220,7 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|1400|
 |`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
 |`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
+|`OLAP_PROXY_SECRET`|For olap services that require a "x-tesseract-jwt-token" header to set in order to gain access, this variable can be used to set a private key for server-side processes.|`undefined`|
 
 ---
 
