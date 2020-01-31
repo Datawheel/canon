@@ -84,7 +84,7 @@ class Section extends Component {
       newSources
         .map(s => s.annotations)
         .forEach(source => {
-          if (source.source_name && !sources.find(s => s.source_name === source.source_name)) sources.push(source);
+          if (source && source.source_name && !sources.find(s => s.source_name === source.source_name)) sources.push(source);
         });
       this.setState({sources});
     }
@@ -214,7 +214,7 @@ class Section extends Component {
     );
 
     // stats
-    let statContent, secondaryStatContent;
+    let secondaryStatContent, statContent;
 
     if (contents.position !== "sticky") {
       const statGroups = nest().key(d => d.title).entries(stats);
