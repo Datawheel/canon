@@ -18,7 +18,7 @@ const initialState = {
     query: {},
     pathObj: {}
   },
-  cubeData: {},
+  cubeData: false,
   profiles: [],
   stories: [],
   formatters: [],
