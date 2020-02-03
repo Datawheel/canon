@@ -8,6 +8,8 @@ import ReactTable from "react-table";
 import Button from "../fields/Button";
 import "./Table.css";
 
+const defaultCellFormat = (d, val) => isNaN(val) || d.column.id.includes("Year") ? val : abbreviate(val);
+
 class Table extends Component {
   constructor(props) {
     super(props);
@@ -33,8 +35,7 @@ class Table extends Component {
     };
 
     const defaults = {
-      cellFormat: (key, val) =>
-        isNaN(val) ? val : abbreviate(val),
+      cellFormat: defaultCellFormat,
       headerFormat: val => val,
       minRows: 0,
       showPagination: false,
@@ -116,7 +117,6 @@ class Table extends Component {
   // render ungrouped column
   renderColumn = col => {
     const {headerFormat, cellFormat} = this.state.config;
-    const defaultCellFormat = (key, val) => isNaN(val) ? val : abbreviate(val);
     return Object.assign({}, {
       Header: <button className="cp-table-header-button">
         {headerFormat(col)} <span className="u-visually-hidden">, sort by column</span>
