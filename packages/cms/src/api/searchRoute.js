@@ -1,5 +1,7 @@
 const sequelize = require("sequelize");
 const yn = require("yn");
+const d3Array = require("d3-array");
+const jwt = require("jsonwebtoken");
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 let Base58, flickr, sharp, storage;
@@ -16,6 +18,7 @@ const axios = require("axios");
 const validLicenses = ["4", "5", "7", "8", "9", "10"];
 const validLicensesString = validLicenses.join();
 const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
+const {OLAP_PROXY_SECRET, CANON_CMS_CUBES} = process.env;
 
 const catcher = e => {
   if (verbose) {
@@ -34,7 +37,7 @@ const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
 
 module.exports = function(app) {
 
-  const {db, cache} = app.settings;
+  const {db} = app.settings;
 
   app.get("/api/isImageEnabled", async(req, res) => res.json(Boolean(flickr)));
 
@@ -113,8 +116,62 @@ module.exports = function(app) {
     }
   });
 
-  app.get("/api/cubeData", (req, res) => {
-    res.json(cache.cubeData).end();
+  app.get("/api/cubeData", async(req, res) => {
+    // Older version of CANON_CMS_CUBES had a full path to the cube (path.com/cubes)
+    // CANON_CMS_CUBES was changed to be root only, so fix it here so we can handle
+    // both the new style and the old style
+    const url = CANON_CMS_CUBES.replace(/[\/]{0,}(cubes){0,}[\/]{0,}$/, "/cubes");
+
+    const s = (a, b) => {
+      const ta = a.name.toUpperCase();
+      const tb = b.name.toUpperCase();
+      return ta < tb ? -1 : ta > tb ? 1 : 0;
+    };
+
+    const config = {};
+    if (OLAP_PROXY_SECRET) {
+      const apiToken = jwt.sign({sub: "server", status: "valid"}, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+      config.headers = {"x-tesseract-jwt-token": apiToken};
+    }
+
+    const resp = await axios.get(url, config).then(resp => resp.data).catch(catcher);
+    const cubes = resp.cubes || [];
+
+    const dimensions = [];
+
+    cubes.forEach(cube => {
+
+      cube.dimensions.forEach(d => {
+        const dimension = {};
+        dimension.name = `${d.name} (${cube.name})`;
+        dimension.cubeName = cube.name;
+        dimension.dimName = d.name;
+        dimension.measures = cube.measures.map(m => m.name.replace(/'/g, "\'"));
+        const hierarchies = d.hierarchies.map(h => {
+
+          const levels = h.levels.filter(l => l.name !== "(All)").map(l => {
+            const parts = l.fullName
+              ? l.fullName
+                .split(".")
+                .map(p => p.replace(/^\[|\]$/g, ""))
+              : [d.name, h.name, l.name];
+
+            if (parts.length === 2) parts.unshift(parts[0]);
+            return {
+              dimension: parts[0],
+              hierarchy: parts[1],
+              level: parts[2],
+              properties: l.properties
+            };
+          });
+          return levels;
+        });
+        dimension.hierarchies = Array.from(new Set(d3Array.merge(hierarchies)));
+        dimensions.push(dimension);
+      });
+    });
+
+    return res.json(dimensions.sort(s));
   });
 
   app.get("/api/flickr/search", async(req, res) => {
