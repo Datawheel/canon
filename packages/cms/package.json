@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-cms",
   "description": "Content Management System for Canon sites.",
-  "version": "0.12.3",
+  "version": "0.12.6",
   "author": "James Mullen",
   "license": "MIT",
   "bin": {
@@ -31,8 +31,7 @@
   "dependencies": {
     "@blueprintjs/datetime": "^3.7.1",
     "@blueprintjs/select": "^3.6.1",
-    "@datawheel/olap-client": "^1.0.15",
-    "@datawheel/tesseract-client": "^0.1.1",
+    "@datawheel/olap-client": "^1.3.0",
     "@google-cloud/storage": "3.1.0",
     "axios": "^0.18.0",
     "base58": "^2.0.1",
@@ -46,9 +45,9 @@
     "draft-js-plugins-editor": "^3.0.0",
     "flickr-sdk": "^3.9.0",
     "iso-639-1": "^2.0.3",
+    "jsonwebtoken": "^8.5.1",
     "jszip": "^3.2.2",
     "localforage": "^1.7.2",
-    "mondrian-rest-client": "^1.1.3",
     "node-yaml": "^3.1.1",
     "promise-throttle": "^1.0.0",
     "react-ace": "^6.2.0",

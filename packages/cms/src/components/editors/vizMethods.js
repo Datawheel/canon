@@ -24,6 +24,12 @@ module.exports = {
     format: "Accessor",
     required: true
   },
+  html: {
+    key: "html",
+    display: "HTML",
+    format: "Variable",
+    required: true
+  },
   imageURL: {
     key: "imageURL",
     display: "Image URL",

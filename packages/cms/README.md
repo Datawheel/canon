@@ -220,6 +220,7 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|1400|
 |`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
 |`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
+|`OLAP_PROXY_SECRET`|For olap services that require a "x-tesseract-jwt-token" header to set in order to gain access, this variable can be used to set a private key for server-side processes.|`undefined`|
 
 ---
 
@@ -438,7 +439,7 @@ You may want an event in one visualization to have an effect on another visualiz
 
 For this reason, the `setVariables` function has been added to Visualizations. This function allows you access to the `variables` object that the CMS uses to swap variables on the page. In order to achieve the example above, you could set your secondary viz to make use of a variable called `variables.secondaryId`. Then, in the primary viz, you could set the following code in your viz configuration:
 
-```
+```js
  "on":
     {
       "click": d => {
@@ -473,7 +474,7 @@ Alternatively, you may want to click an element in a viz and have something open
 
 Then, in a viz, you may call the function `openModal(slug)` to embed the section with the provided slug in a popover on the page.
 
-```
+```js
  "on":
     {
       "click": d => {
@@ -484,7 +485,7 @@ Then, in a viz, you may call the function `openModal(slug)` to embed the section
 
 Keep in mind that you may combine the two advanced functions! If your planned modal relies on a secondary ID, you could set something like:
 
-```
+```js
  "on":
     {
       "click": d => {
@@ -495,6 +496,30 @@ Keep in mind that you may combine the two advanced functions! If your planned mo
 ```
 
 You are then welcome, in the `myModalSlug` section, to make use of `idForMyModal` and trust that it will be set when the modal opens.
+
+### HTML Visualizations
+
+If you need to further customize a visualization beyond d3plus, or simply want to inject custom HTML in place a visualization at all, you may use the HTML viz type.
+
+Create a generator variable that contains your custom HTML, and when you create a visualization, set the `html` field of your `HTML` visualization to that variable.
+
+In advanced mode, an HTML visualization has the following format:
+
+```js
+return {
+  type: "HTML",
+  html: "<div>Hello World</div>"
+}
+```
+
+This visualization type can even be used to embed entire iframes:
+
+```js
+return {
+  type: "HTML",
+  html: '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0"></iframe>'
+}
+```
 
 ---
 

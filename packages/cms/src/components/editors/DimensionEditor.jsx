@@ -8,6 +8,7 @@ import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 
 import {modifyDimension} from "../../actions/profiles";
+import {getCubeData} from "../../actions/cubeData";
 
 import "./DimensionEditor.css";
 
@@ -31,6 +32,22 @@ class DimensionEditor extends Component {
   }
 
   componentDidMount() {
+    const {cubeData} = this.props;
+    if (!cubeData) {
+      this.props.getCubeData();
+    } 
+    else {
+      this.populate.bind(this)();
+    } 
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!prevProps.cubeData && this.props.cubeData) {
+      this.populate.bind(this)();
+    }
+  }
+
+  populate() {
     const {meta, cubeData} = this.props;
     if (meta) {
       const selectedDimension = cubeData.find(d => d.cubeName === meta.cubeName && d.dimName === meta.dimension);
@@ -122,6 +139,8 @@ class DimensionEditor extends Component {
   render() {
     const {fieldsChanged, profileData, mode} = this.state;
     const {cubeData} = this.props;
+
+    if (!cubeData) return null;
 
     const dimOptions = cubeData.map(d => <option key={d.name} value={d.name}>{d.name}</option>);
     const levelList = profileData.dimension ? cubeData
@@ -218,7 +237,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  modifyDimension: payload => dispatch(modifyDimension(payload))
+  modifyDimension: payload => dispatch(modifyDimension(payload)),
+  getCubeData: () => dispatch(getCubeData())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(DimensionEditor);

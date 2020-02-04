@@ -345,7 +345,7 @@ class VariableEditor extends Component {
           }
 
           {/* visibility */}
-          {(type === "profile_visualization" || type === "section_visualization") &&
+          {type.includes("visualization") &&
             <VisibleSelector
               variables={variables}
               value={data.allowed !== undefined ? data.allowed : "always"}

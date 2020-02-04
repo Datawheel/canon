@@ -91,7 +91,7 @@ class VisualizationCard extends Component {
   render() {
     const {minData, showReorderButton} = this.props;
     const {isOpen, alertObj} = this.state;
-    const {query} = this.props.status;
+    const {query, fetchingVariables} = this.props.status;
     const {formatterFunctions} = this.props.resources;
 
     const minDataState = this.state.minData;
@@ -172,7 +172,7 @@ class VisualizationCard extends Component {
     return (
       <Card {...cardProps}>
         {/* viz preview */}
-        {!isOpen &&
+        {!isOpen && !fetchingVariables &&
           <Viz {...vizProps} key="v" />
         }
 

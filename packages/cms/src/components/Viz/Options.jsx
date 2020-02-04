@@ -281,7 +281,14 @@ class Options extends Component {
             .then(resp => {
               loaded.push(resp.data);
               if (loaded.length === paths.length) {
-                const results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
+                let results;
+                try {
+                  results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
+                }
+                catch (e) {
+                  console.log("Error in Options Panel: ", e);
+                  results = [];
+                }
                 this.setState({loading: false, results});
               }
             });
