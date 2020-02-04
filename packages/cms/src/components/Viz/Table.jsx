@@ -1,12 +1,23 @@
 import axios from "axios";
 import React, {Component} from "react";
 import abbreviate from "../../utils/formatters/abbreviate";
+import stripHTML from "../../utils/formatters/stripHTML";
+import {max, min, sum} from "d3-array";
 
 import {Icon} from "@blueprintjs/core";
 import ReactTable from "react-table";
 
 import Button from "../fields/Button";
 import "./Table.css";
+
+const letters = {
+  "i": 2,
+  "l": 2,
+  "I": 2,
+  " ": 4
+};
+
+const measureString = str => typeof str === "string" ? sum(str.split("").map(l => letters[l] || l.toUpperCase() === l ? 8 : 6)) : 0;
 
 const defaultCellFormat = (d, val) => isNaN(val) || d.column.id.includes("Year") ? val : abbreviate(val);
 
@@ -116,23 +127,50 @@ class Table extends Component {
 
   // render ungrouped column
   renderColumn = col => {
-    const {headerFormat, cellFormat} = this.state.config;
+    const {data, headerFormat, cellFormat} = this.state.config;
+    const title = headerFormat(col);
+
+    /** */
+    function formatValue(cell, value) {
+      try {
+        return cellFormat(cell, value);
+      }
+      catch (e) {
+        console.log("Error in cellFormat: ", e);
+        return defaultCellFormat(cell, value);
+      }
+    }
+
+    const padding = 20;
+    const sortIconWidth = 30;
+
+    const values = data.reduce((arr, d) => {
+      const html = formatValue({original: d, value: d[col], column: {id: col}}, d[col]);
+      const text = stripHTML(html);
+      if (!text) {
+        const inlineWidth = html.match(/width[:="'\s]{1,}([0-9]{1,})px/);
+        arr.push(inlineWidth ? +inlineWidth[1] : 0);
+      }
+      else {
+        arr.push(measureString(text));
+      }
+      return arr;
+    }, [measureString(title) + sortIconWidth]);
+
+    const columnWidth = max(values) + padding;
+    const minWidth = min([200, max([padding * 2, columnWidth])]);
+
     return Object.assign({}, {
       Header: <button className="cp-table-header-button">
-        {headerFormat(col)} <span className="u-visually-hidden">, sort by column</span>
+        {title} <span className="u-visually-hidden">, sort by column</span>
         <Icon className="cp-table-header-icon" icon="caret-down" />
       </button>,
       id: col,
       accessor: d => d[col],
+      minWidth,
+      maxWidth: minWidth < 100 ? minWidth : undefined,
       Cell: cell => {
-        let html;
-        try {
-          html = cellFormat(cell, cell.value);
-        }
-        catch (e) {
-          console.log("Error in cellFormat: ", e);
-          html = defaultCellFormat(cell, cell.value);
-        }
+        const html = formatValue(cell, cell.value);
         return <span className="cp-table-cell-inner" dangerouslySetInnerHTML={{__html: html}} />;
       }
     });
