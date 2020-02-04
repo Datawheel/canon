@@ -1,9 +1,10 @@
 import axios from "axios";
-import React, {Component, Fragment} from "react";
+import React, {Component} from "react";
 import {connect} from "react-redux";
 import {dataFold} from "d3plus-viz";
 
 import vizLookup from "./vizLookup";
+import VizRow from "./components/VizRow";
 import urlSwap from "../../utils/urlSwap";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
@@ -218,7 +219,7 @@ class VisualizationEditorUI extends Component {
   }
 
   onKeyAdd(key) {
-    const {object, payload} = this.state;
+    const {object} = this.state;
     // const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
     if (typeof object[key] === "string") {
       object[key] = [object[key], object[key]];
@@ -453,66 +454,23 @@ class VisualizationEditorUI extends Component {
         {modeSwitcher}
 
         {(!requiresPayload || payload.length > 0) && object.type && thisViz && thisViz.methods.map(method =>
-          // render prop as text input
-          method.format === "Input"
-            ? <TextInput
-              label={method.display}
-              namespace="cms"
-              fontSize="xs"
-              inline
-              key={method.key}
-              value={object[method.key]}
-              onChange={this.onChange.bind(this, method.key)}
-            />
-
-            // render payload as checkboxes
-            : method.format === "Checkbox"
-              ? <fieldset className="cms-fieldset">
-                <legend className="u-font-sm">Columns</legend>
-                {allFields.map(column =>
-                  <label className="cms-checkbox-label u-font-xs" key={column}>
-                    <input
-                      type="checkbox"
-                      checked={selectedColumns.includes(column)}
-                      onChange={() => this.onCheck(column)}
-                    /> {column}
-                  </label>
-                )}
-              </fieldset>
-
-              // render method.key as select
-              : <Fragment>
-                <Select
-                  key="cms-key-select"
-                  label={method.display}
-                  namespace="cms"
-                  fontSize="xs"
-                  value={object[method.key]}
-                  onChange={this.onChange.bind(this, method.key)}
-                  inline
-                >
-                  {
-                    method.format === "Variable"
-                      ? varOptions
-                      : this.getOptionList.bind(this)(method, payload).map(option =>
-                        <option key={option.value} value={option.value}>{option.display}</option>
-                      )
-                  }
-                </Select>
-                <Select
-                  key="cms-formatter-select"
-                  label={`${method.display} formatter`}
-                  labelHidden
-                  namespace="cms"
-                  fontSize="xs"
-                  value={object.formatters ? object.formatters[method.key] : "manual-none"}
-                  onChange={this.onChangeFormatter.bind(this, method.key)}
-                  inline
-                >
-                  <option key={null} value="manual-none">No formatter</option>
-                  {formatterList.map(f => <option key={f} value={f}>{f}</option>)}
-                </Select>
-              </Fragment>
+          <VizRow
+            method={method}
+            object={object}
+            firstObj={firstObj}
+            key={method.key}
+            onChange={this.onChange.bind(this)}
+            onCheck={this.onCheck.bind(this)}
+            onChangeFormatter={this.onChangeFormatter.bind(this)}
+            onKeyAdd={this.onKeyAdd.bind(this)}
+            formatterList={formatterList}
+            options={
+              method.format === "Variable" 
+                ? varOptions 
+                : this.getOptionList.bind(this)(method, payload).map(option =>
+                  <option key={option.value} value={option.value}>{option.display}</option>)
+            }
+          />
         )}
       </div>
     </div>;
