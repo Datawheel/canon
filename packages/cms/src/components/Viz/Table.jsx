@@ -101,12 +101,12 @@ class Table extends Component {
     const {data, headerFormat, cellFormat} = config;
     const col = typeof obj === "string" ? obj : obj.key;
     const onClick = typeof obj === "object" ? obj.onClick : undefined;
-    const title = headerFormat(col);
+    const title = headerFormat ? headerFormat(col) : col;
 
     /** */
     function formatValue(cell, value) {
       try {
-        return cellFormat(cell, value);
+        return cellFormat ? cellFormat(cell, value) : defaultCellFormat(cell, value);
       }
       catch (e) {
         console.log("Error in cellFormat: ", e);
@@ -144,7 +144,7 @@ class Table extends Component {
       maxWidth: minWidth < 100 ? minWidth : undefined,
       Cell: cell => {
         const html = formatValue(cell, cell.value);
-        return <span className={`cp-table-cell-inner cp-table-cell-inner-${onClick ? "clickable" : "static"}`} onClick={onClick ? onClick.bind(this, cell.original) : false} dangerouslySetInnerHTML={{__html: html}} />;
+        return <span className={`cp-table-cell-inner cp-table-cell-inner-${onClick ? "clickable" : "static"}`} onClick={onClick ? onClick.bind(this, cell.original) : undefined} dangerouslySetInnerHTML={{__html: html}} />;
       }
     });
   };
@@ -193,7 +193,7 @@ class Table extends Component {
 }
 
 Table.contextTypes = {
-  d3plus: PropTypes.obj
+  d3plus: PropTypes.object
 };
 
 Table.defaultProps = {
