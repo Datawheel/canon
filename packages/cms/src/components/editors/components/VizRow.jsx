@@ -25,18 +25,7 @@ class VizRow extends Component {
     const selectedColumns = object.columns || [];
     const allFields = Object.keys(firstObj);
 
-    let values = [];
-    if (method.multiple) {
-      if (typeof object[method.key] === "string") {
-        values = [object[method.key]];
-      }
-      if (Array.isArray(object[method.key])) {
-        values = object[method.key];
-      }
-    }
-    else {
-      values = [object[method.key]];
-    }
+    const values = method.multiple ? object[method.key] : [object[method.key]];
 
     return (
       <React.Fragment>
@@ -101,7 +90,7 @@ class VizRow extends Component {
                     namespace="cms"
                     fontSize="xs"
                     value={value}
-                    onChange={e => values.length > 1 ? onChange(method.key, e, i) : onChange(method.key, e)}
+                    onChange={e => method.multiple ? onChange(method.key, e, i) : onChange(method.key, e)}
                     inline
                   >
                     {options}
@@ -110,7 +99,7 @@ class VizRow extends Component {
                     key="cms-formatter-select"
                     label={`${method.display} formatter`}
                     labelHidden
-                    disabled={values.length > 1 && i < values.length - 1}
+                    disabled={method.multiple && i < values.length - 1}
                     namespace="cms"
                     fontSize="xs"
                     value={object.formatters ? object.formatters[method.key] : "manual-none"}
