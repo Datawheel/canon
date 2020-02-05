@@ -7,7 +7,6 @@ import vizLookup from "./vizLookup";
 import VizRow from "./components/VizRow";
 import urlSwap from "../../utils/urlSwap";
 import Select from "../fields/Select";
-import Button from "../fields/Button";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
 import Alert from "../interface/Alert";
