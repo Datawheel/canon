@@ -1,5 +1,6 @@
-import axios from "axios";
 import React, {Component} from "react";
+import PropTypes from "prop-types";
+import {dataLoad} from "d3plus-viz";
 import abbreviate from "../../utils/formatters/abbreviate";
 import stripHTML from "../../utils/formatters/stripHTML";
 import {max, min, sum} from "d3-array";
@@ -7,7 +8,6 @@ import {max, min, sum} from "d3-array";
 import {Icon} from "@blueprintjs/core";
 import ReactTable from "react-table";
 
-import Button from "../fields/Button";
 import "./Table.css";
 
 const letters = {
@@ -25,79 +25,47 @@ class Table extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      config: null
+      data: [],
+      error: false,
+      loading: false
     };
 
     this.viz = React.createRef();
   }
 
   componentDidMount() {
-    this.buildConfig.bind(this)();
+    this.loadData.bind(this)();
   }
 
-  buildConfig() {
-    const propConfig = this.props.config;
-    const {dataFormat, minRowsForPagination} = this.props;
+  loadData() {
 
-    const paginationButtonProps = {
-      className: "cp-table-pagination-button",
-      fontSize: "xxs",
-      iconOnly: true
-    };
+    const {config, dataFormat} = this.props;
+    const url = config.data;
+    this.setState({error: false, loading: url});
+    dataLoad.bind({})(url, dataFormat, undefined, (error, data) => {
+      if (this.state.loading === url) {
+        if (error) {
+          console.error(error);
+          this.setState({error, loading: false});
+        }
+        else this.setState({data, loading: false});
+      }
+    });
 
-    const defaults = {
-      cellFormat: defaultCellFormat,
-      headerFormat: val => val,
-      minRows: 0,
-      showPagination: false,
-      showPageSizeOptions: false, // good luck
-      // custom next/prev buttons when they've been enabled
-      PreviousComponent: props =>
-        <Button icon="arrow-left" {...paginationButtonProps} {...props}>
-          Go to previous page in table
-        </Button>,
-      NextComponent: props =>
-        <Button icon="arrow-right" {...paginationButtonProps} {...props}>
-          Go to next page in table
-        </Button>
-    };
-
-    const config = Object.assign({}, defaults, propConfig);
-
-    // If the data is an API call, run the axios get and replace .data with its results
-    if (typeof config.data === "string") {
-      axios.get(config.data).then(resp => {
-        config.data = dataFormat(resp.data);
-        if (config.data && config.data.length >= minRowsForPagination) config.showPagination = true;
-        this.setState({config});
-      });
-    }
-    else if (Array.isArray(config.data)) {
-      config.data = dataFormat(config.data);
-      if (config.data && config.data.length >= minRowsForPagination) config.showPagination = true;
-      this.setState({config});
-    }
   }
 
   componentDidUpdate(prevProps) {
-    if (JSON.stringify(prevProps.config) !== JSON.stringify(this.props.config)) {
-      this.setState({config: null}, this.buildConfig.bind(this));
+    const {data} = this.props.config;
+    const {loading} = this.state;
+    if (loading !== data && JSON.stringify(prevProps.config.data) !== JSON.stringify(data)) {
+      this.loadData.bind(this)();
     }
-  }
-
-  // determines whether there are any nested arrays at all
-  hasNesting(columns) {
-    // top level contains arrays
-    if (columns && columns.map(col => Array.isArray(col)).filter(c => c).length) {
-      return true;
-    }
-    return false; // no nested columns
   }
 
   // render parent header grouping
   // assumes an array with string followed by an array of columns
-  renderGrouping = currColumn => {
-    const {headerFormat} = this.state.config;
+  renderGrouping = (currColumn, config) => {
+    const {headerFormat} = config;
 
     let groupingTitle, nestedColumns;
     if (currColumn[0] && typeof currColumn[0] === "string") groupingTitle = currColumn[0];
@@ -126,8 +94,8 @@ class Table extends Component {
   }
 
   // render ungrouped column
-  renderColumn = col => {
-    const {data, headerFormat, cellFormat} = this.state.config;
+  renderColumn = (col, config) => {
+    const {data, headerFormat, cellFormat} = config;
     const title = headerFormat(col);
 
     /** */
@@ -177,43 +145,51 @@ class Table extends Component {
   };
 
   render() {
-    const {config} = this.state;
-    if (!config) return null;
 
-    const {data} = config;
+    const {data, loading} = this.state;
+    const {minRowsForPagination} = this.props;
+    const config = {...this.props.config};
+    const {d3plus} = this.context;
+    config.data = data;
 
     // check that we have a valid columns object
     const columns = config.columns &&
       // it it's array, use it as-is; otherwise, make it an array
       Array.isArray(config.columns) ? config.columns : [config.columns] ||
       // otherwise, make an array from all available columns
-      Object.keys(data[0]);
+      Object.keys(data.length ? data[0] : {});
 
     const tableStructure = columns.map(col => {
       // if the current column is a string alone, render the column
       if (typeof col === "string") {
-        return this.renderColumn(col);
+        return this.renderColumn(col, config);
       }
       else if (Array.isArray(col)) {
-        return this.renderGrouping(col);
+        return this.renderGrouping(col, config);
       }
       else return {};
     }).filter(Boolean); // handle malformed tables
 
     return (
       <div className="cp-table-wrapper" ref={this.viz}>
-        {tableStructure && tableStructure.length
+        { tableStructure.length
           ? <ReactTable
+            showPagination={data.length >= minRowsForPagination}
             {...config}
-            className="cp-table"
+            className={`cp-table ${loading ? "cp-table-loading" : ""}`}
             columns={tableStructure}
           />
           : console.log("Error: array with undefined returned in Table `columns` prop")
         }
+        { loading && <div className="cp-loading" dangerouslySetInnerHTML={{__html: config.loadingHTML || d3plus.loadingHTML}} />}
       </div>
     );
   }
 }
+
+Table.contextTypes = {
+  d3plus: PropTypes.obj
+};
 
 Table.defaultProps = {
   minRowsForPagination: 15

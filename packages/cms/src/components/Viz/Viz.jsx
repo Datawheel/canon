@@ -92,7 +92,7 @@ class Viz extends Component {
     const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
     // whether to show the title and/or visualization options
-    const showHeader = ((title && showTitle) || !hideOptions) && type !== "Graphic" && type !== "HTML";
+    const showHeader = (title && showTitle || !hideOptions) && type !== "Graphic" && type !== "HTML";
 
     return <SizeMe render={({size}) =>
       <div
