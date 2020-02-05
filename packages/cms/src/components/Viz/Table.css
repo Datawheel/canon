@@ -299,3 +299,13 @@ THEMING
 [class="-loading"] {
   display: none;
 }
+
+.cp-table-cell-inner {
+  &.cp-table-cell-inner-clickable {
+    color: var(--accent-dark);
+    cursor: pointer;
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
+  }
+}

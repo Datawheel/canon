@@ -41,16 +41,19 @@ class Table extends Component {
 
     const {config, dataFormat} = this.props;
     const url = config.data;
-    this.setState({error: false, loading: url});
-    dataLoad.bind({})(url, dataFormat, undefined, (error, data) => {
-      if (JSON.stringify(this.state.loading) === JSON.stringify(url)) {
-        if (error) {
-          console.error(error);
-          this.setState({error, loading: false});
+
+    if (url) {
+      this.setState({error: false, loading: url});
+      dataLoad.bind({})(url, dataFormat, undefined, (error, data) => {
+        if (JSON.stringify(this.state.loading) === JSON.stringify(url)) {
+          if (error) {
+            console.error(error);
+            this.setState({error, loading: false});
+          }
+          else this.setState({data, loading: false});
         }
-        else this.setState({data, loading: false});
-      }
-    });
+      });
+    }
 
   }
 
@@ -94,8 +97,10 @@ class Table extends Component {
   }
 
   // render ungrouped column
-  renderColumn = (col, config) => {
+  renderColumn = (obj, config) => {
     const {data, headerFormat, cellFormat} = config;
+    const col = typeof obj === "string" ? obj : obj.key;
+    const onClick = typeof obj === "object" ? obj.onClick : undefined;
     const title = headerFormat(col);
 
     /** */
@@ -139,7 +144,7 @@ class Table extends Component {
       maxWidth: minWidth < 100 ? minWidth : undefined,
       Cell: cell => {
         const html = formatValue(cell, cell.value);
-        return <span className="cp-table-cell-inner" dangerouslySetInnerHTML={{__html: html}} />;
+        return <span className={`cp-table-cell-inner cp-table-cell-inner-${onClick ? "clickable" : "static"}`} onClick={onClick ? onClick.bind(this, cell.original) : false} dangerouslySetInnerHTML={{__html: html}} />;
       }
     });
   };
@@ -161,7 +166,7 @@ class Table extends Component {
 
     const tableStructure = columns.map(col => {
       // if the current column is a string alone, render the column
-      if (typeof col === "string") {
+      if (typeof col === "string" || typeof col === "object" && col.key) {
         return this.renderColumn(col, config);
       }
       else if (Array.isArray(col)) {
