@@ -3,6 +3,8 @@ import TextInput from "../../fields/TextInput";
 import Select from "../../fields/Select";
 import Button from "../../fields/Button";
 
+import "./VizRow.css";
+
 class VizRow extends Component {
 
   render() {
@@ -14,6 +16,7 @@ class VizRow extends Component {
       onCheck, 
       onChangeFormatter, 
       onKeyAdd,
+      onKeyRemove,
       firstObj, 
       options,
       formatterList
@@ -70,22 +73,35 @@ class VizRow extends Component {
                   <Select
                     key="cms-key-select"
                     label={ method.multiple 
-                      ? <span>
-                        {method.display}
-                        <Button 
-                          onClick={() => onKeyAdd(method.key)}
-                          icon="plus" 
-                          iconOnly
-                        >
-                          Add Grouping
-                        </Button>
-                      </span> 
+                      ? i === 0 
+                        ? <span>
+                          {method.display}
+                          <Button 
+                            className="cms-vizrow-button"
+                            onClick={() => onKeyAdd(method.key)}
+                            icon="plus" 
+                            iconOnly
+                          >
+                            {`Add ${method.display}`}
+                          </Button>
+                        </span> 
+                        : <span>
+                          {method.display}
+                          <Button 
+                            className="cms-vizrow-button"
+                            onClick={() => onKeyRemove(method.key, i)}
+                            icon="minus" 
+                            iconOnly
+                          >
+                            {`Add ${method.display}`}
+                          </Button>
+                        </span> 
                       : method.display
                     }
                     namespace="cms"
                     fontSize="xs"
                     value={value}
-                    onChange={e => onChange(method.key, e)}
+                    onChange={e => values.length > 1 ? onChange(method.key, e, i) : onChange(method.key, e)}
                     inline
                   >
                     {options}
@@ -94,6 +110,7 @@ class VizRow extends Component {
                     key="cms-formatter-select"
                     label={`${method.display} formatter`}
                     labelHidden
+                    disabled={values.length > 1 && i < values.length - 1}
                     namespace="cms"
                     fontSize="xs"
                     value={object.formatters ? object.formatters[method.key] : "manual-none"}

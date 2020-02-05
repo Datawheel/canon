@@ -137,14 +137,20 @@ class VisualizationEditorUI extends Component {
           return `\n  "${k}": \`${fixedUrl}\``;
         }
         // If the user is setting groupBy, we need to implicitly set the label also.
+        // Further, if the groupBy is composite, render it as a list
         else if (k === "groupBy") {
-          const label = Object.keys(firstObj).find(d => d === stripID(object[k]));
+          let gString = `"${k}": "${object[k]}"`;
+          let label = Object.keys(firstObj).find(d => d === stripID(object[k]));
+          if (Array.isArray(object[k])) {
+            gString = `"${k}": [${object[k].map(d => `"${d}"`).join()}]`;
+            label = Object.keys(firstObj).find(d => d === stripID(object[k][object[k].length - 1]));
+          }
           if (label) {
             const formatter = object.formatters ? object.formatters[k] : null;
-            return `\n  "${k}": "${object[k]}",  \n  "label": d => ${formatter ? `formatters.${formatter}(d["${label}"])` : `d["${label}"]`}`;
+            return `\n  ${gString},  \n  "label": d => ${formatter ? `String(formatters.${formatter}(d["${label}"]))` : `String(d["${label}"])`}`;
           }
           else {
-            return `\n  "${k}": "${object[k]}"`;
+            return `\n  ${gString}`;
           }
         }
         // If the user is setting HTML, they are referencing a variables dropdown
@@ -200,9 +206,16 @@ class VisualizationEditorUI extends Component {
     }
   }
 
-  onChange(field, e) {
+  onChange(field, e, index) {
     const {object} = this.state;
-    object[field] = e.target.value;
+    // Index is only provided if we are updating an array that needs one (like a composite groupBy)
+    // Remember that 0 is falsey - we have to check for undefined.
+    if (index !== undefined) {
+      object[field][index] = e.target.value;
+    }
+    else {
+      object[field] = e.target.value;
+    }
     // If the user is changing the type, we need to clear and rebuild the object from scratch using a fresh payload.
     if (field === "type") {
       this.setState({object}, this.rebuild.bind(this));
@@ -220,19 +233,18 @@ class VisualizationEditorUI extends Component {
 
   onKeyAdd(key) {
     const {object} = this.state;
-    // const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
     if (typeof object[key] === "string") {
       object[key] = [object[key], object[key]];
     }
     else if (Array.isArray(object[key])) {
-      object[key] = object[key].concat(object[key]);
+      object[key] = object[key].concat(object[key][0]);
     }
     this.setState({object});
   }
 
-  onKeyRemove(key) {
+  onKeyRemove(key, index) {
     const {object} = this.state;
-    if (Array.isArray(object[key])) object[key].splice(1, -1);
+    if (Array.isArray(object[key])) object[key].splice(index, 1);
     this.setState({object});
   }
 
@@ -463,6 +475,7 @@ class VisualizationEditorUI extends Component {
             onCheck={this.onCheck.bind(this)}
             onChangeFormatter={this.onChangeFormatter.bind(this)}
             onKeyAdd={this.onKeyAdd.bind(this)}
+            onKeyRemove={this.onKeyRemove.bind(this)}
             formatterList={formatterList}
             options={
               method.format === "Variable" 

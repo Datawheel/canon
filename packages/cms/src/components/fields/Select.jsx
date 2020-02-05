@@ -6,6 +6,7 @@ export default class Select extends Component {
   render() {
     const {
       className,
+      disabled,
       namespace,   // "cp" (default) or "cms"
       fontSize,
       inline,
@@ -29,7 +30,7 @@ export default class Select extends Component {
 
         <Icon className={`${namespace}-select-icon`} icon="caret-down" />
 
-        <select className={`${namespace}-select`} onChange={onChange} value={value} tabIndex={tabIndex}>
+        <select disabled={disabled} className={`${namespace}-select ${disabled ? `${namespace}-select-disabled` : ""}`} onChange={onChange} value={value} tabIndex={tabIndex}>
           {options && filteredOptions.map(option =>
             <option value={option} key={`select-option-${option}`}>
               {option}
