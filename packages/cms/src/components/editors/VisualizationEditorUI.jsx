@@ -116,7 +116,7 @@ class VisualizationEditorUI extends Component {
         // To build the tooltip, filter our methods to only the tooltip keys
         .filter(method => method.tooltip)
         // If this key is already handled by groupBy, remove it from showing in the tooltip
-        .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy) : true)
+        .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy[object.groupBy.length - 1]) : true)
         .map(d => d.key);
     }
 
@@ -136,15 +136,10 @@ class VisualizationEditorUI extends Component {
           });
           return `\n  "${k}": \`${fixedUrl}\``;
         }
-        // If the user is setting groupBy, we need to implicitly set the label also.
-        // Further, if the groupBy is composite, render it as a list
+        // If the user is setting groupBy, we need to implicitly set the label also. Remember groupBy is a list
         else if (k === "groupBy") {
-          let gString = `"${k}": "${object[k]}"`;
-          let label = Object.keys(firstObj).find(d => d === stripID(object[k]));
-          if (Array.isArray(object[k])) {
-            gString = `"${k}": [${object[k].map(d => `"${d}"`).join()}]`;
-            label = Object.keys(firstObj).find(d => d === stripID(object[k][object[k].length - 1]));
-          }
+          const gString = `"${k}": [${object[k].map(d => `"${d}"`).join()}]`;
+          const label = Object.keys(firstObj).find(d => d === stripID(object[k][object[k].length - 1]));
           if (label) {
             const formatter = object.formatters ? object.formatters[k] : null;
             return `\n  ${gString},  \n  "label": d => ${formatter ? `String(formatters.${formatter}(d["${label}"]))` : `String(d["${label}"])`}`;
@@ -239,13 +234,13 @@ class VisualizationEditorUI extends Component {
     else if (Array.isArray(object[key])) {
       object[key] = object[key].concat(object[key][0]);
     }
-    this.setState({object});
+    this.setState({object}, this.compileCode.bind(this));
   }
 
   onKeyRemove(key, index) {
     const {object} = this.state;
     if (Array.isArray(object[key])) object[key].splice(index, 1);
-    this.setState({object});
+    this.setState({object}, this.compileCode.bind(this));
   }
 
   onChangeFormatter(field, e) {
@@ -347,7 +342,7 @@ class VisualizationEditorUI extends Component {
                   else {
                     const optionList = this.getOptionList.bind(this)(method, payload);
                     if (optionList && optionList[0]) {
-                      newObject[method.key] = optionList[0].value;
+                      newObject[method.key] = method.multiple ? [optionList[0].value] : optionList[0].value;
                     }
                   }
                 }
