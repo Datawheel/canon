@@ -23,6 +23,8 @@ const LOGINS = process.env.CANON_LOGINS || false;
 const PORT = process.env.CANON_PORT || 3300;
 const NODE_ENV = process.env.NODE_ENV || "development";
 const REQUESTS_PER_SECOND = process.env.CANON_CMS_REQUESTS_PER_SECOND ? parseInt(process.env.CANON_CMS_REQUESTS_PER_SECOND, 10) : 20;
+let cubeRoot = process.env.CANON_CMS_CUBES;
+if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
 const canonVars = {
   CANON_API: process.env.CANON_API,
@@ -261,6 +263,15 @@ module.exports = function(app) {
       smallAttr.user = user;
       // Bubble up userRole for easy access in front end (for hiding sections based on role)
       smallAttr.userRole = user.role;
+    }
+    // Fetch Parents
+    const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`).catch(() => {
+      if (verbose) console.log("Warning: Parent endpoint misconfigured or not available");
+      return [];
+    });
+    if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
+      const parents = resp.data.data.reverse();
+      smallAttr.parents = parents;
     }
     // The id "0" is a special case to retrieve ONLY the Attributes variables (without running any real generators)
     // Used in fetchVariables for new profiles that have no custom generators but still need to run this function.
