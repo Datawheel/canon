@@ -229,17 +229,20 @@ module.exports = function(app) {
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10; 
     let results = {};
 
+    // Convert a legacy-style search result into a scaffolded faked version of what the deepsearch API returns.
+    // This allows us to use the same collating code below, whether the results came from legacy or deepsearch.
     const rowToResult = row => {
       const content = row.content.find(c => c.locale === locale);
       return {
         name: content ? content.name : "",
         confidence: row.zvalue,
         metadata: {
+          id: row.id,
           slug: row.slug,
           hierarchy: row.hierarchy,
           cube_name: row.cubeName
         },
-        id: row.id,
+        id: row.slug,
         keywords: content && content.keywords ? content.keywords.join : ""
       };
     };
@@ -339,7 +342,7 @@ module.exports = function(app) {
         if (theseResults) {
           const finalResults = theseResults.map(r => ({
             slug: m.slug,
-            id: r.id,
+            id: r.metadata.id,
             memberSlug: r.metadata.slug,
             memberDimension: m.dimension,
             memberHierarchy: r.metadata.hierarchy,
