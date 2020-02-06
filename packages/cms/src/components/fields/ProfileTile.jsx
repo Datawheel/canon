@@ -47,7 +47,7 @@ class ProfileTile extends Component {
         <div className="cms-profilesearch-tile-image-container">
           {data.map(r => <div key={`tile-image-${r.id}`}
             className="cms-profilesearch-tile-image"
-            style={{backgroundImage: `url(api/image?slug=${r.slug}&id=${r.id}&size=thumb)`}} />)}
+            style={{backgroundImage: `url(/api/image?slug=${r.slug}&id=${r.id}&size=thumb)`}} />)}
         </div>
       </li>
     );

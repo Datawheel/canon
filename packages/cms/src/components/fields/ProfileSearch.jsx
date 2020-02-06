@@ -232,10 +232,10 @@ class ProfileSearch extends Component {
       availableProfiles,
       display,
       columnOrder,
-      columnTitles,
       inputFontSize,
       joiner,
-      position
+      position,
+      profileTitles
     } = this.props;
 
     return (
@@ -294,7 +294,7 @@ class ProfileSearch extends Component {
                         return aIndex - bIndex;
                       })
                       .map(profile => results.profiles[profile] || []);
-                    return <ProfileColumns columnTitles={columnTitles} tileProps={{joiner}} data={columnProfiles} />;
+                    return <ProfileColumns columnTitles={profileTitles} tileProps={{joiner}} data={columnProfiles} />;
 
                   default:
                     const listProfiles = (results.grouped || [])
@@ -305,7 +305,7 @@ class ProfileSearch extends Component {
                           <li key={`r-${j}`} className="cms-profilesearch-list-item">
                             <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
                               {result.map(d => formatTitle(d.name)).join(` ${joiner} `)}
-                              <div className="cms-profilesearch-list-item-sub u-font-xs">{formatCategory([result])}</div>
+                              <div className="cms-profilesearch-list-item-sub u-font-xs">{profileTitles[result.map(d => d.slug).join("/")] || formatCategory([result])}</div>
                             </Link>
                           </li>
                         )}
@@ -334,13 +334,13 @@ ProfileSearch.defaultProps = {
   activateKey: false,
   availableProfiles: [],
   columnOrder: [],
-  columnTitles: {},
   display: "list",
   inputFontSize: "xxl",
   joiner: "&",
   limit: 10,
   minQueryLength: 1,
   position: "static",
+  profileTitles: {},
   showExamples: false
 };
 
