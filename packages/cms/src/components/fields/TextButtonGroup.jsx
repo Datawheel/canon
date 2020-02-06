@@ -20,7 +20,7 @@ export default class TextButtonGroup extends Component {
         onSubmit={e => e.preventDefault()}
       >
         <TextInput key={inputProps.label} {...inputProps} />
-        <Button key={buttonProps.children} {...buttonProps} />
+        {buttonProps && <Button key={buttonProps.children} {...buttonProps} />}
       </form>
     );
   }

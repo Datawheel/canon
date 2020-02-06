@@ -1,7 +1,6 @@
-import axios from "axios";
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {dataFold} from "d3plus-viz";
+import {dataLoad} from "d3plus-viz";
 
 import vizLookup from "./vizLookup";
 import VizRow from "./components/VizRow";
@@ -9,6 +8,7 @@ import urlSwap from "../../utils/urlSwap";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import TextButtonGroup from "../fields/TextButtonGroup";
+import Button from "../fields/Button";
 import Alert from "../interface/Alert";
 
 import "./VisualizationEditorUI.css";
@@ -20,7 +20,8 @@ class VisualizationEditorUI extends Component {
     this.state = {
       object: {},
       rebuildAlertOpen: false,
-      payload: []
+      payload: [],
+      payloadObject: {}
     };
   }
 
@@ -51,19 +52,19 @@ class VisualizationEditorUI extends Component {
   }
 
   extractPayload(resp) {
-    const data = resp.data;
-    if (data instanceof Array) {
-      return data;
-    }
-    if (data && data.data && data.headers) {
-      return dataFold(data);
-    }
-    else if (data && data.data && data.data instanceof Array) {
-      return data.data;
+    if (resp) {
+      if (!Array.isArray(resp)) {
+        resp = [resp];
+      }
+      return resp.reduce((acc, d) => acc.concat(d.data), []);
     }
     else {
       return [];
     }
+  }
+
+  collateKeys(data) {
+    return data.reduce((acc, d) => ({...acc, ...d}), {});
   }
 
   firstBuild() {
@@ -72,6 +73,10 @@ class VisualizationEditorUI extends Component {
     const {previews, localeDefault} = this.props.status;
     // Stories can use Simplevizes, but don't have variables
     const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    // An update to this component changed the default format for data and groupBy from string to array.
+    // These typeof lines "upgrade" those legacy objects to the new format
+    if (typeof object.data === "string") object.data = [object.data];
+    if (typeof object.groupBy === "string") object.groupBy = [object.groupBy];
     const {data} = object;
     if (data) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
@@ -86,20 +91,23 @@ class VisualizationEditorUI extends Component {
           lookup[`id${i + 1}`] = p.id;
         });
       }
-      const url = urlSwap(data, Object.assign({}, env, variables, lookup));
-      axios.get(url).then(resp => {
-        const payload = this.extractPayload(resp);
-        this.setState({payload}, this.compileCode.bind(this));
-      }).catch(e => {
-        console.log("API error", e);
+      const urls = data.map(url => urlSwap(url, Object.assign({}, env, variables, lookup)));
+      dataLoad.bind({})(urls, this.extractPayload.bind(this), undefined, (error, payload) => {
+        if (error) {
+          console.log("API error", error);
+          this.setState({rebuildAlertOpen: false});
+        }
+        else {
+          const payloadObject = this.collateKeys.bind(this)(payload);
+          this.setState({payload, payloadObject}, this.compileCode.bind(this));
+        }
       });
     }
   }
 
   compileCode() {
-    const {object, payload} = this.state;
+    const {object, payloadObject} = this.state;
     const {type} = object;
-    const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
     const stripID = d => typeof d === "string" ? d.replace(/(ID\s|\sID)/g, "") : d;
 
     const keys = Object.keys(object)
@@ -128,17 +136,20 @@ class VisualizationEditorUI extends Component {
     `return {${
       keys.map(k => {
         if (k === "data" && object[k]) {
-          let fixedUrl = object[k];
-          (object[k].match(/<[^\&\=\/>]+>/g) || []).forEach(v => {
-            const strippedVar = v.replace("<", "").replace(">", "");
-            fixedUrl = fixedUrl.replace(v, `\$\{variables.${strippedVar}\}`);
+          const urls = object[k].map(url => {
+            let fixedURL = url;
+            (url.match(/<[^\&\=\/>]+>/g) || []).forEach(v => {
+              const strippedVar = v.replace("<", "").replace(">", "");
+              fixedURL = fixedURL.replace(v, `\$\{variables.${strippedVar}\}`);
+            });
+            return fixedURL;
           });
-          return `\n  "${k}": \`${fixedUrl}\``;
+          return `\n  "${k}": [${urls.map(d => `\`${d}\``).join()}]`;
         }
         // If the user is setting groupBy, we need to implicitly set the label also. Remember groupBy is a list
         else if (k === "groupBy") {
           const gString = `"${k}": [${object[k].map(d => `"${d}"`).join()}]`;
-          const label = Object.keys(firstObj).find(d => d === stripID(object[k][object[k].length - 1]));
+          const label = Object.keys(payloadObject).find(d => d === stripID(object[k][object[k].length - 1]));
           if (label) {
             const formatter = object.formatters ? object.formatters[k] : null;
             return `\n  ${gString},  \n  "label": d => ${formatter ? `String(formatters.${formatter}(d["${label}"]))` : `String(d["${label}"])`}`;
@@ -227,18 +238,13 @@ class VisualizationEditorUI extends Component {
 
   onKeyAdd(key) {
     const {object} = this.state;
-    if (typeof object[key] === "string") {
-      object[key] = [object[key], object[key]];
-    }
-    else if (Array.isArray(object[key])) {
-      object[key] = object[key].concat(object[key][0]);
-    }
+    object[key] = object[key].concat(object[key][0]);
     this.setState({object}, this.compileCode.bind(this));
   }
 
   onKeyRemove(key, index) {
     const {object} = this.state;
-    if (Array.isArray(object[key])) object[key].splice(index, 1);
+    object[key].splice(index, 1);
     this.setState({object}, this.compileCode.bind(this));
   }
 
@@ -254,10 +260,10 @@ class VisualizationEditorUI extends Component {
     this.setState({object}, this.compileCode.bind(this));
   }
 
-  getOptionList(method, payload) {
-    const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
+  getOptionList(method) {
+    const {payloadObject} = this.state;
+    const allFields = Object.keys(payloadObject);
     const isID = d => d.match(/(ID\s|\sID)/g, "");
-    const allFields = Object.keys(firstObj);
     const plainFields = allFields.filter(d => !isID(d));
     const idFields = allFields.filter(d => isID(d));
     let options = [];
@@ -270,7 +276,7 @@ class VisualizationEditorUI extends Component {
     }
     else {
       options = options.concat(allFields
-        .filter(key => method.typeof ? typeof firstObj[key] === method.typeof : true)
+        .filter(key => method.typeof ? typeof payloadObject[key] === method.typeof : true)
         .map(key => ({value: key, display: key})));
     }
     return options;
@@ -323,14 +329,17 @@ class VisualizationEditorUI extends Component {
 
     if (data) {
 
-      const url = urlSwap(data, Object.assign({}, env, variables, lookup));
-      axios.get(url)
-        .then(resp => {
-          const payload = this.extractPayload(resp);
-          const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
-          if (thisViz && firstObj) {
+      const urls = data.map(url => urlSwap(url, Object.assign({}, env, variables, lookup)));
+      dataLoad.bind({})(urls, this.extractPayload.bind(this), undefined, (error, payload) => {
+        if (error) {
+          console.log("API error", error);
+          this.setState({rebuildAlertOpen: false});
+        }
+        else {
+          const payloadObject = this.collateKeys.bind(this)(payload);
+          if (thisViz) {
             if (newObject.type === "Table") {
-              newObject.columns = Object.keys(firstObj);
+              newObject.columns = Object.keys(payloadObject);
             }
             else {
               thisViz.methods.forEach(method => {
@@ -339,7 +348,7 @@ class VisualizationEditorUI extends Component {
                     newObject[method.key] = "";
                   }
                   else {
-                    const optionList = this.getOptionList.bind(this)(method, payload);
+                    const optionList = this.getOptionList.bind(this)(method);
                     if (optionList && optionList[0]) {
                       newObject[method.key] = method.multiple ? [optionList[0].value] : optionList[0].value;
                     }
@@ -350,11 +359,12 @@ class VisualizationEditorUI extends Component {
           }
           this.setState({
             payload,
+            payloadObject,
             object: newObject,
             rebuildAlertOpen: false
           }, this.compileCode.bind(this));
-        })
-        .catch(e => console.log("API error", e));
+        }
+      });
     }
     else {
       this.setState({
@@ -366,16 +376,13 @@ class VisualizationEditorUI extends Component {
 
   render() {
     const {modeSwitcher} = this.props;
-    const {object, rebuildAlertOpen, payload} = this.state;
+    const {object, rebuildAlertOpen, payload, payloadObject} = this.state;
     const {localeDefault} = this.props.status;
     const {formatterFunctions} = this.props.resources;
     const formatters = formatterFunctions[localeDefault];
     const formatterList = formatters ? Object.keys(formatters).sort((a, b) => a.localeCompare(b)) : [];
-    const selectedColumns = object.columns || [];
-    const firstObj = payload.length > 0 && payload[0] ? payload[0] : {};
 
     const thisViz = vizLookup.find(v => v.type === object.type);
-    const allFields = Object.keys(firstObj);
 
     const requiresPayload = !["Graphic", "HTML"].includes(object.type);
 
@@ -397,7 +404,7 @@ class VisualizationEditorUI extends Component {
       disabled: true,
       namespace: "cms"
     };
-    if (object.data && object.type) {
+    if (object.data && Array.isArray(object.data) && object.data.every(d => d) && object.type) {
       buttonProps = {
         children: payload.length > 0 ? "Rebuild" : "Build",
         namespace: "cms",
@@ -417,18 +424,41 @@ class VisualizationEditorUI extends Component {
       />
 
       {/* data URL */}
-      { requiresPayload && 
-        <TextButtonGroup
-          namespace="cms"
-          inputProps={{
-            label: "Data endpoint",
-            inline: true,
-            namespace: "cms",
-            value: object.data || "",
-            onChange: this.onChange.bind(this, "data")
-          }}
-          buttonProps={buttonProps}
-        />
+      { requiresPayload && object.data && Array.isArray(object.data) && 
+        object.data.map((d, i) => 
+          <TextButtonGroup
+            key={`data-${i}`}
+            namespace="cms"
+            inputProps={{
+              label: <React.Fragment>
+                Data Endpoint
+                {i === 0 
+                  ? <Button 
+                    className="cms-vizrow-button"
+                    onClick={() => this.onKeyAdd.bind(this)("data")}
+                    icon="plus" 
+                    iconOnly
+                  >
+                    Add Endpoint
+                  </Button>
+                  : <Button 
+                    className="cms-vizrow-button"
+                    onClick={() => this.onKeyRemove.bind(this)("data", i)}
+                    icon="minus" 
+                    iconOnly
+                  >
+                    Remove Endpoint
+                  </Button>
+                }
+              </React.Fragment>,
+              inline: true,
+              namespace: "cms",
+              value: object.data[i] || "",
+              onChange: e => this.onChange.bind(this)("data", e, i)
+            }}
+            buttonProps={i === 0 ? buttonProps : false}
+          />
+        )
       }
 
       <div className="cms-field-group u-margin-bottom-off">
@@ -463,7 +493,7 @@ class VisualizationEditorUI extends Component {
           <VizRow
             method={method}
             object={object}
-            firstObj={firstObj}
+            payloadObject={payloadObject}
             key={method.key}
             onChange={this.onChange.bind(this)}
             onCheck={this.onCheck.bind(this)}

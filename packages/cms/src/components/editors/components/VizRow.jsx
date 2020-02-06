@@ -17,13 +17,13 @@ class VizRow extends Component {
       onChangeFormatter, 
       onKeyAdd,
       onKeyRemove,
-      firstObj, 
+      payloadObject, 
       options,
       formatterList
     } = this.props;
 
     const selectedColumns = object.columns || [];
-    const allFields = Object.keys(firstObj);
+    const allFields = Object.keys(payloadObject);
 
     const values = method.multiple ? object[method.key] : [object[method.key]];
 
@@ -82,7 +82,7 @@ class VizRow extends Component {
                             icon="minus" 
                             iconOnly
                           >
-                            {`Add ${method.display}`}
+                            {`Remove ${method.display}`}
                           </Button>
                         </span> 
                       : method.display
