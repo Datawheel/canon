@@ -25,7 +25,8 @@ class VizRow extends Component {
     const selectedColumns = object.columns || [];
     const allFields = Object.keys(payloadObject);
 
-    const values = method.multiple ? object[method.key] : [object[method.key]];
+    let values = method.multiple ? object[method.key] : [object[method.key]];
+    if (!values) values = [];
 
     return (
       <React.Fragment>
