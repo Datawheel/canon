@@ -248,30 +248,31 @@ module.exports = function(app) {
     return attr;
   };
 
-  const runGenerators = async(req, pid, id) => {
+  const runGenerators = async(req, pid, id, smallAttr) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     const dims = collate(req.query);
     const attr = await fetchAttr(pid, dims);
-    // Strip the attr object down to just some relevant keys
-    const smallKeys = ["id", "dimension", "hierarchy", "slug"];
-    const smallAttr = Object.keys(attr).reverse().reduce((acc, k) => smallKeys.includes(k.replace(/\d+/g, "")) ? {[k]: attr[k], ...acc} : acc, {});
-    // Retrieve user login data
-    smallAttr.user = false;
-    if (LOGINS && req.user) {
-      // Extract sensitive data
-      const {password, salt, ...user} = req.user; // eslint-disable-line
-      smallAttr.user = user;
-      // Bubble up userRole for easy access in front end (for hiding sections based on role)
-      smallAttr.userRole = user.role;
-    }
-    // Fetch Parents
-    const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`).catch(() => {
-      if (verbose) console.log("Warning: Parent endpoint misconfigured or not available");
-      return [];
-    });
-    if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
-      const parents = resp.data.data.reverse();
-      smallAttr.parents = parents;
+    if (!smallAttr) {
+      // Strip the attr object down to just some relevant keys
+      const smallKeys = ["id", "dimension", "hierarchy", "slug"];
+      smallAttr = Object.keys(attr).reverse().reduce((acc, k) => smallKeys.includes(k.replace(/\d+/g, "")) ? {[k]: attr[k], ...acc} : acc, {});
+      // Retrieve user login data
+      smallAttr.user = false;
+      if (LOGINS && req.user) {
+        // Extract sensitive data
+        const {password, salt, ...user} = req.user; // eslint-disable-line
+        smallAttr.user = user;
+        // Bubble up userRole for easy access in front end (for hiding sections based on role)
+        smallAttr.userRole = user.role;
+      }
+      // Fetch Parents
+      const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`).catch(() => {
+        if (verbose) console.log("Warning: Parent endpoint misconfigured or not available");
+        return [];
+      });
+      if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
+        smallAttr.parents = resp.data.data;
+      }
     }
     // The id "0" is a special case to retrieve ONLY the Attributes variables (without running any real generators)
     // Used in fetchVariables for new profiles that have no custom generators but still need to run this function.
@@ -332,6 +333,7 @@ module.exports = function(app) {
   };
 
   app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
+  app.post("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
 
   const runMaterializers = async(req, variables, pid) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
