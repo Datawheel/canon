@@ -145,17 +145,12 @@ class VisualizationEditorUI extends Component {
             });
             return fixedURL;
           });
-          return `\n  "${k}": [${urls.map(d => `\`${d}\``).join()}]`;  
-
-          /*
-          // temporary workaround - bug in d3plus doesn't allow for arrays of just one data url
           if (urls.length === 1) {
             return `\n  "${k}": ${urls.map(d => `\`${d}\``).join()}`;  
           }
           else {
             return `\n  "${k}": [${urls.map(d => `\`${d}\``).join()}]`;  
           }
-          */
         }
         // If the user is setting groupBy, we need to implicitly set the label also. Remember groupBy is a list
         else if (k === "groupBy") {
