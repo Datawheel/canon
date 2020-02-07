@@ -42,7 +42,8 @@ class VisualizationEditorUI extends Component {
     else {
       const defaultViz = vizLookup.find(v => v.default) || vizLookup[0];
       object = {
-        type: defaultViz.type
+        type: defaultViz.type,
+        data: [""]
       };
       // If this component is mounting and is NOT provided a simple config, it means the
       // user has just enabled simple mode. This means the parent component must be given
@@ -78,7 +79,7 @@ class VisualizationEditorUI extends Component {
     if (typeof object.data === "string") object.data = [object.data];
     if (typeof object.groupBy === "string") object.groupBy = [object.groupBy];
     const {data} = object;
-    if (data) {
+    if (data && Array.isArray(data) && data[0]) {
       // The API will have an <id> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value.
@@ -144,6 +145,9 @@ class VisualizationEditorUI extends Component {
             });
             return fixedURL;
           });
+          return `\n  "${k}": [${urls.map(d => `\`${d}\``).join()}]`;  
+
+          /*
           // temporary workaround - bug in d3plus doesn't allow for arrays of just one data url
           if (urls.length === 1) {
             return `\n  "${k}": ${urls.map(d => `\`${d}\``).join()}`;  
@@ -151,6 +155,7 @@ class VisualizationEditorUI extends Component {
           else {
             return `\n  "${k}": [${urls.map(d => `\`${d}\``).join()}]`;  
           }
+          */
         }
         // If the user is setting groupBy, we need to implicitly set the label also. Remember groupBy is a list
         else if (k === "groupBy") {
@@ -266,8 +271,7 @@ class VisualizationEditorUI extends Component {
     this.setState({object}, this.compileCode.bind(this));
   }
 
-  getOptionList(method) {
-    const {payloadObject} = this.state;
+  getOptionList(method, payloadObject) {
     const allFields = Object.keys(payloadObject);
     const isID = d => d.match(/(ID\s|\sID)/g, "");
     const plainFields = allFields.filter(d => !isID(d));
@@ -333,7 +337,7 @@ class VisualizationEditorUI extends Component {
       if (object.title) newObject.title = object.title;
     }
 
-    if (data) {
+    if (data && Array.isArray(data) && data[0]) {
 
       const urls = data.map(url => urlSwap(url, Object.assign({}, env, variables, lookup)));
       dataLoad.bind({})(urls, this.extractPayload.bind(this), undefined, (error, payload) => {
@@ -354,7 +358,7 @@ class VisualizationEditorUI extends Component {
                     newObject[method.key] = "";
                   }
                   else {
-                    const optionList = this.getOptionList.bind(this)(method);
+                    const optionList = this.getOptionList.bind(this)(method, payloadObject);
                     if (optionList && optionList[0]) {
                       newObject[method.key] = method.multiple ? [optionList[0].value] : optionList[0].value;
                     }
@@ -510,7 +514,7 @@ class VisualizationEditorUI extends Component {
             options={
               method.format === "Variable" 
                 ? varOptions 
-                : this.getOptionList.bind(this)(method, payload).map(option =>
+                : this.getOptionList.bind(this)(method, payloadObject).map(option =>
                   <option key={option.value} value={option.value}>{option.display}</option>)
             }
           />

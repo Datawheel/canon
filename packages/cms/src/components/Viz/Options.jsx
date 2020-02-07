@@ -52,7 +52,7 @@ class Options extends Component {
   constructor(props) {
     super(props);
 
-    const hasMultiples = Array.isArray(props.data) && props.data.some(d => typeof d === "string");
+    const hasMultiples = Array.isArray(props.data) && props.data.length > 1 && props.data.some(d => typeof d === "string");
 
     this.state = {
       backgroundColor: true,
