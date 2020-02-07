@@ -258,7 +258,7 @@ class ProfileSearchPage extends Component {
             inputFontSize="xl"
             display="list"
             showExamples={true}
-            profileTitles={{country: "Cool Locations"}}
+            profileTitles={{country: "Cool Location", subnational_bra: "Brazil Subnational"}}
             position="absolute" />
 
         </div>
