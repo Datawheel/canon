@@ -301,7 +301,7 @@ module.exports = function(app) {
     const formatterFunctions = await formatters4eval(db, locale);
 
     const requests = Array.from(new Set(generators.map(g => g.api)));
-    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, attr)));
+    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, smallAttr)));
     const results = await Promise.all(fetches).catch(catcher);
 
     // Seed the return variables with the stripped-down attr object

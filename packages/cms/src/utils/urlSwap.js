@@ -1,8 +1,12 @@
+const yn = require("yn");
+
 const {CANON_LOGICLAYER_CUBE} = process.env;
 
 const env = {
   CANON_LOGICLAYER_CUBE
 };
+
+const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 module.exports = function(url, params) {
 
@@ -11,10 +15,16 @@ module.exports = function(url, params) {
   const lookup = Object.assign({}, env, params);
 
   (url.match(/<[^\&\=\/>]+>/g) || []).forEach(variable => {
-    let x = variable.slice(1, -1).split(".");
-    if (lookup[x[0]]) x = x.reduce((o, i) => o[i], lookup);
-    else x = false;
-    if (x && typeof x !== "object") url = url.replace(variable, x);
+    const x = variable.slice(1, -1);
+    const accessors = x.match(/[^\]\[.]+/g);
+    let value;
+    try {
+      value = accessors.reduce((o, i) => o[i], lookup);
+    }
+    catch (e) {
+      if (verbose) console.error("Error in urlSwap: ", e.message);
+    }
+    if (value && typeof value !== "object") url = url.replace(variable, value);
   });
 
   return url;
