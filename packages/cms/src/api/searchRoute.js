@@ -19,6 +19,8 @@ const validLicenses = ["4", "5", "7", "8", "9", "10"];
 const validLicensesString = validLicenses.join();
 const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
 const {OLAP_PROXY_SECRET, CANON_CMS_CUBES} = process.env;
+let cubeRoot = process.env.CANON_CMS_CUBES;
+if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
 const catcher = e => {
   if (verbose) {
@@ -405,7 +407,7 @@ module.exports = function(app) {
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-    const {id, q, dimension, levels, cubeName, pslug} = req.query;
+    const {id, q, dimension, levels, cubeName, pslug, parents} = req.query;
 
     let rows = [];
 
@@ -483,7 +485,8 @@ module.exports = function(app) {
       if (!slugs[m.dimension]) slugs[m.dimension] = m.slug;
     });
 
-    const results = rows.map(d => {
+    const results = [];
+    for (let d of rows) {
       d = d.toJSON();
       const result = {
         dimension: d.dimension,
@@ -493,18 +496,27 @@ module.exports = function(app) {
         profile: slugs[d.dimension],
         slug: d.slug
       };
+      if (parents && rows.length === 1) {
+        const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${d.cubeName}&${d.hierarchy}=${d.id}:parents`).catch(() => {
+          if (verbose) console.log("Warning: Parent endpoint misconfigured or not available");
+          return [];
+        });
+        if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
+          result.parents = resp.data.data;
+        }
+      }
       const defCon = d.content.find(c => c.locale === locale);
       if (defCon) {
         result.name = defCon.name;
         result.keywords = defCon.keywords;
         result.attr = defCon.attr;
       }
-      return result;
-    });
+      results.push(result);
+    }
 
     return res.json({
       results,
-      query: {dimension, id, limit, q}
+      query: {dimension, id, limit, q, parents}
     });
   };
 

@@ -274,9 +274,6 @@ module.exports = function(app) {
         smallAttr.parents = resp.data.data;
       }
     }
-    // The id "0" is a special case to retrieve ONLY the Attributes variables (without running any real generators)
-    // Used in fetchVariables for new profiles that have no custom generators but still need to run this function.
-    if (id === "0") return {...smallAttr, _genStatus: {attributes: {...smallAttr}}};
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
     if (generators.length === 0) return {};
