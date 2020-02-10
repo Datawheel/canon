@@ -41,7 +41,7 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
   // strip out the "dataFormat" from config
   const dataFormat = config.dataFormat ? config.dataFormat : resp => {
 
-    const hasMultiples = Array.isArray(config.data) && config.data.some(d => typeof d === "string");
+    const hasMultiples = Array.isArray(config.data) && config.data.length > 1 && config.data.some(d => typeof d === "string");
     const sources = hasMultiples ? resp : [resp];
 
     // console.log(`d`, d);

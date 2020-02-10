@@ -15,6 +15,7 @@ module.exports = {
     key: "groupBy",
     display: "Grouping",
     format: "Accessor",
+    multiple: true,
     required: true,
     typeof: "id"
   },

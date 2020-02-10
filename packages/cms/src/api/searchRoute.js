@@ -257,7 +257,7 @@ module.exports = function(app) {
         const rows = await db.search.findAll({
           where: {dimension: dc.dimension, cubeName: dc.cubeName},
           include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
-          order: [["zvalue", "DESC"]],
+          order: [["zvalue", "DESC NULLS LAST"]],
           limit
         });
         rows.forEach(row => {
@@ -299,7 +299,7 @@ module.exports = function(app) {
           // Pad out the limit by multiplying by the number of unique dimensions, then limit (slice) them later.
           // Not perfect, could probably revisit the logic here.
           limit: limit * allDimCubes.length,
-          order: [["zvalue", "DESC"]],
+          order: [["zvalue", "DESC NULLS LAST"]],
           where: searchWhere
         });
         results.origin = "legacy";
@@ -456,7 +456,7 @@ module.exports = function(app) {
       rows = await db.search.findAll({
         include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
         limit,
-        order: [["zvalue", "DESC"]],
+        order: [["zvalue", "DESC NULLS LAST"]],
         where: searchWhere
       });
     }

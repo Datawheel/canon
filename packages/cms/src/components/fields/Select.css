@@ -54,6 +54,10 @@
   }
 }
 
+.cms-select-disabled {
+  opacity: .5;
+}
+
 /* ▾ */
 .cp-select-icon,
 .cms-select-icon {

@@ -77,6 +77,8 @@ class Viz extends Component {
     // gave us a "stub" config with a user-friendly error message built in, so the front-end can see it.
     vizProps.config = Object.assign(vizProps.config, configOverride);
 
+    if (debug) vizProps.config.duration = 0;
+
     // strip out the "type" from config
     const {type} = vizProps.config;
     delete vizProps.config.type;
@@ -128,7 +130,7 @@ class Viz extends Component {
             key="viz-key"
             className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
             dataFormat={resp => {
-              const hasMultiples = vizProps.data && Array.isArray(vizProps.data) && vizProps.data.some(d => typeof d === "string");
+              const hasMultiples = vizProps.data && Array.isArray(vizProps.data) && vizProps.data.length > 1 && vizProps.data.some(d => typeof d === "string");
               const sources = hasMultiples ? resp : [resp];
               sources.forEach(r => this.analyzeData.bind(this)(r));
               let data;
