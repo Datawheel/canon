@@ -511,6 +511,7 @@ module.exports = function(app) {
         result.keywords = defCon.keywords;
         result.attr = defCon.attr;
       }
+      result.content = d.content;
       results.push(result);
     }
 
