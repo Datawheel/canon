@@ -5,7 +5,7 @@ module.exports = (searchRows, locale) =>
       ...acc,
       [`id${i + 1}`]: d.id,
       [`slug${i + 1}`]: d.slug,
-      [`name${i + 1}`]: d.name,
+      [`name${i + 1}`]: d.content.find(o => o.locale === locale) ? d.content.find(o => o.locale === locale).name : "",
       [`dimension${i + 1}`]: d.dimension,
       [`hierarchy${i + 1}`]: d.hierarchy,
       [`parents${i + 1}`]: d.parents
@@ -13,7 +13,7 @@ module.exports = (searchRows, locale) =>
   ), {
     id: searchRows[0].id,
     slug: searchRows[0].slug,
-    name: searchRows[0].name,
+    name: searchRows[0].content.find(o => o.locale === locale) ? searchRows[0].content.find(o => o.locale === locale).name : "",
     dimension: searchRows[0].dimension,
     hierarchy: searchRows[0].hierarchy,
     parents: searchRows[0].parents
