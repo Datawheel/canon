@@ -20,12 +20,20 @@ class PreviewSearch extends Component {
   }
 
   onSelectPreview(result) {
-    const {slug} = this.props;
+    const {slug, url, dimension, cubeName} = this.props;
     const {id, name, slug: memberSlug} = result;
-    const newPreview = {slug, id, name, memberSlug};
-    const previews = this.props.status.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
-    const pathObj = Object.assign({}, this.props.status.pathObj, {previews});
-    this.props.setStatus({pathObj, previews, userQuery: ""});
+    // When selecting a new preview, a new roundtrip is required to look 
+    const fullURL = `${url}?id=${id}&dimension=${dimension}&cubeName=${cubeName}&limit=1&parents=true`;
+    axios.get(fullURL).then(resp => {
+      let searchObj = {};
+      if (resp.data && resp.data.results) {
+        searchObj = resp.data.results[0];
+      }
+      const newPreview = {slug, id, name, memberSlug, searchObj};
+      const previews = this.props.status.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
+      const pathObj = Object.assign({}, this.props.status.pathObj, {previews});
+      this.props.setStatus({pathObj, previews, userQuery: ""});
+    });
   }
 
   onChange(e) {
