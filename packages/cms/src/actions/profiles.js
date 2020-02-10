@@ -220,6 +220,7 @@ export function fetchVariables(config, useCache) {
   return function(dispatch, getStore) {    
     dispatch({type: "VARIABLES_FETCH"});
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
+    const {auth} = getStore();
 
     const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
     let variables = deepClone(thisProfile.variables);
@@ -239,6 +240,12 @@ export function fetchVariables(config, useCache) {
       if (localeSecondary) locales.push(localeSecondary);
       for (const thisLocale of locales) {
         const attributes = attify(previews.map(d => d.searchObj), thisLocale);
+        if (auth.user) {
+          const {password, salt, ...user} = auth.user; // eslint-disable-line
+          attributes.user = user;
+          // Bubble up userRole for easy access in front end (for hiding sections based on role)
+          attributes.userRole = user.role;
+        }
         // If the config is for a materializer, or its for zero-length generators (like in a new profile) 
         // don't run custom generators. Just use our current variables for the POST action for materializers
         if (config.type === "materializer" || config.type === "generator" && config.ids.length === 0) {
