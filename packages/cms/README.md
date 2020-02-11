@@ -10,6 +10,7 @@ Content Management System for Canon sites.
 * [Environment Variables](#environment-variables)
 * [Sections](#sections)
 * [Search](#search)
+* [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Authentication](#authentication)
 * [Frequently Asked Questions](#frequently-asked-questions)
@@ -426,6 +427,42 @@ If you would prefer to build your own search component, the DeepSearch API is av
 |`min_confidence`|Confidence threshold (Deepsearch Only)|
 
 Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
+
+---
+
+## Advanced Generator Techniques
+
+For complex generator calls, crafting an API URL using dynamic properties of the current member can be difficult. 
+
+### Using Member Attributes in API Calls
+
+The most basic example of this feature is including the `id` of the current member in the API call. Say, for example, you want to retrieve the population for the current state ID. For a given state ID of `25`, your API call may look something like this:
+
+```
+/api?measures=Population&drilldowns=State&State%20ID=25
+```
+
+However, the very point of the CMS is to swap out the `25` with whatever `id` you are previewing. This is the purpose of the fixed "Attributes" Generator at the top of the Generators panel. Any of the variables in this Attributes Generator can be swapped into a Generator API URL by using the `<variable>` syntax. So, the API call above would become:
+
+```
+/api?measures=Population&drilldowns=State&State%20ID=<id>
+```
+
+And the CMS will swap `25` in for `<id>`. This allows you to make complex API calls based on the `hierarchy`, `dimension`, etc. of the current member.
+
+### Object / Array Access
+
+Certain elements of the Attributes Generator, such as `parents` or `user`, are objects or arrays. You may access these using dot notation and array accessors:
+
+```
+/api?hierarchy=<parents[0].value>
+```
+
+However, be warned that this is not "true" javascript, merely string manipulation, so operations like `<parents[parents.length - 1].value>` are not supported. To access the ends of lists, use a python-esque negative index accessor like so:
+
+```
+/api?hierarchy=<parents[-1].value>
+```
 
 ---
 
