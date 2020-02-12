@@ -280,7 +280,7 @@ class Options extends Component {
         const loaded = resps.map(d => d.data);
         let results;
         try {
-          results = dataFormat(resps.length === 1 ? loaded[0] : loaded);
+          results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
         }
         catch (e) {
           console.log("Error in Options Panel: ", e);
