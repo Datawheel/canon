@@ -72,8 +72,10 @@ class Options extends Component {
 
   componentDidUpdate(prevProps) {
     const {data} = this.props;
-    if (prevProps.data !== data) {
-      this.setState({results: data instanceof Array ? data : false});
+    if (JSON.stringify(prevProps.data) !== JSON.stringify(data)) {
+      const hasMultiples = Array.isArray(data) && data.length > 1 && data.some(d => typeof d === "string");
+      const results = !hasMultiples && Array.isArray(data) ? data : false;
+      this.setState({results});
     }
   }
 
@@ -274,28 +276,17 @@ class Options extends Component {
       const {data, dataFormat} = this.props;
       const paths = typeof data === "string" ? [data] : data;
       this.setState({loading: true});
-      const loaded = [];
-      paths.forEach(path => {
-        if (typeof path === "string") {
-          axios.get(path)
-            .then(resp => {
-              loaded.push(resp.data);
-              if (loaded.length === paths.length) {
-                let results;
-                try {
-                  results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
-                }
-                catch (e) {
-                  console.log("Error in Options Panel: ", e);
-                  results = [];
-                }
-                this.setState({loading: false, results});
-              }
-            });
+      Promise.all(paths.map(path => typeof path === "string" ? axios.get(path) : {data: path})).then(resps => {
+        const loaded = resps.map(d => d.data);
+        let results;
+        try {
+          results = dataFormat(resps.length === 1 ? loaded[0] : loaded);
         }
-        else {
-          loaded.push(path);
+        catch (e) {
+          console.log("Error in Options Panel: ", e);
+          results = [];
         }
+        this.setState({loading: false, results});
       });
     }
   }
