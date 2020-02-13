@@ -129,7 +129,7 @@ class Subnav extends Component {
                   {section.icon && blueprintIcons.find(i => i === section.icon) &&
                     <Icon className="cp-subnav-link-icon" icon={section.icon} />
                   }
-                  {stripHTML(section.short || section.title)}
+                  {section.short && stripHTML(section.short) ? stripHTML(section.short) : stripHTML(section.title)}
                 </AnchorLink>
               </li>
             )}
