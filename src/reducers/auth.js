@@ -35,7 +35,7 @@ export default (state = defaultState, action) => {
     case LOGIN_REQUEST:
     case RESET_SEND_REQUEST:
     case SIGNUP_REQUEST:
-      return {...state, loading: true, error: null, msg: action.type, user: null};
+      return {...state, loading: true, error: null, msg: action.type};
     case ACTIVATE_SEND_REQUEST:
       return {...state, loading: true, msg: action.type};
     case LOGIN_SUCCESS:
