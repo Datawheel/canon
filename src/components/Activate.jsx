@@ -17,8 +17,9 @@ class Activate extends Component {
 
   constructor(props) {
     super(props);
+    const {auth} = this.props;
     this.state = {
-      activated: undefined,
+      activated: auth.user ? auth.user.activated : undefined,
       submitted: false,
       token: false
     };
