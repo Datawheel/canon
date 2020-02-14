@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
-import {sendActivation, validateActivation} from "../actions/auth";
+import {isAuthenticated, sendActivation, validateActivation} from "../actions/auth";
 import {Intent} from "@blueprintjs/core";
 
 import {
@@ -47,6 +47,7 @@ class Activate extends Component {
     const Toast = this.context.toast.current;
 
     if (!activated && auth.msg === ACTIVATE_TOKEN_SUCCESS) {
+      this.props.isAuthenticated();
       this.setState({activated: true});
     }
     else if (activated === undefined && auth.msg === LOGIN_SUCCESS) {
@@ -123,6 +124,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  isAuthenticated: () => {
+    dispatch(isAuthenticated());
+  },
   sendActivation: email => {
     dispatch(sendActivation(email));
   },
