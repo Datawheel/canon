@@ -217,7 +217,7 @@ module.exports = function(app) {
     return res.json(sortProfile(extractLocaleContent(profile, locale, "profile")));
   });
 
-  const fetchAttr = async(pid, dims) => {
+  const fetchAttr = async(pid, dims, locale) => {
     // Fetch the profile itself, along with its meta content. The meta content will be used
     // to determine which levels should be used to filter the search results
     let profile = await db.profile.findOne({where: {id: pid}, include: [{association: "meta"}]}).catch(catcher);
@@ -238,8 +238,13 @@ module.exports = function(app) {
       else {
         searchReq = {where: {[sequelize.Op.and]: [{id: dim.id, cubeName}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
       }
+      searchReq.include = [{association: "content"}];
       let thisAttr = await db.search.findOne(searchReq).catch(catcher);
       thisAttr = thisAttr ? thisAttr.toJSON() : {};
+      if (thisAttr.content) {
+        const defCon = thisAttr.content.find(c => c.locale === locale);
+        thisAttr.name = defCon && defCon.name ? defCon.name : "";
+      }
       if (i === 0) attr = Object.assign(attr, thisAttr);
       Object.keys(thisAttr).forEach(key => {
         attr[`${key}${i + 1}`] = thisAttr[key];
@@ -251,10 +256,10 @@ module.exports = function(app) {
   const runGenerators = async(req, pid, id, smallAttr) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     const dims = collate(req.query);
-    const attr = await fetchAttr(pid, dims);
+    const attr = await fetchAttr(pid, dims, locale);
     if (!smallAttr) {
       // Strip the attr object down to just some relevant keys
-      const smallKeys = ["id", "dimension", "hierarchy", "slug"];
+      const smallKeys = ["id", "dimension", "hierarchy", "slug", "name"];
       smallAttr = Object.keys(attr).reverse().reduce((acc, k) => smallKeys.includes(k.replace(/\d+/g, "")) ? {[k]: attr[k], ...acc} : acc, {});
       // Retrieve user login data
       smallAttr.user = false;
