@@ -15,13 +15,16 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         type: db.TEXT
       },
-      stem: db.INTEGER,
       slug: db.TEXT,
       imageId: db.INTEGER,
       contentId: {
         autoIncrement: true,
         type: db.INTEGER,
         unique: true
+      },
+      cubeName: {
+        primaryKey: true,
+        type: db.TEXT
       }
     },
     {

@@ -63,7 +63,7 @@ class Subnav extends Component {
   /** crawl up the tree from the title and grab the section wrapper */
   getSectionWrapper(slug) {
     const section = document.getElementById(slug);
-    return section.parentNode.parentNode.parentNode;
+    return section ? section.parentNode.parentNode.parentNode : false;
   }
 
   /** on scroll, determine whether subnav is fixed, and which section we're in */
@@ -129,7 +129,7 @@ class Subnav extends Component {
                   {section.icon && blueprintIcons.find(i => i === section.icon) &&
                     <Icon className="cp-subnav-link-icon" icon={section.icon} />
                   }
-                  {stripHTML(section.short || section.title)}
+                  {section.short && stripHTML(section.short) ? stripHTML(section.short) : stripHTML(section.title)}
                 </AnchorLink>
               </li>
             )}

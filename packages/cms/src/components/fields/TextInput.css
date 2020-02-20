@@ -31,9 +31,13 @@
 
   /* password visibility button */
   & > [class*="-input-password-button"] {
+    /* positioning */
     position: absolute;
-    bottom: 0.5em;
-    right: 0.5em;
+    bottom: 0.125em;
+    right: 0.125em;
+    /* sizing */
+    font-size: inherit;
+    transform: scale(0.75);
   }
 }
 

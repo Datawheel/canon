@@ -93,8 +93,8 @@
   max-height: 1em;
   /* positioning */
   display: inline-block;
+  margin-top: -0.1em;
   vertical-align: middle;
-  margin-right: 0.25em;
 }
 
 /* action buttons */

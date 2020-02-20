@@ -23,6 +23,8 @@ const LOGINS = process.env.CANON_LOGINS || false;
 const PORT = process.env.CANON_PORT || 3300;
 const NODE_ENV = process.env.NODE_ENV || "development";
 const REQUESTS_PER_SECOND = process.env.CANON_CMS_REQUESTS_PER_SECOND ? parseInt(process.env.CANON_CMS_REQUESTS_PER_SECOND, 10) : 20;
+let cubeRoot = process.env.CANON_CMS_CUBES;
+if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
 const canonVars = {
   CANON_API: process.env.CANON_API,
@@ -215,7 +217,7 @@ module.exports = function(app) {
     return res.json(sortProfile(extractLocaleContent(profile, locale, "profile")));
   });
 
-  const fetchAttr = async(pid, dims) => {
+  const fetchAttr = async(pid, dims, locale) => {
     // Fetch the profile itself, along with its meta content. The meta content will be used
     // to determine which levels should be used to filter the search results
     let profile = await db.profile.findOne({where: {id: pid}, include: [{association: "meta"}]}).catch(catcher);
@@ -226,17 +228,23 @@ module.exports = function(app) {
     let attr = {};
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
-      const thisSlug = profile.meta.find(d => d.slug === dim.slug);
-      const levels = thisSlug ? thisSlug.levels : [];
+      const thisMeta = profile.meta.find(d => d.slug === dim.slug);
+      const levels = thisMeta ? thisMeta.levels : [];
+      const cubeName = thisMeta ? thisMeta.cubeName : null;
       let searchReq;
       if (levels.length === 0) {
-        searchReq = {where: {id: dim.id}};
+        searchReq = {where: {id: dim.id, cubeName}};
       }
       else {
-        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
+        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id, cubeName}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
       }
+      searchReq.include = [{association: "content"}];
       let thisAttr = await db.search.findOne(searchReq).catch(catcher);
       thisAttr = thisAttr ? thisAttr.toJSON() : {};
+      if (thisAttr.content) {
+        const defCon = thisAttr.content.find(c => c.locale === locale);
+        thisAttr.name = defCon && defCon.name ? defCon.name : "";
+      }
       if (i === 0) attr = Object.assign(attr, thisAttr);
       Object.keys(thisAttr).forEach(key => {
         attr[`${key}${i + 1}`] = thisAttr[key];
@@ -245,16 +253,32 @@ module.exports = function(app) {
     return attr;
   };
 
-  const runGenerators = async(req, pid, id) => {
+  const runGenerators = async(req, pid, id, smallAttr) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     const dims = collate(req.query);
-    const attr = await fetchAttr(pid, dims);
-    // Strip the attr object down to just some relevant keys
-    const smallKeys = ["id", "dimension", "hierarchy", "slug"];
-    const smallAttr = Object.keys(attr).reverse().reduce((acc, k) => smallKeys.includes(k.replace(/\d+/g, "")) ? {[k]: attr[k], ...acc} : acc, {});
-    // The id "0" is a special case to retrieve ONLY the Attributes variables (without running any real generators)
-    // Used in fetchVariables for new profiles that have no custom generators but still need to run this function.
-    if (id === "0") return {...smallAttr, _genStatus: {attributes: {...smallAttr}}};
+    const attr = await fetchAttr(pid, dims, locale);
+    if (!smallAttr) {
+      // Strip the attr object down to just some relevant keys
+      const smallKeys = ["id", "dimension", "hierarchy", "slug", "name"];
+      smallAttr = Object.keys(attr).reverse().reduce((acc, k) => smallKeys.includes(k.replace(/\d+/g, "")) ? {[k]: attr[k], ...acc} : acc, {});
+      // Retrieve user login data
+      smallAttr.user = false;
+      if (LOGINS && req.user) {
+        // Extract sensitive data
+        const {password, salt, ...user} = req.user; // eslint-disable-line
+        smallAttr.user = user;
+        // Bubble up userRole for easy access in front end (for hiding sections based on role)
+        smallAttr.userRole = user.role;
+      }
+      // Fetch Parents
+      const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`).catch(() => {
+        if (verbose) console.log("Warning: Parent endpoint misconfigured or not available");
+        return [];
+      });
+      if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
+        smallAttr.parents = resp.data.data;
+      }
+    }
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
     if (generators.length === 0) return {};
@@ -282,7 +306,7 @@ module.exports = function(app) {
     const formatterFunctions = await formatters4eval(db, locale);
 
     const requests = Array.from(new Set(generators.map(g => g.api)));
-    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, attr)));
+    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, smallAttr)));
     const results = await Promise.all(fetches).catch(catcher);
 
     // Seed the return variables with the stripped-down attr object
@@ -311,6 +335,7 @@ module.exports = function(app) {
   };
 
   app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
+  app.post("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
 
   const runMaterializers = async(req, variables, pid) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
@@ -379,7 +404,7 @@ module.exports = function(app) {
     // Replace that slug with the actual real id from the search table.
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
-      const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
+      const attribute = await db.search.findOne({where: {slug: dim.id}}).catch(catcher);
       if (attribute && attribute.id) dim.id = attribute.id;
     }
 
@@ -387,8 +412,8 @@ module.exports = function(app) {
     const profileID = req.query.profile;
 
     let pid = null;
-    // map slugs to dimensions when we query profile_meta below
-    const dimensionMap = {};
+    // map slugs to their profile_meta row, for when we query profile_meta below
+    const slugMap = {};
     // If the user provided variables, this is a POST request.
     if (req.body.variables) {
       // If the user gave us a section or a profile id, use that to fetch the pid.
@@ -414,7 +439,7 @@ module.exports = function(app) {
       // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
       let meta = await db.profile_meta.findAll();
       meta = meta.map(d => d.toJSON());
-      meta.forEach(d => dimensionMap[d.slug] = d.dimension);
+      meta.forEach(d => slugMap[d.slug] = d);
       const pids = [...new Set(meta.map(d => d.profile_id))];
       const match = dims.map(d => d.slug).join();
 
@@ -433,15 +458,29 @@ module.exports = function(app) {
     // If the user has provided variables, this is a POST request. Use those variables,
     // And skip the entire variable fetching process.
     if (req.body.variables) {
-      variables = req.body.variables;
+      // If the forceMats option was provided, use the POSTed variables to run
+      // Materializers. Used for Login in ProfileRenderer.jsx
+      if (req.query.forceMats === "true") {
+        variables = await runMaterializers(req, req.body.variables, pid);
+      }
+      else {
+        variables = req.body.variables;
+      }
     }
     // If the user has not provided variables, this is a GET request. Run Generators.
     else {
       // Before we hit the variables endpoint, confirm that all provided ids exist.
       for (const dim of dims) {
-        const thisDimension = dimensionMap[dim.slug];
-        const searchrow = await db.search.findOne({where: {id: dim.id, dimension: thisDimension}}).catch(catcher);
-        if (!searchrow) {
+        const thisMeta = slugMap[dim.slug];
+        if (thisMeta) {
+          const {dimension, cubeName} = thisMeta;
+          const searchrow = await db.search.findOne({where: {id: dim.id, dimension, cubeName}}).catch(catcher);
+          if (!searchrow) {
+            if (verbose) console.error(`Member not found for id: ${dim.id}`);
+            return res.json({error: `Member not found for id: ${dim.id}`});
+          }
+        }
+        else {
           if (verbose) console.error(`Member not found for id: ${dim.id}`);
           return res.json({error: `Member not found for id: ${dim.id}`});
         }

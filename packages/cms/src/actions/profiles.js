@@ -2,6 +2,7 @@ import axios from "axios";
 import {assign} from "d3plus-common";
 import deepClone from "../utils/deepClone";
 import getLocales from "../utils/getLocales";
+import attify from "../utils/attify";
 
 /** */
 export function getProfiles() {
@@ -180,7 +181,7 @@ export function resetPreviews() {
     const requests = profileMeta.map((meta, i) => {
       const levels = meta.levels ? meta.levels.join() : false;
       const levelString = levels ? `&levels=${levels}` : "";
-      let url = `${getStore().env.CANON_API}/api/search?q=&dimension=${meta.dimension}${levelString}&limit=1`;
+      let url = `${getStore().env.CANON_API}/api/search?q=&dimension=${meta.dimension}${levelString}&cubeName=${meta.cubeName}&limit=1&parents=true`;
       
       const ps = pathObj.previews;
       // If previews is of type string, then it came from the URL permalink. Override
@@ -199,7 +200,8 @@ export function resetPreviews() {
           slug: profileMeta[i].slug,
           id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
           name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
-          memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : ""
+          memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : "",
+          searchObj: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0] : {}
         });
       });
       const newPathObj = Object.assign({}, pathObj, {previews});
@@ -218,6 +220,7 @@ export function fetchVariables(config, useCache) {
   return function(dispatch, getStore) {    
     dispatch({type: "VARIABLES_FETCH"});
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
+    const {auth} = getStore();
 
     const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
     let variables = deepClone(thisProfile.variables);
@@ -230,11 +233,19 @@ export function fetchVariables(config, useCache) {
     if (useCache && thisProfile.variables) {
       const diffCounter = getStore().cms.status.diffCounter + 1;
       dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables), diffCounter}});
+      dispatch({type: "VARIABLES_FETCHED"});
     }
     else {
       const locales = [localeDefault];
       if (localeSecondary) locales.push(localeSecondary);
       for (const thisLocale of locales) {
+        const attributes = attify(previews.map(d => d.searchObj), thisLocale);
+        if (auth.user) {
+          const {password, salt, ...user} = auth.user; // eslint-disable-line
+          attributes.user = user;
+          // Bubble up userRole for easy access in front end (for hiding sections based on role)
+          attributes.userRole = user.role;
+        }
         // If the config is for a materializer, or its for zero-length generators (like in a new profile) 
         // don't run custom generators. Just use our current variables for the POST action for materializers
         if (config.type === "materializer" || config.type === "generator" && config.ids.length === 0) {
@@ -246,10 +257,6 @@ export function fetchVariables(config, useCache) {
           if (config.type === "materializer") {
             const mid = config.ids[0];
             query = {materializer: mid};
-          }
-          // Generator 0 is a special short-circuit ID that returns only Attributes variables
-          else if (config.type === "generator") {
-            query = {generator: 0};
           }
           Object.keys(query).forEach(k => {
             paramString += `&${k}=${query[k]}`;
@@ -269,6 +276,7 @@ export function fetchVariables(config, useCache) {
               variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
               const diffCounter = getStore().cms.status.diffCounter + 1;
               dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+              dispatch({type: "VARIABLES_FETCHED"});
             });
           }
           else if (config.type === "generator") {
@@ -279,15 +287,15 @@ export function fetchVariables(config, useCache) {
               });
               delete variables[thisLocale]._matStatus[mid];
             });
-            // We only arrive here in the case of zero-length generators. Zero length generators STILL NEED to run 
-            // the special built-in attribute endpoint, to handle the case of new profiles (and generator-less profiles)
-            axios.get(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
-              variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
-              axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-                variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-                const diffCounter = getStore().cms.status.diffCounter + 1;
-                dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
-              });
+            // We only arrive here in the case of zero-length generators. Zero length generators STILL NEED to use 
+            // the special built-in attributes, to handle the case of new profiles (and generator-less profiles)
+            const genStub = {...attributes, _genStatus: {attributes}};
+            variables[thisLocale] = assign({}, variables[thisLocale], genStub);
+            axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+              variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+              const diffCounter = getStore().cms.status.diffCounter + 1;
+              dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+              dispatch({type: "VARIABLES_FETCHED"});
             });
           }
         }
@@ -310,7 +318,8 @@ export function fetchVariables(config, useCache) {
             Object.keys(query).forEach(k => {
               paramString += `&${k}=${query[k]}`;
             });
-            axios.get(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`).then(gen => {
+            
+            axios.post(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`, {attributes}).then(gen => {
               variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
               let gensLoaded = Object.keys(variables[thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
               const gensTotal = gids.length;
@@ -333,6 +342,7 @@ export function fetchVariables(config, useCache) {
                   variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
                   const diffCounter = getStore().cms.status.diffCounter + 1;
                   dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+                  dispatch({type: "VARIABLES_FETCHED"});
                 });
               }
             });

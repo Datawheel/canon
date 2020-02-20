@@ -5,7 +5,6 @@ import Card from "./Card";
 import Dialog from "../interface/Dialog";
 import DimensionEditor from "../editors/DimensionEditor";
 import DefinitionList from "../variables/DefinitionList";
-import Button from "../fields/Button";
 import PreviewSearch from "../fields/PreviewSearch";
 
 import {deleteDimension} from "../../actions/profiles";
@@ -25,8 +24,9 @@ class DimensionCard extends Component {
     const {meta} = this.props;
     const {id} = meta;
     const url = "/api/cms/repopulateSearch/";
+    const timeout = 1000 * 60 * 5;
     this.setState({rebuilding: true});
-    axios.post(url, {id}).then(() => {
+    axios.post(url, {id}, {timeout}).then(() => {
       this.setState({rebuilding: false});
     });
   }
@@ -93,6 +93,7 @@ class DimensionCard extends Component {
                 slug={meta.slug}
                 dimension={meta.dimension}
                 levels={meta.levels}
+                cubeName={meta.cubeName}
                 limit={20}
               />
             }

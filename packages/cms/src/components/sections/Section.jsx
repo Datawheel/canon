@@ -84,7 +84,7 @@ class Section extends Component {
       newSources
         .map(s => s.annotations)
         .forEach(source => {
-          if (source.source_name && !sources.find(s => s.source_name === source.source_name)) sources.push(source);
+          if (source && source.source_name && !sources.find(s => s.source_name === source.source_name)) sources.push(source);
         });
       this.setState({sources});
     }
@@ -99,7 +99,8 @@ class Section extends Component {
     return {
       formatters: this.props.formatters || this.context.formatters,
       variables: this.props.variables || this.context.variables,
-      onSetVariables: this.onSetVariables.bind(this)
+      onSetVariables: this.onSetVariables.bind(this),
+      updateSource: this.updateSource.bind(this)
     };
   }
 
@@ -213,7 +214,7 @@ class Section extends Component {
     );
 
     // stats
-    let statContent, secondaryStatContent;
+    let secondaryStatContent, statContent;
 
     if (contents.position !== "sticky") {
       const statGroups = nest().key(d => d.title).entries(stats);
@@ -321,7 +322,8 @@ Section.contextTypes = {
 Section.childContextTypes = {
   formatters: PropTypes.object,
   variables: PropTypes.object,
-  onSetVariables: PropTypes.func
+  onSetVariables: PropTypes.func,
+  updateSource: PropTypes.func
 };
 
 export default connect(state => ({

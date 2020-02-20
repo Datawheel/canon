@@ -162,13 +162,16 @@ class TextCard extends Component {
     // If a draftjs editor field ends with a trailing space, a &nbsp; is glommed onto the end of the field.
     // Before persisting this to the db, strip out the trailing space if necessary
     const stripTrail = d => typeof d === "string" ? d.replace(/\&nbsp;<\/p>/g, "</p>") : d;
-    fields.forEach(field => primaryLocale[field] = stripTrail(primaryLocale[field]));
-    if (plainFields) plainFields.forEach(field => primaryLocale[field] = stripTrail(primaryLocale[field]));
+    // Further, if a field is left blank, draftjs sees it as <p><br></p>. Don't write this to the DB either.
+    const clearBlank = d => typeof d === "string" && d === "<p><br></p>" ? "" : d;
+    const sanitize = d => clearBlank(stripTrail(d));
+    fields.forEach(field => primaryLocale[field] = sanitize(primaryLocale[field]));
+    if (plainFields) plainFields.forEach(field => primaryLocale[field] = sanitize(primaryLocale[field]));
 
     const secondaryLocale = minData.content.find(c => c.locale === localeSecondary);
     
-    fields.forEach(field => secondaryLocale[field] = stripTrail(secondaryLocale[field]));
-    if (plainFields) plainFields.forEach(field => secondaryLocale[field] = stripTrail(secondaryLocale[field]));
+    fields.forEach(field => secondaryLocale[field] = sanitize(secondaryLocale[field]));
+    if (plainFields) plainFields.forEach(field => secondaryLocale[field] = sanitize(secondaryLocale[field]));
     // If hideAllowed is true, this TextCard is being used by a top-level Section, whose
     // allowed is controlled elsewhere. Don't accidentally pave it here.
     if (!hideAllowed) payload.allowed = minData.allowed;

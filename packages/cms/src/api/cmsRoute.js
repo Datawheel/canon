@@ -1,47 +1,18 @@
-const Client = require("@datawheel/olap-client").Client;
-const MondrianDataSource = require("@datawheel/olap-client").MondrianDataSource;
-// const TesseractDataSource = require("@datawheel/olap-client").TesseractDataSource;
-
-const d3Array = require("d3-array");
 const sequelize = require("sequelize");
 const shell = require("shelljs");
 const yn = require("yn");
 const path = require("path");
-const {strip} = require("d3plus-text");
 const Op = sequelize.Op;
+
+const populateSearch = require("../utils/populateSearch");
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
-const LANGUAGES = process.env.CANON_LANGUAGES ? process.env.CANON_LANGUAGES.split(",") : [envLoc];
-if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
-// Put the default language first in the array. This ensures that slugs that are generated
-// in populateSearch will be made from the default language content.
-LANGUAGES.sort(a => a === envLoc ? -1 : 1);
-
-const {CANON_CMS_CUBES} = process.env;
-
-/**
- * There is not a fully-featured way for olap-client to know the difference between a 
- * Tesseract and a Mondrian Client. Tesseract is more modern/nice in its HTTP codes/responses,
- * so attempt Tesseract first, and on failure, assume mondrian. 
- */
-const client = new Client();
-Client.dataSourceFromURL(CANON_CMS_CUBES).then(
-  datasource => {
-    if (verbose) console.log(`Initializing Tesseract at ${CANON_CMS_CUBES}`);
-    client.setDataSource(datasource);
-  },
-  err => {
-    const ds = new MondrianDataSource(CANON_CMS_CUBES);
-    client.setDataSource(ds);
-    if (verbose) console.error(`Tesseract not detected: ${err.message}`);
-    if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
-  }
-);
 
 const sectionTypeDir = path.join(__dirname, "../components/sections/");
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
+const cmsMinRole = () => process.env.CANON_CMS_MINIMUM_ROLE ? Number(process.env.CANON_CMS_MINIMUM_ROLE) : 1;
 
 const stripID = o => {
   delete o.id;
@@ -55,7 +26,7 @@ const isEnabled = (req, res, next) => {
 
 const catcher = e => {
   if (verbose) {
-    console.error("Error in cmsRoute: ", e);
+    console.error("Error in cmsRoute: ", e.message);
   }
   return [];
 };
@@ -304,132 +275,21 @@ const duplicateSection = async(db, oldSection, pid, selectorLookup) => {
   return newSection.id;
 };
 
-const formatter = (members, data, dimension, level) => {
-
-  const newData = members.reduce((arr, d) => {
-    const obj = {};
-    obj.id = `${d.key}`;
-    obj.name = d.caption || d.name;
-    obj.zvalue = data[obj.id] || 0;
-    obj.dimension = dimension;
-    obj.hierarchy = level;
-    obj.stem = -1;
-    arr.push(obj);
-    return arr;
-  }, []);
-  const st = d3Array.deviation(newData, d => d.zvalue);
-  const average = d3Array.median(newData, d => d.zvalue);
-  newData.forEach(d => d.zvalue = (d.zvalue - average) / st);
-  return newData;
-};
-
-const pruneSearch = async(dimension, levels, db) => {
+const pruneSearch = async(cubeName, dimension, levels, db) => {
   const currentMeta = await db.profile_meta.findAll().catch(catcher);
-  const currentDimensions = currentMeta.map(m => m.dimension);
+  const dimensionCubePairs = currentMeta.reduce((acc, d) => acc.concat(`${d.dimension}-${d.cubeName}`), []);
+
   // To be on the safe side, only clear the search table of dimensions that NO remaining
   // profiles are currently making use of.
   // Don't need to prune levels - they will be filtered automatically in searches.
   // If it gets unwieldy in size however, an optimization could be made here
-  if (!currentDimensions.includes(dimension)) {
-    const resp = await db.search.destroy({where: {dimension}}).catch(catcher);
+  if (!dimensionCubePairs.includes(`${dimension}-${cubeName}`)) {
+    const resp = await db.search.destroy({where: {dimension, cubeName}}).catch(catcher);
     if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
   }
   else {
-    if (verbose) console.log(`Skipped search cleanup - ${dimension} is still in use`);
+    if (verbose) console.log(`Skipped search cleanup - ${dimension}/${cubeName} is still in use`);
   }
-};
-
-const populateSearch = async(profileData, db) => {
-
-  const cubeName = profileData.cubeName;
-  const measure = profileData.measure;
-  const dimension = profileData.dimName || profileData.dimension;
-  const dimLevels = profileData.levels;
-
-  const cube = await client.getCube(cubeName).catch(catcher);
-
-  const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
-    .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
-
-  for (const locale of LANGUAGES) {
-
-    let fullList = [];
-    for (let i = 0; i < levels.length; i++) {
-
-      const level = levels[i];
-      const members = await client.getMembers(level, {locale}).catch(catcher);
-
-      let data = [];
-
-      const drilldown = {
-        dimension,
-        hierarchy: level.hierarchy.name,
-        level: level.name
-      };
-
-      data = await client.execQuery(cube.query
-        .addDrilldown(drilldown)
-        .addMeasure(measure))
-        .then(resp => resp.data)
-        .then(data => data.reduce((obj, d) => {
-          obj[d[`ID ${level.name}`] ? d[`ID ${level.name}`] : d[`${level.name} ID`]] = d[measure];
-          return obj;
-        }, {})).catch(catcher);
-
-      fullList = fullList.concat(formatter(members, data, dimension, level.name));
-
-    }
-
-    let slugs = await db.search.findAll().catch(catcher);
-    slugs = slugs.map(s => s.slug).filter(d => d);
-
-    const slugify = (str, id) => {
-      let slug = strip(str).replace(/-{2,}/g, "-").toLowerCase();
-      if (slugs.includes(slug)) slug += `-${id}`;
-      slugs.push(slug);
-      return slug;
-    };
-
-    // Fold over the list of members
-    for (let i = 0; i < fullList.length; i++) {
-      // Extract their properties
-      const {id, name, zvalue, dimension, hierarchy, stem} = fullList[i];
-      // The search table holds the non-translatable props
-      const searchObj = {id, zvalue, dimension, hierarchy, stem};
-      searchObj.slug = slugify(name, id);
-      // Create the member in the search table
-      const [row, created] = await db.search.findOrCreate({
-        where: {id, dimension, hierarchy},
-        defaults: searchObj
-      }).catch(catcher);
-      if (created) {
-        if (verbose) console.log(`Created: ${row.id} ${row.slug}`);
-        // If a new row was created, create its translated content
-        await db.search_content.create({id: row.contentId, locale, name});
-      }
-      else {
-        if (row.slug) delete searchObj.slug;
-        // If it's an update, update everything except the (permanent) slug
-        await row.updateAttributes(searchObj).catch(catcher);
-        if (verbose) {
-          console.log(`Updated: ${row.id} ${row.slug}`);
-          console.log("Updating associated language content:");
-        }
-        const [contentRow, contentCreated] = await db.search_content.findOrCreate({
-          where: {id: row.contentId, locale},
-          defaults: {name}
-        }).catch(catcher);
-        if (contentCreated) {
-          if (verbose) console.log(`Created ${locale} Content: ${contentRow.name}`);
-        }
-        else {
-          await contentRow.updateAttributes({name});
-          if (verbose) console.log(`Updated ${contentRow.id} ${contentRow.locale}: ${contentRow.name}`);
-        }
-      }
-    }
-  }
-
 };
 
 module.exports = function(app) {
@@ -437,6 +297,7 @@ module.exports = function(app) {
   const {db} = app.settings;
 
   app.get("/api/cms", (req, res) => res.json(cmsCheck()));
+  app.get("/api/cms/minRole", (req, res) => res.json(cmsMinRole()));
 
   /* BASIC GETS */
 
@@ -463,7 +324,7 @@ module.exports = function(app) {
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(m => m.toJSON());
     for (const m of meta) {
-      m.top = await db.search.findOne({where: {dimension: m.dimension}, order: [["zvalue", "DESC"]], limit: 1}).catch(catcher);
+      m.top = await db.search.findOne({where: {dimension: m.dimension, cubeName: m.cubeName}, order: [["zvalue", "DESC"]], limit: 1}).catch(catcher);
     }
     res.json(meta);
   });
@@ -600,6 +461,7 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
+    req.setTimeout(1000 * 60 * 5);
     const profileData = req.body;
     const {profile_id} = profileData;  // eslint-disable-line
     profileData.dimension = profileData.dimName;
@@ -616,8 +478,8 @@ module.exports = function(app) {
     // entirely. We have to prune the search before repopulating it.
     else {
       await db.profile_meta.update(profileData, {where: {id: profileData.id}});
-      if (oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
-        pruneSearch(oldmeta.dimension, oldmeta.levels, db);
+      if (oldmeta.cubeName !== profileData.cubeName || oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
+        pruneSearch(oldmeta.cubeName, oldmeta.dimension, oldmeta.levels, db);
         await populateSearch(profileData, db);
       }
     }
@@ -633,6 +495,7 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
+    req.setTimeout(1000 * 60 * 5);
     const {id} = req.body;
     let profileData = await db.profile_meta.findOne({where: {id}});
     profileData = profileData.toJSON();
@@ -925,7 +788,8 @@ module.exports = function(app) {
     const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
-    pruneSearch(row.dimension, row.levels, db);
+    // Todo: This prunesearch is outdated - need to call it multiple times for each meta row. 
+    // pruneSearch(row.dimension, row.levels, db);
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     const sectionTypes = getSectionTypes();
@@ -944,7 +808,7 @@ module.exports = function(app) {
     const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
-    pruneSearch(row.dimension, row.levels, db);
+    pruneSearch(row.cubeName, row.dimension, row.levels, db);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: row.profile_id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());

@@ -8,7 +8,6 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 import {getProfiles, newProfile, deleteProfile, setVariables, resetPreviews} from "../../actions/profiles";
 import {getStories, newStory, deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
-import {getCubeData} from "../../actions/cubeData";
 
 import stripHTML from "../../utils/formatters/stripHTML";
 
@@ -33,7 +32,6 @@ class Navbar extends Component {
   componentDidMount() {
     this.props.getProfiles();
     this.props.getStories();
-    this.props.getCubeData();
   }
 
   componentDidUpdate(prevProps) {
@@ -166,7 +164,7 @@ class Navbar extends Component {
       else {
         this.props.setStatus({currentPid: Number(pathObj.profile), pathObj: newPathObj});
         this.props.resetPreviews();
-        // TODO: Remove reset previews - have all profiles come from the server 
+        // TODO: Remove reset previews - have all profiles come from the server
         // with their default values already set.
       }
       if (pathObj.section) {
@@ -237,6 +235,7 @@ class Navbar extends Component {
           selected: currentTab === "profiles" && currentPid === profile.id
         };
       });
+      profileNavItems.sort((a, b) => a.title.localeCompare(b.title));
     }
     if (!profileNavItems.find(p => p.title === "Create new profile")) {
       profileNavItems.push({
@@ -483,9 +482,7 @@ const mapDispatchToProps = dispatch => ({
   deleteStory: id => dispatch(deleteStory(id)),
   // Status Operations
   setStatus: status => dispatch(setStatus(status)),
-  setVariables: newVariables => dispatch(setVariables(newVariables)),
-  // CubeData
-  getCubeData: () => dispatch(getCubeData())
+  setVariables: newVariables => dispatch(setVariables(newVariables))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(Navbar));

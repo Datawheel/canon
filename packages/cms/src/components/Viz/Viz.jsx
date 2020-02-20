@@ -6,6 +6,7 @@ import {hot} from "react-hot-loader/root";
 
 import Graphic from "./Graphic";
 import PercentageBar from "./PercentageBar";
+import HTML from "./HTML";
 import Table from "./Table";
 import Options from "./Options";
 import toKebabCase from "../../utils/formatters/toKebabCase";
@@ -14,7 +15,7 @@ import Parse from "../sections/components/Parse";
 import "./Viz.css";
 import defaultConfig from "./defaultConfig";
 
-const vizTypes = Object.assign({PercentageBar}, {Table}, {Graphic}, d3plus);
+const vizTypes = Object.assign({PercentageBar, Table, Graphic, HTML}, d3plus);
 
 class Viz extends Component {
 
@@ -76,6 +77,8 @@ class Viz extends Component {
     // gave us a "stub" config with a user-friendly error message built in, so the front-end can see it.
     vizProps.config = Object.assign(vizProps.config, configOverride);
 
+    if (debug) vizProps.config.duration = 0;
+
     // strip out the "type" from config
     const {type} = vizProps.config;
     delete vizProps.config.type;
@@ -91,7 +94,7 @@ class Viz extends Component {
     const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
     // whether to show the title and/or visualization options
-    const showHeader = ((title && showTitle) || !hideOptions) && type !== "Graphic";
+    const showHeader = (title && showTitle || !hideOptions) && type !== "Graphic" && type !== "HTML";
 
     return <SizeMe render={({size}) =>
       <div
@@ -127,11 +130,18 @@ class Viz extends Component {
             key="viz-key"
             className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
             dataFormat={resp => {
-              const hasMultiples = Array.isArray(vizProps.data) && vizProps.data.some(d => typeof d === "string");
+              const hasMultiples = vizProps.data && Array.isArray(vizProps.data) && vizProps.data.length > 1 && vizProps.data.some(d => typeof d === "string");
               const sources = hasMultiples ? resp : [resp];
               sources.forEach(r => this.analyzeData.bind(this)(r));
-              // console.log(sources);
-              return vizProps.dataFormat(resp);
+              let data;
+              try {
+                data = vizProps.dataFormat(resp);
+              }
+              catch (e) {
+                console.log("Error in dataFormat: ", e);
+                data = [];
+              }
+              return data;
             }}
             linksFormat={vizProps.linksFormat}
             nodesFormat={vizProps.nodesFormat}

@@ -15,6 +15,7 @@ module.exports = {
     key: "groupBy",
     display: "Grouping",
     format: "Accessor",
+    multiple: true,
     required: true,
     typeof: "id"
   },
@@ -22,6 +23,12 @@ module.exports = {
     key: "label",
     display: "Label",
     format: "Accessor",
+    required: true
+  },
+  html: {
+    key: "html",
+    display: "HTML",
+    format: "Variable",
     required: true
   },
   imageURL: {

@@ -27,6 +27,14 @@ module.exports = function(config) {
         resolve = require(path.join(serverPath, "helpers/resolve")),
         title = require(path.join(serverPath, "helpers/title"));
 
+  const userConfig = resolve(rootPath, "canon.js");
+  if (userConfig) files.push(path.join(rootPath, "canon.js"));
+  const canonConfig = userConfig || {};
+
+  const userHelmet = resolve(appPath, "helmet.js");
+  if (userHelmet) files.push(path.join(appPath, "helmet.js"));
+  const headerConfig = userHelmet || {};
+
   title(`${everDetect ? "Restarting" : "Starting"} Express Server`, "🌐");
   shell.echo(`Environment: ${NODE_ENV}`);
   shell.echo(`Port: ${CANON_PORT}`);
@@ -34,8 +42,13 @@ module.exports = function(config) {
   const router = express();
   router.set("trust proxy", "loopback");
   router.use(cookieParser());
-  router.use(bodyParser.json({limit: "50mb"}));
-  router.use(bodyParser.urlencoded({extended: true, limit: "50mb"}));
+
+  const {json, urlencoded} = (canonConfig.express || {}).bodyParser || {};
+  const jsonConfig = Object.assign({limit: "50mb"}, json);
+  router.use(bodyParser.json(jsonConfig));
+  const urlConfig = Object.assign({extended: true, limit: "50mb"}, urlencoded);
+  router.use(bodyParser.urlencoded(urlConfig));
+
   router.use(express.static(staticPath));
 
   /* Brings over app-level settings for user-defined routes */
@@ -115,14 +128,6 @@ module.exports = function(config) {
     router.use(opbeat.middleware.express());
     shell.echo("Opbeat Initialized");
   }
-
-  const userConfig = resolve(rootPath, "canon.js");
-  if (userConfig) files.push(path.join(rootPath, "canon.js"));
-  const canonConfig = userConfig || {};
-
-  const userHelmet = resolve(appPath, "helmet.js");
-  if (userHelmet) files.push(path.join(appPath, "helmet.js"));
-  const headerConfig = userHelmet || {};
 
   let detectApi = false;
   for (let i = 0; i < modules.length; i++) {

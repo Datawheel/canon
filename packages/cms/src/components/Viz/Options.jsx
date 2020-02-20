@@ -52,7 +52,7 @@ class Options extends Component {
   constructor(props) {
     super(props);
 
-    const hasMultiples = Array.isArray(props.data) && props.data.some(d => typeof d === "string");
+    const hasMultiples = Array.isArray(props.data) && props.data.length > 1 && props.data.some(d => typeof d === "string");
 
     this.state = {
       backgroundColor: true,
@@ -72,8 +72,10 @@ class Options extends Component {
 
   componentDidUpdate(prevProps) {
     const {data} = this.props;
-    if (prevProps.data !== data) {
-      this.setState({results: data instanceof Array ? data : false});
+    if (JSON.stringify(prevProps.data) !== JSON.stringify(data)) {
+      const hasMultiples = Array.isArray(data) && data.length > 1 && data.some(d => typeof d === "string");
+      const results = !hasMultiples && Array.isArray(data) ? data : false;
+      this.setState({results});
     }
   }
 
@@ -96,7 +98,7 @@ class Options extends Component {
     const colDelim = ",";
     const rowDelim = "\r\n";
 
-    const columns = Object.keys(results[0]);
+    const columns = results && results[0] ? Object.keys(results[0]) : [];
     let csv = columns.map(val => `\"${val}\"`).join(colDelim);
 
     for (let i = 0; i < results.length; i++) {
@@ -274,21 +276,17 @@ class Options extends Component {
       const {data, dataFormat} = this.props;
       const paths = typeof data === "string" ? [data] : data;
       this.setState({loading: true});
-      const loaded = [];
-      paths.forEach(path => {
-        if (typeof path === "string") {
-          axios.get(path)
-            .then(resp => {
-              loaded.push(resp.data);
-              if (loaded.length === paths.length) {
-                const results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
-                this.setState({loading: false, results});
-              }
-            });
+      Promise.all(paths.map(path => typeof path === "string" ? axios.get(path) : {data: path})).then(resps => {
+        const loaded = resps.map(d => d.data);
+        let results;
+        try {
+          results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
         }
-        else {
-          loaded.push(path);
+        catch (e) {
+          console.log("Error in Options Panel: ", e);
+          results = [];
         }
+        this.setState({loading: false, results});
       });
     }
   }
@@ -333,7 +331,7 @@ class Options extends Component {
     const node = this.getNode();
     const svgAvailable = node && select(node).select(".d3plus-viz").size() > 0;
 
-    const columns = results ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
+    const columns = results && results[0] ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
 
     const dataURLs = typeof data === "string"
       ? [data] : Array.isArray(data)

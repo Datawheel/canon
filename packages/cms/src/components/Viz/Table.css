@@ -1,7 +1,12 @@
 @import "../../css/mixins.css";
 
+.cms-table-viz-container .cms-viz-figure,
 .cp-table-viz-container .cp-viz-figure {
   height: auto !important;
+
+  & [class*="-loading"] {
+    text-align: center;
+  }
 
   & .rt-table {
     @mixin overflow-container;
@@ -16,6 +21,10 @@ NOTE: ripped from ReactTable
 .cp-table {
   flex-direction: column;
   min-width: 100%;
+
+  &.cp-table-loading {
+    opacity: 0.1;
+  }
 
   & * {
     outline: none;
@@ -289,4 +298,14 @@ THEMING
 
 [class="-loading"] {
   display: none;
+}
+
+.cp-table-cell-inner {
+  &.cp-table-cell-inner-clickable {
+    color: var(--accent-dark);
+    cursor: pointer;
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
+  }
 }
