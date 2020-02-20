@@ -453,7 +453,7 @@ module.exports = function(app) {
         return res.json({error: `Profile not found for slug: ${match}`});
       }
     }
-
+    let returnObject = {};
     let variables = {};
     // If the user has provided variables, this is a POST request. Use those variables,
     // And skip the entire variable fetching process.
@@ -470,6 +470,8 @@ module.exports = function(app) {
     // If the user has not provided variables, this is a GET request. Run Generators.
     else {
       // Before we hit the variables endpoint, confirm that all provided ids exist.
+      // If they do exist, query and load their neighbors into the payload
+      const neighborsByDimSlug = {};
       for (const dim of dims) {
         const thisMeta = slugMap[dim.slug];
         if (thisMeta) {
@@ -479,12 +481,104 @@ module.exports = function(app) {
             if (verbose) console.error(`Member not found for id: ${dim.id}`);
             return res.json({error: `Member not found for id: ${dim.id}`});
           }
+          else {
+            // Prime the top result of the neighbors with this member itself. This will be 
+            // needed later if we need to build bilateral profiles
+            neighborsByDimSlug[dim.slug] = [searchrow.toJSON()];
+            const {id} = searchrow;
+            let {hierarchy} = searchrow;
+            // hierarchies must be unique, so some have a unique_name that must be discovered. This requires checking the cube.
+            const cubeData = await axios
+              .get(`${cubeRoot}/cubes/${cubeName}`)
+              .then(d => d.data)
+              .catch(catcher);
+            try {
+              const uniqueName = cubeData.dimensions
+                .find(d => d.name === searchrow.dimension).hierarchies[0].levels
+                .find(d => d.name === hierarchy).unique_name;
+              if (uniqueName) hierarchy = uniqueName;
+            }
+            catch (e) {
+              if (verbose) console.error(`Error in neighbor dimension lookup: ${e}`);
+            }
+            // Now that we have a correct hierarchy/level, query the neighbors endpoint
+            const neighbors = await axios
+              .get(`${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`)
+              .then(d => d.data.data)
+              .catch(catcher);
+            // Fetch the FULL members for each neighbor and collate them by dimension slug
+            for (const neighbor of neighbors) {
+              const member = await db.search.findOne({where: {id: neighbor.value, dimension, cubeName}}).catch(catcher);
+              if (member) neighborsByDimSlug[dim.slug].push(member.toJSON());
+            }
+          }
         }
         else {
           if (verbose) console.error(`Member not found for id: ${dim.id}`);
           return res.json({error: `Member not found for id: ${dim.id}`});
         }
       }
+      // todo tomorrow - catch for no neighbors ? 
+      returnObject.neighbors = [];
+      // Using the now-populated neighborsByDimSlug, construct a "neighbors" array filled 
+      // with profile objects that can be linkify'd on the front end 
+      const neighborDims = Object.keys(neighborsByDimSlug);
+      // If this is a unary profile, just use the neighbors straight-up
+      if (neighborDims.length === 1) {
+        const thisSlug = neighborDims[0];
+        // Remember - remove the self-referential first element!
+        const neighborMembers = neighborsByDimSlug[thisSlug].slice(1);
+        neighborMembers.forEach(nm => {
+          returnObject.neighbors.push([{
+            id: nm.id,
+            slug: thisSlug,
+            memberSlug: nm.slug,
+            name: nm.slug
+          }]);
+        });
+      }
+      // However, if it's bilateral, scaffold out some matches
+      else if (neighborDims.length === 2) {
+        const thisSlug = neighborDims[0];
+        const thatSlug = neighborDims[1];
+        const thisMember = neighborsByDimSlug[thisSlug][0];
+        const thatMember = neighborsByDimSlug[thatSlug][0];
+        const thisNeighborMembers = neighborsByDimSlug[thisSlug].slice(1);
+        const thatNeighborMembers = neighborsByDimSlug[thatSlug].slice(1);
+        thatNeighborMembers.slice(1, 3).forEach(nm => {
+          returnObject.neighbors.push([
+            {
+              id: thisMember.id,
+              slug: thisSlug,
+              memberSlug: thisMember.slug,
+              name: thisMember.slug
+            },
+            {
+              id: nm.id,
+              slug: thatSlug,
+              memberSlug: nm.slug,
+              name: nm.slug
+            }
+          ]);
+        });
+        thisNeighborMembers.slice(1, 3).forEach(nm => {
+          returnObject.neighbors.push([
+            {
+              id: nm.id,
+              slug: thisSlug,
+              memberSlug: nm.slug,
+              name: nm.slug
+            },
+            {
+              id: thatMember.id,
+              slug: thatSlug,
+              memberSlug: thatMember.slug,
+              name: thatMember.slug
+            }
+          ]);
+        });
+      }
+
       // Get the variables for this profile by passing the profile id and the content ids
       let url = `${origin}/api/variables/${pid}${localeString}`;
       dims.forEach((dim, i) => {
@@ -509,7 +603,6 @@ module.exports = function(app) {
     }
     // Given an object with completely built returnVariables, a hash array of formatter functions, and the profile itself
     // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
-    let returnObject = {};
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
     let profile = request.data;
