@@ -1,6 +1,8 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
 import {hot} from "react-hot-loader/root";
 import stripP from "../../utils/formatters/stripP";
+import linkify from "../../utils/linkify";
 import Tile from "./components/Tile";
 
 import "./Related.css";
@@ -15,6 +17,7 @@ class Related extends Component {
 
   componentDidMount() {
     const {profiles} = this.props;
+    const {router} = this.context;
 
     // make sure we got profiles
     if (profiles && profiles.length) {
@@ -29,11 +32,10 @@ class Related extends Component {
           domain = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ""}`;
         }
       }
-
       // generate tiles from profiles array
       const tiles = profiles.map(profile => ({
-        title: this.getTitle(profile),
-        link: this.generateLink(domain, profile.dims),
+        title: profile.length === 1 ? profile[0].name : `${profile[0].name} / ${profile[1].name}`,
+        link: linkify(router, profile, "en"),
         images: this.getImages(profile.dims, profile)
       }));
 
@@ -41,25 +43,6 @@ class Related extends Component {
     }
 
     return null;
-  }
-
-  /** grab the title from the hero section */
-  getTitle(profile) {
-    if (profile.sections && profile.sections[0]) {
-      return stripP(profile.sections[0].title);
-    }
-    return console.log("unable to find hero section title in getTitle()");
-  }
-
-  /** pass the domain and dimensions and create a link to a profile */
-  generateLink(domain, dimensions) {
-    if (domain && dimensions) {
-      return `${domain}/profile/${dimensions
-        .map(dim => `${dim.slug}/${dim.memberSlug || dim.id}/`)
-        .reduce((acc, d) => acc += d, "")
-      }`;
-    }
-    return console.log("undefined `domain` or `dimensions` argument in generateLink()");
   }
 
   /** pass the dimensions & profile and return a list of associated images */
@@ -102,5 +85,9 @@ class Related extends Component {
     );
   }
 }
+
+Related.contextTypes = {
+  router: PropTypes.object
+};
 
 export default hot(Related);
