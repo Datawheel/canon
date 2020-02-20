@@ -36,35 +36,13 @@ class Related extends Component {
       const tiles = profiles.map(profile => ({
         title: profile.length === 1 ? profile[0].name : `${profile[0].name} / ${profile[1].name}`,
         link: linkify(router, profile, "en"),
-        images: this.getImages(profile.dims, profile)
+        images: profile.map(d => ({src: `/api/image?slug=${d.slug}&id=${d.id}&size=thumb`}))
       }));
 
       this.setState({tiles});
     }
 
     return null;
-  }
-
-  /** pass the dimensions & profile and return a list of associated images */
-  getImages(
-    dimensions,
-    profile,
-    size = "thumb" // or "splash"
-  ) {
-    const images = [];
-
-    if (dimensions && profile) {
-      for (let i = 0; i < dimensions.length; i++) {
-        if (profile.images[i]) {
-          images.push({
-            src: `/api/image?slug=${dimensions[i].slug}&id=${dimensions[i].id}&type=${size}`
-          });
-        }
-      }
-
-      return images;
-    }
-    return console.log("undefined `dimensions` or `profile` argument in getImages()");
   }
 
   render() {
