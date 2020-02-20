@@ -113,8 +113,8 @@ module.exports = function(config) {
     router.set("passport", passport);
     router.set("social", []);
     require(path.join(canonPath, "src/auth/auth"))(router);
-    store.social = config.social;
-    store.mailgun = config.mailgun || false;
+    store.social = router.settings.social;
+    store.mailgun = router.settings.mailgun || false;
     store.legal = {
       privacy: process.env.CANON_LEGAL_PRIVACY || false,
       terms: process.env.CANON_LEGAL_TERMS || false
