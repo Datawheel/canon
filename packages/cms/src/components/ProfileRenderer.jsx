@@ -113,7 +113,7 @@ class ProfileRenderer extends Component {
       const payload = {variables: Object.assign({}, variables, newVariables)};
       axios.post(url, payload)
         .then(resp => {
-          this.setState({profile: resp.data, setVarsLoading: false});
+          this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, setVarsLoading: false});
         });
     }
   }
@@ -132,7 +132,7 @@ class ProfileRenderer extends Component {
     const payload = {variables};
     axios.post(url, payload)
       .then(resp => {
-        this.setState({profile: resp.data, loading: false});
+        this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, loading: false});
       });
   }
 
@@ -208,7 +208,7 @@ class ProfileRenderer extends Component {
     };
 
     // TODO: replace me with an array of actual related profiles
-    const relatedProfiles = [profile, profile, profile];
+    const relatedProfiles = profile.neighbors;
 
     return (
       <Fragment>
