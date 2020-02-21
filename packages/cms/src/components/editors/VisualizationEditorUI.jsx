@@ -395,7 +395,6 @@ class VisualizationEditorUI extends Component {
     const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
     const varOptions = Object.keys(variables)
       .filter(key => !key.startsWith("_"))
-      .filter(key => typeof variables[key] !== "object")
       .sort((a, b) => a.localeCompare(b))
       .map(key => {
         const value = variables[key];
