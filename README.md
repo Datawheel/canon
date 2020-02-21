@@ -418,7 +418,13 @@ export CANON_RESET_LINK="/my-reset-route"
 The `<Reset />` component relies on detecting a unique token in the URL (which is sent in the e-mail to the user). If you would like to embed the component into an existing page, you must pass the Router object to the component on render:
 
 ```jsx
-<Reset router={ this.props.router }/>
+<Reset router={ this.props.router } />
+```
+
+By default, users are redirected to `/login` after a successful password reset. This can also be changed with a prop:
+
+```jsx
+<Reset redirect="/en/login" router={ this.props.router } />
 ```
 
 When sending e-mails, datahweel-canon will use the "name" field of your **package.json** file as the site name in e-mail correspondence (ex. "Sincerely, the [name] team"). If you'd like to use a more human-readable site name, it can be set with the following environment variable:

@@ -71,7 +71,7 @@ class Reset extends Component {
     else if (submitted && !auth.loading && (auth.msg || auth.error)) {
       const Toast = this.context.toast.current;
       if (auth.msg === RESET_PW_SUCCESS) {
-        router.push("/login");
+        router.push(this.props.redirect);
       }
       else if (auth.msg === RESET_SEND_SUCCESS) {
         Toast.show({icon: "inbox", intent: Intent.SUCCESS, message: t("Reset.actions.RESET_SEND_SUCCESS", {email})});
@@ -130,6 +130,10 @@ class Reset extends Component {
 
   }
 }
+
+Reset.defaultProps = {
+  redirect: "/login"
+};
 
 Reset.contextTypes = {
   toast: PropTypes.object
