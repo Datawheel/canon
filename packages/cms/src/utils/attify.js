@@ -10,11 +10,11 @@ module.exports = (searchRows, locale) =>
       [`hierarchy${i + 1}`]: d.hierarchy,
       [`parents${i + 1}`]: d.parents
     }
-  ), {
+  ), searchRows.length > 0 ? {
     id: searchRows[0].id,
     slug: searchRows[0].slug,
     name: searchRows[0].content.find(o => o.locale === locale) ? searchRows[0].content.find(o => o.locale === locale).name : "",
     dimension: searchRows[0].dimension,
     hierarchy: searchRows[0].hierarchy,
     parents: searchRows[0].parents
-  });
+  } : {});
