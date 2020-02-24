@@ -493,6 +493,7 @@ module.exports = function(app) {
         hierarchy: d.hierarchy,
         id: d.id,
         image: d.image,
+        cubeName: d.cubeName,
         profile: slugs[d.dimension],
         slug: d.slug
       };

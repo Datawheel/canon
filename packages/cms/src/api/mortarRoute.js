@@ -259,7 +259,7 @@ module.exports = function(app) {
     const attr = await fetchAttr(pid, dims, locale);
     if (!smallAttr) {
       // Strip the attr object down to just some relevant keys
-      const smallKeys = ["id", "dimension", "hierarchy", "slug", "name"];
+      const smallKeys = ["id", "dimension", "hierarchy", "slug", "name", "cubeName"];
       smallAttr = Object.keys(attr).reverse().reduce((acc, k) => smallKeys.includes(k.replace(/\d+/g, "")) ? {[k]: attr[k], ...acc} : acc, {});
       // Retrieve user login data
       smallAttr.user = false;
