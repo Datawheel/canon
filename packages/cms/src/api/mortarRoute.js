@@ -476,7 +476,10 @@ module.exports = function(app) {
         const thisMeta = slugMap[dim.slug];
         if (thisMeta) {
           const {dimension, cubeName} = thisMeta;
-          const searchrow = await db.search.findOne({where: {id: dim.id, dimension, cubeName}}).catch(catcher);
+          let searchrow = await db.search.findOne({
+            where: {id: dim.id, dimension, cubeName},
+            include: [{association: "content"}]
+          }).catch(catcher);
           if (!searchrow) {
             if (verbose) console.error(`Member not found for id: ${dim.id}`);
             return res.json({error: `Member not found for id: ${dim.id}`});
@@ -484,7 +487,10 @@ module.exports = function(app) {
           else {
             // Prime the top result of the neighbors with this member itself. This will be 
             // needed later if we need to build bilateral profiles
-            neighborsByDimSlug[dim.slug] = [searchrow.toJSON()];
+            searchrow = searchrow.toJSON();
+            const defCon = searchrow.content.find(c => c.locale === envLoc);
+            searchrow.name = defCon && defCon.name ? defCon.name : searchrow.slug;
+            neighborsByDimSlug[dim.slug] = [searchrow];
             const {id} = searchrow;
             let {hierarchy} = searchrow;
             // hierarchies must be unique, so some have a unique_name that must be discovered. This requires checking the cube.
@@ -508,7 +514,10 @@ module.exports = function(app) {
               .catch(catcher);
             // Fetch the FULL members for each neighbor and collate them by dimension slug
             for (const neighbor of neighbors) {
-              const member = await db.search.findOne({where: {id: neighbor.value, dimension, cubeName}}).catch(catcher);
+              const member = await db.search.findOne({
+                where: {id: neighbor.value, dimension, cubeName},
+                include: [{association: "content"}]
+              }).catch(catcher);
               if (member) neighborsByDimSlug[dim.slug].push(member.toJSON());
             }
           }
@@ -529,11 +538,12 @@ module.exports = function(app) {
         // Remember - remove the self-referential first element!
         const neighborMembers = neighborsByDimSlug[thisSlug].slice(1);
         neighborMembers.forEach(nm => {
+          const defCon = nm.content.find(c => c.locale === envLoc);
           returnObject.neighbors.push([{
             id: nm.id,
             slug: thisSlug,
             memberSlug: nm.slug,
-            name: nm.slug
+            name: defCon && defCon.name ? defCon.name : nm.slug
           }]);
         });
       }
@@ -546,34 +556,36 @@ module.exports = function(app) {
         const thisNeighborMembers = neighborsByDimSlug[thisSlug].slice(1);
         const thatNeighborMembers = neighborsByDimSlug[thatSlug].slice(1);
         thatNeighborMembers.slice(1, 3).forEach(nm => {
+          const defCon = nm.content.find(c => c.locale === envLoc);
           returnObject.neighbors.push([
             {
               id: thisMember.id,
               slug: thisSlug,
               memberSlug: thisMember.slug,
-              name: thisMember.slug
+              name: thisMember.name
             },
             {
               id: nm.id,
               slug: thatSlug,
               memberSlug: nm.slug,
-              name: nm.slug
+              name: defCon && defCon.name ? defCon.name : nm.slug
             }
           ]);
         });
         thisNeighborMembers.slice(1, 3).forEach(nm => {
+          const defCon = nm.content.find(c => c.locale === envLoc);
           returnObject.neighbors.push([
             {
               id: nm.id,
               slug: thisSlug,
               memberSlug: nm.slug,
-              name: nm.slug
+              name: defCon && defCon.name ? defCon.name : nm.slug
             },
             {
               id: thatMember.id,
               slug: thatSlug,
               memberSlug: thatMember.slug,
-              name: thatMember.slug
+              name: thatMember.name
             }
           ]);
         });
