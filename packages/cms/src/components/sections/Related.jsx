@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {hot} from "react-hot-loader/root";
-import stripP from "../../utils/formatters/stripP";
+import {connect} from "react-redux";
 import linkify from "../../utils/linkify";
 import Tile from "./components/Tile";
 
@@ -16,26 +16,15 @@ class Related extends Component {
   }
 
   componentDidMount() {
-    const {profiles} = this.props;
+    const {profiles, locale} = this.props;
     const {router} = this.context;
 
     // make sure we got profiles
     if (profiles && profiles.length) {
-
-      // get the domain, for generating links
-      let {domain} = this.props;
-      if (typeof domain === "undefined" && typeof window !== "undefined" && window.document.location.origin) {
-        domain = window.document.location.origin;
-      }
-      else {
-        if (typeof domain === "undefined" && typeof window !== "undefined") {
-          domain = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ""}`;
-        }
-      }
       // generate tiles from profiles array
       const tiles = profiles.map(profile => ({
         title: profile.length === 1 ? profile[0].name : `${profile[0].name} / ${profile[1].name}`,
-        link: linkify(router, profile, "en"),
+        link: linkify(router, profile, locale),
         images: profile.map(d => ({src: `/api/image?slug=${d.slug}&id=${d.id}&size=thumb`}))
       }));
 
@@ -68,4 +57,6 @@ Related.contextTypes = {
   router: PropTypes.object
 };
 
-export default hot(Related);
+export default connect(state => ({
+  locale: state.i18n.locale
+}))(hot(Related));
