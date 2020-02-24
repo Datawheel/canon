@@ -8,6 +8,7 @@ module.exports = (searchRows, locale) =>
       [`name${i + 1}`]: d.content.find(o => o.locale === locale) ? d.content.find(o => o.locale === locale).name : "",
       [`dimension${i + 1}`]: d.dimension,
       [`hierarchy${i + 1}`]: d.hierarchy,
+      [`cubeName${i + 1}`]: d.cubeName,
       [`parents${i + 1}`]: d.parents
     }
   ), searchRows.length > 0 ? {
@@ -16,5 +17,6 @@ module.exports = (searchRows, locale) =>
     name: searchRows[0].content.find(o => o.locale === locale) ? searchRows[0].content.find(o => o.locale === locale).name : "",
     dimension: searchRows[0].dimension,
     hierarchy: searchRows[0].hierarchy,
+    cubeName: searchRows[0].cubeName,
     parents: searchRows[0].parents
   } : {});
