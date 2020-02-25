@@ -3,22 +3,23 @@
 .cp-related {
   padding-top: var(--gutter-md);
   padding-bottom: var(--gutter-sm);
-}
-.cp-related-heading {
-  margin: 0 var(--gutter-md);
-}
-.cp-related-tile-list {
-  @mixin list-reset;
-  display: flex;
-  flex-wrap: wrap;
-  margin:
-    calc(var(--gutter-md) / 2)
-    calc(var(--gutter-md) / 2)
-    0
-    calc(var(--gutter-md) / 2);
+  & .cp-related-heading {
+    margin: 0 var(--gutter-md);
+    text-align: center;
+  }
+  & .cp-related-tile-list {
+    @mixin list-reset;
+    display: flex;
+    flex-wrap: wrap;
+    margin:
+      calc(var(--gutter-md) / 2)
+      calc(var(--gutter-md) / 2)
+      0
+      calc(var(--gutter-md) / 2);
 
-  & .cp-tile {
-    margin: calc(var(--gutter-md) / 2);
-    flex: 1 0 16rem;
+    & > * {
+      flex: 1 0 auto;
+      margin: calc(var(--gutter-md) / 2);
+    }
   }
 }
