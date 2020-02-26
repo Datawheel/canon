@@ -439,15 +439,25 @@ module.exports = function(app) {
       // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
       let meta = await db.profile_meta.findAll();
       meta = meta.map(d => d.toJSON());
-      meta.forEach(d => slugMap[d.slug] = d);
-      const pids = [...new Set(meta.map(d => d.profile_id))];
       const match = dims.map(d => d.slug).join();
-
-      pids.forEach(id => {
-        const rows = meta.filter(d => d.profile_id === id).sort((a, b) => a.ordering - b.ordering);
-        const str = rows.map(d => d.slug).join();
-        if (str === match) pid = rows[0].profile_id;
-      });
+      try {
+        // Profile slugs are unique, so it is sufficient to use the first slug as a "profile finder"
+        const potentialPid = meta.find(m => m.slug = dims[0].slug).profile_id;
+        // However, still confirm that the second slug matches (if provided)
+        if (dims[1].slug) {
+          const potentialSecondSlugs = meta.filter(m => m.profile_id === potentialPid && m.ordering === 1);
+          if (potentialSecondSlugs.includes(dims[1].slug)) {
+            pid = potentialPid;
+          }
+        }
+        else {
+          pid = potentialPid;
+        }
+      }
+      catch (e) {
+        if (verbose) console.error(`Profile not found for slug: ${match}`);
+        return res.json({error: `Profile not found for slug: ${match}`});
+      }
       if (!pid) {
         if (verbose) console.error(`Profile not found for slug: ${match}`);
         return res.json({error: `Profile not found for slug: ${match}`});
