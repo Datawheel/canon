@@ -10,6 +10,7 @@ import {getStories, newStory, deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
 
 import stripHTML from "../../utils/formatters/stripHTML";
+import groupMeta from "../../utils/groupMeta";
 
 import Dropdown from "./Dropdown";
 import Outline from "./Outline";
@@ -135,9 +136,11 @@ class Navbar extends Component {
 
   // create a title by joining dimensions together
   makeTitleFromDimensions(entity) {
-    return entity.meta && entity.meta.length
-      ? entity.meta.map(m => m.slug).join(" / ")
-      : "Unnamed";
+    if (entity.meta && entity.meta.length) {
+      const groupedMeta = groupMeta(entity.meta);
+      return groupedMeta.length > 0 ? groupedMeta.map(g => g[0] ? g[0].slug : "ERR_META").join(" / ") : "Unnamed";      
+    }
+    else return "Unnamed";
   }
 
   // get the title of the current node, in the correct language
