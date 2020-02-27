@@ -5,6 +5,7 @@ import DimensionCard from "../components/cards/DimensionCard";
 import DimensionEditor from "../components/editors/DimensionEditor";
 import Deck from "../components/interface/Deck";
 import Dialog from "../components/interface/Dialog";
+import groupMeta from "../utils/groupMeta";
 
 import "./DimensionBuilder.css";
 
@@ -21,11 +22,7 @@ class DimensionBuilder extends Component {
     const {meta} = this.props;
     const {isOpen} = this.state;
 
-    const groupedMeta = meta.reduce((acc, d) => {
-      if (!acc[d.ordering]) acc[d.ordering] = [];
-      acc[d.ordering].push(d);
-      return acc;
-    }, []);
+    const groupedMeta = groupMeta(meta);
 
     return (
       <Fragment>

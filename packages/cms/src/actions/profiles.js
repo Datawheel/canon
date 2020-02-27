@@ -3,6 +3,7 @@ import {assign} from "d3plus-common";
 import deepClone from "../utils/deepClone";
 import getLocales from "../utils/getLocales";
 import attify from "../utils/attify";
+import groupMeta from "../utils/groupMeta";
 
 /** */
 export function getProfiles() {
@@ -178,11 +179,7 @@ export function resetPreviews() {
     const profileMeta = thisProfile.meta;
 
     // Meta may have multiple variants under the same ordering index. Group them into their shared ordering indeces.
-    const groupedMeta = profileMeta.reduce((acc, d) => {
-      if (!acc[d.ordering]) acc[d.ordering] = [];
-      acc[d.ordering].push(d);
-      return acc;
-    }, []);
+    const groupedMeta = groupMeta(profileMeta);
   
     const requests = groupedMeta.map((group, i) => {
       let url;
