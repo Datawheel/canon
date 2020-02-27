@@ -48,7 +48,6 @@ class PreviewSearch extends Component {
     else if (url) {
       const {limit, meta} = this.props;
       const fullUrl = `${url}?q=${userQuery}&limit=${limit}&pslug=${meta.map(m => m.slug).join()}`;
-      console.log(fullUrl);
       this.setState({userQuery});
       axios.get(fullUrl)
         .then(res => res.data)
