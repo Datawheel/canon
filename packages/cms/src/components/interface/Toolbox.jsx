@@ -33,25 +33,12 @@ class Toolbox extends Component {
     const newIDs = this.props.status.previews ? this.props.status.previews.map(p => p.id).join() : this.props.status.previews;
     const changedSinglePreview = oldSlugs === newSlugs && oldIDs !== newIDs;
     const changedEntireProfile = oldSlugs !== newSlugs;
-    const localeChanged = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
+    const changedLocale = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
 
-    if (changedSinglePreview) {
-      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
-    }
-    // TODO: This preview-changing detection is a little janky. Change NavBar.jsx (and all cmsRoute Profile gets)
-    // To always deliver profiles with previews already set, remove ResetPreviews, and just call FetchVariables immediately.
-    if (changedEntireProfile) {
-      const prevSlugs = prevProps.status.previews ? prevProps.status.previews.map(p => p.slug) : [];
-      const currSlugs = this.props.status.previews ? this.props.status.previews.map(p => p.slug) : [];
-      const addedDimension = prevSlugs.length === 0 && currSlugs.length === 1;
-      const deletedDimension = prevSlugs.length === 1 && currSlugs.length === 0;
-      // This check is not perfect, and it fires when moving from profiles with 0 to 1 dimensions and vice versa.
-      // However, the only side effect is not using the cache and re-running the generators.
-      const sameProfileButChangedMeta = addedDimension || deletedDimension || prevSlugs.some(slug => currSlugs.includes(slug));
-      const useCache = !sameProfileButChangedMeta;
-      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)}, useCache);
-    }
-    if (localeChanged) {
+    // TODO: This can be streamlined to make use of a caching system (see NavBar.jsx and profiles.js) 
+    // When a profile is loaded, save its current previews and variables (all we have is variables right now) and 
+    // Responsibly reload them when changing entire profile. For now, deal with the more heavy reload 
+    if (changedSinglePreview || changedEntireProfile || changedLocale) {
       this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
     }
     // Detect Deletions

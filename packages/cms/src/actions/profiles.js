@@ -233,7 +233,7 @@ export function resetPreviews() {
  * all the editors, each editor has a callback that accesses this function. We store the
  * variables object in a hash that is keyed by the profile id.
  */
-export function fetchVariables(config, useCache) { 
+export function fetchVariables(config) { 
   return function(dispatch, getStore) {    
     dispatch({type: "VARIABLES_FETCH"});
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
@@ -247,123 +247,128 @@ export function fetchVariables(config, useCache) {
 
     // useCache will be true if the front-end is telling us we have the variables already. Short circuit the gets/puts
     // However, still increment diffCounter so a re-render happens on cards that rely on variables.
+    // NOTE: Disabling useCache for now as it doesn't work as intended - We would need to also store the latest "preview"
+    // of the previously loaded profile, so that loading its variable state matches its new previews. Until this is implemented,
+    // useCache will result in misleading states. Revisit this during the Navbar/handleclick Refactor.
+    
+    /*
     if (useCache && thisProfile.variables) {
       const diffCounter = getStore().cms.status.diffCounter + 1;
       dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables: deepClone(thisProfile.variables), diffCounter}});
       dispatch({type: "VARIABLES_FETCHED"});
     }
-    else {
-      const locales = [localeDefault];
-      if (localeSecondary) locales.push(localeSecondary);
-      for (const thisLocale of locales) {
-        const attributes = attify(previews.map(d => d.searchObj), thisLocale);
-        if (auth.user) {
-          const {password, salt, ...user} = auth.user; // eslint-disable-line
-          attributes.user = user;
-          // Bubble up userRole for easy access in front end (for hiding sections based on role)
-          attributes.userRole = user.role;
+    */
+
+    const locales = [localeDefault];
+    if (localeSecondary) locales.push(localeSecondary);
+    for (const thisLocale of locales) {
+      const attributes = attify(previews.map(d => d.searchObj), thisLocale);
+      if (auth.user) {
+        const {password, salt, ...user} = auth.user; // eslint-disable-line
+        attributes.user = user;
+        // Bubble up userRole for easy access in front end (for hiding sections based on role)
+        attributes.userRole = user.role;
+      }
+      // If the config is for a materializer, or its for zero-length generators (like in a new profile) 
+      // don't run custom generators. Just use our current variables for the POST action for materializers
+      if (config.type === "materializer" || config.type === "generator" && config.ids.length === 0) {
+        let paramString = "";
+        previews.forEach((p, i) => {
+          paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+        });
+        let query = {};
+        if (config.type === "materializer") {
+          const mid = config.ids[0];
+          query = {materializer: mid};
         }
-        // If the config is for a materializer, or its for zero-length generators (like in a new profile) 
-        // don't run custom generators. Just use our current variables for the POST action for materializers
-        if (config.type === "materializer" || config.type === "generator" && config.ids.length === 0) {
+        Object.keys(query).forEach(k => {
+          paramString += `&${k}=${query[k]}`;
+        });
+        if (config.type === "materializer") {
+          // The user may have deleted a variable from their materializer. Clear out this materializer's variables 
+          // BEFORE we send the variables payload - so they will be filled in again properly from the POST response.
+          const mid = config.ids[0];
+          if (variables[thisLocale]._matStatus[mid]) {
+            Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
+              delete variables[thisLocale][k]; 
+            });
+            delete variables[thisLocale]._matStatus[mid];
+          }
+          // Once pruned, we can POST the variables to the materializer endpoint
+          axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+            variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+            const diffCounter = getStore().cms.status.diffCounter + 1;
+            dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+            dispatch({type: "VARIABLES_FETCHED"});
+          });
+        }
+        else if (config.type === "generator") {
+          // Prune all materializers (as they are all about to be re-run)
+          Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
+            Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
+              delete variables[thisLocale][k]; 
+            });
+            delete variables[thisLocale]._matStatus[mid];
+          });
+          // We only arrive here in the case of zero-length generators. Zero length generators STILL NEED to use 
+          // the special built-in attributes, to handle the case of new profiles (and generator-less profiles)
+          const genStub = {...attributes, _genStatus: {attributes}};
+          variables[thisLocale] = assign({}, variables[thisLocale], genStub);
+          axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+            variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+            const diffCounter = getStore().cms.status.diffCounter + 1;
+            dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+            dispatch({type: "VARIABLES_FETCHED"});
+          });
+        }
+      }
+      else {
+        const gids = config.ids || [];
+        for (const gid of gids) {
+          if (variables[thisLocale]._genStatus[gid]) {
+            Object.keys(variables[thisLocale]._genStatus[gid]).forEach(k => {
+              delete variables[thisLocale][k];
+            });
+          }
+          delete variables[thisLocale]._genStatus[gid];
+        }
+        for (const gid of gids) {
+          const query = {generator: gid};
           let paramString = "";
           previews.forEach((p, i) => {
             paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
           });
-          let query = {};
-          if (config.type === "materializer") {
-            const mid = config.ids[0];
-            query = {materializer: mid};
-          }
           Object.keys(query).forEach(k => {
             paramString += `&${k}=${query[k]}`;
           });
-          if (config.type === "materializer") {
-            // The user may have deleted a variable from their materializer. Clear out this materializer's variables 
-            // BEFORE we send the variables payload - so they will be filled in again properly from the POST response.
-            const mid = config.ids[0];
-            if (variables[thisLocale]._matStatus[mid]) {
-              Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
-                delete variables[thisLocale][k]; 
+          
+          axios.post(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`, {attributes}).then(gen => {
+            variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
+            let gensLoaded = Object.keys(variables[thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
+            const gensTotal = gids.length;
+            const genLang = thisLocale;
+            // If the user is deleting a generator, then this function was called with a single gid (the one that was deleted)
+            // The pruning code above already removed its vars and _genStatus from the original vars, so the loading progress
+            // Can't know what to wait for. In this single instance, use this short-circuit to be instantly done and move onto mats.
+            if (gids.length === 1 && JSON.stringify(gen.data) === "{}") gensLoaded = 1;
+            dispatch({type: "STATUS_SET", data: {gensLoaded, gensTotal, genLang}});
+            dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
+            if (gensLoaded === gids.length) {
+              // Clean out stale materializers (see above comment)
+              Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
+                Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
+                  delete variables[thisLocale][k]; 
+                });
+                delete variables[thisLocale]._matStatus[mid];
               });
-              delete variables[thisLocale]._matStatus[mid];
-            }
-            // Once pruned, we can POST the variables to the materializer endpoint
-            axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-              variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-              const diffCounter = getStore().cms.status.diffCounter + 1;
-              dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
-              dispatch({type: "VARIABLES_FETCHED"});
-            });
-          }
-          else if (config.type === "generator") {
-            // Prune all materializers (as they are all about to be re-run)
-            Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
-              Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
-                delete variables[thisLocale][k]; 
-              });
-              delete variables[thisLocale]._matStatus[mid];
-            });
-            // We only arrive here in the case of zero-length generators. Zero length generators STILL NEED to use 
-            // the special built-in attributes, to handle the case of new profiles (and generator-less profiles)
-            const genStub = {...attributes, _genStatus: {attributes}};
-            variables[thisLocale] = assign({}, variables[thisLocale], genStub);
-            axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-              variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-              const diffCounter = getStore().cms.status.diffCounter + 1;
-              dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
-              dispatch({type: "VARIABLES_FETCHED"});
-            });
-          }
-        }
-        else {
-          const gids = config.ids || [];
-          for (const gid of gids) {
-            if (variables[thisLocale]._genStatus[gid]) {
-              Object.keys(variables[thisLocale]._genStatus[gid]).forEach(k => {
-                delete variables[thisLocale][k];
+              axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+                variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+                const diffCounter = getStore().cms.status.diffCounter + 1;
+                dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+                dispatch({type: "VARIABLES_FETCHED"});
               });
             }
-            delete variables[thisLocale]._genStatus[gid];
-          }
-          for (const gid of gids) {
-            const query = {generator: gid};
-            let paramString = "";
-            previews.forEach((p, i) => {
-              paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
-            });
-            Object.keys(query).forEach(k => {
-              paramString += `&${k}=${query[k]}`;
-            });
-            
-            axios.post(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`, {attributes}).then(gen => {
-              variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
-              let gensLoaded = Object.keys(variables[thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
-              const gensTotal = gids.length;
-              const genLang = thisLocale;
-              // If the user is deleting a generator, then this function was called with a single gid (the one that was deleted)
-              // The pruning code above already removed its vars and _genStatus from the original vars, so the loading progress
-              // Can't know what to wait for. In this single instance, use this short-circuit to be instantly done and move onto mats.
-              if (gids.length === 1 && JSON.stringify(gen.data) === "{}") gensLoaded = 1;
-              dispatch({type: "STATUS_SET", data: {gensLoaded, gensTotal, genLang}});
-              dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
-              if (gensLoaded === gids.length) {
-                // Clean out stale materializers (see above comment)
-                Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
-                  Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
-                    delete variables[thisLocale][k]; 
-                  });
-                  delete variables[thisLocale]._matStatus[mid];
-                });
-                axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-                  variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-                  const diffCounter = getStore().cms.status.diffCounter + 1;
-                  dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
-                  dispatch({type: "VARIABLES_FETCHED"});
-                });
-              }
-            });
-          }
+          });
         }
       }
     }
