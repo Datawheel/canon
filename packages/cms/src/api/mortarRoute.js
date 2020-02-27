@@ -446,8 +446,8 @@ module.exports = function(app) {
         const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0).profile_id;
         // However, still confirm that the second slug matches (if provided)
         if (dims[1] && dims[1].slug) {
-          const potentialSecondSlugs = meta.filter(m => m.profile_id === potentialPid && m.ordering === 1);
-          if (potentialSecondSlugs.map(d => d.slug).includes(dims[1].slug)) {
+          const potentialSecondSlugs = meta.filter(m => m.profile_id === potentialPid && m.ordering === 1).map(d => d.slug);
+          if (potentialSecondSlugs.includes(dims[1].slug)) {
             pid = potentialPid;
           }
         }

@@ -407,17 +407,27 @@ module.exports = function(app) {
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-    const {id, q, dimension, levels, cubeName, pslug, parents} = req.query;
+    const {id, q, slug, dimension, levels, cubeName, pslug, parents} = req.query;
 
     let rows = [];
 
-    if (id) {
+    if (slug) {
+      where.slug = slug.includes(",") ? slug.split(",") : slug;
+      rows = await db.search.findAll({
+        where,
+        include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}]
+      });
+    }
+    else if (id) {
       where.id = id.includes(",") ? id.split(",") : id;
       if (dimension) where.dimension = dimension;
       if (levels) where.hierarchy = levels.split(",");
       if (pslug) {
-        const thisMeta = await db.profile_meta.findOne({where: {slug: pslug}});
-        if (thisMeta && thisMeta.cubeName) where.cubeName = thisMeta.cubeName;
+        const thisMeta = await db.profile_meta.findOne({where: {slug: pslug.split(",")}});
+        if (thisMeta) {
+          where.cubeName = thisMeta.cubeName;
+          where.dimension = thisMeta.dimension;
+        }
       }
       if (cubeName) where.cubeName = cubeName;
       rows = await db.search.findAll({
@@ -449,8 +459,11 @@ module.exports = function(app) {
       // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
       if (levels) searchWhere.hierarchy = levels.split(",");
       if (pslug) {
-        const thisMeta = await db.profile_meta.findOne({where: {slug: pslug}});
-        if (thisMeta && thisMeta.cubeName) searchWhere.cubeName = thisMeta.cubeName;
+        const thisMeta = await db.profile_meta.findAll({where: {slug: pslug.split(",")}});
+        if (thisMeta && thisMeta.length > 0) {
+          searchWhere.cubeName = thisMeta.map(d => d.cubeName);
+          searchWhere.dimension = thisMeta.map(d => d.dimension);
+        }
       }
       if (cubeName) searchWhere.cubeName = cubeName;
       rows = await db.search.findAll({

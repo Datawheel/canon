@@ -180,7 +180,8 @@ const sortProfileTree = (db, profiles) => {
   profiles = profiles.map(p => p.toJSON());
   profiles = flatSort(db.profile, profiles);
   profiles.forEach(p => {
-    p.meta = flatSort(db.profile_meta, p.meta);
+    // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
+    p.meta = p.meta.sort(sorter);
     p.sections = flatSort(db.section, p.sections);
   });
   return profiles;

@@ -176,33 +176,53 @@ export function resetPreviews() {
     const {profiles} = getStore().cms;
     const thisProfile = profiles.find(p => p.id === currentPid);
     const profileMeta = thisProfile.meta;
-    // An empty search string will automatically provide the highest z-index results.
-    // Use this to auto-populate the preview when the user changes profiles.
-    const requests = profileMeta.map((meta, i) => {
-      const levels = meta.levels ? meta.levels.join() : false;
-      const levelString = levels ? `&levels=${levels}` : "";
-      let url = `${getStore().env.CANON_API}/api/search?q=&dimension=${meta.dimension}${levelString}&cubeName=${meta.cubeName}&limit=1&parents=true`;
-      
-      const ps = pathObj.previews;
+
+    // Meta may have multiple variants under the same ordering index. Group them into their shared ordering indeces.
+    const groupedMeta = profileMeta.reduce((acc, d) => {
+      if (!acc[d.ordering]) acc[d.ordering] = [];
+      acc[d.ordering].push(d);
+      return acc;
+    }, []);
+  
+    const requests = groupedMeta.map((group, i) => {
+      let url;
       // If previews is of type string, then it came from the URL permalink. Override
-      // The search to manually choose the exact id for each dimension.
-      if (typeof ps === "string") {
-        const ids = ps.split(",");
-        const id = ids[i];
-        if (id) url += `&id=${id}`;
+      // The search to manually choose the exact slug
+      if (typeof pathObj.previews === "string") {
+        const slugs = pathObj.previews.split(",");
+        const thisMemberSlug = slugs[i];
+        url = `${getStore().env.CANON_API}/api/search?slug=${thisMemberSlug}&limit=1&parents=true`;
+      }
+      // Otherwise, use an empty string query to provide the highest z-index result so it will "auto-select"
+      // When the user changes profiles
+      else {
+        // There are several variants possible - when auto-selecting default to the first one.
+        const meta = group[0];
+        const levels = meta.levels ? meta.levels.join() : false;
+        const levelString = levels ? `&levels=${levels}` : "";  
+        url = `${getStore().env.CANON_API}/api/search?q=&dimension=${meta.dimension}${levelString}&cubeName=${meta.cubeName}&limit=1&parents=true`;
       }
       return axios.get(url);
     });
     const previews = [];
     Promise.all(requests).then(resps => {
       resps.forEach((resp, i) => {
-        previews.push({
-          slug: profileMeta[i].slug,
-          id: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].id : "",
-          name: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].name : "",
-          memberSlug: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0].slug : "",
-          searchObj: resp && resp.data && resp.data.results && resp.data.results[0] ? resp.data.results[0] : {}
-        });
+        // If our result doesn't return for some reason, scaffold out a mostly-blank result with the first group's first meta
+        const newPreview = {slug: groupedMeta[i][0].slug, id: "", name: "", memberSlug: "", searchObj: {}};
+        if (resp && resp.data && resp.data.results && resp.data.results[0]) {
+          const result = resp.data.results[0];
+          // Because any given dimension has many variants, we must use the returned member to find out which one we're on.
+          const thisGroup = groupedMeta[i];
+          const matchingMeta = thisGroup.find(meta => meta.dimension === result.dimension && meta.cubeName === result.cubeName);
+          if (matchingMeta) {
+            newPreview.slug = matchingMeta.slug;
+            newPreview.id = result.id;
+            newPreview.name = result.name;
+            newPreview.memberSlug = result.slug;
+            newPreview.searchObj = result;
+          }
+        }
+        previews.push(newPreview);
       });
       const newPathObj = Object.assign({}, pathObj, {previews});
       dispatch({type: "STATUS_SET", data: {previews, pathObj: newPathObj}});
