@@ -68,7 +68,7 @@ class PreviewHeader extends Component {
               label={previews[i].name || previews[i].id || "search profiles..."}
               previewing={previews[i].name || previews[i].id}
               fontSize="xxs"
-              meta={group}
+              group={group}
               index={i}
               limit={20}
             />

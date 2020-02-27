@@ -20,7 +20,7 @@ class PreviewSearch extends Component {
   }
 
   onSelectPreview(result) {
-    const {url, meta, index} = this.props;
+    const {url, group, index} = this.props;
     const {id, name, slug: memberSlug} = result;
     // When selecting a new preview, a new roundtrip is required to fetch parents.
     const fullURL = `${url}?slug=${memberSlug}&limit=1&parents=true`;
@@ -29,8 +29,8 @@ class PreviewSearch extends Component {
       if (resp.data && resp.data.results) {
         searchObj = resp.data.results[0];
       }
-      // meta is an array of possible variants. Use the clicked result to divine which one we're on.
-      const newMeta = meta.find(m => m.dimension === searchObj.dimension && m.cubeName === searchObj.cubeName);
+      // group is an array of possible meta variants. Use the clicked result to divine which one we're on.
+      const newMeta = group.find(m => m.dimension === searchObj.dimension && m.cubeName === searchObj.cubeName);
       const newPreview = {slug: newMeta.slug, id, name, memberSlug, searchObj};
       const previews = this.props.status.previews.map((p, i) => i === index ? newPreview : p);
       const pathObj = Object.assign({}, this.props.status.pathObj, {previews});
@@ -46,8 +46,8 @@ class PreviewSearch extends Component {
       this.setState({active: true, results: [], userQuery});
     }
     else if (url) {
-      const {limit, meta} = this.props;
-      const fullUrl = `${url}?q=${userQuery}&limit=${limit}&pslug=${meta.map(m => m.slug).join()}`;
+      const {limit, group} = this.props;
+      const fullUrl = `${url}?q=${userQuery}&limit=${limit}&pslug=${group.map(m => m.slug).join()}`;
       this.setState({userQuery});
       axios.get(fullUrl)
         .then(res => res.data)
