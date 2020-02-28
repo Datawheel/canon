@@ -84,8 +84,8 @@ class Dropdown extends Component {
         {/* loop through nav links */}
         {items && items.length &&
           <ul className={`${namespace}-dropdown-list ${isOpen ? "is-open" : "is-closed"}`} key={`${title}-dropdown-list`}>
-            {items.map(item =>
-              <li className={`${namespace}-dropdown-item`} key={`${item.title}-dropdown-item`}>
+            {items.map((item, i) =>
+              <li className={`${namespace}-dropdown-item`} key={`${item.title}-${i}-dropdown-item`}>
                 {item.items && item.items.length
                   // nested items array; render them in a nested list
                   ? <Fragment>

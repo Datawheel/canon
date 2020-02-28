@@ -189,7 +189,7 @@ class PreviewSearch extends Component {
               <li
                 className="cms-search-result-item u-font-xs"
                 onClick={this.onSelect.bind(this, result)}
-                key={result.id}
+                key={result.slug}
                 result={result}
               >
                 <Button

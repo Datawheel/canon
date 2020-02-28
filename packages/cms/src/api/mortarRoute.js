@@ -281,7 +281,7 @@ module.exports = function(app) {
     }
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
-    if (generators.length === 0) return {};
+    if (id && generators.length === 0) return {};
     generators = generators.map(g => g.toJSON());
 
     /** */
