@@ -81,7 +81,8 @@ class DimensionCard extends Component {
           <DefinitionList definitions={[
             {label: "slug", text: meta.slug},
             {label: "levels", text: meta.levels.join(", ")},
-            {label: "measure", text: meta.measure}
+            {label: "measure", text: meta.measure},
+            {label: "cube", text: meta.cubeName}
           ]}/>
         </Card>
 
