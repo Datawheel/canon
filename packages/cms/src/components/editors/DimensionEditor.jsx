@@ -115,8 +115,7 @@ class DimensionEditor extends Component {
 
   saveProfile() {
     const {profileData, mode} = this.state;
-    const {meta} = this.props;
-    const {profiles} = this.props;
+    const {profiles, meta, ordering} = this.props;
     const {currentPid} = this.props.status;
     let takenSlugs = profiles.map(p => p.meta).reduce((acc, d) => acc.concat(d.map(m => m.slug)), []);
     // If editing, then the user provided seed data via "meta". Do not include the given
@@ -131,7 +130,10 @@ class DimensionEditor extends Component {
       });
     }
     else {
-      this.props.modifyDimension(Object.assign({}, profileData, {profile_id: currentPid}));
+      const payload = Object.assign({}, profileData, {profile_id: currentPid});
+      // If ordering was provided, this is a Variant 
+      if (!isNaN(ordering)) payload.ordering = ordering;
+      this.props.modifyDimension(payload);
       if (this.props.onComplete) this.props.onComplete();
     }
   }

@@ -197,7 +197,8 @@ const sortStoryTree = (db, stories) => {
 };
 
 const sortProfile = (db, profile) => {
-  profile.meta = flatSort(db.profile_meta, profile.meta);
+  // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
+  profile.meta = profile.meta.sort(sorter); 
   profile.materializers = flatSort(db.materializer, profile.materializers);
   profile.sections = flatSort(db.section, profile.sections);
   return profile;
@@ -469,9 +470,12 @@ module.exports = function(app) {
     const oldmeta = await db.profile_meta.findOne({where: {id: profileData.id}}).catch(catcher);
     // Inserts are simple
     if (!oldmeta) {
-      const maxFetch = await db.profile_meta.findAll({where: {profile_id}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
-      const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
-      profileData.ordering = ordering;
+      // If no ordering was provided, divine ordering from meta length.
+      if (isNaN(profileData.ordering)) {
+        const maxFetch = await db.profile_meta.findAll({where: {profile_id}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
+        const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+        profileData.ordering = ordering;
+      }
       await db.profile_meta.create(profileData);
       await populateSearch(profileData, db);
     }
@@ -807,7 +811,12 @@ module.exports = function(app) {
 
   app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
     const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    // Profile meta can have multiple variants now sharing the same index. 
+    const variants = await db.profile_meta.findAll({where: {profile_id: row.profile_id, ordering: row.ordering}}).catch(catcher);
+    // Only "slide down" others if we are deleting the last one at this ordering.
+    if (variants.length === 1) {
+      await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    }    
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
     pruneSearch(row.cubeName, row.dimension, row.levels, db);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: row.profile_id}});

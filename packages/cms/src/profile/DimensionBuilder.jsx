@@ -14,18 +14,19 @@ class DimensionBuilder extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOpen: false
+      isOpen: false,
+      ordering: undefined
     };
   }
 
   addVariant(ordering) {
-    console.log(ordering);
+    this.setState({isOpen: true, ordering});
   }
 
   render() {
     const {previews} = this.props.status;
     const {meta} = this.props;
-    const {isOpen} = this.state;
+    const {isOpen, ordering} = this.state;
 
     const groupedMeta = groupMeta(meta);
 
@@ -37,9 +38,9 @@ class DimensionBuilder extends Component {
           addItem={() => this.setState({isOpen: !this.state.isOpen})}
           cards={groupedMeta.map((group, i) =>
             <div key={`group-${i}`}>
-              {group.map((meta, j) => 
+              {group.map(meta => 
                 <DimensionCard
-                  key={`dc-group-${j}`}
+                  key={`meta-${meta.id}`}
                   meta={meta}
                 />
               )}
@@ -67,7 +68,8 @@ class DimensionBuilder extends Component {
           icon={false}
         >
           <DimensionEditor
-            onComplete={() => this.setState({isOpen: false})}
+            onComplete={() => this.setState({isOpen: false, ordering: undefined})}
+            ordering={ordering}
           />
         </Dialog>
       </Fragment>
