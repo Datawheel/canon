@@ -140,7 +140,7 @@ module.exports = function(app) {
     const config = {};
     if (OLAP_PROXY_SECRET) {
       const jwtPayload = {sub: "server", status: "valid"};
-      if (CANON_CMS_MINIMUM_ROLE) jwtPayload.role = +CANON_CMS_MINIMUM_ROLE;
+      if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
       const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
       config.headers = {"x-tesseract-jwt-token": apiToken};
     }
@@ -330,7 +330,7 @@ module.exports = function(app) {
         });
       }
     });
-    
+
     const relevantPids = [...new Set(meta.filter(p => dimCubes.includes(`${p.dimension}/${p.cubeName}`)).map(d => d.profile_id))];
     let profiles = await db.profile.findAll({where: {id: relevantPids}, include: {association: "meta"}}).catch(catcher);
     profiles = profiles.map(d => d.toJSON());
@@ -393,7 +393,7 @@ module.exports = function(app) {
       const singleFilter = d => !req.query.query || req.query.query.includes(" ") ? true : d.length === 1;
       const filteredResults = combinedResults.filter(singleFilter);
 
-      // Save the results under a slug key for the separated-out search results. 
+      // Save the results under a slug key for the separated-out search results.
       if (filteredResults.length > 0) results.profiles[slug] = filteredResults.slice(0, limit);
       // Also, combine the results together for grouped results, sorted by the avg of their confidence score.
       results.grouped = results.grouped
