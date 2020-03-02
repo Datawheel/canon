@@ -7,6 +7,7 @@ import Deck from "../components/interface/Deck";
 import Dialog from "../components/interface/Dialog";
 import groupMeta from "../utils/groupMeta";
 import Button from "../components/fields/Button";
+import {Switch} from "@blueprintjs/core";
 
 import "./DimensionBuilder.css";
 
@@ -15,7 +16,8 @@ class DimensionBuilder extends Component {
     super(props);
     this.state = {
       isOpen: false,
-      ordering: undefined
+      ordering: undefined,
+      compact: true
     };
   }
 
@@ -23,27 +25,41 @@ class DimensionBuilder extends Component {
     this.setState({isOpen: true, ordering});
   }
 
+  toggleCompact(e) {
+    this.setState({compact: e.target.checked});
+  }
+
   render() {
     const {previews} = this.props.status;
     const {meta} = this.props;
-    const {isOpen, ordering} = this.state;
+    const {isOpen, ordering, compact} = this.state;
 
     const groupedMeta = groupMeta(meta);
 
     return (
       <Fragment>
         <Deck
-          title="Dimensions"
+          title={
+            <span>
+              Dimensions
+              <Switch
+                checked={compact}
+                className={"cms-variable-editor-switcher u-font-xs cms-generator-variable-editor-switcher"}
+                label="Compact"
+                onChange={this.toggleCompact.bind(this)}
+              />
+            </span>
+          }
           entity="dimension"
           addItem={() => this.setState({isOpen: !this.state.isOpen})}
           cards={groupedMeta.map((group, i) =>
             <div key={`group-${i}`}>
-              {group.map(meta => 
+              {!compact ? group.map(meta => 
                 <DimensionCard
                   key={`meta-${meta.id}`}
                   meta={meta}
                 />
-              )}
+              ) : []}
               <PreviewSearch
                 label={previews[i] ? previews[i].name || previews[i].id || "search profiles..." : "search profiles..."}
                 previewing={previews[i] ? previews[i].name || previews[i].id : false}
@@ -52,9 +68,9 @@ class DimensionBuilder extends Component {
                 index={i}
                 limit={20}
               />
-              <Button onClick={this.addVariant.bind(this, i)} className="cms-deck-heading-add-button" fontSize="xxs" namespace="cms" icon="plus">
+              {!compact && <Button onClick={this.addVariant.bind(this, i)} className="cms-deck-heading-add-button" fontSize="xxs" namespace="cms" icon="plus">
                 Add Variant
-              </Button>
+              </Button>}
             </div>
           )}
         />
