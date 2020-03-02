@@ -4,6 +4,12 @@ const d3Array = require("d3-array");
 const jwt = require("jsonwebtoken");
 const groupMeta = require("../utils/groupMeta");
 
+const {
+  CANON_CMS_CUBES,
+  CANON_CMS_MINIMUM_ROLE,
+  OLAP_PROXY_SECRET
+} = process.env;
+
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 let Base58, flickr, sharp, storage;
 if (process.env.FLICKR_API_KEY) {
@@ -19,8 +25,8 @@ const axios = require("axios");
 const validLicenses = ["4", "5", "7", "8", "9", "10"];
 const validLicensesString = validLicenses.join();
 const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
-const {OLAP_PROXY_SECRET, CANON_CMS_CUBES} = process.env;
-let cubeRoot = process.env.CANON_CMS_CUBES;
+
+let cubeRoot = CANON_CMS_CUBES;
 if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
 const catcher = e => {
@@ -82,11 +88,11 @@ module.exports = function(app) {
                 license: info.photo.license
               };
               const newImage = await db.image.create(payload).catch(catcher);
-              await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);            
-              
+              await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
+
               // Finally, upload splash and thumb version to google cloud.
               const configs = [
-                {type: "splash", res: splashWidth}, 
+                {type: "splash", res: splashWidth},
                 {type: "thumb", res: thumbWidth}
               ];
               for (const config of configs) {
@@ -133,7 +139,9 @@ module.exports = function(app) {
 
     const config = {};
     if (OLAP_PROXY_SECRET) {
-      const apiToken = jwt.sign({sub: "server", status: "valid"}, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+      const jwtPayload = {sub: "server", status: "valid"};
+      if (CANON_CMS_MINIMUM_ROLE) jwtPayload.role = +CANON_CMS_MINIMUM_ROLE;
+      const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
       config.headers = {"x-tesseract-jwt-token": apiToken};
     }
 
@@ -181,7 +189,7 @@ module.exports = function(app) {
     if (!flickr) return res.json({error: "Flickr API Key not configured"});
     const {q} = req.query;
     const result = await flickr.photos.search({
-      text: q, 
+      text: q,
       license: validLicensesString,
       sort: "relevance"
     }).then(resp => resp.body).catch(catcher);
@@ -194,7 +202,7 @@ module.exports = function(app) {
         payload.push({
           id: photo.id,
           source: small.source
-        });  
+        });
       }
     }
     return res.json(payload);
@@ -229,7 +237,7 @@ module.exports = function(app) {
     });
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
-    const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10; 
+    const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
     let results = {};
 
     // Convert a legacy-style search result into a scaffolded faked version of what the deepsearch API returns.
@@ -339,7 +347,6 @@ module.exports = function(app) {
     for (const profile of profiles) {
       const groupedMeta = groupMeta(profile.meta);
       const slug = groupedMeta.map(d => d[0].slug).join("/");
-      
       // Gather a list of results that map to each slug in this profile
       const relevantResults = groupedMeta.reduce((acc, group, i) => {
         acc[i] = [];
@@ -438,7 +445,7 @@ module.exports = function(app) {
         where,
         include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}]
       });
-    } 
+    }
     else {
       const searchWhere = {};
       if (q) {
@@ -486,13 +493,13 @@ module.exports = function(app) {
 
     /**
      * Note: The purpose of this slugs lookup object is so that in traditional, 1:1 cms sites,
-     * We can translate a Dimension found in search results (like "Geography") into a slug 
+     * We can translate a Dimension found in search results (like "Geography") into a slug
      * (like "geo"). This is then passed along in the search result under the key "profile"
      * so that the search bar (in DataUSA, for example) can create a link out of it like
      * /profile/geo/Massachusetts. However, This will be insufficient for bivariate profiles, where
      * there will no longer be ONE single profile to which a search result pertains - a search
      * for "mass" could apply to both a geo and a geo_jobs (or wherever a geo Dimension is invoked)
-     * Longer term, the "results" row below may need some new keys to more accurately depict the 
+     * Longer term, the "results" row below may need some new keys to more accurately depict the
      * profiles to which each particular result may apply.
      */
     let meta = await db.profile_meta.findAll();
