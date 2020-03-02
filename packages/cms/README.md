@@ -203,6 +203,8 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 
 - **Dimension**: Any given Profile in the CMS must be linked to one or more dimensions. Examples include "Geography," "University," or "CIP" (Industry). You could have a `geo` profile, which is linked to the "Geography" dimension, whose members are things like Massachusetts or New York.
 
+- **Variant**: A given Dimension (above) may also have several **Variants**. If you have a dimension that is linked to a cube, e.g. a Subnational Dimension from a Japan Cube, you may add a variant of this `geo`-type dimension: e.g. a Subnational Dimension from a China cube. This allows you to have a single top-level profile (like "Subnational") that has multiple expressions/variants from different cubes, allowing you to share logic and layout between the different data feeds.
+
 ---
 
 ## Environment Variables
