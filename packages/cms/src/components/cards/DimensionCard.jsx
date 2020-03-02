@@ -5,7 +5,6 @@ import Card from "./Card";
 import Dialog from "../interface/Dialog";
 import DimensionEditor from "../editors/DimensionEditor";
 import DefinitionList from "../variables/DefinitionList";
-import PreviewSearch from "../fields/PreviewSearch";
 
 import {deleteDimension} from "../../actions/profiles";
 import "./DimensionCard.css";
@@ -46,10 +45,8 @@ class DimensionCard extends Component {
   }
 
   render() {
-    const {meta, preview} = this.props;
+    const {meta} = this.props;
     const {rebuilding, alertObj, isOpen} = this.state;
-
-    if (!preview) return null;
 
     // define props for Card
     const cardProps = {
@@ -85,18 +82,7 @@ class DimensionCard extends Component {
             {label: "slug", text: meta.slug},
             {label: "levels", text: meta.levels.join(", ")},
             {label: "measure", text: meta.measure},
-            {label: "preview ID", text:
-              <PreviewSearch
-                label={preview.name || preview.id || "search profiles..."}
-                previewing={preview.name || preview.id}
-                fontSize="xxs"
-                slug={meta.slug}
-                dimension={meta.dimension}
-                levels={meta.levels}
-                cubeName={meta.cubeName}
-                limit={20}
-              />
-            }
+            {label: "cube", text: meta.cubeName}
           ]}/>
         </Card>
 

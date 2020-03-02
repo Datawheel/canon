@@ -8,6 +8,8 @@ import Status from "../interface/Status";
 import {setStatus} from "../../actions/status";
 import {fetchSectionPreview} from "../../actions/profiles";
 
+import groupMeta from "../../utils/groupMeta";
+
 import "./PreviewHeader.css";
 
 class PreviewHeader extends Component {
@@ -55,19 +57,19 @@ class PreviewHeader extends Component {
 
     const localeList = locales.concat([localeDefault]);
 
+    const groupedMeta = groupMeta(meta);
+
     return (
       <Fragment>
         <div className="cms-preview-header">
-          {meta.map((m, i) =>
+          {groupedMeta.map((group, i) =>
             <PreviewSearch
-              key={`ps-${m.slug}`}
+              key={`group-${i}`}
               label={previews[i].name || previews[i].id || "search profiles..."}
               previewing={previews[i].name || previews[i].id}
               fontSize="xxs"
-              slug={m.slug}
-              dimension={m.dimension}
-              levels={m.levels}
-              cubeName={m.cubeName}
+              group={group}
+              index={i}
               limit={20}
             />
           )}

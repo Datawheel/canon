@@ -20,17 +20,19 @@ class PreviewSearch extends Component {
   }
 
   onSelectPreview(result) {
-    const {slug, url, dimension, cubeName} = this.props;
+    const {url, group, index} = this.props;
     const {id, name, slug: memberSlug} = result;
-    // When selecting a new preview, a new roundtrip is required to look 
-    const fullURL = `${url}?id=${id}&dimension=${dimension}&cubeName=${cubeName}&limit=1&parents=true`;
+    // When selecting a new preview, a new roundtrip is required to fetch parents.
+    const fullURL = `${url}?slug=${memberSlug}&limit=1&parents=true`;
     axios.get(fullURL).then(resp => {
       let searchObj = {};
       if (resp.data && resp.data.results) {
         searchObj = resp.data.results[0];
       }
-      const newPreview = {slug, id, name, memberSlug, searchObj};
-      const previews = this.props.status.previews.map(p => p.slug === newPreview.slug ? newPreview : p);
+      // group is an array of possible meta variants. Use the clicked result to divine which one we're on.
+      const newMeta = group.find(m => m.dimension === searchObj.dimension && m.cubeName === searchObj.cubeName);
+      const newPreview = {slug: newMeta.slug, id, name, memberSlug, searchObj};
+      const previews = this.props.status.previews.map((p, i) => i === index ? newPreview : p);
       const pathObj = Object.assign({}, this.props.status.pathObj, {previews});
       this.props.setStatus({pathObj, previews, userQuery: ""});
     });
@@ -44,11 +46,8 @@ class PreviewSearch extends Component {
       this.setState({active: true, results: [], userQuery});
     }
     else if (url) {
-      const {dimension, limit, levels, cubeName} = this.props;
-      let fullUrl = `${url}?q=${userQuery}&limit=${limit}`;
-      if (dimension) fullUrl += `&dimension=${dimension}`;
-      if (levels) fullUrl += `&levels=${levels.join()}`;
-      if (cubeName) fullUrl += `&cubeName=${cubeName}`;
+      const {limit, group} = this.props;
+      const fullUrl = `${url}?q=${userQuery}&limit=${limit}&pslug=${group.map(m => m.slug).join()}`;
       this.setState({userQuery});
       axios.get(fullUrl)
         .then(res => res.data)
@@ -190,7 +189,7 @@ class PreviewSearch extends Component {
               <li
                 className="cms-search-result-item u-font-xs"
                 onClick={this.onSelect.bind(this, result)}
-                key={result.id}
+                key={result.slug}
                 result={result}
               >
                 <Button
@@ -218,7 +217,6 @@ PreviewSearch.defaultProps = {
   buttonLink: false,
   buttonText: "Search",
   className: "search",
-  dimension: false,
   icon: "search",
   inactiveComponent: false,
   inline: false,

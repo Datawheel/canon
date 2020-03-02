@@ -115,7 +115,7 @@ class Builder extends Component {
     // previews may come in as a string (from the URL) or an array (from the app).
     // Set the url correctly either way.
     if (pathObj.previews) {
-      const previews = typeof pathObj.previews === "string" ? pathObj.previews : pathObj.previews.map(d => d.id).join();
+      const previews = typeof pathObj.previews === "string" ? pathObj.previews : pathObj.previews.map(d => d.memberSlug).join();
       url += `&previews=${previews}`;
     }
     // Story

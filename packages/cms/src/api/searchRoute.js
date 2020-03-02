@@ -2,6 +2,7 @@ const sequelize = require("sequelize");
 const yn = require("yn");
 const d3Array = require("d3-array");
 const jwt = require("jsonwebtoken");
+const groupMeta = require("../utils/groupMeta");
 
 const {
   CANON_CMS_CUBES,
@@ -329,8 +330,8 @@ module.exports = function(app) {
         });
       }
     });
-
-    const relevantPids = meta.filter(p => dimCubes.includes(`${p.dimension}/${p.cubeName}`)).map(d => d.profile_id);
+    
+    const relevantPids = [...new Set(meta.filter(p => dimCubes.includes(`${p.dimension}/${p.cubeName}`)).map(d => d.profile_id))];
     let profiles = await db.profile.findAll({where: {id: relevantPids}, include: {association: "meta"}}).catch(catcher);
     profiles = profiles.map(d => d.toJSON());
 
@@ -344,26 +345,28 @@ module.exports = function(app) {
 
     // For each profile type that was found
     for (const profile of profiles) {
-      const slug = profile.meta.map(d => d.slug).join("/");
-
+      const groupedMeta = groupMeta(profile.meta);
+      const slug = groupedMeta.map(d => d[0].slug).join("/");
       // Gather a list of results that map to each slug in this profile
-      const relevantResults = profile.meta.reduce((acc, m) => {
-        const theseResults = results.results[m.dimension] ? results.results[m.dimension].filter(d => d.metadata.cube_name === m.cubeName) : false;
-        if (theseResults) {
-          const finalResults = theseResults.map(r => ({
-            slug: m.slug,
-            id: r.metadata.id,
-            memberSlug: r.metadata.slug,
-            memberDimension: m.dimension,
-            memberHierarchy: r.metadata.hierarchy,
-            name: r.name,
-            ranking: r.confidence
-          })).slice(0, limit);
-          acc.push(finalResults);
-        }
-        else {
-          acc.push([]);
-        }
+      const relevantResults = groupedMeta.reduce((acc, group, i) => {
+        acc[i] = [];
+        group.forEach(m => {
+          const theseResults = results.results[m.dimension] ? results.results[m.dimension].filter(d => d.metadata.cube_name === m.cubeName) : false;
+          if (theseResults) {
+            acc[i] = acc[i].concat(theseResults
+              .map(r => ({
+                slug: m.slug,
+                id: r.metadata.id,
+                memberSlug: r.metadata.slug,
+                memberDimension: m.dimension,
+                memberHierarchy: r.metadata.hierarchy,
+                name: r.name,
+                ranking: r.confidence
+              }))
+              .slice(0, limit)
+            );
+          }
+        });
         return acc;
       }, []);
 
@@ -373,7 +376,7 @@ module.exports = function(app) {
 
       // The cartesian product doesn't return a list of lists when only one array is given to it, as in the
       // case for unary profiles, so wrap the results in an array.
-      const isUnary = profile.meta.length === 1;
+      const isUnary = groupedMeta.length === 1;
       if (isUnary) {
         combinedResults = combinedResults.map(d => [d]);
       }
@@ -388,9 +391,9 @@ module.exports = function(app) {
 
       // If there is no space in the query, Limit results to one-dimensional profiles.
       const singleFilter = d => !req.query.query || req.query.query.includes(" ") ? true : d.length === 1;
-
-      // Save the results under a slug key for the separated-out search results.
       const filteredResults = combinedResults.filter(singleFilter);
+
+      // Save the results under a slug key for the separated-out search results. 
       if (filteredResults.length > 0) results.profiles[slug] = filteredResults.slice(0, limit);
       // Also, combine the results together for grouped results, sorted by the avg of their confidence score.
       results.grouped = results.grouped
@@ -415,17 +418,27 @@ module.exports = function(app) {
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-    const {id, q, dimension, levels, cubeName, pslug, parents} = req.query;
+    const {id, q, slug, dimension, levels, cubeName, pslug, parents} = req.query;
 
     let rows = [];
 
-    if (id) {
+    if (slug) {
+      where.slug = slug.includes(",") ? slug.split(",") : slug;
+      rows = await db.search.findAll({
+        where,
+        include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}]
+      });
+    }
+    else if (id) {
       where.id = id.includes(",") ? id.split(",") : id;
       if (dimension) where.dimension = dimension;
       if (levels) where.hierarchy = levels.split(",");
       if (pslug) {
-        const thisMeta = await db.profile_meta.findOne({where: {slug: pslug}});
-        if (thisMeta && thisMeta.cubeName) where.cubeName = thisMeta.cubeName;
+        const thisMeta = await db.profile_meta.findOne({where: {slug: pslug.split(",")}});
+        if (thisMeta) {
+          where.cubeName = thisMeta.cubeName;
+          where.dimension = thisMeta.dimension;
+        }
       }
       if (cubeName) where.cubeName = cubeName;
       rows = await db.search.findAll({
@@ -457,8 +470,11 @@ module.exports = function(app) {
       // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
       if (levels) searchWhere.hierarchy = levels.split(",");
       if (pslug) {
-        const thisMeta = await db.profile_meta.findOne({where: {slug: pslug}});
-        if (thisMeta && thisMeta.cubeName) searchWhere.cubeName = thisMeta.cubeName;
+        const thisMeta = await db.profile_meta.findAll({where: {slug: pslug.split(",")}});
+        if (thisMeta && thisMeta.length > 0) {
+          searchWhere.cubeName = thisMeta.map(d => d.cubeName);
+          searchWhere.dimension = thisMeta.map(d => d.dimension);
+        }
       }
       if (cubeName) searchWhere.cubeName = cubeName;
       rows = await db.search.findAll({
