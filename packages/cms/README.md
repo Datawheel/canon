@@ -466,6 +466,27 @@ However, be warned that this is not "true" javascript, merely string manipulatio
 /api?hierarchy=<parents[-1].value>
 ```
 
+### Accessing Member Slugs
+
+Member slugs only exist at the CMS level for vanity-plate URL routing (e.g., /profile/country/fra, where `fra` is the member slug). The underyling cube has no knowledge of these slugs, which can make creating links to these vanity URLs in the CMS difficult.
+
+If you want access to these slugs in your results set, you may add the `slugs` query parameter to your generator API. The CMS will intercept the payload and inject the slugs into the response.
+
+The slugs parameter requires two elements for a successful lookup:
+
+1) The CMS-level dimension on which the ID is considered unique (`Exporter`, `HS Product`, etc)
+2) An accessor for the key in the response payload to be used for lookup (`Country`, `HS4`, etc). Note: The CMS will automatically append the ` ID` to your accessor, changing `HS4` to `HS4 ID` for example.
+
+These parameters should be added to the generator API, using colons to separate the two required pieces:
+
+`&slugs=Exporter:Country,HS Product:HS4`
+
+If the pieces are the same, one parameter may be used:
+
+`&slugs=Product`
+
+**Warning** This slug parameter **will not work** if your result set has more than 10 elements. Remember to use `limit` to keep your generator calls tiny!
+
 ---
 
 ## Advanced Visualization Techniques
