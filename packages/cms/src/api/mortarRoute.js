@@ -2,12 +2,18 @@ const FUNC = require("../utils/FUNC"),
       PromiseThrottle = require("promise-throttle"),
       axios = require("axios"),
       collate = require("../utils/collate"),
+      jwt = require("jsonwebtoken"),
       libs = require("../utils/libs"), // leave this! needed for the variable functions
       mortarEval = require("../utils/mortarEval"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
       yn = require("yn");
+
+const {
+  CANON_CMS_MINIMUM_ROLE,
+  OLAP_PROXY_SECRET
+} = process.env;
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
@@ -292,7 +298,16 @@ module.exports = function(app) {
       if (url.indexOf("http") !== 0) {
         url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
       }
-      return axios.get(url)
+
+      const config = {};
+      if (OLAP_PROXY_SECRET) {
+        const jwtPayload = {sub: "server", status: "valid"};
+        if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+        const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+        config.headers = {"x-tesseract-jwt-token": apiToken};
+      }
+
+      return axios.get(url, config)
         .then(resp => {
           if (verbose) console.log("Variable Loaded:", url);
           return resp;
@@ -496,7 +511,7 @@ module.exports = function(app) {
             return res.json({error: `Member not found for id: ${dim.id}`});
           }
           else {
-            // Prime the top result of the neighbors with this member itself. This will be 
+            // Prime the top result of the neighbors with this member itself. This will be
             // needed later if we need to build bilateral profiles
             searchrow = searchrow.toJSON();
             const defCon = searchrow.content.find(c => c.locale === envLoc);
@@ -538,10 +553,10 @@ module.exports = function(app) {
           return res.json({error: `Member not found for id: ${dim.id}`});
         }
       }
-      // todo tomorrow - catch for no neighbors ? 
+      // todo tomorrow - catch for no neighbors ?
       returnObject.neighbors = [];
-      // Using the now-populated neighborsByDimSlug, construct a "neighbors" array filled 
-      // with profile objects that can be linkify'd on the front end 
+      // Using the now-populated neighborsByDimSlug, construct a "neighbors" array filled
+      // with profile objects that can be linkify'd on the front end
       const neighborDims = Object.keys(neighborsByDimSlug);
       // If this is a unary profile, just use the neighbors straight-up
       if (neighborDims.length === 1) {
