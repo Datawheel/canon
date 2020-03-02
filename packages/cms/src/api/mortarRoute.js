@@ -324,6 +324,29 @@ module.exports = function(app) {
     const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, smallAttr)));
     const results = await Promise.all(fetches).catch(catcher);
 
+    // Inject cms_search-level slugs into the payload to help with making front-end links
+    for (let i = 0; i < requests.length; i++) {
+      try {
+        const thisURL = requests[i];
+        const thisResult = results[i].data && results[i].data.data ? results[i].data.data : [];
+        const paramObject = Object.fromEntries(new URLSearchParams(thisURL));
+        if (paramObject.slugs && thisResult.length > 0 && thisResult.length <= 10) {
+          const pairs = paramObject.slugs.split(",");
+          for (const pair of pairs) {
+            const dimension = pair.includes(":") ? pair.split(":")[0] : pair;
+            const idPattern = pair.includes(":") ? pair.split(":")[1] : pair;
+            const ids = thisResult.map(d => String(d[`${idPattern} ID`] || d[idPattern]));
+            const members = await db.search.findAll({where: {dimension, id: ids}}).catch(catcher);
+            const slugMap = members.reduce((acc, d) => ({...acc, [d.id]: d.slug}), {});
+            results[i].data.data = results[i].data.data.map(d => ({...d, [`${idPattern} Slug`]: slugMap[d[`${idPattern} ID`] || d[idPattern]]}));
+          }
+        }
+      }
+      catch (e) {
+        if (verbose) console.error(`Slug lookup failed. ${e}`);
+      }      
+    }
+
     // Seed the return variables with the stripped-down attr object
     let returnVariables = {...smallAttr};
     const genStatus = {};
