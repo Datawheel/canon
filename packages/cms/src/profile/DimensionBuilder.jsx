@@ -44,8 +44,9 @@ class DimensionBuilder extends Component {
               Dimensions
               <Switch
                 checked={compact}
-                className={"cms-variable-editor-switcher u-font-xs cms-generator-variable-editor-switcher"}
+                className={"cms-variable-editor-switcher u-font-xxs cms-generator-variable-editor-switcher"}
                 label="Compact"
+                inline={true}
                 onChange={this.toggleCompact.bind(this)}
               />
             </span>
@@ -54,7 +55,7 @@ class DimensionBuilder extends Component {
           addItem={() => this.setState({isOpen: !this.state.isOpen})}
           cards={groupedMeta.map((group, i) =>
             <div key={`group-${i}`}>
-              {!compact ? group.map(meta => 
+              {!compact ? group.map(meta =>
                 <DimensionCard
                   key={`meta-${meta.id}`}
                   meta={meta}
@@ -68,7 +69,7 @@ class DimensionBuilder extends Component {
                 index={i}
                 limit={20}
               />
-              {!compact && <Button onClick={this.addVariant.bind(this, i)} className="cms-deck-heading-add-button" fontSize="xxs" namespace="cms" icon="plus">
+              {!compact && <Button onClick={this.addVariant.bind(this, i)} className="cms-deck-heading-add-button" fontSize="xxs" namespace="cms" icon="plus" fill={true}>
                 Add Variant
               </Button>}
             </div>
