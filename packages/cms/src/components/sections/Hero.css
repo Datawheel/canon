@@ -199,3 +199,11 @@
   opacity: var(--hero-img-overlay-opacity);
   z-index: 1;
 }
+
+.cms-title-hover {
+  cursor: pointer;
+}
+
+.cms-title-hover:hover {
+  background-color: cornflowerblue;
+}
