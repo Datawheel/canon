@@ -2,9 +2,10 @@ import React, {Component} from "react";
 import stripP from "../../../utils/formatters/stripP";
 import stripUL from "../../../utils/formatters/stripUL";
 import stripOL from "../../../utils/formatters/stripOL";
+import {hot} from "react-hot-loader/root";
 
 /** Quill editor likes to generate <p> and <br> tags, boy is that fun. */
-export default class Parse extends Component {
+class Parse extends Component {
   render() {
     const {
       El,        // the element to render
@@ -74,3 +75,5 @@ Parse.defaultProps = {
   split: true,
   children: "missing `children` prop in Parse.jsx; single blob of DraftJS content expected"
 };
+
+export default hot(Parse);

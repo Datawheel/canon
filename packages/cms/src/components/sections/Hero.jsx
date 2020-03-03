@@ -1,6 +1,7 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
+import {hot} from "react-hot-loader/root";
 
 import stripHTML from "../../utils/formatters/stripHTML";
 
@@ -11,6 +12,8 @@ import StatGroup from "../Viz/StatGroup";
 import Button from "../fields/Button";
 
 import Parse from "./components/Parse";
+import Dialog from "../interface/Dialog";
+import ProfileSearch from "../fields/ProfileSearch";
 
 import "./Section.css";
 import "./Hero.css";
@@ -26,8 +29,11 @@ class Hero extends Component {
       selectors: {},
       sources: [],
       images: [],
-      creditsVisible: false
+      creditsVisible: false,
+      searchIndex: undefined
     };
+
+    if (typeof window !== "undefined") window.titleClick = this.titleClick.bind(this);
   }
 
   componentDidMount() {
@@ -60,15 +66,33 @@ class Hero extends Component {
     this.setState({images});
   }
 
+  titleClick(index) {
+    this.setState({searchIndex: index});
+  }
+
+  spanifyTitle(title) {
+    const {profile} = this.props;
+    const {variables} = profile;
+    const {name1, name2} = variables;
+    if (title) {
+      return title
+        .replace(name1, `<span class="cms-title-hover" onClick=titleClick(0)>${name1}</span>`)
+        .replace(name2, `<span class="cms-title-hover" onClick=titleClick(1)>${name2}</span>`);
+    }
+    else {
+      return title;
+    }
+  }
+
   render() {
     const {contents, loading, sources, profile} = this.props;
-    const {images, creditsVisible} = this.state;
+    const {images, creditsVisible, searchIndex} = this.state;
 
-    let title = profile.title;
+    let title = this.spanifyTitle(profile.title);
     let paragraphs, sourceContent, statContent, subtitleContent;
 
     if (contents) {
-      title = contents.title;
+      title = this.spanifyTitle(contents.title);
       // subtitles
       if (contents.subtitles.length) {
         subtitleContent = contents.subtitles.map((subhead, i) =>
@@ -101,7 +125,6 @@ class Hero extends Component {
       // sources
       sourceContent = <SourceGroup sources={sources} />;
     }
-
 
     // heading & subhead(s)
     const heading = <Fragment>
@@ -209,6 +232,21 @@ class Hero extends Component {
             </div>
           </Fragment> : ""
         }
+        <Dialog
+          title="Search"
+          usePortal={false}
+          isOpen={searchIndex !== undefined}
+          onClose={() => this.setState({searchIndex: undefined})}
+        >
+          <div style={{color: "black"}}>
+            <ProfileSearch
+              inputFontSize="md"
+              display="list"
+              
+            />
+          </div>
+        </Dialog>
+
       </header>
     );
   }
@@ -216,4 +254,4 @@ class Hero extends Component {
 
 export default connect(state => ({
   locale: state.i18n.locale
-}))(Hero);
+}))(hot(Hero));
