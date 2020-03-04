@@ -4,6 +4,7 @@ import {nest} from "d3-collection";
 import {hot} from "react-hot-loader/root";
 
 import stripHTML from "../../utils/formatters/stripHTML";
+import groupMeta from "../../utils/groupMeta";
 
 import Viz from "../Viz/Viz";
 import SourceGroup from "../Viz/SourceGroup";
@@ -30,7 +31,8 @@ class Hero extends Component {
       sources: [],
       images: [],
       creditsVisible: false,
-      searchIndex: undefined
+      metaOptions: undefined,
+      resultFormat: d => d
     };
 
     if (typeof window !== "undefined") window.titleClick = this.titleClick.bind(this);
@@ -67,7 +69,14 @@ class Hero extends Component {
   }
 
   titleClick(index) {
-    this.setState({searchIndex: index});
+    const {profile} = this.props;
+    const {meta} = profile;
+    const groupedMeta = groupMeta(meta);
+
+    if (groupedMeta[index]) {
+      const metaOptions = groupedMeta[index];
+      this.setState({metaOptions});  
+    }
   }
 
   spanifyTitle(title) {
@@ -86,7 +95,7 @@ class Hero extends Component {
 
   render() {
     const {contents, loading, sources, profile} = this.props;
-    const {images, creditsVisible, searchIndex} = this.state;
+    const {images, creditsVisible, metaOptions, resultFormat} = this.state;
 
     let title = this.spanifyTitle(profile.title);
     let paragraphs, sourceContent, statContent, subtitleContent;
@@ -235,14 +244,16 @@ class Hero extends Component {
         <Dialog
           title="Search"
           usePortal={false}
-          isOpen={searchIndex !== undefined}
-          onClose={() => this.setState({searchIndex: undefined})}
+          isOpen={metaOptions !== undefined}
+          onClose={() => this.setState({metaOptions: undefined})}
         >
           <div style={{color: "black"}}>
             <ProfileSearch
               inputFontSize="md"
               display="list"
-              
+              mode="dimension"
+              metaOptions={metaOptions}
+              resultFormat={resultFormat}
             />
           </div>
         </Dialog>

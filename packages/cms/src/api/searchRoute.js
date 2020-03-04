@@ -418,7 +418,8 @@ module.exports = function(app) {
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-    const {id, q, slug, dimension, levels, cubeName, pslug, parents} = req.query;
+    const {id, slug, dimension, levels, cubeName, pslug, parents} = req.query;
+    const q = req.query.q || req.query.query;
 
     let rows = [];
 
@@ -466,7 +467,7 @@ module.exports = function(app) {
         rows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(rows.map(r => r.id)));
       }
-      if (dimension) searchWhere.dimension = dimension;
+      if (dimension) searchWhere.dimension = dimension.split(",");
       // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])
       if (levels) searchWhere.hierarchy = levels.split(",");
       if (pslug) {
@@ -476,7 +477,7 @@ module.exports = function(app) {
           searchWhere.dimension = thisMeta.map(d => d.dimension);
         }
       }
-      if (cubeName) searchWhere.cubeName = cubeName;
+      if (cubeName) searchWhere.cubeName = cubeName.split(",");
       rows = await db.search.findAll({
         include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
         limit,

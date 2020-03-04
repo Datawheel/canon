@@ -227,7 +227,7 @@ class ProfileSearch extends Component {
 
     const {router} = this.context;
     const {active, loading, query, results} = this.state;
-    const {locale} = this.props;
+    const {locale, mode, metaOptions, resultFormat} = this.props;
     const {
       availableProfiles,
       display,
@@ -237,6 +237,25 @@ class ProfileSearch extends Component {
       position,
       profileTitles
     } = this.props;
+
+    let dimensionResults = [];
+    if (mode === "dimension" && results && results.results) {
+      const rawResults = results.results;
+      const relevantDimensions = Object.keys(rawResults).filter(d => metaOptions.map(m => m.dimension).includes(d));
+      relevantDimensions.forEach(dim => {
+        const filteredResults = rawResults[dim].filter(d => metaOptions.map(m => m.cubeName).includes(d.metadata.cube_name));
+        const fixedResults = filteredResults.map(d => [{
+          slug: metaOptions.find(m => m.cubeName === d.metadata.cube_name).slug,
+          id: d.metadata.id,
+          memberSlug: d.metadata.slug,
+          memberDimension: dim,
+          memberHierarchy: d.metadata.hierarchy,
+          name: d.name,
+          ranking: d.popularity
+        }]);
+        dimensionResults = dimensionResults.concat(fixedResults);
+      });
+    }
 
     return (
       <div className="cms-profilesearch">
@@ -279,38 +298,52 @@ class ProfileSearch extends Component {
             (position !== "absolute" || active) && results
               ? (() => {
 
-                if (!results.grouped.length) {
+                if (mode === "profile" && !results.grouped.length || mode === "dimension" && !dimensionResults.length) {
                   return <NonIdealState key="empty" icon="zoom-out" title={`No results matching "${query}"`} />;
                 }
 
-                switch (display) {
+                if (mode === "dimension") {
+                  return <ul key="list" className="cms-profilesearch-list">
+                    {dimensionResults.map((result, j) =>
+                      <li key={`r-${j}`} className="cms-profilesearch-list-item">
+                        <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
+                          {result.map(d => formatTitle(d.name)).join(` ${joiner} `)}
+                          <div className="cms-profilesearch-list-item-sub u-font-xs">{profileTitles[result.map(d => d.slug).join("/")] || formatCategory([result])}</div>
+                        </Link>
+                      </li>
+                    )}
+                  </ul>;
+                }
+                else {
+                  switch (display) {
 
-                  case "columns":
-                    const columnProfiles = Object.keys(results.profiles || {})
-                      .filter(d => !availableProfiles.length || availableProfiles.includes(d))
-                      .sort((a, b) => {
-                        const aIndex = columnOrder.includes(a) ? columnOrder.indexOf(a) : columnOrder.length + 1;
-                        const bIndex = columnOrder.includes(b) ? columnOrder.indexOf(b) : columnOrder.length + 1;
-                        return aIndex - bIndex;
-                      })
-                      .map(profile => results.profiles[profile] || []);
-                    return <ProfileColumns columnTitles={profileTitles} tileProps={{joiner}} data={columnProfiles} />;
+                    case "columns":
+                      const columnProfiles = Object.keys(results.profiles || {})
+                        .filter(d => !availableProfiles.length || availableProfiles.includes(d))
+                        .sort((a, b) => {
+                          const aIndex = columnOrder.includes(a) ? columnOrder.indexOf(a) : columnOrder.length + 1;
+                          const bIndex = columnOrder.includes(b) ? columnOrder.indexOf(b) : columnOrder.length + 1;
+                          return aIndex - bIndex;
+                        })
+                        .map(profile => results.profiles[profile] || []);
+                      return <ProfileColumns columnTitles={profileTitles} tileProps={{joiner}} data={columnProfiles} />;
 
-                  default:
-                    const listProfiles = (results.grouped || [])
-                      .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
-                    return (
-                      <ul key="list" className="cms-profilesearch-list">
-                        {listProfiles.map((result, j) =>
-                          <li key={`r-${j}`} className="cms-profilesearch-list-item">
-                            <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
-                              {result.map(d => formatTitle(d.name)).join(` ${joiner} `)}
-                              <div className="cms-profilesearch-list-item-sub u-font-xs">{profileTitles[result.map(d => d.slug).join("/")] || formatCategory([result])}</div>
-                            </Link>
-                          </li>
-                        )}
-                      </ul>
-                    );
+                    default:
+                      const listProfiles = (results.grouped || [])
+                        .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
+                      return (
+                        <ul key="list" className="cms-profilesearch-list">
+                          {listProfiles.map((result, j) =>
+                            <li key={`r-${j}`} className="cms-profilesearch-list-item">
+                              <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
+                                {result.map(d => formatTitle(d.name)).join(` ${joiner} `)}
+                                <div className="cms-profilesearch-list-item-sub u-font-xs">{profileTitles[result.map(d => d.slug).join("/")] || formatCategory([result])}</div>
+                              </Link>
+                            </li>
+                          )}
+                        </ul>
+                      );
+                  }
 
                 }
 
@@ -341,7 +374,8 @@ ProfileSearch.defaultProps = {
   minQueryLength: 1,
   position: "static",
   profileTitles: {},
-  showExamples: false
+  showExamples: false,
+  mode: "profile"
 };
 
 export default connect(state => ({
