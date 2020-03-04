@@ -227,7 +227,7 @@ class ProfileSearch extends Component {
 
     const {router} = this.context;
     const {active, loading, query, results} = this.state;
-    const {locale, mode, metaOptions, resultFormat} = this.props;
+    const {locale, mode, formatResults} = this.props;
     const {
       availableProfiles,
       display,
@@ -239,23 +239,7 @@ class ProfileSearch extends Component {
     } = this.props;
 
     let dimensionResults = [];
-    if (mode === "dimension" && results && results.results) {
-      const rawResults = results.results;
-      const relevantDimensions = Object.keys(rawResults).filter(d => metaOptions.map(m => m.dimension).includes(d));
-      relevantDimensions.forEach(dim => {
-        const filteredResults = rawResults[dim].filter(d => metaOptions.map(m => m.cubeName).includes(d.metadata.cube_name));
-        const fixedResults = filteredResults.map(d => [{
-          slug: metaOptions.find(m => m.cubeName === d.metadata.cube_name).slug,
-          id: d.metadata.id,
-          memberSlug: d.metadata.slug,
-          memberDimension: dim,
-          memberHierarchy: d.metadata.hierarchy,
-          name: d.name,
-          ranking: d.popularity
-        }]);
-        dimensionResults = dimensionResults.concat(fixedResults);
-      });
-    }
+    if (mode === "dimension" && formatResults && results && results.results) dimensionResults = formatResults(results.results);
 
     return (
       <div className="cms-profilesearch">

@@ -32,7 +32,7 @@ class Hero extends Component {
       images: [],
       creditsVisible: false,
       metaOptions: undefined,
-      resultFormat: d => d
+      searchOpen: false
     };
 
     if (typeof window !== "undefined") window.titleClick = this.titleClick.bind(this);
@@ -75,8 +75,30 @@ class Hero extends Component {
 
     if (groupedMeta[index]) {
       const metaOptions = groupedMeta[index];
-      this.setState({metaOptions});  
+      this.setState({metaOptions, searchOpen: true});  
     }
+  }
+
+  formatResults(rawResults) {
+    const {metaOptions} = this.state;
+    let dimensionResults = [];
+    if (metaOptions) {
+      const relevantDimensions = Object.keys(rawResults).filter(d => metaOptions.map(m => m.dimension).includes(d));
+      relevantDimensions.forEach(dim => {
+        const filteredResults = rawResults[dim].filter(d => metaOptions.map(m => m.cubeName).includes(d.metadata.cube_name));
+        const fixedResults = filteredResults.map(d => [{
+          slug: metaOptions.find(m => m.cubeName === d.metadata.cube_name).slug,
+          id: d.metadata.id,
+          memberSlug: d.metadata.slug,
+          memberDimension: dim,
+          memberHierarchy: d.metadata.hierarchy,
+          name: d.name,
+          ranking: d.popularity
+        }]);
+        dimensionResults = dimensionResults.concat(fixedResults);
+      });
+    }
+    return dimensionResults;
   }
 
   spanifyTitle(title) {
@@ -95,7 +117,7 @@ class Hero extends Component {
 
   render() {
     const {contents, loading, sources, profile} = this.props;
-    const {images, creditsVisible, metaOptions, resultFormat} = this.state;
+    const {images, creditsVisible, searchOpen} = this.state;
 
     let title = this.spanifyTitle(profile.title);
     let paragraphs, sourceContent, statContent, subtitleContent;
@@ -244,16 +266,15 @@ class Hero extends Component {
         <Dialog
           title="Search"
           usePortal={false}
-          isOpen={metaOptions !== undefined}
-          onClose={() => this.setState({metaOptions: undefined})}
+          isOpen={searchOpen}
+          onClose={() => this.setState({searchOpen: false, metaOptions: undefined})}
         >
           <div style={{color: "black"}}>
             <ProfileSearch
               inputFontSize="md"
               display="list"
               mode="dimension"
-              metaOptions={metaOptions}
-              resultFormat={resultFormat}
+              formatResults={this.formatResults.bind(this)}
             />
           </div>
         </Dialog>
