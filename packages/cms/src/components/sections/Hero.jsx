@@ -2,6 +2,7 @@ import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
 import {hot} from "react-hot-loader/root";
+import PropTypes from "prop-types";
 
 import stripHTML from "../../utils/formatters/stripHTML";
 import groupMeta from "../../utils/groupMeta";
@@ -31,8 +32,7 @@ class Hero extends Component {
       sources: [],
       images: [],
       creditsVisible: false,
-      metaOptions: undefined,
-      searchOpen: false
+      clickedIndex: undefined
     };
 
     if (typeof window !== "undefined") window.titleClick = this.titleClick.bind(this);
@@ -69,34 +69,60 @@ class Hero extends Component {
   }
 
   titleClick(index) {
-    const {profile} = this.props;
-    const {meta} = profile;
-    const groupedMeta = groupMeta(meta);
-
-    if (groupedMeta[index]) {
-      const metaOptions = groupedMeta[index];
-      this.setState({metaOptions, searchOpen: true});  
-    }
+    this.setState({clickedIndex: index});
   }
 
   formatResults(rawResults) {
-    const {metaOptions} = this.state;
+    const {clickedIndex} = this.state;
+    const {meta, variables} = this.props.profile;
+    const {router} = this.context;
+    const groupedMeta = groupMeta(meta);
     let dimensionResults = [];
-    if (metaOptions) {
-      const relevantDimensions = Object.keys(rawResults).filter(d => metaOptions.map(m => m.dimension).includes(d));
-      relevantDimensions.forEach(dim => {
-        const filteredResults = rawResults[dim].filter(d => metaOptions.map(m => m.cubeName).includes(d.metadata.cube_name));
-        const fixedResults = filteredResults.map(d => [{
-          slug: metaOptions.find(m => m.cubeName === d.metadata.cube_name).slug,
-          id: d.metadata.id,
-          memberSlug: d.metadata.slug,
-          memberDimension: dim,
-          memberHierarchy: d.metadata.hierarchy,
-          name: d.name,
-          ranking: d.popularity
-        }]);
-        dimensionResults = dimensionResults.concat(fixedResults);
-      });
+    if (groupedMeta[clickedIndex]) {
+      const metaOptions = groupedMeta[clickedIndex];
+      if (metaOptions) {
+        try {
+          const relevantDimensions = Object.keys(rawResults).filter(d => metaOptions.map(m => m.dimension).includes(d));
+          relevantDimensions.forEach(dim => {
+            const formatFoundResult = d => ({
+              slug: metaOptions.find(m => m.cubeName === d.metadata.cube_name).slug,
+              id: d.metadata.id,
+              memberSlug: d.metadata.slug,
+              memberDimension: dim,
+              memberHierarchy: d.metadata.hierarchy,
+              name: d.name,
+              ranking: d.popularity
+            });
+            const filteredResults = rawResults[dim].filter(d => metaOptions.map(m => m.cubeName).includes(d.metadata.cube_name));
+            const scaffoldedResults = filteredResults.map(d => {
+              if (groupedMeta.length === 1) {
+                return [formatFoundResult(d)];
+              }
+              else if (groupedMeta.length === 2) {
+                const otherIndex = clickedIndex === 0 ? 1 : 0;
+                const thisResult = [];
+                thisResult[clickedIndex] = formatFoundResult(d);
+                const slugKey = clickedIndex === 0 ? "slug2" : "slug";
+                const varIndex = otherIndex + 1;
+                thisResult[otherIndex] = {
+                  slug: router.params[slugKey],
+                  id: variables[`id${varIndex}`],
+                  memberSlug: variables[`slug${varIndex}`],
+                  memberDimension: variables[`dimension${varIndex}`],
+                  memberHierarchy: variables[`hierarchy${varIndex}`],
+                  name: variables[`name${varIndex}`]
+                };
+                return thisResult;
+              }
+              
+            });
+            dimensionResults = dimensionResults.concat(scaffoldedResults);
+          });
+        }
+        catch (e) {
+          console.log("Search Error!");
+        }
+      }
     }
     return dimensionResults;
   }
@@ -117,7 +143,7 @@ class Hero extends Component {
 
   render() {
     const {contents, loading, sources, profile} = this.props;
-    const {images, creditsVisible, searchOpen} = this.state;
+    const {images, creditsVisible, clickedIndex} = this.state;
 
     let title = this.spanifyTitle(profile.title);
     let paragraphs, sourceContent, statContent, subtitleContent;
@@ -266,8 +292,8 @@ class Hero extends Component {
         <Dialog
           title="Search"
           usePortal={false}
-          isOpen={searchOpen}
-          onClose={() => this.setState({searchOpen: false, metaOptions: undefined})}
+          isOpen={clickedIndex !== undefined}
+          onClose={() => this.setState({clickedIndex: undefined})}
         >
           <div style={{color: "black"}}>
             <ProfileSearch
@@ -283,6 +309,10 @@ class Hero extends Component {
     );
   }
 }
+
+Hero.contextTypes = {
+  router: PropTypes.object
+};
 
 export default connect(state => ({
   locale: state.i18n.locale
