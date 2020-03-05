@@ -72,20 +72,31 @@ class Hero extends Component {
     this.setState({clickedIndex: index});
   }
 
+  /**
+   * Users may click the title of a profile to search on that dimension. However, the embedded ProfileSearch component
+   * makes use of the /api/profilesearch (deepsearch) endpoint. That endpoint's main function is to return full profiles,
+   * not search on individual dimensions. However, it does return a "results" key with the raw deepsearch responses, keyed
+   * by dimension. So, when a user is searching, take the relevants results from the raw "results" key, and intelligently 
+   * combine them with the "locked" other member (in the case of bilaterals) to build a full "linkify-able" search Result.
+   */
   formatResults(rawResults) {
     const {clickedIndex} = this.state;
     const {meta, variables} = this.props.profile;
     const {router} = this.context;
     const groupedMeta = groupMeta(meta);
     let dimensionResults = [];
-    if (groupedMeta[clickedIndex]) {
-      const metaOptions = groupedMeta[clickedIndex];
-      if (metaOptions) {
+    if (groupedMeta[clickedIndex] && (groupedMeta.length === 1 || groupedMeta.length === 2)) {
+      // A single "slot" in the meta may have multiple variants - grab all possible variants
+      const metaVariants = groupedMeta[clickedIndex];
+      if (metaVariants) {
         try {
-          const relevantDimensions = Object.keys(rawResults).filter(d => metaOptions.map(m => m.dimension).includes(d));
+          // Filter down to the applicable dimensions - the ones that match any of the possible variants.
+          const relevantDimensions = Object.keys(rawResults).filter(d => metaVariants.map(m => m.dimension).includes(d));
+          // For each relevant dimension of the raw Results, collate linkifyable objects
           relevantDimensions.forEach(dim => {
+            // First make a function that turns a deepsearch result into a linkify object
             const formatFoundResult = d => ({
-              slug: metaOptions.find(m => m.cubeName === d.metadata.cube_name).slug,
+              slug: metaVariants.find(m => m.cubeName === d.metadata.cube_name).slug,
               id: d.metadata.id,
               memberSlug: d.metadata.slug,
               memberDimension: dim,
@@ -93,31 +104,38 @@ class Hero extends Component {
               name: d.name,
               ranking: d.popularity
             });
-            const filteredResults = rawResults[dim].filter(d => metaOptions.map(m => m.cubeName).includes(d.metadata.cube_name));
+            // Only use results that match the possible variants of the meta we are searching on
+            const filteredResults = rawResults[dim].filter(d => metaVariants.map(m => m.cubeName).includes(d.metadata.cube_name));
+            // Remember that the search results only pertain to one dimension
             const scaffoldedResults = filteredResults.map(d => {
+              // If this is a unary profile, just wrap it in an array for linkify, no need for scaffolding
               if (groupedMeta.length === 1) {
                 return [formatFoundResult(d)];
               }
-              else if (groupedMeta.length === 2) {
+              // However if bilateral, scaffold out the other "Fixed" member to fully formulate a link
+              else {  
                 const otherIndex = clickedIndex === 0 ? 1 : 0;
                 const thisResult = [];
                 thisResult[clickedIndex] = formatFoundResult(d);
                 const slugKey = clickedIndex === 0 ? "slug2" : "slug";
                 const varIndex = otherIndex + 1;
+                // use the variables object to scaffold out the "fixed" member
                 thisResult[otherIndex] = {
-                  slug: router.params[slugKey],
+                  slug: router.params[slugKey],  // wondering - is there a better way than params to know what slug we're on?
                   id: variables[`id${varIndex}`],
                   memberSlug: variables[`slug${varIndex}`],
                   memberDimension: variables[`dimension${varIndex}`],
                   memberHierarchy: variables[`hierarchy${varIndex}`],
-                  name: variables[`name${varIndex}`]
+                  name: variables[`name${varIndex}`],
+                  // Copy the other object's ranking and apply it to this one, so the sort below can use [0] no matter the order
+                  ranking: thisResult[clickedIndex].ranking
                 };
                 return thisResult;
               }
-              
             });
             dimensionResults = dimensionResults.concat(scaffoldedResults);
           });
+          dimensionResults.sort((a, b) => b[0].ranking - a[0].ranking);
         }
         catch (e) {
           console.log("Search Error!");
