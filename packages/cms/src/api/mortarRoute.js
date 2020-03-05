@@ -315,7 +315,7 @@ module.exports = function(app) {
         const thisURL = requests[i];
         const thisResult = results[i].data && results[i].data.data ? results[i].data.data : [];
         const paramObject = Object.fromEntries(new URLSearchParams(thisURL));
-        if (paramObject.slugs && thisResult.length > 0 && thisResult.length <= 10) {
+        if (paramObject.slugs && thisResult.length > 0) {
           const pairs = paramObject.slugs.split(",");
           for (const pair of pairs) {
             const dimension = pair.includes(":") ? pair.split(":")[0] : pair;

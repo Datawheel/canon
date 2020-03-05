@@ -485,8 +485,6 @@ If the pieces are the same, one parameter may be used:
 
 `&slugs=Product`
 
-**Warning** This slug parameter **will not work** if your result set has more than 10 elements. Remember to use `limit` to keep your generator calls tiny!
-
 ---
 
 ## Advanced Visualization Techniques
