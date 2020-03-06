@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import {nest} from "d3-collection";
 import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
+import {Dialog} from "@blueprintjs/core";
 
 import stripHTML from "../../utils/formatters/stripHTML";
 import groupMeta from "../../utils/groupMeta";
@@ -14,7 +15,6 @@ import StatGroup from "../Viz/StatGroup";
 import Button from "../fields/Button";
 
 import Parse from "./components/Parse";
-import Dialog from "../interface/Dialog";
 import ProfileSearch from "../fields/ProfileSearch";
 
 import "./Section.css";
@@ -76,7 +76,7 @@ class Hero extends Component {
    * Users may click the title of a profile to search on that dimension. However, the embedded ProfileSearch component
    * makes use of the /api/profilesearch (deepsearch) endpoint. That endpoint's main function is to return full profiles,
    * not search on individual dimensions. However, it does return a "results" key with the raw deepsearch responses, keyed
-   * by dimension. So, when a user is searching, take the relevants results from the raw "results" key, and intelligently 
+   * by dimension. So, when a user is searching, take the relevants results from the raw "results" key, and intelligently
    * combine them with the "locked" other member (in the case of bilaterals) to build a full "linkify-able" search Result.
    */
   formatResults(rawResults) {
@@ -113,7 +113,7 @@ class Hero extends Component {
                 return [formatFoundResult(d)];
               }
               // However if bilateral, scaffold out the other "Fixed" member to fully formulate a link
-              else {  
+              else {
                 const otherIndex = clickedIndex === 0 ? 1 : 0;
                 const thisResult = [];
                 thisResult[clickedIndex] = formatFoundResult(d);
@@ -151,8 +151,8 @@ class Hero extends Component {
     const {name1, name2} = variables;
     if (title) {
       return title
-        .replace(name1, `<span class="cms-title-hover" onClick=titleClick(0)>${name1}</span>`)
-        .replace(name2, `<span class="cms-title-hover" onClick=titleClick(1)>${name2}</span>`);
+        .replace(name1, `<span class="cp-hero-heading-dimension" onClick=titleClick(0)>${name1}</span>`)
+        .replace(name2, `<span class="cp-hero-heading-dimension" onClick=titleClick(1)>${name2}</span>`);
     }
     else {
       return title;
@@ -308,19 +308,16 @@ class Hero extends Component {
           </Fragment> : ""
         }
         <Dialog
-          title="Search"
-          usePortal={false}
+          className="cp-hero-search"
           isOpen={clickedIndex !== undefined}
           onClose={() => this.setState({clickedIndex: undefined})}
         >
-          <div style={{color: "black"}}>
-            <ProfileSearch
-              inputFontSize="md"
-              display="list"
-              mode="dimension"
-              formatResults={this.formatResults.bind(this)}
-            />
-          </div>
+          <ProfileSearch
+            inputFontSize="md"
+            display="list"
+            mode="dimension"
+            formatResults={this.formatResults.bind(this)}
+          />
         </Dialog>
 
       </header>
