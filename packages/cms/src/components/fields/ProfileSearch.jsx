@@ -170,7 +170,7 @@ class ProfileSearch extends Component {
   onChange(e) {
 
     const {timeout} = this.state;
-    const {limit, minQueryLength, showExamples} = this.props;
+    const {limit, minQueryLength, showExamples, formatResults} = this.props;
 
     let query = e ? e.target.value : this.state.query;
     if (query.length < minQueryLength) query = "";
@@ -195,7 +195,10 @@ class ProfileSearch extends Component {
 
           axios.get(url)
             .then(resp => {
-              if (url === this.state.loading) this.setState({results: resp.data, loading: false});
+              if (url === this.state.loading) {
+                resp = formatResults(resp);
+                this.setState({results: resp.data, loading: false});
+              }
             })
             .catch(() => {});
 
@@ -227,7 +230,7 @@ class ProfileSearch extends Component {
 
     const {router} = this.context;
     const {active, loading, query, results} = this.state;
-    const {locale, mode, formatResults} = this.props;
+    const {locale, mode} = this.props;
     const {
       availableProfiles,
       display,
@@ -237,9 +240,6 @@ class ProfileSearch extends Component {
       position,
       profileTitles
     } = this.props;
-
-    let dimensionResults = [];
-    if (mode === "dimension" && formatResults && results && results.results) dimensionResults = formatResults(results.results);
 
     return (
       <div className="cms-profilesearch">
@@ -282,22 +282,10 @@ class ProfileSearch extends Component {
             (position !== "absolute" || active) && results
               ? (() => {
 
-                if (mode === "profile" && !results.grouped.length || mode === "dimension" && !dimensionResults.length) {
+                if (mode === "profile" && !results.grouped.length || mode === "dimension" && !results.length) {
                   return <NonIdealState key="empty" icon="zoom-out" title={`No results matching "${query}"`} />;
                 }
 
-                if (mode === "dimension") {
-                  return <ul key="list" className="cms-profilesearch-list">
-                    {dimensionResults.map((result, j) =>
-                      <li key={`r-${j}`} className="cms-profilesearch-list-item">
-                        <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
-                          {result.map(d => formatTitle(d.name)).join(` ${joiner} `)}
-                          <div className="cms-profilesearch-list-item-sub u-font-xs">{profileTitles[result.map(d => d.slug).join("/")] || formatCategory([result])}</div>
-                        </Link>
-                      </li>
-                    )}
-                  </ul>;
-                }
                 else {
                   switch (display) {
 
@@ -313,8 +301,14 @@ class ProfileSearch extends Component {
                       return <ProfileColumns columnTitles={profileTitles} tileProps={{joiner}} data={columnProfiles} />;
 
                     default:
-                      const listProfiles = (results.grouped || [])
-                        .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
+                      let listProfiles;
+                      if (mode === "dimension") {
+                        listProfiles = results;
+                      }
+                      else { // mode === "profile"
+                        listProfiles = (results.grouped || [])
+                          .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
+                      }
                       return (
                         <ul key="list" className="cms-profilesearch-list">
                           {listProfiles.map((result, j) =>
@@ -359,7 +353,8 @@ ProfileSearch.defaultProps = {
   position: "static",
   profileTitles: {},
   showExamples: false,
-  mode: "profile"
+  mode: "profile",
+  formatResults: resp => resp
 };
 
 export default connect(state => ({

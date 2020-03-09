@@ -79,13 +79,14 @@ class Hero extends Component {
    * by dimension. So, when a user is searching, take the relevants results from the raw "results" key, and intelligently
    * combine them with the "locked" other member (in the case of bilaterals) to build a full "linkify-able" search Result.
    */
-  formatResults(rawResults) {
+  formatResults(resp) {
     const {clickedIndex} = this.state;
     const {meta, variables} = this.props.profile;
     const {router} = this.context;
     const groupedMeta = groupMeta(meta);
     let dimensionResults = [];
     if (groupedMeta[clickedIndex] && (groupedMeta.length === 1 || groupedMeta.length === 2)) {
+      const rawResults = resp.data.results;
       // A single "slot" in the meta may have multiple variants - grab all possible variants
       const metaVariants = groupedMeta[clickedIndex];
       if (metaVariants) {
@@ -142,7 +143,7 @@ class Hero extends Component {
         }
       }
     }
-    return dimensionResults;
+    return Object.assign({}, resp, {data: dimensionResults});
   }
 
   spanifyTitle(title) {
