@@ -277,7 +277,15 @@ module.exports = function(app) {
         smallAttr.userRole = user.role;
       }
       // Fetch Parents
-      const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`).catch(() => {
+      const url = `${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`;
+      const config = {};
+      if (OLAP_PROXY_SECRET) {
+        const jwtPayload = {sub: "server", status: "valid"};
+        if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+        const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+        config.headers = {"x-tesseract-jwt-token": apiToken};
+      }
+      const resp = await axios.get(url, config).catch(() => {
         if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (mortarRoute)");
         return [];
       });

@@ -523,7 +523,15 @@ module.exports = function(app) {
         slug: d.slug
       };
       if (parents && rows.length === 1) {
-        const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${d.cubeName}&${d.hierarchy}=${d.id}:parents`).catch(() => {
+        const url = `${cubeRoot}/relations.jsonrecords?cube=${d.cubeName}&${d.hierarchy}=${d.id}:parents`;
+        const config = {};
+        if (OLAP_PROXY_SECRET) {
+          const jwtPayload = {sub: "server", status: "valid"};
+          if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+          const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+          config.headers = {"x-tesseract-jwt-token": apiToken};
+        }
+        const resp = await axios.get(url, config).catch(() => {
           if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (searchRoute)");
           return [];
         });
