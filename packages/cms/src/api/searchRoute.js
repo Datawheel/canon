@@ -524,7 +524,7 @@ module.exports = function(app) {
       };
       if (parents && rows.length === 1) {
         const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${d.cubeName}&${d.hierarchy}=${d.id}:parents`).catch(() => {
-          if (verbose) console.log("Warning: Parent endpoint misconfigured or not available");
+          if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (searchRoute)");
           return [];
         });
         if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {

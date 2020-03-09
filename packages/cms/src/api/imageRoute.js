@@ -26,7 +26,7 @@ const getParentMemberWithImage = async(db, member, meta) => {
   const {dimension, cubeName} = meta;
   if (cubeName) {
     const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:parents`).catch(() => {
-      if (verbose) console.log("Warning: Parent endpoint misconfigured or not available");
+      if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (imageRoute)");
       return [];
     });
     if (resp.data && resp.data.data && resp.data.data.length > 0) {

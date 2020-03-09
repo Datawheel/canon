@@ -278,7 +278,7 @@ module.exports = function(app) {
       }
       // Fetch Parents
       const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`).catch(() => {
-        if (verbose) console.log("Warning: Parent endpoint misconfigured or not available");
+        if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (mortarRoute)");
         return [];
       });
       if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
