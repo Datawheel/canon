@@ -14,7 +14,7 @@ if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
 // in populateSearch will be made from the default language content.
 LANGUAGES.sort(a => a === envLoc ? -1 : 1);
 
-const {CANON_CMS_CUBES, OLAP_PROXY_SECRET} = process.env;
+const {CANON_CMS_CUBES, OLAP_PROXY_SECRET, CANON_CMS_MINIMUM_ROLE} = process.env;
 
 /**
  * There is not a fully-featured way for olap-client to know the difference between a
@@ -25,7 +25,9 @@ const client = new Client();
 
 const config = {url: CANON_CMS_CUBES};
 if (OLAP_PROXY_SECRET) {
-  const apiToken = jwt.sign({sub: "server", status: "valid"}, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+  const jwtPayload = {sub: "server", status: "valid"};
+  if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+  const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
   config.headers = {"x-tesseract-jwt-token": apiToken};
 }
 

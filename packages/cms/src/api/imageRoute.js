@@ -1,11 +1,14 @@
 const axios = require("axios");
 const sequelize = require("sequelize");
 const yn = require("yn");
+const jwt = require("jsonwebtoken");
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 let cubeRoot = process.env.CANON_CMS_CUBES;
 if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
+
+const {OLAP_PROXY_SECRET, CANON_CMS_MINIMUM_ROLE} = process.env;
 
 const catcher = e => {
   if (verbose) {
@@ -25,7 +28,15 @@ const getParentMemberWithImage = async(db, member, meta) => {
   const {id, hierarchy} = member;
   const {dimension, cubeName} = meta;
   if (cubeName) {
-    const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:parents`).catch(() => {
+    const url = `${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:parents`;
+    const config = {};
+    if (OLAP_PROXY_SECRET) {
+      const jwtPayload = {sub: "server", status: "valid"};
+      if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+      const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+      config.headers = {"x-tesseract-jwt-token": apiToken};
+    }
+    const resp = await axios.get(url, config).catch(() => {
       if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (imageRoute)");
       return [];
     });
