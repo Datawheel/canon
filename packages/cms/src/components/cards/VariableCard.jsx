@@ -25,7 +25,8 @@ class VariableCard extends Component {
       secondaryDisplayData: null,
       alertObj: false,
       isDirty: false,
-      dupes: []
+      dupes: [],
+      size: 0
     };
   }
 
@@ -71,6 +72,7 @@ class VariableCard extends Component {
     const {id} = this.props.minData;
     let displayData, secondaryDisplayData = {};
     let dupes = [];
+    let size = 0;
     if (type === "generator") {
       displayData = variables._genStatus[id];
       if (localeSecondary) {
@@ -93,9 +95,10 @@ class VariableCard extends Component {
           type === "generator" || String(id) !== String(_id) ? Object.assign({}, acc, variables._matStatus[_id]) : acc, {});
         const thoseVars = {...otherGens, ...otherMats};
         dupes = dupes.concat(Object.keys(theseVars).reduce((acc, k) => thoseVars[k] !== undefined ? acc.concat(k) : acc, []));
+        size = JSON.stringify(theseVars).length;
       }
     }
-    this.setState({displayData, secondaryDisplayData, dupes});
+    this.setState({displayData, secondaryDisplayData, dupes, size});
   }
 
   maybeDelete() {
@@ -157,7 +160,7 @@ class VariableCard extends Component {
   render() {
     const {attr, readOnly, minData, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary, variables} = this.props.status;
-    const {displayData, secondaryDisplayData, isOpen, alertObj, dupes} = this.state;
+    const {displayData, secondaryDisplayData, isOpen, alertObj, dupes, size} = this.state;
 
     let description = "";
     let showDesc = false;
@@ -241,6 +244,11 @@ class VariableCard extends Component {
           {dupes.length > 0 &&
             <p className="cms-card-error u-font-xxs u-margin-top-xs">
               <Icon className="cms-card-error-icon" icon="warning-sign" /> Highlighted variables conflict with another generator or materializer
+            </p>
+          }
+          {size > 10000 && 
+            <p className="cms-card-error u-font-xxs u-margin-top-xs">
+              <Icon className="cms-card-error-icon" icon="warning-sign" /> Large Generator Warning! {size} characters.
             </p>
           }
         </Card>
