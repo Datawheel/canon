@@ -293,7 +293,7 @@ module.exports = function(app) {
     /** */
     function createGeneratorFetch(r, attr) {
       // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
-      const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+      const origin = `${ req.protocol }://${ req.headers.host }`;
       let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
       if (url.indexOf("http") !== 0) {
         url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
@@ -344,7 +344,7 @@ module.exports = function(app) {
       }
       catch (e) {
         if (verbose) console.error(`Slug lookup failed. ${e}`);
-      }      
+      }
     }
 
     // Seed the return variables with the stripped-down attr object
@@ -434,7 +434,7 @@ module.exports = function(app) {
     // take an arbitrary-length query of slugs and ids and turn them into objects
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const locale = req.query.locale || envLoc;
-    const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+    const origin = `${ req.protocol }://${ req.headers.host }`;
     const localeString = `?locale=${locale}`;
 
     const dims = collate(req.query);

@@ -98,11 +98,11 @@ export default function(defaultStore = {}, headerConfig, reduxMiddleware = false
       basename,
       host: req.headers.host,
       hostname: req.headers.host.split(":")[0],
-      href: `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }${ req.url }`,
-      origin: `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`,
+      href: `${ req.protocol }://${ req.headers.host }${ req.url }`,
+      origin: `${ req.protocol }://${ req.headers.host }`,
       pathname: req.url.split("?")[0],
       port: req.headers.host.includes(":") ? req.headers.host.split(":")[1] : "80",
-      protocol: `http${ req.connection.encrypted ? "s" : "" }:`,
+      protocol: `${ req.protocol }:`,
       query: req.query,
       search: req.url.includes("?") ? `?${req.url.split("?")[1]}` : ""
     };

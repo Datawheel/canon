@@ -116,7 +116,7 @@ module.exports = function(app) {
 
           if (error) return err(error);
 
-          const url = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+          const url = `${ req.protocol }://${ req.headers.host }`;
 
           const translationVariables = {
             confirmLink: `${url}${activationRoute}?email=${email}&token=${activateToken}`,
@@ -215,7 +215,7 @@ module.exports = function(app) {
 
                   if (error) return res.json({error});
 
-                  const url = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+                  const url = `${ req.protocol }://${ req.headers.host }`;
 
                   const translationVariables = {
                     resetLink: `${url}${resetRoute}?token=${user.resetToken}`,
