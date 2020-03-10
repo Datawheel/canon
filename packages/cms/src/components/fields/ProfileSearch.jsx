@@ -230,7 +230,7 @@ class ProfileSearch extends Component {
 
     const {router} = this.context;
     const {active, loading, query, results} = this.state;
-    const {locale, mode} = this.props;
+    const {locale} = this.props;
     const {
       availableProfiles,
       display,
@@ -282,7 +282,7 @@ class ProfileSearch extends Component {
             (position !== "absolute" || active) && results
               ? (() => {
 
-                if (mode === "profile" && !results.grouped.length || mode === "dimension" && !results.length) {
+                if (!results.grouped.length) {
                   return <NonIdealState key="empty" icon="zoom-out" title={`No results matching "${query}"`} />;
                 }
 
@@ -301,14 +301,8 @@ class ProfileSearch extends Component {
                       return <ProfileColumns columnTitles={profileTitles} tileProps={{joiner}} data={columnProfiles} />;
 
                     default:
-                      let listProfiles;
-                      if (mode === "dimension") {
-                        listProfiles = results;
-                      }
-                      else { // mode === "profile"
-                        listProfiles = (results.grouped || [])
-                          .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
-                      }
+                      const listProfiles = (results.grouped || [])
+                        .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
                       return (
                         <ul key="list" className="cms-profilesearch-list">
                           {listProfiles.map((result, j) =>
@@ -353,7 +347,6 @@ ProfileSearch.defaultProps = {
   position: "static",
   profileTitles: {},
   showExamples: false,
-  mode: "profile",
   formatResults: resp => resp
 };
 
