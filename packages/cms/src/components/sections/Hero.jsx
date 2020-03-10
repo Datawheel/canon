@@ -143,7 +143,7 @@ class Hero extends Component {
         }
       }
     }
-    return Object.assign({}, resp, {data: dimensionResults});
+    return Object.assign({}, resp, {data: {grouped: dimensionResults}});
   }
 
   spanifyTitle(title) {
@@ -316,7 +316,6 @@ class Hero extends Component {
           <ProfileSearch
             inputFontSize="md"
             display="list"
-            mode="dimension"
             formatResults={this.formatResults.bind(this)}
           />
         </Dialog>
