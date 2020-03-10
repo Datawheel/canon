@@ -230,7 +230,7 @@ class ProfileSearch extends Component {
 
     const {router} = this.context;
     const {active, loading, query, results} = this.state;
-    const {locale} = this.props;
+    const {locale, placeholder} = this.props;
     const {
       availableProfiles,
       display,
@@ -253,7 +253,7 @@ class ProfileSearch extends Component {
           {/* the input */}
           <input
             className={`cp-input u-font-${inputFontSize}`}
-            placeholder="Search profiles..."
+            placeholder={placeholder}
             value={query}
             onChange={this.onChange.bind(this)}
             onFocus={this.onFocus.bind(this)}
@@ -344,6 +344,7 @@ ProfileSearch.defaultProps = {
   joiner: "&",
   limit: 10,
   minQueryLength: 1,
+  placeholder: "Search...",
   position: "static",
   profileTitles: {},
   showExamples: false,

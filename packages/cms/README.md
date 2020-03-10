@@ -413,6 +413,7 @@ import {ProfileSearch} from "@datawheel/canon-cms";
   joiner={"&"} // the character used when joining titles in multi-dimensional profiles
   limit={10} // how many results to show
   minQueryLength={1} // when the search query is below this number, no API requests will be made
+  placeholder={"Search..."} // the placeholder text in the input element
   position={"static"} // either "static" or "absolute" (for a pop-up result window)
   profileTitles={{}} // overrides for the default profile display titles (ie. {hs92: "Products"})
   showExamples={false} // setting this to `true` will display results when no query has been entered
@@ -434,7 +435,7 @@ Results will be returned in a response object that includes metadata on the resu
 
 ## Advanced Generator Techniques
 
-For complex generator calls, crafting an API URL using dynamic properties of the current member can be difficult. 
+For complex generator calls, crafting an API URL using dynamic properties of the current member can be difficult.
 
 ### Using Member Attributes in API Calls
 
