@@ -70,6 +70,9 @@ class Hero extends Component {
 
   titleClick(index) {
     this.setState({clickedIndex: index});
+    setTimeout(() => {
+      document.querySelector(".cp-hero-search .cp-input").focus();
+    }, 300);
   }
 
   /**
