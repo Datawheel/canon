@@ -163,6 +163,7 @@ class Hero extends Component {
   render() {
     const {contents, loading, sources, profile} = this.props;
     const {images, creditsVisible, clickedIndex} = this.state;
+    const {searchProps} = this.context;
 
     let title = this.spanifyTitle(profile.title);
     let paragraphs, sourceContent, statContent, subtitleContent;
@@ -317,6 +318,7 @@ class Hero extends Component {
             inputFontSize="md"
             display="list"
             formatResults={this.formatResults.bind(this)}
+            {...searchProps}
           />
         </Dialog>
 
@@ -326,7 +328,8 @@ class Hero extends Component {
 }
 
 Hero.contextTypes = {
-  router: PropTypes.object
+  router: PropTypes.object,
+  searchProps: PropTypes.object
 };
 
 export default connect(state => ({

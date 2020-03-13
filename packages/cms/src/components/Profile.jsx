@@ -7,9 +7,10 @@ import ProfileRenderer from "./ProfileRenderer";
 
 class Profile extends Component {
   getChildContext() {
-    const {router} = this.props;
+    const {router, searchProps} = this.props;
     return {
-      router
+      router,
+      searchProps
     };
   }
 
@@ -26,13 +27,18 @@ class Profile extends Component {
   }
 }
 
+Profile.defaultProps = {
+  searchProps: {}
+};
+
 Profile.need = [
   fetchData("profile", "/api/profile/?slug=<slug>&id=<id>&slug2=<slug2>&id2=<id2>&slug3=<slug3>&id3=<id3>&locale=<i18n.locale>"),
   fetchData("formatters", "/api/formatters")
 ];
 
 Profile.childContextTypes = {
-  router: PropTypes.object
+  router: PropTypes.object,
+  searchProps: PropTypes.object
 };
 
 export default connect(state => ({
