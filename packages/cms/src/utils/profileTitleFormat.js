@@ -11,19 +11,3 @@ export function formatTitle(title) {
   if (allLowercase || allUppercase) return titleCase(title);
   return title;
 }
-
-/** Creates profile-type titles */
-export function formatCategory(data) {
-  return data[0].map(d => {
-    let slug = d.slug;
-    const dim = d.memberDimension;
-    if (data[0].length === 1 && dim.toLowerCase() !== slug.toLowerCase()) {
-      if (slug && slug.match(/[A-z]{1,}/g).join("").length < 4) {
-        slug = slug.toUpperCase();
-      }
-      else slug = titleCase(slug);
-      return `${dim} (${slug})`;
-    }
-    return dim;
-  }).join("/");
-}

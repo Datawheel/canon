@@ -5,7 +5,7 @@ import {Link} from "react-router";
 import axios from "axios";
 import "./ProfileSearch.css";
 import linkify from "../../utils/linkify";
-import {formatCategory, formatTitle} from "../../utils/profileTitleFormat";
+import {formatTitle} from "../../utils/profileTitleFormat";
 import {Icon, NonIdealState, Spinner} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
 import {event, select} from "d3-selection";
@@ -233,12 +233,13 @@ class ProfileSearch extends Component {
     const {locale, placeholder} = this.props;
     const {
       availableProfiles,
+      columnTitles,
       display,
       columnOrder,
       inputFontSize,
       joiner,
       position,
-      profileTitles
+      subtitleFormat
     } = this.props;
 
     return (
@@ -298,7 +299,7 @@ class ProfileSearch extends Component {
                           return aIndex - bIndex;
                         })
                         .map(profile => results.profiles[profile] || []);
-                      return <ProfileColumns columnTitles={profileTitles} tileProps={{joiner}} data={columnProfiles} />;
+                      return <ProfileColumns columnFormat={subtitleFormat} columnTitles={columnTitles} joiner={joiner} tileProps={{joiner, subtitleFormat}} data={columnProfiles} />;
 
                     default:
                       const listProfiles = (results.grouped || [])
@@ -308,8 +309,8 @@ class ProfileSearch extends Component {
                           {listProfiles.map((result, j) =>
                             <li key={`r-${j}`} className="cms-profilesearch-list-item">
                               <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
-                                {result.map(d => formatTitle(d.name)).join(` ${joiner} `)}
-                                <div className="cms-profilesearch-list-item-sub u-font-xs">{profileTitles[result.map(d => d.slug).join("/")] || formatCategory([result])}</div>
+                                {result.map(d => formatTitle(d.name)).join(joiner)}
+                                <div className="cms-profilesearch-list-item-sub u-font-xs">{result.map(subtitleFormat).join(joiner)}</div>
                               </Link>
                             </li>
                           )}
@@ -339,15 +340,16 @@ ProfileSearch.defaultProps = {
   activateKey: false,
   availableProfiles: [],
   columnOrder: [],
+  columnTitles: {},
   display: "list",
   inputFontSize: "xxl",
-  joiner: "&",
+  joiner: " & ",
   limit: 10,
   minQueryLength: 1,
   placeholder: "Search...",
   position: "static",
-  profileTitles: {},
   showExamples: false,
+  subtitleFormat: d => d.memberHierarchy,
   formatResults: resp => resp
 };
 

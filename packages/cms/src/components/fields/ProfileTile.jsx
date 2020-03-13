@@ -5,6 +5,7 @@ import {Link} from "react-router";
 import linkify from "../../utils/linkify";
 import {formatTitle} from "../../utils/profileTitleFormat";
 import {max} from "d3-array";
+import {trim} from "d3plus-text";
 import "./ProfileTile.css";
 
 /** Determines font-size based on title */
@@ -25,7 +26,8 @@ class ProfileTile extends Component {
 
     const {
       data,
-      joiner
+      joiner,
+      subtitleFormat
     } = this.props;
 
     return (
@@ -35,10 +37,10 @@ class ProfileTile extends Component {
             const title = formatTitle(r.name);
             return (
               <React.Fragment key={`tile-entity-${i}`}>
-                { i > 0 && <span className="cms-profilesearch-tile-link-joiner u-font-md">{joiner}</span> }
+                { i > 0 && <span className="cms-profilesearch-tile-link-joiner u-font-md">{trim(joiner)}</span> }
                 <div className="cms-profilesearch-tile-link-text">
                   <div className={`cms-profilesearch-tile-link-title heading u-font-${titleSize(title)}`}>{title}</div>
-                  <div className="cms-profilesearch-tile-link-sub u-margin-top-xs u-font-xs">{r.memberHierarchy}</div>
+                  <div className="cms-profilesearch-tile-link-sub u-margin-top-xs u-font-xs">{subtitleFormat(r)}</div>
                 </div>
               </React.Fragment>
             );
@@ -60,7 +62,8 @@ ProfileTile.contextTypes = {
 };
 
 ProfileTile.defaultProps = {
-  joiner: "&"
+  joiner: " & ",
+  subtitleFormat: d => d.memberHierarchy
 };
 
 export default connect(state => ({
