@@ -269,10 +269,17 @@ module.exports = function(app) {
           order: [["zvalue", "DESC NULLS LAST"]],
           limit
         });
-        rows.forEach(row => {
-          if (!results.results[row.dimension]) results.results[row.dimension] = [];
-          results.results[row.dimension].push(rowToResult(row));
+        if (!results.results[dc.dimension]) results.results[dc.dimension] = [];
+        let fixedRows = rows.map(d => rowToResult(d));
+        const max = await db.search.findOne({
+          where: {dimension: dc.dimension, cubeName: dc.cubeName},
+          order: [["zvalue", "DESC NULLS LAST"]]
         });
+        if (max && fixedRows && fixedRows.length > 0) {
+          const maxZ = max.zvalue;
+          fixedRows = fixedRows.map(d => ({...d, confidence: d.confidence / maxZ}));
+        }
+        results.results[dc.dimension] = results.results[dc.dimension].concat(fixedRows);
       }
     }
     else {
@@ -394,7 +401,15 @@ module.exports = function(app) {
       const filteredResults = combinedResults.filter(singleFilter);
 
       // Save the results under a slug key for the separated-out search results.
-      if (filteredResults.length > 0) results.profiles[slug] = filteredResults.slice(0, limit);
+      if (filteredResults.length > 0) {
+        results.profiles[slug] = filteredResults
+          .map(d => {
+            const avg = d.reduce((acc, d) => acc += d.ranking, 0) / d.length;
+            return d.map(o => ({...o, avg}));
+          })
+          .sort((a, b) => b[0].avg - a[0].avg)
+          .slice(0, limit);
+      }
       // Also, combine the results together for grouped results, sorted by the avg of their confidence score.
       results.grouped = results.grouped
         .concat(filteredResults)
