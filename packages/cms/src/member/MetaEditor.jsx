@@ -260,8 +260,13 @@ class MetaEditor extends Component {
     const links = [];
     const relevantPids = metaData.filter(p => p.cubeName === member.cubeName).map(d => d.profile_id);
     relevantPids.forEach(pid => {
-      const relevantProfile = metaData.filter(p => p.profile_id === pid).sort((a, b) => a.ordering - b.ordering);
-      links.push(`/profile/${relevantProfile.map(p => `${p.slug}/${member.dimension === p.dimension ? member.id : p.top.id}`).join("/")}`);
+      const possibleDimensions = metaData.filter(p => p.profile_id === pid);
+      if (possibleDimensions && possibleDimensions.map(d => d.ordering).every(d => d === 0)) {
+        const relevantDimensions = possibleDimensions.filter(d => d.cubeName === member.cubeName);
+        relevantDimensions.forEach(dimension => {
+          links.push(`/profile/${dimension.slug}/${member.id}`);  
+        });
+      }
     });
     return links;
   }
