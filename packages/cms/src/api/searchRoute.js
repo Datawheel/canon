@@ -269,17 +269,10 @@ module.exports = function(app) {
           order: [["zvalue", "DESC NULLS LAST"]],
           limit
         });
-        if (!results.results[dc.dimension]) results.results[dc.dimension] = [];
-        let fixedRows = rows.map(d => rowToResult(d));
-        const max = await db.search.findOne({
-          where: {dimension: dc.dimension, cubeName: dc.cubeName},
-          order: [["zvalue", "DESC NULLS LAST"]]
+        rows.forEach(row => {
+          if (!results.results[row.dimension]) results.results[row.dimension] = [];
+          results.results[row.dimension].push(rowToResult(row));
         });
-        if (max && fixedRows && fixedRows.length > 0) {
-          const maxZ = max.zvalue;
-          fixedRows = fixedRows.map(d => ({...d, confidence: d.confidence / maxZ}));
-        }
-        results.results[dc.dimension] = results.results[dc.dimension].concat(fixedRows);
       }
     }
     else {
