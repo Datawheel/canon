@@ -364,11 +364,11 @@ module.exports = function(app) {
       // Build the return object using a reducer, one generator at a time
       returnVariables = requiredGenerators.reduce((acc, g) => {
         const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale, smallAttr);
-        const {vars} = evalResults;
+        if (typeof evalResults.vars !== "object") evalResults.vars = {};
         // genStatus is used to track the status of each individual generator
         genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
         // Fold the generated variables into the accumulating returnVariables
-        return {...acc, ...vars};
+        return {...acc, ...evalResults.vars};
       }, returnVariables);
     });
     // Set genstatus for all ids
@@ -396,9 +396,9 @@ module.exports = function(app) {
     const matStatus = {};
     returnVariables = materializers.reduce((acc, m) => {
       const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions, locale);
-      const {vars} = evalResults;
+      if (typeof evalResults.vars !== "object") evalResults.vars = {};
       matStatus[m.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
-      return {...acc, ...vars};
+      return {...acc, ...evalResults.vars};
     }, returnVariables);
     returnVariables._matStatus = matStatus;
     return returnVariables;
