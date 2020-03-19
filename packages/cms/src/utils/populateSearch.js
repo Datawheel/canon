@@ -82,6 +82,10 @@ const formatter = (members, data, dimension, level) => {
   const st = d3Array.deviation(newData, d => d.zvalue);
   const average = d3Array.median(newData, d => d.zvalue);
   newData.forEach(d => d.zvalue = (d.zvalue - average) / st);
+  // Normalize z-values
+  const max = d3Array.max(newData, d => d.zvalue);
+  const min = d3Array.min(newData, d => d.zvalue);
+  newData.forEach(d => d.zvalue = (d.zvalue - min) / (max - min));
   return newData;
 };
 
