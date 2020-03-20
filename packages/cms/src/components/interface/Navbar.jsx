@@ -136,7 +136,12 @@ class Navbar extends Component {
 
   // create a title by joining dimensions together
   makeTitleFromDimensions(entity) {
-    if (entity.meta && entity.meta.length) {
+    const {localeDefault} = this.props.status;
+    const defCon = entity.content.find(c => c.locale === localeDefault);
+    if (defCon && defCon.label && defCon.label !== "New Profile Label") {
+      return stripHTML(defCon.label);
+    }
+    else if (entity.meta && entity.meta.length) {
       const groupedMeta = groupMeta(entity.meta);
       return groupedMeta.length > 0 ? groupedMeta.map(g => g[0] ? g[0].slug : "ERR_META").join(" / ") : "Unnamed";      
     }

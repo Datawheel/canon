@@ -245,8 +245,8 @@ class TextCard extends Component {
     const minDataState = this.state.minData;
 
     const entityList = ["profile", "section", "story", "storysection"];
-    const availableFields = ["id", "locale", "image", "profile_id", "allowed", "date", "ordering", "slug", "label", "type"];
-    const displaySort = ["title", "value", "subtitle", "description", "tooltip", "short"];
+    const availableFields = ["id", "locale", "image", "profile_id", "allowed", "date", "ordering", "slug", "type"];
+    const displaySort = ["title", "value", "subtitle", "description", "tooltip", "short", "label"];
 
     const primaryDisplay = Object.keys(primaryDisplayData)
       .filter(k => typeof primaryDisplayData[k] === "string" && !availableFields.includes(k))
