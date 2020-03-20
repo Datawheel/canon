@@ -40,7 +40,7 @@ class ProfileEditor extends Component {
           cards={
             <TextCard
               minData={minData}
-              fields={["title", "subtitle"]}
+              fields={["title", "subtitle", "label"]}
               type="profile"
               hideAllowed={true}
             />
