@@ -43,7 +43,16 @@ class ProfileRenderer extends Component {
   }
 
   componentDidMount() {
-    if (!this.props.auth.user) this.props.isAuthenticated();
+    if (!this.props.auth.user) {
+      this.props.isAuthenticated();
+    }
+    // If the component is mounting and we already have a user, then this pageload is coming from a react-router link.
+    // The credentials for the user must be folded in to the variables payload (similar to initial login in componentDidUpdate)
+    else {
+      const {user} = this.props.auth;
+      const userRole = user.role;
+      this.onSetVariables.bind(this)({user, userRole}, true);
+    }
     if (isIE) this.setState({isIE: true});
   }
 
