@@ -564,19 +564,40 @@ module.exports = function(app) {
             catch (e) {
               if (verbose) console.error(`Error in neighbor dimension lookup: ${e}`);
             }
-            // Now that we have a correct hierarchy/level, query the neighbors endpoint
-            const neighbors = await axios
-              .get(`${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`)
-              .then(d => d.data.data)
-              .catch(catcher);
-            // Fetch the FULL members for each neighbor and collate them by dimension slug
-            for (const neighbor of neighbors) {
-              const member = await db.search.findOne({
-                where: {id: neighbor.value, dimension, cubeName},
-                include: [{association: "content"}]
-              }).catch(catcher);
-              if (member) neighborsByDimSlug[dim.slug].push(member.toJSON());
+            const getNeighborsForId = async id => {
+              const members = [];
+              // Now that we have a correct hierarchy/level, query the neighbors endpoint
+              const neighbors = await axios
+                .get(`${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`)
+                .then(d => d.data.data)
+                .catch(catcher);
+              // Fetch the FULL members for each neighbor and collate them by dimension slug
+              for (const neighbor of neighbors) {
+                const member = await db.search.findOne({
+                  where: {id: neighbor.value, dimension, cubeName},
+                  include: [{association: "content"}]
+                }).catch(catcher);
+                if (member) {
+                  // Some of the neighbors may have had {show:false} added to their attributes, don't show these
+                  const hidden = member.content.map(d => d.attr).some(d => d && d.show !== undefined && d.show === false);
+                  if (!hidden) members.push(member.toJSON());
+                }
+              }
+              return members;
+            };
+            const potentialNeighbors = await getNeighborsForId(id);
+            // If the neighbors length has been lessened due to {show:false} neighbors, try to "pad it out"
+            // with one additional neighbor lookup of the first member and attempt to fold these in.
+            if (potentialNeighbors.length < 4 && potentialNeighbors[0]) {
+              const {id} = potentialNeighbors[0];
+              const newNeighbors = await getNeighborsForId(id);
+              newNeighbors.forEach(nn => {
+                if (potentialNeighbors.length < 4 && !potentialNeighbors.map(d => d.id).includes(nn.id)) {
+                  potentialNeighbors.push(nn);
+                }
+              });
             }
+            neighborsByDimSlug[dim.slug] = neighborsByDimSlug[dim.slug].concat(potentialNeighbors);
           }
         }
         else {
@@ -584,7 +605,7 @@ module.exports = function(app) {
           return res.json({error: `Member not found for id: ${dim.id}`});
         }
       }
-      // todo tomorrow - catch for no neighbors ?
+      // todo - catch for no neighbors ?
       returnObject.neighbors = [];
       // Using the now-populated neighborsByDimSlug, construct a "neighbors" array filled
       // with profile objects that can be linkify'd on the front end
