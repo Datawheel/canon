@@ -1,3 +1,5 @@
+/* global __TIMESTAMP__ */
+
 import React from "react";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
@@ -162,7 +164,7 @@ export default function(defaultStore = {}, headerConfig, reduxMiddleware = false
     ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
 
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/normalize.css'>
-    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css'>
+    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css?v${__TIMESTAMP__}'>
     ${hotjarScript}
   </head>
   <body>
@@ -176,7 +178,7 @@ export default function(defaultStore = {}, headerConfig, reduxMiddleware = false
       window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
     </script>
     ${analtyicsScript}
-    <script type="text/javascript" charset="utf-8" src="${ process.env.CANON_BASE_URL ? "" : "/" }assets/app.js"></script>
+    <script type="text/javascript" charset="utf-8" src="${ process.env.CANON_BASE_URL ? "" : "/" }assets/app.js?v${__TIMESTAMP__}"></script>
 
   </body>
 </html>`);
