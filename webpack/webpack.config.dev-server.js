@@ -43,6 +43,6 @@ module.exports = {
       .reduce((d, k) => {
         d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
         return d;
-      }, {__DEV__: true, __SERVER__: true}))
+      }, {__DEV__: true, __SERVER__: true, __TIMESTAMP__: new Date().getTime()}))
   ]
 };

@@ -11,6 +11,7 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
+const timestamp = new Date().getTime();
 
 module.exports = [
   {
@@ -42,7 +43,7 @@ module.exports = [
         .reduce((d, k) => {
           d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
           return d;
-        }, {__DEV__: false, __SERVER__: false})),
+        }, {__DEV__: false, __SERVER__: false, __TIMESTAMP__: timestamp})),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"}),
       new BundleAnalyzerPlugin({
         analyzerMode: "static",
@@ -81,7 +82,7 @@ module.exports = [
         .reduce((d, k) => {
           d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
           return d;
-        }, {__DEV__: false, __SERVER__: true})),
+        }, {__DEV__: false, __SERVER__: true, __TIMESTAMP__: timestamp})),
       new webpack.IgnorePlugin(/vertx/),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"}),
       new BundleAnalyzerPlugin({
