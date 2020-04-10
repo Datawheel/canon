@@ -111,11 +111,11 @@ class ProfileRenderer extends Component {
     const {profile, selectors, setVarsLoading} = this.state;
     const {id, variables} = profile;
     const {locale, sectionID} = this.props;
+    const {params} = this.context.router;
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
     // loop by checking if the vars are in there already, only updating if they are not yet set.
-    // const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
-    const alreadySet = false;
+    const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
     if (!setVarsLoading && !alreadySet) {
       this.setState({setVarsLoading: true});
       const payload = {variables: Object.assign({}, variables, newVariables)};
@@ -125,6 +125,8 @@ class ProfileRenderer extends Component {
       // If forceMats is true, this was called due to a user login. Run Materializers again.
       if (forceMats) url += "&forceMats=true";
       // Provide some uniqueness tokens so that the url for slug/id/role POSTs can be cached
+      url += `&tokenSlug=${params.slug}&tokenId=${params.id}`;
+      if (params.slug2 && params.id2) url += `&tokenSlug2=${params.slug2}&tokenId2=${params.id2}`;
       const {user, _matStatus, _genStatus, ...variablesWithoutUser} = payload.variables; // eslint-disable-line
       const hash = hashCode(JSON.stringify(variablesWithoutUser));
       url += `&token=${hash}`;
@@ -139,6 +141,7 @@ class ProfileRenderer extends Component {
     const {profile, selectors} = this.state;
     const {id, variables} = profile;
     const {locale, sectionID} = this.props;
+    const {params} = this.context.router;
 
     if (value instanceof Array && !value.length) delete selectors[name];
     else selectors[name] = value;
@@ -149,6 +152,8 @@ class ProfileRenderer extends Component {
     if (Object.keys(selectors).length > 0) url += `&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
     if (sectionID) url += `&section=${sectionID}`;
     // Provide some uniqueness tokens so that the url for slug/id/role POSTs can be cached
+    url += `&tokenSlug=${params.slug}&tokenId=${params.id}`;
+    if (params.slug2 && params.id2) url += `&tokenSlug2=${params.slug2}&tokenId2=${params.id2}`;
     const {user, _matStatus, _genStatus, ...variablesWithoutUser} = payload.variables; // eslint-disable-line
     const hash = hashCode(JSON.stringify(variablesWithoutUser));
     url += `&token=${hash}`;
