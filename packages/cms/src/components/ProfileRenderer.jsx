@@ -15,6 +15,7 @@ import SectionGrouping from "./sections/components/SectionGrouping";
 import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
+import hashCode from "../utils/hashCode.js";
 
 import deepClone from "../utils/deepClone.js";
 
@@ -113,13 +114,20 @@ class ProfileRenderer extends Component {
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
     // loop by checking if the vars are in there already, only updating if they are not yet set.
-    const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
+    // const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
+    const alreadySet = false;
     if (!setVarsLoading && !alreadySet) {
       this.setState({setVarsLoading: true});
-      let url = `/api/profile?profile=${id}&locale=${locale}&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
-      if (sectionID) url += `&section=${sectionID}`;
-      if (forceMats) url += "&forceMats=true";
       const payload = {variables: Object.assign({}, variables, newVariables)};
+      let url = `/api/profile?profile=${id}&locale=${locale}`;
+      if (Object.keys(selectors).length > 0) url += `&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
+      if (sectionID) url += `&section=${sectionID}`;
+      // If forceMats is true, this was called due to a user login. Run Materializers again.
+      if (forceMats) url += "&forceMats=true";
+      // Provide some uniqueness tokens so that the url for slug/id/role POSTs can be cached
+      const {user, _matStatus, _genStatus, ...variablesWithoutUser} = payload.variables; // eslint-disable-line
+      const hash = hashCode(JSON.stringify(variablesWithoutUser));
+      url += `&token=${hash}`;
       axios.post(url, payload)
         .then(resp => {
           this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, setVarsLoading: false});
@@ -136,9 +144,14 @@ class ProfileRenderer extends Component {
     else selectors[name] = value;
 
     this.setState({loading: true, selectors});
-    let url = `/api/profile?profile=${id}&locale=${locale}&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
-    if (sectionID) url += `&section=${sectionID}`;
     const payload = {variables};
+    let url = `/api/profile?profile=${id}&locale=${locale}`;
+    if (Object.keys(selectors).length > 0) url += `&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
+    if (sectionID) url += `&section=${sectionID}`;
+    // Provide some uniqueness tokens so that the url for slug/id/role POSTs can be cached
+    const {user, _matStatus, _genStatus, ...variablesWithoutUser} = payload.variables; // eslint-disable-line
+    const hash = hashCode(JSON.stringify(variablesWithoutUser));
+    url += `&token=${hash}`;
     axios.post(url, payload)
       .then(resp => {
         this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, loading: false});
