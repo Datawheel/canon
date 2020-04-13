@@ -17,6 +17,15 @@ class Profile extends Component {
   render() {
     const {profile, formatters, locale} = this.props;
 
+    if (profile.error) {
+      if (profile.errorCode === 404) {
+        return <div>404</div>;
+      }
+      else {
+        return <div>{`An unspecified error occurred: ${profile.error}`}</div>;
+      }
+    }
+
     return (
       <ProfileRenderer
         profile={profile}
