@@ -4,6 +4,8 @@ import {connect} from "react-redux";
 import {fetchData} from "@datawheel/canon-core";
 import PropTypes from "prop-types";
 import ProfileRenderer from "./ProfileRenderer";
+import {NonIdealState} from "@blueprintjs/core";
+import "./Profile.css";
 
 class Profile extends Component {
   getChildContext() {
@@ -18,12 +20,18 @@ class Profile extends Component {
     const {profile, formatters, locale} = this.props;
 
     if (profile.error) {
-      if (profile.errorCode === 404) {
-        return <div>404</div>;
-      }
-      else {
-        return <div>{`An unspecified error occurred: ${profile.error}`}</div>;
-      }
+      const {error, errorCode} = profile;
+      const errorMessages = {
+        404: "Page Not Found"
+      };
+      return (
+        <NonIdealState
+          className="cp-error"
+          icon="error"
+          title={errorMessages[errorCode] || `Error: ${errorCode}`}
+          description={error}
+        />
+      );
     }
 
     return (
