@@ -89,6 +89,14 @@ class Builder extends Component {
     }
   }
 
+  componentWillUnmount() {
+    // When the user leaves the page to view the front-end profile, clear the back/reload blocker that was 
+    // only meant for the CMS (prevents the popup from erroneously occuring when the user tries to leave the front-end)
+    if (typeof window !== "undefined") {
+      window.onbeforeunload = () => undefined;
+    }
+  }
+
   /**
    * Almost every child of Builder makes use of redux "resources" to access formatters. However, Viz.jsx
    * misbehaves when wrapped in redux-connect, so for Viz.jsx ONLY, we pass it down via context.

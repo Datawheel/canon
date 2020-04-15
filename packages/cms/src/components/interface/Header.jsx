@@ -98,14 +98,6 @@ class Header extends Component {
     this.setState({profileTarget: e.target.value});
   }
 
-  // When the user leaves the page to view the front-end profile, clear the back/reload blocker that was 
-  // only meant for the CMS (prevents the popup from erroneously occuring when the user tries to leave the front-end)
-  clearBlocker() {
-    if (typeof window !== "undefined") {
-      window.onbeforeunload = () => undefined;
-    }
-  }
-
   render() {
     const {dimensions, profiles, stories} = this.props;
     const {currentPid, currentStoryPid, pathObj, localeDefault} = this.props.status;
@@ -183,7 +175,7 @@ class Header extends Component {
           <span className="cms-header-link-container" key="header-link-container">
             {showLink
               // proper profile URL can be constructed
-              ? <a href={previewURL} onClick={this.clearBlocker.bind(this)} className={`cms-header-link ${previewURL.length > 60 ? "u-font-xs" : ""}`} key="link">
+              ? <a href={previewURL} className={`cms-header-link ${previewURL.length > 60 ? "u-font-xs" : ""}`} key="link">
                 <Icon className="cms-header-link-icon" icon="link" key="cms-header-link-icon" />
                 {/* dimensions & ids */}
                 {prettyURL}
