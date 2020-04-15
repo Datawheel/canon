@@ -471,7 +471,7 @@ module.exports = function(app) {
         }
         else {
           if (verbose) console.error(`Profile not found for section: ${sectionID}`);
-          return res.json({error: `Profile not found for section: ${sectionID}`});
+          return res.json({error: `Profile not found for section: ${sectionID}`, errorCode: 404});
         }
       }
       else if (profileID) {
@@ -503,11 +503,11 @@ module.exports = function(app) {
       }
       catch (e) {
         if (verbose) console.error(`Profile not found for slug: ${match}. Error: ${e}`);
-        return res.json({error: `Profile not found for slug: ${match}`});
+        return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
       }
       if (!pid) {
         if (verbose) console.error(`Profile not found for slug: ${match}`);
-        return res.json({error: `Profile not found for slug: ${match}`});
+        return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
       }
     }
     let returnObject = {};
@@ -539,7 +539,7 @@ module.exports = function(app) {
           }).catch(catcher);
           if (!searchrow) {
             if (verbose) console.error(`Member not found for id: ${dim.id}`);
-            return res.json({error: `Member not found for id: ${dim.id}`});
+            return res.json({error: `Member not found for id: ${dim.id}`, errorCode: 404});
           }
           else {
             // Prime the top result of the neighbors with this member itself. This will be
@@ -602,7 +602,7 @@ module.exports = function(app) {
         }
         else {
           if (verbose) console.error(`Member not found for id: ${dim.id}`);
-          return res.json({error: `Member not found for id: ${dim.id}`});
+          return res.json({error: `Member not found for id: ${dim.id}`, errorCode: 404});
         }
       }
       // todo - catch for no neighbors ?
@@ -689,7 +689,7 @@ module.exports = function(app) {
     const request = await axios.get(`${origin}/api/internalprofile/${pid}${localeString}`).catch(catcher);
     if (!request) {
       if (verbose) console.error(`Profile not found for id: ${pid}`);
-      return res.json(`Profile not found for id: ${pid}`);
+      return res.json({error: `Profile not found for id: ${pid}`, errorCode: 404});
     }
     // Given an object with completely built returnVariables, a hash array of formatter functions, and the profile itself
     // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
@@ -755,7 +755,7 @@ module.exports = function(app) {
     let story = await db.story.findOne(reqObj).catch(catcher);
     if (!story) {
       if (verbose) console.error(`Story not found for id: ${id}`);
-      return res.json({error: `Story not found for id: ${id}`});
+      return res.json({error: `Story not found for id: ${id}`, errorCode: 404});
     }
     story = sortStory(extractLocaleContent(story, locale, "story"));
     // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
