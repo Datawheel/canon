@@ -291,8 +291,14 @@ class ProfileSearch extends Component {
                   switch (display) {
 
                     case "columns":
-                      const columnProfiles = Object.keys(results.profiles || {})
-                        .filter(d => !availableProfiles.length || availableProfiles.includes(d))
+                      const filteredProfiles = Object.keys(results.profiles || {})
+                        .reduce((obj, d) => {
+                          let arr = results.profiles[d];
+                          if (availableProfiles.length) arr = arr.filter(p => availableProfiles.includes(p[0].slug));
+                          if (arr.length) obj[d] = arr;
+                          return obj;
+                        }, {});
+                      const columnProfiles = Object.keys(filteredProfiles || {})
                         .sort((a, b) => {
                           const aIndex = columnOrder.includes(a) ? columnOrder.indexOf(a) : columnOrder.length + 1;
                           const bIndex = columnOrder.includes(b) ? columnOrder.indexOf(b) : columnOrder.length + 1;

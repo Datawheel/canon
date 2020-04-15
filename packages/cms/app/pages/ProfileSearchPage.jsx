@@ -245,7 +245,7 @@ class ProfileSearchPage extends Component {
             display="columns"
             activeKey="s"
             showExamples={true}
-            // availableProfiles={["country", "hs92"]}
+            availableProfiles={["hs92", "country", "subnational_usa_state"]}
             columnOrder={["hs92", "country"]}
             columnTitles={{country: "Cool Locations"}}
             subtitleFormat={d => d.memberHierarchy === "HS4" ? "Cool Product" : d.memberHierarchy}
@@ -269,7 +269,7 @@ class ProfileSearchPage extends Component {
           <ProfileSearch
             inputFontSize="md"
             display="list"
-            availableProfiles={["country", "hs92"]}
+            availableProfiles={["country", "hs92", "subnational_usa_state"]}
             subtitleFormat={d => d.memberHierarchy === "HS4" ? "Cool Product" : d.memberHierarchy}
           />
 
