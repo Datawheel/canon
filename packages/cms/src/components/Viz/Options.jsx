@@ -335,7 +335,7 @@ class Options extends Component {
 
     const dataURLs = typeof data === "string"
       ? [data] : Array.isArray(data)
-        ? data : false;
+        ? data.filter(d => typeof d === "string") : false;
 
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
