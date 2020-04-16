@@ -64,7 +64,7 @@ class ProfileBuilder extends Component {
     const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
 
     const gensRecompiling = fetchingVariables;
-    const gensBusy = "Loading Variables...";
+    const gensBusy = `Loading ${fetchingVariables}...`;
     const gensDone = "Variables Loaded";
 
     const searchRecompiling = searchLoading;

@@ -240,7 +240,7 @@ export function resetPreviews() {
  */
 export function fetchVariables(config) { 
   return async function(dispatch, getStore) {    
-    dispatch({type: "VARIABLES_FETCH"});
+    dispatch({type: "VARIABLES_FETCH", data: "Generators"});
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
     const {auth} = getStore();
 
@@ -291,6 +291,7 @@ export function fetchVariables(config) {
         const gen = await axios.post(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`, {attributes}).catch(catcher);
         variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
       }
+      dispatch({type: "VARIABLES_FETCH", data: "Materializers"});
       // Clean out stale materializers
       Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
         Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
