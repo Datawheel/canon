@@ -315,6 +315,8 @@ module.exports = function(app) {
         config.headers = {"x-tesseract-jwt-token": apiToken};
       }
 
+      config.timeout = 3000
+
       return axios.get(url, config)
         .then(resp => {
           if (verbose) console.log("Variable Loaded:", url);
