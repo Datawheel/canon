@@ -7,7 +7,7 @@ import groupMeta from "../utils/groupMeta";
 
 const catcher = e => {
   console.log(`Error in profile action: ${e}`);
-  return {};
+  return {data: {}};
 };
 
 /** */
