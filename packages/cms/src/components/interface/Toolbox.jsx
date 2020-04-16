@@ -125,22 +125,26 @@ class Toolbox extends Component {
     let generators = profile.generators
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(d => Object.assign({}, {type: "generator"}, d))
-      .filter(this.filterFunc.bind(this));
+      .filter(this.filterFunc.bind(this))
+      .filter(d => !toolboxDialogOpen || toolboxDialogOpen.type === "generator" && toolboxDialogOpen.id === d.id);
 
     if (this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
 
     const materializers = profile.materializers
       .sort((a, b) => a.ordering - b.ordering)
       .map(d => Object.assign({}, {type: "materializer"}, d))
-      .filter(this.filterFunc.bind(this));
+      .filter(this.filterFunc.bind(this))
+      .filter(d => !toolboxDialogOpen || toolboxDialogOpen.type === "materializer" && toolboxDialogOpen.id === d.id);
 
     const formatters = formattersAll
       .sort((a, b) => a.name.localeCompare(b.name))
-      .filter(this.filterFunc.bind(this));
+      .filter(this.filterFunc.bind(this))
+      .filter(d => !toolboxDialogOpen || toolboxDialogOpen.type === "formatter" && toolboxDialogOpen.id === d.id);
 
     const selectors = profile.selectors
       .sort((a, b) => a.title.localeCompare(b.title))
-      .filter(this.filterFunc.bind(this));
+      .filter(this.filterFunc.bind(this))
+      .filter(d => !toolboxDialogOpen || toolboxDialogOpen.type === "selector" && toolboxDialogOpen.id === d.id);
 
     // If a search filter causes no results, hide the entire grouping. However, if
     // the ORIGINAL data has length 0, always show it, so the user can add the first one.
