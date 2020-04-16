@@ -39,7 +39,7 @@ class Toolbox extends Component {
     // When a profile is loaded, save its current previews and variables (all we have is variables right now) and 
     // Responsibly reload them when changing entire profile. For now, deal with the more heavy reload 
     if (changedSinglePreview || changedEntireProfile || changedLocale) {
-      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
+      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id), init: true});
     }
     // Detect Deletions
     const {justDeleted} = this.props.status;
