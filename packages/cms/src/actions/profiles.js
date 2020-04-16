@@ -5,6 +5,11 @@ import getLocales from "../utils/getLocales";
 import attify from "../utils/attify";
 import groupMeta from "../utils/groupMeta";
 
+const catcher = e => {
+  console.log(`Error in profile action: ${e}`);
+  return {};
+};
+
 /** */
 export function getProfiles() {
   return function(dispatch, getStore) {
@@ -234,7 +239,7 @@ export function resetPreviews() {
  * variables object in a hash that is keyed by the profile id.
  */
 export function fetchVariables(config) { 
-  return function(dispatch, getStore) {    
+  return async function(dispatch, getStore) {    
     dispatch({type: "VARIABLES_FETCH"});
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
     const {auth} = getStore();
@@ -270,10 +275,11 @@ export function fetchVariables(config) {
         attributes.userRole = user.role;
       }
 
-      // If this is a first-time run due to initial load or page change, run every generator
-      if (!config) {
-        // Clear out all previous generators and their variables.
-        const gids = thisProfile.generators.map(d => d.id);
+      let paramString = previews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, "");
+      if (config && (config.type === "materializer" || config.type === "generator")) paramString += `&${config.type}=${config.id}`;
+      if (!config || config && config.type === "generator") {
+        // If given a config, clear that generator. If not given a config, this is a first run, clear everything.
+        const gids = config ? [config.id] : thisProfile.generators.map(d => d.id);
         for (const gid of gids) {
           if (variables[thisLocale]._genStatus[gid]) {
             Object.keys(variables[thisLocale]._genStatus[gid]).forEach(k => {
@@ -282,70 +288,21 @@ export function fetchVariables(config) {
           }
           delete variables[thisLocale]._genStatus[gid];
         }
-        const paramString = previews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, "");
-        axios.post(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`, {attributes}).then(gen => {
-          variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
-          // Clean out stale materializers
-          Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
-            Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
-              delete variables[thisLocale][k]; 
-            });
-            delete variables[thisLocale]._matStatus[mid];
-          });
-          axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-            variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-            const diffCounter = getStore().cms.status.diffCounter + 1;
-            dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
-            dispatch({type: "VARIABLES_FETCHED"});
-          });
+        const gen = await axios.post(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`, {attributes}).catch(catcher);
+        variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
+      }
+      // Clean out stale materializers
+      Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
+        Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
+          delete variables[thisLocale][k]; 
         });
-      }
-      else {
-        if (config.type === "materializer") {
-          const paramString = previews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, `&materializer=${config.id}`);
-          // The user may have deleted a variable from their materializer. Clear out this materializer's variables 
-          // BEFORE we send the variables payload - so they will be filled in again properly from the POST response.
-          if (variables[thisLocale]._matStatus[config.id]) {
-            Object.keys(variables[thisLocale]._matStatus[config.id]).forEach(k => {
-              delete variables[thisLocale][k]; 
-            });
-            delete variables[thisLocale]._matStatus[config.id];
-          }
-          // Once pruned, we can POST the variables to the materializer endpoint
-          axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-            variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-            const diffCounter = getStore().cms.status.diffCounter + 1;
-            dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
-            dispatch({type: "VARIABLES_FETCHED"});
-          });
-        }
-        else if (config.type === "generator") {
-          const paramString = previews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, `&generator=${config.id}`);
-          // Clean out this generator's variables
-          if (variables[thisLocale]._genStatus[config.id]) {
-            Object.keys(variables[thisLocale]._genStatus[config.id]).forEach(k => {
-              delete variables[thisLocale][k];
-            });
-          }
-          delete variables[thisLocale]._genStatus[config.id];
-          axios.post(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`, {attributes}).then(gen => {
-            variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
-            // Clean out ALL materializers as they are about to be rerun
-            Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
-              Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
-                delete variables[thisLocale][k]; 
-              });
-              delete variables[thisLocale]._matStatus[mid];
-            });
-            axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-              variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-              const diffCounter = getStore().cms.status.diffCounter + 1;
-              dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
-              dispatch({type: "VARIABLES_FETCHED"});
-            });
-          });
-        }
-      }
+        delete variables[thisLocale]._matStatus[mid];
+      });
+      const mat = await axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).catch(catcher);
+      variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+      const diffCounter = getStore().cms.status.diffCounter + 1;
+      dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+      dispatch({type: "VARIABLES_FETCHED"});
     }
   };
 }
