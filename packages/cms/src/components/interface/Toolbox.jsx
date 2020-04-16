@@ -39,7 +39,7 @@ class Toolbox extends Component {
     // When a profile is loaded, save its current previews and variables (all we have is variables right now) and 
     // Responsibly reload them when changing entire profile. For now, deal with the more heavy reload 
     if (changedSinglePreview || changedEntireProfile || changedLocale) {
-      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id), init: true});
+      this.props.fetchVariables();
     }
     // Detect Deletions
     const {justDeleted} = this.props.status;
@@ -47,10 +47,10 @@ class Toolbox extends Component {
       // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
       // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
       if (justDeleted.type === "generator") {
-        this.props.fetchVariables({type: "generator", ids: [justDeleted.id]});
+        this.props.fetchVariables({type: "generator", id: justDeleted.id});
       }
       else if (justDeleted.type === "materializer") {
-        this.props.fetchVariables({type: "materializer", ids: [justDeleted.id]});
+        this.props.fetchVariables({type: "materializer", id: justDeleted.id});
       }
     }
   }

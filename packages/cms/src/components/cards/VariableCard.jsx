@@ -45,7 +45,7 @@ class VariableCard extends Component {
     if (JSON.stringify(prevProps.minData) !== JSON.stringify(this.props.minData)) {
       // If a gen/mat was saved, re-run fetchvariables for just this one gen/mat.
       if (type === "generator" || type === "materializer") {
-        const config = {type, ids: [minData.id]};
+        const config = {type, id: minData.id};
         this.props.fetchVariables(config);
       }
       // Clone the new object for manipulation in state.
