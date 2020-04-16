@@ -56,19 +56,19 @@ class ProfileBuilder extends Component {
   render() {
 
     const {toolboxVisible} = this.state;
-    const {currentPid, gensLoaded, gensTotal, genLang, pathObj, previews, profilesLoaded, searchLoading} = this.props.status;
+    const {currentPid, fetchingVariables, pathObj, previews, profilesLoaded, searchLoading} = this.props.status;
 
     const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = editorTypes[type];
     const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
 
-    const gensRecompiling = gensLoaded !== gensTotal;
-    const gensBusy = `${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`;
+    const gensRecompiling = fetchingVariables;
+    const gensBusy = "Loading Variables...";
     const gensDone = "Variables Loaded";
 
     const searchRecompiling = searchLoading;
-    const searchBusy = "Loading search members…";
+    const searchBusy = "Loading search members...";
     const searchDone = "Members loaded";
 
     if (!profilesLoaded) return null;
