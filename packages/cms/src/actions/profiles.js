@@ -332,43 +332,67 @@ export function fetchVariables(config) {
           }
           delete variables[thisLocale]._genStatus[gid];
         }
-        for (const gid of gids) {
-          const query = {generator: gid};
+        if (config.init) {
           let paramString = "";
           previews.forEach((p, i) => {
             paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
           });
-          Object.keys(query).forEach(k => {
-            paramString += `&${k}=${query[k]}`;
-          });
-          
           axios.post(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`, {attributes}).then(gen => {
             variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
-            let gensLoaded = Object.keys(variables[thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
-            const gensTotal = gids.length;
-            const genLang = thisLocale;
-            // If the user is deleting a generator, then this function was called with a single gid (the one that was deleted)
-            // The pruning code above already removed its vars and _genStatus from the original vars, so the loading progress
-            // Can't know what to wait for. In this single instance, use this short-circuit to be instantly done and move onto mats.
-            if (gids.length === 1 && JSON.stringify(gen.data) === "{}") gensLoaded = 1;
-            dispatch({type: "STATUS_SET", data: {gensLoaded, gensTotal, genLang}});
-            dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
-            if (gensLoaded === gids.length) {
-              // Clean out stale materializers (see above comment)
-              Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
-                Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
-                  delete variables[thisLocale][k]; 
-                });
-                delete variables[thisLocale]._matStatus[mid];
+            // Clean out stale materializers (see above comment)
+            Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
+              Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
+                delete variables[thisLocale][k]; 
               });
-              axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
-                variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
-                const diffCounter = getStore().cms.status.diffCounter + 1;
-                dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
-                dispatch({type: "VARIABLES_FETCHED"});
-              });
-            }
+              delete variables[thisLocale]._matStatus[mid];
+            });
+            axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+              variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+              const diffCounter = getStore().cms.status.diffCounter + 1;
+              dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+              dispatch({type: "VARIABLES_FETCHED"});
+            });
           });
+        }
+        else {
+          for (const gid of gids) {
+            const query = {generator: gid};
+            let paramString = "";
+            previews.forEach((p, i) => {
+              paramString += `&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`;
+            });
+            Object.keys(query).forEach(k => {
+              paramString += `&${k}=${query[k]}`;
+            });
+            
+            axios.post(`${getStore().env.CANON_API}/api/generators/${currentPid}?locale=${thisLocale}${paramString}`, {attributes}).then(gen => {
+              variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
+              let gensLoaded = Object.keys(variables[thisLocale]._genStatus).filter(d => gids.includes(Number(d))).length;
+              const gensTotal = gids.length;
+              const genLang = thisLocale;
+              // If the user is deleting a generator, then this function was called with a single gid (the one that was deleted)
+              // The pruning code above already removed its vars and _genStatus from the original vars, so the loading progress
+              // Can't know what to wait for. In this single instance, use this short-circuit to be instantly done and move onto mats.
+              if (gids.length === 1 && JSON.stringify(gen.data) === "{}") gensLoaded = 1;
+              dispatch({type: "STATUS_SET", data: {gensLoaded, gensTotal, genLang}});
+              // dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
+              if (gensLoaded === gids.length) {
+                // Clean out stale materializers (see above comment)
+                Object.keys(variables[thisLocale]._matStatus).forEach(mid => {
+                  Object.keys(variables[thisLocale]._matStatus[mid]).forEach(k => {
+                    delete variables[thisLocale][k]; 
+                  });
+                  delete variables[thisLocale]._matStatus[mid];
+                });
+                axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).then(mat => {
+                  variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
+                  const diffCounter = getStore().cms.status.diffCounter + 1;
+                  dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+                  dispatch({type: "VARIABLES_FETCHED"});
+                });
+              }
+            });
+          }
         }
       }
     }
