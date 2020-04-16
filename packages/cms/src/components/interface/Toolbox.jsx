@@ -222,7 +222,6 @@ class Toolbox extends Component {
                   minData={g}
                   context="generator"
                   hidden={!detailView}
-                  attr={profile.attr || {}}
                   type="generator"
                   readOnly={i === 0}
                   usePortalForAlert
@@ -279,7 +278,6 @@ class Toolbox extends Component {
                   key={f.id}
                   minData={f}
                   type="formatter"
-                  variables={{}}
                   usePortalForAlert
                 />
               )}
