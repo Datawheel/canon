@@ -1,5 +1,10 @@
 @import "../../css/mixins.css";
 
+/* this is bad */
+.bp3-toast-container {
+  z-index: 150 !important;
+}
+
 .cms-dialog.is-modal,
 .cms-dialog .cms-dialog-overlay {
   @mixin absolute-expand;
