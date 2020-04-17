@@ -34,6 +34,10 @@ const extractVariables = (obj, variablesUsed = []) => {
 */
 
 export default (status = {}, action) => {
+  
+  const success = {id: action.data.id, status: "SUCCESS"};
+  const error = {id: action.data.id, status: "ERROR"};
+  
   switch (action.type) {
     // Basic assign
     case "STATUS_SET": 
@@ -62,22 +66,22 @@ export default (status = {}, action) => {
     case "GENERATOR_NEW": 
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "generator", forceOpen: true});
     case "GENERATOR_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, justUpdated: {type: "generator", ...success}});
     case "MATERIALIZER_NEW": 
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "materializer", forceOpen: true});
     case "MATERIALIZER_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, justUpdated: {type: "materializer", ...success}});
     case "SELECTOR_NEW": 
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "selector", forceOpen: true});
     case "SELECTOR_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, justUpdated: {type: "selector", ...success}});
     case "SELECTOR_DELETE": 
       return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
     case "FORMATTER_NEW": 
       return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "formatter", forceOpen: true});
     // Updating a formatter means that some formatter logic changed. Bump the diffcounter.
     case "FORMATTER_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, diffCounter: action.diffCounter});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "formatter", ...success}});
     case "FORMATTER_DELETE": 
       return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, diffCounter: action.diffCounter});
     case "VARIABLES_FETCH":
@@ -93,7 +97,7 @@ export default (status = {}, action) => {
       return Object.assign({}, status, newStatus);
     // Updating sections could mean the title was updated. Bump a "diffcounter" that the Navbar tree can listen for to jigger a render
     case "SECTION_UPDATE": 
-      return Object.assign({}, status, {diffCounter: action.diffCounter});
+      return Object.assign({}, status, {diffCounter: action.diffCounter, justUpdated: {type: "section", ...success}});
     // When the user adds a new dimension, set a status that we are waiting for members to finish populating
     case "SEARCH_LOADING": 
       return Object.assign({}, status, {searchLoading: true});
@@ -132,10 +136,37 @@ export default (status = {}, action) => {
     // This is to ensure that subsequent error messages freshly fire, even if they are the "same" error
     case "CLEAR_UPDATED": 
       return Object.assign({}, status, {justUpdated: false});
+    // Note: some of the update events occur above
+    case "PROFILE_UPDATE":
+      return Object.assign({}, status, {justUpdated: {type: "profile", ...success}});
+    case "PROFILE_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "profile", ...error}});
+    case "SECTION_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "section", ...error}});
+    case "GENERATOR_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "generator", ...error}});
+    case "MATERIALIZER_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "materializer", ...error}});
+    case "FORMATTER_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "formatter", ...error}});
+    case "SELECTOR_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "selector", ...error}});
     case "SECTION_SUBTITLE_UPDATE":
-      return Object.assign({}, status, {justUpdated: {type: "section_subtitle", id: action.data.id, status: "SUCCESS"}});
+      return Object.assign({}, status, {justUpdated: {type: "section_subtitle", ...success}});
     case "SECTION_SUBTITLE_ERROR":
-      return Object.assign({}, status, {justUpdated: {type: "section_subtitle", id: action.data.id, status: "ERROR"}});
+      return Object.assign({}, status, {justUpdated: {type: "section_subtitle", ...error}});
+    case "SECTION_STAT_UPDATE":
+      return Object.assign({}, status, {justUpdated: {type: "section_stat", ...success}});
+    case "SECTION_STAT_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "section_stat", ...error}});
+    case "SECTION_DESCRIPTION_UPDATE":
+      return Object.assign({}, status, {justUpdated: {type: "section_description", ...success}});
+    case "SECTION_DESCRIPTION_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "section_description", ...error}});
+    case "SECTION_VISUALIZATION_UPDATE":
+      return Object.assign({}, status, {justUpdated: {type: "section_visualization", ...success}});
+    case "SECTION_VISUALIZATION_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "section_visualization", ...error}});
     default: return status;
   }
 };

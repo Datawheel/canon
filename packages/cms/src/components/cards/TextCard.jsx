@@ -59,14 +59,13 @@ class TextCard extends Component {
     if (didUpdate) {
       const Toast = this.context.toast.current;
       const {status} = this.props.status.justUpdated;
-      console.log(status);
       if (status === "SUCCESS") {
         Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
         this.setState({isOpen: false, isDirty: false});
       }
       else if (status === "ERROR") {
         Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
-        // don't close window
+        // Don't close window
       }
     }
   }
