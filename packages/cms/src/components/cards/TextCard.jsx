@@ -1,11 +1,14 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
+import PropTypes from "prop-types";
 
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+
+import {Intent} from "@blueprintjs/core";
 
 import Loading from "components/Loading";
 import Card from "./Card";
@@ -14,7 +17,6 @@ import VisibleSelector from "../interface/VisibleSelector";
 import Dialog from "../interface/Dialog";
 import RichTextEditor from "../editors/RichTextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
-import Select from "../fields/Select";
 import DefinitionList from "../variables/DefinitionList";
 
 import {updateEntity, deleteEntity} from "../../actions/profiles";
@@ -40,16 +42,32 @@ class TextCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const {type} = this.props;
     const contentChanged = prevProps.minData.id !== this.props.minData.id || JSON.stringify(prevProps.minData.content) !== JSON.stringify(this.props.minData.content);
     const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
     const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
     const queryChanged = JSON.stringify(this.props.status.query) !== JSON.stringify(prevProps.status.query);
+    const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
 
     if (contentChanged) {
       this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
     }
     if (variablesChanged || selectorsChanged || queryChanged) {
       this.formatDisplay.bind(this)();
+    }
+
+    if (didUpdate) {
+      const Toast = this.context.toast.current;
+      const {status} = this.props.status.justUpdated;
+      console.log(status);
+      if (status === "SUCCESS") {
+        Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
+        this.setState({isOpen: false, isDirty: false});
+      }
+      else if (status === "ERROR") {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
+        // don't close window
+      }
     }
   }
 
@@ -176,8 +194,8 @@ class TextCard extends Component {
     // allowed is controlled elsewhere. Don't accidentally pave it here.
     if (!hideAllowed) payload.allowed = minData.allowed;
     payload.content = localeSecondary ? [primaryLocale, secondaryLocale] : [primaryLocale];
+    // note: isOpen will close on update success (see componentDidUpdate)
     this.props.updateEntity(type, payload);
-    this.setState({isOpen: false, isDirty: false});
   }
 
   maybeDelete() {
@@ -393,6 +411,10 @@ class TextCard extends Component {
     );
   }
 }
+
+TextCard.contextTypes = {
+  toast: PropTypes.object
+};
 
 const mapStateToProps = state => ({
   status: state.cms.status,

@@ -127,6 +127,15 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {fetchingSectionPreview: true});
     case "SECTION_PREVIEW_SET":
       return Object.assign({}, status, {sectionPreview: action.data, fetchingSectionPreview: false});
+    // Update Events
+    // When an update attempt starts, clear the justUpdated variable, which will then be refilled with SUCCESS or ERROR.
+    // This is to ensure that subsequent error messages freshly fire, even if they are the "same" error
+    case "CLEAR_UPDATED": 
+      return Object.assign({}, status, {justUpdated: false});
+    case "SECTION_SUBTITLE_UPDATE":
+      return Object.assign({}, status, {justUpdated: {type: "section_subtitle", id: action.data.id, status: "SUCCESS"}});
+    case "SECTION_SUBTITLE_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "section_subtitle", id: action.data.id, status: "ERROR"}});
     default: return status;
   }
 };
