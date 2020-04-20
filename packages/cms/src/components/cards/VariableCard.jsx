@@ -51,7 +51,6 @@ class VariableCard extends Component {
         Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
         // If a gen/mat was saved, re-run fetchvariables for just this one gen/mat.
         if (type === "generator" || type === "materializer") {
-          console.log(prevProps.minData, this.props.minData);
           const config = {type, id: minData.id};
           this.props.fetchVariables(config);
         }
