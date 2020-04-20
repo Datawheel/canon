@@ -43,15 +43,11 @@ class TextCard extends Component {
 
   componentDidUpdate(prevProps) {
     const {type} = this.props;
-    const contentChanged = prevProps.minData.id !== this.props.minData.id || JSON.stringify(prevProps.minData.content) !== JSON.stringify(this.props.minData.content);
     const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
     const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
     const queryChanged = JSON.stringify(this.props.status.query) !== JSON.stringify(prevProps.status.query);
     const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
 
-    if (contentChanged) {
-      this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
-    }
     if (variablesChanged || selectorsChanged || queryChanged) {
       this.formatDisplay.bind(this)();
     }
@@ -61,7 +57,7 @@ class TextCard extends Component {
       const {status} = this.props.status.justUpdated;
       if (status === "SUCCESS") {
         Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
-        this.setState({isOpen: false, isDirty: false});
+        this.setState({isOpen: false, isDirty: false, minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
       }
       else if (status === "ERROR") {
         Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});

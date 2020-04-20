@@ -113,7 +113,7 @@ export function updateEntity(type, payload) {
     const diffCounter = getStore().cms.status.diffCounter + 1;
     // Formatters require locales in the payload to know what languages to compile for
     const locales = getLocales(getStore().env);
-    return axios.post(`${getStore().env.CANON_API}/apix/cms/${type}/update`, payload)
+    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/update`, payload)
       .then(resp => {
         if (resp.status === 200) {
           dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, diffCounter, locales});
