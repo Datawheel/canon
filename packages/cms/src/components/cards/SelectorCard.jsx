@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 
 import deepClone from "../../utils/deepClone";
 
+import {Intent} from "@blueprintjs/core";
+
 import Card from "./Card";
 import Dialog from "../interface/Dialog";
 import SelectorEditor from "../editors/SelectorEditor";
@@ -37,10 +39,21 @@ class SelectorCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    // If the props we receive from redux have changed, then an update action has occured.
-    if (JSON.stringify(prevProps.minData) !== JSON.stringify(this.props.minData)) {
-      // Clone the new object for manipulation in state.
-      this.setState({minData: deepClone(this.props.minData)});
+    const type = "selector";
+
+    const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
+    if (didUpdate) {
+      const Toast = this.context.toast.current;
+      const {status} = this.props.status.justUpdated;
+      if (status === "SUCCESS") {
+        Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
+        // Clone the new object for manipulation in state.
+        this.setState({isOpen: false, minData: deepClone(this.props.minData)});
+      }
+      else if (status === "ERROR") {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
+        // Don't close window
+      }
     }
   }
 
@@ -51,8 +64,8 @@ class SelectorCard extends Component {
 
   save() {
     const {minData} = this.state;
+    // note: isOpen will close on update success (see componentDidUpdate)
     this.props.updateEntity("selector", minData);
-    this.setState({isOpen: false});
   }
 
   maybeDelete() {
@@ -196,7 +209,8 @@ class SelectorCard extends Component {
 }
 
 SelectorCard.contextTypes = {
-  formatters: PropTypes.object
+  formatters: PropTypes.object,
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({
