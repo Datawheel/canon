@@ -12,6 +12,7 @@ import VariableEditor from "../editors/VariableEditor";
 import Dialog from "../interface/Dialog";
 
 import {deleteEntity, updateEntity} from "../../actions/profiles";
+import {setStatus} from "../../actions/status";
 
 import "./VisualizationCard.css";
 
@@ -54,12 +55,14 @@ class VisualizationCard extends Component {
     const {type} = this.props;
     const {minData} = this.state;
     this.props.updateEntity(type, minData);
+    this.props.setStatus({toolboxDialogOpen: false});
     this.setState({isOpen: false});
   }
 
   openEditor() {
     const minData = deepClone(this.props.minData);
     const isOpen = true;
+    this.props.setStatus({toolboxDialogOpen: {type: "visualization", id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -85,6 +88,7 @@ class VisualizationCard extends Component {
   }
 
   closeEditorWithoutSaving() {
+    this.props.setStatus({toolboxDialogOpen: false});
     this.setState({isOpen: false, alertObj: false, isDirty: false});
   }
 
@@ -197,7 +201,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
-  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(VisualizationCard);

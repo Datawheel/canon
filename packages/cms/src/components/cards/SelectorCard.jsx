@@ -73,7 +73,7 @@ class SelectorCard extends Component {
   openEditor() {
     const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.props.setStatus({toolboxDialogOpen: true});
+    this.props.setStatus({toolboxDialogOpen: {type: "selector", id: minData.id}});
     this.setState({minData, isOpen});
   }
 

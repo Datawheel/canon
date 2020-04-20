@@ -85,7 +85,7 @@ export default (status = {}, action) => {
     case "FORMATTER_DELETE": 
       return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, diffCounter: action.diffCounter});
     case "VARIABLES_FETCH":
-      return Object.assign({}, status, {fetchingVariables: true});
+      return Object.assign({}, status, {fetchingVariables: action.data});
     case "VARIABLES_FETCHED":
       return Object.assign({}, status, {fetchingVariables: false});
     // Updating variables or saving a section or meta means that anything that depends on variables, such as TextCards 
