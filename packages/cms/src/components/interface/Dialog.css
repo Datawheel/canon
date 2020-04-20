@@ -1,6 +1,7 @@
 @import "../../css/mixins.css";
 
-/* this is bad */
+/* Overrides the z-index of toast so it can be seen over the Dialog shade
+ * This should be more responsibly nested */
 .bp3-toast-container {
   z-index: 150 !important;
 }
