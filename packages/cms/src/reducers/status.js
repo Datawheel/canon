@@ -140,6 +140,15 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {toolboxDialogOpen: {type: "section_description", id: action.data.id}, forceOpen: {type: "section_description", id: action.data.id}});
     case "SECTION_VISUALIZATION_NEW":
       return Object.assign({}, status, {toolboxDialogOpen: {type: "section_visualization", id: action.data.id}, forceOpen: {type: "section_visualization", id: action.data.id}});
+    // Clear force/toolbox states on delete
+    case "SECTION_SUBTITLE_DELETE":
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false});
+    case "SECTION_STAT_DELETE":
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false});
+    case "SECTION_DESCRIPTION_DELETE":
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false});
+    case "SECTION_VISUALIZATION_DELETE":
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false});
     // Update Events
     // When an update attempt starts, clear the justUpdated variable, which will then be refilled with SUCCESS or ERROR.
     // This is to ensure that subsequent error messages freshly fire, even if they are the "same" error

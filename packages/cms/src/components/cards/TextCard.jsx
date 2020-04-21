@@ -225,8 +225,10 @@ class TextCard extends Component {
   }
 
   openEditor() {
+    const {type} = this.props;
     const minData = this.populateLanguageContent.bind(this)(deepClone(this.props.minData));
     const isOpen = true;
+    this.props.setStatus({toolboxDialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
