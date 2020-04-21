@@ -72,10 +72,10 @@ class Toolbox extends Component {
 
   filterFunc(d) {
     const {query} = this.state;
-    const {forceOpen, forceID, forceType} = this.props.status;
+    const {forceOpen} = this.props.status;
     const fields = ["name", "description", "title"];
     const matched = fields.map(f => d[f] !== undefined ? d[f].toLowerCase().includes(query) : false).some(d => d);
-    const opened = d.type === forceType && d.id === forceID && forceOpen;
+    const opened = forceOpen && d.type === forceOpen.type && d.id === forceOpen.id;
     return matched || opened;
   }
 
@@ -87,14 +87,14 @@ class Toolbox extends Component {
     const gens = Object.keys(vars._genStatus);
     gens.forEach(id => {
       if (vars._genStatus[id][key]) {
-        this.props.setStatus({forceID: Number(id), forceType: "generator", forceOpen: true});
+        this.props.setStatus({forceOpen: {type: "generator", id: Number(id)}});
       }
     });
 
     const mats = Object.keys(vars._matStatus);
     mats.forEach(id => {
       if (vars._matStatus[id][key]) {
-        this.props.setStatus({forceID: Number(id), forceType: "materializer", forceOpen: true});
+        this.props.setStatus({forceOpen: {type: "materializer", id: Number(id)}});
       }
     });
   }

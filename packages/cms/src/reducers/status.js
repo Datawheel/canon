@@ -64,26 +64,26 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {justCreated: {type: "storysection", id: action.data.id, story_id: action.data.story_id}});
     // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW": 
-      return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "generator", forceOpen: true});
+      return Object.assign({}, status, {toolboxDialogOpen: {type: "generator", id: action.data.id}, forceOpen: {type: "generator", id: action.data.id}});
     case "GENERATOR_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, justUpdated: {type: "generator", ...success}});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "generator", ...success}});
     case "MATERIALIZER_NEW": 
-      return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "materializer", forceOpen: true});
+      return Object.assign({}, status, {toolboxDialogOpen: {type: "materializer", id: action.data.id}, forceOpen: {type: "materializer", id: action.data.id}});
     case "MATERIALIZER_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, justUpdated: {type: "materializer", ...success}});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "materializer", ...success}});
     case "SELECTOR_NEW": 
-      return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "selector", forceOpen: true});
+      return Object.assign({}, status, {toolboxDialogOpen: {type: "selector", id: action.data.id}, forceOpen: {type: "selector", id: action.data.id}});
     case "SELECTOR_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, justUpdated: {type: "selector", ...success}});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "selector", ...success}});
     case "SELECTOR_DELETE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false});
     case "FORMATTER_NEW": 
-      return Object.assign({}, status, {toolboxDialogOpen: true, forceID: action.data.id, forceType: "formatter", forceOpen: true});
+      return Object.assign({}, status, {toolboxDialogOpen: {type: "formatter", id: action.data.id}, forceOpen: {type: "formatter", id: action.data.id}});
     // Updating a formatter means that some formatter logic changed. Bump the diffcounter.
     case "FORMATTER_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "formatter", ...success}});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "formatter", ...success}});
     case "FORMATTER_DELETE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false, diffCounter: action.diffCounter});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, diffCounter: action.diffCounter});
     case "VARIABLES_FETCH":
       return Object.assign({}, status, {fetchingVariables: action.data});
     case "VARIABLES_FETCHED":
@@ -115,12 +115,12 @@ export default (status = {}, action) => {
     case "GENERATOR_DELETE": 
       return Object.assign({}, status, {
         justDeleted: {type: "generator", id: action.data.id, parent_id: action.data.parent_id},
-        toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false
+        toolboxDialogOpen: false, forceOpen: false
       });
     case "MATERIALIZER_DELETE": 
       return Object.assign({}, status, {
         justDeleted: {type: "materializer", id: action.data.id, parent_id: action.data.parent_id},
-        toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false
+        toolboxDialogOpen: false, forceOpen: false
       });
     case "STORY_DELETE": 
       return Object.assign({}, status, {justDeleted: {type: "story", id: action.data.id}, currentStoryPid: false});
