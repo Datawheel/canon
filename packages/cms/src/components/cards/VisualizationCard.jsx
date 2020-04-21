@@ -32,7 +32,7 @@ class VisualizationCard extends Component {
     const {dialogOpen} = this.props.status;
     const {minData, type} = this.props;
     this.setState({minData: deepClone(minData)});
-    if (dialogOpen && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
+    if (dialogOpen && dialogOpen.force && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
@@ -54,7 +54,7 @@ class VisualizationCard extends Component {
       }
     }
 
-    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen;
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen && this.props.status.dialogOpen.force;
     const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === this.props.minData.id;
     if (thisOpened) {
       this.openEditor.bind(this)();
