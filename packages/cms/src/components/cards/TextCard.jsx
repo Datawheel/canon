@@ -20,6 +20,7 @@ import PlainTextEditor from "../editors/PlainTextEditor";
 import DefinitionList from "../variables/DefinitionList";
 
 import {updateEntity, deleteEntity} from "../../actions/profiles";
+import {setStatus} from "../../actions/status";
 
 import "./TextCard.css";
 
@@ -38,15 +39,23 @@ class TextCard extends Component {
   }
 
   componentDidMount() {
-    this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
+    const {forceOpen} = this.props.status;
+    const {minData, type} = this.props;
+    this.setState({minData: deepClone(minData)}, this.formatDisplay.bind(this));
+    if (forceOpen && forceOpen.type === type && forceOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
     const {type} = this.props;
+    const idChanged = prevProps.minData.id !== this.props.minData.id;
     const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
     const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
     const queryChanged = JSON.stringify(this.props.status.query) !== JSON.stringify(prevProps.status.query);
     const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
+
+    if (idChanged) {
+      this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
+    }
 
     if (variablesChanged || selectorsChanged || queryChanged) {
       this.formatDisplay.bind(this)();
@@ -63,6 +72,12 @@ class TextCard extends Component {
         Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
         // Don't close window
       }
+    }
+
+    const somethingOpened = !prevProps.status.forceOpen && this.props.status.forceOpen;
+    const thisOpened = somethingOpened && this.props.status.forceOpen.type === type && this.props.status.forceOpen.id === this.props.minData.id;
+    if (thisOpened) {
+      this.openEditor.bind(this)();
     }
   }
 
@@ -233,6 +248,7 @@ class TextCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
+    this.props.setStatus({forceOpen: false, toolboxDialogOpen: false});
   }
 
   prettifyType(type) {
@@ -419,7 +435,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
-  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TextCard);

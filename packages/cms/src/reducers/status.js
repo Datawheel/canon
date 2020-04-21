@@ -131,6 +131,15 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {fetchingSectionPreview: true});
     case "SECTION_PREVIEW_SET":
       return Object.assign({}, status, {sectionPreview: action.data, fetchingSectionPreview: false});
+    // Auto-open Text Cards
+    case "SECTION_SUBTITLE_NEW":
+      return Object.assign({}, status, {toolboxDialogOpen: {type: "section_subtitle", id: action.data.id}, forceOpen: {type: "section_subtitle", id: action.data.id}});
+    case "SECTION_STAT_NEW":
+      return Object.assign({}, status, {toolboxDialogOpen: {type: "section_stat", id: action.data.id}, forceOpen: {type: "section_stat", id: action.data.id}});
+    case "SECTION_DESCRIPTION_NEW":
+      return Object.assign({}, status, {toolboxDialogOpen: {type: "section_description", id: action.data.id}, forceOpen: {type: "section_description", id: action.data.id}});
+    case "SECTION_VISUALIZATION_NEW":
+      return Object.assign({}, status, {toolboxDialogOpen: {type: "section_visualization", id: action.data.id}, forceOpen: {type: "section_visualization", id: action.data.id}});
     // Update Events
     // When an update attempt starts, clear the justUpdated variable, which will then be refilled with SUCCESS or ERROR.
     // This is to ensure that subsequent error messages freshly fire, even if they are the "same" error
@@ -152,19 +161,19 @@ export default (status = {}, action) => {
     case "SELECTOR_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "selector", ...error}});
     case "SECTION_SUBTITLE_UPDATE":
-      return Object.assign({}, status, {justUpdated: {type: "section_subtitle", ...success}});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "section_subtitle", ...success}});
     case "SECTION_SUBTITLE_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "section_subtitle", ...error}});
     case "SECTION_STAT_UPDATE":
-      return Object.assign({}, status, {justUpdated: {type: "section_stat", ...success}});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "section_stat", ...success}});
     case "SECTION_STAT_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "section_stat", ...error}});
     case "SECTION_DESCRIPTION_UPDATE":
-      return Object.assign({}, status, {justUpdated: {type: "section_description", ...success}});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "section_description", ...success}});
     case "SECTION_DESCRIPTION_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "section_description", ...error}});
     case "SECTION_VISUALIZATION_UPDATE":
-      return Object.assign({}, status, {justUpdated: {type: "section_visualization", ...success}});
+      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "section_visualization", ...success}});
     case "SECTION_VISUALIZATION_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "section_visualization", ...error}});
     default: return status;
