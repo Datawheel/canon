@@ -33,10 +33,10 @@ class VariableCard extends Component {
 
   componentDidMount() {
     const {minData, type} = this.props;
-    const {forceOpen} = this.props.status;
+    const {dialogOpen} = this.props.status;
     this.setState({minData: deepClone(minData)});
     this.formatDisplay.bind(this)();
-    if (forceOpen && forceOpen.type === type && forceOpen.id === minData.id) this.openEditor.bind(this)();
+    if (dialogOpen && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
@@ -44,7 +44,7 @@ class VariableCard extends Component {
     const {id} = minData;
 
     const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
-    if (didUpdate) {
+    if (didUpdate) {      
       const Toast = this.context.toast.current;
       const {status} = this.props.status.justUpdated;
       if (status === "SUCCESS") {
@@ -71,8 +71,8 @@ class VariableCard extends Component {
       if (variablesChanged) this.formatDisplay.bind(this)();
     }
 
-    const somethingOpened = !prevProps.status.forceOpen && this.props.status.forceOpen;
-    const thisOpened = somethingOpened && this.props.status.forceOpen.type === type && this.props.status.forceOpen.id === id;
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen;
+    const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === id;
     if (thisOpened) {
       this.openEditor.bind(this)();
     }
@@ -142,7 +142,7 @@ class VariableCard extends Component {
     const {type} = this.props;
     const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.props.setStatus({toolboxDialogOpen: {type, id: minData.id}});
+    this.props.setStatus({dialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -164,7 +164,7 @@ class VariableCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
-    this.props.setStatus({toolboxDialogOpen: false, forceOpen: false});
+    this.props.setStatus({dialogOpen: false});
   }
 
   markAsDirty() {

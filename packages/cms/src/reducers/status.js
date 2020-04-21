@@ -64,26 +64,26 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {justCreated: {type: "storysection", id: action.data.id, story_id: action.data.story_id}});
     // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW": 
-      return Object.assign({}, status, {toolboxDialogOpen: {type: "generator", id: action.data.id}, forceOpen: {type: "generator", id: action.data.id}});
+      return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id}});
     case "GENERATOR_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "generator", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "generator", ...success}});
     case "MATERIALIZER_NEW": 
-      return Object.assign({}, status, {toolboxDialogOpen: {type: "materializer", id: action.data.id}, forceOpen: {type: "materializer", id: action.data.id}});
+      return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id}});
     case "MATERIALIZER_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "materializer", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "materializer", ...success}});
     case "SELECTOR_NEW": 
-      return Object.assign({}, status, {toolboxDialogOpen: {type: "selector", id: action.data.id}, forceOpen: {type: "selector", id: action.data.id}});
+      return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id}});
     case "SELECTOR_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "selector", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "selector", ...success}});
     case "SELECTOR_DELETE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false});
+      return Object.assign({}, status, {dialogOpen: false});
     case "FORMATTER_NEW": 
-      return Object.assign({}, status, {toolboxDialogOpen: {type: "formatter", id: action.data.id}, forceOpen: {type: "formatter", id: action.data.id}});
+      return Object.assign({}, status, {dialogOpen: {type: "formatter", id: action.data.id}});
     // Updating a formatter means that some formatter logic changed. Bump the diffcounter.
     case "FORMATTER_UPDATE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "formatter", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "formatter", ...success}});
     case "FORMATTER_DELETE": 
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, diffCounter: action.diffCounter});
+      return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter});
     case "VARIABLES_FETCH":
       return Object.assign({}, status, {fetchingVariables: action.data});
     case "VARIABLES_FETCHED":
@@ -115,12 +115,12 @@ export default (status = {}, action) => {
     case "GENERATOR_DELETE": 
       return Object.assign({}, status, {
         justDeleted: {type: "generator", id: action.data.id, parent_id: action.data.parent_id},
-        toolboxDialogOpen: false, forceOpen: false
+        dialogOpen: false
       });
     case "MATERIALIZER_DELETE": 
       return Object.assign({}, status, {
         justDeleted: {type: "materializer", id: action.data.id, parent_id: action.data.parent_id},
-        toolboxDialogOpen: false, forceOpen: false
+        dialogOpen: false
       });
     case "STORY_DELETE": 
       return Object.assign({}, status, {justDeleted: {type: "story", id: action.data.id}, currentStoryPid: false});
@@ -133,22 +133,22 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {sectionPreview: action.data, fetchingSectionPreview: false});
     // Auto-open Text Cards
     case "SECTION_SUBTITLE_NEW":
-      return Object.assign({}, status, {toolboxDialogOpen: {type: "section_subtitle", id: action.data.id}, forceOpen: {type: "section_subtitle", id: action.data.id}});
+      return Object.assign({}, status, {dialogOpen: {type: "section_subtitle", id: action.data.id}});
     case "SECTION_STAT_NEW":
-      return Object.assign({}, status, {toolboxDialogOpen: {type: "section_stat", id: action.data.id}, forceOpen: {type: "section_stat", id: action.data.id}});
+      return Object.assign({}, status, {dialogOpen: {type: "section_stat", id: action.data.id}});
     case "SECTION_DESCRIPTION_NEW":
-      return Object.assign({}, status, {toolboxDialogOpen: {type: "section_description", id: action.data.id}, forceOpen: {type: "section_description", id: action.data.id}});
+      return Object.assign({}, status, {dialogOpen: {type: "section_description", id: action.data.id}});
     case "SECTION_VISUALIZATION_NEW":
-      return Object.assign({}, status, {toolboxDialogOpen: {type: "section_visualization", id: action.data.id}, forceOpen: {type: "section_visualization", id: action.data.id}});
+      return Object.assign({}, status, {dialogOpen: {type: "section_visualization", id: action.data.id}});
     // Clear force/toolbox states on delete
     case "SECTION_SUBTITLE_DELETE":
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false});
+      return Object.assign({}, status, {dialogOpen: false});
     case "SECTION_STAT_DELETE":
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false});
+      return Object.assign({}, status, {dialogOpen: false});
     case "SECTION_DESCRIPTION_DELETE":
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false});
+      return Object.assign({}, status, {dialogOpen: false});
     case "SECTION_VISUALIZATION_DELETE":
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false});
+      return Object.assign({}, status, {dialogOpen: false});
     // Update Events
     // When an update attempt starts, clear the justUpdated variable, which will then be refilled with SUCCESS or ERROR.
     // This is to ensure that subsequent error messages freshly fire, even if they are the "same" error
@@ -170,19 +170,19 @@ export default (status = {}, action) => {
     case "SELECTOR_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "selector", ...error}});
     case "SECTION_SUBTITLE_UPDATE":
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "section_subtitle", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "section_subtitle", ...success}});
     case "SECTION_SUBTITLE_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "section_subtitle", ...error}});
     case "SECTION_STAT_UPDATE":
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "section_stat", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "section_stat", ...success}});
     case "SECTION_STAT_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "section_stat", ...error}});
     case "SECTION_DESCRIPTION_UPDATE":
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "section_description", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "section_description", ...success}});
     case "SECTION_DESCRIPTION_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "section_description", ...error}});
     case "SECTION_VISUALIZATION_UPDATE":
-      return Object.assign({}, status, {toolboxDialogOpen: false, forceOpen: false, justUpdated: {type: "section_visualization", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "section_visualization", ...success}});
     case "SECTION_VISUALIZATION_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "section_visualization", ...error}});
     default: return status;
