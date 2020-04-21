@@ -33,10 +33,10 @@ class SelectorCard extends Component {
   }
 
   componentDidMount() {
-    const {forceOpen} = this.props.status;
+    const {dialogOpen} = this.props.status;
     const {minData, type} = this.props;
     this.setState({minData: deepClone(this.props.minData)});
-    if (forceOpen && forceOpen.type === type && forceOpen.id === minData.id) this.openEditor.bind(this)();
+    if (dialogOpen && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
@@ -58,8 +58,8 @@ class SelectorCard extends Component {
       }
     }
 
-    const somethingOpened = !prevProps.status.forceOpen && this.props.status.forceOpen;
-    const thisOpened = somethingOpened && this.props.status.forceOpen.type === type && this.props.status.forceOpen.id === id;
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen;
+    const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === id;
     if (thisOpened) {
       this.openEditor.bind(this)();
     }
@@ -97,7 +97,7 @@ class SelectorCard extends Component {
     const {type} = this.props;
     const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.props.setStatus({toolboxDialogOpen: {type, id: minData.id}});
+    this.props.setStatus({dialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -119,7 +119,7 @@ class SelectorCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
-    this.props.setStatus({toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
+    this.props.setStatus({dialogOpen: false});
   }
 
   render() {

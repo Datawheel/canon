@@ -29,8 +29,10 @@ class VisualizationCard extends Component {
   }
 
   componentDidMount() {
-    const {minData} = this.props;
+    const {dialogOpen} = this.props.status;
+    const {minData, type} = this.props;
     this.setState({minData: deepClone(minData)});
+    if (dialogOpen && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
@@ -44,12 +46,18 @@ class VisualizationCard extends Component {
         Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
         // Clone the new object for manipulation in state.
         this.setState({isOpen: false, minData: deepClone(this.props.minData)});
-        this.props.setStatus({toolboxDialogOpen: false});
+        this.props.setStatus({dialogOpen: false});
       }
       else if (status === "ERROR") {
         Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
         // Don't close window
       }
+    }
+
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen;
+    const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === this.props.minData.id;
+    if (thisOpened) {
+      this.openEditor.bind(this)();
     }
   }
 
@@ -75,9 +83,10 @@ class VisualizationCard extends Component {
   }
 
   openEditor() {
+    const {type} = this.props;
     const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.props.setStatus({toolboxDialogOpen: {type: "visualization", id: minData.id}});
+    this.props.setStatus({dialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -103,7 +112,7 @@ class VisualizationCard extends Component {
   }
 
   closeEditorWithoutSaving() {
-    this.props.setStatus({toolboxDialogOpen: false});
+    this.props.setStatus({dialogOpen: false});
     this.setState({isOpen: false, alertObj: false, isDirty: false});
   }
 
