@@ -33,10 +33,10 @@ class VariableCard extends Component {
 
   componentDidMount() {
     const {minData, type} = this.props;
-    const {forceType, forceID} = this.props.status;
+    const {forceOpen} = this.props.status;
     this.setState({minData: deepClone(minData)});
     this.formatDisplay.bind(this)();
-    if (forceType === type && forceID === minData.id) this.openEditor.bind(this)();
+    if (forceOpen && forceOpen.type === type && forceOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
@@ -63,7 +63,6 @@ class VariableCard extends Component {
       }
     }
 
-
     // If diffCounter incremented, it means a variables update completed, either from this card saving,
     // or from ANOTHER card saving. If it was this card, we need to update the front panel, if it was another card,
     // we may need to update whether this card contains a duplicate. Either way, format the display.
@@ -72,7 +71,9 @@ class VariableCard extends Component {
       if (variablesChanged) this.formatDisplay.bind(this)();
     }
 
-    if (this.props.status.forceType === type && !prevProps.status.forceID && this.props.status.forceID === id) {
+    const somethingOpened = !prevProps.status.forceOpen && this.props.status.forceOpen;
+    const thisOpened = somethingOpened && this.props.status.forceOpen.type === type && this.props.status.forceOpen.id === id;
+    if (thisOpened) {
       this.openEditor.bind(this)();
     }
   }
@@ -163,7 +164,7 @@ class VariableCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
-    this.props.setStatus({toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
+    this.props.setStatus({toolboxDialogOpen: false, forceOpen: false});
   }
 
   markAsDirty() {

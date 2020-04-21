@@ -33,13 +33,15 @@ class SelectorCard extends Component {
   }
 
   componentDidMount() {
-    const {forceType, forceID} = this.props.status;
+    const {forceOpen} = this.props.status;
+    const {minData, type} = this.props;
     this.setState({minData: deepClone(this.props.minData)});
-    if (forceType === "selector" && forceID === this.props.minData.id) this.openEditor.bind(this)();
+    if (forceOpen && forceOpen.type === type && forceOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
-    const type = "selector";
+    const {type} = this.props;
+    const {id} = this.props.minData;
 
     const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
     if (didUpdate) {
@@ -55,6 +57,12 @@ class SelectorCard extends Component {
         // Don't close window
       }
     }
+
+    const somethingOpened = !prevProps.status.forceOpen && this.props.status.forceOpen;
+    const thisOpened = somethingOpened && this.props.status.forceOpen.type === type && this.props.status.forceOpen.id === id;
+    if (thisOpened) {
+      this.openEditor.bind(this)();
+    }
   }
 
   markAsDirty() {
@@ -64,8 +72,9 @@ class SelectorCard extends Component {
 
   save() {
     const {minData} = this.state;
+    const {type} = this.props;
     // note: isOpen will close on update success (see componentDidUpdate)
-    this.props.updateEntity("selector", minData);
+    this.props.updateEntity(type, minData);
   }
 
   maybeDelete() {
@@ -80,13 +89,15 @@ class SelectorCard extends Component {
 
   delete() {
     const {id} = this.props.minData;
-    this.props.deleteEntity("selector", {id});
+    const {type} = this.props;
+    this.props.deleteEntity(type, {id});
   }
 
   openEditor() {
+    const {type} = this.props;
     const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.props.setStatus({toolboxDialogOpen: {type: "selector", id: minData.id}});
+    this.props.setStatus({toolboxDialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -207,6 +218,10 @@ class SelectorCard extends Component {
     );
   }
 }
+
+SelectorCard.defaultProps = {
+  type: "selector"
+};
 
 SelectorCard.contextTypes = {
   formatters: PropTypes.object,
