@@ -36,7 +36,7 @@ class VariableCard extends Component {
     const {dialogOpen} = this.props.status;
     this.setState({minData: deepClone(minData)});
     this.formatDisplay.bind(this)();
-    if (dialogOpen && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
+    if (dialogOpen && dialogOpen.force && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
@@ -71,7 +71,7 @@ class VariableCard extends Component {
       if (variablesChanged) this.formatDisplay.bind(this)();
     }
 
-    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen;
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen && this.props.status.dialogOpen.force;
     const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === id;
     if (thisOpened) {
       this.openEditor.bind(this)();

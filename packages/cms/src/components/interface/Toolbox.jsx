@@ -87,14 +87,14 @@ class Toolbox extends Component {
     const gens = Object.keys(vars._genStatus);
     gens.forEach(id => {
       if (vars._genStatus[id][key]) {
-        this.props.setStatus({dialogOpen: {type: "generator", id: Number(id)}});
+        this.props.setStatus({dialogOpen: {type: "generator", id: Number(id), force: true}});
       }
     });
 
     const mats = Object.keys(vars._matStatus);
     mats.forEach(id => {
       if (vars._matStatus[id][key]) {
-        this.props.setStatus({dialogOpen: {type: "materializer", id: Number(id)}});
+        this.props.setStatus({dialogOpen: {type: "materializer", id: Number(id), force: true}});
       }
     });
   }
