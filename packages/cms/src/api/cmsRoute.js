@@ -522,7 +522,7 @@ module.exports = function(app) {
       // Formatters are a special update case - return the whole list on update (necessary for recompiling them)
       if (ref === "formatter") {
         const rows = await db.formatter.findAll().catch(catcher);
-        return res.json(rows);
+        return res.json({id, formatters: rows});
       }
       else {
         if (contentTables.includes(ref)) {
