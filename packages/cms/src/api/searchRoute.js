@@ -304,7 +304,7 @@ module.exports = function(app) {
         where.locale = locale;
         const contentRows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(contentRows.map(r => r.id)));
-        const rows = await db.search.findAll({
+        let rows = await db.search.findAll({
           include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
           // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
           // Pad out the limit by multiplying by the number of unique dimensions, then limit (slice) them later.
@@ -315,6 +315,8 @@ module.exports = function(app) {
         });
         results.origin = "legacy";
         results.results = {};
+        // Filter out show:false from results
+        rows = rows.filter(d => !d.content.map(c => c.attr).some(a => a && a.show === false));
         rows.forEach(row => {
           if (!results.results[row.dimension]) results.results[row.dimension] = [];
           results.results[row.dimension].push(rowToResult(row));
