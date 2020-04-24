@@ -263,12 +263,14 @@ module.exports = function(app) {
       results.origin = "legacy";
       results.results = {};
       for (const dc of allDimCubes) {
-        const rows = await db.search.findAll({
+        let rows = await db.search.findAll({
           where: {dimension: dc.dimension, cubeName: dc.cubeName},
           include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
           order: [["zvalue", "DESC NULLS LAST"]],
           limit
         });
+        // Filter out show:false from results
+        rows = rows.filter(d => !d.content.map(c => c.attr).some(a => a && a.show === false));
         rows.forEach(row => {
           if (!results.results[row.dimension]) results.results[row.dimension] = [];
           results.results[row.dimension].push(rowToResult(row));
@@ -426,7 +428,7 @@ module.exports = function(app) {
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-    const {id, slug, dimension, levels, cubeName, pslug, parents} = req.query;
+    const {id, slug, dimension, levels, cubeName, pslug, parents, cms} = req.query;
     const q = req.query.q || req.query.query;
 
     let rows = [];
@@ -498,6 +500,14 @@ module.exports = function(app) {
     // Forget about the ensuing sanitazation/prep for front-end searches and just return the raw rows for manipulation in the CMS.
     if (locale === "all") {
       return res.json(rows);
+    }
+
+
+    // The CMS uses this endpoint to search for members to preview. CMS editors should be able to view content
+    // even if hidden using {show: false}. However, when deepsearch is down, the front-end uses this basic search.
+    // If coming from the CMS, don't use the filter - otherwise, use it.
+    if (!cms) {
+      rows = rows.filter(d => !d.content.map(c => c.attr).some(a => a && a.show === false));
     }
 
     /**
