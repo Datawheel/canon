@@ -592,10 +592,10 @@ module.exports = function(app) {
             // If the neighbors length has been lessened due to {show:false} neighbors, try to "pad it out"
             // with one additional neighbor lookup of the first member and attempt to fold these in.
             if (potentialNeighbors.length < 4 && potentialNeighbors[0]) {
-              const {id} = potentialNeighbors[0];
-              const newNeighbors = await getNeighborsForId(id);
+              const firstId = potentialNeighbors[0].id;
+              const newNeighbors = await getNeighborsForId(firstId);
               newNeighbors.forEach(nn => {
-                if (potentialNeighbors.length < 4 && !potentialNeighbors.map(d => d.id).includes(nn.id)) {
+                if (potentialNeighbors.length < 4 && nn.id !== id && !potentialNeighbors.map(d => d.id).includes(nn.id)) {
                   potentialNeighbors.push(nn);
                 }
               });
@@ -634,9 +634,15 @@ module.exports = function(app) {
         const thatSlug = neighborDims[1];
         const thisMember = neighborsByDimSlug[thisSlug][0];
         const thatMember = neighborsByDimSlug[thatSlug][0];
-        const thisNeighborMembers = neighborsByDimSlug[thisSlug].slice(1);
-        const thatNeighborMembers = neighborsByDimSlug[thatSlug].slice(1);
-        thatNeighborMembers.slice(1, 3).forEach(nm => {
+        // Remove the leading self-referential element, and avoid collisions as to not recommend a member matched with itself
+        const thisNeighborMembers = neighborsByDimSlug[thisSlug].slice(1).filter(d => d.id !== thatMember.id);
+        const thatNeighborMembers = neighborsByDimSlug[thatSlug].slice(1).filter(d => d.id !== thisMember.id);
+        // A full set of 4 neighbors means that no neighbors were removed for being hidden or self-referential. In that 
+        // case, given neighbors 0123, 1 and 2 (the "middle" ones) are actually the "closest". Shift the 0th member off 
+        // the list, so that the ensuing slice(0, 2) properly chooses the middle ones. In other cases just default to (0, 2).
+        if (thisNeighborMembers.length === 4) thisNeighborMembers.shift();
+        if (thatNeighborMembers.length === 4) thatNeighborMembers.shift();
+        thatNeighborMembers.slice(0, 2).forEach(nm => {
           const defCon = nm.content.find(c => c.locale === envLoc);
           returnObject.neighbors.push([
             {
@@ -653,7 +659,7 @@ module.exports = function(app) {
             }
           ]);
         });
-        thisNeighborMembers.slice(1, 3).forEach(nm => {
+        thisNeighborMembers.slice(0, 2).forEach(nm => {
           const defCon = nm.content.find(c => c.locale === envLoc);
           returnObject.neighbors.push([
             {

@@ -23,7 +23,7 @@ class PreviewSearch extends Component {
     const {url, group, index} = this.props;
     const {id, name, slug: memberSlug} = result;
     // When selecting a new preview, a new roundtrip is required to fetch parents.
-    const fullURL = `${url}?slug=${memberSlug}&limit=1&parents=true`;
+    const fullURL = `${url}?slug=${memberSlug}&cms=true&limit=1&parents=true`;
     axios.get(fullURL).then(resp => {
       let searchObj = {};
       if (resp.data && resp.data.results) {
@@ -47,7 +47,7 @@ class PreviewSearch extends Component {
     }
     else if (url) {
       const {limit, group} = this.props;
-      const fullUrl = `${url}?q=${userQuery}&limit=${limit}&pslug=${group.map(m => m.slug).join()}`;
+      const fullUrl = `${url}?q=${userQuery}&cms=true&limit=${limit}&pslug=${group.map(m => m.slug).join()}`;
       this.setState({userQuery});
       axios.get(fullUrl)
         .then(res => res.data)
