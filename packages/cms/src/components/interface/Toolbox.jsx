@@ -72,10 +72,10 @@ class Toolbox extends Component {
 
   filterFunc(d) {
     const {query} = this.state;
-    const {forceOpen, forceID, forceType} = this.props.status;
+    const {dialogOpen} = this.props.status;
     const fields = ["name", "description", "title"];
     const matched = fields.map(f => d[f] !== undefined ? d[f].toLowerCase().includes(query) : false).some(d => d);
-    const opened = d.type === forceType && d.id === forceID && forceOpen;
+    const opened = dialogOpen && d.type === dialogOpen.type && d.id === dialogOpen.id;
     return matched || opened;
   }
 
@@ -87,14 +87,14 @@ class Toolbox extends Component {
     const gens = Object.keys(vars._genStatus);
     gens.forEach(id => {
       if (vars._genStatus[id][key]) {
-        this.props.setStatus({forceID: Number(id), forceType: "generator", forceOpen: true});
+        this.props.setStatus({dialogOpen: {type: "generator", id: Number(id), force: true}});
       }
     });
 
     const mats = Object.keys(vars._matStatus);
     mats.forEach(id => {
       if (vars._matStatus[id][key]) {
-        this.props.setStatus({forceID: Number(id), forceType: "materializer", forceOpen: true});
+        this.props.setStatus({dialogOpen: {type: "materializer", id: Number(id), force: true}});
       }
     });
   }
@@ -104,7 +104,7 @@ class Toolbox extends Component {
     const {children, toolboxVisible} = this.props;
     const {profile} = this.props;
     const formattersAll = this.props.formatters;
-    const {variables, localeDefault, localeSecondary, forceOpen, toolboxDialogOpen} = this.props.status;
+    const {variables, localeDefault, localeSecondary, dialogOpen} = this.props.status;
 
     const dataLoaded = profile;
 
@@ -126,7 +126,7 @@ class Toolbox extends Component {
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(d => Object.assign({}, {type: "generator"}, d))
       .filter(this.filterFunc.bind(this))
-      .filter(d => !toolboxDialogOpen || toolboxDialogOpen.type === "generator" && toolboxDialogOpen.id === d.id);
+      .filter(d => !dialogOpen || dialogOpen.type === "generator" && dialogOpen.id === d.id);
 
     if (this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
 
@@ -134,17 +134,17 @@ class Toolbox extends Component {
       .sort((a, b) => a.ordering - b.ordering)
       .map(d => Object.assign({}, {type: "materializer"}, d))
       .filter(this.filterFunc.bind(this))
-      .filter(d => !toolboxDialogOpen || toolboxDialogOpen.type === "materializer" && toolboxDialogOpen.id === d.id);
+      .filter(d => !dialogOpen || dialogOpen.type === "materializer" && dialogOpen.id === d.id);
 
     const formatters = formattersAll
       .sort((a, b) => a.name.localeCompare(b.name))
       .filter(this.filterFunc.bind(this))
-      .filter(d => !toolboxDialogOpen || toolboxDialogOpen.type === "formatter" && toolboxDialogOpen.id === d.id);
+      .filter(d => !dialogOpen || dialogOpen.type === "formatter" && dialogOpen.id === d.id);
 
     const selectors = profile.selectors
       .sort((a, b) => a.title.localeCompare(b.title))
       .filter(this.filterFunc.bind(this))
-      .filter(d => !toolboxDialogOpen || toolboxDialogOpen.type === "selector" && toolboxDialogOpen.id === d.id);
+      .filter(d => !dialogOpen || dialogOpen.type === "selector" && dialogOpen.id === d.id);
 
     // If a search filter causes no results, hide the entire grouping. However, if
     // the ORIGINAL data has length 0, always show it, so the user can add the first one.
@@ -155,7 +155,7 @@ class Toolbox extends Component {
 
 
     return (
-      <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}${toolboxDialogOpen ? " has-open-dialog" : ""}`}>
+      <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}${dialogOpen ? " has-open-dialog" : ""}`}>
 
         {children} {/* the toggle toolbox button */}
 
@@ -209,12 +209,12 @@ class Toolbox extends Component {
           </ul>
         }
 
-        {/* Hide the panels if not detailView - but SHOW them if forceOpen is set, which means
+        {/* Hide the panels if not detailView - but SHOW them if dialogOpen is set, which means
           * that someone has clicked an individual variable and wants to view its editor
           */}
-        <div className={`cms-toolbox-deck-wrapper${detailView || forceOpen ? "" : " is-hidden"}`}>
+        <div className={`cms-toolbox-deck-wrapper${detailView || dialogOpen ? "" : " is-hidden"}`}>
 
-          {(showGenerators || forceOpen) &&
+          {(showGenerators || dialogOpen) &&
             <Deck
               title="Generators"
               entity="generator"
@@ -234,7 +234,7 @@ class Toolbox extends Component {
             />
           }
 
-          {(showMaterializers || forceOpen) &&
+          {(showMaterializers || dialogOpen) &&
             <Deck
               title="Materializers"
               entity="materializer"

@@ -5,7 +5,7 @@ export default (formatters = [], action) => {
     case "FORMATTER_NEW":
       return formatters.concat([action.data]);
     case "FORMATTER_UPDATE":
-      return action.data;
+      return action.data.formatters;
     case "FORMATTER_DELETE":
       return action.data;
     default: return formatters;

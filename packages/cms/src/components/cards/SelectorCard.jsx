@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 
 import deepClone from "../../utils/deepClone";
 
+import {Intent} from "@blueprintjs/core";
+
 import Card from "./Card";
 import Dialog from "../interface/Dialog";
 import SelectorEditor from "../editors/SelectorEditor";
@@ -31,16 +33,35 @@ class SelectorCard extends Component {
   }
 
   componentDidMount() {
-    const {forceType, forceID} = this.props.status;
+    const {dialogOpen} = this.props.status;
+    const {minData, type} = this.props;
     this.setState({minData: deepClone(this.props.minData)});
-    if (forceType === "selector" && forceID === this.props.minData.id) this.openEditor.bind(this)();
+    if (dialogOpen && dialogOpen.force && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
-    // If the props we receive from redux have changed, then an update action has occured.
-    if (JSON.stringify(prevProps.minData) !== JSON.stringify(this.props.minData)) {
-      // Clone the new object for manipulation in state.
-      this.setState({minData: deepClone(this.props.minData)});
+    const {type} = this.props;
+    const {id} = this.props.minData;
+
+    const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
+    if (didUpdate) {
+      const Toast = this.context.toast.current;
+      const {status} = this.props.status.justUpdated;
+      if (status === "SUCCESS") {
+        Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
+        // Clone the new object for manipulation in state.
+        this.setState({isOpen: false, minData: deepClone(this.props.minData)});
+      }
+      else if (status === "ERROR") {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
+        // Don't close window
+      }
+    }
+
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen && this.props.status.dialogOpen.force;
+    const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === id;
+    if (thisOpened) {
+      this.openEditor.bind(this)();
     }
   }
 
@@ -51,6 +72,7 @@ class SelectorCard extends Component {
 
   save() {
     const {minData} = this.state;
+    const {type} = this.props;
     // Strip out isDefaults, which were only used for state management.
     const options = minData.options.map(d => {
       const {isDefault, ...rest} = d; // eslint-disable-line
@@ -60,8 +82,8 @@ class SelectorCard extends Component {
     // Only use the dynamic key if it's a string, otherwise set it to its proper value of null.
     const dynamic = typeof minData.dynamic === "string" ? minData.dynamic : null;
     const payload = {...minData, options, dynamic};
+    // note: isOpen will close on update success (see componentDidUpdate)
     this.props.updateEntity("selector", payload);
-    this.setState({isOpen: false});
   }
 
   maybeDelete() {
@@ -76,13 +98,15 @@ class SelectorCard extends Component {
 
   delete() {
     const {id} = this.props.minData;
-    this.props.deleteEntity("selector", {id});
+    const {type} = this.props;
+    this.props.deleteEntity(type, {id});
   }
 
   openEditor() {
+    const {type} = this.props;
     const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.props.setStatus({toolboxDialogOpen: {type: "selector", id: minData.id}});
+    this.props.setStatus({dialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -104,7 +128,7 @@ class SelectorCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
-    this.props.setStatus({toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
+    this.props.setStatus({dialogOpen: false});
   }
 
   render() {
@@ -204,8 +228,13 @@ class SelectorCard extends Component {
   }
 }
 
+SelectorCard.defaultProps = {
+  type: "selector"
+};
+
 SelectorCard.contextTypes = {
-  formatters: PropTypes.object
+  formatters: PropTypes.object,
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({

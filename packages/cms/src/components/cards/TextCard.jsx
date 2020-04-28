@@ -1,11 +1,14 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
+import PropTypes from "prop-types";
 
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+
+import {Intent} from "@blueprintjs/core";
 
 import Loading from "components/Loading";
 import Card from "./Card";
@@ -14,10 +17,10 @@ import VisibleSelector from "../interface/VisibleSelector";
 import Dialog from "../interface/Dialog";
 import RichTextEditor from "../editors/RichTextEditor";
 import PlainTextEditor from "../editors/PlainTextEditor";
-import Select from "../fields/Select";
 import DefinitionList from "../variables/DefinitionList";
 
 import {updateEntity, deleteEntity} from "../../actions/profiles";
+import {setStatus} from "../../actions/status";
 
 import "./TextCard.css";
 
@@ -36,20 +39,45 @@ class TextCard extends Component {
   }
 
   componentDidMount() {
-    this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
+    const {dialogOpen} = this.props.status;
+    const {minData, type} = this.props;
+    this.setState({minData: deepClone(minData)}, this.formatDisplay.bind(this));
+    if (dialogOpen && dialogOpen.force && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
-    const contentChanged = prevProps.minData.id !== this.props.minData.id || JSON.stringify(prevProps.minData.content) !== JSON.stringify(this.props.minData.content);
+    const {type} = this.props;
+    const idChanged = prevProps.minData.id !== this.props.minData.id;
     const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
     const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
     const queryChanged = JSON.stringify(this.props.status.query) !== JSON.stringify(prevProps.status.query);
+    const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
 
-    if (contentChanged) {
+    if (idChanged) {
       this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
     }
+
     if (variablesChanged || selectorsChanged || queryChanged) {
       this.formatDisplay.bind(this)();
+    }
+
+    if (didUpdate) {
+      const Toast = this.context.toast.current;
+      const {status} = this.props.status.justUpdated;
+      if (status === "SUCCESS") {
+        Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
+        this.setState({isOpen: false, isDirty: false, minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
+      }
+      else if (status === "ERROR") {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
+        // Don't close window
+      }
+    }
+
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen && this.props.status.dialogOpen.force;
+    const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === this.props.minData.id;
+    if (thisOpened) {
+      this.openEditor.bind(this)();
     }
   }
 
@@ -176,8 +204,8 @@ class TextCard extends Component {
     // allowed is controlled elsewhere. Don't accidentally pave it here.
     if (!hideAllowed) payload.allowed = minData.allowed;
     payload.content = localeSecondary ? [primaryLocale, secondaryLocale] : [primaryLocale];
+    // note: isOpen will close on update success (see componentDidUpdate)
     this.props.updateEntity(type, payload);
-    this.setState({isOpen: false, isDirty: false});
   }
 
   maybeDelete() {
@@ -197,8 +225,10 @@ class TextCard extends Component {
   }
 
   openEditor() {
+    const {type} = this.props;
     const minData = this.populateLanguageContent.bind(this)(deepClone(this.props.minData));
     const isOpen = true;
+    this.props.setStatus({dialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -220,6 +250,7 @@ class TextCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
+    this.props.setStatus({dialogOpen: false});
   }
 
   prettifyType(type) {
@@ -394,6 +425,10 @@ class TextCard extends Component {
   }
 }
 
+TextCard.contextTypes = {
+  toast: PropTypes.object
+};
+
 const mapStateToProps = state => ({
   status: state.cms.status,
   resources: state.cms.resources,
@@ -402,7 +437,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
-  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TextCard);

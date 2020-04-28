@@ -5,6 +5,8 @@ import {connect} from "react-redux";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import deepClone from "../../utils/deepClone";
 
+import {Intent} from "@blueprintjs/core";
+
 import Loading from "components/Loading";
 import Card from "./Card";
 import Viz from "../Viz/Viz";
@@ -27,13 +29,35 @@ class VisualizationCard extends Component {
   }
 
   componentDidMount() {
-    const {minData} = this.props;
+    const {dialogOpen} = this.props.status;
+    const {minData, type} = this.props;
     this.setState({minData: deepClone(minData)});
+    if (dialogOpen && dialogOpen.force && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
-    if (JSON.stringify(prevProps.minData) !== JSON.stringify(this.props.minData)) {
-      this.setState({minData: deepClone(this.props.minData)});
+    const {type} = this.props;
+
+    const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
+    if (didUpdate) {
+      const Toast = this.context.toast.current;
+      const {status} = this.props.status.justUpdated;
+      if (status === "SUCCESS") {
+        Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
+        // Clone the new object for manipulation in state.
+        this.setState({isOpen: false, minData: deepClone(this.props.minData)});
+        this.props.setStatus({dialogOpen: false});
+      }
+      else if (status === "ERROR") {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
+        // Don't close window
+      }
+    }
+
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen && this.props.status.dialogOpen.force;
+    const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === this.props.minData.id;
+    if (thisOpened) {
+      this.openEditor.bind(this)();
     }
   }
 
@@ -54,15 +78,15 @@ class VisualizationCard extends Component {
   save() {
     const {type} = this.props;
     const {minData} = this.state;
+    // note: isOpen will close on update success (see componentDidUpdate)
     this.props.updateEntity(type, minData);
-    this.props.setStatus({toolboxDialogOpen: false});
-    this.setState({isOpen: false});
   }
 
   openEditor() {
+    const {type} = this.props;
     const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.props.setStatus({toolboxDialogOpen: {type: "visualization", id: minData.id}});
+    this.props.setStatus({dialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -88,7 +112,7 @@ class VisualizationCard extends Component {
   }
 
   closeEditorWithoutSaving() {
-    this.props.setStatus({toolboxDialogOpen: false});
+    this.props.setStatus({dialogOpen: false});
     this.setState({isOpen: false, alertObj: false, isDirty: false});
   }
 
@@ -190,7 +214,8 @@ class VisualizationCard extends Component {
 }
 
 VisualizationCard.contextTypes = {
-  variables: PropTypes.object
+  variables: PropTypes.object,
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({

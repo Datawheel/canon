@@ -1,6 +1,7 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {Icon} from "@blueprintjs/core";
+import PropTypes from "prop-types";
+import {Icon, Intent} from "@blueprintjs/core";
 
 import deepClone from "../../utils/deepClone";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -32,25 +33,36 @@ class VariableCard extends Component {
 
   componentDidMount() {
     const {minData, type} = this.props;
-    const {forceType, forceID} = this.props.status;
+    const {dialogOpen} = this.props.status;
     this.setState({minData: deepClone(minData)});
     this.formatDisplay.bind(this)();
-    if (forceType === type && forceID === minData.id) this.openEditor.bind(this)();
+    if (dialogOpen && dialogOpen.force && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
     const {type, minData} = this.props;
     const {id} = minData;
-    // If the props we receive from redux have changed, then an update action has occured.
-    if (JSON.stringify(prevProps.minData) !== JSON.stringify(this.props.minData)) {
-      // If a gen/mat was saved, re-run fetchvariables for just this one gen/mat.
-      if (type === "generator" || type === "materializer") {
-        const config = {type, id: minData.id};
-        this.props.fetchVariables(config);
+
+    const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
+    if (didUpdate) {      
+      const Toast = this.context.toast.current;
+      const {status} = this.props.status.justUpdated;
+      if (status === "SUCCESS") {
+        Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
+        // If a gen/mat was saved, re-run fetchvariables for just this one gen/mat.
+        if (type === "generator" || type === "materializer") {
+          const config = {type, id: minData.id};
+          this.props.fetchVariables(config);
+        }
+        // Clone the new object for manipulation in state.
+        this.setState({minData: deepClone(this.props.minData), isOpen: false, isDirty: false});
       }
-      // Clone the new object for manipulation in state.
-      this.setState({minData: deepClone(this.props.minData)});
+      else if (status === "ERROR") {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
+        // Don't close window
+      }
     }
+
     // If diffCounter incremented, it means a variables update completed, either from this card saving,
     // or from ANOTHER card saving. If it was this card, we need to update the front panel, if it was another card,
     // we may need to update whether this card contains a duplicate. Either way, format the display.
@@ -59,7 +71,9 @@ class VariableCard extends Component {
       if (variablesChanged) this.formatDisplay.bind(this)();
     }
 
-    if (this.props.status.forceType === type && !prevProps.status.forceID && this.props.status.forceID === id) {
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen && this.props.status.dialogOpen.force;
+    const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === id;
+    if (thisOpened) {
       this.openEditor.bind(this)();
     }
   }
@@ -120,15 +134,15 @@ class VariableCard extends Component {
   save() {
     const {type} = this.props;
     const {minData} = this.state;
+    // note: isOpen will close on update success (see componentDidUpdate)
     this.props.updateEntity(type, minData);
-    this.setState({isOpen: false});
   }
 
   openEditor() {
     const {type} = this.props;
     const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.props.setStatus({toolboxDialogOpen: {type, id: minData.id}});
+    this.props.setStatus({dialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -150,7 +164,7 @@ class VariableCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
-    this.props.setStatus({toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
+    this.props.setStatus({dialogOpen: false});
   }
 
   markAsDirty() {
@@ -262,6 +276,10 @@ class VariableCard extends Component {
     );
   }
 }
+
+VariableCard.contextTypes = {
+  toast: PropTypes.object
+};
 
 const mapStateToProps = state => ({
   status: state.cms.status
