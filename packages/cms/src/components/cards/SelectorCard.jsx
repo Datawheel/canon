@@ -167,7 +167,7 @@ class SelectorCard extends Component {
     if (minData && minData.options.length > 0) {
       minData.options.forEach(o =>
         typeof variables[o.option] !== "object"
-          ? varList.push(o.isDefault
+          ? varList.push(minData.default.split(",").includes(String(o.option))
             ? `${variables[o.option]} (default)`
             : variables[o.option]
           ) : null
