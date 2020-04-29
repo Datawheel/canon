@@ -30,12 +30,7 @@ class SelectorEditor extends Component {
       return o;
     });
     const showCustom = data.default.includes("{{");
-    // Bug: The deepclone used in SelectorCard erroneously changes dynamic from NULL to {}
-    // Therefore, detect the blank object as another expression of NULLness and fix it
-    const dynamicIsEmptyObject = data.dynamic.constructor === Object && Object.keys(data.dynamic).length === 0;
-    if (dynamicIsEmptyObject) data.dynamic = null;
-    const showDynamic = data.dynamic;
-    this.setState({data, showCustom, showDynamic});
+    this.setState({data, showCustom});
   }
 
   addOption() {
@@ -229,12 +224,12 @@ class SelectorEditor extends Component {
   }
 
   toggleDynamic() {
-    const {data, isDirty, showDynamic} = this.state;
+    const {data, isDirty} = this.state;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
     const arrayOptions = Object.keys(variables).filter(key => Array.isArray(variables[key])).sort((a, b) => a.localeCompare(b));
-    if (showDynamic) {
-      data.dynamic = null;
+    if (data.dynamic) {
+      data.dynamic = "";
     }
     else {
       // Shouldn't be able to get here without arrayOptions having length (see render), so assume first element exists.
@@ -242,17 +237,17 @@ class SelectorEditor extends Component {
     }
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
-      this.setState({data, showDynamic: !this.state.showDynamic, isDirty: true});    
+      this.setState({data, isDirty: true});    
     }
     else {
-      this.setState({data, showDynamic: !this.state.showDynamic});  
+      this.setState({data});  
     }
   }
 
 
   render() {
 
-    const {data, showCustom, showDynamic} = this.state;
+    const {data, showCustom} = this.state;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
 
@@ -315,11 +310,11 @@ class SelectorEditor extends Component {
           <input
             className="cms-selector-editor-custom-checkbox"
             type="checkbox"
-            checked={showDynamic}
+            checked={data.dynamic}
             disabled={arrayOptions.length === 0}
             onChange={this.toggleDynamic.bind(this)}
           />
-          {!showDynamic
+          {!data.dynamic
             ? "Use Dynamic Variable for options (advanced)"
             : <Fragment>Dynamic Variable: 
               <Select

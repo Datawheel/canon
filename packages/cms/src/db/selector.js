@@ -36,8 +36,8 @@ module.exports = function(sequelize, db) {
         defaultValue: "single"
       },
       dynamic: {
-        type: db.STRING,
-        defaultValue: null
+        type: db.TEXT,
+        defaultValue: ""
       }
     }, 
     {

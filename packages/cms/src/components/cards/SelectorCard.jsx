@@ -78,12 +78,9 @@ class SelectorCard extends Component {
       const {isDefault, ...rest} = d; // eslint-disable-line
       return rest;
     });
-    // Deepclone has a bug, it turns NULL keys into {}. The DB can't handle a {} write to a string column.
-    // Only use the dynamic key if it's a string, otherwise set it to its proper value of null.
-    const dynamic = typeof minData.dynamic === "string" ? minData.dynamic : null;
-    const payload = {...minData, options, dynamic};
+    const payload = {...minData, options};
     // note: isOpen will close on update success (see componentDidUpdate)
-    this.props.updateEntity("selector", payload);
+    this.props.updateEntity(type, payload);
   }
 
   maybeDelete() {
