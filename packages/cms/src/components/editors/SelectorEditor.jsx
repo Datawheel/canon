@@ -30,7 +30,12 @@ class SelectorEditor extends Component {
       return o;
     });
     const showCustom = data.default.includes("{{");
-    this.setState({data, showCustom});
+    // Bug: The deepclone used in SelectorCard erroneously changes dynamic from NULL to {}
+    // Therefore, detect the blank object as another expression of NULLness and fix it
+    const dynamicIsEmptyObject = data.dynamic.constructor === Object && Object.keys(data.dynamic).length === 0;
+    if (dynamicIsEmptyObject) data.dynamic = null;
+    const showDynamic = data.dynamic;
+    this.setState({data, showCustom, showDynamic});
   }
 
   addOption() {
@@ -85,6 +90,18 @@ class SelectorEditor extends Component {
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
       this.setState({isDirty: true, data});
+    }
+    else {
+      this.setState({data});
+    }
+  }
+
+  chooseDynamic(e) {
+    const {data, isDirty} = this.state;
+    data.dynamic = e.target.value;
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({data, isDirty: true});
     }
     else {
       this.setState({data});
@@ -211,9 +228,31 @@ class SelectorEditor extends Component {
     this.setState({showCustom: !this.state.showCustom});
   }
 
+  toggleDynamic() {
+    const {data, isDirty, showDynamic} = this.state;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
+    const arrayOptions = Object.keys(variables).filter(key => Array.isArray(variables[key])).sort((a, b) => a.localeCompare(b));
+    if (showDynamic) {
+      data.dynamic = null;
+    }
+    else {
+      // Shouldn't be able to get here without arrayOptions having length (see render), so assume first element exists.
+      data.dynamic = arrayOptions[0];
+    }
+    if (!isDirty) {
+      if (this.props.markAsDirty) this.props.markAsDirty();
+      this.setState({data, showDynamic: !this.state.showDynamic, isDirty: true});    
+    }
+    else {
+      this.setState({data, showDynamic: !this.state.showDynamic});  
+    }
+  }
+
+
   render() {
 
-    const {data, showCustom} = this.state;
+    const {data, showCustom, showDynamic} = this.state;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
 
@@ -242,6 +281,11 @@ class SelectorEditor extends Component {
         return <option key={`{{${key}}}`} value={`{{${key}}}`} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
       });
 
+    const arrayOptions = Object.keys(variables)
+      .filter(key => Array.isArray(variables[key]))
+      .sort((a, b) => a.localeCompare(b))
+      .map(key => <option key={key} value={key}>{key}</option>);
+
     const buttonProps = {
       className: "u-font-xs",
       namespace: "cms",
@@ -265,6 +309,31 @@ class SelectorEditor extends Component {
             onChange={this.editLabel.bind(this)}
           />
         </div>
+
+        {/* custom default */}
+        <label className={`cms-selector-editor-custom ${showCustom ? "is-visible" : "is-hidden"}`}>
+          <input
+            className="cms-selector-editor-custom-checkbox"
+            type="checkbox"
+            checked={showDynamic}
+            disabled={arrayOptions.length === 0}
+            onChange={this.toggleDynamic.bind(this)}
+          />
+          {!showDynamic
+            ? "Use Dynamic Variable for options (advanced)"
+            : <Fragment>Dynamic Variable: 
+              <Select
+                label=" "
+                namespace="cms"
+                value={data.dynamic}
+                onChange={this.chooseDynamic.bind(this)}
+                inline
+              >
+                {arrayOptions}
+              </Select>
+            </Fragment>
+          }
+        </label>
 
         <ButtonGroup className="cms-selector-editor-button-group" namespace="cms" buttons={[
           {
