@@ -17,18 +17,6 @@ class SelectorEditor extends Component {
 
   componentDidMount() {
     const {data} = this.props;
-    // Temporarily overload the options list itself as a tracker for checkboxes.
-    // Note that we still ship the whole object to the db when we save, but these isDefault switches won't be written.
-    data.options = data.options.map(o => {
-      if (data.type === "single") {
-        o.isDefault = o.option === data.default;
-      }
-      else if (data.type === "multi") {
-        const defaults = data.default.split(",");
-        o.isDefault = defaults.includes(o.option);
-      }
-      return o;
-    });
     const showCustom = data.default.includes("{{");
     this.setState({data, showCustom});
   }
@@ -40,10 +28,10 @@ class SelectorEditor extends Component {
     if (!data.options) data.options = [];
     const varList = Object.keys(variables).filter(v => !v.startsWith("_") && !data.options.map(o => o.option).includes(v));
     if (varList.length > 0) {
-      data.options.push({option: varList[0], allowed: "always", isDefault: false});
+      data.options.push({option: varList[0], allowed: "always"});
     }
     else {
-      data.options.push({option: "", allowed: "always", isDefault: false});
+      data.options.push({option: "", allowed: "always"});
     }
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
@@ -107,16 +95,12 @@ class SelectorEditor extends Component {
     const {data, isDirty} = this.state;
     const {checked} = e.target;
     if (data.type === "single" && checked) {
-      data.options = data.options.map(o => {
-        o.isDefault = o.option === option;
-        return o;
-      });
       data.default = option;
     }
     else if (data.type === "multi") {
-      const theOption = data.options.find(o => o.option === option);
-      if (theOption) theOption.isDefault = checked;
-      data.default = data.options.filter(o => o.isDefault).map(o => o.option).join();
+      const defaults = data.default.split(",");
+      if (checked && !defaults.includes(option)) data.default = defaults.concat(option).join();
+      if (!checked && defaults.includes(option)) data.default = defaults.filter(o => o !== option).join();
     }
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
@@ -129,16 +113,17 @@ class SelectorEditor extends Component {
 
   deleteOption(i) {
     const {data, isDirty} = this.state;
+    const option = data.options[i].option;
     data.options.splice(i, 1);
     // If the last default was deleted, make the first option the new default
-    if (data.options.length > 0 && !data.options.map(o => o.isDefault).includes(true)) {
-      data.options[0].isDefault = true;
+    if (data.options.length > 0 && option === data.default) {
       data.default = data.options[0].option;
     }
     // The user may have deleted an option that was a default in a multiselect.
     // Recalculate the defaults so that it properly prunes them out.
     if (data.type === "multi") {
-      data.default = data.options.filter(o => o.isDefault).map(o => o.option).join();
+      const defaults = data.default.split(",");
+      if (defaults.includes(option)) data.default = defaults.filter(o => o !== option).join();
     }
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
@@ -153,19 +138,8 @@ class SelectorEditor extends Component {
     const {data, isDirty} = this.state;
     data.type = type;
     if (data.type === "single") {
-      let foundDefault = false;
-      data.options = data.options.map(o => {
-        if (!foundDefault) {
-          if (o.isDefault) {
-            foundDefault = true;
-            data.default = o.option;
-          }
-        }
-        else {
-          o.isDefault = false;
-        }
-        return o;
-      });
+      const defaults = data.default.split(",");
+      data.default = defaults.length > 0 ? defaults[0] : "";
     }
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
@@ -370,7 +344,7 @@ class SelectorEditor extends Component {
                   <td className="cms-selector-editor-cell">
                     <input
                       type={data.type === "multi" ? "checkbox" : "radio"}
-                      checked={option.isDefault}
+                      checked={data.default.split(",").includes(option.option)}
                       onChange={this.setDefault.bind(this, option.option)}
                     /><span className="u-visually-hidden">default option</span>
                   </td>
