@@ -181,6 +181,16 @@ class SelectorEditor extends Component {
     }
   }
 
+  validateDynamic(optionsArray) {
+    const arrayExists = optionsArray && Array.isArray(optionsArray);
+    if (!arrayExists) return "Error: Selected variable is not an array";
+    const hasLength = optionsArray.length > 0;
+    if (!hasLength) return "Error: Selected array has no length";
+    const hasOptions = optionsArray.every(d => typeof d === "string" || (d && d.option));
+    if (!hasOptions) return "Error: Objects in selected array are missing option keys";
+    return "valid";
+  }
+
   editLabel(e) {
     const {data, isDirty} = this.state;
     data.title = e.target.value;
@@ -204,9 +214,11 @@ class SelectorEditor extends Component {
     const arrayOptions = Object.keys(variables).filter(key => Array.isArray(variables[key])).sort((a, b) => a.localeCompare(b));
     if (data.dynamic) {
       data.dynamic = "";
+      data.default = "";
     }
     else {
       // Shouldn't be able to get here without arrayOptions having length (see render), so assume first element exists.
+      data.default = "";
       data.dynamic = arrayOptions[0];
     }
     if (!isDirty) {
@@ -227,6 +239,8 @@ class SelectorEditor extends Component {
 
     if (!data || !variables) return null;
 
+    const makeLabel = (type, value) => !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`
+
     const varOptions = [<option key="always" value="always">Always</option>]
       .concat(Object.keys(variables)
         .filter(key => !key.startsWith("_"))
@@ -235,7 +249,7 @@ class SelectorEditor extends Component {
         .map(key => {
           const value = variables[key];
           const type = typeof value;
-          const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
+          const label = makeLabel(type, value);
           return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
         }));
 
@@ -246,7 +260,7 @@ class SelectorEditor extends Component {
       .map(key => {
         const value = variables[key];
         const type = typeof value;
-        const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
+        const label = makeLabel(type, value);
         return <option key={`{{${key}}}`} value={`{{${key}}}`} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
       });
 
@@ -261,9 +275,26 @@ class SelectorEditor extends Component {
       iconPosition: "left"
     };
 
-    const dynamicAndValid = data.dynamic && variables[data.dynamic] && Array.isArray(variables[data.dynamic]) && variables[data.dynamic].length > 0 && variables[data.dynamic].every(d => d.option);
-    const dynamicAndBroken = data.dynamic && !dynamicAndValid;
-    const options = dynamicAndValid ? variables[data.dynamic] : data.options;
+    const dynamicStatus = this.validateDynamic(variables[data.dynamic]);
+    const dynamicAndValid = data.dynamic && dynamicStatus === "valid";
+    const dynamicAndBroken = data.dynamic && dynamicStatus !== "valid";
+
+    let options = [];
+    if (!data.dynamic) {
+      options = data.options;
+    }
+    else if (dynamicAndValid) {
+      options = variables[data.dynamic].map(d => {
+        if (typeof d === "string") {
+          return {option: d, allowed: "always", label: d};
+        }
+        else {
+          return {allowed: "always", label: d.option, ...d};
+        }
+      });
+    }
+
+    console.log(data);
 
     return (
       <div className="cms-selector-editor">
@@ -325,98 +356,110 @@ class SelectorEditor extends Component {
           }
         ]} />
 
-        {options.length > 0 &&
-          <table className="cms-selector-editor-table">
-            <thead className="cms-selector-editor-thead">
-              <tr className="cms-selector-editor-row">
-                <td className="cms-selector-editor-cell">Default</td>
-                <td className="cms-selector-editor-cell">Option</td>
-                <td className="cms-selector-editor-cell">Visible</td>
-                <td className="cms-selector-editor-cell" colSpan="2">Actions</td>
-              </tr>
-            </thead>
+        {dynamicAndBroken 
+          ? <div className="cms-selector-status">{dynamicStatus}</div>
+          : options.length > 0 
+            ? <table className="cms-selector-editor-table">
+              <thead className="cms-selector-editor-thead">
+                <tr className="cms-selector-editor-row">
+                  <td className="cms-selector-editor-cell">Default</td>
+                  <td className="cms-selector-editor-cell">Option</td>
+                  <td className="cms-selector-editor-cell">Visible</td>
+                  <td className="cms-selector-editor-cell" colSpan="2">Actions</td>
+                </tr>
+              </thead>
 
-            <tbody className="cms-selector-editor-tbody">
-              {options.map((option, i) =>
-                <tr className="cms-selector-editor-row" key={i}>
+              <tbody className="cms-selector-editor-tbody">
+                {options.map((option, i) =>
+                  <tr className="cms-selector-editor-row" key={i}>
 
-                  {/* default */}
-                  <td className="cms-selector-editor-cell">
-                    <input
-                      type={data.type === "multi" ? "checkbox" : "radio"}
-                      checked={data.default.split(",").includes(option.option)}
-                      onChange={this.setDefault.bind(this, option.option)}
-                    /><span className="u-visually-hidden">default option</span>
-                  </td>
+                    {/* default */}
+                    <td className="cms-selector-editor-cell">
+                      <input
+                        type={data.type === "multi" ? "checkbox" : "radio"}
+                        checked={data.default.split(",").includes(option.option)}
+                        onChange={this.setDefault.bind(this, option.option)}
+                      /><span className="u-visually-hidden">default option</span>
+                    </td>
 
-                  {/* option */}
-                  <td className="cms-selector-editor-cell">
-                    <Select
-                      label="option (new)"
-                      labelHidden
-                      namespace="cms"
-                      value={option.option}
-                      onChange={this.chooseOption.bind(this, i)}
-                    >
-                      {varOptions}
-                    </Select>
-                  </td>
+                    {/* option */}
+                    <td className="cms-selector-editor-cell">
+                      {dynamicAndValid
+                        ? <div>{`${option.option}${makeLabel(typeof option.option, option.label ? option.label : variables[option.option])}`}</div>
+                        : <Select
+                          label="option (new)"
+                          labelHidden
+                          namespace="cms"
+                          value={option.option}
+                          onChange={this.chooseOption.bind(this, i)}
+                        >
+                          {varOptions}
+                        </Select>
+                      }
+                    </td>
 
-                  {/* visibility */}
-                  <td className="cms-selector-editor-cell">
-                    <Select
-                      label="Visible"
-                      labelHidden
-                      namespace="cms"
-                      value={option.allowed}
-                      onChange={this.chooseAllowed.bind(this, i)}
-                    >
-                      {varOptions}
-                    </Select>
-                  </td>
+                    {/* visibility */}
+                    <td className="cms-selector-editor-cell">
+                      {dynamicAndValid
+                        ? <div>{`${option.allowed}${option.allowed !== "always" ? makeLabel(typeof option.allowed, variables[option.allowed]) : ""}`}</div>
+                        : <Select
+                          label="Visible"
+                          labelHidden
+                          namespace="cms"
+                          value={option.allowed}
+                          onChange={this.chooseAllowed.bind(this, i)}
+                        >
+                          {varOptions}
+                        </Select>
+                      }
+                    </td>
 
-                  {/* delete */}
-                  <td className="cms-selector-editor-cell cms-delete-selector-editor-cell">
-                    <Button
-                      onClick={this.deleteOption.bind(this, i)}
-                      namespace="cms"
-                      icon="trash"
-                      iconOnly
-                    >
-                      Delete entry
-                    </Button>
-                  </td>
-
-                  {/* reorder */}
-                  {i !== options.length - 1 &&
-                    <td className="cms-selector-editor-cell cms-reorder">
+                    {/* delete */}
+                    <td className="cms-selector-editor-cell cms-delete-selector-editor-cell">
                       <Button
-                        onClick={this.moveDown.bind(this, i)}
+                        onClick={this.deleteOption.bind(this, i)}
                         namespace="cms"
-                        className="cms-reorder-button"
-                        icon="swap-vertical"
+                        icon="trash"
                         iconOnly
+                        disabled={data.dynamic}
                       >
-                        Swap positioning of current and next cards
+                        Delete entry
                       </Button>
                     </td>
-                  }
-                </tr>
-              )}
-            </tbody>
-          </table>
+
+                    {/* reorder */}
+                    {!data.dynamic && i !== options.length - 1 &&
+                      <td className="cms-selector-editor-cell cms-reorder">
+                        <Button
+                          onClick={this.moveDown.bind(this, i)}
+                          namespace="cms"
+                          className="cms-reorder-button"
+                          icon="swap-vertical"
+                          iconOnly
+                        >
+                          Swap positioning of current and next cards
+                        </Button>
+                      </td>
+                    }
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            : null
         }
 
         {/* new option */}
-        <Button
-          onClick={this.addOption.bind(this)}
-          className={!options.length ? "u-font-md" : null}
-          namespace="cms"
-          icon="plus"
-          fill
-        >
-          {!options.length ? "Add first option" : "Add option"}
-        </Button>
+        {!data.dynamic && 
+          <Button
+            onClick={this.addOption.bind(this)}
+            className={!options.length ? "u-font-md" : null}
+            namespace="cms"
+            icon="plus"
+            fill
+          >
+            {!options.length ? "Add first option" : "Add option"}
+          </Button>
+        }
 
         {/* custom default */}
         <label className={`cms-selector-editor-custom ${showCustom ? "is-visible" : "is-hidden"}`}>
