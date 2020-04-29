@@ -4,6 +4,7 @@ import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
 import ButtonGroup from "../fields/ButtonGroup";
 import {connect} from "react-redux";
+import {setStatus} from "../../actions/status";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -207,6 +208,27 @@ class SelectorEditor extends Component {
     this.setState({showCustom: !this.state.showCustom});
   }
 
+  openGenerator(key) {
+    this.props.setStatus({dialogOpen: false});
+    const {localeDefault} = this.props.status;
+    const {variables} = this.props.status;
+    const vars = variables[localeDefault];
+
+    const gens = Object.keys(vars._genStatus);
+    gens.forEach(id => {
+      if (vars._genStatus[id][key]) {
+        this.props.setStatus({dialogOpen: {type: "generator", id: Number(id), force: true}});
+      }
+    });
+
+    const mats = Object.keys(vars._matStatus);
+    mats.forEach(id => {
+      if (vars._matStatus[id][key]) {
+        this.props.setStatus({dialogOpen: {type: "materializer", id: Number(id), force: true}});
+      }
+    });
+  }
+
   toggleDynamic() {
     const {data, isDirty} = this.state;
     const {localeDefault} = this.props.status;
@@ -294,8 +316,6 @@ class SelectorEditor extends Component {
       });
     }
 
-    console.log(data);
-
     return (
       <div className="cms-selector-editor">
 
@@ -335,6 +355,7 @@ class SelectorEditor extends Component {
               >
                 {arrayOptions}
               </Select>
+              <Button onClick={this.openGenerator.bind(this, data.dynamic)}>Open Originating Generator</Button>  
             </Fragment>
           }
         </label>
@@ -460,7 +481,7 @@ class SelectorEditor extends Component {
             {!options.length ? "Add first option" : "Add option"}
           </Button>
         }
-
+        
         {/* custom default */}
         <label className={`cms-selector-editor-custom ${showCustom ? "is-visible" : "is-hidden"}`}>
           <input
@@ -494,4 +515,8 @@ const mapStateToProps = state => ({
   status: state.cms.status
 });
 
-export default connect(mapStateToProps)(SelectorEditor);
+const mapDispatchToProps = dispatch => ({
+  setStatus: status => dispatch(setStatus(status))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SelectorEditor);
