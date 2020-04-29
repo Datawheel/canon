@@ -287,6 +287,10 @@ class SelectorEditor extends Component {
       iconPosition: "left"
     };
 
+    const dynamicAndValid = data.dynamic && variables[data.dynamic] && Array.isArray(variables[data.dynamic]) && variables[data.dynamic].length > 0 && variables[data.dynamic].every(d => d.option);
+    const dynamicAndBroken = data.dynamic && !dynamicAndValid;
+    const options = dynamicAndValid ? variables[data.dynamic] : data.options;
+
     return (
       <div className="cms-selector-editor">
 
@@ -305,8 +309,8 @@ class SelectorEditor extends Component {
           />
         </div>
 
-        {/* custom default */}
-        <label className={`cms-selector-editor-custom ${showCustom ? "is-visible" : "is-hidden"}`}>
+        {/* dynamic variable */}
+        <label className={`cms-selector-editor-custom ${data.dynamic ? "is-visible" : "is-hidden"}`}>
           <input
             className="cms-selector-editor-custom-checkbox"
             type="checkbox"
@@ -347,7 +351,7 @@ class SelectorEditor extends Component {
           }
         ]} />
 
-        {data.options.length > 0 &&
+        {options.length > 0 &&
           <table className="cms-selector-editor-table">
             <thead className="cms-selector-editor-thead">
               <tr className="cms-selector-editor-row">
@@ -359,7 +363,7 @@ class SelectorEditor extends Component {
             </thead>
 
             <tbody className="cms-selector-editor-tbody">
-              {data.options.map((option, i) =>
+              {options.map((option, i) =>
                 <tr className="cms-selector-editor-row" key={i}>
 
                   {/* default */}
@@ -410,7 +414,7 @@ class SelectorEditor extends Component {
                   </td>
 
                   {/* reorder */}
-                  {i !== data.options.length - 1 &&
+                  {i !== options.length - 1 &&
                     <td className="cms-selector-editor-cell cms-reorder">
                       <Button
                         onClick={this.moveDown.bind(this, i)}
@@ -432,12 +436,12 @@ class SelectorEditor extends Component {
         {/* new option */}
         <Button
           onClick={this.addOption.bind(this)}
-          className={!data.options.length ? "u-font-md" : null}
+          className={!options.length ? "u-font-md" : null}
           namespace="cms"
           icon="plus"
           fill
         >
-          {!data.options.length ? "Add first option" : "Add option"}
+          {!options.length ? "Add first option" : "Add option"}
         </Button>
 
         {/* custom default */}
