@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import deepClone from "../../utils/deepClone";
-import validateDynamic from "../../utils/validateDynamic";
+import validateDynamic from "../../utils/selectors/validateDynamic";
 
 import {Intent, Icon} from "@blueprintjs/core";
 

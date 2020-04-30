@@ -5,7 +5,8 @@ import TextInput from "../fields/TextInput";
 import ButtonGroup from "../fields/ButtonGroup";
 import {connect} from "react-redux";
 import {setStatus} from "../../actions/status";
-import validateDynamic from "../../utils/validateDynamic";
+import validateDynamic from "../../utils/selectors/validateDynamic";
+import scaffoldDynamic from "../../utils/selectors/scaffoldDynamic";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -297,14 +298,7 @@ class SelectorEditor extends Component {
       options = data.options;
     }
     else if (dynamicAndValid) {
-      options = variables[data.dynamic].map(d => {
-        if (typeof d === "string") {
-          return {option: d, allowed: "always", label: d};
-        }
-        else {
-          return {allowed: "always", label: d.option, ...d};
-        }
-      });
+      options = scaffoldDynamic(variables[data.dynamic]);
     }
 
     return (
