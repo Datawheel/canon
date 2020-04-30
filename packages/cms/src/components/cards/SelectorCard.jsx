@@ -26,6 +26,7 @@ class SelectorCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      allowSave: true,
       minData: null,
       initialData: null,
       alertObj: false,
@@ -129,8 +130,12 @@ class SelectorCard extends Component {
     this.props.setStatus({dialogOpen: false});
   }
 
+  setAllowSave(allowSave) {
+    this.setState({allowSave});
+  }
+
   render() {
-    const {isOpen, alertObj} = this.state;
+    const {isOpen, alertObj, allowSave} = this.state;
     const {onMove, parentArray, type, minData} = this.props;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
@@ -195,12 +200,13 @@ class SelectorCard extends Component {
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
       onDelete: this.maybeDelete.bind(this),
-      onSave: this.save.bind(this),
+      onSave: allowSave ? this.save.bind(this) : null,
       portalProps: {namespace: "cms"}
     };
 
     const editorProps = {
       markAsDirty: this.markAsDirty.bind(this),
+      setAllowSave: this.setAllowSave.bind(this),
       data: this.state.minData
     };
 

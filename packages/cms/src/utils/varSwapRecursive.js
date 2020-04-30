@@ -1,11 +1,18 @@
 const selSwap = require("./selSwap");
 const varSwap = require("./varSwap");
 const buble = require("buble");
+const validateDynamic = require("./selectors/validateDynamic");
+const scaffoldDynamic = require("./selectors/scaffoldDynamic");
 
 const strSwap = (str, formatterFunctions, variables, selectors, isLogic = false, id = null) => {
   // First, do a selector replace of the pattern [[Selector]]
   str = selSwap(str, selectors);
-  // Replace all instances of the following pattern:  FormatterName{{VarToReplace}}
+  // After doing selSwap, there may be examples of {{variables}} that don't actually exist, because they came
+  // from a dynamic selector. Perform an intermediate step using the _labels lookup object to help varSwap do its job
+  const combinedLabels = selectors.reduce((d, acc) => ({...acc, ...d._labels}), {});
+  str = varSwap(str, formatterFunctions, combinedLabels, true);
+  // Now that [[selectors]] have been swapped in, and potentially missing dynamic selector variables have been "labeled",
+  // do the standard varSwap: Replace all instances of the following pattern:  FormatterName{{VarToReplace}}
   str = varSwap(str, formatterFunctions, variables);
   // If the key is named logic, this is javascript. Transpile it for IE.
   if (isLogic) {
@@ -33,13 +40,32 @@ const strSwap = (str, formatterFunctions, variables, selectors, isLogic = false,
 const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, selectors = []) => {
   const allowed = obj => !obj.allowed || obj.allowed === "always" || variables[selSwap(obj.allowed, selectors)];
   const obj = Object.assign({}, sourceObj);
-  // If I'm a section and have selectors, extract and prep them for use
+  // If I'm a section and have selectors, extract and prep them for use. This means iterating over 
+  // every selector, checking if the provided query is giving us selections, and otherwise falling 
+  // back on the value of the default. This creates an array of objects that looks like: 
+  // [{year-select: "year2012"}, {state-select: "state25,state36"}, {degree-select: "phd"}]
+  // some from query, some from default, but either way, prepped for selSwap.
   if (obj.selectors) {
     const newSelectors = obj.selectors.map(s => {
       const selector = {};
       // If the option provided in the query is one of the available options for this selector
       const selections = query[s.name] ? query[s.name].split(",") : false;
-      if (selections && selections.every(sel => s.options.map(s => s.option).includes(sel))) {
+      // Options can come from either a static options set or from a dynamic variable
+      let options;
+      if (s.dynamic) {
+        if (validateDynamic(variables[s.dynamic]) === "valid") {
+          options = scaffoldDynamic(variables[s.dynamic]);
+          // If dynamic, bundle a lookup object that can turn options into their labels.
+          selector._labels = options.reduce((d, acc) => ({...acc, [d.option]: d.label || d.option}), {});
+        }
+        else {
+          return {};
+        }
+      }
+      else {
+        options = s.options;
+      }
+      if (selections && options && selections.every(sel => options.map(s => s.option).includes(sel))) {
         // Save that option inside selector object and return it
         selector[s.name] = query[s.name];
         return selector;

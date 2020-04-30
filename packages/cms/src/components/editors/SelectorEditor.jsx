@@ -84,7 +84,11 @@ class SelectorEditor extends Component {
 
   chooseDynamic(e) {
     const {data, isDirty} = this.state;
+    const {localeDefault} = this.props.status;
+    const variables = this.props.status.variables[localeDefault];
     data.dynamic = e.target.value;
+    const dynamicStatus = validateDynamic(variables[data.dynamic]);
+    if (this.props.setAllowSave) this.props.setAllowSave(dynamicStatus === "valid");
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
       this.setState({data, isDirty: true});
@@ -229,11 +233,14 @@ class SelectorEditor extends Component {
     if (data.dynamic) {
       data.dynamic = "";
       data.default = "";
+      if (this.props.setAllowSave) this.props.setAllowSave(true);
     }
     else {
       // Shouldn't be able to get here without arrayOptions having length (see render), so assume first element exists.
       data.default = "";
       data.dynamic = arrayOptions[0];
+      const dynamicStatus = validateDynamic(variables[data.dynamic]);
+      if (this.props.setAllowSave) this.props.setAllowSave(dynamicStatus === "valid");
     }
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
