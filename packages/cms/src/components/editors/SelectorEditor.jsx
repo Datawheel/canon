@@ -5,6 +5,7 @@ import TextInput from "../fields/TextInput";
 import ButtonGroup from "../fields/ButtonGroup";
 import {connect} from "react-redux";
 import {setStatus} from "../../actions/status";
+import validateDynamic from "../../utils/validateDynamic";
 import "./SelectorEditor.css";
 
 class SelectorEditor extends Component {
@@ -182,16 +183,6 @@ class SelectorEditor extends Component {
     }
   }
 
-  validateDynamic(optionsArray) {
-    const arrayExists = optionsArray && Array.isArray(optionsArray);
-    if (!arrayExists) return "Error: Selected variable is not an array";
-    const hasLength = optionsArray.length > 0;
-    if (!hasLength) return "Error: Selected array has no length";
-    const hasOptions = optionsArray.every(d => typeof d === "string" || (d && d.option));
-    if (!hasOptions) return "Error: Objects in selected array are missing option keys";
-    return "valid";
-  }
-
   editLabel(e) {
     const {data, isDirty} = this.state;
     data.title = e.target.value;
@@ -297,7 +288,7 @@ class SelectorEditor extends Component {
       iconPosition: "left"
     };
 
-    const dynamicStatus = this.validateDynamic(variables[data.dynamic]);
+    const dynamicStatus = validateDynamic(variables[data.dynamic]);
     const dynamicAndValid = data.dynamic && dynamicStatus === "valid";
     const dynamicAndBroken = data.dynamic && dynamicStatus !== "valid";
 

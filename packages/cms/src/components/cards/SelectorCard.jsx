@@ -3,8 +3,9 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import deepClone from "../../utils/deepClone";
+import validateDynamic from "../../utils/validateDynamic";
 
-import {Intent} from "@blueprintjs/core";
+import {Intent, Icon} from "@blueprintjs/core";
 
 import Card from "./Card";
 import Dialog from "../interface/Dialog";
@@ -160,15 +161,32 @@ class SelectorCard extends Component {
       });
     }
 
-    const varList = [];
-    if (minData && minData.options.length > 0) {
-      minData.options.forEach(o =>
-        typeof variables[o.option] !== "object"
-          ? varList.push(minData.default.split(",").includes(String(o.option))
-            ? `${variables[o.option]} (default)`
-            : variables[o.option]
-          ) : null
-      );
+    let varList = [];
+    let error = false;
+    if (minData) {
+      if (minData.dynamic) {
+        const dynamicStatus = validateDynamic(variables[minData.dynamic]);
+        if (dynamicStatus === "valid") {
+          varList = variables[minData.dynamic].map(d => {
+            const option = String(d.option || d);
+            return minData.default.split(",").includes(option) ? `${option} (default)` : option;
+          });
+        }
+        else {
+          error = dynamicStatus;
+        }
+      }
+      else {
+        if (minData.options.length > 0) {
+          minData.options.forEach(o =>
+            typeof variables[o.option] !== "object"
+              ? varList.push(minData.default.split(",").includes(String(o.option))
+                ? `${variables[o.option]} (default)`
+                : variables[o.option]
+              ) : null
+          );
+        }
+      }
     }
 
     const dialogProps = {
@@ -208,10 +226,14 @@ class SelectorCard extends Component {
               {/* content preview */}
               <DefinitionList definitions={displayData} key="dd" />
               {/* list of variables */}
-              {varList.length && <Fragment key="o">
+              {varList.length > 0 && <Fragment key="o">
                 <div className="cms-definition-label u-font-xxs">options:</div>
                 <VarList vars={varList} />
               </Fragment>}
+              {error && <p className="cms-card-error u-font-xxs u-margin-top-xs">
+                <Icon className="cms-card-error-icon" icon="warning-sign" /> {error}
+              </p>
+              }
             </Fragment>
           }
         </Card>
