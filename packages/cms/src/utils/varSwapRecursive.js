@@ -1,8 +1,6 @@
 const selSwap = require("./selSwap");
 const varSwap = require("./varSwap");
 const buble = require("buble");
-const validateDynamic = require("./selectors/validateDynamic");
-const scaffoldDynamic = require("./selectors/scaffoldDynamic");
 
 const strSwap = (str, formatterFunctions, variables, selectors, isLogic = false, id = null) => {
   // First, do a selector replace of the pattern [[Selector]]
@@ -50,22 +48,11 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
       const selector = {};
       // If the option provided in the query is one of the available options for this selector
       const selections = query[s.name] ? query[s.name].split(",") : false;
-      // Options can come from either a static options set or from a dynamic variable
-      let options;
-      if (s.dynamic) {
-        if (validateDynamic(variables[s.dynamic]) === "valid") {
-          options = scaffoldDynamic(variables[s.dynamic]);
-          // If dynamic, bundle a lookup object that can turn options into their labels.
-          selector._labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label || d.option}), {});
-        }
-        else {
-          return {};
-        }
-      }
-      else {
-        options = s.options;
-      }
-      if (selections && options && selections.every(sel => options.map(s => s.option).includes(sel))) {
+      // Dynamic selectors don't actually have options, only a dynamic field that points to a variable.
+      // However, options was "scaffolded out" in mortarRoute so we can trust options to exist just the same.
+      // That said, because dynamic selectors "don't exist", we need a lookup object for the labels.
+      if (s.dynamic) selector._labels = s.options.reduce((acc, d) => ({...acc, [d.option]: d.label || d.option}), {});
+      if (selections && selections.every(sel => s.options.map(o => o.option).includes(sel))) {
         // Save that option inside selector object and return it
         selector[s.name] = query[s.name];
         return selector;

@@ -9,8 +9,6 @@ import isIE from "../../utils/isIE.js";
 import throttle from "../../utils/throttle";
 import pxToInt from "../../utils/formatters/pxToInt";
 import toKebabCase from "../../utils/formatters/toKebabCase";
-import validateDynamic from "../../utils/selectors/validateDynamic";
-import scaffoldDynamic from "../../utils/selectors/scaffoldDynamic";
 
 import Button from "../fields/Button";
 
@@ -207,16 +205,14 @@ class Section extends Component {
     </Fragment>;
 
     // filters
-    const filters = selectors.map(s => {
-      const isDynamic = s.dynamic && validateDynamic(initialVariables[s.dynamic] === "valid");
-      const selector = isDynamic ? {...s, options: scaffoldDynamic(initialVariables[s.dynamic])} : s;
-      return <Selector
+    const filters = selectors.map(selector =>
+      <Selector
         key={selector.id}
         {...selector}
         loading={loading}
         fontSize="xxs"
-      />;
-    });
+      />
+    );
 
     // stats
     let secondaryStatContent, statContent;
