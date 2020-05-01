@@ -3,6 +3,8 @@ import React, {Component} from "react";
 import Select from "../fields/Select";
 import Button from "../fields/Button";
 import stripHTML from "../../utils/formatters/stripHTML";
+import validateDynamic from "../../utils/selectors/validateDynamic";
+import scaffoldDynamic from "../../utils/selectors/scaffoldDynamic";
 
 import {newEntity, deleteEntity, swapEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
@@ -51,7 +53,16 @@ class SelectorUsage extends Component {
 
     const {selectors} = minData;
 
-    const activeSelectors = selectors;
+    // Scaffold dynamic selectors;
+    const activeSelectors = selectors.map(selector => {
+      if (selector.dynamic) {
+        if (validateDynamic(variables[selector.dynamic]) === "valid") {
+          return {...selector, options: scaffoldDynamic(variables[selector.dynamic])};
+        } 
+        else return {...selector, options: []};
+      }
+      else return selector;
+    });
     const inactiveSelectors = [];
 
     allSelectors.forEach(selector => {
@@ -132,7 +143,7 @@ class SelectorUsage extends Component {
                         >
                           {typeof variables[option.option] === "object"
                             ? stripHTML(JSON.stringify(variables[option.option]))
-                            : stripHTML(variables[option.option])}
+                            : stripHTML(option.label || variables[option.option])}
                         </option>
                       )}
                     </Select>

@@ -53,7 +53,7 @@ class DraftWrapper extends Component {
     }));
 
     const suggestionsFormatter = this.props.formatters.map(f => ({name: f.name}));
-    const suggestionsSelector = this.props.selectors.map(s => ({name: `[[${s.name}]]`}));
+    const suggestionsSelector = this.props.selectors.map(s => ({name: `[[${s.name}]]`, value: s.default}));
 
     this.state = {
       editorState,
