@@ -7,6 +7,8 @@ import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+import scaffoldDynamic from "../../utils/selectors/scaffoldDynamic";
+import validateDynamic from "../../utils/selectors/validateDynamic";
 
 import {Intent} from "@blueprintjs/core";
 
@@ -147,8 +149,18 @@ class TextCard extends Component {
 
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
-    // polluting the object itself
-    minData.selectors = selectors;
+    // polluting the object itself. Don't forget to scaffold out dynamic selectors
+    minData.selectors = selectors.map(selector => {
+      if (selector.dynamic) {
+        if (validateDynamic(variables[selector.dynamic]) === "valid") {
+          return {...selector, options: scaffoldDynamic(variables[selector.dynamic])};
+        }
+        else return {...selector, options: []};
+      }
+      else {
+        return selector;
+      }
+    });
 
     const primaryFormatters = formatterFunctions[localeDefault];
     // Swap vars, and extract the actual (multilingual) content
