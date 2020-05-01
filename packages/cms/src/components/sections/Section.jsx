@@ -9,6 +9,8 @@ import isIE from "../../utils/isIE.js";
 import throttle from "../../utils/throttle";
 import pxToInt from "../../utils/formatters/pxToInt";
 import toKebabCase from "../../utils/formatters/toKebabCase";
+import validateDynamic from "../../utils/selectors/validateDynamic";
+import scaffoldDynamic from "../../utils/selectors/scaffoldDynamic";
 
 import Button from "../fields/Button";
 
@@ -161,6 +163,7 @@ class Section extends Component {
   render() {
     const {contents, sources, isStickyIE, height, showReset} = this.state;
     const {headingLevel, hideAnchor, hideOptions, isModal, loading} = this.props;
+    const initialVariables = this.props.initialVariables || this.context.initialVariables || {};
 
     // remap old section names
     const layout = contents.type;
@@ -204,14 +207,16 @@ class Section extends Component {
     </Fragment>;
 
     // filters
-    const filters = selectors.map(selector =>
-      <Selector
+    const filters = selectors.map(s => {
+      const isDynamic = s.dynamic && validateDynamic(initialVariables[s.dynamic] === "valid");
+      const selector = isDynamic ? {...s, options: scaffoldDynamic(initialVariables[s.dynamic])} : s;
+      return <Selector
         key={selector.id}
         {...selector}
         loading={loading}
         fontSize="xxs"
-      />
-    );
+      />;
+    });
 
     // stats
     let secondaryStatContent, statContent;

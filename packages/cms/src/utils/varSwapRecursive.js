@@ -9,7 +9,7 @@ const strSwap = (str, formatterFunctions, variables, selectors, isLogic = false,
   str = selSwap(str, selectors);
   // After doing selSwap, there may be examples of {{variables}} that don't actually exist, because they came
   // from a dynamic selector. Perform an intermediate step using the _labels lookup object to help varSwap do its job
-  const combinedLabels = selectors.reduce((d, acc) => ({...acc, ...d._labels}), {});
+  const combinedLabels = selectors.reduce((acc, d) => ({...acc, ...d._labels}), {});
   str = varSwap(str, formatterFunctions, combinedLabels, true);
   // Now that [[selectors]] have been swapped in, and potentially missing dynamic selector variables have been "labeled",
   // do the standard varSwap: Replace all instances of the following pattern:  FormatterName{{VarToReplace}}
@@ -56,7 +56,7 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
         if (validateDynamic(variables[s.dynamic]) === "valid") {
           options = scaffoldDynamic(variables[s.dynamic]);
           // If dynamic, bundle a lookup object that can turn options into their labels.
-          selector._labels = options.reduce((d, acc) => ({...acc, [d.option]: d.label || d.option}), {});
+          selector._labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label || d.option}), {});
         }
         else {
           return {};

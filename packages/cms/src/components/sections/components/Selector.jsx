@@ -41,19 +41,22 @@ class Selector extends Component {
   renderItem(item, {handleClick}) {
     const {comparisons} = this.state;
     const {variables} = this.context;
+    const {options} = this.props;
+    const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label || d.option}), {});
     const selected = comparisons.find(comparison => comparison === item);
     return selected ? null : <MenuItem
       shouldDismissPopover={true}
       onClick={handleClick}
       key={item}
-      text={stripHTML(variables[item])}/>;
+      text={stripHTML(labels[item] || variables[item])}/>;
   }
 
   render() {
     const {comparisons} = this.state;
     const {onSelector, variables} = this.context;
     const {default: activeValue, fontSize, id, loading, options, name, title, type} = this.props;
-    const slug = `${name}-${id}`;
+    const slug = `${name}-${id}`;    
+    const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label || d.option}), {});
 
     // multi select
     if (type === "multi") {
@@ -63,8 +66,8 @@ class Selector extends Component {
         {comparisons && comparisons.length && <Fragment>
           <div className="multi-list">
             { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
-              { stripHTML(variables[d]) }
-              <button aria-label={`${variables[d]} (remove)`} className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
+              { stripHTML(labels[d] || variables[d]) }
+              <button aria-label={`${labels[d] || variables[d]} (remove)`} className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
             </div>) }
           </div>
           {options && options.length && comparisons.length !== options.length
@@ -96,7 +99,7 @@ class Selector extends Component {
               fontSize={fontSize}
               key={b.option}
             >
-              {stripHTML(variables[b.option])}
+              {stripHTML(b.label || variables[b.option])}
             </Button>
           )}
         </ButtonGroup>;
@@ -111,8 +114,8 @@ class Selector extends Component {
         disabled={loading}
         value={activeValue}
       >
-        {options.map(({option}) => <option value={option} key={option}>
-          {stripHTML(variables[option])}
+        {options.map(o => <option value={o.option} key={o.option}>
+          {stripHTML(o.label || variables[o.option])}
         </option>)}
       </Select>;
     }
