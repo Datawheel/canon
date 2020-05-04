@@ -45,8 +45,8 @@ const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-      ga('create', '${process.env.CANON_GOOGLE_ANALYTICS}', 'auto');
-      ga('send', 'pageview');
+      ${process.env.CANON_GOOGLE_ANALYTICS.split(",").map((key, i) => `ga('create', '${key}', 'auto', 'tracker${i + 1}');`).join("\n      ")}
+      ${process.env.CANON_GOOGLE_ANALYTICS.split(",").map((key, i) => `ga('tracker${i + 1}.send', 'pageview');`).join("\n      ")}
     </script>
     <!-- End Google Analytics -->
     `;
