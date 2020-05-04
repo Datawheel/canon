@@ -586,7 +586,7 @@ return {
 
 ## Advanced Selector Techniques
 
-Traditional selectors (drop-downs) are static. Options are added, one by one, from the list of premade variables. However, if selector lists are very long (such as a list of states) or need automatically change (such as years when new data are added), you may need to configure dynamic selectors. 
+Traditional selectors (dropdowns) are static. Options are added, one by one, from the list of premade variables. However, if selector lists are very long (such as a list of states) or need to automatically change (such as years when new data are added), you may need to configure dynamic selectors. 
 
 The `name` of the Selector itself, as well as defining which option(s) are the default, are configured the same way as static selectors. The main difference is that Dynamic Selectors allow you to use a variable to define the members of the dropdown, as opposed to adding pre-existing variable options one at a time.
 
