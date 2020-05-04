@@ -45,7 +45,7 @@ class DraftWrapper extends Component {
       editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
     }
 
-    const {_genStatus, _matStatus, ...variables} = this.props.variables;
+    const {_genStatus, _matStatus, ...variables} = this.props.variables; //eslint-disable-line
 
     const suggestions = Object.keys(variables).map(k => ({
       name: `{{${k}}}`,
