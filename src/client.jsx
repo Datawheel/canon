@@ -88,19 +88,24 @@ function renderMiddleware() {
       const needs = props.components.filter(comp => comp && (comp.need || comp.preneed || comp.postneed));
       const {action, hash, pathname, query, search, state} = props.location;
 
-      const postRender = function() {
+      /** */
+      function postRender() {
         if (!window.__SSR__) {
           if (typeof window.ga === "function") {
             setTimeout(() => {
-              window.ga("set", "title", document.title);
-              window.ga("set", "page", pathname + search);
-              window.ga("send", "pageview");
+              const trackers = window.ga.getAll().map(t => t.get("name"));
+              trackers
+                .forEach(key => {
+                  window.ga(`${key}.set`, "title", document.title);
+                  window.ga(`${key}.set`, "page", pathname + search);
+                  window.ga(`${key}.send`, "pageview");
+                });
             }, 0);
           }
         }
         if (hash) scrollToHash(hash);
         else window.scrollTo(0, 0);
-      };
+      }
 
       if (action !== "REPLACE" || !Object.keys(query).length) {
         selectAll(".d3plus-tooltip").remove();
