@@ -49,6 +49,8 @@ export default (profiles = [], action) => {
     // Toolbox
     case "GENERATOR_NEW":
       return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {generators: p.generators.concat([action.data])}) : p);
+    case "GENERATOR_DUPLICATE":
+      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {generators: p.generators.concat([action.data])}) : p);            
     case "GENERATOR_UPDATE":
       return profiles.map(p => 
         p.id === action.data.profile_id 
@@ -58,7 +60,15 @@ export default (profiles = [], action) => {
     case "GENERATOR_DELETE":
       return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {generators: action.data.generators}) : p);
     case "MATERIALIZER_NEW":
-      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {materializers: p.materializers.concat([action.data])}) : p);
+      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {materializers: p.materializers
+        .map(m => m.ordering >= action.data.ordering ? Object.assign({}, m, {ordering: m.ordering + 1}) : m)
+        .concat([action.data])
+        .sort(sorter)}) : p);
+    case "MATERIALIZER_DUPLICATE":
+      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {materializers: p.materializers
+        .map(m => m.ordering >= action.data.ordering ? Object.assign({}, m, {ordering: m.ordering + 1}) : m)
+        .concat([action.data])
+        .sort(sorter)}) : p);
     case "MATERIALIZER_UPDATE":
       return profiles.map(p => 
         p.id === action.data.profile_id 
@@ -75,6 +85,8 @@ export default (profiles = [], action) => {
         }).sort((a, b) => a.ordering - b.ordering)}));
     case "SELECTOR_NEW":
       return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {selectors: p.selectors.concat([action.data])}) : p);
+    case "SELECTOR_DUPLICATE":
+      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {selectors: p.selectors.concat([action.data])}) : p);
     case "SELECTOR_UPDATE":
       return profiles.map(p => 
         p.id === action.data.profile_id 
@@ -83,8 +95,6 @@ export default (profiles = [], action) => {
       );
     case "SELECTOR_DELETE":
       return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {selectors: action.data.selectors}) : p);
-    case "SELECTOR_DUPLICATE":
-      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {selectors: p.selectors.concat([action.data])}) : p);
 
     // Dimensions
     case "DIMENSION_MODIFY": 

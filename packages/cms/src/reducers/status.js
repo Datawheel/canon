@@ -65,20 +65,24 @@ export default (status = {}, action) => {
     // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW": 
       return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id, force: true}});
+    case "GENERATOR_DUPLICATE": 
+      return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id, force: true}});
     case "GENERATOR_UPDATE": 
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "generator", ...success}});
     case "MATERIALIZER_NEW": 
+      return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id, force: true}});
+    case "MATERIALIZER_DUPLICATE": 
       return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id, force: true}});
     case "MATERIALIZER_UPDATE": 
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "materializer", ...success}});
     case "SELECTOR_NEW": 
       return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
+    case "SELECTOR_DUPLICATE": 
+      return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
     case "SELECTOR_UPDATE": 
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "selector", ...success}});
     case "SELECTOR_DELETE": 
       return Object.assign({}, status, {dialogOpen: false});
-    case "SELECTOR_DUPLICATE": 
-      return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
     case "FORMATTER_NEW": 
       return Object.assign({}, status, {dialogOpen: {type: "formatter", id: action.data.id, force: true}});
     // Updating a formatter means that some formatter logic changed. Bump the diffcounter.

@@ -12,7 +12,7 @@ import VariableEditor from "../editors/VariableEditor";
 import VarTable from "../variables/VarTable";
 import Card from "./Card";
 
-import {deleteEntity, updateEntity, fetchVariables} from "../../actions/profiles";
+import {deleteEntity, duplicateEntity, updateEntity, fetchVariables} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
 import "./VariableCard.css";
@@ -113,6 +113,24 @@ class VariableCard extends Component {
       }
     }
     this.setState({displayData, secondaryDisplayData, dupes, size});
+  }
+
+  maybeDuplicate() {
+    const {type} = this.props;
+    const alertObj = {
+      callback: this.duplicate.bind(this),
+      title: `Duplicate ${type}?`,
+      confirm: `Duplicate ${type}`,
+      theme: "caution",
+      usePortal: this.props.usePortalForAlert
+    };
+    this.setState({alertObj});
+  }
+
+  duplicate() {
+    const {type} = this.props;
+    const {id} = this.props.minData;
+    this.props.duplicateEntity(type, {id});
   }
 
   maybeDelete() {
@@ -218,6 +236,7 @@ class VariableCard extends Component {
       Object.assign(cardProps, {
         title: minData.name, // overwrites placeholder
         onEdit: minData.locked ? null : this.openEditor.bind(this),
+        onDuplicate: minData.locked ? null : this.maybeDuplicate.bind(this),
         onDelete: minData.locked ? null : this.maybeDelete.bind(this),
         // reorder
         reorderProps: showReorderButton ? {
@@ -288,6 +307,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  duplicateEntity: (type, payload) => dispatch(duplicateEntity(type, payload)),
   fetchVariables: config => dispatch(fetchVariables(config)),
   setStatus: status => dispatch(setStatus(status))
 });
