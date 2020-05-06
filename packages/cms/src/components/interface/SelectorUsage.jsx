@@ -16,7 +16,8 @@ class SelectorUsage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentValues: {}
+      currentValues: {},
+      showMore: false
     };
   }
 
@@ -44,7 +45,7 @@ class SelectorUsage extends Component {
 
   render() {
 
-    const {currentValues} = this.state;
+    const {currentValues, showMore} = this.state;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
     const {minData, allSelectors} = this.props;
@@ -71,6 +72,8 @@ class SelectorUsage extends Component {
       }
     });
 
+    const inactiveSelectorsVisible = showMore ? inactiveSelectors : inactiveSelectors.slice(0, 3);
+
     activeSelectors.sort((a, b) => a.ordering - b.ordering);
 
     return (
@@ -78,9 +81,9 @@ class SelectorUsage extends Component {
 
         <div className="cms-selector-usage-column">
           <h3 className="cms-selector-usage-heading u-font-sm">Inactive selectors</h3>
-          {inactiveSelectors.length
+          {inactiveSelectorsVisible.length
             ? <ul className="cms-selector-usage-list">
-              {inactiveSelectors.map(s =>
+              {inactiveSelectorsVisible.map(s =>
                 <li className="cms-selector-usage-item" key={s.id}>
                   <label className="cms-selector-usage-item-label u-font-xs">
                     {s.name}
@@ -99,6 +102,14 @@ class SelectorUsage extends Component {
               )}
             </ul>
             : <p className="u-font-xs">All available selectors have been activated</p>
+          }
+          {(showMore || inactiveSelectors.length > inactiveSelectorsVisible.length) && 
+            <Button 
+              fontSize="xxs"
+              onClick={() => this.setState({showMore: !this.state.showMore})}
+            >
+              {showMore ? "Hide Full List" : "Show Full List..."} 
+            </Button>
           }
         </div>
 
