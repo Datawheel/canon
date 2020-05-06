@@ -134,7 +134,7 @@ class VisualizationCard extends Component {
 
     // TODO: add formatters toggle for secondaryLocale & secondaryVariables
 
-    minData.selectors = selectors;
+    minData.allSelectors = selectors;
     let logic = "return {}";
     // Only calculate the viz render if the user is finished editing and has closed the window.
     if (!isOpen) logic = varSwapRecursive(minData, formatters, variables, query).logic;

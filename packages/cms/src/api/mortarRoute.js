@@ -720,13 +720,11 @@ module.exports = function(app) {
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
     let profile = request.data;
-    // Each section will require references to all selectors
+    // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
+    // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
+    // which power the actual rendered dropdowns on the front-end profile page.
     const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
-    profile.selectors = allSelectors.map(selector => {
-      selector = selector.toJSON();
-      selector = selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector;
-      return selector;
-    });
+    profile.allSelectors = allSelectors.map(selector => selector.toJSON());
     // Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
     // populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
     // into "real ones" so that all the ensuing logic can treat them as if they were normal.

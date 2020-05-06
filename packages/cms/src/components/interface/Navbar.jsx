@@ -194,9 +194,9 @@ class Navbar extends Component {
     const variables = this.props.status.variables[localeDefault] || {};
     const formatters = formatterFunctions[localeDefault];
     const thisProfile = profiles.find(p => p.id === currentPid);
-    const selectors = thisProfile ? thisProfile.selectors : [];
+    const allSelectors = thisProfile ? thisProfile.selectors : [];
     str = stripHTML(str);
-    str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
+    str = varSwapRecursive({str, allSelectors}, formatters, variables, query).str;
     return str;
   }
 

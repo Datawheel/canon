@@ -406,7 +406,7 @@ class SelectorEditor extends Component {
                           value={option.option}
                           onChange={this.chooseOption.bind(this, i)}
                         >
-                          {varOptions}
+                          {varOptions.slice(1) /* the first position "Always" is not a valid variable */ }  
                         </Select>
                       }
                     </td>
