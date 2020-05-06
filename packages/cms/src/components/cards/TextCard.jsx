@@ -7,8 +7,6 @@ import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
-import scaffoldDynamic from "../../utils/selectors/scaffoldDynamic";
-import validateDynamic from "../../utils/selectors/validateDynamic";
 
 import {Intent} from "@blueprintjs/core";
 

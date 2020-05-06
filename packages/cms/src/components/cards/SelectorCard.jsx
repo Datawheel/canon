@@ -13,7 +13,7 @@ import SelectorEditor from "../editors/SelectorEditor";
 import DefinitionList from "../variables/DefinitionList";
 import VarList from "../variables/VarList";
 
-import {deleteEntity, updateEntity} from "../../actions/profiles";
+import {deleteEntity, duplicateEntity, updateEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
 import "./SelectorCard.css";
@@ -85,6 +85,23 @@ class SelectorCard extends Component {
     this.props.updateEntity(type, payload);
   }
 
+  maybeDuplicate() {
+    const alertObj = {
+      callback: this.duplicate.bind(this),
+      title: "Duplicate selector?",
+      confirm: "Duplicate selector",
+      theme: "caution",
+      usePortal: this.props.usePortalForAlert
+    };
+    this.setState({alertObj});
+  }
+
+  duplicate() {
+    const {id} = this.props.minData;
+    const {type} = this.props;
+    this.props.duplicateEntity(type, {id});
+  }
+
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
@@ -153,6 +170,7 @@ class SelectorCard extends Component {
         title: minData.name === "" ? "Add a title" : minData.name,
         onEdit: this.openEditor.bind(this),
         onDelete: this.maybeDelete.bind(this),
+        onDuplicate: this.maybeDuplicate.bind(this),
         // reorder
         reorderProps: parentArray ? {
           item: minData,
@@ -269,6 +287,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  duplicateEntity: (type, payload) => dispatch(duplicateEntity(type, payload)),
   setStatus: status => dispatch(setStatus(status))
 });
 

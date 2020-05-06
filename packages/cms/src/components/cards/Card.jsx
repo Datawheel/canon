@@ -15,6 +15,7 @@ export default class Card extends Component {
       title,           // card title
       type,            // generator, materializer, formatter
       onEdit,          // edit button onClick
+      onDuplicate,     // duplicate button onClick
       onDelete,        // delete button onClick
       onRefresh,       // rebuilding and/or refreshing
       rebuilding,      // disable all buttons when true
@@ -37,7 +38,7 @@ export default class Card extends Component {
       namespace: "cms",
       iconOnly: true
     };
-    let deleteButton, refreshButton;
+    let deleteButton, duplicateButton, refreshButton;
 
     // refresh button
     if (onRefresh) {
@@ -51,6 +52,19 @@ export default class Card extends Component {
         ...buttonProps
       });
       buttons.push(refreshButton);
+    }
+
+    // duplicate button
+    if (onDuplicate) {
+      duplicateButton = Object.assign({}, {
+        children: "duplicate entry",
+        icon: "duplicate",
+        fontSize: "xxs",
+        onClick: onDuplicate,
+        disabled: rebuilding,
+        ...buttonProps
+      });
+      buttons.push(duplicateButton);
     }
 
     // delete button

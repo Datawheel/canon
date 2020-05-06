@@ -77,6 +77,8 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "selector", ...success}});
     case "SELECTOR_DELETE": 
       return Object.assign({}, status, {dialogOpen: false});
+    case "SELECTOR_DUPLICATE": 
+      return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
     case "FORMATTER_NEW": 
       return Object.assign({}, status, {dialogOpen: {type: "formatter", id: action.data.id, force: true}});
     // Updating a formatter means that some formatter logic changed. Bump the diffcounter.

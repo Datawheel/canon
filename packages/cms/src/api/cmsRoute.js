@@ -719,6 +719,20 @@ module.exports = function(app) {
     return res.json(finalProfile);
   });
 
+  const duplicateList = ["selector"];  // TODO: expand generic duplication
+
+  duplicateList.forEach(ref => {
+    app.post(`/api/cms/${ref}/duplicate`, isEnabled, async(req, res) => {
+      let entity = await db[ref].findOne({where: {id: req.body.id}}).catch(catcher);
+      entity = entity.toJSON();
+      const {id, ...duplicate} = entity; //eslint-disable-line
+      if (duplicate.name) duplicate.name = `${duplicate.name}-duplicate`;
+      if (duplicate.title) duplicate.title = `${duplicate.title} (duplicate)`;
+      const newEntity = await db[ref].create(duplicate).catch(catcher);
+      return res.json(newEntity);
+    });
+  });
+
   /* DELETES */
   /**
    * To streamline deletes, this list contains objects with two properties. "elements" refers to the tables to be modified,

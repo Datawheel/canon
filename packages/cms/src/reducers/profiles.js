@@ -83,6 +83,8 @@ export default (profiles = [], action) => {
       );
     case "SELECTOR_DELETE":
       return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {selectors: action.data.selectors}) : p);
+    case "SELECTOR_DUPLICATE":
+      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {selectors: p.selectors.concat([action.data])}) : p);
 
     // Dimensions
     case "DIMENSION_MODIFY": 
