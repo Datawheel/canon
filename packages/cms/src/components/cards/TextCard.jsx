@@ -147,8 +147,8 @@ class TextCard extends Component {
 
     // Setting "selectors" here is pretty hacky. The varSwap needs selectors in order
     // to run, and it expects them INSIDE the object. Find a better way to do this without
-    // polluting the object itself
-    minData.selectors = selectors;
+    // polluting the object itself. Don't forget to scaffold out dynamic selectors
+    minData.allSelectors = selectors;
 
     const primaryFormatters = formatterFunctions[localeDefault];
     // Swap vars, and extract the actual (multilingual) content

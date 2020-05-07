@@ -1,52 +1,48 @@
 module.exports = function(sequelize, db) {
 
-  const s = sequelize.define("selector",
+  const a = sequelize.define("author_content",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
-        autoIncrement: true
-      },
-      options: {
-        type: db.ARRAY(db.JSON),
-        defaultValue: []
-      },
-      default: {
-        type: db.TEXT,
-        defaultValue: ""
-      },          
-      profile_id: {
-        type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_profile",
+          model: "canon_cms_author",
           key: "id"
         }
       },
-      title: {
+      locale: {
         type: db.STRING,
-        defaultValue: ""
+        primaryKey: true
       },
       name: {
         type: db.STRING,
         defaultValue: ""
       },
-      type: {
+      title: {
         type: db.STRING,
-        defaultValue: "single"
+        defaultValue: ""
       },
-      dynamic: {
+      image: {
+        type: db.STRING,
+        defaultValue: ""
+      },
+      twitter: {
+        type: db.STRING,
+        defaultValue: ""
+      },
+      bio: {
         type: db.TEXT,
         defaultValue: ""
       }
     }, 
     {
-      tableName: "canon_cms_selector",
+      tableName: "canon_cms_author_content",
       freezeTableName: true,
       timestamps: false
     }
   );
 
-  return s;
+  return a;
 
 };

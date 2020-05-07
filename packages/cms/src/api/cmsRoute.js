@@ -183,6 +183,7 @@ const sortProfileTree = (db, profiles) => {
     // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
     p.meta = p.meta.sort(sorter);
     p.sections = flatSort(db.section, p.sections);
+    p.materializers = flatSort(db.materializer, p.materializers);
   });
   return profiles;
 };
@@ -717,6 +718,25 @@ module.exports = function(app) {
       return section;
     });
     return res.json(finalProfile);
+  });
+
+  const duplicateList = ["selector", "generator", "materializer"];
+
+  duplicateList.forEach(ref => {
+    app.post(`/api/cms/${ref}/duplicate`, isEnabled, async(req, res) => {
+      let entity = await db[ref].findOne({where: {id: req.body.id}}).catch(catcher);
+      entity = entity.toJSON();
+      const {id, ...duplicate} = entity; //eslint-disable-line
+      if (duplicate.name) duplicate.name = `${duplicate.name}-duplicate`;
+      if (duplicate.title) duplicate.title = `${duplicate.title} (duplicate)`;
+      // Todo: make this more generic. Extract out the /new code have duplicate use it.
+      if (ref === "materializer") {
+        await db[ref].update({ordering: sequelize.literal("ordering +1")}, {where: {profile_id: entity.profile_id, ordering: {[Op.gt]: entity.ordering}}}).catch(catcher);
+        duplicate.ordering++;        
+      }
+      const newEntity = await db[ref].create(duplicate).catch(catcher);
+      return res.json(newEntity);
+    });
   });
 
   /* DELETES */

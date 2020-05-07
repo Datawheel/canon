@@ -12,6 +12,11 @@
   margin-bottom: 0.5rem;
 }
 
+.cms-selector-status {
+  text-align: center;
+  color: var(--alert);
+}
+
 /* labels */
 .cms-selector-editor-thead {
   @mixin label-color;

@@ -5,8 +5,10 @@ const FUNC = require("../utils/FUNC"),
       jwt = require("jsonwebtoken"),
       libs = require("../utils/libs"), // leave this! needed for the variable functions
       mortarEval = require("../utils/mortarEval"),
+      scaffoldDynamic = require("../utils/selectors/scaffoldDynamic"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
+      validateDynamic = require("../utils/selectors/validateDynamic"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
       yn = require("yn");
 
@@ -157,6 +159,19 @@ const sortStory = story => {
     ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storysection[type].sort(sorter));
   });
   return story;
+};
+
+/* Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
+ * populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
+ * into "real ones" so that all the ensuing logic can treat them as if they were normal. */
+const fixSelector = (selector, dynamic) => {
+  if (validateDynamic(dynamic) === "valid") {
+    selector.options = scaffoldDynamic(dynamic);
+  }
+  else {
+    selector.options = [];
+  }
+  return selector;
 };
 
 /**
@@ -705,10 +720,17 @@ module.exports = function(app) {
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
     let profile = request.data;
-    // Each section will require references to all selectors
-    let allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
-    allSelectors = allSelectors.map(as => as.toJSON());
-    profile.selectors = allSelectors;
+    // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
+    // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
+    // which power the actual rendered dropdowns on the front-end profile page.
+    const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
+    profile.allSelectors = allSelectors.map(selector => selector.toJSON());
+    // Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
+    // populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
+    // into "real ones" so that all the ensuing logic can treat them as if they were normal.
+    profile.sections.forEach(section => {
+      section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
+    });
     profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
     // If the user provided selectors in the query, then the user has changed a dropdown.
     // This means that OTHER dropdowns on the page need to be set to match. To accomplish

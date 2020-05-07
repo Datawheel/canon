@@ -3,8 +3,9 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
 import deepClone from "../../utils/deepClone";
+import validateDynamic from "../../utils/selectors/validateDynamic";
 
-import {Intent} from "@blueprintjs/core";
+import {Intent, Icon} from "@blueprintjs/core";
 
 import Card from "./Card";
 import Dialog from "../interface/Dialog";
@@ -12,7 +13,7 @@ import SelectorEditor from "../editors/SelectorEditor";
 import DefinitionList from "../variables/DefinitionList";
 import VarList from "../variables/VarList";
 
-import {deleteEntity, updateEntity} from "../../actions/profiles";
+import {deleteEntity, duplicateEntity, updateEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
 import "./SelectorCard.css";
@@ -25,6 +26,7 @@ class SelectorCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      allowSave: true,
       minData: null,
       initialData: null,
       alertObj: false,
@@ -73,8 +75,31 @@ class SelectorCard extends Component {
   save() {
     const {minData} = this.state;
     const {type} = this.props;
+    // Strip out isDefaults, which were only used for state management.
+    const options = minData.options.map(d => {
+      const {isDefault, ...rest} = d; // eslint-disable-line
+      return rest;
+    });
+    const payload = {...minData, options};
     // note: isOpen will close on update success (see componentDidUpdate)
-    this.props.updateEntity(type, minData);
+    this.props.updateEntity(type, payload);
+  }
+
+  maybeDuplicate() {
+    const alertObj = {
+      callback: this.duplicate.bind(this),
+      title: "Duplicate selector?",
+      confirm: "Duplicate selector",
+      theme: "caution",
+      usePortal: this.props.usePortalForAlert
+    };
+    this.setState({alertObj});
+  }
+
+  duplicate() {
+    const {id} = this.props.minData;
+    const {type} = this.props;
+    this.props.duplicateEntity(type, {id});
   }
 
   maybeDelete() {
@@ -122,8 +147,12 @@ class SelectorCard extends Component {
     this.props.setStatus({dialogOpen: false});
   }
 
+  setAllowSave(allowSave) {
+    this.setState({allowSave});
+  }
+
   render() {
-    const {isOpen, alertObj} = this.state;
+    const {isOpen, alertObj, allowSave} = this.state;
     const {onMove, parentArray, type, minData} = this.props;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
@@ -141,6 +170,7 @@ class SelectorCard extends Component {
         title: minData.name === "" ? "Add a title" : minData.name,
         onEdit: this.openEditor.bind(this),
         onDelete: this.maybeDelete.bind(this),
+        onDuplicate: this.maybeDuplicate.bind(this),
         // reorder
         reorderProps: parentArray ? {
           item: minData,
@@ -154,15 +184,32 @@ class SelectorCard extends Component {
       });
     }
 
-    const varList = [];
-    if (minData && minData.options.length > 0) {
-      minData.options.forEach(o =>
-        typeof variables[o.option] !== "object"
-          ? varList.push(o.isDefault
-            ? `${variables[o.option]} (default)`
-            : variables[o.option]
-          ) : null
-      );
+    let varList = [];
+    let error = false;
+    if (minData) {
+      if (minData.dynamic) {
+        const dynamicStatus = validateDynamic(variables[minData.dynamic]);
+        if (dynamicStatus === "valid") {
+          varList = variables[minData.dynamic].map(d => {
+            const option = String(d.option || d);
+            return minData.default.split(",").includes(option) ? `${option} (default)` : option;
+          });
+        }
+        else {
+          error = dynamicStatus;
+        }
+      }
+      else {
+        if (minData.options.length > 0) {
+          minData.options.forEach(o =>
+            typeof variables[o.option] !== "object"
+              ? varList.push(minData.default.split(",").includes(String(o.option))
+                ? `${variables[o.option]} (default)`
+                : variables[o.option]
+              ) : null
+          );
+        }
+      }
     }
 
     const dialogProps = {
@@ -171,12 +218,13 @@ class SelectorCard extends Component {
       isOpen,
       onClose: this.maybeCloseEditorWithoutSaving.bind(this),
       onDelete: this.maybeDelete.bind(this),
-      onSave: this.save.bind(this),
+      onSave: allowSave ? this.save.bind(this) : null,
       portalProps: {namespace: "cms"}
     };
 
     const editorProps = {
       markAsDirty: this.markAsDirty.bind(this),
+      setAllowSave: this.setAllowSave.bind(this),
       data: this.state.minData
     };
 
@@ -202,10 +250,14 @@ class SelectorCard extends Component {
               {/* content preview */}
               <DefinitionList definitions={displayData} key="dd" />
               {/* list of variables */}
-              {varList.length && <Fragment key="o">
+              {varList.length > 0 && <Fragment key="o">
                 <div className="cms-definition-label u-font-xxs">options:</div>
                 <VarList vars={varList} />
               </Fragment>}
+              {error && <p className="cms-card-error u-font-xxs u-margin-top-xs">
+                <Icon className="cms-card-error-icon" icon="warning-sign" /> {error}
+              </p>
+              }
             </Fragment>
           }
         </Card>
@@ -235,6 +287,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  duplicateEntity: (type, payload) => dispatch(duplicateEntity(type, payload)),
   setStatus: status => dispatch(setStatus(status))
 });
 

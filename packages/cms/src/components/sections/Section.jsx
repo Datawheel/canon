@@ -161,6 +161,7 @@ class Section extends Component {
   render() {
     const {contents, sources, isStickyIE, height, showReset} = this.state;
     const {headingLevel, hideAnchor, hideOptions, isModal, loading} = this.props;
+    const initialVariables = this.props.initialVariables || this.context.initialVariables || {};
 
     // remap old section names
     const layout = contents.type;

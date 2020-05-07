@@ -65,13 +65,19 @@ export default (status = {}, action) => {
     // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW": 
       return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id, force: true}});
+    case "GENERATOR_DUPLICATE": 
+      return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id, force: true}});
     case "GENERATOR_UPDATE": 
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "generator", ...success}});
     case "MATERIALIZER_NEW": 
       return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id, force: true}});
+    case "MATERIALIZER_DUPLICATE": 
+      return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id, force: true}});
     case "MATERIALIZER_UPDATE": 
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "materializer", ...success}});
     case "SELECTOR_NEW": 
+      return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
+    case "SELECTOR_DUPLICATE": 
       return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
     case "SELECTOR_UPDATE": 
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "selector", ...success}});
@@ -97,7 +103,7 @@ export default (status = {}, action) => {
       return Object.assign({}, status, newStatus);
     // Updating sections could mean the title was updated. Bump a "diffcounter" that the Navbar tree can listen for to jigger a render
     case "SECTION_UPDATE": 
-      return Object.assign({}, status, {diffCounter: action.diffCounter, justUpdated: {type: "section", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "section", ...success}});
     // When the user adds a new dimension, set a status that we are waiting for members to finish populating
     case "SEARCH_LOADING": 
       return Object.assign({}, status, {searchLoading: true});
@@ -156,7 +162,7 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {justUpdated: false});
     // Note: some of the update events occur above
     case "PROFILE_UPDATE":
-      return Object.assign({}, status, {justUpdated: {type: "profile", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "profile", ...success}});
     case "PROFILE_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "profile", ...error}});
     case "SECTION_ERROR":

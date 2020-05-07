@@ -12,6 +12,7 @@ Content Management System for Canon sites.
 * [Search](#search)
 * [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
+* [Advanced Selector Techniques](#advanced-selector-techniques)
 * [Authentication](#authentication)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Release Notes](#release-notes)
@@ -583,6 +584,57 @@ return {
 
 ---
 
+## Advanced Selector Techniques
+
+Traditional selectors (dropdowns) are static. Options are added, one by one, from the list of premade variables. However, if selector lists are very long (such as a list of states) or need to automatically change (such as years when new data are added), you may need to configure dynamic selectors. 
+
+The `name` of the Selector itself, as well as defining which option(s) are the default, are configured the same way as static selectors. The main difference is that Dynamic Selectors allow you to use a variable to define the members of the dropdown, as opposed to adding pre-existing variable options one at a time.
+
+### Dynamic Selector Formatting
+
+Dynamic selectors are array variables. The members of that array may be objects or strings.
+
+If the members are **objects**, you must provide the required key `option`, and the optional keys `label` and `allowed`. 
+
+|key|required|details
+|---|---|---|
+|`option`|required|Serves as the `value` of the `<Select/>` in the dropdown.
+|`label`|optional|Value shown as label of dropdown. If not provided, defaults to the value of `option`.
+|`allowed`|optional|String reference to variable to use for `allowed`. Defaults to `always`.
+
+```js
+[
+  {option: "year2016", label: "2016", allowed: "profileHas2016Data"},
+  {option: "year2017", label: "2017", allowed: "profileHas2017Data"},
+  {option: "year2018", label: "2018", allowed: "always"},
+  {option: "year2019", label: "2019"}   // allowed=always is implicit, if desired.
+]
+```
+
+Remember - in static selectors, the "label" was implicitly value of the variable. However, in dynamic selectors, **the options you create will not exist in the variables object**. The exist only within this dynamic selector. In the above example, attempting to access `variables.year2018` will not return anything, as no generator ever exported `year2018` as a proper variable in and of itself. 
+
+A string configuration is also supported: 
+
+```js
+["option1", "option2", "option3"]
+```
+
+In this case, `label` will default to `option` and `allowed` will default to `always`. You may also mix and match formats.
+
+### Technical Details 
+
+Advanced users may have used the following syntax to achieve "labels" on the front end:
+
+```js
+{{[[selector1]]}}
+```
+
+On a first pass, a selector swap will change `selector1` to its selected value (say `year2018`), which leaves `{{year2018}}` behind. A second variable swap pass would then change it to `2018`, for use in a human-readable paragraph.
+
+In dynamic selectors, as mentioned above, `year2018` will not exist as such. Therefore, a step has been added BETWEEN the selector swap and the variable swap, which will use user-defined `labels` as a temporary variable lookup. This behavior allows users to continue to use the `{{[[selector1]]}}` format they are used to, and can trust that it will turn `year2018` into `2018`, even though `year2018` is not in the variables object. 
+
+---
+
 ## Authentication
 
 Canon CMS makes use of the [User Management](https://github.com/Datawheel/canon#user-management) from Canon Core. If `CANON_LOGINS` is set to true, the CMS will require a user of `role` of `1` or higher to access the CMS.
@@ -672,6 +724,7 @@ For upgrading to new versions, there are currently several migration scripts:
 5) `npx canon-cms-migrate-0.8` (for 0.8 CMS users)
 6) `npx canon-cms-migrate-0.9` (for 0.9 CMS users, for upgrade to 0.11 ONLY)
 7) `npx canon-cms-migrate-0.11` (for 0.10 or 0.11 CMS users, for upgrade to 0.12 ONLY)
+8) `npx canon-cms-migrate-0.12` (for 0.12 CMS users)
 
 **Note:** Canon CMS Version 0.10.0 did **NOT** require a database migration, so the `0.9` script will output a `0.11` database.
 
