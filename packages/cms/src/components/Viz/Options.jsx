@@ -343,7 +343,7 @@ class Options extends Component {
         {dataURLs && dataURLs.map((link, i) =>
           <ShareDirectLink
             link={data.indexOf("http") === 0 ? link : `${ domain }${ link }`}
-            label={`Endpoint${dataURLs.length > 1 ? ` ${i + 1}` : "" }`}
+            label={`${t("CMS.Options.Endpoint")}${dataURLs.length > 1 ? ` ${i + 1}` : "" }`}
             key={link}
           />
         )}
@@ -423,14 +423,14 @@ class Options extends Component {
         transitionDuration={transitionDuration}
         ref={this.dialog}
       >
-        <h2 className="u-visually-hidden">Visualization options</h2>
+        <h2 className="u-visually-hidden">{t("CMS.Options.Visualization options")}</h2>
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={dialogOpen}>
           <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
           <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={
             <div className="bp3-dialog-body save-image">
 
               <div className="save-image-button-group-wrapper">
-                <h3 className="save-image-button-group-label label u-font-xs">Image area</h3>
+                <h3 className="save-image-button-group-label label u-font-xs">{t("CMS.Options.Image area")}</h3>
                 <ButtonGroup className="save-image-button-group">
                   <Button
                     className="save-image-format-button"
@@ -440,7 +440,7 @@ class Options extends Component {
                     onClick={() => this.setState({imageContext: "viz"})}
                     active={imageContext === "viz"}
                   >
-                    visualization only
+                    {t("CMS.Options.visualization only")}
                   </Button>
                   <Button
                     className="save-image-format-button"
@@ -453,14 +453,14 @@ class Options extends Component {
                     })}
                     active={imageContext === "section"}
                   >
-                    entire section
+                    {t("CMS.Options.entire section")}
                   </Button>
                 </ButtonGroup>
               </div>
 
               {svgAvailable && imageContext !== "section" &&
                 <div className="save-image-button-group-wrapper">
-                  <h3 className="save-image-button-group-label label u-font-xs">Image format</h3>
+                  <h3 className="save-image-button-group-label label u-font-xs">{t("CMS.Options.Image Format")}</h3>
                   <ButtonGroup className="save-image-button-group">
                     <Button
                       className="save-image-format-button"
@@ -470,7 +470,7 @@ class Options extends Component {
                       onClick={() => this.setState({imageFormat: "png"})}
                       active={imageFormat === "png"}
                     >
-                      <span className="u-visually-hidden">Save visualization as </span>PNG
+                      <span className="u-visually-hidden">{t("CMS.Options.Save visualization as")}</span>PNG
                     </Button>
                     <Button
                       className="save-image-format-button"
@@ -480,7 +480,7 @@ class Options extends Component {
                       onClick={() => this.setState({imageFormat: "svg"})}
                       active={imageFormat === "svg"}
                     >
-                      <span className="u-visually-hidden">Save visualization as </span>SVG
+                      <span className="u-visually-hidden">{t("CMS.Options.Save visualization as")}</span>SVG
                     </Button>
                   </ButtonGroup>
                 </div>
@@ -502,13 +502,13 @@ class Options extends Component {
                 fontSize="md"
                 fill
               >
-                {imageProcessing ? "Processing image" : `Download ${imageFormat}`}
+                {imageProcessing ? t("CMS.Options.Processing image") : `${t("CMS.Options.Download")} ${imageFormat}`}
               </Button>
             </div>
           } />
           <Tab id="share" title={t("CMS.Options.Share")} panel={<SharePanel />} />
           <Button icon="small-cross" iconOnly className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)}>
-            Close
+            {t("CMS.Options.Close")}
           </Button>
         </Tabs>
       </Dialog>
