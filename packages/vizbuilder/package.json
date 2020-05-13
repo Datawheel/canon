@@ -25,7 +25,7 @@
     "d3plus-format": "^0.1.2",
     "d3plus-react": "^0.5.4",
     "fast-sort": "^1.5.3",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.15",
     "memoize-one": "^5.0.4",
     "mondrian-rest-client": "^1.1.0",
     "pluralize": "^8.0.0",
@@ -34,7 +34,7 @@
     "shorthash": "^0.0.2"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "^0.17.30",
+    "@datawheel/canon-core": "^0.18.12",
     "react": "^16.8.6"
   },
   "repository": {
