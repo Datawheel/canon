@@ -1,4 +1,4 @@
-import {Button} from "@blueprintjs/core";
+import {Button, Checkbox} from "@blueprintjs/core";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -32,6 +32,7 @@ class GroupingItem extends SidebarCRUDItem {
     this.handleAddMember = this.handleUpdate.bind(this, "addMember");
     this.handleClearMembers = this.handleUpdate.bind(this, "clearMembers");
     this.handleRemoveMember = this.handleUpdate.bind(this, "removeMember");
+    this.handleUpdateCombine = this.handleUpdate.bind(this, "toggleCombine");
   }
 
   componentDidMount() {
@@ -52,11 +53,12 @@ class GroupingItem extends SidebarCRUDItem {
       <div className="grouping-item">
         <div className="group values">
           <div className="grouping-name">{composePropertyName(item.level)}</div>
-          {item.hasMembers && (
+          {item.combine && <div className="grouping-iscombined">(Combined values)</div>}
+          {item.hasMembers &&
             <div className="group grouping-members">
               {item.members.map(member => <span key={member.key}>{member.name}</span>)}
             </div>
-          )}
+          }
         </div>
         <div className="group actions">
           <Button
@@ -98,6 +100,13 @@ class GroupingItem extends SidebarCRUDItem {
             onClear={this.handleClearMembers}
             onItemSelect={this.handleAddMember}
             onItemRemove={this.handleRemoveMember}
+          />
+        </div>
+        <div className="group grouping-combine">
+          <Checkbox
+            checked={activeItem.combine}
+            label="Combine"
+            onChange={this.handleUpdateCombine}
           />
         </div>
         <div className="group actions">

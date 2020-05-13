@@ -289,9 +289,9 @@ export function reduceLevelsFromDimension(container, dimension) {
   return isTimeDimension(dimension) || yn(dimension.annotations.hide_in_ui)
     ? container
     : dimension.hierarchies.reduce(
-        (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
-        container
-      );
+      (container, hierarchy) => container.concat(hierarchy.levels.slice(1)),
+      container
+    );
 }
 
 /**
@@ -412,23 +412,9 @@ export function sortByCustomKey(key, members) {
   return (a, b) => `${a[key]}`.localeCompare(`${b[key]}`);
 }
 
-/**
- * Generates a 2-object combination from a list of objects.
- * @param {any[]} set An array of objects to get the combo.
- */
-export function* getCombinationsChoose2(set) {
-  const n = set.length;
-  if (n > 0) {
-    const first = set[0];
-    for (let i = 1; i < n; i++) {
-      yield [first, set[i]];
-    }
-    yield* getCombinationsChoose2(set.slice(1));
-  }
-}
-
+/** */
 export function getPermutations(set) {
-  let result = [];
+  const result = [];
 
   const permute = (arr, m = []) => {
     if (arr.length === 0) {
@@ -436,8 +422,8 @@ export function getPermutations(set) {
     }
     else {
       for (let i = 0; i < arr.length; i++) {
-        let curr = arr.slice();
-        let next = curr.splice(i, 1);
+        const curr = arr.slice();
+        const next = curr.splice(i, 1);
         permute(curr.slice(), m.concat(next));
       }
     }

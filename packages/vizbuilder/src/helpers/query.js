@@ -72,7 +72,8 @@ export function replaceLevelsInGroupings(query, newQuery) {
         findByName(level.hierarchy.name, targetDimension.hierarchies) ||
         findByName(level.name, targetDimension.hierarchies);
       targetLevel = targetHierarchy.getLevel(level.name);
-    } catch (e) {
+    }
+    catch (e) {
       return Promise.resolve(null);
     }
 
@@ -85,10 +86,10 @@ export function replaceLevelsInGroupings(query, newQuery) {
 
     return fetchMembers(newQuery, targetLevel).then(members => {
       const memberKeys = {};
-      for (let member, i = 0; (member = members[i]); i++) {
+      for (let i = 0, member; member = members[i]; i++) {
         memberKeys[member.key] = member;
       }
-      for (let member, i = 0; (member = memberList[i]); i++) {
+      for (let i = 0, member; member = memberList[i]; i++) {
         const newMember = memberKeys[member.key];
         newGrouping = newGrouping.addMember(newMember);
       }
@@ -143,8 +144,12 @@ export function generateQueries(params) {
   for (let i = 0; i < groupsCount; i++) {
     const grouping = params.groups[i];
     if (isValidGrouping(grouping)) {
-      validGroups.push(grouping);
+      if (grouping.combine && grouping.hasMembers) {
+        validCuts.push(grouping);
+        continue;
+      }
 
+      validGroups.push(grouping);
       if (grouping.hasMembers) {
         validCuts.push(grouping);
         cutMap.set(grouping.level, grouping);
@@ -161,7 +166,7 @@ export function generateQueries(params) {
     ...params,
     kind: "c",
     level: levels[0],
-    levels: levels,
+    levels,
     cuts: validCuts
   });
 
@@ -224,7 +229,7 @@ export function queryConverter(params, includeConfidenceInt) {
       parents: drilldownList.some(dd => dd.depth > 1),
       debug: false,
       sparse: true
-    },
+    }
     // locale: "en"
   };
 }

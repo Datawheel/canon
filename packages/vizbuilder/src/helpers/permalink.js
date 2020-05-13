@@ -92,7 +92,8 @@ export function permalinkToState(queryParams, prevState) {
 
   return Promise.resolve(newState).then(state => {
     const groupPromises = queryParams.groups.reduce((promises, groupHash) => {
-      const parts = groupHash.split("-");
+      const combine = groupHash.indexOf("_") > -1;
+      const parts = groupHash.split(/[-_]/);
       parts.shift(); // remove order numeral
       const levelKey = parts.shift();
       const level = findByKey(levelKey, state.options.levels);
@@ -104,11 +105,11 @@ export function permalinkToState(queryParams, prevState) {
             const finalMembers = members
               .filter(member => memberKeys.indexOf(`${member.key}`) > -1)
               .sort((a, b) => `${a.key}`.localeCompare(`${b.key}`));
-            return new Grouping(level, finalMembers);
+            return new Grouping(level, finalMembers, combine);
           });
         }
         else {
-          promise = new Grouping(level);
+          promise = new Grouping(level, [], combine);
         }
         promises.push(promise);
       }
