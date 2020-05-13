@@ -3,7 +3,8 @@ import {uuid} from "d3plus-common";
 import {isValidCut, isValidGrouping} from "./validation";
 
 class Grouping {
-  constructor(level, members) {
+  constructor(level, members = [], combine = false) {
+
     /**
      * A unique id for the grouping element
      * @type {string}
@@ -20,7 +21,13 @@ class Grouping {
      * A mondrian-rest-client Member list for the current level
      * @type {import("mondrian-rest-client").Member[]}
      */
-    this.members = members || [];
+    this.members = members;
+
+    /**
+     * Specifies if the group should behave like a drilldown (false) or a cut (true).
+     * @type {boolean}
+     */
+    this.combine = combine;
   }
 
   get key() {
@@ -36,14 +43,11 @@ class Grouping {
   }
 
   toString() {
-    return (
-      this.level &&
-      `${this.key}${
-        this.hasMembers
-          ? `-${this.members.map(member => member.key).join("~")}`
-          : ""
-      }`
-    );
+    const combine = this.combine ? "_" : "-";
+    const members = this.hasMembers
+      ? `${this.members.map(member => member.key).join("~")}`
+      : "";
+    return this.level && `${this.key}${combine}${members}`;
   }
 
   serialize() {
@@ -53,7 +57,7 @@ class Grouping {
   }
 
   getClone() {
-    const clone = new Grouping(this.level, this.members);
+    const clone = new Grouping(this.level, this.members, this.combine);
     clone.uuid = this.uuid;
     return clone;
   }
@@ -98,6 +102,12 @@ class Grouping {
     const members = clone.members.slice();
     members.splice(index, 1);
     clone.members = members;
+    return clone;
+  }
+
+  toggleCombine() {
+    const clone = this.getClone();
+    clone.combine = !clone.combine;
     return clone;
   }
 }
