@@ -14,7 +14,7 @@ import {doCreateFilter, doCreateGroup, doSetup} from "../middleware/actions";
 import {selectChartList} from "../store/charts/selectors";
 import {selectMeasureList} from "../store/cubes/selectors";
 import {selectLoadingState} from "../store/loading/selectors";
-import {selectFilterKeys, selectGroupKeys} from "../store/query/selectors";
+import {selectFilterKeys, selectGroupKeys, selectQueryState} from "../store/query/selectors";
 import ControlMeasure from "./ControlMeasure";
 import ControlSources from "./ControlSources";
 import ErrorExposer from "./ErrorExposer";
@@ -30,6 +30,7 @@ import Ranking from "./Ranking";
 
 /**
  * @typedef StateProps
+ * @property {QueryState} query
  * @property {Chart[]} charts
  * @property {string | undefined} loadError
  * @property {string[]} filters
@@ -82,6 +83,13 @@ class Vizbuilder extends Component {
 
   componentDidMount() {
     this.props.setupParameters();
+  }
+
+  componentDidUpdate(prevProps) {
+    const props = this.props;
+    if (typeof props.onChange === "function" && prevProps.charts !== this.props.charts) {
+      props.onChange(props.query, props.charts);
+    }
   }
 
   render() {
@@ -223,7 +231,8 @@ function mapState(state) {
     loadDone: loading.done,
     loadError: loading.errorName,
     loadTotal: loading.total,
-    measures: selectMeasureList(state)
+    measures: selectMeasureList(state),
+    query: selectQueryState(state)
   };
 }
 
