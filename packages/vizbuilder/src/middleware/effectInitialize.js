@@ -113,7 +113,11 @@ export default {
 
     let measure;
 
-    if (instanceParams.permalink && location.search.length > 1) {
+    if (
+      instanceParams.permalink &&
+      typeof window === "object" &&
+      window.location.search.length > 1
+    ) {
       // Permalink route
       const permalinkKeywords = selectPermalinkKeywordsProp(state);
       const permalinkQuery = permalinkToState(permalinkKeywords, location.search);
@@ -133,9 +137,10 @@ export default {
         }
 
         const groups = permalinkQuery.groups.map(item => {
-          const [hash, ...rawMembers] = item.split("|");
+          const [hash, combine, ...rawMembers] = item.split("|");
           const members = sortNumericsOrStrings(rawMembers);
-          return structGroup({...levelMap[hash], members});
+          // eslint-disable-next-line eqeqeq
+          return structGroup({...levelMap[hash], combine: combine == "1", members});
         });
 
         const filters = permalinkQuery.filters.map(item => {

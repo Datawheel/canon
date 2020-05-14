@@ -103,11 +103,11 @@ export function labelFunctionGenerator(...args) {
     : d => `${d[lvlName1]}`;
 }
 
-/**
- * Returns a common title string from a list of parameters.
- * @param {Chart} chart
- * @param {any} uiParams
- */
+// /**
+//  * Returns a common title string from a list of parameters.
+//  * @param {Chart} chart
+//  * @param {any} uiParams
+//  */
 // export function chartTitleGenerator(chart, uiParams) {
 //   const {query, setup} = chart;
 //   const {measureName, timeLevelName} = chart.names;

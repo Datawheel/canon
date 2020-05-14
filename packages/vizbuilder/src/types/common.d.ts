@@ -1,32 +1,25 @@
+type ChartType =
+  | "barchart"
+  | "barchartyear"
+  | "donut"
+  | "geomap"
+  | "histogram"
+  | "lineplot"
+  | "pie"
+  | "stacked"
+  | "treemap";
+
 interface Datagroup {
   dataset: any[];
   hasTopojsonConfig: boolean;
   memberCount: Record<string, number>;
   memberList: Record<string, any[]>;
   params: QueryParams;
-  visualizations: (
-    | "barchart"
-    | "barchartyear"
-    | "donut"
-    | "geomap"
-    | "histogram"
-    | "lineplot"
-    | "pie"
-    | "stacked"
-    | "treemap")[];
+  visualizations: ChartType[];
 }
 
 interface Chart {
-  chartType:
-    | "barchart"
-    | "barchartyear"
-    | "donut"
-    | "geomap"
-    | "histogram"
-    | "lineplot"
-    | "pie"
-    | "stacked"
-    | "treemap";
+  chartType: ChartType;
   data: any[];
   isTopTen?: boolean;
   key: string;

@@ -13,4 +13,7 @@
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
   "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
 }

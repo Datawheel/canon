@@ -47,8 +47,8 @@ export default function createChartConfig(chart, uiParams) {
       totalFormat: d => `Total: ${formatter(d)}`,
 
       xConfig: {
-        duration: 0,
-        title: null
+        duration: 0
+        // title: null
       },
       yConfig: {
         duration: 0,
@@ -144,7 +144,9 @@ const makeConfig = {
 
     if (timeLevel) {
       const parentHie = findParentHierarchy(cube, timeLevel);
-      config.groupBy = [parentHie.levels[0].name];
+      config.groupBy = parentHie.levels.slice(0, 1)
+        .concat(levels.slice(1))
+        .map(lvl => lvl.caption);
       config.time = timeLevel.caption;
     }
     else if (levels.length > 1) {
@@ -300,7 +302,7 @@ const makeConfig = {
       userConfig
     );
 
-    if (relativeStdDev(chart.data, measureName) > 1) {
+    if (config.yConfig && relativeStdDev(chart.data, measureName) > 1) {
       config.yConfig.scale = "log";
       config.yConfig.title += " (Log)";
     }

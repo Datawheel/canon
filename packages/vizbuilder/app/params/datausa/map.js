@@ -22,7 +22,7 @@ export const defaultGroup = [
 ];
 
 export const defaultMeasure =
-  "https://iron-api.datausa.io/cubes/acs_ygpsar_poverty_by_gender_age_race_1/measures/Poverty%20Rate";
+  "https://banana-api.datausa.io/cubes/acs_ygpsar_poverty_by_gender_age_race_1/measures/Poverty%20Rate";
 
 export const instanceKey = "map";
 
@@ -33,10 +33,10 @@ export const measureConfig = {
   "Children In Poverty": {
     colorScaleConfig: {color: ["#e4b4b4", "#dc9595", "#cf5555", "#CA3434", "#7b0000"]}
   },
-  Unemployment: {
+  "Unemployment": {
     colorScaleConfig: {color: ["#e4b4b4", "#dc9595", "#cf5555", "#CA3434", "#7b0000"]}
   },
-  Uninsured: {
+  "Uninsured": {
     colorScaleConfig: {color: ["#e4b4b4", "#dc9595", "#cf5555", "#CA3434", "#7b0000"]}
   },
   "Uninsured Adults": {
@@ -51,7 +51,7 @@ export const measureConfig = {
   "Adult Obesity": {
     colorScaleConfig: {color: ["#e4b4b4", "#dc9595", "#cf5555", "#CA3434", "#7b0000"]}
   },
-  Diabetes: {
+  "Diabetes": {
     colorScaleConfig: {color: ["#e4b4b4", "#dc9595", "#cf5555", "#CA3434", "#7b0000"]}
   },
   "Sexually Transmitted Infections": {
@@ -161,7 +161,7 @@ export const measureConfig = {
   }
 };
 
-export const src = ["https://iron-api.datausa.io/"];
+export const src = ["https://banana-api.datausa.io/"];
 
 export const tableLogic = cubes => {
   const cube = cubes.find(d => d.name.match(/_5/));
@@ -169,12 +169,12 @@ export const tableLogic = cubes => {
 };
 
 export const topojson = {
-  County: {topojson: "/topojson/usa/County.json"},
+  "County": {topojson: "/topojson/usa/County.json"},
   "Destination State": {topojson: "/topojson/usa/State.json"},
-  MSA: {topojson: "/topojson/usa/Msa.json", topojsonFilter: d => d.id.indexOf("040") < 0},
+  "MSA": {topojson: "/topojson/usa/Msa.json", topojsonFilter: d => d.id.indexOf("040") < 0},
   "Origin State": {topojson: "/topojson/usa/State.json"},
-  PUMA: {topojson: "/topojson/usa/Puma.json"},
-  State: {topojson: "/topojson/usa/State.json"}
+  "PUMA": {topojson: "/topojson/usa/Puma.json"},
+  "State": {topojson: "/topojson/usa/State.json"}
 };
 
 export const visualizations = ["geomap"];

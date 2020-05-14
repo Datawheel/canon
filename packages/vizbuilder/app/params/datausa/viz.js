@@ -22,7 +22,7 @@ export const defaultGroup = [
 ];
 
 export const defaultMeasure =
-  "https://iron-api.datausa.io/cubes/pums_5/measures/Total%20Population";
+  "https://banana-api.datausa.io/cubes/pums_5/measures/Total%20Population";
 
 export const measureConfig = {
   "Population in Poverty by Gender, Age, and Race": {
@@ -31,10 +31,10 @@ export const measureConfig = {
   "Children In Poverty": {
     colorScaleConfig: {color: ["#e4b4b4", "#dc9595", "#cf5555", "#CA3434", "#7b0000"]}
   },
-  Unemployment: {
+  "Unemployment": {
     colorScaleConfig: {color: ["#e4b4b4", "#dc9595", "#cf5555", "#CA3434", "#7b0000"]}
   },
-  Uninsured: {
+  "Uninsured": {
     colorScaleConfig: {color: ["#e4b4b4", "#dc9595", "#cf5555", "#CA3434", "#7b0000"]}
   },
   "Uninsured Adults": {
@@ -49,7 +49,7 @@ export const measureConfig = {
   "Adult Obesity": {
     colorScaleConfig: {color: ["#e4b4b4", "#dc9595", "#cf5555", "#CA3434", "#7b0000"]}
   },
-  Diabetes: {
+  "Diabetes": {
     colorScaleConfig: {color: ["#e4b4b4", "#dc9595", "#cf5555", "#CA3434", "#7b0000"]}
   },
   "Sexually Transmitted Infections": {
@@ -159,13 +159,13 @@ export const measureConfig = {
   }
 };
 
-export const src = ["https://iron-api.datausa.io/"];
+export const src = ["https://banana-api.datausa.io/"];
 
 export const tableLogic = cubes => cubes.find(d => d.name.match(/_5/)) || cubes[0];
 
 export const topojson = {
-  Birthplace: {ocean: "#d4dadc", topojson: "/topojson/usa/birthplace-all.json"},
-  County: {
+  "Birthplace": {ocean: "#d4dadc", topojson: "/topojson/usa/birthplace-all.json"},
+  "County": {
     ocean: "transparent",
     topojson: "/topojson/usa/County.json",
     projection: geoAlbersUsaPr
@@ -175,14 +175,14 @@ export const topojson = {
     topojson: "/topojson/usa/State.json",
     projection: geoAlbersUsaPr
   },
-  MSA: {ocean: "transparent", topojson: "/topojson/usa/Msa.json"},
+  "MSA": {ocean: "transparent", topojson: "/topojson/usa/Msa.json"},
   "Origin State": {
     ocean: "transparent",
     topojson: "/topojson/usa/State.json",
     projection: geoAlbersUsaPr
   },
-  PUMA: {ocean: "transparent", topojson: "/topojson/usa/Puma.json"},
-  State: {
+  "PUMA": {ocean: "transparent", topojson: "/topojson/usa/Puma.json"},
+  "State": {
     ocean: "transparent",
     topojson: "/topojson/usa/State.json",
     projection: geoAlbersUsaPr

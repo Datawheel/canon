@@ -170,6 +170,8 @@ export default {
     return client
       .getCube(cube.name)
       .then(cube => {
+        // If in the future there's the need to request more than 1 query per
+        // view, this is where that change should be implemented.
         const query = queryBuilder(cube.query, measureParams, drillableParams);
         return Promise.all([client.execQuery(query, "aggregate")]);
       })
@@ -226,6 +228,7 @@ export default {
           })
           .reduce(chartCombinationReducer, []);
 
+        console.log(charts);
         if (charts.length === 0) {
           throw errorBuilder("NoChartsError");
         }

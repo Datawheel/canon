@@ -8,41 +8,42 @@ import {datasetToMemberMap} from "./transform";
  */
 export function chartCombinationReducer(charts, dg) {
   return dg.visualizations.reduce((charts, chartType) => {
-    const newCharts =
-      chartType in chartDistiller
-        ? chartDistiller[chartType](dg)
-        : chartDistiller.default(chartType, dg);
+    const newCharts = chartType in chartDistiller
+      ? chartDistiller[chartType](dg)
+      : defaultChart(chartType, dg);
     return charts.concat(newCharts);
   }, charts);
 }
 
+/**
+ * @param {ChartType} chartType
+ * @param {Datagroup} dg
+ * @returns {Chart[]}
+ */
+function defaultChart(chartType, {dataset, memberList, params}) {
+  const levelNames = params.levels.map(i => i.caption);
+  return [
+    {
+      chartType,
+      data: dataset,
+      key: unique(`${levelNames}|${dataset.length}|${chartType}`),
+      members: memberList,
+      params
+    }
+  ];
+}
+
+/**
+ * @type {Record<ChartType, (dg: Datagroup) => Chart[]>}
+ */
 const chartDistiller = {
 
   /**
-   * @param {"barchart" | "barchartyear" | "donut" | "geomap" | "histogram" | "lineplot" | "pie" | "stacked" | "treemap"} chartType
-   * @param {Datagroup} dg
-   * @returns {Chart[]}
-   */
-  default(chartType, {dataset, memberList, params}) {
-    const levelNames = params.levels.map(i => i.caption);
-    return [
-      {
-        chartType,
-        data: dataset,
-        key: unique(`${levelNames}|${dataset.length}|${chartType}`),
-        members: memberList,
-        params
-      }
-    ];
-  },
-
-  /**
    * BARCHART
-   *
-   * @type {(dg: Datagroup) => Chart[]}
+   * - By default is horizontal because improves label readability
    */
   barchart(dg) {
-    const {memberCount, params} = dg;
+    const {dataset, memberCount, params} = dg;
     const {levels, measure} = params;
     const firstLevel = levels[0];
 
@@ -60,14 +61,27 @@ const chartDistiller = {
       return [];
     }
 
-    return chartDistiller.default("barchart", dg);
+    const relevantLevels = levels.filter(lvl => memberCount[lvl.caption] > 1);
+    const permutations = getPermutations(relevantLevels);
+    if (relevantLevels.length > 2) {
+      permutations.push(relevantLevels);
+    }
+    return permutations.map(levels => {
+      const levelNames = levels.map(i => i.caption);
+      return {
+        chartType: "barchart",
+        data: dataset,
+        key: unique(`${levelNames}|${dataset.length}|barchart`),
+        members: dg.memberList,
+        params: {...params, levels}
+      };
+    });
   },
 
   /**
    * BARCHART FOR YEARS
+   * - By default is vertical because of time notion
    * - timeLevel required
-   *
-   * @type {(dg: Datagroup) => Chart[]}
    */
   barchartyear(dg) {
     const {memberCount, params} = dg;
@@ -106,13 +120,11 @@ const chartDistiller = {
       return [];
     }
 
-    return chartDistiller.default("barchart", dg);
+    return defaultChart("barchartyear", dg);
   },
 
   /**
    * DONUT CHART
-   *
-   * @type {(dg: Datagroup) => Chart[]}
    */
   donut(dg) {
     if (
@@ -125,14 +137,19 @@ const chartDistiller = {
       return [];
     }
 
-    return chartDistiller.default("donut", dg);
+    return defaultChart("donut", dg);
+  },
+
+  /**
+   * PIE CHART
+   */
+  pie(dg) {
+    return chartDistiller.donut(dg);
   },
 
   /**
    * GEOMAPS
    * - geoLevel required
-   *
-   * @type {(dg: Datagroup) => Chart[]}
    */
   geomap(dg) {
     const {geoLevel, levels, cuts} = dg.params;
@@ -171,13 +188,12 @@ const chartDistiller = {
       return [];
     }
 
-    return chartDistiller.default("geomap", dg);
+    return defaultChart("geomap", dg);
   },
 
   /**
    * HISTOGRAM
-   *
-   * @type {(dg: Datagroup) => Chart[]}
+   * - TODO: implement bucket detection
    */
   histogram(dg) {
     if (dg.params.measure.aggregationType !== "BUCKET") {
@@ -190,8 +206,6 @@ const chartDistiller = {
   /**
    * LINEPLOTS
    * - timeLevel required.
-   *
-   * @type {(dg: Datagroup) => Chart[]}
    */
   lineplot(dg) {
     const {params, memberCount} = dg;
@@ -232,14 +246,12 @@ const chartDistiller = {
       ];
     }
 
-    return chartDistiller.default("lineplot", dg);
+    return defaultChart("lineplot", dg);
   },
 
   /**
    * STACKED AREA
    * - timeLevel required.
-   *
-   * @type {(dg: Datagroup) => Chart[]}
    */
   stacked(dg) {
     const {memberCount, params} = dg;
@@ -267,13 +279,11 @@ const chartDistiller = {
       return [];
     }
 
-    return chartDistiller.default("stacked", dg);
+    return defaultChart("stacked", dg);
   },
 
   /**
    * TREEMAPS
-   *
-   * @type {(dg: Datagroup) => Chart[]}
    */
   treemap({dataset, memberCount, memberList, params}) {
     const {levels, measure} = params;
