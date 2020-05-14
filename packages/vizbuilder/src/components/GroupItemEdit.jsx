@@ -4,33 +4,26 @@ import {withNamespaces} from "react-i18next";
 import {sortNumericsOrStrings} from "../helpers/sort";
 import LevelSelect from "./LevelSelect";
 import MemberSelect from "./MemberSelect";
-import MiniButton from "./MiniButton";
 
 /**
  * @typedef OwnProps
  * @property {string} dimension
  * @property {string[]} dimensionNames
- * @property {boolean} dirty
  * @property {string} hash
- * @property {number} index
  * @property {LevelItem[]} levelOptions
  * @property {boolean} loadingMembers
  * @property {MemberItem[]} memberOptions
  * @property {string[]} members
- * @property {() => void} onDelete
  * @property {(drillable: LevelItem) => void} onDrillableUpdate
  * @property {(members: string[]) => void} onMembersUpdate
- * @property {() => void} onReset
- * @property {() => void} onUpdate
  */
 
 /** @type {React.FC<import("react-i18next").WithNamespaces & OwnProps>} */
-const EditGroupItem = function EditGroupItem({
+const EditGroupItem = ({
   dimension,
   dimensionNames,
-  dirty,
+  children,
   hash,
-  index,
   levelOptions,
   loadingMembers,
   memberOptions,
@@ -38,10 +31,8 @@ const EditGroupItem = function EditGroupItem({
   onDelete,
   onDrillableUpdate,
   onMembersUpdate,
-  onReset,
-  onUpdate,
   t
-}) {
+}) => {
   const selectedLevel = levelOptions.find(lvl => lvl.hash === hash);
 
   const freeLevels = levelOptions.filter(
@@ -84,24 +75,7 @@ const EditGroupItem = function EditGroupItem({
         />
       </div>
 
-      <div className="group actions">
-        {dirty && <MiniButton
-          className="action-reset"
-          onClick={onReset}
-          text={t("Vizbuilder.action_reset")}
-        />}
-        {!dirty && index > 0 && <MiniButton
-          className="action-delete"
-          onClick={onDelete}
-          text={t("Vizbuilder.action_delete")}
-        />}
-        <MiniButton
-          className="action-update"
-          onClick={onUpdate}
-          primary
-          text={t("Vizbuilder.action_apply")}
-        />
-      </div>
+      {children}
     </fieldset>
   );
 };

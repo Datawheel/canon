@@ -25,6 +25,7 @@ import Ranking from "./Ranking";
 /**
  * @typedef OwnState
  * @property {boolean} isSidebarOpen
+ * @property {number} [nextNewGroup]
  */
 
 /**
@@ -51,7 +52,8 @@ import Ranking from "./Ranking";
  */
 class Vizbuilder extends Component {
   state = {
-    isSidebarOpen: true
+    isSidebarOpen: true,
+    nextNewGroup: undefined
   };
 
   resizeEnsureHandler = debounce(
@@ -70,6 +72,14 @@ class Vizbuilder extends Component {
       this.resizeEnsureHandler
     );
 
+  createGroupHandler = () => this.setState(
+    {nextNewGroup: this.props.groups.length},
+    () => {
+      this.props.createGroupHandler();
+      setTimeout(() => this.setState({nextNewGroup: undefined}), 1000);
+    }
+  );
+
   componentDidMount() {
     this.props.setupParameters();
   }
@@ -79,7 +89,6 @@ class Vizbuilder extends Component {
       config: userConfig,
       controlsArea,
       createFilterHandler,
-      createGroupHandler,
       filters,
       groups,
       isLoading,
@@ -95,7 +104,7 @@ class Vizbuilder extends Component {
       toolbarArea,
       topojson: topojsonConfig
     } = this.props;
-    const {isSidebarOpen} = this.state;
+    const {isSidebarOpen, nextNewGroup} = this.state;
 
     const formatters = {...DEFAULT_MEASURE_FORMATTERS, ...this.props.formatting};
     const multipliers = {...DEFAULT_MEASURE_MULTIPLIERS, ...this.props.multipliers};
@@ -125,13 +134,18 @@ class Vizbuilder extends Component {
               <ControlArea
                 className="control groups-manager"
                 title={t("Vizbuilder.title_groups")}
-                items={groups.map((key, index) => <GroupItem key={key} identifier={key} index={index} />)}
+                items={groups.map((key, index) => <GroupItem
+                  identifier={key}
+                  isOnlyChild={groups.length < 2}
+                  isInitiallyOpen={nextNewGroup === index}
+                  key={key}
+                />)}
               >
                 <Button
                   className="control-action group-add"
                   fill
                   icon="insert"
-                  onClick={createGroupHandler}
+                  onClick={this.createGroupHandler}
                   text={t("Vizbuilder.action_newgroup")}
                 />
               </ControlArea>

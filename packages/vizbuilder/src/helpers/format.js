@@ -22,7 +22,7 @@ export function levelNameFormatter(dimension, hierarchy, level) {
  */
 export function integerBaseline(config, chart) {
   const measureName = chart.params.measure.name;
-  const limitValue = config.yConfig.scale === "log" ? 1 : 0;
+  const limitValue = config.yConfig?.scale === "log" ? 1 : 0;
   const minValue = minBy(chart.data, measureName);
   if (minValue < limitValue) {
     config.baseline = limitValue;

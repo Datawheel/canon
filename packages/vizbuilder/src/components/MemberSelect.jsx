@@ -47,7 +47,8 @@ const MemberSelect = function({
   const actualSelectedItems = useMemo(
     () => {
       const optionMap = keyBy(items, m => m.key);
-      return selectedItems.map(key => optionMap[key]);
+      // eslint-disable-next-line eqeqeq
+      return selectedItems.map(key => optionMap[key]).filter(item => item != null);
     },
     [items, selectedItems]
   );
@@ -96,8 +97,7 @@ function renderItemList(itemListProps) {
 
   return itemListProps.query
     ? <FilterList {...itemListProps} levels={levelGetter} />
-    : <NavigationList {...itemListProps} levels={levelGetter} />
-  ;
+    : <NavigationList {...itemListProps} levels={levelGetter} />;
 }
 
 /** @type {(item: MemberItem) => React.ReactNode} */

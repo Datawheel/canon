@@ -1,8 +1,10 @@
 import keyBy from "lodash/keyBy";
 import React, {Component} from "react";
+import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import GroupItemEdit from "../components/GroupItemEdit";
 import GroupItemView from "../components/GroupItemView";
+import MiniButton from "../components/MiniButton";
 import {structGroup} from "../helpers/structs";
 import {doFetchMembers, doRunQueryCore} from "../middleware/actions";
 import {doGroupDelete, doGroupUpdate} from "../store/query/actions";
@@ -15,7 +17,8 @@ import {
 /**
  * @typedef OwnProps
  * @property {string} identifier
- * @property {number} index
+ * @property {boolean} isOnlyChild
+ * @property {boolean} isInitiallyOpen
  */
 
 /**
@@ -45,11 +48,11 @@ import {
  * @property {(groupItem: GroupItem) => void} onUpdate
  */
 
-/** @extends {Component<OwnProps & StateProps & DispatchProps, OwnState>} */
+/** @extends {Component<import("react-i18next").WithNamespaces & OwnProps & StateProps & DispatchProps, OwnState>} */
 class GroupItemControl extends Component {
   state = {
     error: null,
-    isOpen: this.props.index > 0,
+    isOpen: this.props.isInitiallyOpen,
     loadingMembers: false,
     memberMap: {},
     nextDimension: this.props.group.dimension,
@@ -158,14 +161,17 @@ class GroupItemControl extends Component {
 
   render() {
     const {props, state} = this;
-    const {group} = props;
+    const {group, isOnlyChild, t} = props;
+    const {isOpen} = state;
 
-    return state.isOpen
-      ? <GroupItemEdit
-        index={props.index}
+    if (isOpen) {
+      const isDirty =
+        state.nextHash !== group.hash ||
+        `${state.nextMembers}` !== `${group.members}`;
+
+      return <GroupItemEdit
         dimension={state.nextDimension}
         dimensionNames={props.dimensionNames}
-        dirty={state.nextHash !== group.hash}
         hash={state.nextHash}
         levelOptions={props.levels}
         loadingMembers={state.loadingMembers}
@@ -174,19 +180,50 @@ class GroupItemControl extends Component {
         onDelete={this.deleteHandler}
         onDrillableUpdate={this.setDrillableHandler}
         onMembersUpdate={this.setMembersHandler}
-        onReset={this.resetHandler}
-        onUpdate={this.applyHandler}
-      />
-      : <GroupItemView
+      >
+        <div className="group actions">
+          {isDirty && <MiniButton
+            className="action-reset"
+            onClick={this.resetHandler}
+            text={t("Vizbuilder.action_reset")}
+          />}
+          {!isOnlyChild && <MiniButton
+            className="action-delete"
+            onClick={this.deleteHandler}
+            text={t("Vizbuilder.action_delete")}
+          />}
+          <MiniButton
+            className="action-update"
+            onClick={this.applyHandler}
+            primary
+            text={t("Vizbuilder.action_apply")}
+          />
+        </div>
+      </GroupItemEdit>;
+    }
+    else {
+      return <GroupItemView
         dimension={group.dimension}
         hierarchy={group.hierarchy}
-        index={props.index}
         level={group.level}
         memberMap={state.memberMap}
         members={group.members}
-        onDelete={this.deleteHandler}
-        onEdit={this.editHandler}
-      />;
+      >
+        <div className="group actions">
+          {!isOnlyChild && <MiniButton
+            className="action-delete"
+            onClick={this.deleteHandler}
+            text={t("Vizbuilder.action_delete")}
+          />}
+          <MiniButton
+            className="action-edit"
+            primary
+            onClick={this.editHandler}
+            text={t("Vizbuilder.action_edit")}
+          />
+        </div>
+      </GroupItemView>;
+    }
   }
 }
 
@@ -219,4 +256,6 @@ function mapDispatch(dispatch) {
   };
 }
 
-export default connect(mapState, mapDispatch)(GroupItemControl);
+export default connect(mapState, mapDispatch)(
+  withNamespaces()(GroupItemControl)
+);

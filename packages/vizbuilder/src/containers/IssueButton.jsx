@@ -18,7 +18,7 @@ import {selectPermalink} from "../store/query/selectors";
  */
 
 /** @type {React.FC<import("react-i18next").WithNamespaces & OwnProps & StateProps>} */
-const IssueButton = function({error, location, message, permalink, t}) {
+const IssueButton = ({error, location, message, permalink, t}) => {
   const issueParams = formUrlEncode({
     body: [
       `**Permalink**: ${location.origin + location.pathname}?${permalink}`,
