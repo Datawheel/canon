@@ -1,3 +1,5 @@
+/* global __TIMESTAMP__ */
+
 import React from "react";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
@@ -43,8 +45,8 @@ const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-      ga('create', '${process.env.CANON_GOOGLE_ANALYTICS}', 'auto');
-      ga('send', 'pageview');
+      ${process.env.CANON_GOOGLE_ANALYTICS.split(",").map((key, i) => `ga('create', '${key}', 'auto', 'tracker${i + 1}');`).join("\n      ")}
+      ${process.env.CANON_GOOGLE_ANALYTICS.split(",").map((key, i) => `ga('tracker${i + 1}.send', 'pageview');`).join("\n      ")}
     </script>
     <!-- End Google Analytics -->
     `;
@@ -98,11 +100,11 @@ export default function(defaultStore = {}, headerConfig, reduxMiddleware = false
       basename,
       host: req.headers.host,
       hostname: req.headers.host.split(":")[0],
-      href: `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }${ req.url }`,
-      origin: `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`,
+      href: `${ req.protocol }://${ req.headers.host }${ req.url }`,
+      origin: `${ req.protocol }://${ req.headers.host }`,
       pathname: req.url.split("?")[0],
       port: req.headers.host.includes(":") ? req.headers.host.split(":")[1] : "80",
-      protocol: `http${ req.connection.encrypted ? "s" : "" }:`,
+      protocol: `${ req.protocol }:`,
       query: req.query,
       search: req.url.includes("?") ? `?${req.url.split("?")[1]}` : ""
     };
@@ -162,7 +164,7 @@ export default function(defaultStore = {}, headerConfig, reduxMiddleware = false
     ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
 
     <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/normalize.css'>
-    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css'>
+    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css?v${__TIMESTAMP__}'>
     ${hotjarScript}
   </head>
   <body>
@@ -176,7 +178,7 @@ export default function(defaultStore = {}, headerConfig, reduxMiddleware = false
       window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
     </script>
     ${analtyicsScript}
-    <script type="text/javascript" charset="utf-8" src="${ process.env.CANON_BASE_URL ? "" : "/" }assets/app.js"></script>
+    <script type="text/javascript" charset="utf-8" src="${ process.env.CANON_BASE_URL ? "" : "/" }assets/app.js?v${__TIMESTAMP__}"></script>
 
   </body>
 </html>`);

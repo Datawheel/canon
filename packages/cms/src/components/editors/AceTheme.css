@@ -1,0 +1,181 @@
+@import "../../css/mixins.css";
+
+.cms .ace_editor {
+  background: var(--black);
+  color: color(var(--light-3) a(0.875));
+
+  /* current line */
+  & .ace_marker-layer .ace_active-line,
+  & .ace_gutter .ace_gutter-active-line {
+    background-color: var(--dark-2);
+    /* hide visual artifcats */
+    overflow: hidden;
+    box-shadow: 1px 0 1px var(--dark-2);
+  }
+
+  /* selected text */
+  & .ace_marker-layer .ace_selection {
+    background: color(var(--gray) a(0.25));
+  }
+
+  /* shows matching bracket; not always visible */
+  & .ace_marker-layer .ace_bracket {
+    margin: -1px 0 0 -1px;
+    border: none;
+    border-radius: 0;
+    margin-top: 1px;
+    background-color: color(var(--gray) a(0.125));
+  }
+
+  /* gutter with line numbers & errors */
+  & .ace_gutter {
+    background-color: color(var(--dark-3) a(0.5));
+    color: color(var(--dark-1) a(0.5));
+
+    /* (!) */
+    & .ace_info {
+      background: none;
+      transition: color 0.15s ease-out;
+
+      &:hover {
+        color: var(--light-3);
+      }
+
+      &:before {
+        content: "i";
+        display: block;
+        position: absolute;
+        left: 0.4em;
+        transform: scale(0.75);
+      }
+    }
+  }
+
+  /* the cursor/caret */
+  & .ace_cursor {
+    color: var(--light-3);
+  }
+
+  /* when double clicking a word */
+  & .ace_marker-layer .ace_selected-word {
+    background: none;
+    border: 1px dotted var(--dark-1);
+  }
+
+  /* functions, etc */
+  & .ace_support.ace_function,
+  & .ace_entity.ace_name.ace_function,
+  & .ace_entity.ace_other,
+  & .ace_entity.ace_other.ace_attribute-name,
+  & .ace_variable {
+    color: #61afef; /* from Atom default theme */
+  }
+
+  /* strings */
+  & .ace_string {
+    color: var(--type-string);
+  }
+
+  /* */ /* */
+  & .ace_comment {
+    color: var(--dark-1);
+  }
+
+  /* return, etc */
+  & .ace_entity.ace_name.ace_tag,
+  & .ace_keyword,
+  & .ace_meta.ace_tag,
+  & .ace_storage,
+  & .ace_support.ace_constant,
+  & .ace_storage.ace_type,
+  & .ace_support.ace_class,
+  & .ace_support.ace_type {
+    color: #c678dd; /* from Atom default theme */
+  }
+
+  /* , : ; . */
+  & .ace_punctuation,
+  & .ace_punctuation.ace_tag {
+    color: var(--dark-1);
+  }
+
+  /* numerals & such */
+  & .ace_constant.ace_character,
+  & .ace_constant.ace_language,
+  & .ace_constant.ace_numeric,
+  & .ace_constant.ace_other {
+    color: var(--type-number);
+  }
+
+  /* true / false */
+  & .ace_constant.ace_boolean {
+    color: var(--type-boolean);
+  }
+
+  /* invalid */
+  & .ace_invalid {
+    color: var(--white);
+    background-color: var(--alert-dark);
+  }
+  & .ace_invalid.ace_deprecated {
+    color: var(--white);
+    background-color: var(--alert);
+  }
+
+  /* fold buttons */
+  & .ace_fold,
+  & .ace_fold-widget {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: var(--dark-1);
+    cursor: default;
+    transition: color 0.15s ease-out;
+
+    &:hover {
+      color: var(--accent-light);
+    }
+  }
+  /* reposition ellipsis */
+  & .ace_fold {
+    line-height: 0.4;
+  }
+  /* reposition caret */
+  & .ace_fold-widget:after {
+    content: "‣";
+  }
+  & .ace_fold-widget.ace_closed {
+    transform: rotate(90deg);
+    top: -2px;
+    left: 1px;
+  }
+
+
+  /* indentation indicator */
+  & .ace_indent-guide {
+    background: none;
+    border-right: 1px solid color(var(--gray) a(0.125));
+    margin-left: -1px;
+  }
+  /* line length helper */
+  & .ace_print-margin {
+    width: 1px;
+    background: none;
+    border-right: 1px dashed var(--dark-2);
+  }
+
+  /* 🤷‍ */
+  & .ace_invisible {
+    color: var(--dark-1);
+  }
+  & .ace_variable.ace_parameter {
+    font-style: italic;
+    color: var(--accent-dark);
+  }
+  &.ace_multiselect .ace_selection.ace_start {
+    box-shadow: 0 0 3px 0px var(--dark-3);
+  }
+  & .ace_marker-layer .ace_step {
+    background: var(--accent-black);
+  }
+}

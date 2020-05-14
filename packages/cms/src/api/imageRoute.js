@@ -1,11 +1,14 @@
 const axios = require("axios");
 const sequelize = require("sequelize");
 const yn = require("yn");
+const jwt = require("jsonwebtoken");
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 let cubeRoot = process.env.CANON_CMS_CUBES;
 if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
+
+const {OLAP_PROXY_SECRET, CANON_CMS_MINIMUM_ROLE} = process.env;
 
 const catcher = e => {
   if (verbose) {
@@ -14,12 +17,27 @@ const catcher = e => {
   return [];
 };
 
+const imgCatcher = e => {
+  if (verbose) {
+    console.error("Error in imageRoute (Broken cloud link): ", e.message);
+  }
+  return false;
+};
+
 const getParentMemberWithImage = async(db, member, meta) => {
   const {id, hierarchy} = member;
   const {dimension, cubeName} = meta;
   if (cubeName) {
-    const resp = await axios.get(`${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:parents`).catch(() => {
-      if (verbose) console.log("Warning: Parent endpoint misconfigured or not available");
+    const url = `${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:parents`;
+    const config = {};
+    if (OLAP_PROXY_SECRET) {
+      const jwtPayload = {sub: "server", status: "valid"};
+      if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+      const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+      config.headers = {"x-tesseract-jwt-token": apiToken};
+    }
+    const resp = await axios.get(url, config).catch(() => {
+      if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (imageRoute)");
       return [];
     });
     if (resp.data && resp.data.data && resp.data.data.length > 0) {
@@ -52,12 +70,12 @@ module.exports = function(app) {
     const locale = req.query.locale || envLoc;
     const jsonError = () => res.json({error: "Not Found"});
     const imageError = () => res.sendFile(`${process.cwd()}/static/images/transparent.png`);
-    const reqObj = req.query.dimension ? {where: {dimension: req.query.dimension}} : {where: {slug}};
+    const reqObj = req.query.dimension && req.query.cubeName ? {where: {dimension: req.query.dimension, cubeName: req.query.cubeName}} : {where: {slug}};
     const meta = await db.profile_meta.findOne(reqObj).catch(catcher);
     if (!meta) return type === "json" ? jsonError() : imageError();  
-    const {dimension} = meta;
+    const {dimension, cubeName} = meta;
     let member = await db.search.findOne({
-      where: {dimension, [sequelize.Op.or]: {id, slug: id}},
+      where: {dimension, cubeName, [sequelize.Op.or]: {id, slug: id}},
       include: {model: db.image, include: [{association: "content"}]}
     }).catch(catcher);
     if (!member) return type === "json" ? jsonError() : imageError();
@@ -88,7 +106,8 @@ module.exports = function(app) {
         if (imageId) {
           let url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
           if (t) url += `?t=${t}`;
-          const imgData = await axios.get(url, {responseType: "arraybuffer"}).then(resp => resp.data).catch(catcher);
+          const imgData = await axios.get(url, {responseType: "arraybuffer"}).then(resp => resp.data).catch(imgCatcher);
+          if (!imgData) return imageError();
           res.writeHead(200,  {"Content-Type": "image/jpeg"});
           return res.end(imgData, "binary");  
         }

@@ -4,8 +4,16 @@
 .cp-button-group,
 .cms-button-group {
   /* layout */
+  align-items: baseline;
   width: 100%;
   display: flex;
+
+  & > [class*="-label"] {
+    white-space: nowrap;
+    margin-right: 0.75em;
+    display: inline-block;
+    line-height: 1.125;
+  }
 
   & > [class*="-button"] {
     flex: 1 1 auto;

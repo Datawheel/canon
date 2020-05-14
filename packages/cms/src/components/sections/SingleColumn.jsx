@@ -6,7 +6,7 @@ import "./SingleColumn.css";
 export default class SingleColumn extends Component {
 
   render() {
-    const {slug, title, heading, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -24,7 +24,15 @@ export default class SingleColumn extends Component {
           {sources}
           {resetButton}
           {visualizations.map((visualization, ii) =>
-            <Viz section={this} config={visualization} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title} key={`${slug}-${ii}`} />
+            <Viz
+              section={this}
+              config={visualization}
+              slug={slug}
+              headingLevel={vizHeadingLevel}
+              sectionTitle={title}
+              hideOptions={hideOptions}
+              key={`${slug}-${ii}`}
+            />
           )}
         </div>
       </div>

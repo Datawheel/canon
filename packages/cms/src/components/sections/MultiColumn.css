@@ -8,7 +8,7 @@
   columns: var(--multicolumn-column-count);
   column-width: var(--multicolumn-column-width);
   column-gap: var(--multicolumn-column-gap);
-  column-fill: auto;
+  column-fill: balance;
 
   & > * {
     break-inside: avoid;

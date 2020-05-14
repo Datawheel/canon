@@ -48,7 +48,7 @@ module.exports = {
     }
 
     parser.parseFuncFromString(content, customParser);
-    parser.parseTransFromString(content, customParser);
+    if (path.extname(file.path) !== ".html") parser.parseTransFromString(content, customParser);
     parser.parseAttrFromString(content, customParser);
 
     if (count > 0) {

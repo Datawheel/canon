@@ -227,6 +227,18 @@ theming
   }
 }
 
+/* dialog/alert overlay */
+@define-mixin overlay-theme {
+  @mixin button-reset;
+  z-index: -1;
+
+  &:focus {
+    border: 2px solid var(--accent-dark);
+    outline: none;
+    transition-delay: 0.5s;
+  }
+}
+
 /* text input */
 @define-mixin cms-text-input-style {
   /* theming */
@@ -298,14 +310,17 @@ layout
 /* overflow with inertia scrolling */
 @define-mixin overflow-container {
   overflow: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 @define-mixin vertical-overflow-container {
   overflow-y: auto;
+  overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
 }
 @define-mixin horizontal-overflow-container {
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -381,6 +396,24 @@ CMS nav links & dropdowns
   z-index: -1;
   pointer-events: none;
   /* add a transform as well */
+}
+
+/* -----------------------------------
+Link styles
+----------------------------------- */
+@define-mixin link-theme {
+  font-weight: var(--display-font-weight);
+  letter-spacing: 0.01em;
+  color: var(--accent);
+
+  &:hover, &:focus {
+    text-decoration: underline;
+    color: var(--accent-dark);
+
+    @mixin dark-mode {
+      color: var(--accent-light);
+    }
+  }
 }
 
 /* -----------------------------------

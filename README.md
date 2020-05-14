@@ -418,7 +418,13 @@ export CANON_RESET_LINK="/my-reset-route"
 The `<Reset />` component relies on detecting a unique token in the URL (which is sent in the e-mail to the user). If you would like to embed the component into an existing page, you must pass the Router object to the component on render:
 
 ```jsx
-<Reset router={ this.props.router }/>
+<Reset router={ this.props.router } />
+```
+
+By default, users are redirected to `/login` after a successful password reset. This can also be changed with a prop:
+
+```jsx
+<Reset redirect="/en/login" router={ this.props.router } />
 ```
 
 When sending e-mails, datahweel-canon will use the "name" field of your **package.json** file as the site name in e-mail correspondence (ex. "Sincerely, the [name] team"). If you'd like to use a more human-readable site name, it can be set with the following environment variable:
@@ -736,7 +742,7 @@ export CANON_LANGUAGE_DEFAULT="es"
 |---|---|---|
 |`CANON_API`|Used as a prefix with the fetchData action and the attribute types returned from the `ATTRS` url.|`undefined`|
 |`CANON_BASE_URL`|If hosting assets or running the server from a different location that the project folder, this variable can be used to define the base URL for all static assets. A `<base>` tag will be added to the start of the `<head>` tag.|`undefined`|
-|`CANON_GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`).|`undefined`|
+|`CANON_GOOGLE_ANALYTICS`|The unique Google Analytics ID for the project (ex. `"UA-########-#"`). This also supports comma-separated values, if it's desired for pageviews to be reported to multiple analytics properties.|`undefined`|
 |`CANON_FACEBOOK_PIXEL`|The unique Facebook Pixel ID for the project (ex. `"################"`).|`undefined`|
 |`CANON_GOOGLE_TAG_MANAGER`|The unique Google Tag Manager ID for the project (ex. `"GTM-#######"`).|`undefined`|
 |`CANON_HELMET_FRAMEGUARD`|Pass-through option for the "frameguard" property of the [helmet](https://github.com/helmetjs/helmet#how-it-works) initialization.|`false`|

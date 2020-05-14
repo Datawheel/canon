@@ -6,6 +6,7 @@ import {hot} from "react-hot-loader/root";
 
 import Graphic from "./Graphic";
 import PercentageBar from "./PercentageBar";
+import HTML from "./HTML";
 import Table from "./Table";
 import Options from "./Options";
 import toKebabCase from "../../utils/formatters/toKebabCase";
@@ -14,7 +15,7 @@ import Parse from "../sections/components/Parse";
 import "./Viz.css";
 import defaultConfig from "./defaultConfig";
 
-const vizTypes = Object.assign({PercentageBar}, {Table}, {Graphic}, d3plus);
+const vizTypes = Object.assign({PercentageBar, Table, Graphic, HTML}, d3plus);
 
 class Viz extends Component {
 
@@ -30,13 +31,26 @@ class Viz extends Component {
   }
 
   render() {
-    const {sectionTitle} = this.props;
+    const {
+      config,
+      configOverride,
+      className,
+      debug,
+      headingLevel,
+      hideOptions,
+      namespace,
+      slug,
+      section,
+      sectionTitle,
+      showTitle
+    } = this.props;
+
     // Variables come from props in the CMS, and Context in the Front-end.
     const variables = this.props.variables || this.context.variables;
     // onSetVariables will either come from ProfileBuilder (CMS) or Profile (Front-end)
     // But either way, it is delivered via context. Have a backup no-op just in case.
     const onSetVariables = this.context.onSetVariables ? this.context.onSetVariables : d => d;
-    // Window opening is only supported on front-end profiles. If they didn't 
+    // Window opening is only supported on front-end profiles. If they didn't
     // come through context, then this Viz is in the CMS, so just replace it with a no-op.
     const onOpenModal = this.context.onOpenModal ? this.context.onOpenModal : d => d;
     const locale = this.props.locale || this.context.locale;
@@ -49,7 +63,6 @@ class Viz extends Component {
     // locale-nested format.
     const formatters = this.context.formatters[locale] || this.context.formatters;
 
-    const {config, configOverride, namespace, className, debug, options, slug, section, showTitle, headingLevel} = this.props;
     const {id} = config;
 
     // clone config object to allow manipulation
@@ -63,6 +76,8 @@ class Viz extends Component {
     // Note that if vizProps.error exists but debug is NOT true, we should still keep rendering, because propify
     // gave us a "stub" config with a user-friendly error message built in, so the front-end can see it.
     vizProps.config = Object.assign(vizProps.config, configOverride);
+
+    if (debug) vizProps.config.duration = 0;
 
     // strip out the "type" from config
     const {type} = vizProps.config;
@@ -78,45 +93,55 @@ class Viz extends Component {
 
     const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
+    // whether to show the title and/or visualization options
+    const showHeader = (title && showTitle || !hideOptions) && type !== "Graphic" && type !== "HTML";
+
     return <SizeMe render={({size}) =>
       <div
-        className={ `${namespace}-viz-container${
+        className={`${namespace}-viz-container${
           className ? ` ${className}` : ""
         }${
           type ? ` ${namespace}-${toKebabCase(type)}-viz-container` : ""
         }`}
         ref={ comp => this.viz = comp }
       >
-        {(title && showTitle || options) && type !== "Graphic"
-          ? <div className={`${namespace}-viz-header`}>
+        {showHeader &&
+          <div className={`${namespace}-viz-header`}>
             {title && showTitle
               ? <Parse El={headingLevel} className={`${namespace}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}>
                 {title}
               </Parse> : ""
             }
-            {options && !vizProps.error
+            {!hideOptions && !vizProps.error
               ? <Options
                 key="option-key"
                 component={{section, viz: this}}
-                data={ vizConfig.data }
-                dataFormat={ vizProps.dataFormat }
-                slug={ slug }
-                title={ title || sectionTitle || slug }
+                data={vizConfig.data}
+                dataFormat={vizProps.dataFormat}
+                slug={slug }
+                title={title || sectionTitle || slug}
                 iconOnly={size && size.width < 320 ? true : false}
               /> : ""
             }
-          </div> : ""
+          </div>
         }
         <div className={`${namespace}-viz-figure${vizConfig.height || type === "Graphic" ? " with-explicit-height" : ""}`}>
           <Visualization
             key="viz-key"
             className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
             dataFormat={resp => {
-              const hasMultiples = Array.isArray(vizProps.data) && vizProps.data.some(d => typeof d === "string");
+              const hasMultiples = vizProps.data && Array.isArray(vizProps.data) && vizProps.data.length > 1 && vizProps.data.some(d => typeof d === "string");
               const sources = hasMultiples ? resp : [resp];
               sources.forEach(r => this.analyzeData.bind(this)(r));
-              // console.log(sources);
-              return vizProps.dataFormat(resp);
+              let data;
+              try {
+                data = vizProps.dataFormat(resp);
+              }
+              catch (e) {
+                console.log("Error in dataFormat: ", e);
+                data = [];
+              }
+              return data;
             }}
             linksFormat={vizProps.linksFormat}
             nodesFormat={vizProps.nodesFormat}
@@ -156,7 +181,6 @@ Viz.defaultProps = {
   config: {},
   configOverride: {},
   namespace: "cp",
-  options: true,
   showTitle: true,
   headingLevel: "h3"
 };

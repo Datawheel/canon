@@ -45,7 +45,7 @@ class PercentageBar extends Component {
         this.setState({config});
       });
     }
-    else {
+    else if (Array.isArray(config.data)) {
       config.data = dataFormat(config.data);
       if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
       this.setState({config});

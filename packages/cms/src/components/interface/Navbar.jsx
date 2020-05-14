@@ -8,9 +8,9 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 import {getProfiles, newProfile, deleteProfile, setVariables, resetPreviews} from "../../actions/profiles";
 import {getStories, newStory, deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
-import {getCubeData} from "../../actions/cubeData";
 
 import stripHTML from "../../utils/formatters/stripHTML";
+import groupMeta from "../../utils/groupMeta";
 
 import Dropdown from "./Dropdown";
 import Outline from "./Outline";
@@ -33,7 +33,6 @@ class Navbar extends Component {
   componentDidMount() {
     this.props.getProfiles();
     this.props.getStories();
-    this.props.getCubeData();
   }
 
   componentDidUpdate(prevProps) {
@@ -137,9 +136,16 @@ class Navbar extends Component {
 
   // create a title by joining dimensions together
   makeTitleFromDimensions(entity) {
-    return entity.meta && entity.meta.length
-      ? entity.meta.map(m => m.slug).join(" / ")
-      : "Unnamed";
+    const {localeDefault} = this.props.status;
+    const defCon = entity.content.find(c => c.locale === localeDefault);
+    if (defCon && defCon.label && defCon.label !== "New Profile Label") {
+      return stripHTML(defCon.label);
+    }
+    else if (entity.meta && entity.meta.length) {
+      const groupedMeta = groupMeta(entity.meta);
+      return groupedMeta.length > 0 ? groupedMeta.map(g => g[0] ? g[0].slug : "ERR_META").join(" / ") : "Unnamed";      
+    }
+    else return "Unnamed";
   }
 
   // get the title of the current node, in the correct language
@@ -166,6 +172,8 @@ class Navbar extends Component {
       else {
         this.props.setStatus({currentPid: Number(pathObj.profile), pathObj: newPathObj});
         this.props.resetPreviews();
+        // TODO: Remove reset previews - have all profiles come from the server
+        // with their default values already set.
       }
       if (pathObj.section) {
         this.setState({outlineOpen: true});
@@ -186,9 +194,9 @@ class Navbar extends Component {
     const variables = this.props.status.variables[localeDefault] || {};
     const formatters = formatterFunctions[localeDefault];
     const thisProfile = profiles.find(p => p.id === currentPid);
-    const selectors = thisProfile ? thisProfile.selectors : [];
+    const allSelectors = thisProfile ? thisProfile.selectors : [];
     str = stripHTML(str);
-    str = varSwapRecursive({str, selectors}, formatters, variables, query).str;
+    str = varSwapRecursive({str, allSelectors}, formatters, variables, query).str;
     return str;
   }
 
@@ -235,6 +243,7 @@ class Navbar extends Component {
           selected: currentTab === "profiles" && currentPid === profile.id
         };
       });
+      profileNavItems.sort((a, b) => a.title.localeCompare(b.title));
     }
     if (!profileNavItems.find(p => p.title === "Create new profile")) {
       profileNavItems.push({
@@ -440,7 +449,7 @@ class Navbar extends Component {
                 </Fragment>}
               </div>
               <button
-                className={`cms-navbar-settings-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
+                className={`cms-navbar-settings-overlay cms-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}
                 onClick={() => this.toggleSettings()}
                 onFocus={() => this.closeSettings()}
                 aria-labelledby="cms-navbar-settings-button"
@@ -481,9 +490,7 @@ const mapDispatchToProps = dispatch => ({
   deleteStory: id => dispatch(deleteStory(id)),
   // Status Operations
   setStatus: status => dispatch(setStatus(status)),
-  setVariables: newVariables => dispatch(setVariables(newVariables)),
-  // CubeData
-  getCubeData: () => dispatch(getCubeData())
+  setVariables: newVariables => dispatch(setVariables(newVariables))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(Navbar));

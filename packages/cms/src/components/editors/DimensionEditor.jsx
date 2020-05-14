@@ -1,10 +1,14 @@
-import React, {Component} from "react";
-import PropTypes from "prop-types";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
+import PropTypes from "prop-types";
+import {Icon} from "@blueprintjs/core";
+
 import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
+
 import {modifyDimension} from "../../actions/profiles";
+import {getCubeData} from "../../actions/cubeData";
 
 import "./DimensionEditor.css";
 
@@ -22,11 +26,28 @@ class DimensionEditor extends Component {
         levels: []
       },
       selectedDimension: {},
-      mode: "add"
+      mode: "add",
+      fieldsChanged: false
     };
   }
 
   componentDidMount() {
+    const {cubeData} = this.props;
+    if (!cubeData) {
+      this.props.getCubeData();
+    } 
+    else {
+      this.populate.bind(this)();
+    } 
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!prevProps.cubeData && this.props.cubeData) {
+      this.populate.bind(this)();
+    }
+  }
+
+  populate() {
     const {meta, cubeData} = this.props;
     if (meta) {
       const selectedDimension = cubeData.find(d => d.cubeName === meta.cubeName && d.dimName === meta.dimension);
@@ -48,7 +69,7 @@ class DimensionEditor extends Component {
   changeField(field, e) {
     const {profileData} = this.state;
     profileData[field] = e.target.value;
-    this.setState({profileData});
+    this.setState({profileData, fieldsChanged: true});
   }
 
   chooseDimension(e) {
@@ -94,8 +115,7 @@ class DimensionEditor extends Component {
 
   saveProfile() {
     const {profileData, mode} = this.state;
-    const {meta} = this.props;
-    const {profiles} = this.props;
+    const {profiles, meta, ordering} = this.props;
     const {currentPid} = this.props.status;
     let takenSlugs = profiles.map(p => p.meta).reduce((acc, d) => acc.concat(d.map(m => m.slug)), []);
     // If editing, then the user provided seed data via "meta". Do not include the given
@@ -110,15 +130,19 @@ class DimensionEditor extends Component {
       });
     }
     else {
-      this.props.modifyDimension(Object.assign({}, profileData, {profile_id: currentPid}));
+      const payload = Object.assign({}, profileData, {profile_id: currentPid});
+      // If ordering was provided, this is a Variant 
+      if (!isNaN(ordering)) payload.ordering = ordering;
+      this.props.modifyDimension(payload);
       if (this.props.onComplete) this.props.onComplete();
     }
   }
 
   render() {
-
-    const {profileData, mode} = this.state;
+    const {fieldsChanged, profileData, mode} = this.state;
     const {cubeData} = this.props;
+
+    if (!cubeData) return null;
 
     const dimOptions = cubeData.map(d => <option key={d.name} value={d.name}>{d.name}</option>);
     const levelList = profileData.dimension ? cubeData
@@ -128,15 +152,19 @@ class DimensionEditor extends Component {
       .find(c => c.name === profileData.dimension).measures
       .map(m => <option key={m} value={m}>{m}</option>) : [];
 
+    let canSaveChanges = false;
+    if (profileData.dimension && profileData.levels.length > 0 && profileData.measure && profileData.measure !== "default" && fieldsChanged) canSaveChanges = true;
+
     return (
-      <div className="bp3-dialog-body">
-        {mode === "edit" && 
-          <div className="cms-dimension-creator-warning">
-            <em>Warning: Modifying Dimension Data after creation can break lots of things. Make sure you know what you are doing!</em>
-          </div>
+      <Fragment>
+        {mode === "edit" &&
+          <p className="cms-dimension-editor-warning u-font-xs u-margin-bottom-md" key="a">
+            <Icon icon="warning-sign" /> <strong>Warning</strong>: Modifying dimensions can break the site. Proceed with caution.
+          </p>
         }
+
         <TextInput
-          label="slug"
+          label="Slug"
           inline
           namespace="cms"
           value={profileData.slug}
@@ -156,15 +184,15 @@ class DimensionEditor extends Component {
 
         {profileData.dimension &&
           <div className="cms-field-container">
-            Subdimensions:
             <fieldset className="cms-fieldset">
-              { levelList.map(level =>
-                <label className="cms-checkbox-label" key={level}>
+              <legend className="cms-fieldset-legend u-font-sm">Subdimensions:</legend>
+              {levelList.map(level =>
+                <label className="cms-checkbox-label u-font-xs" key={level}>
                   <input
                     className="cms-checkbox"
                     type="checkbox"
-                    checked={ profileData.levels.includes(level) }
-                    onChange={ this.toggleLevel.bind(this, level) }
+                    checked={profileData.levels.includes(level)}
+                    onChange={this.toggleLevel.bind(this, level)}
                   /> {level}
                 </label>
               )}
@@ -186,18 +214,16 @@ class DimensionEditor extends Component {
         }
 
         <div className="cms-field-container">
-          {profileData.dimension && profileData.levels.length > 0 && profileData.measure && profileData.measure !== "default"
-            ? <Button 
-              onClick={this.saveProfile.bind(this)} 
-              namespace="cms" 
-              icon={mode === "edit" ? "edit" : "plus"}
-            >
-              {`${mode === "edit" ? "Modify" : "Add"} dimension`}
-            </Button>
-            : <Button icon="plus" namespace="cms" disabled>{`${mode === "edit" ? "Modify" : "Add"} dimension`}</Button>
-          }
+          <Button
+            onClick={canSaveChanges ? this.saveProfile.bind(this) : null}
+            namespace="cms"
+            icon={mode === "edit" ? "tick-circle" : "plus"}
+            disabled={!canSaveChanges}
+          >
+            {`${mode === "edit" ? "Modify" : "Add"} dimension`}
+          </Button>
         </div>
-      </div>
+      </Fragment>
     );
   }
 }
@@ -213,7 +239,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  modifyDimension: payload => dispatch(modifyDimension(payload))
+  modifyDimension: payload => dispatch(modifyDimension(payload)),
+  getCubeData: () => dispatch(getCubeData())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(DimensionEditor);

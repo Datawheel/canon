@@ -1,18 +1,30 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
-import {Icon, Alert, Intent} from "@blueprintjs/core";
+import {Icon} from "@blueprintjs/core";
 
 import Button from "../fields/Button";
+import ButtonGroup from "../fields/ButtonGroup";
 import Select from "../fields/Select";
+import Alert from "../interface/Alert";
 
-import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection} from "../../actions/profiles";
+import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, fetchSectionPreview} from "../../actions/profiles";
 import {deleteStory} from "../../actions/stories";
+import {setStatus} from "../../actions/status";
+
+import PropTypes from "prop-types";
+import linkify from "../../utils/linkify";
 
 import "./Header.css";
 
-class Header extends Component {
+// spread into header action buttons
+const buttonProps = {
+  iconPosition: "left",
+  namespace: "cms",
+  fontSize: "xxs"
+};
 
+class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -65,6 +77,14 @@ class Header extends Component {
     }
   }
 
+  togglePreview() {
+    const {pathObj, localeDefault, localeSecondary, useLocaleSecondary} = this.props.status;
+    const locale = useLocaleSecondary ? localeSecondary : localeDefault;
+    if (pathObj.section) {
+      this.props.fetchSectionPreview(pathObj.section, locale);
+    }
+  }
+
   delete(itemToDelete) {
     const {type, id} = itemToDelete;
     if (type === "section") this.props.deleteEntity("section", {id});
@@ -79,10 +99,10 @@ class Header extends Component {
   }
 
   render() {
-
     const {dimensions, profiles, stories} = this.props;
-    const {currentPid, currentStoryPid, pathObj} = this.props.status;
+    const {currentPid, currentStoryPid, pathObj, localeDefault} = this.props.status;
     const {itemToDelete, itemToDuplicate, profileTarget} = this.state;
+    const {router} = this.context;
 
     let domain = this.props;
     if (typeof domain !== "undefined" && typeof window !== "undefined" && window.document.location.origin) {
@@ -99,17 +119,8 @@ class Header extends Component {
 
     if (pathObj.tab === "profiles") {
       // construct URL from domain and dimensions
-      previewURL = `${domain}/profile/${dimensions
-        .map(dim => `${dim.slug}/${dim.memberSlug || dim.id}/`)
-        .reduce((acc, d) => acc += d, "")
-      }`;
-      prettyURL = <Fragment>
-        {prettyRoot}/profile{dimensions && dimensions.map(dim =>
-          <Fragment key={dim.slug}>/
-            <span className="cms-header-link-dimension">{dim.slug}</span>/
-            <span className="cms-header-link-id">{dim.memberSlug || dim.id}</span>
-          </Fragment>)}
-      </Fragment>;
+      previewURL = linkify(router, dimensions, localeDefault);
+      prettyURL = `${prettyRoot}${previewURL}`;
       // Only show the delete button if this is not the last entity. You can't have a profile with no sections.
       if (pathObj.section) {
         const thisProfile = profiles.find(p => p.id === currentPid);
@@ -153,6 +164,11 @@ class Header extends Component {
     // Only show the link if this is a story (not requiring dimension) or is a profile that HAS dimensions
     const showLink = pathObj.tab === "stories" || dimensions && dimensions.length > 0;
 
+    const showDuplicateButton = pathObj.tab === "profiles";
+    const showPreviewButton = pathObj.section;
+
+    const showButtons = showDuplicateButton || showDeleteButton || showPreviewButton;
+
     return (
       <Fragment>
         <header className="cms-header">
@@ -179,74 +195,98 @@ class Header extends Component {
           </span>
 
           {/* TODO: make this a popover once we have more options */}
-          {/* duplicate entity */}
-          {pathObj.tab === "profiles" && <div className="cms-header-actions-container" key="header-actions-container-duplicate">
-            <Button
-              className="cms-header-actions-button cms-header-delete-button"
-              onClick={this.maybeDuplicate.bind(this)}
-              icon="duplicate"
-              namespace="cms"
-              fontSize="xs"
-            >
-              {`Duplicate ${entityType === "storysection" ? "section" : entityType}`}
-            </Button>
-          </div>}
-          {/* delete entity */}
-          {showDeleteButton &&
-            <div className="cms-header-actions-container" key="header-actions-container-delete">
-              <Button
-                className="cms-header-actions-button cms-header-delete-button"
-                onClick={this.maybeDelete.bind(this)}
-                icon="trash"
-                namespace="cms"
-                fontSize="xs"
-              >
-                {`Delete ${entityType === "storysection" ? "section" : entityType}`}
-              </Button>
-            </div>
+          {showButtons
+            ? <div className="cms-header-actions-container" key="ac">
+              <ButtonGroup className="cms-header-actions-button-group">
+                {/* preview entity */}
+                {showPreviewButton &&
+                  <Button
+                    className="cms-header-actions-button cms-header-preview-button"
+                    onClick={this.togglePreview.bind(this)}
+                    icon="application"
+                    key="db1"
+                    {...buttonProps}
+                  >
+                    Preview <span className="u-visually-hidden">section</span>
+                  </Button>
+                }
+                {/* duplicate entity */}
+                {showDuplicateButton &&
+                  <Button
+                    className="cms-header-actions-button cms-header-duplicate-button"
+                    onClick={this.maybeDuplicate.bind(this)}
+                    icon="duplicate"
+                    key="db2"
+                    {...buttonProps}
+                  >
+                    Duplicate <span className="u-visually-hidden">
+                      {entityType === "storysection" ? "section" : entityType}
+                    </span>
+                  </Button>
+                }
+                {/* delete entity */}
+                {showDeleteButton &&
+                  <Button
+                    className="cms-header-actions-button cms-header-delete-button"
+                    onClick={this.maybeDelete.bind(this)}
+                    icon="trash"
+                    key="db3"
+                    {...buttonProps}
+                  >
+                    Delete <span className="u-visually-hidden">
+                      {entityType === "storysection" ? "section" : entityType}
+                    </span>
+                  </Button>
+                }
+              </ButtonGroup>
+            </div> : ""
           }
         </header>
 
+        {/* duplicate alert */}
         <Alert
+          title={`Duplicate ${entityType}?`}
           isOpen={itemToDuplicate}
-          cancelButtonText="Cancel"
-          confirmButtonText="Duplicate"
-          iconName="duplicate"
-          intent={Intent.SUCCESS}
+          confirmButtonText={`Duplicate ${entityType}`}
           onConfirm={() => this.duplicate.bind(this)(itemToDuplicate)}
           onCancel={() => this.setState({itemToDuplicate: null})}
-        >
-          {entityType === "profile" 
-            ? <div>Duplicate this Profile?</div>
-            : <div>
-              Choose a profile in which to duplicate this section:
-              <Select
-                label="Target Profile"
-                namespace="cms"
-                value={profileTarget}
-                onChange={this.chooseProfileTarget.bind(this)}
-                inline
-              >
-                {profiles.map(p => <option key={p.id} value={p.id}>{p.meta.map(m => m.slug).join("/")}</option>)}
-              </Select>
-            </div>
+          controls={entityType === "section"
+            ? <Select
+              label="Duplicate section to which profile?"
+              labelHidden
+              namespace="cms"
+              fontSize="md"
+              value={profileTarget}
+              onChange={this.chooseProfileTarget.bind(this)}
+            >
+              {profiles.map(p => <option key={p.id} value={p.id}>
+                {p.meta.map(m => m.slug).join("/")} profile
+              </option>)}
+            </Select> : null
           }
-        </Alert>
+          theme="caution"
+        />
+
+        {/* delete alert */}
         <Alert
+          title={itemToDelete && itemToDelete.type === "profile"
+            ? "Delete profile along with all of its sections and content?"
+            : "Delete section along with all of its content?"}
           isOpen={itemToDelete}
           cancelButtonText="Cancel"
-          confirmButtonText="Delete"
-          iconName="trash"
-          intent={Intent.DANGER}
+          confirmButtonText={`Delete ${itemToDelete ? itemToDelete.type : ""}`}
           onConfirm={() => this.delete.bind(this)(itemToDelete)}
           onCancel={() => this.setState({itemToDelete: null})}
-        >
-          {itemToDelete ? `Are you sure you want to delete this ${itemToDelete.type} and all its children? This action cannot be undone.` : ""}
-        </Alert>
+          description="This action cannot be undone."
+        />
       </Fragment>
     );
   }
 }
+
+Header.contextTypes = {
+  router: PropTypes.object
+};
 
 const mapStateToProps = state => ({
   status: state.cms.status,
@@ -259,7 +299,9 @@ const mapDispatchToProps = dispatch => ({
   deleteProfile: id => dispatch(deleteProfile(id)),
   duplicateProfile: id => dispatch(duplicateProfile(id)),
   duplicateSection: (id, pid) => dispatch(duplicateSection(id, pid)),
-  deleteStory: id => dispatch(deleteStory(id))
+  fetchSectionPreview: (id, locale) => dispatch(fetchSectionPreview(id, locale)),
+  deleteStory: id => dispatch(deleteStory(id)),
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(hot(Header));

@@ -17,34 +17,36 @@
     "release": "canon-release"
   },
   "dependencies": {
-    "@datawheel/olap-client": "^1.2.1",
+    "@datawheel/olap-client": "^1.3.2",
     "classnames": "^2.2.6",
     "d3-array": "^1.2.4",
     "d3plus-common": "^0.6.60",
-    "d3plus-format": "^0.1.16",
-    "d3plus-react": "^0.5.7",
+    "d3plus-format": "^0.1.18",
+    "d3plus-react": "^0.5.8",
     "fast-sort": "^1.5.3",
     "form-urldecoded": "0.0.6",
-    "form-urlencoded": "^4.1.1",
+    "form-urlencoded": "^4.1.3",
     "memoize-one": "^5.1.1",
-    "pluralize": "^8.0.0",
-    "prop-types": "^15.7.2",
-    "react-viewport-list": "^1.1.0",
+    "react-viewport-list": "^1.3.3",
     "reselect": "^4.0.0",
     "shorthash": "^0.0.2"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3.22.0",
     "@blueprintjs/select": "^3.11.0",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.15",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
   },
   "devDependencies": {
     "@blueprintjs/core": "^3.22.3",
     "@blueprintjs/select": "^3.11.0",
     "@datawheel/canon-core": "^0.17.66",
+    "@types/i18next": "^12.1.0",
     "@types/react-router": "^3.0.20",
     "lodash": "^4.17.15",
-    "react": "^16.12.0"
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
   },
   "repository": {
     "type": "git",

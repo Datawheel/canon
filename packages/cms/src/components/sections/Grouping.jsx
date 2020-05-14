@@ -4,7 +4,7 @@ import "./Grouping.css";
 
 export default class Grouping extends Component {
   render() {
-    const {slug, title, heading, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -28,7 +28,15 @@ export default class Grouping extends Component {
           visualizations.filter(viz => viz.logic_simple && viz.logic_simple.type === "Graphic").length ? " cp-graphic-viz-grid" : ""
         }`}>
           {visualizations.map((visualization, ii) =>
-            <Viz section={this} config={visualization} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title} key={ii} />
+            <Viz
+              section={this}
+              config={visualization}
+              slug={slug}
+              headingLevel={vizHeadingLevel}
+              sectionTitle={title}
+              hideOptions={hideOptions}
+              key={ii}
+            />
           )}
         </div>
       </div>

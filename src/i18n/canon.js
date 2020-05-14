@@ -3,12 +3,12 @@
 
 export default {
   "Activate": {
-    "button": "Send Verification",
     "actions": {
       "ACTIVATE_SEND_FAILURE": "Error sending activation to {{email}}.",
       "ACTIVATE_SEND_SUCCESS": "{{email}} has been sent an activation link. Please check your inbox.",
       "ACTIVATE_TOKEN_FAILURE": "Activation token is invalid or has expired."
     },
+    "button": "Send Verification",
     "mailgun": {
       "body": "Thanks for signing up for {{site}}! Please confirm your email address by clicking on the link below.",
       "button": "Click To Confirm",
@@ -23,21 +23,29 @@ export default {
   },
   "CMS": {
     "Options": {
-      "Direct link": "Direct link",
-      "Download as CSV": "Download as CSV",
-      "Generating Image": "Generating Image",
-      "Loading Data": "Loading Data",
-      "Only Download Visualization": "Only Download Visualization",
-      "Save Image": "Save Image",
-      "Share": "Share",
-      "Copy": "Copy",
+      "Close": "Close",
       "Copied": "Copied",
+      "Copy": "Copy",
+      "Direct link": "Direct link",
+      "Download": "Download",
+      "Download as CSV": "Download as CSV",
+      "Endpoint": "Endpoint",
+      "Image Format": "Image Format",
+      "Image area": "Image area",
+      "Loading Data": "Loading Data",
+      "Processing image": "Processing image",
+      "Save Image": "Save Image",
+      "Save visualization as": "Save visualization as",
+      "Scroll to section": "Scroll to section",
+      "Share": "Share",
       "Share on Facebook": "Share on Facebook",
       "Share on Twitter": "Share on Twitter",
       "Social": "Social",
-      "Scroll to section": "Scroll to section",
       "Transparent Background": "Transparent Background",
-      "View Data": "View Data"
+      "View Data": "View Data",
+      "Visualization options": "Visualization options",
+      "entire section": "entire section",
+      "visualization only": "visualization only"
     },
     "SourceGroup": {
       "and": "and",

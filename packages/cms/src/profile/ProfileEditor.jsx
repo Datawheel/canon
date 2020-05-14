@@ -31,7 +31,7 @@ class ProfileEditor extends Component {
         {children}
 
         {/* profile meta */}
-        {/* TODO: move to header */}
+        {/* TODO: move to sidebar under new tab */}
         <Deck
           title="Profile meta"
           subtitle="Profile title"
@@ -40,7 +40,7 @@ class ProfileEditor extends Component {
           cards={
             <TextCard
               minData={minData}
-              fields={["title", "subtitle"]}
+              fields={["title", "subtitle", "label"]}
               type="profile"
               hideAllowed={true}
             />

@@ -1,11 +1,13 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import Deck from "./Deck";
+
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
 import FilterSearch from "../fields/FilterSearch";
-import GeneratorCard from "../cards/GeneratorCard";
+import VariableCard from "../cards/VariableCard";
 import SelectorCard from "../cards/SelectorCard";
+
 import ConsoleVariable from "../variables/ConsoleVariable";
 
 import {fetchVariables, newEntity} from "../../actions/profiles";
@@ -31,28 +33,24 @@ class Toolbox extends Component {
     const newIDs = this.props.status.previews ? this.props.status.previews.map(p => p.id).join() : this.props.status.previews;
     const changedSinglePreview = oldSlugs === newSlugs && oldIDs !== newIDs;
     const changedEntireProfile = oldSlugs !== newSlugs;
+    const changedLocale = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
 
-    const localeChanged = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
-
-    if (changedSinglePreview) {
-      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
-    }
-    if (changedEntireProfile) {
-      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)}, true);
-    }
-    if (localeChanged) {
-      this.props.fetchVariables({type: "generator", ids: this.props.profile.generators.map(g => g.id)});
+    // TODO: This can be streamlined to make use of a caching system (see NavBar.jsx and profiles.js) 
+    // When a profile is loaded, save its current previews and variables (all we have is variables right now) and 
+    // Responsibly reload them when changing entire profile. For now, deal with the more heavy reload 
+    if (changedSinglePreview || changedEntireProfile || changedLocale) {
+      this.props.fetchVariables();
     }
     // Detect Deletions
     const {justDeleted} = this.props.status;
     if (JSON.stringify(prevProps.status.justDeleted) !== JSON.stringify(justDeleted)) {
       // Providing fetchvariables (and ultimately, /api/variables) with a now deleted generator or materializer id
-    // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
+      // is handled gracefully - it prunes the provided id from the variables object and re-runs necessary gens/mats.
       if (justDeleted.type === "generator") {
-        this.props.fetchVariables({type: "generator", ids: [justDeleted.id]});  
+        this.props.fetchVariables({type: "generator", id: justDeleted.id});
       }
       else if (justDeleted.type === "materializer") {
-        this.props.fetchVariables({type: "materializer", ids: [justDeleted.id]});
+        this.props.fetchVariables({type: "materializer", id: justDeleted.id});
       }
     }
   }
@@ -74,10 +72,10 @@ class Toolbox extends Component {
 
   filterFunc(d) {
     const {query} = this.state;
-    const {forceOpen, forceID, forceType} = this.props.status;
+    const {dialogOpen} = this.props.status;
     const fields = ["name", "description", "title"];
     const matched = fields.map(f => d[f] !== undefined ? d[f].toLowerCase().includes(query) : false).some(d => d);
-    const opened = d.type === forceType && d.id === forceID && forceOpen;
+    const opened = dialogOpen && d.type === dialogOpen.type && d.id === dialogOpen.id;
     return matched || opened;
   }
 
@@ -89,14 +87,14 @@ class Toolbox extends Component {
     const gens = Object.keys(vars._genStatus);
     gens.forEach(id => {
       if (vars._genStatus[id][key]) {
-        this.props.setStatus({forceID: Number(id), forceType: "generator", forceOpen: true});
+        this.props.setStatus({dialogOpen: {type: "generator", id: Number(id), force: true}});
       }
     });
 
     const mats = Object.keys(vars._matStatus);
     mats.forEach(id => {
       if (vars._matStatus[id][key]) {
-        this.props.setStatus({forceID: Number(id), forceType: "materializer", forceOpen: true});
+        this.props.setStatus({dialogOpen: {type: "materializer", id: Number(id), force: true}});
       }
     });
   }
@@ -106,7 +104,7 @@ class Toolbox extends Component {
     const {children, toolboxVisible} = this.props;
     const {profile} = this.props;
     const formattersAll = this.props.formatters;
-    const {variables, localeDefault, localeSecondary, forceOpen, toolboxDialogOpen} = this.props.status;
+    const {variables, localeDefault, localeSecondary, dialogOpen} = this.props.status;
 
     const dataLoaded = profile;
 
@@ -118,23 +116,35 @@ class Toolbox extends Component {
 
     if (!varsLoaded || !defLoaded || !locLoaded) return <div className="cms-toolbox is-loading"><h3>Loading...</h3></div>;
 
-    const generators = profile.generators
+    const attrGen = {
+      id: "attributes",
+      name: "Attributes",
+      locked: true
+    };
+
+    let generators = profile.generators
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(d => Object.assign({}, {type: "generator"}, d))
-      .filter(this.filterFunc.bind(this));
+      .filter(this.filterFunc.bind(this))
+      .filter(d => !dialogOpen || dialogOpen.type === "generator" && dialogOpen.id === d.id);
+
+    if (this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
 
     const materializers = profile.materializers
       .sort((a, b) => a.ordering - b.ordering)
       .map(d => Object.assign({}, {type: "materializer"}, d))
-      .filter(this.filterFunc.bind(this));
+      .filter(this.filterFunc.bind(this))
+      .filter(d => !dialogOpen || dialogOpen.type === "materializer" && dialogOpen.id === d.id);
 
     const formatters = formattersAll
       .sort((a, b) => a.name.localeCompare(b.name))
-      .filter(this.filterFunc.bind(this));
+      .filter(this.filterFunc.bind(this))
+      .filter(d => !dialogOpen || dialogOpen.type === "formatter" && dialogOpen.id === d.id);
 
     const selectors = profile.selectors
       .sort((a, b) => a.title.localeCompare(b.title))
-      .filter(this.filterFunc.bind(this));
+      .filter(this.filterFunc.bind(this))
+      .filter(d => !dialogOpen || dialogOpen.type === "selector" && dialogOpen.id === d.id);
 
     // If a search filter causes no results, hide the entire grouping. However, if
     // the ORIGINAL data has length 0, always show it, so the user can add the first one.
@@ -145,7 +155,7 @@ class Toolbox extends Component {
 
 
     return (
-      <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}${toolboxDialogOpen ? " has-open-dialog" : ""}`}>
+      <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}${dialogOpen ? " has-open-dialog" : ""}`}>
 
         {children} {/* the toggle toolbox button */}
 
@@ -199,44 +209,46 @@ class Toolbox extends Component {
           </ul>
         }
 
-        {/* Hide the panels if not detailView - but SHOW them if forceOpen is set, which means
+        {/* Hide the panels if not detailView - but SHOW them if dialogOpen is set, which means
           * that someone has clicked an individual variable and wants to view its editor
           */}
-        <div className={`cms-toolbox-deck-wrapper${detailView || forceOpen ? "" : " is-hidden"}`}>
+        <div className={`cms-toolbox-deck-wrapper${detailView || dialogOpen ? "" : " is-hidden"}`}>
 
-          {(showGenerators || forceOpen) &&
+          {(showGenerators || dialogOpen) &&
             <Deck
               title="Generators"
               entity="generator"
               description="Variables constructed from JSON data calls."
               addItem={this.addItem.bind(this, "generator")}
-              cards={generators.map(g =>
-                <GeneratorCard
+              cards={generators.map((g, i) =>
+                <VariableCard
                   key={g.id}
-                  id={g.id}
+                  minData={g}
                   context="generator"
                   hidden={!detailView}
-                  attr={profile.attr || {}}
                   type="generator"
+                  readOnly={i === 0}
+                  usePortalForAlert
                 />
               )}
             />
           }
 
-          {(showMaterializers || forceOpen) &&
+          {(showMaterializers || dialogOpen) &&
             <Deck
               title="Materializers"
               entity="materializer"
               description="Variables constructed from other variables. No API calls needed."
               addItem={this.addItem.bind(this, "materializer")}
               cards={materializers.map(m =>
-                <GeneratorCard
+                <VariableCard
                   key={m.id}
-                  id={m.id}
+                  minData={m}
                   context="materializer"
                   hidden={!detailView}
                   type="materializer"
                   showReorderButton={materializers[materializers.length - 1].id !== m.id}
+                  usePortalForAlert
                 />
               )}
             />
@@ -251,7 +263,8 @@ class Toolbox extends Component {
               cards={selectors.map(s =>
                 <SelectorCard
                   key={s.id}
-                  id={s.id}
+                  minData={s}
+                  usePortalForAlert
                 />
               )}
             />
@@ -264,12 +277,12 @@ class Toolbox extends Component {
               addItem={this.addItem.bind(this, "formatter")}
               description="Javascript Formatters for Canon text components"
               cards={formatters.map(f =>
-                <GeneratorCard
+                <VariableCard
                   context="formatter"
                   key={f.id}
-                  id={f.id}
+                  minData={f}
                   type="formatter"
-                  variables={{}}
+                  usePortalForAlert
                 />
               )}
             />

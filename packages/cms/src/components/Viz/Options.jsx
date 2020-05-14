@@ -52,7 +52,7 @@ class Options extends Component {
   constructor(props) {
     super(props);
 
-    const hasMultiples = Array.isArray(props.data) && props.data.some(d => typeof d === "string");
+    const hasMultiples = Array.isArray(props.data) && props.data.length > 1 && props.data.some(d => typeof d === "string");
 
     this.state = {
       backgroundColor: true,
@@ -72,8 +72,10 @@ class Options extends Component {
 
   componentDidUpdate(prevProps) {
     const {data} = this.props;
-    if (prevProps.data !== data) {
-      this.setState({results: data instanceof Array ? data : false});
+    if (JSON.stringify(prevProps.data) !== JSON.stringify(data)) {
+      const hasMultiples = Array.isArray(data) && data.length > 1 && data.some(d => typeof d === "string");
+      const results = !hasMultiples && Array.isArray(data) ? data : false;
+      this.setState({results});
     }
   }
 
@@ -96,7 +98,7 @@ class Options extends Component {
     const colDelim = ",";
     const rowDelim = "\r\n";
 
-    const columns = Object.keys(results[0]);
+    const columns = results && results[0] ? Object.keys(results[0]) : [];
     let csv = columns.map(val => `\"${val}\"`).join(colDelim);
 
     for (let i = 0; i < results.length; i++) {
@@ -274,21 +276,17 @@ class Options extends Component {
       const {data, dataFormat} = this.props;
       const paths = typeof data === "string" ? [data] : data;
       this.setState({loading: true});
-      const loaded = [];
-      paths.forEach(path => {
-        if (typeof path === "string") {
-          axios.get(path)
-            .then(resp => {
-              loaded.push(resp.data);
-              if (loaded.length === paths.length) {
-                const results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
-                this.setState({loading: false, results});
-              }
-            });
+      Promise.all(paths.map(path => typeof path === "string" ? axios.get(path) : {data: path})).then(resps => {
+        const loaded = resps.map(d => d.data);
+        let results;
+        try {
+          results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
         }
-        else {
-          loaded.push(path);
+        catch (e) {
+          console.log("Error in Options Panel: ", e);
+          results = [];
         }
+        this.setState({loading: false, results});
       });
     }
   }
@@ -333,11 +331,11 @@ class Options extends Component {
     const node = this.getNode();
     const svgAvailable = node && select(node).select(".d3plus-viz").size() > 0;
 
-    const columns = results ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
+    const columns = results && results[0] ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
 
     const dataURLs = typeof data === "string"
       ? [data] : Array.isArray(data)
-        ? data : false;
+        ? data.filter(d => typeof d === "string") : false;
 
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
@@ -345,7 +343,7 @@ class Options extends Component {
         {dataURLs && dataURLs.map((link, i) =>
           <ShareDirectLink
             link={data.indexOf("http") === 0 ? link : `${ domain }${ link }`}
-            label={`Endpoint${dataURLs.length > 1 ? ` ${i + 1}` : "" }`}
+            label={`${t("CMS.Options.Endpoint")}${dataURLs.length > 1 ? ` ${i + 1}` : "" }`}
             key={link}
           />
         )}
@@ -425,14 +423,14 @@ class Options extends Component {
         transitionDuration={transitionDuration}
         ref={this.dialog}
       >
-        <h2 className="u-visually-hidden">Visualization options</h2>
+        <h2 className="u-visually-hidden">{t("CMS.Options.Visualization options")}</h2>
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={dialogOpen}>
           <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
           <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={
             <div className="bp3-dialog-body save-image">
 
               <div className="save-image-button-group-wrapper">
-                <h3 className="save-image-button-group-label label u-font-xs">Image area</h3>
+                <h3 className="save-image-button-group-label label u-font-xs">{t("CMS.Options.Image area")}</h3>
                 <ButtonGroup className="save-image-button-group">
                   <Button
                     className="save-image-format-button"
@@ -442,7 +440,7 @@ class Options extends Component {
                     onClick={() => this.setState({imageContext: "viz"})}
                     active={imageContext === "viz"}
                   >
-                    visualization only
+                    {t("CMS.Options.visualization only")}
                   </Button>
                   <Button
                     className="save-image-format-button"
@@ -455,14 +453,14 @@ class Options extends Component {
                     })}
                     active={imageContext === "section"}
                   >
-                    entire section
+                    {t("CMS.Options.entire section")}
                   </Button>
                 </ButtonGroup>
               </div>
 
               {svgAvailable && imageContext !== "section" &&
                 <div className="save-image-button-group-wrapper">
-                  <h3 className="save-image-button-group-label label u-font-xs">Image format</h3>
+                  <h3 className="save-image-button-group-label label u-font-xs">{t("CMS.Options.Image Format")}</h3>
                   <ButtonGroup className="save-image-button-group">
                     <Button
                       className="save-image-format-button"
@@ -472,7 +470,7 @@ class Options extends Component {
                       onClick={() => this.setState({imageFormat: "png"})}
                       active={imageFormat === "png"}
                     >
-                      <span className="u-visually-hidden">Save visualization as </span>PNG
+                      <span className="u-visually-hidden">{t("CMS.Options.Save visualization as")}</span>PNG
                     </Button>
                     <Button
                       className="save-image-format-button"
@@ -482,7 +480,7 @@ class Options extends Component {
                       onClick={() => this.setState({imageFormat: "svg"})}
                       active={imageFormat === "svg"}
                     >
-                      <span className="u-visually-hidden">Save visualization as </span>SVG
+                      <span className="u-visually-hidden">{t("CMS.Options.Save visualization as")}</span>SVG
                     </Button>
                   </ButtonGroup>
                 </div>
@@ -504,13 +502,13 @@ class Options extends Component {
                 fontSize="md"
                 fill
               >
-                {imageProcessing ? "Processing image" : `Download ${imageFormat}`}
+                {imageProcessing ? t("CMS.Options.Processing image") : `${t("CMS.Options.Download")} ${imageFormat}`}
               </Button>
             </div>
           } />
           <Tab id="share" title={t("CMS.Options.Share")} panel={<SharePanel />} />
           <Button icon="small-cross" iconOnly className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)}>
-            Close
+            {t("CMS.Options.Close")}
           </Button>
         </Tabs>
       </Dialog>

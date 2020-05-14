@@ -2,12 +2,20 @@ const FUNC = require("../utils/FUNC"),
       PromiseThrottle = require("promise-throttle"),
       axios = require("axios"),
       collate = require("../utils/collate"),
+      jwt = require("jsonwebtoken"),
       libs = require("../utils/libs"), // leave this! needed for the variable functions
       mortarEval = require("../utils/mortarEval"),
+      scaffoldDynamic = require("../utils/selectors/scaffoldDynamic"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
+      validateDynamic = require("../utils/selectors/validateDynamic"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
       yn = require("yn");
+
+const {
+  CANON_CMS_MINIMUM_ROLE,
+  OLAP_PROXY_SECRET
+} = process.env;
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
@@ -22,6 +30,10 @@ const LANGUAGES = process.env.CANON_LANGUAGES || LANGUAGE_DEFAULT;
 const LOGINS = process.env.CANON_LOGINS || false;
 const PORT = process.env.CANON_PORT || 3300;
 const NODE_ENV = process.env.NODE_ENV || "development";
+const REQUESTS_PER_SECOND = process.env.CANON_CMS_REQUESTS_PER_SECOND ? parseInt(process.env.CANON_CMS_REQUESTS_PER_SECOND, 10) : 20;
+const GENERATOR_TIMEOUT = process.env.CANON_CMS_GENERATOR_TIMEOUT ? parseInt(process.env.CANON_CMS_GENERATOR_TIMEOUT, 10) : 5000;
+let cubeRoot = process.env.CANON_CMS_CUBES;
+if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
 const canonVars = {
   CANON_API: process.env.CANON_API,
@@ -41,7 +53,7 @@ Object.keys(process.env).forEach(k => {
 });
 
 const throttle = new PromiseThrottle({
-  requestsPerSecond: 10,
+  requestsPerSecond: REQUESTS_PER_SECOND,
   promiseImplementation: Promise
 });
 
@@ -149,6 +161,19 @@ const sortStory = story => {
   return story;
 };
 
+/* Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
+ * populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
+ * into "real ones" so that all the ensuing logic can treat them as if they were normal. */
+const fixSelector = (selector, dynamic) => {
+  if (validateDynamic(dynamic) === "valid") {
+    selector.options = scaffoldDynamic(dynamic);
+  }
+  else {
+    selector.options = [];
+  }
+  return selector;
+};
+
 /**
  * Lang-specific content is stored in secondary tables, and are part of profiles as an
  * array called "content," which contains objects of region-specific translated keys.
@@ -214,7 +239,7 @@ module.exports = function(app) {
     return res.json(sortProfile(extractLocaleContent(profile, locale, "profile")));
   });
 
-  const fetchAttr = async(pid, dims) => {
+  const fetchAttr = async(pid, dims, locale) => {
     // Fetch the profile itself, along with its meta content. The meta content will be used
     // to determine which levels should be used to filter the search results
     let profile = await db.profile.findOne({where: {id: pid}, include: [{association: "meta"}]}).catch(catcher);
@@ -225,17 +250,23 @@ module.exports = function(app) {
     let attr = {};
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
-      const thisSlug = profile.meta.find(d => d.slug === dim.slug);
-      const levels = thisSlug ? thisSlug.levels : [];
+      const thisMeta = profile.meta.find(d => d.slug === dim.slug);
+      const levels = thisMeta ? thisMeta.levels : [];
+      const cubeName = thisMeta ? thisMeta.cubeName : null;
       let searchReq;
       if (levels.length === 0) {
-        searchReq = {where: {id: dim.id}};
+        searchReq = {where: {id: dim.id, cubeName}};
       }
       else {
-        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
+        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id, cubeName}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
       }
+      searchReq.include = [{association: "content"}];
       let thisAttr = await db.search.findOne(searchReq).catch(catcher);
       thisAttr = thisAttr ? thisAttr.toJSON() : {};
+      if (thisAttr.content) {
+        const defCon = thisAttr.content.find(c => c.locale === locale);
+        thisAttr.name = defCon && defCon.name ? defCon.name : "";
+      }
       if (i === 0) attr = Object.assign(attr, thisAttr);
       Object.keys(thisAttr).forEach(key => {
         attr[`${key}${i + 1}`] = thisAttr[key];
@@ -244,25 +275,65 @@ module.exports = function(app) {
     return attr;
   };
 
-  const runGenerators = async(req, pid, id) => {
+  const runGenerators = async(req, pid, id, smallAttr) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     const dims = collate(req.query);
+    const attr = await fetchAttr(pid, dims, locale);
+    if (!smallAttr) {
+      // Strip the attr object down to just some relevant keys
+      const smallKeys = ["id", "dimension", "hierarchy", "slug", "name", "cubeName"];
+      smallAttr = Object.keys(attr).reverse().reduce((acc, k) => smallKeys.includes(k.replace(/\d+/g, "")) ? {[k]: attr[k], ...acc} : acc, {});
+      // Retrieve user login data
+      smallAttr.user = false;
+      if (LOGINS && req.user) {
+        // Extract sensitive data
+        const {password, salt, ...user} = req.user; // eslint-disable-line
+        smallAttr.user = user;
+        // Bubble up userRole for easy access in front end (for hiding sections based on role)
+        smallAttr.userRole = user.role;
+      }
+      // Fetch Parents
+      const url = `${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`;
+      const config = {};
+      if (OLAP_PROXY_SECRET) {
+        const jwtPayload = {sub: "server", status: "valid"};
+        if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+        const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+        config.headers = {"x-tesseract-jwt-token": apiToken};
+      }
+      const resp = await axios.get(url, config).catch(() => {
+        if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (mortarRoute)");
+        return [];
+      });
+      if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
+        smallAttr.parents = resp.data.data;
+      }
+    }
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
-    if (generators.length === 0) return {};
+    if (id && generators.length === 0) return {};
     generators = generators.map(g => g.toJSON());
-
-    const attr = await fetchAttr(pid, dims);
 
     /** */
     function createGeneratorFetch(r, attr) {
       // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
-      const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+      const origin = `${ req.protocol }://${ req.headers.host }`;
       let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
       if (url.indexOf("http") !== 0) {
         url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
       }
-      return axios.get(url)
+
+      const config = {};
+      if (OLAP_PROXY_SECRET) {
+        const jwtPayload = {sub: "server", status: "valid"};
+        if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+        const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+        config.headers = {"x-tesseract-jwt-token": apiToken};
+      }
+
+      config.timeout = GENERATOR_TIMEOUT;
+
+      return axios.get(url, config)
         .then(resp => {
           if (verbose) console.log("Variable Loaded:", url);
           return resp;
@@ -276,31 +347,59 @@ module.exports = function(app) {
     const formatterFunctions = await formatters4eval(db, locale);
 
     const requests = Array.from(new Set(generators.map(g => g.api)));
-    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, attr)));
+    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, smallAttr)));
     const results = await Promise.all(fetches).catch(catcher);
 
-    let returnVariables = {};
+    // Inject cms_search-level slugs into the payload to help with making front-end links
+    for (let i = 0; i < requests.length; i++) {
+      try {
+        const thisURL = requests[i];
+        const thisResult = results[i].data && results[i].data.data ? results[i].data.data : [];
+        const paramObject = Object.fromEntries(new URLSearchParams(thisURL));
+        if (paramObject.slugs && thisResult.length > 0) {
+          const pairs = paramObject.slugs.split(",");
+          for (const pair of pairs) {
+            const dimension = pair.includes(":") ? pair.split(":")[0] : pair;
+            const idPattern = pair.includes(":") ? pair.split(":")[1] : pair;
+            const ids = thisResult.map(d => String(d[`${idPattern} ID`] || d[idPattern]));
+            const members = await db.search.findAll({where: {dimension, id: ids}}).catch(catcher);
+            const slugMap = members.reduce((acc, d) => ({...acc, [d.id]: d.slug}), {});
+            results[i].data.data = results[i].data.data.map(d => ({...d, [`${idPattern} Slug`]: slugMap[d[`${idPattern} ID`] || d[idPattern]]}));
+          }
+        }
+      }
+      catch (e) {
+        if (verbose) console.error(`Slug lookup failed. ${e}`);
+      }
+    }
+
+    // Seed the return variables with the stripped-down attr object
+    let returnVariables = {...smallAttr};
     const genStatus = {};
     results.forEach((r, i) => {
       // For every API result, find ONLY the generators that depend on this data
       const requiredGenerators = generators.filter(g => g.api === requests[i]);
       // Build the return object using a reducer, one generator at a time
       returnVariables = requiredGenerators.reduce((acc, g) => {
-        const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale);
-        const {vars} = evalResults;
+        const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale, smallAttr);
+        if (typeof evalResults.vars !== "object") evalResults.vars = {};
         // genStatus is used to track the status of each individual generator
         genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
         // Fold the generated variables into the accumulating returnVariables
-        return {...acc, ...vars};
+        return {...acc, ...evalResults.vars};
       }, returnVariables);
     });
+    // Set genstatus for all ids
     returnVariables._genStatus = genStatus;
+    // Inject a special, hard-coded attr genstatus for the front-end
+    returnVariables._genStatus.attributes = smallAttr;
 
     return returnVariables;
 
   };
 
   app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
+  app.post("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
 
   const runMaterializers = async(req, variables, pid) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
@@ -315,9 +414,9 @@ module.exports = function(app) {
     const matStatus = {};
     returnVariables = materializers.reduce((acc, m) => {
       const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions, locale);
-      const {vars} = evalResults;
+      if (typeof evalResults.vars !== "object") evalResults.vars = {};
       matStatus[m.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
-      return {...acc, ...vars};
+      return {...acc, ...evalResults.vars};
     }, returnVariables);
     returnVariables._matStatus = matStatus;
     return returnVariables;
@@ -361,7 +460,7 @@ module.exports = function(app) {
     // take an arbitrary-length query of slugs and ids and turn them into objects
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const locale = req.query.locale || envLoc;
-    const origin = `http${ req.connection.encrypted ? "s" : "" }://${ req.headers.host }`;
+    const origin = `${ req.protocol }://${ req.headers.host }`;
     const localeString = `?locale=${locale}`;
 
     const dims = collate(req.query);
@@ -369,7 +468,7 @@ module.exports = function(app) {
     // Replace that slug with the actual real id from the search table.
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
-      const attribute = await db.search.findOne({where: {[sequelize.Op.or]: {id: dim.id, slug: dim.id}}}).catch(catcher);
+      const attribute = await db.search.findOne({where: {slug: dim.id}}).catch(catcher);
       if (attribute && attribute.id) dim.id = attribute.id;
     }
 
@@ -377,8 +476,8 @@ module.exports = function(app) {
     const profileID = req.query.profile;
 
     let pid = null;
-    // map slugs to dimensions when we query profile_meta below
-    const dimensionMap = {};
+    // map slugs to their profile_meta row, for when we query profile_meta below
+    const slugMap = {};
     // If the user provided variables, this is a POST request.
     if (req.body.variables) {
       // If the user gave us a section or a profile id, use that to fetch the pid.
@@ -390,7 +489,7 @@ module.exports = function(app) {
         }
         else {
           if (verbose) console.error(`Profile not found for section: ${sectionID}`);
-          return res.json({error: `Profile not found for section: ${sectionID}`});
+          return res.json({error: `Profile not found for section: ${sectionID}`, errorCode: 404});
         }
       }
       else if (profileID) {
@@ -404,38 +503,196 @@ module.exports = function(app) {
       // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
       let meta = await db.profile_meta.findAll();
       meta = meta.map(d => d.toJSON());
-      meta.forEach(d => dimensionMap[d.slug] = d.dimension);
-      const pids = [...new Set(meta.map(d => d.profile_id))];
+      meta.forEach(d => slugMap[d.slug] = d);
       const match = dims.map(d => d.slug).join();
-
-      pids.forEach(id => {
-        const rows = meta.filter(d => d.profile_id === id).sort((a, b) => a.ordering - b.ordering);
-        const str = rows.map(d => d.slug).join();
-        if (str === match) pid = rows[0].profile_id;
-      });
+      try {
+        // Profile slugs are unique, so it is sufficient to use the first slug as a "profile finder"
+        const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0).profile_id;
+        // However, still confirm that the second slug matches (if provided)
+        if (dims[1] && dims[1].slug) {
+          const potentialSecondSlugs = meta.filter(m => m.profile_id === potentialPid && m.ordering === 1).map(d => d.slug);
+          if (potentialSecondSlugs.includes(dims[1].slug)) {
+            pid = potentialPid;
+          }
+        }
+        else {
+          pid = potentialPid;
+        }
+      }
+      catch (e) {
+        if (verbose) console.error(`Profile not found for slug: ${match}. Error: ${e}`);
+        return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
+      }
       if (!pid) {
         if (verbose) console.error(`Profile not found for slug: ${match}`);
-        return res.json({error: `Profile not found for slug: ${match}`});
+        return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
       }
     }
-
+    let returnObject = {};
     let variables = {};
     // If the user has provided variables, this is a POST request. Use those variables,
     // And skip the entire variable fetching process.
     if (req.body.variables) {
-      variables = req.body.variables;
+      // If the forceMats option was provided, use the POSTed variables to run
+      // Materializers. Used for Login in ProfileRenderer.jsx
+      if (req.query.forceMats === "true") {
+        variables = await runMaterializers(req, req.body.variables, pid);
+      }
+      else {
+        variables = req.body.variables;
+      }
     }
     // If the user has not provided variables, this is a GET request. Run Generators.
     else {
       // Before we hit the variables endpoint, confirm that all provided ids exist.
+      // If they do exist, query and load their neighbors into the payload
+      const neighborsByDimSlug = {};
       for (const dim of dims) {
-        const thisDimension = dimensionMap[dim.slug];
-        const searchrow = await db.search.findOne({where: {id: dim.id, dimension: thisDimension}}).catch(catcher);
-        if (!searchrow) {
+        const thisMeta = slugMap[dim.slug];
+        if (thisMeta) {
+          const {dimension, cubeName} = thisMeta;
+          let searchrow = await db.search.findOne({
+            where: {id: dim.id, dimension, cubeName},
+            include: [{association: "content"}]
+          }).catch(catcher);
+          if (!searchrow) {
+            if (verbose) console.error(`Member not found for id: ${dim.id}`);
+            return res.json({error: `Member not found for id: ${dim.id}`, errorCode: 404});
+          }
+          else {
+            // Prime the top result of the neighbors with this member itself. This will be
+            // needed later if we need to build bilateral profiles
+            searchrow = searchrow.toJSON();
+            const defCon = searchrow.content.find(c => c.locale === envLoc);
+            searchrow.name = defCon && defCon.name ? defCon.name : searchrow.slug;
+            neighborsByDimSlug[dim.slug] = [searchrow];
+            const {id} = searchrow;
+            let {hierarchy} = searchrow;
+            // hierarchies must be unique, so some have a unique_name that must be discovered. This requires checking the cube.
+            const cubeData = await axios
+              .get(`${cubeRoot}/cubes/${cubeName}`)
+              .then(d => d.data)
+              .catch(catcher);
+            try {
+              const uniqueName = cubeData.dimensions
+                .find(d => d.name === searchrow.dimension).hierarchies[0].levels
+                .find(d => d.name === hierarchy).unique_name;
+              if (uniqueName) hierarchy = uniqueName;
+            }
+            catch (e) {
+              if (verbose) console.error(`Error in neighbor dimension lookup: ${e}`);
+            }
+            const getNeighborsForId = async id => {
+              const members = [];
+              // Now that we have a correct hierarchy/level, query the neighbors endpoint
+              const neighbors = await axios
+                .get(`${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`)
+                .then(d => d.data.data)
+                .catch(catcher);
+              // Fetch the FULL members for each neighbor and collate them by dimension slug
+              for (const neighbor of neighbors) {
+                const member = await db.search.findOne({
+                  where: {id: neighbor.value, dimension, cubeName},
+                  include: [{association: "content"}]
+                }).catch(catcher);
+                if (member) {
+                  // Some of the neighbors may have had {show:false} added to their attributes, don't show these
+                  const hidden = member.content.map(d => d.attr).some(d => d && d.show !== undefined && d.show === false);
+                  if (!hidden) members.push(member.toJSON());
+                }
+              }
+              return members;
+            };
+            const potentialNeighbors = await getNeighborsForId(id);
+            // If the neighbors length has been lessened due to {show:false} neighbors, try to "pad it out"
+            // with one additional neighbor lookup of the first member and attempt to fold these in.
+            if (potentialNeighbors.length < 4 && potentialNeighbors[0]) {
+              const firstId = potentialNeighbors[0].id;
+              const newNeighbors = await getNeighborsForId(firstId);
+              newNeighbors.forEach(nn => {
+                if (potentialNeighbors.length < 4 && nn.id !== id && !potentialNeighbors.map(d => d.id).includes(nn.id)) {
+                  potentialNeighbors.push(nn);
+                }
+              });
+            }
+            neighborsByDimSlug[dim.slug] = neighborsByDimSlug[dim.slug].concat(potentialNeighbors);
+          }
+        }
+        else {
           if (verbose) console.error(`Member not found for id: ${dim.id}`);
-          return res.json({error: `Member not found for id: ${dim.id}`});
+          return res.json({error: `Member not found for id: ${dim.id}`, errorCode: 404});
         }
       }
+      // todo - catch for no neighbors ?
+      returnObject.neighbors = [];
+      // Using the now-populated neighborsByDimSlug, construct a "neighbors" array filled
+      // with profile objects that can be linkify'd on the front end
+      const neighborDims = Object.keys(neighborsByDimSlug);
+      // If this is a unary profile, just use the neighbors straight-up
+      if (neighborDims.length === 1) {
+        const thisSlug = neighborDims[0];
+        // Remember - remove the self-referential first element!
+        const neighborMembers = neighborsByDimSlug[thisSlug].slice(1);
+        neighborMembers.forEach(nm => {
+          const defCon = nm.content.find(c => c.locale === envLoc);
+          returnObject.neighbors.push([{
+            id: nm.id,
+            slug: thisSlug,
+            memberSlug: nm.slug,
+            name: defCon && defCon.name ? defCon.name : nm.slug
+          }]);
+        });
+      }
+      // However, if it's bilateral, scaffold out some matches
+      else if (neighborDims.length === 2) {
+        const thisSlug = neighborDims[0];
+        const thatSlug = neighborDims[1];
+        const thisMember = neighborsByDimSlug[thisSlug][0];
+        const thatMember = neighborsByDimSlug[thatSlug][0];
+        // Remove the leading self-referential element, and avoid collisions as to not recommend a member matched with itself
+        const thisNeighborMembers = neighborsByDimSlug[thisSlug].slice(1).filter(d => d.id !== thatMember.id);
+        const thatNeighborMembers = neighborsByDimSlug[thatSlug].slice(1).filter(d => d.id !== thisMember.id);
+        // A full set of 4 neighbors means that no neighbors were removed for being hidden or self-referential. In that 
+        // case, given neighbors 0123, 1 and 2 (the "middle" ones) are actually the "closest". Shift the 0th member off 
+        // the list, so that the ensuing slice(0, 2) properly chooses the middle ones. In other cases just default to (0, 2).
+        if (thisNeighborMembers.length === 4) thisNeighborMembers.shift();
+        if (thatNeighborMembers.length === 4) thatNeighborMembers.shift();
+        thatNeighborMembers.slice(0, 2).forEach(nm => {
+          const defCon = nm.content.find(c => c.locale === envLoc);
+          returnObject.neighbors.push([
+            {
+              id: thisMember.id,
+              slug: thisSlug,
+              memberSlug: thisMember.slug,
+              name: thisMember.name
+            },
+            {
+              id: nm.id,
+              slug: thatSlug,
+              memberSlug: nm.slug,
+              name: defCon && defCon.name ? defCon.name : nm.slug
+            }
+          ]);
+        });
+        thisNeighborMembers.slice(0, 2).forEach(nm => {
+          const defCon = nm.content.find(c => c.locale === envLoc);
+          returnObject.neighbors.push([
+            {
+              id: nm.id,
+              slug: thisSlug,
+              memberSlug: nm.slug,
+              name: defCon && defCon.name ? defCon.name : nm.slug
+            },
+            {
+              id: thatMember.id,
+              slug: thatSlug,
+              memberSlug: thatMember.slug,
+              name: thatMember.name
+            }
+          ]);
+        });
+      }
+
       // Get the variables for this profile by passing the profile id and the content ids
       let url = `${origin}/api/variables/${pid}${localeString}`;
       dims.forEach((dim, i) => {
@@ -456,18 +713,24 @@ module.exports = function(app) {
     const request = await axios.get(`${origin}/api/internalprofile/${pid}${localeString}`).catch(catcher);
     if (!request) {
       if (verbose) console.error(`Profile not found for id: ${pid}`);
-      return res.json(`Profile not found for id: ${pid}`);
+      return res.json({error: `Profile not found for id: ${pid}`, errorCode: 404});
     }
     // Given an object with completely built returnVariables, a hash array of formatter functions, and the profile itself
     // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
-    let returnObject = {};
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
     let profile = request.data;
-    // Each section will require references to all selectors
-    let allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
-    allSelectors = allSelectors.map(as => as.toJSON());
-    profile.selectors = allSelectors;
+    // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
+    // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
+    // which power the actual rendered dropdowns on the front-end profile page.
+    const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
+    profile.allSelectors = allSelectors.map(selector => selector.toJSON());
+    // Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
+    // populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
+    // into "real ones" so that all the ensuing logic can treat them as if they were normal.
+    profile.sections.forEach(section => {
+      section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
+    });
     profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
     // If the user provided selectors in the query, then the user has changed a dropdown.
     // This means that OTHER dropdowns on the page need to be set to match. To accomplish
@@ -482,15 +745,11 @@ module.exports = function(app) {
         }
       });
     });
-    // If the user provided a section ID in the query, that's all they want. Find & Return just that.
+    // If the user provided a section ID in the query, that's all they want. Filter to return just that.
     if (sectionID) {
-      const section = profile.sections.find(t => Number(t.id) === Number(sectionID) || t.slug === sectionID);
-      returnObject = Object.assign({}, returnObject, section);
+      profile.sections = profile.sections.filter(t => Number(t.id) === Number(sectionID) || t.slug === sectionID);
     }
-    // Otherwise, it's just a top-level profile request
-    else {
-      returnObject = Object.assign({}, returnObject, profile);
-    }
+    returnObject = Object.assign({}, returnObject, profile);
     returnObject.ids = dims.map(d => d.id).join();
     returnObject.dims = dims;
     returnObject.variables = variables;
@@ -527,7 +786,7 @@ module.exports = function(app) {
     let story = await db.story.findOne(reqObj).catch(catcher);
     if (!story) {
       if (verbose) console.error(`Story not found for id: ${id}`);
-      return res.json({error: `Story not found for id: ${id}`});
+      return res.json({error: `Story not found for id: ${id}`, errorCode: 404});
     }
     story = sortStory(extractLocaleContent(story, locale, "story"));
     // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.

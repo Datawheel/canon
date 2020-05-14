@@ -5,7 +5,7 @@ const libs = require("./libs");
  * apply the appropriate formatter
  */
 
-module.exports = (sourceString, formatterFunctions, variables) => {
+module.exports = (sourceString, formatterFunctions, variables, passive) => {
   // Find all instances of the following type:  FormatterName{{VarToReplace}}
   sourceString = sourceString.replace(/([A-z0-9]*)\{\{([^\}]+)\}\}/g, (match, g1, keyMatch) => {
 
@@ -18,9 +18,10 @@ module.exports = (sourceString, formatterFunctions, variables) => {
     }
 
     const value = variables[keyMatch];
-    // const value = `<var class="cms-var-highlight">${variables[keyMatch]}</var>`;
+    // passive mode is used by dynamic selectors as a "first pass" to apply dynamic selector labels
+    // in that case, make fails a no-op, as the "real" varSwap is coming later.
     if (value === undefined) {
-      return "N/A";
+      return passive ? match : "N/A";
     }
     // The user-created formatter may be malformed. Wrap in a try/catch so bad js in a
     // formatter doesn't cause the CMS to crash.

@@ -1,12 +1,13 @@
 import axios from "axios";
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import ReactTable from "react-table";
 import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
-import {Dialog, Icon, EditableText, Spinner} from "@blueprintjs/core";
-import Status from "../components/interface/Status";
+import {Icon, EditableText, Spinner} from "@blueprintjs/core";
 
+import Dialog from "../components/interface/Dialog";
+import Status from "../components/interface/Status";
 import Button from "../components/fields/Button";
 import ButtonGroup from "../components/fields/ButtonGroup";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
@@ -24,6 +25,8 @@ class MetaEditor extends Component {
     super(props);
     this.state = {
       sourceData: [],
+      cubes: [],
+      currentCube: "",
       data: [],
       query: "",
       columns: [],
@@ -37,6 +40,7 @@ class MetaEditor extends Component {
       isOpen: false,
       currentRow: {},
       loading: false,
+      pageLoading: true,
       pageIndex: 0,
       pageSize: ROWS_PER_PAGE,
       querying: false,
@@ -254,10 +258,15 @@ class MetaEditor extends Component {
   linkify(member) {
     const {metaData} = this.state;
     const links = [];
-    const relevantPids = metaData.filter(p => p.dimension === member.dimension).map(d => d.profile_id);
+    const relevantPids = metaData.filter(p => p.cubeName === member.cubeName).map(d => d.profile_id);
     relevantPids.forEach(pid => {
-      const relevantProfile = metaData.filter(p => p.profile_id === pid);
-      links.push(`/profile/${relevantProfile.map(p => `${p.slug}/${member.dimension === p.dimension ? member.id : p.top.id}`).join("/")}`);
+      const possibleDimensions = metaData.filter(p => p.profile_id === pid);
+      if (possibleDimensions && possibleDimensions.map(d => d.ordering).every(d => d === 0)) {
+        const relevantDimensions = possibleDimensions.filter(d => d.cubeName === member.cubeName);
+        relevantDimensions.forEach(dimension => {
+          links.push(`/profile/${dimension.slug}/${member.id}`);  
+        });
+      }
     });
     return links;
   }
@@ -298,7 +307,8 @@ class MetaEditor extends Component {
           minWidth: this.columnWidths("image"),
           accessor: d => d.image ? d.image.url : null,
           Cell: cell => {
-            const imgURL = `/api/image?dimension=${cell.original.dimension}&id=${cell.original.id}&type=thumb&t=${epoch}`;
+            const {dimension, cubeName, id} = cell.original;
+            const imgURL = `/api/image?dimension=${dimension}&cubeName=${cubeName}&id=${id}&type=thumb&t=${epoch}`;
             return cell.value
               // image wrapped inside a button
               ? <button className="cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
@@ -382,8 +392,8 @@ class MetaEditor extends Component {
           minWidth: this.columnWidths("preview"),
           accessor: d => this.linkify.bind(this)(d),
           Cell: cell => <ul className="cms-meta-table-list">
-            {cell.value.map(url =>
-              <li className="cms-meta-table-item" key={url}>
+            {cell.value.map((url, i) =>
+              <li className="cms-meta-table-item" key={`${url}-${i}`}>
                 <a className="cms-meta-table-link u-font-xxs" href={url}>{url}</a>
               </li>
             )}
@@ -411,6 +421,7 @@ class MetaEditor extends Component {
     Promise.all([searchGet, metaGet]).then(resp => {
       const sourceData = resp[0].data;
       const metaData = resp[1].data;
+      const cubes = [...new Set([...metaData.map(d => d.cubeName)])];
       const dimensions = {};
       metaData.forEach(meta => {
         if (!dimensions[meta.dimension]) {
@@ -420,7 +431,7 @@ class MetaEditor extends Component {
           dimensions[meta.dimension] = [...new Set([...dimensions[meta.dimension], ...meta.levels])];
         }
       });
-      this.setState({dimensions, sourceData, metaData}, this.prepData.bind(this));
+      this.setState({cubes, dimensions, sourceData, metaData, pageLoading: false}, this.prepData.bind(this));
     });
   }
 
@@ -485,21 +496,22 @@ class MetaEditor extends Component {
 
   processFiltering() {
     const {query} = this.state;
-    let {filterBy} = this.state;
+    const {filterBy, currentCube} = this.state;
+    const split = filterBy.split("_");
+    const dimension = split[1];
+    const hierarchy = split[3];
     // The user may have clicked either a dimension or a hierarchy. Determine which.
-    const filterKey = filterBy.includes("hierarchy_") ? "hierarchy" : "dimension";
-    filterBy = filterBy.replace("hierarchy_", "").replace("dimension_", "");
+    const filterKey = hierarchy ? "hierarchy" : "dimension";
     let url = "/api/search?locale=all&limit=500";
     if (query) {
       url += `&q=${query}`;
     }
+    if (currentCube !== "all") {
+      url += `&cubeName=${currentCube}`;
+    }
     if (filterBy !== "all") {
-      if (filterKey === "dimension") {
-        url += `&dimension=${filterBy}`;
-      }
-      else if (filterKey === "hierarchy") {
-        url += `&levels=${filterBy}`;
-      }
+      if (dimension) url += `&dimension=${dimension}`;
+      if (hierarchy) url += `&levels=${hierarchy}`;
     }
     this.setState({querying: true});
     axios.get(url).then(resp => {
@@ -519,6 +531,11 @@ class MetaEditor extends Component {
 
   selectPaginationSize(e) {
     this.setState({pageSize: e.target.value});
+  }
+
+  onChooseCube(e) {
+    const currentCube = e.target.value;
+    this.setState({currentCube}, this.processFiltering.bind(this));
   }
 
   onChange(field, e) {
@@ -542,6 +559,8 @@ class MetaEditor extends Component {
   render() {
     const {
       columns,
+      cubes,
+      currentCube,
       currentRow,
       data,
       dialogMode,
@@ -554,6 +573,7 @@ class MetaEditor extends Component {
       flickrImages,
       isOpen,
       loading,
+      pageLoading,
       pageIndex,
       pageSize,
       querying,
@@ -621,12 +641,24 @@ class MetaEditor extends Component {
                     {/* Show indented subdimensions */}
                     {dimensions[dim].map(hierarchy =>
                       !dimensions[dim].includes(dim) || dimensions[dim].length !== 1
-                        ? <option key={`hierarchy_${hierarchy}`} value={`hierarchy_${hierarchy}`}>   {hierarchy}</option>
+                        ? <option key={`dimension_${dim}_hierarchy_${hierarchy}`} value={`dimension_${dim}_hierarchy_${hierarchy}`}>   {hierarchy}</option>
                         : ""
                     )}
                   </optgroup>
 
                 )}
+              </Select>
+
+              <Select
+                label="Cube (optional)"
+                inline
+                fontSize="xs"
+                namespace="cms"
+                value={currentCube}
+                onChange={this.onChooseCube.bind(this)}
+              >
+                <option key="all" value="all">All</option>
+                {cubes.map(cube => <option key={cube} value={cube}>{cube}</option>)}
               </Select>
 
               <Select
@@ -656,6 +688,7 @@ class MetaEditor extends Component {
             PreviousComponent={PreviousComponent}
             NextComponent={NextComponent}
             showPageSizeOptions={false}
+            noDataText={pageLoading ? "Loading data…" : "No data found"}
           />
         </div>
 
@@ -663,149 +696,143 @@ class MetaEditor extends Component {
           className={`cms-meta-popover${flickrImages.length > 0 ? " cms-gallery-popover" : ""}`}
           isOpen={isOpen}
           onClose={this.closeEditor.bind(this)}
-          title="Image editor"
-          usePortal={false}
+          title={dialogMode === "direct"
+            ? currentRow.imageId ? "Current image" : "Flickr URL"
+            : "Search Flickr"
+          }
+          headerControls={
+            // tab between direct & search modes
+            <ButtonGroup className="cms-meta-popover-button-group" namespace="cms">
+              <Button
+                active={dialogMode === "direct"}
+                fontSize="xs"
+                namespace="cms"
+                icon="link"
+                iconPosition="left"
+                onClick={() => this.setState({dialogMode: "direct"})}
+              >
+                direct link
+              </Button>
+              <Button
+                active={dialogMode === "search"}
+                fontSize="xs"
+                namespace="cms"
+                icon="search"
+                iconPosition="left"
+                onClick={() => this.setState({dialogMode: "search"})}
+              >
+                search
+              </Button>
+            </ButtonGroup>
+          }
         >
 
-          {/* tab between direct & search modes */}
-          <ButtonGroup className="cms-meta-popover-button-group" namespace="cms">
-            <Button
-              active={dialogMode === "direct"}
-              fontSize="xs"
-              namespace="cms"
-              icon="link"
-              iconPosition="left"
-              onClick={() => this.setState({dialogMode: "direct"})}
-            >
-              direct link
-            </Button>
-            <Button
-              active={dialogMode === "search"}
-              fontSize="xs"
-              namespace="cms"
-              icon="search"
-              iconPosition="left"
-              onClick={() => this.setState({dialogMode: "search"})}
-            >
-              search
-            </Button>
-          </ButtonGroup>
+          {dialogMode === "direct"
+            // paste in a URL
+            ? <Fragment>
+              <TextButtonGroup
+                className="u-margin-bottom-md"
+                namespace="cms"
+                inputProps={{
+                  label: "Flickr direct link",
+                  placeholder: "https://flickr.com/url",
+                  value: url,
+                  onChange: e => this.setState({url: e.target.value}),
+                  namespace: "cms",
+                  labelHidden: true,
+                  autoFocus: true
+                }}
+                buttonProps={{
+                  onClick: this.save.bind(this, currentRow, url.replace("https://flic.kr/p/", ""), null),
+                  namespace: "cms",
+                  children: currentRow.imageId ? "update" : "submit"
+                }}
+              />
 
-          <div className="cms-meta-popover-inner">
-            <h2 className="cms-meta-popover-heading u-font-md u-margin-top-off u-margin-bottom-xs">
-              {dialogMode === "direct"
-                ? currentRow.imageId ? "Current image" : "Flickr URL"
-                : "Search Flickr"
-              }
-            </h2>
-
-            {dialogMode === "direct"
-              // paste in a URL
-              ? <React.Fragment>
-                <TextButtonGroup
-                  className="u-margin-bottom-md"
-                  namespace="cms"
-                  inputProps={{
-                    label: "Flickr direct link",
-                    placeholder: "https://flickr.com/url",
-                    value: url,
-                    onChange: e => this.setState({url: e.target.value}),
-                    namespace: "cms",
-                    labelHidden: true,
-                    autoFocus: true
-                  }}
-                  buttonProps={{
-                    onClick: this.save.bind(this, currentRow, url.replace("https://flic.kr/p/", ""), null),
-                    namespace: "cms",
-                    children: currentRow.imageId ? "update" : "submit"
-                  }}
-                />
-
-                <div className="cms-meta-selected-img-wrapper">
-                  {currentRow.imageId && currentRow.dimension && currentRow.id
-                    ? <img
-                      className="cms-meta-selected-img"
-                      src={`/api/image?dimension=${currentRow.dimension}&id=${currentRow.id}&type=thumb&t=${epoch}`}
-                      alt=""
-                      draggable="false"
-                    />
-                    : <div className="cms-meta-selected-img-error">
-                      <p className="cms-meta-selected-img-error-text">
-                        No image associated with this profile.
-                        <Button
-                          className="u-margin-top-xs"
-                          onClick={() => this.setState({dialogMode: "search"})}
-                          namespace="cms"
-                          fill
-                        >
-                          Search Flickr
-                        </Button>
-                      </p>
-                    </div>
-                  }
-                </div>
-              </React.Fragment>
-
-              // search Flickr
-              : <React.Fragment>
-                <TextButtonGroup
-                  namespace="cms"
-                  inputProps={{
-                    label: "Flickr image search",
-                    placeholder: "Search Flickr images",
-                    value: flickrQuery,
-                    onChange: e => this.setState({flickrQuery: e.target.value}),
-                    namespace: "cms",
-                    labelHidden: true,
-                    autoFocus: true,
-                    disabled: searching
-                  }}
-                  buttonProps={{
-                    onClick: this.searchFlickr.bind(this),
-                    namespace: "cms",
-                    children: "search",
-                    disabled: searching
-                  }}
-                />
-
-                { searching || loading
-                  // alerts
-                  ? <div className="cms-gallery-searching">
-                    <Spinner size="50" className="cms-gallery-spinner u-margin-bottom-sm"/>
-                    <p className="cms-gallery-searching-text u-font-xl">
-                      {searching
-                        ? `Searching Flickr for useable ${flickrQuery} images…`
-                        : "Importing image…"
-                      }
+              <div className="cms-meta-selected-img-wrapper">
+                {currentRow.imageId && currentRow.dimension && currentRow.id && currentRow.cubeName
+                  ? <img
+                    className="cms-meta-selected-img"
+                    src={`/api/image?dimension=${currentRow.dimension}&cubeName=${currentRow.cubeName}&id=${currentRow.id}&type=thumb&t=${epoch}`}
+                    alt=""
+                    draggable="false"
+                  />
+                  : <div className="cms-meta-selected-img-error">
+                    <p className="cms-meta-selected-img-error-text">
+                      No image associated with this profile.
+                      <Button
+                        className="u-margin-top-xs"
+                        onClick={() => this.setState({dialogMode: "search"})}
+                        namespace="cms"
+                        fill
+                      >
+                        Search Flickr
+                      </Button>
                     </p>
                   </div>
-                  // display images
-                  : flickrImages.length > 0 &&
-                    <div className="cms-gallery-wrapper">
-                      <ul className="cms-gallery-list">
-                        {flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
-                          <li className="cms-gallery-item" key={image.id}>
-                            <button className="cms-gallery-button" onClick={this.save.bind(this, currentRow, null, image.id)}>
-                              <img className="cms-gallery-img" src={image.source} alt="add image" />
-                            </button>
-                          </li>
-                        )}
-                      </ul>
-                      {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
-                        <Button
-                          className="cms-gallery-more-button"
-                          onClick={this.showNext.bind(this)}
-                          namespace="cms"
-                          fill
-                        >
-                          load more
-                        </Button>
-                      }
-                    </div>
                 }
-              </React.Fragment>
-            }
-          </div>
+              </div>
+            </Fragment>
+
+            // search Flickr
+            : <Fragment>
+              <TextButtonGroup
+                namespace="cms"
+                inputProps={{
+                  label: "Flickr image search",
+                  placeholder: "Search Flickr images",
+                  value: flickrQuery,
+                  onChange: e => this.setState({flickrQuery: e.target.value}),
+                  namespace: "cms",
+                  labelHidden: true,
+                  autoFocus: true,
+                  disabled: searching
+                }}
+                buttonProps={{
+                  onClick: this.searchFlickr.bind(this),
+                  namespace: "cms",
+                  children: "search",
+                  disabled: searching
+                }}
+              />
+
+              { searching || loading
+                // alerts
+                ? <div className="cms-gallery-searching">
+                  <Spinner size="50" className="cms-gallery-spinner u-margin-bottom-sm"/>
+                  <p className="cms-gallery-searching-text u-font-xl">
+                    {searching
+                      ? `Searching Flickr for useable ${flickrQuery} images…`
+                      : "Importing image…"
+                    }
+                  </p>
+                </div>
+                // display images
+                : flickrImages.length > 0 &&
+                  <div className="cms-gallery-wrapper">
+                    <ul className="cms-gallery-list">
+                      {flickrImages.slice(0, imgIndex + IMAGES_PER_PAGE).map(image =>
+                        <li className="cms-gallery-item" key={image.id}>
+                          <button className="cms-gallery-button" onClick={this.save.bind(this, currentRow, null, image.id)}>
+                            <img className="cms-gallery-img" src={image.source} alt="add image" />
+                          </button>
+                        </li>
+                      )}
+                    </ul>
+                    {imgIndex + IMAGES_PER_PAGE < flickrImages.length &&
+                      <Button
+                        className="cms-gallery-more-button"
+                        onClick={this.showNext.bind(this)}
+                        namespace="cms"
+                        fill
+                      >
+                        load more
+                      </Button>
+                    }
+                  </div>
+              }
+            </Fragment>
+          }
         </Dialog>
         <Status busy="Searching..." done="Complete!" recompiling={querying}/>
       </div>

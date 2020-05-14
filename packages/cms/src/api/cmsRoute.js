@@ -1,47 +1,18 @@
-const Client = require("@datawheel/olap-client").Client;
-const MondrianDataSource = require("@datawheel/olap-client").MondrianDataSource;
-// const TesseractDataSource = require("@datawheel/olap-client").TesseractDataSource;
-
-const d3Array = require("d3-array");
 const sequelize = require("sequelize");
 const shell = require("shelljs");
 const yn = require("yn");
 const path = require("path");
-const {strip} = require("d3plus-text");
 const Op = sequelize.Op;
+
+const populateSearch = require("../utils/populateSearch");
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
-const LANGUAGES = process.env.CANON_LANGUAGES ? process.env.CANON_LANGUAGES.split(",") : [envLoc];
-if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
-// Put the default language first in the array. This ensures that slugs that are generated
-// in populateSearch will be made from the default language content.
-LANGUAGES.sort(a => a === envLoc ? -1 : 1);
-
-const {CANON_CMS_CUBES} = process.env;
-
-/**
- * There is not a fully-featured way for olap-client to know the difference between a 
- * Tesseract and a Mondrian Client. Tesseract is more modern/nice in its HTTP codes/responses,
- * so attempt Tesseract first, and on failure, assume mondrian. 
- */
-const client = new Client();
-Client.dataSourceFromURL(CANON_CMS_CUBES).then(
-  datasource => {
-    if (verbose) console.log(`Initializing Tesseract at ${CANON_CMS_CUBES}`);
-    client.setDataSource(datasource);
-  },
-  err => {
-    const ds = new MondrianDataSource(CANON_CMS_CUBES);
-    client.setDataSource(ds);
-    if (verbose) console.error(`Tesseract not detected: ${err.message}`);
-    if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
-  }
-);
 
 const sectionTypeDir = path.join(__dirname, "../components/sections/");
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
+const cmsMinRole = () => process.env.CANON_CMS_MINIMUM_ROLE ? Number(process.env.CANON_CMS_MINIMUM_ROLE) : 1;
 
 const stripID = o => {
   delete o.id;
@@ -55,7 +26,7 @@ const isEnabled = (req, res, next) => {
 
 const catcher = e => {
   if (verbose) {
-    console.error("Error in cmsRoute: ", e);
+    console.error("Error in cmsRoute: ", e.message);
   }
   return [];
 };
@@ -209,8 +180,10 @@ const sortProfileTree = (db, profiles) => {
   profiles = profiles.map(p => p.toJSON());
   profiles = flatSort(db.profile, profiles);
   profiles.forEach(p => {
-    p.meta = flatSort(db.profile_meta, p.meta);
+    // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
+    p.meta = p.meta.sort(sorter);
     p.sections = flatSort(db.section, p.sections);
+    p.materializers = flatSort(db.materializer, p.materializers);
   });
   return profiles;
 };
@@ -225,7 +198,8 @@ const sortStoryTree = (db, stories) => {
 };
 
 const sortProfile = (db, profile) => {
-  profile.meta = flatSort(db.profile_meta, profile.meta);
+  // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
+  profile.meta = profile.meta.sort(sorter); 
   profile.materializers = flatSort(db.materializer, profile.materializers);
   profile.sections = flatSort(db.section, profile.sections);
   return profile;
@@ -304,132 +278,21 @@ const duplicateSection = async(db, oldSection, pid, selectorLookup) => {
   return newSection.id;
 };
 
-const formatter = (members, data, dimension, level) => {
-
-  const newData = members.reduce((arr, d) => {
-    const obj = {};
-    obj.id = `${d.key}`;
-    obj.name = d.caption || d.name;
-    obj.zvalue = data[obj.id] || 0;
-    obj.dimension = dimension;
-    obj.hierarchy = level;
-    obj.stem = -1;
-    arr.push(obj);
-    return arr;
-  }, []);
-  const st = d3Array.deviation(newData, d => d.zvalue);
-  const average = d3Array.median(newData, d => d.zvalue);
-  newData.forEach(d => d.zvalue = (d.zvalue - average) / st);
-  return newData;
-};
-
-const pruneSearch = async(dimension, levels, db) => {
+const pruneSearch = async(cubeName, dimension, levels, db) => {
   const currentMeta = await db.profile_meta.findAll().catch(catcher);
-  const currentDimensions = currentMeta.map(m => m.dimension);
+  const dimensionCubePairs = currentMeta.reduce((acc, d) => acc.concat(`${d.dimension}-${d.cubeName}`), []);
+
   // To be on the safe side, only clear the search table of dimensions that NO remaining
   // profiles are currently making use of.
   // Don't need to prune levels - they will be filtered automatically in searches.
   // If it gets unwieldy in size however, an optimization could be made here
-  if (!currentDimensions.includes(dimension)) {
-    const resp = await db.search.destroy({where: {dimension}}).catch(catcher);
+  if (!dimensionCubePairs.includes(`${dimension}-${cubeName}`)) {
+    const resp = await db.search.destroy({where: {dimension, cubeName}}).catch(catcher);
     if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
   }
   else {
-    if (verbose) console.log(`Skipped search cleanup - ${dimension} is still in use`);
+    if (verbose) console.log(`Skipped search cleanup - ${dimension}/${cubeName} is still in use`);
   }
-};
-
-const populateSearch = async(profileData, db) => {
-
-  const cubeName = profileData.cubeName;
-  const measure = profileData.measure;
-  const dimension = profileData.dimName || profileData.dimension;
-  const dimLevels = profileData.levels;
-
-  const cube = await client.getCube(cubeName).catch(catcher);
-
-  const levels = cube.dimensionsByName[dimension].hierarchies[0].levels
-    .filter(l => l.name !== "(All)" && dimLevels.includes(l.name));
-
-  for (const locale of LANGUAGES) {
-
-    let fullList = [];
-    for (let i = 0; i < levels.length; i++) {
-
-      const level = levels[i];
-      const members = await client.getMembers(level, {locale}).catch(catcher);
-
-      let data = [];
-
-      const drilldown = {
-        dimension,
-        hierarchy: level.hierarchy.name,
-        level: level.name
-      };
-
-      data = await client.execQuery(cube.query
-        .addDrilldown(drilldown)
-        .addMeasure(measure))
-        .then(resp => resp.data)
-        .then(data => data.reduce((obj, d) => {
-          obj[d[`ID ${level.name}`] ? d[`ID ${level.name}`] : d[`${level.name} ID`]] = d[measure];
-          return obj;
-        }, {})).catch(catcher);
-
-      fullList = fullList.concat(formatter(members, data, dimension, level.name));
-
-    }
-
-    let slugs = await db.search.findAll().catch(catcher);
-    slugs = slugs.map(s => s.slug).filter(d => d);
-
-    const slugify = (str, id) => {
-      let slug = strip(str).replace(/-{2,}/g, "-").toLowerCase();
-      if (slugs.includes(slug)) slug += `-${id}`;
-      slugs.push(slug);
-      return slug;
-    };
-
-    // Fold over the list of members
-    for (let i = 0; i < fullList.length; i++) {
-      // Extract their properties
-      const {id, name, zvalue, dimension, hierarchy, stem} = fullList[i];
-      // The search table holds the non-translatable props
-      const searchObj = {id, zvalue, dimension, hierarchy, stem};
-      searchObj.slug = slugify(name, id);
-      // Create the member in the search table
-      const [row, created] = await db.search.findOrCreate({
-        where: {id, dimension, hierarchy},
-        defaults: searchObj
-      }).catch(catcher);
-      if (created) {
-        if (verbose) console.log(`Created: ${row.id} ${row.slug}`);
-        // If a new row was created, create its translated content
-        await db.search_content.create({id: row.contentId, locale, name});
-      }
-      else {
-        if (row.slug) delete searchObj.slug;
-        // If it's an update, update everything except the (permanent) slug
-        await row.updateAttributes(searchObj).catch(catcher);
-        if (verbose) {
-          console.log(`Updated: ${row.id} ${row.slug}`);
-          console.log("Updating associated language content:");
-        }
-        const [contentRow, contentCreated] = await db.search_content.findOrCreate({
-          where: {id: row.contentId, locale},
-          defaults: {name}
-        }).catch(catcher);
-        if (contentCreated) {
-          if (verbose) console.log(`Created ${locale} Content: ${contentRow.name}`);
-        }
-        else {
-          await contentRow.updateAttributes({name});
-          if (verbose) console.log(`Updated ${contentRow.id} ${contentRow.locale}: ${contentRow.name}`);
-        }
-      }
-    }
-  }
-
 };
 
 module.exports = function(app) {
@@ -437,6 +300,7 @@ module.exports = function(app) {
   const {db} = app.settings;
 
   app.get("/api/cms", (req, res) => res.json(cmsCheck()));
+  app.get("/api/cms/minRole", (req, res) => res.json(cmsMinRole()));
 
   /* BASIC GETS */
 
@@ -463,7 +327,7 @@ module.exports = function(app) {
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(m => m.toJSON());
     for (const m of meta) {
-      m.top = await db.search.findOne({where: {dimension: m.dimension}, order: [["zvalue", "DESC"]], limit: 1}).catch(catcher);
+      m.top = await db.search.findOne({where: {dimension: m.dimension, cubeName: m.cubeName}, order: [["zvalue", "DESC"]], limit: 1}).catch(catcher);
     }
     res.json(meta);
   });
@@ -505,13 +369,23 @@ module.exports = function(app) {
   const newList = cmsTables;
   newList.forEach(ref => {
     app.post(`/api/cms/${ref}/new`, isEnabled, async(req, res) => {
-      if (parentOrderingTables[ref]) {
-        const obj = {
+      // If the order was provided, we need to bump all siblings up to make room. 
+      if (req.body.ordering) {
+        const where = {
+          ordering: {[Op.gte]: req.body.ordering},
+          [parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]
+        };
+        await db[ref].update({ordering: sequelize.literal("ordering +1")}, {where}).catch(catcher);        
+      }
+      // If it was not provided, but this is a table that needs them, append it to the end and 
+      // insert the derived ordering into req.body
+      else if (parentOrderingTables[ref]) {
+        const where = {
           where: {[parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]},
           attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], 
           raw: true
         };
-        const maxFetch = await db[ref].findAll(obj).catch(catcher);
+        const maxFetch = await db[ref].findAll(where).catch(catcher);
         const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
         req.body.ordering = ordering;
       }
@@ -590,15 +464,19 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
+    req.setTimeout(1000 * 60 * 5);
     const profileData = req.body;
     const {profile_id} = profileData;  // eslint-disable-line
     profileData.dimension = profileData.dimName;
     const oldmeta = await db.profile_meta.findOne({where: {id: profileData.id}}).catch(catcher);
     // Inserts are simple
     if (!oldmeta) {
-      const maxFetch = await db.profile_meta.findAll({where: {profile_id}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
-      const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
-      profileData.ordering = ordering;
+      // If no ordering was provided, divine ordering from meta length.
+      if (isNaN(profileData.ordering)) {
+        const maxFetch = await db.profile_meta.findAll({where: {profile_id}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
+        const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+        profileData.ordering = ordering;
+      }
       await db.profile_meta.create(profileData);
       await populateSearch(profileData, db);
     }
@@ -606,8 +484,8 @@ module.exports = function(app) {
     // entirely. We have to prune the search before repopulating it.
     else {
       await db.profile_meta.update(profileData, {where: {id: profileData.id}});
-      if (oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
-        pruneSearch(oldmeta.dimension, oldmeta.levels, db);
+      if (oldmeta.cubeName !== profileData.cubeName || oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
+        pruneSearch(oldmeta.cubeName, oldmeta.dimension, oldmeta.levels, db);
         await populateSearch(profileData, db);
       }
     }
@@ -623,6 +501,7 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
+    req.setTimeout(1000 * 60 * 5);
     const {id} = req.body;
     let profileData = await db.profile_meta.findOne({where: {id}});
     profileData = profileData.toJSON();
@@ -644,7 +523,7 @@ module.exports = function(app) {
       // Formatters are a special update case - return the whole list on update (necessary for recompiling them)
       if (ref === "formatter") {
         const rows = await db.formatter.findAll().catch(catcher);
-        return res.json(rows);
+        return res.json({id, formatters: rows});
       }
       else {
         if (contentTables.includes(ref)) {
@@ -666,8 +545,8 @@ module.exports = function(app) {
    */
   const swapList = [
     {elements: ["profile"], parent: null},
-    {elements: ["author", "story_description", "story_footnote", "storysection"], parent: "story_id"},
-    {elements: ["section", "materializer"], parent: "profile_id"},
+    {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
+    {elements: ["materializer"], parent: "profile_id"},
     {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
     {elements: ["storysection_subtitle", "storysection_description", "storysection_stat", "storysection_visualization"], parent: "storysection_id"}
   ];
@@ -680,14 +559,68 @@ module.exports = function(app) {
         if (list.parent) otherWhere[list.parent] = original[list.parent];
         const other = await db[ref].findOne({where: otherWhere}).catch(catcher);
         if (!original || !other) return res.json([]);
-        const newOriginal = await db[ref].update({ordering: sequelize.literal("ordering + 1")}, {where: {id}, returning: true, plain: true}).catch(catcher);
-        const newOther = await db[ref].update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
+        const originalTarget = other.ordering;
+        const otherTarget = original.ordering;
+        const newOriginal = await db[ref].update({ordering: originalTarget}, {where: {id}, returning: true, plain: true}).catch(catcher);
+        const newOther = await db[ref].update({ordering: otherTarget}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
         return res.json([newOriginal[1], newOther[1]]);
       });
     });
   });
 
   /* CUSTOM SWAPS */
+
+  const sectionSwapList = [
+    {ref: "section", parent: "profile_id"},
+    {ref: "storysection", parent: "story_id"}
+  ];
+  sectionSwapList.forEach(swap => {
+    app.post(`/api/cms/${swap.ref}/swap`, isEnabled, async(req, res) => {
+      // Sections can be Groupings, which requires a more complex swap that brings it child sections along with it 
+      const {id} = req.body;
+      const original = await db[swap.ref].findOne({where: {id}}).catch(catcher);
+      let sections = await db[swap.ref].findAll({where: {[swap.parent]: original[swap.parent]}, order: [["ordering", "ASC"]]}).catch(catcher);
+      sections = sections.map(s => s.toJSON());
+      // Create a hierarchical array that respects groupings that looks like: [[G1, S1, S2], [G2, S3, S4, S5]] for easy swapping
+      const sectionsGrouped = [];
+      let hitGrouping = false;
+      sections.forEach(section => {
+        if (!hitGrouping || section.type === "Grouping") {
+          sectionsGrouped.push([section]);
+          if (section.type === "Grouping") hitGrouping = true;
+        }
+        else {
+          sectionsGrouped[sectionsGrouped.length - 1].push(section);
+        }
+      });
+      // Sections that come before the Groupings start are technically in groups of their own. 
+      let isGroupLeader = false;
+      sectionsGrouped.forEach(group => {
+        if (group.map(d => d.id).includes(original.id) && group[0].id === original.id) isGroupLeader = true;
+      });
+      let updatedSections = [];
+      if (isGroupLeader) {
+        const ogi = sectionsGrouped.findIndex(group => group[0].id === id);
+        const ngi = ogi + 1;
+        // https://stackoverflow.com/a/872317
+        [sectionsGrouped[ogi], sectionsGrouped[ngi]] = [sectionsGrouped[ngi], sectionsGrouped[ogi]];
+        updatedSections = sectionsGrouped
+          .flat()
+          .map((section, i) => ({...section, ordering: i}));
+      } 
+      else {
+        const oi = original.ordering;
+        const ni = original.ordering + 1;
+        [sections[oi], sections[ni]] = [sections[ni], sections[oi]];
+        updatedSections = sections.map((section, i) => ({...section, ordering: i}));
+      }
+      for (const section of updatedSections) {
+        await db[swap.ref].update({ordering: section.ordering}, {where: {id: section.id}});
+      }
+      return res.json(updatedSections.map(d => ({id: d.id, ordering: d.ordering})));
+    });
+  });
+
 
   app.post("/api/cms/section_selector/swap", isEnabled, async(req, res) => {
     const {id} = req.body;
@@ -714,10 +647,6 @@ module.exports = function(app) {
     const reqObj = Object.assign({}, sectionReqFull, {where: {id}});
     let oldSection = await db.section.findOne(reqObj).catch(catcher);
     oldSection = oldSection.toJSON();
-    // This section could be added to a different profile. Override its ordering to be the last in the list.
-    const maxFetch = await db.section.findAll({where: {profile_id: pid}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
-    const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
-    oldSection.ordering = ordering;
     let selectorLookup = null;
     // If this section is being duplicated in the SAME profile as it came from, we DO want to populate its selectors
     // (We skip selectors if we jump profiles). Populate a dummy lookup so the selector migration works.
@@ -726,6 +655,17 @@ module.exports = function(app) {
       oldSection.selectors.forEach(selector => {
         selectorLookup[selector.section_selector.selector_id] = selector.section_selector.selector_id;
       });
+      // Because this is the same profile, we want its ordering to be after the duplication source.
+      // Slide up all of the other sections to make room
+      await db.section.update({ordering: sequelize.literal("ordering +1")}, {where: {profile_id: pid, ordering: {[Op.gt]: oldSection.ordering}}}).catch(catcher);
+      // Then override the ordering of oldSection to be after the source one (i.e., one higher)
+      oldSection.ordering++;
+    }
+    else {
+      // If this section is being added to a different profile, override its ordering to be the last in the list.
+      const maxFetch = await db.section.findAll({where: {profile_id: pid}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
+      const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+      oldSection.ordering = ordering;
     }
     const newSectionId = await duplicateSection(db, oldSection, pid, selectorLookup);
     const newReqObj = Object.assign({}, sectionReqFull, {where: {id: newSectionId}});
@@ -735,8 +675,6 @@ module.exports = function(app) {
     newSection.types = getSectionTypes();
     return res.json(newSection);
   });
-
-
 
   app.post("/api/cms/profile/duplicate", isEnabled, async(req, res) => {
     // Fetch the full tree for the provided ID
@@ -780,6 +718,25 @@ module.exports = function(app) {
       return section;
     });
     return res.json(finalProfile);
+  });
+
+  const duplicateList = ["selector", "generator", "materializer"];
+
+  duplicateList.forEach(ref => {
+    app.post(`/api/cms/${ref}/duplicate`, isEnabled, async(req, res) => {
+      let entity = await db[ref].findOne({where: {id: req.body.id}}).catch(catcher);
+      entity = entity.toJSON();
+      const {id, ...duplicate} = entity; //eslint-disable-line
+      if (duplicate.name) duplicate.name = `${duplicate.name}-duplicate`;
+      if (duplicate.title) duplicate.title = `${duplicate.title} (duplicate)`;
+      // Todo: make this more generic. Extract out the /new code have duplicate use it.
+      if (ref === "materializer") {
+        await db[ref].update({ordering: sequelize.literal("ordering +1")}, {where: {profile_id: entity.profile_id, ordering: {[Op.gt]: entity.ordering}}}).catch(catcher);
+        duplicate.ordering++;        
+      }
+      const newEntity = await db[ref].create(duplicate).catch(catcher);
+      return res.json(newEntity);
+    });
   });
 
   /* DELETES */
@@ -856,7 +813,8 @@ module.exports = function(app) {
     const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
-    pruneSearch(row.dimension, row.levels, db);
+    // Todo: This prunesearch is outdated - need to call it multiple times for each meta row. 
+    // pruneSearch(row.dimension, row.levels, db);
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     const sectionTypes = getSectionTypes();
@@ -873,9 +831,14 @@ module.exports = function(app) {
 
   app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
     const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    // Profile meta can have multiple variants now sharing the same index. 
+    const variants = await db.profile_meta.findAll({where: {profile_id: row.profile_id, ordering: row.ordering}}).catch(catcher);
+    // Only "slide down" others if we are deleting the last one at this ordering.
+    if (variants.length === 1) {
+      await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    }    
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
-    pruneSearch(row.dimension, row.levels, db);
+    pruneSearch(row.cubeName, row.dimension, row.levels, db);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: row.profile_id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());

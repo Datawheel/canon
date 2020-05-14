@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
 import {NonIdealState} from "@blueprintjs/core";
@@ -22,6 +22,14 @@ class ProfileBuilder extends Component {
     this.state = {
       toolboxVisible: true
     };
+  }
+
+  componentDidMount() {
+    // Prevents the user from accidentally leaving the page with a back/reload action. setTimeout is necessary here to 
+    // avoid a spurious Alert that would pop up when users log in using AuthForm (which fires a necessary redirect)
+    if (typeof window !== "undefined") {
+      setTimeout(() => window.onbeforeunload = () => "Are you sure you want to leave?", 3000);
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -48,28 +56,28 @@ class ProfileBuilder extends Component {
   render() {
 
     const {toolboxVisible} = this.state;
-    const {currentPid, gensLoaded, gensTotal, genLang, pathObj, previews, profilesLoaded, searchLoading} = this.props.status;
+    const {currentPid, fetchingVariables, pathObj, previews, profilesLoaded, searchLoading} = this.props.status;
 
     const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
     const editorTypes = {profile: ProfileEditor, section: SectionEditor};
     const Editor = editorTypes[type];
     const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
 
-    const gensRecompiling = gensLoaded !== gensTotal;
-    const gensBusy = `${gensLoaded} of ${gensTotal} Generators Loaded (${genLang})`;
+    const gensRecompiling = fetchingVariables;
+    const gensBusy = `Loading ${fetchingVariables}...`;
     const gensDone = "Variables Loaded";
 
     const searchRecompiling = searchLoading;
-    const searchBusy = "Loading Search Members, please wait.";
-    const searchDone = "Members Loaded.";
+    const searchBusy = "Loading search members...";
+    const searchDone = "Members loaded";
 
     if (!profilesLoaded) return null;
 
     return (
-      <React.Fragment>
+      <Fragment>
         <div className="cms-panel profile-panel" id="profile-builder">
           <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
-            { Editor && currentPid
+            {Editor && currentPid
               ? <Editor id={id}>
                 <Header dimensions={previews}/>
                 <DimensionBuilder />
@@ -94,15 +102,15 @@ class ProfileBuilder extends Component {
                 </Button>
               </div>
             </Toolbox>
-
-            <Status
-              recompiling={gensRecompiling || searchRecompiling}
-              busy={gensRecompiling ? gensBusy : searchBusy}
-              done={gensRecompiling ? gensDone : searchDone}
-            />
           </div>
         </div>
-      </React.Fragment>
+
+        <Status
+          recompiling={gensRecompiling || searchRecompiling}
+          busy={gensRecompiling ? gensBusy : searchBusy}
+          done={gensRecompiling ? gensDone : searchDone}
+        />
+      </Fragment>
     );
   }
 }

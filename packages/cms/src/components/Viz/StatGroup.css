@@ -7,6 +7,10 @@
   overflow-x: hidden;
   width: calc(100% + var(--gutter-md));
 
+  &.single-stat {
+    width: 100%;
+  }
+
   /* grouped stats */
   & > .cp-stat-group {
     /* layout spans 2 columsn by default */

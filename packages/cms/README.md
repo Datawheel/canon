@@ -10,7 +10,10 @@ Content Management System for Canon sites.
 * [Environment Variables](#environment-variables)
 * [Sections](#sections)
 * [Search](#search)
+* [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
+* [Advanced Selector Techniques](#advanced-selector-techniques)
+* [Authentication](#authentication)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Release Notes](#release-notes)
 * [Migration](#migration)
@@ -201,6 +204,8 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 
 - **Dimension**: Any given Profile in the CMS must be linked to one or more dimensions. Examples include "Geography," "University," or "CIP" (Industry). You could have a `geo` profile, which is linked to the "Geography" dimension, whose members are things like Massachusetts or New York.
 
+- **Variant**: A given Dimension (above) may also have several **Variants**. If you have a dimension that is linked to a cube, e.g. a Subnational Dimension from a Japan Cube, you may add a variant of this `geo`-type dimension: e.g. a Subnational Dimension from a China cube. This allows you to have a single top-level profile (like "Subnational") that has multiple expressions/variants from different cubes, allowing you to share logic and layout between the different data feeds.
+
 ---
 
 ## Environment Variables
@@ -209,12 +214,17 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |---|---|---|
 |`CANON_CMS_CUBES`|Path to the mondrian or tesseract|`undefined (required)`|
 |`CANON_CMS_ENABLE`|Setting this env var to `true` allows access to the cms in production builds.|`false`|
+|`CANON_CMS_MINIMUM_ROLE`|The minimum integer value for a Canon user `role` to access the CMS|`1`|
 |`CANON_CMS_LOGGING`|Enable verbose logging in console.|`false`|
+|`CANON_CMS_REQUESTS_PER_SECOND`|Sets the `requestsPerSecond` value in the [promise-throttle](https://www.npmjs.com/package/promise-throttle) library, used for rate-limiting Generator requests|20|
+|`CANON_CMS_DEEPSEARCH_API`|Server location of Deepsearch API|`undefined`|
 |`FLICKR_API_KEY`|Used to configure Flickr Authentication|`undefined`|
 |`GOOGLE_APPLICATION_CREDENTIALS`|Path to JSON token file for Cloud Storage|`undefined`|
 |`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
 |`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|1400|
 |`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
+|`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
+|`OLAP_PROXY_SECRET`|For olap services that require a "x-tesseract-jwt-token" header to set in order to gain access, this variable can be used to set a private key for server-side processes.|`undefined`|
 
 ---
 
@@ -348,6 +358,8 @@ config: {
 
 ## Search
 
+#### Legacy Search API (Dimensions only)
+
 The CMS is used to create Profiles based on Dimensions, such as "Geography" or "Industry". The individual entities that make up these dimensions (such as *Massachusetts* or *Metalworkers*) are referred to as Members. These members are what make up the slugs/ids in URLS; when visiting `/geo/massachusetts`, `geo` is the profile/dimension slug and `massachusetts` is the member.
 
 These members can be viewed and edited in the in the MetaData section of the CMS. However, they can also be searched via an API endpoint, which can be useful for setting up a search feature on your site. The API endpoint is:
@@ -363,6 +375,8 @@ Arguments are provided by url paramaters:
 |`q`|A string query which uses the SQL `LIKE` operator to search the `name` and `keywords` of the member|
 |`dimension`|An exact-match string to filter results to members in the provided dimension|
 |`levels`|A comma-separated list of levels to filter results to members by the provided levels|
+|`cubeName`|An exact-match string to filter results to members from the provided cube|
+|`pslug`|If the cubeName is not known, you may provide the unique slug of the desired dimension to limit results to that profile|
 |`limit`|A number, passed through to SQL `LIMIT` to limit results|
 |`id`|Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification|
 
@@ -371,6 +385,108 @@ Example query:
 ```
 /api/search?q=mass&dimension=Geography
 ```
+
+#### Profile Search API
+
+The legacy search above is only used for searching singular dimensions, not for returning actual profiles in your CMS installation. The Profile Search still returns matching members, but more importantly, returns a list of Profiles that contain those members.
+
+It is recommended that this search be performed using DeepSearch, running on a separate server. You can configure the CMS to point to an installation of DeepSearch using the following environment variable:
+
+```sh
+export CANON_CMS_DEEPSEARCH_API=some-api.com:88/deepsearch
+```
+
+However, if you choose not to run a DeepSearch server, the ProfileSearch API and component will fall back on a simple `%LIKE%` query on the members in the search table.
+
+You may then import the ProfileSearch component, shown here with the default props:
+
+```jsx
+import {ProfileSearch} from "@datawheel/canon-cms";
+
+...
+
+<ProfileSearch
+  activateKey={false} // a keyboard character that will enable the search from anywhere on the page (ie . "s")
+  availableProfiles={[]} // limit the type of profile results to show (ie. ["hs92", "country"])
+  columnOrder={[]} // the order of the "columns" display (ie. ["hs92", "country"])
+  columnTitles={{}} // overrides for the default column titles (ie. {hs92: "Products"})
+  display={"list"} // available options are "list" or "columns"
+  inputFontSize={"xxl"} // the CSS size for the input box ("sm", "md", "lg", "xl", "xxl")
+  joiner={"&"} // the character used when joining titles in multi-dimensional profiles
+  limit={10} // how many results to show
+  minQueryLength={1} // when the search query is below this number, no API requests will be made
+  placeholder={"Search..."} // the placeholder text in the input element
+  position={"static"} // either "static" or "absolute" (for a pop-up result window)
+  subtitleFormat={result => result.memberHierarchy} // overrides for the default result subtitles
+  showExamples={false} // setting this to `true` will display results when no query has been entered
+/>
+```
+
+If you would prefer to build your own search component, the DeepSearch API is available at `/api/profilesearch`. Arguments are as follows:
+
+|parameter|description|
+|---|---|
+|`query`|Query to search for|
+|`locale`|Language for results|
+|`limit`|Maximum number of results to return|
+|`min_confidence`|Confidence threshold (Deepsearch Only)|
+
+Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
+
+---
+
+## Advanced Generator Techniques
+
+For complex generator calls, crafting an API URL using dynamic properties of the current member can be difficult.
+
+### Using Member Attributes in API Calls
+
+The most basic example of this feature is including the `id` of the current member in the API call. Say, for example, you want to retrieve the population for the current state ID. For a given state ID of `25`, your API call may look something like this:
+
+```
+/api?measures=Population&drilldowns=State&State%20ID=25
+```
+
+However, the very point of the CMS is to swap out the `25` with whatever `id` you are previewing. This is the purpose of the fixed "Attributes" Generator at the top of the Generators panel. Any of the variables in this Attributes Generator can be swapped into a Generator API URL by using the `<variable>` syntax. So, the API call above would become:
+
+```
+/api?measures=Population&drilldowns=State&State%20ID=<id>
+```
+
+And the CMS will swap `25` in for `<id>`. This allows you to make complex API calls based on the `hierarchy`, `dimension`, etc. of the current member.
+
+### Object / Array Access
+
+Certain elements of the Attributes Generator, such as `parents` or `user`, are objects or arrays. You may access these using dot notation and array accessors:
+
+```
+/api?hierarchy=<parents[0].value>
+```
+
+However, be warned that this is not "true" javascript, merely string manipulation, so operations like `<parents[parents.length - 1].value>` are not supported. To access the ends of lists, use a python-esque negative index accessor like so:
+
+```
+/api?hierarchy=<parents[-1].value>
+```
+
+### Accessing Member Slugs
+
+Member slugs only exist at the CMS level for vanity-plate URL routing (e.g., /profile/country/fra, where `fra` is the member slug). The underyling cube has no knowledge of these slugs, which can make creating links to these vanity URLs in the CMS difficult.
+
+If you want access to these slugs in your results set, you may add the `slugs` query parameter to your generator API. The CMS will intercept the payload and inject the slugs into the response.
+
+The slugs parameter requires two elements for a successful lookup:
+
+1) The CMS-level dimension on which the ID is considered unique (`Exporter`, `HS Product`, etc)
+2) An accessor for the key in the response payload to be used for lookup (`Country`, `HS4`, etc). Note: The CMS will automatically append the ` ID` to your accessor, changing `HS4` to `HS4 ID` for example.
+
+These parameters should be added to the generator API, using colons to separate the two required pieces:
+
+`&slugs=Exporter:Country,HS Product:HS4`
+
+If the pieces are the same, one parameter may be used:
+
+`&slugs=Product`
 
 ---
 
@@ -384,7 +500,7 @@ You may want an event in one visualization to have an effect on another visualiz
 
 For this reason, the `setVariables` function has been added to Visualizations. This function allows you access to the `variables` object that the CMS uses to swap variables on the page. In order to achieve the example above, you could set your secondary viz to make use of a variable called `variables.secondaryId`. Then, in the primary viz, you could set the following code in your viz configuration:
 
-```
+```js
  "on":
     {
       "click": d => {
@@ -419,7 +535,7 @@ Alternatively, you may want to click an element in a viz and have something open
 
 Then, in a viz, you may call the function `openModal(slug)` to embed the section with the provided slug in a popover on the page.
 
-```
+```js
  "on":
     {
       "click": d => {
@@ -430,7 +546,7 @@ Then, in a viz, you may call the function `openModal(slug)` to embed the section
 
 Keep in mind that you may combine the two advanced functions! If your planned modal relies on a secondary ID, you could set something like:
 
-```
+```js
  "on":
     {
       "click": d => {
@@ -441,6 +557,93 @@ Keep in mind that you may combine the two advanced functions! If your planned mo
 ```
 
 You are then welcome, in the `myModalSlug` section, to make use of `idForMyModal` and trust that it will be set when the modal opens.
+
+### HTML Visualizations
+
+If you need to further customize a visualization beyond d3plus, or simply want to inject custom HTML in place a visualization at all, you may use the HTML viz type.
+
+Create a generator variable that contains your custom HTML, and when you create a visualization, set the `html` field of your `HTML` visualization to that variable.
+
+In advanced mode, an HTML visualization has the following format:
+
+```js
+return {
+  type: "HTML",
+  html: "<div>Hello World</div>"
+}
+```
+
+This visualization type can even be used to embed entire iframes:
+
+```js
+return {
+  type: "HTML",
+  html: '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0"></iframe>'
+}
+```
+
+---
+
+## Advanced Selector Techniques
+
+Traditional selectors (dropdowns) are static. Options are added, one by one, from the list of premade variables. However, if selector lists are very long (such as a list of states) or need to automatically change (such as years when new data are added), you may need to configure dynamic selectors. 
+
+The `name` of the Selector itself, as well as defining which option(s) are the default, are configured the same way as static selectors. The main difference is that Dynamic Selectors allow you to use a variable to define the members of the dropdown, as opposed to adding pre-existing variable options one at a time.
+
+### Dynamic Selector Formatting
+
+Dynamic selectors are array variables. The members of that array may be objects or strings.
+
+If the members are **objects**, you must provide the required key `option`, and the optional keys `label` and `allowed`. 
+
+|key|required|details
+|---|---|---|
+|`option`|required|Serves as the `value` of the `<Select/>` in the dropdown.
+|`label`|optional|Value shown as label of dropdown. If not provided, defaults to the value of `option`.
+|`allowed`|optional|String reference to variable to use for `allowed`. Defaults to `always`.
+
+```js
+[
+  {option: "year2016", label: "2016", allowed: "profileHas2016Data"},
+  {option: "year2017", label: "2017", allowed: "profileHas2017Data"},
+  {option: "year2018", label: "2018", allowed: "always"},
+  {option: "year2019", label: "2019"}   // allowed=always is implicit, if desired.
+]
+```
+
+Remember - in static selectors, the "label" was implicitly value of the variable. However, in dynamic selectors, **the options you create will not exist in the variables object**. The exist only within this dynamic selector. In the above example, attempting to access `variables.year2018` will not return anything, as no generator ever exported `year2018` as a proper variable in and of itself. 
+
+A string configuration is also supported: 
+
+```js
+["option1", "option2", "option3"]
+```
+
+In this case, `label` will default to `option` and `allowed` will default to `always`. You may also mix and match formats.
+
+### Technical Details 
+
+Advanced users may have used the following syntax to achieve "labels" on the front end:
+
+```js
+{{[[selector1]]}}
+```
+
+On a first pass, a selector swap will change `selector1` to its selected value (say `year2018`), which leaves `{{year2018}}` behind. A second variable swap pass would then change it to `2018`, for use in a human-readable paragraph.
+
+In dynamic selectors, as mentioned above, `year2018` will not exist as such. Therefore, a step has been added BETWEEN the selector swap and the variable swap, which will use user-defined `labels` as a temporary variable lookup. This behavior allows users to continue to use the `{{[[selector1]]}}` format they are used to, and can trust that it will turn `year2018` into `2018`, even though `year2018` is not in the variables object. 
+
+---
+
+## Authentication
+
+Canon CMS makes use of the [User Management](https://github.com/Datawheel/canon#user-management) from Canon Core. If `CANON_LOGINS` is set to true, the CMS will require a user of `role` of `1` or higher to access the CMS.
+
+To configure the minimum role for CMS access, use the `CANON_CMS_MINIMUM_ROLE` environment variable.
+
+The CMS also exports the `user` object and a `userRole` boolean for the currently logged in user in the Locked Attributes Generator for every profile. You can make use of these variables to hide, show, or limit information based on the role of the currently logged in user.
+
+**Note:** If you create new variables from the user data (e.g., `const isPro = role >= 1`), these operations **must** be performed in materializers to have any effect.
 
 ---
 
@@ -506,6 +709,7 @@ Here is a list of Minor CMS versions and their release notes:
 - [canon-cms@0.9.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.9.0)
 - [canon-cms@0.10.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.10.0)
 - [canon-cms@0.11.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.11.0)
+- [canon-cms@0.12.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.12.0)
 
 ___
 
@@ -519,8 +723,18 @@ For upgrading to new versions, there are currently several migration scripts:
 4) `npx canon-cms-migrate-0.7` (for 0.7 CMS users)
 5) `npx canon-cms-migrate-0.8` (for 0.8 CMS users)
 6) `npx canon-cms-migrate-0.9` (for 0.9 CMS users, for upgrade to 0.11 ONLY)
+7) `npx canon-cms-migrate-0.11` (for 0.10 or 0.11 CMS users, for upgrade to 0.12 ONLY)
+8) `npx canon-cms-migrate-0.12` (for 0.12 CMS users)
 
 **Note:** Canon CMS Version 0.10.0 did **NOT** require a database migration, so the `0.9` script will output a `0.11` database.
+
+**Note:** Unlike all other migrations, the `0.11` -> `0.12` migration script performs a total search re-ingest from the source cubes. This means that the following env vars MUST be set in the environment where are you running the migration, AND they must match your production credentials to ensure a proper ingest.
+
+- `CANON_CMS_CUBES` - Required for connecting to the Cube
+- `CANON_LANGUAGES` - Required for cube ingest so language data can be populated. Make sure this matches your prod setup!
+- `CANON_LANGUAGE_DEFAULT` - Required for slug generation - slugs for search members are generated based on the default language.
+- `CANON_CMS_LOGGING` - Not required, but recommended to turn on to observe the migration for any errors.
+
 
 ### Instructions
 

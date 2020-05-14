@@ -1,21 +1,24 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
-import {Dialog} from "@blueprintjs/core";
+
 import varSwapRecursive from "../../utils/varSwapRecursive";
-import GeneratorEditor from "../editors/GeneratorEditor";
-import Loading from "components/Loading";
-import Viz from "../Viz/Viz";
-import FooterButtons from "../editors/components/FooterButtons";
 import deepClone from "../../utils/deepClone";
+
+import {Intent} from "@blueprintjs/core";
+
+import Loading from "components/Loading";
 import Card from "./Card";
+import Viz from "../Viz/Viz";
+import VariableEditor from "../editors/VariableEditor";
+import Dialog from "../interface/Dialog";
 
 import {deleteEntity, updateEntity} from "../../actions/profiles";
+import {setStatus} from "../../actions/status";
 
 import "./VisualizationCard.css";
 
 class VisualizationCard extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -26,20 +29,42 @@ class VisualizationCard extends Component {
   }
 
   componentDidMount() {
-    const {minData} = this.props;
+    const {dialogOpen} = this.props.status;
+    const {minData, type} = this.props;
     this.setState({minData: deepClone(minData)});
+    if (dialogOpen && dialogOpen.force && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
-    if (JSON.stringify(prevProps.minData) !== JSON.stringify(this.props.minData)) {
-      this.setState({minData: deepClone(this.props.minData)});
+    const {type} = this.props;
+
+    const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
+    if (didUpdate) {
+      const Toast = this.context.toast.current;
+      const {status} = this.props.status.justUpdated;
+      if (status === "SUCCESS") {
+        Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
+        // Clone the new object for manipulation in state.
+        this.setState({isOpen: false, minData: deepClone(this.props.minData)});
+        this.props.setStatus({dialogOpen: false});
+      }
+      else if (status === "ERROR") {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
+        // Don't close window
+      }
+    }
+
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen && this.props.status.dialogOpen.force;
+    const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === this.props.minData.id;
+    if (thisOpened) {
+      this.openEditor.bind(this)();
     }
   }
 
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this?",
+      title: "Delete visualization?",
       confirm: "Delete"
     };
     this.setState({alertObj});
@@ -53,13 +78,15 @@ class VisualizationCard extends Component {
   save() {
     const {type} = this.props;
     const {minData} = this.state;
+    // note: isOpen will close on update success (see componentDidUpdate)
     this.props.updateEntity(type, minData);
-    this.setState({isOpen: false});
   }
 
   openEditor() {
+    const {type} = this.props;
     const minData = deepClone(this.props.minData);
     const isOpen = true;
+    this.props.setStatus({dialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -68,8 +95,9 @@ class VisualizationCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Are you sure you want to abandon changes?",
-        confirm: "Yes, Abandon changes."
+        title: "Close visualization editor and revert changes?",
+        confirm: "Close editor",
+        theme: "caution"
       };
       this.setState({alertObj});
     }
@@ -84,14 +112,14 @@ class VisualizationCard extends Component {
   }
 
   closeEditorWithoutSaving() {
+    this.props.setStatus({dialogOpen: false});
     this.setState({isOpen: false, alertObj: false, isDirty: false});
   }
 
   render() {
-
     const {minData, showReorderButton} = this.props;
     const {isOpen, alertObj} = this.state;
-    const {query} = this.props.status;
+    const {query, fetchingVariables} = this.props.status;
     const {formatterFunctions} = this.props.resources;
 
     const minDataState = this.state.minData;
@@ -106,7 +134,7 @@ class VisualizationCard extends Component {
 
     // TODO: add formatters toggle for secondaryLocale & secondaryVariables
 
-    minData.selectors = selectors;
+    minData.allSelectors = selectors;
     let logic = "return {}";
     // Only calculate the viz render if the user is finished editing and has closed the window.
     if (!isOpen) logic = varSwapRecursive(minData, formatters, variables, query).logic;
@@ -118,7 +146,7 @@ class VisualizationCard extends Component {
     const config = Object.assign({}, minData, {logic});
 
     const cardProps = {
-      cardClass: "visualization",
+      type,
       title: config && config.logic_simple && config.logic_simple.data
         ? `${
           config.logic_simple.type}${
@@ -139,51 +167,55 @@ class VisualizationCard extends Component {
       onAlertCancel: () => this.setState({alertObj: false})
     };
 
+    let vizProps = {};
+    if (!isOpen) {
+      vizProps = {
+        config,
+        namespace: "cms",
+        locale: localeDefault,
+        debug: true,
+        initialVariables: variables,
+        variables,
+        configOverride: {height},
+        options: false
+      };
+    }
+
+    const dialogProps = {
+      title: "Visualization editor",
+      isOpen,
+      onClose: this.maybeCloseEditorWithoutSaving.bind(this),
+      onDelete: this.maybeDelete.bind(this),
+      onSave: this.save.bind(this),
+      usePortal: false,
+      portalProps: {namespace: "cms"}
+    };
+
+    const editorProps = {
+      type: "visualization",
+      data: minDataState,
+      markAsDirty: this.markAsDirty.bind(this)
+    };
+
     return (
       <Card {...cardProps}>
-
         {/* viz preview */}
-        {!isOpen &&
-          <Viz
-            config={config}
-            namespace="cms"
-            locale={localeDefault}
-            debug={true}
-            initialVariables={variables}
-            variables={variables}
-            configOverride={{height}}
-            options={false}
-          />
+        {!isOpen && !fetchingVariables &&
+          <Viz {...vizProps} key="v" />
         }
 
-        {/* edit mode */}
-        <Dialog
-          className="generator-editor-dialog"
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Visualization editor"
-          usePortal={false}
-        >
-          <div className="bp3-dialog-body">
-            <GeneratorEditor
-              markAsDirty={this.markAsDirty.bind(this)}
-              data={minDataState}
-              type={type}
-            />
-          </div>
-          <FooterButtons
-            onDelete={this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
+        {/* editor */}
+        <Dialog {...dialogProps} key="d">
+          <VariableEditor {...editorProps} />
         </Dialog>
       </Card>
     );
   }
-
 }
 
 VisualizationCard.contextTypes = {
-  variables: PropTypes.object
+  variables: PropTypes.object,
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({
@@ -194,7 +226,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
-  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
+  deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  setStatus: status => dispatch(setStatus(status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(VisualizationCard);

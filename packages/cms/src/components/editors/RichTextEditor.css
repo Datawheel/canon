@@ -1,0 +1,139 @@
+@import "../../css/mixins.css";
+
+.cms-rich-text-editor label + .cms-draft-wrapper {
+  margin-top: var(--gutter-xs);
+}
+
+/* format buttons */
+.cms-rich-text-editor .ql-toolbar {
+  /* layout */
+  display: flex;
+  /* positioning */
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  right: 1px;
+  z-index: 1;
+  padding-top: var(--gutter-xs);
+  /* theming */
+  background-color: var(--light-1);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+  }
+
+  /* space out format button groups */
+  & .ql-formats:not(:last-child) {
+    margin-right: var(--gutter-sm);
+  }
+
+  /* style the buttons */
+  & button {
+    @mixin button-reset;
+    @mixin cms-button-theming;
+    background: none;
+    margin-top: -0.5em; /* offset container padding */
+    transition: color 0.15s ease-out;
+
+    /* interactions */
+    &:hover, &:focus {
+      color: var(--accent-black);
+
+      @mixin dark-mode {
+        color: var(--accent-light);
+      }
+    }
+
+    & .ql-fill {
+      fill: currentColor;
+
+      &.ql-even {
+        fill-rule: evenodd;
+      }
+    }
+    & .ql-stroke {
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 2;
+      &:not(.ql-fill) { fill: none; }
+    }
+
+    & svg {
+      width: 1.25em;
+      height: auto;
+    }
+  }
+}
+
+/* the main text area */
+.cms-rich-text-editor .ql-container {
+  @mixin cms-text-input-style;
+  padding: var(--field-padding);
+  padding-top: var(--gutter-lg);
+
+  & [contenteditable]:focus {
+    outline: none;
+  }
+}
+
+/* keep this hidden */
+.cms-rich-text-editor .ql-clipboard {
+  @mixin visually-hidden;
+}
+
+/* tooltip styles */
+.cms-rich-text-editor .ql-tooltip {
+  /* positioning */
+  position: absolute;
+  transform: translateY(10px);
+  /* theming */
+  background-color: var(--light-2);
+  border: 1px solid var(--light-3);
+  box-shadow: 1px 0 1em color(var(--black) a(0.5));
+  color: var(--dark-3);
+  padding: 0.5em 1em;
+  white-space: nowrap;
+
+  /* hidden state */
+  &.ql-hidden {
+    display: none;
+  }
+}
+
+.cms-rich-text-help {
+  @mixin description-color;
+  margin-bottom: 0;
+
+  & .heading {
+    color: var(--black);
+    @mixin dark-mode { color: var(--white); }
+  }
+}
+
+.cms-rich-text-code {
+  margin-left: 0.25em;
+  &:last-of-type { margin-right: 0.25em; }
+  /* theming */
+  border-radius: var(--button-border-radius);
+  background-color: var(--light-1);
+  outline: 1px solid var(--light-2);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+    outline: none;
+  }
+
+  &.cms-variable-code {
+    color: var(--type-string-dark);
+    @mixin dark-mode { color: var(--type-string); }
+  }
+  &.cms-formatter-code {
+    color: var(--type-number-dark);
+    @mixin dark-mode { color: var(--type-number); }
+  }
+  &.cms-selector-code {
+    color: var(--type-boolean-dark);
+    @mixin dark-mode { color: var(--type-boolean); }
+  }
+}

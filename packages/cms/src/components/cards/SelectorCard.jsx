@@ -1,15 +1,19 @@
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import React, {Component} from "react";
-import {Dialog} from "@blueprintjs/core";
 import PropTypes from "prop-types";
-import FooterButtons from "../editors/components/FooterButtons";
+
+import deepClone from "../../utils/deepClone";
+import validateDynamic from "../../utils/selectors/validateDynamic";
+
+import {Intent, Icon} from "@blueprintjs/core";
+
+import Card from "./Card";
+import Dialog from "../interface/Dialog";
 import SelectorEditor from "../editors/SelectorEditor";
 import DefinitionList from "../variables/DefinitionList";
 import VarList from "../variables/VarList";
-import deepClone from "../../utils/deepClone";
-import Card from "./Card";
 
-import {deleteEntity, updateEntity} from "../../actions/profiles";
+import {deleteEntity, duplicateEntity, updateEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
 import "./SelectorCard.css";
@@ -19,10 +23,10 @@ import "./SelectorCard.css";
  * or multiselects
  */
 class SelectorCard extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
+      allowSave: true,
       minData: null,
       initialData: null,
       alertObj: false,
@@ -31,16 +35,35 @@ class SelectorCard extends Component {
   }
 
   componentDidMount() {
-    const {forceType, forceID} = this.props.status;
+    const {dialogOpen} = this.props.status;
+    const {minData, type} = this.props;
     this.setState({minData: deepClone(this.props.minData)});
-    if (forceType === "selector" && forceID === this.props.minData.id) this.openEditor.bind(this)();
+    if (dialogOpen && dialogOpen.force && dialogOpen.type === type && dialogOpen.id === minData.id) this.openEditor.bind(this)();
   }
 
   componentDidUpdate(prevProps) {
-    // If the props we receive from redux have changed, then an update action has occured.
-    if (JSON.stringify(prevProps.minData) !== JSON.stringify(this.props.minData)) {
-      // Clone the new object for manipulation in state.
-      this.setState({minData: deepClone(this.props.minData)});
+    const {type} = this.props;
+    const {id} = this.props.minData;
+
+    const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
+    if (didUpdate) {
+      const Toast = this.context.toast.current;
+      const {status} = this.props.status.justUpdated;
+      if (status === "SUCCESS") {
+        Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
+        // Clone the new object for manipulation in state.
+        this.setState({isOpen: false, minData: deepClone(this.props.minData)});
+      }
+      else if (status === "ERROR") {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: "Error: Not Saved!", timeout: 3000});
+        // Don't close window
+      }
+    }
+
+    const somethingOpened = !prevProps.status.dialogOpen && this.props.status.dialogOpen && this.props.status.dialogOpen.force;
+    const thisOpened = somethingOpened && this.props.status.dialogOpen.type === type && this.props.status.dialogOpen.id === id;
+    if (thisOpened) {
+      this.openEditor.bind(this)();
     }
   }
 
@@ -51,28 +74,55 @@ class SelectorCard extends Component {
 
   save() {
     const {minData} = this.state;
-    this.props.updateEntity("selector", minData);
-    this.setState({isOpen: false});
+    const {type} = this.props;
+    // Strip out isDefaults, which were only used for state management.
+    const options = minData.options.map(d => {
+      const {isDefault, ...rest} = d; // eslint-disable-line
+      return rest;
+    });
+    const payload = {...minData, options};
+    // note: isOpen will close on update success (see componentDidUpdate)
+    this.props.updateEntity(type, payload);
+  }
+
+  maybeDuplicate() {
+    const alertObj = {
+      callback: this.duplicate.bind(this),
+      title: "Duplicate selector?",
+      confirm: "Duplicate selector",
+      theme: "caution",
+      usePortal: this.props.usePortalForAlert
+    };
+    this.setState({alertObj});
+  }
+
+  duplicate() {
+    const {id} = this.props.minData;
+    const {type} = this.props;
+    this.props.duplicateEntity(type, {id});
   }
 
   maybeDelete() {
     const alertObj = {
       callback: this.delete.bind(this),
-      message: "Are you sure you want to delete this?",
-      confirm: "Delete"
+      title: "Delete selector?",
+      confirm: "Delete selector",
+      usePortal: this.props.usePortalForAlert
     };
     this.setState({alertObj});
   }
 
   delete() {
     const {id} = this.props.minData;
-    this.props.deleteEntity("selector", {id});
+    const {type} = this.props;
+    this.props.deleteEntity(type, {id});
   }
 
   openEditor() {
+    const {type} = this.props;
     const minData = deepClone(this.props.minData);
     const isOpen = true;
-    this.props.setStatus({toolboxDialogOpen: true});
+    this.props.setStatus({dialogOpen: {type, id: minData.id}});
     this.setState({minData, isOpen});
   }
 
@@ -81,8 +131,9 @@ class SelectorCard extends Component {
     if (isDirty) {
       const alertObj = {
         callback: this.closeEditorWithoutSaving.bind(this),
-        message: "Are you sure you want to abandon changes?",
-        confirm: "Yes, Abandon changes."
+        title: "Close selector editor and revert changes?",
+        confirm: "Close editor",
+        theme: "caution"
       };
       this.setState({alertObj});
     }
@@ -93,18 +144,22 @@ class SelectorCard extends Component {
 
   closeEditorWithoutSaving() {
     this.setState({isOpen: false, alertObj: false, isDirty: false});
-    this.props.setStatus({toolboxDialogOpen: false, forceID: false, forceType: false, forceOpen: false});
+    this.props.setStatus({dialogOpen: false});
+  }
+
+  setAllowSave(allowSave) {
+    this.setState({allowSave});
   }
 
   render() {
-    const {isOpen, alertObj} = this.state;
+    const {isOpen, alertObj, allowSave} = this.state;
     const {onMove, parentArray, type, minData} = this.props;
     const {localeDefault} = this.props.status;
     const variables = this.props.status.variables[localeDefault];
 
     // define initial card props
     const cardProps = {
-      cardClass: "selector",
+      type: "selector",
       title: "•••"
     };
 
@@ -115,6 +170,7 @@ class SelectorCard extends Component {
         title: minData.name === "" ? "Add a title" : minData.name,
         onEdit: this.openEditor.bind(this),
         onDelete: this.maybeDelete.bind(this),
+        onDuplicate: this.maybeDuplicate.bind(this),
         // reorder
         reorderProps: parentArray ? {
           item: minData,
@@ -128,86 +184,110 @@ class SelectorCard extends Component {
       });
     }
 
-    const varList = [];
-    if (minData && minData.options.length > 0) {
-      minData.options.forEach(o =>
-        typeof variables[o.option] !== "object"
-          ? varList.push(o.isDefault
-            ? `${variables[o.option]} (default)`
-            : variables[o.option]
-          ) : null
-      );
+    let varList = [];
+    let error = false;
+    if (minData) {
+      if (minData.dynamic) {
+        const dynamicStatus = validateDynamic(variables[minData.dynamic]);
+        if (dynamicStatus === "valid") {
+          varList = variables[minData.dynamic].map(d => {
+            const option = String(d.option || d);
+            return minData.default.split(",").includes(option) ? `${option} (default)` : option;
+          });
+        }
+        else {
+          error = dynamicStatus;
+        }
+      }
+      else {
+        if (minData.options.length > 0) {
+          minData.options.forEach(o =>
+            typeof variables[o.option] !== "object"
+              ? varList.push(minData.default.split(",").includes(String(o.option))
+                ? `${variables[o.option]} (default)`
+                : variables[o.option]
+              ) : null
+          );
+        }
+      }
     }
 
-    const {id} = this.props.minData;
+    const dialogProps = {
+      className: "variable-editor-dialog",
+      title: "Selector Editor",
+      isOpen,
+      onClose: this.maybeCloseEditorWithoutSaving.bind(this),
+      onDelete: this.maybeDelete.bind(this),
+      onSave: allowSave ? this.save.bind(this) : null,
+      portalProps: {namespace: "cms"}
+    };
+
+    const editorProps = {
+      markAsDirty: this.markAsDirty.bind(this),
+      setAllowSave: this.setAllowSave.bind(this),
+      data: this.state.minData
+    };
+
+    let displayData = [];
+    if (minData) {
+      displayData = [
+        {
+          label: "label",
+          text: minData.title
+        },
+        {
+          label: "selections",
+          text: minData.type === "single" ? "one" : "multiple"
+        }
+      ];
+    }
 
     return (
-      <React.Fragment>
-        <Card {...cardProps} key={`${cardProps.title}-${id}`}>
-
+      <Fragment>
+        <Card {...cardProps} key="c">
           {minData &&
-            <React.Fragment>
+            <Fragment key="dl">
               {/* content preview */}
-              <DefinitionList definitions={[
-                {
-                  label: "label",
-                  text: minData.title
-                },
-                {
-                  label: "selections",
-                  text: minData.type === "single" ? "one" : "multiple"
-                }
-              ]}
-              />
-
-              {varList.length
-                ? <React.Fragment>
-                  <div className="cms-definition-label u-font-xxxs">options:</div>
-                  <VarList vars={varList} />
-                </React.Fragment> : ""
+              <DefinitionList definitions={displayData} key="dd" />
+              {/* list of variables */}
+              {varList.length > 0 && <Fragment key="o">
+                <div className="cms-definition-label u-font-xxs">options:</div>
+                <VarList vars={varList} />
+              </Fragment>}
+              {error && <p className="cms-card-error u-font-xxs u-margin-top-xs">
+                <Icon className="cms-card-error-icon" icon="warning-sign" /> {error}
+              </p>
               }
-            </React.Fragment>
+            </Fragment>
           }
         </Card>
 
         {/* edit mode */}
-        <Dialog
-          className="generator-editor-dialog"
-          isOpen={isOpen}
-          onClose={this.maybeCloseEditorWithoutSaving.bind(this)}
-          title="Selector Editor"
-          icon={false}
-          usePortal={false}
-        >
-          <div className="bp3-dialog-body">
-            <SelectorEditor
-              markAsDirty={this.markAsDirty.bind(this)}
-              data={this.state.minData}
-            />
-          </div>
-          <FooterButtons
-            onDelete={this.maybeDelete.bind(this)}
-            onSave={this.save.bind(this)}
-          />
+        <Dialog {...dialogProps} key="d">
+          <SelectorEditor {...editorProps} />
         </Dialog>
-      </React.Fragment>
+      </Fragment>
     );
   }
-
 }
 
-SelectorCard.contextTypes = {
-  formatters: PropTypes.object
+SelectorCard.defaultProps = {
+  type: "selector"
 };
 
-const mapStateToProps = (state, ownProps) => ({
-  status: state.cms.status,
-  minData: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors.find(s => s.id === ownProps.id)
+SelectorCard.contextTypes = {
+  formatters: PropTypes.object,
+  toast: PropTypes.object
+};
+
+const mapStateToProps = state => ({
+  status: state.cms.status
 });
 
 const mapDispatchToProps = dispatch => ({
   updateEntity: (type, payload) => dispatch(updateEntity(type, payload)),
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload)),
+  duplicateEntity: (type, payload) => dispatch(duplicateEntity(type, payload)),
   setStatus: status => dispatch(setStatus(status))
 });
 

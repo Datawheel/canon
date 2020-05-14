@@ -1,0 +1,220 @@
+@import "../../css/mixins.css";
+
+.cms-profilesearch {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  & .cms-profilesearch-container {
+    @mixin vertical-overflow-container;
+    flex: 1 1 auto;
+    overflow-x: hidden;
+    &.cms-profilesearch-container-absolute {
+      overflow: visible;
+      position: relative;
+      & > * {
+        @mixin vertical-overflow-container;
+        background: var(--white);
+        box-shadow:
+          0 0 0 1px rgba(16, 22, 26, 0.1),
+          0 2px 4px rgba(16, 22, 26, 0.2),
+          0 8px 24px rgba(16, 22, 26, 0.2);
+        height: 300px;
+        position: absolute;
+        width: 100%;
+        z-index: 2;
+      }
+    }
+  }
+
+  & .cp-input-label {
+    position: relative;
+    display: block;
+
+    /* the main input */
+    & .cp-input {
+      /* sizing */
+      margin-bottom: 2px;
+      padding: 0.25em 3em 0.375em 1.5em;
+      width: 100%;
+      /* theming */
+      font-weight: var(--base-font-weight);
+      background-color: transparent;
+      /* border: 2px solid var(--dark-2); */
+      border-radius: 1em; /* fully rounded */
+      /* color: var(--white); */
+      transition:
+        border 0.2s ease-out,
+        color 0.2s ease-out;
+
+      &::placeholder {
+        color: var(--gray);
+      }
+
+      /* IE fix */
+      &::-ms-clear {
+        opacity: 0;
+      }
+
+      /* interactions */
+      &:hover {
+        border-color: var(--dark-1);
+
+        & + .search-icon path {
+          fill: var(--gray);
+        }
+      }
+      &[class]:focus {
+        outline: none;
+        border-color: var(--accent);
+
+        & + .search-icon path {
+          fill: var(--accent);
+        }
+      }
+    }
+
+    /* search icon */
+    & .cms-profilesearch-icon {
+      /* sizing & positioning */
+      @mixin absolute-vertical-center;
+      width: 0.625em;
+      left: 0.5em;
+      /* prevent from obscuring click */
+      pointer-events: none;
+      transition: color 0.2s ease-out;
+
+      & svg {
+        width: 100%;
+        height: auto;
+      }
+
+      & path {
+        fill: var(--dark-1);
+        transition: fill 0.15s ease-out;
+      }
+    }
+
+    /* reset search button */
+    & .cms-profilesearch-reset-button {
+      @mixin absolute-vertical-center;
+      @mixin button-reset;
+      padding: 0.5em 1em 0.625em 1em;
+      right: 1em;
+      /* theming */
+      border-radius: 2em;
+      background-color: var(--black);
+      color: var(--white);
+      transition:
+        background-color 0.15s ease-out,
+        opacity 0.15s ease-out,
+        transform 0.15s ease-out;
+
+      & > * {
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      & .cms-profilesearch-reset-button-icon {
+        position: relative;
+        width: 1em;
+        left: -0.25em;
+
+        & svg {
+          width: 100%;
+          height: auto;
+        }
+      }
+
+      /* interactions */
+      &:hover, &:focus {
+        opacity: 1;
+        background-color: var(--accent-black);
+
+        & .cms-profilesearch-reset-button-icon {
+          transform: scale(1.25);
+        }
+      }
+
+      /* hidden state */
+      &.is-hidden  {
+        z-index: -1;
+        opacity: 0;
+        transform: scale(0.75) translateY(-50%);
+      }
+    }
+
+    &.inputFontSize-xl {
+      & .cms-profilesearch-icon {
+        width: 0.5em;
+        left: 0.35em;
+        top: 50%;
+      }
+      & .cms-profilesearch-reset-button {
+        right: 0.5em;
+      }
+    }
+
+    &.inputFontSize-lg {
+      & .cms-profilesearch-icon {
+        width: 0.5em;
+        left: 0.35em;
+        top: 50%;
+      }
+      & .cms-profilesearch-reset-button {
+        right: 0.5em;
+        padding: 0 0 0.25em 0.55em;
+        & .cms-profilesearch-reset-button-text {
+          display: none;
+        }
+      }
+    }
+
+    &.inputFontSize-md {
+      & .cms-profilesearch-icon {
+        width: 0.4em;
+        left: 0.25em;
+        top: 47%;
+      }
+      & .cms-profilesearch-reset-button {
+        padding: 0 0 0.25em 0.55em;
+        right: 0.25em;
+        & .cms-profilesearch-reset-button-text {
+          display: none;
+        }
+      }
+    }
+
+    &.inputFontSize-sm, @mixin max-sm {
+      & .cms-profilesearch-icon {
+        width: 0.35em;
+        left: 0.22em;
+      }
+      & .cms-profilesearch-reset-button {
+        padding: 0 0 0.25em 0.55em;
+        right: 0.25em;
+        & .cms-profilesearch-reset-button-text {
+          display: none;
+        }
+      }
+    }
+
+  }
+
+  /* "list" layout */
+  & .cms-profilesearch-list {
+    @mixin list-reset;
+    & .cms-profilesearch-list-item {
+      & .cms-profilesearch-list-item-link {
+        background-color: var(--white);
+        display: block;
+        padding: 0.5rem;
+        transition: background-color 0.15s ease-out;
+        &:hover, &:focus {
+          background-color: var(--light-2);
+        }
+      }
+    }
+  }
+
+}

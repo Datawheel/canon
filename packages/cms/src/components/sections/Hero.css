@@ -199,3 +199,20 @@
   opacity: var(--hero-img-overlay-opacity);
   z-index: 1;
 }
+
+.cp-hero-heading-dimension {
+  border: 1px dotted rgba(255, 255, 255, 0.25);
+  padding: 2px 5px;
+  transition: border-color 0.1s;
+  &:hover, &:focus {
+    border-color: white;
+  }
+}
+
+.bp3-dialog.cp-hero-search {
+  background: var(--white);
+  padding: var(--gutter-md) var(--gutter-md) 0;
+  & .cms-profilesearch {
+    height: 75vh;
+  }
+}
