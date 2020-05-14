@@ -1,4 +1,5 @@
 /* eslint-disable func-style */
+import {Checkbox} from "@blueprintjs/core";
 import React from "react";
 import {withNamespaces} from "react-i18next";
 import {sortNumericsOrStrings} from "../helpers/sort";
@@ -7,6 +8,7 @@ import MemberSelect from "./MemberSelect";
 
 /**
  * @typedef OwnProps
+ * @property {boolean} combine
  * @property {string} dimension
  * @property {string[]} dimensionNames
  * @property {string} hash
@@ -14,12 +16,14 @@ import MemberSelect from "./MemberSelect";
  * @property {boolean} loadingMembers
  * @property {MemberItem[]} memberOptions
  * @property {string[]} members
+ * @property {(combine: boolean) => void} onCombineUpdate
  * @property {(drillable: LevelItem) => void} onDrillableUpdate
  * @property {(members: string[]) => void} onMembersUpdate
  */
 
 /** @type {React.FC<import("react-i18next").WithNamespaces & OwnProps>} */
 const EditGroupItem = ({
+  combine,
   dimension,
   dimensionNames,
   children,
@@ -28,7 +32,7 @@ const EditGroupItem = ({
   loadingMembers,
   memberOptions,
   members,
-  onDelete,
+  onCombineUpdate,
   onDrillableUpdate,
   onMembersUpdate,
   t
@@ -48,6 +52,8 @@ const EditGroupItem = ({
   const onMembersClear = () => onMembersUpdate([]);
   const onMembersRemove = memberKey =>
     onMembersUpdate(members.filter(key => key !== memberKey));
+
+  const onCombineChange = evt => onCombineUpdate(evt.target.checked);
 
   return (
     <fieldset className="group-item edit">
@@ -72,6 +78,14 @@ const EditGroupItem = ({
           onItemRemove={onMembersRemove}
           onItemSelect={onMembersAdd}
           selectedItems={members}
+        />
+      </div>
+
+      <div className="group group-combine">
+        <Checkbox
+          label={t("Vizbuilder.group_combine")}
+          checked={combine}
+          onChange={onCombineChange}
         />
       </div>
 

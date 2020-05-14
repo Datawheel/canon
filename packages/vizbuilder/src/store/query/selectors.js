@@ -325,7 +325,9 @@ export const selectQueryParamsDrillables = createSelector(
   ],
   (groups, levelList, timeLevel, geoLevel, reqDimMap) => {
     const levelMapByHash = keyBy(levelList, i => i.hash);
-    const levels = groups.map(group => levelMapByHash[group.hash]);
+    const levels = groups
+      .filter(group => !group.combine)
+      .map(group => levelMapByHash[group.hash]);
     const levelMap = keyBy(levels, i => i.dimension);
 
     if (timeLevel) {

@@ -19,7 +19,7 @@ export function stateToPermalink(keywords, state) {
     [keywords.measure]: state.measure.hash,
     [keywords.groups]: state.groups
       .filter(isValidGroup)
-      .map(item => [item.hash].concat(item.members).join("|")),
+      .map(item => [item.hash, item.combine ? 1 : 0].concat(item.members).join("|")),
     [keywords.filters]: state.filters.length > 0
       ? state.filters
         .filter(isValidFilter)

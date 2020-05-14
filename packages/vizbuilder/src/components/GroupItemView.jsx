@@ -4,6 +4,7 @@ import {levelNameFormatter} from "../helpers/format";
 
 /**
  * @typedef OwnProps
+ * @property {boolean} combine
  * @property {string} dimension
  * @property {string} hierarchy
  * @property {string} level
@@ -14,6 +15,7 @@ import {levelNameFormatter} from "../helpers/format";
 /** @type {React.FC<import("react-i18next").WithNamespaces & OwnProps>} */
 const ViewGroupItem = ({
   children,
+  combine,
   dimension,
   hierarchy,
   level,
@@ -27,6 +29,7 @@ const ViewGroupItem = ({
       <div className="group-name">
         {levelNameFormatter(dimension, hierarchy, level)}
       </div>
+      {combine && <div className="group-iscombined">{t("Vizbuilder.group_iscombined")}</div>}
       <div className="group-members">
         {members.map(key => {
           const member = memberMap[key] || {};

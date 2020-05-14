@@ -27,6 +27,7 @@ import {
  * @property {string?} error
  * @property {boolean} loadingMembers
  * @property {Record<string, MemberItem>} memberMap
+ * @property {boolean} [nextCombine]
  * @property {string} [nextDimension]
  * @property {string} [nextHierarchy]
  * @property {string} [nextLevel]
@@ -55,6 +56,7 @@ class GroupItemControl extends Component {
     isOpen: this.props.isInitiallyOpen,
     loadingMembers: false,
     memberMap: {},
+    nextCombine: this.props.group.combine,
     nextDimension: this.props.group.dimension,
     nextHash: this.props.group.hash,
     nextHierarchy: this.props.group.hierarchy,
@@ -65,11 +67,13 @@ class GroupItemControl extends Component {
   applyHandler = () => {
     const {props, state} = this;
     if (
+      props.group.combine !== state.nextCombine ||
       props.group.hash !== state.nextHash ||
       `${props.group.members}` !== `${state.nextMembers}`
     ) {
       props.onUpdate(
         structGroup({
+          combine: state.nextCombine,
           dimension: state.nextDimension,
           hash: state.nextHash,
           hierarchy: state.nextHierarchy,
@@ -91,6 +95,7 @@ class GroupItemControl extends Component {
     const {group} = this.props;
     this.setState({
       isOpen: true,
+      nextCombine: group.combine,
       nextDimension: group.dimension,
       nextHash: group.hash,
       nextHierarchy: group.hierarchy,
@@ -102,12 +107,16 @@ class GroupItemControl extends Component {
   resetHandler = () =>
     this.setState({
       isOpen: false,
+      nextCombine: undefined,
       nextDimension: undefined,
       nextHash: undefined,
       nextHierarchy: undefined,
       nextLevel: undefined,
       nextMembers: undefined
     });
+
+  /** @type {(combine: boolean) => void} */
+  setCombineHandler = combine => this.setState({nextCombine: combine});
 
   /** @type {(drillable: LevelItem) => void} */
   setDrillableHandler = drillable => {
@@ -166,10 +175,12 @@ class GroupItemControl extends Component {
 
     if (isOpen) {
       const isDirty =
+        state.nextCombine !== group.combine ||
         state.nextHash !== group.hash ||
         `${state.nextMembers}` !== `${group.members}`;
 
       return <GroupItemEdit
+        combine={state.nextCombine}
         dimension={state.nextDimension}
         dimensionNames={props.dimensionNames}
         hash={state.nextHash}
@@ -177,7 +188,7 @@ class GroupItemControl extends Component {
         loadingMembers={state.loadingMembers}
         memberOptions={Object.values(state.memberMap)}
         members={state.nextMembers}
-        onDelete={this.deleteHandler}
+        onCombineUpdate={this.setCombineHandler}
         onDrillableUpdate={this.setDrillableHandler}
         onMembersUpdate={this.setMembersHandler}
       >
@@ -203,6 +214,7 @@ class GroupItemControl extends Component {
     }
     else {
       return <GroupItemView
+        combine={group.combine}
         dimension={group.dimension}
         hierarchy={group.hierarchy}
         level={group.level}

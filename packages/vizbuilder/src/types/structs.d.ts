@@ -55,6 +55,7 @@ interface FilterItem {
 }
 
 interface GroupItem {
+  combine: boolean;
   dimension: string;
   hash: string;
   hierarchy: string;

@@ -254,6 +254,7 @@ export const structMemberBuilder = member => {
  * @returns {GroupItem}
  */
 export const structGroup = params => ({
+  combine: params.combine,
   dimension: params.dimension,
   hash: params.hash,
   hierarchy: params.hierarchy,
