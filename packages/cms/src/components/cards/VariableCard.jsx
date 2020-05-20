@@ -108,7 +108,7 @@ class VariableCard extends Component {
         const otherMats = Object.keys(variables._matStatus).reduce((acc, _id) =>
           type === "generator" || String(id) !== String(_id) ? Object.assign({}, acc, variables._matStatus[_id]) : acc, {});
         const thoseVars = {...otherGens, ...otherMats};
-        dupes = dupes.concat(Object.keys(theseVars).reduce((acc, k) => thoseVars[k] !== undefined ? acc.concat(k) : acc, []));
+        dupes = dupes.concat(Object.keys(theseVars).reduce((acc, k) => k !== "error" && thoseVars[k] !== undefined ? acc.concat(k) : acc, []));
         size = JSON.stringify(theseVars).length;
       }
     }
