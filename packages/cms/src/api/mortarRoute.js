@@ -422,27 +422,6 @@ module.exports = function(app) {
     return res.json(await runMaterializers(req, variables, materializer.profile_id));
   });
 
-  const fetchVariables = async(req, res) => {
-    const {pid} = req.params;
-
-    if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${pid}`);
-
-    let returnVariables = await runGenerators(req, pid);
-    returnVariables = await runMaterializers(req, returnVariables, pid);
-
-    return res.json(returnVariables);
-  };
-
-  /* There are two ways to fetch variables:
-   * GET - the initial GET operation on CMS or Profile load, performed by a need
-   * POST - a subsequent reload, caused by a generator change, requiring the user
-   *        to provide the variables object previous received in the GET
-   * The following two endpoints route those two options to the same code.
-  */
-
-  app.get("/api/variables/:pid", async(req, res) => await fetchVariables(req, res));
-  app.post("/api/variables/:pid", async(req, res) => await fetchVariables(req, res));
-
   /* Main API Route to fetch a profile, given a list of slug/id pairs
    * slugs represent the type of page (geo, naics, soc, cip, university)
    * ids represent actual entities / locations (nyc, bu)
@@ -453,7 +432,6 @@ module.exports = function(app) {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const locale = req.query.locale || envLoc;
     const origin = `${ req.protocol }://${ req.headers.host }`;
-    const localeString = `?locale=${locale}`;
 
     const dims = collate(req.query);
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
@@ -685,14 +663,10 @@ module.exports = function(app) {
         });
       }
 
-      // Get the variables for this profile by passing the profile id and the content ids
-      let url = `${origin}/api/variables/${pid}${localeString}`;
-      dims.forEach((dim, i) => {
-        url += `&slug${i + 1}=${dim.slug}&id${i + 1}=${dim.id}`;
-      });
-
-      const variablesResp = await axios.get(url).catch(catcher);
-      variables = variablesResp.data;
+      if (verbose) console.log("\n\nFetching Variables for pid:", pid);
+      const generatorVariables = await runGenerators(req, pid);
+      variables = await runMaterializers(req, generatorVariables, pid);
+      
       delete variables._genStatus;
       delete variables._matStatus;
     }
