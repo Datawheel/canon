@@ -231,14 +231,6 @@ module.exports = function(app) {
 
   const {cache, db} = app.settings;
 
-  app.get("/api/internalprofile/:pid", async(req, res) => {
-    const id = req.params.pid;
-    const locale = req.query.locale ? req.query.locale : envLoc;
-    const reqObj = Object.assign({}, profileReq, {where: {id}});
-    const profile = await db.profile.findOne(reqObj).catch(catcher);
-    return res.json(sortProfile(extractLocaleContent(profile, locale, "profile")));
-  });
-
   const fetchAttr = async(pid, dims, locale) => {
     // Fetch the profile itself, along with its meta content. The meta content will be used
     // to determine which levels should be used to filter the search results
@@ -710,8 +702,12 @@ module.exports = function(app) {
     // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare
     // it to be formatted and regex replaced.
     // See profileReq above to see the sequelize formatting for fetching the entire profile
-    const request = await axios.get(`${origin}/api/internalprofile/${pid}${localeString}`).catch(catcher);
-    if (!request) {
+    const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
+    let profile = await db.profile.findOne(reqObj).catch(catcher);
+    if (profile) {
+      profile = sortProfile(extractLocaleContent(profile, locale, "profile"));
+    }
+    else {
       if (verbose) console.error(`Profile not found for id: ${pid}`);
       return res.json({error: `Profile not found for id: ${pid}`, errorCode: 404});
     }
@@ -719,7 +715,6 @@ module.exports = function(app) {
     // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
-    let profile = request.data;
     // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
     // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
     // which power the actual rendered dropdowns on the front-end profile page.
