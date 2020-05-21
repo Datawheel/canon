@@ -2,6 +2,7 @@ const FUNC = require("../utils/FUNC"),
       PromiseThrottle = require("promise-throttle"),
       axios = require("axios"),
       collate = require("../utils/collate"),
+      deepClone = require("../utils/deepClone"),
       jwt = require("jsonwebtoken"),
       libs = require("../utils/libs"), // leave this! needed for the variable functions
       mortarEval = require("../utils/mortarEval"),
@@ -199,8 +200,8 @@ const bubbleUp = (obj, locale) => {
   return obj;
 };
 
-const extractLocaleContent = (obj, locale, mode) => {
-  obj = obj.toJSON();
+const extractLocaleContent = (sourceObj, locale, mode) => {
+  let obj = deepClone(sourceObj);
   obj = bubbleUp(obj, locale);
   if (mode === "story") {
     ["footnotes", "descriptions", "authors"].forEach(type => {
@@ -247,10 +248,10 @@ module.exports = function(app) {
       const cubeName = thisMeta ? thisMeta.cubeName : null;
       let searchReq;
       if (levels.length === 0) {
-        searchReq = {where: {id: dim.id, cubeName}};
+        searchReq = {where: {[sequelize.Op.or]: [{id: dim.id}, {slug: dim.id}], cubeName}};
       }
       else {
-        searchReq = {where: {[sequelize.Op.and]: [{id: dim.id, cubeName}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
+        searchReq = {where: {[sequelize.Op.and]: [{[sequelize.Op.or]: [{id: dim.id}, {slug: dim.id}], cubeName}, {hierarchy: {[sequelize.Op.in]: levels}}]}};
       }
       searchReq.include = [{association: "content"}];
       let thisAttr = await db.search.findOne(searchReq).catch(catcher);
@@ -676,14 +677,21 @@ module.exports = function(app) {
     // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare
     // it to be formatted and regex replaced.
     // See profileReq above to see the sequelize formatting for fetching the entire profile
-    const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
-    let profile = await db.profile.findOne(reqObj).catch(catcher);
-    if (profile) {
-      profile = sortProfile(extractLocaleContent(profile, locale, "profile"));
+    let profile;
+    if (variables._rawProfile) {
+      profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
     }
     else {
-      if (verbose) console.error(`Profile not found for id: ${pid}`);
-      return res.json({error: `Profile not found for id: ${pid}`, errorCode: 404});
+      const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
+      const rawProfile = await db.profile.findOne(reqObj).catch(catcher);
+      if (rawProfile) {
+        variables._rawProfile = rawProfile.toJSON();
+        profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+      }
+      else {
+        if (verbose) console.error(`Profile not found for id: ${pid}`);
+        return res.json({error: `Profile not found for id: ${pid}`, errorCode: 404});
+      }
     }
     // Given an object with completely built returnVariables, a hash array of formatter functions, and the profile itself
     // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
@@ -757,7 +765,7 @@ module.exports = function(app) {
       if (verbose) console.error(`Story not found for id: ${id}`);
       return res.json({error: `Story not found for id: ${id}`, errorCode: 404});
     }
-    story = sortStory(extractLocaleContent(story, locale, "story"));
+    story = sortStory(extractLocaleContent(story.toJSON(), locale, "story"));
     // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
     // Do a naive varswap (with no formatters and no variables) just to access the transpile for vizes.
     story = varSwapRecursive(story, {}, {});
@@ -773,7 +781,7 @@ module.exports = function(app) {
         {association: "content", attributes: ["name", "image", "locale"]}
       ]}
     ]}).catch(catcher);
-    stories = stories.map(story => extractLocaleContent(story, locale, "story"));
+    stories = stories.map(story => extractLocaleContent(story.toJSON(), locale, "story"));
     return res.json(stories.sort(sorter));
   });
 
