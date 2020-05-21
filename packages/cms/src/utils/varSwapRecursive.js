@@ -4,12 +4,11 @@ const buble = require("buble");
 const validateDynamic = require("./selectors/validateDynamic");
 const scaffoldDynamic = require("./selectors/scaffoldDynamic");
 
-const strSwap = (str, formatterFunctions, variables, selectors, isLogic = false, id = null) => {
+const strSwap = (str, formatterFunctions, variables, selectors, combinedLabels, isLogic = false, id = null) => {
   // First, do a selector replace of the pattern [[Selector]]
   str = selSwap(str, selectors);
   // After doing selSwap, there may be examples of {{variables}} that don't actually exist, because they came
   // from a dynamic selector. Perform an intermediate step using the _labels lookup object to help varSwap do its job
-  const combinedLabels = selectors.reduce((acc, d) => ({...acc, ...d._labels}), {});
   str = varSwap(str, formatterFunctions, combinedLabels, true);
   // Now that [[selectors]] have been swapped in, and potentially missing dynamic selector variables have been "labeled",
   // do the standard varSwap: Replace all instances of the following pattern:  FormatterName{{VarToReplace}}
@@ -37,7 +36,7 @@ const strSwap = (str, formatterFunctions, variables, selectors, isLogic = false,
  * apply the appropriate formatter
 */
   
-const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, selectors = []) => {
+const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, selectors = [], combinedLabels = {}) => {
   const allowed = obj => !obj.allowed || obj.allowed === "always" || variables[selSwap(obj.allowed, selectors)];
   const obj = Object.assign({}, sourceObj);
   // If allSelectors is loaded into the top-level object, extract and prep them for use. This means iterating over 
@@ -76,23 +75,24 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
         return selector;
       }
     });
+    combinedLabels = selectors.reduce((acc, d) => ({...acc, ...d._labels}), {});
   }
 
   for (const skey in obj) {
     if (obj.hasOwnProperty(skey)) {
       // If this property is a string, replace all the vars
       if (typeof obj[skey] === "string") {
-        obj[skey] = strSwap(obj[skey], formatterFunctions, variables, selectors, skey === "logic", obj.id);
+        obj[skey] = strSwap(obj[skey], formatterFunctions, variables, selectors, combinedLabels, skey === "logic", obj.id);
       }
       // If this property is an array, recursively swap all elements
       else if (Array.isArray(obj[skey])) {
         obj[skey] = obj[skey].filter(allowed).map(o => {
           if (typeof o === "object") {
-            return varSwapRecursive(o, formatterFunctions, variables, query, selectors);
+            return varSwapRecursive(o, formatterFunctions, variables, query, selectors, combinedLabels);
           }
           // If this is a string, we've "hit bottom" and can swap it out with strSwap
           else if (typeof o === "string") {
-            return strSwap(o, formatterFunctions, variables, selectors);
+            return strSwap(o, formatterFunctions, variables, selectors, combinedLabels);
           }
           else {
             return o;
@@ -102,7 +102,7 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
       // If this property is an object, recursively do another swap
       // For some reason, postgres "DATE" props come through as objects. Exclude them from this object swap.
       else if (typeof obj[skey] === "object" && obj[skey] !== null && !(obj[skey] instanceof Date)) {
-        obj[skey] = varSwapRecursive(obj[skey], formatterFunctions, variables, query, selectors);
+        obj[skey] = varSwapRecursive(obj[skey], formatterFunctions, variables, query, selectors, combinedLabels);
       }
     }
   }
