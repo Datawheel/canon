@@ -231,14 +231,6 @@ module.exports = function(app) {
 
   const {cache, db} = app.settings;
 
-  app.get("/api/internalprofile/:pid", async(req, res) => {
-    const id = req.params.pid;
-    const locale = req.query.locale ? req.query.locale : envLoc;
-    const reqObj = Object.assign({}, profileReq, {where: {id}});
-    const profile = await db.profile.findOne(reqObj).catch(catcher);
-    return res.json(sortProfile(extractLocaleContent(profile, locale, "profile")));
-  });
-
   const fetchAttr = async(pid, dims, locale) => {
     // Fetch the profile itself, along with its meta content. The meta content will be used
     // to determine which levels should be used to filter the search results
@@ -430,27 +422,6 @@ module.exports = function(app) {
     return res.json(await runMaterializers(req, variables, materializer.profile_id));
   });
 
-  const fetchVariables = async(req, res) => {
-    const {pid} = req.params;
-
-    if (verbose) console.log("\n\nVariable Endpoint:", `/api/variables/${pid}`);
-
-    let returnVariables = await runGenerators(req, pid);
-    returnVariables = await runMaterializers(req, returnVariables, pid);
-
-    return res.json(returnVariables);
-  };
-
-  /* There are two ways to fetch variables:
-   * GET - the initial GET operation on CMS or Profile load, performed by a need
-   * POST - a subsequent reload, caused by a generator change, requiring the user
-   *        to provide the variables object previous received in the GET
-   * The following two endpoints route those two options to the same code.
-  */
-
-  app.get("/api/variables/:pid", async(req, res) => await fetchVariables(req, res));
-  app.post("/api/variables/:pid", async(req, res) => await fetchVariables(req, res));
-
   /* Main API Route to fetch a profile, given a list of slug/id pairs
    * slugs represent the type of page (geo, naics, soc, cip, university)
    * ids represent actual entities / locations (nyc, bu)
@@ -461,7 +432,6 @@ module.exports = function(app) {
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const locale = req.query.locale || envLoc;
     const origin = `${ req.protocol }://${ req.headers.host }`;
-    const localeString = `?locale=${locale}`;
 
     const dims = collate(req.query);
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
@@ -693,14 +663,10 @@ module.exports = function(app) {
         });
       }
 
-      // Get the variables for this profile by passing the profile id and the content ids
-      let url = `${origin}/api/variables/${pid}${localeString}`;
-      dims.forEach((dim, i) => {
-        url += `&slug${i + 1}=${dim.slug}&id${i + 1}=${dim.id}`;
-      });
-
-      const variablesResp = await axios.get(url).catch(catcher);
-      variables = variablesResp.data;
+      if (verbose) console.log("\n\nFetching Variables for pid:", pid);
+      const generatorVariables = await runGenerators(req, pid);
+      variables = await runMaterializers(req, generatorVariables, pid);
+      
       delete variables._genStatus;
       delete variables._matStatus;
     }
@@ -710,8 +676,12 @@ module.exports = function(app) {
     // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare
     // it to be formatted and regex replaced.
     // See profileReq above to see the sequelize formatting for fetching the entire profile
-    const request = await axios.get(`${origin}/api/internalprofile/${pid}${localeString}`).catch(catcher);
-    if (!request) {
+    const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
+    let profile = await db.profile.findOne(reqObj).catch(catcher);
+    if (profile) {
+      profile = sortProfile(extractLocaleContent(profile, locale, "profile"));
+    }
+    else {
       if (verbose) console.error(`Profile not found for id: ${pid}`);
       return res.json({error: `Profile not found for id: ${pid}`, errorCode: 404});
     }
@@ -719,7 +689,6 @@ module.exports = function(app) {
     // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
-    let profile = request.data;
     // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
     // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
     // which power the actual rendered dropdowns on the front-end profile page.
