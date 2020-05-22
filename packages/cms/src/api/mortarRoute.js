@@ -687,8 +687,12 @@ module.exports = function(app) {
       if (rawProfile) {
         variables._rawProfile = rawProfile.toJSON();
         profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+        // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
+        // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
+        // which power the actual rendered dropdowns on the front-end profile page.
         const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
         profile.allSelectors = allSelectors.map(selector => selector.toJSON());
+        // The reusable _rawProfile needs this reference as well
         variables._rawProfile.allSelectors = profile.allSelectors;
       }
       else {
@@ -700,11 +704,6 @@ module.exports = function(app) {
     // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
     // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
-    // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
-    // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
-    // which power the actual rendered dropdowns on the front-end profile page.
-    // const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
-    // profile.allSelectors = allSelectors.map(selector => selector.toJSON());
     // Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
     // populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
     // into "real ones" so that all the ensuing logic can treat them as if they were normal.
