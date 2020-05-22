@@ -687,6 +687,9 @@ module.exports = function(app) {
       if (rawProfile) {
         variables._rawProfile = rawProfile.toJSON();
         profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+        const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
+        profile.allSelectors = allSelectors.map(selector => selector.toJSON());
+        variables._rawProfile.allSelectors = profile.allSelectors;
       }
       else {
         if (verbose) console.error(`Profile not found for id: ${pid}`);
@@ -700,8 +703,8 @@ module.exports = function(app) {
     // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
     // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
     // which power the actual rendered dropdowns on the front-end profile page.
-    const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
-    profile.allSelectors = allSelectors.map(selector => selector.toJSON());
+    // const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
+    // profile.allSelectors = allSelectors.map(selector => selector.toJSON());
     // Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
     // populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
     // into "real ones" so that all the ensuing logic can treat them as if they were normal.

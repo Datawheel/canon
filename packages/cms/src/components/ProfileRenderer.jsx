@@ -18,6 +18,7 @@ import isIE from "../utils/isIE.js";
 import hashCode from "../utils/hashCode.js";
 
 import deepClone from "../utils/deepClone.js";
+import prepareProfile from "../utils/prepareProfile";
 
 import "../css/utilities.css";
 import "../css/base.css";
@@ -110,7 +111,7 @@ class ProfileRenderer extends Component {
   onSetVariables(newVariables, forceMats) {
     const {profile, selectors, setVarsLoading} = this.state;
     const {id, variables} = profile;
-    const {locale, sectionID} = this.props;
+    const {locale, sectionID, formatters} = this.props;
     const {params} = this.context.router;
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
@@ -118,35 +119,45 @@ class ProfileRenderer extends Component {
     const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
     if (!setVarsLoading && !alreadySet) {
       this.setState({setVarsLoading: true});
-      const payload = {variables: Object.assign({}, variables, newVariables)};
-      let url = `/api/profile?profile=${id}&locale=${locale}`;
-      if (Object.keys(selectors).length > 0) url += `&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
-      if (sectionID) url += `&section=${sectionID}`;
-      // If forceMats is true, this was called due to a user login. Run Materializers again.
-      if (forceMats) url += "&forceMats=true";
-      // Provide some uniqueness tokens so that the url for slug/id/role POSTs can be cached
-      url += `&tokenSlug=${params.slug}&tokenId=${params.id}`;
-      if (params.slug2 && params.id2) url += `&tokenSlug2=${params.slug2}&tokenId2=${params.id2}`;
-      const {user, _matStatus, _genStatus, ...variablesWithoutUser} = payload.variables; // eslint-disable-line
-      const hash = hashCode(JSON.stringify(variablesWithoutUser));
-      url += `&token=${hash}`;
-      axios.post(url, payload)
-        .then(resp => {
-          this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, setVarsLoading: false});
-        });
+      if (forceMats) {
+        const payload = {variables: Object.assign({}, variables, newVariables)};
+        let url = `/api/profile?profile=${id}&locale=${locale}`;
+        if (Object.keys(selectors).length > 0) url += `&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
+        if (sectionID) url += `&section=${sectionID}`;
+        // If forceMats is true, this was called due to a user login. Run Materializers again.
+        if (forceMats) url += "&forceMats=true";
+        // Provide some uniqueness tokens so that the url for slug/id/role POSTs can be cached
+        url += `&tokenSlug=${params.slug}&tokenId=${params.id}`;
+        if (params.slug2 && params.id2) url += `&tokenSlug2=${params.slug2}&tokenId2=${params.id2}`;
+        const {user, _matStatus, _genStatus, ...variablesWithoutUser} = payload.variables; // eslint-disable-line
+        const hash = hashCode(JSON.stringify(variablesWithoutUser));
+        url += `&token=${hash}`;
+        axios.post(url, payload)
+          .then(resp => {
+            this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, setVarsLoading: false});
+          });
+      }
+      else {
+        const newProfile = prepareProfile(variables._rawProfile, Object.assign({}, variables, newVariables), formatters, locale, selectors);
+        this.setState({profile: {...profile, ...newProfile}});
+      }
     }
   }
 
   onSelector(name, value) {
     const {profile, selectors} = this.state;
     const {id, variables} = profile;
-    const {locale, sectionID} = this.props;
+    const {locale, sectionID, formatters} = this.props;
     const {params} = this.context.router;
 
     if (value instanceof Array && !value.length) delete selectors[name];
     else selectors[name] = value;
 
-    this.setState({loading: true, selectors});
+    // this.setState({loading: true, selectors});
+    const newProfile = prepareProfile(variables._rawProfile, variables, formatters, locale, selectors);
+    this.setState({selectors, profile: {...profile, ...newProfile}});
+    
+    /*
     const payload = {variables};
     let url = `/api/profile?profile=${id}&locale=${locale}`;
     if (Object.keys(selectors).length > 0) url += `&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
@@ -161,6 +172,7 @@ class ProfileRenderer extends Component {
       .then(resp => {
         this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, loading: false});
       });
+    */
   }
 
   render() {
