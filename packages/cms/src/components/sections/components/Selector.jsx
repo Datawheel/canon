@@ -42,13 +42,13 @@ class Selector extends Component {
     const {comparisons} = this.state;
     const {variables} = this.context;
     const {options} = this.props;
-    const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label || d.option}), {});
+    const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
     const selected = comparisons.find(comparison => comparison === item);
     return selected ? null : <MenuItem
       shouldDismissPopover={true}
       onClick={handleClick}
       key={item}
-      text={stripHTML(labels[item] || variables[item])}/>;
+      text={stripHTML(labels[item] || variables[item] || item)}/>;
   }
 
   render() {
@@ -56,7 +56,7 @@ class Selector extends Component {
     const {onSelector, variables} = this.context;
     const {default: activeValue, fontSize, id, loading, options, name, title, type} = this.props;
     const slug = `${name}-${id}`;    
-    const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label || d.option}), {});
+    const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
 
     // multi select
     if (type === "multi") {
@@ -66,8 +66,8 @@ class Selector extends Component {
         {comparisons && comparisons.length && <Fragment>
           <div className="multi-list">
             { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
-              { stripHTML(labels[d] || variables[d]) }
-              <button aria-label={`${labels[d] || variables[d]} (remove)`} className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
+              { stripHTML(labels[d] || variables[d] || d) }
+              <button aria-label={`${labels[d] || variables[d] || d} (remove)`} className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
             </div>) }
           </div>
           {options && options.length && comparisons.length !== options.length
