@@ -286,7 +286,7 @@ export function fetchVariables(config) {
     if (localeSecondary) locales.push(localeSecondary);
     for (const thisLocale of locales) {
       const attributes = attify(previews.map(d => d.searchObj), thisLocale);
-      if (auth.user) {
+      if (getStore().env.CANON_LOGINS && auth.user) {
         const {password, salt, ...user} = auth.user; // eslint-disable-line
         attributes.user = user;
         // Bubble up userRole for easy access in front end (for hiding sections based on role)
