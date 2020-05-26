@@ -5,7 +5,9 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
-      webpack = require("webpack");
+      webpack = require("webpack"),
+      TerserJSPlugin = require("terser-webpack-plugin"),
+      OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
 const publicPath = "/assets/";
@@ -41,6 +43,9 @@ module.exports = [
         path.join(__dirname, "../node_modules")
       ],
       extensions: [".js", ".jsx", ".css"]
+    },
+    optimization: {
+      minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})]
     },
     plugins: [
       new WebpackBar({
@@ -82,6 +87,9 @@ module.exports = [
     resolve: {
       modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],
       extensions: [".js", ".jsx", ".css"]
+    },
+    optimization: {
+      minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})]
     },
     plugins: [
       new WebpackBar({
