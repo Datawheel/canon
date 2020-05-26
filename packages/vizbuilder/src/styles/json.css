@@ -1,0 +1,56 @@
+.json-parent {
+  &.open {
+    padding-bottom: 2px;
+  }
+
+  & > div {
+    padding-left: 0.5em;
+    margin-left: 0.25em;
+    border-left: 2px solid;
+
+    &:first-child {
+      margin-left: 0;
+      padding-left: 0;
+      border-left: 0 none;
+    }
+  }
+}
+
+.json-property {
+  display: block;
+  white-space: nowrap;
+  font-family: "Consolas", "Monaco", 'Courier New', Courier, monospace;
+
+  &:hover {
+    background: rgba(#000, 0.1);
+  }
+}
+
+.json-name {
+  display: inline-block;
+  min-width: 100px;
+  margin-right: 10px;
+}
+
+.json-value {
+  display: inline-block;
+}
+
+.null > .json-value,
+.undefined > .json-value {
+  color: #c0c;
+}
+.number > .json-value {
+  color: #00c;
+}
+.boolean > .json-value {
+  color: #f90;
+}
+.string > .json-value {
+  color: #090;
+
+  &::before,
+  &::after {
+    content: '"';
+  }
+}
