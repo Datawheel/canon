@@ -3,7 +3,7 @@ const local = require("./local"),
 
 const isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) return next();
-  return res.status(401).send("not logged in");
+  return res.status(200).json({authenticated: false});
 };
 
 const isRole = role => (req, res, next) => {
@@ -41,7 +41,7 @@ module.exports = function(app) {
     })
   );
 
-  app.get("/auth/isAuthenticated", isAuthenticated, (req, res) => res.json(req.user));
+  app.get("/auth/isAuthenticated", isAuthenticated, (req, res) => res.json({...req.user, authenticated: true}));
 
   app.get("/auth/logout", (req, res) => {
     req.logout();
