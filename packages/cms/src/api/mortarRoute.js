@@ -301,6 +301,13 @@ module.exports = function(app) {
       if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
         smallAttr.parents = resp.data.data;
       }
+      // Fetch Custom Magic Generator
+      const magicURL = `${ req.protocol }://${ req.headers.host }/api/cms/magic/${pid}`;
+      const magicResp = await axios.post(magicURL, smallAttr).catch(catcher);
+      if (magicResp) {
+        smallAttr = {...smallAttr, ...magicResp.data};
+      }
+
     }
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
