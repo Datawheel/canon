@@ -21,14 +21,18 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/magic/:pid", (req, res) => {
-    const {pid} = req.params; // eslint-disable-line
-    const {id1, dimension1, hierarchy1, slug1, name1, cubeName1, user} = req.body; // eslint-disable-line
+    const pid = parseInt(req.params.pid, 10); // eslint-disable-line
+    const {variables, locale} = req.body; // eslint-disable-line
+    const {id1, dimension1, hierarchy1, slug1, name1, cubeName1, user} = variables; // eslint-disable-line
     /**
      * Make axios calls and return your compiled data as a single JS Object.
      */
-    return res.json({
-      capName: name1.toUpperCase()
-    });
+    if (pid === 49) {
+      return res.json({
+        capName: name1.toUpperCase()
+      });
+    }
+    else return res.json({});
   });
 
 };

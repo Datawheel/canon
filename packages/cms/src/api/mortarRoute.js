@@ -303,8 +303,8 @@ module.exports = function(app) {
       }
       // Fetch Custom Magic Generator
       const magicURL = `${ req.protocol }://${ req.headers.host }/api/cms/magic/${pid}`;
-      const magicResp = await axios.post(magicURL, smallAttr).catch(catcher);
-      if (magicResp) {
+      const magicResp = await axios.post(magicURL, {variables: smallAttr, locale}).catch(() => ({data: {}}));
+      if (typeof magicResp.data === "object") {
         smallAttr = {...smallAttr, ...magicResp.data};
       }
 
