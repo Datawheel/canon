@@ -516,6 +516,8 @@ If you would like to inject your own custom variables into the Attributes genera
 
 You can determine the profile pid of a given profile by checking the URL in the CMS (e.g. `http://localhost:3300/?tab=profiles&profile=49`). The POST endpoint will receive the contents of the Attributes generator in the POST body as `variables`, as well as the current `locale`. 
 
+Keep in mind that this will need to run every time a front-end profile loads, and also every time a generator or materializer is saved on the backend CMS (as it would need the variables from this endpoint to run). As a rule, try not to put any majorly heavy requests in here as it necessarily "blocks" the rest of the generator/materalizer execution.
+
 ---
 
 ## Advanced Visualization Techniques
