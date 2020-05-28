@@ -488,6 +488,34 @@ If the pieces are the same, one parameter may be used:
 
 `&slugs=Product`
 
+### Custom Attributes
+
+The fixed "Attributes" includes basic information about the currently selected member, like dimension, id, and hierarchy. This is useful because it is run *before* other generators, and can therefore be used both in subsequent `variables` object and also in API calls, using the `<bracket>` syntax.
+
+If you would like to inject your own custom variables into the Attributes generator, create an endpoint in your canon API folder:
+
+```
+  app.post("/api/cms/customAttributes/:pid", (req, res) => {
+    const pid = parseInt(req.params.pid, 10); 
+    const {variables, locale} = req.body; 
+    const {id1, dimension1, hierarchy1, slug1, name1, cubeName1, user} = variables; 
+    
+    /**
+     * Make axios calls, run JS, and return your compiled data as a single JS Object. Use the pid 
+     * give in params to return different attributes for different profiles. 
+     */
+    
+    if (pid === 49) {
+      return res.json({
+        capitalName: name1.toUpperCase()
+      });
+    }
+    else return res.json({});
+  });
+```
+
+You can determine the profile pid of a given profile by checking the URL in the CMS (e.g. `http://localhost:3300/?tab=profiles&profile=49`). The POST endpoint will receive the contents of the Attributes generator in the POST body as `variables`, as well as the current `locale`. 
+
 ---
 
 ## Advanced Visualization Techniques
