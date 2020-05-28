@@ -284,7 +284,7 @@ export function fetchVariables(config) {
     const locales = [localeDefault];
     if (localeSecondary) locales.push(localeSecondary);
     
-    const magicURL = `/api/cms/magic/${currentPid}`;
+    const magicURL = `/api/cms/customAttributes/${currentPid}`;
     const attributesByLocale = {};
     for (const thisLocale of locales) {
       const theseAttributes = attify(previews.map(d => d.searchObj), thisLocale);
