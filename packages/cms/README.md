@@ -745,20 +745,20 @@ It is necessary that users spin up an entire new database for any CMS migration.
 The user need configure two sets of environment variables, `OLD` and `NEW`.
 
 ```
-CANON_CONST_MIGRATION_OLD_DB_NAME
-CANON_CONST_MIGRATION_OLD_DB_USER
-CANON_CONST_MIGRATION_OLD_DB_PW
-CANON_CONST_MIGRATION_OLD_DB_HOST
+CANON_CMS_MIGRATION_OLD_DB_NAME
+CANON_CMS_MIGRATION_OLD_DB_USER
+CANON_CMS_MIGRATION_OLD_DB_PW
+CANON_CMS_MIGRATION_OLD_DB_HOST
 
-CANON_CONST_MIGRATION_NEW_DB_NAME
-CANON_CONST_MIGRATION_NEW_DB_USER
-CANON_CONST_MIGRATION_NEW_DB_PW
-CANON_CONST_MIGRATION_NEW_DB_HOST
+CANON_CMS_MIGRATION_NEW_DB_NAME
+CANON_CMS_MIGRATION_NEW_DB_USER
+CANON_CMS_MIGRATION_NEW_DB_PW
+CANON_CMS_MIGRATION_NEW_DB_HOST
 ```
 
 These variables represent the old db you are migration **from** and the new db you are migrating **to**.  The new db will be **wiped every time** you run the script - the idea here is that you are building a new db from scratch.
 
 🔥 WHATEVER DB YOU CONFIGURE AS **NEW** WILL BE COMPLETELY DESTROYED AND BUILT FROM SCRATCH 🔥
-🔥 DO NOT SET `CANON_CONST_MIGRATION_NEW_DB_*` TO A CURRENTLY IMPORTANT DB🔥
+🔥 DO NOT SET `CANON_CMS_MIGRATION_NEW_DB_*` TO A CURRENTLY IMPORTANT DB🔥
 
 After the migration is done, you can switch your dev environment to the new DB for testing, and eventually switch it to prod.
