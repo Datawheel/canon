@@ -502,7 +502,7 @@ If you would like to inject your own custom variables into the Attributes genera
     
     /**
      * Make axios calls, run JS, and return your compiled data as a single JS Object. Use the pid 
-     * give in params to return different attributes for different profiles. 
+     * given in params to return different attributes for different profiles. 
      */
     
     if (pid === 49) {
