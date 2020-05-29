@@ -61,6 +61,7 @@
     "buildmail": "^4.0.1",
     "chalk": "^2.3.0",
     "chokidar": "^3.0.2",
+    "comlink": "^4.3.0",
     "compression": "^1.7.1",
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-beta.3",
@@ -145,6 +146,7 @@
   },
   "devDependencies": {
     "@datawheel/canon-logiclayer": "0.3.18",
-    "@datawheel/canon-vizbuilder": "^0.2.7"
+    "@datawheel/canon-vizbuilder": "^0.2.7",
+    "worker-loader": "^2.0.0"
   }
 }

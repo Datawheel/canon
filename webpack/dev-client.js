@@ -30,7 +30,8 @@ module.exports = {
   output: {
     path: assetsPath,
     filename: "[name].js",
-    publicPath
+    publicPath,
+    globalObject: "this"
   },
   module: {
     rules: commonLoaders({build: "client"})

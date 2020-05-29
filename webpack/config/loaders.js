@@ -70,7 +70,7 @@ module.exports = props => {
   ];
 
   if (process.env.NODE_ENV === "development") {
-    babelPlugins.push("react-hot-loader/babel");
+    // babelPlugins.push("react-hot-loader/babel");
     babelPlugins.push("@babel/plugin-transform-react-inline-elements");
   }
 
@@ -105,6 +105,10 @@ module.exports = props => {
     {
       test: /\.(scss|sass|css)$/i,
       use: !props.extract ? ["iso-morphic-style-loader"].concat(cssLoaders) : [MiniCssExtractPlugin.loader].concat(cssLoaders)
+    },
+    {
+      test: /.worker\.js$/,
+      use: {loader: "worker-loader"}
     }
   ];
 };
