@@ -25,9 +25,25 @@ import MultiColumn from "./MultiColumn";
 import SingleColumn from "./SingleColumn";
 import Tabs from "./Tabs";
 
+let CustomSections = {};
+
+try {
+  CustomSections = require("app/cms/sections");
+}
+catch (e) {
+  // User may not have set any custom sections - nothing to catch here.
+} 
+
+// import(/* webpackIgnore: true */ "app/cms/sections").then(obj => {
+//   console.log("K", obj)
+// }).catch(err => {
+//   console.log("err", err);
+// })
+
 // used to construct component
 // NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
-const sectionTypes = {Default, Grouping, InfoCard, MultiColumn, SingleColumn, Tabs};
+const sectionTypes = {Default, Grouping, InfoCard, MultiColumn, SingleColumn, Tabs, ...CustomSections};
+console.log("types", sectionTypes);
 
 /** wrapper for all sections */
 class Section extends Component {
@@ -281,7 +297,8 @@ class Section extends Component {
       visualizations: contents.position !== "sticky" ? visualizations : [],
       vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
       hideOptions,
-      loading
+      loading,
+      contents
     };
 
     return (
