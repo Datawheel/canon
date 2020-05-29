@@ -4,14 +4,13 @@ import React, {Component} from "react";
 export default class CustomSection extends Component {
   render() {
     const {slug, contents, heading, hideOptions, title, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
-    console.log(contents);
 
     return (
       <div
         className={`cp-section-inner cp-default-section-inner cp-${slug}-section-inner ${loading ? "is-loading" : ""}`}
         ref={comp => this.section = comp}
       >
-        <h1>{`LOOK AT ME IM ${contents.title}`}</h1>
+        <h1>{`custom1 - ${contents.title}`}</h1>
         {/* sidebar */}
         <div className="cp-section-content cp-default-section-caption">
           {heading}

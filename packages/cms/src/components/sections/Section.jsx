@@ -25,25 +25,12 @@ import MultiColumn from "./MultiColumn";
 import SingleColumn from "./SingleColumn";
 import Tabs from "./Tabs";
 
-let CustomSections = {};
-
-try {
-  CustomSections = require("app/cms/sections");
-}
-catch (e) {
-  // User may not have set any custom sections - nothing to catch here.
-} 
-
-// import(/* webpackIgnore: true */ "app/cms/sections").then(obj => {
-//   console.log("K", obj)
-// }).catch(err => {
-//   console.log("err", err);
-// })
+// User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
+import * as CustomSections from "CustomSections";
 
 // used to construct component
 // NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
 const sectionTypes = {Default, Grouping, InfoCard, MultiColumn, SingleColumn, Tabs, ...CustomSections};
-console.log("types", sectionTypes);
 
 /** wrapper for all sections */
 class Section extends Component {
