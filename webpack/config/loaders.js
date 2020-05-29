@@ -1,5 +1,6 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin"),
       appDir = process.cwd(),
+      fs = require("fs"),
       path = require("path");
 
 const postCSSPath = require.resolve("./postcss");
@@ -74,8 +75,20 @@ module.exports = props => {
     babelPlugins.push("@babel/plugin-transform-react-inline-elements");
   }
 
+  // Alias configuration for user-defined modules
+  const fallback = path.join(__dirname, "../../src/helpers/empty.js"); // returns {}
+  const alias = {
+    CustomSections: path.join(appDir, "app/cms/sections/index.js")
+  };
+  Object.keys(alias).forEach(d => {
+    if (!fs.existsSync(alias[d])) alias[d] = fallback;
+  });
+
   return [
     {
+      resolve: {
+        alias
+      },
       test: /\.js$|\.jsx$/,
       loader: "babel-loader",
       options: {
