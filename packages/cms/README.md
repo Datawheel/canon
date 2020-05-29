@@ -9,6 +9,7 @@ Content Management System for Canon sites.
 * [Overview and Terminology](#overview-and-terminology)
 * [Environment Variables](#environment-variables)
 * [Sections](#sections)
+* [Custom Sections](#custom-sections)
 * [Search](#search)
 * [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
@@ -353,6 +354,31 @@ config: {
 ```
 
 🔥**Pro tip**: Multiple graphic visualizations will be automatically grouped together into a grid — but only in the [default](default-layout) and [grouping](grouping-layout) section layouts.
+
+---
+
+## Custom Sections
+
+#### Setup
+
+To extend the layout and functionality of sections, custom JSX sections can be created which will be added to the list of available section types. To add a custom section:
+
+- Create a directory in your canon-core app named `app/cms/sections`
+- Add your custom jsx component to this directory. Observe the [default Section layout](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Default.jsx) for a starting point. Take note of the [Section wrapper](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Section.jsx) that it inherits from to see more information on the `props` that get passed down.
+- Create an `index.js` file in this directory that exports ALL of your custom components:
+
+```js
+export {default as CustomSection} from "./CustomSection.jsx";
+export {default as CustomSection2} from "./CustomSection2.jsx";
+```
+- Rebuild the server
+- Set your section to the new section type in Section Editor of the CMS.
+
+#### Implementation
+
+The [Section wrapper](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Section.jsx) handles most of the context callbacks, click interaction, anchor links, etc. required by all Sections. As such, the underlying section layouts are fairly sparse; many of them just pass the props through one by one (`Default.jsx` is a good example of this - observe the series of stats/paragraphs/sources variables).
+
+If you need more control over how these sections are laid out, or even want to manipulate the text provided by the API, the *entire* section object is passed down via the `contents` key. In your custom component, you may emulate any `Section.jsx` variable preparation using these contents to maximize customization.
 
 ---
 
