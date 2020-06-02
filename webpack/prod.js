@@ -89,7 +89,7 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     optimization: {
-      minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})]
+      minimizer: [new TerserJSPlugin({terserOptions: {warnings: false, mangle: true, keep_fnames: true}}), new OptimizeCSSAssetsPlugin({})]
     },
     plugins: [
       new WebpackBar({
@@ -99,7 +99,6 @@ module.exports = [
       new MiniCssExtractPlugin({
         filename: "styles.css"
       }),
-      // new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: {keep_fnames: true}}),
       new webpack.DefinePlugin(Object.keys(process.env)
         .filter(e => e.startsWith("CANON_CONST_"))
         .reduce((d, k) => {
