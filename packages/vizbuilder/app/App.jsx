@@ -1,14 +1,10 @@
 import React, {Component} from "react";
 import "./App.css";
 
-export default class App extends Component {
-
+class App extends Component {
   render() {
-    return (
-      <div>
-        { this.props.children }
-      </div>
-    );
+    return <div className="demo-scaffold">{this.props.children}</div>;
   }
-
 }
+
+export default App;

@@ -1,4 +1,4 @@
-import {vbStateReducer} from "../../index";
+import {vizbuilderReducer} from "../../src";
 
 /**
   The object exported by this file should contain reducers to be
@@ -6,5 +6,5 @@ import {vbStateReducer} from "../../index";
 */
 
 export default {
-  vizbuilder: vbStateReducer
+  vizbuilder: vizbuilderReducer
 };
