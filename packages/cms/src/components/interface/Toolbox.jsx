@@ -81,7 +81,7 @@ class Toolbox extends Component {
 
   openGenerator(key) {
     const {localeDefault} = this.props.status;
-    const {variables} = this.props.status;
+    const {variables} = this.props;
     const vars = variables[localeDefault];
 
     const gens = Object.keys(vars._genStatus);
@@ -102,9 +102,9 @@ class Toolbox extends Component {
   render() {
     const {detailView, query} = this.state;
     const {children, toolboxVisible} = this.props;
-    const {profile} = this.props;
+    const {profile, variables} = this.props;
     const formattersAll = this.props.formatters;
-    const {variables, localeDefault, localeSecondary, dialogOpen} = this.props.status;
+    const {localeDefault, localeSecondary, dialogOpen} = this.props.status;
 
     const dataLoaded = profile;
 
@@ -115,6 +115,8 @@ class Toolbox extends Component {
     const locLoaded = !localeSecondary || variables && localeSecondary && variables[localeDefault] && variables[localeSecondary];
 
     if (!varsLoaded || !defLoaded || !locLoaded) return <div className="cms-toolbox is-loading"><h3>Loading...</h3></div>;
+
+    console.log("toolbox", variables);
 
     const attrGen = {
       id: "attributes",
@@ -294,6 +296,7 @@ class Toolbox extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  variables: state.cms.variables,
   status: state.cms.status,
   profile: state.cms.profiles.find(p => p.id === ownProps.id),
   formatters: state.cms.formatters

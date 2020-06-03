@@ -73,7 +73,7 @@ class VisualizationEditorUI extends Component {
     const {env} = this.props;
     const {previews, localeDefault} = this.props.status;
     // Stories can use Simplevizes, but don't have variables
-    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const variables = this.props.variables[localeDefault] || {};
     // An update to this component changed the default format for data and groupBy from string to array.
     // These typeof lines "upgrade" those legacy objects to the new format
     if (typeof object.data === "string") object.data = [object.data];
@@ -304,7 +304,7 @@ class VisualizationEditorUI extends Component {
     const {env} = this.props;
     const {previews, localeDefault} = this.props.status;
     // Stories can use Simplevizes, but don't have variables
-    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const variables = this.props.variables[localeDefault] || {};
     const {data, type} = object;
     const thisViz = vizLookup.find(v => v.type === type);
     const lookup = {};
@@ -392,7 +392,7 @@ class VisualizationEditorUI extends Component {
     const requiresPayload = !["Graphic", "HTML"].includes(object.type);
 
     // Stories can use Simplevizes, but don't have variables
-    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const variables = this.props.variables[localeDefault] || {};
     const varOptions = Object.keys(variables)
       .filter(key => !key.startsWith("_"))
       .sort((a, b) => a.localeCompare(b))
@@ -520,6 +520,7 @@ class VisualizationEditorUI extends Component {
 
 const mapStateToProps = state => ({
   env: state.env,
+  variables: state.cms.variables,
   status: state.cms.status,
   resources: state.cms.resources
 });

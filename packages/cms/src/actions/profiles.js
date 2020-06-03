@@ -156,8 +156,7 @@ export function fetchSectionPreview(id, locale) {
   return function(dispatch, getStore) {
     dispatch({type: "SECTION_PREVIEW_FETCH"});
     const {currentPid, pathObj} = getStore().cms.status;
-    const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
-    const variables = thisProfile.variables[locale];
+    const {variables} = getStore().cms;
     const {previews} = pathObj;
     const idString = previews.reduce((acc, id, i) => `${acc}&slug${i + 1}=${id.slug}&id${i + 1}=${id.id}`, "");
     const url = `${getStore().env.CANON_API}/api/profile?profile=${currentPid}&section=${id}&locale=${locale}${idString}`;
@@ -175,9 +174,8 @@ export function fetchSectionPreview(id, locale) {
  */
 export function setVariables(newVariables) { 
   return function(dispatch, getStore) {
-    const {currentPid} = getStore().cms.status;
-    const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
-    const variables = deepClone(thisProfile.variables);
+    const {variables} = getStore().cms;
+
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
     // loop by checking if the vars are in there already, only updating if they are not yet set.
@@ -188,7 +186,7 @@ export function setVariables(newVariables) {
       Object.keys(variables).forEach(locale => {
         variables[locale] = Object.assign({}, variables[locale], newVariables);
       });
-      dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
+      dispatch({type: "VARIABLES_SET", data: {variables}});
     }
   };
 }
@@ -263,7 +261,7 @@ export function fetchVariables(config) {
     const {auth} = getStore();
 
     const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
-    let variables = deepClone(thisProfile.variables);
+    let variables = deepClone(getStore().cms.variables);
     if (!variables) variables = {};
     if (!variables[localeDefault]) variables[localeDefault] = {_genStatus: {}, _matStatus: {}};
     if (localeSecondary && !variables[localeSecondary]) variables[localeSecondary] = {_genStatus: {}, _matStatus: {}};
@@ -320,7 +318,7 @@ export function fetchVariables(config) {
       const mat = await axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).catch(catcher);
       variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
       const diffCounter = getStore().cms.status.diffCounter + 1;
-      dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+      dispatch({type: "VARIABLES_SET", data: {diffCounter, variables}});
       dispatch({type: "VARIABLES_FETCHED"});
     }
   };

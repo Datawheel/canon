@@ -13,9 +13,8 @@ class ProfileEditor extends Component {
   render() {
 
     const {minData} = this.props;
-    const {children} = this.props;
+    const {children, variables} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
-    const {variables} = this.props.status;
 
     const dataLoaded = minData;
     const varsLoaded = variables;
@@ -56,6 +55,7 @@ ProfileEditor.contextTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => ({
+  variables: state.cms.variables,
   status: state.cms.status,
   minData: state.cms.profiles.find(p => p.id === ownProps.id)
 });

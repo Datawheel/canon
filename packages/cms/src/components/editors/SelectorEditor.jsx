@@ -27,7 +27,7 @@ class SelectorEditor extends Component {
   addOption() {
     const {data, isDirty} = this.state;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    const variables = this.props.variables[localeDefault];
     if (!data.options) data.options = [];
     const varList = Object.keys(variables).filter(v => !v.startsWith("_") && !data.options.map(o => o.option).includes(v));
     if (varList.length > 0) {
@@ -85,7 +85,7 @@ class SelectorEditor extends Component {
   chooseDynamic(e) {
     const {data, isDirty} = this.state;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    const variables = this.props.variables[localeDefault];
     data.dynamic = e.target.value;
     const dynamicStatus = validateDynamic(variables[data.dynamic]);
     if (this.props.setAllowSave) this.props.setAllowSave(dynamicStatus === "valid");
@@ -228,7 +228,7 @@ class SelectorEditor extends Component {
   toggleDynamic() {
     const {data, isDirty} = this.state;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    const variables = this.props.variables[localeDefault];
     const arrayOptions = Object.keys(variables).filter(key => Array.isArray(variables[key])).sort((a, b) => a.localeCompare(b));
     if (data.dynamic) {
       data.dynamic = "";
@@ -256,7 +256,7 @@ class SelectorEditor extends Component {
 
     const {data, showCustom} = this.state;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    const variables = this.props.variables[localeDefault];
 
     if (!data || !variables) return null;
 
@@ -504,6 +504,7 @@ class SelectorEditor extends Component {
 }
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   status: state.cms.status
 });
 

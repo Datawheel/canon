@@ -98,7 +98,8 @@ export default (status = {}, action) => {
     // Or the tree, needs to know something changed. Instead of running an expensive stringify on variables,
     // Just increment a counter that the various cards can subscribe to.
     case "VARIABLES_SET": 
-      const newStatus = {variables: deepClone(action.data.variables)};
+      // const newStatus = {variables: {en: {_genStatus: {}, _matStatus: {}}}};
+      const newStatus = {};
       if (action.data.diffCounter) newStatus.diffCounter = action.data.diffCounter;
       return Object.assign({}, status, newStatus);
     // Updating sections could mean the title was updated. Bump a "diffcounter" that the Navbar tree can listen for to jigger a render
