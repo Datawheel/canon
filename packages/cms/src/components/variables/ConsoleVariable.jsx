@@ -15,15 +15,20 @@ export default class ConsoleVariable extends Component {
 
   render() {
     const {value} = this.props;
+    const JSON_CUTOFF = 1000;
+    const ARRAY_CUTOFF = 5;
 
     const t = evalType(value);
     let v = value;
     if (t === "string") v = `"${v}"`;
-    else if (t === "object") v = <pre>{ JSON.stringify(v, null, 2) }</pre>;
+    else if (t === "object") {
+      const str = JSON.stringify(v, null, 2);
+      v = str.length > JSON_CUTOFF ? <pre>JSON object too large to display.</pre> : <pre>{ str }</pre>;
+    }
     else if (t === "error") v = `Error: ${v.message}`;
     else if (t === "undefined") v = t;
     else if (t === "array") {
-      v = <span>{v.slice(0, 5).map((l, i) => <span key={i}><ConsoleVariable value={l} /></span>)}</span>;
+      v = <span>{v.slice(0, ARRAY_CUTOFF).map((l, i) => <span key={i}><ConsoleVariable value={l} /></span>)}</span>;
     }
     else if (v.toString) v = v.toString();
 
