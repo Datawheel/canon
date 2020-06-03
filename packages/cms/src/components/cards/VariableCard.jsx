@@ -263,13 +263,13 @@ class VariableCard extends Component {
                 {localeSecondary &&
                   <LocaleName>{localeDefault}</LocaleName>
                 }
-                <VarTable dataset={displayData} dupes={dupes}/>
+                <VarTable dataset={displayData} dupes={dupes} showAll={minData.id === "attributes"}/>
               </div>
 
               {localeSecondary &&
                 <div className="cms-card-locale-container" key="cls">
                   <LocaleName>{localeSecondary}</LocaleName>
-                  <VarTable dataset={secondaryDisplayData} dupes={dupes} />
+                  <VarTable dataset={secondaryDisplayData} dupes={dupes} showAll={minData.id === "attributes"}/>
                 </div>
               }
             </div>

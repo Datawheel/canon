@@ -47,3 +47,8 @@
     top: -3px;
   }
 }
+
+.cms-vartable-more {
+  padding-top: 20px;
+  cursor: pointer;
+}
