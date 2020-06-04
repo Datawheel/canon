@@ -4,7 +4,6 @@
   "description": "Reusable React environment and components for creating visualization engines.",
   "private": true,
   "directories": {
-    "doc": "docs",
     "example": "example"
   },
   "scripts": {
@@ -14,7 +13,6 @@
     "type": "git",
     "url": "git+https://github.com/Datawheel/canon.git"
   },
-  "keywords": [],
   "author": "Dave Landry <dave@datawheel.us>",
   "license": "GPL-3.0-or-later",
   "bugs": {
