@@ -8,7 +8,7 @@
     "example": "example"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "release": "node ./scripts/release.js"
   },
   "repository": {
     "type": "git",
@@ -23,9 +23,11 @@
   "homepage": "https://github.com/Datawheel/canon#readme",
   "dependencies": {
     "@datawheel/eslint-config": "^1.0.2",
+    "@octokit/rest": "^17.9.3",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.1.0",
-    "eslint-plugin-react": "^7.20.0"
+    "eslint-plugin-react": "^7.20.0",
+    "shelljs": "^0.8.4"
   },
   "eslintConfig": {
     "extends": "@datawheel"
