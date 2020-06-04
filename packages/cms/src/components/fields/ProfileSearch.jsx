@@ -183,7 +183,6 @@ class ProfileSearch extends Component {
     else {
 
       const url = `/api/profilesearch?query=${query}&limit=${limit}`;
-      console.log("take it");
 
       // handle the query
       this.setState({
