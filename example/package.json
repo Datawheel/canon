@@ -1,0 +1,26 @@
+{
+  "name": "canon-example",
+  "version": "0.18.12",
+  "description": "A canon-core example app.",
+  "private": true,
+  "main": "./index.js",
+  "scripts": {
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 canon-build",
+    "cache-clear": "rm -rf node_modules/.cache/",
+    "dev": "canon-dev",
+    "locales": "canon-locales",
+    "release": "canon-release",
+    "setup": "canon-setup",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/datawheel/canon.git",
+    "directory": "packages/core"
+  },
+  "author": "Dave Landry <dave@datawheel.us>",
+  "license": "MIT",
+  "dependencies": {
+    "@datawheel/canon-core": "^0.18.12"
+  }
+}
