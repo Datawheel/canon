@@ -1,5 +1,6 @@
 import React from "react";
 import {Route, IndexRoute} from "react-router";
+import {Reset, UserAdmin} from "@datawheel/canon-core";
 
 import App from "App";
 import Home from "pages/Home";
@@ -8,8 +9,6 @@ import Login from "pages/Login";
 import SignUp from "pages/SignUp";
 import Profile from "profile/Profile";
 import Error from "pages/NotFound";
-
-import {Reset, UserAdmin} from "../src";
 
 /** */
 function checkForId(nextState, replaceState) {

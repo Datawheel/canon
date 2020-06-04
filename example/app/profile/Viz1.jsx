@@ -1,12 +1,9 @@
-import React from "react";
-import PropTypes from "prop-types";
-import {withNamespaces} from "react-i18next";
+import {fetchData, SectionColumns, SectionTitle} from "@datawheel/canon-core";
 import {Treemap} from "d3plus-react";
 import {dataFold} from "d3plus-viz";
-
-import {fetchData} from "../../src/actions/fetchData";
-
-import {SectionColumns, SectionTitle} from "../../src";
+import PropTypes from "prop-types";
+import React from "react";
+import {withNamespaces} from "react-i18next";
 
 class Viz1 extends SectionColumns {
 

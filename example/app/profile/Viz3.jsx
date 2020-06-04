@@ -1,10 +1,7 @@
-import React from "react";
+import {fetchData, SectionColumns} from "@datawheel/canon-core";
 import {Plot, Treemap} from "d3plus-react";
-
-import {fetchData} from "../../src/actions/fetchData";
 import {dataFold} from "d3plus-viz";
-
-import {SectionColumns} from "../../src";
+import React from "react";
 
 class Viz3 extends SectionColumns {
 

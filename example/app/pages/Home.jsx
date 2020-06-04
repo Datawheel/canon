@@ -1,15 +1,13 @@
-import React, {Component} from "react";
-import {Link} from "react-router";
-import {withNamespaces, Trans} from "react-i18next";
-import "./Home.css";
 import {Button} from "@blueprintjs/core";
-import {Activate} from "../../src/";
+import {Activate} from "@datawheel/canon-core";
+import React, {Component} from "react";
 import {hot} from "react-hot-loader/root";
+import {Trans, withNamespaces} from "react-i18next";
+import {Link} from "react-router";
 // import Vizbuilder from "@datawheel/canon-vizbuilder";
 
 import styles from "style.yml";
-
-// import yn from "yn";
+import "./Home.css";
 
 class Home extends Component {
 
