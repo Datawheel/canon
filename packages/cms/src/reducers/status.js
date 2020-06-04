@@ -1,38 +1,3 @@
-const deepClone = require("../utils/deepClone");
-// const {isObject} = require("d3plus-common");
-
-/* In Progress here: determining what variables are used by a profile.
-/*
-const extractVariables = (obj, variablesUsed = []) => {
-  Object.keys(obj).forEach(key => {
-    if (typeof obj[key] === "string") {
-      const matches = [];
-      const re = new RegExp(/\{\{([^\}]+)\}\}/g);
-      let match = re.exec(obj[key]);
-      while (match !== null) {
-        match = re.exec(obj[key]);
-        if (match) matches.push(match[1]);
-      }
-      if (matches.length > 0) {
-        matches.forEach(match => {
-          if (!variablesUsed.includes(match)) variablesUsed.push(match);
-        });
-      }
-    }
-    else if (isObject(obj[key])) {
-      return extractVariables(obj[key], variablesUsed);
-    }
-    else if (Array.isArray(obj[key])) {
-      return obj[key].map(d => extractVariables(d, variablesUsed));
-    }
-    else {
-      return 
-    }
-  });
-  return variablesUsed;
-};
-*/
-
 export default (status = {}, action) => {
   
   const success = action && action.data && action.data.id ? {id: action.data.id, status: "SUCCESS"} : {};
@@ -97,8 +62,7 @@ export default (status = {}, action) => {
     // Updating variables or saving a section or meta means that anything that depends on variables, such as TextCards 
     // Or the tree, needs to know something changed. Instead of running an expensive stringify on variables,
     // Just increment a counter that the various cards can subscribe to.
-    case "VARIABLES_SET": 
-      // const newStatus = {variables: {en: {_genStatus: {}, _matStatus: {}}}};
+    case "VARIABLES_DIFF": 
       const newStatus = {};
       if (action.data.diffCounter) newStatus.diffCounter = action.data.diffCounter;
       return Object.assign({}, status, newStatus);

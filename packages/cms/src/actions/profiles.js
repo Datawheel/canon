@@ -318,7 +318,8 @@ export function fetchVariables(config) {
       const mat = await axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).catch(catcher);
       variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
       const diffCounter = getStore().cms.status.diffCounter + 1;
-      dispatch({type: "VARIABLES_SET", data: {diffCounter, variables}});
+      dispatch({type: "VARIABLES_SET", data: {variables}});
+      dispatch({type: "VARIABLES_DIFF", data: {diffCounter}});
       dispatch({type: "VARIABLES_FETCHED"});
     }
   };

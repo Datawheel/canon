@@ -207,7 +207,7 @@ class SelectorEditor extends Component {
   openGenerator(key) {
     this.props.setStatus({dialogOpen: false});
     const {localeDefault} = this.props.status;
-    const {variables} = this.props.status;
+    const {variables} = this.props;
     const vars = variables[localeDefault];
 
     const gens = Object.keys(vars._genStatus);

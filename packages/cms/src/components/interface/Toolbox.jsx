@@ -116,8 +116,6 @@ class Toolbox extends Component {
 
     if (!varsLoaded || !defLoaded || !locLoaded) return <div className="cms-toolbox is-loading"><h3>Loading...</h3></div>;
 
-    console.log("toolbox", variables);
-
     const attrGen = {
       id: "attributes",
       name: "Attributes",
@@ -127,26 +125,22 @@ class Toolbox extends Component {
     let generators = profile.generators
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(d => Object.assign({}, {type: "generator"}, d))
-      .filter(this.filterFunc.bind(this))
-      .filter(d => !dialogOpen || dialogOpen.type === "generator" && dialogOpen.id === d.id);
+      .filter(this.filterFunc.bind(this));
 
     if (this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
 
     const materializers = profile.materializers
       .sort((a, b) => a.ordering - b.ordering)
       .map(d => Object.assign({}, {type: "materializer"}, d))
-      .filter(this.filterFunc.bind(this))
-      .filter(d => !dialogOpen || dialogOpen.type === "materializer" && dialogOpen.id === d.id);
+      .filter(this.filterFunc.bind(this));
 
     const formatters = formattersAll
       .sort((a, b) => a.name.localeCompare(b.name))
-      .filter(this.filterFunc.bind(this))
-      .filter(d => !dialogOpen || dialogOpen.type === "formatter" && dialogOpen.id === d.id);
+      .filter(this.filterFunc.bind(this));
 
     const selectors = profile.selectors
       .sort((a, b) => a.title.localeCompare(b.title))
-      .filter(this.filterFunc.bind(this))
-      .filter(d => !dialogOpen || dialogOpen.type === "selector" && dialogOpen.id === d.id);
+      .filter(this.filterFunc.bind(this));
 
     // If a search filter causes no results, hide the entire grouping. However, if
     // the ORIGINAL data has length 0, always show it, so the user can add the first one.

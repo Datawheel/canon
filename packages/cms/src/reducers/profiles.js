@@ -1,5 +1,3 @@
-const deepClone = require("../utils/deepClone");
-
 const sorter = (a, b) => a.ordering - b.ordering;
 
 const addSectionEntity = (profiles, data, accessor) => profiles.map(p => 
