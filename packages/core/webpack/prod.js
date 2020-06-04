@@ -12,6 +12,7 @@ const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
 const timestamp = new Date().getTime();
 
+/** @type {import("webpack").Configuration[]} */
 module.exports = [
   {
     name: "client",
@@ -33,6 +34,10 @@ module.exports = [
       rules: commonLoaders({extract: true})
     },
     resolve: {
+      alias: {
+        "$root": appDir,
+        "$app": appPath
+      },
       modules: [
         path.join(appDir, "node_modules"),
         appDir,
