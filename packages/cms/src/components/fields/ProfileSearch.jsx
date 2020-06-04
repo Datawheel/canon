@@ -183,6 +183,7 @@ class ProfileSearch extends Component {
     else {
 
       const url = `/api/profilesearch?query=${query}&limit=${limit}`;
+      console.log("take it");
 
       // handle the query
       this.setState({
@@ -202,7 +203,7 @@ class ProfileSearch extends Component {
             })
             .catch(() => {});
 
-        }, 500)
+        }, 1000)
       });
     }
   }
