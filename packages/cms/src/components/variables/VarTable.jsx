@@ -15,7 +15,7 @@ export default class VarTable extends Component {
         </span>
         : <table className="cms-var-table">
           <tbody className="cms-var-table-body">
-            {Object.keys(dataset).map(k =>
+            {Object.keys(dataset).slice(0, 3).map(k =>
               <tr className={`cms-var-table-row${ dupes.includes(k) ? " warning" : "" }`} key={ k }>
                 <td className="cms-var-table-cell">
                   { k }:
