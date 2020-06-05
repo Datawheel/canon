@@ -2,15 +2,15 @@ const Sequelize = require("sequelize");
 const fs = require("fs");
 const path = require("path");
 
-const oldDBName = process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
-const oldDBUser = process.env.CANON_CONST_MIGRATION_OLD_DB_USER;
-const oldDBPW = process.env.CANON_CONST_MIGRATION_OLD_DB_PW || null;
-const oldDBHost = process.env.CANON_CONST_MIGRATION_OLD_DB_HOST;
+const oldDBName = process.env.CANON_CMS_MIGRATION_OLD_DB_NAME || process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
+const oldDBUser = process.env.CANON_CMS_MIGRATION_OLD_DB_USER || process.env.CANON_CONST_MIGRATION_OLD_DB_USER;
+const oldDBPW = process.env.CANON_CMS_MIGRATION_OLD_DB_PW || process.env.CANON_CONST_MIGRATION_OLD_DB_PW || null;
+const oldDBHost = process.env.CANON_CMS_MIGRATION_OLD_DB_HOST || process.env.CANON_CONST_MIGRATION_OLD_DB_HOST;
 
-const newDBName = process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
-const newDBUser = process.env.CANON_CONST_MIGRATION_NEW_DB_USER;
-const newDBPW = process.env.CANON_CONST_MIGRATION_NEW_DB_PW || null;
-const newDBHost = process.env.CANON_CONST_MIGRATION_NEW_DB_HOST;
+const newDBName = process.env.CANON_CMS_MIGRATION_NEW_DB_NAME || process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
+const newDBUser = process.env.CANON_CMS_MIGRATION_NEW_DB_USER || process.env.CANON_CONST_MIGRATION_NEW_DB_USER;
+const newDBPW = process.env.CANON_CMS_MIGRATION_NEW_DB_PW || process.env.CANON_CONST_MIGRATION_NEW_DB_PW || null;
+const newDBHost = process.env.CANON_CMS_MIGRATION_NEW_DB_HOST || process.env.CANON_CONST_MIGRATION_NEW_DB_HOST;
 
 const dbold = new Sequelize(oldDBName, oldDBUser, oldDBPW, {host: oldDBHost, dialect: "postgres", define: {timestamps: true}, logging: () => {}});
 const dbnew = new Sequelize(newDBName, newDBUser, newDBPW, {host: newDBHost, dialect: "postgres", define: {timestamps: true}, logging: () => {}});
