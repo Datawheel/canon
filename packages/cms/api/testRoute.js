@@ -20,4 +20,19 @@ module.exports = function(app) {
     ]}).end();
   });
 
+  app.post("/api/cms/customAttributes/:pid", (req, res) => {
+    const pid = parseInt(req.params.pid, 10); // eslint-disable-line
+    const {variables, locale} = req.body; // eslint-disable-line
+    const {id1, dimension1, hierarchy1, slug1, name1, cubeName1, user} = variables; // eslint-disable-line
+    /**
+     * Make axios calls and return your compiled data as a single JS Object.
+     */
+    if (pid === 49) {
+      return res.json({
+        capName: name1.toUpperCase()
+      });
+    }
+    else return res.json({});
+  });
+
 };

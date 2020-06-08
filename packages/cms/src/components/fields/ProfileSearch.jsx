@@ -202,7 +202,7 @@ class ProfileSearch extends Component {
             })
             .catch(() => {});
 
-        }, 500)
+        }, 1000)
       });
     }
   }

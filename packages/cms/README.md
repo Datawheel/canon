@@ -172,12 +172,21 @@ Images default to splash size, but you may set `&size=thumb` for a thumbnail. To
 
 ## Rendering a Profile
 
-The CMS exports a `Profile` component that can be directly mounted to a Route. The only requirement is that you use `pslug` and `pid` for the profile's slug and id properties:
+The CMS exports a `Profile` component that can be directly mounted to a Route. The only requirement is that you use `slug` and `id` for the profile's slug and id properties:
 
 ```jsx
 import {Profile} from "@datawheel/canon-cms";
 ...
-<Route path="/profile/:pslug/:pid" component={Profile} />
+<Route path="/profile/:slug/:id" component={Profile} />
+```
+
+To add support for bilateral profiles, add a second route after the main route, using numbered slug id pairs:
+
+```jsx
+import {Profile} from "@datawheel/canon-cms";
+...
+<Route path="/profile/:slug/:id" component={Profile} />
+<Route path="/profile/:slug/:id/:slug2/:id2" component={Profile} />
 ```
 
 ---
@@ -343,7 +352,7 @@ Renders data in a [react-table](https://github.com/tannerlinsley/react-table/tre
 
 ##### Graphic
 Renders an image, optionally on top of a [stat](#stats). The config looks like:
-```
+```js
 config: {
   imageURL: "link/to.image",
   label: "stat label", // optional
@@ -488,6 +497,38 @@ If the pieces are the same, one parameter may be used:
 
 `&slugs=Product`
 
+### Custom Attributes
+
+The fixed "Attributes" includes basic information about the currently selected member, like dimension, id, and hierarchy. This is useful because it is run *before* other generators, and can therefore be used both in subsequent `variables` object and also in API calls, using the `<bracket>` syntax.
+
+If you would like to inject your own custom variables into the Attributes generator, create an endpoint in your canon API folder:
+
+```js
+app.post("/api/cms/customAttributes/:pid", (req, res) => {
+
+  const pid = parseInt(req.params.pid, 10);
+  const {variables, locale} = req.body;
+  const {id1, dimension1, hierarchy1, slug1, name1, cubeName1, user} = variables;
+
+  /**
+   * Make axios calls, run JS, and return your compiled data as a single JS Object. Use the pid
+   * given in params to return different attributes for different profiles.
+   */
+
+  if (pid === 49) {
+    return res.json({
+      capitalName: name1.toUpperCase()
+    });
+  }
+  else return res.json({});
+
+});
+```
+
+You can determine the profile pid of a given profile by checking the URL in the CMS (e.g. `http://localhost:3300/?tab=profiles&profile=49`). The POST endpoint will receive the contents of the Attributes generator in the POST body as `variables`, as well as the current `locale`.
+
+Keep in mind that this will need to run every time a front-end profile loads, and also every time a generator or materializer is saved on the backend CMS (as it would need the variables from this endpoint to run). As a rule, try not to put any majorly heavy requests in here as it necessarily "blocks" the rest of the generator/materalizer execution.
+
 ---
 
 ## Advanced Visualization Techniques
@@ -518,7 +559,7 @@ Keep in mind that the `setVariables` function accesses the main `variables` obje
 
 A potential use case for this may be for an entire viz, stat, or section to be shown or hidden based on a click action inside a viz. Remember, each entity in the CMS has an `allowed` property, a variable whose truthiness determines whether to show this entity or not. If you want to control the visibility of an element, set its `allowed` property to a variable that you intend to override later with a click action. To expand the example above:
 
-```
+```js
  "on":
     {
       "click": d => {
@@ -586,7 +627,7 @@ return {
 
 ## Advanced Selector Techniques
 
-Traditional selectors (dropdowns) are static. Options are added, one by one, from the list of premade variables. However, if selector lists are very long (such as a list of states) or need to automatically change (such as years when new data are added), you may need to configure dynamic selectors. 
+Traditional selectors (dropdowns) are static. Options are added, one by one, from the list of premade variables. However, if selector lists are very long (such as a list of states) or need to automatically change (such as years when new data are added), you may need to configure dynamic selectors.
 
 The `name` of the Selector itself, as well as defining which option(s) are the default, are configured the same way as static selectors. The main difference is that Dynamic Selectors allow you to use a variable to define the members of the dropdown, as opposed to adding pre-existing variable options one at a time.
 
@@ -594,7 +635,7 @@ The `name` of the Selector itself, as well as defining which option(s) are the d
 
 Dynamic selectors are array variables. The members of that array may be objects or strings.
 
-If the members are **objects**, you must provide the required key `option`, and the optional keys `label` and `allowed`. 
+If the members are **objects**, you must provide the required key `option`, and the optional keys `label` and `allowed`.
 
 |key|required|details
 |---|---|---|
@@ -611,9 +652,9 @@ If the members are **objects**, you must provide the required key `option`, and 
 ]
 ```
 
-Remember - in static selectors, the "label" was implicitly value of the variable. However, in dynamic selectors, **the options you create will not exist in the variables object**. The exist only within this dynamic selector. In the above example, attempting to access `variables.year2018` will not return anything, as no generator ever exported `year2018` as a proper variable in and of itself. 
+Remember - in static selectors, the "label" was implicitly value of the variable. However, in dynamic selectors, **the options you create will not exist in the variables object**. The exist only within this dynamic selector. In the above example, attempting to access `variables.year2018` will not return anything, as no generator ever exported `year2018` as a proper variable in and of itself.
 
-A string configuration is also supported: 
+A string configuration is also supported:
 
 ```js
 ["option1", "option2", "option3"]
@@ -621,7 +662,7 @@ A string configuration is also supported:
 
 In this case, `label` will default to `option` and `allowed` will default to `always`. You may also mix and match formats.
 
-### Technical Details 
+### Technical Details
 
 Advanced users may have used the following syntax to achieve "labels" on the front end:
 
@@ -631,7 +672,7 @@ Advanced users may have used the following syntax to achieve "labels" on the fro
 
 On a first pass, a selector swap will change `selector1` to its selected value (say `year2018`), which leaves `{{year2018}}` behind. A second variable swap pass would then change it to `2018`, for use in a human-readable paragraph.
 
-In dynamic selectors, as mentioned above, `year2018` will not exist as such. Therefore, a step has been added BETWEEN the selector swap and the variable swap, which will use user-defined `labels` as a temporary variable lookup. This behavior allows users to continue to use the `{{[[selector1]]}}` format they are used to, and can trust that it will turn `year2018` into `2018`, even though `year2018` is not in the variables object. 
+In dynamic selectors, as mentioned above, `year2018` will not exist as such. Therefore, a step has been added BETWEEN the selector swap and the variable swap, which will use user-defined `labels` as a temporary variable lookup. This behavior allows users to continue to use the `{{[[selector1]]}}` format they are used to, and can trust that it will turn `year2018` into `2018`, even though `year2018` is not in the variables object.
 
 ---
 
@@ -745,20 +786,20 @@ It is necessary that users spin up an entire new database for any CMS migration.
 The user need configure two sets of environment variables, `OLD` and `NEW`.
 
 ```
-CANON_CONST_MIGRATION_OLD_DB_NAME
-CANON_CONST_MIGRATION_OLD_DB_USER
-CANON_CONST_MIGRATION_OLD_DB_PW
-CANON_CONST_MIGRATION_OLD_DB_HOST
+CANON_CMS_MIGRATION_OLD_DB_NAME
+CANON_CMS_MIGRATION_OLD_DB_USER
+CANON_CMS_MIGRATION_OLD_DB_PW
+CANON_CMS_MIGRATION_OLD_DB_HOST
 
-CANON_CONST_MIGRATION_NEW_DB_NAME
-CANON_CONST_MIGRATION_NEW_DB_USER
-CANON_CONST_MIGRATION_NEW_DB_PW
-CANON_CONST_MIGRATION_NEW_DB_HOST
+CANON_CMS_MIGRATION_NEW_DB_NAME
+CANON_CMS_MIGRATION_NEW_DB_USER
+CANON_CMS_MIGRATION_NEW_DB_PW
+CANON_CMS_MIGRATION_NEW_DB_HOST
 ```
 
 These variables represent the old db you are migration **from** and the new db you are migrating **to**.  The new db will be **wiped every time** you run the script - the idea here is that you are building a new db from scratch.
 
 🔥 WHATEVER DB YOU CONFIGURE AS **NEW** WILL BE COMPLETELY DESTROYED AND BUILT FROM SCRATCH 🔥
-🔥 DO NOT SET `CANON_CONST_MIGRATION_NEW_DB_*` TO A CURRENTLY IMPORTANT DB🔥
+🔥 DO NOT SET `CANON_CMS_MIGRATION_NEW_DB_*` TO A CURRENTLY IMPORTANT DB🔥
 
 After the migration is done, you can switch your dev environment to the new DB for testing, and eventually switch it to prod.

@@ -195,7 +195,7 @@ export function setVariables(newVariables) {
 
 /** */
 export function resetPreviews() { 
-  return function(dispatch, getStore) {
+  return async function(dispatch, getStore) {
     const {currentPid, pathObj} = getStore().cms.status;
     const {profiles} = getStore().cms;
     const thisProfile = profiles.find(p => p.id === currentPid);
@@ -225,28 +225,27 @@ export function resetPreviews() {
       return axios.get(url);
     });
     const previews = [];
-    Promise.all(requests).then(resps => {
-      resps.forEach((resp, i) => {
-        // If our result doesn't return for some reason, scaffold out a mostly-blank result with the first group's first meta
-        const newPreview = {slug: groupedMeta[i][0].slug, id: "", name: "", memberSlug: "", searchObj: {}};
-        if (resp && resp.data && resp.data.results && resp.data.results[0]) {
-          const result = resp.data.results[0];
-          // Because any given dimension has many variants, we must use the returned member to find out which one we're on.
-          const thisGroup = groupedMeta[i];
-          const matchingMeta = thisGroup.find(meta => meta.dimension === result.dimension && meta.cubeName === result.cubeName);
-          if (matchingMeta) {
-            newPreview.slug = matchingMeta.slug;
-            newPreview.id = result.id;
-            newPreview.name = result.name;
-            newPreview.memberSlug = result.slug;
-            newPreview.searchObj = result;
-          }
+    const resps = await Promise.all(requests).catch(catcher);
+    resps.forEach((resp, i) => {
+      // If our result doesn't return for some reason, scaffold out a mostly-blank result with the first group's first meta
+      const newPreview = {slug: groupedMeta[i][0].slug, id: "", name: "", memberSlug: "", searchObj: {}};
+      if (resp && resp.data && resp.data.results && resp.data.results[0]) {
+        const result = resp.data.results[0];
+        // Because any given dimension has many variants, we must use the returned member to find out which one we're on.
+        const thisGroup = groupedMeta[i];
+        const matchingMeta = thisGroup.find(meta => meta.dimension === result.dimension && meta.cubeName === result.cubeName);
+        if (matchingMeta) {
+          newPreview.slug = matchingMeta.slug;
+          newPreview.id = result.id;
+          newPreview.name = result.name;
+          newPreview.memberSlug = result.slug;
+          newPreview.searchObj = result;
         }
-        previews.push(newPreview);
-      });
-      const newPathObj = Object.assign({}, pathObj, {previews});
-      dispatch({type: "STATUS_SET", data: {previews, pathObj: newPathObj}});
+      }
+      previews.push(newPreview);
     });
+    const newPathObj = Object.assign({}, pathObj, {previews});
+    dispatch({type: "STATUS_SET", data: {previews, pathObj: newPathObj}});
   };
 }
 
@@ -257,7 +256,7 @@ export function resetPreviews() {
  * variables object in a hash that is keyed by the profile id.
  */
 export function fetchVariables(config) { 
-  return async function(dispatch, getStore) {    
+  return async function(dispatch, getStore) { 
     dispatch({type: "VARIABLES_FETCH", data: "Generators"});
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
     const {auth} = getStore();
@@ -284,15 +283,24 @@ export function fetchVariables(config) {
 
     const locales = [localeDefault];
     if (localeSecondary) locales.push(localeSecondary);
+    
+    const magicURL = `/api/cms/customAttributes/${currentPid}`;
+    const attributesByLocale = {};
     for (const thisLocale of locales) {
-      const attributes = attify(previews.map(d => d.searchObj), thisLocale);
+      const theseAttributes = attify(previews.map(d => d.searchObj), thisLocale);
       if (getStore().env.CANON_LOGINS && auth.user) {
         const {password, salt, ...user} = auth.user; // eslint-disable-line
-        attributes.user = user;
+        theseAttributes.user = user;
         // Bubble up userRole for easy access in front end (for hiding sections based on role)
-        attributes.userRole = user.role;
+        theseAttributes.userRole = user.role;
       }
+      const magicResp = await axios.post(magicURL, {variables: theseAttributes, locale: thisLocale}).catch(() => ({data: {}}));
+      attributesByLocale[thisLocale] = theseAttributes;
+      if (typeof magicResp.data === "object") attributesByLocale[thisLocale] = {...attributesByLocale[thisLocale], ...magicResp.data};
+    }
 
+    for (const thisLocale of locales) {
+      const attributes = attributesByLocale[thisLocale];
       let paramString = previews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, "");
       if (config && (config.type === "materializer" || config.type === "generator")) paramString += `&${config.type}=${config.id}`;
       if (!config || config && config.type === "generator") {

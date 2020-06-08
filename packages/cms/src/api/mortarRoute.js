@@ -201,8 +201,7 @@ const bubbleUp = (obj, locale) => {
 };
 
 const extractLocaleContent = (sourceObj, locale, mode) => {
-  let obj = deepClone(sourceObj);
-  obj = bubbleUp(obj, locale);
+  const obj = bubbleUp(sourceObj, locale);
   if (mode === "story") {
     ["footnotes", "descriptions", "authors"].forEach(type => {
       if (obj[type]) obj[type] = obj[type].map(o => bubbleUp(o, locale));
@@ -301,6 +300,13 @@ module.exports = function(app) {
       if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
         smallAttr.parents = resp.data.data;
       }
+      // Fetch Custom Magic Generator
+      const magicURL = `${ req.protocol }://${ req.headers.host }/api/cms/customAttributes/${pid}`;
+      const magicResp = await axios.post(magicURL, {variables: smallAttr, locale}).catch(() => ({data: {}}));
+      if (typeof magicResp.data === "object") {
+        smallAttr = {...smallAttr, ...magicResp.data};
+      }
+
     }
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
@@ -435,13 +441,6 @@ module.exports = function(app) {
     const origin = `${ req.protocol }://${ req.headers.host }`;
 
     const dims = collate(req.query);
-    // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
-    // Replace that slug with the actual real id from the search table.
-    for (let i = 0; i < dims.length; i++) {
-      const dim = dims[i];
-      const attribute = await db.search.findOne({where: {slug: dim.id}}).catch(catcher);
-      if (attribute && attribute.id) dim.id = attribute.id;
-    }
 
     const sectionID = req.query.section;
     const profileID = req.query.profile;
@@ -499,6 +498,19 @@ module.exports = function(app) {
         return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
       }
     }
+    
+    // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
+    // Replace that slug with the actual real id from the search table. To do this, however,
+    // We need the meta from the profile so we can filter by cubename.
+    for (let i = 0; i < dims.length; i++) {
+      const dim = dims[i];
+      const meta = await db.profile_meta.findOne({where: {slug: dim.slug}});
+      if (meta && meta.cubeName) {
+        const attribute = await db.search.findOne({where: {slug: dim.id, cubeName: meta.cubeName}}).catch(catcher);
+        if (attribute && attribute.id) dim.id = attribute.id;
+      }
+    }
+
     let returnObject = {};
     let variables = {};
     // If the user has provided variables, this is a POST request. Use those variables,
@@ -679,14 +691,14 @@ module.exports = function(app) {
     // See profileReq above to see the sequelize formatting for fetching the entire profile
     let profile;
     if (variables._rawProfile) {
-      profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+      profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
     }
     else {
       const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
       const rawProfile = await db.profile.findOne(reqObj).catch(catcher);
       if (rawProfile) {
         variables._rawProfile = rawProfile.toJSON();
-        profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+        profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
       }
       else {
         if (verbose) console.error(`Profile not found for id: ${pid}`);
