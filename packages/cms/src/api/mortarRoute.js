@@ -201,8 +201,7 @@ const bubbleUp = (obj, locale) => {
 };
 
 const extractLocaleContent = (sourceObj, locale, mode) => {
-  let obj = deepClone(sourceObj);
-  obj = bubbleUp(obj, locale);
+  const obj = bubbleUp(sourceObj, locale);
   if (mode === "story") {
     ["footnotes", "descriptions", "authors"].forEach(type => {
       if (obj[type]) obj[type] = obj[type].map(o => bubbleUp(o, locale));
@@ -692,14 +691,14 @@ module.exports = function(app) {
     // See profileReq above to see the sequelize formatting for fetching the entire profile
     let profile;
     if (variables._rawProfile) {
-      profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+      profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
     }
     else {
       const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
       const rawProfile = await db.profile.findOne(reqObj).catch(catcher);
       if (rawProfile) {
         variables._rawProfile = rawProfile.toJSON();
-        profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+        profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
       }
       else {
         if (verbose) console.error(`Profile not found for id: ${pid}`);
