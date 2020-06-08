@@ -4,7 +4,7 @@ import ConsoleVariable from "./ConsoleVariable";
 import "./VarTable.css";
 
 export default class VarTable extends Component {
-  
+
   constructor(props) {
     super(props);
     this.state = {
@@ -29,7 +29,7 @@ export default class VarTable extends Component {
       </span>;
     }
 
-    const CUTOFF = 3;
+    const CUTOFF = 10;
     const fullList = Object.keys(dataset);
     const displayList = showAll || showMore ? fullList : fullList.slice(0, CUTOFF);
     const hasMore = fullList.length > CUTOFF;
@@ -47,10 +47,11 @@ export default class VarTable extends Component {
             </td>
           </tr>
         )}
-        {!showAll && hasMore && 
-          <tr>
-            <td className="cms-vartable-more" onClick={this.toggle.bind(this)}>
-              {showMore ? `⬆️ hide ${fullList.length - CUTOFF} rows...` : `⬇️ show ${fullList.length - displayList.length} more...`}
+        {!showAll && hasMore &&
+          <tr className="cms-var-table-row">
+            <td colSpan={2} className="cms-var-table-more" onClick={this.toggle.bind(this)}>
+              <Icon className="cms-var-table-more-icon" icon={showMore ? "remove" : "add"} />
+              show {showMore ? `${fullList.length - CUTOFF} less` : `${fullList.length - displayList.length} more`}
             </td>
           </tr>
         }
