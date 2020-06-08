@@ -48,7 +48,17 @@
   }
 }
 
-.cms-vartable-more {
-  padding-top: 20px;
-  cursor: pointer;
+.cms-var-table-more {
+  color: var(--dark-1);
+  padding:  0.25rem;
+  width: 100%;
+  & .cms-var-table-more-icon {
+    margin-bottom: 1px;
+    margin-right: 5px;
+    width: 1em;
+    vertical-align: middle;
+  }
+  &:hover {
+    color: var(--dark-2);
+  }
 }
