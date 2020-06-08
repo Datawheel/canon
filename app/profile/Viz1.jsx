@@ -4,9 +4,9 @@ import {withNamespaces} from "react-i18next";
 import {Treemap} from "d3plus-react";
 import {dataFold} from "d3plus-viz";
 
-import {fetchData} from "../../src/actions/fetchData";
+import {fetchData} from "@datawheel/canon-core";
 
-import {SectionColumns, SectionTitle} from "../../src";
+import {SectionColumns, SectionTitle} from "@datawheel/canon-core";
 
 class Viz1 extends SectionColumns {
 

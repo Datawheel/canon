@@ -11,6 +11,7 @@ const appPath = path.join(appDir, "app");
 
 process.traceDeprecation = true;
 
+/** @type {import("webpack").Configuration} */
 module.exports = {
   name: "server",
   mode: "development",
@@ -29,12 +30,16 @@ module.exports = {
     rules: commonLoaders({extract: true})
   },
   resolve: {
+    alias: {
+      $root: appDir,
+      $app: appPath
+    },
     modules: [
-      path.join(appDir, "node_modules"),
-      appDir,
       appPath,
-      path.join(__dirname, "../src"),
-      path.join(__dirname, "../node_modules")
+      appDir,
+      path.resolve(appDir, "node_modules"),
+      path.resolve(__dirname, "../node_modules"),
+      "node_modules"
     ],
     extensions: [".js", ".jsx", ".css"]
   },

@@ -20,7 +20,7 @@ import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 const {basename} = window.__INITIAL_STATE__.location;
 const browserHistory = useRouterHistory(createHistory)({basename});
 
-import canonConfig from "canon.js";
+import canonConfig from "$root/canon.js";
 const reduxMiddleware = canonConfig.reduxMiddleware || false;
 
 const store = configureStore(window.__INITIAL_STATE__, browserHistory, reduxMiddleware);

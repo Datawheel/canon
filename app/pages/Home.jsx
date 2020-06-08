@@ -3,7 +3,7 @@ import {Link} from "react-router";
 import {withNamespaces, Trans} from "react-i18next";
 import "./Home.css";
 import {Button} from "@blueprintjs/core";
-import {Activate} from "../../src/";
+import {Activate} from "@datawheel/canon-core";
 import {hot} from "react-hot-loader/root";
 // import Vizbuilder from "@datawheel/canon-vizbuilder";
 

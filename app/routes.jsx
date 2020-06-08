@@ -9,7 +9,7 @@ import SignUp from "pages/SignUp";
 import Profile from "profile/Profile";
 import Error from "pages/NotFound";
 
-import {Reset, UserAdmin} from "../src";
+import {Reset, UserAdmin} from "@datawheel/canon-core";
 
 /** */
 function checkForId(nextState, replaceState) {
