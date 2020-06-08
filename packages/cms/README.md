@@ -172,12 +172,21 @@ Images default to splash size, but you may set `&size=thumb` for a thumbnail. To
 
 ## Rendering a Profile
 
-The CMS exports a `Profile` component that can be directly mounted to a Route. The only requirement is that you use `pslug` and `pid` for the profile's slug and id properties:
+The CMS exports a `Profile` component that can be directly mounted to a Route. The only requirement is that you use `slug` and `id` for the profile's slug and id properties:
 
 ```jsx
 import {Profile} from "@datawheel/canon-cms";
 ...
-<Route path="/profile/:pslug/:pid" component={Profile} />
+<Route path="/profile/:slug/:id" component={Profile} />
+```
+
+To add support for bilateral profiles, add a second route after the main route, using numbered slug id pairs:
+
+```jsx
+import {Profile} from "@datawheel/canon-cms";
+...
+<Route path="/profile/:slug/:id" component={Profile} />
+<Route path="/profile/:slug/:id/:slug2/:id2" component={Profile} />
 ```
 
 ---
