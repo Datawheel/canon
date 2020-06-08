@@ -64,9 +64,10 @@ async function start() {
   shell.echo(`Opbeat: ${opbeat ? "Enabled" : "Disabled"}`);
 
   /* Normalize.css */
-  const postcssOpts = { };
+  const normalizePath = path.join(rootPath, "node_modules/normalize.css/normalize.css");
+  const postcssOpts = {from: normalizePath};
   const cssnanoOpts = {preset: "default"};
-  const normalizeCSS = fs.readFileSync(path.join(rootPath, "node_modules/normalize.css/normalize.css"));
+  const normalizeCSS = fs.readFileSync(normalizePath);
   const cssnanoResult = await cssnano.process(normalizeCSS, postcssOpts, cssnanoOpts);
   fs.writeFile(path.join(staticPath, "assets/normalize.css"), cssnanoResult.css, err => {
     if (err) throw err;
