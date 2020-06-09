@@ -23,11 +23,14 @@
   },
   "homepage": "https://github.com/Datawheel/canon#readme",
   "dependencies": {
-    "@datawheel/canon-core": "^0.18.12",
     "@octokit/rest": "^17.10.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.1.0",
     "eslint-plugin-react": "^7.20.0",
     "shelljs": "^0.8.4"
+  },
+  "devDependencies": {
+    "@datawheel/canon-core": "^0.18.12",
+    "d3plus-viz": "^0.12.41"
   }
 }

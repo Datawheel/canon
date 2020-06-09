@@ -5,7 +5,9 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
-      webpack = require("webpack");
+      webpack = require("webpack"),
+      TerserJSPlugin = require("terser-webpack-plugin"),
+      OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
 const publicPath = "/assets/";
@@ -46,6 +48,9 @@ module.exports = [
         "node_modules"
       ],
       extensions: [".js", ".jsx", ".css"]
+    },
+    optimization: {
+      minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})]
     },
     plugins: [
       new WebpackBar({
@@ -88,6 +93,9 @@ module.exports = [
       modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],
       extensions: [".js", ".jsx", ".css"]
     },
+    optimization: {
+      minimizer: [new TerserJSPlugin({terserOptions: {warnings: false, mangle: true, keep_fnames: true}}), new OptimizeCSSAssetsPlugin({})]
+    },
     plugins: [
       new WebpackBar({
         color: "#CB9F2C",
@@ -96,7 +104,6 @@ module.exports = [
       new MiniCssExtractPlugin({
         filename: "styles.css"
       }),
-      // new webpack.optimize.UglifyJsPlugin({compressor: {warnings: false}, mangle: {keep_fnames: true}}),
       new webpack.DefinePlugin(Object.keys(process.env)
         .filter(e => e.startsWith("CANON_CONST_"))
         .reduce((d, k) => {
