@@ -69,6 +69,7 @@
     "cssnano": "^4.1.10",
     "d3-array": "^1.2.1",
     "d3-selection": "^1.4.1",
+    "d3plus-common": "^0.6.60",
     "dom4": "^2.1.5",
     "es6-promise": "^4.1.0",
     "express": "^4.16.2",
