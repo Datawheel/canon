@@ -2,6 +2,7 @@ packages:
   - '.'
   - 'packages/cms'
   - 'packages/core'
+  - 'packages/logiclayer'
   - 'packages/vizbuilder'
 
 hoist: true
