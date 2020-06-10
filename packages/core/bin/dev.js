@@ -8,11 +8,10 @@ const {title} = require("./logging"),
 title("Bundling Server Webpack", "🔷");
 
 process.env.NODE_ENV = "development";
-const {name} = JSON.parse(shell.cat("package.json"));
 const appDir = process.cwd();
 const staticFolder = process.env.CANON_STATIC_FOLDER || "static";
 const staticPath = path.join(appDir, staticFolder);
-const canonPath = name === "@datawheel/canon-core" ? appDir : path.join(appDir, "node_modules/@datawheel/canon-core/");
+const canonPath = require.resolve("@datawheel/canon-core");
 let started = false;
 
 shell.rm("-rf", path.join(staticPath, "assets/"));
@@ -41,7 +40,7 @@ compiler.watch({}, (err, stats) => {
   }
   else if (!started) {
     started = true;
-    shell.exec(`node ${path.join(canonPath, "bin/server/index.js")}`);
+    shell.exec(`node ${path.join(canonPath, "../../bin/server/index.js")}`);
   }
 
 });

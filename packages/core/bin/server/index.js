@@ -1,21 +1,21 @@
 /* External Libraries */
-const fs = require("fs"),
+const cssnano = require("cssnano"),
+      fs = require("fs"),
       path = require("path"),
-      shell = require("shelljs"),
-      cssnano = require("cssnano");
+      shell = require("shelljs");
 
 /* Environment Variables */
 const NODE_ENV = process.env.NODE_ENV || "development";
 
 /* Meta Information */
 // const {name} = JSON.parse(shell.cat(path.join(process.cwd(), "package.json")));
-const {name} = require(path.join(process.cwd(), "package.json"));
+const {dependencies, name} = require(path.join(process.cwd(), "package.json"));
 
 /* File Directories */
 const rootPath = process.cwd();
 const appPath = path.join(rootPath, "app");
 const staticPath = path.join(rootPath, process.env.CANON_STATIC_FOLDER || "static");
-const canonPath = name === "@datawheel/canon-core" ? rootPath : path.join(rootPath, "node_modules/@datawheel/canon-core/");
+const canonPath = path.join(require.resolve("@datawheel/canon-core"), "../../");
 const serverPath = NODE_ENV === "development" ? __dirname : path.join(canonPath, "bin/server/");
 const paths = {appPath, canonPath, rootPath, serverPath, staticPath};
 
@@ -36,19 +36,16 @@ async function start() {
 
   /* Detects which directories to load server files from ("api/", "db/", etc) */
   title("Detecting Canon Plugins", "🧩");
-  const modules = [rootPath];
-  const moduleFolder = path.join(rootPath, "node_modules/@datawheel/");
-  if (shell.test("-d", moduleFolder)) {
-    fs.readdirSync(moduleFolder)
-      .forEach(folder => {
-        const fullPath = path.join(moduleFolder, folder);
-        shell.echo(moduleName(fullPath) || folder);
-        modules.unshift(path.join(fullPath, "src/"));
-      });
-  }
-  else {
-    shell.echo("no canon plugins detected");
-  }
+
+  const deps = Object.keys(dependencies)
+    .filter(d => d.includes("@datawheel/canon"))
+    .map(d => {
+      shell.echo(moduleName(d) || d);
+      return require.resolve(d);
+    });
+
+  const modules = deps.concat([rootPath]);
+  if (!deps.length) shell.echo("no canon plugins detected");
   if (name.includes("@datawheel/canon")) modules.unshift(path.join(rootPath, "src/"));
 
   title("Registering Services", "🛎️");
