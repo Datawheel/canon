@@ -9,7 +9,7 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 
 /* Meta Information */
 // const {name} = JSON.parse(shell.cat(path.join(process.cwd(), "package.json")));
-const {dependencies, name} = require(path.join(process.cwd(), "package.json"));
+const {dependencies, devDependencies, optionalDependencies, name} = require(path.join(process.cwd(), "package.json"));
 
 /* File Directories */
 const rootPath = process.cwd();
@@ -37,8 +37,11 @@ async function start() {
   /* Detects which directories to load server files from ("api/", "db/", etc) */
   title("Detecting Canon Plugins", "🧩");
 
-  const deps = Object.keys(dependencies)
-    .filter(d => d.includes("@datawheel/canon"))
+  let deps = Object.keys(dependencies);
+  if (devDependencies) deps = deps.concat(Object.keys(devDependencies));
+  if (optionalDependencies) deps = deps.concat(Object.keys(optionalDependencies));
+  deps = deps
+    .filter((d, i) => d.includes("@datawheel/canon-") && deps.indexOf(d) === i)
     .map(d => {
       shell.echo(moduleName(d) || d);
       return require.resolve(d);
@@ -46,7 +49,7 @@ async function start() {
 
   const modules = deps.concat([rootPath]);
   if (!deps.length) shell.echo("no canon plugins detected");
-  if (name.includes("@datawheel/canon")) modules.unshift(path.join(rootPath, "src/"));
+  if (name.includes("@datawheel/canon-")) modules.unshift(path.join(rootPath, "src/"));
 
   title("Registering Services", "🛎️");
 

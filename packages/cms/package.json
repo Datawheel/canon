@@ -71,7 +71,7 @@
   },
   "devDependencies": {
     "@datawheel/canon-core": "workspace:^0.17.62",
-    "@datawheel/canon-logiclayer": "workspace:^0.3.22"
+    "@datawheel/canon-logiclayer": "workspace:^0.4.2"
   },
   "peerDependencies": {
     "@datawheel/canon-core": "workspace:^0.17.62"
