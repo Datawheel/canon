@@ -5,7 +5,7 @@ import Footer from "components/Footer";
 
 import "./App.css";
 
-import {fetchData, isAuthenticated} from "../src";
+import {fetchData, isAuthenticated} from "@datawheel/canon-core";
 
 class App extends Component {
 

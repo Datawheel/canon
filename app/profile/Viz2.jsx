@@ -1,10 +1,10 @@
 import React from "react";
 import {Treemap} from "d3plus-react";
 
-import {fetchData} from "../../src/actions/fetchData";
+import {fetchData} from "@datawheel/canon-core";
 import {dataFold} from "d3plus-viz";
 
-import {SectionRows, SectionTitle} from "../../src";
+import {SectionRows, SectionTitle} from "@datawheel/canon-core";
 
 class Viz2 extends SectionRows {
 

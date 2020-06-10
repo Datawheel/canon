@@ -5,14 +5,14 @@ import {Link} from "react-router";
 import "./Profile.css";
 import {hot} from "react-hot-loader/root";
 
-import {fetchData} from "../../src/actions/fetchData";
+import {fetchData} from "@datawheel/canon-core";
 import {dataFold} from "d3plus-viz";
 
 import Viz1 from "./Viz1";
 import Viz2 from "./Viz2";
 import Viz3 from "./Viz3";
 
-import {AnchorLink, CanonProfile, TopicTitle} from "../../src";
+import {AnchorLink, CanonProfile, TopicTitle} from "@datawheel/canon-core";
 
 const topics = [
   {

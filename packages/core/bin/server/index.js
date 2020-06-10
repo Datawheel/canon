@@ -64,7 +64,7 @@ async function start() {
   shell.echo(`Opbeat: ${opbeat ? "Enabled" : "Disabled"}`);
 
   /* Normalize.css */
-  const normalizePath = path.join(rootPath, "node_modules/normalize.css/normalize.css");
+  const normalizePath = require.resolve("normalize.css/normalize.css");
   const postcssOpts = {from: normalizePath};
   const cssnanoOpts = {preset: "default"};
   const normalizeCSS = fs.readFileSync(normalizePath);

@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {SignUp} from "../../src";
+import {SignUp} from "@datawheel/canon-core";
 
 class SignUpWrapper extends Component {
 
