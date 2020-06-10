@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-// import Viz from "../../../src/components/Viz/Viz";
+import {Viz} from "@datawheel/canon-cms";
 
 export default class CustomSection2 extends Component {
   render() {
@@ -29,7 +29,7 @@ export default class CustomSection2 extends Component {
             visualizations.filter(viz => viz.logic_simple && viz.logic_simple.type === "Graphic").length ? " cp-graphic-viz-grid" : ""
           }`}>
             {visualizations.map((visualization, ii) =>
-              <div
+              <Viz
                 section={this}
                 config={visualization}
                 headingLevel={vizHeadingLevel}

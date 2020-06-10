@@ -374,6 +374,7 @@ To extend the layout and functionality of sections, custom JSX sections can be c
 
 - Create a directory in your canon-core app named `app/cms/sections`
 - Add your custom jsx component to this directory. Observe the [default Section layout](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Default.jsx) for a starting point. Take note of the [Section wrapper](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Section.jsx) that it inherits from to see more information on the `props` that get passed down.
+- In your custom jsx component, be sure to change the viz import at the top of the file from the relative path `import Viz from "../Viz/Viz";` to a module import: `import {Viz} from "@datawheel/canon-cms";`
 - Create an `index.js` file in this directory that exports ALL of your custom components:
 
 ```js
