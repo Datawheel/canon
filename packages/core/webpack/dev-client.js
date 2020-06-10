@@ -14,6 +14,7 @@ const commonLoaders = require(loaderPath);
 
 process.traceDeprecation = true;
 
+/** @type {import("webpack").Configuration} */
 module.exports = {
   devtool: "eval",
   name: "client",
@@ -36,12 +37,16 @@ module.exports = {
     rules: commonLoaders({build: "client"})
   },
   resolve: {
+    alias: {
+      $root: appDir,
+      $app: appPath
+    },
     modules: [
-      path.join(appDir, "node_modules"),
-      appDir,
       appPath,
-      path.join(__dirname, "../src"),
-      path.join(__dirname, "../node_modules")
+      appDir,
+      path.resolve(appDir, "node_modules"),
+      path.resolve(__dirname, "../node_modules"),
+      "node_modules"
     ],
     extensions: [".js", ".jsx", ".css"]
   },

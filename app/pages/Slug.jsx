@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {fetchData} from "../../src/actions/fetchData";
+import {fetchData} from "@datawheel/canon-core";
 
 class Slug extends Component {
 
