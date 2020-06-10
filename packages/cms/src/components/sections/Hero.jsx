@@ -152,6 +152,8 @@ class Hero extends Component {
   spanifyTitle(title) {
     const {profile} = this.props;
     const {variables} = profile;
+    // stories don't have variables
+    if (!variables) return title;
     const {name1, name2} = variables;
     if (title) {
       return title

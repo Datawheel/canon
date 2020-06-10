@@ -55,7 +55,14 @@ export const isAuthenticated = () => dispatch => {
   dispatch({type: LOGIN_REQUEST});
 
   axios.get("/auth/isAuthenticated")
-    .then(resp => dispatch({type: LOGIN_SUCCESS, payload: resp.data}))
+    .then(resp => {
+      if (resp && resp.data && resp.data.authenticated === true) {
+        return dispatch({type: LOGIN_SUCCESS, payload: resp.data});
+      }
+      else {
+        return dispatch({type: LOGIN_FAILURE, resp});
+      }
+    })
     .catch(payload => dispatch({type: LOGIN_FAILURE, payload}));
 
 };
