@@ -335,6 +335,7 @@ importers:
       yn: ^3.0.0
   packages/logiclayer:
     dependencies:
+      '@blueprintjs/core': 3.28.1
       d3-array: 1.2.4
       d3-collection: 1.0.7
       mondrian-rest-client: 1.1.4
@@ -342,6 +343,7 @@ importers:
     devDependencies:
       '@datawheel/canon-core': 0.16.35
     specifiers:
+      '@blueprintjs/core': ^3.28.1
       '@datawheel/canon-core': ^0.16.34
       d3-array: ^1.2.1
       d3-collection: ^1.0.4
