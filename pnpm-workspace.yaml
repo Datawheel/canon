@@ -1,0 +1,10 @@
+packages:
+  - '.'
+  - 'packages/cms'
+  - 'packages/core'
+  - 'packages/vizbuilder'
+
+hoist: true
+link-workspace-packages: true
+save-workspace-protocol: false
+shared-workspace-lockfile: true
