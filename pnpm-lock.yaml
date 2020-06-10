@@ -336,19 +336,27 @@ importers:
   packages/logiclayer:
     dependencies:
       '@blueprintjs/core': 3.28.1
+      axios: 0.19.2
       d3-array: 1.2.4
       d3-collection: 1.0.7
+      d3plus-common: 0.6.60
       mondrian-rest-client: 1.1.4
       promise-throttle: 1.1.0
+      sequelize: 4.44.4
+      yn: 4.0.0
     devDependencies:
       '@datawheel/canon-core': 0.16.35
     specifiers:
       '@blueprintjs/core': ^3.28.1
       '@datawheel/canon-core': ^0.16.34
+      axios: ^0.19.2
       d3-array: ^1.2.1
       d3-collection: ^1.0.4
+      d3plus-common: ^0.6.60
       mondrian-rest-client: ^1.1.4
       promise-throttle: ^1.0.0
+      sequelize: ^4.13.10
+      yn: ^4.0.0
   packages/vizbuilder:
     dependencies:
       '@datawheel/olap-client': 1.3.3
@@ -15628,3 +15636,9 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
+  /yn/4.0.0:
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-huWiiCS4TxKc4SfgmTwW1K7JmXPPAmuXWYy4j9qjQo4+27Kni8mGhAAi1cloRWmBe2EqcLgt3IGqQoRL/MtPgg==
