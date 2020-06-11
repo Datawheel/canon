@@ -3,14 +3,11 @@
   "version": "0.1.0",
   "description": "Reusable React environment and components for creating visualization engines.",
   "private": true,
+  "directories": {
+    "examples": "./example"
+  },
   "scripts": {
-    "build": "NODE_OPTIONS=--max-old-space-size=4096 canon-build",
-    "cache-clear": "rm -rf node_modules/.cache/",
-    "dev": "canon-dev",
-    "locales": "canon-locales",
-    "release": "node ./scripts/release.js",
-    "setup": "canon-setup",
-    "start": "node index.js"
+    "release": "node ./scripts/release.js"
   },
   "repository": {
     "type": "git",
@@ -28,9 +25,5 @@
     "eslint": "^7.1.0",
     "eslint-plugin-react": "^7.20.0",
     "shelljs": "^0.8.4"
-  },
-  "devDependencies": {
-    "@datawheel/canon-core": "^0.18.12",
-    "d3plus-viz": "^0.12.41"
   }
 }

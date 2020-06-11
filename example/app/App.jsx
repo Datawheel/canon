@@ -1,11 +1,11 @@
+import {isAuthenticated} from "@datawheel/canon-core";
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import Nav from "components/Nav";
+
 import Footer from "components/Footer";
+import Nav from "components/Nav";
 
 import "./App.css";
-
-import {fetchData, isAuthenticated} from "@datawheel/canon-core";
 
 class App extends Component {
 

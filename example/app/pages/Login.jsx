@@ -1,6 +1,6 @@
+import {Login} from "@datawheel/canon-core";
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import {Login} from "@datawheel/canon-core";
 
 class LoginWrapper extends Component {
 

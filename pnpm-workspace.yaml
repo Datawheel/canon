@@ -1,11 +1,6 @@
 packages:
-  - '.'
+  - 'example'
   - 'packages/cms'
   - 'packages/core'
   - 'packages/logiclayer'
   - 'packages/vizbuilder'
-
-hoist: true
-link-workspace-packages: true
-save-workspace-protocol: false
-shared-workspace-lockfile: true

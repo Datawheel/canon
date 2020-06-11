@@ -22,5 +22,5 @@ test comment block
 
 .box.custom {
   @mixin font-xxxs;
-  background: var(--custom-color, '#ff9900');
+  background: var(--custom-color, #ff9900);
 }

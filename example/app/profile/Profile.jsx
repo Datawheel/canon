@@ -1,18 +1,16 @@
+import {AnchorLink, CanonProfile, fetchData, TopicTitle} from "@datawheel/canon-core";
+import {dataFold} from "d3plus-viz";
 import React, {Component} from "react";
-import Helmet from "react-helmet";
+import {Helmet} from "react-helmet-async";
+import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import {Link} from "react-router";
-import "./Profile.css";
-import {hot} from "react-hot-loader/root";
-
-import {fetchData} from "@datawheel/canon-core";
-import {dataFold} from "d3plus-viz";
 
 import Viz1 from "./Viz1";
 import Viz2 from "./Viz2";
 import Viz3 from "./Viz3";
 
-import {AnchorLink, CanonProfile, TopicTitle} from "@datawheel/canon-core";
+import "./Profile.css";
 
 const topics = [
   {
