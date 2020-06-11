@@ -85,6 +85,8 @@ module.exports = props => {
   Object.keys(alias).forEach(d => {
     if (!fs.existsSync(alias[d])) alias[d] = fallback;
   });
+  alias.$root = appDir;
+  alias.$app = path.join(appDir, "app");
 
   return [
     {
