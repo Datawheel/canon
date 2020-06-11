@@ -3,7 +3,7 @@
 }
 
 @define-mixin margin {
-  margin: 100px;
+  margin: 100px 0;
 }
 
 /* -----------------------------------

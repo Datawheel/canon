@@ -1,8 +1,10 @@
+const title = "Canon";
+
 export default {
   link: [
     {rel: "icon", href: "favicon.ico"},
     {rel: "preconnect", href: "https://fonts.gstatic.com/", crossorigin: ""},
-    {rel: "stylesheet", href: "https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700,900|Pathway+Gothic+One"}
+    {rel: "stylesheet", href: "https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700,900"}
   ],
   meta: [
     {charset: "utf-8"},
@@ -12,7 +14,7 @@ export default {
     {name: "mobile-web-app-capable", content: "yes"},
     {name: "apple-mobile-web-app-capable", content: "yes"},
     {name: "apple-mobile-web-app-status-bar-style", content: "black"},
-    {name: "apple-mobile-web-app-title", content: "Datawheel Canon"}
+    {name: "apple-mobile-web-app-title", content: title}
   ],
-  title: "Datawheel Canonical Design"
+  title
 };

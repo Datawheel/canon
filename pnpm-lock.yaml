@@ -17,6 +17,7 @@ importers:
       '@datawheel/canon-core': 'link:../packages/core'
       axios: 0.19.2
       d3plus-react: 0.5.9_prop-types@15.7.2+react@16.13.1
+      d3plus-text: 0.9.51
       d3plus-viz: 0.12.55
       prop-types: 15.7.2
       react: 16.13.1
@@ -24,6 +25,7 @@ importers:
       '@datawheel/canon-core': 'workspace:*'
       axios: ^0.19.2
       d3plus-react: ^0.5.9
+      d3plus-text: ^0.9.51
       d3plus-viz: ^0.12.55
       prop-types: ^15.7.2
       react: ^16.13.1
