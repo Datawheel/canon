@@ -25,9 +25,12 @@ import MultiColumn from "./MultiColumn";
 import SingleColumn from "./SingleColumn";
 import Tabs from "./Tabs";
 
+// User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
+import * as CustomSections from "CustomSections";
+
 // used to construct component
 // NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
-const sectionTypes = {Default, Grouping, InfoCard, MultiColumn, SingleColumn, Tabs};
+const sectionTypes = {Default, Grouping, InfoCard, MultiColumn, SingleColumn, Tabs, ...CustomSections};
 
 /** wrapper for all sections */
 class Section extends Component {
@@ -281,7 +284,8 @@ class Section extends Component {
       visualizations: contents.position !== "sticky" ? visualizations : [],
       vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
       hideOptions,
-      loading
+      loading,
+      contents
     };
 
     return (
