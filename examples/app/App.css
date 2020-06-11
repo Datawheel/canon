@@ -1,11 +1,9 @@
-.box {
+main > * {
   display: inline-block;
-  height: 20px;
-  width: 20px;
 }
 
 /* -----------------------------------
-test comment block
+TODO: test styles to bring back into play
 ----------------------------------- */
 
 /* test mixin */

@@ -1,9 +1,10 @@
 import {isAuthenticated} from "@datawheel/canon-core";
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 
+import TopNav from "components/TopNav";
+import SideNav from "components/SideNav";
 import Footer from "components/Footer";
-import Nav from "components/Nav";
 
 import "./App.css";
 
@@ -19,26 +20,18 @@ class App extends Component {
 
   render() {
     const {children} = this.props;
-    // console.log(this.props.env);
+
     return <div id="App">
-      <Nav />
-      <div className="test-1"></div>
-      <div className="test-2"></div>
-      <div className="box red"></div>
-      <div className="box green"></div>
-      <div className="box custom"></div>
-      <div>{ children }</div>
+      <TopNav />
+      <main>
+        <SideNav key="sidenav" />
+        <Fragment key="children">{ children }</Fragment>
+      </main>
       <Footer />
     </div>;
   }
 
 }
-
-// App.need = [
-//   fetchData("test404", "https://preview.datausa.io/api/data?measure=Population", () => ({error: 404})),
-//   fetchData("test503", "https://preview.datausa.io/api/data?measure=Population", () => ({error: 503})),
-//   fetchData("test202", "https://preview.datausa.io/api/data?measure=Population", () => ({data: []}))
-// ];
 
 const mapDispatchToProps = dispatch => ({
   isAuthenticated: () => {
