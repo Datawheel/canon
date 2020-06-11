@@ -76,7 +76,7 @@
     "file-loader": "^4.2.0",
     "hard-source-webpack-plugin": "^0.13.1",
     "helmet": "^3.9.0",
-    "history": "^4.10.1",
+    "history": "^3.3.0",
     "i18next": "^10.0.7",
     "i18next-express-middleware": "^1.7.0",
     "i18next-node-fs-backend": "^2.1.1",
