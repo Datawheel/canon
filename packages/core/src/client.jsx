@@ -12,7 +12,7 @@ import {animateScroll} from "react-scroll";
 import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
 import {selectAll} from "d3-selection";
-import createRoutes from "routes";
+import createRoutes from "$app/routes";
 import configureStore from "./storeConfig";
 import {LOADING_END, LOADING_START} from "./consts";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
