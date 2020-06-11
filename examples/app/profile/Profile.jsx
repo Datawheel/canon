@@ -1,7 +1,7 @@
 import {AnchorLink, CanonProfile, fetchData, TopicTitle} from "@datawheel/canon-core";
 import {dataFold} from "d3plus-viz";
 import React, {Component} from "react";
-import {Helmet} from "react-helmet-async";
+import {Helmet} from "react-helmet";
 import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import {Link} from "react-router";
