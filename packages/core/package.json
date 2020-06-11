@@ -6,8 +6,7 @@
   "bin": {
     "canon-build": "bin/build.js",
     "canon-dev": "bin/dev.js",
-    "canon-locales": "bin/locales.js",
-    "canon-setup": "bin/setup.js"
+    "canon-locales": "bin/locales.js"
   },
   "scripts": {
     "test": "echo 'Not implemented yet.'"
