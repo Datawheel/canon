@@ -24,10 +24,10 @@
     "yn": "^4.0.0"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "workspace:^0.18.15"
+    "@datawheel/canon-core": "workspace:^0.18.0"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "workspace:^0.18.15"
+    "@datawheel/canon-core": "^0.18.15"
   },
   "repository": {
     "type": "git",

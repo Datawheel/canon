@@ -70,11 +70,11 @@
     "sharp": "^0.25.3"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "workspace:^0.17.62",
-    "@datawheel/canon-logiclayer": "workspace:^0.4.2"
+    "@datawheel/canon-core": "workspace:^0.18.0",
+    "@datawheel/canon-logiclayer": "workspace:^0.4.0"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "workspace:^0.17.62"
+    "@datawheel/canon-core": "^0.18.0"
   },
   "repository": {
     "type": "git",
