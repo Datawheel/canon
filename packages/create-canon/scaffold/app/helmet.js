@@ -1,6 +1,6 @@
 export default {
   link: [
-    {rel: "icon", href: "images/favicon.ico"}
+    {rel: "icon", href: "favicon.ico"}
   ],
   meta: [
     {charset: "utf-8"},

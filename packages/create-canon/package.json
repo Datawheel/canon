@@ -1,0 +1,21 @@
+{
+  "name": "@datawheel/create-canon",
+  "version": "1.0.0",
+  "description": "A script to create a new canon-core instance.",
+  "main": "index.js",
+  "keywords": [
+    "datawheel",
+    "canon",
+    "boilerplate",
+    "react",
+    "react app"
+  ],
+  "author": "Dave Landry <dave@datawheel.us>",
+  "contributors": [
+    "Francisco Abarzúa <francisco@datawheel.us>"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "shelljs": "^0.8.4"
+  }
+}

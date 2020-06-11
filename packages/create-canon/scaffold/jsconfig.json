@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "checkJs": true,
+    "moduleResolution": "node",
+    "strictNullChecks": true,
+    "paths": {
+      "$root/*": ["./*"],
+      "$app/*": ["./app/*"]
+    },
+    "target": "es2015"
+  },
+  "exclude": ["./node_modules/"]
+}
