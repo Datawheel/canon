@@ -44,7 +44,7 @@ async function start() {
     .filter((d, i) => d.includes("@datawheel/canon-") && deps.indexOf(d) === i)
     .map(d => {
       shell.echo(moduleName(d) || d);
-      return require.resolve(d);
+      return path.join(require.resolve(d), "../");
     });
 
   const modules = deps.concat([rootPath]);
