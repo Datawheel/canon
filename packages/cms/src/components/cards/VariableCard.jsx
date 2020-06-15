@@ -249,6 +249,11 @@ class VariableCard extends Component {
       });
     }
 
+    let usesConsole = false;
+    if (minData && minData.logic && minData.logic.includes("console.log")) {
+      usesConsole = true;
+    }
+
     return (
       <Fragment>
         <Card {...cardProps} key="c">
@@ -283,6 +288,11 @@ class VariableCard extends Component {
           {size > 10000 && 
             <p className="cms-card-error u-font-xxs u-margin-top-xs">
               <Icon className="cms-card-error-icon" icon="warning-sign" /> Large Generator Warning! {size} characters.
+            </p>
+          }
+          {usesConsole && 
+            <p className="cms-card-error u-font-xxs u-margin-top-xs">
+              <Icon className="cms-card-error-icon" icon="warning-sign" /> Warning: Remove <pre className="cms-console-warning">console.log</pre>.
             </p>
           }
         </Card>
