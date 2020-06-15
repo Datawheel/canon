@@ -234,7 +234,6 @@ class ProfileRenderer extends Component {
       hideOptions
     };
 
-    // TODO: replace me with an array of actual related profiles
     const relatedProfiles = profile.neighbors;
 
     return (
@@ -281,7 +280,7 @@ class ProfileRenderer extends Component {
                 )}
               </div>
             )}
-            {!hideHero && relatedProfiles &&
+            {!hideHero && relatedProfiles && relatedProfiles.length > 0 && 
               <Related profiles={relatedProfiles} />
             }
           </main>
