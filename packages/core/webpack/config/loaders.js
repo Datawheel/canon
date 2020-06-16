@@ -1,7 +1,7 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin"),
-      appDir = process.cwd(),
       fs = require("fs"),
-      path = require("path");
+      path = require("path"),
+      rootDir = process.cwd();
 
 const postCSSPath = require.resolve("./postcss");
 delete require.cache[postCSSPath];
@@ -80,13 +80,13 @@ module.exports = props => {
   // Alias configuration for user-defined modules
   const fallback = path.join(__dirname, "../../src/helpers/empty.js"); // returns {}
   const alias = {
-    CustomSections: path.join(appDir, "app/cms/sections/index.js")
+    CustomSections: path.join(rootDir, "app/cms/sections/index.js")
   };
   Object.keys(alias).forEach(d => {
     if (!fs.existsSync(alias[d])) alias[d] = fallback;
   });
-  alias.$root = appDir;
-  alias.$app = path.join(appDir, "app");
+  alias.$root = rootDir;
+  alias.$app = path.join(rootDir, "app");
 
   return [
     {
@@ -100,20 +100,24 @@ module.exports = props => {
         presets: babelPresets,
         plugins: babelPlugins
       },
-      exclude: [path.join(appDir, "node_modules", "mapbox-gl")],
+      exclude: [
+        path.join(rootDir, "node_modules/mapbox-gl")
+      ],
       include: [
-        path.join(appDir, "app"),
-        path.resolve(appDir, "canon.js"),
-        path.join(appDir, "src"),
-        path.join(appDir, "utils"),
-        path.join(appDir, "node_modules"),
-        path.join(__dirname, "../../src")
+        path.join(rootDir, "app"),
+        path.join(rootDir, "node_modules"),
+        path.join(rootDir, "../packages"),
+        path.join(rootDir, "utils"),
+        path.resolve(rootDir, "canon.js")
       ]
     },
     {
       test: /\.(png|jpeg|jpg|gif|bmp|tif|tiff|svg|woff|woff2|eot|ttf)$/i,
-      loader: "url-loader?limit=100000"
-      // fallback defaults to file-loader
+      loader: "url-loader",
+      options: {
+        fallback: "file-loader",
+        limit: 100000
+      }
     },
     {
       test: /\.(yaml|yml)$/,

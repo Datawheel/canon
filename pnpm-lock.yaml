@@ -14,6 +14,7 @@ importers:
       shelljs: ^0.8.4
   examples:
     dependencies:
+      '@datawheel/canon-cms': 'link:../packages/cms'
       '@datawheel/canon-core': 'link:../packages/core'
       axios: 0.19.2
       d3plus-react: 0.5.9_prop-types@15.7.2+react@16.13.1
@@ -22,6 +23,7 @@ importers:
       prop-types: 15.7.2
       react: 16.13.1
     specifiers:
+      '@datawheel/canon-cms': 'workspace:*'
       '@datawheel/canon-core': 'workspace:*'
       axios: ^0.19.2
       d3plus-react: ^0.5.9
