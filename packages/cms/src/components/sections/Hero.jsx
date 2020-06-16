@@ -222,7 +222,9 @@ class Hero extends Component {
         <div className="cp-section-inner cp-hero-inner">
           {/* caption */}
           <div className="cp-section-content cp-hero-caption">
-            {heading}
+            <div className="cp-hero-heading-wrapper">
+              {heading}
+            </div>
             {statContent}
             {paragraphs}
             {sourceContent}
