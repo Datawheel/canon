@@ -20,7 +20,6 @@ import Selector from "./components/Selector";
 
 import Default from "./Default";
 import Grouping from "./Grouping";
-import InfoCard from "./InfoCard";
 import MultiColumn from "./MultiColumn";
 import SingleColumn from "./SingleColumn";
 import Tabs from "./Tabs";
@@ -30,7 +29,7 @@ import * as CustomSections from "CustomSections";
 
 // used to construct component
 // NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
-const sectionTypes = {Default, Grouping, InfoCard, MultiColumn, SingleColumn, Tabs, ...CustomSections};
+const sectionTypes = {Default, Grouping, MultiColumn, SingleColumn, Tabs, ...CustomSections};
 
 /** wrapper for all sections */
 class Section extends Component {
@@ -218,23 +217,14 @@ class Section extends Component {
     );
 
     // stats
-    let secondaryStatContent, statContent;
+    let statContent;
 
     if (contents.position !== "sticky") {
       const statGroups = nest().key(d => d.title).entries(stats);
 
       if (stats.length > 0) {
         statContent = <div className={`cp-stat-group-wrapper${stats.length === 1 ? " single-stat" : ""}`}>
-          {statGroups.map(({key, values}, i) => !(layout === "InfoCard" && i > 0) // only push the first stat for cards
-            ? <StatGroup key={key} title={key} stats={values} /> : ""
-          )}
-        </div>;
-      }
-      if (stats.length > 1 && layout === "InfoCard") {
-        secondaryStatContent = <div className="cp-stat-group-wrapper cp-secondary-stat-group-wrapper">
-          {statGroups.map(({key, values}, i) => i > 0 // don't push the first stat again
-            ? <StatGroup key={key} title={key} stats={values} /> : ""
-          )}
+          {statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />)}
         </div>;
       }
     }
@@ -277,7 +267,6 @@ class Section extends Component {
       subTitle,
       filters,
       stats: statContent,
-      secondaryStats: secondaryStatContent,
       sources: sourceContent,
       paragraphs: layout === "Tabs" ? contents.descriptions : paragraphs,
       resetButton,
