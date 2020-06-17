@@ -7,7 +7,7 @@ function sectionIconLookup(layout, position) {
 
   if (layout === "Hero") return "mugshot";
   if (layout === "Grouping") return "caret-right";
-  if (layout === "Card" || layout === "InfoCard") return "id-number";
+  if (layout === "Card") return "id-number";
   if (layout === "Column" || layout === "SingleColumn") return "horizontal-distribution";
   if (layout === "Columns" || layout === "MultiColumn") return "alignment-top";
   if (layout === "Tabs") return "segmented-control";
