@@ -3,15 +3,34 @@ import {EditorState, ContentState, convertFromHTML, RichUtils} from "draft-js";
 import Editor from "draft-js-plugins-editor";
 import {stateToHTML} from "draft-js-export-html";
 import createMentionPlugin, {defaultSuggestionsFilter} from "draft-js-mention-plugin";
+import createToolbarPlugin from "draft-js-static-toolbar-plugin";
+import createToolbarLinkPlugin from "draft-js-toolbar-link-plugin";
+import {
+  ItalicButton,
+  BoldButton,
+  UnderlineButton,
+  CodeButton,
+  HeadlineOneButton,
+  HeadlineTwoButton,
+  HeadlineThreeButton,
+  UnorderedListButton,
+  OrderedListButton,
+  BlockquoteButton,
+  CodeBlockButton
+} from "draft-js-buttons";
 
 // import Textarea from "../fields/components/Textarea";
 import DraftEntry from "./components/DraftEntry";
 import "./DraftWrapper.css";
 // import "draft-js-mention-plugin/lib/plugin.css";
+import "draft-js-static-toolbar-plugin/lib/plugin.css";
 
 class DraftWrapper extends Component {
   constructor(props) {
     super(props);
+
+    this.staticToolbarPlugin = createToolbarPlugin();
+    this.linkPlugin = createToolbarLinkPlugin();
 
     // variable block
     this.mentionPlugin = createMentionPlugin({
@@ -105,7 +124,9 @@ class DraftWrapper extends Component {
     const MentionSuggestions = this.mentionPlugin.MentionSuggestions;
     const MentionSuggestionsFormatter = this.mentionPluginFormatter.MentionSuggestions;
     const MentionSuggestionsSelector = this.mentionPluginSelector.MentionSuggestions;
-    const plugins = [this.mentionPlugin, this.mentionPluginFormatter, this.mentionPluginSelector];
+    const plugins = [this.mentionPlugin, this.mentionPluginFormatter, this.mentionPluginSelector, this.staticToolbarPlugin];
+    const {Toolbar} = this.staticToolbarPlugin;
+    const {LinkButton} = this.linkPlugin;
 
     return (
       <div className="cms-draft-wrapper" onClick={this.focus}>
@@ -118,6 +139,21 @@ class DraftWrapper extends Component {
           ref={c => this.editor = c}
           key="draft-editor"
         />
+        <Toolbar>
+          {
+            externalProps => <div>
+              <BoldButton {...externalProps} />
+              <ItalicButton {...externalProps} />
+              <UnderlineButton {...externalProps} />
+              <LinkButton {...externalProps}/>
+              <CodeButton {...externalProps} />
+              <UnorderedListButton {...externalProps} />
+              <OrderedListButton {...externalProps} />
+              <BlockquoteButton {...externalProps} />
+              <CodeBlockButton {...externalProps} />
+            </div>
+          }
+        </Toolbar>
 
         {/* variables dropdown (generators, materializers) */}
         <span className="cms-draft-entry cms-variable-draft-entry">
