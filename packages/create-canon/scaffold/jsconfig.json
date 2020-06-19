@@ -3,6 +3,7 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "checkJs": true,
+    "jsx": "react",
     "moduleResolution": "node",
     "strictNullChecks": true,
     "paths": {

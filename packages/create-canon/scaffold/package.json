@@ -5,6 +5,7 @@
   "private": true,
   "main": "./index.js",
   "scripts": {
+    "start": "node index.js",
     "dev": "canon-dev",
     "build": "canon-build",
     "locale": "canon-locale"
