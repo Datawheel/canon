@@ -54,6 +54,7 @@ importers:
       d3plus-text: 0.9.51
       d3plus-viz: 0.12.55
       draft-js: 0.11.6
+      draft-js-buttons: 2.0.2_draft-js@0.11.6
       draft-js-export-html: 1.4.1_draft-js@0.11.6
       draft-js-mention-plugin: 3.1.5_draft-js@0.11.6
       draft-js-plugins-editor: 3.0.0_draft-js@0.11.6
@@ -99,6 +100,7 @@ importers:
       d3plus-text: ^0.9.51
       d3plus-viz: ^0.12.55
       draft-js: ^0.11.3
+      draft-js-buttons: ^2.0.2
       draft-js-export-html: ^1.4.1
       draft-js-mention-plugin: ^3.1.5
       draft-js-plugins-editor: ^3.0.0
