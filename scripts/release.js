@@ -23,10 +23,7 @@ async function cliRelease(folder) {
   process.chdir(`packages/${folder}`);
 
   const packageManifest = shell.cat("./package.json").toString();
-  const {name, repository, version} = JSON.parse(packageManifest);
-
-  const owner = repository.url.split("github.com/")[1].split("/")[0];
-  const repo = repository.url.split("github.com/")[1].split("/")[1].split(".")[0];
+  const {name, version} = JSON.parse(packageManifest);
 
   let minor = version.split(".");
   const prerelease = parseFloat(minor[0]) === 0;
@@ -54,8 +51,8 @@ async function cliRelease(folder) {
     });
 
     await octokit.repos.createRelease({
-      owner,
-      repo,
+      owner: "datawheel",
+      repo: "canon",
       tag_name: `${name}@${version}`,
       name: `${name}@${version}`,
       body,
