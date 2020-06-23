@@ -26,6 +26,17 @@ const catcher = e => {
   return [];
 };
 
+const getConfig = () => {
+  const config = {};
+  if (OLAP_PROXY_SECRET) {
+    const jwtPayload = {sub: "server", status: "valid"};
+    if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+    const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+    config.headers = {"x-tesseract-jwt-token": apiToken};
+  }
+  return config;
+};
+
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
 const LANGUAGES = process.env.CANON_LANGUAGES || LANGUAGE_DEFAULT;
 const LOGINS = process.env.CANON_LOGINS || false;
@@ -201,8 +212,7 @@ const bubbleUp = (obj, locale) => {
 };
 
 const extractLocaleContent = (sourceObj, locale, mode) => {
-  let obj = deepClone(sourceObj);
-  obj = bubbleUp(obj, locale);
+  const obj = bubbleUp(sourceObj, locale);
   if (mode === "story") {
     ["footnotes", "descriptions", "authors"].forEach(type => {
       if (obj[type]) obj[type] = obj[type].map(o => bubbleUp(o, locale));
@@ -287,13 +297,7 @@ module.exports = function(app) {
       }
       // Fetch Parents
       const url = `${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`;
-      const config = {};
-      if (OLAP_PROXY_SECRET) {
-        const jwtPayload = {sub: "server", status: "valid"};
-        if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
-        const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
-        config.headers = {"x-tesseract-jwt-token": apiToken};
-      }
+      const config = getConfig();
       const resp = await axios.get(url, config).catch(() => {
         if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (mortarRoute)");
         return [];
@@ -323,13 +327,7 @@ module.exports = function(app) {
         url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
       }
 
-      const config = {};
-      if (OLAP_PROXY_SECRET) {
-        const jwtPayload = {sub: "server", status: "valid"};
-        if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
-        const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
-        config.headers = {"x-tesseract-jwt-token": apiToken};
-      }
+      const config = getConfig();
 
       config.timeout = GENERATOR_TIMEOUT;
 
@@ -568,9 +566,11 @@ module.exports = function(app) {
             }
             const getNeighborsForId = async id => {
               const members = [];
+              const url = `${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`;
+              const config = getConfig();
               // Now that we have a correct hierarchy/level, query the neighbors endpoint
               const neighbors = await axios
-                .get(`${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`)
+                .get(url, config)
                 .then(d => d.data.data)
                 .catch(catcher);
               // Fetch the FULL members for each neighbor and collate them by dimension slug
@@ -692,14 +692,14 @@ module.exports = function(app) {
     // See profileReq above to see the sequelize formatting for fetching the entire profile
     let profile;
     if (variables._rawProfile) {
-      profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+      profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
     }
     else {
       const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
       const rawProfile = await db.profile.findOne(reqObj).catch(catcher);
       if (rawProfile) {
         variables._rawProfile = rawProfile.toJSON();
-        profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+        profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
       }
       else {
         if (verbose) console.error(`Profile not found for id: ${pid}`);

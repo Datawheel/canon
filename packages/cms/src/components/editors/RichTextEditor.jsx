@@ -61,6 +61,7 @@ class RichTextEditor extends Component {
               variables={variables}
               defaultValue={thisLocale[f] || ""}
               onChange={this.handleEditor.bind(this, f)}
+              showToolbar={this.props.status.showToolbar}
             />
           </div>
         )}

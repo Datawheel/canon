@@ -19,6 +19,9 @@ import hashCode from "../utils/hashCode.js";
 
 import deepClone from "../utils/deepClone.js";
 
+// User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
+import * as CustomSections from "CustomSections";
+
 import "../css/utilities.css";
 import "../css/base.css";
 import "../css/blueprint-overrides.css";
@@ -185,11 +188,10 @@ class ProfileRenderer extends Component {
     // rename old section names
     sections.forEach(l => {
       if (l.type === "TextViz" || l.position === "sticky") l.type = "Default";
-      if (l.type === "Card") l.type = "InfoCard";
       if (l.type === "Column") l.type = "SingleColumn";
     });
 
-    const groupableSections = ["InfoCard", "SingleColumn"]; // sections to be grouped together
+    const groupableSections = ["SingleColumn"].concat(Object.keys(CustomSections)); // sections to be grouped together
     const innerGroupedSections = []; // array for sections to be accumulated into
     let groupedSections = [];
 
@@ -234,7 +236,6 @@ class ProfileRenderer extends Component {
       hideOptions
     };
 
-    // TODO: replace me with an array of actual related profiles
     const relatedProfiles = profile.neighbors;
 
     return (
@@ -281,7 +282,7 @@ class ProfileRenderer extends Component {
                 )}
               </div>
             )}
-            {!hideHero && relatedProfiles &&
+            {!hideHero && relatedProfiles && relatedProfiles.length > 0 && 
               <Related profiles={relatedProfiles} />
             }
           </main>

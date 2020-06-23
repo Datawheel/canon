@@ -149,6 +149,20 @@ class Toolbox extends Component {
     const showFormatters = formattersAll.length === 0 || formatters.length > 0;
     const showSelectors = profile.selectors.length === 0 || selectors.length > 0;
 
+    let outputResults = [];
+    const outputCutoff = 200;
+    let isCutoff = false;
+    if (!detailView) {
+      outputResults = Object.keys(variables[localeDefault])
+        .sort((a, b) => a.localeCompare(b))
+        .filter(key => key !== "_genStatus" && key !== "_matStatus")
+        .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
+      if (outputResults.length > outputCutoff) {
+        outputResults = outputResults.slice(0, outputCutoff);
+        isCutoff = true;
+      }
+    }
+
 
     return (
       <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}${dialogOpen ? " has-open-dialog" : ""}`}>
@@ -185,24 +199,24 @@ class Toolbox extends Component {
         ]} />
 
         {!detailView &&
-          <ul className="cms-button-list">
-            {Object.keys(variables[localeDefault])
-              .sort((a, b) => a.localeCompare(b))
-              .filter(key => key !== "_genStatus" && key !== "_matStatus")
-              .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
-              .map(key =>
-                <li key={key} className="cms-button-item">
-                  <Button
-                    onClick={this.openGenerator.bind(this, key)}
-                    namespace="cms"
-                    fontSize="xxs"
-                    fill
-                  >
-                    {key}: <ConsoleVariable value={variables[localeDefault][key]} />
-                  </Button>
-                </li>
-              )}
-          </ul>
+          <div>
+            <ul className="cms-button-list">
+              {outputResults
+                .map(key =>
+                  <li key={key} className="cms-button-item">
+                    <Button
+                      onClick={this.openGenerator.bind(this, key)}
+                      namespace="cms"
+                      fontSize="xxs"
+                      fill
+                    >
+                      {key}: <ConsoleVariable value={variables[localeDefault][key]} />
+                    </Button>
+                  </li>
+                )}
+            </ul>
+            {isCutoff && <span className="cms-output-bumper">...Some results hidden, enter a more specific query</span>}
+          </div>
         }
 
         {/* Hide the panels if not detailView - but SHOW them if dialogOpen is set, which means

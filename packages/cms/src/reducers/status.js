@@ -70,6 +70,9 @@ export default (status = {}, action) => {
     case "SECTION_UPDATE": 
       return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "section", ...success}});
     // When the user adds a new dimension, set a status that we are waiting for members to finish populating
+    case "STORYSECTION_UPDATE": 
+      return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "storysection", ...success}});
+    // When the user adds a new dimension, set a status that we are waiting for members to finish populating
     case "SEARCH_LOADING": 
       return Object.assign({}, status, {searchLoading: true});
     // When the dimension modify returns, 
@@ -111,6 +114,20 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {dialogOpen: {type: "section_description", id: action.data.id, force: true}});
     case "SECTION_VISUALIZATION_NEW":
       return Object.assign({}, status, {dialogOpen: {type: "section_visualization", id: action.data.id, force: true}});
+    case "STORY_DESCRIPTION_NEW":
+      return Object.assign({}, status, {dialogOpen: {type: "story_description", id: action.data.id, force: true}});
+    case "STORY_FOOTNOTE_NEW":
+      return Object.assign({}, status, {dialogOpen: {type: "story_footnote", id: action.data.id, force: true}});
+    case "AUTHOR_NEW":
+      return Object.assign({}, status, {dialogOpen: {type: "author", id: action.data.id, force: true}});
+    case "STORYSECTION_SUBTITLE_NEW":
+      return Object.assign({}, status, {dialogOpen: {type: "storysection_subtitle", id: action.data.id, force: true}});
+    case "STORYSECTION_STAT_NEW":
+      return Object.assign({}, status, {dialogOpen: {type: "storysection_stat", id: action.data.id, force: true}});
+    case "STORYSECTION_DESCRIPTION_NEW":
+      return Object.assign({}, status, {dialogOpen: {type: "storysection_description", id: action.data.id, force: true}});
+    case "STORYSECTION_VISUALIZATION_NEW":
+      return Object.assign({}, status, {dialogOpen: {type: "storysection_visualization", id: action.data.id, force: true}});
     // Clear force/toolbox states on delete
     case "SECTION_SUBTITLE_DELETE":
       return Object.assign({}, status, {dialogOpen: false});
@@ -120,18 +137,38 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {dialogOpen: false});
     case "SECTION_VISUALIZATION_DELETE":
       return Object.assign({}, status, {dialogOpen: false});
+    case "STORY_DESCRIPTION_DELETE":
+      return Object.assign({}, status, {dialogOpen: false});
+    case "STORY_FOOTNOTE_DELETE":
+      return Object.assign({}, status, {dialogOpen: false});
+    case "AUTHOR_DELETE":
+      return Object.assign({}, status, {dialogOpen: false});
+    case "STORYSECTION_SUBTITLE_DELETE":
+      return Object.assign({}, status, {dialogOpen: false});
+    case "STORYSECTION_STAT_DELETE":
+      return Object.assign({}, status, {dialogOpen: false});
+    case "STORYSECTION_DESCRIPTION_DELETE":
+      return Object.assign({}, status, {dialogOpen: false});
+    case "STORYSECTION_VISUALIZATION_DELETE":
+      return Object.assign({}, status, {dialogOpen: false});
     // Update Events
     // When an update attempt starts, clear the justUpdated variable, which will then be refilled with SUCCESS or ERROR.
     // This is to ensure that subsequent error messages freshly fire, even if they are the "same" error
     case "CLEAR_UPDATED": 
       return Object.assign({}, status, {justUpdated: false});
-    // Note: some of the update events occur above
+    // Note: some of the update event cases are written above
     case "PROFILE_UPDATE":
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "profile", ...success}});
+    case "STORY_UPDATE":
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "story", ...success}});
     case "PROFILE_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "profile", ...error}});
     case "SECTION_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "section", ...error}});
+    case "STORY_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "story", ...error}});
+    case "STORYSECTION_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "storysection", ...error}});
     case "GENERATOR_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "generator", ...error}});
     case "MATERIALIZER_ERROR":
@@ -156,6 +193,34 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "section_visualization", ...success}});
     case "SECTION_VISUALIZATION_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "section_visualization", ...error}});
+    case "STORY_DESCRIPTION_UPDATE":
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "story_description", ...success}});
+    case "STORY_DESCRIPTION_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "story_description", ...error}});
+    case "STORY_FOOTNOTE_UPDATE":
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "story_footnote", ...success}});
+    case "STORY_FOOTNOTE_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "story_footnote", ...error}});
+    case "AUTHOR_UPDATE":
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "author", ...success}});
+    case "AUTHOR_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "author", ...error}});
+    case "STORYSECTION_SUBTITLE_UPDATE":
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "storysection_subtitle", ...success}});
+    case "STORYSECTION_SUBTITLE_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "storysection_subtitle", ...error}});
+    case "STORYSECTION_STAT_UPDATE":
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "storysection_stat", ...success}});
+    case "STORYSECTION_STAT_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "storysection_stat", ...error}});
+    case "STORYSECTION_DESCRIPTION_UPDATE":
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "storysection_description", ...success}});
+    case "STORYSECTION_DESCRIPTION_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "storysection_description", ...error}});
+    case "STORYSECTION_VISUALIZATION_UPDATE":
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "storysection_visualization", ...success}});
+    case "STORYSECTION_VISUALIZATION_ERROR":
+      return Object.assign({}, status, {justUpdated: {type: "storysection_visualization", ...error}});
     default: return status;
   }
 };

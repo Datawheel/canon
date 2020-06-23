@@ -41,7 +41,7 @@
   "devDependencies": {
     "@blueprintjs/core": "^3.22.3",
     "@blueprintjs/select": "^3.11.0",
-    "@datawheel/canon-core": "^0.17.66",
+    "@datawheel/canon-core": "workspace:^0.18.0",
     "@types/i18next": "^12.1.0",
     "@types/react-router": "^3.0.20",
     "lodash": "^4.17.15",
