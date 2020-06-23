@@ -9,6 +9,8 @@ import {strip} from "d3plus-text";
 // import {Reset} from "@datawheel/canon-core";
 import Installation from "./core/Installation";
 
+import Search from "./cms/Search";
+
 const PACKAGES = [
   {
     title: "Core",
@@ -17,6 +19,16 @@ const PACKAGES = [
       {
         title: "Installation",
         component: Installation
+      }
+    ]
+  },
+  {
+    title: "CMS",
+    icon: "new-text-box",
+    pages: [
+      {
+        title: "Search",
+        component: Search
       }
     ]
   }
