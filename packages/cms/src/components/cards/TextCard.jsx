@@ -8,7 +8,7 @@ import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 
-import {Intent, Switch} from "@blueprintjs/core";
+import {Intent, Switch, Alignment} from "@blueprintjs/core";
 
 import Loading from "components/Loading";
 import Card from "./Card";
@@ -197,7 +197,7 @@ class TextCard extends Component {
     if (plainFields) plainFields.forEach(field => primaryLocale[field] = sanitize(primaryLocale[field]));
 
     const secondaryLocale = minData.content.find(c => c.locale === localeSecondary);
-    
+
     fields.forEach(field => secondaryLocale[field] = sanitize(secondaryLocale[field]));
     if (plainFields) plainFields.forEach(field => secondaryLocale[field] = sanitize(secondaryLocale[field]));
     // If hideAllowed is true, this TextCard is being used by a top-level Section, whose
@@ -383,7 +383,8 @@ class TextCard extends Component {
         {/* edit content */}
         <Dialog {...dialogProps}>
           <Switch
-            className="cms-toolbar-switch"
+            alignIndicator={Alignment.RIGHT}
+            className="cms-toolbar-switch u-font-xs"
             checked={showToolbar}
             label="Rich Formatting"
             onChange={e => this.props.setStatus({showToolbar: e.target.checked})}
