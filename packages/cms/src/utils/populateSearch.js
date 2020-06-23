@@ -14,7 +14,8 @@ if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
 // in populateSearch will be made from the default language content.
 LANGUAGES.sort(a => a === envLoc ? -1 : 1);
 
-const {CANON_CMS_CUBES, OLAP_PROXY_SECRET, CANON_CMS_MINIMUM_ROLE} = process.env;
+const {OLAP_PROXY_SECRET, CANON_CMS_MINIMUM_ROLE} = process.env;
+const CANON_CMS_CUBES = process.env.CANON_CMS_CUBES || "localhost";
 
 /**
  * There is not a fully-featured way for olap-client to know the difference between a
