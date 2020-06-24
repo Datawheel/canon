@@ -156,7 +156,7 @@ export function fetchSectionPreview(id, locale) {
   return function(dispatch, getStore) {
     dispatch({type: "SECTION_PREVIEW_FETCH"});
     const {currentPid, pathObj} = getStore().cms.status;
-    const {variables} = getStore().cms;
+    const {variables} = getStore().cms.variables[locale];
     const {previews} = pathObj;
     const idString = previews.reduce((acc, id, i) => `${acc}&slug${i + 1}=${id.slug}&id${i + 1}=${id.id}`, "");
     const url = `${getStore().env.CANON_API}/api/profile?profile=${currentPid}&section=${id}&locale=${locale}${idString}`;

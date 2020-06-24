@@ -16,6 +16,7 @@ importers:
     dependencies:
       '@datawheel/canon-cms': 'link:../packages/cms'
       '@datawheel/canon-core': 'link:../packages/core'
+      '@datawheel/canon-logiclayer': 'link:../packages/logiclayer'
       axios: 0.19.2
       d3plus-react: 0.5.9_prop-types@15.7.2+react@16.13.1
       d3plus-text: 0.9.51
@@ -25,6 +26,7 @@ importers:
     specifiers:
       '@datawheel/canon-cms': 'workspace:*'
       '@datawheel/canon-core': 'workspace:*'
+      '@datawheel/canon-logiclayer': 'workspace:^0.4.4'
       axios: ^0.19.2
       d3plus-react: ^0.5.9
       d3plus-text: ^0.9.51
