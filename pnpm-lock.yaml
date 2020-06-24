@@ -146,6 +146,7 @@ importers:
       '@babel/runtime': 7.10.2
       '@blueprintjs/core': 3.28.1_react-dom@16.8.6+react@16.8.6
       '@blueprintjs/icons': 3.18.0
+      '@nuxtjs/friendly-errors-webpack-plugin': 2.1.0_webpack@4.38.0
       axios: 0.19.2
       babel-eslint: 10.1.0
       babel-loader: 8.1.0_a1dd786f307480cd14c3a9c9cc3cff45
@@ -264,6 +265,7 @@ importers:
       '@babel/runtime': ^7.10.2
       '@blueprintjs/core': ^3.18.0
       '@blueprintjs/icons': ^3.18.0
+      '@nuxtjs/friendly-errors-webpack-plugin': ^2.1.0
       axios: ^0.19.2
       babel-eslint: ^10.0.3
       babel-loader: ^8.0.6
@@ -1831,6 +1833,21 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-Uv6h1sT+0DrblvIrolFtbvM1FgWm+/sy4B3pvLp67Zys+thcukzS5ekn7HsZFGpWP4Q3fYJCljbWQE/XivMRLw==
+  /@nuxtjs/friendly-errors-webpack-plugin/2.1.0_webpack@4.38.0:
+    dependencies:
+      chalk: 2.4.2
+      error-stack-parser: 2.0.6
+      string-width: 2.1.1
+      strip-ansi: 4.0.0
+      webpack: 4.38.0_webpack@4.38.0
+    dev: false
+    engines:
+      node: '>=8.0.0'
+      npm: '>=5.0.0'
+    peerDependencies:
+      webpack: ^2.0.0 || ^3.0.0 || ^4.0.0
+    resolution:
+      integrity: sha512-FI8uTmMeA+xnPIfiLFwq3aZ4PzIdTRN5uw9oa7JHPtB1DM9WgiJeJTBLEzz16yIuDrjRAMOim1BQK3bOOhKANg==
   /@octetstream/eslint-config/3.0.0:
     dependencies:
       babel-eslint: 9.0.0
@@ -2427,6 +2444,12 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-w7M6te42DYbg5ijwRorn7yfWVN8=
+  /ansi-regex/3.0.0:
+    dev: false
+    engines:
+      node: '>=4'
+    resolution:
+      integrity: sha1-7QMXwyIGT3lGbAKWa922Bas32Zg=
   /ansi-regex/4.1.0:
     dev: false
     engines:
@@ -5174,6 +5197,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==
+  /error-stack-parser/2.0.6:
+    dependencies:
+      stackframe: 1.2.0
+    dev: false
+    resolution:
+      integrity: sha512-d51brTeqC+BHlwF0BhPtcYgF5nlzf9ZZ0ZIUQNZpc9ZB9qw5IJ2diTrBY9jlCJkTLITYPjmiX6OWCwH+fuyNgQ==
   /es-abstract/1.17.5:
     dependencies:
       es-to-primitive: 1.2.1
@@ -11679,6 +11708,10 @@ packages:
     dev: false
     resolution:
       integrity: sha1-tAen4FyTsI1miDu4CNfLo6UD8S8=
+  /stackframe/1.2.0:
+    dev: false
+    resolution:
+      integrity: sha512-GrdeshiRmS1YLMYgzF16olf2jJ/IzxXY9lhKOskuVziubpTYcYqyOwYeJKzQkwy7uN0fYSsbsC4RQaXf9LCrYA==
   /stackman/2.0.1:
     dependencies:
       after-all-results: 2.0.0
@@ -11761,6 +11794,15 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-EYvfW4zcUaKn5w0hHgfisLmxB9M=
+  /string-width/2.1.1:
+    dependencies:
+      is-fullwidth-code-point: 2.0.0
+      strip-ansi: 4.0.0
+    dev: false
+    engines:
+      node: '>=4'
+    resolution:
+      integrity: sha512-nOqH59deCq9SRHlxq1Aw85Jnt4w6KvLKqWVik6oA9ZklXLNIOlqg4F2yrT1MVaTjAqvVwdfeZ7w7aCvJD7ugkw==
   /string-width/3.1.0:
     dependencies:
       emoji-regex: 7.0.3
@@ -11846,6 +11888,14 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-ajhfuIU9lS1f8F0Oiq+UJ43GPc8=
+  /strip-ansi/4.0.0:
+    dependencies:
+      ansi-regex: 3.0.0
+    dev: false
+    engines:
+      node: '>=4'
+    resolution:
+      integrity: sha1-qEeQIusaw2iocTibY1JixQXuNo8=
   /strip-ansi/5.2.0:
     dependencies:
       ansi-regex: 4.1.0
