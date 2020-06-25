@@ -19,12 +19,12 @@ class App extends Component {
   }
 
   render() {
-    const {children} = this.props;
+    const {children, location} = this.props;
 
     return <div id="app">
       <TopNav />
       <main>
-        <SideNav key="sidenav" />
+        <SideNav key="sidenav" pathname={location.pathname} />
         <div key="children" className="content">{ children }</div>
       </main>
       <Footer />

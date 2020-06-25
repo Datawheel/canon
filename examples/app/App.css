@@ -10,6 +10,11 @@ body {
       padding: 0 15px;
       background-color: white;
       width: 100%;
+      & h2 {
+        border-top: 1px solid var(--light-3);
+        padding-top: 15px;
+        margin-top: 0px;
+      }
       & code {
         margin-bottom: 5px;
         display: inline-block;
