@@ -1,9 +1,8 @@
 @import "./mixins";
 footer {
-  background-color: white;
+  background-color: var(--light-1);
   box-sizing: border-box;
   @mixin padding 25px;
-  @mixin margin;
   text-align: center;
   width: 100%;
   & .datawheel {

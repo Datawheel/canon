@@ -1,8 +1,7 @@
 import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
-import {Link} from "react-router";
 import {hot} from "react-hot-loader/root";
-import {Alignment, Button, Collapse} from "@blueprintjs/core";
+import {Alignment, Button, Collapse, AnchorButton} from "@blueprintjs/core";
 import {PACKAGES} from "$app/pages/Docs";
 import {strip} from "d3plus-text";
 
@@ -51,15 +50,15 @@ class SideNav extends Component {
               <Collapse isOpen={openSections.includes(title)}>
                 {
                   pages.map((page, ii) =>
-                    <Button key={ii}
+                    <AnchorButton key={ii}
                       active={currentPage === strip(page.title).toLowerCase()}
                       alignText={Alignment.LEFT}
                       fill={true}
-                      minimal={true}>
-                      <Link to={`docs/${strip(title).toLowerCase()}/${strip(page.title).toLowerCase()}`}>
-                        {page.title}
-                      </Link>
-                    </Button>
+                      minimal={true}
+                      href={`/docs/${strip(title).toLowerCase()}/${strip(page.title).toLowerCase()}`}
+                    >
+                      {page.title}
+                    </AnchorButton>
                   )
                 }
               </Collapse>
