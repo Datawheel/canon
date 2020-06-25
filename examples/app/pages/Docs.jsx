@@ -8,6 +8,7 @@ import {strip} from "d3plus-text";
 // import SignUp from "./pages/core/SignUp";
 // import {Reset} from "@datawheel/canon-core";
 import Installation from "./core/Installation";
+import Contribution from "./core/Contribution";
 
 import Search from "./cms/Search";
 
@@ -19,6 +20,10 @@ const PACKAGES = [
       {
         title: "Installation",
         component: Installation
+      },
+      {
+        title: "Contribution",
+        component: Contribution
       }
     ]
   },

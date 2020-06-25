@@ -6,8 +6,10 @@ class Installation extends Component {
   render() {
 
     return (
-      <div id="Installation">
-        Coming Soon
+      <div id="installation">
+        <h1>Installation Guide</h1>
+        <h2>Setup</h2>
+        <p>Clone the repo usingWhen needing user interaction, use the <code className="bp3-code">ProfileSearch</code> component to display the results of a query:</p>
       </div>
     );
 

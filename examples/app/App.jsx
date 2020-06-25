@@ -1,5 +1,5 @@
 import {isAuthenticated} from "@datawheel/canon-core";
-import React, {Component, Fragment} from "react";
+import React, {Component} from "react";
 import {connect} from "react-redux";
 
 import TopNav from "components/TopNav";
@@ -21,11 +21,11 @@ class App extends Component {
   render() {
     const {children} = this.props;
 
-    return <div id="App">
+    return <div id="app">
       <TopNav />
       <main>
         <SideNav key="sidenav" />
-        <Fragment key="children">{ children }</Fragment>
+        <div key="children" className="content">{ children }</div>
       </main>
       <Footer />
     </div>;

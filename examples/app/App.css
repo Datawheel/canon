@@ -1,5 +1,29 @@
-main > * {
-  display: inline-block;
+body {
+  background-color: var(--light-1);
+}
+#app {
+  & main {
+    display: flex;
+    flex-direction: row;
+    justify-items: stretch;
+    & .content{
+      padding: 0 15px;
+      background-color: white;
+      width: 100%;
+      & code {
+        margin-bottom: 5px;
+        display: inline-block;
+      }
+      & ul {
+        & li{
+          margin: 10px 0;
+          & code {
+            margin-bottom: 0px;
+          }
+        }
+      }
+    }
+  }
 }
 
 /* -----------------------------------
