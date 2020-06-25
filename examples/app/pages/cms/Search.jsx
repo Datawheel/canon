@@ -8,10 +8,11 @@ class Search extends Component {
 
     return (
       <div id="Search">
-        <h1>Search</h1>
-        <h2>JSON Endpoint</h2>
+        <h1>CMS Package</h1>
+        <h2>Search JSON Endpoint</h2>
+        <p>TO-DO</p>
         <h2>React Component</h2>
-        When needing user interaction, use the <code className="bp3-code">ProfileSearch</code> component to display the results of a query:
+        <p>When needing user interaction, use the <code className="bp3-code">ProfileSearch</code> component to display the results of a query:</p>
         <ProfileSearch />
       </div>
     );

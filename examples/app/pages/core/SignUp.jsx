@@ -6,7 +6,12 @@ class SignUpWrapper extends Component {
 
   render() {
     // console.log("\nUSER\n", this.props.auth);
-    return <SignUp redirect={false} />;
+    return <div>
+      <h1>Core Package</h1>
+      <h2>SignUp</h2>
+      <p>TO-DO</p>
+      <SignUp redirect={false} />
+    </div>;
 
   }
 }

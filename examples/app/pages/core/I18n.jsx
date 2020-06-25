@@ -6,7 +6,7 @@ export default class NotFound extends Component {
     return (
       <div>
         <h1>Core Package</h1>
-        <h2>Not Found page</h2>
+        <h2>I18n</h2>
         <p>TO-DO</p>
       </div>
     );

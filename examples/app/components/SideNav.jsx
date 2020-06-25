@@ -11,25 +11,35 @@ class SideNav extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {openSections: []};
+    const sections = this.getSectionsFromUrl(props.pathname);
+    this.state = {openSections: sections.currentSection ? [sections.currentSection] : []};
   }
 
   toggleSection(section) {
-    const openSections = this.state.openSections.slice();
-    const index = openSections.indexOf(section);
+    const slug = strip(section).toLowerCase();
+    const openSections = this.state.openSections;
+    const index = openSections.indexOf(slug);
     if (index >= 0) openSections.splice(index, 1);
-    else openSections.push(section);
+    else openSections.push(slug);
     this.setState({openSections});
+  }
+
+  getSectionsFromUrl(pathname) {
+    const parts = pathname.includes("docs/") ? pathname.split("/") : false;
+    const currentSection = parts ? parts[1] : false;
+    const currentPage = parts ? parts[2] : false;
+    return {currentPage, currentSection};
   }
 
   render() {
     const {openSections} = this.state;
+    const {pathname} = this.props;
 
     const path = typeof window !== "undefined"
-      ? window.location.pathname
-      : "";
+      ? window.location.pathname.substr(1)
+      : pathname;
 
-    const currentPage = path.includes("/docs/") ? path.split("/").slice(-1)[0] : false;
+    const sections = this.getSectionsFromUrl(path);
 
     return (
       <div id="SideNav">
@@ -43,15 +53,15 @@ class SideNav extends Component {
                 outlined={true}
                 alignText={Alignment.LEFT}
                 onClick={this.toggleSection.bind(this, title)}
-                active={openSections.includes(title)}
+                active={openSections.includes(strip(title).toLowerCase())}
               >
                 {title}
               </Button>
-              <Collapse isOpen={openSections.includes(title)}>
+              <Collapse isOpen={openSections.includes(strip(title).toLowerCase())}>
                 {
                   pages.map((page, ii) =>
                     <AnchorButton key={ii}
-                      active={currentPage === strip(page.title).toLowerCase()}
+                      active={sections.currentSection === strip(title).toLowerCase() && sections.currentPage === strip(page.title).toLowerCase()}
                       alignText={Alignment.LEFT}
                       fill={true}
                       minimal={true}
