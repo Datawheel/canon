@@ -42,7 +42,7 @@ importers:
       base58: 2.0.1
       brace: 0.11.1
       buble: 0.19.8
-      d3-array: 2.4.0
+      d3-array: 1.2.4
       d3-collection: 1.0.7
       d3-format: 1.4.4
       d3-selection: 1.4.1
@@ -88,7 +88,7 @@ importers:
       base58: ^2.0.1
       brace: ^0.11.1
       buble: ^0.19.3
-      d3-array: ^2.4.0
+      d3-array: ^1.2.4
       d3-collection: ^1.0.7
       d3-format: ^1.4.4
       d3-selection: ^1.4.1
@@ -4158,10 +4158,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-KHW6M86R+FUPYGb3R5XiYjXPq7VzwxZ22buHhAEVG5ztoEcZZMLov530mmccaqA1GghZArjQV46fuc8kUqhhHw==
-  /d3-array/2.4.0:
-    dev: false
-    resolution:
-      integrity: sha512-KQ41bAF2BMakf/HdKT865ALd4cgND6VcIztVQZUTt0+BH3RWy6ZYnHghVXf6NFjt2ritLr8H1T8LreAAlfiNcw==
   /d3-brush/1.1.5:
     dependencies:
       d3-dispatch: 1.0.6
