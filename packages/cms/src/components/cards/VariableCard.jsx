@@ -236,7 +236,7 @@ class VariableCard extends Component {
       Object.assign(cardProps, {
         title: minData.name, // overwrites placeholder
         onEdit: minData.locked ? null : this.openEditor.bind(this),
-        onDuplicate: minData.locked ? null : this.maybeDuplicate.bind(this),
+        onDuplicate: minData.locked || type === "formatter" ? null : this.maybeDuplicate.bind(this),
         onDelete: minData.locked ? null : this.maybeDelete.bind(this),
         // reorder
         reorderProps: showReorderButton ? {
