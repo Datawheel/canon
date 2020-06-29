@@ -47,6 +47,14 @@ export default {
       "entire section": "entire section",
       "visualization only": "visualization only"
     },
+    "Search": {
+      "Empty": "Please enter a search term",
+      "Loading": "Loading results...",
+      "No results": "No results matching \"{{query}}\"",
+      "reset": "reset",
+      "Related Profiles": "Related Profiles",
+      "Search profiles": "Search profiles"
+    },
     "SourceGroup": {
       "and": "and",
       "Data provided by": "Data provided by"

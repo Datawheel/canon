@@ -3,4 +3,8 @@
   combined with the internal default canon reducers.
 */
 
-export default {};
+import {cmsReducer} from "@datawheel/canon-cms";
+
+export default {
+  cms: cmsReducer
+};

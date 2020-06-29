@@ -19,6 +19,7 @@
   "author": "Dave Landry <dave@datawheel.us>",
   "license": "MIT",
   "dependencies": {
+    "@datawheel/canon-cms": "workspace:*",
     "@datawheel/canon-core": "workspace:*",
     "axios": "^0.19.2",
     "d3plus-react": "^0.5.9",

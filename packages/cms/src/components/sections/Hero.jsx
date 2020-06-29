@@ -209,12 +209,12 @@ class Hero extends Component {
     }
 
     // heading & subhead(s)
-    const heading = <Fragment>
-      <Parse El="h1" id={contents ? contents.slug : `${stripHTML(profile.title)}-hero`} className="cp-section-heading cp-hero-heading u-font-xxl">
-        {title}
-      </Parse>
-      {subtitleContent}
-    </Fragment>;
+    const heading = <div className="cp-hero-heading-wrapper">
+        <Parse El="h1" id={contents ? contents.slug : `${stripHTML(profile.title)}-hero`} className="cp-section-heading cp-hero-heading u-font-xxl">
+          {title}
+        </Parse>
+        {subtitleContent}
+      </div>;
 
 
     return (

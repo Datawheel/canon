@@ -1,5 +1,7 @@
-const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
+const FriendlyErrorsWebpackPlugin = require("@nuxtjs/friendly-errors-webpack-plugin"),
+      HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
       MiniCssExtractPlugin = require("mini-css-extract-plugin"),
+      WebpackBar = require("webpackbar"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
@@ -44,11 +46,8 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.ProgressPlugin({
-      activeModules: false,
-      entries: false,
-      modules: true
-    }),
+    new WebpackBar({color: "#CB9F2C", name: "server"}),
+    new FriendlyErrorsWebpackPlugin({clearConsole: false}),
     new MiniCssExtractPlugin({
       filename: "styles.css"
     }),

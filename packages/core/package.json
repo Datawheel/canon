@@ -1,13 +1,12 @@
 {
   "name": "@datawheel/canon-core",
-  "version": "0.18.20",
+  "version": "0.18.21",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "./src/index.js",
   "bin": {
     "canon-build": "bin/build.js",
     "canon-dev": "bin/dev.js",
-    "canon-locales": "bin/locales.js",
-    "canon-setup": "bin/setup.js"
+    "canon-locales": "bin/locales.js"
   },
   "scripts": {
     "test": "echo 'Not implemented yet.'"
@@ -52,6 +51,7 @@
     "@babel/runtime": "^7.10.2",
     "@blueprintjs/core": "^3.18.0",
     "@blueprintjs/icons": "^3.18.0",
+    "@nuxtjs/friendly-errors-webpack-plugin": "^2.1.0",
     "axios": "^0.19.2",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",

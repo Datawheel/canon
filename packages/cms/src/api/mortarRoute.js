@@ -26,6 +26,17 @@ const catcher = e => {
   return [];
 };
 
+const getConfig = () => {
+  const config = {};
+  if (OLAP_PROXY_SECRET) {
+    const jwtPayload = {sub: "server", status: "valid"};
+    if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+    const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+    config.headers = {"x-tesseract-jwt-token": apiToken};
+  }
+  return config;
+};
+
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
 const LANGUAGES = process.env.CANON_LANGUAGES || LANGUAGE_DEFAULT;
 const LOGINS = process.env.CANON_LOGINS || false;
@@ -33,7 +44,7 @@ const PORT = process.env.CANON_PORT || 3300;
 const NODE_ENV = process.env.NODE_ENV || "development";
 const REQUESTS_PER_SECOND = process.env.CANON_CMS_REQUESTS_PER_SECOND ? parseInt(process.env.CANON_CMS_REQUESTS_PER_SECOND, 10) : 20;
 const GENERATOR_TIMEOUT = process.env.CANON_CMS_GENERATOR_TIMEOUT ? parseInt(process.env.CANON_CMS_GENERATOR_TIMEOUT, 10) : 5000;
-let cubeRoot = process.env.CANON_CMS_CUBES;
+let cubeRoot = process.env.CANON_CMS_CUBES || "localhost";
 if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
 const canonVars = {
@@ -286,13 +297,7 @@ module.exports = function(app) {
       }
       // Fetch Parents
       const url = `${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`;
-      const config = {};
-      if (OLAP_PROXY_SECRET) {
-        const jwtPayload = {sub: "server", status: "valid"};
-        if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
-        const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
-        config.headers = {"x-tesseract-jwt-token": apiToken};
-      }
+      const config = getConfig();
       const resp = await axios.get(url, config).catch(() => {
         if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (mortarRoute)");
         return [];
@@ -322,13 +327,7 @@ module.exports = function(app) {
         url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
       }
 
-      const config = {};
-      if (OLAP_PROXY_SECRET) {
-        const jwtPayload = {sub: "server", status: "valid"};
-        if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
-        const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
-        config.headers = {"x-tesseract-jwt-token": apiToken};
-      }
+      const config = getConfig();
 
       config.timeout = GENERATOR_TIMEOUT;
 
@@ -567,9 +566,11 @@ module.exports = function(app) {
             }
             const getNeighborsForId = async id => {
               const members = [];
+              const url = `${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`;
+              const config = getConfig();
               // Now that we have a correct hierarchy/level, query the neighbors endpoint
               const neighbors = await axios
-                .get(`${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`)
+                .get(url, config)
                 .then(d => d.data.data)
                 .catch(catcher);
               // Fetch the FULL members for each neighbor and collate them by dimension slug

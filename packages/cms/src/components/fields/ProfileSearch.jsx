@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
+import {withNamespaces} from "react-i18next";
 import PropTypes from "prop-types";
 import {Link} from "react-router";
 import axios from "axios";
@@ -239,7 +240,8 @@ class ProfileSearch extends Component {
       inputFontSize,
       joiner,
       position,
-      subtitleFormat
+      subtitleFormat,
+      t
     } = this.props;
 
     return (
@@ -248,7 +250,7 @@ class ProfileSearch extends Component {
         <label key="input" className={`cp-input-label inputFontSize-${inputFontSize}`}>
           {/* accessibility text */}
           <span className="u-visually-hidden" key="slt">
-            Search profiles
+            {t("CMS.Search.Search profiles")}
           </span>
 
           {/* the input */}
@@ -274,7 +276,7 @@ class ProfileSearch extends Component {
             key="slb"
           >
             <Icon className="cms-profilesearch-reset-button-icon" icon="cross" />
-            <span className="cms-profilesearch-reset-button-text">reset</span>
+            <span className="cms-profilesearch-reset-button-text">{t("CMS.Search.reset")}</span>
           </button>
         </label>
 
@@ -284,7 +286,7 @@ class ProfileSearch extends Component {
               ? (() => {
 
                 if (!results.grouped.length) {
-                  return <NonIdealState key="empty" icon="zoom-out" title={`No results matching "${query}"`} />;
+                  return <NonIdealState key="empty" icon="zoom-out" title={t("CMS.Search.No results", {query})} />;
                 }
 
                 else {
@@ -328,8 +330,8 @@ class ProfileSearch extends Component {
 
               })()
               : loading && (position !== "absolute" || active)
-                ? <NonIdealState key="loading" icon={<Spinner />} title="Loading results..." />
-                : position !== "absolute" ? <NonIdealState key="start" icon="search" title="Please enter a search term" /> : null
+                ? <NonIdealState key="loading" icon={<Spinner />} title={t("CMS.Search.Loading")} />
+                : position !== "absolute" ? <NonIdealState key="start" icon="search" title={t("CMS.Search.Empty")} /> : null
           }
         </div>
       </div>
@@ -358,6 +360,8 @@ ProfileSearch.defaultProps = {
   subtitleFormat: d => d.memberHierarchy,
   formatResults: resp => resp
 };
+
+ProfileSearch = withNamespaces()(ProfileSearch);
 
 export default connect(state => ({
   locale: state.i18n.locale

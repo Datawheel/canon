@@ -23,7 +23,6 @@ const compiler = webpack(webpackDevConfig);
 compiler.watch({}, (err, stats) => {
 
   if (err) console.error(err);
-  shell.echo(`webpack built server ${stats.compilation.hash} in ${stats.endTime - stats.startTime}ms`);
   stats.compilation.errors.forEach(e => {
     console.error("\n\n 🛑  SERVER WEBPACK ERROR\n");
     console.error(e);
