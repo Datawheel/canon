@@ -81,8 +81,8 @@ class VariableCard extends Component {
   formatDisplay() {
     const {type} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
-    const secondaryVariables = this.props.status.variables[localeSecondary];
+    const variables = this.props.variables[localeDefault];
+    const secondaryVariables = this.props.variables[localeSecondary];
     const {id} = this.props.minData;
     let displayData, secondaryDisplayData = {};
     let dupes = [];
@@ -191,8 +191,8 @@ class VariableCard extends Component {
   }
 
   render() {
-    const {attr, readOnly, minData, type, showReorderButton} = this.props;
-    const {localeDefault, localeSecondary, variables} = this.props.status;
+    const {attr, readOnly, minData, type, showReorderButton, variables} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
     const {displayData, secondaryDisplayData, isOpen, alertObj, dupes, size} = this.state;
 
     let description = "";
@@ -236,7 +236,7 @@ class VariableCard extends Component {
       Object.assign(cardProps, {
         title: minData.name, // overwrites placeholder
         onEdit: minData.locked ? null : this.openEditor.bind(this),
-        onDuplicate: minData.locked ? null : this.maybeDuplicate.bind(this),
+        onDuplicate: minData.locked || type === "formatter" ? null : this.maybeDuplicate.bind(this),
         onDelete: minData.locked ? null : this.maybeDelete.bind(this),
         // reorder
         reorderProps: showReorderButton ? {
@@ -311,6 +311,7 @@ VariableCard.contextTypes = {
 };
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   status: state.cms.status
 });
 

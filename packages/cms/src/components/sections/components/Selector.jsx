@@ -63,7 +63,7 @@ class Selector extends Component {
       return <div className={ `bp3-fill ${type === "multi" ? "" : "bp3-select"}` }>
         { title && <label htmlFor={slug}>{title}</label> }
 
-        {comparisons && comparisons.length && <Fragment>
+        {comparisons && comparisons.length > 0 && <Fragment>
           <div className="multi-list">
             { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
               { stripHTML(labels[d] || variables[d] || d) }

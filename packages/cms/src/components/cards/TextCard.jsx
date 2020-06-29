@@ -137,7 +137,7 @@ class TextCard extends Component {
     const {localeDefault, localeSecondary, query} = this.props.status;
     const {formatterFunctions} = this.props.resources;
     // Stories use TextCards, but don't need variables.
-    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const variables = this.props.variables[localeDefault] || {};
 
     // For future use: This is a list of the vars used by this TextCard. Could combine with
     // Some selector replacing and create a quick way to open generators in the future.
@@ -269,7 +269,7 @@ class TextCard extends Component {
     const {fields: richFields, hideAllowed, plainFields, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary, showToolbar} = this.props.status;
     // Stories use TextCards, but don't need variables.
-    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const variables = this.props.variables[localeDefault] || {};
 
     if (!minData || !primaryDisplayData) return <Loading />;
 
@@ -437,6 +437,7 @@ TextCard.contextTypes = {
 };
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   status: state.cms.status,
   resources: state.cms.resources,
   selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []

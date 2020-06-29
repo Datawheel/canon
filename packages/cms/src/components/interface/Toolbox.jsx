@@ -81,7 +81,7 @@ class Toolbox extends Component {
 
   openGenerator(key) {
     const {localeDefault} = this.props.status;
-    const {variables} = this.props.status;
+    const {variables} = this.props;
     const vars = variables[localeDefault];
 
     const gens = Object.keys(vars._genStatus);
@@ -102,9 +102,9 @@ class Toolbox extends Component {
   render() {
     const {detailView, query} = this.state;
     const {children, toolboxVisible} = this.props;
-    const {profile} = this.props;
+    const {profile, variables} = this.props;
     const formattersAll = this.props.formatters;
-    const {variables, localeDefault, localeSecondary, dialogOpen} = this.props.status;
+    const {localeDefault, localeSecondary, dialogOpen} = this.props.status;
 
     const dataLoaded = profile;
 
@@ -125,26 +125,22 @@ class Toolbox extends Component {
     let generators = profile.generators
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(d => Object.assign({}, {type: "generator"}, d))
-      .filter(this.filterFunc.bind(this))
-      .filter(d => !dialogOpen || dialogOpen.type === "generator" && dialogOpen.id === d.id);
+      .filter(this.filterFunc.bind(this));
 
     if (this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
 
     const materializers = profile.materializers
       .sort((a, b) => a.ordering - b.ordering)
       .map(d => Object.assign({}, {type: "materializer"}, d))
-      .filter(this.filterFunc.bind(this))
-      .filter(d => !dialogOpen || dialogOpen.type === "materializer" && dialogOpen.id === d.id);
+      .filter(this.filterFunc.bind(this));
 
     const formatters = formattersAll
       .sort((a, b) => a.name.localeCompare(b.name))
-      .filter(this.filterFunc.bind(this))
-      .filter(d => !dialogOpen || dialogOpen.type === "formatter" && dialogOpen.id === d.id);
+      .filter(this.filterFunc.bind(this));
 
     const selectors = profile.selectors
       .sort((a, b) => a.title.localeCompare(b.title))
-      .filter(this.filterFunc.bind(this))
-      .filter(d => !dialogOpen || dialogOpen.type === "selector" && dialogOpen.id === d.id);
+      .filter(this.filterFunc.bind(this));
 
     // If a search filter causes no results, hide the entire grouping. However, if
     // the ORIGINAL data has length 0, always show it, so the user can add the first one.
@@ -308,6 +304,7 @@ class Toolbox extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  variables: state.cms.variables,
   status: state.cms.status,
   profile: state.cms.profiles.find(p => p.id === ownProps.id),
   formatters: state.cms.formatters
