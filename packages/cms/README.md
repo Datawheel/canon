@@ -336,14 +336,6 @@ Text rendered into paragraph tags.
 #### Visualizations
 Primarily, visualizations utilize [d3plus](http://d3plus.org/). However, we've also added a few custom visualization types:
 
-##### Percentage bar
-Renders a list of bars, each indicating a share.
-
-🔥**Pro tip**: custom config settings for this option include:
-- `cutoff` (integer; number of bars to show before hiding the rest behind a button)
-- `cutoffText` (string; text to print in a paragraph preceding the *show more* button)
-- `showText` & `hideText` (string; show/hide button label text)
-
 ##### Table
 Renders data in a [react-table](https://github.com/tannerlinsley/react-table/tree/v6) table. All react-table props are available.
 
@@ -372,7 +364,7 @@ config: {
 
 To extend the layout and functionality of sections, custom JSX sections can be created which will be added to the list of available section types. To add a custom section:
 
-- Create a directory in your canon-core app named `app/cms/sections`
+- Create a directory in your canon app named `app/cms/sections`
 - Add your custom jsx component to this directory. Observe the [default Section layout](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Default.jsx) for a starting point. Take note of the [Section wrapper](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Section.jsx) that it inherits from to see more information on the `props` that get passed down.
 - In your custom jsx component, be sure to change the viz import at the top of the file from the relative path `import Viz from "../Viz/Viz";` to a module import: `import {Viz} from "@datawheel/canon-cms";`
 - Create an `index.js` file in this directory that exports ALL of your custom components:
@@ -389,6 +381,25 @@ export {default as CustomSection2} from "./CustomSection2.jsx";
 The [Section wrapper](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Section.jsx) handles most of the context callbacks, click interaction, anchor links, etc. required by all Sections. As such, the underlying section layouts are fairly sparse; many of them just pass the props through one by one (`Default.jsx` is a good example of this - observe the series of stats/paragraphs/sources variables).
 
 If you need more control over how these sections are laid out, or even want to manipulate the text provided by the API, the *entire* section object is passed down via the `contents` key. In your custom component, you may emulate any `Section.jsx` variable preparation using these contents to maximize customization.
+
+---
+
+## Custom Visualizations
+
+#### Setup
+
+To extend the layout and functionality of visualizations, custom JSX visualizations can be created which will be added to the list of available visualization types. To add a custom visualization:
+
+- Create a directory in your canon app named `app/cms/vizzes`
+- Add your custom jsx component to this directory.
+- Create an `index.js` file in this directory that exports ALL of your custom components:
+
+```js
+export {default as CustomViz} from "./CustomViz.jsx";
+export {default as CustomViz2} from "./CustomViz2.jsx";
+```
+- Rebuild the server
+- Set your visualization type to the new visualization type in Visualization Editor of the CMS.
 
 ---
 
@@ -723,7 +734,7 @@ The visualizations are powered by [D3plus](http://d3plus.org/), a JavaScript lib
 
 1. **data** - without data, no visualization can be drawn! To provide data, set the `data` key inside of the returned _Object_ to either a _String_ URL or an _Array_ of data objects. You can also provide an optional callback function for URLs as the `dataFormat` key, which will allow you to transform the loaded data in any way necessary for the visualization (like calculating a "share" percentage based on the total data returned).
 
-2. **type** - you also need to defined what type of visualization to draw, such as a BarChart or a LinePlot. You can provide any D3plus visualziation class name as a _String_ to the `type` key of the return Object, as well as a few custom HTML based visualizations that come packages with the CMS (like `"Table"` and `"PercentageBar"`). Check out [the code](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/Viz/Viz.jsx#L14) to see the most current list of exports, as well as reference the [d3plus docs](http://d3plus.org/docs/).
+2. **type** - you also need to defined what type of visualization to draw, such as a BarChart or a LinePlot. You can provide any D3plus visualziation class name as a _String_ to the `type` key of the return Object, as well as a few custom HTML based visualizations that come packages with the CMS (like `"Table"` and `"Graphic"`). Check out [the code](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/Viz/Viz.jsx#L14) to see the most current list of exports, as well as reference the [d3plus docs](http://d3plus.org/docs/).
 
 3. **visualization configuration** - once the CMS knows the data to use and which visualization to render, you need to tell it a little bit about your data. For example, if creating a Bar Chart of salaries over time, you need to tell which keys in your data objects to use for each axis. Each visualization has slightly different requirements (like `{x: "Salary", y: "Year"}` in this case), and the d3plus [examples](http://d3plus.org/examples/) is probably the best place to familiarize yourself wit this syntax.
 

@@ -182,13 +182,7 @@
   /* visualizations */
   --viz-aspect-ratio:           50%;
   --viz-min-height:             40vh;
-  /* percentage bar visualization */
-  --percentage-bar-height:       var(--gutter-xs);
-  --percentage-bar-bg-color:     var(--light-2);
-  --percentage-bar-color:        var(--accent-dark);
-  --percentage-bar-radius:       0.5em;
-  --percentage-bar-stroke-color: var(--light-1);
-  --percentage-bar-stroke-width: 2px;
+
   /* (react-)table visualization */
   --table-height:               60vh;
   --table-hgroup-bg-color:      var(--light-2);

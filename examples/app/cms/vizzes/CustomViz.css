@@ -1,8 +1,9 @@
-@import "../../css/mixins.css";
-
 .percentage-bar-list {
-  @mixin list-reset;
+  list-style-type: none;
   padding-bottom: 0;
+  padding-left: 0;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .percentage-bar-bg,

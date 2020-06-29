@@ -1,11 +1,10 @@
 import axios from "axios";
 import React, {Component, Fragment} from "react";
 import {hot} from "react-hot-loader/root";
-import Button from "../fields/Button";
-import Parse from "../sections/components/Parse";
-import "./PercentageBar.css";
+import {Icon} from "@blueprintjs/core";
+import "./CustomViz.css";
 
-class PercentageBar extends Component {
+class CustomViz extends Component {
 
   constructor(props) {
     super(props);
@@ -129,17 +128,25 @@ class PercentageBar extends Component {
         </div>
         <div className="show-more" key="show-more">
           {!showAll && cutoffText &&
-            <Parse className="cutoff-text">{cutoffText}</Parse>
+            <div className="cutoff-text">
+              {cutoffText}
+            </div>
           }
           {showAll || data.length > displayData.length
-            ? <Button
-              fontSize="xs"
-              iconPosition="left"
-              icon={showAll ? "eye-off" : "eye-open"}
+            ? <button
+              className="cp-button u-font-xs"
               onClick={() => this.setState({showAll: !this.state.showAll})}
             >
-              {showAll ? hideText : showText}
-            </Button> : ""
+
+              {/* left icon */}
+              <Icon className="cp-button-icon" icon={showAll ? "eye-off" : "eye-open"} />
+
+              {/* button text */}
+              <span className="cp-button-text">
+                {showAll ? hideText : showText}
+              </span>
+
+            </button> : ""
           }
         </div>
       </Fragment>
@@ -147,4 +154,4 @@ class PercentageBar extends Component {
   }
 }
 
-export default hot(PercentageBar);
+export default hot(CustomViz);
