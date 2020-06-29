@@ -26,7 +26,7 @@ const validLicenses = ["4", "5", "7", "8", "9", "10"];
 const validLicensesString = validLicenses.join();
 const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
 
-let cubeRoot = CANON_CMS_CUBES;
+let cubeRoot = CANON_CMS_CUBES || "localhost";
 if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
 const catcher = e => {

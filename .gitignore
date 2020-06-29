@@ -7,6 +7,7 @@ node_modules/
 # these static files will be generated on build
 **/static/assets
 **/static/reports
+examples/index.js
 
 # environment variable files for autoenv and direnv
 .env

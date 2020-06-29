@@ -1,13 +1,14 @@
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin,
+      FriendlyErrorsWebpackPlugin = require("@nuxtjs/friendly-errors-webpack-plugin"),
       InlineEnviromentVariablesPlugin = require("inline-environment-variables-webpack-plugin"),
       MiniCssExtractPlugin = require("mini-css-extract-plugin"),
+      OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin"),
+      TerserJSPlugin = require("terser-webpack-plugin"),
       WebpackBar = require("webpackbar"),
       appDir = process.cwd(),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
-      webpack = require("webpack"),
-      TerserJSPlugin = require("terser-webpack-plugin"),
-      OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+      webpack = require("webpack");
 
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
 const publicPath = "/assets/";
@@ -53,10 +54,8 @@ module.exports = [
       minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})]
     },
     plugins: [
-      new WebpackBar({
-        color: "#fc6",
-        name: "client"
-      }),
+      new WebpackBar({color: "#fc6", name: "client"}),
+      new FriendlyErrorsWebpackPlugin({clearConsole: false}),
       new MiniCssExtractPlugin({
         filename: "styles.css"
       }),
@@ -94,13 +93,14 @@ module.exports = [
       extensions: [".js", ".jsx", ".css"]
     },
     optimization: {
-      minimizer: [new TerserJSPlugin({terserOptions: {warnings: false, mangle: true, keep_fnames: true}}), new OptimizeCSSAssetsPlugin({})]
+      minimizer: [
+        new TerserJSPlugin({terserOptions: {warnings: false, mangle: true, keep_fnames: true}}),
+        new OptimizeCSSAssetsPlugin({})
+      ]
     },
     plugins: [
-      new WebpackBar({
-        color: "#CB9F2C",
-        name: "server"
-      }),
+      new WebpackBar({color: "#CB9F2C", name: "server"}),
+      new FriendlyErrorsWebpackPlugin({clearConsole: false}),
       new MiniCssExtractPlugin({
         filename: "styles.css"
       }),

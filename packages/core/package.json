@@ -51,6 +51,7 @@
     "@babel/runtime": "^7.10.2",
     "@blueprintjs/core": "^3.18.0",
     "@blueprintjs/icons": "^3.18.0",
+    "@nuxtjs/friendly-errors-webpack-plugin": "^2.1.0",
     "axios": "^0.19.2",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
