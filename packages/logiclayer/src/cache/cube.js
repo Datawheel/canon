@@ -16,6 +16,8 @@ const {CANON_LOGICLAYER_CUBE} = process.env;
 
 module.exports = async function() {
 
+  if (!CANON_LOGICLAYER_CUBE) return {};
+
   const client = new Client(CANON_LOGICLAYER_CUBE);
   let count = 0, total = 0;
 
