@@ -18,6 +18,7 @@ import Login from "./core/Login";
 import SignUp from "./core/SignUp";
 import NotFound from "./core/NotFound";
 import I18n from "./core/I18n";
+import FetchData from "./core/FetchData";
 
 // CMS
 import IntroCms from "./cms/Intro";
@@ -47,7 +48,8 @@ const PACKAGES = [
       {title: "Login", component: Login},
       {title: "SignUp", component: SignUp},
       {title: "Not Found", component: NotFound},
-      {title: "I18n", component: I18n}
+      {title: "I18n", component: I18n},
+      {title: "FetchData", component: FetchData}
     ]
   },
   {
@@ -91,6 +93,10 @@ class Docs extends Component {
 
   }
 }
+
+Docs.need = [
+  FetchData
+];
 
 Docs.contextTypes = {
   router: PropTypes.object
