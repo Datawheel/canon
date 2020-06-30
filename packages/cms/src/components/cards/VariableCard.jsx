@@ -53,6 +53,12 @@ class VariableCard extends Component {
         if (type === "generator" || type === "materializer") {
           const config = {type, id: minData.id};
           this.props.fetchVariables(config);
+          // Unlike other cards, who can simply set dialogOpen:false in status.js in redux, a gen/mat may have
+          // been opened by an "output view" variable. In output view, all cards are hidden, and are selectively
+          // and forcefully opened using forceOpen. If a user saves in this state, we can't have redux process
+          // the dialogOpen:false, because output view will unmount it before it hits the fetchVariables line above,
+          // resulting in variables not updating. So, for gen/mats, wait until fetch is kicked off to hide.
+          this.props.setStatus({dialogOpen: false});
         }
         // Clone the new object for manipulation in state.
         this.setState({minData: deepClone(this.props.minData), isOpen: false, isDirty: false});
