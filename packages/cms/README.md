@@ -190,6 +190,8 @@ import {Profile} from "@datawheel/canon-cms";
 <Route path="/profile/:slug/:id/:slug2/:id2" component={Profile} />
 ```
 
+**NOTE**: These routes are determined by the CMS to be profiles by their matching on the the `:slug/:id` pattern. If you set up any other routes with these query arguments, the CMS will use them as profile-y links. In general you should try to avoid using this pattern, but if disambiguation is required you may add `isProfile={true}` to a route to tell the link builder what is a true profile.
+
 ---
 
 ## Overview and Terminology
