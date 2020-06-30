@@ -342,7 +342,7 @@ class Options extends Component {
 
         {dataURLs && dataURLs.map((link, i) =>
           <ShareDirectLink
-            link={data.indexOf("http") === 0 ? link : `${ domain }${ link }`}
+            link={link.indexOf("http") === 0 ? link : `${ domain }${ link }`}
             label={`${t("CMS.Options.Endpoint")}${dataURLs.length > 1 ? ` ${i + 1}` : "" }`}
             key={link}
           />
