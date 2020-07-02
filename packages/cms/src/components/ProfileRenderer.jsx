@@ -282,7 +282,7 @@ class ProfileRenderer extends Component {
                 )}
               </div>
             )}
-            {!hideHero && relatedProfiles && relatedProfiles.length > 0 && 
+            {!hideHero && relatedProfiles && relatedProfiles.length > 0 &&
               <Related profiles={relatedProfiles} />
             }
           </main>
