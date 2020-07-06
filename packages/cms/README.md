@@ -9,6 +9,7 @@ Content Management System for Canon sites.
 * [Overview and Terminology](#overview-and-terminology)
 * [Environment Variables](#environment-variables)
 * [Sections](#sections)
+* [Custom Sections](#custom-sections)
 * [Search](#search)
 * [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
@@ -172,13 +173,24 @@ Images default to splash size, but you may set `&size=thumb` for a thumbnail. To
 
 ## Rendering a Profile
 
-The CMS exports a `Profile` component that can be directly mounted to a Route. The only requirement is that you use `pslug` and `pid` for the profile's slug and id properties:
+The CMS exports a `Profile` component that can be directly mounted to a Route. The only requirement is that you use `slug` and `id` for the profile's slug and id properties:
 
 ```jsx
 import {Profile} from "@datawheel/canon-cms";
 ...
-<Route path="/profile/:pslug/:pid" component={Profile} />
+<Route path="/profile/:slug/:id" component={Profile} />
 ```
+
+To add support for bilateral profiles, add a second route after the main route, using numbered slug id pairs:
+
+```jsx
+import {Profile} from "@datawheel/canon-cms";
+...
+<Route path="/profile/:slug/:id" component={Profile} />
+<Route path="/profile/:slug/:id/:slug2/:id2" component={Profile} />
+```
+
+**NOTE**: These routes are determined by the CMS to be profiles by their matching on the the `:slug/:id` pattern. If you set up any other routes with these query arguments, the CMS will use them as profile-y links. In general you should try to avoid using this pattern, but if disambiguation is required you may add `isProfile={true}` to a route to tell the link builder what is a true profile.
 
 ---
 
@@ -326,14 +338,6 @@ Text rendered into paragraph tags.
 #### Visualizations
 Primarily, visualizations utilize [d3plus](http://d3plus.org/). However, we've also added a few custom visualization types:
 
-##### Percentage bar
-Renders a list of bars, each indicating a share.
-
-🔥**Pro tip**: custom config settings for this option include:
-- `cutoff` (integer; number of bars to show before hiding the rest behind a button)
-- `cutoffText` (string; text to print in a paragraph preceding the *show more* button)
-- `showText` & `hideText` (string; show/hide button label text)
-
 ##### Table
 Renders data in a [react-table](https://github.com/tannerlinsley/react-table/tree/v6) table. All react-table props are available.
 
@@ -343,7 +347,7 @@ Renders data in a [react-table](https://github.com/tannerlinsley/react-table/tre
 
 ##### Graphic
 Renders an image, optionally on top of a [stat](#stats). The config looks like:
-```
+```js
 config: {
   imageURL: "link/to.image",
   label: "stat label", // optional
@@ -353,6 +357,51 @@ config: {
 ```
 
 🔥**Pro tip**: Multiple graphic visualizations will be automatically grouped together into a grid — but only in the [default](default-layout) and [grouping](grouping-layout) section layouts.
+
+---
+
+## Custom Sections
+
+#### Setup
+
+To extend the layout and functionality of sections, custom JSX sections can be created which will be added to the list of available section types. To add a custom section:
+
+- Create a directory in your canon app named `app/cms/sections`
+- Add your custom jsx component to this directory. Observe the [default Section layout](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Default.jsx) for a starting point. Take note of the [Section wrapper](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Section.jsx) that it inherits from to see more information on the `props` that get passed down.
+- In your custom jsx component, be sure to change the viz import at the top of the file from the relative path `import Viz from "../Viz/Viz";` to a module import: `import {Viz} from "@datawheel/canon-cms";`
+- Create an `index.js` file in this directory that exports ALL of your custom components:
+
+```js
+export {default as CustomSection} from "./CustomSection.jsx";
+export {default as CustomSection2} from "./CustomSection2.jsx";
+```
+- Rebuild the server
+- Set your section to the new section type in Section Editor of the CMS.
+
+#### Implementation
+
+The [Section wrapper](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Section.jsx) handles most of the context callbacks, click interaction, anchor links, etc. required by all Sections. As such, the underlying section layouts are fairly sparse; many of them just pass the props through one by one (`Default.jsx` is a good example of this - observe the series of stats/paragraphs/sources variables).
+
+If you need more control over how these sections are laid out, or even want to manipulate the text provided by the API, the *entire* section object is passed down via the `contents` key. In your custom component, you may emulate any `Section.jsx` variable preparation using these contents to maximize customization.
+
+---
+
+## Custom Visualizations
+
+#### Setup
+
+To extend the layout and functionality of visualizations, custom JSX visualizations can be created which will be added to the list of available visualization types. To add a custom visualization:
+
+- Create a directory in your canon app named `app/cms/vizzes`
+- Add your custom jsx component to this directory.
+- Create an `index.js` file in this directory that exports ALL of your custom components:
+
+```js
+export {default as CustomViz} from "./CustomViz.jsx";
+export {default as CustomViz2} from "./CustomViz2.jsx";
+```
+- Rebuild the server
+- Set your visualization type to the new visualization type in Visualization Editor of the CMS.
 
 ---
 
@@ -488,6 +537,38 @@ If the pieces are the same, one parameter may be used:
 
 `&slugs=Product`
 
+### Custom Attributes
+
+The fixed "Attributes" includes basic information about the currently selected member, like dimension, id, and hierarchy. This is useful because it is run *before* other generators, and can therefore be used both in subsequent `variables` object and also in API calls, using the `<bracket>` syntax.
+
+If you would like to inject your own custom variables into the Attributes generator, create an endpoint in your canon API folder:
+
+```js
+app.post("/api/cms/customAttributes/:pid", (req, res) => {
+
+  const pid = parseInt(req.params.pid, 10);
+  const {variables, locale} = req.body;
+  const {id1, dimension1, hierarchy1, slug1, name1, cubeName1, user} = variables;
+
+  /**
+   * Make axios calls, run JS, and return your compiled data as a single JS Object. Use the pid
+   * given in params to return different attributes for different profiles.
+   */
+
+  if (pid === 49) {
+    return res.json({
+      capitalName: name1.toUpperCase()
+    });
+  }
+  else return res.json({});
+
+});
+```
+
+You can determine the profile pid of a given profile by checking the URL in the CMS (e.g. `http://localhost:3300/?tab=profiles&profile=49`). The POST endpoint will receive the contents of the Attributes generator in the POST body as `variables`, as well as the current `locale`.
+
+Keep in mind that this will need to run every time a front-end profile loads, and also every time a generator or materializer is saved on the backend CMS (as it would need the variables from this endpoint to run). As a rule, try not to put any majorly heavy requests in here as it necessarily "blocks" the rest of the generator/materalizer execution.
+
 ---
 
 ## Advanced Visualization Techniques
@@ -518,7 +599,7 @@ Keep in mind that the `setVariables` function accesses the main `variables` obje
 
 A potential use case for this may be for an entire viz, stat, or section to be shown or hidden based on a click action inside a viz. Remember, each entity in the CMS has an `allowed` property, a variable whose truthiness determines whether to show this entity or not. If you want to control the visibility of an element, set its `allowed` property to a variable that you intend to override later with a click action. To expand the example above:
 
-```
+```js
  "on":
     {
       "click": d => {
@@ -586,7 +667,7 @@ return {
 
 ## Advanced Selector Techniques
 
-Traditional selectors (dropdowns) are static. Options are added, one by one, from the list of premade variables. However, if selector lists are very long (such as a list of states) or need to automatically change (such as years when new data are added), you may need to configure dynamic selectors. 
+Traditional selectors (dropdowns) are static. Options are added, one by one, from the list of premade variables. However, if selector lists are very long (such as a list of states) or need to automatically change (such as years when new data are added), you may need to configure dynamic selectors.
 
 The `name` of the Selector itself, as well as defining which option(s) are the default, are configured the same way as static selectors. The main difference is that Dynamic Selectors allow you to use a variable to define the members of the dropdown, as opposed to adding pre-existing variable options one at a time.
 
@@ -594,7 +675,7 @@ The `name` of the Selector itself, as well as defining which option(s) are the d
 
 Dynamic selectors are array variables. The members of that array may be objects or strings.
 
-If the members are **objects**, you must provide the required key `option`, and the optional keys `label` and `allowed`. 
+If the members are **objects**, you must provide the required key `option`, and the optional keys `label` and `allowed`.
 
 |key|required|details
 |---|---|---|
@@ -611,9 +692,9 @@ If the members are **objects**, you must provide the required key `option`, and 
 ]
 ```
 
-Remember - in static selectors, the "label" was implicitly value of the variable. However, in dynamic selectors, **the options you create will not exist in the variables object**. The exist only within this dynamic selector. In the above example, attempting to access `variables.year2018` will not return anything, as no generator ever exported `year2018` as a proper variable in and of itself. 
+Remember - in static selectors, the "label" was implicitly value of the variable. However, in dynamic selectors, **the options you create will not exist in the variables object**. The exist only within this dynamic selector. In the above example, attempting to access `variables.year2018` will not return anything, as no generator ever exported `year2018` as a proper variable in and of itself.
 
-A string configuration is also supported: 
+A string configuration is also supported:
 
 ```js
 ["option1", "option2", "option3"]
@@ -621,7 +702,7 @@ A string configuration is also supported:
 
 In this case, `label` will default to `option` and `allowed` will default to `always`. You may also mix and match formats.
 
-### Technical Details 
+### Technical Details
 
 Advanced users may have used the following syntax to achieve "labels" on the front end:
 
@@ -631,7 +712,7 @@ Advanced users may have used the following syntax to achieve "labels" on the fro
 
 On a first pass, a selector swap will change `selector1` to its selected value (say `year2018`), which leaves `{{year2018}}` behind. A second variable swap pass would then change it to `2018`, for use in a human-readable paragraph.
 
-In dynamic selectors, as mentioned above, `year2018` will not exist as such. Therefore, a step has been added BETWEEN the selector swap and the variable swap, which will use user-defined `labels` as a temporary variable lookup. This behavior allows users to continue to use the `{{[[selector1]]}}` format they are used to, and can trust that it will turn `year2018` into `2018`, even though `year2018` is not in the variables object. 
+In dynamic selectors, as mentioned above, `year2018` will not exist as such. Therefore, a step has been added BETWEEN the selector swap and the variable swap, which will use user-defined `labels` as a temporary variable lookup. This behavior allows users to continue to use the `{{[[selector1]]}}` format they are used to, and can trust that it will turn `year2018` into `2018`, even though `year2018` is not in the variables object.
 
 ---
 
@@ -655,7 +736,7 @@ The visualizations are powered by [D3plus](http://d3plus.org/), a JavaScript lib
 
 1. **data** - without data, no visualization can be drawn! To provide data, set the `data` key inside of the returned _Object_ to either a _String_ URL or an _Array_ of data objects. You can also provide an optional callback function for URLs as the `dataFormat` key, which will allow you to transform the loaded data in any way necessary for the visualization (like calculating a "share" percentage based on the total data returned).
 
-2. **type** - you also need to defined what type of visualization to draw, such as a BarChart or a LinePlot. You can provide any D3plus visualziation class name as a _String_ to the `type` key of the return Object, as well as a few custom HTML based visualizations that come packages with the CMS (like `"Table"` and `"PercentageBar"`). Check out [the code](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/Viz/Viz.jsx#L14) to see the most current list of exports, as well as reference the [d3plus docs](http://d3plus.org/docs/).
+2. **type** - you also need to defined what type of visualization to draw, such as a BarChart or a LinePlot. You can provide any D3plus visualziation class name as a _String_ to the `type` key of the return Object, as well as a few custom HTML based visualizations that come packages with the CMS (like `"Table"` and `"Graphic"`). Check out [the code](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/Viz/Viz.jsx#L14) to see the most current list of exports, as well as reference the [d3plus docs](http://d3plus.org/docs/).
 
 3. **visualization configuration** - once the CMS knows the data to use and which visualization to render, you need to tell it a little bit about your data. For example, if creating a Bar Chart of salaries over time, you need to tell which keys in your data objects to use for each axis. Each visualization has slightly different requirements (like `{x: "Salary", y: "Year"}` in this case), and the d3plus [examples](http://d3plus.org/examples/) is probably the best place to familiarize yourself wit this syntax.
 
@@ -745,20 +826,20 @@ It is necessary that users spin up an entire new database for any CMS migration.
 The user need configure two sets of environment variables, `OLD` and `NEW`.
 
 ```
-CANON_CONST_MIGRATION_OLD_DB_NAME
-CANON_CONST_MIGRATION_OLD_DB_USER
-CANON_CONST_MIGRATION_OLD_DB_PW
-CANON_CONST_MIGRATION_OLD_DB_HOST
+CANON_CMS_MIGRATION_OLD_DB_NAME
+CANON_CMS_MIGRATION_OLD_DB_USER
+CANON_CMS_MIGRATION_OLD_DB_PW
+CANON_CMS_MIGRATION_OLD_DB_HOST
 
-CANON_CONST_MIGRATION_NEW_DB_NAME
-CANON_CONST_MIGRATION_NEW_DB_USER
-CANON_CONST_MIGRATION_NEW_DB_PW
-CANON_CONST_MIGRATION_NEW_DB_HOST
+CANON_CMS_MIGRATION_NEW_DB_NAME
+CANON_CMS_MIGRATION_NEW_DB_USER
+CANON_CMS_MIGRATION_NEW_DB_PW
+CANON_CMS_MIGRATION_NEW_DB_HOST
 ```
 
 These variables represent the old db you are migration **from** and the new db you are migrating **to**.  The new db will be **wiped every time** you run the script - the idea here is that you are building a new db from scratch.
 
 🔥 WHATEVER DB YOU CONFIGURE AS **NEW** WILL BE COMPLETELY DESTROYED AND BUILT FROM SCRATCH 🔥
-🔥 DO NOT SET `CANON_CONST_MIGRATION_NEW_DB_*` TO A CURRENTLY IMPORTANT DB🔥
+🔥 DO NOT SET `CANON_CMS_MIGRATION_NEW_DB_*` TO A CURRENTLY IMPORTANT DB🔥
 
 After the migration is done, you can switch your dev environment to the new DB for testing, and eventually switch it to prod.

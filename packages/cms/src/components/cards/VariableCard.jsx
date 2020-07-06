@@ -53,6 +53,12 @@ class VariableCard extends Component {
         if (type === "generator" || type === "materializer") {
           const config = {type, id: minData.id};
           this.props.fetchVariables(config);
+          // Unlike other cards, who can simply set dialogOpen:false in status.js in redux, a gen/mat may have
+          // been opened by an "output view" variable. In output view, all cards are hidden, and are selectively
+          // and forcefully opened using forceOpen. If a user saves in this state, we can't have redux process
+          // the dialogOpen:false, because output view will unmount it before it hits the fetchVariables line above,
+          // resulting in variables not updating. So, for gen/mats, wait until fetch is kicked off to hide.
+          this.props.setStatus({dialogOpen: false});
         }
         // Clone the new object for manipulation in state.
         this.setState({minData: deepClone(this.props.minData), isOpen: false, isDirty: false});
@@ -81,8 +87,8 @@ class VariableCard extends Component {
   formatDisplay() {
     const {type} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
-    const secondaryVariables = this.props.status.variables[localeSecondary];
+    const variables = this.props.variables[localeDefault];
+    const secondaryVariables = this.props.variables[localeSecondary];
     const {id} = this.props.minData;
     let displayData, secondaryDisplayData = {};
     let dupes = [];
@@ -191,8 +197,8 @@ class VariableCard extends Component {
   }
 
   render() {
-    const {attr, readOnly, minData, type, showReorderButton} = this.props;
-    const {localeDefault, localeSecondary, variables} = this.props.status;
+    const {attr, readOnly, minData, type, showReorderButton, variables} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
     const {displayData, secondaryDisplayData, isOpen, alertObj, dupes, size} = this.state;
 
     let description = "";
@@ -236,7 +242,7 @@ class VariableCard extends Component {
       Object.assign(cardProps, {
         title: minData.name, // overwrites placeholder
         onEdit: minData.locked ? null : this.openEditor.bind(this),
-        onDuplicate: minData.locked ? null : this.maybeDuplicate.bind(this),
+        onDuplicate: minData.locked || type === "formatter" ? null : this.maybeDuplicate.bind(this),
         onDelete: minData.locked ? null : this.maybeDelete.bind(this),
         // reorder
         reorderProps: showReorderButton ? {
@@ -247,6 +253,11 @@ class VariableCard extends Component {
         alertObj,
         onAlertCancel: () => this.setState({alertObj: false})
       });
+    }
+
+    let usesConsole = false;
+    if (minData && minData.logic && minData.logic.includes("console.log")) {
+      usesConsole = true;
     }
 
     return (
@@ -263,13 +274,13 @@ class VariableCard extends Component {
                 {localeSecondary &&
                   <LocaleName>{localeDefault}</LocaleName>
                 }
-                <VarTable dataset={displayData} dupes={dupes}/>
+                <VarTable dataset={displayData} dupes={dupes} showAll={minData.id === "attributes"}/>
               </div>
 
               {localeSecondary &&
                 <div className="cms-card-locale-container" key="cls">
                   <LocaleName>{localeSecondary}</LocaleName>
-                  <VarTable dataset={secondaryDisplayData} dupes={dupes} />
+                  <VarTable dataset={secondaryDisplayData} dupes={dupes} showAll={minData.id === "attributes"}/>
                 </div>
               }
             </div>
@@ -283,6 +294,11 @@ class VariableCard extends Component {
           {size > 10000 && 
             <p className="cms-card-error u-font-xxs u-margin-top-xs">
               <Icon className="cms-card-error-icon" icon="warning-sign" /> Large Generator Warning! {size} characters.
+            </p>
+          }
+          {usesConsole && 
+            <p className="cms-card-error u-font-xxs u-margin-top-xs">
+              <Icon className="cms-card-error-icon" icon="warning-sign" /> Warning: Remove <pre className="cms-console-warning">console.log</pre>.
             </p>
           }
         </Card>
@@ -301,6 +317,7 @@ VariableCard.contextTypes = {
 };
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   status: state.cms.status
 });
 

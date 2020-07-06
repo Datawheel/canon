@@ -52,7 +52,7 @@ class Parse extends Component {
           ? <ul dangerouslySetInnerHTML={{__html: stripUL(el)}} key={`${el}-${El}-${i}`} {...commonProps} />
 
           // inline code block
-          : el.indexOf(`<pre class="ql-syntax" spellcheck="false">`) !== -1
+          : el.indexOf("<pre class=\"ql-syntax\" spellcheck=\"false\">") !== -1
             ? <p dangerouslySetInnerHTML={{__html: el}} key={`${el}-${El}-${i}`} {...commonProps} />
 
             // quote

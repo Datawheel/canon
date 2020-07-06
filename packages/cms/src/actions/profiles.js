@@ -156,8 +156,7 @@ export function fetchSectionPreview(id, locale) {
   return function(dispatch, getStore) {
     dispatch({type: "SECTION_PREVIEW_FETCH"});
     const {currentPid, pathObj} = getStore().cms.status;
-    const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
-    const variables = thisProfile.variables[locale];
+    const {variables} = getStore().cms.variables[locale];
     const {previews} = pathObj;
     const idString = previews.reduce((acc, id, i) => `${acc}&slug${i + 1}=${id.slug}&id${i + 1}=${id.id}`, "");
     const url = `${getStore().env.CANON_API}/api/profile?profile=${currentPid}&section=${id}&locale=${locale}${idString}`;
@@ -175,9 +174,8 @@ export function fetchSectionPreview(id, locale) {
  */
 export function setVariables(newVariables) { 
   return function(dispatch, getStore) {
-    const {currentPid} = getStore().cms.status;
-    const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
-    const variables = deepClone(thisProfile.variables);
+    const {variables} = getStore().cms;
+
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
     // loop by checking if the vars are in there already, only updating if they are not yet set.
@@ -188,14 +186,14 @@ export function setVariables(newVariables) {
       Object.keys(variables).forEach(locale => {
         variables[locale] = Object.assign({}, variables[locale], newVariables);
       });
-      dispatch({type: "VARIABLES_SET", data: {id: currentPid, variables}});
+      dispatch({type: "VARIABLES_SET", data: {variables}});
     }
   };
 }
 
 /** */
 export function resetPreviews() { 
-  return function(dispatch, getStore) {
+  return async function(dispatch, getStore) {
     const {currentPid, pathObj} = getStore().cms.status;
     const {profiles} = getStore().cms;
     const thisProfile = profiles.find(p => p.id === currentPid);
@@ -225,28 +223,27 @@ export function resetPreviews() {
       return axios.get(url);
     });
     const previews = [];
-    Promise.all(requests).then(resps => {
-      resps.forEach((resp, i) => {
-        // If our result doesn't return for some reason, scaffold out a mostly-blank result with the first group's first meta
-        const newPreview = {slug: groupedMeta[i][0].slug, id: "", name: "", memberSlug: "", searchObj: {}};
-        if (resp && resp.data && resp.data.results && resp.data.results[0]) {
-          const result = resp.data.results[0];
-          // Because any given dimension has many variants, we must use the returned member to find out which one we're on.
-          const thisGroup = groupedMeta[i];
-          const matchingMeta = thisGroup.find(meta => meta.dimension === result.dimension && meta.cubeName === result.cubeName);
-          if (matchingMeta) {
-            newPreview.slug = matchingMeta.slug;
-            newPreview.id = result.id;
-            newPreview.name = result.name;
-            newPreview.memberSlug = result.slug;
-            newPreview.searchObj = result;
-          }
+    const resps = await Promise.all(requests).catch(catcher);
+    resps.forEach((resp, i) => {
+      // If our result doesn't return for some reason, scaffold out a mostly-blank result with the first group's first meta
+      const newPreview = {slug: groupedMeta[i][0].slug, id: "", name: "", memberSlug: "", searchObj: {}};
+      if (resp && resp.data && resp.data.results && resp.data.results[0]) {
+        const result = resp.data.results[0];
+        // Because any given dimension has many variants, we must use the returned member to find out which one we're on.
+        const thisGroup = groupedMeta[i];
+        const matchingMeta = thisGroup.find(meta => meta.dimension === result.dimension && meta.cubeName === result.cubeName);
+        if (matchingMeta) {
+          newPreview.slug = matchingMeta.slug;
+          newPreview.id = result.id;
+          newPreview.name = result.name;
+          newPreview.memberSlug = result.slug;
+          newPreview.searchObj = result;
         }
-        previews.push(newPreview);
-      });
-      const newPathObj = Object.assign({}, pathObj, {previews});
-      dispatch({type: "STATUS_SET", data: {previews, pathObj: newPathObj}});
+      }
+      previews.push(newPreview);
     });
+    const newPathObj = Object.assign({}, pathObj, {previews});
+    dispatch({type: "STATUS_SET", data: {previews, pathObj: newPathObj}});
   };
 }
 
@@ -257,13 +254,13 @@ export function resetPreviews() {
  * variables object in a hash that is keyed by the profile id.
  */
 export function fetchVariables(config) { 
-  return async function(dispatch, getStore) {    
+  return async function(dispatch, getStore) { 
     dispatch({type: "VARIABLES_FETCH", data: "Generators"});
     const {previews, localeDefault, localeSecondary, currentPid} = getStore().cms.status;
     const {auth} = getStore();
 
     const thisProfile = getStore().cms.profiles.find(p => p.id === currentPid);
-    let variables = deepClone(thisProfile.variables);
+    let variables = deepClone(getStore().cms.variables);
     if (!variables) variables = {};
     if (!variables[localeDefault]) variables[localeDefault] = {_genStatus: {}, _matStatus: {}};
     if (localeSecondary && !variables[localeSecondary]) variables[localeSecondary] = {_genStatus: {}, _matStatus: {}};
@@ -284,15 +281,24 @@ export function fetchVariables(config) {
 
     const locales = [localeDefault];
     if (localeSecondary) locales.push(localeSecondary);
+    
+    const magicURL = `/api/cms/customAttributes/${currentPid}`;
+    const attributesByLocale = {};
     for (const thisLocale of locales) {
-      const attributes = attify(previews.map(d => d.searchObj), thisLocale);
+      const theseAttributes = attify(previews.map(d => d.searchObj), thisLocale);
       if (getStore().env.CANON_LOGINS && auth.user) {
         const {password, salt, ...user} = auth.user; // eslint-disable-line
-        attributes.user = user;
+        theseAttributes.user = user;
         // Bubble up userRole for easy access in front end (for hiding sections based on role)
-        attributes.userRole = user.role;
+        theseAttributes.userRole = user.role;
       }
+      const magicResp = await axios.post(magicURL, {variables: theseAttributes, locale: thisLocale}).catch(() => ({data: {}}));
+      attributesByLocale[thisLocale] = theseAttributes;
+      if (typeof magicResp.data === "object") attributesByLocale[thisLocale] = {...attributesByLocale[thisLocale], ...magicResp.data};
+    }
 
+    for (const thisLocale of locales) {
+      const attributes = attributesByLocale[thisLocale];
       let paramString = previews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, "");
       if (config && (config.type === "materializer" || config.type === "generator")) paramString += `&${config.type}=${config.id}`;
       if (!config || config && config.type === "generator") {
@@ -320,7 +326,8 @@ export function fetchVariables(config) {
       const mat = await axios.post(`${getStore().env.CANON_API}/api/materializers/${currentPid}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).catch(catcher);
       variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
       const diffCounter = getStore().cms.status.diffCounter + 1;
-      dispatch({type: "VARIABLES_SET", data: {id: currentPid, diffCounter, variables}});
+      dispatch({type: "VARIABLES_SET", data: {variables}});
+      dispatch({type: "VARIABLES_DIFF", data: {diffCounter}});
       dispatch({type: "VARIABLES_FETCHED"});
     }
   };

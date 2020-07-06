@@ -1,0 +1,6 @@
+#SideNav {
+  width: 250px;
+  & a.bp3-button{
+    padding-left: 35px;
+  }
+}

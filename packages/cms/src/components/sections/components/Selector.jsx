@@ -54,8 +54,8 @@ class Selector extends Component {
   render() {
     const {comparisons} = this.state;
     const {onSelector, variables} = this.context;
-    const {default: activeValue, fontSize, id, loading, options, name, title, type} = this.props;
-    const slug = `${name}-${id}`;    
+    const {default: activeValue, fontSize, id, loading, options, name, selectCutoff, title, type} = this.props;
+    const slug = `${name}-${id}`;
     const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
 
     // multi select
@@ -63,7 +63,7 @@ class Selector extends Component {
       return <div className={ `bp3-fill ${type === "multi" ? "" : "bp3-select"}` }>
         { title && <label htmlFor={slug}>{title}</label> }
 
-        {comparisons && comparisons.length && <Fragment>
+        {comparisons && comparisons.length > 0 && <Fragment>
           <div className="multi-list">
             { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
               { stripHTML(labels[d] || variables[d] || d) }
@@ -88,8 +88,8 @@ class Selector extends Component {
 
     // single selector
     else if (options && options.length >= 2) {
-      // 2–3 options; button group
-      if (options.length <= 3) {
+      // options under selectCutoff; button group
+      if (options.length <= selectCutoff) {
         return <ButtonGroup label={title} className="cp-selector-button-group" fontSize={fontSize}>
           {options.map(b =>
             <Button
@@ -104,7 +104,7 @@ class Selector extends Component {
           )}
         </ButtonGroup>;
       }
-      // 4+ options; select menu
+      // options over selectCutoff; select menu
       return <Select
         label={title}
         inline
@@ -130,7 +130,8 @@ Selector.contextTypes = {
 };
 
 Selector.defaultProps = {
-  fontSize: "xxs"
+  fontSize: "xxs",
+  selectCutoff: 3
 };
 
 export default hot(Selector);

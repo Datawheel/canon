@@ -80,8 +80,8 @@ class SectionEditor extends Component {
 
   render() {
     const {minData, allSelectors, formatters, setStatus} = this.props;
-    const {children} = this.props;
-    const {variables, localeDefault, localeSecondary, useLocaleSecondary, sectionPreview} = this.props.status;
+    const {variables, children} = this.props;
+    const {localeDefault, localeSecondary, useLocaleSecondary, sectionPreview} = this.props.status;
 
     const minDataState = this.state.minData;
 
@@ -355,6 +355,7 @@ class SectionEditor extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  variables: state.cms.variables,
   status: state.cms.status,
   formatters: state.cms.formatters,
   resources: state.cms.resources,
