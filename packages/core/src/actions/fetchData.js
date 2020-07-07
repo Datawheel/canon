@@ -3,7 +3,8 @@ import PromiseThrottle from "promise-throttle";
 import {encodeChars} from "../helpers/fixChars.js";
 import "@babel/polyfill";
 // @ts-ignore
-import FetchWorker from "worker-loader!./fetch.worker.js";
+import FetchWorker from "./fetch.worker.js";
+import WrapperWorker from "./wrapper.worker.js";
 
 import {wrap, proxy} from "comlink";
 
@@ -16,6 +17,7 @@ const throttle = new PromiseThrottle({
 const isSSR = typeof window === "undefined";
 
 const fetchWorker = isSSR ? false : wrap(new FetchWorker());
+const wrapperWorker = isSSR ? false : wrap(new WrapperWorker());
 
 /**
  * @function fetchData
@@ -40,25 +42,14 @@ export function fetchData(key, url, format = d => d, config = {}) {
       if (x && typeof x !== "object") u = u.replace(variable, encodeChars(x));
     });
 
-    const sleep = milliseconds => {
-      const start = new Date().getTime();
-      for (let i = 0; i < 1e7; i++) {
-        if (new Date().getTime() - start > milliseconds) {
-          break;
-        }
-      }
-    };
-
     /** A) Regular axios function for server render */
-    const axiosFn = () => axios.get(encodeURI(u), config).then(res => {
-      sleep(3000);
-      return {key, data: format(res.data)};
-    });
+    const axiosFn = () => axios.get(encodeURI(u), config).then(res => ({key, data: format(res.data)}));
 
     /** B) Web worker functions to client side calls */
     /** Web worker launch function */
     async function launchWorker(callback) {
       if (fetchWorker) {
+        // @ts-ignore
         await fetchWorker(proxy(callback), u, config);
       }
     }
@@ -66,7 +57,6 @@ export function fetchData(key, url, format = d => d, config = {}) {
     /** Actual promise for web worker stategy */
     const workerFn = () => new Promise((resolve, reject) => {
       const callback = data => {
-        sleep(3000);
         resolve({key, data: format(data)});
       };
       try {
@@ -80,6 +70,7 @@ export function fetchData(key, url, format = d => d, config = {}) {
 
     return {
       type: "GET_DATA",
+      // @ts-ignore
       promise: throttle.add(isSSR ? axiosFn : workerFn), // Depends on if is server or client
       description: u
     };
@@ -91,9 +82,29 @@ export function fetchData(key, url, format = d => d, config = {}) {
 
 }
 
+/** Launch the generic wrapper */
+async function launchWorkerWrapper(fn, callback) {
+  if (wrapperWorker) {
+    await wrapperWorker(proxy(fn), proxy(callback));
+  }
+  else {
+    callback(fn());
+  }
+}
+
 /** Generic webworker wrapper. */
-export function webWorkerWrapper(fn) {
-  console.log("run web worker!");
-  return "hola";
+export function needWebWorkerPromise(key, fn) {
+  return new Promise((resolve, reject) => {
+    const callback = data => {
+      resolve({key, data});
+    };
+    try {
+      launchWorkerWrapper(fn, callback);
+    }
+    catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
 }
 

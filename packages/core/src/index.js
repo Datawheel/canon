@@ -1,6 +1,6 @@
 // Actions
 export {isAuthenticated, login, logout, signup} from "./actions/auth";
-export {fetchData, webWorkerWrapper} from "./actions/fetchData";
+export {fetchData, needWebWorkerPromise} from "./actions/fetchData";
 
 // Components
 export {Activate} from "./components/Activate.jsx";
