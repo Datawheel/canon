@@ -721,6 +721,23 @@ module.exports = function(app) {
     profile.sections.forEach(section => {
       section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
     });
+    // Before sending the profiles down to be varswapped, remember that some sections have groupings. If a grouping
+    // has been set to NOT be visible, then its "virtual children" should not be visible either. Copy the outer grouping's
+    // visible prop down to the child sections so they get hidden in the same manner.
+    let latestGrouping = {};
+    profile.sections.forEach(section => {
+      if (section.type === "Grouping") {
+        latestGrouping = section;
+      }
+      else {
+        // Get the visibility of the parent group
+        const parentGroupingAllowed = !latestGrouping.allowed || latestGrouping.allowed === "always" || variables[latestGrouping.allowed];
+        // If the parent group is invisible, copy its allowed setting down into this section.
+        if (!parentGroupingAllowed) {
+          section.allowed = latestGrouping.allowed;
+        }
+      }
+    });
     profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
     // If the user provided selectors in the query, then the user has changed a dropdown.
     // This means that OTHER dropdowns on the page need to be set to match. To accomplish
