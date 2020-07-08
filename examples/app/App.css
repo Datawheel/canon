@@ -2,7 +2,7 @@ body {
   background-color: var(--light-1);
 }
 #app {
-  & main {
+  & main#docs {
     display: flex;
     flex-direction: row;
     justify-items: stretch;
