@@ -131,7 +131,7 @@ module.exports = props => {
     {
       test: /\.worker\.js$/,
       loader: "worker-loader",
-      options: {inline: true, fallback: false}
+      options: {inline: true, fallback: false, publicPath: "/src/actions/"}
     }
   ];
 };

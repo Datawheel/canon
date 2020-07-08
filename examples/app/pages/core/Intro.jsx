@@ -7,7 +7,7 @@ export default class Intro extends Component {
       <div>
         <h1>Core Package</h1>
         <h2>Introduction</h2>
-        <p>TO-DO</p>
+        <p>TO-DOs</p>
       </div>
     );
   }

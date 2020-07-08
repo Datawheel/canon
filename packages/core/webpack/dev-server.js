@@ -10,6 +10,7 @@ const FriendlyErrorsWebpackPlugin = require("@nuxtjs/friendly-errors-webpack-plu
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
+const context = path.join(__dirname, "../src");
 
 process.traceDeprecation = true;
 
@@ -17,7 +18,7 @@ process.traceDeprecation = true;
 module.exports = {
   name: "server",
   mode: "development",
-  context: path.join(__dirname, "../src"),
+  context,
   entry: {
     server: "./server"
   },

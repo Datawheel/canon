@@ -11,21 +11,23 @@ const appPath = path.join(appDir, "app");
 const loaderPath = require.resolve("./config/loaders");
 delete require.cache[loaderPath];
 const commonLoaders = require(loaderPath);
+const context = path.join(__dirname, "../src");
+console.log("context", context);
+
 
 process.traceDeprecation = true;
 
 /** @type {import("webpack").Configuration} */
 module.exports = {
-  devtool: "eval",
+  devtool: "source-map",
   name: "client",
   mode: "development",
-  context: path.join(__dirname, "../src"),
+  context,
   entry: {
     app: [
       "@babel/polyfill",
-
-      /* "react-hot-loader/patch",
-      "webpack-hot-middleware/client",*/
+      "react-hot-loader/patch",
+      "webpack-hot-middleware/client",
       "./client"
     ]
   },
@@ -33,7 +35,16 @@ module.exports = {
     path: assetsPath,
     filename: "[name].js",
     publicPath,
-    globalObject: "this"
+    globalObject: "this",
+    devtoolModuleFilenameTemplate(info) {
+      const rel = path.relative(context, info.absoluteResourcePath);
+      // ASk for blueprint
+      if (info.absoluteResourcePath.indexOf(".worker.js") > -1) {
+        console.log("------", info.absoluteResourcePath);
+        console.log("------", `webpack:///${info.resourcePath}?${info.loaders}`);
+      }
+      return `webpack:///${info.resourcePath}?${info.loaders}`;
+    }
   },
   module: {
     rules: commonLoaders({build: "client"})
@@ -67,8 +78,7 @@ module.exports = {
       },
       info: {level: "error"}
     }),
-
-    /* new webpack.HotModuleReplacementPlugin(),*/
+    new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))
       .reduce((d, k) => {
