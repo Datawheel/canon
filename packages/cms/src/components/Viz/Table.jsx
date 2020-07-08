@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {dataLoad} from "d3plus-viz";
+import {withNamespaces} from "react-i18next";
 import abbreviate from "../../utils/formatters/abbreviate";
 import stripHTML from "../../utils/formatters/stripHTML";
 import {max, min, sum} from "d3-array";
@@ -152,7 +153,7 @@ class Table extends Component {
   render() {
 
     const {data, loading} = this.state;
-    const {minRowsForPagination} = this.props;
+    const {minRowsForPagination, t} = this.props;
     const config = {...this.props.config};
     const {d3plus} = this.context;
     config.data = data;
@@ -179,13 +180,13 @@ class Table extends Component {
       <div className="cp-table-wrapper" ref={this.viz}>
         {tableStructure.length
           ? <ReactTable
-            loadingText={t("Loading...")}
-            nextText={t("Next")}
-            noDataText={t("No rows found")}
-            ofText={t("of")}
-            pageText={t("Page")}
-            previousText={t("Previous")}
-            rowsText={t("rows")}
+            loadingText={t("CMS.Table.Loading")}
+            nextText={t("CMS.Table.Next")}
+            noDataText={t("CMS.Table.No rows found")}
+            ofText={t("CMS.Table.of")}
+            pageText={t("CMS.Table.Page")}
+            previousText={t("CMS.Table.Previous")}
+            rowsText={t("CMS.Table.rows")}
             showPagination={data.length >= minRowsForPagination}
             {...config}
             className={`cp-table ${loading ? "cp-table-loading" : ""}`}
@@ -207,4 +208,4 @@ Table.defaultProps = {
   minRowsForPagination: 15
 };
 
-export default Table;
+export default withNamespaces()(Table);

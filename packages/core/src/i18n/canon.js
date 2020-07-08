@@ -58,7 +58,16 @@ export default {
     "SourceGroup": {
       "and": "and",
       "Data provided by": "Data provided by"
-    }
+    },
+    "Table": {
+      "Loading": "Loading...",
+      "Next": "Next",
+      "No rows found": "No rows found",
+      "Page": "Page",
+      "Previous": "Previous",
+      "of": "of",
+      "rows": "rows"
+    },
   },
   "Loading": {
     "description": "Loading {{progress}} of {{total}} datasets",
