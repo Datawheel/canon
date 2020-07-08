@@ -177,8 +177,15 @@ class Table extends Component {
 
     return (
       <div className="cp-table-wrapper" ref={this.viz}>
-        { tableStructure.length
+        {tableStructure.length
           ? <ReactTable
+            loadingText={t("Loading...")}
+            nextText={t("Next")}
+            noDataText={t("No rows found")}
+            ofText={t("of")}
+            pageText={t("Page")}
+            previousText={t("Previous")}
+            rowsText={t("rows")}
             showPagination={data.length >= minRowsForPagination}
             {...config}
             className={`cp-table ${loading ? "cp-table-loading" : ""}`}
@@ -186,7 +193,7 @@ class Table extends Component {
           />
           : console.log("Error: array with undefined returned in Table `columns` prop")
         }
-        { loading && <div className="cp-loading" dangerouslySetInnerHTML={{__html: config.loadingHTML || d3plus.loadingHTML}} />}
+        {loading && <div className="cp-loading" dangerouslySetInnerHTML={{__html: config.loadingHTML || d3plus.loadingHTML}} />}
       </div>
     );
   }
