@@ -236,6 +236,8 @@ class VariableEditor extends Component {
         />;
     }
 
+    const magicVariables = variables && variables._genStatus && variables._genStatus.attributes ? variables._genStatus.attributes : {};
+
     return (
       <Fragment>
         <div className="cms-variable-editor" key="e">
@@ -345,9 +347,10 @@ class VariableEditor extends Component {
           }
 
           {/* visibility */}
-          {type.includes("visualization") &&
+          {["generator", "materializer", "visualization"].includes(type) &&
             <VisibleSelector
-              variables={variables}
+              hideCustom={["generator", "materializer"].includes(type)}
+              variables={["generator", "materializer"].includes(type) ? magicVariables : variables}
               value={data.allowed !== undefined ? data.allowed : "always"}
               onChange={this.changeData.bind(this, "allowed")}
             />

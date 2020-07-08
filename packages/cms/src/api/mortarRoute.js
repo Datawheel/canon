@@ -315,8 +315,10 @@ module.exports = function(app) {
     }
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
+    generators = generators
+      .map(g => g.toJSON())
+      .filter(g => !g.allowed || g.allowed === "always" || smallAttr[g.allowed]);
     if (id && generators.length === 0) return {};
-    generators = generators.map(g => g.toJSON());
 
     /** */
     function createGeneratorFetch(r, attr) {

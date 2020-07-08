@@ -46,6 +46,10 @@
       cursor: auto;
     }
   }
+
+  &.is-not-allowed {
+    background-color:#fff1f3;
+  }
 }
 
 

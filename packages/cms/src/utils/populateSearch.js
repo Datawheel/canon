@@ -137,7 +137,7 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
           return obj;
         }, {})).catch(catcher);
 
-      fullList = fullList.concat(formatter(members, data, dimension, level.name));
+      fullList = fullList.concat(formatter(members, data, dimension, level.name)).filter(d => d.id);
 
     }
 

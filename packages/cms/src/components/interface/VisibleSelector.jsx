@@ -37,7 +37,7 @@ class VisibleSelector extends Component {
   render() {
 
     const {customVisible} = this.state;
-    const {variables, value} = this.props;
+    const {variables, value, hideCustom} = this.props;
 
     const varOptions = [<option key="always" value="always">Always</option>]
       .concat(Object.keys(variables)
@@ -55,7 +55,7 @@ class VisibleSelector extends Component {
     return (
       <fieldset className="cms-visible-selector-fieldset cms-fieldset">
 
-        {customVisible
+        {customVisible && !hideCustom
           ? <label>
             <TextInput
               className="cms-visible-selector-input"
@@ -77,14 +77,14 @@ class VisibleSelector extends Component {
             </Select> : ""
         }
 
-        <label className="cms-visible-selector-checkbox-label cms-checkbox-label u-font-xs u-margin-bottom-off">
+        {!hideCustom && <label className="cms-visible-selector-checkbox-label cms-checkbox-label u-font-xs u-margin-bottom-off">
           <input
             className="cms-checkbox"
             type="checkbox"
             checked={customVisible}
             onChange={this.toggleCustom.bind(this)}
           /> Override visible property with custom variable
-        </label>
+        </label> }
       </fieldset>
     );
   }

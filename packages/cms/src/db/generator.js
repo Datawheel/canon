@@ -38,6 +38,10 @@ module.exports = function(sequelize, db) {
           model: "canon_cms_profile",
           key: "id"
         }
+      },
+      allowed: {
+        type: db.STRING,
+        defaultValue: "always"
       }
     },
     {

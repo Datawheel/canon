@@ -27,12 +27,19 @@ module.exports = function(app) {
     /**
      * Make axios calls and return your compiled data as a single JS Object.
      */
+
+    return res.json({
+      iAmMassachusetts: name1 === "Massachusetts" ? true : false
+    });
+    
+    /*
     if (pid === 49) {
       return res.json({
         capName: name1.toUpperCase()
       });
     }
     else return res.json({});
+    */
   });
 
 };
