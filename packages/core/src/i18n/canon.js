@@ -67,7 +67,7 @@ export default {
       "Previous": "Previous",
       "of": "of",
       "rows": "rows"
-    },
+    }
   },
   "Loading": {
     "description": "Loading {{progress}} of {{total}} datasets",
