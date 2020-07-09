@@ -2,10 +2,6 @@ import {isAuthenticated} from "@datawheel/canon-core";
 import React, {Component} from "react";
 import {connect} from "react-redux";
 
-import TopNav from "components/TopNav";
-import SideNav from "components/SideNav";
-import Footer from "components/Footer";
-
 import "./App.css";
 
 class App extends Component {
@@ -19,15 +15,10 @@ class App extends Component {
   }
 
   render() {
-    const {children, location} = this.props;
+    const {children} = this.props;
 
     return <div id="app">
-      <TopNav />
-      <main>
-        <SideNav key="sidenav" pathname={location.pathname} />
-        <div key="children" className="content">{ children }</div>
-      </main>
-      <Footer />
+      { children }
     </div>;
   }
 

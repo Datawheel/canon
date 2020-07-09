@@ -15,6 +15,22 @@ const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
 const timestamp = new Date().getTime();
 
+const resolve = {
+  alias: {
+    $root: appDir,
+    $app: appPath
+  },
+  modules: [
+    appPath,
+    appDir,
+    path.resolve(__dirname, "../src"),
+    path.resolve(appDir, "node_modules"),
+    path.resolve(__dirname, "../node_modules"),
+    "node_modules"
+  ],
+  extensions: [".js", ".jsx", ".css"]
+};
+
 /** @type {import("webpack").Configuration[]} */
 module.exports = [
   {
@@ -36,20 +52,7 @@ module.exports = [
     module: {
       rules: commonLoaders({extract: true})
     },
-    resolve: {
-      alias: {
-        $root: appDir,
-        $app: appPath
-      },
-      modules: [
-        appPath,
-        appDir,
-        path.resolve(appDir, "node_modules"),
-        path.resolve(__dirname, "../node_modules"),
-        "node_modules"
-      ],
-      extensions: [".js", ".jsx", ".css"]
-    },
+    resolve,
     optimization: {
       minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})]
     },
@@ -88,10 +91,7 @@ module.exports = [
     module: {
       rules: commonLoaders({extract: true})
     },
-    resolve: {
-      modules: [path.join(appDir, "node_modules"), appDir, appPath, path.join(__dirname, "../src")],
-      extensions: [".js", ".jsx", ".css"]
-    },
+    resolve,
     optimization: {
       minimizer: [
         new TerserJSPlugin({terserOptions: {warnings: false, mangle: true, keep_fnames: true}}),
