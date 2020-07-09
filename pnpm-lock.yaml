@@ -40,6 +40,7 @@ importers:
       '@blueprintjs/select': 3.13.4
       '@datawheel/olap-client': 1.3.3
       '@google-cloud/storage': 3.1.0
+      '@google-cloud/translate': 6.0.1
       axios: 0.18.1
       base58: 2.0.1
       brace: 0.11.1
@@ -86,6 +87,7 @@ importers:
       '@datawheel/canon-logiclayer': 'workspace:^0.4.0'
       '@datawheel/olap-client': ^1.3.3
       '@google-cloud/storage': 3.1.0
+      '@google-cloud/translate': ^6.0.1
       axios: ^0.18.0
       base58: ^2.0.1
       brace: ^0.11.1
@@ -1764,6 +1766,22 @@ packages:
       node: '>=8.10.0'
     resolution:
       integrity: sha512-zWFjBS35eI9leAHhjfeOYlK5Plcuj/77EzstnrJIZbKgF/nkqjcQuGiMCpzCwOfPyUbz8ZaEOYgbHa759AKbjg==
+  /@google-cloud/common/3.3.1:
+    dependencies:
+      '@google-cloud/projectify': 2.0.1
+      '@google-cloud/promisify': 2.0.1
+      arrify: 2.0.1
+      duplexify: 4.1.1
+      ent: 2.2.0
+      extend: 3.0.2
+      google-auth-library: 6.0.3
+      retry-request: 4.1.1
+      teeny-request: 7.0.0
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-bJamcNvZ2j5xS01uFBT1GqfHIKrtwpyUhIU/Xn3uwMZkK/t6JA3mlID0wuZlo7XjbjFSRT2iLBEmDWv9T2hP8g==
   /@google-cloud/paginator/2.0.3:
     dependencies:
       arrify: 2.0.1
@@ -1779,12 +1797,24 @@ packages:
       node: '>=8.10.0'
     resolution:
       integrity: sha512-ZdzQUN02eRsmTKfBj9FDL0KNDIFNjBn/d6tHQmA/+FImH5DO6ZV8E7FzxMgAUiVAUq41RFAkb25p1oHOZ8psfg==
+  /@google-cloud/projectify/2.0.1:
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-ZDG38U/Yy6Zr21LaR3BTiiLtpJl6RkPS/JwoRT453G+6Q1DhlV0waNf8Lfu+YVYGIIxgKnLayJRfYlFJfiI8iQ==
   /@google-cloud/promisify/1.0.4:
     dev: false
     engines:
       node: '>=8.10.0'
     resolution:
       integrity: sha512-VccZDcOql77obTnFh0TbNED/6ZbbmHDf8UMNnzO1d5g9V0Htfm4k5cllY8P1tJsRKC3zWYGRLaViiupcgVjBoQ==
+  /@google-cloud/promisify/2.0.1:
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-82EQzwrNauw1fkbUSr3f+50Bcq7g4h0XvLOk8C5e9ABkXYHei7ZPi9tiMMD7Vh3SfcdH97d1ibJ3KBWp2o1J+w==
   /@google-cloud/storage/3.1.0:
     dependencies:
       '@google-cloud/common': 2.4.0
@@ -1813,6 +1843,40 @@ packages:
       node: '>=8.10.0'
     resolution:
       integrity: sha512-dKKcMtWpu6Haoh7ricAM+QLAeQSA+ci4AfpRXQZXk8yD0JItYhmTx59ht88cSB+9qIYrfXCnpshsvyF0PJ5N/w==
+  /@google-cloud/translate/6.0.1:
+    dependencies:
+      '@google-cloud/common': 3.3.1
+      '@google-cloud/promisify': 2.0.1
+      arrify: 2.0.1
+      extend: 3.0.2
+      google-gax: 2.6.2
+      is-html: 2.0.0
+      protobufjs: 6.9.0
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-aB8xlQ8yrPPesxCXMi/HkEEfCLdQaLRJSIrIX+ld22NKpr32UT+NNFk7JvUe2iUQIO5XtYsFU/9NA14I96PsDQ==
+  /@grpc/grpc-js/1.1.1_google-auth-library@6.0.3:
+    dependencies:
+      google-auth-library: 6.0.3
+      semver: 6.3.0
+    dev: false
+    engines:
+      node: ^8.13.0 || >=10.10.0
+    peerDependencies:
+      google-auth-library: 5.x || 6.x
+    resolution:
+      integrity: sha512-mhZRszS0SKwnWPJaNyrECePZ9U7vaHFGqrzxQbWinWR3WznBIU+nmh2L5J3elF+lp5DEUIzARXkifbs6LQVAHA==
+  /@grpc/proto-loader/0.5.4:
+    dependencies:
+      lodash.camelcase: 4.3.0
+      protobufjs: 6.9.0
+    dev: false
+    engines:
+      node: '>=6'
+    resolution:
+      integrity: sha512-HTM4QpI9B2XFkPz7pjwMyMgZchJ93TVkL3kWPW8GDMDKYxsMnmf4w2TNMJK7+KNiYHS5cJrCEAFlF+AwtXWVPA==
   /@mrmlnc/readdir-enhanced/2.2.1:
     dependencies:
       call-me-maybe: 1.0.1
@@ -1960,6 +2024,49 @@ packages:
     dev: false
     resolution:
       integrity: sha512-GorvORVwp244fGKEt3cgt/P+M0MGy4xEDbckw+K5ojEezxyMDgCaYPKVct+/eWQfZXOT7uq0xRpmrl/+hliabA==
+  /@protobufjs/aspromise/1.1.2:
+    dev: false
+    resolution:
+      integrity: sha1-m4sMxmPWaafY9vXQiToU00jzD78=
+  /@protobufjs/base64/1.1.2:
+    dev: false
+    resolution:
+      integrity: sha512-AZkcAA5vnN/v4PDqKyMR5lx7hZttPDgClv83E//FMNhR2TMcLUhfRUBHCmSl0oi9zMgDDqRUJkSxO3wm85+XLg==
+  /@protobufjs/codegen/2.0.4:
+    dev: false
+    resolution:
+      integrity: sha512-YyFaikqM5sH0ziFZCN3xDC7zeGaB/d0IUb9CATugHWbd1FRFwWwt4ld4OYMPWu5a3Xe01mGAULCdqhMlPl29Jg==
+  /@protobufjs/eventemitter/1.1.0:
+    dev: false
+    resolution:
+      integrity: sha1-NVy8mLr61ZePntCV85diHx0Ga3A=
+  /@protobufjs/fetch/1.1.0:
+    dependencies:
+      '@protobufjs/aspromise': 1.1.2
+      '@protobufjs/inquire': 1.1.0
+    dev: false
+    resolution:
+      integrity: sha1-upn7WYYUr2VwDBYZ/wbUVLDYTEU=
+  /@protobufjs/float/1.0.2:
+    dev: false
+    resolution:
+      integrity: sha1-Xp4avctz/Ap8uLKR33jIy9l7h9E=
+  /@protobufjs/inquire/1.1.0:
+    dev: false
+    resolution:
+      integrity: sha1-/yAOPnzyQp4tyvwRQIKOjMY48Ik=
+  /@protobufjs/path/1.1.2:
+    dev: false
+    resolution:
+      integrity: sha1-bMKyDFya1q0NzP0hynZz2Nf79o0=
+  /@protobufjs/pool/1.1.0:
+    dev: false
+    resolution:
+      integrity: sha1-Cf0V8tbTq/qbZbw2ZQbWrXhG/1Q=
+  /@protobufjs/utf8/1.1.0:
+    dev: false
+    resolution:
+      integrity: sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
   /@tootallnate/once/1.1.2:
     dev: false
     engines:
@@ -1997,6 +2104,14 @@ packages:
     dev: false
     resolution:
       integrity: sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
+  /@types/long/4.0.1:
+    dev: false
+    resolution:
+      integrity: sha512-5tXH6Bx/kNGd3MgffdmP4dy2Z+G4eaXw0SE81Tq3BNadtnMR5/ySMzX4SLEzHJzSmPNn4HIdpQsBvXMUykr58w==
+  /@types/node/13.13.13:
+    dev: false
+    resolution:
+      integrity: sha512-UfvBE9oRCAJVzfR+3eWm/sdLFe/qroAPEXP3GPJ1SehQiEVgZT6NQZWYbPMiJ3UdcKM06v4j+S1lTcdWCmw+3g==
   /@types/node/14.0.14:
     dev: false
     resolution:
@@ -2368,14 +2483,14 @@ packages:
       node: '>= 4.0.0'
     resolution:
       integrity: sha512-salcGninV0nPrwpGNn4VTXBb1SOuXQBiqbrNXoeizJsHrsL6ERFM2Ne3JUSBWRE6aeNJI2ROP/WEEIDUiDe3cg==
-  /agent-base/6.0.0:
+  /agent-base/6.0.1:
     dependencies:
       debug: 4.1.1
     dev: false
     engines:
       node: '>= 6.0.0'
     resolution:
-      integrity: sha512-j1Q7cSCqN+AwrmDd+pzgqc0/NpC655x2bUf5ZjRIO77DcNBFmh+OgRNzF6OKdCC9RSCb19fGd99+bhXFdkRNqw==
+      integrity: sha512-01q25QQDwLSsyfhrKbn8yuur+JNw0H+0Y4JiGIKd3z9aYk/w/2kxD/Upc+t2ZBBSUNff50VjPsSW2YxM8QYKVg==
   /aggregate-error/3.0.1:
     dependencies:
       clean-stack: 2.2.0
@@ -6048,6 +6163,18 @@ packages:
       node: '>=8.10.0'
     resolution:
       integrity: sha512-US8UMj8C5pRnao3Zykc4AAVr+cffoNKRTg9Rsf2GiuZCW69vgJj38VK2PzlPuQU73FZ/nTk9/Av6/JGcE1N9vA==
+  /gaxios/3.0.3:
+    dependencies:
+      abort-controller: 3.0.0
+      extend: 3.0.2
+      https-proxy-agent: 5.0.0
+      is-stream: 2.0.0
+      node-fetch: 2.6.0
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-PkzQludeIFhd535/yucALT/Wxyj/y2zLyrMwPcJmnLHDugmV49NvAi/vb+VUq/eWztATZCNcb8ue+ywPG+oLuw==
   /gcp-metadata/3.5.0:
     dependencies:
       gaxios: 2.3.4
@@ -6057,6 +6184,15 @@ packages:
       node: '>=8.10.0'
     resolution:
       integrity: sha512-ZQf+DLZ5aKcRpLzYUyBS3yo3N0JSa82lNDO8rj3nMSlovLcz2riKFBsYgDzeXcv75oo5eqB2lx+B14UvPoCRnA==
+  /gcp-metadata/4.1.0:
+    dependencies:
+      gaxios: 3.0.3
+      json-bigint: 0.3.1
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-r57SV28+olVsflPlKyVig3Muo/VDlcsObMtvDGOEtEJXj+DDE8bEl0coIkXh//hbkSDTvo+f5lbihZOndYXQQQ==
   /gcs-resumable-upload/2.3.3:
     dependencies:
       abort-controller: 3.0.0
@@ -6268,6 +6404,44 @@ packages:
       node: '>=8.10.0'
     resolution:
       integrity: sha512-rOlaok5vlpV9rSiUu5EpR0vVpc+PhN62oF4RyX/6++DG1VsaulAFEMlDYBLjJDDPI6OcNOCGAKy9UVB/3NIDXg==
+  /google-auth-library/6.0.3:
+    dependencies:
+      arrify: 2.0.1
+      base64-js: 1.3.1
+      ecdsa-sig-formatter: 1.0.11
+      fast-text-encoding: 1.0.3
+      gaxios: 3.0.3
+      gcp-metadata: 4.1.0
+      gtoken: 5.0.1
+      jws: 4.0.0
+      lru-cache: 5.1.1
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-2Np6ojPmaJGXHSMsBhtTQEKfSMdLc8hefoihv7N2cwEr8E5bq39fhoat6TcXHwa0XoGO5Guh9sp3nxHFPmibMw==
+  /google-gax/2.6.2:
+    dependencies:
+      '@grpc/grpc-js': 1.1.1_google-auth-library@6.0.3
+      '@grpc/proto-loader': 0.5.4
+      '@types/long': 4.0.1
+      abort-controller: 3.0.0
+      duplexify: 3.7.1
+      google-auth-library: 6.0.3
+      is-stream-ended: 0.1.4
+      lodash.at: 4.6.0
+      lodash.has: 4.5.2
+      node-fetch: 2.6.0
+      protobufjs: 6.9.0
+      retry-request: 4.1.1
+      semver: 6.3.0
+      walkdir: 0.4.1
+    dev: false
+    engines:
+      node: '>=10'
+    hasBin: true
+    resolution:
+      integrity: sha512-Q5IydUQ+7sF072E72Cl1KDxHaQIa1a5CVqG80OHk3NXdT5ZvKAveBFp/f78E3HjVHGTgUDB16R4M2wDt0ia9mQ==
   /google-p12-pem/2.0.4:
     dependencies:
       node-forge: 0.9.1
@@ -6277,6 +6451,15 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-S4blHBQWZRnEW44OcR7TL9WR+QCqByRvhNDZ/uuQfpxywfupikf/miba8js1jZi6ZOGv5slgSuoshCWh6EMDzg==
+  /google-p12-pem/3.0.1:
+    dependencies:
+      node-forge: 0.9.1
+    dev: false
+    engines:
+      node: '>=10'
+    hasBin: true
+    resolution:
+      integrity: sha512-VlQgtozgNVVVcYTXS36eQz4PXPt9gIPqLOhHN0QiV6W6h4qSCNVKPtKC5INtJsaHHF2r7+nOIa26MJeJMTaZEQ==
   /graceful-fs/4.2.4:
     dev: false
     resolution:
@@ -6292,6 +6475,17 @@ packages:
       node: '>=8.10.0'
     resolution:
       integrity: sha512-VxirzD0SWoFUo5p8RDP8Jt2AGyOmyYcT/pOUgDKJCK+iSw0TMqwrVfY37RXTNmoKwrzmDHSk0GMT9FsgVmnVSA==
+  /gtoken/5.0.1:
+    dependencies:
+      gaxios: 3.0.3
+      google-p12-pem: 3.0.1
+      jws: 4.0.0
+      mime: 2.4.6
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-33w4FNDkUcyIOq/TqyC+drnKdI4PdXmWp9lZzssyEQKuvu9ZFN3KttaSnDKo52U3E51oujVGop93mKxmqO8HHg==
   /gud/1.0.0:
     resolution:
       integrity: sha512-zGEOVKFM5sVPPrYs7J5/hYEw2Pof8KCyOwyhG8sAF26mCAeUFAcYPu1mwB7hhpIP29zOIBaDqwuHdLp0jvZXjw==
@@ -6573,6 +6767,12 @@ packages:
     dev: false
     resolution:
       integrity: sha1-3FZwtyksoVi3vJFsmmc1rIhyg0o=
+  /html-tags/3.1.0:
+    dev: false
+    engines:
+      node: '>=8'
+    resolution:
+      integrity: sha512-1qYz89hW3lFDEazhjW0yVAV87lw8lVkrJocr72XmBkMKsoSVJCQx3W8BXsC7hO2qAt8BoVjYjtAcZ9perqGnNg==
   /html2canvas/0.5.0-beta4:
     dev: false
     engines:
@@ -6623,7 +6823,7 @@ packages:
   /http-proxy-agent/4.0.1:
     dependencies:
       '@tootallnate/once': 1.1.2
-      agent-base: 6.0.0
+      agent-base: 6.0.1
       debug: 4.1.1
     dev: false
     engines:
@@ -6653,7 +6853,7 @@ packages:
       integrity: sha512-OmvfoQ53WLjtA9HeYP9RNrWMJzzAz1JGaSFr1nijg0PVR1JaD/xbJq1mdEIIlxGpXp9eSe/O2LgU9DJmTPd0Eg==
   /https-proxy-agent/5.0.0:
     dependencies:
-      agent-base: 6.0.0
+      agent-base: 6.0.1
       debug: 4.1.1
     dev: false
     engines:
@@ -7099,6 +7299,14 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-5G0tKtBTFImOqDnLB2hG6Bp2qcKEFduo4tZu9MT/H6NQv/ghhy30o55ufafxJ/LdH79LLs2Kfrn85TLKyA7BUg==
+  /is-html/2.0.0:
+    dependencies:
+      html-tags: 3.1.0
+    dev: false
+    engines:
+      node: '>=8'
+    resolution:
+      integrity: sha512-S+OpgB5i7wzIue/YSE5hg0e5ZYfG3hhpNh9KGl6ayJ38p7ED6wxQLd1TV91xHpcTvw90KMJ9EwN3F/iNflHBVg==
   /is-integer/1.0.7:
     dependencies:
       is-finite: 1.1.0
@@ -7187,6 +7395,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-VtBantcgKL2a64fDeCmD1JlkHToh3v0bVOhyJZ5aGTjxtCgrdNcjaC9GaaRFXi19gA4/pYFpnuyoscIgQCFSMQ==
+  /is-stream-ended/0.1.4:
+    dev: false
+    resolution:
+      integrity: sha512-xj0XPvmr7bQFTvirqnFr50o0hQIh6ZItDqloxt5aJrR4NQsYeSsyFQERYGCAzfindAcnKjINnwEEgLx4IqVzQw==
   /is-stream/1.1.0:
     dev: false
     engines:
@@ -7697,10 +7909,22 @@ packages:
     dev: false
     resolution:
       integrity: sha1-DM8tiRZq8Ds2Y8eWU4t1rG4RTZ0=
+  /lodash.at/4.6.0:
+    dev: false
+    resolution:
+      integrity: sha1-k83OZk8KGZTqM9181A4jr9EbD/g=
+  /lodash.camelcase/4.3.0:
+    dev: false
+    resolution:
+      integrity: sha1-soqmKIorn8ZRA1x3EfZathkDMaY=
   /lodash.get/4.4.2:
     dev: false
     resolution:
       integrity: sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
+  /lodash.has/4.5.2:
+    dev: false
+    resolution:
+      integrity: sha1-0Z9NwQlQWMzL4rDN9O4P5Ko3yGI=
   /lodash.includes/4.3.0:
     dev: false
     resolution:
@@ -7769,6 +7993,10 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-VeIAFslyIerEJLXHziedo2basKbMKtTw3vfn5IzG0XTjhAVEJyNHnL2p7vc+wBDSdQuUpNw3M2u6xb9QsAY5Eg==
+  /long/4.0.0:
+    dev: false
+    resolution:
+      integrity: sha512-XsP+KhQif4bjX1kbuSiySJFNAehNxgLb6hPRGJ9QsUr8ajHkuXGdrHmFUTUUXhDwVX2R5bY4JNZEwbUiMhV+MA==
   /loose-envify/1.4.0:
     dependencies:
       js-tokens: 4.0.0
@@ -10136,6 +10364,26 @@ packages:
     dev: false
     resolution:
       integrity: sha1-IS1b/hMYMGpCD2QCuOJv85ZHqEk=
+  /protobufjs/6.9.0:
+    dependencies:
+      '@protobufjs/aspromise': 1.1.2
+      '@protobufjs/base64': 1.1.2
+      '@protobufjs/codegen': 2.0.4
+      '@protobufjs/eventemitter': 1.1.0
+      '@protobufjs/fetch': 1.1.0
+      '@protobufjs/float': 1.0.2
+      '@protobufjs/inquire': 1.1.0
+      '@protobufjs/path': 1.1.2
+      '@protobufjs/pool': 1.1.0
+      '@protobufjs/utf8': 1.1.0
+      '@types/long': 4.0.1
+      '@types/node': 13.13.13
+      long: 4.0.0
+    dev: false
+    hasBin: true
+    requiresBuild: true
+    resolution:
+      integrity: sha512-LlGVfEWDXoI/STstRDdZZKb/qusoAWUnmLg9R8OLSO473mBLWHowx8clbX5/+mKDEI+v7GzjoK9tRPZMMcoTrg==
   /proxy-addr/2.0.6:
     dependencies:
       forwarded: 0.1.2
@@ -11950,6 +12198,18 @@ packages:
     dev: false
     resolution:
       integrity: sha512-TZG/dfd2r6yeji19es1cUIwAlVD8y+/svB1kAC2Y0bjEyysrfbO8EZvJBRwIE6WkwmUoB7uvWLwTIhJbMXZ1Dw==
+  /teeny-request/7.0.0:
+    dependencies:
+      http-proxy-agent: 4.0.1
+      https-proxy-agent: 5.0.0
+      node-fetch: 2.6.0
+      stream-events: 1.0.5
+      uuid: 8.2.0
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-kWD3sdGmIix6w7c8ZdVKxWq+3YwVPGWz+Mq0wRZXayEKY/YHb63b8uphfBzcFDmyq8frD9+UTc3wLyOhltRbtg==
   /terraformer-wkt-parser/1.2.1:
     dependencies:
       '@types/geojson': 1.0.6
@@ -12482,6 +12742,11 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==
+  /uuid/8.2.0:
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha512-CYpGiFTUrmI6OBMkAdjSDM0k5h8SkkiTP4WAjQgDgNB1S3Ou9VBEvr6q0Kv2H1mMk7IWfxYGpMH5sd5AvcIV2Q==
   /v8-compile-cache/2.1.1:
     dev: false
     resolution:
@@ -12576,6 +12841,12 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-wGavtYK7HLQSjWDqkjkulNXp2+w=
+  /walkdir/0.4.1:
+    dev: false
+    engines:
+      node: '>=6.0.0'
+    resolution:
+      integrity: sha512-3eBwRyEln6E1MSzcxcVpQIhRG8Q1jLvEqRmCZqS3dsfXEDR/AhOF4d+jHg1qvDCpYaVRZjENPQyrVxAkQqxPgQ==
   /warning/3.0.0:
     dependencies:
       loose-envify: 1.4.0
