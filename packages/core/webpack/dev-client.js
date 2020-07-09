@@ -12,8 +12,6 @@ const loaderPath = require.resolve("./config/loaders");
 delete require.cache[loaderPath];
 const commonLoaders = require(loaderPath);
 const context = path.join(__dirname, "../src");
-console.log("context", context);
-
 
 process.traceDeprecation = true;
 
@@ -35,16 +33,7 @@ module.exports = {
     path: assetsPath,
     filename: "[name].js",
     publicPath,
-    globalObject: "this",
-    devtoolModuleFilenameTemplate(info) {
-      const rel = path.relative(context, info.absoluteResourcePath);
-      // ASk for blueprint
-      if (info.absoluteResourcePath.indexOf(".worker.js") > -1) {
-        console.log("------", info.absoluteResourcePath);
-        console.log("------", `webpack:///${info.resourcePath}?${info.loaders}`);
-      }
-      return `webpack:///${info.resourcePath}?${info.loaders}`;
-    }
+    globalObject: "this"
   },
   module: {
     rules: commonLoaders({build: "client"})
