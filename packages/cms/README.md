@@ -421,7 +421,7 @@ Arguments are provided by url paramaters:
 
 |parameter|description|
 |---|---|
-|`q`|A string query which uses the SQL `LIKE` operator to search the `name` and `keywords` of the member|
+|`q`|A string query which uses the SQL `ILIKE` operator to search the `name` and `keywords` of the member. (For better results install `unaccent` package in your Postgres server running: `CREATE EXTENSION IF NOT EXISTS unaccent;`. [More info.](https://www.postgresql.org/docs/9.1/unaccent.html) )|
 |`dimension`|An exact-match string to filter results to members in the provided dimension|
 |`levels`|A comma-separated list of levels to filter results to members by the provided levels|
 |`cubeName`|An exact-match string to filter results to members from the provided cube|
