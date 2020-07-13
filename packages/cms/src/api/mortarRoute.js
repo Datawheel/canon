@@ -148,6 +148,7 @@ const formatters4eval = async(db, locale) => {
 };
 
 const sorter = (a, b) => a.ordering - b.ordering;
+const selectsorter = (a, b) => a.section_selector && b.section_selector ? a.section_selector.ordering - b.section_selector.ordering : 0;
 
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. Eventually move it up to the query.
 const sortProfile = profile => {
@@ -156,7 +157,7 @@ const sortProfile = profile => {
     profile.sections.sort(sorter);
     profile.sections.forEach(section => {
       if (section.subtitles) section.subtitles.sort(sorter);
-      if (section.selectors) section.selectors.sort(sorter);
+      if (section.selectors) section.selectors.sort(selectsorter);
       if (section.stats) section.stats.sort(sorter);
       if (section.descriptions) section.descriptions.sort(sorter);
       if (section.visualizations) section.visualizations.sort(sorter);
